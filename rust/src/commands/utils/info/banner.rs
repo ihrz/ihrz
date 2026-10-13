@@ -1,6 +1,7 @@
 use super::*;
 
-/// Banner parent. Mirrors utils banner/banner.ts.
+/// Pick the banner of specified things (Server/User)
+// Mirrors utils banner/banner.ts.
 #[poise::command(
     slash_command,
     prefix_command,

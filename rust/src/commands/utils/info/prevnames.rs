@@ -8,7 +8,8 @@ pub const PREVNAMES_TABLE: &str = "prevnames";
 /// Collector lifetime from !prevnames.ts (`60_000 * 15`).
 pub const PREVNAMES_COLLECTOR_SECS: u64 = 60 * 15;
 
-/// Previous names. Mirrors utils !prevnames.ts (tracked in user_update).
+/// Lookup an Discord User, and see this previous username !
+// Mirrors utils !prevnames.ts (tracked in user_update).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -32,7 +33,7 @@ pub async fn prevnames(
     #[description_localized("ja", "検索したいユーザー")]
     #[description_localized("ru", "Пользователь, которого вы хотите найти")]
     #[description_localized("es-ES", "El usuario que quieres buscar")]
-    #[description = "Member"]
+    #[description = "L'utilisateur que vous voulez rechercher"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let target = user.unwrap_or_else(|| ctx.author().clone());
@@ -152,9 +153,10 @@ pub async fn prevnames(
                             ctx.http(),
                             serenity::EditMessage::new()
                                 .content(t("prevnames_data_erased"))
-                                // TS clears embeds/components/files here.
+                                // TS clears embeds+components+files here.
                                 .embeds(Vec::new())
-                                .components(vec![]),
+                                .components(vec![])
+                                .remove_all_attachments(),
                         )
                         .await;
                     return Ok(());
@@ -174,31 +176,11 @@ pub async fn prevnames(
             )
             .await;
     }
+    // Collector end mirrors !prevnames.ts:157-159: components cleared ([]).
     let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![prevnames_dead_row()]),
-        )
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
-}
-
-/// Disabled navigation row for the timeout cleanup.
-fn prevnames_dead_row() -> serenity::CreateActionRow {
-    let btn = |id: &str, label: &str| {
-        serenity::CreateButton::new(id)
-            .label(label)
-            .style(serenity::ButtonStyle::Secondary)
-            .disabled(true)
-    };
-    serenity::CreateActionRow::Buttons(vec![
-        btn("previousPage", "<<<"),
-        btn("nextPage", ">>>"),
-        serenity::CreateButton::new("trash-prevnames-embed")
-            .label("🗑️")
-            .style(serenity::ButtonStyle::Danger)
-            .disabled(true),
-    ])
 }
 
 /// Prevnames pager size from !prevnames.ts.

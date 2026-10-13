@@ -1,6 +1,7 @@
 use super::*;
 
-/// Server icon. Mirrors utils !serverpic.ts.
+/// Sending the guild image
+// Mirrors utils !serverpic.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -25,26 +26,26 @@ pub async fn serverpic(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some((name, icon, gid)) = snapshot else {
         return Ok(());
     };
-    let Some(icon) = icon else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_no_server_icon")
-                .unwrap_or_else(|| "No server icon.".to_string()),
+    // Null-icon path mirrors !serverpic.ts:50-73 exactly: `setImage(null)`
+    // is a null-effect (no image set), and the download button falls back
+    // to the unknown-user.png URL.
+    let url = icon.map(|h| {
+        format!(
+            "https://cdn.discordapp.com/icons/{}/{}.webp?size=4096",
+            gid.get(),
+            h
         )
-        .await?;
-        return Ok(());
-    };
-    let url = format!(
-        "https://cdn.discordapp.com/icons/{}/{}.webp?size=4096",
-        gid.get(),
-        icon
-    );
+    });
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let embed = serenity::CreateEmbed::default()
+    let mut embed = serenity::CreateEmbed::default()
         .colour(0xadd5ff)
-        .title(name)
-        .image(url.clone());
-    let button = serenity::CreateButton::new_link(url).label(
+        .title(name);
+    if let Some(ref icon_url) = url {
+        embed = embed.image(icon_url.clone());
+    }
+    let button_url =
+        url.unwrap_or_else(|| "https://www.ihorizon.org/assets/img/unknown-user.png".to_string());
+    let button = serenity::CreateButton::new_link(button_url).label(
         crate::lang::get(&code, "pfps_download_guild_button")
             .unwrap_or_else(|| "Download Guild Avatar".to_string()),
     );

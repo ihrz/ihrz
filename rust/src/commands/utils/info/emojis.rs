@@ -1,6 +1,7 @@
 use super::*;
 
-/// Steal custom emojis from text. Mirrors !emojis.ts.
+/// Add emojis to your server easly
+// Mirrors !emojis.ts.
 // Per-emoji channel feedback plus the summary embed; no 6s pacing.
 #[poise::command(
     slash_command,
@@ -20,8 +21,11 @@ pub async fn emojis(
     #[description_localized("ja", "どの絵文字ですか？")]
     #[description_localized("ru", "Какой эмодзи?")]
     #[description_localized("es-ES", "Cual es el emoji entonces?")]
-    #[description = "Text containing <:name:id> emojis"]
+    #[description = "What the emoji then?"]
     #[rename = "emojis"]
+    // TS prefix iterates the whole tail (`args!`); #[rest] is prefix-only,
+    // so slash keeps the required string option unchanged.
+    #[rest]
     text: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

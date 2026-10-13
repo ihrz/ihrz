@@ -1,6 +1,7 @@
 use super::*;
 
-/// Member voice location. Mirrors utils !where.ts.
+/// Sending the channel where the members is
+// Mirrors utils !where.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +20,7 @@ pub async fn whereis(
     #[description_localized("ja", "確認したいメンバー")]
     #[description_localized("ru", "Участник для проверки")]
     #[description_localized("es-ES", "El miembro que quieres comprobar")]
-    #[description = "Member"]
+    #[description = "The member you want to check"]
     // TS HybridCommands/utils/util/!where.ts reads getMember("member").
     #[rename = "member"]
     user: poise::serenity_prelude::User,

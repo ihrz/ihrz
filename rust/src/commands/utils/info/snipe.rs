@@ -1,5 +1,6 @@
 use super::*;
 
+/// Get the last message deleted in this channel!
 // Snipe read. Mirrors utils !snipe.ts: the snapshot lives at
 // `GUILD.SNIPE.<channel>` as `{snipe, snipeUserInfoTag, snipeUserInfoPp,
 // snipeTimestamp}` and renders as a #474749 embed (author tag + avatar,
@@ -13,7 +14,6 @@ use super::*;
 // as fallbacks (the writer migration in `events_handler.rs` has landed:
 // fresh deletes dual-write the TS shape at `GUILD.SNIPE.<channel>` and
 // the legacy row, so the fallbacks below only serve pre-migration rows).
-/// Show the last deleted message in this channel.
 #[poise::command(
     slash_command,
     prefix_command,

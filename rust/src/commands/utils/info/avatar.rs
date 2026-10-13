@@ -1,6 +1,7 @@
 use super::*;
 
-/// Avatar. Mirrors utils !avatar.ts.
+/// Pick the avatar of a user!
+// Mirrors utils !avatar.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +19,7 @@ pub async fn avatar(
     #[description_localized("ja", "ユーザー")]
     #[description_localized("ru", "Пользователь")]
     #[description_localized("es-ES", "El usuario")]
-    #[description = "Member"]
+    #[description = "The user"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let u = user.as_ref().unwrap_or_else(|| ctx.author());
@@ -30,7 +31,18 @@ pub async fn avatar(
         ),
         None => u.default_avatar_url(),
     };
-    let display = u.global_name.clone().unwrap_or_else(|| u.name.clone());
+    // Title placeholder mirrors `mentionedUser.displayName` in !avatar.ts:62-65:
+    // guild-nickname-aware (server nick first), then global name, then username.
+    let display = ctx
+        .guild_id()
+        .and_then(|gid| {
+            ctx.serenity_context()
+                .cache
+                .guild(gid)
+                .and_then(|g| g.members.get(&u.id).and_then(|m| m.nick.clone()))
+        })
+        .or_else(|| u.global_name.clone())
+        .unwrap_or_else(|| u.name.clone());
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

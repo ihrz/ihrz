@@ -1,6 +1,7 @@
 use super::*;
 
-/// Show the server's banner. Mirrors utils banner !server.ts.
+/// Get the banner of the server!
+// Mirrors utils banner !server.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,8 +18,14 @@ pub async fn banner_server(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let banner_url = ctx.guild().as_ref().and_then(|g| g.banner_url());
-    let Some(banner_url) = banner_url else {
+    // Pin extension png + size 4096 explicitly, like
+    // `bannerURL({ extension: "png", size: 4096 })` in banner !server.ts.
+    let banner_hash = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.banner.clone());
+    let Some(banner_hash) = banner_hash else {
         ctx.say(
             crate::commands::lang_for(&ctx, "banner_guild_no_banner", "The server has no banner.")
                 .await,
@@ -26,6 +33,11 @@ pub async fn banner_server(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     };
+    let banner_url = format!(
+        "https://cdn.discordapp.com/banners/{}/{}.png?size=4096",
+        guild_id.get(),
+        banner_hash
+    );
     let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xC4AFED)

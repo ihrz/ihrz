@@ -1,6 +1,7 @@
 use super::*;
 
-/// Show a member's banner. Mirrors utils banner !user.ts.
+/// Get the banner of a specified user!
+// Mirrors utils banner !user.ts.
 // Animated `a_` hashes use gif (see `user_banner_url`).
 #[poise::command(
     slash_command,
@@ -22,7 +23,7 @@ pub async fn banner_user(
     #[description_localized("ja", "どのユーザーですか？")]
     #[description_localized("ru", "Какой пользователь?")]
     #[description_localized("es-ES", "Cual es el usuario entonces?")]
-    #[description = "Member"]
+    #[description = "What the user then?"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let u = user.as_ref().unwrap_or_else(|| ctx.author());

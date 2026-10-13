@@ -1,6 +1,7 @@
 use super::*;
 
-/// Server info. Mirrors utils serverinfo.
+/// Get information about the server!
+// Mirrors utils serverinfo.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,13 +19,6 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let cached = {
         let Some(guild) = ctx.serenity_context().cache.guild(guild_id) else {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_guild_not_cached")
-                    .unwrap_or_else(|| "Guild not cached.".to_string()),
-            )
-            .await?;
             return Ok(());
         };
         guild.clone()
@@ -63,11 +57,14 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         // Mirrors `interaction.guild.description || "None"` in !serverinfo.ts.
         cached.description.as_deref().unwrap_or("None"),
     );
+    // joinedAt/createdAt mirror the TS `` `${date}` `` interpolation of
+    // JS Dates (Date.toString): rendered in fixed GMT here
+    // (`Mon Oct 13 2026 09:30:00 GMT+0000`-style), same instants.
     let joined_at = ctx
         .author_member()
         .await
         .and_then(|m| m.joined_at)
-        .map(|t| t.to_string())
+        .map(|t| js_date_string(t.unix_timestamp()))
         .unwrap_or_else(|| "None".to_string());
     // Every TS field value is backtick-wrapped (`value` in !serverinfo.ts);
     // the owner mention keeps its backticks too (`<@ownerId>`).
@@ -129,12 +126,7 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         .field(
             f("serverinfo_embed_fields_createat", "⚓・**Created at:**"),
-            tick(guild_id.created_at().to_string()),
-            true,
-        )
-        .field(
-            f("var_boosts", "Boosts"),
-            tick(cached.premium_subscription_count.unwrap_or(0).to_string()),
+            tick(js_date_string(guild_id.created_at().unix_timestamp())),
             true,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());
@@ -146,15 +138,18 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         embed = embed.thumbnail(icon);
     }
     // Banner image mirrors the TS `icons/{guildId}/{banner}.png` URL
-    // (verbatim, including the icons path quirk); skipped when the
-    // guild has no banner so no dangling image is sent.
-    if let Some(banner) = cached.banner.as_ref() {
-        embed = embed.image(format!(
-            "https://cdn.discordapp.com/icons/{}/{}.png",
-            guild_id.get(),
-            banner
-        ));
-    }
+    // verbatim — always set, even with no banner (TS interpolates null as
+    // `null.png`), including the icons-path quirk.
+    let banner_hash = cached
+        .banner
+        .as_ref()
+        .map(|h| h.to_string())
+        .unwrap_or_else(|| "null".to_string());
+    embed = embed.image(format!(
+        "https://cdn.discordapp.com/icons/{}/{}.png",
+        guild_id.get(),
+        banner_hash
+    ));
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
@@ -164,4 +159,29 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     ctx.send(reply).await?;
     Ok(())
+}
+
+/// JS `Date.toString()` rendering in fixed GMT
+/// (`Mon Oct 13 2026 09:30:00 GMT+0000`-style). Mirrors the `` `${date}` ``
+/// interpolation of joinedAt/createdAt in !serverinfo.ts:116-123; same
+/// instants, timezone pinned to GMT+0000 instead of the host locale.
+pub fn js_date_string(unix_secs: i64) -> String {
+    let dt = chrono::DateTime::from_timestamp(unix_secs, 0)
+        .map(|d| d.naive_utc())
+        .unwrap_or_default();
+    format!("{} GMT+0000", dt.format("%a %b %d %Y %H:%M:%S"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::js_date_string;
+
+    #[test]
+    fn js_date_renders_fixed_gmt_like_date_tostring() {
+        // 2026-10-13 09:30:00 UTC is a Tuesday.
+        assert_eq!(
+            js_date_string(1791883800),
+            "Tue Oct 13 2026 09:30:00 GMT+0000"
+        );
+    }
 }

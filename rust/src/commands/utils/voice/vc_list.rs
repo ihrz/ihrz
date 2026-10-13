@@ -1,7 +1,7 @@
 use super::*;
 
-/// Show mode for the vc list. Mirrors the `show-mode` option choices
-/// in utils.ts:101-116 (`Large`/`Short`, values `large`/`short`).
+// Show mode for the vc list. Mirrors the `show-mode` option choices
+// in utils.ts:101-116 (`Large`/`Short`, values `large`/`short`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum VcShowMode {
     #[name = "Large"]
@@ -37,7 +37,7 @@ pub async fn vc_list(
     #[description_localized("ja", "表示モード（大、簡易）")]
     #[description_localized("ru", "Режим отображения (большой, краткий)")]
     #[description_localized("es-ES", "Modo de visualización (grande, breve)")]
-    #[description = "Display mode: short or large"]
+    #[description = "Show mode (large, brief)"]
     #[rename = "show-mode"]
     mode: Option<VcShowMode>,
 ) -> Result<(), anyhow::Error> {
@@ -68,16 +68,27 @@ pub async fn vc_list(
     else {
         return Ok(());
     };
-    let member_ids = if member_ids.is_empty() {
-        guild_id
+    // Empty-cache path mirrors !vc.ts:59 (`if (members.cache.size === 0)
+    // await guild.members.fetch()`): the TS fetch repopulates members AND
+    // presences, so refresh the presence snapshot after the member refetch
+    // instead of keeping the stale empty one (keeps totalOnline correct).
+    let (member_ids, presences) = if member_ids.is_empty() {
+        let fresh: Vec<poise::serenity_prelude::UserId> = guild_id
             .members(&http, Some(1000), None)
             .await
             .unwrap_or_default()
             .iter()
             .map(|m| m.user.id)
-            .collect()
+            .collect();
+        let presences = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| g.presences.clone())
+            .unwrap_or(presences);
+        (fresh, presences)
     } else {
-        member_ids
+        (member_ids, presences)
     };
     let statuses: Vec<Option<&str>> = member_ids
         .iter()

@@ -1,6 +1,7 @@
 use super::*;
 
-/// Invite info. Mirrors util !inviteinfo.ts.
+/// Get informations about the discord invite link
+// Mirrors util !inviteinfo.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -21,11 +22,15 @@ pub async fn inviteinfo(
     #[description_localized("ja", "Discord招待 / コード")]
     #[description_localized("ru", "приглашение / код Discord")]
     #[description_localized("es-ES", "la invitación / código de Discord")]
-    #[description = "Invite code or URL"]
+    #[description = "the discord invite / code"]
     #[rename = "discord_invite"]
     invite: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
+    // Defer-safe path: the parent decl sets thinking:true, so ack before
+    // the invite fetch (same unconditional `ctx.defer()` pattern as the
+    // other slow hybrid commands, e.g. ranks show).
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     if !is_valid_discord_invite(&invite) {
@@ -60,6 +65,13 @@ pub async fn inviteinfo(
     let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
     let has_footer = footer_bytes.is_some();
     let unknown = f("var_unknown");
+    // Animated guild assets use gif (TS forceStatic:false); static use webp.
+    let asset_url = |kind: &str, id: u64, h: &poise::serenity_prelude::ImageHash| {
+        format!(
+            "https://cdn.discordapp.com/{kind}/{id}/{h}.{}?size=512",
+            invite_asset_ext(h.is_animated())
+        )
+    };
     let (g_name, g_id, g_desc, g_created, g_boosts, g_features, g_icon, g_banner, g_splash) =
         match &inv.guild {
             Some(g) => (
@@ -75,27 +87,9 @@ pub async fn inviteinfo(
                 } else {
                     g.features.join(", ").chars().take(1020).collect()
                 },
-                g.icon.map(|h| {
-                    format!(
-                        "https://cdn.discordapp.com/icons/{}/{}.webp?size=512",
-                        g.id.get(),
-                        h
-                    )
-                }),
-                g.banner.map(|h| {
-                    format!(
-                        "https://cdn.discordapp.com/banners/{}/{}.webp?size=512",
-                        g.id.get(),
-                        h
-                    )
-                }),
-                g.splash.map(|h| {
-                    format!(
-                        "https://cdn.discordapp.com/splashes/{}/{}.webp?size=512",
-                        g.id.get(),
-                        h
-                    )
-                }),
+                g.icon.map(|h| asset_url("icons", g.id.get(), &h)),
+                g.banner.map(|h| asset_url("banners", g.id.get(), &h)),
+                g.splash.map(|h| asset_url("splashes", g.id.get(), &h)),
             ),
             None => (
                 f("var_unknown_guild_name"),
@@ -132,18 +126,16 @@ pub async fn inviteinfo(
         let mut e = serenity::CreateEmbed::default()
             .colour(serenity::Colour::from_rgb(0, 255, 255))
             .title(g_name.clone())
+            // TS `link_data.memberCount || lang.var_unknown`: zero counts
+            // are falsy, so 0 (and missing) fall back to var_unknown.
             .field(
                 f("help_memberc_fields"),
-                inv.approximate_member_count
-                    .map(|n| n.to_string())
-                    .unwrap_or_else(|| unknown.clone()),
+                count_or_unknown(inv.approximate_member_count, &unknown),
                 true,
             )
             .field(
                 f("var_online_members"),
-                inv.approximate_presence_count
-                    .map(|n| n.to_string())
-                    .unwrap_or_else(|| unknown.clone()),
+                count_or_unknown(inv.approximate_presence_count, &unknown),
                 true,
             )
             .field(f("var_boost_level"), g_boosts.clone(), true)
@@ -241,4 +233,43 @@ pub async fn inviteinfo(
         )
         .await;
     Ok(())
+}
+
+/// Guild asset extension. Mirrors `forceStatic: false` in !inviteinfo.ts:
+/// animated (`a_`) hashes render as gif, static as webp.
+pub fn invite_asset_ext(is_animated: bool) -> &'static str {
+    if is_animated {
+        "gif"
+    } else {
+        "webp"
+    }
+}
+
+/// Count with the TS `||` fallback. Mirrors
+/// `` `${link_data.memberCount || lang.var_unknown}` `` in !inviteinfo.ts:
+/// zero counts are falsy, so 0 (and missing) fall back to var_unknown.
+/// (Boosts keep TS `|| 0` and are untouched.)
+pub fn count_or_unknown(count: Option<u64>, unknown: &str) -> String {
+    match count {
+        Some(n) if n != 0 => n.to_string(),
+        _ => unknown.to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{count_or_unknown, invite_asset_ext};
+
+    #[test]
+    fn animated_assets_use_gif() {
+        assert_eq!(invite_asset_ext(true), "gif");
+        assert_eq!(invite_asset_ext(false), "webp");
+    }
+
+    #[test]
+    fn zero_counts_fall_back_to_unknown() {
+        assert_eq!(count_or_unknown(Some(12), "?"), "12");
+        assert_eq!(count_or_unknown(Some(0), "?"), "?");
+        assert_eq!(count_or_unknown(None, "?"), "?");
+    }
 }

@@ -1,6 +1,7 @@
 use super::*;
 
-/// Add a sticker from the replied message. Mirrors sticker.ts.
+/// Add a sticker from the replied message
+// Mirrors sticker.ts.
 // Prefix-only: TS registers sticker as a MessageCommand, never as slash.
 #[poise::command(
     prefix_command,

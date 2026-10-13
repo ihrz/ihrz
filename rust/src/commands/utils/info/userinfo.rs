@@ -1,8 +1,8 @@
 use super::*;
+use ::serenity::model::user::OnlineStatus;
 
-/// User info. Mirrors utils !userinfo.ts (best-effort).
-// Third-party donor badges (Vencord/Equicord) are ported best-effort;
-// the HorizonGateway premium lookup is skipped (see the nitro comment).
+/// Get information about a user!
+// Mirrors utils !userinfo.ts (best-effort).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,7 +20,7 @@ pub async fn userinfo(
     #[description_localized("ja", "検索したいユーザー")]
     #[description_localized("ru", "пользователь для поиска")]
     #[description_localized("es-ES", "usuario que quieres buscar")]
-    #[description = "Member"]
+    #[description = "user you want to lookup"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
@@ -51,79 +51,8 @@ pub async fn userinfo(
     let f = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let notfound = crate::lang::get(&code, "userinfo_var_notfound")
         .unwrap_or_else(|| "`Not found`".to_string());
-    // Flag badges (names, best-effort for the TS emoji badges).
-    let base_badges = u
-        .public_flags
-        .map(|flags| {
-            flags
-                .iter_names()
-                .map(|(name, _)| name.to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
-        })
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| notfound.clone());
-    // Server badges mirror getServerBadges in !userinfo.ts. The booster
-    // line uses the cached member's boost start (`premium_since`, the
-    // serenity equivalent of holding the guild premium-subscriber role);
-    // the Crown marks the guild owner.
-    let cached_member = ctx.guild_id().and_then(|gid| {
-        ctx.serenity_context()
-            .cache
-            .guild(gid)
-            .and_then(|g| g.members.get(&u.id).cloned())
-    });
-    let is_booster = cached_member
-        .as_ref()
-        .and_then(|m| m.premium_since)
-        .is_some();
-    let is_owner = ctx
-        .guild_id()
-        .and_then(|gid| {
-            ctx.serenity_context()
-                .cache
-                .guild(gid)
-                .map(|g| g.owner_id == u.id)
-        })
-        .unwrap_or(false);
-    // Bot app badges mirror the `member.bot` App_1/App_2 append in
-    // !userinfo.ts (bot self application-flag badges need the app object,
-    // unavailable here, so only the generic app marker is used).
-    let mut extra: Vec<&str> = vec![];
-    if is_booster {
-        extra.push("Server Booster");
-    }
-    if is_owner {
-        extra.push("Crown (Server Owner)");
-    }
-    if u.bot {
-        extra.push("Bot App");
-    }
-    // Donor badges mirror getVencordDonator/getEquiboAndOthersData in
-    // !userinfo.ts: best-effort lookups with the TS 833 ms timeouts,
-    // failures silently yield nothing (like `.catch(() => null)`).
-    let uid_str = u.id.get().to_string();
-    if vencord_donator(&uid_str).await {
-        extra.push("Vencord Donator");
-    }
-    if equicord_donator(&uid_str).await {
-        extra.push("Equicord Donator");
-    }
-    let badges = if extra.is_empty() {
-        base_badges
-    } else if base_badges == notfound {
-        extra.join(", ")
-    } else {
-        format!("{base_badges}, {}", extra.join(", "))
-    };
-    // TS !userinfo.ts renders exactly five info fields plus roles (no
-    // presence field), so no presence lookup happens here. Strings must
-    // stay in YAML — no hardcoded field names (no YAML edits in this
-    // pass, so the extra field is dropped rather than moved).
-    // Nitro heuristic (no gateway): animated avatar -> Classic (1),
-    // banner -> Boost (2). `premium_type` 3 (Nitro Basic) only arrives via
-    // the HorizonGateway UserInfo lookup inside GetNitro, which has no Rust
-    // equivalent, so Basic is unreachable here (documented delta).
+    // Banner hash up front: TS fetches the REST user (banner) at the top
+    // of sendMessage in !userinfo.ts:276-291, before badge assembly.
     let animated_avatar = u
         .avatar
         .as_ref()
@@ -131,14 +60,192 @@ pub async fn userinfo(
         .unwrap_or(false);
     let token = crate::config::bot_token().unwrap_or_default();
     let banner_hash = super::fetch_user_banner_hash(&token, u.id.get()).await;
-    let nitro = if u.bot {
-        notfound.clone()
-    } else if banner_hash.is_some() {
-        "Nitro Boost".to_string()
-    } else if animated_avatar {
-        "Nitro Classic".to_string()
+    // Nitro status mirrors GetNitro in !userinfo.ts:420-472: bots get
+    // ("",""), otherwise the HorizonGateway premium_type wins
+    // (1 Classic, 2 Boost, 3 Basic), then animated avatar -> Classic,
+    // then banner -> Boost.
+    let nitro_input = if u.bot {
+        -1
     } else {
+        nitro_input(
+            gateway_premium_type(&ctx.data().config, u.id.get()).await,
+            animated_avatar,
+            banner_hash.is_some(),
+        )
+    };
+    let (nitro_badge, nitro_type) = match nitro_input {
+        1 => (
+            app_badge(ctx.http(), "Discord_Nitro_Badge", "✨").await,
+            "Nitro Classic".to_string(),
+        ),
+        2 => (
+            format!(
+                "{}{}",
+                app_badge(ctx.http(), "Discord_Nitro_Badge", "✨").await,
+                app_badge(ctx.http(), "Discord_Nitro_Boost_Bad", "🚀").await
+            ),
+            "Nitro Boost".to_string(),
+        ),
+        3 => (
+            app_badge(ctx.http(), "Discord_Nitro_Badge", "✨").await,
+            "Nitro Basic".to_string(),
+        ),
+        _ => (String::new(), String::new()),
+    };
+    // Flag badges recomposed as app-emoji markup with unicode fallbacks,
+    // mirroring the `badges` map + getBadges in !userinfo.ts:65-175.
+    // (bit, emoji name, fallback). Note the TS quirk at :107-110 where
+    // House_Balance reuses the Brilliance emoji.
+    const FLAG_BADGES: &[(u32, &str, &str)] = &[
+        (1, "Discord_Staff_Badge", "🧑‍💼"),
+        (2, "Partne_Badger", "🤝"),
+        (4, "HypeSquad_Event_Badge", "🎉"),
+        (8, "Bug_Hunter1_Badge", "🐛"),
+        (64, "HypeS_Bravery_Bad", "💜"),
+        (128, "HypeS_Brillance_Bad", "🧡"),
+        (256, "HypeS_Brillance_Bad", "💚"),
+        (512, "Early_Supporter_Badge", "⭐"),
+        (16384, "Bug_Hunter2_Badge", "🐞"),
+        (131072, "ECBDD_Badge", "🔧"),
+        (262144, "Discord_Moderators_Badg", "🛡️"),
+        (4194304, "Active_Dev_Badge", "💻"),
+    ];
+    let bits = u.public_flags.map(|fl| fl.bits()).unwrap_or(0);
+    let mut badges = String::new();
+    for (value, name, fallback) in FLAG_BADGES {
+        if bits & value == *value {
+            badges.push_str(&app_badge(ctx.http(), name, fallback).await);
+        }
+    }
+    // Verified-bot mark mirrors the Verified_App entry in !userinfo.ts:119-122
+    // (three app emojis concatenated, unicode fallback when unsynced).
+    if bits & (1 << 16) == (1 << 16) {
+        let mut combo = String::new();
+        for part in ["Verified_App_1", "Verified_App_2", "Verified_App_3"] {
+            combo.push_str(&app_badge(ctx.http(), part, "").await);
+        }
+        if combo.is_empty() {
+            combo.push_str("✅");
+        }
+        badges.push_str(&combo);
+    }
+    badges.push_str(&nitro_badge);
+    // Bot app marker mirrors `member.bot && !badges.includes("Verified_App")`
+    // in !userinfo.ts:297-298.
+    if u.bot && bits & (1 << 16) != (1 << 16) {
+        let mut app = format!(
+            "{}{}",
+            app_badge(ctx.http(), "App_1", "").await,
+            app_badge(ctx.http(), "App_2", "").await
+        );
+        if app.is_empty() {
+            app.push_str("🤖");
+        }
+        badges.push_str(&app);
+    }
+    // Self badges mirror getSelfBadges in !userinfo.ts:246-252 (the bot's
+    // own application flags: Uses_Automod 1<<6, Slash_Bot 524288).
+    if u.id == ctx.serenity_context().cache.current_user().id {
+        let app_bits: u64 = ctx
+            .http()
+            .get_current_application_info()
+            .await
+            .ok()
+            .and_then(|i| i.flags)
+            .map(|fl| fl.bits())
+            .unwrap_or(0);
+        if app_bits & (1 << 6) != 0 {
+            badges.push_str(&app_badge(ctx.http(), "Uses_Automod_Badge", "🛠️").await);
+        }
+        if app_bits & 524288 != 0 {
+            badges.push_str(&app_badge(ctx.http(), "Slash_Bot_Badge", "⚡").await);
+        }
+    }
+    // Platform presence badges mirror getPlatformBadges in !userinfo.ts:177-192
+    // (presence is reachable from the guild cache). Serenity's ClientStatus
+    // only carries desktop/mobile/web — embedded/vr have no equivalent and
+    // are dropped. Offline/invisible map to nothing, like the TS lookup miss.
+    let presence = ctx.guild_id().and_then(|gid| {
+        ctx.serenity_context()
+            .cache
+            .guild(gid)
+            .and_then(|g| g.presences.get(&u.id).cloned())
+    });
+    if let Some(client_status) = presence.as_ref().and_then(|p| p.client_status.as_ref()) {
+        for (slot, platform) in [
+            (&client_status.desktop, "Desktop"),
+            (&client_status.mobile, "Mobile"),
+            (&client_status.web, "Web"),
+        ] {
+            let state = match slot {
+                Some(OnlineStatus::Online) => Some("Online"),
+                Some(OnlineStatus::Idle) => Some("Idle"),
+                Some(OnlineStatus::DoNotDisturb) => Some("Dnd"),
+                _ => None,
+            };
+            if let Some(state) = state {
+                badges.push_str(&app_badge(ctx.http(), &format!("{platform}_{state}"), "").await);
+            }
+        }
+    }
+    // Server badges mirror getServerBadges in !userinfo.ts:194-207. The
+    // booster line uses the cached member's boost start (`premium_since`,
+    // the serenity equivalent of holding the guild premium-subscriber role);
+    // the Crown marks the guild owner.
+    let cached_member = ctx.guild_id().and_then(|gid| {
+        ctx.serenity_context()
+            .cache
+            .guild(gid)
+            .and_then(|g| g.members.get(&u.id).cloned())
+    });
+    if cached_member
+        .as_ref()
+        .and_then(|m| m.premium_since)
+        .is_some()
+    {
+        badges.push_str(&app_badge(ctx.http(), "Server_Booster", "🚀").await);
+    }
+    if ctx
+        .guild_id()
+        .and_then(|gid| {
+            ctx.serenity_context()
+                .cache
+                .guild(gid)
+                .map(|g| g.owner_id == u.id)
+        })
+        .unwrap_or(false)
+    {
+        badges.push_str(&app_badge(ctx.http(), "Crown", "👑").await);
+    }
+    // Donor badges mirror getVencordDonator/getEquiboAndOthersData in
+    // !userinfo.ts:209-242 (TS 833 ms timeouts, failures yield nothing).
+    let uid_str = u.id.get().to_string();
+    if vencord_donator(&uid_str).await {
+        badges.push_str(&app_badge(ctx.http(), "Vencord_Donator", "💠").await);
+    }
+    if equicord_donator(&uid_str).await {
+        badges.push_str(&app_badge(ctx.http(), "Equicord_Donator", "🌀").await);
+    }
+    let badges = if badges.is_empty() {
         notfound.clone()
+    } else {
+        badges
+    };
+    // Field 5 mirrors !userinfo.ts:351-366: the nitro type, else the
+    // `[notfound](oauth2-link)` fallback when a public HorizonGateway is
+    // configured, else plain notfound.
+    let nitro = if nitro_type.is_empty() {
+        let public = ctx.data().config.gateway_public().unwrap_or_default();
+        if public.starts_with("http") {
+            let bot_id = ctx.serenity_context().cache.current_user().id.get();
+            format!(
+                "[{notfound}](https://discord.com/oauth2/authorize?client_id={bot_id}&scope=identify)"
+            )
+        } else {
+            notfound.clone()
+        }
+    } else {
+        nitro_type
     };
     let display = u.global_name.clone().unwrap_or_else(|| u.name.clone());
     let created = u.created_at().unix_timestamp();
@@ -219,6 +326,67 @@ pub async fn userinfo(
     }
     progress.edit(ctx, reply).await?;
     Ok(())
+}
+
+/// App-emoji markup with a unicode fallback. Mirrors the
+/// `client.iHorizon_Emojis.<Name>` namespace in !userinfo.ts: badge slots
+/// render the synced app emoji when available, else the fallback ("" skips
+/// the slot, like the TS lookup miss in getPlatformBadges).
+async fn app_badge(http: &poise::serenity_prelude::Http, name: &str, fallback: &str) -> String {
+    crate::emojis::app_emoji_markup(http, name)
+        .await
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+/// Nitro input precedence. Mirrors the `if (!input)` leg of GetNitro in
+/// !userinfo.ts:440-448: animated avatar (Classic) BEFORE banner (Boost).
+/// A gateway premium_type always wins when present (Some).
+pub fn nitro_input(premium: Option<i64>, animated_avatar: bool, has_banner: bool) -> i64 {
+    match premium {
+        Some(v) => v,
+        None if animated_avatar => 1,
+        None if has_banner => 2,
+        None => 0,
+    }
+}
+
+/// HorizonGateway premium lookup. Mirrors the gateway leg of GetNitro in
+/// !userinfo.ts:427-438 (POST UserInfo {userId, adminKey} -> premium_type).
+/// None when unconfigured (TS `HorizonGateway?.startsWith("http")` gate),
+/// or on any transport/parse failure (then the avatar/banner heuristic in
+/// `nitro_input` applies, like `!input` in TS).
+async fn gateway_premium_type(config: &crate::config::Config, user_id: u64) -> Option<i64> {
+    if !config
+        .gateway_public()
+        .unwrap_or_default()
+        .starts_with("http")
+    {
+        return None;
+    }
+    let base = config.gateway_internal()?;
+    let url = crate::funcs::gateway_internal_url(
+        Some(base.as_str()),
+        None,
+        crate::funcs::GatewayMethod::UserInfo,
+    )
+    .ok()?;
+    let token = crate::config::api_token().unwrap_or_default();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(8))
+        .build()
+        .ok()?;
+    let data: serde_json::Value = client
+        .post(url)
+        .json(&serde_json::json!({"userId": user_id, "adminKey": token}))
+        .send()
+        .await
+        .ok()?
+        .error_for_status()
+        .ok()?
+        .json()
+        .await
+        .ok()?;
+    data.get("premium_type").and_then(|v| v.as_i64())
 }
 
 /// Vencord donor check. Mirrors getVencordDonator in !userinfo.ts
@@ -305,4 +473,21 @@ fn prefix_username_lookup(ctx: &Ctx<'_>) -> Option<poise::serenity_prelude::User
 fn url_host(link: &str) -> Option<String> {
     let rest = link.split("://").nth(1)?;
     Some(rest.split('/').next()?.to_ascii_lowercase())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::nitro_input;
+
+    #[test]
+    fn nitro_precedence_is_gateway_then_avatar_then_banner() {
+        // Gateway premium_type (incl. Basic/3) always wins.
+        assert_eq!(nitro_input(Some(3), true, true), 3);
+        assert_eq!(nitro_input(Some(2), false, false), 2);
+        // Animated avatar (Classic) BEFORE banner (Boost).
+        assert_eq!(nitro_input(None, true, true), 1);
+        assert_eq!(nitro_input(None, true, false), 1);
+        assert_eq!(nitro_input(None, false, true), 2);
+        assert_eq!(nitro_input(None, false, false), 0);
+    }
 }

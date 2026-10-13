@@ -1,6 +1,6 @@
 use super::*;
 
-/// Get the link of the first message in the channel.
+/// Get the link of the first message in the channel
 // Mirrors MessageCommands utils top.ts (oldest message via
 // after:"0", link reply or no-message text).
 // Prefix-only: TS registers top as a MessageCommand, never as slash.
