@@ -284,8 +284,11 @@ pub fn usage_error_description(
 ) -> String {
     let tokens = usage_tokens(specs, text_only);
     let args_string = tokens.join(" ");
-    let pad: String =
-        " ".repeat((bot_prefix.chars().count() + command_display.chars().count()).max(1));
+    // JS `String.length` widths (UTF-16 units): astral chars count 2, and
+    // `" ".padStart(n)` keeps width `max(1, n)`, never empty.
+    let pad: String = " ".repeat(
+        (crate::funcs::utf16_len(bot_prefix) + crate::funcs::utf16_len(command_display)).max(1),
+    );
     let mut error_position = pad;
     let mut wrong_name = String::new();
     for (i, token) in tokens.iter().enumerate() {
@@ -297,7 +300,7 @@ pub fn usage_error_description(
                 .to_string();
             error_position.push_str(" ^");
         } else {
-            error_position.push_str(&" ".repeat(token.chars().count() + 1));
+            error_position.push_str(&" ".repeat(crate::funcs::utf16_len(token) + 1));
         }
     }
     template
@@ -497,5 +500,16 @@ mod tests {
         let caret_line = desc.lines().find(|l| l.contains('^')).unwrap_or("");
         assert!(caret_line.ends_with(" ^"));
         assert!(caret_line.len() > "      ^".len());
+    }
+
+    #[test]
+    fn caret_widths_match_ts_utf16_units() {
+        // Node ground truth: prefix emoji is 2 UTF-16 units, so the
+        // head pad is 2 + 3 = 5 (chars() would give 4 and misalign).
+        let template = "${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n\"${wrongArgumentName}\"";
+        let specs = text_specs();
+        let desc = usage_error_description(template, "😀", "ban", &specs, false, 1);
+        let caret_line = desc.lines().find(|l| l.contains('^')).unwrap_or("");
+        assert_eq!(caret_line, "             ^");
     }
 }

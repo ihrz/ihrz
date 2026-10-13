@@ -444,19 +444,22 @@ pub fn args_error_line(specs: &[(String, bool)]) -> String {
 }
 
 /// Mirrors errorPosition: pad to prefix+command length, then " ^" at
-/// the error index, blank padding elsewhere.
+/// the error index, blank padding elsewhere. Widths are JS `String.length`
+/// (UTF-16 units via [`crate::funcs::utf16_len`]) and the head pad keeps
+/// `" ".padStart(n)` semantics (width `max(1, n)`, never empty).
 pub fn error_position(
     bot_prefix: &str,
     full_command: &str,
     arg_tokens: &[String],
     error_index: usize,
 ) -> String {
-    let mut pos = " ".repeat(bot_prefix.len() + full_command.len());
+    let head = (crate::funcs::utf16_len(bot_prefix) + crate::funcs::utf16_len(full_command)).max(1);
+    let mut pos = " ".repeat(head);
     for (i, tok) in arg_tokens.iter().enumerate() {
         if i == error_index {
             pos.push_str(" ^");
         } else {
-            pos.push_str(&" ".repeat(tok.len() + 1));
+            pos.push_str(&" ".repeat(crate::funcs::utf16_len(tok) + 1));
         }
     }
     pos
@@ -909,6 +912,16 @@ mod tests {
         assert!(desc.contains("Command Name: ban"));
         assert!(desc.contains("!ban [user] <reason>"));
         assert!(desc.contains("Error when sending \"user\" argument."));
+    }
+
+    #[test]
+    fn error_position_matches_ts_utf16_widths() {
+        // Node ground truth (method.ts sendErrorMessage): "😀".length is 2
+        // UTF-16 units, and " ".padStart(0) keeps one space (never empty).
+        let emoji_tokens: Vec<String> = vec!["[😀]".to_string()];
+        assert_eq!(error_position("😀", "ban", &emoji_tokens, 1), "          ");
+        let empty_tokens: Vec<String> = vec!["[a]".to_string()];
+        assert_eq!(error_position("", "", &empty_tokens, 0), "  ^");
     }
 
     #[test]

@@ -3077,6 +3077,15 @@ pub fn js_trim(s: &str) -> &str {
     s.trim_matches(is_js_whitespace)
 }
 
+/// JS `String.length` equivalent: UTF-16 code units, not bytes or chars.
+/// TS caret/pad math (`sendErrorMessage` errorPosition, `padStart`) counts
+/// astral chars as 2, so byte/char counts over-pad (bytes) or under-pad
+/// (chars) once a prefix, command name, or token holds non-BMP text
+/// (node ground truth: `"😀".length === 2`, `" ".padStart(0) === " "`).
+pub fn utf16_len(s: &str) -> usize {
+    s.encode_utf16().count()
+}
+
 /// Link extractor. Mirrors `contentLower.match(/https?:\/\/\S+/g)` in
 /// blockSpam.ts, where `contentLower = message.content.toLowerCase()`.
 /// Exactness notes: Unicode `to_lowercase` (not ASCII-only — TS folds
@@ -3755,6 +3764,16 @@ mod funcs_punish_tests {
             extract_links("x HTTPS://ExAmple.COM/a"),
             vec!["https://example.com/a".to_string()]
         );
+    }
+
+    #[test]
+    fn utf16_len_matches_js_string_length() {
+        // Node ground truth: "😀".length === 2, "é".length === 1,
+        // " ".padStart(0) === " " (width max(1, n)).
+        assert_eq!(utf16_len("ban"), 3);
+        assert_eq!(utf16_len("é"), 1);
+        assert_eq!(utf16_len("😀"), 2);
+        assert_eq!(utf16_len("[😀]"), 4);
     }
 
     #[test]
