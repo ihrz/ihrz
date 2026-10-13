@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Rename this ticket channel. Mirrors !rename.ts.
+/// Rename a ticket!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -14,19 +14,22 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn ticket_rename(
     ctx: Ctx<'_>,
-    // Option (not required): TS reads `getString("name")!` (slash,
-    // required) / `longString(args, 0)!` (prefix, nullable,
-    // !rename.ts). Slash-Option is deliberate, same pattern as the
-    // giveaway winner count: a missing name must reach the in-handler
-    // reply below (`ticket_rename_error`, like the TS setName throw ->
-    // .catch leg) instead of a poise parse error on the bare form.
-    // Rest-of-line like TS `longString(args, 0)`: multi-word panel names
-    // survive prefix parsing (same `#[rest]` pattern as fun/caracteres);
-    // `#[rest]` only affects prefix parsing, the slash `name` option
-    // still registers (now optional).
-    #[description = "New name"]
+    // Required like TS (`getString("name")!` slash / `longString(args,
+    // 0)` prefix validated by the checkCommandArgs caret gate before
+    // run): a bare invocation never reaches the handler — verified
+    // live, prod answers the caret usage embed (`+rename [string]`),
+    // never the not-in-ticket leg. Rest-of-line like TS
+    // `longString(args, 0)`: multi-word names survive prefix parsing
+    // (same `#[rest]` pattern as fun/caracteres); `#[rest]` only
+    // affects prefix parsing, the slash `name` option still registers
+    // (required).
+    #[description = "The new name of the ticket channel."]
+    #[description_localized("fr", "Le nouveau nom du canal de ticket")]
+    #[description_localized("ja", "チケットチャンネルの新しい名前。")]
+    #[description_localized("ru", "Новое название канала тикета.")]
+    #[description_localized("es-ES", "El nuevo nombre del canal de ticket.")]
     #[rest]
-    name: Option<String>,
+    name: String,
 ) -> Result<(), anyhow::Error> {
     // Mirrors !rename.ts guards (disable + delete_not_in_ticket) and
     // the rename error reply.
@@ -51,17 +54,8 @@ pub async fn ticket_rename(
     {
         return Ok(());
     }
-    // Missing name answers `ticket_rename_error`: the TS prefix path
-    // (`longString(args, 0)!` -> null) throws in setName and lands in
-    // the .catch leg with the same key.
-    let Some(name) = name else {
-        ctx.say(
-            crate::lang::get(&code, "ticket_rename_error")
-                .unwrap_or_else(|| "Error when renaming the text channel".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
+    // TS renames with the validated `name` (`setName(name)`; throw ->
+    // `ticket_rename_error` reply).
     if ctx
         .channel_id()
         // Trim is deliberate: Discord rejects leading/trailing whitespace
@@ -92,13 +86,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn rest_keeps_slash_name_option() {
+    fn rest_keeps_slash_name_required() {
         // `#[rest]` only affects prefix parsing (rest-of-line, like TS
         // `longString(args, 0)`); the same parameter still registers as
-        // the slash `name` option, so it is harmless on slash. The
-        // option is optional (slash-Option deliberate): a missing name
-        // reaches the in-handler `ticket_rename_error` reply instead of
-        // a poise parse error.
+        // the slash `name` option. Required like TS (`getString("name")!`
+        // slash, checkCommandArgs caret gate prefix): verified live, a
+        // bare `.ticket rename` on prod answers the caret usage embed,
+        // so the miss must never reach the handler.
         let cmd = ticket_rename();
         assert!(cmd.slash_action.is_some());
         assert!(cmd.prefix_action.is_some());
@@ -107,6 +101,6 @@ mod tests {
             .iter()
             .find(|p| p.name == "name")
             .expect("slash `name` option");
-        assert!(!param.required);
+        assert!(param.required);
     }
 }

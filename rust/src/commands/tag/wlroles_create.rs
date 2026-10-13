@@ -45,7 +45,7 @@ pub async fn tag_wl_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .send(
             poise::CreateReply::default()
                 .embed(render_panel_embed(&t, &pending))
-                .components(panel_rows(&t, &pending, false)),
+                .components(panel_rows(&pending, false)),
         )
         .await?;
     let mut msg = handle.into_message().await?;
@@ -119,7 +119,7 @@ pub async fn tag_wl_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let _ = msg
         .edit(
             http,
-            serenity::EditMessage::new().components(panel_rows(&t, &pending, true)),
+            serenity::EditMessage::new().components(panel_rows(&pending, true)),
         )
         .await;
     Ok(())
@@ -143,11 +143,7 @@ fn render_panel_embed(t: &dyn Fn(&str) -> String, pending: &[String]) -> serenit
         .field(t("setjoinroles_help_embed_fields_1_name"), value, false)
 }
 
-fn panel_rows(
-    t: &dyn Fn(&str) -> String,
-    pending: &[String],
-    disabled: bool,
-) -> Vec<serenity::CreateActionRow> {
+fn panel_rows(pending: &[String], disabled: bool) -> Vec<serenity::CreateActionRow> {
     let defaults: Vec<serenity::RoleId> = pending
         .iter()
         .filter_map(|r| r.parse::<u64>().ok().map(serenity::RoleId::new))
@@ -158,7 +154,6 @@ fn panel_rows(
             default_roles: (!defaults.is_empty()).then_some(defaults),
         },
     )
-    .placeholder(t("help_select_menu"))
     .min_values(0)
     .max_values(SELECT_MAX)
     .disabled(disabled);
@@ -187,8 +182,7 @@ mod tests {
 
     #[test]
     fn panel_rows_carry_ts_ids_and_defaults() {
-        let t = |k: &str| k.to_string();
-        let rows = panel_rows(&t, &["11".to_string(), "22".to_string()], false);
+        let rows = panel_rows(&["11".to_string(), "22".to_string()], false);
         assert_eq!(rows.len(), 2);
         let dbg = format!("{rows:?}");
         assert!(dbg.contains(SELECT_ID));
@@ -197,8 +191,11 @@ mod tests {
         assert!(dbg.contains("11"));
         assert!(dbg.contains("22"));
         assert!(dbg.contains("25"));
+        // TS sets no select placeholder (`!wlroles-create.ts`
+        // RoleSelectMenuBuilder has none): the rows render none.
+        assert!(!dbg.contains("placeholder: Some"));
         // Collector end leg: every row disabled.
-        let end = panel_rows(&t, &[], true);
+        let end = panel_rows(&[], true);
         assert!(format!("{end:?}").contains("disabled: true"));
     }
 }
