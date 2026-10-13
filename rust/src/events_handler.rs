@@ -870,9 +870,10 @@ pub fn security_code() -> String {
     crate::commands::security::security_code()
 }
 
-/// Captcha image challenge is rasterized by `crate::cards::captcha_png`
-/// (900x300 parchment PNG, no Chromium); the join leg attaches it as
-/// `captcha.png` with the code only in the image, never in text.
+/// Captcha image challenge renders through HorizonGateway when one is
+/// configured (`crate::join_image::render_captcha_image`, falling back
+/// to the `crate::cards::captcha_png` raster); the join leg attaches
+/// it as `captcha.png` with the code only in the image, never in text.
 ///
 /// Welcome target: system channel, else the lowest-position text
 /// channel. Mirrors the guildCreate.ts channel pick.
@@ -3490,6 +3491,56 @@ pub fn welcomer_avatar_url(user: &serenity::User) -> String {
     }
 }
 
+/// Avatar URL for the welcome-cart assets leg. Mirrors
+/// `member.displayAvatarURL({ size: 512, extension: "png",
+/// forceStatic: true })` in joinMessage.ts: a 512 static PNG (never
+/// animated), default avatar URL when the user has none.
+pub fn join_avatar_url(user: &serenity::User) -> String {
+    if let Some(hash) = &user.avatar {
+        format!(
+            "https://cdn.discordapp.com/avatars/{}/{hash}.png?size=512",
+            user.id.get()
+        )
+    } else {
+        user.default_avatar_url()
+    }
+}
+
+/// Highest coloured role as `#rrggbb`. Mirrors
+/// `member.displayHexColor` (falls back to `#000000`, which is also
+/// the cart template's ring placeholder).
+pub fn display_hex_color(guild: &serenity::Guild, member_roles: &[serenity::RoleId]) -> String {
+    guild
+        .roles
+        .iter()
+        .filter(|(id, _)| member_roles.contains(id))
+        .filter(|(_, r)| r.colour.0 != 0)
+        .max_by_key(|(_, r)| r.position)
+        .map(|(_, r)| format!("#{:06x}", r.colour.0))
+        .unwrap_or_else(|| "#000000".to_string())
+}
+
+/// Ring colour for the `profilePictureRound === "status"` leg.
+/// Mirrors the presence switch in buildJoinImagePayload; unknown or
+/// absent status keeps the display colour (TS leaves the default).
+pub fn status_ring_color(
+    status: Option<&serenity::model::user::OnlineStatus>,
+    fallback: &str,
+) -> String {
+    use serenity::model::user::OnlineStatus::*;
+    let mapped = match status {
+        Some(DoNotDisturb) => Some("#f23f43"),
+        Some(Invisible) | Some(Offline) => Some("#80848e"),
+        Some(Idle) => Some("#f0b232"),
+        Some(Online) => Some("#23a55a"),
+        // OnlineStatus is non-exhaustive: future variants keep the
+        // display colour, like an unmatched TS presence status.
+        Some(_) => None,
+        None => None,
+    };
+    mapped.unwrap_or(fallback).to_string()
+}
+
 /// Shared welcomer sender for the join/leave sites. Snapshots the
 /// member avatar (image64 equivalent) and sends the accent-colored
 /// embed + thumbnail file (welcomerMessage.ts Components V2 path,
@@ -3516,9 +3567,12 @@ pub async fn send_welcomer_message(
 /// `stored` is the resolveWelcomerEmbed result (None when no
 /// joinEmbedId / no record). With a stored embed it is sent as-is
 /// (plus the text content when enabled); without one the text falls
-/// back to the accent-colored snapshot embed. Banner bytes ride
-/// through `send_welcomer_message` only when a renderer supplies them
-/// (none exists server-side: the joinbannerStates leg stays open).
+/// back to the accent-colored snapshot embed. `banner` is the
+/// generateJoinImage render (None when joinbannerStates is off, the
+/// gateway is unset, or the render failed — TS catch leaves
+/// bannerImage undefined): attached as `image.png` on every path that
+/// sends, exactly like welcomerMessage.ts (a banner alone still
+/// sends; nothing at all sends nothing).
 #[allow(clippy::result_large_err)]
 pub async fn send_join_message(
     http: &serenity::Http,
@@ -3526,30 +3580,49 @@ pub async fn send_join_message(
     user: &serenity::User,
     content: Option<String>,
     stored: Option<serenity::CreateEmbed>,
+    banner: Option<Vec<u8>>,
 ) -> Result<(), serenity::Error> {
     // useComponents parity (`embed ? false : componentsEnabled`):
     // serenity 0.12 has no Components V2, so the send is embed-only
     // with no extra components row either way.
-    match (content, stored) {
-        (None, None) => Ok(()),
-        (text, Some(embed)) => {
+    let banner_file = |bytes: Vec<u8>| {
+        serenity::CreateAttachment::bytes(bytes, crate::join_image::BANNER_ATTACHMENT_NAME)
+    };
+    match (content, stored, banner) {
+        (None, None, None) => Ok(()),
+        (None, None, Some(bytes)) => channel_id
+            .send_message(
+                http,
+                serenity::CreateMessage::new().add_file(banner_file(bytes)),
+            )
+            .await
+            .map(|_| ()),
+        (text, Some(embed), banner) => {
             let mut msg = serenity::CreateMessage::new().embed(embed);
             if let Some(t) = text {
                 msg = msg.content(t);
             }
+            if let Some(bytes) = banner {
+                msg = msg.add_file(banner_file(bytes));
+            }
             channel_id.send_message(http, msg).await.map(|_| ())
         }
-        (Some(text), None) => {
-            send_welcomer_message(
-                http,
-                channel_id,
-                user,
-                &text,
-                WELCOME_ACCENT,
-                WELCOME_AVATAR_NAME,
-            )
-            .await;
-            Ok(())
+        (Some(text), None, banner) => {
+            // Same single-message shape as send_welcomer_message
+            // (accent embed + avatar thumbnail file), plus the banner
+            // file — welcomerMessage.ts attaches all files to the one
+            // send, never a second message.
+            let snapshot =
+                crate::commands::botcat::download_bytes(&welcomer_avatar_url(user)).await;
+            let render = welcomer_render(&text, WELCOME_ACCENT, snapshot, WELCOME_AVATAR_NAME);
+            let mut msg = serenity::CreateMessage::new().embed(render.embed);
+            for f in render.files {
+                msg = msg.add_file(f);
+            }
+            if let Some(bytes) = banner {
+                msg = msg.add_file(banner_file(bytes));
+            }
+            channel_id.send_message(http, msg).await.map(|_| ())
         }
     }
 }
@@ -5377,10 +5450,28 @@ impl serenity::EventHandler for Handler {
                     let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
                     // Snapshot owned values out of the cache without
                     // holding the !Send guard across an await below.
-                    let (count, guild_name) = match ctx.cache.guild(new_member.guild_id) {
-                        Some(g) => (g.member_count, g.name.clone()),
-                        None => (0, "this server".to_string()),
-                    };
+                    let (count, guild_name, guild_banner, presence, display_color) =
+                        match ctx.cache.guild(new_member.guild_id) {
+                            Some(g) => {
+                                let presence =
+                                    g.presences.get(&new_member.user.id).map(|p| p.status);
+                                let color = display_hex_color(&g, &new_member.roles);
+                                (
+                                    g.member_count,
+                                    g.name.clone(),
+                                    g.banner_url(),
+                                    presence,
+                                    color,
+                                )
+                            }
+                            None => (
+                                0,
+                                "this server".to_string(),
+                                None,
+                                None,
+                                "#000000".to_string(),
+                            ),
+                        };
                     // Attributed inviter display (mirrors the joinMessage
                     // inviterUsername/inviterMention slots incl. the
                     // custom-vanity variant; TS literal defaults kept
@@ -5464,15 +5555,94 @@ impl serenity::EventHandler for Handler {
                         None => None,
                     };
                     // Banner leg (joinbannerStates/joinbanner): TS renders
-                    // the welcome cart via html2png/Chromium
-                    // (generateJoinImage); no Rust renderer exists, so no
-                    // banner image is attached here (still open).
+                    // the welcome cart via html2png (generateJoinImage);
+                    // here it renders through HorizonGateway when the
+                    // state is "on" and a gateway base is configured.
+                    // Any miss (off, no gateway, avatar/render failure)
+                    // yields no banner — TS catch leaves bannerImage
+                    // undefined and the welcome goes out text-only.
+                    // Delta: the MSG preview runs through the same
+                    // guild-template renderer as the welcome text (TS
+                    // previews the banner default in en-US then the MSG
+                    // in fr-FR; token output is identical for the
+                    // locale-free slots used here).
+                    let banner: Option<Vec<u8>> =
+                        if cfg.get("joinbannerStates").and_then(|v| v.as_str()) == Some("on") {
+                            if let Some(base) = crate::config::gateway_base() {
+                                let blob = cfg.get("joinbanner");
+                                let field = |name: &str| {
+                                    blob.and_then(|b| b.get(name)).and_then(|v| v.as_str())
+                                };
+                                let frame = match field("profilePictureRound") {
+                                    Some("status") => {
+                                        status_ring_color(presence.as_ref(), &display_color)
+                                    }
+                                    Some(raw) if !raw.is_empty() => raw.to_string(),
+                                    _ => display_color.clone(),
+                                };
+                                let background = field("backgroundURL")
+                                    .filter(|s| !s.is_empty())
+                                    .map(str::to_string)
+                                    .or(guild_banner)
+                                    .or_else(|| new_member.user.banner_url())
+                                    .unwrap_or_default();
+                                let message_tpl = field("message")
+                                    .filter(|s| !s.trim().is_empty())
+                                    .map(str::to_string)
+                                    .unwrap_or_else(|| {
+                                        "Welcome {memberUsername} to {guildName}<br>\
+                                    We are now {memberCount} in the guild"
+                                            .to_string()
+                                    });
+                                let fields = crate::join_image::JoinImageFields {
+                                    username: new_member
+                                        .user
+                                        .global_name
+                                        .clone()
+                                        .unwrap_or_else(|| new_member.user.name.clone()),
+                                    guild_name: guild_name.clone(),
+                                    member_count: count,
+                                    frame_color: frame,
+                                    background_url: background,
+                                    text_colour: field("textColour")
+                                        .filter(|s| !s.is_empty())
+                                        .map(str::to_string)
+                                        .unwrap_or_else(|| "#aa9999".to_string()),
+                                    message_html: render_join(&message_tpl),
+                                    text_size: field("textSize")
+                                        .filter(|s| !s.is_empty())
+                                        .map(str::to_string)
+                                        .unwrap_or_else(|| "40px".to_string()),
+                                    avatar_size: field("avatarSize")
+                                        .filter(|s| !s.is_empty())
+                                        .map(str::to_string)
+                                        .unwrap_or_else(|| "140px".to_string()),
+                                    avatar_url: join_avatar_url(&new_member.user),
+                                };
+                                let avatar_bytes =
+                                    crate::commands::botcat::download_bytes(&fields.avatar_url)
+                                        .await;
+                                let token = crate::config::api_token().unwrap_or_default();
+                                crate::join_image::render_join_banner(
+                                    &base,
+                                    &token,
+                                    &fields,
+                                    avatar_bytes,
+                                )
+                                .await
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        };
                     let _ = send_join_message(
                         &ctx.http,
                         serenity::ChannelId::new(ch_id),
                         &new_member.user,
                         join_text_enabled.then(|| rendered.clone()),
                         stored_embed,
+                        banner,
                     )
                     .await;
                 }
@@ -5564,9 +5734,11 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Security captcha challenge (mirrors security/onMemberJoin.ts).
-        // Image decision: TS attaches html2png `captcha.png`; Rust
-        // rasterizes `crate::cards::captcha_png` (900x300 parchment, no
-        // Chromium). The code lives only in the image, never in text.
+        // Image decision: TS renders the captcha card via html2png
+        // (gateway when configured, local Chromium otherwise); here the
+        // card renders through HorizonGateway when a base is configured
+        // and falls back to the deterministic local raster otherwise.
+        // The code lives only in the image, never in text.
         // Attempts, roles, and the expiry kick all mirror TS.
         if let Some(raw) = security_cfg_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
@@ -5603,7 +5775,12 @@ impl serenity::EventHandler for Handler {
                                 serenity::CreateMessage::new()
                                     .content(content)
                                     .add_file(serenity::CreateAttachment::bytes(
-                                        crate::cards::captcha_png(&code),
+                                        crate::join_image::render_captcha_image(
+                                            crate::config::gateway_base().as_deref(),
+                                            &crate::config::api_token().unwrap_or_default(),
+                                            &code,
+                                        )
+                                        .await,
                                         "captcha.png",
                                     ))
                                     // Nonce mirrors onMemberJoin.ts

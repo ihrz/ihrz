@@ -31,6 +31,7 @@ mod funcs_resolve;
 mod funcs_send;
 mod horizon;
 mod image64;
+mod join_image;
 mod lang;
 mod lavalink;
 mod logger;
