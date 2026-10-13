@@ -630,11 +630,9 @@ pub fn bold_stringify_options(options: &[HelpOptionDoc]) -> String {
 /// Capitalize the command name for the help title. Mirrors
 /// `commandName.charAt(0).toUpperCase() + commandName.slice(1)`.
 pub fn capitalize_command_name(name: &str) -> String {
-    let mut chars = name.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-    }
+    // Same UTF-16-unit quirk as TS `charAt(0).toUpperCase() + slice(1)`
+    // (astral-first names pass through unchanged); shares the helper.
+    crate::funcs::capitalize_first(name)
 }
 
 /// Resolve the permission line for the help embed. Mirrors the `perm`
@@ -1167,6 +1165,12 @@ mod tests {
         assert_eq!(capitalize_command_name(""), "");
         assert_eq!(capitalize_command_name("ban"), "Ban");
         assert_eq!(capitalize_command_name("setLang"), "SetLang");
+        // UTF-16-unit quirk (W6 slice 41, node ground truth): an astral
+        // leader hits a lone surrogate in TS, so the name is unchanged.
+        assert_eq!(capitalize_command_name("\u{10428}bc"), "\u{10428}bc");
+        assert_eq!(capitalize_command_name("\u{1f600}abc"), "\u{1f600}abc");
+        assert_eq!(capitalize_command_name("ßabc"), "SSabc");
+        assert_eq!(capitalize_command_name("éclair"), "Éclair");
     }
 
     #[test]

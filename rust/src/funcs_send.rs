@@ -148,8 +148,10 @@ pub fn awesome_embed(
     subcommands: Option<&[SubCommandInfo]>,
 ) -> AwesomeEmbed {
     let raw = prefix_name.unwrap_or(command_name);
-    let clean: String = raw.chars().take(1).collect::<String>().to_uppercase()
-        + &raw.chars().skip(1).collect::<String>();
+    // TS `commandName.charAt(0).toUpperCase() + commandName.slice(1)` sees
+    // one UTF-16 unit, so an astral leader passes through unchanged
+    // (node: "𐐨bc"->"𐐨bc"); `capitalize_first` mirrors exactly that.
+    let clean: String = crate::funcs::capitalize_first(raw);
     let title = t(
         lang_code,
         "hybridcommands_embed_help_title",
@@ -783,6 +785,35 @@ mod tests {
         assert_eq!(e.fields[0].name, "Usage");
         assert_eq!(e.fields[0].value, "!ban ");
         assert_eq!(e.fields[1].value, "Permission: None");
+    }
+
+    #[test]
+    fn awesome_embed_title_matches_ts_utf16_capitalize() {
+        // W6 slice 41 (node ground truth): astral-first names pass through
+        // TS `charAt(0).toUpperCase() + slice(1)` unchanged; ß expands.
+        for (name, clean) in [
+            ("ban", "Ban"),
+            ("ttsjoin", "Ttsjoin"),
+            ("\u{10428}bc", "\u{10428}bc"),
+            ("\u{1f600}abc", "\u{1f600}abc"),
+            ("ßabc", "SSabc"),
+        ] {
+            let e = awesome_embed(
+                "en-US",
+                name,
+                None,
+                "!",
+                false,
+                &[],
+                &[],
+                None,
+                "d",
+                None,
+                "en-US",
+                None,
+            );
+            assert_eq!(e.title, format!("{clean} Help Embed"));
+        }
     }
 
     #[test]
