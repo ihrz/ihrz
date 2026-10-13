@@ -12,7 +12,7 @@ pub async fn pfps_channel(
     ctx: Ctx<'_>,
     #[description = "PFPS channel"]
     #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
+    channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
@@ -28,16 +28,11 @@ pub async fn pfps_channel(
             .as_deref(),
         Some("1") | Some("true")
     );
-    let Some(channel) = channel else {
-        ctx.say(
-            crate::lang::get(&code, "pfps_channel_command_error")
-                .map(|s| s.replace("${interaction.user}", &user))
-                .unwrap_or_else(|| "Invalid channel.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
     if disabled {
+        // Mirrors the TS else branch (`!fetch || !channel`): with the
+        // channel now required (TS `required: true`), only the disabled
+        // module reaches this content error; a missing arg is rejected
+        // earlier by the prefix usage-embed validation, exactly like prod.
         ctx.say(
             crate::lang::get(&code, "pfps_channel_command_error")
                 .map(|s| s.replace("${interaction.user}", &user))
