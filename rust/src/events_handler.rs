@@ -1023,6 +1023,37 @@ pub fn blockbot_owner_exempt(adder: Option<u64>, owner: Option<u64>) -> bool {
     matches!((adder, owner), (Some(a), Some(o)) if a == o)
 }
 
+/// Anti-pub staff exemption core. Mirrors blockSpam.ts
+/// (`member.permissions.has(Admin|ManageGuild)`; discord.js grants the
+/// crown every permission, so the owner is always exempt).
+/// Pure, unit-tested below.
+pub fn antipub_exempt(author: u64, owner: Option<u64>, admin: bool, manage: bool) -> bool {
+    Some(author) == owner || admin || manage
+}
+
+/// Cached guild owner id (the crown). None on cache miss.
+fn guild_owner_id(ctx: &serenity::Context, guild_id: serenity::GuildId) -> Option<u64> {
+    ctx.cache.guild(guild_id).map(|g| g.owner_id.get())
+}
+
+/// Staff check via HTTP member fetch. Mirrors the fetched
+/// `message.member` in blockSpam.ts: administrator or manage-guild on
+/// the effective (role-union) permissions. False when unresolvable.
+async fn http_member_staff(
+    ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    user: serenity::UserId,
+) -> bool {
+    let Ok(member) = guild_id.member(&ctx.http, user).await else {
+        return false;
+    };
+    let Some(guild) = ctx.cache.guild(guild_id) else {
+        return false;
+    };
+    let perms = guild.member_permissions(&member);
+    perms.administrator() || perms.manage_guild()
+}
+
 /// Leash pairing lifetime. Mirrors the 30-minute expiry filter in
 /// Events/utils/leashModule.ts.
 pub const LEASH_EXPIRY_MS: i64 = 30 * 60 * 1000;
@@ -1846,15 +1877,19 @@ impl Handler {
             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
             .and_then(|v| v.as_str().map(|x| x == "off"))
             .unwrap_or(false);
-        let is_staff = msg
-            .member
-            .as_ref()
-            .map(|m| {
-                m.permissions
-                    .map(|p| p.administrator() || p.manage_guild())
-                    .unwrap_or(false)
-            })
-            .unwrap_or(false);
+        let is_staff = if Some(msg.author.id.get()) == guild_owner_id(&ctx, guild_id) {
+            // Crown exemption: discord.js grants the guild owner every
+            // permission, so `member.permissions.has(Admin|ManageGuild)`
+            // in blockSpam.ts is true for the owner.
+            true
+        } else if let Some(p) = msg.member.as_ref().and_then(|m| m.permissions) {
+            p.administrator() || p.manage_guild()
+        } else {
+            // Gateway payload without computed permissions must not read
+            // as "not staff": fall back to an HTTP member fetch and check
+            // role permissions like TS `message.member.permissions`.
+            http_member_staff(&ctx, guild_id, msg.author.id).await
+        };
         if antipub_off || is_staff {
             return;
         }
@@ -11319,6 +11354,20 @@ mod protection_audit_tests {
         assert!(!blockbot_owner_exempt(None, Some(7)));
         assert!(!blockbot_owner_exempt(None, None));
         assert!(!blockbot_owner_exempt(Some(7), None));
+    }
+
+    #[test]
+    fn antipub_exempt_covers_owner_and_privileged() {
+        use super::antipub_exempt;
+        // Crown is always exempt, even with no privileged flags.
+        assert!(antipub_exempt(7, Some(7), false, false));
+        assert!(antipub_exempt(7, None, false, false) == false);
+        // Admin / manage-guild exempt like blockSpam.ts.
+        assert!(antipub_exempt(8, Some(7), true, false));
+        assert!(antipub_exempt(8, Some(7), false, true));
+        // Plain member triggers.
+        assert!(!antipub_exempt(8, Some(7), false, false));
+        assert!(!antipub_exempt(8, None, false, false));
     }
 
     #[test]
