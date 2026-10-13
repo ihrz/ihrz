@@ -10,6 +10,21 @@ pub fn footer_name_too_long_utf16(name: &str) -> bool {
     name.encode_utf16().count() >= 32
 }
 
+/// TS `!name.ts` branch decision, kept as a pure pin site: `action ===
+/// "reset"` is a strict comparison — no trim, no case fold. The poise
+/// `CustomNameAction` feed only ever yields `"reset"` / `"set"`, so this
+/// is the Reset-variant check spelled exactly like the TS source.
+pub fn name_branch_is_reset(action: &str) -> bool {
+    action == "reset"
+}
+
+/// TS `else if (name)` truthiness: any non-empty string — including
+/// whitespace-only — is stored verbatim; only `""` / missing fall
+/// through to the not_found reply. (JS truthy string ⟺ non-empty.)
+pub fn stored_bot_name(name: Option<String>) -> Option<String> {
+    name.filter(|n| !n.is_empty())
+}
+
 /// Name action choice. Mirrors the `action` option `choices` in
 /// custom.ts:67-82: slash shows the localized display names, the
 /// handler maps each variant back to the TS `value`.
@@ -80,13 +95,12 @@ pub async fn custom_name(
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    if action.trim().eq_ignore_ascii_case("reset") {
+    if name_branch_is_reset(action) {
         crate::db::tbl_del(pool, &gid, BOT_NAME_KEY).await?;
         // TS replies first, then restores the display name (banner.rs
         // follows the same reply-then-patch order for its reset).
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_name_reset")
+        ctx.say(crate::lang::get(&code, "custom_name_reset")
                 .unwrap_or_else(|| "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server.".to_string()),
         )
         .await?;
@@ -101,7 +115,7 @@ pub async fn custom_name(
         }
         return Ok(());
     }
-    let Some(name) = name.map(|n| n.trim().to_string()).filter(|n| !n.is_empty()) else {
+    let Some(name) = stored_bot_name(name) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_footername_not_found")
@@ -132,8 +146,7 @@ pub async fn custom_name(
     let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
         .await
         .unwrap_or_else(|| "👑".to_string());
-    ctx.say(
-        crate::lang::get(&code, "custom_name_set")
+    ctx.say(crate::lang::get(&code, "custom_name_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
@@ -197,6 +210,34 @@ mod tests {
             list[1].localizations.get("es-ES").map(String::as_str),
             Some("Establecer un nombre")
         );
+    }
+
+    #[test]
+    fn name_branch_and_store_match_ts_strictness() {
+        // `action === "reset"`: strict, no trim, no case fold.
+        assert!(name_branch_is_reset("reset"));
+        assert!(!name_branch_is_reset("Reset"));
+        assert!(!name_branch_is_reset("RESET"));
+        assert!(!name_branch_is_reset(" reset"));
+        assert!(!name_branch_is_reset("reset "));
+        assert!(!name_branch_is_reset("set"));
+        assert!(!name_branch_is_reset(""));
+        // `else if (name)` truthiness: only ""/missing fall through;
+        // whitespace-only and padded names store verbatim.
+        assert_eq!(
+            stored_bot_name(Some("  ".to_string())),
+            Some("  ".to_string())
+        );
+        assert_eq!(
+            stored_bot_name(Some(" Bob ".to_string())),
+            Some(" Bob ".to_string())
+        );
+        assert_eq!(
+            stored_bot_name(Some("Bob".to_string())),
+            Some("Bob".to_string())
+        );
+        assert_eq!(stored_bot_name(Some(String::new())), None);
+        assert_eq!(stored_bot_name(None), None);
     }
 
     #[test]
