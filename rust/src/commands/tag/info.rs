@@ -63,53 +63,29 @@ pub async fn tag_info(
         .and_then(|g| g.icon_url())
         .or_else(|| Some(ctx.author().face()))
         .or_else(|| Some(ctx.serenity_context().cache.current_user().face()));
-    let created = if e.create_timestamp > 0 {
-        format!("<t:{}:D>", e.create_timestamp / 1000)
-    } else {
-        no_set.clone()
+    let text = super::TagInfoText {
+        title_lbl: &crate::commands::lang_for(&ctx, "tag_name", "Tag").await,
+        author_lbl: &crate::commands::lang_for(&ctx, "var_author", "Author").await,
+        created_lbl: &crate::commands::lang_for(&ctx, "tag_embed_created_at", "Created At").await,
+        updated_lbl: &crate::commands::lang_for(&ctx, "tag_embed_last_update", "Last Update").await,
+        uses_lbl: &crate::commands::lang_for(&ctx, "var_uses", "Uses").await,
+        updated_by_lbl: &crate::commands::lang_for(
+            &ctx,
+            "tag_embed_last_updated_by",
+            "Last Updated By",
+        )
+        .await,
+        message_lbl: &crate::commands::lang_for(&ctx, "var_message", "Message").await,
+        no_set: &no_set,
+        crown: &crown,
+        sparkles: &sparkles,
+        timer: &timer,
+        badge: &badge,
+        msg_cmd: &msg_cmd,
     };
-    let updated = if e.last_use_timestamp > 0 {
-        format!("<t:{}:D>", e.last_use_timestamp / 1000)
-    } else {
-        no_set.clone()
-    };
-    let updated_by = if e.last_use_by.trim().is_empty() {
-        no_set.clone()
-    } else {
-        format!("<@{}>", e.last_use_by.trim())
-    };
-    let content = if e.content.trim().is_empty() {
-        no_set.clone()
-    } else {
-        e.content.clone()
-    };
-    let uses = e.uses;
-    let author_lbl = crate::commands::lang_for(&ctx, "var_author", "Author").await;
-    let created_lbl = crate::commands::lang_for(&ctx, "tag_embed_created_at", "Created At").await;
-    let updated_lbl = crate::commands::lang_for(&ctx, "tag_embed_last_update", "Last Update").await;
-    let uses_lbl = crate::commands::lang_for(&ctx, "var_uses", "Uses").await;
-    let updated_by_lbl =
-        crate::commands::lang_for(&ctx, "tag_embed_last_updated_by", "Last Updated By").await;
-    let message_lbl = crate::commands::lang_for(&ctx, "var_message", "Message").await;
-    let title_lbl = crate::commands::lang_for(&ctx, "tag_name", "Tag").await;
-    let desc = format!(
-        "{} > **{}:** <@{}>\n{} > **{}:** {created}\n{} > **{}:** {updated}\n{} > **{}:** **`{uses}`**\n{} > **{}:** {updated_by}\n{} > **{}:** ** {content}**",
-        crown,
-        author_lbl,
-        e.create_by.trim(),
-        sparkles,
-        created_lbl,
-        timer,
-        updated_lbl,
-        timer,
-        uses_lbl,
-        badge,
-        updated_by_lbl,
-        msg_cmd,
-        message_lbl,
-    );
+    let (title, desc) = super::tag_info_text(&name, e, &text);
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(format!("{title_lbl} #{name}"))
+        .title(title)
         .colour(0x00FFFF)
         .description(desc);
     if let Some(url) = thumb {

@@ -10,6 +10,18 @@ use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// JS `String || fallback` for the tagHelper nullable legs
+/// (`content?: string | null`, `lastUseBy: string | null`): an explicit
+/// JSON null deserializes to `""` like a missing field, so one TS-written
+/// null (e.g. `lastUseBy: null` from !create.ts) never poisons the
+/// whole-store parse into an empty store.
+fn de_null_string<'de, D>(d: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Option::<String>::deserialize(d).map(|o| o.unwrap_or_default())
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct TagEntry {
     #[serde(default)]
@@ -18,13 +30,13 @@ pub struct TagEntry {
     pub create_by: String,
     #[serde(default)]
     pub uses: u64,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "de_null_string")]
     pub content: String,
     #[serde(default)]
     pub create_timestamp: i64,
     #[serde(default)]
     pub last_use_timestamp: i64,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "de_null_string")]
     pub last_use_by: String,
 }
 
@@ -89,6 +101,77 @@ pub async fn save_tags(
         .await
 }
 
+/// discord.js `time(new Date(ms), "D")` renders UNCONDITIONALLY as
+/// `<t:floor(ms/1000):D>` (node ground truth: 0 -> `<t:0:D>`,
+/// -500 -> `<t:-1:D>`, 999 -> `<t:0:D>`); out-of-range stamps
+/// (|ms| > 8.64e15, where `new Date` is invalid) render `<t:NaN:D>`.
+/// `div_euclid` reproduces `Math.floor` for negative stamps
+/// (truncating `/` would give 0 for -500).
+pub fn tag_unix_stamp(ms: i64) -> String {
+    if ms.unsigned_abs() > 8_640_000_000_000_000 {
+        return "<t:NaN:D>".to_string();
+    }
+    format!("<t:{}:D>", ms.div_euclid(1000))
+}
+
+/// Label + emoji inputs for the tagHelper info-embed mirror below.
+pub struct TagInfoText<'a> {
+    pub title_lbl: &'a str,
+    pub author_lbl: &'a str,
+    pub created_lbl: &'a str,
+    pub updated_lbl: &'a str,
+    pub uses_lbl: &'a str,
+    pub updated_by_lbl: &'a str,
+    pub message_lbl: &'a str,
+    pub no_set: &'a str,
+    pub crown: &'a str,
+    pub sparkles: &'a str,
+    pub timer: &'a str,
+    pub badge: &'a str,
+    pub msg_cmd: &'a str,
+}
+
+/// Pure mirror of tagHelper.ts `generateTagInfoEmbed` title + description.
+/// Every leg is JS-faithful: the author mention is raw `<@createBy>`
+/// (no trim), timestamps always render via [`tag_unix_stamp`] (TS has no
+/// `> 0` guard), and `lastUseBy`/`content` use `||` falsiness — only `""`
+/// falls back to `no_set`, whitespace-only values render verbatim.
+pub fn tag_info_text(name: &str, e: &TagEntry, t: &TagInfoText) -> (String, String) {
+    let title = format!("{} #{}", t.title_lbl, name);
+    let updated_by = if e.last_use_by.is_empty() {
+        t.no_set.to_string()
+    } else {
+        format!("<@{}>", e.last_use_by)
+    };
+    let content = if e.content.is_empty() {
+        t.no_set.to_string()
+    } else {
+        e.content.clone()
+    };
+    let desc = format!(
+        "{} > **{}:** <@{}>\n{} > **{}:** {}\n{} > **{}:** {}\n{} > **{}:** **`{}`**\n{} > **{}:** {}\n{} > **{}:** ** {}**",
+        t.crown,
+        t.author_lbl,
+        e.create_by,
+        t.sparkles,
+        t.created_lbl,
+        tag_unix_stamp(e.create_timestamp),
+        t.timer,
+        t.updated_lbl,
+        tag_unix_stamp(e.last_use_timestamp),
+        t.timer,
+        t.uses_lbl,
+        e.uses,
+        t.badge,
+        t.updated_by_lbl,
+        updated_by,
+        t.msg_cmd,
+        t.message_lbl,
+        content,
+    );
+    (title, desc)
+}
+
 /// Tag permission gate: Administrator bypass, else one of the member's
 /// roles must be in the whitelist. Role-membership-only, mirroring TS
 /// (!use.ts whitelist_use, !create.ts whitelist_create guards, which check
@@ -134,6 +217,104 @@ mod tests {
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn tag_unix_stamp_matches_discord_js_time() {
+        // tagHelper.ts renders `time(new Date(ms), "D")` unconditionally:
+        // `<t:floor(ms/1000):D>`, floor (not trunc) for negatives, and
+        // `<t:NaN:D>` past the valid-Date range (|ms| > 8.64e15).
+        assert_eq!(tag_unix_stamp(0), "<t:0:D>");
+        assert_eq!(tag_unix_stamp(999), "<t:0:D>");
+        assert_eq!(tag_unix_stamp(1000), "<t:1:D>");
+        assert_eq!(tag_unix_stamp(1500), "<t:1:D>");
+        assert_eq!(tag_unix_stamp(1718445600000), "<t:1718445600:D>");
+        assert_eq!(tag_unix_stamp(-500), "<t:-1:D>");
+        assert_eq!(tag_unix_stamp(-1000), "<t:-1:D>");
+        assert_eq!(tag_unix_stamp(8_640_000_000_000_000), "<t:8640000000000:D>");
+        assert_eq!(tag_unix_stamp(8_640_000_000_000_001), "<t:NaN:D>");
+        assert_eq!(tag_unix_stamp(-8_640_000_000_000_001), "<t:NaN:D>");
+        assert_eq!(tag_unix_stamp(i64::MAX), "<t:NaN:D>");
+        assert_eq!(tag_unix_stamp(i64::MIN), "<t:NaN:D>");
+    }
+
+    fn test_text() -> TagInfoText<'static> {
+        TagInfoText {
+            title_lbl: "Tag",
+            author_lbl: "Author",
+            created_lbl: "Created At",
+            updated_lbl: "Last Update",
+            uses_lbl: "Uses",
+            updated_by_lbl: "Last Updated By",
+            message_lbl: "Message",
+            no_set: "Not Set",
+            crown: "C",
+            sparkles: "S",
+            timer: "T",
+            badge: "B",
+            msg_cmd: "M",
+        }
+    }
+
+    #[test]
+    fn tag_info_text_matches_tag_helper_falsy_legs() {
+        let t = test_text();
+        // Fresh-create shape: null-ish lastUseBy/content -> no_set, but
+        // zero stamps still render (TS has no `> 0` guard).
+        let fresh = TagEntry {
+            create_by: "111".to_string(),
+            ..TagEntry::default()
+        };
+        let (title, desc) = tag_info_text("hello", &fresh, &t);
+        assert_eq!(title, "Tag #hello");
+        assert_eq!(
+            desc,
+            "C > **Author:** <@111>\nS > **Created At:** <t:0:D>\nT > **Last Update:** <t:0:D>\nT > **Uses:** **`0`**\nB > **Last Updated By:** Not Set\nM > **Message:** ** Not Set**"
+        );
+        // Whitespace-only values are JS-truthy: rendered verbatim, and the
+        // author mention is raw (no trim) like `<@${tag.createBy}>`.
+        let quirky = TagEntry {
+            create_by: " 222 ".to_string(),
+            create_timestamp: -500,
+            last_use_timestamp: 1718445600000,
+            last_use_by: " ".to_string(),
+            content: " ".to_string(),
+            uses: 3,
+            ..TagEntry::default()
+        };
+        let (_, desc) = tag_info_text("q", &quirky, &t);
+        assert_eq!(
+            desc,
+            "C > **Author:** <@ 222 >\nS > **Created At:** <t:-1:D>\nT > **Last Update:** <t:1718445600:D>\nT > **Uses:** **`3`**\nB > **Last Updated By:** <@ >\nM > **Message:** **  **"
+        );
+    }
+
+    #[test]
+    fn tag_store_tolerates_ts_null_legs() {
+        // !create.ts writes `lastUseBy: null`; `content` is optional-nullable.
+        // Either null must read as `""` (rendered no_set), never poison the
+        // whole-store parse into an empty store.
+        let v: serde_json::Value = serde_json::json!({
+            "stored_tags": {
+                "hello": {
+                    "embed_id": "",
+                    "create_by": "111",
+                    "uses": 1,
+                    "content": null,
+                    "create_timestamp": 1718445600000i64,
+                    "last_use_timestamp": 1718445600000i64,
+                    "last_use_by": null
+                }
+            }
+        });
+        let store: TagStore = serde_json::from_value(v).expect("null legs parse");
+        let e = store.stored_tags.get("hello").expect("tag present");
+        assert_eq!(e.content, "");
+        assert_eq!(e.last_use_by, "");
+        let t = test_text();
+        let (_, desc) = tag_info_text("hello", e, &t);
+        assert!(desc.contains("Last Updated By:** Not Set"));
+        assert!(desc.ends_with("Message:** ** Not Set**"));
     }
 
     #[test]
