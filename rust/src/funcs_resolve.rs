@@ -379,52 +379,110 @@ fn parse_int_ts(s: &str) -> f64 {
         None => (false, t),
     };
     let digits = rest.as_bytes();
-    let value = if digits.len() >= 2
-        && digits[0] == b'0'
-        && (digits[1] == b'x' || digits[1] == b'X')
-    {
-        // Hex leg: longest [0-9a-fA-F] run after the prefix.
-        let len = digits[2..]
-            .iter()
-            .take_while(|b| b.is_ascii_hexdigit())
-            .count();
-        if len == 0 {
-            return 0.0;
-        }
-        let hex = &rest[2..2 + len];
-        if len <= 32 {
-            // Fits u128 exactly; `as f64` rounds to nearest-even, the
-            // same value JS ToNumber yields for the exact integer.
-            u128::from_str_radix(hex, 16)
-                .map(|v| v as f64)
-                .unwrap_or(0.0)
-        } else {
-            // Absurd widths (>2^128): iterative f64 fold, then scale.
-            // Documented approximation, not pinned.
-            let mut v = 0.0f64;
-            for b in hex.bytes() {
-                v = v * 16.0
-                    + f64::from(
-                        b.to_ascii_uppercase() - b'0' - (if b.is_ascii_digit() { 0 } else { 7 }),
-                    );
+    let value =
+        if digits.len() >= 2 && digits[0] == b'0' && (digits[1] == b'x' || digits[1] == b'X') {
+            // Hex leg: longest [0-9a-fA-F] run after the prefix.
+            let len = digits[2..]
+                .iter()
+                .take_while(|b| b.is_ascii_hexdigit())
+                .count();
+            if len == 0 {
+                return 0.0;
             }
-            v
-        }
-    } else {
-        // Decimal leg: longest [0-9] run.
-        let len = digits.iter().take_while(|b| b.is_ascii_digit()).count();
-        if len == 0 {
-            return 0.0;
-        }
-        // Correctly-rounded decimal parse == JS ToNumber of the exact
-        // integer (both round-to-nearest-even; huge widths yield inf).
-        rest[..len].parse::<f64>().unwrap_or(0.0)
-    };
+            let hex = &rest[2..2 + len];
+            if len <= 32 {
+                // Fits u128 exactly; `as f64` rounds to nearest-even, the
+                // same value JS ToNumber yields for the exact integer.
+                u128::from_str_radix(hex, 16)
+                    .map(|v| v as f64)
+                    .unwrap_or(0.0)
+            } else {
+                // Absurd widths (>2^128): exact single-rounding conversion
+                // (like JS ToNumber on the exact integer). The old iterative
+                // `v * 16 + d` fold drifted ~1 ulp on rounding-boundary
+                // inputs (node ground truth: 24,544/237,372
+                // boundary-targeted cases diverge, e.g.
+                // `0x4bb9092a4bba020000000000000000001` folded to
+                // 1.61044576792645e+39 vs exact 1.6104457679264503e+39).
+                hex_wide_to_f64(hex)
+            }
+        } else {
+            // Decimal leg: longest [0-9] run.
+            let len = digits.iter().take_while(|b| b.is_ascii_digit()).count();
+            if len == 0 {
+                return 0.0;
+            }
+            // Correctly-rounded decimal parse == JS ToNumber of the exact
+            // integer (both round-to-nearest-even; huge widths yield inf).
+            rest[..len].parse::<f64>().unwrap_or(0.0)
+        };
     if neg {
         -value
     } else {
         value
     }
+}
+
+/// Exact `f64` value of a long ASCII-hex digit run: the exact integer
+/// rounded once to nearest-even, exactly what JS `ToNumber` yields.
+/// `hex` holds only `[0-9a-fA-F]` (guaranteed by the caller's
+/// `take_while`). Leading zeros shrink the significant width, so
+/// zero-padded-short values stay exact; magnitudes past `f64::MAX`
+/// yield Infinity like JS.
+fn hex_wide_to_f64(hex: &str) -> f64 {
+    let d = hex.as_bytes();
+    let mut i = 0;
+    while i < d.len() && d[i] == b'0' {
+        i += 1;
+    }
+    let sig = &d[i..];
+    if sig.is_empty() {
+        return 0.0;
+    }
+    let val = |b: u8| -> u32 { (b as char).to_digit(16).unwrap_or(0) };
+    let first_bits = 32 - val(sig[0]).leading_zeros();
+    let total_bits = first_bits as usize + 4 * (sig.len() - 1);
+    if total_bits <= 53 {
+        let mut v: u64 = 0;
+        for &b in sig {
+            v = v * 16 + val(b) as u64;
+        }
+        return v as f64;
+    }
+    // First 53 significant bits, then the round bit + sticky tail.
+    let mut m: u64 = 0;
+    let mut taken = 0usize;
+    let mut round = false;
+    let mut sticky = false;
+    for (idx, &b) in sig.iter().enumerate() {
+        let nv = val(b);
+        let width = if idx == 0 { first_bits } else { 4 };
+        for k in (0..width).rev() {
+            let bit = (nv >> k) & 1 == 1;
+            if taken < 53 {
+                m = (m << 1) | u64::from(bit);
+                taken += 1;
+            } else if taken == 53 {
+                round = bit;
+                taken += 1;
+            } else {
+                sticky |= bit;
+            }
+        }
+    }
+    if round && (sticky || m & 1 == 1) {
+        m += 1;
+    }
+    let mut exp = total_bits - 53;
+    if m >= 1 << 53 {
+        m >>= 1;
+        exp += 1;
+    }
+    // Past ~2^1100 every mantissa overflows: Infinity, like JS.
+    if exp > 1100 {
+        return f64::INFINITY;
+    }
+    (m as f64) * 2f64.powi(exp as i32)
 }
 
 /// Subtract coins from a member's wallet. Mirrors subCoins in
@@ -757,6 +815,67 @@ mod tests {
         assert_eq!(n(""), 0.0);
         assert_eq!(n(" "), 0.0);
         assert_eq!(resolve_number(&[], 0), 0.0);
+    }
+
+    #[test]
+    fn giant_hex_matches_js_single_rounding() {
+        // Node ground truth for >32-digit hex runs (W6 slice 40): the
+        // old iterative fold drifted ~1 ulp on rounding boundaries.
+        let n = |s: &str| resolve_number(&[s.to_string()], 0);
+        assert_eq!(
+            n("0x4bb9092a4bba020000000000000000001"),
+            1.6104457679264503e39
+        );
+        assert_eq!(
+            n("0x647549f05c8a020000000000000000001"),
+            2.1365087675238353e39
+        );
+        assert_eq!(
+            n("0x22b991f261da01fffffffffffffffffff"),
+            7.385165908545207e38
+        );
+        assert_eq!(
+            n("0x22b991f261d9fdfffffffffffffffffff"),
+            7.385165908545204e38
+        );
+        assert_eq!(
+            n("0x500b1998afaa020000000000000000001"),
+            1.7023339853683738e39
+        );
+        assert_eq!(
+            n(&("0x".to_string() + &"F".repeat(33))),
+            5.444517870735016e39
+        );
+        assert_eq!(
+            n(&("0x1".to_string() + &"f".repeat(32))),
+            6.80564733841877e38
+        );
+        assert_eq!(
+            n("0x10000000000000000000000000000000000000000"),
+            1.461501637330903e48
+        );
+        assert_eq!(
+            n("0x80000000000000000000000000000000000000000"),
+            1.1692013098647223e49
+        );
+        assert_eq!(
+            n("0x7ffffffffffffffffffffffffffffffffffffffff"),
+            1.1692013098647223e49
+        );
+        assert_eq!(
+            n("0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"),
+            1.0072043472637575e77
+        );
+        // Zero-padded-short stays exact; overflow is Infinity like JS.
+        assert_eq!(n("0x0000000000000000000000000000000000000000ff"), 255.0);
+        assert_eq!(n("0x000000000000000000000000000000000"), 0.0);
+        assert_eq!(n("0x"), 0.0);
+        assert_eq!(n("0xZZZ"), 0.0);
+        assert_eq!(n("0xdeadBEEF"), 3735928559.0);
+        let neg = n("-0xffffffffffffffffffffffffffffffffffffffff");
+        assert_eq!(neg, -1.461501637330903e48);
+        assert!(n(&("0x".to_string() + &"f".repeat(400))).is_infinite());
+        assert!(n(&("0x".to_string() + &"0".repeat(400))).eq(&0.0));
     }
 
     #[test]
