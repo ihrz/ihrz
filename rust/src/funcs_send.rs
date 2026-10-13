@@ -306,16 +306,15 @@ fn is_all_digits(s: &str) -> bool {
     !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
 }
 
-fn is_numeric(s: &str) -> bool {
-    let v = s.trim();
-    if v.is_empty() {
-        return false;
-    }
-    v.parse::<f64>().is_ok()
-        || v.strip_prefix("0x")
-            .or_else(|| v.strip_prefix("0X"))
-            .map(|h| !h.is_empty() && h.bytes().all(|b| b.is_ascii_hexdigit()))
-            .unwrap_or(false)
+/// Mirrors `!isNaN(Number(s))` exactly: empty/blank is 0 (valid) and the
+/// rest follows the JS Number grammar pinned by the W6 slice 9 battery
+/// (`funcs_resolve::is_number`: unsigned 0x/0b/0o legs, exact-case
+/// Infinity trio, decimal+exponent scan). Note `parse::<f64>` alone is
+/// wrong here: it accepts `nan`/`inf`/`infinity` (all NaN in TS) and
+/// rejects `0b`/`0o` (both numeric in TS). Trim-set micro-edge inherited
+/// from slice 9 (Rust trim also strips U+0085, JS does not).
+fn is_js_number(s: &str) -> bool {
+    s.trim().is_empty() || crate::funcs_resolve::is_number(s)
 }
 
 /// Pure core of isValidArgument. Mention / id / numeric / choices /
@@ -340,40 +339,45 @@ fn check_shape(type_label: &str, value: &str) -> Shape {
     match type_label {
         "string" => Shape::Valid,
         "unknown" => Shape::Valid,
-        // TS Number("") === 0 (valid); hex parses too.
+        // TS Number("") === 0 (valid); 0b/0o/Infinity valid, nan/inf invalid.
         "number" => {
-            if value.trim().is_empty() || is_numeric(value) {
+            if is_js_number(value) {
                 Shape::Valid
             } else {
                 Shape::Invalid
             }
         }
-        // TS: mention, !isNaN(Number(arg)) (so "1e3" counts), else username.
+        // TS: /^<@!?(\d+)>$/ on the RAW arg (no trim, no length floor),
+        // then !isNaN(Number(arg)) (so "1e3"/"0b101" count, "" counts),
+        // else username lookup.
         "user" => {
-            let v = value.trim();
-            let inner = v
+            let inner = value
                 .strip_prefix("<@")
                 .and_then(|s| s.strip_suffix('>'))
                 .map(|s| s.strip_prefix('!').unwrap_or(s));
             mention_or_numeric(
-                inner.map(is_all_digits).unwrap_or(false) && v.len() > 4,
-                is_numeric(v),
+                inner.map(is_all_digits).unwrap_or(false),
+                is_js_number(value),
             )
         }
-        "roles" => {
-            let v = value.trim();
-            mention_or_numeric(
-                v.starts_with("<@&") && v.ends_with('>') && is_all_digits(&v[3..v.len() - 1]),
-                is_numeric(v),
-            )
-        }
-        "channel" => {
-            let v = value.trim();
-            mention_or_numeric(
-                v.starts_with("<#") && v.ends_with('>') && is_all_digits(&v[2..v.len() - 1]),
-                is_all_digits(v),
-            )
-        }
+        // TS: /^<@&(\d+)>$/ on the RAW arg (<@&!..> never matches),
+        // then Number leg, else role-name lookup.
+        "roles" => mention_or_numeric(
+            value.starts_with("<@&")
+                && value.ends_with('>')
+                && is_all_digits(&value[3..value.len() - 1]),
+            is_js_number(value),
+        ),
+        // TS: /^<#(\d+)>$/ or /^\d+$/ on the RAW arg, then a live
+        // cache.get ?? fetch + channel-type gate with name/fuzzy fallback
+        // (Discord I/O: resolved by the live caller, like every other
+        // GuildLookup). Pure shape keeps id-forms Valid without trimming.
+        "channel" => mention_or_numeric(
+            value.starts_with("<#")
+                && value.ends_with('>')
+                && is_all_digits(&value[2..value.len() - 1]),
+            is_all_digits(value),
+        ),
         _ => Shape::Invalid,
     }
 }
@@ -915,6 +919,40 @@ mod tests {
         assert_eq!(check_shape("channel", "<#123>"), Shape::Valid);
         assert_eq!(check_shape("channel", "123"), Shape::Valid);
         assert_eq!(check_shape("channel", "general"), Shape::GuildLookup);
+    }
+
+    #[test]
+    fn check_shape_matches_ts_is_valid_argument_quirks() {
+        // Number leg mirrors !isNaN(Number(arg)) (node ground truth):
+        // radix + Infinity trio valid, Rust-parse-only spellings invalid,
+        // empty/blank valid like Number("") === 0.
+        assert_eq!(check_shape("number", "0b101"), Shape::Valid);
+        assert_eq!(check_shape("number", "0o17"), Shape::Valid);
+        assert_eq!(check_shape("number", "0B101"), Shape::Valid);
+        assert_eq!(check_shape("number", "Infinity"), Shape::Valid);
+        assert_eq!(check_shape("number", ""), Shape::Valid);
+        assert_eq!(check_shape("number", " "), Shape::Valid);
+        assert_eq!(check_shape("number", "nan"), Shape::Invalid);
+        assert_eq!(check_shape("number", "inf"), Shape::Invalid);
+        assert_eq!(check_shape("number", "infinity"), Shape::Invalid);
+        assert_eq!(check_shape("number", "0x"), Shape::Invalid);
+        assert_eq!(check_shape("number", "1_2"), Shape::Invalid);
+        assert_eq!(check_shape("number", "0b102"), Shape::Invalid);
+        // User mention is tested on the RAW arg: no trim, no length floor.
+        assert_eq!(check_shape("user", "<@1>"), Shape::Valid);
+        assert_eq!(check_shape("user", "<@!1>"), Shape::Valid);
+        assert_eq!(check_shape("user", " <@123> "), Shape::GuildLookup);
+        assert_eq!(check_shape("user", ""), Shape::Valid);
+        assert_eq!(check_shape("user", "0b101"), Shape::Valid);
+        assert_eq!(check_shape("user", "nan"), Shape::GuildLookup);
+        // Roles mention likewise raw; <@&!..> never matches either side.
+        assert_eq!(check_shape("roles", " <@&123> "), Shape::GuildLookup);
+        assert_eq!(check_shape("roles", "<@&!123>"), Shape::GuildLookup);
+        assert_eq!(check_shape("roles", "0o17"), Shape::Valid);
+        // Channel mention/id likewise raw (cache/type-gate stays live-side).
+        assert_eq!(check_shape("channel", "<#1>"), Shape::Valid);
+        assert_eq!(check_shape("channel", " <#123>"), Shape::GuildLookup);
+        assert_eq!(check_shape("channel", " 123"), Shape::GuildLookup);
     }
 
     #[test]
