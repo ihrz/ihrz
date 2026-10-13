@@ -1104,10 +1104,11 @@ pub fn mask_tracks(mut tracks: Vec<Track>) -> Vec<Track> {
     tracks
 }
 
-/// Levenshtein distance (mirrors `music_proximity.levenshtein`).
+/// Levenshtein distance (mirrors `music_proximity.levenshtein`:
+/// TS indexes UTF-16 code units, so astral chars count 2).
 pub fn levenshtein(a: &str, b: &str) -> usize {
-    let a: Vec<char> = a.chars().collect();
-    let b: Vec<char> = b.chars().collect();
+    let a: Vec<u16> = a.encode_utf16().collect();
+    let b: Vec<u16> = b.encode_utf16().collect();
     let mut prev: Vec<usize> = (0..=b.len()).collect();
     for i in 1..=a.len() {
         let mut cur = vec![i; b.len() + 1];
@@ -1120,10 +1121,11 @@ pub fn levenshtein(a: &str, b: &str) -> usize {
     prev[b.len()]
 }
 
-/// Similarity score in 0..=1 (mirrors `music_proximity.similarity`).
+/// Similarity score in 0..=1 (mirrors `music_proximity.similarity`:
+/// maxLen is the ORIGINAL strings in UTF-16 units).
 pub fn proximity_similarity(a: &str, b: &str) -> f64 {
     let dist = levenshtein(&a.to_lowercase(), &b.to_lowercase()) as f64;
-    let max_len = a.chars().count().max(b.chars().count()) as f64;
+    let max_len = a.encode_utf16().count().max(b.encode_utf16().count()) as f64;
     if max_len == 0.0 {
         1.0
     } else {
@@ -1140,7 +1142,8 @@ pub fn build_track_label(title: &str, author: &str) -> String {
 }
 
 /// Word-level fuzzy match (mirrors `music_proximity.isSimilar` with
-/// its default 0.5 / 0.6 thresholds): every query word needs a
+/// its default 0.5 / 0.6 thresholds): words split on the JS `\s` set
+/// (U+0085 does NOT split, U+FEFF does); every query word needs a
 /// track word scoring >= word_threshold, and the share of matched
 /// words must reach threshold.
 pub fn is_similar(query: &str, title: &str, author: &str) -> bool {
@@ -1156,14 +1159,16 @@ pub fn is_similar_thresholds(
 ) -> bool {
     let query_words: Vec<String> = query
         .to_lowercase()
-        .split_whitespace()
+        .split(crate::funcs::is_js_whitespace)
+        .filter(|w| !w.is_empty())
         .map(str::to_string)
         .collect();
     if query_words.is_empty() {
         return false;
     }
     let track_words: Vec<String> = format!("{} {}", author.to_lowercase(), title.to_lowercase())
-        .split_whitespace()
+        .split(crate::funcs::is_js_whitespace)
+        .filter(|w| !w.is_empty())
         .map(str::to_string)
         .collect();
     let mut matched = 0usize;
@@ -5841,6 +5846,32 @@ mod tests {
         assert_eq!(mask_link("x https://evil.test"), "Hidden Link");
         assert_eq!(mask_link("join .gg/abc"), "Hidden Link");
         assert_eq!(mask_link("a.com song"), "Hidden Link");
+    }
+
+    #[test]
+    fn proximity_matches_ts_utf16_units() {
+        // Node ground truth: TS lengths are UTF-16 units, astral = 2.
+        assert_eq!(levenshtein("\u{1F600}", "X"), 2);
+        assert!(
+            (proximity_similarity("\u{1F600}", "\u{1F600}x") - (1.0 - 1.0 / 3.0)).abs() < 1e-12
+        );
+        assert_eq!(proximity_similarity("\u{1F600}", "X"), 0.0);
+        // JS \s word split: U+0085 does NOT split (one word, no hit)...
+        assert!(!is_similar_thresholds(
+            "never\u{85}gonna",
+            "x",
+            "never gonna",
+            0.5,
+            0.6
+        ));
+        // ...while U+FEFF does (two words, both exact hits).
+        assert!(is_similar_thresholds(
+            "never\u{FEFF}gonna",
+            "x",
+            "never gonna",
+            0.5,
+            0.6
+        ));
     }
 
     #[test]

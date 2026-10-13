@@ -287,8 +287,9 @@ pub struct VoiceChannel {
 }
 
 fn levenshtein(a: &str, b: &str) -> usize {
-    let a: Vec<char> = a.chars().collect();
-    let b: Vec<char> = b.chars().collect();
+    // TS indexes UTF-16 code units; astral chars count 2.
+    let a: Vec<u16> = a.encode_utf16().collect();
+    let b: Vec<u16> = b.encode_utf16().collect();
     let mut prev: Vec<usize> = (0..=b.len()).collect();
     let mut cur = vec![0usize; b.len() + 1];
     for i in 1..=a.len() {
@@ -303,9 +304,10 @@ fn levenshtein(a: &str, b: &str) -> usize {
 }
 
 /// Lowercased similarity in [0,1]. Mirrors music_proximity similarity():
-/// distance on the lowercased pair, maxLen from the ORIGINAL strings.
+/// distance on the lowercased pair, maxLen from the ORIGINALS in UTF-16
+/// units (astral chars count 2).
 pub fn similarity(a: &str, b: &str) -> f64 {
-    let max = a.chars().count().max(b.chars().count());
+    let max = a.encode_utf16().count().max(b.encode_utf16().count());
     if max == 0 {
         return 1.0;
     }
@@ -483,6 +485,16 @@ mod tests {
         // TS music_proximity similarity(): maxLen from the ORIGINALS.
         assert_eq!(similarity("İ", "i"), 0.0);
         assert_eq!(similarity("", ""), 1.0);
+    }
+
+    #[test]
+    fn similarity_matches_ts_utf16_units() {
+        // Node ground truth: TS lengths are UTF-16 units, astral = 2.
+        assert_eq!(levenshtein("\u{1F600}", "X"), 2);
+        assert_eq!(levenshtein("A\u{1F600}", "A"), 2);
+        assert!((similarity("\u{1F600}", "\u{1F600}x") - (1.0 - 1.0 / 3.0)).abs() < 1e-12);
+        assert!((similarity("A\u{1F600}", "A\u{1F600}x") - 0.75).abs() < 1e-12);
+        assert_eq!(similarity("\u{1F600}", "X"), 0.0);
     }
 
     #[test]

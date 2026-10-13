@@ -51,11 +51,11 @@ pub fn route_source(url: &str) -> MusicSource {
 }
 
 /// Levenshtein edit distance. Mirrors music_proximity.ts
-/// levenshtein() (TS indexes UTF-16 code units; char iteration here
-/// is identical for BMP text).
+/// levenshtein(): TS indexes UTF-16 code units (`a[i - 1]`), so astral
+/// chars count 2 (node ground truth: lev("\u{1F600}","X") == 2).
 pub fn levenshtein(a: &str, b: &str) -> usize {
-    let a: Vec<char> = a.chars().collect();
-    let b: Vec<char> = b.chars().collect();
+    let a: Vec<u16> = a.encode_utf16().collect();
+    let b: Vec<u16> = b.encode_utf16().collect();
     let mut prev: Vec<usize> = (0..=b.len()).collect();
     let mut cur = vec![0usize; b.len() + 1];
     for i in 1..=a.len() {
@@ -71,16 +71,16 @@ pub fn levenshtein(a: &str, b: &str) -> usize {
 
 /// Normalized string similarity. Mirrors similarity(): the edit
 /// distance runs on the lowercased pair but maxLen is taken from the
-/// ORIGINAL strings (`Math.max(a.length, b.length)`), so inputs whose
-/// length changes under lowercasing (e.g. U+0130) divide by the
-/// pre-lowercase length. (Char counts stand in for UTF-16 units;
-/// identical for BMP text.) Empty pair yields 1.0. Carve-out: the
-/// channel-name fuzzy leg in method.ts `isValidArgument`
+/// ORIGINAL strings in UTF-16 units (`Math.max(a.length, b.length)`),
+/// so astral chars count 2 AND length changes under lowercasing
+/// (e.g. U+0130) still divide by the pre-lowercase length (node ground
+/// truth: sim("\u{1F600}","\u{1F600}x") == 1-1/3, sim("İ","i") == 0). Empty pair
+/// yields 1.0. Carve-out: the channel-name fuzzy leg in method.ts `isValidArgument`
 /// (`similarity(query, name) >= 0.6`) reuses this metric but stays
 /// delivery-side (needs the guild cache); only the music-search gate
 /// (`is_similar` below) is modeled here.
 pub fn similarity(a: &str, b: &str) -> f64 {
-    let max_len = a.chars().count().max(b.chars().count());
+    let max_len = a.encode_utf16().count().max(b.encode_utf16().count());
     if max_len == 0 {
         return 1.0;
     }
@@ -90,9 +90,11 @@ pub fn similarity(a: &str, b: &str) -> f64 {
 }
 
 /// Word-level similarity gate. Mirrors isSimilar(query, track,
-/// threshold = 0.5, wordThreshold): each query word must reach
-/// wordThreshold against its best "author title" word, and the hit
-/// fraction must reach threshold. Empty queries never match
+/// threshold = 0.5, wordThreshold): words split on the JS `\s` set
+/// (U+0085 does NOT split, U+FEFF does — `split_whitespace` had both
+/// exactly backwards), each query word must reach wordThreshold
+/// against its best "author title" word, and the hit fraction must
+/// reach threshold. Empty queries never match
 /// (TS yields NaN, which fails the comparison).
 pub fn is_similar(
     query: &str,
@@ -101,12 +103,19 @@ pub fn is_similar(
     threshold: f64,
     word_threshold: f64,
 ) -> bool {
-    let query_words: Vec<&str> = query.split_whitespace().collect();
+    let lowered_query = query.to_lowercase();
+    let query_words: Vec<&str> = lowered_query
+        .split(crate::funcs::is_js_whitespace)
+        .filter(|w| !w.is_empty())
+        .collect();
     if query_words.is_empty() {
         return false;
     }
-    let track = format!("{author} {title}");
-    let track_words: Vec<&str> = track.split_whitespace().collect();
+    let track = format!("{} {}", author.to_lowercase(), title.to_lowercase());
+    let track_words: Vec<&str> = track
+        .split(crate::funcs::is_js_whitespace)
+        .filter(|w| !w.is_empty())
+        .collect();
     let mut hits = 0;
     for q in &query_words {
         let best = track_words
@@ -290,6 +299,34 @@ mod tests {
         // TS: maxLen = Math.max(a.length, b.length) on the ORIGINALS.
         // "İ".toLowerCase() is 2 units ("i̇") but maxLen is 1, distance 1.
         assert_eq!(similarity("İ", "i"), 0.0);
+    }
+
+    #[test]
+    fn proximity_matches_ts_utf16_units() {
+        // Node ground truth (music_proximity.ts indexes UTF-16 units).
+        assert_eq!(levenshtein("\u{1F600}", "X"), 2);
+        assert_eq!(levenshtein("A\u{1F600}", "A"), 2);
+        assert_eq!(levenshtein("\u{1F600}", "\u{1F600}"), 0);
+        assert!((similarity("\u{1F600}", "\u{1F600}x") - (1.0 - 1.0 / 3.0)).abs() < 1e-12);
+        assert!((similarity("A\u{1F600}", "A\u{1F600}x") - 0.75).abs() < 1e-12);
+        assert_eq!(similarity("\u{1F600}", "X"), 0.0);
+        // JS \s word split: U+0085 does NOT split (one 11-unit word,
+        // best 0.45 < 0.6 -> no match)...
+        assert!(!is_similar(
+            "never\u{85}gonna",
+            "x",
+            "never gonna live",
+            0.5,
+            0.6
+        ));
+        // ...while U+FEFF does (two words, both exact hits).
+        assert!(is_similar(
+            "never\u{FEFF}gonna",
+            "x",
+            "never gonna live",
+            0.5,
+            0.6
+        ));
     }
 
     #[test]
