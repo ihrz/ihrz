@@ -86,11 +86,18 @@ pub struct PrefixArgsError {
 }
 
 /// Split post-prefix content into args. Mirrors
-/// `content.slice(prefix.length).trim().split(/ +/g)`: whitespace runs
-/// collapse, and empty input yields a single empty arg so the
-/// `(len == 1 && args[0] == "")` missing check below still fires.
+/// `content.slice(prefix.length).trim().split(/ +/g)`: ONLY ASCII-space
+/// runs separate args — interior TAB/LF/CR/VT/FF/NBSP/FEFF stay glued
+/// inside a single arg (node ground truth: `"a\tb"` -> `["a\tb"]`,
+/// while `split_whitespace` wrongly gave `["a", "b"]`). Edges trim with
+/// the JS set (`js_trim`), and empty input yields a single empty arg so
+/// the `(len == 1 && args[0] == "")` missing check below still fires.
 pub fn split_args(rest: &str) -> Vec<String> {
-    let words: Vec<String> = rest.split_whitespace().map(str::to_string).collect();
+    let words: Vec<String> = crate::funcs::js_trim(rest)
+        .split(' ')
+        .filter(|w| !w.is_empty())
+        .map(str::to_string)
+        .collect();
     if words.is_empty() {
         return vec![String::new()];
     }
@@ -331,6 +338,17 @@ mod tests {
         );
         assert_eq!(split_args(""), vec![""]);
         assert_eq!(split_args("   "), vec![""]);
+        // Node ground truth for `trim().split(/ +/g)`: only ASCII-space
+        // runs separate — interior TAB/LF/CR/VT/FF/NBSP/FEFF stay glued.
+        assert_eq!(split_args("a\tb"), vec!["a\tb"]);
+        assert_eq!(split_args("a\nb"), vec!["a\nb"]);
+        assert_eq!(split_args("a\rb"), vec!["a\rb"]);
+        assert_eq!(split_args("a\u{b}b"), vec!["a\u{b}b"]);
+        assert_eq!(split_args("a\u{c}b"), vec!["a\u{c}b"]);
+        assert_eq!(split_args("a b"), vec!["a b"]);
+        assert_eq!(split_args("a﻿b"), vec!["a﻿b"]);
+        assert_eq!(split_args("\tban\tx\t"), vec!["ban\tx"]);
+        assert_eq!(split_args("﻿ban﻿"), vec!["ban"]);
     }
 
     #[test]
