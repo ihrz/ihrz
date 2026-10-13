@@ -660,6 +660,52 @@ pub fn render_account_time_slots(
     )
 }
 
+/// Locale short-date for the {createdAt} slot. Mirrors
+/// `user.createdAt.toLocaleDateString(guildLocal)` (server-local
+/// timezone; guild LANG, `"en-US"` fallback). Shapes pinned from
+/// node v24 full-icu ground truth: en-US + jp-JP/fallback
+/// `M/D/YYYY`, fr-FR/fr-ME/it-IT/pt-PT `DD/MM/YYYY`, es-ES
+/// `D/M/YYYY`, de-DE `D.M.YYYY`, ru-RU `DD.MM.YYYY`, ar-EG
+/// arabic-indic digits with RLM separators. Unknown locales fall
+/// back like Node (host default, the en-US shape here). The date
+/// comes from chrono::Local like format_date (slice 8); an
+/// out-of-range stamp yields the TS "Invalid Date" literal.
+pub fn locale_date_string(created_unix_secs: i64, lang: &str) -> String {
+    let local = chrono::DateTime::from_timestamp(created_unix_secs, 0)
+        .map(|dt| dt.with_timezone(&chrono::Local).date_naive());
+    match local {
+        Some(d) => {
+            use chrono::Datelike;
+            format_locale_date(d.year(), d.month(), d.day(), lang)
+        }
+        None => "Invalid Date".to_string(),
+    }
+}
+
+/// Pure locale short-date formatter (no clock/TZ involved, fully
+/// pinnable). Mirrors the node ground-truth shapes documented on
+/// [`locale_date_string`].
+pub fn format_locale_date(year: i32, month: u32, day: u32, lang: &str) -> String {
+    if lang == "ar-EG" {
+        let ar = |n: u32| {
+            n.to_string()
+                .chars()
+                .map(|c| char::from_u32(c as u32 - '0' as u32 + 0x660).unwrap_or(c))
+                .collect::<String>()
+        };
+        return format!("{}\u{200f}/{}\u{200f}/{}", ar(day), ar(month), ar(year as u32));
+    }
+    match lang {
+        "fr-FR" | "fr-ME" | "it-IT" | "pt-PT" => {
+            format!("{day:02}/{month:02}/{year}")
+        }
+        "es-ES" => format!("{day}/{month}/{year}"),
+        "de-DE" => format!("{day}.{month}.{year}"),
+        "ru-RU" => format!("{day:02}.{month:02}.{year}"),
+        _ => format!("{month}/{day}/{year}"),
+    }
+}
+
 /// Join-role list from the welcomer blob. Mirrors joinRole.ts
 /// (GUILD.GUILD_CONFIG.joinroles as string | string[]), falling back
 /// to the legacy GUILD.JOIN_ROLE row written by the old setter.
@@ -1632,6 +1678,52 @@ mod tests {
         );
         assert_eq!(chained, "bob 01/15/2023");
         assert_eq!(render_account_time_slots("plain", "x", 0), "plain");
+    }
+
+    #[test]
+    fn locale_date_shapes_match_ts() {
+        // Node v24 full-icu ground truth for 2024-01-15 (probe scripts).
+        assert_eq!(format_locale_date(2024, 1, 15, "en-US"), "1/15/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "fr-FR"), "15/01/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "fr-ME"), "15/01/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "it-IT"), "15/01/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "pt-PT"), "15/01/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "es-ES"), "15/1/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "de-DE"), "15.1.2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "ru-RU"), "15.01.2024");
+        // "jp-JP" is not valid BCP47 (correct tag is "ja"), so Node
+        // falls back to the host default en-US shape.
+        assert_eq!(format_locale_date(2024, 1, 15, "jp-JP"), "1/15/2024");
+        assert_eq!(format_locale_date(2024, 1, 15, "xx-YY"), "1/15/2024");
+        // ar-EG: arabic-indic digits + RLM (U+200F) after day/month.
+        assert_eq!(
+            format_locale_date(2024, 1, 15, "ar-EG"),
+            "١٥\u{200f}/١\u{200f}/٢٠٢٤"
+        );
+        // Padding legs.
+        assert_eq!(format_locale_date(2024, 12, 5, "en-US"), "12/5/2024");
+        assert_eq!(format_locale_date(2024, 12, 5, "fr-FR"), "05/12/2024");
+        assert_eq!(format_locale_date(2024, 12, 5, "ru-RU"), "05.12.2024");
+    }
+
+    #[test]
+    fn locale_date_string_uses_local_civil_date() {
+        // TZ-agnostic: the stamp must render the chrono::Local civil
+        // date (like TS toLocaleDateString on the server), whatever
+        // the host offset is.
+        let stamp = 1705321845; // 2024-01-15T12:30:45Z
+        let local = chrono::DateTime::from_timestamp(stamp, 0)
+            .map(|dt| dt.with_timezone(&chrono::Local).date_naive())
+            .unwrap();
+        use chrono::Datelike;
+        assert_eq!(
+            locale_date_string(stamp, "en-US"),
+            format_locale_date(local.year(), local.month(), local.day(), "en-US")
+        );
+        assert_eq!(
+            locale_date_string(stamp, "fr-FR"),
+            format_locale_date(local.year(), local.month(), local.day(), "fr-FR")
+        );
     }
 
     #[test]

@@ -5414,12 +5414,23 @@ impl serenity::EventHandler for Handler {
                 .guild(new_member.guild_id)
                 .map(|g| g.name.clone())
                 .unwrap_or_else(|| "this server".to_string());
-            let text = crate::events::render_join_dm(
-                &tpl,
-                &new_member.user.name,
-                &new_member.user.mention().to_string(),
-                count,
-                &guild_name,
+            // Date slots are part of generateCustomMessagePreview (TS
+            // substitutes {createdAt}/{accountCreationTimestamp} on
+            // every call); joinDm.ts passes the guild LANG (en-US
+            // fallback) as guildLocal.
+            let dm_lang = crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
+            let dm_created = new_member.user.created_at().unix_timestamp();
+            let dm_date = crate::events::locale_date_string(dm_created, &dm_lang);
+            let text = crate::events::render_account_time_slots(
+                &crate::events::render_join_dm(
+                    &tpl,
+                    &new_member.user.name,
+                    &new_member.user.mention().to_string(),
+                    count,
+                    &guild_name,
+                ),
+                &dm_date,
+                dm_created,
             );
             let button = serenity::CreateButton::new("join-dm-from-server")
                 .label(format!("Message from {}", new_member.guild_id.get()))
@@ -5509,9 +5520,7 @@ impl serenity::EventHandler for Handler {
                         .map(str::to_string)
                         .unwrap_or_else(|| text(default_key));
                     let created = new_member.user.created_at().unix_timestamp();
-                    let created_date = chrono::DateTime::from_timestamp(created, 0)
-                        .map(|dt| dt.format("%d/%m/%Y").to_string())
-                        .unwrap_or_default();
+                    let created_date = crate::events::locale_date_string(created, &lang_code);
                     let render_join = |tpl: &str| {
                         render_join_leave_text(
                             tpl,
@@ -6013,9 +6022,7 @@ impl serenity::EventHandler for Handler {
                 None => (0, "this server".to_string()),
             };
             let leave_created = user.created_at().unix_timestamp();
-            let leave_date = chrono::DateTime::from_timestamp(leave_created, 0)
-                .map(|dt| dt.format("%d/%m/%Y").to_string())
-                .unwrap_or_default();
+            let leave_date = crate::events::locale_date_string(leave_created, &lang_code);
             let render_leave = |tpl: &str| {
                 render_join_leave_text(
                     tpl,
