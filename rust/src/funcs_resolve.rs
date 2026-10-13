@@ -350,21 +350,79 @@ pub fn resolve_long_string(args: &[String], index: usize) -> Option<String> {
     }
 }
 
-/// Parsed int arg, 0 on NaN. Mirrors method.ts number()
-/// (`Number.isNaN(parseInt(value)) ? 0 : parseInt(value)`).
-///
-/// DECISION (number-coercion): TS parseInt is lenient — parseInt("42abc")
-/// is 42, parseInt("3.9") is 3, parseInt("0x10") is 16 — while this port
-/// uses a strict whole-string i64 parse (anything non-canonical -> 0).
-/// Strict is deliberate: prefix args arrive pre-split on whitespace, so
-/// trailing garbage ("42abc") is user error, not a numeric prefix worth
-/// salvaging, and hex/float truncation would surprise per-command range
-/// checks. Canonical ints ("42", "-7") agree with TS exactly; only the
-/// garbage cases differ, and both sides yield 0 for missing/empty input.
-pub fn resolve_number(args: &[String], index: usize) -> i64 {
-    args.get(index)
-        .and_then(|s| s.parse::<i64>().ok())
-        .unwrap_or(0)
+/// Parsed int arg, 0 on NaN. Mirrors method.ts number() exactly
+/// (`Number.isNaN(parseInt(value)) ? 0 : parseInt(value)`), pinned by a
+/// node ground-truth battery (53 cases, W6 slice 25):
+/// leading JS-whitespace stripped (incl. NBSP/FEFF), one optional sign,
+/// `0x`/`0X` hex leg (needs 1+ hex digits, else NaN like `"0x"`), else
+/// the longest ASCII-digit prefix (`"42abc"` -> 42, `"3.9"` -> 3,
+/// `"1e3"` -> 1, `"0b101"` -> 0, `".5"`/`"Infinity"`/empty -> NaN -> 0).
+/// Decimal magnitudes use correctly-rounded `f64` parsing, so huge
+/// inputs agree bit-for-bit (`"99999999999999999999"` -> 1e20,
+/// `"9007199254740993"` -> 9007199254740992); the sign survives zero
+/// (`"-0"` -> -0.0, and `"-000"` too). Missing args are `undefined` in
+/// TS (`parseInt(undefined)` is NaN), hence 0.0.
+/// Returns `f64` because parseInt returns a JS number (magnitudes past
+/// `i64::MAX` stay finite, e.g. 1e20).
+pub fn resolve_number(args: &[String], index: usize) -> f64 {
+    args.get(index).map(|s| parse_int_ts(s)).unwrap_or(0.0)
+}
+
+/// `parseInt(s)` without radix, returning 0.0 for NaN (the
+/// `Number.isNaN(...) ? 0 : ...` wrapper in `number()`).
+fn parse_int_ts(s: &str) -> f64 {
+    let t = s.trim_start_matches(crate::funcs::is_js_whitespace);
+    let (neg, rest) = match t.strip_prefix(['+', '-']) {
+        Some(r) => (t.starts_with('-'), r),
+        None => (false, t),
+    };
+    let digits = rest.as_bytes();
+    let value = if digits.len() >= 2
+        && digits[0] == b'0'
+        && (digits[1] == b'x' || digits[1] == b'X')
+    {
+        // Hex leg: longest [0-9a-fA-F] run after the prefix.
+        let len = digits[2..]
+            .iter()
+            .take_while(|b| b.is_ascii_hexdigit())
+            .count();
+        if len == 0 {
+            return 0.0;
+        }
+        let hex = &rest[2..2 + len];
+        if len <= 32 {
+            // Fits u128 exactly; `as f64` rounds to nearest-even, the
+            // same value JS ToNumber yields for the exact integer.
+            u128::from_str_radix(hex, 16)
+                .map(|v| v as f64)
+                .unwrap_or(0.0)
+        } else {
+            // Absurd widths (>2^128): iterative f64 fold, then scale.
+            // Documented approximation, not pinned.
+            let mut v = 0.0f64;
+            for b in hex.bytes() {
+                v = v * 16.0
+                    + f64::from(
+                        b.to_ascii_uppercase() - b'0' - (if b.is_ascii_digit() { 0 } else { 7 }),
+                    );
+            }
+            v
+        }
+    } else {
+        // Decimal leg: longest [0-9] run.
+        let len = digits.iter().take_while(|b| b.is_ascii_digit()).count();
+        if len == 0 {
+            return 0.0;
+        }
+        // Correctly-rounded decimal parse == JS ToNumber of the exact
+        // integer (both round-to-nearest-even; huge widths yield inf).
+        rest[..len].parse::<f64>().unwrap_or(0.0)
+    };
+    if neg {
+        -value
+    } else {
+        value
+    }
 }
 
 /// Subtract coins from a member's wallet. Mirrors subCoins in
@@ -628,19 +686,65 @@ mod tests {
         assert_eq!(resolve_string(&args, 9), None);
         assert_eq!(resolve_long_string(&args, 1).as_deref(), Some("42 "));
         assert_eq!(resolve_long_string(&args, 9), None);
-        assert_eq!(resolve_number(&args, 1), 42);
-        assert_eq!(resolve_number(&args, 0), 0);
-        assert_eq!(resolve_number(&args, 9), 0);
+        assert_eq!(resolve_number(&args, 1), 42.0);
+        assert_eq!(resolve_number(&args, 0), 0.0);
+        assert_eq!(resolve_number(&args, 9), 0.0);
     }
 
     #[test]
-    fn number_coercion_is_strict_unlike_parse_int() {
-        // DECISION record (see resolve_number docs): TS parseInt would
-        // salvage 42 from "42abc" and 3 from "3.9"; the port yields 0.
-        let args = vec!["42abc".to_string(), "3.9".to_string(), "0x10".to_string()];
-        assert_eq!(resolve_number(&args, 0), 0);
-        assert_eq!(resolve_number(&args, 1), 0);
-        assert_eq!(resolve_number(&args, 2), 0);
+    fn number_matches_parse_int_quirks() {
+        // Node ground-truth battery for method.ts number()
+        // (Number.isNaN(parseInt(v)) ? 0 : parseInt(v)), W6 slice 25.
+        let n = |s: &str| resolve_number(&[s.to_string()], 0);
+        // Salvage + truncation + hex legs (old strict port gave 0 here).
+        assert_eq!(n("42abc"), 42.0);
+        assert_eq!(n("12abc34"), 12.0);
+        assert_eq!(n("3.9"), 3.0);
+        assert_eq!(n("-3.9"), -3.0);
+        assert_eq!(n("0x10"), 16.0);
+        assert_eq!(n("-0x10"), -16.0);
+        assert_eq!(n("+0xF"), 15.0);
+        assert_eq!(n("0X1A"), 26.0);
+        assert_eq!(n("0x10p"), 16.0);
+        assert_eq!(n("  0xF "), 15.0);
+        // Bare prefixes and radix lookalikes: the "0" parses, rest stops.
+        assert_eq!(n("0x"), 0.0);
+        assert_eq!(n("0xg"), 0.0);
+        assert_eq!(n("0b101"), 0.0);
+        assert_eq!(n("0o17"), 0.0);
+        assert_eq!(n("0b"), 0.0);
+        // Non-digit starts, exponent tails, separators: NaN -> 0 / stop.
+        assert_eq!(n("abc"), 0.0);
+        assert_eq!(n("Infinity"), 0.0);
+        assert_eq!(n("-Infinity"), 0.0);
+        assert_eq!(n(".5"), 0.0);
+        assert_eq!(n("+.5"), 0.0);
+        assert_eq!(n("1e3"), 1.0);
+        assert_eq!(n("1_2"), 1.0);
+        assert_eq!(n("10n"), 10.0);
+        assert_eq!(n("12 34"), 12.0);
+        // Sign without digits, or whitespace after the sign: NaN -> 0.
+        assert_eq!(n("- 5"), 0.0);
+        assert_eq!(n("--5"), 0.0);
+        assert_eq!(n("-+5"), 0.0);
+        assert_eq!(n("+"), 0.0);
+        // Leading JS-whitespace incl. TAB/LF/NBSP/FEFF is stripped.
+        assert_eq!(n("  5 "), 5.0);
+        assert_eq!(n("\t-12\n"), -12.0);
+        assert_eq!(n(" 42"), 42.0);
+        assert_eq!(n("﻿42"), 42.0);
+        // f64-range magnitudes agree bit-for-bit (i64::MAX overflowed
+        // the old strict port to 0; TS yields finite floats).
+        assert_eq!(n("99999999999999999999"), 1e20);
+        assert_eq!(n("9007199254740993"), 9007199254740992.0);
+        // "-0" keeps its sign like parseInt.
+        let neg_zero = n("-0");
+        assert!(neg_zero == 0.0 && neg_zero.is_sign_negative());
+        // Empty / missing input: parseInt("") and parseInt(undefined)
+        // are both NaN -> 0.
+        assert_eq!(n(""), 0.0);
+        assert_eq!(n(" "), 0.0);
+        assert_eq!(resolve_number(&[], 0), 0.0);
     }
 
     #[test]
@@ -707,7 +811,7 @@ mod tests {
         // poise pops words positionally. `!cmd 7 hello world` with a
         // number at 0 and a longString at 1 must agree on both legs.
         let args = vec!["7".to_string(), "hello".to_string(), "world".to_string()];
-        assert_eq!(resolve_number(&args, 0), 7);
+        assert_eq!(resolve_number(&args, 0), 7.0);
         assert_eq!(resolve_string(&args, 1).as_deref(), Some("hello"));
         assert_eq!(
             resolve_long_string(&args, 1).as_deref(),
