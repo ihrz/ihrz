@@ -227,8 +227,13 @@ pub fn beautiful_str(input: &str, lang_code: &str, long: bool) -> String {
 /// Non-finite inputs mirror the TS arithmetic exactly: NaN matches no
 /// threshold and renders `"NaN"` (via `NaN.toLocaleString()`), while
 /// ±Infinity takes the T branch (`(Infinity).toFixed(1)` is `"Infinity"`).
-/// The sub-1000 leg mirrors `toLocaleString()` en-US (max 3 fraction
-/// digits, rounded, `,` grouping — see [`to_locale_string_en_us`]).
+/// The K/M/B/T legs mirror `toFixed(1)` on the exact binary value with
+/// ties away from zero (spec "larger n"; node ground truth: `1250 -> "1.3K"`,
+/// `2250 -> "2.3K"`, `3250 -> "3.3K"` — Rust `{:.1}` half-even gave `"1.2K"`
+/// etc.). The sub-1000 leg mirrors `toLocaleString()` en-US, which rounds
+/// the SHORTEST round-trip decimal half-up at 3 fraction digits (node ground
+/// truth: `0.0625 -> "0.063"`, `0.1235 -> "0.124"` although the exact binary
+/// value sits below the tie — Rust `{:.3}` gave `"0.062"`/`"0.123"`).
 pub fn format_number(num: f64) -> String {
     if num.is_nan() {
         return "NaN".to_string();
@@ -244,43 +249,118 @@ pub fn format_number(num: f64) -> String {
     let abs = num.abs();
     let prefix = if neg { "-" } else { "" };
     if abs >= 1_000_000_000_000.0 {
-        format!("{prefix}{:.1}T", abs / 1_000_000_000_000.0)
+        format!("{prefix}{}T", to_fixed_1(abs / 1_000_000_000_000.0))
     } else if abs >= 1_000_000_000.0 {
-        format!("{prefix}{:.1}B", abs / 1_000_000_000.0)
+        format!("{prefix}{}B", to_fixed_1(abs / 1_000_000_000.0))
     } else if abs >= 1_000_000.0 {
-        format!("{prefix}{:.1}M", abs / 1_000_000.0)
+        format!("{prefix}{}M", to_fixed_1(abs / 1_000_000.0))
     } else if abs >= 1_000.0 {
-        format!("{prefix}{:.1}K", abs / 1_000.0)
+        format!("{prefix}{}K", to_fixed_1(abs / 1_000.0))
     } else {
         format!("{prefix}{}", to_locale_string_en_us(abs))
     }
 }
 
-/// Fallback leg of [`format_number`]. Mirrors
-/// `absNum.toLocaleString()` under en-US: at most 3 fraction digits
-/// (rounded, trailing zeros dropped), integer part grouped with `,`.
-/// Rounding can carry into the thousands (`999.9999` -> `"1,000"`),
-/// so grouping applies even though inputs are `< 1000`.
-fn to_locale_string_en_us(abs: f64) -> String {
-    let rounded = format!("{abs:.3}");
-    let trimmed = rounded
-        .trim_end_matches('0')
-        .trim_end_matches('.')
-        .to_string();
-    let (int, frac) = match trimmed.find('.') {
-        Some(i) => (trimmed[..i].to_string(), Some(trimmed[i..].to_string())),
-        None => (trimmed, None),
+/// JS `Number.prototype.toFixed(1)` for a finite non-negative input:
+/// correctly-rounded 1-decimal form of the exact binary value, ties away
+/// from zero. Implemented by digit surgery on the exact expansion
+/// (`{:.20}`): f64 spacing near any tie (ties are `>= 0.25`, spacing
+/// `>= 2^-55`) dwarfs the `1e-20` window, so a `5`-at-second-place with an
+/// all-zero tail through digit 20 is provably an exact tie — and in every
+/// `5`-at-second-place case (tie or above) the spec rounds up.
+fn to_fixed_1(q: f64) -> String {
+    let s = format!("{q:.20}");
+    let (int, frac) = match s.find('.') {
+        Some(i) => (&s[..i], &s[i + 1..]),
+        None => (s.as_str(), ""),
     };
-    let mut grouped = String::with_capacity(int.len() + int.len() / 3);
-    for (i, c) in int.chars().enumerate() {
-        if i > 0 && (int.len() - i).is_multiple_of(3) {
+    let f: Vec<char> = frac.chars().collect();
+    let d1 = f.first().copied().unwrap_or('0');
+    let up = !matches!(f.get(1), Some(&c) if c < '5');
+    let mut digits: Vec<char> = int.chars().collect();
+    if digits.is_empty() {
+        digits.push('0');
+    }
+    digits.push(d1);
+    if up {
+        let mut i = digits.len();
+        loop {
+            if i == 0 {
+                digits.insert(0, '1');
+                break;
+            }
+            i -= 1;
+            if digits[i] == '9' {
+                digits[i] = '0';
+            } else {
+                digits[i] = ((digits[i] as u8) + 1) as char;
+                break;
+            }
+        }
+    }
+    let last = digits.pop().unwrap_or('0');
+    format!("{}.{}", digits.iter().collect::<String>(), last)
+}
+
+/// Fallback leg of [`format_number`]. Mirrors `absNum.toLocaleString()`
+/// under en-US: the SHORTEST round-trip decimal (like JS `String(v)`;
+/// Rust `{}` is equally shortest and plain-notation here — values that
+/// would stringify with an exponent are `< 1e-6` and always round to
+/// `"0"`), rounded half-up at 3 fraction digits with trailing zeros
+/// dropped, integer part grouped with `,`. Rounding can carry into the
+/// thousands (`999.9999` -> `"1,000"`), so grouping applies even though
+/// inputs are `< 1000`.
+fn to_locale_string_en_us(abs: f64) -> String {
+    let s = format!("{abs}");
+    let (int, frac) = match s.find('.') {
+        Some(i) => (&s[..i], &s[i + 1..]),
+        None => (s.as_str(), ""),
+    };
+    let f: Vec<char> = frac.chars().collect();
+    let mut kept: Vec<char> = f.iter().take(3).copied().collect();
+    let up = matches!(f.get(3), Some(&c) if c >= '5');
+    while kept.len() < 3 {
+        // Short expansion: no 4th digit, so no rounding — padding only
+        // restores the 3-digit split point (trimmed below).
+        kept.push('0');
+    }
+    let mut digits: Vec<char> = int.chars().collect();
+    if digits.is_empty() {
+        digits.push('0');
+    }
+    digits.extend(kept.iter());
+    if up {
+        let mut i = digits.len();
+        loop {
+            if i == 0 {
+                digits.insert(0, '1');
+                break;
+            }
+            i -= 1;
+            if digits[i] == '9' {
+                digits[i] = '0';
+            } else {
+                digits[i] = ((digits[i] as u8) + 1) as char;
+                break;
+            }
+        }
+    }
+    let mut frac_part: Vec<char> = digits.split_off(digits.len() - 3);
+    while frac_part.last() == Some(&'0') {
+        frac_part.pop();
+    }
+    let int_part: String = digits.iter().collect();
+    let mut grouped = String::with_capacity(int_part.len() + int_part.len() / 3);
+    for (i, c) in int_part.chars().enumerate() {
+        if i > 0 && (int_part.len() - i).is_multiple_of(3) {
             grouped.push(',');
         }
         grouped.push(c);
     }
-    match frac {
-        Some(f) => format!("{grouped}{f}"),
-        None => grouped,
+    if frac_part.is_empty() {
+        grouped
+    } else {
+        format!("{grouped}.{}", frac_part.iter().collect::<String>())
     }
 }
 
@@ -4187,5 +4267,70 @@ mod get_os_tests {
     #[test]
     fn current_os_resolves() {
         assert!(get_os().is_some());
+    }
+
+    #[test]
+    fn format_number_matches_ts_rounding() {
+        // Node ground truth (numberBeautifuer.ts formatNumber battery):
+        // K/M/B/T legs are toFixed(1) ties-away-from-zero, sub-1000 is
+        // en-US toLocaleString on the shortest repr, half-up at 3dp.
+        let cases: &[(f64, &str)] = &[
+            (0.0, "0"),
+            (-0.0, "0"),
+            (5.0, "5"),
+            (-5.0, "-5"),
+            (999.0, "999"),
+            (999.4, "999.4"),
+            (999.5, "999.5"),
+            (999.99, "999.99"),
+            (999.9999, "1,000"),
+            (999.9501, "999.95"),
+            (999.9995, "1,000"),
+            (1e-7, "0"),
+            (0.1, "0.1"),
+            (0.12345, "0.123"),
+            (0.12355, "0.124"),
+            (0.1235, "0.124"),
+            (0.1265, "0.127"),
+            (0.0625, "0.063"),
+            (1.0625, "1.063"),
+            (0.0005, "0.001"),
+            (0.0015, "0.002"),
+            (12.3456, "12.346"),
+            (123.45678, "123.457"),
+            (2.55, "2.55"),
+            (2.65, "2.65"),
+            (0.125, "0.125"),
+            (1.15, "1.15"),
+            (1.25, "1.25"),
+            (1000.0, "1.0K"),
+            (1050.0, "1.1K"),
+            (1150.0, "1.1K"),
+            (1250.0, "1.3K"),
+            (1500.0, "1.5K"),
+            (1750.0, "1.8K"),
+            (2250.0, "2.3K"),
+            (2500.0, "2.5K"),
+            (2625.0, "2.6K"),
+            (2650.0, "2.6K"),
+            (2750.0, "2.8K"),
+            (3250.0, "3.3K"),
+            (3750.0, "3.8K"),
+            (-2625.0, "-2.6K"),
+            (999499.0, "999.5K"),
+            (999500.0, "999.5K"),
+            (999950.0, "1000.0K"),
+            (1234567.0, "1.2M"),
+            (2500000.0, "2.5M"),
+            (2500000000.0, "2.5B"),
+            (1500000000000.0, "1.5T"),
+            (123456789012345680.0, "123456.8T"),
+        ];
+        for (v, want) in cases {
+            assert_eq!(&format_number(*v), want, "format_number({v})");
+        }
+        assert_eq!(format_number(f64::NAN), "NaN");
+        assert_eq!(format_number(f64::INFINITY), "InfinityT");
+        assert_eq!(format_number(f64::NEG_INFINITY), "-InfinityT");
     }
 }
