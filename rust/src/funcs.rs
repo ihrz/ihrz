@@ -1527,8 +1527,10 @@ pub enum GatewayMethod {
 }
 
 /// Gateway URL builder. Mirrors buildGatewayUrl (trailing slashes trimmed).
+/// The empty guard mirrors JS `!base`: only `""` throws — a
+/// whitespace-only base is truthy in TS and builds verbatim.
 pub fn gateway_url(base: &str, method: GatewayMethod) -> Result<String, &'static str> {
-    if base.trim().is_empty() {
+    if base.is_empty() {
         return Err("Error: HorizonGateway empty in the configurations files");
     }
     let mut data = base.trim_end_matches('/').to_string();
@@ -1548,17 +1550,16 @@ pub fn gateway_url(base: &str, method: GatewayMethod) -> Result<String, &'static
 }
 
 /// Internal gateway URL: local base wins, public base is the fallback.
-/// Mirrors HorizonGatewayInternal (`HorizonGatewayLocal || HorizonGateway`).
-/// `local`/`public` are the already-resolved base URLs (env-first via
-/// [`crate::config::Config::gateway_internal`]); empty/None means unset.
+/// Mirrors HorizonGatewayInternal (`if (local) ...`): only `""`/None
+/// falls through — a whitespace-only local is truthy in TS and wins.
 pub fn gateway_internal_url(
     local: Option<&str>,
     public: Option<&str>,
     method: GatewayMethod,
 ) -> Result<String, &'static str> {
     let base = local
-        .filter(|s| !s.trim().is_empty())
-        .or_else(|| public.filter(|s| !s.trim().is_empty()))
+        .filter(|s| !s.is_empty())
+        .or_else(|| public.filter(|s| !s.is_empty()))
         .unwrap_or("");
     gateway_url(base, method)
 }
@@ -1795,6 +1796,11 @@ mod funcs_part2_tests {
             "http://127.0.0.1:31981/api/ihorizon/v1/image"
         );
         assert!(gateway_url("", GatewayMethod::UserInfo).is_err());
+        // JS `!base`: whitespace-only is truthy, builds verbatim (node probe).
+        assert_eq!(
+            gateway_url("   ", GatewayMethod::UserInfo).unwrap(),
+            "   /api/ihorizon/v1/userinfo"
+        );
     }
 
     #[test]
@@ -1828,6 +1834,16 @@ mod funcs_part2_tests {
             "https://gateway.ihorizon.org/api/ihorizon/v1/userinfo"
         );
         assert!(gateway_internal_url(None, None, GatewayMethod::UserInfo).is_err());
+        // Whitespace-only local is truthy in TS: wins over public (node probe).
+        assert_eq!(
+            gateway_internal_url(
+                Some("   "),
+                Some("https://gateway.ihorizon.org"),
+                GatewayMethod::UserInfo
+            )
+            .unwrap(),
+            "   /api/ihorizon/v1/userinfo"
+        );
     }
 
     #[test]
