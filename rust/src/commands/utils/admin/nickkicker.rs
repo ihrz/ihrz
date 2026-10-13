@@ -240,7 +240,7 @@ async fn add_word(
     opts.fields = vec![crate::modal_helper::ModalField::Text(
         crate::modal_helper::TextField {
             custom_id: NICK_KICKER_WORD_FIELD.to_string(),
-            label: t("util_nick_kicker_words"),
+            label: crate::funcs::capitalize_first(&t("util_nick_kicker_words")),
             placeholder: None,
             style: crate::modal_helper::TextStyle::Short,
             required: true,

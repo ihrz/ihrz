@@ -2272,11 +2272,18 @@ pub async fn enable_required_intents(token: &str) -> bool {
 
 // ---- helper.ts ----
 
-/// Capitalize first letter. Mirrors capitalizeFirstLetter.
+/// Capitalize first letter. Mirrors capitalizeFirstLetter
+/// (`charAt(0).toUpperCase() + slice(1)`): `charAt(0)` sees a single
+/// UTF-16 unit, so an astral leading char hits a lone surrogate whose
+/// `toUpperCase()` is a no-op and the pair rejoins via `slice(1)` —
+/// astral-first strings are returned unchanged. Rust `&str` cannot hold
+/// lone surrogates, so "first char needs 2 UTF-16 units => identity" is
+/// exactly equivalent.
 pub fn capitalize_first(s: &str) -> String {
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
+        Some(c) if c.len_utf16() == 2 => s.to_string(),
         Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
     }
 }
@@ -2367,6 +2374,12 @@ mod funcs_part4_tests {
     fn capitalize() {
         assert_eq!(capitalize_first("hello"), "Hello");
         assert_eq!(capitalize_first(""), "");
+        // node ground truth for `charAt(0).toUpperCase() + slice(1)`:
+        assert_eq!(capitalize_first("ßabc"), "SSabc");
+        assert_eq!(capitalize_first("éclair"), "Éclair");
+        // astral-first: charAt(0) is a lone surrogate (toUpperCase no-op).
+        assert_eq!(capitalize_first("😀abc"), "😀abc");
+        assert_eq!(capitalize_first("𐐨bc"), "𐐨bc");
     }
 
     #[test]
