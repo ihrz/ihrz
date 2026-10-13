@@ -343,6 +343,79 @@ pub async fn invalidate_user_session(pool: &crate::db::Pool, user_id: u64) -> an
     Ok(true)
 }
 
+/// Scheduler + finalize decision legs (mirrors `scheduleScrobble` /
+/// `tryScrobbleListener`). Timeouts stay with the live caller (tokio
+/// tasks); these pure decisions are what the timer arms check.
+/// `scheduleScrobble` action: short tracks and already-credited
+/// listeners are skipped, due listeners scrobble out immediately
+/// (`void tryScrobbleListener(..., true)`), the rest re-arm in the
+/// remaining ms (`setTimeout(..., remaining)` firing a non-finalize
+/// attempt).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScheduleAction {
+    Skip,
+    PostNow,
+    FireInMs(u64),
+}
+
+pub fn schedule_scrobble_action(
+    duration_ms: u64,
+    scrobbled: bool,
+    elapsed_ms: u64,
+    threshold_ms: u64,
+) -> ScheduleAction {
+    if scrobbled || !should_scrobble(duration_ms) {
+        return ScheduleAction::Skip;
+    }
+    if elapsed_ms >= threshold_ms {
+        ScheduleAction::PostNow
+    } else {
+        ScheduleAction::FireInMs(threshold_ms - elapsed_ms)
+    }
+}
+
+/// `tryScrobbleListener` gate outcome. `ReadyToPost` means the caller
+/// performs the live `track.scrobble` POST (invalidating the user row
+/// on session-shaped errors, logging the rest, then marking the
+/// listener credited and clearing its timer — exactly the TS tail).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TryScrobbleOutcome {
+    SkipDone,
+    StaleTrack,
+    LeftChannel,
+    NotYetDue,
+    ReadyToPost,
+}
+
+pub fn try_scrobble_decision(
+    scrobbled: bool,
+    duration_ms: u64,
+    finalize: bool,
+    track_current: bool,
+    still_in_channel: bool,
+    elapsed_ms: u64,
+    threshold_ms: u64,
+) -> TryScrobbleOutcome {
+    if scrobbled || !should_scrobble(duration_ms) {
+        return TryScrobbleOutcome::SkipDone;
+    }
+    if !finalize {
+        if !track_current {
+            return TryScrobbleOutcome::StaleTrack;
+        }
+        if !still_in_channel {
+            return TryScrobbleOutcome::LeftChannel;
+        }
+    }
+    if elapsed_ms < threshold_ms {
+        // NOTE: on finalize legs (detach/track-end) the TS returns
+        // false here without rescheduling; the caller drops NotYetDue
+        // unless it came from a timer fire.
+        return TryScrobbleOutcome::NotYetDue;
+    }
+    TryScrobbleOutcome::ReadyToPost
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -529,5 +602,67 @@ mod tests {
         assert_eq!(after["username"], serde_json::json!("dj"));
         // Unknown user: nothing to invalidate.
         assert!(!invalidate_user_session(&pool, 999_999).await.unwrap());
+    }
+
+    #[test]
+    fn schedule_action_mirrors_schedule_scrobble() {
+        // Short track or credited listener: skipped.
+        assert_eq!(
+            schedule_scrobble_action(10_000, false, 0, 5_000),
+            ScheduleAction::Skip
+        );
+        assert_eq!(
+            schedule_scrobble_action(200_000, true, 0, 100_000),
+            ScheduleAction::Skip
+        );
+        // Past threshold: immediate finalize attempt.
+        assert_eq!(
+            schedule_scrobble_action(200_000, false, 100_000, 100_000),
+            ScheduleAction::PostNow
+        );
+        // 80s into a 100s threshold: re-arm in 20s.
+        assert_eq!(
+            schedule_scrobble_action(200_000, false, 80_000, 100_000),
+            ScheduleAction::FireInMs(20_000)
+        );
+    }
+
+    #[test]
+    fn try_scrobble_decision_mirrors_ts_gate_order() {
+        // Credited or too short: done, even on finalize paths.
+        assert_eq!(
+            try_scrobble_decision(true, 200_000, true, true, true, 200_000, 100_000),
+            TryScrobbleOutcome::SkipDone
+        );
+        assert_eq!(
+            try_scrobble_decision(false, 10_000, true, true, true, 60_000, 5_000),
+            TryScrobbleOutcome::SkipDone
+        );
+        // Timer fire on a stale track: dropped.
+        assert_eq!(
+            try_scrobble_decision(false, 200_000, false, false, true, 200_000, 100_000),
+            TryScrobbleOutcome::StaleTrack
+        );
+        // Timer fire after the member left: dropped.
+        assert_eq!(
+            try_scrobble_decision(false, 200_000, false, true, false, 200_000, 100_000),
+            TryScrobbleOutcome::LeftChannel
+        );
+        // Finalize paths skip both liveness gates (detach/track-end
+        // credit whatever elapsed, threshold still applies).
+        assert_eq!(
+            try_scrobble_decision(false, 200_000, true, false, false, 200_000, 100_000),
+            TryScrobbleOutcome::ReadyToPost
+        );
+        // Early timer fire: not due (caller reschedules).
+        assert_eq!(
+            try_scrobble_decision(false, 200_000, false, true, true, 80_000, 100_000),
+            TryScrobbleOutcome::NotYetDue
+        );
+        // Due: caller POSTs track.scrobble.
+        assert_eq!(
+            try_scrobble_decision(false, 200_000, false, true, true, 100_000, 100_000),
+            TryScrobbleOutcome::ReadyToPost
+        );
     }
 }
