@@ -123,9 +123,12 @@ fn is_js_decimal(t: &str) -> bool {
     i == b.len()
 }
 
-/// True when the arg contains mention brackets. Mirrors /[<@!>]/ test.
+/// True when the arg contains any mention-sigil char. Mirrors
+/// method.ts user()/member() `/[<@!>]/g.test(arg)`: a bare `@`, `!`
+/// or `>` with no `<...>` wrapper still takes the mention-strip
+/// path (node: `"!111"`, `"@bob"`, `"a>b"` all test true).
 fn looks_like_user_mention(s: &str) -> bool {
-    s.contains('<') && (s.contains('@') || s.contains('!'))
+    s.chars().any(|c| matches!(c, '<' | '@' | '!' | '>'))
 }
 
 /// Strip mention formatting, e.g. "<@123>" / "<@!123>" -> "123".
@@ -328,9 +331,10 @@ pub fn resolve_voice_channel(arg: Option<&str>, channels: &[VoiceChannel]) -> Op
         .map(|c| c.id.clone())
 }
 
-/// Raw string arg. Mirrors method.ts string().
+/// Raw string arg. Mirrors method.ts string() (`args[n] || null`):
+/// a present-but-empty word is falsy in TS, so it yields None.
 pub fn resolve_string(args: &[String], index: usize) -> Option<String> {
-    args.get(index).cloned()
+    args.get(index).filter(|s| !s.is_empty()).cloned()
 }
 
 /// Rest-of-line arg. Mirrors method.ts longString().
@@ -466,6 +470,37 @@ mod tests {
         // Adversarial: <@999> must NOT fall through to username matching.
         let out = resolve_user(Some("<@999>"), &[], &members());
         assert_eq!(out, None);
+    }
+
+    #[test]
+    fn mention_gate_matches_ts_sigil_test() {
+        // Pinned via node: /[<@!>]/g.test(s) — any single sigil char
+        // takes the strip path, no <...> wrapper required.
+        for s in [
+            "hello!", "a>b", "@bob", "<alice", "!111", "<#456>", "<@111>", "<@!111>",
+        ] {
+            assert!(looks_like_user_mention(s), "{s:?} must take the strip path");
+        }
+        for s in ["plain", "123", "", "a#b", "a&b", "bob"] {
+            assert!(
+                !looks_like_user_mention(s),
+                "{s:?} must NOT take the strip path"
+            );
+        }
+        // member(): bare-"!" id strips to the cached id like TS cache.get.
+        assert_eq!(
+            resolve_member(Some("!111"), &members()).as_deref(),
+            Some("111")
+        );
+        assert_eq!(
+            resolve_user(Some("!111"), &[], &members()).as_deref(),
+            Some("111")
+        );
+        // "@bob" strips to "bob", which is a name not an id -> None
+        // (TS cache.get("bob") misses and fetch("bob") fails too).
+        assert_eq!(resolve_member(Some("@bob"), &members()), None);
+        // string(): "" is falsy -> null in TS (`args[n] || null`).
+        assert_eq!(resolve_string(&["".to_string()], 0), None);
     }
 
     #[test]
