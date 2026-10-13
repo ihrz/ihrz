@@ -1281,6 +1281,10 @@ mod tests {
         assert_eq!(sanitizing("café"), "café");
         assert_eq!(sanitizing("😀"), "<malformed string>");
         assert_eq!(mask_link("see https://x.y"), "Hidden Link");
+        // TS String.includes is case-sensitive: uppercase schemes/names pass through.
+        assert_eq!(mask_link("see HTTP://x.y"), "see HTTP://x.y");
+        assert_eq!(mask_link("Discordapp x"), "Discordapp x");
+        assert_eq!(mask_link("x.COM"), "x.COM");
         assert_eq!(mask_link("plain text"), "plain text");
         assert_eq!(message_url(1, 2, 3), "https://discord.com/channels/1/2/3");
         assert_eq!(
@@ -1334,6 +1338,16 @@ mod tests {
         assert!(is_valid_image_type(Some("image/webp")));
         assert!(!is_valid_image_type(Some("text/plain")));
         assert!(!is_valid_image_type(None));
+        // Node ground truth: full-BMP sweep proves U+212A KELVIN is the
+        // ONLY char where toLowerCase differs from ASCII-lower with ASCII
+        // output (KELVIN -> "k"), and no allowlist entry contains "k", so
+        // to_ascii_lowercase is verdict-equal on every input.
+        let kelvin = char::from_u32(0x212a).unwrap().to_string();
+        assert!(!is_valid_image_type(Some(&kelvin)));
+        assert!(!is_valid_image_type(Some(&format!("i{}e/png", kelvin))));
+        assert!(!is_valid_image_type(Some("IMAGE\u{212a}PNG")));
+        assert!(!is_valid_image_type(Some("\u{130}mage/png")));
+        assert!(is_valid_image_type(Some("IMAGE/PNG")));
         assert!(is_allowed_links("https://open.spotify.com/x"));
         assert!(!is_allowed_links("https://evil.example/x"));
         assert!(is_allowed_links("not a url"));
