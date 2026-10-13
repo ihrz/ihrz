@@ -787,10 +787,14 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fall
 
 /// Route a prefix parse failure to its TS lang key. Mirrors the
 /// per-command null keys (method.member/role null -> key): poise parses
-/// typed prefix params before run(), so unresolvable member/user/role/
-/// channel input surfaces as ArgumentParse here instead of inside run.
-/// Anything else (counts, bool, choices, numbers, attachments) returns
-/// None and falls through to the checkCommandArgs caret embed.
+/// typed prefix params before run(), so unresolvable member/user/role
+/// input surfaces as ArgumentParse here instead of inside run.
+/// Channels are NOT routed here: TS checkCommandArgs validates channel
+/// args (method.ts isValidArgument "channel") and answers invalid input
+/// with the caret usage-error embed via sendErrorMessage, so Channel
+/// failures return None and fall through to the same caret embed.
+/// Anything else (counts, bool, choices, numbers, attachments) also
+/// returns None and falls through to the checkCommandArgs caret embed.
 fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> {
     if error_text.contains("Member") {
         Some(("ban_dont_found_member", "🔍 | Cannot find this member"))
@@ -798,10 +802,25 @@ fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> 
         Some(("baninfo_user_not_found", "User not found"))
     } else if error_text.contains("Role") {
         Some(("addrolereact_role_not_found", "Role not found."))
-    } else if error_text.contains("Channel") {
-        Some(("stats_channel_invalid", "Invalid channel specified."))
     } else {
         None
+    }
+}
+
+/// Usage-line type label for one prefix param. Mirrors
+/// getArgumentOptionTypeWithOptions (method.ts:294): choices join with
+/// `/`, Channel options render `channel`, everything else the option
+/// name. Poise 0.6 erases the Discord option type, but only Channel
+/// params carry `channel_types`, so its presence is the exact channel
+/// discriminator (verified live: prod renders `+skullboardchannel
+/// [channel]`).
+fn usage_type_label(name: &str, choices: &[String], has_channel_types: bool) -> String {
+    if !choices.is_empty() {
+        choices.join("/")
+    } else if has_channel_types {
+        "channel".to_string()
+    } else {
+        name.to_string()
     }
 }
 
@@ -879,23 +898,23 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
         return;
     }
     // Poise erases param types (name/required/choices only); the label
-    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`),
-    // and the channel allowlist mirrors ArgumentBrief.channelType so the
+    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`,
+    // Channel options render `channel` via usage_type_label), and the
+    // channel allowlist mirrors ArgumentBrief.channelType so the
     // prefix gate sees the same isValidArgument inputs as TS.
     let specs: Vec<prefix_args::ArgSpec> = ctx
         .command()
         .parameters
         .iter()
         .map(|pm| {
-            let label = if pm.choices.is_empty() {
-                pm.name.clone()
-            } else {
-                pm.choices
+            let label = usage_type_label(
+                &pm.name,
+                &pm.choices
                     .iter()
                     .map(|c| c.name.clone())
-                    .collect::<Vec<_>>()
-                    .join("/")
-            };
+                    .collect::<Vec<_>>(),
+                pm.channel_types.is_some(),
+            );
             prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
                 .with_channel_types(pm.channel_types.clone())
         })
@@ -1319,9 +1338,9 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
             crash_block(*ctx, format!("{payload:?}")).await;
         }
         // Prefix args poise could not parse. Entity failures
-        // (member/user/role/channel) keep their TS per-command keys;
-        // counts/bool/choices/numbers fall through to the checkCommandArgs
-        // caret usage-error embed.
+        // (member/user/role) keep their TS per-command keys; channels
+        // and counts/bool/choices/numbers fall through to the
+        // checkCommandArgs caret usage-error embed.
         poise::FrameworkError::ArgumentParse {
             ctx, error, input, ..
         } => {
@@ -3533,9 +3552,12 @@ mod tests {
             argument_parse_key("Role not found or unknown format").map(|(k, _)| k),
             Some("addrolereact_role_not_found")
         );
+        // Channels fall through to the checkCommandArgs caret embed
+        // (TS sendErrorMessage), never the plain-text key: verified live
+        // vs prod on +skullboardchannel/+starboard-channel with bad input.
         assert_eq!(
-            argument_parse_key("Channel not found or unknown format").map(|(k, _)| k),
-            Some("stats_channel_invalid")
+            argument_parse_key("Channel not found or unknown format"),
+            None
         );
         // Counts / bool / choices / numbers fall through to the caret embed.
         for other in [
@@ -3548,6 +3570,18 @@ mod tests {
         ] {
             assert_eq!(argument_parse_key(other), None);
         }
+    }
+
+    #[test]
+    fn usage_type_label_mirrors_ts_option_types() {
+        // Choices join with `/`, Channel options render `channel`
+        // (channel_types is the exact discriminator), else option name.
+        assert_eq!(
+            usage_type_label("action", &["on".to_string(), "off".to_string()], false),
+            "on/off"
+        );
+        assert_eq!(usage_type_label("to", &[], true), "channel");
+        assert_eq!(usage_type_label("reason", &[], false), "reason");
     }
 
     #[test]
