@@ -406,20 +406,169 @@ pub fn is_allowed_links(link: &str) -> bool {
 }
 
 /// Single unicode emoji check. Mirrors isSingleEmoji
-/// (`/^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u`, approximated with
-/// explicit ranges since regex-unicode is not a dependency).
+/// (`/^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u`): the `\p{Emoji}`
+/// set is enumerated in `is_emoji_first_char` from the Node ground truth
+/// (digits, `#`, `*`, `©`/`®`, `‼`, arrows, geometric shapes and the astral blocks with
+/// their holes — e.g. U+1F322, U+2605 and lone U+FE0F are NOT Emoji).
+/// A wholesale BMP-range approximation both over-matches (U+2605) and
+/// under-matches (`"1"`, `"#"`, `"*"`, `"‼"`).
+fn is_emoji_first_char(cp: u32) -> bool {
+    matches!(
+        cp,
+        0x23 | 0x2A
+            | 0xA9
+            | 0xAE
+            | 0x203C
+            | 0x2049
+            | 0x2122
+            | 0x2139
+            | 0x2328
+            | 0x23CF
+            | 0x24C2
+            | 0x25B6
+            | 0x25C0
+            | 0x260E
+            | 0x2611
+            | 0x2618
+            | 0x261D
+            | 0x2620
+            | 0x2626
+            | 0x262A
+            | 0x2640
+            | 0x2642
+            | 0x2663
+            | 0x2668
+            | 0x267B
+            | 0x2699
+            | 0x26A7
+            | 0x26C8
+            | 0x26D1
+            | 0x26FD
+            | 0x2702
+            | 0x2705
+            | 0x270F
+            | 0x2712
+            | 0x2714
+            | 0x2716
+            | 0x271D
+            | 0x2721
+            | 0x2728
+            | 0x2744
+            | 0x2747
+            | 0x274C
+            | 0x274E
+            | 0x2757
+            | 0x27A1
+            | 0x27B0
+            | 0x27BF
+            | 0x2B50
+            | 0x2B55
+            | 0x1F004
+            | 0x1F0CF
+            | 0x1F18E
+            | 0x1F21A
+            | 0x1F22F
+            | 0x1F587
+            | 0x1F590
+            | 0x1F5A8
+            | 0x1F5BC
+            | 0x1F5E1
+            | 0x1F5E3
+            | 0x1F5E8
+            | 0x1F5EF
+            | 0x1F5F3
+            | 0x1F6E9
+            | 0x1F6F0
+            | 0x1F7F0
+    ) || (0x30..=0x39).contains(&cp)
+        || (0x2194..=0x2199).contains(&cp)
+        || (0x21A9..=0x21AA).contains(&cp)
+        || (0x231A..=0x231B).contains(&cp)
+        || (0x23E9..=0x23F3).contains(&cp)
+        || (0x23F8..=0x23FA).contains(&cp)
+        || (0x25AA..=0x25AB).contains(&cp)
+        || (0x25FB..=0x25FE).contains(&cp)
+        || (0x2600..=0x2604).contains(&cp)
+        || (0x2614..=0x2615).contains(&cp)
+        || (0x2622..=0x2623).contains(&cp)
+        || (0x262E..=0x262F).contains(&cp)
+        || (0x2638..=0x263A).contains(&cp)
+        || (0x2648..=0x2653).contains(&cp)
+        || (0x265F..=0x2660).contains(&cp)
+        || (0x2665..=0x2666).contains(&cp)
+        || (0x267E..=0x267F).contains(&cp)
+        || (0x2692..=0x2697).contains(&cp)
+        || (0x269B..=0x269C).contains(&cp)
+        || (0x26A0..=0x26A1).contains(&cp)
+        || (0x26AA..=0x26AB).contains(&cp)
+        || (0x26B0..=0x26B1).contains(&cp)
+        || (0x26BD..=0x26BE).contains(&cp)
+        || (0x26C4..=0x26C5).contains(&cp)
+        || (0x26CE..=0x26CF).contains(&cp)
+        || (0x26D3..=0x26D4).contains(&cp)
+        || (0x26E9..=0x26EA).contains(&cp)
+        || (0x26F0..=0x26F5).contains(&cp)
+        || (0x26F7..=0x26FA).contains(&cp)
+        || (0x2708..=0x270D).contains(&cp)
+        || (0x2733..=0x2734).contains(&cp)
+        || (0x2753..=0x2755).contains(&cp)
+        || (0x2763..=0x2764).contains(&cp)
+        || (0x2795..=0x2797).contains(&cp)
+        || (0x2934..=0x2935).contains(&cp)
+        || (0x2B05..=0x2B07).contains(&cp)
+        || (0x2B1B..=0x2B1C).contains(&cp)
+        || (0x1F170..=0x1F171).contains(&cp)
+        || (0x1F17E..=0x1F17F).contains(&cp)
+        || (0x1F191..=0x1F19A).contains(&cp)
+        || (0x1F1E6..=0x1F1FF).contains(&cp)
+        || (0x1F201..=0x1F202).contains(&cp)
+        || (0x1F232..=0x1F23A).contains(&cp)
+        || (0x1F250..=0x1F251).contains(&cp)
+        || (0x1F300..=0x1F321).contains(&cp)
+        || (0x1F324..=0x1F393).contains(&cp)
+        || (0x1F396..=0x1F397).contains(&cp)
+        || (0x1F399..=0x1F39B).contains(&cp)
+        || (0x1F39E..=0x1F3F0).contains(&cp)
+        || (0x1F3F3..=0x1F3F5).contains(&cp)
+        || (0x1F3F7..=0x1F4FD).contains(&cp)
+        || (0x1F4FF..=0x1F53D).contains(&cp)
+        || (0x1F549..=0x1F54E).contains(&cp)
+        || (0x1F550..=0x1F567).contains(&cp)
+        || (0x1F56F..=0x1F570).contains(&cp)
+        || (0x1F573..=0x1F57A).contains(&cp)
+        || (0x1F58A..=0x1F58D).contains(&cp)
+        || (0x1F595..=0x1F596).contains(&cp)
+        || (0x1F5A4..=0x1F5A5).contains(&cp)
+        || (0x1F5B1..=0x1F5B2).contains(&cp)
+        || (0x1F5C2..=0x1F5C4).contains(&cp)
+        || (0x1F5D1..=0x1F5D3).contains(&cp)
+        || (0x1F5DC..=0x1F5DE).contains(&cp)
+        || (0x1F5FA..=0x1F64F).contains(&cp)
+        || (0x1F680..=0x1F6C5).contains(&cp)
+        || (0x1F6CB..=0x1F6D2).contains(&cp)
+        || (0x1F6D5..=0x1F6D8).contains(&cp)
+        || (0x1F6DC..=0x1F6E5).contains(&cp)
+        || (0x1F6EB..=0x1F6EC).contains(&cp)
+        || (0x1F6F3..=0x1F6FC).contains(&cp)
+        || (0x1F7E0..=0x1F7EB).contains(&cp)
+        || (0x1F90C..=0x1F93A).contains(&cp)
+        || (0x1F93C..=0x1F945).contains(&cp)
+        || (0x1F947..=0x1F9FF).contains(&cp)
+        || (0x1FA70..=0x1FA7C).contains(&cp)
+        || (0x1FA80..=0x1FA8A).contains(&cp)
+        || (0x1FA8E..=0x1FAC6).contains(&cp)
+        || cp == 0x1FAC8
+        || (0x1FACD..=0x1FADC).contains(&cp)
+        || (0x1FADF..=0x1FAEA).contains(&cp)
+        || (0x1FAEF..=0x1FAF8).contains(&cp)
+}
+
 pub fn is_single_emoji(text: &str) -> bool {
     let mut chars = text.chars();
     let Some(first) = chars.next() else {
         return false;
     };
-    let cp = first as u32;
-    let emoji = (0x1F300..=0x1FAFF).contains(&cp)
-        || (0x2600..=0x27BF).contains(&cp)
-        || (0x2B00..=0x2BFF).contains(&cp)
-        || (0xFE00..=0xFE0F).contains(&cp)
-        || matches!(cp, 0x2764 | 0x2B50 | 0x00A9 | 0x00AE);
-    if !emoji {
+    if !is_emoji_first_char(first as u32) {
         return false;
     }
     match chars.next() {
@@ -462,9 +611,13 @@ pub fn is_valid_link(url: &str) -> bool {
     url.starts_with("https://") || url.starts_with("http://")
 }
 
+/// Embed color check. Mirrors `isValidColor` (`/^#([0-9a-f]{3}){1,2}$/i`):
+/// the `#` prefix is REQUIRED — bare `"fff"`/`"ffffff"` are rejected.
 pub fn is_valid_color(color: &str) -> bool {
-    let hex = color.strip_prefix('#').unwrap_or(color);
-    (hex.len() == 3 || hex.len() == 6) && hex.chars().all(|c| c.is_ascii_hexdigit())
+    let bytes = color.as_bytes();
+    (bytes.len() == 4 || bytes.len() == 7)
+        && bytes[0] == b'#'
+        && bytes[1..].iter().all(|b| b.is_ascii_hexdigit())
 }
 
 pub fn is_valid_embed_id(id: &str) -> bool {
@@ -1058,6 +1211,21 @@ mod tests {
         assert!(is_single_emoji("⭐"));
         assert!(!is_single_emoji("ab"));
         assert!(!is_single_emoji(""));
+        // Node ground truth pins: \p{Emoji} covers digits/`#`/`*`/©/`‼`,
+        // but NOT U+2605, lone U+FE0F, astral holes (U+1F322) or `a`.
+        assert!(is_single_emoji("1"));
+        assert!(is_single_emoji("#"));
+        assert!(is_single_emoji("*"));
+        assert!(is_single_emoji("©"));
+        assert!(is_single_emoji("‼"));
+        assert!(is_single_emoji("©\u{FE0F}"));
+        assert!(is_single_emoji("👍\u{1F3FD}"));
+        assert!(!is_single_emoji("★"));
+        assert!(!is_single_emoji("\u{FE0F}"));
+        assert!(!is_single_emoji("\u{1F322}"));
+        assert!(!is_single_emoji("a"));
+        assert!(!is_single_emoji("1\u{FE0F}\u{20E3}"));
+        assert!(!is_single_emoji("👍\u{1F3FD}x"));
         assert!(is_discord_emoji("<:pepe:123>"));
         assert!(is_discord_emoji("<a:dance:456>"));
         assert!(!is_discord_emoji("👍"));
@@ -1069,7 +1237,14 @@ mod tests {
         assert!(!is_valid_link("ftp://x"));
         assert!(is_valid_color("#fff"));
         assert!(is_valid_color("#123456"));
+        assert!(is_valid_color("#FFF"));
         assert!(!is_valid_color("red"));
+        // `#` prefix required: bare hex rejected like the TS regex.
+        assert!(!is_valid_color("fff"));
+        assert!(!is_valid_color("ffffff"));
+        assert!(!is_valid_color("#ffff"));
+        assert!(!is_valid_color("#ggg"));
+        assert!(!is_valid_color(""));
         assert!(is_valid_embed_id("abc123"));
         assert!(!is_valid_embed_id(""));
         assert!(!is_valid_embed_id("a.b."));
