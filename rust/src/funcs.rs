@@ -3633,6 +3633,18 @@ pub async fn kdenlive_export(
 /// different, offline extension-guess helper over attachment URLs and must
 /// not be merged with this one. New call sites needing a HEAD image gate
 /// should use this function (or [`http_head`]).
+/// Pure content-type leg of the TS `isImageUrl` predicate
+/// (src/core/functions/image64.ts): `content-type.startsWith("image/")`
+/// verbatim — case-SENSITIVE (`"Image/png"` is false in TS; the old Rust
+/// mirror lowercased first and wrongly accepted it) and untrimmed
+/// (`"image/png "` passes, `" image/png"` fails). `None` (missing header)
+/// is false: TS `null.startsWith` throws inside the try, so it also yields
+/// false. Non-UTF8 header bytes surface as `None` via `to_str`, same
+/// outcome. Pinned by a node ground-truth battery (W6 slice 39).
+pub fn content_type_is_image(ct: Option<&str>) -> bool {
+    matches!(ct, Some(v) if v.starts_with("image/"))
+}
+
 pub async fn is_image_url(url: &str) -> bool {
     let ct = match reqwest::Client::new()
         .head(url)
@@ -3643,12 +3655,10 @@ pub async fn is_image_url(url: &str) -> bool {
         Ok(r) => r
             .headers()
             .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("")
-            .to_ascii_lowercase(),
+            .and_then(|v| v.to_str().ok().map(|s| s.to_string())),
         Err(_) => return false,
     };
-    ct.starts_with("image/")
+    content_type_is_image(ct.as_deref())
 }
 
 /// Animated-attachment check. Mirrors method.isAnimated
@@ -3659,6 +3669,27 @@ pub fn is_animated(attachment_url: &str) -> bool {
         .next()
         .unwrap_or("")
         .starts_with("a_")
+}
+
+#[cfg(test)]
+mod content_type_image_tests {
+    use super::*;
+
+    #[test]
+    fn content_type_gate_matches_ts_starts_with() {
+        // Node ground truth (W6 slice 39): `startsWith` is
+        // case-sensitive and untrimmed; null throws (caught -> false).
+        assert!(content_type_is_image(Some("image/png")));
+        assert!(content_type_is_image(Some("image/svg+xml")));
+        assert!(content_type_is_image(Some("image/png ")));
+        assert!(!content_type_is_image(Some("Image/png")));
+        assert!(!content_type_is_image(Some("IMAGE/PNG")));
+        assert!(!content_type_is_image(Some(" image/png")));
+        assert!(!content_type_is_image(Some("application/json")));
+        assert!(!content_type_is_image(Some("text/html")));
+        assert!(!content_type_is_image(Some("")));
+        assert!(!content_type_is_image(None));
+    }
 }
 
 /// Media picked from a message. Mirrors embedHelper.getMediaByMessage:
