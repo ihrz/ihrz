@@ -586,6 +586,9 @@ pub fn is_tidal_url(query: &str) -> bool {
 
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
 /// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
+/// The whitespace collapse mirrors JS `/\s+/g` + `trim()`: U+0085 is
+/// NOT JS whitespace (kept), U+FEFF is (split) — unlike Rust
+/// `split_whitespace`, which does the exact opposite on both.
 pub fn remove_parentheses_content(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     let mut depth: usize = 0;
@@ -602,55 +605,324 @@ pub fn remove_parentheses_content(text: &str) -> String {
             }
         }
     }
-    out.split_whitespace().collect::<Vec<_>>().join(" ")
+    let trimmed = out.trim_matches(crate::funcs::is_js_whitespace);
+    let mut res = String::with_capacity(trimmed.len());
+    let mut in_gap = false;
+    for c in trimmed.chars() {
+        if crate::funcs::is_js_whitespace(c) {
+            in_gap = true;
+        } else {
+            if in_gap && !res.is_empty() {
+                res.push(' ');
+            }
+            in_gap = false;
+            res.push(c);
+        }
+    }
+    res
 }
 
-/// Drop YouTube tracking/playlist params (mirrors `sanitizeYoutubeUrl`).
-/// Non-YouTube inputs pass through untouched.
+/// Exact-match YouTube hosts from `sanitizeYoutubeUrl`
+/// (`youtubeHosts.includes(url.hostname)` — subdomains do NOT match).
+const YT_HOSTS: [&str; 4] = [
+    "youtube.com",
+    "www.youtube.com",
+    "youtu.be",
+    "music.youtube.com",
+];
+
+/// Tracking/playback params deleted by `sanitizeYoutubeUrl`.
+const YT_DROP_PARAMS: [&str; 10] = [
+    "si",
+    "t",
+    "list",
+    "index",
+    "start_radio",
+    "pp",
+    "feature",
+    "embeds_referring_euri",
+    "source_ve_path",
+    "app",
+];
+
+/// Default port dropped on serialization (WHATWG special schemes).
+fn yt_default_port(scheme: &str) -> Option<u32> {
+    match scheme {
+        "http" | "ws" => Some(80),
+        "https" | "wss" => Some(443),
+        "ftp" => Some(21),
+        _ => None,
+    }
+}
+
+fn is_special_scheme(scheme: &str) -> bool {
+    matches!(scheme, "http" | "https" | "ws" | "wss" | "ftp" | "file")
+}
+
+/// Leading/trailing C0 controls + space, the only chars `new URL`
+/// strips (NOT full Unicode trim: U+0085 stays and fails the parse).
+fn trim_url_ends(s: &str) -> &str {
+    s.trim_matches(|c: char| (c as u32) <= 0x20)
+}
+
+/// application/x-www-form-urlencoded decode (`+` -> space, `%XX` ->
+/// bytes, bare `%` kept literally for the re-encode pass).
+fn form_decode(s: &str) -> Vec<u8> {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        match b[i] {
+            b'+' => {
+                out.push(b' ');
+                i += 1;
+            }
+            b'%' if i + 2 < b.len()
+                && b[i + 1].is_ascii_hexdigit()
+                && b[i + 2].is_ascii_hexdigit() =>
+            {
+                out.push(u8::from_str_radix(&s[i + 1..i + 3], 16).unwrap_or(b'%'));
+                i += 3;
+            }
+            _ => {
+                out.push(b[i]);
+                i += 1;
+            }
+        }
+    }
+    out
+}
+
+/// WHATWG urlencoded serializer: keeps `[0-9A-Za-z*._-]`, space ->
+/// `+`, everything else `%UPPERHEX` (so `~` -> `%7E`, `/` stays
+/// `%2F`, lone `%` -> `%25`).
+fn form_encode(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for b in s.as_bytes() {
+        match b {
+            b'0'..=b'9' | b'A'..=b'Z' | b'a'..=b'z' | b'*' | b'-' | b'.' | b'_' => {
+                out.push(*b as char);
+            }
+            b' ' => out.push('+'),
+            _ => {
+                out.push_str(&format!("%{b:02X}"));
+            }
+        }
+    }
+    out
+}
+
+/// WHATWG path percent-encode set (C0 + space, `"#<>?` `` ` `` `{}`,
+/// DEL, non-ASCII as UTF-8 `%UPPERHEX`; `%` and `/` stay raw).
+fn path_encode(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        if (c as u32) <= 0x20
+            || c == '\u{7f}'
+            || (c as u32) > 0x7e
+            || matches!(c, '"' | '#' | '<' | '>' | '?' | '`' | '{' | '}')
+        {
+            let mut buf = [0u8; 4];
+            for b in c.encode_utf8(&mut buf).as_bytes() {
+                out.push_str(&format!("%{b:02X}"));
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// Dot-segment resolution for special-scheme paths (`/a/../watch` ->
+/// `/watch`); inner empty segments are preserved, `..` past the root
+/// is dropped.
+fn remove_dot_segments(path: &str) -> String {
+    let trailing_slash = path.ends_with('/') || path.ends_with("/.") || path.ends_with("/..");
+    let mut stack: Vec<&str> = Vec::new();
+    for seg in path.split('/') {
+        if seg == ".." {
+            if stack.last().is_some_and(|s| !s.is_empty()) {
+                stack.pop();
+            }
+        } else if seg != "." {
+            stack.push(seg);
+        }
+    }
+    let mut res = stack.join("/");
+    if !res.starts_with('/') {
+        res.insert(0, '/');
+    }
+    if trailing_slash && !res.ends_with('/') {
+        res.push('/');
+    }
+    res
+}
+
+/// Drop YouTube tracking/playlist params. Mirrors `sanitizeYoutubeUrl`
+/// exactly (WHATWG `new URL` + `searchParams.delete` + `toString`,
+/// pinned by a node ground-truth battery, W6 slice 31): any scheme
+/// with a host parses (incl. `ftp:`, uppercase, `scheme:` without
+/// slashes for special schemes); the host must match EXACTLY (lowered,
+/// port/userinfo stripped — subdomains and trailing-dot hosts pass
+/// through); default ports drop; empty paths gain `/`; dot segments
+/// resolve (special schemes); the query re-serializes even when
+/// nothing is dropped (bare `?x` -> `?x=`, `%41` -> `A`, `+` kept,
+/// `;`/`=` in values encoded, lone `%` -> `%25`, param names decoded
+/// before the case-sensitive DROP match so `%73%69` drops but `SI`
+/// stays); fragments survive verbatim; non-URLs and non-matching hosts
+/// return the input untouched (untrimmed). Non-YouTube inputs pass
+/// through untouched.
 pub fn sanitize_youtube_url(input: &str) -> String {
-    let host = match url_host(input) {
-        Some(h) => h,
+    let src = trim_url_ends(input);
+    let colon = match src.find(':') {
+        Some(i) => i,
         None => return input.to_string(),
     };
-    let is_yt = [
-        "youtube.com",
-        "www.youtube.com",
-        "youtu.be",
-        "music.youtube.com",
-    ]
-    .iter()
-    .any(|h| host == *h || host.ends_with(&format!(".{h}")));
-    if !is_yt {
+    let (scheme_raw, after) = (&src[..colon], &src[colon + 1..]);
+    if scheme_raw.is_empty()
+        || !scheme_raw.bytes().enumerate().all(|(i, b)| {
+            b.is_ascii_alphabetic()
+                || (i > 0 && (b.is_ascii_digit() || matches!(b, b'+' | b'-' | b'.')))
+        })
+    {
         return input.to_string();
     }
-    const DROP: &[&str] = &[
-        "si",
-        "t",
-        "list",
-        "index",
-        "start_radio",
-        "pp",
-        "feature",
-        "embeds_referring_euri",
-        "source_ve_path",
-        "app",
-    ];
-    let (base, query) = match input.split_once('?') {
-        Some((b, q)) => (b, q),
-        None => return input.to_string(),
-    };
-    let kept: Vec<&str> = query
-        .split('&')
-        .filter(|pair| {
-            let key = pair.split('=').next().unwrap_or("");
-            !DROP.contains(&key)
-        })
-        .collect();
-    if kept.is_empty() {
-        base.to_string()
+    let scheme = scheme_raw.to_ascii_lowercase();
+    let special = is_special_scheme(&scheme);
+    let rest = if special {
+        after.trim_start_matches(['/', '\\'])
     } else {
-        format!("{base}?{}", kept.join("&"))
+        match after.strip_prefix("//") {
+            Some(r) => r,
+            None => return input.to_string(),
+        }
+    };
+    let auth_end = rest
+        .find(|c: char| c == '/' || c == '?' || c == '#' || (special && c == '\\'))
+        .unwrap_or(rest.len());
+    let (authority, mut remainder) = rest.split_at(auth_end);
+    if authority.is_empty() {
+        return input.to_string();
     }
+    let (userinfo, hostport) = match authority.rfind('@') {
+        Some(i) => (Some(&authority[..i]), &authority[i + 1..]),
+        None => (None, authority),
+    };
+    let (host_raw, port) = if hostport.starts_with('[') {
+        let close = match hostport.find(']') {
+            Some(i) => i,
+            None => return input.to_string(),
+        };
+        let tail = &hostport[close + 1..];
+        let port = if let Some(p) = tail.strip_prefix(':') {
+            Some(p)
+        } else if tail.is_empty() {
+            None
+        } else {
+            return input.to_string();
+        };
+        (&hostport[..close + 1], port)
+    } else {
+        match hostport.rfind(':') {
+            Some(i) => {
+                let p = &hostport[i + 1..];
+                if p.is_empty() {
+                    (&hostport[..i], None)
+                } else if p.bytes().all(|b| b.is_ascii_digit()) {
+                    (&hostport[..i], Some(p))
+                } else {
+                    // WHATWG: garbage port fails the whole parse.
+                    return input.to_string();
+                }
+            }
+            None => (hostport, None),
+        }
+    };
+    if host_raw.is_empty() {
+        return input.to_string();
+    }
+    if let Some(p) = port {
+        if p.parse::<u32>().is_ok_and(|n| n > 65535) {
+            return input.to_string();
+        }
+    }
+    let host = host_raw.to_ascii_lowercase();
+    if !YT_HOSTS.contains(&host.as_str()) {
+        return input.to_string();
+    }
+    // Fragment splits first so `?` inside it stays literal.
+    let fragment = match remainder.find('#') {
+        Some(i) => {
+            let f = &remainder[i..];
+            remainder = &remainder[..i];
+            Some(f)
+        }
+        None => None,
+    };
+    let query_raw = match remainder.find('?') {
+        Some(i) => {
+            let q = &remainder[i + 1..];
+            remainder = &remainder[..i];
+            Some(q)
+        }
+        None => None,
+    };
+    let mut path = if special {
+        remainder.replace('\\', "/")
+    } else {
+        remainder.to_string()
+    };
+    if special {
+        path = remove_dot_segments(&path);
+    }
+    if path.is_empty() {
+        path = "/".to_string();
+    }
+    let path = path_encode(&path);
+    let mut kept: Vec<(String, String)> = Vec::new();
+    if let Some(q) = query_raw {
+        for pair in q.split('&') {
+            if pair.is_empty() {
+                continue;
+            }
+            let (name_raw, value_raw) = match pair.split_once('=') {
+                Some((n, v)) => (n, v),
+                None => (pair, ""),
+            };
+            let name = String::from_utf8_lossy(&form_decode(name_raw)).into_owned();
+            if YT_DROP_PARAMS.contains(&name.as_str()) {
+                continue;
+            }
+            let value = String::from_utf8_lossy(&form_decode(value_raw)).into_owned();
+            kept.push((name, value));
+        }
+    }
+    let drop_port = port.is_some_and(|p| yt_default_port(&scheme) == p.parse().ok());
+    let mut out = format!("{scheme}://");
+    if let Some(u) = userinfo {
+        out.push_str(u);
+        out.push('@');
+    }
+    out.push_str(&host);
+    if let Some(p) = port.filter(|_| !drop_port) {
+        out.push(':');
+        out.push_str(p);
+    }
+    out.push_str(&path);
+    if !kept.is_empty() {
+        out.push('?');
+        out.push_str(
+            &kept
+                .iter()
+                .map(|(n, v)| format!("{}={}", form_encode(n), form_encode(v)))
+                .collect::<Vec<_>>()
+                .join("&"),
+        );
+    }
+    if let Some(f) = fragment {
+        out.push_str(f);
+    }
+    out
 }
 
 /// Mask raw links in track titles (mirrors `maskLink`: any title
@@ -4578,20 +4850,352 @@ mod tests {
     }
 
     #[test]
-    fn youtube_sanitize_drops_tracking_params() {
+    fn parentheses_whitespace_matches_js_s() {
+        // U+0085 is NOT JS \s (kept verbatim); U+FEFF and U+2028 are.
+        let nel: String = char::from_u32(0x85).unwrap().to_string();
+        let feff: String = char::from_u32(0xfeff).unwrap().to_string();
+        let ls: String = char::from_u32(0x2028).unwrap().to_string();
         assert_eq!(
-            sanitize_youtube_url("https://www.youtube.com/watch?v=abc&si=zzz&list=LL"),
-            "https://www.youtube.com/watch?v=abc"
+            remove_parentheses_content(&format!("a{nel}b (c)")),
+            format!("a{nel}b")
+        );
+        assert_eq!(remove_parentheses_content(&format!("a{feff}b (c)")), "a b");
+        assert_eq!(remove_parentheses_content(&format!("a{ls}b (c)")), "a b");
+        // Mixed-depth brackets still collapse like TS.
+        assert_eq!(remove_parentheses_content("x ([a)] y"), "x y");
+    }
+
+    #[test]
+    fn youtube_sanitize_matches_ts_battery() {
+        // Node ground-truth battery (W6 slice 31): (input, sanitizeYoutubeUrl(input)).
+        let cases = [
+            (
+                "https://www.youtube.com/watch?v=abc&si=zzz&list=LL",
+                "https://www.youtube.com/watch?v=abc",
+            ),
+            ("https://youtu.be/abc?si=zzz", "https://youtu.be/abc"),
+            (
+                "https://www.deezer.com/track/1?foo=bar",
+                "https://www.deezer.com/track/1?foo=bar",
+            ),
+            ("plain query", "plain query"),
+            (
+                "https://sub.youtube.com/watch?v=1&si=2",
+                "https://sub.youtube.com/watch?v=1&si=2",
+            ),
+            (
+                "https://www.youtube.com:443/watch?v=1&si=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://WWW.YOUTUBE.COM/watch?v=1&si=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "HTTPS://www.youtube.com/watch?v=1&si=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "ftp://www.youtube.com/watch?v=1&si=2",
+                "ftp://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&si=2#frag",
+                "https://www.youtube.com/watch?v=1#frag",
+            ),
+            (
+                "https://www.youtube.com/watch?",
+                "https://www.youtube.com/watch",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&SI=2",
+                "https://www.youtube.com/watch?v=1&SI=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&s%69=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://user@www.youtube.com/watch?v=1&si=2",
+                "https://user@www.youtube.com/watch?v=1",
+            ),
+            ("https://www.youtube.com?si=1", "https://www.youtube.com/"),
+            (
+                "  https://www.youtube.com/watch?v=1&si=2  ",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?si=1&si=2&v=3",
+                "https://www.youtube.com/watch?v=3",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&t=30",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://music.youtube.com/watch?v=1&si=2",
+                "https://music.youtube.com/watch?v=1",
+            ),
+            (
+                "https://youtube.com/watch?v=1&feature=shared&v2=3",
+                "https://youtube.com/watch?v=1&v2=3",
+            ),
+            ("https://youtu.be/abc", "https://youtu.be/abc"),
+            (
+                "https://www.youtube.com/watch?v=abc",
+                "https://www.youtube.com/watch?v=abc",
+            ),
+            (
+                "https://evil-youtube.com/watch?v=1&si=2",
+                "https://evil-youtube.com/watch?v=1&si=2",
+            ),
+            (
+                "https://www.youtube.com./watch?v=1&si=2",
+                "https://www.youtube.com./watch?v=1&si=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=a+b&si=1",
+                "https://www.youtube.com/watch?v=a+b",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%41&si=1",
+                "https://www.youtube.com/watch?v=A",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%2F&si=1",
+                "https://www.youtube.com/watch?v=%2F",
+            ),
+            (
+                "http://www.youtube.com:80/watch?v=1&si=2",
+                "http://www.youtube.com/watch?v=1",
+            ),
+            (
+                "ftp://www.youtube.com:21/watch?si=1",
+                "ftp://www.youtube.com/watch",
+            ),
+            (
+                "https://www.youtube.com:444/watch?v=1&si=2",
+                "https://www.youtube.com:444/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?=x&si=1",
+                "https://www.youtube.com/watch?=x",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1;si=2",
+                "https://www.youtube.com/watch?v=1%3Bsi%3D2",
+            ),
+            (
+                "https://www.youtube.com/a/../watch?v=1&si=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&si=2&si=3",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://u:p@www.youtube.com/watch?v=1&si=2",
+                "https://u:p@www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1#",
+                "https://www.youtube.com/watch?v=1#",
+            ),
+            (
+                "https://www.youtube.com/watch#frag",
+                "https://www.youtube.com/watch#frag",
+            ),
+            (
+                "foo://www.youtube.com/watch?si=1",
+                "foo://www.youtube.com/watch",
+            ),
+            ("www.youtube.com/watch?si=1", "www.youtube.com/watch?si=1"),
+            ("https://youtu.be", "https://youtu.be/"),
+            ("https://youtu.be?si=1", "https://youtu.be/"),
+            (
+                "https://www.youtube.com/watch?v=1&list=",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&x=%",
+                "https://www.youtube.com/watch?v=1&x=%25",
+            ),
+            (
+                "https://www.YOUTUBE.com./watch?si=1",
+                "https://www.YOUTUBE.com./watch?si=1",
+            ),
+            (
+                "HTTPS://WWW.YOUTUBE.COM:443/watch?si=1",
+                "https://www.youtube.com/watch",
+            ),
+            (
+                "https://user:pass@sub.youtube.com/watch?si=1",
+                "https://user:pass@sub.youtube.com/watch?si=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%26&si=1",
+                "https://www.youtube.com/watch?v=%26",
+            ),
+            (
+                "https://www.youtube.com/watch?%73%69=1&v=2",
+                "https://www.youtube.com/watch?v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&Si=2",
+                "https://www.youtube.com/watch?v=1&Si=2",
+            ),
+            (
+                "https://www.youtube.com/watch?x&si=1",
+                "https://www.youtube.com/watch?x=",
+            ),
+            (
+                "https://www.youtube.com/watch?x",
+                "https://www.youtube.com/watch?x=",
+            ),
+            (
+                "https:https://www.youtube.com/watch?si=1",
+                "https:https://www.youtube.com/watch?si=1",
+            ),
+            (
+                "https:www.youtube.com/watch?si=1",
+                "https://www.youtube.com/watch",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&&si=2",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?&&si=1",
+                "https://www.youtube.com/watch",
+            ),
+            (
+                "https://www.youtube.com/watch?%53%49=1&v=2",
+                "https://www.youtube.com/watch?SI=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=a b&si=1",
+                "https://www.youtube.com/watch?v=a+b",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&si",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&x=",
+                "https://www.youtube.com/watch?v=1&x=",
+            ),
+            (
+                "//www.youtube.com/watch?si=1",
+                "//www.youtube.com/watch?si=1",
+            ),
+            (
+                "https://u%20s@www.youtube.com/watch?v=1&si=2",
+                "https://u%20s@www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?%2B=1&v=2",
+                "https://www.youtube.com/watch?%2B=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?s%2Bi=1&v=2",
+                "https://www.youtube.com/watch?s%2Bi=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%ZZ&si=1",
+                "https://www.youtube.com/watch?v=%25ZZ",
+            ),
+            (
+                "https://user@www.youtube.com:443/watch?v=1&si=2",
+                "https://user@www.youtube.com/watch?v=1",
+            ),
+            ("HTTPS://youtu.be/abc?si=1", "https://youtu.be/abc"),
+            (
+                "https://m.youtube.com/watch?v=1&si=2",
+                "https://m.youtube.com/watch?v=1&si=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&v=2",
+                "https://www.youtube.com/watch?v=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%C3%A9&si=1",
+                "https://www.youtube.com/watch?v=%C3%A9",
+            ),
+            (
+                "https://www.youtube.com/watch?v=*-._~!&si=1",
+                "https://www.youtube.com/watch?v=*-._%7E%21",
+            ),
+            (
+                "https://www.youtube.com/watch?v=a b+%2B&si=1",
+                "https://www.youtube.com/watch?v=a+b+%2B",
+            ),
+            (
+                "https://www.youtube.com/watch?a=b=c&si=1",
+                "https://www.youtube.com/watch?a=b%3Dc",
+            ),
+            (
+                "https://www.youtube.com/w atch?v=1&si=2",
+                "https://www.youtube.com/w%20atch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&t=1s&t=2s",
+                "https://www.youtube.com/watch?v=1",
+            ),
+            (
+                "https://www.youtube.com/watch?Si=1&v=2",
+                "https://www.youtube.com/watch?Si=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?+=1&v=2",
+                "https://www.youtube.com/watch?+=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?%20=1&v=2",
+                "https://www.youtube.com/watch?+=1&v=2",
+            ),
+            (
+                "https://www.youtube.com/watch?v=%41%42&si=1",
+                "https://www.youtube.com/watch?v=AB",
+            ),
+            (
+                "https://www.youtube.com/watch?v=1&x=%41",
+                "https://www.youtube.com/watch?v=1&x=A",
+            ),
+            (
+                "https://www.youtube.com:99999/watch?si=1",
+                "https://www.youtube.com:99999/watch?si=1",
+            ),
+            (
+                "https://www.youtube.com:/watch?si=1",
+                "https://www.youtube.com/watch",
+            ),
+            (
+                "https://www.youtube.com:abc/watch?si=1",
+                "https://www.youtube.com:abc/watch?si=1",
+            ),
+            ("http://[::1]/watch?si=1", "http://[::1]/watch?si=1"),
+            ("http://youtu.be:80/a?si=1", "http://youtu.be/a"),
+            (
+                "ws://www.youtube.com/watch?si=1",
+                "ws://www.youtube.com/watch",
+            ),
+            ("file:///watch?si=1", "file:///watch?si=1"),
+            ("mailto:v@example.com?si=1", "mailto:v@example.com?si=1"),
+            ("spotify:track:1", "spotify:track:1"),
+        ];
+        for (input, expected) in cases {
+            assert_eq!(sanitize_youtube_url(input), expected, "input: {input}");
+        }
+        // Backslash separators (special schemes treat them as slashes).
+        let bs = char::from_u32(0x5c).unwrap().to_string();
+        assert_eq!(
+            sanitize_youtube_url(&format!("https:{bs}{bs}www.youtube.com{bs}watch?si=1")),
+            "https://www.youtube.com/watch"
         );
         assert_eq!(
-            sanitize_youtube_url("https://youtu.be/abc?si=zzz"),
-            "https://youtu.be/abc"
+            sanitize_youtube_url(&format!("https:/www.youtube.com{bs}watch?v=1&si=2")),
+            "https://www.youtube.com/watch?v=1"
         );
-        assert_eq!(
-            sanitize_youtube_url("https://www.deezer.com/track/1?foo=bar"),
-            "https://www.deezer.com/track/1?foo=bar"
-        );
-        assert_eq!(sanitize_youtube_url("plain query"), "plain query");
     }
 
     #[test]
