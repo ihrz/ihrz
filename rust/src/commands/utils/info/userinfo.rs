@@ -259,9 +259,11 @@ pub async fn userinfo(
         })
         .map(|roles| {
             // Mirrors discord.js GuildMemberRoleManager.cache
-            // (GuildMemberRoleManager.js): @everyone (`<@&guildId>`) first,
-            // then the member's roles, capped by the TS `.slice(0, 37)`.
-            let mut mentions = vec![format!("<@&{}>", guild_id_opt.unwrap_or_default())];
+            // (GuildMemberRoleManager.js): @everyone first — rendered as
+            // the literal `@everyone` text like Role.toString (prod shows
+            // `@everyone`, not `<@&guildId>`) — then the member's roles,
+            // capped by the TS `.slice(0, 37)`.
+            let mut mentions = vec!["@everyone".to_string()];
             mentions.extend(roles.iter().take(36).map(|r| format!("<@&{}>", r.get())));
             mentions.join("")
         })
@@ -308,13 +310,18 @@ pub async fn userinfo(
             embed = embed.image("attachment://user_banner.gif");
         }
     }
-    let mut reply = poise::CreateReply::default().embed(embed).components(vec![
-        serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new_link(format!(
-            "https://discordapp.com/users/{}",
-            u.id.get()
-        ))
-        .label(f("userinfo_button_label"))]),
-    ]);
+    // Content cleared like `originalInteraction.edit({ content: null, … })`
+    // in !userinfo.ts:403 (the loading ack above must not linger).
+    let mut reply = poise::CreateReply::default()
+        .content("")
+        .embed(embed)
+        .components(vec![serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new_link(format!(
+                "https://discordapp.com/users/{}",
+                u.id.get()
+            ))
+            .label(f("userinfo_button_label")),
+        ])]);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
