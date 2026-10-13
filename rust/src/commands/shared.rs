@@ -173,9 +173,13 @@ pub fn footer_page_text(name: &str, page_word: &str, page: u64, max: u64) -> Str
 }
 
 /// Download raw bytes (avatar attachments, current bot avatar).
+/// One process-wide client: connection reuse instead of a fresh TLS
+/// handshake per download (user-visible behavior unchanged).
+static HTTP: once_cell::sync::Lazy<reqwest::Client> =
+    once_cell::sync::Lazy::new(reqwest::Client::new);
+
 pub async fn download_bytes(url: &str) -> Option<Vec<u8>> {
-    reqwest::Client::new()
-        .get(url)
+    HTTP.get(url)
         .send()
         .await
         .ok()?
