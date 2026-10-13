@@ -200,6 +200,8 @@ pub fn beautiful_str(input: &str, lang_code: &str, long: bool) -> String {
 /// Non-finite inputs mirror the TS arithmetic exactly: NaN matches no
 /// threshold and renders `"NaN"` (via `NaN.toLocaleString()`), while
 /// ±Infinity takes the T branch (`(Infinity).toFixed(1)` is `"Infinity"`).
+/// The sub-1000 leg mirrors `toLocaleString()` en-US (max 3 fraction
+/// digits, rounded, `,` grouping — see [`to_locale_string_en_us`]).
 pub fn format_number(num: f64) -> String {
     if num.is_nan() {
         return "NaN".to_string();
@@ -222,10 +224,36 @@ pub fn format_number(num: f64) -> String {
         format!("{prefix}{:.1}M", abs / 1_000_000.0)
     } else if abs >= 1_000.0 {
         format!("{prefix}{:.1}K", abs / 1_000.0)
-    } else if abs.fract() == 0.0 {
-        format!("{prefix}{}", abs as i64)
     } else {
-        format!("{prefix}{abs}")
+        format!("{prefix}{}", to_locale_string_en_us(abs))
+    }
+}
+
+/// Fallback leg of [`format_number`]. Mirrors
+/// `absNum.toLocaleString()` under en-US: at most 3 fraction digits
+/// (rounded, trailing zeros dropped), integer part grouped with `,`.
+/// Rounding can carry into the thousands (`999.9999` -> `"1,000"`),
+/// so grouping applies even though inputs are `< 1000`.
+fn to_locale_string_en_us(abs: f64) -> String {
+    let rounded = format!("{abs:.3}");
+    let trimmed = rounded
+        .trim_end_matches('0')
+        .trim_end_matches('.')
+        .to_string();
+    let (int, frac) = match trimmed.find('.') {
+        Some(i) => (trimmed[..i].to_string(), Some(trimmed[i..].to_string())),
+        None => (trimmed, None),
+    };
+    let mut grouped = String::with_capacity(int.len() + int.len() / 3);
+    for (i, c) in int.chars().enumerate() {
+        if i > 0 && (int.len() - i).is_multiple_of(3) {
+            grouped.push(',');
+        }
+        grouped.push(c);
+    }
+    match frac {
+        Some(f) => format!("{grouped}{f}"),
+        None => grouped,
     }
 }
 
@@ -816,6 +844,12 @@ mod tests {
         assert_eq!(format_number(f64::NAN), "NaN");
         assert_eq!(format_number(f64::INFINITY), "InfinityT");
         assert_eq!(format_number(f64::NEG_INFINITY), "-InfinityT");
+        // Sub-1000 leg mirrors toLocaleString() en-US (node ground truth).
+        assert_eq!(format_number(12.3456), "12.346");
+        assert_eq!(format_number(0.123456789), "0.123");
+        assert_eq!(format_number(0.0001), "0");
+        assert_eq!(format_number(999.9999), "1,000");
+        assert_eq!(format_number(-999.5), "-999.5");
     }
 
     #[test]
