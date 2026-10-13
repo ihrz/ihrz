@@ -115,9 +115,6 @@ pub async fn ranks_show(
     // the thumbnail survive avatar changes (never a raw CDN URL).
     let face_url = member.face();
     let face_bytes = crate::image64::image64(&face_url).await;
-    let avatar_data = face_bytes
-        .as_deref()
-        .map(|b| crate::image64::data_url(b, "image/png"));
     let title = crate::lang::get(&code, "level_embed_title")
         .map(|s| s.replace("${user.username}", &display))
         .unwrap_or_else(|| format!("__**XP Level**__: `{display}`"));
@@ -149,28 +146,59 @@ pub async fn ranks_show(
         total_label: crate::lang::get(&code, "level_xp_total")
             .unwrap_or_else(|| "Total XP".to_string()),
     };
-    let svg = crate::cards::rank_card_svg_with_labels(
-        &display,
-        level,
-        currentxp,
-        avatar_data.as_deref(),
-        &labels,
-    );
-    // Mirrors `!show.ts:66-67`: the embed colour is the avatar's
-    // dominant colour, with a constant fallback when offline.
-    let colour = crate::funcs::image_dominant_color(&face_url)
+    // Card image mirrors !show.ts:78-101: the filled ranksCard HTML is
+    // rendered to PNG (elementSelector ".card", transparent background)
+    // and attached as image.png. Without a gateway the image is omitted
+    // (Discord cannot display the SVG fallback, so it is not attached).
+    let (color1_hex, color2_hex) = crate::funcs::image_dominant_color(&face_url)
         .await
-        .ok()
-        .and_then(|(c1, _)| u32::from_str_radix(c1.trim_start_matches('#'), 16).ok())
-        .unwrap_or(0x9A5AF2);
+        .unwrap_or_else(|_| ("#9A5AF2".to_string(), "#6D28D9".to_string()));
+    let card_html = ranks_card_html(
+        &face_url,
+        &display,
+        &level.to_string(),
+        &(currentxp as f64 / need as f64 * 100.0).to_string(),
+        &currentxp.to_string(),
+        &need.to_string(),
+        &remaining.to_string(),
+        &currentxp.to_string(),
+        &labels.level_word,
+        &labels.total_label,
+        &labels.needed_label,
+        &color1_hex,
+        &color2_hex,
+    );
+    let card_png: Option<Vec<u8>> = match ctx
+        .data()
+        .config
+        .gateway_internal()
+        .map(|base| (base, crate::config::api_token().unwrap_or_default()))
+    {
+        Some((base, token)) => crate::funcs::gateway_render_html(
+            &base,
+            &token,
+            &card_html,
+            RANK_CARD_OPTIONS_JSON,
+            &[],
+            Some(std::time::Duration::from_secs(30)),
+        )
+        .await
+        .ok(),
+        None => None,
+    };
+    // Mirrors `!show.ts:66-67,110`: the embed colour is the avatar's
+    // dominant colour (color1), with a constant fallback when offline.
+    let colour = u32::from_str_radix(color1_hex.trim_start_matches('#'), 16).unwrap_or(0x9A5AF2);
     let mut embed = serenity::CreateEmbed::default()
         .title(title)
         .colour(colour)
         .description(desc)
         .field(level_name, level_value, true)
-        .field(xp_name, xp_value, true)
-        .image("attachment://rank.svg")
-        .timestamp(serenity::Timestamp::now());
+        .field(xp_name, xp_value, true);
+    if card_png.is_some() {
+        embed = embed.image("attachment://image.png");
+    }
+    embed = embed.timestamp(serenity::Timestamp::now());
     embed = if face_bytes.is_some() {
         embed.thumbnail("attachment://avatar.png")
     } else {
@@ -184,13 +212,10 @@ pub async fn ranks_show(
     } else {
         embed = embed.footer(serenity::CreateEmbedFooter::new(fname.clone()));
     }
-    let mut reply =
-        poise::CreateReply::default()
-            .embed(embed)
-            .attachment(serenity::CreateAttachment::bytes(
-                svg.into_bytes(),
-                "rank.svg",
-            ));
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(png) = card_png {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(png, "image.png"));
+    }
     if let Some(bytes) = face_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "avatar.png"));
     }
@@ -199,6 +224,96 @@ pub async fn ranks_show(
     }
     ctx.send(reply).await?;
     Ok(())
+}
+
+/// Render options for the rank card. Mirrors the html2png call in
+/// !show.ts:95-99 (elementSelector ".card", transparent background).
+const RANK_CARD_OPTIONS_JSON: &str =
+    r#"{"elementSelector":".card","omitBackground":true,"selectElement":true}"#;
+
+/// `ranksCard` HTML template (`src/assets/html/ranksCard.html`, TS
+/// `!show.ts:78`). The filled HTML feeds the gateway html2png render
+/// (`image.png`); covered by `ranks_card_html_fill_replaces_every_placeholder`.
+const RANKS_CARD_TEMPLATE: &str = include_str!("../../../../src/assets/html/ranksCard.html");
+
+/// Fill the `ranksCard` template. Mirrors the replace chain in TS
+/// `!show.ts:80-93` (single `replace` for the `AVATAR_URL` /
+/// `USERNAME` / `LEVEL` / `PROGRESS_PERCENT` / `CURRENT_XP` /
+/// `XP_NEEDED` / `XP_REMAINING` / `TOTAL_XP` / `{level}` /
+/// `{xp_total}` / `{needed_xp}` slots, `replaceAll` for
+/// `[color1]` / `[color2]` — identical output either way).
+#[allow(clippy::too_many_arguments)]
+pub fn ranks_card_html(
+    avatar_url: &str,
+    username: &str,
+    level: &str,
+    progress_percent: &str,
+    current_xp: &str,
+    xp_needed: &str,
+    xp_remaining: &str,
+    total_xp: &str,
+    level_word: &str,
+    xp_total_label: &str,
+    needed_xp_label: &str,
+    color1: &str,
+    color2: &str,
+) -> String {
+    RANKS_CARD_TEMPLATE
+        .replace("AVATAR_URL", avatar_url)
+        .replace("USERNAME", username)
+        .replace("LEVEL", level)
+        .replace("PROGRESS_PERCENT", progress_percent)
+        .replace("CURRENT_XP", current_xp)
+        .replace("XP_NEEDED", xp_needed)
+        .replace("XP_REMAINING", xp_remaining)
+        .replace("TOTAL_XP", total_xp)
+        .replace("{level}", level_word)
+        .replace("{xp_total}", xp_total_label)
+        .replace("{needed_xp}", needed_xp_label)
+        .replace("[color1]", color1)
+        .replace("[color2]", color2)
+}
+
+#[cfg(test)]
+mod ranks_card_html_tests {
+    use super::ranks_card_html;
+
+    #[test]
+    fn ranks_card_html_fill_replaces_every_placeholder() {
+        let html = ranks_card_html(
+            "AV",
+            "bob",
+            "3",
+            "50",
+            "250",
+            "500",
+            "250",
+            "250",
+            "Level",
+            "Total XP:",
+            "XP until next level:",
+            "#9a5af2",
+            "#6d28d9",
+        );
+        for ph in [
+            "AVATAR_URL",
+            "USERNAME",
+            "LEVEL",
+            "PROGRESS_PERCENT",
+            "CURRENT_XP",
+            "XP_NEEDED",
+            "XP_REMAINING",
+            "TOTAL_XP",
+            "{level}",
+            "{xp_total}",
+            "{needed_xp}",
+            "[color1]",
+            "[color2]",
+        ] {
+            assert!(!html.contains(ph), "placeholder left: {ph}");
+        }
+        assert!(html.contains("bob"));
+    }
 }
 
 #[cfg(test)]
