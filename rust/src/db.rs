@@ -752,8 +752,59 @@ pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> 
     migrate_prefix_key(pool, &gid.to_string()).await;
     crate::db::kv_get(pool, &gid.to_string(), PREFIX_KEY)
         .await
-        .filter(|p| !p.trim().is_empty())
+        // JS-falsy check (`!custom_prefix` in prefix.ts): only the empty
+        // string falls back. Whitespace-only rows (" ", "\t") are truthy
+        // and stay verbatim (node ground truth), so no trim() here.
+        .filter(|p| !p.is_empty())
         .unwrap_or_else(|| default.to_string())
+}
+
+/// Pure `guildPrefix` decision (src/core/functions/prefix.ts:24-40).
+/// Returns the prefix string plus the mention flag (`type === "mention"`).
+/// Legs, in TS order: a non-empty custom row wins verbatim (even
+/// whitespace-only — truthy in JS); otherwise the mention fallback
+/// `<@{bot_id}>` when enabled, else the configured default; a falsy
+/// outcome (empty default, flag off) falls back to `<@{bot_id}>` via
+/// the trailing `||`. `is_mention` is the substring test
+/// (`prefix_string.includes(client.user.id)`), so a custom prefix that
+/// merely contains the bot id also counts as mention.
+pub fn resolve_guild_prefix(
+    custom: Option<&str>,
+    mention_enabled: bool,
+    default_prefix: &str,
+    bot_id: u64,
+) -> (String, bool) {
+    let mention = format!("<@{bot_id}>");
+    let candidate = match custom.filter(|c| !c.is_empty()) {
+        Some(c) => c.to_string(),
+        None if mention_enabled => mention.clone(),
+        None => default_prefix.to_string(),
+    };
+    let resolved = if candidate.is_empty() {
+        mention.clone()
+    } else {
+        candidate
+    };
+    let is_mention = resolved.contains(&bot_id.to_string());
+    (resolved, is_mention)
+}
+
+/// Display resolution for error/help embeds: migration + raw custom row
+/// through [`resolve_guild_prefix`]. Dispatch (`dynamic_prefix`) keeps
+/// using [`guild_prefix`] unchanged.
+pub async fn guild_prefix_display(
+    pool: &Pool,
+    guild_id: Option<u64>,
+    default: &str,
+    mention_enabled: bool,
+    bot_id: u64,
+) -> (String, bool) {
+    let Some(gid) = guild_id else {
+        return resolve_guild_prefix(None, mention_enabled, default, bot_id);
+    };
+    migrate_prefix_key(pool, &gid.to_string()).await;
+    let custom = crate::db::kv_get(pool, &gid.to_string(), PREFIX_KEY).await;
+    resolve_guild_prefix(custom.as_deref(), mention_enabled, default, bot_id)
 }
 
 /// Canonical per-guild prefix key. Mirrors the TS source of truth
@@ -1183,6 +1234,95 @@ mod tests {
         assert_eq!(guild_prefix(&pool, Some(1), "?").await, "?");
         kv_set(&pool, "1", PREFIX_KEY, "!").await.unwrap();
         assert_eq!(guild_prefix(&pool, Some(1), "?").await, "!");
+    }
+
+    #[tokio::test]
+    async fn guild_prefix_keeps_whitespace_custom_like_js_falsy() {
+        // `!custom_prefix`: only "" falls back; " " and "\t" are truthy
+        // and stay verbatim (node ground truth on prefix.ts).
+        let pool = memory_pool().await;
+        kv_set(&pool, "1", PREFIX_KEY, " ").await.unwrap();
+        assert_eq!(guild_prefix(&pool, Some(1), "?").await, " ");
+        kv_set(&pool, "2", PREFIX_KEY, "\t").await.unwrap();
+        assert_eq!(guild_prefix(&pool, Some(2), "?").await, "\t");
+        kv_set(&pool, "3", PREFIX_KEY, "").await.unwrap();
+        assert_eq!(guild_prefix(&pool, Some(3), "?").await, "?");
+    }
+
+    #[test]
+    fn resolve_guild_prefix_matches_ts_guild_prefix() {
+        // Node ground-truth battery on prefix.ts (bot id 123456789).
+        const ID: u64 = 123456789;
+        const M: &str = "<@123456789>";
+        // No custom, flag off -> default.
+        assert_eq!(
+            resolve_guild_prefix(None, false, "!", ID),
+            ("!".to_string(), false)
+        );
+        // No custom, flag on -> mention string + mention type.
+        assert_eq!(
+            resolve_guild_prefix(None, true, "!", ID),
+            (M.to_string(), true)
+        );
+        // Empty custom behaves like missing (config branch).
+        assert_eq!(
+            resolve_guild_prefix(Some(""), false, "!", ID),
+            ("!".to_string(), false)
+        );
+        assert_eq!(
+            resolve_guild_prefix(Some(""), true, "!", ID),
+            (M.to_string(), true)
+        );
+        // Whitespace-only customs stay verbatim, prefix type.
+        assert_eq!(
+            resolve_guild_prefix(Some(" "), false, "!", ID),
+            (" ".to_string(), false)
+        );
+        assert_eq!(
+            resolve_guild_prefix(Some("\t"), false, "!", ID),
+            ("\t".to_string(), false)
+        );
+        // Normal custom wins verbatim.
+        assert_eq!(
+            resolve_guild_prefix(Some("?"), false, "!", ID),
+            ("?".to_string(), false)
+        );
+        // Custom containing the id counts as mention (substring includes).
+        assert_eq!(
+            resolve_guild_prefix(Some("!bot123456789"), false, "!", ID),
+            ("!bot123456789".to_string(), true)
+        );
+        // Falsy outcome (empty default, flag off) falls back to mention.
+        assert_eq!(
+            resolve_guild_prefix(None, false, "", ID),
+            (M.to_string(), true)
+        );
+        // "0" is a truthy string, kept verbatim.
+        assert_eq!(
+            resolve_guild_prefix(Some("0"), false, "!", ID),
+            ("0".to_string(), false)
+        );
+    }
+
+    #[tokio::test]
+    async fn guild_prefix_display_resolves_mention_string() {
+        let pool = memory_pool().await;
+        // Mention guild: no row + flag on -> mention string, mention type.
+        assert_eq!(
+            guild_prefix_display(&pool, Some(1), "!", true, 7).await,
+            ("<@7>".to_string(), true)
+        );
+        // Same guild with a custom row -> verbatim, prefix type.
+        kv_set(&pool, "1", PREFIX_KEY, "?").await.unwrap();
+        assert_eq!(
+            guild_prefix_display(&pool, Some(1), "!", true, 7).await,
+            ("?".to_string(), false)
+        );
+        // DM (no guild): config branch like the TS "undefined" lookup.
+        assert_eq!(
+            guild_prefix_display(&pool, None, "!", false, 7).await,
+            ("!".to_string(), false)
+        );
     }
 
     #[tokio::test]

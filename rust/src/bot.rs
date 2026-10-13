@@ -911,7 +911,26 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
             "```ts\nCommand Name: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nError when sending \"${wrongArgumentName}\" argument.\n```"
                 .to_string()
         });
-    let bot_prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
+    let bot_id = ctx.serenity_context().cache.current_user().id.get();
+    let (resolved_prefix, is_mention_prefix) = crate::db::guild_prefix_display(
+        pool,
+        gid,
+        &ctx.data().config.prefix,
+        ctx.data().config.message_commands_mention,
+        bot_id,
+    )
+    .await;
+    // Mention-type display mirrors checkCommandArgs/sendErrorMessage
+    // (method.ts:463-469): a mention prefix renders the cleaned lang
+    // string (`hybridcommands_global_prefix_cleaned_mention`, "@Ping-Me "
+    // with trailing space), never the raw `<@id>`. The substituted string
+    // also feeds the caret pad below, like TS passes cleanBotPrefix.
+    let bot_prefix = if is_mention_prefix {
+        crate::lang::get(&code, "hybridcommands_global_prefix_cleaned_mention")
+            .unwrap_or_else(|| "@Ping-Me ".to_string())
+    } else {
+        resolved_prefix
+    };
     // Display name mirrors sendErrorMessage's `prefixName || name`
     // (method.ts:666,686): the invoked target's leaf prefix name when
     // TS defines one, else the slash leaf name. The qualified path is
@@ -1018,7 +1037,26 @@ async fn no_run_help(ctx: Ctx<'_>) {
                 options: help_options(s),
             })
             .collect(),
-        prefix: crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await,
+        prefix: {
+            // Mention-type display mirrors createAwesomeEmbed
+            // (method.ts:330-336): a mention prefix renders
+            // `hybridcommands_global_prefix_mention` ("`@Ping-Me`", backticks,
+            // no trailing space) in the Use lines, never the raw `<@id>`.
+            let bot_id = ctx.serenity_context().cache.current_user().id.get();
+            let (resolved, is_mention) = crate::db::guild_prefix_display(
+                pool,
+                gid,
+                &ctx.data().config.prefix,
+                ctx.data().config.message_commands_mention,
+                bot_id,
+            )
+            .await;
+            if is_mention {
+                t("hybridcommands_global_prefix_mention", "`@Ping-Me`")
+            } else {
+                resolved
+            }
+        },
         title_template: t(
             "hybridcommands_embed_help_title",
             "${commandName} Help Embed",
