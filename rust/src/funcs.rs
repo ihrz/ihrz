@@ -3504,7 +3504,9 @@ type ScoredColor = ((i32, i32, i32), (f64, f64, f64));
 /// Vibrant + dark hex pair over raw RGB pixels. Mirrors
 /// getVibrantAndDarkColors: bucket by rounded tens, drop rare
 /// colors (<= 1% of pixels), split vibrant (l>20, s>20, best
-/// score) vs dark (l<40, darkest), blurple fallback.
+/// score, ties keep the first-inserted bucket like the TS stable
+/// sort) vs dark (l<40, darkest, min_by already first-wins),
+/// blurple fallback.
 pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
     let mut buckets: Vec<((i32, i32, i32), usize)> = vec![];
     for (r, g, b) in pixels {
@@ -3533,16 +3535,20 @@ pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
         })
         .collect();
     let fallback = kept.first().map(|(rgb, _)| *rgb).unwrap_or((88, 101, 242));
-    let vibrant = kept
-        .iter()
-        .filter(|(_, (_, s, l))| *l > 20.0 && *s > 20.0)
-        .max_by(|(_, (_, s1, l1)), (_, (_, s2, l2))| {
-            vibrancy_score(*s1, *l1)
-                .partial_cmp(&vibrancy_score(*s2, *l2))
-                .unwrap_or(std::cmp::Ordering::Equal)
-        })
-        .map(|(rgb, _)| *rgb)
-        .unwrap_or(fallback);
+    // TS stable-sorts descending by score and takes [0]: on ties the
+    // FIRST-inserted bucket wins. A strict-greater fold mirrors that;
+    // Iterator::max_by would return the LAST max instead.
+    let mut vibrant = fallback;
+    let mut best = f64::NEG_INFINITY;
+    for (rgb, (_, s, l)) in &kept {
+        if *l > 20.0 && *s > 20.0 {
+            let sc = vibrancy_score(*s, *l);
+            if sc > best {
+                best = sc;
+                vibrant = *rgb;
+            }
+        }
+    }
     let dark = kept
         .iter()
         .filter(|(_, (_, _, l))| *l < 40.0)
@@ -3657,6 +3663,33 @@ mod funcs_dominant_tests {
         assert_eq!(
             vibrant_and_dark_colors(&pixels),
             ("#ff0000".to_string(), "#ff0000".to_string())
+        );
+    }
+
+    #[test]
+    fn vibrant_tie_keeps_first_inserted_like_ts_stable_sort() {
+        // (200,50,50) and (50,50,200) share s/l bit-exactly (node
+        // ground truth: both score 179.01960784313727). TS
+        // stable-sorts descending and takes [0], so the first-scanned
+        // bucket wins; Iterator::max_by would return the LAST max.
+        let mut pixels = vec![(200u8, 50u8, 50u8); 100];
+        pixels.extend(vec![(50u8, 50u8, 200u8); 100]);
+        assert_eq!(
+            vibrant_and_dark_colors(&pixels),
+            ("#c83232".to_string(), "#3232c8".to_string())
+        );
+    }
+
+    #[test]
+    fn dark_tie_keeps_first_inserted_like_ts_stable_sort() {
+        // Both buckets sit at l~=19.6 (vibrant gate needs l>20, so
+        // color1 falls back to the first bucket) with identical l, so
+        // the TS stable ascending sort and min_by agree on the first.
+        let mut pixels = vec![(100u8, 0u8, 0u8); 100];
+        pixels.extend(vec![(0u8, 0u8, 100u8); 100]);
+        assert_eq!(
+            vibrant_and_dark_colors(&pixels),
+            ("#640000".to_string(), "#640000".to_string())
         );
     }
 
