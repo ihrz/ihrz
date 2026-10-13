@@ -787,19 +787,22 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fall
 
 /// Route a prefix parse failure to its TS lang key. Mirrors the
 /// per-command null keys (method.member/role null -> key): poise parses
-/// typed prefix params before run(), so unresolvable member/user/role
-/// input surfaces as ArgumentParse here instead of inside run.
+/// typed prefix params before run(), so unresolvable member/role input
+/// surfaces as ArgumentParse here instead of inside run.
 /// Channels are NOT routed here: TS checkCommandArgs validates channel
 /// args (method.ts isValidArgument "channel") and answers invalid input
 /// with the caret usage-error embed via sendErrorMessage, so Channel
 /// failures return None and fall through to the same caret embed.
-/// Anything else (counts, bool, choices, numbers, attachments) also
-/// returns None and falls through to the checkCommandArgs caret embed.
+/// User failures also return None: verified live vs prod, an unresolvable
+/// `user` prefix arg (`+where [user]`, `+wakeup [user]`) answers the
+/// caret usage-error embed, never the plain-text not-found key (the
+/// in-run null branches are dead code on the prefix path — checkCommandArgs
+/// rejects before run). Anything else (counts, bool, choices, numbers,
+/// attachments) also returns None and falls through to the
+/// checkCommandArgs caret embed.
 fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> {
     if error_text.contains("Member") {
         Some(("ban_dont_found_member", "🔍 | Cannot find this member"))
-    } else if error_text.contains("User") {
-        Some(("baninfo_user_not_found", "User not found"))
     } else if error_text.contains("Role") {
         Some(("addrolereact_role_not_found", "Role not found."))
     } else {
@@ -3544,10 +3547,10 @@ mod tests {
             argument_parse_key("Member not found or unknown format").map(|(k, _)| k),
             Some("ban_dont_found_member")
         );
-        assert_eq!(
-            argument_parse_key("User not found or unknown format").map(|(k, _)| k),
-            Some("baninfo_user_not_found")
-        );
+        assert_eq!(argument_parse_key("User not found or unknown format"), None);
+        // Live prod answers unresolvable `user` prefix args (+where/+wakeup
+        // [user]) with the checkCommandArgs caret embed, never the
+        // plain-text key — port the observed behavior (prod-first).
         assert_eq!(
             argument_parse_key("Role not found or unknown format").map(|(k, _)| k),
             Some("addrolereact_role_not_found")
