@@ -290,16 +290,45 @@ fn format_time(total_secs: u64) -> String {
     format!("{:02}:{:02}", total_secs / 60, total_secs % 60)
 }
 
-/// Progress bar. Mirrors generateProgressBar.ts (17 chars, `[` + 15 +
-/// `]`, dash fill, `o` cursor).
-pub fn progress_bar(current_ms: u64, total_ms: u64) -> (String, String, String) {
+/// Progress bar. Mirrors generateProgressBar.ts exactly: `Math.floor`
+/// seconds, `{cur} ┃ {fills}{pointer}{fills} ┃ {tot}` with 15 fills, no
+/// hour fold in the clock (`3661s -> "61:01"`). `u64` division is
+/// `Math.floor` for all representable (non-negative) inputs; the f64 op
+/// order matches TS bit-for-bit. Zero/zero hits the TS `NaN` leg
+/// (`repeat(NaN)` yields `""`), so the bar is pointer-only
+/// (`"00:00 ┃ ● ┃ 00:00"` — node ground truth). Deliberate graceful
+/// deltas where TS throws `RangeError` via `String.repeat`: overrun
+/// (past-duration, `before > 15`) clamps to a full bar, and
+/// positive-position/zero-duration clamps to an empty bar.
+pub fn progress_bar(
+    current_ms: u64,
+    total_ms: u64,
+    bar_emoji: &str,
+    pointer_emoji: &str,
+) -> (String, String, String) {
     let cur_s = current_ms / 1000;
-    let tot_s = total_ms.max(1) / 1000;
-    let progress = (cur_s as f64 / tot_s as f64) * 100.0;
-    let dashes = ((17 - 2) as f64 * (progress / 100.0)).floor() as usize;
-    let dashes = dashes.min(15);
-    let bar = format!("[{}{}{}]", "-".repeat(dashes), "o", "-".repeat(15 - dashes));
-    (bar, format_time(cur_s), format_time(tot_s))
+    let tot_s = total_ms / 1000;
+    let (before, after) = if tot_s == 0 {
+        if cur_s == 0 {
+            (0usize, 0usize)
+        } else {
+            (0usize, 15usize)
+        }
+    } else {
+        let progress = (cur_s as f64 / tot_s as f64) * 100.0;
+        let before = ((17 - 2) as f64 * (progress / 100.0)).floor() as usize;
+        let before = before.min(15);
+        (before, 15 - before)
+    };
+    let cur = format_time(cur_s);
+    let tot = format_time(tot_s);
+    let bar = format!(
+        "{cur} ┃ {}{}{} ┃ {tot}",
+        bar_emoji.repeat(before),
+        pointer_emoji,
+        bar_emoji.repeat(after)
+    );
+    (bar, cur, tot)
 }
 
 /// Text sanitizer. Mirrors sanitizer.ts exactly: the TS splits the string
@@ -1122,15 +1151,28 @@ mod tests {
     }
 
     #[test]
-    fn bar_renders() {
-        let (bar, cur, tot) = progress_bar(0, 200_000);
+    fn bar_matches_generate_progress_bar() {
+        // Node ground truth pins (generateProgressBar.ts battery).
+        let (bar, cur, tot) = progress_bar(0, 200_000, "━", "●");
         assert_eq!(cur, "00:00");
         assert_eq!(tot, "03:20");
-        assert!(bar.starts_with('[') && bar.ends_with(']'));
-        assert_eq!(bar.len(), 18);
-        let (_, cur2, _) = progress_bar(3_661_000, 10_000_000);
+        assert_eq!(bar, "00:00 ┃ ●━━━━━━━━━━━━━━━ ┃ 03:20");
+        let (half, _, _) = progress_bar(90_000, 180_000, "━", "●");
+        assert_eq!(half, "01:30 ┃ ━━━━━━━●━━━━━━━━ ┃ 03:00");
+        // Zero/zero NaN leg: repeat(NaN) is "", pointer-only bar.
+        let (z, zc, zt) = progress_bar(0, 0, "━", "●");
+        assert_eq!(zc, "00:00");
+        assert_eq!(zt, "00:00");
+        assert_eq!(z, "00:00 ┃ ● ┃ 00:00");
+        // 100% puts the pointer at the end (after = 0).
+        let (full, _, _) = progress_bar(1500, 1000, "━", "●");
+        assert_eq!(full, "00:01 ┃ ━━━━━━━━━━━━━━━● ┃ 00:01");
+        let (_, cur2, _) = progress_bar(3_661_000, 10_000_000, "━", "●");
         // TS formatTime has no hour fold: 3661s -> "61:01".
         assert_eq!(cur2, "61:01");
+        // Overrun clamps to a full bar (TS throws RangeError; graceful delta).
+        let (over, _, _) = progress_bar(300_000, 180_000, "━", "●");
+        assert_eq!(over.chars().filter(|c| *c == '━').count(), 15);
     }
 
     #[test]
