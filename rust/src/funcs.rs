@@ -690,12 +690,17 @@ pub fn is_discord_emoji(text: &str) -> bool {
 }
 
 /// Embed validators. Mirrors embedHelper.ts.
+/// `startsWith` is case-sensitive (uppercase schemes rejected) and a
+/// bare `"http://"` prefix alone matches (node ground truth).
 pub fn is_valid_link(url: &str) -> bool {
     url.starts_with("https://") || url.starts_with("http://")
 }
 
 /// Embed color check. Mirrors `isValidColor` (`/^#([0-9a-f]{3}){1,2}$/i`):
-/// the `#` prefix is REQUIRED — bare `"fff"`/`"ffffff"` are rejected.
+/// the `#` prefix is REQUIRED — bare `"fff"`/`"ffffff"` are rejected — and
+/// the `i` flag folds no non-ASCII char into `[0-9a-f]` (node ground
+/// truth: KELVIN SIGN, LONG S, TURKISH I, fullwidth ABC all rejected),
+/// so `is_ascii_hexdigit` is exactly equivalent.
 pub fn is_valid_color(color: &str) -> bool {
     let bytes = color.as_bytes();
     (bytes.len() == 4 || bytes.len() == 7)
@@ -703,6 +708,11 @@ pub fn is_valid_color(color: &str) -> bool {
         && bytes[1..].iter().all(|b| b.is_ascii_hexdigit())
 }
 
+/// Embed id check. Mirrors `isValidEmbedId`: the 255 cap measures
+/// `TextEncoder` UTF-8 bytes (== `str::len`), the 32-segment cap is
+/// inclusive, and any empty dot-segment rejects (node ground truth:
+/// 249 ASCII chars pass at exactly 255 bytes, 250 fail; 124 `é`
+/// pass at 254 bytes, 125 fail at 256).
 pub fn is_valid_embed_id(id: &str) -> bool {
     if id.is_empty() {
         return false;
@@ -1408,9 +1418,19 @@ mod tests {
     fn embed_validators() {
         assert!(is_valid_link("https://x.y"));
         assert!(!is_valid_link("ftp://x"));
+        // Case-sensitive startsWith: uppercase schemes rejected, bare
+        // prefixes alone accepted, leading space rejected (node battery).
+        assert!(!is_valid_link("HTTPS://x"));
+        assert!(!is_valid_link("HTTP://x"));
+        assert!(is_valid_link("http://"));
+        assert!(is_valid_link("https://"));
+        assert!(!is_valid_link(""));
+        assert!(!is_valid_link(" https://x"));
         assert!(is_valid_color("#fff"));
         assert!(is_valid_color("#123456"));
         assert!(is_valid_color("#FFF"));
+        assert!(is_valid_color("#ABCDEF"));
+        assert!(is_valid_color("#FfFfFf"));
         assert!(!is_valid_color("red"));
         // `#` prefix required: bare hex rejected like the TS regex.
         assert!(!is_valid_color("fff"));
@@ -1418,9 +1438,27 @@ mod tests {
         assert!(!is_valid_color("#ffff"));
         assert!(!is_valid_color("#ggg"));
         assert!(!is_valid_color(""));
+        // `i` flag folds nothing non-ASCII into [0-9a-f] (node battery).
+        assert!(!is_valid_color("#İİİ"));
+        assert!(!is_valid_color("#ſſſ"));
+        assert!(!is_valid_color("#KKK"));
+        assert!(!is_valid_color("#ＡＢＣ"));
         assert!(is_valid_embed_id("abc123"));
         assert!(!is_valid_embed_id(""));
         assert!(!is_valid_embed_id("a.b."));
+        // Dotted ids allowed; any empty segment rejects.
+        assert!(is_valid_embed_id("a.b"));
+        assert!(!is_valid_embed_id(".a"));
+        assert!(!is_valid_embed_id("a."));
+        assert!(!is_valid_embed_id("a..b"));
+        // 255-byte cap is inclusive and counts UTF-8 bytes, not chars.
+        assert!(is_valid_embed_id(&"x".repeat(249)));
+        assert!(!is_valid_embed_id(&"x".repeat(250)));
+        assert!(is_valid_embed_id(&"é".repeat(124)));
+        assert!(!is_valid_embed_id(&"é".repeat(125)));
+        // 32-segment cap is inclusive (key adds the EMBED segment).
+        assert!(is_valid_embed_id(&vec!["a"; 31].join(".")));
+        assert!(!is_valid_embed_id(&vec!["a"; 32].join(".")));
     }
 
     #[test]
