@@ -3046,8 +3046,10 @@ mod funcs_part3_tests {
 
 // ---- intentEnabler ----
 
-/// Privileged intent flags. Mirrors intentEnabler.ts constants.
-pub const INTENT_GUILD_MEMBERS: u64 = 1 << 9;
+/// Privileged intent flags. Mirrors intentEnabler.ts constants exactly
+/// (node ground truth: 1<<13 = 8192 GuildMembers, 1<<15 = 32768
+/// MessageContent, 1<<19 = 524288 Presence; REQUIRED = 565248).
+pub const INTENT_GUILD_MEMBERS: u64 = 1 << 13;
 pub const INTENT_MESSAGE_CONTENT: u64 = 1 << 15;
 pub const INTENT_PRESENCE: u64 = 1 << 19;
 pub const REQUIRED_INTENTS: u64 = INTENT_GUILD_MEMBERS | INTENT_MESSAGE_CONTENT | INTENT_PRESENCE;
@@ -3057,20 +3059,37 @@ pub fn missing_intents(current_flags: u64) -> u64 {
     REQUIRED_INTENTS & !current_flags
 }
 
+/// PATCH verdict leg. Mirrors `patched.flags === current -> warn + false`:
+/// a body that fails to parse (TS throw -> catch -> false) or reports
+/// unchanged flags means the API rejected the update.
+pub fn patch_verdict(current: u64, patched_flags: Option<u64>) -> bool {
+    matches!(patched_flags, Some(f) if f != current)
+}
+
 /// Enable privileged intents on the application. Mirrors enableRequiredIntents
 /// (GET then PATCH /applications/@me). Returns true when all set.
+/// Deltas (doc-noted): `data.flags ?? 0` keeps hostile non-null shapes
+/// (TS coerces them via ToInt32 in the `&`/`|` ops) while the mirror
+/// folds non-u64 to 0; JS bitwise wraps past 2^31 (unreachable: Discord
+/// application flags fit far below it). Non-2xx bodies are rejected
+/// before parsing like TS `!res.ok`, so an error payload carrying a
+/// `flags` key can no longer trigger a PATCH.
 pub async fn enable_required_intents(token: &str) -> bool {
     let client = reqwest::Client::new();
-    let info: serde_json::Value = match client
+    let res = match client
         .get("https://discord.com/api/v10/applications/@me")
         .header("Authorization", format!("Bot {token}"))
         .send()
         .await
     {
-        Ok(r) => match r.json().await {
-            Ok(v) => v,
-            Err(_) => return false,
-        },
+        Ok(r) => r,
+        Err(_) => return false,
+    };
+    if !res.status().is_success() {
+        return false;
+    }
+    let info: serde_json::Value = match res.json().await {
+        Ok(v) => v,
         Err(_) => return false,
     };
     let current = info.get("flags").and_then(|f| f.as_u64()).unwrap_or(0);
@@ -3078,14 +3097,24 @@ pub async fn enable_required_intents(token: &str) -> bool {
         return true;
     }
     let updated = current | REQUIRED_INTENTS;
-    client
+    let patch = match client
         .patch("https://discord.com/api/v10/applications/@me")
         .header("Authorization", format!("Bot {token}"))
         .json(&serde_json::json!({"flags": updated}))
         .send()
         .await
-        .map(|r| r.status().is_success())
-        .unwrap_or(false)
+    {
+        Ok(r) => r,
+        Err(_) => return false,
+    };
+    if !patch.status().is_success() {
+        return false;
+    }
+    let patched: serde_json::Value = match patch.json().await {
+        Ok(v) => v,
+        Err(_) => return false,
+    };
+    patch_verdict(current, patched.get("flags").and_then(|f| f.as_u64()))
 }
 
 // ---- helper.ts ----
@@ -3185,7 +3214,22 @@ mod funcs_part4_tests {
     fn intent_flags() {
         assert_eq!(missing_intents(REQUIRED_INTENTS), 0);
         assert_eq!(missing_intents(0), REQUIRED_INTENTS);
-        assert_eq!(REQUIRED_INTENTS, (1 << 9) | (1 << 15) | (1 << 19));
+        // Node ground truth (W6 slice 44): 1<<13 | 1<<15 | 1<<19.
+        assert_eq!(INTENT_GUILD_MEMBERS, 8192);
+        assert_eq!(INTENT_MESSAGE_CONTENT, 32768);
+        assert_eq!(INTENT_PRESENCE, 524288);
+        assert_eq!(REQUIRED_INTENTS, 565248);
+        // Flag-diff battery: empty -> all needed; message-content-only
+        // still needs GuildMembers + Presence (532480).
+        assert_eq!(missing_intents(32768), 565248 & !32768);
+        assert_eq!(missing_intents(32768), 532480);
+        assert_eq!(32768 | REQUIRED_INTENTS, 565248);
+        // PATCH verdict leg: unchanged flags (or unparsable body) means
+        // the API rejected the update -> false.
+        assert!(!patch_verdict(565248, Some(565248)));
+        assert!(!patch_verdict(0, None));
+        assert!(patch_verdict(0, Some(565248)));
+        assert!(patch_verdict(32768, Some(565248)));
     }
 
     #[test]
