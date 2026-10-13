@@ -257,14 +257,15 @@ pub fn embed_with_footer(
 /// The slash leg passes through untouched (TS interaction replies keep
 /// default mentions, so role/user mentions in embeds keep parsing there).
 /// Commands whose TS main response is a plain channel send (not a reply)
-/// are excluded here: `utils vc` (!vc.ts `channel.send`), `top`
+/// are excluded here: `utils vc` (!vc.ts `channel.send`), `utils top`
 /// (MessageCommands top.ts `channelSend`, which also keeps default
-/// mentions).
+/// mentions). Paths are poise qualified names (`utils` owns both
+/// leaves, so bare `top` never matches).
 pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::CreateReply {
     if !matches!(ctx, poise::Context::Prefix(_)) {
         return reply;
     }
-    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "top"];
+    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "utils top"];
     if PLAIN_SEND_PATHS.contains(&ctx.command().qualified_name.as_str()) {
         return reply;
     }
