@@ -550,38 +550,197 @@ pub fn is_url_query(query: &str) -> bool {
     chars.all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.')
 }
 
-fn url_host(query: &str) -> Option<String> {
-    let rest = query
-        .trim()
-        .strip_prefix("https://")
-        .or_else(|| query.trim().strip_prefix("http://"))?;
-    let host = rest.split('/').next().unwrap_or("").to_ascii_lowercase();
-    (!host.is_empty()).then_some(host)
+/// Mirror of `new URL(url).host` — the `.host` the TS `is*URL` guards
+/// call `.includes()` on (musicPlay.ts:106-144), pinned by a node
+/// ground-truth battery (W6 slice 32). Any scheme with an authority
+/// parses (`ftp:`/`ws:`/`wss:`, uppercase schemes, `scheme:` without
+/// slashes for special schemes); `file:` alone strips exactly `//`
+/// (empty file hosts stay hostless); userinfo cuts at the last `@`;
+/// the port must be empty or ASCII digits <= 65535 (anything else
+/// fails the whole parse); default ports drop, as does any port on a
+/// trailing-dot host; `%HH` host escapes decode but a bare `%` or a
+/// decoded forbidden char (`#%/:<>?@[\]^|`, C0, space, DEL) fails;
+/// ASCII tab/newline is stripped everywhere first, ends trimmed to
+/// C0/space (WHATWG). None = parse failure or empty host — both read
+/// false in every classifier. Deltas (hostile-input edges, all
+/// verdict-neutral for the five alpha-substring classifiers):
+/// non-ASCII hosts pass through ASCII-lowercased instead of IDNA
+/// punycode + full Unicode casefold; inner non-tab/newline C0
+/// controls fail instead of the exact WHATWG table; IPv6 brackets
+/// keep raw text (charset-gated) instead of compressing; non-special
+/// ports > 65535 fail like special ones.
+pub fn whatwg_host(input: &str) -> Option<String> {
+    let stripped: String = input
+        .chars()
+        .filter(|&c| !matches!(c, '\t' | '\n' | '\r'))
+        .collect();
+    let src = trim_url_ends(&stripped);
+    let colon = src.find(':')?;
+    let (scheme_raw, after) = (&src[..colon], &src[colon + 1..]);
+    if scheme_raw.is_empty()
+        || !scheme_raw.bytes().enumerate().all(|(i, b)| {
+            b.is_ascii_alphabetic()
+                || (i > 0 && (b.is_ascii_digit() || matches!(b, b'+' | b'-' | b'.')))
+        })
+    {
+        return None;
+    }
+    let scheme = scheme_raw.to_ascii_lowercase();
+    let special = is_special_scheme(&scheme);
+    let rest = if scheme == "file" {
+        after.strip_prefix("//")?
+    } else if special {
+        after.trim_start_matches(['/', '\\'])
+    } else {
+        after.strip_prefix("//")?
+    };
+    let auth_end = rest
+        .find(|c: char| c == '/' || c == '?' || c == '#' || (special && c == '\\'))
+        .unwrap_or(rest.len());
+    let authority = &rest[..auth_end];
+    if authority.is_empty() {
+        return None;
+    }
+    let hostport = match authority.rfind('@') {
+        Some(i) => &authority[i + 1..],
+        None => authority,
+    };
+    let (host_raw, port) = if hostport.starts_with('[') {
+        let close = hostport.find(']')?;
+        let tail = &hostport[close + 1..];
+        let port = if let Some(p) = tail.strip_prefix(':') {
+            Some(p)
+        } else if tail.is_empty() {
+            None
+        } else {
+            return None;
+        };
+        (&hostport[..close + 1], port)
+    } else {
+        match hostport.rfind(':') {
+            Some(i) => {
+                let p = &hostport[i + 1..];
+                if p.is_empty() {
+                    (&hostport[..i], None)
+                } else if p.bytes().all(|b| b.is_ascii_digit()) {
+                    (&hostport[..i], Some(p))
+                } else {
+                    // WHATWG: garbage port fails the whole parse.
+                    return None;
+                }
+            }
+            None => (hostport, None),
+        }
+    };
+    if host_raw.is_empty() {
+        return None;
+    }
+    let is_bracket = host_raw.starts_with('[');
+    let host = if is_bracket {
+        if !host_raw[1..host_raw.len() - 1]
+            .bytes()
+            .all(|b| b.is_ascii_hexdigit() || b == b':' || b == b'.')
+        {
+            return None;
+        }
+        host_raw.to_ascii_lowercase()
+    } else {
+        decode_host(host_raw)?.to_ascii_lowercase()
+    };
+    let keep_port = match port {
+        None => None,
+        Some(p) => {
+            let n: u32 = p.parse().ok()?;
+            if n > 65535 {
+                return None;
+            }
+            let is_default = yt_default_port(&scheme).is_some_and(|d| d == n);
+            if is_default || host.ends_with('.') {
+                None
+            } else {
+                Some(p)
+            }
+        }
+    };
+    let mut out = host;
+    if let Some(p) = keep_port {
+        out.push(':');
+        out.push_str(p);
+    }
+    Some(out)
 }
 
-/// Mirrors `isSpotifyURL` (host contains "spotify").
+/// Percent-decode a URL host (`%HH` must be valid hex); None on a bare
+/// `%`, undecodable UTF-8, or a decoded forbidden host char (WHATWG
+/// forbidden host code points + C0/space/DEL). Non-ASCII bytes pass
+/// through raw (no IDNA — see `whatwg_host` deltas).
+fn decode_host(s: &str) -> Option<String> {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' {
+            if i + 2 >= b.len() || !b[i + 1].is_ascii_hexdigit() || !b[i + 2].is_ascii_hexdigit() {
+                return None;
+            }
+            let v = u8::from_str_radix(&s[i + 1..i + 3], 16).ok()?;
+            out.push(v);
+            i += 3;
+        } else {
+            out.push(b[i]);
+            i += 1;
+        }
+    }
+    for &v in &out {
+        if v <= 0x20
+            || v == 0x7f
+            || matches!(
+                v,
+                b'#' | b'%'
+                    | b'/'
+                    | b':'
+                    | b'<'
+                    | b'>'
+                    | b'?'
+                    | b'@'
+                    | b'['
+                    | b'\\'
+                    | b']'
+                    | b'^'
+                    | b'|'
+            )
+        {
+            return None;
+        }
+    }
+    String::from_utf8(out).ok()
+}
+
+/// Mirrors `isSpotifyURL` (host contains "spotify", any scheme with an
+/// authority — `ftp:`/`spotify:` hosts count, opaque `spotify:track:…`
+/// URIs stay hostless and false).
 pub fn is_spotify_url(query: &str) -> bool {
-    url_host(query).is_some_and(|h| h.contains("spotify"))
+    whatwg_host(query).is_some_and(|h| h.contains("spotify"))
 }
 
 /// Mirrors `isYoutubeURL` (host contains "youtu").
 pub fn is_youtube_url(query: &str) -> bool {
-    url_host(query).is_some_and(|h| h.contains("youtu"))
+    whatwg_host(query).is_some_and(|h| h.contains("youtu"))
 }
 
 /// Mirrors `isAppleMusicURL` (host contains "apple.com").
 pub fn is_apple_music_url(query: &str) -> bool {
-    url_host(query).is_some_and(|h| h.contains("apple.com"))
+    whatwg_host(query).is_some_and(|h| h.contains("apple.com"))
 }
 
 /// Mirrors `isAmazonMusicURL` (host contains "amazon").
 pub fn is_amazon_music_url(query: &str) -> bool {
-    url_host(query).is_some_and(|h| h.contains("amazon"))
+    whatwg_host(query).is_some_and(|h| h.contains("amazon"))
 }
 
 /// Mirrors `isTidalURL` (host contains "tidal").
 pub fn is_tidal_url(query: &str) -> bool {
-    url_host(query).is_some_and(|h| h.contains("tidal"))
+    whatwg_host(query).is_some_and(|h| h.contains("tidal"))
 }
 
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
@@ -3429,7 +3588,7 @@ impl LavalinkManager {
         node: &NodeEntry,
         url: &str,
     ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
-        let domain = url_host(url).unwrap_or_else(|| "music.amazon.com".to_string());
+        let domain = whatwg_host(url).unwrap_or_else(|| "music.amazon.com".to_string());
         let res = crate::metadata::amazon_music::search(url, &domain)
             .await
             .map_err(|e| MusicError::Transport(e.to_string()))?;
@@ -4759,13 +4918,491 @@ mod tests {
 
     #[test]
     fn url_classifiers_match_ts_hosts() {
-        assert!(is_spotify_url("https://open.spotify.com/track/x"));
-        assert!(!is_spotify_url("https://www.deezer.com/track/1"));
-        assert!(is_youtube_url("https://www.youtube.com/watch?v=x"));
-        assert!(is_youtube_url("https://youtu.be/x"));
-        assert!(is_apple_music_url("https://music.apple.com/us/song/x"));
-        assert!(is_amazon_music_url("https://music.amazon.fr/track/x"));
-        assert!(is_tidal_url("https://tidal.com/browse/track/1"));
+        // (input, spotify, youtu, apple, amazon, tidal) from the node
+        // ground-truth battery over `new URL(url).host.includes(…)`.
+        let cases: &[(&str, bool, bool, bool, bool, bool)] = &[
+            (
+                "https://open.spotify.com/track/abc",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "http://open.spotify.com/track/abc",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "ftp://open.spotify.com/track/abc",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "FTP://OPEN.SPOTIFY.COM/track/abc",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("HTTPS://YOUTU.BE/abc", false, true, false, false, false),
+            (
+                "https://spotify@evil.com/",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://user:pass@open.spotify.com:443/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:8080/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:abc/x",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("spotify:track:abc", false, false, false, false, false),
+            ("not a url", false, false, false, false, false),
+            ("https://", false, false, false, false, false),
+            (
+                "https://music.youtube.com/x",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://sub.youtube.com/x",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://music.apple.com/fr/x",
+                false,
+                false,
+                true,
+                false,
+                false,
+            ),
+            (
+                "https://music.amazon.fr/albums/x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            ("https://tidal.com/x", false, false, false, false, true),
+            (
+                "https://listen.tidal.com/x",
+                false,
+                false,
+                false,
+                false,
+                true,
+            ),
+            (
+                " https://open.spotify.com/x ",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://spotify .com/", false, false, false, false, false),
+            (
+                "https://open.spotify.com/x?y",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com/x#f",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("http://[::1]/x", false, false, false, false, false),
+            ("//open.spotify.com/x", false, false, false, false, false),
+            (
+                "https://evil.com?spotify",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://spotify.evil.com/",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://evilspotify.com/", true, false, false, false, false),
+            (
+                "https://open.spotify.com./x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("file:///etc/passwd", false, false, false, false, false),
+            (
+                "https://user@spotify.com@evil.com/",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "\t\nhttps://youtu.be/abc\t\n",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            ("https://youtu.be:abc/", false, false, false, false, false),
+            ("ws://open.spotify.com/x", true, false, false, false, false),
+            (
+                "spotify://open.spotify.com/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com\\/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://:8080/x", false, false, false, false, false),
+            (
+                "https://music.amazon.com./x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            (
+                "HTTPS://MUSIC.AMAZON.FR/x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            ("https://%73potify.com/", true, false, false, false, false),
+            (
+                "https://open.spotify.com:99999/x",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://100%.com/", false, false, false, false, false),
+            ("https://%zz.com/", false, false, false, false, false),
+            ("https://a%20b.com/", false, false, false, false, false),
+            (
+                "https://open.spotify.com%2fx/",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://münchen.de/", false, false, false, false, false),
+            (
+                "https://open.spotify.com:80/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "http://open.spotify.com:443/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "http://open.spotify.com:80/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "ftp://open.spotify.com:21/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "ftp://open.spotify.com:22/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "ws://open.spotify.com:80/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "spotify://open.spotify.com:123/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "spotify://open.spotify.com:/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:0/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:65535/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:65536/x",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://[::ffff:1.2.3.4]/x",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://[::1]:8080/x", false, false, false, false, false),
+            (
+                "https://user:p@ss@open.spotify.com/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com./:8080/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://sub.youtu.be@evil.com/",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://youtu.be./x", false, true, false, false, false),
+            (
+                "HtTpS://OpEn.SpOtIfY.cOm/X",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:443/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://tidal.com:443/x", false, false, false, false, true),
+            ("http://tidal.com:80/x", false, false, false, false, true),
+            (
+                "https://www.youtube.com/watch?v=x",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            ("https://youtu.be/x", false, true, false, false, false),
+            (
+                "https://music.apple.com/us/song/x",
+                false,
+                false,
+                true,
+                false,
+                false,
+            ),
+            (
+                "https://music.amazon.fr/track/x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            (
+                "https://tidal.com/browse/track/1",
+                false,
+                false,
+                false,
+                false,
+                true,
+            ),
+            (
+                "https://www.deezer.com/track/1",
+                false,
+                false,
+                false,
+                false,
+                false,
+            ),
+        ];
+        for (input, spotify, youtu, apple, amazon, tidal) in cases {
+            assert_eq!(is_spotify_url(input), *spotify, "spotify {input:?}");
+            assert_eq!(is_youtube_url(input), *youtu, "youtu {input:?}");
+            assert_eq!(is_apple_music_url(input), *apple, "apple {input:?}");
+            assert_eq!(is_amazon_music_url(input), *amazon, "amazon {input:?}");
+            assert_eq!(is_tidal_url(input), *tidal, "tidal {input:?}");
+        }
+        // Direct `.host` pins (None = THROW or empty host in node).
+        let hosts: &[(&str, Option<&str>)] = &[
+            (
+                "https://open.spotify.com/track/abc",
+                Some("open.spotify.com"),
+            ),
+            (
+                "https://user:pass@open.spotify.com:443/x",
+                Some("open.spotify.com"),
+            ),
+            (
+                "https://open.spotify.com:8080/x",
+                Some("open.spotify.com:8080"),
+            ),
+            ("HTTPS://YOUTU.BE/abc", Some("youtu.be")),
+            ("https://open.spotify.com:abc/x", None),
+            ("https://open.spotify.com:99999/x", None),
+            ("https://open.spotify.com:65536/x", None),
+            ("https://open.spotify.com:0/x", Some("open.spotify.com:0")),
+            ("http://[::1]/x", Some("[::1]")),
+            ("https://[::1]:8080/x", Some("[::1]:8080")),
+            ("https://[v1.fe]/x", None),
+            ("spotify:track:abc", None),
+            ("file:///etc/passwd", None),
+            ("file://host/path", Some("host")),
+            ("file:////etc", None),
+            ("https:///path", Some("path")),
+            (
+                "https://open.spotify.com./:8080/x",
+                Some("open.spotify.com."),
+            ),
+            ("https://%73potify.com/", Some("spotify.com")),
+            ("https://100%.com/", None),
+            ("https://", None),
+            ("https://:8080/x", None),
+            ("https://open.spotify.com@/x", None),
+            (
+                "spotify://open.spotify.com:123/x",
+                Some("open.spotify.com:123"),
+            ),
+            ("ftp://open.spotify.com:21/x", Some("open.spotify.com")),
+            ("ftp://open.spotify.com:22/x", Some("open.spotify.com:22")),
+            ("https://münchen.de/", Some("münchen.de")),
+            ("spotify://", None),
+            ("https://open.spotify.com\\/x", Some("open.spotify.com")),
+            ("https:open.spotify.com/x", Some("open.spotify.com")),
+            ("https:/open.spotify.com/x", Some("open.spotify.com")),
+        ];
+        for (input, expected) in hosts {
+            assert_eq!(whatwg_host(input).as_deref(), *expected, "host {input:?}");
+        }
         assert!(!is_url_query("never gonna give you up"));
         assert!(is_url_query("https://example.test/x"));
         // Any-scheme detection (mirrors `new URL(query)`): non-http
