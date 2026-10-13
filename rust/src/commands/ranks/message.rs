@@ -85,6 +85,10 @@ pub fn rankmsg_expired(posted_unix_secs: i64, now_unix_secs: i64) -> bool {
     (now_unix_secs - posted_unix_secs) * 1000 >= MSG_PANEL_TIMEOUT_MS
 }
 
+/// Help embed accent. Mirrors `.setColor("#ffb3cc")`
+/// (`!message.ts:66`).
+pub const RANKMSG_HELP_COLOUR: u32 = 0xFFB3CC;
+
 /// Help embed: custom + default previews (`!message.ts:65-100`).
 fn rankmsg_embed(
     code: &str,
@@ -107,6 +111,7 @@ fn rankmsg_embed(
     };
     let default_field = preview_block(default_tpl, username, mention, member_count, guild_name);
     serenity::CreateEmbed::default()
+        .colour(RANKMSG_HELP_COLOUR)
         .title(say("ranksSetMessage_help_embed_title", "Level-up message"))
         .description(say(
             "ranksSetMessage_help_embed_desc",
@@ -536,8 +541,16 @@ mod tests {
     use super::truncate_xp_message;
     use super::{
         is_rankmsg_button, is_rankmsg_modal, rankmsg_expired, rankmsg_invoker, rankmsg_modal_opts,
-        MSG_DEFAULT_ID, MSG_INPUT_ID, MSG_MODAL_ID, MSG_SET_ID,
+        MSG_DEFAULT_ID, MSG_INPUT_ID, MSG_MODAL_ID, MSG_SET_ID, RANKMSG_HELP_COLOUR,
     };
+
+    #[test]
+    fn help_embed_accent_matches_ts_setcolor() {
+        // `!message.ts:66` `.setColor("#ffb3cc")` == decimal 16757708
+        // as observed on the live prod payload.
+        assert_eq!(RANKMSG_HELP_COLOUR, 0xFFB3CC);
+        assert_eq!(RANKMSG_HELP_COLOUR, 16757708);
+    }
 
     #[test]
     fn truncation_caps_at_1010_chars_like_ts_substring() {
