@@ -3024,45 +3024,52 @@ mod funcs_part5_tests {
 
 // ---- blockSpam (PUNISHPUB) ----
 
+/// JS `String.trim()` / non-unicode-flag `\s` whitespace set (WhiteSpace +
+/// LineTerminator): TAB VT FF SP NBSP U+1680 U+2000-U+200A U+2028/2029
+/// U+202F U+205F U+3000 U+FEFF. Notably trims U+FEFF (which Rust
+/// `str::trim` keeps) and does NOT trim U+0085 or U+200B.
+pub fn is_js_whitespace(c: char) -> bool {
+    matches!(
+        c,
+        '\t' | '\n'
+            | '\u{000C}'
+            | '\r'
+            | ' '
+            | '\u{000B}'
+            | '\u{00A0}'
+            | '\u{1680}'
+            | '\u{2000}'
+            | '\u{2001}'
+            | '\u{2002}'
+            | '\u{2003}'
+            | '\u{2004}'
+            | '\u{2005}'
+            | '\u{2006}'
+            | '\u{2007}'
+            | '\u{2008}'
+            | '\u{2009}'
+            | '\u{200A}'
+            | '\u{2028}'
+            | '\u{2029}'
+            | '\u{202F}'
+            | '\u{205F}'
+            | '\u{3000}'
+            | '\u{FEFF}'
+    )
+}
+
+/// JS `String.trim()` equivalent over [`is_js_whitespace`].
+pub fn js_trim(s: &str) -> &str {
+    s.trim_matches(is_js_whitespace)
+}
+
 /// Link extractor. Mirrors `contentLower.match(/https?:\/\/\S+/g)` in
 /// blockSpam.ts, where `contentLower = message.content.toLowerCase()`.
 /// Exactness notes: Unicode `to_lowercase` (not ASCII-only — TS folds
 /// e.g. U+0130 to `i` + combining dot), earliest scheme position wins
 /// (TS matches leftmost, so `http://` before `https://` comes first),
-/// and links terminate on the JS `\s` set (non-unicode flag), which —
-/// unlike ASCII whitespace — also stops at NBSP, U+1680, U+2000-U+200A,
-/// U+2028/2029, U+202F, U+205F, U+3000, U+FEFF and vertical tab, while
-/// U+0085 does NOT terminate (it is not in the JS set).
+/// and links terminate on the JS `\s` set ([`is_js_whitespace]).
 pub fn extract_links(text: &str) -> Vec<String> {
-    fn is_js_space(c: char) -> bool {
-        matches!(
-            c,
-            '\t' | '\n'
-                | '\u{000C}'
-                | '\r'
-                | ' '
-                | '\u{000B}'
-                | '\u{00A0}'
-                | '\u{1680}'
-                | '\u{2000}'
-                | '\u{2001}'
-                | '\u{2002}'
-                | '\u{2003}'
-                | '\u{2004}'
-                | '\u{2005}'
-                | '\u{2006}'
-                | '\u{2007}'
-                | '\u{2008}'
-                | '\u{2009}'
-                | '\u{200A}'
-                | '\u{2028}'
-                | '\u{2029}'
-                | '\u{202F}'
-                | '\u{205F}'
-                | '\u{3000}'
-                | '\u{FEFF}'
-        )
-    }
     let lower = text.to_lowercase();
     let mut out = vec![];
     let mut i = 0;
@@ -3085,7 +3092,7 @@ pub fn extract_links(text: &str) -> Vec<String> {
         let abs = i + pos;
         let tail = &lower[abs + scheme..];
         let len = tail
-            .find(is_js_space)
+            .find(is_js_whitespace)
             .map(|p| abs + scheme + p)
             .unwrap_or(lower.len());
         out.push(lower[abs..len].to_string());

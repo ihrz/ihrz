@@ -1,8 +1,10 @@
 use super::*;
 
-/// Invite validation gate. Mirrors method.isValidDiscordInvite.
+/// Invite validation gate. Mirrors method.isValidDiscordInvite: JS
+/// `String.trim()` (which strips U+FEFF, unlike Rust `str::trim`) then
+/// full-match against the three TS patterns.
 fn is_valid_discord_invite(input: &str) -> bool {
-    let t = input.trim();
+    let t = crate::funcs::js_trim(input);
     if t.is_empty() {
         return false;
     }
@@ -59,4 +61,30 @@ pub mod main {
     pub use super::userinfo::*;
     pub use super::whereis::*;
     pub use super::*;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_valid_discord_invite;
+
+    #[test]
+    fn invite_gate_matches_ts_trim_and_patterns() {
+        // Node ground truth: TS String.trim() strips U+FEFF/NBSP (Rust
+        // str::trim keeps U+FEFF), bare code / discord.gg/ / full URL only,
+        // case-sensitive scheme+host, ZWSP neither trimmed nor alnum.
+        assert!(is_valid_discord_invite("abc"));
+        assert!(is_valid_discord_invite("discord.gg/x"));
+        assert!(is_valid_discord_invite("https://discord.gg/abc"));
+        assert!(is_valid_discord_invite("  discord.gg/x  "));
+        assert!(is_valid_discord_invite("\u{FEFF}abc"));
+        assert!(is_valid_discord_invite("abc\u{FEFF}"));
+        assert!(is_valid_discord_invite("\u{A0}abc"));
+        assert!(!is_valid_discord_invite("HTTPS://discord.gg/abc"));
+        assert!(!is_valid_discord_invite("https://discord.gg/abc/def"));
+        assert!(!is_valid_discord_invite("discord.gg/"));
+        assert!(!is_valid_discord_invite("a b"));
+        assert!(!is_valid_discord_invite("\u{200B}abc"));
+        assert!(!is_valid_discord_invite(""));
+        assert!(!is_valid_discord_invite("   "));
+    }
 }
