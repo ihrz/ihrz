@@ -3024,28 +3024,72 @@ mod funcs_part5_tests {
 
 // ---- blockSpam (PUNISHPUB) ----
 
-/// Link extractor. Mirrors `/https?:\/\/\S+/g` in blockSpam.ts.
+/// Link extractor. Mirrors `contentLower.match(/https?:\/\/\S+/g)` in
+/// blockSpam.ts, where `contentLower = message.content.toLowerCase()`.
+/// Exactness notes: Unicode `to_lowercase` (not ASCII-only — TS folds
+/// e.g. U+0130 to `i` + combining dot), earliest scheme position wins
+/// (TS matches leftmost, so `http://` before `https://` comes first),
+/// and links terminate on the JS `\s` set (non-unicode flag), which —
+/// unlike ASCII whitespace — also stops at NBSP, U+1680, U+2000-U+200A,
+/// U+2028/2029, U+202F, U+205F, U+3000, U+FEFF and vertical tab, while
+/// U+0085 does NOT terminate (it is not in the JS set).
 pub fn extract_links(text: &str) -> Vec<String> {
-    let lower = text.to_ascii_lowercase();
+    fn is_js_space(c: char) -> bool {
+        matches!(
+            c,
+            '\t' | '\n'
+                | '\u{000C}'
+                | '\r'
+                | ' '
+                | '\u{000B}'
+                | '\u{00A0}'
+                | '\u{1680}'
+                | '\u{2000}'
+                | '\u{2001}'
+                | '\u{2002}'
+                | '\u{2003}'
+                | '\u{2004}'
+                | '\u{2005}'
+                | '\u{2006}'
+                | '\u{2007}'
+                | '\u{2008}'
+                | '\u{2009}'
+                | '\u{200A}'
+                | '\u{2028}'
+                | '\u{2029}'
+                | '\u{202F}'
+                | '\u{205F}'
+                | '\u{3000}'
+                | '\u{FEFF}'
+        )
+    }
+    let lower = text.to_lowercase();
     let mut out = vec![];
-    let bytes = lower.as_bytes();
     let mut i = 0;
-    while i < bytes.len() {
+    while i < lower.len() {
         let rest = &lower[i..];
-        let start = rest
-            .find("https://")
-            .map(|p| (p, 8))
-            .or_else(|| rest.find("http://").map(|p| (p, 7)));
-        let Some((pos, scheme)) = start else {
-            break;
+        let https = rest.find("https://");
+        let http = rest.find("http://");
+        let (pos, scheme) = match (http, https) {
+            (Some(a), Some(b)) => {
+                if a <= b {
+                    (a, 7)
+                } else {
+                    (b, 8)
+                }
+            }
+            (Some(a), None) => (a, 7),
+            (None, Some(b)) => (b, 8),
+            (None, None) => break,
         };
         let abs = i + pos;
-        let mut end = abs + scheme;
-        while end < bytes.len() && !bytes[end].is_ascii_whitespace() {
-            end += 1;
-        }
-        out.push(lower[abs..end].to_string());
-        i = end;
+        let tail = &lower[abs + scheme..];
+        let len = tail
+            .find(is_js_space)
+            .map(|p| abs + scheme + p)
+            .unwrap_or(lower.len());
+        out.push(lower[abs..len].to_string());
+        i = len;
     }
     out
 }
@@ -3076,9 +3120,11 @@ pub fn is_whitelisted_url(url: &str, extra: &[String]) -> bool {
     LIST.iter().any(|d| url.contains(d)) || extra.iter().any(|d| url.contains(d.as_str()))
 }
 
-/// Blacklisted substrings that always sanction.
+/// Blacklisted substrings that always sanction. Lowercases with Unicode
+/// `to_lowercase` like TS `message.content.toLowerCase()` (terms are
+/// ASCII so this only matters for exotic fold-ins, kept for fidelity).
 pub fn has_blacklisted_term(text: &str) -> bool {
-    let lower = text.to_ascii_lowercase();
+    let lower = text.to_lowercase();
     ["https://", "http://", ".gg/"]
         .iter()
         .any(|t| lower.contains(t))
@@ -3646,6 +3692,48 @@ mod funcs_punish_tests {
             vec!["https://a.b/c".to_string(), "http://d.e".to_string()]
         );
         assert!(extract_links("no links").is_empty());
+    }
+
+    #[test]
+    fn links_extract_matches_blockspam_quirks() {
+        // Earliest scheme wins (TS matches leftmost): old code preferred
+        // https:// even when http:// came first and dropped it.
+        assert_eq!(
+            extract_links("go http://a.b/c then https://d.e/f"),
+            vec!["http://a.b/c".to_string(), "https://d.e/f".to_string()]
+        );
+        // JS \S stops at NBSP / U+2028 / U+3000 / U+2003 (node-verified);
+        // ASCII-only scanning swallowed them into the link.
+        assert_eq!(
+            extract_links("see https://evil.com more"),
+            vec!["https://evil.com".to_string()]
+        );
+        assert_eq!(
+            extract_links("see https://a.com x"),
+            vec!["https://a.com".to_string()]
+        );
+        assert_eq!(
+            extract_links("see https://a.com　x"),
+            vec!["https://a.com".to_string()]
+        );
+        assert_eq!(
+            extract_links("see https://a.com x"),
+            vec!["https://a.com".to_string()]
+        );
+        // Vertical tab terminates (JS \s) but NEL U+0085 does not.
+        assert_eq!(
+            extract_links("see https://a.com\x0Bx"),
+            vec!["https://a.com".to_string()]
+        );
+        assert_eq!(
+            extract_links("see https://a.comx"),
+            vec!["https://a.comx".to_string()]
+        );
+        // Unicode lowercase like TS toLowerCase: İ folds, scheme still found.
+        assert_eq!(
+            extract_links("x HTTPS://ExAmple.COM/a"),
+            vec!["https://example.com/a".to_string()]
+        );
     }
 
     #[test]
