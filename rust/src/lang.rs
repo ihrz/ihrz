@@ -499,6 +499,17 @@ mod tests {
             );
             for (key, value) in en_map {
                 let Some(key) = key.as_str() else { continue };
+                // W8 key-set gate: len equality alone lets a missing key
+                // hide behind an extra key (same count, different sets).
+                // Presence here + len equality above == full set equality.
+                // Verified 2026-10-13: all 9 locales carry the byte-identical
+                // en-US key set (2339 keys, zero missing/extra), so this
+                // passes now and pins future drift (no-fallback rule:
+                // every user-visible key must exist in every locale).
+                assert!(
+                    map.get(key).is_some(),
+                    "{code}.{key}: key missing from locale (no-fallback rule)"
+                );
                 let en_text = value.as_str().unwrap_or_default();
                 let want = placeholder_tokens(en_text);
                 if want.is_empty() {
