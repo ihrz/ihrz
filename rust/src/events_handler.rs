@@ -1014,6 +1014,15 @@ pub fn audit_entry_relevant(
         && now_ms.saturating_sub(entry_created_ms) <= AUDIT_LOG_WINDOW_MS
 }
 
+/// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
+/// Events/guildconfig/blockBot.ts: the module triggers unless the audit
+/// adder IS the server owner. Unknown adder (no entry) stays fail-closed
+/// like TS (`undefined !== ownerId`), so only a positive owner match
+/// exempts. Pure, unit-tested below.
+pub fn blockbot_owner_exempt(adder: Option<u64>, owner: Option<u64>) -> bool {
+    matches!((adder, owner), (Some(a), Some(o)) if a == o)
+}
+
 /// Leash pairing lifetime. Mirrors the 30-minute expiry filter in
 /// Events/utils/leashModule.ts.
 pub const LEASH_EXPIRY_MS: i64 = 30 * 60 * 1000;
@@ -5040,17 +5049,11 @@ impl serenity::EventHandler for Handler {
             if !self.bot_is_admin(&ctx, new_member.guild_id).await {
                 return;
             }
-            let _ = new_member
-                .guild_id
-                .ban_with_reason(
-                    &ctx.http,
-                    new_member.user.id,
-                    0,
-                    "The BlockBot function is enabled!",
-                )
-                .await;
             // Attribute the adder via the BotAdd audit entry (target-id
-            // match, 20s recency, handled-set dedup like getLogs).
+            // match, 20s recency, handled-set dedup like getLogs) BEFORE
+            // acting: the module only triggers when the adder is not the
+            // server owner (mirrors `executorId !== ownerId` in blockBot.ts;
+            // an owner-added bot is left alone entirely).
             let mut adder: Option<serenity::UserId> = None;
             {
                 use serenity::model::guild::audit_log::{Action, MemberAction};
@@ -5089,13 +5092,29 @@ impl serenity::EventHandler for Handler {
                 }
             }
             // Owner-exempt adder (mirrors the `executorId !== ownerId`
-            // gate); anyone else is deranked.
+            // gate): an owner-added bot skips ban, derank and owner DM.
+            // Unknown adder (no entry) stays fail-closed like TS
+            // (`undefined !== ownerId`), so only a positive owner match
+            // returns early.
             let owner_id = new_member
                 .guild_id
                 .to_partial_guild(&ctx.http)
                 .await
                 .map(|g| g.owner_id)
                 .ok();
+            if blockbot_owner_exempt(adder.map(|a| a.get()), owner_id.map(|o| o.get())) {
+                return;
+            }
+            let _ = new_member
+                .guild_id
+                .ban_with_reason(
+                    &ctx.http,
+                    new_member.user.id,
+                    0,
+                    "The BlockBot function is enabled!",
+                )
+                .await;
+            // Anyone else is deranked (adder known and not the owner).
             if let Some(exec) = adder {
                 if Some(exec) != owner_id {
                     crate::commands::protection::protect::apply_sanction(
@@ -11287,6 +11306,19 @@ mod protection_audit_tests {
             1_000 + 5_000,
             Some(10)
         ));
+    }
+
+    #[test]
+    fn blockbot_exempt_only_on_positive_owner_match() {
+        use super::blockbot_owner_exempt;
+        // Owner adds the bot -> module skipped entirely.
+        assert!(blockbot_owner_exempt(Some(7), Some(7)));
+        // Non-owner adder -> triggers.
+        assert!(!blockbot_owner_exempt(Some(8), Some(7)));
+        // Unknown adder (no audit entry) -> fail-closed like TS.
+        assert!(!blockbot_owner_exempt(None, Some(7)));
+        assert!(!blockbot_owner_exempt(None, None));
+        assert!(!blockbot_owner_exempt(Some(7), None));
     }
 
     #[test]
