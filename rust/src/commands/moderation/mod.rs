@@ -395,7 +395,7 @@ pub async fn warn_member_with_author(
         &crate::funcs::PasswordOptions {
             length: 8,
             numbers: true,
-            symbols: false,
+            symbols: crate::funcs::SymbolCharset::Off,
             lowercase: false,
             uppercase: true,
             exclude_similar: false,

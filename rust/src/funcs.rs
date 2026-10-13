@@ -1884,12 +1884,22 @@ pub fn nice_bytes(kb: f64) -> String {
 
 // ---- random.ts generatePassword ----
 
-/// Password options. Mirrors PasswordOptions.
+/// Password options. Mirrors PasswordOptions (symbols is
+/// `boolean | string`: true maps to the default set, a string is a
+/// verbatim custom charset, false/"" disables symbols).
+#[derive(Debug, Clone, Default)]
+pub enum SymbolCharset {
+    #[default]
+    Off,
+    Default,
+    Custom(String),
+}
+
 #[derive(Debug, Clone)]
 pub struct PasswordOptions {
     pub length: usize,
     pub numbers: bool,
-    pub symbols: bool,
+    pub symbols: SymbolCharset,
     pub lowercase: bool,
     pub uppercase: bool,
     pub exclude_similar: bool,
@@ -1912,8 +1922,10 @@ pub fn generate_password(opts: &PasswordOptions, _seed: u64) -> Result<String, &
         .collect();
     if opts.strict {
         for class in &classes {
-            let pos = secure_index(opts.length);
-            out[pos] = class[secure_index(class.len())];
+            if !out.iter().any(|c| class.contains(c)) {
+                let pos = secure_index(opts.length);
+                out[pos] = class[secure_index(class.len())];
+            }
         }
     }
     Ok(out.into_iter().collect())
@@ -1936,8 +1948,10 @@ pub fn generate_password_seeded(opts: &PasswordOptions, seed: u64) -> Result<Str
         .collect();
     if opts.strict {
         for class in &classes {
-            let pos = (next() as usize) % opts.length;
-            out[pos] = class[(next() as usize) % class.len()];
+            if !out.iter().any(|c| class.contains(c)) {
+                let pos = (next() as usize) % opts.length;
+                out[pos] = class[(next() as usize) % class.len()];
+            }
         }
     }
     Ok(out.into_iter().collect())
@@ -1945,13 +1959,18 @@ pub fn generate_password_seeded(opts: &PasswordOptions, seed: u64) -> Result<Str
 
 /// Character pool + per-class alphabets for the password generators.
 /// Mirrors the charSets/exclude/excludeSimilarCharacters assembly in
-/// random.ts (symbols === true maps to "!@#$%^&*()_+=").
+/// random.ts (symbols === true maps to "!@#$%^&*()_+=", a string is
+/// used verbatim, "" counts as off like the TS falsy check; class
+/// alphabets stay pre-exclusion like the TS strict requirements).
+/// Error strings are the TS French literals verbatim.
 fn password_pool(opts: &PasswordOptions) -> Result<(Vec<char>, Vec<Vec<char>>), &'static str> {
     if opts.length == 0 {
-        return Err("length must be positive");
+        return Err("La longueur doit être positive");
     }
-    if !(opts.lowercase || opts.uppercase || opts.numbers || opts.symbols) {
-        return Err("at least one character class required");
+    let symbols_on = !matches!(opts.symbols, SymbolCharset::Off)
+        && !matches!(opts.symbols, SymbolCharset::Custom(ref s) if s.is_empty());
+    if !(opts.lowercase || opts.uppercase || opts.numbers || symbols_on) {
+        return Err("Au moins un type de caractère doit être activé");
     }
     let mut classes: Vec<String> = vec![];
     if opts.lowercase {
@@ -1963,8 +1982,10 @@ fn password_pool(opts: &PasswordOptions) -> Result<(Vec<char>, Vec<Vec<char>>), 
     if opts.numbers {
         classes.push("0123456789".to_string());
     }
-    if opts.symbols {
-        classes.push("!@#$%^&*()_+=".to_string());
+    match &opts.symbols {
+        SymbolCharset::Default => classes.push("!@#$%^&*()_+=".to_string()),
+        SymbolCharset::Custom(s) if !s.is_empty() => classes.push(s.clone()),
+        SymbolCharset::Off | SymbolCharset::Custom(_) => {}
     }
     let mut pool: String = classes.concat();
     if !opts.exclude.is_empty() {
@@ -1974,7 +1995,7 @@ fn password_pool(opts: &PasswordOptions) -> Result<(Vec<char>, Vec<Vec<char>>), 
         pool.retain(|c| !"il1Lo0O".contains(c));
     }
     if pool.is_empty() {
-        return Err("no characters left after exclusions");
+        return Err("Pas de caractères disponibles après exclusions");
     }
     Ok((
         pool.chars().collect(),
@@ -2011,7 +2032,7 @@ pub fn generate_multiple_passwords(
     _seed: u64,
 ) -> Result<Vec<String>, &'static str> {
     if amount == 0 {
-        return Err("amount must be positive");
+        return Err("Le nombre de mots de passe doit être positif");
     }
     (0..amount).map(|_| generate_password(opts, 0)).collect()
 }
@@ -2326,7 +2347,7 @@ mod funcs_part3_tests {
         let opts = PasswordOptions {
             length: 16,
             numbers: true,
-            symbols: false,
+            symbols: SymbolCharset::Off,
             lowercase: true,
             uppercase: true,
             exclude_similar: false,
@@ -2347,7 +2368,7 @@ mod funcs_part3_tests {
         let opts = PasswordOptions {
             length: 16,
             numbers: true,
-            symbols: true,
+            symbols: SymbolCharset::Default,
             lowercase: true,
             uppercase: true,
             exclude_similar: true,
@@ -2374,7 +2395,7 @@ mod funcs_part3_tests {
         let opts = PasswordOptions {
             length: 8,
             numbers: false,
-            symbols: false,
+            symbols: SymbolCharset::Off,
             lowercase: true,
             uppercase: false,
             exclude_similar: false,
@@ -2393,7 +2414,7 @@ mod funcs_part3_tests {
         let opts = PasswordOptions {
             length: 16,
             numbers: true,
-            symbols: true,
+            symbols: SymbolCharset::Default,
             lowercase: true,
             uppercase: true,
             exclude_similar: false,
@@ -2420,7 +2441,7 @@ mod funcs_part3_tests {
         let strict_opts = PasswordOptions {
             length: 24,
             numbers: true,
-            symbols: false,
+            symbols: SymbolCharset::Off,
             lowercase: true,
             uppercase: true,
             exclude_similar: true,
@@ -2447,6 +2468,114 @@ mod funcs_part3_tests {
             let pw = generate_password(&filtered_opts, 0).unwrap();
             assert!(!pw.chars().any(|c| "il1Lo0O".contains(c)));
         }
+    }
+
+    #[test]
+    fn custom_symbols_charset_used_verbatim() {
+        // symbols: "abc" (string leg) uses the string as the charset,
+        // like `symbols === true ? default : symbols as string`.
+        let custom = PasswordOptions {
+            length: 24,
+            numbers: false,
+            symbols: SymbolCharset::Custom("@#".to_string()),
+            lowercase: true,
+            uppercase: false,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: false,
+        };
+        let pw = generate_password_seeded(&custom, 7).unwrap();
+        assert_eq!(pw.chars().count(), 24);
+        assert!(pw
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c == '@' || c == '#'));
+        // "" counts as off (TS falsy check): pure lowercase pool.
+        let empty_custom = PasswordOptions {
+            symbols: SymbolCharset::Custom(String::new()),
+            ..custom.clone()
+        };
+        let pw2 = generate_password_seeded(&empty_custom, 7).unwrap();
+        assert!(pw2.chars().all(|c| c.is_ascii_lowercase()));
+    }
+
+    #[test]
+    fn strict_patches_only_missing_classes() {
+        // Single-class pool: the class is always present, so strict must
+        // be a no-op — same seed gives the identical string with and
+        // without strict (the old code always overwrote a position).
+        let base = PasswordOptions {
+            length: 16,
+            numbers: false,
+            symbols: SymbolCharset::Off,
+            lowercase: true,
+            uppercase: false,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: false,
+        };
+        let strict = PasswordOptions {
+            strict: true,
+            ..base.clone()
+        };
+        assert_eq!(
+            generate_password_seeded(&base, 99).unwrap(),
+            generate_password_seeded(&strict, 99).unwrap()
+        );
+    }
+
+    #[test]
+    fn password_errors_match_ts_french_literals() {
+        let base = PasswordOptions {
+            length: 8,
+            numbers: true,
+            symbols: SymbolCharset::Off,
+            lowercase: true,
+            uppercase: true,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: false,
+        };
+        assert_eq!(
+            generate_password(
+                &PasswordOptions {
+                    length: 0,
+                    ..base.clone()
+                },
+                1
+            )
+            .unwrap_err(),
+            "La longueur doit être positive"
+        );
+        assert_eq!(
+            generate_password(
+                &PasswordOptions {
+                    numbers: false,
+                    symbols: SymbolCharset::Off,
+                    lowercase: false,
+                    uppercase: false,
+                    ..base.clone()
+                },
+                1
+            )
+            .unwrap_err(),
+            "Au moins un type de caractère doit être activé"
+        );
+        assert_eq!(
+            generate_password(
+                &PasswordOptions {
+                    exclude: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                        .to_string(),
+                    ..base.clone()
+                },
+                1
+            )
+            .unwrap_err(),
+            "Pas de caractères disponibles après exclusions"
+        );
+        assert_eq!(
+            generate_multiple_passwords(0, &base, 1).unwrap_err(),
+            "Le nombre de mots de passe doit être positif"
+        );
     }
 
     #[test]

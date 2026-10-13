@@ -927,7 +927,7 @@ async fn handle_save(
             let opts = crate::funcs::PasswordOptions {
                 length: 16,
                 numbers: false,
-                symbols: false,
+                symbols: crate::funcs::SymbolCharset::Off,
                 lowercase: true,
                 uppercase: true,
                 exclude_similar: false,

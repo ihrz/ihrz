@@ -85,7 +85,7 @@ pub fn assemble_panel_code(existing: Option<&str>) -> String {
         &crate::funcs::PasswordOptions {
             length: 10,
             numbers: true,
-            symbols: false,
+            symbols: crate::funcs::SymbolCharset::Off,
             lowercase: true,
             uppercase: true,
             exclude_similar: false,
@@ -125,7 +125,7 @@ pub fn mint_option_value(used: &[String]) -> String {
             &crate::funcs::PasswordOptions {
                 length: 12,
                 numbers: true,
-                symbols: false,
+                symbols: crate::funcs::SymbolCharset::Off,
                 lowercase: true,
                 uppercase: true,
                 exclude_similar: false,

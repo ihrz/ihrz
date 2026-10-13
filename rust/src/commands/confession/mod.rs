@@ -405,7 +405,7 @@ pub async fn handle_confess_button(
         &crate::funcs::PasswordOptions {
             length: 6,
             numbers: true,
-            symbols: false,
+            symbols: crate::funcs::SymbolCharset::Off,
             lowercase: true,
             uppercase: true,
             exclude_similar: false,
