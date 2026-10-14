@@ -302,6 +302,27 @@ mod tests {
         assert_eq!(locale_lang_code("pt-BR"), "pt-PT");
         assert_eq!(locale_lang_code("ru"), "ru-RU");
         assert_eq!(locale_lang_code("xx-YY"), "en-US");
+        // U-ETERNAL-238: full Discord guild-locale battery vs the
+        // guildCreate.ts switch (node ground truth, 2026-10-14). The TS
+        // switch is exact-match + case-sensitive with a default en-US
+        // arm, so every locale outside the 9 mapped above falls through
+        // — including lookalikes ("FR", "pt-PT", "es") and the "es-419"
+        // Latin-American tag. The Rust match arms are verdict-identical
+        // on all of them (no toLowerCase/trim/startsWith on either side).
+        for loc in [
+            "bg", "zh-CN", "zh-TW", "hr", "cs", "da", "nl", "fi", "el", "hi", "hu", "id", "ko",
+            "lt", "no", "pl", "ro", "es-419", "sv", "th", "tr", "uk", "vi",
+        ] {
+            assert_eq!(locale_lang_code(loc), "en-US", "{loc} must hit default");
+        }
+        for loc in [
+            "FR", "Fr", "french", "en", "es", "zh", "pt-PT", "pt", "ru-RU", "",
+        ] {
+            assert_eq!(locale_lang_code(loc), "en-US", "{loc} must hit default");
+        }
+        for loc in [" en-US", "en-US ", " en ", "fr "] {
+            assert_eq!(locale_lang_code(loc), "en-US", "{loc} must hit default");
+        }
     }
 
     #[test]
