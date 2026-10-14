@@ -78,6 +78,69 @@ pub fn format_logged_command(sub_cmd: &str, options: &[(String, String)]) -> Str
     format!("/{sub_cmd} {}", opts.join(" ")).trim().to_string()
 }
 
+/// JS `String(number)` for an f64 option value. Mirrors
+/// sanitizeInteractionOptionValue's `String(optionValue)` leg
+/// (slashCommandLogger.ts:220): Rust `{}` already emits the same
+/// shortest-round-trip digits as V8 on the middle range (node ground
+/// truth: `0.30000000000000004`, `123.456`, `100`, `1.5` identical),
+/// but three legs diverged: `-0` (`String(-0)` is `"0"`, Rust `"-0"`),
+/// `abs >= 1e21` (`"1e+21"`, Rust full digits), and nonzero
+/// `abs < 1e-6` (`"1e-7"`, Rust `"0.0000001"`). Reachable: slash
+/// Number options (economy `amount: f64` in pay/set_money/
+/// balance_remove) accept `-0` and huge magnitudes, so
+/// `/pay @user -0` logged `amount:"-0"` instead of `amount:"0"`.
+/// Non-finite inputs mirror `String()` too (`"NaN"`/`"Infinity"`/
+/// `"-Infinity"`); unreachable from Discord JSON, pinned anyway.
+pub fn js_number_string(v: f64) -> String {
+    if v.is_nan() {
+        return "NaN".to_string();
+    }
+    if v.is_infinite() {
+        return if v > 0.0 {
+            "Infinity".to_string()
+        } else {
+            "-Infinity".to_string()
+        };
+    }
+    if v == 0.0 {
+        // Covers -0.0: JS prints "-0" as "0".
+        return "0".to_string();
+    }
+    let plain = format!("{v}");
+    let abs = v.abs();
+    if abs >= 1e21 {
+        // Plain form is integral all-digits here (ulp >> 1 past 2^70,
+        // so the shortest repr never carries fraction digits).
+        let digits = plain.trim_start_matches('-');
+        let exp = digits.len() - 1;
+        let mut mantissa = digits[..1].to_string();
+        let rest = digits[1..].trim_end_matches('0');
+        if !rest.is_empty() {
+            mantissa.push('.');
+            mantissa.push_str(rest);
+        }
+        return format!("{}{}e+{exp}", if v < 0.0 { "-" } else { "" }, mantissa);
+    }
+    if abs < 1e-6 {
+        // Plain form is "0." + k zeros + significant digits.
+        let frac = plain.trim_start_matches('-').trim_start_matches("0.");
+        let zeros = frac.len() - frac.trim_start_matches('0').len();
+        let sig = frac.trim_start_matches('0').trim_end_matches('0');
+        let mut mantissa = sig[..1].to_string();
+        if sig.len() > 1 {
+            mantissa.push('.');
+            mantissa.push_str(&sig[1..]);
+        }
+        return format!(
+            "{}{}e-{}",
+            if v < 0.0 { "-" } else { "" },
+            mantissa,
+            zeros + 1
+        );
+    }
+    plain
+}
+
 /// Stringify one leaf option value. Mirrors String(optionValue):
 /// scalars verbatim, snowflakes as id strings.
 pub fn resolved_value_string(value: &serenity::ResolvedValue<'_>) -> Option<String> {
@@ -85,7 +148,7 @@ pub fn resolved_value_string(value: &serenity::ResolvedValue<'_>) -> Option<Stri
         serenity::ResolvedValue::Autocomplete { value, .. } => Some((*value).to_string()),
         serenity::ResolvedValue::Boolean(v) => Some(v.to_string()),
         serenity::ResolvedValue::Integer(v) => Some(v.to_string()),
-        serenity::ResolvedValue::Number(v) => Some(v.to_string()),
+        serenity::ResolvedValue::Number(v) => Some(js_number_string(*v)),
         serenity::ResolvedValue::String(v) => Some((*v).to_string()),
         // Delta: TS String()s the object; the URL is what matters.
         serenity::ResolvedValue::Attachment(a) => Some(a.url.clone()),
@@ -660,6 +723,43 @@ mod tests {
         // "pass" as substring of a longer name is not sensitive (TS
         // uses the full normalized name in the set).
         assert_eq!(sanitize_interaction_option_value("passage", "x"), "x");
+    }
+
+    #[test]
+    fn js_number_string_matches_ts_string_number() {
+        // Node ground truth battery (W6 slice 55): middle range is the
+        // shared shortest-round-trip form on both sides.
+        for (v, s) in [
+            (0.0, "0"),
+            (-0.0, "0"),
+            (100.0, "100"),
+            (-5.0, "-5"),
+            (1.5, "1.5"),
+            (123.456, "123.456"),
+            (0.1 + 0.2, "0.30000000000000004"),
+            (0.000001, "0.000001"),
+            (1e20, "100000000000000000000"),
+            (123456789012345678.0, "123456789012345680"),
+        ] {
+            assert_eq!(js_number_string(v), s, "v: {v}");
+        }
+        // Exponent legs: JS switches at >= 1e21 / nonzero < 1e-6.
+        for (v, s) in [
+            (1e21, "1e+21"),
+            (-1e21, "-1e+21"),
+            (1.5e21, "1.5e+21"),
+            (1e-7, "1e-7"),
+            (-1e-7, "-1e-7"),
+            (1.23e-7, "1.23e-7"),
+            (0.0000001, "1e-7"),
+        ] {
+            assert_eq!(js_number_string(v), s, "v: {v}");
+        }
+        // Unreachable from Discord JSON (no NaN/Infinity literal), but
+        // String() has a defined rendering — mirror it, never Rust's.
+        assert_eq!(js_number_string(f64::NAN), "NaN");
+        assert_eq!(js_number_string(f64::INFINITY), "Infinity");
+        assert_eq!(js_number_string(f64::NEG_INFINITY), "-Infinity");
     }
 
     #[test]
