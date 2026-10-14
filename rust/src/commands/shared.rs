@@ -297,12 +297,13 @@ pub fn embed_with_footer(
 /// (MessageCommands top.ts `channelSend`, which also keeps default
 /// mentions), legacy `h` (MessageCommands/bot @h.ts `channel.send`).
 /// Paths are poise qualified names (`utils` owns both
-/// leaves, so bare `top` never matches).
+/// leaves, so bare `top` never matches; `legacy` owns `h`,
+/// so the entry must be `legacy h`, never bare `h`).
+const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "utils top", "legacy h"];
 pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::CreateReply {
     if !matches!(ctx, poise::Context::Prefix(_)) {
         return reply;
     }
-    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "utils top", "h"];
     if PLAIN_SEND_PATHS.contains(&ctx.command().qualified_name.as_str()) {
         return reply;
     }
@@ -1358,5 +1359,44 @@ mod tests {
             Some(3)
         );
         assert!(map.get("kick").is_some_and(|o| o.is_none()));
+    }
+
+    #[test]
+    fn plain_send_paths_match_registered_qualified_names() {
+        // Every PLAIN_SEND_PATHS entry must be a real poise qualified
+        // name (`parent leaf`, never a bare leaf): a stale entry silently
+        // disables the plain-send exclusion and the reply_callback forces
+        // `message.reply()` where TS does a bare `channel.send`
+        // (live-caught 2026-10-14: bare `h` never matched `legacy h`,
+        // so `.legacy h` carried a message_reference prod never sets).
+        // Note: poise only fills `qualified_name` at framework build
+        // (`set_qualified_names`), so the raw `all()` tree carries empty
+        // ones here — recompute them exactly like poise does
+        // (`parents + " " + cmd.name`, framework/mod.rs).
+        fn collect(
+            cmd: &poise::Command<crate::bot::Data, anyhow::Error>,
+            parents: &str,
+            out: &mut Vec<String>,
+        ) {
+            let qualified = if parents.is_empty() {
+                cmd.name.clone()
+            } else {
+                format!("{parents} {}", cmd.name)
+            };
+            out.push(qualified.clone());
+            for sub in &cmd.subcommands {
+                collect(sub, &qualified, out);
+            }
+        }
+        let mut names = Vec::new();
+        for cmd in crate::commands::all() {
+            collect(&cmd, "", &mut names);
+        }
+        for path in PLAIN_SEND_PATHS {
+            assert!(
+                names.iter().any(|n| n == path),
+                "PLAIN_SEND_PATHS entry `{path}` matches no registered command"
+            );
+        }
     }
 }
