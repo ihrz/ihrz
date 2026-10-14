@@ -3210,6 +3210,19 @@ mod funcs_part3_tests {
     #[test]
     fn http_join_and_ok() {
         assert_eq!(join_url("", "/x"), "/x");
+        assert_eq!(join_url("", ""), "");
+        // JS `baseURL ? ... : url`: only "" is falsy; " ", "0", "\t" concat.
+        assert_eq!(join_url(" ", "/x"), " /x");
+        assert_eq!(join_url("0", "/x"), "0/x");
+        assert_eq!(join_url("\t", "/x"), "\t/x");
+        assert_eq!(join_url("base", "url"), "baseurl");
+        // No slash normalization, no absolute-url override: plain concat.
+        assert_eq!(join_url("http://a", "http://b/c"), "http://ahttp://b/c");
+        assert_eq!(join_url("https://h//", "//p"), "https://h////p");
+        assert_eq!(
+            join_url("https://h\u{e9}llo.com", "/p?q=\u{e9}"),
+            "https://h\u{e9}llo.com/p?q=\u{e9}"
+        );
         assert_eq!(
             join_url("https://api.twitch.tv/helix", "/streams?user_login=a"),
             "https://api.twitch.tv/helix/streams?user_login=a"
