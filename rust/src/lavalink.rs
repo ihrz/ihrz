@@ -1369,9 +1369,14 @@ pub struct LavalinkManager {
     tts_suppressed: Mutex<HashSet<u64>>,
     /// In-memory LastFM playback sessions per guild (mirrors the TS
     /// `guildSessions` map in lastFMScrobblerManager.ts). Fed by the
-    /// track start/end/queue-end hooks; the HTTP scrobble POST itself
-    /// stays with the live caller (needs per-user session keys).
+    /// track start/end/queue-end hooks; the live drive task POSTs
+    /// now-playing + scrobbles once [`LavalinkManager::register_lastfm_live`]
+    /// supplies Http + pool + keys.
     lastfm_sessions: Mutex<HashMap<u64, LastFmSession>>,
+    /// Live LastFM driver ctx (Http + pool + API keys), registered
+    /// once from the first music command. `None` in tests / pre-first-
+    /// command: sessions track but nothing POSTs.
+    lastfm_live: Mutex<Option<LastfmLiveCtx>>,
     /// DB pool for the trackStart announce leg (guild lang + LastFM tip
     /// row). Registered from music commands via [`LavalinkManager::set_announce_pool`]
     /// (the WS-feed announce path has no command context to read it
@@ -1405,6 +1410,7 @@ impl LavalinkManager {
             exception_report: Mutex::new(None),
             tts_suppressed: Mutex::new(HashSet::new()),
             lastfm_sessions: Mutex::new(HashMap::new()),
+            lastfm_live: Mutex::new(None),
             announce_pool: Mutex::new(None),
         }
     }
@@ -1572,19 +1578,54 @@ impl LavalinkManager {
     /// `session.voiceChannelId`); pause accumulators start empty
     /// (mirrors a fresh listener map).
     pub async fn lastfm_track_start(&self, start: LastfmTrackStart) {
+        let track_key = lastfm_track_key(&start.artist, &start.title, start.now_ms);
         self.lastfm_sessions.lock().await.insert(
             start.guild_id,
             LastFmSession {
-                artist: start.artist,
-                title: start.title,
+                artist: start.artist.clone(),
+                title: start.title.clone(),
                 duration_ms: start.duration_ms,
                 requester: start.requester,
                 started_ms: start.now_ms,
                 paused_ms: 0,
                 pause_started_ms: None,
                 voice_channel_id: start.voice_channel,
+                track_key: track_key.clone(),
+                listeners: HashMap::new(),
             },
         );
+        // Live drive (mirrors handleTrackStart -> syncMembersWithVoiceChannel
+        // -> attach + scheduleScrobble): no live ctx yet means track-only,
+        // like before.
+        if self.lastfm_live.lock().await.is_some() {
+            let gid = start.guild_id;
+            tokio::spawn(async move {
+                manager().drive_lastfm_guild(gid, track_key).await;
+            });
+        }
+    }
+
+    /// Register the live LastFM driver ctx once (Http + pool + API
+    /// keys + pre-derived row secret). Called from the first music
+    /// command, which owns all four; mirrors the client + config the
+    /// TS manager closes over.
+    pub async fn register_lastfm_live(
+        &self,
+        cache: std::sync::Arc<serenity::Cache>,
+        pool: crate::db::Pool,
+        api_key: String,
+        shared_secret: String,
+        api_token: String,
+    ) {
+        let secret =
+            crate::commands::lastfm::scrobbler::encryption_secret(&api_token, &shared_secret);
+        *self.lastfm_live.lock().await = Some(LastfmLiveCtx {
+            cache,
+            pool,
+            api_key,
+            shared_secret,
+            secret,
+        });
     }
 
     /// PlayerUpdate pause leg (mirrors lavalink-client `playerUpdate` ->
@@ -1647,15 +1688,52 @@ impl LavalinkManager {
     /// `tryScrobbleListener`; load-failed tracks are dropped by the
     /// caller before reaching here). Paused spans never count toward
     /// the threshold (mirrors `getElapsedListeningMs` subtracting
-    /// `pausedDurationMs` + any ongoing pause).
+    /// `pausedDurationMs` + any ongoing pause). Un-credited listeners
+    /// whose elapsed clears the threshold are POSTed here (mirrors
+    /// the `finalize = true` leg) before the session is dropped.
     pub async fn lastfm_track_end_due(&self, guild_id: u64, now_ms: i64) -> Option<ScrobbleDue> {
         let session = self.lastfm_sessions.lock().await.remove(&guild_id)?;
-        let mut paused_ms = session.paused_ms;
-        if let Some(started) = session.pause_started_ms {
-            paused_ms += (now_ms - started).max(0) as u64;
+        let paused = lastfm_paused_total(session.paused_ms, session.pause_started_ms, now_ms);
+        let played_ms = lastfm_listener_elapsed(session.started_ms, paused, now_ms);
+        if let Some(live) = self.lastfm_live.lock().await.clone() {
+            if !live.api_key.is_empty() && !live.shared_secret.is_empty() {
+                use crate::commands::lastfm::scrobbler as lf;
+                for (uid, l) in session.listeners.iter() {
+                    if l.scrobbled
+                        || lastfm_listener_elapsed(l.started_ms, paused, now_ms) < l.threshold_ms
+                    {
+                        continue;
+                    }
+                    let track = lf::ScrobbleTrack {
+                        artist: session.artist.clone(),
+                        title: session.title.clone(),
+                        album: None,
+                        duration_ms: session.duration_ms,
+                        started_sec: l.started_ms / 1000,
+                    };
+                    match lf::post_scrobble(
+                        &live.api_key,
+                        &live.shared_secret,
+                        &l.session_key,
+                        &track,
+                    )
+                    .await
+                    {
+                        Ok(()) => {}
+                        Err(e) => {
+                            if lf::is_invalid_session_error(e.code, &e.message) {
+                                let _ = lf::invalidate_user_session(&live.pool, *uid).await;
+                            } else {
+                                tracing::warn!(
+                                    "lastfm end-scrobble failed for {uid}: {}",
+                                    e.message
+                                );
+                            }
+                        }
+                    }
+                }
+            }
         }
-        let played_ms = (now_ms - session.started_ms).max(0) as u64
-            - paused_ms.min((now_ms - session.started_ms).max(0) as u64);
         if should_scrobble(session.duration_ms, played_ms) {
             Some(ScrobbleDue {
                 artist: session.artist,
@@ -1673,6 +1751,323 @@ impl LavalinkManager {
     /// clearGuildSession).
     pub async fn lastfm_queue_end(&self, guild_id: u64) {
         self.lastfm_sessions.lock().await.remove(&guild_id);
+    }
+}
+
+/// Track identity for staleness checks (mirrors `trackKey`).
+fn lastfm_track_key(artist: &str, title: &str, started_ms: i64) -> String {
+    format!("{artist}\0{title}\0{started_ms}")
+}
+
+/// Non-bot member ids of a voice channel. Mirrors the
+/// `voiceChannel.members` scan in `syncMembersWithVoiceChannel` (TS
+/// reads the cached guild voice states; same source here — there is
+/// no list-voice-members REST endpoint).
+/// Members without a resolved `member` are kept: they carry no row
+/// downstream (`decrypted_user_session` finds nothing), so the
+/// fail-open cannot POST.
+fn lastfm_voice_members(cache: &serenity::Cache, guild_id: u64, channel_id: u64) -> Vec<u64> {
+    let Some(guild) = cache.guild(serenity::GuildId::new(guild_id)) else {
+        return Vec::new();
+    };
+    guild
+        .voice_states
+        .values()
+        .filter(|vs| vs.channel_id.map(|c| c.get()) == Some(channel_id))
+        .filter(|vs| vs.member.as_ref().map(|m| !m.user.bot).unwrap_or(true))
+        .map(|vs| vs.user_id.get())
+        .collect()
+}
+
+/// Total paused time at `now` (banked + ongoing leg). Mirrors the
+/// pause half of `getElapsedListeningMs`.
+fn lastfm_paused_total(paused_ms: u64, pause_started_ms: Option<i64>, now_ms: i64) -> u64 {
+    paused_ms
+        + pause_started_ms
+            .map(|s| (now_ms - s).max(0) as u64)
+            .unwrap_or(0)
+}
+
+/// Listener elapsed listening ms (mirrors `getElapsedListeningMs`).
+fn lastfm_listener_elapsed(started_ms: i64, paused_total_ms: u64, now_ms: i64) -> u64 {
+    (now_ms - started_ms).max(0) as u64 - paused_total_ms.min((now_ms - started_ms).max(0) as u64)
+}
+
+impl LavalinkManager {
+    /// Live drive for one track generation (mirrors
+    /// `syncMembersWithVoiceChannel` + `scheduleScrobble`): attach
+    /// every voice member with an enabled LastFM row (now-playing
+    /// POST), then sleep until the threshold and POST the scrobble
+    /// for listeners still present in the same generation. A
+    /// replaced-away track or a voice leave is handled by the
+    /// generation / membership re-checks (mirrors `trackKey` +
+    /// `isMemberInVoiceChannel`); the track-end finalize covers
+    /// early ends.
+    async fn drive_lastfm_guild(&self, guild_id: u64, track_key: String) {
+        use crate::commands::lastfm::scrobbler as lf;
+        let Some(live) = self.lastfm_live.lock().await.clone() else {
+            return;
+        };
+        if live.api_key.is_empty() || live.shared_secret.is_empty() {
+            return;
+        }
+        let snapshot = {
+            let sessions = self.lastfm_sessions.lock().await;
+            let Some(s) = sessions.get(&guild_id) else {
+                return;
+            };
+            if s.track_key != track_key || !lf::should_scrobble(s.duration_ms) {
+                return;
+            }
+            (s.voice_channel_id, s.duration_ms)
+        };
+        let Some(channel_id) = snapshot.0 else {
+            return;
+        };
+        let members = lastfm_voice_members(&live.cache, guild_id, channel_id);
+        let now = now_ms_wall();
+        let threshold = lf::scrobble_threshold_ms(snapshot.1);
+        for uid in members {
+            self.lastfm_attach_member(&live, guild_id, &track_key, uid, now)
+                .await;
+        }
+        let elapsed = (now_ms_wall() - now).max(0) as u64;
+        if threshold > elapsed {
+            tokio::time::sleep(std::time::Duration::from_millis(threshold - elapsed)).await;
+        }
+        self.lastfm_finalize_due(&live, guild_id, &track_key).await;
+    }
+
+    /// Attach one member as a listener (mirrors `attachMemberToSession`:
+    /// enabled row -> now-playing POST -> insert + schedule). Returns
+    /// false when there is nothing to schedule (no row, invalid
+    /// session, or stale generation).
+    async fn lastfm_attach_member(
+        &self,
+        live: &LastfmLiveCtx,
+        guild_id: u64,
+        track_key: &str,
+        user_id: u64,
+        now_ms: i64,
+    ) -> bool {
+        use crate::commands::lastfm::scrobbler as lf;
+        let snapshot = {
+            let sessions = self.lastfm_sessions.lock().await;
+            let Some(s) = sessions.get(&guild_id) else {
+                return false;
+            };
+            if s.track_key != track_key || !lf::should_scrobble(s.duration_ms) {
+                return false;
+            }
+            if s.listeners.contains_key(&user_id) {
+                return true;
+            }
+            (
+                s.artist.clone(),
+                s.title.clone(),
+                s.duration_ms,
+                lf::scrobble_threshold_ms(s.duration_ms),
+            )
+        };
+        let Some((session_key, _username)) =
+            lf::decrypted_user_session(&live.pool, user_id, &live.secret).await
+        else {
+            return false;
+        };
+        let track = lf::ScrobbleTrack {
+            artist: snapshot.0,
+            title: snapshot.1,
+            album: None,
+            duration_ms: snapshot.2,
+            started_sec: now_ms / 1000,
+        };
+        match lf::post_now_playing(&live.api_key, &live.shared_secret, &session_key, &track).await {
+            Ok(()) => {}
+            Err(e) => {
+                if lf::is_invalid_session_error(e.code, &e.message) {
+                    let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                } else {
+                    tracing::warn!("lastfm now-playing failed for {user_id}: {}", e.message);
+                }
+                return false;
+            }
+        }
+        let mut sessions = self.lastfm_sessions.lock().await;
+        let Some(s) = sessions.get_mut(&guild_id) else {
+            return false;
+        };
+        if s.track_key != track_key {
+            return false;
+        }
+        s.listeners.insert(
+            user_id,
+            LastfmListener {
+                session_key,
+                username: String::new(),
+                started_ms: now_ms,
+                threshold_ms: snapshot.3,
+                scrobbled: false,
+            },
+        );
+        true
+    }
+
+    /// POST the scrobble for every un-credited listener of this
+    /// generation whose elapsed listening clears its threshold
+    /// (mirrors `tryScrobbleListener` with `finalize = false` after
+    /// the timer, and `finalize = true` from trackEnd/detach: the
+    /// elapsed check decides in both cases). Marks credited
+    /// listeners; invalidates dead session rows.
+    async fn lastfm_finalize_due(&self, live: &LastfmLiveCtx, guild_id: u64, track_key: &str) {
+        use crate::commands::lastfm::scrobbler as lf;
+        let now = now_ms_wall();
+        let work: Vec<(u64, lf::ScrobbleTrack)> = {
+            let sessions = self.lastfm_sessions.lock().await;
+            let Some(s) = sessions.get(&guild_id) else {
+                return;
+            };
+            if s.track_key != track_key {
+                return;
+            }
+            let paused = lastfm_paused_total(s.paused_ms, s.pause_started_ms, now);
+            s.listeners
+                .iter()
+                .filter(|(_, l)| {
+                    !l.scrobbled
+                        && lastfm_listener_elapsed(l.started_ms, paused, now) >= l.threshold_ms
+                })
+                .map(|(uid, l)| {
+                    (
+                        *uid,
+                        lf::ScrobbleTrack {
+                            artist: s.artist.clone(),
+                            title: s.title.clone(),
+                            album: None,
+                            duration_ms: s.duration_ms,
+                            started_sec: l.started_ms / 1000,
+                        },
+                    )
+                })
+                .collect()
+        };
+        // Re-check voice presence (mirrors `isMemberInVoiceChannel`
+        // on the timer leg): leavers are finalized by the detach
+        // path instead.
+        let channel = self
+            .lastfm_sessions
+            .lock()
+            .await
+            .get(&guild_id)
+            .and_then(|s| s.voice_channel_id);
+        let present = match channel {
+            Some(ch) => lastfm_voice_members(&live.cache, guild_id, ch),
+            None => Vec::new(),
+        };
+        for (uid, track) in work {
+            if !present.contains(&uid) {
+                continue;
+            }
+            let key = self
+                .lastfm_sessions
+                .lock()
+                .await
+                .get(&guild_id)
+                .and_then(|s| s.listeners.get(&uid).map(|l| l.session_key.clone()));
+            let Some(key) = key else { continue };
+            match lf::post_scrobble(&live.api_key, &live.shared_secret, &key, &track).await {
+                Ok(()) => {
+                    if let Some(s) = self.lastfm_sessions.lock().await.get_mut(&guild_id) {
+                        if let Some(l) = s.listeners.get_mut(&uid) {
+                            l.scrobbled = true;
+                        }
+                    }
+                }
+                Err(e) => {
+                    if lf::is_invalid_session_error(e.code, &e.message) {
+                        let _ = lf::invalidate_user_session(&live.pool, uid).await;
+                    } else {
+                        tracing::warn!("lastfm scrobble failed for {uid}: {}", e.message);
+                    }
+                }
+            }
+        }
+    }
+
+    /// Voice join on the tracked channel (mirrors the attach leg of
+    /// `handleVoiceStateUpdate`).
+    pub async fn lastfm_member_join(&self, guild_id: u64, user_id: u64) {
+        let Some(live) = self.lastfm_live.lock().await.clone() else {
+            return;
+        };
+        if live.api_key.is_empty() || live.shared_secret.is_empty() {
+            return;
+        }
+        let key = self
+            .lastfm_sessions
+            .lock()
+            .await
+            .get(&guild_id)
+            .map(|s| s.track_key.clone());
+        if let Some(key) = key {
+            self.lastfm_attach_member(&live, guild_id, &key, user_id, now_ms_wall())
+                .await;
+        }
+    }
+
+    /// Voice leave off the tracked channel (mirrors
+    /// `detachMemberFromSession`: finalize-credit if due, then drop
+    /// the listener).
+    pub async fn lastfm_member_leave(&self, guild_id: u64, user_id: u64) {
+        let live = self.lastfm_live.lock().await.clone();
+        let now = now_ms_wall();
+        let mut sessions = self.lastfm_sessions.lock().await;
+        let Some(s) = sessions.get_mut(&guild_id) else {
+            return;
+        };
+        let Some(l) = s.listeners.remove(&user_id) else {
+            return;
+        };
+        let due = !l.scrobbled
+            && lastfm_listener_elapsed(
+                l.started_ms,
+                lastfm_paused_total(s.paused_ms, s.pause_started_ms, now),
+                now,
+            ) >= l.threshold_ms;
+        let track = crate::commands::lastfm::scrobbler::ScrobbleTrack {
+            artist: s.artist.clone(),
+            title: s.title.clone(),
+            album: None,
+            duration_ms: s.duration_ms,
+            started_sec: l.started_ms / 1000,
+        };
+        drop(sessions);
+        if due {
+            if let Some(live) = live {
+                if !live.api_key.is_empty() && !live.shared_secret.is_empty() {
+                    use crate::commands::lastfm::scrobbler as lf;
+                    match lf::post_scrobble(
+                        &live.api_key,
+                        &live.shared_secret,
+                        &l.session_key,
+                        &track,
+                    )
+                    .await
+                    {
+                        Ok(()) => {}
+                        Err(e) => {
+                            if lf::is_invalid_session_error(e.code, &e.message) {
+                                let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                            } else {
+                                tracing::warn!(
+                                    "lastfm leave-scrobble failed for {user_id}: {}",
+                                    e.message
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// Mark a guild as TTS-owned so the next trackStart announce is
@@ -3896,6 +4291,38 @@ pub struct LastFmSession {
     /// Tracked voice channel (mirrors `session.voiceChannelId`,
     /// re-synced on `playerMove` via `lastfm_player_move`).
     pub voice_channel_id: Option<u64>,
+    /// Track identity for staleness checks (mirrors `trackKey`:
+    /// a new trackStart replaces the session, orphaning in-flight
+    /// drive tasks which must not POST for the old track).
+    pub track_key: String,
+    /// Attached listeners by user id (mirrors `session.listeners`).
+    pub listeners: HashMap<u64, LastfmListener>,
+}
+
+/// Per-listener scrobble state (mirrors `LastFMListenerSession`,
+/// minus the live timer handle: the drive task owns the wait).
+#[derive(Debug, Clone)]
+pub struct LastfmListener {
+    pub session_key: String,
+    pub username: String,
+    pub started_ms: i64,
+    pub threshold_ms: u64,
+    pub scrobbled: bool,
+}
+
+/// Live driver credentials (mirrors the client + config the TS
+/// manager closes over). Registered once from the first music
+/// command (pool + Http + keys); `None` until then, in which case
+/// sessions are tracked but nothing is POSTed (previous behavior).
+#[derive(Clone)]
+pub struct LastfmLiveCtx {
+    pub cache: std::sync::Arc<serenity::Cache>,
+    pub pool: crate::db::Pool,
+    pub api_key: String,
+    pub shared_secret: String,
+    /// Pre-derived `encryption_secret(api_token, shared_secret)`
+    /// for decrypting `<uid>.lastfm` session rows.
+    pub secret: String,
 }
 
 /// Track ready to scrobble once the live caller attaches the user's
@@ -3942,7 +4369,7 @@ pub fn next_backoff(current: Duration) -> Duration {
     (current * 2).min(NODE_WS_MAX_BACKOFF)
 }
 
-fn now_ms_wall() -> i64 {
+pub(crate) fn now_ms_wall() -> i64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
@@ -6163,6 +6590,70 @@ mod tests {
         m.lastfm_player_move(32, 9).await;
         let session = m.lastfm_sessions.lock().await;
         assert_eq!(session.get(&32).and_then(|s| s.voice_channel_id), Some(9));
+    }
+
+    #[test]
+    fn lastfm_track_key_unique_per_generation() {
+        // Same track restarted later is a new generation (orphans the
+        // old drive task); different titles never collide.
+        let a = lastfm_track_key("a", "t", 1_000);
+        assert_eq!(a, lastfm_track_key("a", "t", 1_000));
+        assert_ne!(a, lastfm_track_key("a", "t", 2_000));
+        assert_ne!(a, lastfm_track_key("a", "t2", 1_000));
+    }
+
+    #[test]
+    fn lastfm_elapsed_math_matches_ts() {
+        // No pause: wall minus start.
+        assert_eq!(lastfm_listener_elapsed(1_000, 0, 61_000), 60_000);
+        // Banked pause subtracts.
+        assert_eq!(lastfm_listener_elapsed(0, 10_000, 61_000), 51_000);
+        // Ongoing pause counts via the total helper.
+        assert_eq!(lastfm_paused_total(10_000, Some(50_000), 60_000), 20_000);
+        assert_eq!(
+            lastfm_listener_elapsed(0, lastfm_paused_total(10_000, Some(50_000), 60_000), 60_000),
+            40_000
+        );
+        // Pause longer than the listen clamps at zero, never wraps.
+        assert_eq!(lastfm_listener_elapsed(59_000, 5_000, 60_000), 0);
+    }
+
+    #[tokio::test]
+    async fn lastfm_track_start_opens_empty_listeners() {
+        let m = LavalinkManager::new();
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 46,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 1_000,
+            voice_channel: Some(5),
+        })
+        .await;
+        let sessions = m.lastfm_sessions.lock().await;
+        let s = sessions.get(&46).unwrap();
+        assert!(!s.track_key.is_empty());
+        assert!(s.listeners.is_empty());
+    }
+
+    #[tokio::test]
+    async fn register_lastfm_live_roundtrip() {
+        // Registration stores Http-independent creds + the derived
+        // row secret (api_token wins, like login.rs).
+        let m = LavalinkManager::new();
+        assert!(m.lastfm_live.lock().await.is_none());
+        m.register_lastfm_live(
+            std::sync::Arc::new(serenity::Cache::default()),
+            crate::db::memory_pool().await,
+            "key".into(),
+            "secret".into(),
+            "api-token".into(),
+        )
+        .await;
+        let live = m.lastfm_live.lock().await.clone().unwrap();
+        assert_eq!(live.api_key, "key");
+        assert_eq!(live.secret, "api-token");
     }
 
     #[test]

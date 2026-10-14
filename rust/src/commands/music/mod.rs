@@ -343,6 +343,18 @@ async fn synced_mgr(ctx: &Ctx<'_>) -> &'static crate::lavalink::LavalinkManager 
     let user_id = ctx.serenity_context().cache.current_user().id.get();
     m.sync_nodes(&cfgs, user_id).await;
     m.set_announce_pool(ctx.data().pool.clone()).await;
+    // Live LastFM driver ctx (Http + pool + API keys + row secret);
+    // idempotent re-register, mirrors the client + config the TS
+    // scrobbler manager closes over.
+    let cfg = &ctx.data().config;
+    m.register_lastfm_live(
+        ctx.serenity_context().cache.clone(),
+        ctx.data().pool.clone(),
+        cfg.lastfm_api_key.clone(),
+        cfg.lastfm_shared_secret.clone(),
+        cfg.api_token.clone(),
+    )
+    .await;
     m
 }
 

@@ -8463,18 +8463,16 @@ impl serenity::EventHandler for Handler {
                         let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
                         let new_ch = new.channel_id.map(|c| c.get());
                         match lastfm_tracked_change(old_ch, new_ch, tracked) {
-                            Some(true) => tracing::debug!(
-                                "lastfm attach: user {} joined tracked channel {} in guild {}",
-                                member.user.id.get(),
-                                tracked,
-                                gid
-                            ),
-                            Some(false) => tracing::debug!(
-                                "lastfm detach: user {} left tracked channel {} in guild {}",
-                                member.user.id.get(),
-                                tracked,
-                                gid
-                            ),
+                            Some(true) => {
+                                crate::lavalink::manager()
+                                    .lastfm_member_join(guild_id.get(), member.user.id.get())
+                                    .await;
+                            }
+                            Some(false) => {
+                                crate::lavalink::manager()
+                                    .lastfm_member_leave(guild_id.get(), member.user.id.get())
+                                    .await;
+                            }
                             None => {}
                         }
                     }
