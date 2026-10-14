@@ -3611,6 +3611,17 @@ pub async fn send_welcomer_message(
     let _ = channel_id.send_message(http, msg).await;
 }
 
+/// Template pick mirroring `stored || default` (JS-falsy: a stored ""
+/// falls back to the lang default exactly like an unset key, while
+/// " " stays verbatim — node ground truth; non-string rows never
+/// reach here, `as_str` already maps them to the default leg).
+fn welcomer_template<'a>(stored: Option<&'a str>, default: &'a str) -> &'a str {
+    match stored {
+        Some(s) if !s.is_empty() => s,
+        _ => default,
+    }
+}
+
 /// Join-message sender. Mirrors joinMessage.ts sendWelcome ->
 /// welcomerMessage.ts: `message` is None when joinTextEnabled is false,
 /// `stored` is the resolveWelcomerEmbed result (None when no
@@ -5567,17 +5578,19 @@ impl serenity::EventHandler for Handler {
                         None => ("unknow_user".to_string(), "@unknow_user".to_string(), None),
                     };
                     // `joinmessage || data.event_welcomer_*`, like TS: an
-                    // unset template still welcomes with the lang default.
+                    // unset OR "" template still welcomes with the lang
+                    // default (JS-falsy, not missing-only).
                     let default_key = if attributed.is_some() {
                         "event_welcomer_inviter"
                     } else {
                         "event_welcomer_default"
                     };
-                    let tpl_owned: String = cfg
-                        .get("joinmessage")
-                        .and_then(|m| m.as_str())
-                        .map(str::to_string)
-                        .unwrap_or_else(|| text(default_key));
+                    let default_tpl = text(default_key);
+                    let tpl_owned: String = welcomer_template(
+                        cfg.get("joinmessage").and_then(|m| m.as_str()),
+                        &default_tpl,
+                    )
+                    .to_string();
                     let created = new_member.user.created_at().unix_timestamp();
                     let created_date = crate::events::locale_date_string(created, &lang_code);
                     let render_join = |tpl: &str| {
@@ -6101,9 +6114,13 @@ impl serenity::EventHandler for Handler {
             } else {
                 "event_goodbye_default"
             };
-            let tpl = cfg.get("leavemessage").and_then(|m| m.as_str());
-            // `leaveMessage || data.event_goodbye_*`, like TS.
-            let message_content = render_leave(tpl.unwrap_or(&text(default_key)));
+            let default_tpl = text(default_key);
+            // `leaveMessage || data.event_goodbye_*`, like TS (JS-falsy:
+            // a stored "" says goodbye with the default, like unset).
+            let message_content = render_leave(welcomer_template(
+                cfg.get("leavemessage").and_then(|m| m.as_str()),
+                &default_tpl,
+            ));
             // resolveWelcomerEmbed(leaveEmbedId, variables): global
             // EMBED.<id> record, embedSource preview-rendered over the
             // same mention/inviter slots, converted via the shared
@@ -11458,6 +11475,15 @@ mod welcomer_tests {
         // No avatar: default avatar URL, like displayAvatarURL.
         user.avatar = None;
         assert_eq!(welcomer_avatar_url(&user), user.default_avatar_url());
+    }
+
+    #[test]
+    fn welcomer_template_empty_falls_back_like_ts_or() {
+        // `stored || default`: "" reads as unset, " " stays verbatim.
+        assert_eq!(welcomer_template(None, "D"), "D");
+        assert_eq!(welcomer_template(Some(""), "D"), "D");
+        assert_eq!(welcomer_template(Some(" "), "D"), " ");
+        assert_eq!(welcomer_template(Some("hi"), "D"), "hi");
     }
 
     #[test]

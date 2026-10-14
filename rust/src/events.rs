@@ -755,7 +755,8 @@ pub async fn join_role_ids(pool: &crate::db::Pool, gid: &str) -> Vec<u64> {
 
 /// Join-DM template from the welcomer blob. Mirrors joinDm.ts
 /// (GUILD.GUILD_CONFIG.joindm; "off" disables), falling back to the
-/// legacy GUILD.JOIN_DM row. Returns None when unset or "off".
+/// legacy GUILD.JOIN_DM row. Returns None when unset, "" (TS `!msg_dm`
+/// returns before any send) or "off".
 pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     let blob = if let Some(raw) = crate::db::tbl_get(pool, gid, "GUILD.GUILD_CONFIG").await {
         serde_json::from_str::<serde_json::Value>(&raw)
@@ -768,7 +769,7 @@ pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<Strin
         Some(t) => Some(t),
         None => crate::db::tbl_get(pool, gid, "GUILD.JOIN_DM").await,
     }?;
-    if tpl == "off" {
+    if tpl.is_empty() || tpl == "off" {
         return None;
     }
     Some(tpl)
@@ -1840,6 +1841,15 @@ mod tests {
         .unwrap();
         assert_eq!(join_role_ids(&pool, "g").await, vec![1, 2]);
         assert_eq!(join_dm_template(&pool, "g").await.as_deref(), Some("yo"));
+        // Stored "" disables like "off" (TS `!msg_dm` returns before any
+        // send): no fallback to the legacy row waiting underneath.
+        crate::db::kv_set(&pool, "g", "GUILD.JOIN_DM", "legacy")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "GUILD.GUILD_CONFIG", r#"{"joindm":""}"#)
+            .await
+            .unwrap();
+        assert!(join_dm_template(&pool, "g").await.is_none());
     }
 
     #[test]
