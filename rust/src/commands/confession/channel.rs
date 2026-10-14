@@ -80,12 +80,19 @@ fn panel_desc_fallback() -> String {
 }
 
 /// Set the confession panel channel. Mirrors !channel.ts.
-//
-// The slash options are required in the TS schema (`required: true`
-// on both `channel` and `button-title`); only the prefix path falls
-// back (invoking channel, `"+"` title). Same split as ranks/channel:
-// a missing option on slash answers with a usage hint, on prefix it
-// uses the TS `(channel || interaction.channel)` / `|| "+"` fallback.
+///
+/// Both slash options are `required: true` in the TS schema, and the
+/// prefix caret framework enforces the same: a missing button title on
+/// prefix answers the caret usage embed (observed live on prod:
+/// `+confess-channel [channel] [string]`, caret on `string`), never the
+/// `|| "+"` fallback. The fallback only exists inside the TS handler
+/// for the slash-object path, which Discord's required-option gate
+/// makes unreachable. So `button_title` is a required poise param:
+/// slash registers it required (TS-exact) and a missing prefix title
+/// fails arg-parse before this body, letting the central dispatcher
+/// render the caret usage embed like every other required leaf
+/// (set-cooldown, balance-add, ...). `channel` stays Option: TS prefix
+/// falls back to the invoking channel (`|| interaction.channel`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -104,7 +111,7 @@ pub async fn confession_channel(
     channel: Option<serenity::GuildChannel>,
     #[description = "The button title"]
     #[rename = "button-title"]
-    button_title: Option<String>,
+    button_title: String,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
@@ -131,16 +138,7 @@ pub async fn confession_channel(
     )
     .await?;
 
-    let button_label = match button_title.as_deref() {
-        // TS `getString("button-title")?.substring(0, 32) || "+"`.
-        Some(t) => panel_button_label(Some(t)),
-        // Prefix-only fallback; slash requires the title.
-        None if is_prefix => panel_button_label(None),
-        None => {
-            ctx.say("Please provide a button title.").await?;
-            return Ok(());
-        }
-    };
+    let button_label = panel_button_label(Some(button_title.as_str()));
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")
@@ -234,6 +232,31 @@ mod tests {
             super::super::panel_target(Some(&raw), None),
             (Some(11), Some(22))
         );
+    }
+
+    #[test]
+    fn button_title_is_required_like_ts_schema() {
+        // TS confession.ts marks BOTH options `required: true`, and the
+        // live prod caret framework enforces it on prefix too
+        // (`+confess-channel [channel] [string]`, caret on `string`,
+        // WAVE-20261014m pair 525). A missing prefix title must fail
+        // arg-parse into the central caret usage embed, never fall back
+        // to "+" and post a panel.
+        let cmd = confession_channel();
+        let title = cmd
+            .parameters
+            .iter()
+            .find(|p| p.name == "button-title")
+            .expect("button-title param");
+        assert!(title.required);
+        // `channel` stays optional: TS prefix falls back to the
+        // invoking channel (`|| interaction.channel`).
+        let channel = cmd
+            .parameters
+            .iter()
+            .find(|p| p.name == "channel")
+            .expect("channel param");
+        assert!(!channel.required);
     }
 
     #[test]
