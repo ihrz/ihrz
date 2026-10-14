@@ -2598,17 +2598,22 @@ impl LavalinkManager {
         player.current.is_some() && occupants <= 1
     }
 
-    /// Rich trackStart embed (mirrors the playerManager.ts trackStart
-    /// send: `event_mp_playerStart` description + artwork image; the TS
-    /// html2png banner has no Rust equivalent, so the node artwork is
-    /// used directly). Pure and offline-testable; `lang_code` falls
-    /// back to the embedded English template when the key is missing.
+    /// Attachment name for the rendered card. Mirrors
+    /// `music_banner.png` in playerManager.ts.
+    const MUSIC_BANNER_ATTACHMENT_NAME: &str = "music_banner.png";
+
+    /// Track-start embed (mirrors the trackStart send in
+    /// playerManager.ts). `image_url` is `attachment://music_banner.png`
+    /// when the gateway card rendered, else the node artwork (fallback
+    /// when no gateway is configured). Pure and offline-testable;
+    /// `lang_code` falls back to the embedded English template when the
+    /// key is missing.
     pub fn track_start_embed(
         lang_code: &str,
         title: &str,
         author: &str,
         uri: Option<&str>,
-        artwork: Option<&str>,
+        image_url: Option<&str>,
         voice_channel_id: u64,
         music_icon: &str,
     ) -> serenity::CreateEmbed {
@@ -2625,8 +2630,8 @@ impl LavalinkManager {
         let mut embed = serenity::CreateEmbed::default()
             .colour(0x2B2D31)
             .description(desc);
-        if let Some(art) = artwork.filter(|u| !u.is_empty()) {
-            embed = embed.image(art);
+        if let Some(url) = image_url.filter(|u| !u.is_empty()) {
+            embed = embed.image(url);
         }
         embed
     }
@@ -2744,12 +2749,45 @@ impl LavalinkManager {
         let icon = crate::emojis::app_emoji_markup(http, "Music_Icon")
             .await
             .unwrap_or_else(|| "🎵".to_string());
+        // Track-start card (mirrors the musicBanner html2png leg, kit
+        // in commands::music::nowplaying): gateway render first, node
+        // artwork when no gateway/failure.
+        use crate::commands::music::nowplaying as np;
+        let banner = match (crate::config::gateway_base(), crate::config::api_token()) {
+            (Some(base), token) => {
+                let html = np::music_banner_card_html(
+                    &cur.title,
+                    &cur.author,
+                    np::banner_artwork_or_fallback(cur.artwork.as_deref()),
+                );
+                np::render_music_banner_png(&base, token.as_deref().unwrap_or(""), &html).await
+            }
+            _ => None,
+        };
+        let image_url;
+        let attachment: Option<serenity::CreateAttachment> = match banner {
+            Some(png) => {
+                image_url = format!("attachment://{}", Self::MUSIC_BANNER_ATTACHMENT_NAME);
+                Some(serenity::CreateAttachment::bytes(
+                    png,
+                    Self::MUSIC_BANNER_ATTACHMENT_NAME,
+                ))
+            }
+            None => {
+                image_url = cur.artwork.clone().unwrap_or_default();
+                None
+            }
+        };
         let main = Self::track_start_embed(
             &lang_code,
             &cur.title,
             &cur.author,
             cur.uri.as_deref(),
-            cur.artwork.as_deref(),
+            if image_url.is_empty() {
+                None
+            } else {
+                Some(&image_url)
+            },
             s.voice_channel.unwrap_or(0),
             &icon,
         );
@@ -2796,7 +2834,10 @@ impl LavalinkManager {
             }
         }
         for id in order {
-            let msg = serenity::CreateMessage::new().embeds(embeds.clone());
+            let mut msg = serenity::CreateMessage::new().embeds(embeds.clone());
+            if let Some(file) = &attachment {
+                msg = msg.add_file(file.clone());
+            }
             if serenity::ChannelId::new(id)
                 .send_message(http, msg)
                 .await
@@ -5951,6 +5992,28 @@ mod tests {
         assert!(!should_scrobble(200_000, 99_999));
         assert!(!should_scrobble(20_000, 20_000));
         assert!(!should_scrobble(0, 0));
+    }
+
+    #[test]
+    fn music_banner_wiring_uses_attachment_url() {
+        // Card fill covered in nowplaying (music_banner_fill_...);
+        // here: the embed points at the attachment when present.
+        let e = LavalinkManager::track_start_embed(
+            "xx-UNKNOWN",
+            "Dunya",
+            "Author",
+            Some("https://example.test/t"),
+            Some("attachment://music_banner.png"),
+            99,
+            "🎵",
+        );
+        let json = serde_json::to_value(&e).unwrap();
+        assert_eq!(
+            json.get("image")
+                .and_then(|i| i.get("url"))
+                .and_then(|u| u.as_str()),
+            Some("attachment://music_banner.png")
+        );
     }
 
     #[test]

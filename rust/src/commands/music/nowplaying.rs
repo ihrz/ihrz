@@ -166,6 +166,63 @@ pub fn nowplaying_card_html(
         .replace("{time2}", total)
 }
 
+/// `musicBanner` HTML template (`src/assets/html/musicBanner.html`,
+/// TS `playerManager.ts:139`, track-start banner). Rendered through
+/// HorizonGateway with the nowplaying-adjacent options below; kept
+/// separate from the `nowPlaying` card so the two never duplicate.
+/// NOTE: the live track-start announce lives in `lavalink.rs`
+/// (`announce_track_start`, read-only), so the caller wiring stays
+/// with the text embed until that path can carry the PNG.
+const MUSIC_BANNER_TEMPLATE: &str = include_str!("../../../../src/assets/html/musicBanner.html");
+
+/// html2png options mirror (`playerManager.ts:149-153`).
+const MUSIC_BANNER_OPTIONS_JSON: &str =
+    r#"{"omitBackground":true,"selectElement":true,"elementSelector":".spotify-banner"}"#;
+
+/// Track-start banner fallback artwork. Mirrors the
+/// `track?.info.artworkUrl ||
+/// "https://www.ihorizon.org/assets/img/unknown-user.png"` replace
+/// in `playerManager.ts:143-147`.
+pub const MUSIC_BANNER_ARTWORK_FALLBACK: &str =
+    "https://www.ihorizon.org/assets/img/unknown-user.png";
+
+/// Fill the `musicBanner` template. Mirrors the replaces in
+/// `playerManager.ts:141-148` (single `replace` per slot:
+/// `{song_title}`, `{song_artist}`, `{song_thumbnail}`).
+pub fn music_banner_card_html(title: &str, artist: &str, thumbnail: &str) -> String {
+    MUSIC_BANNER_TEMPLATE
+        .replace("{song_title}", title)
+        .replace("{song_artist}", artist)
+        .replace("{song_thumbnail}", thumbnail)
+}
+
+/// Artwork with the `playerManager.ts` unknown-user fallback.
+pub fn banner_artwork_or_fallback(artwork: Option<&str>) -> &str {
+    artwork
+        .filter(|u| !u.is_empty())
+        .unwrap_or(MUSIC_BANNER_ARTWORK_FALLBACK)
+}
+
+/// Render the filled banner through HorizonGateway. `None` on any
+/// failure so the caller falls back to the text embed. Wired by the
+/// track-start announce in `lavalink.rs`.
+pub(crate) async fn render_music_banner_png(
+    base: &str,
+    token: &str,
+    html: &str,
+) -> Option<Vec<u8>> {
+    crate::funcs::gateway_render_html(
+        base,
+        token,
+        html,
+        MUSIC_BANNER_OPTIONS_JSON,
+        &[],
+        Some(std::time::Duration::from_secs(30)),
+    )
+    .await
+    .ok()
+}
+
 /// `#rrggbb` (or `rrggbb`) to a serenity colour, with the TS
 /// `|| "#6fa8dc"` fallback on anything unparsable.
 pub fn parse_hex_colour(s: &str) -> u32 {
