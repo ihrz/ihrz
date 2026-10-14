@@ -173,14 +173,21 @@ async fn render_help_category(
         .await
         .unwrap_or_default();
     let mut fields = Vec::with_capacity(show.leaves.len());
+    // One bulk perms read for the whole category (a per-leaf remote
+    // round trip each made 60+ leaf pages time out silently post-ack).
+    let perm_names: Vec<String> = show.leaves.iter().map(|l| l.qualified.clone()).collect();
+    let perm_map = crate::commands::shared::load_cmd_perms_map(pool, &gid_str, &perm_names).await;
     for leaf in &show.leaves {
-        let perm = crate::commands::guildconfig::load_cmd_perms(pool, &gid_str, &leaf.qualified)
-            .await
-            .map(|p| legacy_help::HelpPermState {
-                level: p.level.unwrap_or(0),
-                roles: p.roles.len(),
-                users: p.users.len(),
-            });
+        let perm =
+            perm_map
+                .get(&leaf.qualified)
+                .cloned()
+                .flatten()
+                .map(|p| legacy_help::HelpPermState {
+                    level: p.level.unwrap_or(0),
+                    roles: p.roles.len(),
+                    users: p.users.len(),
+                });
         let states = legacy_help::help_cmd_states(perm.as_ref(), &lock, &unlock, code);
         let entry = legacy_help::HelpModuleCmd {
             cmd: &leaf.qualified,

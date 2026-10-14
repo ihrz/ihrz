@@ -440,9 +440,63 @@ pub fn has_perm_requirements(perms: &crate::executor::CmdPerms) -> bool {
 }
 
 /// Load every per-command permission row: (command, perms).
+/// Bulk per-command permissions for render loops (help category
+/// pages). One `UTILS` subtree read serves every leaf; leaves missing
+/// from the subtree fall back to the exact single-key path
+/// (`load_cmd_perms`: rename alias + legacy kv row) concurrently, so
+/// big categories don't pay one remote round trip per leaf (the remote
+/// horizondb leg made 60+ leaf pages time out silently post-ack).
+/// Returned map holds `None` for commands with no row anywhere.
 /// Mirrors reading the whole `UTILS.PERMS` subtree in !command.ts.
 /// Table-routed: dotted writes merge under the `UTILS` root, so the
 /// subtree is read from the decoded object, not a key-prefix scan.
+pub async fn load_cmd_perms_map(
+    pool: &crate::db::Pool,
+    gid: &str,
+    commands: &[String],
+) -> std::collections::HashMap<String, Option<crate::executor::CmdPerms>> {
+    let bulk: std::collections::HashMap<String, crate::executor::CmdPerms> =
+        load_all_cmd_perms(pool, gid).await.into_iter().collect();
+    let mut out = std::collections::HashMap::with_capacity(commands.len());
+    let mut missing = Vec::new();
+    for cmd in commands {
+        if let Some(p) = bulk.get(cmd.as_str()) {
+            out.insert(cmd.clone(), Some(p.clone()));
+        } else if let Some(legacy) = perm_fallback_key(cmd) {
+            let hit = bulk.get(legacy).cloned();
+            out.insert(cmd.clone(), hit);
+            if out[cmd].is_none() {
+                missing.push(cmd.clone());
+            }
+        } else {
+            missing.push(cmd.clone());
+        }
+    }
+    // Exact legacy fallback (kv-only rows) for the misses, concurrently.
+    if !missing.is_empty() {
+        let mut set = tokio::task::JoinSet::new();
+        for cmd in missing {
+            let pool = pool.clone();
+            let gid = gid.to_string();
+            set.spawn(async move {
+                let p = load_cmd_perms(&pool, &gid, &cmd).await;
+                (cmd, p)
+            });
+        }
+        while let Some(res) = set.join_next().await {
+            if let Ok((cmd, p)) = res {
+                out.insert(cmd, p);
+            }
+        }
+    }
+    // Belt-and-braces: every requested command has an entry even if a
+    // fallback task failed.
+    for cmd in commands {
+        out.entry(cmd.clone()).or_insert(None);
+    }
+    out
+}
+
 pub async fn load_all_cmd_perms(
     pool: &crate::db::Pool,
     gid: &str,
@@ -1246,5 +1300,26 @@ mod tests {
         let row = CreateActionRow::Buttons(vec![CreateButton::new_link("https://x").label("y")]);
         let grown = add_topgg_button_to_components(vec![row], 7, "Vote");
         assert_eq!(grown.len(), 2);
+    }
+
+    #[tokio::test]
+    async fn cmd_perms_map_resolves_bulk_and_missing() {
+        let pool = crate::db::memory_pool().await;
+        // Empty store: every command maps to None (common case).
+        let map = load_cmd_perms_map(&pool, "g1", &["ban".to_string(), "kick".to_string()]).await;
+        assert!(map.get("ban").is_some_and(|o| o.is_none()));
+        assert!(map.get("kick").is_some_and(|o| o.is_none()));
+        // Routed row served from the single subtree read.
+        crate::db::tbl_set(&pool, "g1", "UTILS.PERMS.ban", "{\"level\":3}")
+            .await
+            .unwrap();
+        let map = load_cmd_perms_map(&pool, "g1", &["ban".to_string(), "kick".to_string()]).await;
+        assert_eq!(
+            map.get("ban")
+                .and_then(|o| o.as_ref())
+                .and_then(|p| p.level),
+            Some(3)
+        );
+        assert!(map.get("kick").is_some_and(|o| o.is_none()));
     }
 }

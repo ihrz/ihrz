@@ -1424,9 +1424,15 @@ async fn render_help_leaf_page(
         .await
         .unwrap_or_default();
     let mut built = Vec::with_capacity(show.leaves.len());
+    // One bulk perms read for the whole category (a per-leaf remote
+    // round trip each made 60+ leaf pages time out silently post-ack).
+    let perm_names: Vec<String> = show.leaves.iter().map(|l| l.qualified.clone()).collect();
+    let perm_map = crate::commands::shared::load_cmd_perms_map(pool, &gid, &perm_names).await;
     for leaf in &show.leaves {
-        let perm = crate::commands::shared::load_cmd_perms(pool, &gid, &leaf.qualified)
-            .await
+        let perm = perm_map
+            .get(&leaf.qualified)
+            .cloned()
+            .flatten()
             .map(|p| help::HelpPermState {
                 level: p.level.unwrap_or(0),
                 roles: p.roles.len(),
