@@ -62,18 +62,34 @@ pub enum StoredPerm {
 
 /// Look up a command's permission record with category fallback
 /// (first token before space) and legacy-number conversion.
-/// Mirrors getCmdPermData().
+/// Mirrors getCmdPermData(). The fallback gate is JS-falsy, not
+/// missing-only: a legacy `Level(0)` exact entry falls through to the
+/// category head (node ground truth: `{"mod ban":0,"mod":7}` resolves
+/// to 7, while `{"mod ban":0}` alone stays 0). Every `Full` record is
+/// truthy (objects always are in JS), so only `Level(0)` falls through.
 pub fn get_cmd_perm_data(command: &str, perms: &HashMap<String, StoredPerm>) -> CommandPerm {
     let mut found = perms.get(command);
-    if found.is_none() {
+    if !is_truthy_perm(found) {
         if let Some(head) = command.split(' ').next() {
-            found = perms.get(head);
+            if is_truthy_perm(perms.get(head)) {
+                found = perms.get(head);
+            }
         }
     }
     match found {
         None => default_perm(),
         Some(StoredPerm::Level(lvl)) => normalize(vec![], vec![], Some(*lvl)),
         Some(StoredPerm::Full(p)) => normalize(p.users.clone(), p.roles.clone(), p.level),
+    }
+}
+
+/// JS-truthiness of a stored PERMS value: missing and legacy level 0
+/// are falsy, every object record is truthy.
+fn is_truthy_perm(p: Option<&StoredPerm>) -> bool {
+    match p {
+        Some(StoredPerm::Full(_)) => true,
+        Some(StoredPerm::Level(n)) => *n != 0,
+        None => false,
     }
 }
 
@@ -353,6 +369,36 @@ mod tests {
         // Missing -> open default.
         let p = get_cmd_perm_data("nope", &m);
         assert!(!has_requirements(Some(&p)));
+    }
+
+    #[test]
+    fn cmd_lookup_zero_exact_falls_through_to_head_like_ts() {
+        // Node ground truth: the TS gate is `!cmdPermData`, so a legacy
+        // level-0 exact entry is falsy and the category head wins, while
+        // a lone 0 (or 0 + falsy head) stays open and objects never fall
+        // through (all JS objects are truthy).
+        let mut m = HashMap::new();
+        m.insert("mod ban".into(), StoredPerm::Level(0));
+        m.insert("mod".into(), StoredPerm::Level(7));
+        assert_eq!(get_cmd_perm_data("mod ban", &m).level, Some(7));
+
+        let mut m = HashMap::new();
+        m.insert("mod ban".into(), StoredPerm::Level(0));
+        assert_eq!(get_cmd_perm_data("mod ban", &m).level, Some(0));
+
+        let mut m = HashMap::new();
+        m.insert("mod ban".into(), StoredPerm::Level(0));
+        m.insert("mod".into(), StoredPerm::Level(0));
+        assert_eq!(get_cmd_perm_data("mod ban", &m).level, Some(0));
+
+        let mut m = HashMap::new();
+        m.insert("mod ban".into(), StoredPerm::Full(full(&[], &[], Some(0))));
+        m.insert("mod".into(), StoredPerm::Level(7));
+        assert_eq!(get_cmd_perm_data("mod ban", &m).level, Some(0));
+
+        let mut m = HashMap::new();
+        m.insert("ban".into(), StoredPerm::Level(0));
+        assert_eq!(get_cmd_perm_data("ban", &m).level, Some(0));
     }
 
     #[test]
