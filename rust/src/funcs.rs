@@ -459,6 +459,17 @@ pub fn banner_url(lang_code: &str) -> String {
 /// (reads GUILD.LANG table-first with legacy kv fallback, en-US default).
 /// Both the TS `{ lang: code }` object shape and legacy bare-string rows
 /// resolve via `parse_lang_value`.
+///
+/// Node ground truth (`bannerGenerator.ts`: `db.get("….LANG.lang")` via
+/// `get_property` + `|| "en-US"` + first-`replace`): exact on every
+/// writer-reachable input (both writers store `{ lang: code }` objects;
+/// missing/`{lang:""}`/`{lang:0}`/null/missing-leaf rows all fall back to
+/// en-US on both sides, pinned below). Hostile-row-only deltas, no live
+/// writer emits them: a whitespace-only leaf (`" "`) or truthy non-string
+/// leaf (`5`, `true`) renders verbatim/coerced in TS (`ihrz_ .png`,
+/// `ihrz_5.png`) while this falls back to en-US, and a legacy bare-string
+/// LANG row reads en-US in TS (`get_property` needs an object) while this
+/// resolves the code via the blessed `guild_lang` contract (slice 57).
 pub async fn guild_banner_url(pool: &crate::db::Pool, guild_id: &str) -> String {
     let lang = crate::db::tbl_get(pool, guild_id, "GUILD.LANG")
         .await
@@ -1335,6 +1346,30 @@ mod tests {
             guild_banner_url(&pool, "g3").await,
             "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
         );
+        // TS falsy-leaf legs (`|| "en-US"`, node battery): empty, zero,
+        // null and missing `lang` leaves all fall back on both sides.
+        for (gid, raw) in [
+            ("g4", "{\"lang\":\"\"}"),
+            ("g5", "{\"lang\":0}"),
+            ("g6", "{\"lang\":null}"),
+            ("g7", "{}"),
+        ] {
+            crate::db::tbl_set_json(
+                &pool,
+                gid,
+                "GUILD.LANG",
+                &serde_json::from_str::<serde_json::Value>(raw).unwrap(),
+            )
+            .await
+            .unwrap();
+            assert_eq!(
+                guild_banner_url(&pool, gid).await,
+                "https://www.ihorizon.org/assets/img/banner/ihrz_en-US.png"
+            );
+        }
+        // The template carries exactly one marker, so Rust replace-all ==
+        // TS first-only `String.replace`.
+        assert_eq!(BANNER_URL_TEMPLATE.matches("{countryCode}").count(), 1);
     }
 
     #[test]
