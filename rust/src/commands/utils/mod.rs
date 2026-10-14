@@ -15,7 +15,13 @@ pub use super::shared::{embed_with_footer, footer_parts};
 // writer exists), mirrored as kv guild "0" key "api.VANITY".
 
 /// Mirrors method.isValidDiscordInviteCode (`/^[a-z0-9]+(-[a-z0-9]+)*$/i`,
-/// max 32 chars; ASCII-only either way).
+/// max 32 chars). Byte length stands in for the TS UTF-16 `.length`
+/// check: any regex-passing string is pure ASCII (bytes == units), so a
+/// byte-over/unit-under split can only ever flip which leg returns false
+/// (node battery: 32x"é"/16x"😀" fail the regex leg in TS, the length leg
+/// here). Modern V8 does NOT apply the Annex-B special foldings in
+/// non-unicode mode (`ſ`/`İ`/`ı`/`K` all fail the TS regex — node ground
+/// truth), so ASCII-only segment matching is exact, not approximate.
 pub fn is_valid_vanity_code(code: &str) -> bool {
     if code.is_empty() || code.len() > 32 {
         return false;
@@ -839,6 +845,19 @@ mod tests {
         assert!(!is_valid_vanity_code("ab_c"));
         assert!(!is_valid_vanity_code("ab c"));
         assert!(!is_valid_vanity_code("caf\u{e9}"));
+        // Node ground truth (non-unicode /i has no Annex-B foldings):
+        // ſ/İ/ı/K/Σ/ß all fail the TS regex, like the ASCII-only check.
+        assert!(!is_valid_vanity_code("ſ"));
+        assert!(!is_valid_vanity_code("İ"));
+        assert!(!is_valid_vanity_code("ı"));
+        assert!(!is_valid_vanity_code("K"));
+        assert!(!is_valid_vanity_code("Σ"));
+        assert!(!is_valid_vanity_code("xßx"));
+        // Length-leg outcome identity (UTF-16 .length vs byte len): these
+        // pass the TS length check but fail its regex leg; Rust fails the
+        // length leg instead. Same false either way.
+        assert!(!is_valid_vanity_code(&"é".repeat(32)));
+        assert!(!is_valid_vanity_code(&"😀".repeat(16)));
     }
 
     #[test]
