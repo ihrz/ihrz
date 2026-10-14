@@ -3982,9 +3982,18 @@ pub fn dangerous_role_perms(bits: u64, names: [&str; 10]) -> Vec<String> {
 /// RGB (0-255) to HSL (h 0-360, s/l 0-100). Mirrors
 /// image_dominant_color.ts rgbToHsl.
 pub fn rgb_to_hsl(r: u8, g: u8, b: u8) -> (f64, f64, f64) {
-    let r = f64::from(r) / 255.0;
-    let g = f64::from(g) / 255.0;
-    let b = f64::from(b) / 255.0;
+    rgb_to_hsl_f64(f64::from(r), f64::from(g), f64::from(b))
+}
+
+/// HSL over raw channel values. TS `rgbToHsl` divides the UNCLAMPED
+/// bucket by 255 (`Math.round(255/10)*10` = 260 is reachable), so the
+/// s/l of a 255-channel pixel are (104, 50.98), not (100, 50).
+/// The u8 wrapper above keeps the clamped entry point; the bucket
+/// pipeline below must call this float version verbatim.
+pub fn rgb_to_hsl_f64(r: f64, g: f64, b: f64) -> (f64, f64, f64) {
+    let r = r / 255.0;
+    let g = g / 255.0;
+    let b = b / 255.0;
     let max = r.max(g).max(b);
     let min = r.min(g).min(b);
     let diff = max - min;
@@ -4031,8 +4040,11 @@ type ScoredColor = ((i32, i32, i32), (f64, f64, f64));
 /// getVibrantAndDarkColors: bucket by rounded tens, drop rare
 /// colors (<= 1% of pixels), split vibrant (l>20, s>20, best
 /// score, ties keep the first-inserted bucket like the TS stable
-/// sort) vs dark (l<40, darkest, min_by already first-wins),
-/// blurple fallback.
+/// sort) vs dark (l<40, darkest, ties keep the first-inserted
+/// bucket like the TS stable ascending sort — strict-less fold,
+/// same first-wins `min_by` already had),
+/// blurple fallback. HSL runs on the UNCLAMPED buckets (260 is
+/// reachable); only the final hex step clamps, like TS.
 pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
     let mut buckets: Vec<((i32, i32, i32), usize)> = vec![];
     for (r, g, b) in pixels {
@@ -4052,12 +4064,8 @@ pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
         .iter()
         .filter(|(_, count)| *count * 100 > total)
         .map(|(rgb, _)| {
-            let (r, g, b) = (
-                rgb.0.clamp(0, 255) as u8,
-                rgb.1.clamp(0, 255) as u8,
-                rgb.2.clamp(0, 255) as u8,
-            );
-            (*rgb, rgb_to_hsl(r, g, b))
+            let (h, s, l) = rgb_to_hsl_f64(rgb.0 as f64, rgb.1 as f64, rgb.2 as f64);
+            (*rgb, (h, s, l))
         })
         .collect();
     let fallback = kept.first().map(|(rgb, _)| *rgb).unwrap_or((88, 101, 242));
@@ -4075,15 +4083,14 @@ pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
             }
         }
     }
-    let dark = kept
-        .iter()
-        .filter(|(_, (_, _, l))| *l < 40.0)
-        .min_by(|(_, (_, _, l1)), (_, (_, _, l2))| {
-            l1.partial_cmp(l2).unwrap_or(std::cmp::Ordering::Equal)
-        })
-        .map(|(rgb, _)| *rgb)
-        .or_else(|| kept.last().map(|(rgb, _)| *rgb))
-        .unwrap_or(fallback);
+    let mut dark = kept.last().map(|(rgb, _)| *rgb).unwrap_or(fallback);
+    let mut darkest = f64::INFINITY;
+    for (rgb, (_, _, l)) in &kept {
+        if *l < 40.0 && *l < darkest {
+            darkest = *l;
+            dark = *rgb;
+        }
+    }
     (
         rgb_to_hex(vibrant.0, vibrant.1, vibrant.2),
         rgb_to_hex(dark.0, dark.1, dark.2),
@@ -4196,6 +4203,31 @@ mod funcs_dominant_tests {
         assert_eq!(
             vibrant_and_dark_colors(&pixels),
             ("#ff0000".to_string(), "#ff0000".to_string())
+        );
+    }
+
+    #[test]
+    fn hsl_unclamped_260_matches_ts() {
+        // Node ground truth: rgbToHsl({r:260,g:0,b:0}) =
+        // {h:0, s:103.99999999999999, l:50.98039215686274}; the clamped
+        // u8 entry gives (0, 100, 50) instead. Bucket 260 is reachable
+        // via Math.round(255/10)*10.
+        let (h, s, l) = rgb_to_hsl_f64(260.0, 0.0, 0.0);
+        assert!((h - 0.0).abs() < 1e-6);
+        assert!((s - 104.0).abs() < 1e-6);
+        assert!((l - 50.98039215686274).abs() < 1e-6);
+    }
+
+    #[test]
+    fn dark_tie_first_inserted_wins() {
+        // (200,0,0) and (0,0,200) tie bit-exactly on l (39.215686...,
+        // node ground truth); the TS stable ascending sort takes the
+        // first-inserted bucket — pins the strict-less fold.
+        let mut pixels = vec![(200u8, 0u8, 0u8); 50];
+        pixels.extend(vec![(0u8, 0u8, 200u8); 50]);
+        assert_eq!(
+            vibrant_and_dark_colors(&pixels),
+            ("#c80000".to_string(), "#c80000".to_string())
         );
     }
 
