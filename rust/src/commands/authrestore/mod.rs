@@ -693,13 +693,19 @@ pub fn secret_from_response(body: &serde_json::Value) -> String {
 
 /// OAuth2 link without a guild state. Mirrors
 /// `createOauth2LinkWithoutGuild` (`Oauth2_Link.split("&state=")[0]`,
-/// default scope `"identify"`).
+/// default scope `"identify"`). The TS scope leg is `data?.scope ||
+/// "identify"` (JS-falsy, node ground truth: `""`/missing/null ->
+/// `"identify"`, `"0"`/`" "` verbatim), not missing-only, so an
+/// explicit empty scope falls back too. `clientId: undefined`
+/// renders `"undefined"` in TS; the `&str` signature makes that
+/// shape unrepresentable here (callers always pass the bot id).
 pub fn oauth2_link_without_guild(
     client_id: &str,
     redirect_uri: &str,
     scope: Option<&str>,
 ) -> String {
-    crate::funcs::oauth2_link(client_id, redirect_uri, scope.unwrap_or("identify"), "")
+    let scope = scope.filter(|s| !s.is_empty()).unwrap_or("identify");
+    crate::funcs::oauth2_link(client_id, redirect_uri, scope, "")
         .split("&state=")
         .next()
         .unwrap_or_default()
@@ -1008,10 +1014,22 @@ mod tests {
         assert_eq!(secret_from_response(&serde_json::json!({})), "");
         // Guild-less link drops the state like split("&state=")[0].
         let bare = oauth2_link_without_guild("cid", "https://gw/cb", None);
-        assert!(bare.contains("scope=identify"));
+        assert_eq!(
+            bare,
+            "https://discord.com/oauth2/authorize?client_id=cid&redirect_uri=https://gw/cb&response_type=code&scope=identify"
+        );
         assert!(!bare.contains("state="));
         let scoped = oauth2_link_without_guild("cid", "https://gw/cb", Some("guilds.join"));
         assert!(scoped.contains("scope=guilds.join"));
+        // TS `data?.scope || "identify"` is JS-falsy (node ground truth):
+        // explicit "" falls back, "0"/" " stay verbatim.
+        let empty_scope = oauth2_link_without_guild("cid", "https://gw/cb", Some(""));
+        assert!(empty_scope.contains("scope=identify"));
+        assert!(!empty_scope.contains("scope=&"));
+        let zero_scope = oauth2_link_without_guild("cid", "https://gw/cb", Some("0"));
+        assert!(zero_scope.contains("scope=0"));
+        let blank_scope = oauth2_link_without_guild("cid", "https://gw/cb", Some(" "));
+        assert!(blank_scope.contains("scope= "));
     }
 
     #[test]
