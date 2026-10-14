@@ -167,6 +167,7 @@ async fn apply_language(
                     ctx.http(),
                     serenity::CreateMessage::new().embed(
                         serenity::CreateEmbed::default()
+                            .colour(0xBF0BB9)
                             .title(title)
                             .description(desc),
                     ),

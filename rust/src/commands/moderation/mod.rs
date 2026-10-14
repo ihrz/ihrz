@@ -148,6 +148,7 @@ async fn post_mod_log(
         return;
     };
     let embed = serenity::CreateEmbed::default()
+        .colour(0xBF0BB9)
         .title(title)
         .description(description);
     let _ = serenity::ChannelId::new(log_id)

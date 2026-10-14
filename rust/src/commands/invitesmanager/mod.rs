@@ -122,6 +122,7 @@ pub async fn post_inv_log(
         return;
     };
     let embed = poise::serenity_prelude::CreateEmbed::default()
+        .colour(0xBF0BB9)
         .title(title)
         .description(description);
     let _ = poise::serenity_prelude::ChannelId::new(log_id)

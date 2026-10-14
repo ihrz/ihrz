@@ -1125,9 +1125,9 @@ async fn post_panel_log(
                 http,
                 serenity::CreateMessage::new().embed(
                     serenity::CreateEmbed::default()
+                        .colour(0xBF0BB9)
                         .title(title)
-                        .description(description)
-                        .colour(PANEL_ACCENT),
+                        .description(description),
                 ),
             )
             .await;

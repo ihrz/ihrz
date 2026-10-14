@@ -780,6 +780,7 @@ async fn post_ticket_config_log(
     };
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
     let embed = serenity::CreateEmbed::default()
+        .colour(0xBF0BB9)
         .title(t(title_key))
         .description(t(desc_key).replace("${interaction.user.id}", &actor_id.to_string()));
     let _ = serenity::ChannelId::new(log_id)

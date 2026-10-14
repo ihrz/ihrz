@@ -244,6 +244,7 @@ async fn post_rankrole_log(ctx: &Ctx<'_>, enable: bool, role_id: Option<u64>, co
         })
         .unwrap_or(fallback_desc);
     let embed = serenity::CreateEmbed::default()
+        .colour(0xBF0BB9)
         .title(title)
         .description(desc);
     let _ = serenity::ChannelId::new(log_id)

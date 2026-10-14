@@ -111,6 +111,7 @@ async fn post_wlroles_log(ctx: &Ctx<'_>, guild_id: poise::serenity_prelude::Guil
         })
         .unwrap_or_else(|| format!("<@{}> has edited wlRoles", ctx.author().id.get()));
     let embed = serenity::CreateEmbed::default()
+        .colour(0xBF0BB9)
         .title(title)
         .description(desc);
     let _ = serenity::ChannelId::new(log_id)
