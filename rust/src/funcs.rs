@@ -930,18 +930,20 @@ where
     })
 }
 
-/// Remote asset length table. Mirrors the length.json fetch in
-/// assetsCalc.ts (TS `Assets`: string keys to counts).
-pub const ASSETS_LENGTHS_URL: &str =
-    "https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads";
+/// Remote asset manifest. Mirrors the repositories.json fetch in
+/// assetsCalc.ts (TS `Assets`: string keys to `{ length, paths }`).
+pub const ASSETS_LENGTHS_URL: &str = "https://www.ihorizon.org/cdn/repositories.json";
 
-/// Parse the length.json body into per-type gif counts. None when the
-/// body is not a JSON object (mirrors the TS JSON.parse, minus the
-/// throw: unusable bodies stay unusable). Non-integer values are
-/// skipped like unknown keys.
-pub fn parse_assets_lengths(raw: &str) -> Option<std::collections::HashMap<String, u64>> {
-    // TS assetsCalc hands a bare `"kiss":30,...}` fragment (length.json
-    // body without the opening brace); accept both fragment and full
+/// Parse the repositories.json body into per-type asset URL lists.
+/// None when the body is not a JSON object (mirrors the TS JSON.parse,
+/// minus the throw: unusable bodies stay unusable). Entries without a
+/// `paths` string array are skipped like unknown keys. Picking a valid
+/// index into `paths` (instead of building `/{n}.gif` from a count)
+/// fixes the historic off-by-one (`0.gif` does not exist) and covers
+/// same-stem siblings (`4.jpg` next to `4.gif`).
+pub fn parse_asset_paths(raw: &str) -> Option<std::collections::HashMap<String, Vec<String>>> {
+    // TS assetsCalc hands a bare fragment (repositories.json body
+    // without the opening brace); accept both fragment and full
     // object shapes.
     let shaped = raw.trim();
     let shaped = if shaped.starts_with('{') {
@@ -952,21 +954,30 @@ pub fn parse_assets_lengths(raw: &str) -> Option<std::collections::HashMap<Strin
     let value: serde_json::Value = serde_json::from_str(&shaped).ok()?;
     let table = value.as_object()?;
     let mut out = std::collections::HashMap::with_capacity(table.len());
-    for (key, count) in table {
-        if let Some(n) = count.as_u64() {
-            out.insert(key.clone(), n);
+    for (key, entry) in table {
+        let paths: Vec<String> = entry
+            .get("paths")
+            .and_then(|p| p.as_array())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|u| u.as_str().map(|s| s.to_string()))
+                    .collect()
+            })
+            .unwrap_or_default();
+        if !paths.is_empty() {
+            out.insert(key.clone(), paths);
         }
     }
     Some(out)
 }
 
-/// Gif count for one asset type. Mirrors the `assets[type]` read the
-/// TS callers do after assetsCalc fills `client.assets`.
-pub fn assets_length(
-    table: &std::collections::HashMap<String, u64>,
+/// URL list for one asset type. Mirrors the `assets[type].paths` read
+/// the TS callers do after assetsCalc fills `client.assets`.
+pub fn asset_paths(
+    table: &std::collections::HashMap<String, Vec<String>>,
     asset_type: &str,
-) -> Option<u64> {
-    table.get(asset_type).copied()
+) -> Option<Vec<String>> {
+    table.get(asset_type).cloned()
 }
 
 /// Process-local assets table. Mirrors `client.assets` filled once by
@@ -976,9 +987,10 @@ pub fn assets_length(
 /// concurrently running TS process is attempted — each process fetches
 /// its own copy from the same URL, exactly like two TS shards each
 /// holding their own `client.assets`.
-fn assets_cache() -> &'static std::sync::Mutex<std::collections::HashMap<String, u64>> {
-    static CACHE: std::sync::OnceLock<std::sync::Mutex<std::collections::HashMap<String, u64>>> =
-        std::sync::OnceLock::new();
+fn assets_cache() -> &'static std::sync::Mutex<std::collections::HashMap<String, Vec<String>>> {
+    static CACHE: std::sync::OnceLock<
+        std::sync::Mutex<std::collections::HashMap<String, Vec<String>>>,
+    > = std::sync::OnceLock::new();
     CACHE.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
 }
 
@@ -994,19 +1006,19 @@ pub async fn refresh_assets_cache() {
         },
         Err(_) => return,
     };
-    if let Some(table) = parse_assets_lengths(&body) {
+    if let Some(table) = parse_asset_paths(&body) {
         if !table.is_empty() {
             *assets_cache().lock().unwrap_or_else(|e| e.into_inner()) = table;
         }
     }
 }
 
-/// Gif count for one asset type from the boot-wired table. None before
+/// URL list for one asset type from the boot-wired table. None before
 /// the first successful [`refresh_assets_cache`] (callers fall back to
 /// their lazy fetch, mirroring `client.assets[type]` reads before
 /// assetsCalc resolves).
-pub fn cached_assets_length(asset_type: &str) -> Option<u64> {
-    assets_length(
+pub fn cached_asset_paths(asset_type: &str) -> Option<Vec<String>> {
+    asset_paths(
         &assets_cache().lock().unwrap_or_else(|e| e.into_inner()),
         asset_type,
     )
@@ -1724,17 +1736,20 @@ mod tests {
 
     #[test]
     fn assets_lengths_parse_and_lookup() {
-        let table = parse_assets_lengths("\"kiss\":30,\"slap\":30,\"hug\":30}").unwrap();
-        assert_eq!(assets_length(&table, "hug"), Some(30));
-        assert_eq!(assets_length(&table, "unknown"), None);
+        let raw = r#"{"kiss": {"length": 1, "paths": ["https://www.ihorizon.org/cdn/kiss/1.gif"]}, "slap": {"length": 1, "paths": ["https://www.ihorizon.org/cdn/slap/1.gif"]}, "hug": {"length": 2, "paths": ["https://www.ihorizon.org/cdn/hug/1.gif", "https://www.ihorizon.org/cdn/hug/4.jpg"]}}"#;
+        let table = parse_asset_paths(raw).unwrap();
+        assert_eq!(asset_paths(&table, "hug").unwrap().len(), 2);
+        assert_eq!(asset_paths(&table, "unknown"), None);
         // Boot-wired table starts empty offline (no network in tests).
-        assert_eq!(cached_assets_length("hug"), None);
-        assert!(parse_assets_lengths("not json").is_none());
-        assert!(parse_assets_lengths("[1,2]").is_none());
-        // Non-integer values are skipped, integers kept.
-        let mixed = parse_assets_lengths("\"hug\":30,\"bad\":\"x\"}").unwrap();
+        assert_eq!(cached_asset_paths("hug"), None);
+        assert!(parse_asset_paths("not json").is_none());
+        assert!(parse_asset_paths("[1,2]").is_none());
+        // Entries without a `paths` array are skipped, the rest kept.
+        let mixed =
+            parse_asset_paths(r#"{"hug": {"length": 1, "paths": ["u"]}, "bad": {"length": 1}}"#)
+                .unwrap();
         assert_eq!(mixed.len(), 1);
-        assert!(ASSETS_LENGTHS_URL.contains("length.json"));
+        assert!(ASSETS_LENGTHS_URL.contains("repositories.json"));
     }
 }
 
@@ -3525,31 +3540,23 @@ pub fn expression_url(name: &str) -> String {
 
 // ---- assetsFinder ----
 
-/// Random asset gif URL. Mirrors apiUrlParser.assetsFinder.
-/// Index range is identical on reachable inputs: TS
-/// `Math.floor(Math.random() * count)` yields [0, count) (node ground
-/// truth: 200k samples in range, 0 bad) and one xorshift64* step mod
-/// `count` yields the same [0, count) range (the Math.random stream
-/// itself is unseedable, so only the range is portable — same
-/// established delta as `random_expression`).
-/// Delta (outcome-identical, doc-noted): TS emits a URL for
-/// degenerate counts (`0` -> `.../0.gif`, missing key -> `.../NaN.gif`;
-/// node ground truth) which 404s at runtime, so the TS caller falls
-/// into its catch leg and replies `fun_var_down_api`; Rust
-/// short-circuits `count == 0` to `""` and the caller (`fun/mod.rs`)
-/// maps empty straight to the same `fun_var_down_api` reply without
-/// the doomed GET. Negative counts are unreachable (length.json
-/// counts are >= 0; TS would emit a negative index — GIGO).
-pub fn assets_url(asset_type: &str, count: u64, seed: u64) -> String {
-    if count == 0 {
+/// Random asset URL from a manifest `paths` list. Mirrors
+/// apiUrlParser.assetsFinder (valid index into `paths`, never a
+/// constructed `/{n}.gif` — no off-by-one, no skipped siblings).
+/// Empty list emits `""`, which the caller maps straight to the
+/// `fun_var_down_api` reply (same leg the TS reachability catch hits
+/// on a 404). One xorshift64* step picks the index; the seed stream
+/// itself is unseedable, so only the in-range property is portable.
+pub fn assets_url(paths: &[String], seed: u64) -> String {
+    if paths.is_empty() {
         return String::new();
     }
     let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
     state ^= state << 13;
     state ^= state >> 7;
     state ^= state << 17;
-    let n = state % count;
-    format!("https://gitlab.com/ihrz/assets/-/raw/main/{asset_type}/{n}.gif?ref_type=heads")
+    let n = (state % paths.len() as u64) as usize;
+    paths[n].clone()
 }
 
 // ---- ihorizon_logs channel match ----
@@ -3581,37 +3588,25 @@ mod funcs_part5_tests {
 
     #[test]
     fn assets_url_shape() {
-        let u = assets_url("hug", 10, 3);
-        assert!(u.starts_with("https://gitlab.com/ihrz/assets/-/raw/main/hug/"));
-        assert!(u.ends_with(".gif?ref_type=heads"));
-        // W6 slice 49 (node ground truth): degenerate counts emit no
-        // usable URL on either side — TS builds `.../0.gif` (count 0)
-        // or `.../NaN.gif` (missing key), both 404 into the same
-        // `fun_var_down_api` catch leg; Rust short-circuits to "" and
-        // the caller maps empty to that same reply.
-        assert_eq!(assets_url("hug", 0, 3), "");
-        assert_eq!(assets_url("hug", 0, 0), "");
-        // Count 1 pins the index leg: n = state % 1 = 0 for any seed.
-        assert_eq!(
-            assets_url("kiss", 1, 999),
-            "https://gitlab.com/ihrz/assets/-/raw/main/kiss/0.gif?ref_type=heads"
-        );
-        // Type interpolates verbatim (slap caller).
-        let s = assets_url("slap", 5, 11);
-        assert!(s.contains("/slap/"));
-        assert!(s.ends_with(".gif?ref_type=heads"));
-        // Index stays inside [0, count) across seeds.
+        let paths: Vec<String> = (1..=10)
+            .map(|n| format!("https://www.ihorizon.org/cdn/hug/{n}.gif"))
+            .collect();
+        // Picked URL is always a member of the manifest list.
+        let u = assets_url(&paths, 3);
+        assert!(paths.contains(&u));
+        // Empty list emits no usable URL: the caller maps "" straight
+        // to the `fun_var_down_api` reply (same leg the TS
+        // reachability catch hits on a 404).
+        assert_eq!(assets_url(&[], 3), "");
+        assert_eq!(assets_url(&[], 0), "");
+        // Single-entry list pins the pick for any seed.
+        let one = vec!["https://www.ihorizon.org/cdn/kiss/1.gif".to_string()];
+        assert_eq!(assets_url(&one, 999), one[0]);
+        // Index stays inside the list across seeds (never 0.gif-style
+        // construction, never out of range).
         for seed in 1..=50u64 {
-            let v = assets_url("hug", 10, seed);
-            let n: u64 = v
-                .rsplit('/')
-                .next()
-                .unwrap_or("")
-                .strip_suffix(".gif?ref_type=heads")
-                .unwrap_or("99")
-                .parse()
-                .unwrap_or(99);
-            assert!(n < 10, "seed {seed} gave {n}");
+            let v = assets_url(&paths, seed);
+            assert!(paths.contains(&v), "seed {seed} gave {v}");
         }
     }
 

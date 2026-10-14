@@ -26,7 +26,7 @@ import { Assets } from "../../../types/assets.js";
 
 export default async function assetsCalc(client: Client): Promise<void> {
 	const assets = await axios.get(
-		`https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads`
+		`https://www.ihorizon.org/cdn/repositories.json`
 	);
 	const data = JSON.parse(assets.data) as Assets;
 

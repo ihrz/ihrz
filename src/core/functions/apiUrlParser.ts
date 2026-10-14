@@ -35,7 +35,13 @@ export enum GatewayMethod {
 }
 
 export function assetsFinder(body: Assets, type: string): string {
-	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}.gif?ref_type=heads`;
+	const paths = body[type]?.paths;
+	// No entry (or empty list) means no usable asset: the callers'
+	// reachability check turns that into `fun_var_down_api`, same as a
+	// 404 used to. A valid index into `paths` can never be `0.gif`
+	// (the old off-by-one) nor skip same-stem siblings (`4.jpg`).
+	if (!paths?.length) return "";
+	return paths[Math.floor(Math.random() * paths.length)];
 }
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {

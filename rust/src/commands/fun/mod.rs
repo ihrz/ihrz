@@ -231,43 +231,30 @@ pub fn interaction_line(actor: &str, target: &str, verb: &str) -> String {
 
 // ---- hug/kiss/slap asset GIFs ----
 // Mirrors !hug.ts/!kiss.ts/!slap.ts: fun kill-switch, random asset GIF
-// picked via the length.json counts (assetsCalc boot fetch), reachability
+// picked via the repositories.json paths (assetsCalc boot fetch), reachability
 // check (axios.get().then), coloured embed with filled title + image +
 // timestamp, fun_var_down_api when the fetch fails.
 
-/// length.json location. Mirrors the assetsCalc fetch URL.
-pub const ASSET_LENGTHS_URL: &str =
-    "https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads";
+/// repositories.json location. Mirrors the assetsCalc fetch URL.
+pub const ASSET_LENGTHS_URL: &str = "https://www.ihorizon.org/cdn/repositories.json";
 
-/// Parse length.json into counts. Mirrors assetsCalc
-/// (JSON.parse into the Assets map; unparsable entries are skipped).
-pub fn parse_asset_counts(raw: &str) -> std::collections::HashMap<String, u64> {
-    serde_json::from_str::<serde_json::Value>(raw)
-        .ok()
-        .and_then(|v| {
-            v.as_object().map(|m| {
-                m.iter()
-                    .filter_map(|(k, v)| v.as_u64().map(|n| (k.clone(), n)))
-                    .collect()
-            })
-        })
-        .unwrap_or_default()
-}
-
-/// Boot-time counts, fetched once and cached. Mirrors client.assets.
-async fn asset_counts() -> std::collections::HashMap<String, u64> {
+/// Boot-time asset URL lists, fetched once and cached. Mirrors
+/// client.assets. Parse lives in [`crate::funcs::parse_asset_paths`];
+/// a valid index into `paths` fixes the historic `0.gif` off-by-one
+/// and covers same-stem siblings (`4.jpg` next to `4.gif`).
+async fn asset_paths() -> std::collections::HashMap<String, Vec<String>> {
     use std::collections::HashMap;
     use std::sync::{Mutex, OnceLock};
-    static CACHE: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
+    static CACHE: OnceLock<Mutex<HashMap<String, Vec<String>>>> = OnceLock::new();
     let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
     let hit = cache.lock().unwrap_or_else(|e| e.into_inner()).clone();
     if !hit.is_empty() {
         return hit;
     }
-    let fetched: HashMap<String, u64> =
+    let fetched: HashMap<String, Vec<String>> =
         match reqwest::Client::new().get(ASSET_LENGTHS_URL).send().await {
             Ok(resp) => match resp.text().await {
-                Ok(text) => parse_asset_counts(&text),
+                Ok(text) => crate::funcs::parse_asset_paths(&text).unwrap_or_default(),
                 Err(_) => HashMap::new(),
             },
             Err(_) => HashMap::new(),
@@ -306,9 +293,13 @@ async fn social_gif(
     // Mirrors the TS prefix fallback (`|| interaction.author`): no target
     // means the invoker hugs/kisses/slaps themselves.
     let target = target.cloned().unwrap_or_else(|| ctx.author().clone());
-    let counts = asset_counts().await;
-    let url =
-        crate::funcs::assets_url(kind, counts.get(kind).copied().unwrap_or(0), rand::random());
+    // Single lang read for both the deny and the title (one SQLite
+    // round-trip instead of two).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let paths = asset_paths().await;
+    let empty: Vec<String> = Vec::new();
+    let url = crate::funcs::assets_url(paths.get(kind).unwrap_or(&empty), rand::random());
     let reachable = if url.is_empty() {
         false
     } else {
@@ -397,12 +388,15 @@ mod tests {
 
     #[test]
     fn social_gif_parts_match_ts() {
-        // length.json parse skips non-number entries.
-        let counts = parse_asset_counts(r#"{"hug": 12, "kiss": "x", "slap": 3}"#);
-        assert_eq!(counts.get("hug"), Some(&12));
-        assert_eq!(counts.get("slap"), Some(&3));
-        assert!(!counts.contains_key("kiss"));
-        assert!(parse_asset_counts("not json").is_empty());
+        // repositories.json parse keeps entries with a `paths` array.
+        let table = crate::funcs::parse_asset_paths(
+            r#"{"hug": {"length": 1, "paths": ["u1"]}, "kiss": "x", "slap": {"length": 1, "paths": ["u2"]}}"#,
+        )
+        .unwrap();
+        assert_eq!(table.get("hug").unwrap(), &vec!["u1".to_string()]);
+        assert_eq!(table.get("slap").unwrap(), &vec!["u2".to_string()]);
+        assert!(!table.contains_key("kiss"));
+        assert!(crate::funcs::parse_asset_paths("not json").is_none());
         // Description fills mirror the /g token replaces.
         assert_eq!(
             social_embed_desc(

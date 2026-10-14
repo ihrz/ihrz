@@ -20,5 +20,5 @@
 */
 
 export interface Assets {
-	[key: string]: number;
+	[key: string]: { length: number; paths: string[] };
 }
