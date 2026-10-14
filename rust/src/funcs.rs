@@ -2080,6 +2080,41 @@ mod funcs_part2_tests {
         use chrono::{Datelike, Timelike};
         let expect = format!("{:04}-{:02}-{:02}", dt.year(), dt.month(), dt.day());
         assert_eq!(format_date(1705321845, "YYYY-MM-DD"), expect);
+        // W6 slice 70 (node ground truth, TZ=Europe/Paris on ts=1705321845):
+        // the TS /(YYYY|YY|MMM|MM|DD|ddd|HH|mm|ss)/g replace scans
+        // longest-first, non-overlapping, case-sensitive:
+        // "YYYYYY"->"202424", "MMMM"->"JanM", "dddd"->"Mond",
+        // "sss"->"45s", "HHH"->"13H", "mmm"->"30m", "DDD"->"15D",
+        // lowercase/"" pass through, "YYMMDD"->"240115".
+        // Structural pins below derive TZ-varying fields from chrono::Local
+        // so they hold under any host TZ; January + second 45 are global
+        // for this timestamp (max civil offset keeps Jan, seconds are
+        // TZ-invariant).
+        let y4 = dt.year().to_string();
+        let y2 = y4[y4.len().saturating_sub(2)..].to_string();
+        let wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            [dt.weekday().num_days_from_sunday() as usize];
+        assert_eq!(format_date(1705321845, "YYYYYY"), format!("{y4}{y2}"));
+        assert_eq!(format_date(1705321845, "MMMM"), "JanM");
+        assert_eq!(format_date(1705321845, "dddd"), format!("{wd}d"));
+        assert_eq!(format_date(1705321845, "sss"), "45s");
+        assert_eq!(format_date(1705321845, "HHH"), format!("{:02}H", dt.hour()));
+        assert_eq!(
+            format_date(1705321845, "mmm"),
+            format!("{:02}m", dt.minute())
+        );
+        assert_eq!(format_date(1705321845, "DDD"), format!("{:02}D", dt.day()));
+        assert_eq!(format_date(1705321845, "yyyy"), "yyyy");
+        assert_eq!(format_date(1705321845, ""), "");
+        assert_eq!(format_date(1705321845, "MmSs"), "MmSs");
+        assert_eq!(format_date(1705321845, "ssSS"), "45SS");
+        assert_eq!(format_date(1705321845, "dMMMy"), "dJany");
+        assert_eq!(format_date(1705321845, "YYYY[Q]"), format!("{y4}[Q]"));
+        assert_eq!(format_date(1705321845, "éMMMü"), "éJanü");
+        assert_eq!(
+            format_date(1705321845, "YYMMDD"),
+            format!("{y2}{:02}{:02}", dt.month(), dt.day())
+        );
         assert_eq!(
             format_date(1705321845, "YY/MMM"),
             format!("{:02}/Jan", (dt.year() % 100 + 100) % 100)
