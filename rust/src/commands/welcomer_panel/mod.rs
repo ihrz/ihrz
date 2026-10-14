@@ -8,9 +8,9 @@
 //
 // Stateless: every interaction reloads GUILD.GUILD_CONFIG and re-renders
 // (the TS in-memory panel state becomes the `welcomerPanelSection` blob
-// field + direct blob reads). Classic embeds + action rows stand in for
-// the TS Components V2 container (serenity 0.12 has no V2 builders),
-// like the ticket panels. Banner image editing stays html2png-blocked;
-// only status/reset/toggle port.
+// field + direct blob reads). Rendering is Components V2 (Container +
+// TextDisplay + Separator + MediaGallery over raw REST in `v2`, since
+// serenity 0.12 has no V2 builders), like the TS panel.
 
 pub mod main;
+pub mod v2;

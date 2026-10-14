@@ -32,22 +32,6 @@ pub fn welcomer_panel_expired(sent_secs: i64, now_secs: i64) -> bool {
     now_secs.saturating_sub(sent_secs) >= WELCOMER_COLLECTOR_TIMEOUT_SECS
 }
 
-/// Disable every button/select row. Mirrors the TS collector `end`
-/// handler (`component.setDisabled(true)` on each row component).
-pub fn disable_rows(rows: Vec<serenity::CreateActionRow>) -> Vec<serenity::CreateActionRow> {
-    rows.into_iter()
-        .map(|row| match row {
-            serenity::CreateActionRow::Buttons(btns) => serenity::CreateActionRow::Buttons(
-                btns.into_iter().map(|b| b.disabled(true)).collect(),
-            ),
-            serenity::CreateActionRow::SelectMenu(menu) => {
-                serenity::CreateActionRow::SelectMenu(menu.disabled(true))
-            }
-            other => other,
-        })
-        .collect()
-}
-
 /// Defaults mirror DEFAULT_IMAGE_CONFIG in welcomerPanel.ts.
 pub const DEFAULT_BANNER_BACKGROUND: &str =
     "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
@@ -323,237 +307,24 @@ fn t(lang_code: &str, key: &str) -> String {
 }
 
 fn code_block(value: &Option<String>, empty_label: &str) -> String {
+    // TS `codeBlock`: empty string counts as empty (falsy), not as an
+    // empty code fence.
     match value {
-        Some(v) => format!("```{v}```"),
-        None => empty_label.to_string(),
+        Some(v) if !v.is_empty() => format!("```{v}```"),
+        _ => empty_label.to_string(),
     }
 }
 
-/// Panel body for the active section. Mirrors buildMessageBlock /
-/// buildChannelsBlock / buildBannerStatusLine / buildModeBlock (as
-/// embed description lines instead of TextDisplay components).
-pub fn panel_description(st: &PanelState, lang_code: &str) -> String {
-    let title = t(lang_code, "welcomer_panel_title");
-    let head = format!("## {title} — {}", st.section);
-    match st.section.as_str() {
-        "join" | "leave" => {
-            let join = st.section == "join";
-            let msg_title = t(
-                lang_code,
-                if join {
-                    "guildprofil_embed_fields_joinmessage"
-                } else {
-                    "guildprofil_embed_fields_leavemessage"
-                },
-            );
-            let msg = if join {
-                &st.join_message
-            } else {
-                &st.leave_message
-            };
-            let fallback = t(
-                lang_code,
-                if join {
-                    "event_welcomer_inviter"
-                } else {
-                    "event_goodbye_inviter"
-                },
-            );
-            let embed_id = if join {
-                &st.join_embed_id
-            } else {
-                &st.leave_embed_id
-            };
-            let text_on = if join { st.join_text } else { st.leave_text };
-            let comp = if join {
-                st.join_components
-            } else {
-                st.leave_components
-            };
-            let mode = if embed_id.is_some() {
-                t(lang_code, "welcomer_render_mode_simple")
-            } else if comp {
-                t(lang_code, "welcomer_render_mode_components")
-            } else {
-                t(lang_code, "welcomer_render_mode_simple")
-            };
-            [
-                head,
-                format!("### {msg_title}"),
-                format!(
-                    "**{}**",
-                    t(lang_code, "setjoinmessage_help_embed_fields_custom_name")
-                ),
-                code_block(
-                    msg,
-                    &t(
-                        lang_code,
-                        "setjoinmessage_help_embed_fields_custom_name_empy",
-                    ),
-                ),
-                format!(
-                    "**{}**",
-                    t(
-                        lang_code,
-                        "setjoinmessage_help_embed_fields_default_name_empy"
-                    )
-                ),
-                code_block(
-                    &Some(fallback),
-                    &t(
-                        lang_code,
-                        "setjoinmessage_help_embed_fields_custom_name_empy",
-                    ),
-                ),
-                t(lang_code, "setjoinmessage_help_embed_desc"),
-                format!("### {}", t(lang_code, "welcomer_embed_label")),
-                embed_id
-                    .clone()
-                    .map(|e| format!("`{e}`"))
-                    .unwrap_or_else(|| t(lang_code, "sticky_var_none")),
-                format!("**{}**", t(lang_code, "welcomer_text_label")),
-                if text_on {
-                    t(lang_code, "var_enabled")
-                } else {
-                    t(lang_code, "var_disabled")
-                },
-                format!("**{}**", t(lang_code, "welcomer_render_mode_label")),
-                mode,
-            ]
-            .join("\n")
-        }
-        "dm" => [
-            head,
-            format!(
-                "### {}",
-                t(lang_code, "guildprofil_embed_fields_joinDmMessage")
-            ),
-            code_block(
-                &st.join_dm,
-                &t(
-                    lang_code,
-                    "setjoinmessage_help_embed_fields_custom_name_empy",
-                ),
-            ),
-            t(lang_code, "setjoindm_help_embed_desc"),
-        ]
-        .join("\n"),
-        "roles" => {
-            let list = if st.join_roles.is_empty() {
-                t(lang_code, "setjoinroles_var_none")
-            } else {
-                st.join_roles
-                    .iter()
-                    .map(|id| format!("<@&{id}>"))
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            };
-            [
-                head,
-                format!("### {}", t(lang_code, "guildprofil_embed_fields_joinroles")),
-                list,
-                t(lang_code, "setjoinroles_help_embed_description"),
-            ]
-            .join("\n")
-        }
-        "channels" => {
-            let join = st
-                .join_channel
-                .clone()
-                .map(|c| format!("<#{c}>"))
-                .unwrap_or_else(|| t(lang_code, "var_disabled"));
-            let leave = st
-                .leave_channel
-                .clone()
-                .map(|c| format!("<#{c}>"))
-                .unwrap_or_else(|| t(lang_code, "var_disabled"));
-            [
-                head,
-                format!("### {}", t(lang_code, "welcomer_section_channels")),
-                format!(
-                    "**{}**",
-                    t(lang_code, "setchannels_embed_fields_value_join")
-                ),
-                join,
-                format!(
-                    "**{}**",
-                    t(lang_code, "setchannels_embed_fields_value_leave")
-                ),
-                leave,
-            ]
-            .join("\n")
-        }
-        _ => {
-            let on = st.banner_state != "off";
-            let status = if on {
-                t(lang_code, "var_enabled")
-            } else {
-                t(lang_code, "var_disabled")
-            };
-            // No live preview (unlike the TS MediaGallery): the stored
-            // prop values are listed so the panel stays dependency-free.
-            let b = &st.banner;
-            let message = b.message.clone().unwrap_or_default();
-            [
-                head,
-                format!("### {}", t(lang_code, "setjoinmessage_var_image_card")),
-                status,
-                format!(
-                    "**{}**\n```{}```",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_background"
-                    ),
-                    b.background_url,
-                ),
-                format!(
-                    "**{}**\n`{}`",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_frame_color"
-                    ),
-                    b.frame,
-                ),
-                format!(
-                    "**{}**\n`{}`",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_text_colour"
-                    ),
-                    b.text_colour,
-                ),
-                format!(
-                    "**{}**\n```{}```",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_text_message"
-                    ),
-                    message,
-                ),
-                format!(
-                    "**{}**\n`{}`",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_text_size"
-                    ),
-                    b.text_size,
-                ),
-                format!(
-                    "**{}**\n`{}`",
-                    t(
-                        lang_code,
-                        "setjoinmessage_change_image_propreties_avatar_size"
-                    ),
-                    b.avatar_size,
-                ),
-            ]
-            .join("\n")
-        }
-    }
-}
-
-fn button(id: &str, label: String, style: serenity::ButtonStyle) -> serenity::CreateButton {
-    serenity::CreateButton::new(id).label(label).style(style)
+fn button(
+    id: &str,
+    label: String,
+    style: serenity::ButtonStyle,
+    disabled: bool,
+) -> serenity::CreateButton {
+    serenity::CreateButton::new(id)
+        .label(label)
+        .style(style)
+        .disabled(disabled)
 }
 
 /// Banner prop picker. Mirrors buildPropSelectRow (6 prop actions).
@@ -665,11 +436,9 @@ fn banner_size_row(lang_code: &str, target: &str) -> serenity::CreateActionRow {
     )
 }
 
-/// Section picker + per-section controls. Mirrors buildSectionSelectRow
-/// and the per-section button/select rows (string-select equivalents of
-/// the TS channel/role selects).
-pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActionRow> {
-    let mut rows = vec![];
+/// Section picker row. Mirrors buildSectionSelectRow (6 sections,
+// current marked default).
+fn section_select_row(lang_code: &str, section: &str) -> serenity::CreateActionRow {
     let section_opts: Vec<serenity::CreateSelectMenuOption> = [
         ("guildprofil_embed_fields_joinmessage", "join"),
         ("guildprofil_embed_fields_leavemessage", "leave"),
@@ -681,13 +450,13 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
     .iter()
     .map(|(key, value)| {
         let mut opt = serenity::CreateSelectMenuOption::new(t(lang_code, key), *value);
-        if *value == st.section {
+        if *value == section {
             opt = opt.default_selection(true);
         }
         opt
     })
     .collect();
-    rows.push(serenity::CreateActionRow::SelectMenu(
+    serenity::CreateActionRow::SelectMenu(
         serenity::CreateSelectMenu::new(
             WELCOMER_SECTION_ID,
             serenity::CreateSelectMenuKind::String {
@@ -695,7 +464,22 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
             },
         )
         .placeholder(t(lang_code, "welcomer_section_placeholder")),
-    ));
+    )
+}
+
+/// Section picker + per-section controls. Mirrors buildSectionSelectRow
+/// and the per-section button/select rows. `disabled` is the TS
+/// `render(message, disabled)` form: the section select and all picker
+/// rows are dropped, every remaining button carries disabled.
+pub fn panel_rows(
+    st: &PanelState,
+    lang_code: &str,
+    disabled: bool,
+) -> Vec<serenity::CreateActionRow> {
+    let mut rows = vec![];
+    if !disabled {
+        rows.push(section_select_row(lang_code, &st.section));
+    }
     match st.section.as_str() {
         "join" | "leave" => {
             let kind = st.section.as_str();
@@ -704,11 +488,13 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     &format!("welcomer-{kind}-set"),
                     t(lang_code, "setjoinmessage_button_set_name"),
                     serenity::ButtonStyle::Primary,
+                    disabled,
                 ),
                 button(
                     &format!("welcomer-{kind}-reset"),
                     t(lang_code, "setjoinmessage_buttom_del_name"),
                     serenity::ButtonStyle::Danger,
+                    disabled,
                 ),
             ]);
             let embed_row = serenity::CreateActionRow::Buttons(vec![
@@ -716,11 +502,13 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     &format!("welcomer-{kind}-embed-set"),
                     t(lang_code, "welcomer_embed_set_button"),
                     serenity::ButtonStyle::Secondary,
+                    disabled,
                 ),
                 button(
                     &format!("welcomer-{kind}-embed-reset"),
                     t(lang_code, "welcomer_embed_remove_button"),
                     serenity::ButtonStyle::Danger,
+                    disabled,
                 ),
             ]);
             let text_on = if kind == "join" {
@@ -745,6 +533,7 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                         },
                     ),
                     serenity::ButtonStyle::Secondary,
+                    disabled,
                 ),
                 button(
                     &format!("welcomer-{kind}-components-toggle"),
@@ -757,6 +546,7 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                         },
                     ),
                     serenity::ButtonStyle::Secondary,
+                    disabled,
                 ),
             ]);
             rows.extend([msg_row, embed_row, mode_row]);
@@ -767,26 +557,39 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     "welcomer-dm-set",
                     t(lang_code, "setjoindm_buttom_set_name"),
                     serenity::ButtonStyle::Primary,
+                    disabled,
                 ),
                 button(
                     "welcomer-dm-reset",
                     t(lang_code, "setjoindm_buttom_delete_name"),
                     serenity::ButtonStyle::Danger,
+                    disabled,
                 ),
             ]));
         }
         "roles" => {
+            if disabled {
+                return rows;
+            }
+            // TS only sets defaultRoles when non-empty.
+            let defaults: Option<Vec<serenity::RoleId>> = {
+                let ids: Vec<serenity::RoleId> = st
+                    .join_roles
+                    .iter()
+                    .filter_map(|s| s.parse::<u64>().ok())
+                    .map(serenity::RoleId::new)
+                    .collect();
+                if ids.is_empty() {
+                    None
+                } else {
+                    Some(ids)
+                }
+            };
             rows.push(serenity::CreateActionRow::SelectMenu(
                 serenity::CreateSelectMenu::new(
                     "welcomer-roles-pick",
                     serenity::CreateSelectMenuKind::Role {
-                        default_roles: Some(
-                            st.join_roles
-                                .iter()
-                                .filter_map(|s| s.parse::<u64>().ok())
-                                .map(serenity::RoleId::new)
-                                .collect(),
-                        ),
+                        default_roles: defaults,
                     },
                 )
                 .min_values(0)
@@ -794,35 +597,30 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
             ));
         }
         "channels" => {
-            for (id, label_key, def) in [
-                (
-                    "welcomer-channel-join",
-                    "setchannels_button_join",
-                    st.join_channel.clone(),
-                ),
-                (
-                    "welcomer-channel-leave",
-                    "setchannels_button_leave",
-                    st.leave_channel.clone(),
-                ),
-            ] {
-                rows.push(serenity::CreateActionRow::SelectMenu(
-                    serenity::CreateSelectMenu::new(
-                        id,
-                        serenity::CreateSelectMenuKind::Channel {
-                            channel_types: None,
-                            default_channels: def
-                                .and_then(|c| c.parse::<u64>().ok())
-                                .map(|c| vec![serenity::ChannelId::new(c)]),
-                        },
-                    )
-                    .placeholder(t(lang_code, label_key)),
-                ));
+            if !disabled {
+                for (id, label_key) in [
+                    ("welcomer-channel-join", "setchannels_button_join"),
+                    ("welcomer-channel-leave", "setchannels_button_leave"),
+                ] {
+                    rows.push(serenity::CreateActionRow::SelectMenu(
+                        serenity::CreateSelectMenu::new(
+                            id,
+                            serenity::CreateSelectMenuKind::Channel {
+                                channel_types: Some(vec![serenity::ChannelType::Text]),
+                                default_channels: None,
+                            },
+                        )
+                        .placeholder(t(lang_code, label_key))
+                        .min_values(1)
+                        .max_values(1),
+                    ));
+                }
             }
             rows.push(serenity::CreateActionRow::Buttons(vec![button(
                 "welcomer-channels-reset",
                 t(lang_code, "setchannels_button_delete"),
                 serenity::ButtonStyle::Danger,
+                disabled,
             )]));
         }
         _ => {
@@ -832,6 +630,7 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     "welcomer-banner-reset",
                     t(lang_code, "setjoinmessage_default_image_button_title"),
                     serenity::ButtonStyle::Secondary,
+                    disabled,
                 ),
                 button(
                     "welcomer-banner-toggle",
@@ -848,11 +647,15 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     } else {
                         serenity::ButtonStyle::Success
                     },
+                    disabled,
                 ),
             ]));
+            if disabled {
+                return rows;
+            }
             // Prop editor + contextual picker (frame / size). Mirrors
             // buildPropSelectRow + buildFramePickerRow +
-            // buildSizePickerRow. No live preview is attached.
+            // buildSizePickerRow.
             rows.push(banner_prop_row(lang_code));
             match st.banner_picker {
                 BannerPicker::Frame => rows.push(banner_frame_row(lang_code)),
@@ -865,30 +668,440 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
     rows
 }
 
+/// Localized section title. Mirrors `sectionTitle` in welcomerPanel.ts
+/// (the panel head shows the title, not the raw section key).
+pub fn section_title(lang_code: &str, section: &str) -> String {
+    t(
+        lang_code,
+        match section {
+            "leave" => "guildprofil_embed_fields_leavemessage",
+            "dm" => "guildprofil_embed_fields_joinDmMessage",
+            "roles" => "guildprofil_embed_fields_joinroles",
+            "channels" => "welcomer_section_channels",
+            "banner" => "setjoinmessage_var_image_card",
+            _ => "guildprofil_embed_fields_joinmessage",
+        },
+    )
+}
+
+/// TextDisplay contents for the panel, in TS `render()` order (title
+/// first, then the per-section blocks). `green_tick`/`no` are the
+/// per-app emoji markups (`app_emoji_markup`, empty on miss) standing
+/// in for `client.iHorizon_Emojis`.
+pub fn panel_blocks(st: &PanelState, lang_code: &str, green_tick: &str, no: &str) -> Vec<String> {
+    let title = format!(
+        "## {} — {}",
+        t(lang_code, "welcomer_panel_title"),
+        section_title(lang_code, &st.section)
+    );
+    match st.section.as_str() {
+        "join" | "leave" => {
+            let join = st.section == "join";
+            let msg = if join {
+                &st.join_message
+            } else {
+                &st.leave_message
+            };
+            let fallback = t(
+                lang_code,
+                if join {
+                    "event_welcomer_inviter"
+                } else {
+                    "event_goodbye_inviter"
+                },
+            );
+            let embed_id = if join {
+                &st.join_embed_id
+            } else {
+                &st.leave_embed_id
+            };
+            let text_on = if join { st.join_text } else { st.leave_text };
+            let comp = if join {
+                st.join_components
+            } else {
+                st.leave_components
+            };
+            let message_block = [
+                format!(
+                    "### {}",
+                    t(
+                        lang_code,
+                        if join {
+                            "guildprofil_embed_fields_joinmessage"
+                        } else {
+                            "guildprofil_embed_fields_leavemessage"
+                        },
+                    )
+                ),
+                format!(
+                    "**{}**",
+                    t(lang_code, "setjoinmessage_help_embed_fields_custom_name")
+                ),
+                code_block(
+                    msg,
+                    &t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_custom_name_empy",
+                    ),
+                ),
+                format!(
+                    "**{}**",
+                    t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_default_name_empy"
+                    )
+                ),
+                code_block(
+                    &Some(fallback),
+                    &t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_custom_name_empy",
+                    ),
+                ),
+            ]
+            .join("\n");
+            let mode = if embed_id.is_some() {
+                t(lang_code, "welcomer_render_mode_simple")
+            } else if comp {
+                t(lang_code, "welcomer_render_mode_components")
+            } else {
+                t(lang_code, "welcomer_render_mode_simple")
+            };
+            let mode_block = [
+                format!("### {}", t(lang_code, "welcomer_embed_label")),
+                embed_id
+                    .clone()
+                    .map(|e| format!("`{e}`"))
+                    .unwrap_or_else(|| t(lang_code, "sticky_var_none")),
+                format!("**{}**", t(lang_code, "welcomer_text_label")),
+                if text_on {
+                    t(lang_code, "var_enabled")
+                } else {
+                    t(lang_code, "var_disabled")
+                },
+                format!("**{}**", t(lang_code, "welcomer_render_mode_label")),
+                mode,
+            ]
+            .join("\n");
+            vec![
+                title,
+                message_block,
+                t(lang_code, "setjoinmessage_help_embed_desc"),
+                mode_block,
+            ]
+        }
+        "dm" => {
+            let message_block = [
+                format!(
+                    "### {}",
+                    t(lang_code, "guildprofil_embed_fields_joinDmMessage")
+                ),
+                format!(
+                    "**{}**",
+                    t(lang_code, "setjoinmessage_help_embed_fields_custom_name")
+                ),
+                code_block(
+                    &st.join_dm,
+                    &t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_custom_name_empy",
+                    ),
+                ),
+                format!(
+                    "**{}**",
+                    t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_default_name_empy"
+                    )
+                ),
+                code_block(
+                    &Some(t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_custom_name_empy",
+                    )),
+                    &t(
+                        lang_code,
+                        "setjoinmessage_help_embed_fields_custom_name_empy",
+                    ),
+                ),
+            ]
+            .join("\n");
+            vec![
+                title,
+                message_block,
+                t(lang_code, "setjoindm_help_embed_desc"),
+            ]
+        }
+        "roles" => {
+            let list = if st.join_roles.is_empty() {
+                t(lang_code, "setjoinroles_var_none")
+            } else {
+                st.join_roles
+                    .iter()
+                    .map(|id| format!("<@&{id}>"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            };
+            vec![
+                title,
+                format!(
+                    "### {}\n{list}",
+                    t(lang_code, "guildprofil_embed_fields_joinroles")
+                ),
+                t(lang_code, "setjoinroles_help_embed_description"),
+            ]
+        }
+        "channels" => {
+            let join = st
+                .join_channel
+                .clone()
+                .map(|c| format!("<#{c}>"))
+                .unwrap_or_else(|| no.to_string());
+            let leave = st
+                .leave_channel
+                .clone()
+                .map(|c| format!("<#{c}>"))
+                .unwrap_or_else(|| no.to_string());
+            vec![
+                title,
+                [
+                    format!("### {}", t(lang_code, "welcomer_section_channels")),
+                    format!(
+                        "**{}**",
+                        t(lang_code, "setchannels_embed_fields_value_join")
+                    ),
+                    join,
+                    format!(
+                        "**{}**",
+                        t(lang_code, "setchannels_embed_fields_value_leave")
+                    ),
+                    leave,
+                ]
+                .join("\n"),
+            ]
+        }
+        _ => {
+            let on = st.banner_state != "off";
+            let status = if on {
+                format!("{green_tick} {}", t(lang_code, "var_enabled"))
+            } else {
+                format!("{no} {}", t(lang_code, "var_disabled"))
+            };
+            vec![
+                title,
+                format!(
+                    "### {}\n{status}",
+                    t(lang_code, "setjoinmessage_var_image_card")
+                ),
+            ]
+        }
+    }
+}
+
+/// Full Components V2 container payload for the panel. Mirrors TS
+/// `render()`: title → [section select] → per-section TextDisplays
+/// interleaved with their ActionRows → banner Separator + status +
+/// optional MediaGallery preview + controls. `preview` attaches
+/// `attachment://image.png` (the caller sends the PNG bytes alongside).
+pub fn panel_v2(
+    st: &PanelState,
+    lang_code: &str,
+    green_tick: &str,
+    no: &str,
+    disabled: bool,
+    preview: bool,
+) -> serde_json::Value {
+    use super::v2 as v2mod;
+    let blocks = panel_blocks(st, lang_code, green_tick, no);
+    let rows = v2mod::rows_json(panel_rows(st, lang_code, disabled)).unwrap_or_default();
+    let mut rest: &[serde_json::Value] = &rows;
+    // Section-select row is present only when enabled.
+    let (section_row, rest_after): (Option<serde_json::Value>, &[serde_json::Value]) = if disabled {
+        (None, rest)
+    } else if let Some((head, tail)) = rest.split_first() {
+        (Some(head.clone()), tail)
+    } else {
+        (None, &[])
+    };
+    rest = rest_after;
+    let mut take = |n: usize| {
+        let (head, tail) = rest.split_at(n.min(rest.len()));
+        rest = tail;
+        head.to_vec()
+    };
+    let mut children: Vec<serde_json::Value> = vec![v2mod::text_display(&blocks[0])];
+    if let Some(row) = section_row {
+        if !row.is_null() {
+            children.push(row);
+        }
+    }
+    match st.section.as_str() {
+        "join" | "leave" => {
+            let segs = take(3);
+            children.push(v2mod::text_display(&blocks[1]));
+            if let Some(r) = segs.first() {
+                children.push(r.clone());
+            }
+            children.push(v2mod::text_display(&blocks[2]));
+            children.push(v2mod::text_display(&blocks[3]));
+            for r in segs.iter().skip(1) {
+                children.push(r.clone());
+            }
+        }
+        "dm" => {
+            let segs = take(1);
+            children.push(v2mod::text_display(&blocks[1]));
+            children.push(v2mod::text_display(&blocks[2]));
+            for r in &segs {
+                children.push(r.clone());
+            }
+        }
+        "roles" => {
+            let segs = take(1);
+            children.push(v2mod::text_display(&blocks[1]));
+            children.push(v2mod::text_display(&blocks[2]));
+            for r in &segs {
+                children.push(r.clone());
+            }
+        }
+        "channels" => {
+            let segs = take(3);
+            children.push(v2mod::text_display(&blocks[1]));
+            for r in &segs {
+                children.push(r.clone());
+            }
+        }
+        _ => {
+            let segs = take(3);
+            children.push(v2mod::divider());
+            children.push(v2mod::text_display(&blocks[1]));
+            if preview {
+                children.push(v2mod::media_gallery(&format!(
+                    "attachment://{}",
+                    v2mod::BANNER_ATTACHMENT_NAME
+                )));
+            }
+            for r in &segs {
+                children.push(r.clone());
+            }
+        }
+    }
+    v2mod::container(v2mod::PANEL_ACCENT_COLOR, children)
+}
+
+/// Placeholder container for the initial post (title + section
+/// select only); the full `render()` edit follows, like TS.
+pub fn panel_placeholder_v2(lang_code: &str, section: &str) -> serde_json::Value {
+    use super::v2 as v2mod;
+    let title = format!(
+        "## {} — {}",
+        t(lang_code, "welcomer_panel_title"),
+        section_title(lang_code, section)
+    );
+    let row = v2mod::rows_json(vec![section_select_row(lang_code, section)]).unwrap_or_default();
+    let mut children = vec![v2mod::text_display(&title)];
+    if let Some(first) = row.first() {
+        children.push(first.clone());
+    }
+    v2mod::container(v2mod::PANEL_ACCENT_COLOR, children)
+}
+
 /// Panel entry. Mirrors !welcomer.ts (opens the panel on join section).
 /// Name + alias mirror MessageCommands/guildconfig/welcomer.ts
 /// (`welcomer`, aliases `leaver`); prefix-only, the slash leg lives at
 /// /guildconfig set welcomer in TS.
 #[poise::command(prefix_command, rename = "welcomer", aliases("leaver"))]
 pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let Some(guild_id) = ctx.guild_id() else {
+    let poise::Context::Prefix(pctx) = ctx else {
         return Ok(());
     };
-    let gid = guild_id.get().to_string();
-    let pool = &ctx.data().pool;
+    let Some(guild_id) = pctx.msg.guild_id else {
+        return Ok(());
+    };
+    let pool = &pctx.data.pool;
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
-    let default_message = t(&lang_code, "setjoinmessage_image_default_text");
-    let st = load_panel_state(pool, &gid, "join", &default_message).await;
-    let embed = serenity::CreateEmbed::default()
-        .colour(PANEL_ACCENT)
-        .description(panel_description(&st, &lang_code));
-    ctx.send(
-        poise::CreateReply::default()
-            .embed(embed)
-            .components(panel_rows(&st, &lang_code)),
+    // Placeholder post (reply) then the full render() edit, like
+    // interactionSend + render() in TS. Join section never previews.
+    let channel_id = pctx.channel_id().get();
+    let msg_id = super::v2::post_channel_v2(
+        channel_id,
+        Some(pctx.msg.id.get()),
+        &[panel_placeholder_v2(&lang_code, "join")],
+    )
+    .await
+    .map_err(|e| anyhow::anyhow!(e))?;
+    let roles: &[serenity::RoleId] = pctx
+        .msg
+        .member
+        .as_ref()
+        .map(|m| m.roles.as_slice())
+        .unwrap_or(&[]);
+    let (components, files) = render_panel_message(
+        pctx.serenity_context,
+        pool,
+        &guild_id.get().to_string(),
+        &lang_code,
+        guild_id,
+        pctx.author(),
+        roles,
+        false,
     )
     .await?;
+    super::v2::patch_message_v2(channel_id, msg_id, &components, files)
+        .await
+        .map_err(|e| anyhow::anyhow!(e))?;
     Ok(())
+}
+
+/// Load state + build the full V2 payload (with banner preview when
+/// applicable). Shared by the entry edit, rerenders and the slash leg.
+/// Returns (components, files).
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn render_panel_message(
+    ctx: &serenity::Context,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    guild_id: serenity::GuildId,
+    user: &serenity::User,
+    member_roles: &[serenity::RoleId],
+    disabled: bool,
+) -> Result<(Vec<serde_json::Value>, Vec<(String, Vec<u8>)>), anyhow::Error> {
+    let section = crate::commands::guildconfig::load_guild_config(pool, gid)
+        .await
+        .get(PANEL_SECTION_FIELD)
+        .and_then(|v| v.as_str())
+        .unwrap_or("join")
+        .to_string();
+    let st = load_panel_state(
+        pool,
+        gid,
+        &section,
+        &t(lang_code, "setjoinmessage_image_default_text"),
+    )
+    .await;
+    let green = crate::emojis::app_emoji_markup(&ctx.http, "GreenTick")
+        .await
+        .unwrap_or_default();
+    let no = crate::emojis::app_emoji_markup(&ctx.http, "No")
+        .await
+        .unwrap_or_default();
+    let preview = if st.section == "banner" && st.banner_state != "off" {
+        super::v2::banner_preview_png(ctx, guild_id, user, member_roles, &st.banner, lang_code)
+            .await
+            .map(|bytes| (super::v2::BANNER_ATTACHMENT_NAME.to_string(), bytes))
+    } else {
+        None
+    };
+    let components = vec![panel_v2(
+        &st,
+        lang_code,
+        &green,
+        &no,
+        disabled,
+        preview.is_some(),
+    )];
+    Ok((components, preview.into_iter().collect()))
 }
 
 /// Audit post to the ihorizon-logs channel. Mirrors the
@@ -921,7 +1134,9 @@ async fn post_panel_log(
     }
 }
 
-/// Re-render the panel message after a state change. Mirrors render().
+/// Re-render the panel message after a state change. Mirrors render():
+/// interaction callback UPDATE_MESSAGE with the V2 container (+ banner
+/// preview PNG when applicable).
 async fn rerender(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -929,36 +1144,31 @@ async fn rerender(
     gid: &str,
     lang_code: &str,
 ) {
-    let section = crate::commands::guildconfig::load_guild_config(pool, gid)
-        .await
-        .get(PANEL_SECTION_FIELD)
-        .and_then(|v| v.as_str())
-        .unwrap_or("join")
-        .to_string();
-    let st = load_panel_state(
-        pool,
-        gid,
-        &section,
-        &t(lang_code, "setjoinmessage_image_default_text"),
+    let Some(guild_id) = comp.guild_id else {
+        return;
+    };
+    let roles: &[serenity::RoleId] = comp
+        .member
+        .as_ref()
+        .map(|m| m.roles.as_slice())
+        .unwrap_or(&[]);
+    let Ok((components, files)) = render_panel_message(
+        ctx, pool, gid, lang_code, guild_id, &comp.user, roles, false,
     )
-    .await;
-    let embed = serenity::CreateEmbed::default()
-        .colour(PANEL_ACCENT)
-        .description(panel_description(&st, lang_code));
-    let _ = comp
-        .create_response(
-            &ctx.http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(panel_rows(&st, lang_code)),
-            ),
-        )
-        .await;
+    .await
+    else {
+        return;
+    };
+    if let Err(e) =
+        super::v2::callback_update_v2(comp.id.get(), &comp.token, &components, files).await
+    {
+        tracing::warn!("welcomer rerender failed in guild {gid}: {e}");
+    }
 }
 
-/// Re-render the panel with every row disabled. End-of-collector form
-/// of rerender (mirrors the TS collector `end` handler).
+/// Re-render the panel with pickers dropped and buttons disabled.
+/// End-of-window form of rerender (mirrors the TS collector `end`
+/// handler calling `render(placeholder, true)`).
 async fn render_disabled(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -966,32 +1176,24 @@ async fn render_disabled(
     gid: &str,
     lang_code: &str,
 ) {
-    let section = crate::commands::guildconfig::load_guild_config(pool, gid)
-        .await
-        .get(PANEL_SECTION_FIELD)
-        .and_then(|v| v.as_str())
-        .unwrap_or("join")
-        .to_string();
-    let st = load_panel_state(
-        pool,
-        gid,
-        &section,
-        &t(lang_code, "setjoinmessage_image_default_text"),
-    )
-    .await;
-    let embed = serenity::CreateEmbed::default()
-        .colour(PANEL_ACCENT)
-        .description(panel_description(&st, lang_code));
-    let _ = comp
-        .create_response(
-            &ctx.http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(disable_rows(panel_rows(&st, lang_code))),
-            ),
-        )
-        .await;
+    let Some(guild_id) = comp.guild_id else {
+        return;
+    };
+    let roles: &[serenity::RoleId] = comp
+        .member
+        .as_ref()
+        .map(|m| m.roles.as_slice())
+        .unwrap_or(&[]);
+    let Ok((components, files)) =
+        render_panel_message(ctx, pool, gid, lang_code, guild_id, &comp.user, roles, true).await
+    else {
+        return;
+    };
+    if let Err(e) =
+        super::v2::callback_update_v2(comp.id.get(), &comp.token, &components, files).await
+    {
+        tracing::warn!("welcomer render_disabled failed in guild {gid}: {e}");
+    }
 }
 
 async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
@@ -1860,11 +2062,13 @@ async fn handle_roles_pick(
                 "welcomer-dangerous-yes",
                 t(lang_code, "var_yes"),
                 serenity::ButtonStyle::Danger,
+                false,
             ),
             button(
                 "welcomer-dangerous-no",
                 t(lang_code, "var_no"),
                 serenity::ButtonStyle::Secondary,
+                false,
             ),
         ]);
         let _ = comp
@@ -2028,7 +2232,7 @@ mod tests {
     }
 
     #[test]
-    fn disable_rows_keeps_row_count() {
+    fn disabled_form_drops_section_select_and_disables_buttons() {
         let st = PanelState {
             section: "join".to_string(),
             join_message: None,
@@ -2047,16 +2251,22 @@ mod tests {
             join_components: true,
             leave_components: true,
         };
-        let rows = panel_rows(&st, "en-US");
-        let n = rows.len();
-        assert!(n > 0);
-        let disabled = disable_rows(rows);
-        assert_eq!(disabled.len(), n);
-        // Serialized rows must carry the disabled flag on every
-        // button and select (mirrors setDisabled(true) on end).
-        let json = serde_json::to_value(&disabled).unwrap();
+        // Enabled: section select first, then the 3 join/leave rows.
+        let enabled =
+            crate::commands::welcomer_panel::v2::rows_json(panel_rows(&st, "en-US", false))
+                .unwrap();
+        assert_eq!(enabled.len(), 4);
+        assert_eq!(enabled[0]["components"][0]["type"], serde_json::json!(3));
+        // Disabled (TS collector end form): no section select, 3 rows
+        // left, every button carries disabled:true.
+        let rows = panel_rows(&st, "en-US", true);
+        assert_eq!(rows.len(), 3);
+        let json = serde_json::to_value(&rows).unwrap();
         let arr = json.as_array().unwrap();
-        assert_eq!(arr.len(), n);
+        assert_eq!(
+            arr[0]["components"][0]["custom_id"],
+            serde_json::json!("welcomer-join-set")
+        );
         for row in arr {
             for comp in row.get("components").and_then(|c| c.as_array()).unwrap() {
                 assert_eq!(comp.get("disabled"), Some(&serde_json::Value::Bool(true)));
@@ -2065,7 +2275,7 @@ mod tests {
     }
 
     #[test]
-    fn panel_rows_cover_all_sections() {
+    fn panel_v2_covers_all_sections() {
         let lang = "en-US";
         for section in WELCOMER_SECTIONS {
             let st = PanelState {
@@ -2086,9 +2296,26 @@ mod tests {
                 join_components: true,
                 leave_components: true,
             };
-            let desc = panel_description(&st, lang);
-            assert!(desc.starts_with("## "), "{section}");
-            assert!(!panel_rows(&st, lang).is_empty(), "{section}");
+            let blocks = panel_blocks(&st, lang, "<a:G:1>", "<:N:2>");
+            assert!(blocks[0].starts_with("## "), "{section}");
+            let v = panel_v2(&st, lang, "<a:G:1>", "<:N:2>", false, false);
+            assert_eq!(v["type"], serde_json::json!(17));
+            assert_eq!(v["accent_color"], serde_json::json!(0xffb3cc));
+            let kids = v["components"].as_array().unwrap();
+            // Title + section select + at least one block.
+            assert!(kids.len() >= 3, "{section}");
+            assert_eq!(kids[0]["type"], serde_json::json!(10));
+            assert_eq!(kids[1]["components"][0]["type"], serde_json::json!(3));
+            // Disabled form: no select of any kind survives.
+            let d = panel_v2(&st, lang, "", "", true, false);
+            let flat = serde_json::to_string(&d).unwrap();
+            assert!(
+                !flat.contains("\"custom_id\":\"welcomer-section\""),
+                "{section}"
+            );
+            assert!(!flat.contains("\"type\":3"), "{section}");
+            assert!(!flat.contains("\"type\":6"), "{section}");
+            assert!(!flat.contains("\"type\":8"), "{section}");
         }
     }
 
@@ -2180,7 +2407,7 @@ mod tests {
     }
 
     #[test]
-    fn banner_section_lists_props_without_preview() {
+    fn banner_v2_has_separator_status_and_picker_rows() {
         let lang = "en-US";
         let st = PanelState {
             section: "banner".to_string(),
@@ -2200,26 +2427,43 @@ mod tests {
             join_components: true,
             leave_components: true,
         };
-        let desc = panel_description(&st, lang);
-        assert!(desc.contains(DEFAULT_BANNER_BACKGROUND));
-        assert!(desc.contains("status"));
-        assert!(desc.contains("#000000"));
-        assert!(desc.contains("40px"));
-        assert!(desc.contains("140px"));
-        // No preview attachment marker.
-        assert!(!desc.contains("attachment://"));
+        // Status block carries the per-app GreenTick markup + enabled.
+        let blocks = panel_blocks(&st, lang, "<a:G:1>", "<:N:2>");
+        assert_eq!(blocks.len(), 2);
+        assert!(blocks[1].contains("<a:G:1>"), "{}", blocks[1]);
+        assert!(blocks[1].contains(&t(lang, "var_enabled")), "{}", blocks[1]);
+        // Without preview: title, section select, separator, status, rows.
+        let v = panel_v2(&st, lang, "<a:G:1>", "<:N:2>", false, false);
+        let kids = v["components"].as_array().unwrap();
+        assert_eq!(kids[0]["type"], serde_json::json!(10));
+        assert_eq!(kids[1]["type"], serde_json::json!(1));
+        assert_eq!(kids[2]["type"], serde_json::json!(14));
+        assert_eq!(kids[3]["type"], serde_json::json!(10));
+        assert!(kids.iter().all(|k| k["type"] != serde_json::json!(12)));
+        // With preview: MediaGallery on the attachment URL.
+        let g = panel_v2(&st, lang, "<a:G:1>", "<:N:2>", false, true);
+        let gallery = g["components"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|k| k["type"] == serde_json::json!(12))
+            .expect("media gallery");
+        assert_eq!(
+            gallery["items"][0]["media"]["url"],
+            serde_json::json!("attachment://image.png")
+        );
         // Prop row present; no picker row until one opens.
-        assert_eq!(panel_rows(&st, lang).len(), 3);
+        assert_eq!(panel_rows(&st, lang, false).len(), 3);
         let frame = PanelState {
             banner_picker: BannerPicker::Frame,
             ..st_clone(&st)
         };
-        assert_eq!(panel_rows(&frame, lang).len(), 4);
+        assert_eq!(panel_rows(&frame, lang, false).len(), 4);
         let size = PanelState {
             banner_picker: BannerPicker::TextSize,
             ..st_clone(&st)
         };
-        assert_eq!(panel_rows(&size, lang).len(), 4);
+        assert_eq!(panel_rows(&size, lang, false).len(), 4);
     }
 
     fn st_clone(st: &PanelState) -> PanelState {

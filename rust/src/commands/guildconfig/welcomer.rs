@@ -4,23 +4,16 @@ use poise::serenity_prelude as serenity;
 // `set welcomer` leaf (`guildconfig.ts` `set` group: no options,
 // Administrator) and `!welcomer.ts` panel entry: opens the interactive
 // welcomer panel (`openWelcomerPanel` in
-// `SlashCommands/guildconfig/welcomerPanel.ts`) on the join section.
-//
-// The option-less leaf only posts the panel embed plus the section
-// select, channel/role pickers and buttons (builders in
-// `welcomer_panel::main`, byte-exact customIds: `welcomer-section`,
-// `welcomer-channel-join` / `welcomer-channel-leave`,
-// `welcomer-roles-pick`,
-// `welcomer-{join,leave}-{set,reset,embed-set,embed-reset,text-toggle,components-toggle}`,
-// `welcomer-dm-set` / `welcomer-dm-reset`, `welcomer-channels-reset`,
-// `welcomer-banner-*`). Message/embed/dm modals
-// (`welcomer-*-modal` / `welcomer-*-input`), the dangerous-role confirm
-// and the banner editors run in
+// `SlashCommands/guildconfig/welcomerPanel.ts`) on the join section as
+// Components V2 (Container + TextDisplay + Separator + MediaGallery via
+// `welcomer_panel::v2` raw REST, since serenity 0.12 has no V2
+// builders): placeholder followup, then the full `render()` edit.
+// Message/embed/dm modals (`welcomer-*-modal` / `welcomer-*-input`),
+// the dangerous-role confirm and the banner editors run in
 // `welcomer_panel::main::handle_welcomer_component` (global component
-// dispatch in `events_handler`), which also re-renders disabled rows
-// past the 800s collector window like the TS collector `end` handler.
-// (An earlier port flattened this surface to direct `wc-*` slash
-// options; those had no TS basis and are removed by this rewrite.)
+// dispatch in `events_handler`), which also re-renders the disabled
+// form past the 800s collector window like the TS collector `end`
+// handler.
 /// Open the welcomer configuration panel
 #[poise::command(
     slash_command,
@@ -42,25 +35,45 @@ pub async fn gc_welcomer(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
+    // Ack-first: panel state load + reply run past the 3s slash window.
+    ctx.defer().await?;
+    let poise::Context::Application(actx) = ctx else {
+        return Ok(());
+    };
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
-    let default_message =
-        crate::lang::get(&code, "setjoinmessage_image_default_text").unwrap_or_default();
-    let st = crate::commands::welcomer_panel::main::load_panel_state(
+    use crate::commands::welcomer_panel::{main as wp_main, v2 as wp_v2};
+    // Placeholder followup then the full render() edit, like
+    // interactionSend + render() in TS. Join section never previews.
+    let app_id = actx.serenity_context.cache.current_user().id.get();
+    let token = actx.interaction.token.clone();
+    let channel_id = actx.channel_id().get();
+    let ph_id = wp_v2::webhook_followup_v2(
+        app_id,
+        &token,
+        &[wp_main::panel_placeholder_v2(&code, "join")],
+    )
+    .await
+    .map_err(|e| anyhow::anyhow!(e))?;
+    let roles: Vec<serenity::RoleId> = actx
+        .author_member()
+        .await
+        .map(|m| m.roles.clone())
+        .unwrap_or_default();
+    let author = actx.author().clone();
+    let (components, files) = wp_main::render_panel_message(
+        actx.serenity_context,
         pool,
         &gid,
-        "join",
-        &default_message,
+        &code,
+        guild_id,
+        &author,
+        &roles,
+        false,
     )
-    .await;
-    let embed = serenity::CreateEmbed::default()
-        .colour(crate::commands::welcomer_panel::main::PANEL_ACCENT)
-        .description(crate::commands::welcomer_panel::main::panel_description(
-            &st, &code,
-        ));
-    ctx.send(poise::CreateReply::default().embed(embed).components(
-        crate::commands::welcomer_panel::main::panel_rows(&st, &code),
-    ))
     .await?;
+    wp_v2::patch_message_v2(channel_id, ph_id, &components, files)
+        .await
+        .map_err(|e| anyhow::anyhow!(e))?;
     Ok(())
 }
 

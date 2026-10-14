@@ -3463,7 +3463,7 @@ pub const GOODBYE_AVATAR_NAME: &str = "goodbye-avatar.png";
 /// The 10 slots mirror the TS template vocabulary one-to-one
 /// (clippy `too_many_arguments`).
 #[allow(clippy::too_many_arguments)]
-fn render_join_leave_text(
+pub(crate) fn render_join_leave_text(
     template: &str,
     member_name: &str,
     member_mention: &str,
