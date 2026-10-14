@@ -811,19 +811,36 @@ fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> 
 }
 
 /// Usage-line type label for one prefix param. Mirrors
-/// getArgumentOptionTypeWithOptions (method.ts:294): choices join with
-/// `/`, Channel options render `channel`, everything else the option
-/// name. Poise 0.6 erases the Discord option type, but only Channel
-/// params carry `channel_types`, so its presence is the exact channel
-/// discriminator (verified live: prod renders `+skullboardchannel
-/// [channel]`).
-fn usage_type_label(name: &str, choices: &[String], has_channel_types: bool) -> String {
-    if !choices.is_empty() {
-        choices.join("/")
-    } else if has_channel_types {
-        "channel".to_string()
-    } else {
-        name.to_string()
+/// getArgumentOptionTypeWithOptions (method.ts:294-299): choice values
+/// joined with `/`, otherwise the Discord option TYPE via
+/// getArgumentOptionType (method.ts:272-292: String->"string",
+/// User->"user", Role->"roles", Number/Integer->"number",
+/// Channel->"channel", Attachment->"attachment", anything else
+/// ->"unknown"). Poise 0.6 erases the option type down to the
+/// `type_setter` closure, so the kind is recovered by applying it to a
+/// scratch builder and reading the serialized `type` back (verified live:
+/// prod renders `+tempban [user] [string] <string>`, never the param name).
+fn usage_type_label(pm: &poise::CommandParameter<Data, anyhow::Error>) -> String {
+    if !pm.choices.is_empty() {
+        return pm
+            .choices
+            .iter()
+            .map(|c| c.name.clone())
+            .collect::<Vec<_>>()
+            .join("/");
+    }
+    let kind = pm
+        .create_as_slash_command_option()
+        .and_then(|b| serde_json::to_value(b).ok())
+        .and_then(|v| v.get("type").and_then(serde_json::Value::as_u64));
+    match kind {
+        Some(3) => "string".to_string(),
+        Some(6) => "user".to_string(),
+        Some(8) => "roles".to_string(),
+        Some(4) | Some(10) => "number".to_string(),
+        Some(7) => "channel".to_string(),
+        Some(11) => "attachment".to_string(),
+        _ => "unknown".to_string(),
     }
 }
 
@@ -900,24 +917,20 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
         .await;
         return;
     }
-    // Poise erases param types (name/required/choices only); the label
-    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`,
-    // Channel options render `channel` via usage_type_label), and the
-    // channel allowlist mirrors ArgumentBrief.channelType so the
-    // prefix gate sees the same isValidArgument inputs as TS.
+    // Poise erases param types down to the `type_setter` closure; the
+    // label mirrors getArgumentOptionTypeWithOptions (choice names joined
+    // with `/`, otherwise the Discord option type recovered from the
+    // setter: String->"string", User->"user", Role->"roles",
+    // Number/Integer->"number", Channel->"channel",
+    // Attachment->"attachment", else "unknown"), and the channel
+    // allowlist mirrors ArgumentBrief.channelType so the prefix gate sees
+    // the same isValidArgument inputs as TS.
     let specs: Vec<prefix_args::ArgSpec> = ctx
         .command()
         .parameters
         .iter()
         .map(|pm| {
-            let label = usage_type_label(
-                &pm.name,
-                &pm.choices
-                    .iter()
-                    .map(|c| c.name.clone())
-                    .collect::<Vec<_>>(),
-                pm.channel_types.is_some(),
-            );
+            let label = usage_type_label(pm);
             prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
                 .with_channel_types(pm.channel_types.clone())
         })
@@ -3577,14 +3590,68 @@ mod tests {
 
     #[test]
     fn usage_type_label_mirrors_ts_option_types() {
-        // Choices join with `/`, Channel options render `channel`
-        // (channel_types is the exact discriminator), else option name.
+        // Mirrors getArgumentOptionTypeWithOptions (method.ts:294-299):
+        // choices join with `/`, otherwise the Discord option TYPE
+        // (method.ts:272-292), never the param name. Live ground truth:
+        // prod `+tempban [user] [string] <string>`.
+        fn param(
+            kind: Option<poise::serenity_prelude::CommandOptionType>,
+            choices: &[&str],
+        ) -> poise::CommandParameter<Data, anyhow::Error> {
+            poise::CommandParameter {
+                name: "p".to_string(),
+                name_localizations: Default::default(),
+                description: Some("d".to_string()),
+                description_localizations: Default::default(),
+                required: true,
+                channel_types: None,
+                choices: choices
+                    .iter()
+                    .map(|c| poise::CommandParameterChoice {
+                        name: c.to_string(),
+                        localizations: Default::default(),
+                        __non_exhaustive: (),
+                    })
+                    .collect(),
+                type_setter: kind.map(|k| {
+                    fn setter_for(
+                        k: poise::serenity_prelude::CommandOptionType,
+                    ) -> fn(
+                        poise::serenity_prelude::CreateCommandOption,
+                    )
+                        -> poise::serenity_prelude::CreateCommandOption {
+                        use poise::serenity_prelude::CommandOptionType as T;
+                        match k {
+                            T::String => |b| b.kind(T::String),
+                            T::User => |b| b.kind(T::User),
+                            T::Role => |b| b.kind(T::Role),
+                            T::Integer => |b| b.kind(T::Integer),
+                            T::Number => |b| b.kind(T::Number),
+                            T::Channel => |b| b.kind(T::Channel),
+                            T::Attachment => |b| b.kind(T::Attachment),
+                            _ => |b| b.kind(T::Boolean),
+                        }
+                    }
+                    setter_for(k)
+                }),
+                autocomplete_callback: None,
+                __non_exhaustive: (),
+            }
+        }
+        use poise::serenity_prelude::CommandOptionType as T;
+        assert_eq!(usage_type_label(&param(None, &["on", "off"])), "on/off");
+        assert_eq!(usage_type_label(&param(Some(T::String), &[])), "string");
+        assert_eq!(usage_type_label(&param(Some(T::User), &[])), "user");
+        assert_eq!(usage_type_label(&param(Some(T::Role), &[])), "roles");
+        assert_eq!(usage_type_label(&param(Some(T::Integer), &[])), "number");
+        assert_eq!(usage_type_label(&param(Some(T::Number), &[])), "number");
+        assert_eq!(usage_type_label(&param(Some(T::Channel), &[])), "channel");
         assert_eq!(
-            usage_type_label("action", &["on".to_string(), "off".to_string()], false),
-            "on/off"
+            usage_type_label(&param(Some(T::Attachment), &[])),
+            "attachment"
         );
-        assert_eq!(usage_type_label("to", &[], true), "channel");
-        assert_eq!(usage_type_label("reason", &[], false), "reason");
+        assert_eq!(usage_type_label(&param(Some(T::Boolean), &[])), "unknown");
+        assert_eq!(usage_type_label(&param(None, &[])), "unknown");
     }
 
     #[test]
