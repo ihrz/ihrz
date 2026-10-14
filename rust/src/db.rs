@@ -1015,7 +1015,19 @@ pub const GUILD_LANG_KEY: &str = "GUILD.LANG";
 /// Normalize a stored `GUILD.LANG` value to a language code. Accepts the
 /// TS `{ lang: code }` object shape (stored as JSON text) and legacy
 /// bare-string rows; blank/empty-`lang` values read as `None` so callers
-/// fall back to `en-US` (mirrors the TS `if (!lang)` guard).
+/// fall back to `en-US` (mirrors the TS `if (!lang)` guard in
+/// getLanguageData.ts — node battery: `!v` is true for undefined, null,
+/// 0, false, `""`, and for the `.lang` leaf of any non-object row).
+/// Top-level non-string JSON (`0`, `false`, `null`, `[...]`) reads as
+/// `None` too: TS does `db.get("….LANG.lang")`, and the `.lang` leaf of
+/// a non-object row is `undefined` (falsy) → same fallback.
+/// DELIBERATE ROBUSTNESS DELTAS (all hostile-row-only; the live writer,
+/// setserverlang.ts, stores `{ lang: <select-code> }` strings): TS keeps
+/// truthy-but-unusable leaves verbatim (`" "`, `5`, `{}`, `[]`) and then
+/// throws at the dynamic `import("…/CODE.yml")` in getLanguageDataByCode,
+/// while Rust trims/falls back to `en-US` (table_for forgives unknown
+/// codes the same way). Whitespace-padded codes (`" de-DE "`) are
+/// trimmed rather than thrown on.
 pub fn parse_lang_value(raw: &str) -> Option<String> {
     let trimmed = raw.trim();
     if trimmed.is_empty() {
@@ -1038,7 +1050,10 @@ pub fn parse_lang_value(raw: &str) -> Option<String> {
                 }
                 return None;
             }
-            _ => {}
+            // Top-level non-string JSON (number, bool, null, array): the
+            // TS `.lang` leaf of such a row is `undefined` → falsy →
+            // `en-US`. Never echo the raw blob as a language code.
+            _ => return None,
         }
     }
     Some(trimmed.to_string())
@@ -1191,6 +1206,22 @@ mod tests {
         assert_eq!(parse_lang_value("{\"lang\":\"\"}"), None);
         assert_eq!(parse_lang_value("{\"lang\":\"   \"}"), None);
         assert_eq!(parse_lang_value("{}"), None);
+        // Non-string `lang` leaves are falsy (or unusable) in TS
+        // (`!0`/`!false`/`!null` true; truthy `{}`/`[]`/`5` throw at the
+        // TS dynamic import, Rust falls back) — all None here.
+        assert_eq!(parse_lang_value("{\"lang\":0}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":false}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":null}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":{}}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":[]}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":5}"), None);
+        // Top-level non-string JSON rows: the TS `.lang` leaf of a
+        // non-object row is `undefined` (falsy) → en-US, never the blob.
+        assert_eq!(parse_lang_value("0"), None);
+        assert_eq!(parse_lang_value("false"), None);
+        assert_eq!(parse_lang_value("null"), None);
+        assert_eq!(parse_lang_value("[\"fr-FR\"]"), None);
+        assert_eq!(parse_lang_value("123.5"), None);
     }
 
     #[tokio::test]
