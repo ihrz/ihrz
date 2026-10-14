@@ -167,7 +167,13 @@ pub fn bot_footer_name(stored: Option<&str>) -> String {
 /// BOT.botPFP base64 blob becomes footer_icon.png bytes; otherwise the
 /// caller falls back to the live bot avatar URL (type 1 branch).
 pub fn footer_icon_bytes(stored: Option<&str>) -> Option<Vec<u8>> {
-    stored.and_then(crate::emojis::base64_decode)
+    // Empty decodes (stored `""`, empty download body) are NO icon:
+    // `Some(vec![])` would set `with_icon` and attach a 0-byte file
+    // Discord drops, leaving dangling `attachment://` refs and the
+    // footer without its asset. TS treats falsy as absent; mirror it.
+    stored
+        .and_then(crate::emojis::base64_decode)
+        .filter(|b| !b.is_empty())
 }
 
 /// Paginated footer text. Mirrors footerPaginationBuilder.
@@ -216,7 +222,7 @@ pub async fn footer_parts_http(
     if face.is_empty() {
         return (name, None);
     }
-    (name, download_bytes(&face).await)
+    (name, download_bytes(&face).await.filter(|b| !b.is_empty()))
 }
 
 /// Footer text plus optional footer_icon.png bytes, pool-only variant
@@ -255,7 +261,7 @@ pub async fn footer_parts(ctx: &Ctx<'_>, guild_id: &str) -> (String, Option<Vec<
         return (name, stored_bytes);
     }
     let face = ctx.serenity_context().cache.current_user().face();
-    let bytes = download_bytes(&face).await;
+    let bytes = download_bytes(&face).await.filter(|b| !b.is_empty());
     (name, bytes)
 }
 
@@ -1151,6 +1157,10 @@ mod tests {
     fn footer_icon_rejects_non_base64() {
         assert_eq!(footer_icon_bytes(None), None);
         assert_eq!(footer_icon_bytes(Some("!!!not-base64!!!")), None);
+        // Empty stored blob (or empty download body) is NO icon, not
+        // `Some(vec![])`: a 0-byte attachment is dropped by Discord,
+        // orphaning every `attachment://footer_icon.png` reference.
+        assert_eq!(footer_icon_bytes(Some("")), None);
         let bytes = vec![1u8, 2, 3, 4];
         let encoded = crate::emojis::base64_encode(&bytes);
         assert_eq!(footer_icon_bytes(Some(&encoded)), Some(bytes));
