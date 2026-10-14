@@ -3561,6 +3561,16 @@ mod funcs_part4_tests {
         assert!(cooldown_active(Some(1000), 1000, 1000));
         assert!(!cooldown_active(Some(1000), 1000, 2001));
         assert!(!cooldown_active(None, 86_400_000, 2000));
+        // Node ground truth (W6 slice 74): plain template concat, no
+        // normalization (dots/empties pass through); boundary +1ms is
+        // active, future fetch is active, zero/negative windows idle.
+        assert_eq!(cooldown_key("a.b", "c"), "COOLDOWN.a.b.c");
+        assert_eq!(cooldown_key("", ""), "COOLDOWN..");
+        assert!(cooldown_active(Some(1000), 1001, 2000));
+        assert!(cooldown_active(Some(2000), 100, 1000));
+        assert!(!cooldown_active(Some(1000), 0, 1000));
+        assert!(!cooldown_active(Some(1000), -5, 1000));
+        assert!(cooldown_active(Some(0), 100, 50));
     }
 }
 
