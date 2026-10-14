@@ -95,12 +95,10 @@ pub async fn togif(
     // long side to 512, flatten alpha on white, encode GIF with two
     // identical 50cs frames and loop-0 like the TS
     // `GifFrame`/`encodeGif([frame1, frame2], { loops: 0 })` path.
-    // Deliberate webp denial (documented standing exclusion):
-    // `validImageType` allowlists webp and TS decodes it through a
-    // headless-browser canvas (`decodeWithBrowser`), but the Rust `image`
-    // crate is built with `features = ["png", "jpeg", "gif"]` only (see
-    // Cargo.toml) — no webp decoder exists in the tree — so webp sources
-    // fall into the deny reply here.
+    // Webp sources decode through the `image` crate's built-in webp
+    // decoder (pure-Rust `webp` feature, no system dependency), like
+    // the TS `decodeWithBrowser` leg; `load_from_memory` sniffs the
+    // format, so no content-type branch is needed here.
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(TOGIF_FETCH_TIMEOUT_SECS))
         .build()
@@ -205,6 +203,24 @@ mod togif_tests {
         let flat = togif_flatten_white(&img);
         assert_eq!(flat.get_pixel(0, 0), &image::Rgb([255, 0, 0]));
         assert_eq!(flat.get_pixel(1, 0), &image::Rgb([255, 255, 255]));
+    }
+
+    #[test]
+    fn webp_source_decodes() {
+        // Webp allowlisted by validImageType like TS: encode a 2x2
+        // lossless webp in-tree, then prove load_from_memory sniffs it.
+        let rgb = image::RgbImage::from_pixel(2, 2, image::Rgb([1, 2, 3]));
+        let mut buf = std::io::Cursor::new(Vec::new());
+        image::codecs::webp::WebPEncoder::new_lossless(&mut buf)
+            .encode(
+                rgb.as_raw(),
+                rgb.width(),
+                rgb.height(),
+                image::ExtendedColorType::Rgb8,
+            )
+            .unwrap();
+        let decoded = image::load_from_memory(buf.into_inner().as_slice()).unwrap();
+        assert_eq!((decoded.width(), decoded.height()), (2, 2));
     }
 
     #[test]
