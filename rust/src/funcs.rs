@@ -268,7 +268,7 @@ pub fn format_number(num: f64) -> String {
 /// `>= 2^-55`) dwarfs the `1e-20` window, so a `5`-at-second-place with an
 /// all-zero tail through digit 20 is provably an exact tie — and in every
 /// `5`-at-second-place case (tie or above) the spec rounds up.
-fn to_fixed_1(q: f64) -> String {
+pub(crate) fn to_fixed_1(q: f64) -> String {
     let s = format!("{q:.20}");
     let (int, frac) = match s.find('.') {
         Some(i) => (&s[..i], &s[i + 1..]),

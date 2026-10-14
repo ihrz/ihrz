@@ -341,19 +341,22 @@ pub fn dangerous_role_perm_names(perm_bits: u64) -> Vec<String> {
 /// (`formatNumber`, used for the podium `{N_xp}` slots): K/M/B/T with
 /// one decimal, otherwise the plain integer with locale grouping
 /// (grouping uses `,` like `toLocaleString` en-US).
+/// The K/M/B/T legs use [`crate::funcs::to_fixed_1`] (JS `toFixed(1)`,
+/// ties away from zero — Rust `{:.1}` is half-even and rendered exact
+/// ties like `1250` as `"1.2K"` instead of `"1.3K"`).
 pub fn beautify_number(num: u64) -> String {
     let n = num as f64;
     if n >= 1_000_000_000_000.0 {
-        return format!("{:.1}T", n / 1_000_000_000_000.0);
+        return format!("{}T", crate::funcs::to_fixed_1(n / 1_000_000_000_000.0));
     }
     if n >= 1_000_000_000.0 {
-        return format!("{:.1}B", n / 1_000_000_000.0);
+        return format!("{}B", crate::funcs::to_fixed_1(n / 1_000_000_000.0));
     }
     if n >= 1_000_000.0 {
-        return format!("{:.1}M", n / 1_000_000.0);
+        return format!("{}M", crate::funcs::to_fixed_1(n / 1_000_000.0));
     }
     if n >= 1_000.0 {
-        return format!("{:.1}K", n / 1_000.0);
+        return format!("{}K", crate::funcs::to_fixed_1(n / 1_000.0));
     }
     let s = num.to_string();
     let mut out = String::with_capacity(s.len() + s.len() / 3);
@@ -644,6 +647,18 @@ mod tests {
         assert_eq!(beautify_number(2_500_000), "2.5M");
         assert_eq!(beautify_number(3_000_000_000), "3.0B");
         assert_eq!(beautify_number(1_500_000_000_000), "1.5T");
+        // JS toFixed(1) ties away from zero; Rust {:.1} was half-even:
+        // node ground truth over the 188754-case battery (only exact
+        // _.25 ties diverge, all four magnitudes).
+        assert_eq!(beautify_number(1250), "1.3K");
+        assert_eq!(beautify_number(2250), "2.3K");
+        assert_eq!(beautify_number(999_250), "999.3K");
+        assert_eq!(beautify_number(1_250_000), "1.3M");
+        assert_eq!(beautify_number(1_250_000_000), "1.3B");
+        assert_eq!(beautify_number(1_250_000_000_000), "1.3T");
+        // _.75 ties agree on both rounders (kept as regression locks).
+        assert_eq!(beautify_number(1750), "1.8K");
+        assert_eq!(beautify_number(1_750_000), "1.8M");
     }
 
     #[test]
