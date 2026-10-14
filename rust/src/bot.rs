@@ -786,8 +786,8 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fall
 }
 
 /// Route a prefix parse failure to its TS lang key. Mirrors the
-/// per-command null keys (method.member/role null -> key): poise parses
-/// typed prefix params before run(), so unresolvable member/role input
+/// per-command null keys (method.member null -> key): poise parses
+/// typed prefix params before run(), so unresolvable member input
 /// surfaces as ArgumentParse here instead of inside run.
 /// Channels are NOT routed here: TS checkCommandArgs validates channel
 /// args (method.ts isValidArgument "channel") and answers invalid input
@@ -797,14 +797,18 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fall
 /// `user` prefix arg (`+where [user]`, `+wakeup [user]`) answers the
 /// caret usage-error embed, never the plain-text not-found key (the
 /// in-run null branches are dead code on the prefix path — checkCommandArgs
-/// rejects before run). Anything else (counts, bool, choices, numbers,
+/// rejects before run). Role failures also return None: verified live vs
+/// prod, an unresolvable `roles` prefix arg (`+role-to-give [roles]`
+/// with `@TestRole`) answers the caret usage-error embed
+/// (`+role-to-give [roles]`, "Error when sending roles argument"), never
+/// the plain-text key — TS isValidArgument case "roles" (mention, snowflake
+/// or exact name) rejects before run, so the in-run null branch is dead
+/// code on the prefix path. Anything else (counts, bool, choices, numbers,
 /// attachments) also returns None and falls through to the
 /// checkCommandArgs caret embed.
 fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> {
     if error_text.contains("Member") {
         Some(("ban_dont_found_member", "🔍 | Cannot find this member"))
-    } else if error_text.contains("Role") {
-        Some(("addrolereact_role_not_found", "Role not found."))
     } else {
         None
     }
@@ -3564,10 +3568,12 @@ mod tests {
         // Live prod answers unresolvable `user` prefix args (+where/+wakeup
         // [user]) with the checkCommandArgs caret embed, never the
         // plain-text key — port the observed behavior (prod-first).
-        assert_eq!(
-            argument_parse_key("Role not found or unknown format").map(|(k, _)| k),
-            Some("addrolereact_role_not_found")
-        );
+        // Same for `roles` prefix args: live prod answers +role-to-give
+        // [roles] with bad input via the caret usage-error embed
+        // ("Error when sending roles argument", red), never the
+        // plain-text key — TS isValidArgument case "roles" rejects
+        // before run (prod-first over the old bulk-port mapping).
+        assert_eq!(argument_parse_key("Role not found or unknown format"), None);
         // Channels fall through to the checkCommandArgs caret embed
         // (TS sendErrorMessage), never the plain-text key: verified live
         // vs prod on +skullboardchannel/+starboard-channel with bad input.
