@@ -1333,7 +1333,11 @@ async fn handle_help_overview_component(
             // (footerBuilder + thumbnail): keep the footer icon
             // referenced or the message attachment renders as a loose
             // file. No re-attach needed, the file persists on edit.
-            let (footer_name, icon) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+            // Same footer resolution as the initial post (stored icon,
+            // else live avatar): a pool-only `None` here while the
+            // message carries footer_icon.png orphans it loose.
+            let (footer_name, icon) =
+                crate::commands::shared::footer_parts_http(http, pool, &gid).await;
             let with_icon = icon.is_some();
             let embed = serenity::CreateEmbed::default()
                 .description(desc)
@@ -1470,7 +1474,7 @@ async fn render_help_leaf_page(
     let markup = crate::emojis::app_emoji_markup(http, &show.emoji_name)
         .await
         .unwrap_or_default();
-    let (footer_name, icon) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+    let (footer_name, icon) = crate::commands::shared::footer_parts_http(http, pool, &gid).await;
     let with_icon = icon.is_some();
     let mut embed = serenity::CreateEmbed::default()
         .title(help::help_module_title(&markup, &show.title))

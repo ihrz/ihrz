@@ -192,6 +192,33 @@ pub async fn download_bytes(url: &str) -> Option<Vec<u8>> {
         .map(|b| b.to_vec())
 }
 
+/// Footer text plus optional footer_icon.png bytes for component
+/// handlers (no `Ctx`, but `Http` is available). Same resolution as
+/// `footer_parts`: stored BOT.botPFP base64 wins, else the live bot
+/// avatar. Component paths MUST resolve identically to the initial
+/// post — a `None` here while the message carries `footer_icon.png`
+/// orphans the file into a loose attachment (and drops the footer
+/// icon), which is what the pool-only variant did.
+pub async fn footer_parts_http(
+    http: &poise::serenity_prelude::Http,
+    pool: &crate::db::Pool,
+    guild_id: &str,
+) -> (String, Option<Vec<u8>>) {
+    let (name, stored) = footer_parts_pool(pool, guild_id).await;
+    if stored.is_some() {
+        return (name, stored);
+    }
+    let face = http
+        .get_current_user()
+        .await
+        .map(|u| u.face())
+        .unwrap_or_default();
+    if face.is_empty() {
+        return (name, None);
+    }
+    (name, download_bytes(&face).await)
+}
+
 /// Footer text plus optional footer_icon.png bytes, pool-only variant
 /// for non-Ctx paths (component handlers). Same table-first read as
 /// `footer_parts` via `table_value_or_legacy` (stored BOT.botPFP
