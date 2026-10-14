@@ -3182,16 +3182,56 @@ pub struct MemoryInfo {
 /// parsed as the kB count, missing keys stay 0 like the TS `?? 0`).
 pub fn parse_meminfo(body: &str) -> MemoryInfo {
     let mut info = MemoryInfo::default();
-    for line in body.lines() {
-        let mut parts = line.split_whitespace();
-        match (parts.next(), parts.next()) {
-            (Some("MemTotal:"), Some(v)) => info.total = v.parse().unwrap_or(0),
-            (Some("MemFree:"), Some(v)) => info.free = v.parse().unwrap_or(0),
-            (Some("MemAvailable:"), Some(v)) => info.available = v.parse().unwrap_or(0),
+    // Faithful to the TS loop: split("\n") lines, first two ":" segments,
+    // skip on empty key/value, store under the JS-trimmed key, value is
+    // parseInt(value.trim().split(/\s+/)[0], 10).
+    for line in body.split('\n') {
+        let mut segs = line.split(':');
+        let (Some(key), Some(value)) = (segs.next(), segs.next()) else {
+            continue;
+        };
+        if key.is_empty() || value.is_empty() {
+            continue;
+        }
+        let token = value
+            .trim_matches(is_js_whitespace)
+            .split(is_js_whitespace)
+            .next();
+        let v = meminfo_value(token);
+        match key.trim_matches(is_js_whitespace) {
+            "MemTotal" => info.total = v,
+            "MemFree" => info.free = v,
+            "MemAvailable" => info.available = v,
             _ => {}
         }
     }
     info
+}
+
+/// `parseInt(token, 10)` prefix semantics for one meminfo value: an
+/// optional single `+`/`-` sign, then the longest leading ASCII-digit
+/// run. An empty run (or a missing token) is TS `NaN` — reported here
+/// as 0 since the struct holds `u64`. A leading `-` would be negative
+/// in TS — saturates to 0 (the kernel never writes negatives).
+/// Over-long runs saturate to `u64::MAX` (TS yields an `f64`
+/// approximation). Hex/octal/binary prefixes parse as TS does:
+/// `0x10`/`0b101` stop at the first non-digit and yield 0.
+fn meminfo_value(token: Option<&str>) -> u64 {
+    let Some(t) = token else { return 0 };
+    let (neg, rest) = match t.strip_prefix('-') {
+        Some(r) => (true, r),
+        None => (false, t.strip_prefix('+').unwrap_or(t)),
+    };
+    let run_len = rest.bytes().take_while(|b| b.is_ascii_digit()).count();
+    if run_len == 0 {
+        return 0; // TS NaN
+    }
+    let v: u64 = rest[..run_len].parse().unwrap_or(u64::MAX);
+    if neg {
+        0
+    } else {
+        v
+    }
 }
 
 /// Host memory in kB. Linux-only: reads /proc/meminfo like the TS
@@ -3290,6 +3330,31 @@ mod funcs_part4_tests {
         assert_eq!(parse_meminfo("MemTotal:        100 kB\n").total, 100);
         assert_eq!(parse_meminfo("MemTotal:        100 kB\n").available, 0);
         assert_eq!(parse_meminfo(""), MemoryInfo::default());
+        // Node ground truth (os_utils.ts getMemoryInfo Linux leg):
+        // parseInt prefix semantics, first-two-colon-segments, empty
+        // key/value skip. NaN/negative/overflow legs saturate to 0/MAX
+        // (u64 cannot hold TS NaN/negatives/f64 approximations).
+        assert_eq!(parse_meminfo("MemTotal: 123abc kB\n").total, 123);
+        assert_eq!(parse_meminfo("MemTotal: 12.9 kB\n").total, 12);
+        assert_eq!(parse_meminfo("MemTotal: 1e5 kB\n").total, 1);
+        assert_eq!(parse_meminfo("MemTotal: 0x10 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: 0b101 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: abc kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal:    \n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal:\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: -5 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: +42 kB\n").total, 42);
+        assert_eq!(parse_meminfo("MemTotal: --5 kB\n").total, 0);
+        assert_eq!(
+            parse_meminfo("MemTotal: 99999999999999999999999 kB\n").total,
+            u64::MAX
+        );
+        assert_eq!(parse_meminfo("MemTotal : 100 kB\n").total, 100);
+        assert_eq!(parse_meminfo("  MemTotal: 100 kB\n").total, 100);
+        assert_eq!(parse_meminfo("MemTotal: 1:2\n").total, 1);
+        assert_eq!(parse_meminfo(": 123\n").total, 0);
+        // Later duplicate keys win, like the TS record overwrite.
+        assert_eq!(parse_meminfo("MemTotal: 1 kB\nMemTotal: 2 kB\n").total, 2);
     }
 
     #[test]
