@@ -262,13 +262,14 @@ pub fn embed_with_footer(
 /// Commands whose TS main response is a plain channel send (not a reply)
 /// are excluded here: `utils vc` (!vc.ts `channel.send`), `utils top`
 /// (MessageCommands top.ts `channelSend`, which also keeps default
-/// mentions). Paths are poise qualified names (`utils` owns both
+/// mentions), legacy `h` (MessageCommands/bot @h.ts `channel.send`).
+/// Paths are poise qualified names (`utils` owns both
 /// leaves, so bare `top` never matches).
 pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::CreateReply {
     if !matches!(ctx, poise::Context::Prefix(_)) {
         return reply;
     }
-    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "utils top"];
+    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "utils top", "h"];
     if PLAIN_SEND_PATHS.contains(&ctx.command().qualified_name.as_str()) {
         return reply;
     }
@@ -294,6 +295,7 @@ pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::Cre
 /// (`unban-all`, `custom`/`starboard` rows).
 pub fn prefix_name_for(qualified: &str) -> Option<&'static str> {
     match qualified {
+        "antispam manage" => Some("antispam-manage"),
         "antispam bypass-roles" => Some("antispam-bypass-roles"),
         "antispam ignore-channels" => Some("antispam-ignore-channels"),
         "backup create" => Some("backup-create"),

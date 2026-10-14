@@ -796,6 +796,13 @@ pub const HELP_PREV_ID: &str = "help_prev_page";
 
 pub const HELP_NEXT_ID: &str = "help_next_page";
 
+/// Fixed embed color of the legacy `h` browser. Mirrors the
+/// `skidBot.color` (`#1519f0`) in MessageCommands/bot @h.ts: every
+/// category page uses it, never the per-category table color (that
+/// one belongs to HybridCommands/bot/help.ts, rendered by
+/// `help_main`/`render_help_leaf_page`).
+pub const HELP_BROWSER_COLOR: u32 = 0x1519F0;
+
 pub fn helpmsg_key(msg_id: u64) -> String {
     format!("HELPMSG.{msg_id}")
 }
@@ -1088,15 +1095,22 @@ pub fn collect_help_cats(
 ) -> Vec<HelpBrowserCat> {
     let mut out = Vec::new();
     for (name, desc_key, placeholder_key, emoji_name, color) in table {
-        let mut fields: Vec<(String, String)> = registry
+        // TS @h.ts iterates client.content in insertion order (the
+        // parent options order: manage, bypass-roles, ...), and
+        // help.ts never sorts either — no alphabetical sort here.
+        // Field names use the dashed prefix alias (`prefixCmd || cmd`
+        // in both TS builders).
+        let fields: Vec<(String, String)> = registry
             .iter()
             .filter(|(cat, _, _)| cat == name)
-            .map(|(_, cmd, desc)| (format!("`{prefix}{cmd}`"), desc.to_string()))
+            .map(|(_, cmd, desc)| {
+                let display = crate::commands::shared::prefix_name_for(cmd).unwrap_or(cmd);
+                (format!("`{prefix}{display}`"), desc.to_string())
+            })
             .collect();
         if fields.is_empty() {
             continue;
         }
-        fields.sort();
         out.push(HelpBrowserCat {
             name: name.to_string(),
             title: title_of(placeholder_key),
@@ -1137,7 +1151,7 @@ async fn render_help_page(
         &show.title,
         desc_tpl,
         footer,
-        show.color,
+        HELP_BROWSER_COLOR,
         &show.fields,
         suite_tpl,
         suite_desc,
@@ -1145,7 +1159,7 @@ async fn render_help_page(
     let page_data = pages.into_iter().next().unwrap_or_else(|| HelpPage {
         title: show.title.clone(),
         description: desc_tpl.to_string(),
-        color: show.color,
+        color: HELP_BROWSER_COLOR,
         footer: footer.to_string(),
         fields: vec![],
     });
@@ -1190,7 +1204,7 @@ async fn render_help_page(
     .placeholder(placeholder);
     let mut components = vec![serenity::CreateActionRow::SelectMenu(select)];
     if total > 1 {
-        let prev = serenity::CreateButton::new(format!("{HELP_PREV_ID}:{page}"))
+        let prev = serenity::CreateButton::new(HELP_PREV_ID)
             .label("◀ Previous")
             .style(serenity::ButtonStyle::Primary)
             .disabled(page == 0);
@@ -1198,7 +1212,7 @@ async fn render_help_page(
             .label(format!("{}/{}", page + 1, total))
             .style(serenity::ButtonStyle::Secondary)
             .disabled(true);
-        let next = serenity::CreateButton::new(format!("{HELP_NEXT_ID}:{page}"))
+        let next = serenity::CreateButton::new(HELP_NEXT_ID)
             .label("Next ▶")
             .style(serenity::ButtonStyle::Primary)
             .disabled(page + 1 >= total);
@@ -1483,6 +1497,27 @@ async fn render_help_leaf_page(
     (embed, components)
 }
 
+/// Current h-menu page from the message's own select id (stateless).
+/// Mirrors the TS `currentPageIndex` closure in @h.ts: every h-menu
+/// render stamps `help_category_select_{page}` on its select, so a
+/// bare `help_prev_page`/`help_next_page` press (ids carry no page
+/// suffix, exactly like TS) recovers the page from the message.
+fn help_menu_page_from_message(msg: &serenity::Message) -> usize {
+    msg.components
+        .iter()
+        .flat_map(|row| row.components.iter())
+        .filter_map(|c| match c {
+            serenity::ActionRowComponent::SelectMenu(s) => s
+                .custom_id
+                .as_deref()
+                .and_then(|id| id.strip_prefix(HELP_SELECT_PREFIX)),
+            _ => None,
+        })
+        .filter_map(|p| p.parse::<usize>().ok())
+        .next()
+        .unwrap_or(0)
+}
+
 /// Route help browser selects + pager buttons (stateless recompute).
 pub async fn handle_help_component(
     http: &serenity::Http,
@@ -1521,9 +1556,8 @@ pub async fn handle_help_component(
     // h-menu select/pager (update_help_message does chunked emoji HTTP
     // per category with no other ack — cold cache blew the window and
     // the select died silently).
-    let legacy_paged = id.strip_prefix(HELP_SELECT_PREFIX).is_some()
-        || id.strip_prefix(&format!("{HELP_NEXT_ID}:")).is_some()
-        || id.strip_prefix(&format!("{HELP_PREV_ID}:")).is_some();
+    let legacy_paged =
+        id.strip_prefix(HELP_SELECT_PREFIX).is_some() || id == HELP_NEXT_ID || id == HELP_PREV_ID;
     if (help::is_help_overview_select(id) || help::parse_help_nav(id).is_some() || legacy_paged)
         && comp
             .create_response(http, serenity::CreateInteractionResponse::Acknowledge)
@@ -1562,7 +1596,9 @@ pub async fn handle_help_component(
         }
         return;
     }
-    // Current page rides in the select/button ids (stateless).
+    // Current page rides in the select id (stateless); pager buttons
+    // are bare like TS (@h.ts keeps the index in its collector
+    // closure), so the page is read back off the message.
     let page: usize;
     let mut selected: Option<String> = None;
     if let Some(p) = id.strip_prefix(HELP_SELECT_PREFIX) {
@@ -1573,10 +1609,10 @@ pub async fn handle_help_component(
             }
             _ => None,
         };
-    } else if let Some(p) = id.strip_prefix(&format!("{HELP_NEXT_ID}:")) {
-        page = p.parse::<usize>().unwrap_or(0) + 1;
-    } else if let Some(p) = id.strip_prefix(&format!("{HELP_PREV_ID}:")) {
-        page = p.parse::<usize>().unwrap_or(0).saturating_sub(1);
+    } else if id == HELP_NEXT_ID {
+        page = help_menu_page_from_message(&comp.message) + 1;
+    } else if id == HELP_PREV_ID {
+        page = help_menu_page_from_message(&comp.message).saturating_sub(1);
     } else {
         return;
     }
@@ -1649,7 +1685,7 @@ async fn update_help_message(
         &show.title,
         &desc_tpl,
         &footer,
-        show.color,
+        HELP_BROWSER_COLOR,
         &show.fields,
         &suite_tpl,
         &suite_desc,
@@ -1657,7 +1693,7 @@ async fn update_help_message(
     let page_data = pages.into_iter().next().unwrap_or_else(|| HelpPage {
         title: show.title.clone(),
         description: desc_tpl.clone(),
-        color: show.color,
+        color: HELP_BROWSER_COLOR,
         footer: footer.clone(),
         fields: vec![],
     });
@@ -1700,7 +1736,7 @@ async fn update_help_message(
     .placeholder(placeholder);
     let mut components = vec![serenity::CreateActionRow::SelectMenu(select)];
     if total > 1 {
-        let prev = serenity::CreateButton::new(format!("{HELP_PREV_ID}:{page}"))
+        let prev = serenity::CreateButton::new(HELP_PREV_ID)
             .label("◀ Previous")
             .style(serenity::ButtonStyle::Primary)
             .disabled(page == 0);
@@ -1708,7 +1744,7 @@ async fn update_help_message(
             .label(format!("{}/{}", page + 1, total))
             .style(serenity::ButtonStyle::Secondary)
             .disabled(true);
-        let next = serenity::CreateButton::new(format!("{HELP_NEXT_ID}:{page}"))
+        let next = serenity::CreateButton::new(HELP_NEXT_ID)
             .label("Next ▶")
             .style(serenity::ButtonStyle::Primary)
             .disabled(page + 1 >= total);
@@ -1970,8 +2006,53 @@ mod tests {
     }
 
     #[test]
+    fn collect_help_cats_keeps_registry_order_and_prefix_aliases() {
+        // TS @h.ts iterates client.content in insertion order (parent
+        // options order: manage, bypass-roles, ignore-channels — prod
+        // 2026-10-14 wave) and names fields `prefixCmd || cmd`.
+        let registry = [
+            ("antispam", "antispam manage", "Manage the antispam module"),
+            (
+                "antispam",
+                "antispam bypass-roles",
+                "All of the roles wich bypass the antispam",
+            ),
+            (
+                "antispam",
+                "antispam ignore-channels",
+                "Ignore this channels in the AntiSpam Module",
+            ),
+        ];
+        let table = [(
+            "antispam",
+            "help_antispam_dsc",
+            "help_antispam_fields",
+            "Moderator_Alumni_Badge",
+            0x6666ffu32,
+        )];
+        let cats = collect_help_cats(&registry, &table, &|k| format!("T:{k}"), ".");
+        assert_eq!(cats.len(), 1);
+        let names: Vec<&str> = cats[0].fields.iter().map(|(n, _)| n.as_str()).collect();
+        assert_eq!(
+            names,
+            vec![
+                "`.antispam-manage`",
+                "`.antispam-bypass-roles`",
+                "`.antispam-ignore-channels`",
+            ]
+        );
+    }
+
+    #[test]
     fn help_browser_helpers_match_ts() {
         assert_eq!(HELP_CATEGORIES.len(), 26);
+        // @h.ts skidBot.color (#1519f0): every h-menu page uses it,
+        // never the per-category table color (prod 2026-10-14 wave).
+        assert_eq!(HELP_BROWSER_COLOR, 0x1519F0);
+        assert_eq!(HELP_BROWSER_COLOR, 1382896);
+        // Pager button ids are bare like TS (no `:page` suffix).
+        assert_eq!(HELP_PREV_ID, "help_prev_page");
+        assert_eq!(HELP_NEXT_ID, "help_next_page");
         let active = help_active_categories(&["bot", "utils", "nope"]);
         assert_eq!(active.len(), 2);
         let chunks = help_page_chunks(&(0usize..30).collect::<Vec<_>>());
