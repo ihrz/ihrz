@@ -5,19 +5,21 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum FunConfigAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -109,15 +111,22 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(FunConfigAction::On.as_str(), "on");
         assert_eq!(FunConfigAction::Off.as_str(), "off");
         assert_eq!(FunConfigAction::from_name("on"), Some(FunConfigAction::On));
         assert_eq!(
-            FunConfigAction::from_name("POWER OFF"),
+            FunConfigAction::from_name("off"),
             Some(FunConfigAction::Off)
         );
         assert_eq!(FunConfigAction::from_name("maybe"), None);
+        // Prefix uses TS values, not labels (prod rejects labels too).
+        assert_eq!(FunConfigAction::from_name("Power Off"), None);
+        // Slash display keeps the label via en-US/en-GB localizations.
+        assert_eq!(
+            FunConfigAction::On.localized_name("en-US"),
+            Some("Power On")
+        );
         assert_eq!(FunConfigAction::from_index(0), Some(FunConfigAction::On));
         assert_eq!(FunConfigAction::from_index(1), Some(FunConfigAction::Off));
         let list = FunConfigAction::list();

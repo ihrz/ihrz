@@ -30,19 +30,21 @@ pub fn stored_bot_name(name: Option<String>) -> Option<String> {
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum CustomNameAction {
-    #[name = "Default Bot Name"]
+    #[name = "reset"]
+    #[name_localized("en-US", "Default Bot Name")]
+    #[name_localized("en-GB", "Default Bot Name")]
     #[name_localized("fr", "Reprendre le nom par défaut du bot")]
     #[name_localized("ja", "ボットのデフォルトの名前に戻す")]
     #[name_localized("ru", "Восстановить имя бота по умолчанию")]
     #[name_localized("es-ES", "Restablecer el nombre predeterminado del bot")]
-    #[name = "reset"]
     Reset,
-    #[name = "Set one"]
+    #[name = "set"]
+    #[name_localized("en-US", "Set one")]
+    #[name_localized("en-GB", "Set one")]
     #[name_localized("fr", "Définir un nom")]
     #[name_localized("ja", "名前を設定")]
     #[name_localized("ru", "Задать имя")]
     #[name_localized("es-ES", "Establecer un nombre")]
-    #[name = "set"]
     Set,
 }
 
@@ -175,7 +177,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Default Bot Name".to_string(), "Set one".to_string()]
+            vec!["reset".to_string(), "set".to_string()]
         );
         assert_eq!(CustomNameAction::Reset.as_str(), "reset");
         assert_eq!(CustomNameAction::Set.as_str(), "set");

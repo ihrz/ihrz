@@ -11,19 +11,21 @@ use super::*;
 /// framework. `parse_loop` still knows `queue` for its own unit tests.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum LoopModeChoice {
-    #[name = "Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Off")]
+    #[name_localized("en-GB", "Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "off")]
     #[name_localized("ru", "off")]
     #[name_localized("es-ES", "off")]
-    #[name = "off"]
     Off,
-    #[name = "On"]
+    #[name = "track"]
+    #[name_localized("en-US", "On")]
+    #[name_localized("en-GB", "On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "on")]
     #[name_localized("ru", "on")]
     #[name_localized("es-ES", "on")]
-    #[name = "track"]
     Track,
 }
 
@@ -110,7 +112,7 @@ mod tests {
     fn loop_mode_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = LoopModeChoice::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Off".to_string(), "On".to_string()]);
+        assert_eq!(names, vec!["off".to_string(), "track".to_string()]);
         assert_eq!(LoopModeChoice::Off.as_str(), "off");
         assert_eq!(LoopModeChoice::Track.as_str(), "track");
         assert_eq!(LoopModeChoice::from_name("off"), Some(LoopModeChoice::Off));
@@ -118,7 +120,7 @@ mod tests {
             LoopModeChoice::from_name("TRACK"),
             Some(LoopModeChoice::Track)
         );
-        assert_eq!(LoopModeChoice::from_name("ON"), Some(LoopModeChoice::Track));
+        assert_eq!(LoopModeChoice::from_name("track"), Some(LoopModeChoice::Track));
         assert_eq!(LoopModeChoice::from_name("queue"), None);
         assert_eq!(LoopModeChoice::from_index(0), Some(LoopModeChoice::Off));
         assert_eq!(LoopModeChoice::from_index(1), Some(LoopModeChoice::Track));

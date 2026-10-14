@@ -6,19 +6,21 @@ use poise::serenity_prelude as serenity;
 /// the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ConfessionConfigAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -143,7 +145,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(ConfessionConfigAction::On.as_str(), "on");
         assert_eq!(ConfessionConfigAction::Off.as_str(), "off");
         assert_eq!(
@@ -151,7 +153,7 @@ mod tests {
             Some(ConfessionConfigAction::On)
         );
         assert_eq!(
-            ConfessionConfigAction::from_name("POWER OFF"),
+            ConfessionConfigAction::from_name("off"),
             Some(ConfessionConfigAction::Off)
         );
         assert_eq!(ConfessionConfigAction::from_name("maybe"), None);

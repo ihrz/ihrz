@@ -1,24 +1,26 @@
 use super::*;
 
-/// Massiverole action choice. Mirrors the `action` option `choices` in
-/// utils.ts:746-765: slash shows the localized display names, the
-/// handler maps each variant back to the TS `value` (`add` / `sub`)
-/// read by `mass_action`.
+// Massiverole action choice. Mirrors the `action` option `choices` in
+// utils.ts:746-765: slash shows the localized display names, the
+// handler maps each variant back to the TS `value` (`add` / `sub`)
+// read by `mass_action`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum MassiveroleAction {
-    #[name = "Add"]
+    #[name = "add"]
+    #[name_localized("en-US", "Add")]
+    #[name_localized("en-GB", "Add")]
     #[name_localized("fr", "Ajouter")]
     #[name_localized("ja", "add")]
     #[name_localized("ru", "add")]
     #[name_localized("es-ES", "add")]
-    #[name = "add"]
     Add,
-    #[name = "Remove"]
+    #[name = "sub"]
+    #[name_localized("en-US", "Remove")]
+    #[name_localized("en-GB", "Remove")]
     #[name_localized("fr", "Supprimer")]
     #[name_localized("ja", "remove")]
     #[name_localized("ru", "remove")]
     #[name_localized("es-ES", "remove")]
-    #[name = "sub"]
     Remove,
 }
 
@@ -240,7 +242,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Add".to_string(), "Remove".to_string()]);
+        assert_eq!(names, vec!["add".to_string(), "sub".to_string()]);
         assert_eq!(MassiveroleAction::Add.as_str(), "add");
         assert_eq!(MassiveroleAction::Remove.as_str(), "sub");
         assert_eq!(
@@ -252,7 +254,7 @@ mod tests {
             Some(MassiveroleAction::Remove)
         );
         assert_eq!(
-            MassiveroleAction::from_name("REMOVE"),
+            MassiveroleAction::from_name("sub"),
             Some(MassiveroleAction::Remove)
         );
         assert_eq!(MassiveroleAction::from_name("bogus"), None);

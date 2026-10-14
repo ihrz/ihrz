@@ -356,19 +356,21 @@ pub async fn vd_name(
 /// instead of silently storing a default.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PositionChoice {
-    #[name = "Up (TOP)"]
+    #[name = "top"]
+    #[name_localized("en-US", "Up (TOP)")]
+    #[name_localized("en-GB", "Up (TOP)")]
     #[name_localized("fr", "En haut")]
     #[name_localized("ja", "up_top")]
     #[name_localized("ru", "up_top")]
     #[name_localized("es-ES", "up_top")]
-    #[name = "top"]
     Top,
-    #[name = "Down (Bottom)"]
+    #[name = "bottom"]
+    #[name_localized("en-US", "Down (Bottom)")]
+    #[name_localized("en-GB", "Down (Bottom)")]
     #[name_localized("fr", "En bas")]
     #[name_localized("ja", "down_bottom")]
     #[name_localized("ru", "down_bottom")]
     #[name_localized("es-ES", "down_bottom")]
-    #[name = "bottom"]
     Bottom,
 }
 
@@ -2274,7 +2276,7 @@ mod tests {
         let names: Vec<_> = PositionChoice::list().into_iter().map(|c| c.name).collect();
         assert_eq!(
             names,
-            vec!["Up (TOP)".to_string(), "Down (Bottom)".to_string()]
+            vec!["top".to_string(), "bottom".to_string()]
         );
         // Localized display names, byte-exact from voicedashboard.ts:198+.
         let list = PositionChoice::list();

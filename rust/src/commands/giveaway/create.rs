@@ -111,33 +111,37 @@ pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bo
 /// TS `value` stored as `requirement.type`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum GwRequirement {
-    #[name = "None"]
+    #[name = "none"]
+    #[name_localized("en-US", "None")]
+    #[name_localized("en-GB", "None")]
     #[name_localized("fr", "Aucun")]
     #[name_localized("ja", "none")]
     #[name_localized("ru", "none")]
     #[name_localized("es-ES", "none")]
-    #[name = "none"]
     None,
-    #[name = "Need Specific invitations amount"]
+    #[name = "invites"]
+    #[name_localized("en-US", "Need Specific invitations amount")]
+    #[name_localized("en-GB", "Need Specific invitations amount")]
     #[name_localized("fr", "Besoin d'un nombre spécifique d'invitations")]
     #[name_localized("ja", "need_specific_invitations_amount")]
     #[name_localized("ru", "need_specific_invitations_amount")]
     #[name_localized("es-ES", "need_specific_invitations_amount")]
-    #[name = "invites"]
     Invites,
-    #[name = "Need specific messages number"]
+    #[name = "messages"]
+    #[name_localized("en-US", "Need specific messages number")]
+    #[name_localized("en-GB", "Need specific messages number")]
     #[name_localized("fr", "Besoin d'un nombre spécifique de messages")]
     #[name_localized("ja", "need_specific_messages_number")]
     #[name_localized("ru", "need_specific_messages_number")]
     #[name_localized("es-ES", "need_specific_messages_number")]
-    #[name = "messages"]
     Messages,
-    #[name = "Need specific roles"]
+    #[name = "roles"]
+    #[name_localized("en-US", "Need specific roles")]
+    #[name_localized("en-GB", "Need specific roles")]
     #[name_localized("fr", "Besoin de rôles spécifiques")]
     #[name_localized("ja", "need_specific_roles")]
     #[name_localized("ru", "need_specific_roles")]
     #[name_localized("es-ES", "need_specific_roles")]
-    #[name = "roles"]
     Roles,
 }
 
@@ -554,10 +558,10 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "None",
-                "Need Specific invitations amount",
-                "Need specific messages number",
-                "Need specific roles",
+                "none",
+                "invites",
+                "messages",
+                "roles",
             ]
         );
         assert_eq!(
@@ -565,7 +569,7 @@ mod tests {
             Some(GwRequirement::Invites)
         );
         assert_eq!(
-            GwRequirement::from_name("NEED SPECIFIC ROLES"),
+            GwRequirement::from_name("roles"),
             Some(GwRequirement::Roles)
         );
         assert_eq!(GwRequirement::from_name("bogus"), None);

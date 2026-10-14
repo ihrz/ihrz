@@ -5,19 +5,21 @@ use super::*;
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SkullConfigAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -37,19 +39,21 @@ impl SkullConfigAction {
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SkullThreadAction {
-    #[name = "Create thread"]
+    #[name = "yes"]
+    #[name_localized("en-US", "Create thread")]
+    #[name_localized("en-GB", "Create thread")]
     #[name_localized("fr", "Créer un fil")]
     #[name_localized("ja", "create_thread")]
     #[name_localized("ru", "create_thread")]
     #[name_localized("es-ES", "create_thread")]
-    #[name = "yes"]
     Yes,
-    #[name = "Don't create thread"]
+    #[name = "no"]
+    #[name_localized("en-US", "Don't create thread")]
+    #[name_localized("en-GB", "Don't create thread")]
     #[name_localized("fr", "Ne pas créer un fil")]
     #[name_localized("ja", "don_t_create_thread")]
     #[name_localized("ru", "don_t_create_thread")]
     #[name_localized("es-ES", "don_t_create_thread")]
-    #[name = "no"]
     No,
 }
 
@@ -288,7 +292,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(SkullConfigAction::On.as_str(), "on");
         assert_eq!(SkullConfigAction::Off.as_str(), "off");
         assert_eq!(
@@ -307,8 +311,8 @@ mod tests {
         assert_eq!(
             threads,
             vec![
-                "Create thread".to_string(),
-                "Don't create thread".to_string()
+                "yes".to_string(),
+                "no".to_string()
             ]
         );
         assert_eq!(SkullThreadAction::Yes.as_str(), "yes");
@@ -318,7 +322,7 @@ mod tests {
             Some(SkullThreadAction::No)
         );
         assert_eq!(
-            SkullThreadAction::from_name("CREATE THREAD"),
+            SkullThreadAction::from_name("yes"),
             Some(SkullThreadAction::Yes)
         );
         assert_eq!(

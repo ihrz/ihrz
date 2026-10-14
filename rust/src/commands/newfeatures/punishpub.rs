@@ -7,19 +7,21 @@ use super::*;
 /// display names case-insensitively).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PunishpubStatus {
-    #[name = "ON"]
+    #[name = "true"]
+    #[name_localized("en-US", "ON")]
+    #[name_localized("en-GB", "ON")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "on")]
     #[name_localized("ru", "on")]
     #[name_localized("es-ES", "on")]
-    #[name = "true"]
     On,
-    #[name = "OFF"]
+    #[name = "false"]
+    #[name_localized("en-US", "OFF")]
+    #[name_localized("en-GB", "OFF")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "off")]
     #[name_localized("ru", "off")]
     #[name_localized("es-ES", "off")]
-    #[name = "false"]
     Off,
 }
 
@@ -39,26 +41,29 @@ impl PunishpubStatus {
 /// verbatim.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PunishpubKind {
-    #[name = "BAN"]
+    #[name = "ban"]
+    #[name_localized("en-US", "BAN")]
+    #[name_localized("en-GB", "BAN")]
     #[name_localized("fr", "Bannir")]
     #[name_localized("ja", "ban")]
     #[name_localized("ru", "ban")]
     #[name_localized("es-ES", "ban")]
-    #[name = "ban"]
     Ban,
-    #[name = "KICK"]
+    #[name = "kick"]
+    #[name_localized("en-US", "KICK")]
+    #[name_localized("en-GB", "KICK")]
     #[name_localized("fr", "Expulser")]
     #[name_localized("ja", "kick")]
     #[name_localized("ru", "kick")]
     #[name_localized("es-ES", "kick")]
-    #[name = "kick"]
     Kick,
-    #[name = "MUTE"]
+    #[name = "mute"]
+    #[name_localized("en-US", "MUTE")]
+    #[name_localized("en-GB", "MUTE")]
     #[name_localized("fr", "Muter")]
     #[name_localized("ja", "mute")]
     #[name_localized("ru", "mute")]
     #[name_localized("es-ES", "mute")]
-    #[name = "mute"]
     Mute,
 }
 
@@ -204,12 +209,12 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["ON".to_string(), "OFF".to_string()]);
+        assert_eq!(names, vec!["true".to_string(), "false".to_string()]);
         assert_eq!(PunishpubStatus::On.as_str(), "true");
         assert_eq!(PunishpubStatus::Off.as_str(), "false");
-        assert_eq!(PunishpubStatus::from_name("ON"), Some(PunishpubStatus::On));
+        assert_eq!(PunishpubStatus::from_name("true"), Some(PunishpubStatus::On));
         assert_eq!(
-            PunishpubStatus::from_name("off"),
+            PunishpubStatus::from_name("false"),
             Some(PunishpubStatus::Off)
         );
         assert_eq!(
@@ -226,12 +231,12 @@ mod tests {
         let kinds: Vec<_> = PunishpubKind::list().into_iter().map(|c| c.name).collect();
         assert_eq!(
             kinds,
-            vec!["BAN".to_string(), "KICK".to_string(), "MUTE".to_string()]
+            vec!["ban".to_string(), "kick".to_string(), "mute".to_string()]
         );
         assert_eq!(PunishpubKind::Ban.as_str(), "ban");
         assert_eq!(PunishpubKind::Kick.as_str(), "kick");
         assert_eq!(PunishpubKind::Mute.as_str(), "mute");
-        assert_eq!(PunishpubKind::from_name("BAN"), Some(PunishpubKind::Ban));
+        assert_eq!(PunishpubKind::from_name("ban"), Some(PunishpubKind::Ban));
         assert_eq!(PunishpubKind::from_name("mute"), Some(PunishpubKind::Mute));
         assert_eq!(PunishpubKind::from_name("jail"), None);
         assert_eq!(PunishpubKind::from_index(2), Some(PunishpubKind::Mute));

@@ -5,19 +5,21 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum CustomBannerAction {
-    #[name = "Default Bot Banner"]
+    #[name = "reset"]
+    #[name_localized("en-US", "Default Bot Banner")]
+    #[name_localized("en-GB", "Default Bot Banner")]
     #[name_localized("fr", "Reprendre la bannière par défaut du bot")]
     #[name_localized("ja", "ボットのデフォルトバナーに戻す")]
     #[name_localized("ru", "Восстановить баннер бота по умолчанию")]
     #[name_localized("es-ES", "Restablecer el banner predeterminado del bot")]
-    #[name = "reset"]
     Reset,
-    #[name = "Set one"]
+    #[name = "set"]
+    #[name_localized("en-US", "Set one")]
+    #[name_localized("en-GB", "Set one")]
     #[name_localized("fr", "Définir une bannière")]
     #[name_localized("ja", "バナーを設定")]
     #[name_localized("ru", "Задать баннер")]
     #[name_localized("es-ES", "Establecer un banner")]
-    #[name = "set"]
     Set,
 }
 
@@ -185,7 +187,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Default Bot Banner".to_string(), "Set one".to_string()]
+            vec!["reset".to_string(), "set".to_string()]
         );
         assert_eq!(CustomBannerAction::Reset.as_str(), "reset");
         assert_eq!(CustomBannerAction::Set.as_str(), "set");

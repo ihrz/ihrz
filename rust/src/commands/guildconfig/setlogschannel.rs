@@ -6,89 +6,101 @@ use poise::serenity_prelude as serenity;
 /// the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SetLogsKind {
-    #[name = "Setup all channels"]
+    #[name = "auto"]
+    #[name_localized("en-US", "Setup all channels")]
+    #[name_localized("en-GB", "Setup all channels")]
     #[name_localized("fr", "Configurer tous les canaux")]
     #[name_localized("ja", "setup_all_channels")]
     #[name_localized("ru", "setup_all_channels")]
     #[name_localized("es-ES", "setup_all_channels")]
-    #[name = "auto"]
     Auto,
-    #[name = "Delete all settings"]
+    #[name = "off"]
+    #[name_localized("en-US", "Delete all settings")]
+    #[name_localized("en-GB", "Delete all settings")]
     #[name_localized("fr", "Supprimer toutes les configurations")]
     #[name_localized("ja", "delete_all_settings")]
     #[name_localized("ru", "delete_all_settings")]
     #[name_localized("es-ES", "delete_all_settings")]
-    #[name = "off"]
     Off,
-    #[name = "AntiSpam Logs"]
+    #[name = "antispam"]
+    #[name_localized("en-US", "AntiSpam Logs")]
+    #[name_localized("en-GB", "AntiSpam Logs")]
     #[name_localized("fr", "Logs AntiSpam")]
     #[name_localized("ja", "antispam_logs")]
     #[name_localized("ru", "antispam_logs")]
     #[name_localized("es-ES", "antispam_logs")]
-    #[name = "antispam"]
     Antispam,
-    #[name = "Boost Logs"]
+    #[name = "boost"]
+    #[name_localized("en-US", "Boost Logs")]
+    #[name_localized("en-GB", "Boost Logs")]
     #[name_localized("fr", "Logs Boost")]
     #[name_localized("ja", "boost_logs")]
     #[name_localized("ru", "boost_logs")]
     #[name_localized("es-ES", "boost_logs")]
-    #[name = "boost"]
     Boost,
-    #[name = "Channel Logs"]
+    #[name = "channel"]
+    #[name_localized("en-US", "Channel Logs")]
+    #[name_localized("en-GB", "Channel Logs")]
     #[name_localized("fr", "Logs Canal")]
     #[name_localized("ja", "channel_logs")]
     #[name_localized("ru", "channel_logs")]
     #[name_localized("es-ES", "channel_logs")]
-    #[name = "channel"]
     Channel,
-    #[name = "Messages Logs"]
+    #[name = "message"]
+    #[name_localized("en-US", "Messages Logs")]
+    #[name_localized("en-GB", "Messages Logs")]
     #[name_localized("fr", "Logs Messages")]
     #[name_localized("ja", "messages_logs")]
     #[name_localized("ru", "messages_logs")]
     #[name_localized("es-ES", "messages_logs")]
-    #[name = "message"]
     Message,
-    #[name = "Moderation Logs"]
+    #[name = "moderation"]
+    #[name_localized("en-US", "Moderation Logs")]
+    #[name_localized("en-GB", "Moderation Logs")]
     #[name_localized("fr", "Logs Modération")]
     #[name_localized("ja", "moderation_logs")]
     #[name_localized("ru", "moderation_logs")]
     #[name_localized("es-ES", "moderation_logs")]
-    #[name = "moderation"]
     Moderation,
-    #[name = "Roles Logs"]
+    #[name = "roles"]
+    #[name_localized("en-US", "Roles Logs")]
+    #[name_localized("en-GB", "Roles Logs")]
     #[name_localized("fr", "Logs Rôles")]
     #[name_localized("ja", "roles_logs")]
     #[name_localized("ru", "roles_logs")]
     #[name_localized("es-ES", "roles_logs")]
-    #[name = "roles"]
     Roles,
-    #[name = "Ticket Logs"]
+    #[name = "ticket"]
+    #[name_localized("en-US", "Ticket Logs")]
+    #[name_localized("en-GB", "Ticket Logs")]
     #[name_localized("fr", "Logs Ticket")]
     #[name_localized("ja", "ticket_logs")]
     #[name_localized("ru", "ticket_logs")]
     #[name_localized("es-ES", "ticket_logs")]
-    #[name = "ticket"]
     Ticket,
-    #[name = "Voice Logs"]
+    #[name = "voice"]
+    #[name_localized("en-US", "Voice Logs")]
+    #[name_localized("en-GB", "Voice Logs")]
     #[name_localized("fr", "Logs Voice")]
     #[name_localized("ja", "voice_logs")]
     #[name_localized("ru", "voice_logs")]
     #[name_localized("es-ES", "voice_logs")]
-    #[name = "voice"]
     Voice,
-    #[name = "Confession Logs"]
+    #[name = "confession"]
+    #[name_localized("en-US", "Confession Logs")]
+    #[name_localized("en-GB", "Confession Logs")]
     #[name_localized("fr", "Logs Confession")]
     #[name_localized("ja", "confession_logs")]
     #[name_localized("ru", "confession_logs")]
     #[name_localized("es-ES", "confession_logs")]
-    #[name = "confession"]
     Confession,
-    #[name = "Economy Logs"]
+    #[name = "economy"]
+    #[name_localized("en-US", "Economy Logs")]
+    #[name_localized("en-GB", "Economy Logs")]
     #[name_localized("fr", "Logs d'économie")]
     #[name_localized("ja", "economy_logs")]
     #[name_localized("ru", "economy_logs")]
     #[name_localized("es-ES", "economy_logs")]
-    #[name = "economy"]
     Economy,
 }
 
@@ -803,18 +815,18 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Setup all channels",
-                "Delete all settings",
-                "AntiSpam Logs",
-                "Boost Logs",
-                "Channel Logs",
-                "Messages Logs",
-                "Moderation Logs",
-                "Roles Logs",
-                "Ticket Logs",
-                "Voice Logs",
-                "Confession Logs",
-                "Economy Logs",
+                "auto",
+                "off",
+                "antispam",
+                "boost",
+                "channel",
+                "message",
+                "moderation",
+                "roles",
+                "ticket",
+                "voice",
+                "confession",
+                "economy",
             ]
         );
         let values: Vec<_> = [
@@ -853,7 +865,7 @@ mod tests {
         );
         assert_eq!(SetLogsKind::from_name("auto"), Some(SetLogsKind::Auto));
         assert_eq!(
-            SetLogsKind::from_name("VOICE LOGS"),
+            SetLogsKind::from_name("voice"),
             Some(SetLogsKind::Voice)
         );
         assert_eq!(SetLogsKind::from_name("bogus"), None);
@@ -950,17 +962,17 @@ mod tests {
                 "${client.iHorizon_Emojis.Yes} | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}>!",
                 "<:Yes:123>",
                 42,
-                "Voice Logs"
+                "voice"
             ),
-            "<:Yes:123> | Here is now for the `Voice Logs`, setup by <@42>!"
+            "<:Yes:123> | Here is now for the `voice`, setup by <@42>!"
         );
         assert_eq!(
             render_work(
                 "You have successfully set up the `${typeOfLogs}` in <#${argsid.id}>!",
                 "7",
-                "Voice Logs"
+                "voice"
             ),
-            "You have successfully set up the `Voice Logs` in <#7>!"
+            "You have successfully set up the `voice` in <#7>!"
         );
         assert_eq!(
             render_already_set("The channel ${channel} is already set!", "<#7>"),
@@ -978,9 +990,9 @@ mod tests {
                 "<@${interaction.user.id}> set `${typeOfLogs}` to <#${argsid.id}>",
                 42,
                 "7",
-                "Voice Logs"
+                "voice"
             ),
-            "<@42> set `Voice Logs` to <#7>"
+            "<@42> set `voice` to <#7>"
         );
         assert_eq!(
             render_disable_log(

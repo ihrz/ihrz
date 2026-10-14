@@ -1,24 +1,26 @@
 use super::*;
 
-/// Setmentionrole action choice. Mirrors the `action` option `choices`
-/// in utils.ts:449-469 (note `Power Off` first): slash shows the
-/// localized display names, the handler maps each variant back to the
-/// TS `value`.
+// Setmentionrole action choice. Mirrors the `action` option `choices`
+// in utils.ts:449-469 (note `Power Off` first): slash shows the
+// localized display names, the handler maps each variant back to the
+// TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SetmentionAction {
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
 }
 
@@ -280,7 +282,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power Off".to_string(), "Power On".to_string()]);
+        assert_eq!(names, vec!["off".to_string(), "on".to_string()]);
         assert_eq!(SetmentionAction::Off.as_str(), "off");
         assert_eq!(SetmentionAction::On.as_str(), "on");
         assert_eq!(
@@ -288,7 +290,7 @@ mod tests {
             Some(SetmentionAction::Off)
         );
         assert_eq!(
-            SetmentionAction::from_name("POWER ON"),
+            SetmentionAction::from_name("on"),
             Some(SetmentionAction::On)
         );
         assert_eq!(SetmentionAction::from_name("bogus"), None);

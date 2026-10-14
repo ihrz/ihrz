@@ -78,7 +78,9 @@ pub async fn clear_xp_channel_routed(
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ChannelAction {
-    #[name = "Remove the module (send xp message on the user's message channel)"]
+    #[name = "off"]
+    #[name_localized("en-US", "Remove the module (send xp message on the user's message channel)")]
+    #[name_localized("en-GB", "Remove the module (send xp message on the user's message channel)")]
     #[name_localized(
         "fr",
         "Supprimer le module (envoyer un message XP sur le canal du message de l'utilisateur)"
@@ -86,9 +88,10 @@ pub enum ChannelAction {
     #[name_localized("ja", "remove_the_module_send_xp_messag")]
     #[name_localized("ru", "remove_the_module_send_xp_messag")]
     #[name_localized("es-ES", "remove_the_module_send_xp_messag")]
-    #[name = "off"]
     Off,
-    #[name = "Power on the module (send xp message on a specific channel)"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power on the module (send xp message on a specific channel)")]
+    #[name_localized("en-GB", "Power on the module (send xp message on a specific channel)")]
     #[name_localized(
         "fr",
         "Activer le module (envoyer un message XP sur un canal spécifique)"
@@ -96,7 +99,6 @@ pub enum ChannelAction {
     #[name_localized("ja", "power_on_the_module_send_xp_mess")]
     #[name_localized("ru", "power_on_the_module_send_xp_mess")]
     #[name_localized("es-ES", "power_on_the_module_send_xp_mess")]
-    #[name = "on"]
     On,
 }
 
@@ -356,8 +358,8 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Remove the module (send xp message on the user's message channel)",
-                "Power on the module (send xp message on a specific channel)",
+                "off",
+                "on",
             ]
         );
         assert_eq!(ChannelAction::Off.as_str(), "off");

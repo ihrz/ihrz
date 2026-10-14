@@ -5,26 +5,29 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ProfilGender {
-    #[name = "♀ Female"]
+    #[name = "female"]
+    #[name_localized("en-US", "♀ Female")]
+    #[name_localized("en-GB", "♀ Female")]
     #[name_localized("fr", "♀ Féminin")]
     #[name_localized("ja", "female")]
     #[name_localized("ru", "female")]
     #[name_localized("es-ES", "female")]
-    #[name = "female"]
     Female,
-    #[name = "♂ Male"]
+    #[name = "male"]
+    #[name_localized("en-US", "♂ Male")]
+    #[name_localized("en-GB", "♂ Male")]
     #[name_localized("fr", "♂ Masculin")]
     #[name_localized("ja", "male")]
     #[name_localized("ru", "male")]
     #[name_localized("es-ES", "male")]
-    #[name = "male"]
     Male,
-    #[name = "⚧ Non-binary"]
+    #[name = "non-binary"]
+    #[name_localized("en-US", "⚧ Non-binary")]
+    #[name_localized("en-GB", "⚧ Non-binary")]
     #[name_localized("fr", "⚧ Non-binaire")]
     #[name_localized("ja", "non-binary")]
     #[name_localized("ru", "non-binary")]
     #[name_localized("es-ES", "non-binary")]
-    #[name = "non-binary"]
     NonBinary,
 }
 
@@ -126,7 +129,7 @@ mod tests {
     fn gender_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = ProfilGender::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["♀ Female", "♂ Male", "⚧ Non-binary"]);
+        assert_eq!(names, vec!["female", "male", "non-binary"]);
         assert_eq!(ProfilGender::Female.as_str(), "female");
         assert_eq!(ProfilGender::Male.as_str(), "male");
         assert_eq!(ProfilGender::NonBinary.as_str(), "non-binary");
@@ -134,7 +137,7 @@ mod tests {
             ProfilGender::from_name("female"),
             Some(ProfilGender::Female)
         );
-        assert_eq!(ProfilGender::from_name("♂ MALE"), Some(ProfilGender::Male));
+        assert_eq!(ProfilGender::from_name("male"), Some(ProfilGender::Male));
         assert_eq!(
             ProfilGender::from_name("non-binary"),
             Some(ProfilGender::NonBinary)

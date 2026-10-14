@@ -5,19 +5,21 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum RolesaverAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -37,19 +39,21 @@ impl RolesaverAction {
 /// `norm_rolesaver_settings`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum RolesaverSettings {
-    #[name = "Yes"]
+    #[name = "yes"]
+    #[name_localized("en-US", "Yes")]
+    #[name_localized("en-GB", "Yes")]
     #[name_localized("fr", "Oui")]
     #[name_localized("ja", "yes")]
     #[name_localized("ru", "yes")]
     #[name_localized("es-ES", "yes")]
-    #[name = "yes"]
     Yes,
-    #[name = "No"]
+    #[name = "no"]
+    #[name_localized("en-US", "No")]
+    #[name_localized("en-GB", "No")]
     #[name_localized("fr", "Non")]
     #[name_localized("ja", "no")]
     #[name_localized("ru", "no")]
     #[name_localized("es-ES", "no")]
-    #[name = "no"]
     No,
 }
 
@@ -194,12 +198,12 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(RolesaverAction::On.as_str(), "on");
         assert_eq!(RolesaverAction::Off.as_str(), "off");
         assert_eq!(RolesaverAction::from_name("on"), Some(RolesaverAction::On));
         assert_eq!(
-            RolesaverAction::from_name("POWER OFF"),
+            RolesaverAction::from_name("off"),
             Some(RolesaverAction::Off)
         );
         assert_eq!(RolesaverAction::from_name("bogus"), None);
@@ -209,7 +213,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(settings, vec!["Yes".to_string(), "No".to_string()]);
+        assert_eq!(settings, vec!["yes".to_string(), "no".to_string()]);
         assert_eq!(RolesaverSettings::Yes.as_str(), "yes");
         assert_eq!(RolesaverSettings::No.as_str(), "no");
         assert_eq!(
@@ -217,7 +221,7 @@ mod tests {
             Some(RolesaverSettings::Yes)
         );
         assert_eq!(
-            RolesaverSettings::from_name("NO"),
+            RolesaverSettings::from_name("no"),
             Some(RolesaverSettings::No)
         );
         assert_eq!(RolesaverSettings::from_name("bogus"), None);

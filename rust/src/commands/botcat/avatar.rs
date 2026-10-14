@@ -5,19 +5,21 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum CustomAvatarAction {
-    #[name = "Default Bot Avatar"]
+    #[name = "reset"]
+    #[name_localized("en-US", "Default Bot Avatar")]
+    #[name_localized("en-GB", "Default Bot Avatar")]
     #[name_localized("fr", "Reprendre l'avatar par défaut du bot")]
     #[name_localized("ja", "ボットのデフォルトアバターに戻す")]
     #[name_localized("ru", "Восстановить аватар бота по умолчанию")]
     #[name_localized("es-ES", "Restablecer el avatar predeterminado del bot")]
-    #[name = "reset"]
     Reset,
-    #[name = "Set one"]
+    #[name = "set"]
+    #[name_localized("en-US", "Set one")]
+    #[name_localized("en-GB", "Set one")]
     #[name_localized("fr", "Définir un avatar")]
     #[name_localized("ja", "アバターを設定")]
     #[name_localized("ru", "Задать аватар")]
     #[name_localized("es-ES", "Establecer un avatar")]
-    #[name = "set"]
     Set,
 }
 
@@ -185,7 +187,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Default Bot Avatar".to_string(), "Set one".to_string()]
+            vec!["reset".to_string(), "set".to_string()]
         );
         assert_eq!(CustomAvatarAction::Reset.as_str(), "reset");
         assert_eq!(CustomAvatarAction::Set.as_str(), "set");

@@ -25,19 +25,21 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum EcoConfigAction {
-    #[name = "Enable the module"]
+    #[name = "on"]
+    #[name_localized("en-US", "Enable the module")]
+    #[name_localized("en-GB", "Enable the module")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "enable_the_module")]
     #[name_localized("ru", "enable_the_module")]
     #[name_localized("es-ES", "enable_the_module")]
-    #[name = "on"]
     On,
-    #[name = "Disable the module"]
+    #[name = "off"]
+    #[name_localized("en-US", "Disable the module")]
+    #[name_localized("en-GB", "Disable the module")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "disable_the_module")]
     #[name_localized("ru", "disable_the_module")]
     #[name_localized("es-ES", "disable_the_module")]
-    #[name = "off"]
     Off,
 }
 
@@ -199,15 +201,15 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Enable the module".to_string(),
-                "Disable the module".to_string()
+                "on".to_string(),
+                "off".to_string()
             ]
         );
         assert_eq!(EcoConfigAction::On.as_str(), "on");
         assert_eq!(EcoConfigAction::Off.as_str(), "off");
         assert_eq!(EcoConfigAction::from_name("on"), Some(EcoConfigAction::On));
         assert_eq!(
-            EcoConfigAction::from_name("DISABLE THE MODULE"),
+            EcoConfigAction::from_name("off"),
             Some(EcoConfigAction::Off)
         );
         assert_eq!(EcoConfigAction::from_name("maybe"), None);

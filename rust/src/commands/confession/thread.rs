@@ -5,19 +5,21 @@ use super::*;
 /// the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ConfessionThreadAction {
-    #[name = "Create thread"]
+    #[name = "yes"]
+    #[name_localized("en-US", "Create thread")]
+    #[name_localized("en-GB", "Create thread")]
     #[name_localized("fr", "Créer un fil")]
     #[name_localized("ja", "create_thread")]
     #[name_localized("ru", "create_thread")]
     #[name_localized("es-ES", "create_thread")]
-    #[name = "yes"]
     Yes,
-    #[name = "Don´t create thread"]
+    #[name = "no"]
+    #[name_localized("en-US", "Don´t create thread")]
+    #[name_localized("en-GB", "Don´t create thread")]
     #[name_localized("fr", "Ne pas créer un fil")]
     #[name_localized("ja", "don_t_create_thread")]
     #[name_localized("ru", "don_t_create_thread")]
     #[name_localized("es-ES", "don_t_create_thread")]
-    #[name = "no"]
     No,
 }
 
@@ -83,8 +85,8 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Create thread".to_string(),
-                "Don´t create thread".to_string()
+                "yes".to_string(),
+                "no".to_string()
             ]
         );
         assert_eq!(ConfessionThreadAction::Yes.as_str(), "yes");

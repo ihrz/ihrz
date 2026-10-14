@@ -102,26 +102,29 @@ pub fn sanction_display(lang_code: &str, sanction: &str) -> String {
 /// display names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ProtectAllow {
-    #[name = "Only the allowlist"]
+    #[name = "allowlist"]
+    #[name_localized("en-US", "Only the allowlist")]
+    #[name_localized("en-GB", "Only the allowlist")]
     #[name_localized("fr", "Seulement la liste d'autorisation")]
     #[name_localized("ja", "only_the_allowlist")]
     #[name_localized("ru", "only_the_allowlist")]
     #[name_localized("es-ES", "only_the_allowlist")]
-    #[name = "allowlist"]
     Allowlist,
-    #[name = "All of member"]
+    #[name = "member"]
+    #[name_localized("en-US", "All of member")]
+    #[name_localized("en-GB", "All of member")]
     #[name_localized("fr", "Tous les membres")]
     #[name_localized("ja", "all_of_member")]
     #[name_localized("ru", "all_of_member")]
     #[name_localized("es-ES", "all_of_member")]
-    #[name = "member"]
     Member,
-    #[name = "Nobody (except guild owner)"]
+    #[name = "nobody"]
+    #[name_localized("en-US", "Nobody (except guild owner)")]
+    #[name_localized("en-GB", "Nobody (except guild owner)")]
     #[name_localized("fr", "Personne (sauf le propriétaire du serveur)")]
     #[name_localized("ja", "nobody_except_guild_owner")]
     #[name_localized("ru", "nobody_except_guild_owner")]
     #[name_localized("es-ES", "nobody_except_guild_owner")]
-    #[name = "nobody"]
     Nobody,
 }
 
@@ -143,26 +146,29 @@ impl ProtectAllow {
 /// (French labels kept byte-exact, including the TS wording).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ProtectSanction {
-    #[name = "Simply Cancel Actions"]
+    #[name = "simply"]
+    #[name_localized("en-US", "Simply Cancel Actions")]
+    #[name_localized("en-GB", "Simply Cancel Actions")]
     #[name_localized("fr", "Simplemente annuler les actions")]
     #[name_localized("ja", "simply_cancel_actions")]
     #[name_localized("ru", "simply_cancel_actions")]
     #[name_localized("es-ES", "simply_cancel_actions")]
-    #[name = "simply"]
     Simply,
-    #[name = "Simply Cancel Actions + Derank"]
+    #[name = "simply+derank"]
+    #[name_localized("en-US", "Simply Cancel Actions + Derank")]
+    #[name_localized("en-GB", "Simply Cancel Actions + Derank")]
     #[name_localized("fr", "Simplemente annuler les actions + déséléver")]
     #[name_localized("ja", "simply_cancel_actions_derank")]
     #[name_localized("ru", "simply_cancel_actions_derank")]
     #[name_localized("es-ES", "simply_cancel_actions_derank")]
-    #[name = "simply+derank"]
     SimplyDerank,
-    #[name = "Simply Cancel Actions + Ban"]
+    #[name = "simply+ban"]
+    #[name_localized("en-US", "Simply Cancel Actions + Ban")]
+    #[name_localized("en-GB", "Simply Cancel Actions + Ban")]
     #[name_localized("fr", "Simplemente annuler les actions + bannir")]
     #[name_localized("ja", "simply_cancel_actions_ban")]
     #[name_localized("ru", "simply_cancel_actions_ban")]
     #[name_localized("es-ES", "simply_cancel_actions_ban")]
-    #[name = "simply+ban"]
     SimplyBan,
 }
 
@@ -782,9 +788,9 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Only the allowlist",
-                "All of member",
-                "Nobody (except guild owner)"
+                "allowlist",
+                "member",
+                "nobody"
             ]
         );
         assert_eq!(ProtectAllow::Allowlist.as_str(), "allowlist");
@@ -795,7 +801,7 @@ mod tests {
             Some(ProtectAllow::Allowlist)
         );
         assert_eq!(
-            ProtectAllow::from_name("ALL OF MEMBER"),
+            ProtectAllow::from_name("member"),
             Some(ProtectAllow::Member)
         );
         assert_eq!(ProtectAllow::from_name("bogus"), None);
@@ -829,9 +835,9 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Simply Cancel Actions",
-                "Simply Cancel Actions + Derank",
-                "Simply Cancel Actions + Ban"
+                "simply",
+                "simply+derank",
+                "simply+ban"
             ]
         );
         assert_eq!(ProtectSanction::Simply.as_str(), "simply");

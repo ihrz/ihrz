@@ -18,19 +18,21 @@ use super::*;
 /// and its `value` mapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PrefixAction {
-    #[name = "Default prefix"]
+    #[name = "mention"]
+    #[name_localized("en-US", "Default prefix")]
+    #[name_localized("en-GB", "Default prefix")]
     #[name_localized("fr", "Préfixe par défaut")]
     #[name_localized("ja", "default_prefix")]
     #[name_localized("ru", "default_prefix")]
     #[name_localized("es-ES", "default_prefix")]
-    #[name = "mention"]
     Mention,
-    #[name = "Change prefix"]
+    #[name = "change"]
+    #[name_localized("en-US", "Change prefix")]
+    #[name_localized("en-GB", "Change prefix")]
     #[name_localized("fr", "Changer le préfixe")]
     #[name_localized("ja", "change_prefix")]
     #[name_localized("ru", "change_prefix")]
     #[name_localized("es-ES", "change_prefix")]
-    #[name = "change"]
     Change,
 }
 
@@ -198,7 +200,7 @@ mod tests {
     #[test]
     fn prefix_action_choices_mirror_ts_names_values_and_locales() {
         let names: Vec<_> = PrefixAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Default prefix", "Change prefix"]);
+        assert_eq!(names, vec!["mention", "change"]);
         assert_eq!(PrefixAction::Mention.as_str(), "mention");
         assert_eq!(PrefixAction::Change.as_str(), "change");
         assert_eq!(

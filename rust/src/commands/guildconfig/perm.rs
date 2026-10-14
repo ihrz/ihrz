@@ -229,33 +229,37 @@ pub async fn gc_perm_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 /// TS `value` (`change` / `delete` / `delete-all` / `list`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PermCommandAction {
-    #[name = "Change command permission"]
+    #[name = "change"]
+    #[name_localized("en-US", "Change command permission")]
+    #[name_localized("en-GB", "Change command permission")]
     #[name_localized("fr", "Modifier la permission de commande")]
     #[name_localized("ja", "change_command_permission")]
     #[name_localized("ru", "change_command_permission")]
     #[name_localized("es-ES", "change_command_permission")]
-    #[name = "change"]
     Change,
-    #[name = "Delete command permission"]
+    #[name = "delete"]
+    #[name_localized("en-US", "Delete command permission")]
+    #[name_localized("en-GB", "Delete command permission")]
     #[name_localized("fr", "Supprimer la permission de commande")]
     #[name_localized("ja", "delete_command_permission")]
     #[name_localized("ru", "delete_command_permission")]
     #[name_localized("es-ES", "delete_command_permission")]
-    #[name = "delete"]
     Delete,
-    #[name = "Delete permission (role/user/level)"]
+    #[name = "delete-all"]
+    #[name_localized("en-US", "Delete permission (role/user/level)")]
+    #[name_localized("en-GB", "Delete permission (role/user/level)")]
     #[name_localized("fr", "Supprimer la permission (rôle/utilisateur/niveau)")]
     #[name_localized("ja", "delete_permission_role_user_leve")]
     #[name_localized("ru", "delete_permission_role_user_leve")]
     #[name_localized("es-ES", "delete_permission_role_user_leve")]
-    #[name = "delete-all"]
     DeleteAll,
-    #[name = "List all commands permission set"]
+    #[name = "list"]
+    #[name_localized("en-US", "List all commands permission set")]
+    #[name_localized("en-GB", "List all commands permission set")]
     #[name_localized("fr", "Liste toutes les permissions de commande")]
     #[name_localized("ja", "list_all_commands_permission_set")]
     #[name_localized("ru", "list_all_commands_permission_set")]
     #[name_localized("es-ES", "list_all_commands_permission_set")]
-    #[name = "list"]
     List,
 }
 

@@ -5,19 +5,21 @@ use super::*;
 /// localized per locale).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum BloggerPower {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -93,10 +95,10 @@ mod tests {
     fn blogger_power_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = BloggerPower::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(BloggerPower::from_name("on"), Some(BloggerPower::On));
         assert_eq!(
-            BloggerPower::from_name("POWER OFF"),
+            BloggerPower::from_name("off"),
             Some(BloggerPower::Off)
         );
         assert_eq!(BloggerPower::from_name("bogus"), None);

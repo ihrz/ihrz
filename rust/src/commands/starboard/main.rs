@@ -5,19 +5,21 @@ use super::*;
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum StarboardConfigAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -37,19 +39,21 @@ impl StarboardConfigAction {
 /// the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum StarboardThreadAction {
-    #[name = "Create thread"]
+    #[name = "yes"]
+    #[name_localized("en-US", "Create thread")]
+    #[name_localized("en-GB", "Create thread")]
     #[name_localized("fr", "Créer un fil")]
     #[name_localized("ja", "create_thread")]
     #[name_localized("ru", "create_thread")]
     #[name_localized("es-ES", "create_thread")]
-    #[name = "yes"]
     Yes,
-    #[name = "Don't create thread"]
+    #[name = "no"]
+    #[name_localized("en-US", "Don't create thread")]
+    #[name_localized("en-GB", "Don't create thread")]
     #[name_localized("fr", "Ne pas créer un fil")]
     #[name_localized("ja", "don_t_create_thread")]
     #[name_localized("ru", "don_t_create_thread")]
     #[name_localized("es-ES", "don_t_create_thread")]
-    #[name = "no"]
     No,
 }
 
@@ -295,7 +299,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(StarboardConfigAction::On.as_str(), "on");
         assert_eq!(StarboardConfigAction::Off.as_str(), "off");
         assert_eq!(
@@ -303,7 +307,7 @@ mod tests {
             Some(StarboardConfigAction::On)
         );
         assert_eq!(
-            StarboardConfigAction::from_name("POWER OFF"),
+            StarboardConfigAction::from_name("off"),
             Some(StarboardConfigAction::Off)
         );
         assert_eq!(StarboardConfigAction::from_name("bogus"), None);
@@ -318,8 +322,8 @@ mod tests {
         assert_eq!(
             threads,
             vec![
-                "Create thread".to_string(),
-                "Don't create thread".to_string()
+                "yes".to_string(),
+                "no".to_string()
             ]
         );
         assert_eq!(StarboardThreadAction::Yes.as_str(), "yes");
@@ -329,7 +333,7 @@ mod tests {
             Some(StarboardThreadAction::Yes)
         );
         assert_eq!(
-            StarboardThreadAction::from_name("DON'T CREATE THREAD"),
+            StarboardThreadAction::from_name("no"),
             Some(StarboardThreadAction::No)
         );
         assert_eq!(StarboardThreadAction::from_name("bogus"), None);

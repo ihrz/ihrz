@@ -1,24 +1,26 @@
 use super::*;
 
-/// Nickrole action choice. Mirrors the `action` option `choices` in
-/// utils.ts:596-613: slash shows the localized display names, the
-/// handler maps each variant back to the TS `value` (`add` / `sub`)
-/// read by `nick_action`.
+// Nickrole action choice. Mirrors the `action` option `choices` in
+// utils.ts:596-613: slash shows the localized display names, the
+// handler maps each variant back to the TS `value` (`add` / `sub`)
+// read by `nick_action`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum NickroleAction {
-    #[name = "Add"]
+    #[name = "add"]
+    #[name_localized("en-US", "Add")]
+    #[name_localized("en-GB", "Add")]
     #[name_localized("fr", "Ajouter")]
     #[name_localized("ja", "add")]
     #[name_localized("ru", "add")]
     #[name_localized("es-ES", "add")]
-    #[name = "add"]
     Add,
-    #[name = "Remove"]
+    #[name = "sub"]
+    #[name_localized("en-US", "Remove")]
+    #[name_localized("en-GB", "Remove")]
     #[name_localized("fr", "Supprimer")]
     #[name_localized("ja", "remove")]
     #[name_localized("ru", "remove")]
     #[name_localized("es-ES", "remove")]
-    #[name = "sub"]
     Remove,
 }
 
@@ -258,7 +260,7 @@ mod tests {
     fn nickrole_action_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = NickroleAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Add".to_string(), "Remove".to_string()]);
+        assert_eq!(names, vec!["add".to_string(), "sub".to_string()]);
         assert_eq!(NickroleAction::Add.as_str(), "add");
         assert_eq!(NickroleAction::Remove.as_str(), "sub");
         assert_eq!(NickroleAction::from_name("add"), Some(NickroleAction::Add));
@@ -267,7 +269,7 @@ mod tests {
             Some(NickroleAction::Remove)
         );
         assert_eq!(
-            NickroleAction::from_name("REMOVE"),
+            NickroleAction::from_name("sub"),
             Some(NickroleAction::Remove)
         );
         assert_eq!(NickroleAction::from_name("bogus"), None);

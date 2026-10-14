@@ -7,19 +7,21 @@ use poise::serenity_prelude as serenity;
 /// lowercased match).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum RolebuttonValue {
-    #[name = "Add another"]
+    #[name = "add"]
+    #[name_localized("en-US", "Add another")]
+    #[name_localized("en-GB", "Add another")]
     #[name_localized("fr", "Ajouter un autre")]
     #[name_localized("ja", "add_another")]
     #[name_localized("ru", "add_another")]
     #[name_localized("es-ES", "add_another")]
-    #[name = "add"]
     Add,
-    #[name = "Remove one"]
+    #[name = "remove"]
+    #[name_localized("en-US", "Remove one")]
+    #[name_localized("en-GB", "Remove one")]
     #[name_localized("fr", "Supprimer un")]
     #[name_localized("ja", "remove_one")]
     #[name_localized("ru", "remove_one")]
     #[name_localized("es-ES", "remove_one")]
-    #[name = "remove"]
     Remove,
 }
 
@@ -103,19 +105,21 @@ pub async fn lookup_reaction_role(
 /// localized display names, the handler dispatches on the variant.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum RolereactionValue {
-    #[name = "Add another"]
+    #[name = "add"]
+    #[name_localized("en-US", "Add another")]
+    #[name_localized("en-GB", "Add another")]
     #[name_localized("fr", "Ajouter un autre")]
     #[name_localized("ja", "add_another")]
     #[name_localized("ru", "add_another")]
     #[name_localized("es-ES", "add_another")]
-    #[name = "add"]
     Add,
-    #[name = "Remove one"]
+    #[name = "remove"]
+    #[name_localized("en-US", "Remove one")]
+    #[name_localized("en-GB", "Remove one")]
     #[name_localized("fr", "Supprimer un")]
     #[name_localized("ja", "remove_one")]
     #[name_localized("ru", "remove_one")]
     #[name_localized("es-ES", "remove_one")]
-    #[name = "remove"]
     Remove,
 }
 
@@ -2037,7 +2041,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Add another".to_string(), "Remove one".to_string()]
+            vec!["add".to_string(), "remove".to_string()]
         );
         assert_eq!(RolebuttonValue::Add.as_str(), "add");
         assert_eq!(RolebuttonValue::Remove.as_str(), "remove");
@@ -2046,7 +2050,7 @@ mod tests {
             Some(RolebuttonValue::Add)
         );
         assert_eq!(
-            RolebuttonValue::from_name("REMOVE ONE"),
+            RolebuttonValue::from_name("remove"),
             Some(RolebuttonValue::Remove)
         );
         assert_eq!(RolebuttonValue::from_name("bogus"), None);
@@ -2083,7 +2087,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Add another".to_string(), "Remove one".to_string()]
+            vec!["add".to_string(), "remove".to_string()]
         );
         assert_eq!(RolereactionValue::Add.as_str(), "add");
         assert_eq!(RolereactionValue::Remove.as_str(), "remove");
@@ -2092,7 +2096,7 @@ mod tests {
             Some(RolereactionValue::Add)
         );
         assert_eq!(
-            RolereactionValue::from_name("REMOVE ONE"),
+            RolereactionValue::from_name("remove"),
             Some(RolereactionValue::Remove)
         );
         assert_eq!(RolereactionValue::from_name("bogus"), None);

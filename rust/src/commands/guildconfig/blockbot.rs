@@ -5,19 +5,21 @@ use super::*;
 /// display names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum BlockbotAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -166,12 +168,12 @@ mod tests {
     #[test]
     fn blockbot_action_choices_mirror_ts_names_values_and_locales() {
         let names: Vec<_> = BlockbotAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Power On", "Power Off"]);
+        assert_eq!(names, vec!["on", "off"]);
         assert_eq!(BlockbotAction::On.as_str(), "on");
         assert_eq!(BlockbotAction::Off.as_str(), "off");
         assert_eq!(BlockbotAction::from_name("on"), Some(BlockbotAction::On));
         assert_eq!(
-            BlockbotAction::from_name("POWER OFF"),
+            BlockbotAction::from_name("off"),
             Some(BlockbotAction::Off)
         );
         assert_eq!(BlockbotAction::from_name("bogus"), None);

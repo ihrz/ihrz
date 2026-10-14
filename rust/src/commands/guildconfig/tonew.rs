@@ -15,19 +15,21 @@ use super::*;
 /// contract and its `value` mapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum TooNewAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -269,12 +271,12 @@ mod tests {
     #[test]
     fn toonew_action_choices_mirror_ts_names_values_and_locales() {
         let names: Vec<_> = TooNewAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Power On", "Power Off"]);
+        assert_eq!(names, vec!["on", "off"]);
         assert_eq!(TooNewAction::On.as_str(), "on");
         assert_eq!(TooNewAction::Off.as_str(), "off");
         assert_eq!(TooNewAction::from_name("on"), Some(TooNewAction::On));
         assert_eq!(
-            TooNewAction::from_name("POWER OFF"),
+            TooNewAction::from_name("off"),
             Some(TooNewAction::Off)
         );
         assert_eq!(TooNewAction::from_name("bogus"), None);

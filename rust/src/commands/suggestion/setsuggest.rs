@@ -6,19 +6,21 @@ use poise::serenity_prelude as serenity;
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SetsuggestAction {
-    #[name = "Power On the Suggestion Module"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On the Suggestion Module")]
+    #[name_localized("en-GB", "Power On the Suggestion Module")]
     #[name_localized("fr", "Activer le module de suggestion")]
     #[name_localized("ja", "power_on_the_suggestion_module")]
     #[name_localized("ru", "power_on_the_suggestion_module")]
     #[name_localized("es-ES", "power_on_the_suggestion_module")]
-    #[name = "on"]
     On,
-    #[name = "Power Off the Suggestion Module"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off the Suggestion Module")]
+    #[name_localized("en-GB", "Power Off the Suggestion Module")]
     #[name_localized("fr", "Désactiver le module de suggestion")]
     #[name_localized("ja", "power_off_the_suggestion_module")]
     #[name_localized("ru", "power_off_the_suggestion_module")]
     #[name_localized("es-ES", "power_off_the_suggestion_module")]
-    #[name = "off"]
     Off,
 }
 
@@ -186,8 +188,8 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Power On the Suggestion Module",
-                "Power Off the Suggestion Module"
+                "on",
+                "off"
             ]
         );
         assert_eq!(SetsuggestAction::On.as_str(), "on");
@@ -197,7 +199,7 @@ mod tests {
             Some(SetsuggestAction::On)
         );
         assert_eq!(
-            SetsuggestAction::from_name("POWER OFF THE SUGGESTION MODULE"),
+            SetsuggestAction::from_name("off"),
             Some(SetsuggestAction::Off)
         );
         assert_eq!(SetsuggestAction::from_name("bogus"), None);

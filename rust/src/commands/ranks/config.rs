@@ -6,7 +6,9 @@ use super::*;
 /// `config_value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum RanksConfigAction {
-    #[name = "Power On the module (send message when user earn xp level)"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On the module (send message when user earn xp level)")]
+    #[name_localized("en-GB", "Power On the module (send message when user earn xp level)")]
     #[name_localized(
         "fr",
         "Activer le module (envoyer un message lorsque l'utilisateur gagne un niveau XP)"
@@ -14,21 +16,22 @@ pub enum RanksConfigAction {
     #[name_localized("ja", "power_on_the_module_send_message")]
     #[name_localized("ru", "power_on_the_module_send_message")]
     #[name_localized("es-ES", "power_on_the_module_send_message")]
-    #[name = "on"]
     On,
-    #[name = "Power Off the module (don't send any message but user still earn xp level)"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off the module (don't send any message but user still earn xp level)")]
+    #[name_localized("en-GB", "Power Off the module (don't send any message but user still earn xp level)")]
     #[name_localized("fr", "Désactiver le module (ne pas envoyer de message mais l'utilisateur gagne toujours un niveau XP)")]
     #[name_localized("ja", "power_off_the_module_don_t_send_")]
     #[name_localized("ru", "power_off_the_module_don_t_send_")]
     #[name_localized("es-ES", "power_off_the_module_don_t_send_")]
-    #[name = "off"]
     Off,
-    #[name = "Disable the module (don't send any message and user don't earn xp level)"]
+    #[name = "disable"]
+    #[name_localized("en-US", "Disable the module (don't send any message and user don't earn xp level)")]
+    #[name_localized("en-GB", "Disable the module (don't send any message and user don't earn xp level)")]
     #[name_localized("fr", "Désactiver le module (ne pas envoyer de message et l'utilisateur ne gagne pas de niveau XP)")]
     #[name_localized("ja", "disable_the_module_don_t_send_an")]
     #[name_localized("ru", "disable_the_module_don_t_send_an")]
     #[name_localized("es-ES", "disable_the_module_don_t_send_an")]
-    #[name = "disable"]
     Disable,
 }
 
@@ -163,9 +166,9 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Power On the module (send message when user earn xp level)",
-                "Power Off the module (don't send any message but user still earn xp level)",
-                "Disable the module (don't send any message and user don't earn xp level)",
+                "on",
+                "off",
+                "disable",
             ]
         );
         assert_eq!(RanksConfigAction::On.as_str(), "on");
@@ -177,7 +180,7 @@ mod tests {
         );
         assert_eq!(
             RanksConfigAction::from_name(
-                "POWER OFF THE MODULE (DON'T SEND ANY MESSAGE BUT USER STILL EARN XP LEVEL)"
+                "off"
             ),
             Some(RanksConfigAction::Off)
         );

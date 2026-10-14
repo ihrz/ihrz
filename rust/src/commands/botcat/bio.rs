@@ -30,19 +30,21 @@ pub fn default_bio(meta_bot_json: Option<&str>, username: &str) -> String {
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum CustomBioAction {
-    #[name = "Default Bot Description"]
+    #[name = "reset"]
+    #[name_localized("en-US", "Default Bot Description")]
+    #[name_localized("en-GB", "Default Bot Description")]
     #[name_localized("fr", "Reprendre la description par défaut du bot")]
     #[name_localized("ja", "ボットのデフォルトの説明に戻す")]
     #[name_localized("ru", "Восстановить описание бота по умолчанию")]
     #[name_localized("es-ES", "Restablecer la descripción predeterminada del bot")]
-    #[name = "reset"]
     Reset,
-    #[name = "Set one"]
+    #[name = "set"]
+    #[name_localized("en-US", "Set one")]
+    #[name_localized("en-GB", "Set one")]
     #[name_localized("fr", "Définir une description")]
     #[name_localized("ja", "説明を設定")]
     #[name_localized("ru", "Задать описание")]
     #[name_localized("es-ES", "Establecer una descripción")]
-    #[name = "set"]
     Set,
 }
 
@@ -213,7 +215,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Default Bot Description".to_string(), "Set one".to_string()]
+            vec!["reset".to_string(), "set".to_string()]
         );
         assert_eq!(CustomBioAction::Reset.as_str(), "reset");
         assert_eq!(CustomBioAction::Set.as_str(), "set");

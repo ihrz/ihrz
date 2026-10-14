@@ -5,19 +5,21 @@ use super::*;
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum BackupScopeChoice {
-    #[name = "Only owner"]
+    #[name = "owner"]
+    #[name_localized("en-US", "Only owner")]
+    #[name_localized("en-GB", "Only owner")]
     #[name_localized("fr", "Seulement le propriétaire")]
     #[name_localized("ja", "only_owner")]
     #[name_localized("ru", "only_owner")]
     #[name_localized("es-ES", "only_owner")]
-    #[name = "owner"]
     Owner,
-    #[name = "All admin(s)"]
+    #[name = "admin"]
+    #[name_localized("en-US", "All admin(s)")]
+    #[name_localized("en-GB", "All admin(s)")]
     #[name_localized("fr", "Tous les administrateurs")]
     #[name_localized("ja", "all_admin_s")]
     #[name_localized("ru", "all_admin_s")]
     #[name_localized("es-ES", "all_admin_s")]
-    #[name = "admin"]
     Admin,
 }
 
@@ -148,7 +150,7 @@ mod tests {
             .collect();
         assert_eq!(
             names,
-            vec!["Only owner".to_string(), "All admin(s)".to_string()]
+            vec!["owner".to_string(), "admin".to_string()]
         );
         assert_eq!(BackupScopeChoice::Owner.as_str(), "owner");
         assert_eq!(BackupScopeChoice::Admin.as_str(), "admin");
@@ -157,7 +159,7 @@ mod tests {
             Some(BackupScopeChoice::Owner)
         );
         assert_eq!(
-            BackupScopeChoice::from_name("ALL ADMIN(S)"),
+            BackupScopeChoice::from_name("admin"),
             Some(BackupScopeChoice::Admin)
         );
         assert_eq!(BackupScopeChoice::from_name("everyone"), None);

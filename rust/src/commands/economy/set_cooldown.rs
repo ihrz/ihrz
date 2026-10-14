@@ -63,19 +63,21 @@ pub fn parse_cooldown_ms(raw: &str) -> Option<i64> {
 /// names, the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SetCooldownKind {
-    #[name = "Rob"]
+    #[name = "rob"]
+    #[name_localized("en-US", "Rob")]
+    #[name_localized("en-GB", "Rob")]
     #[name_localized("fr", "Voler")]
     #[name_localized("ja", "rob")]
     #[name_localized("ru", "rob")]
     #[name_localized("es-ES", "rob")]
-    #[name = "rob"]
     Rob,
-    #[name = "Work"]
+    #[name = "work"]
+    #[name_localized("en-US", "Work")]
+    #[name_localized("en-GB", "Work")]
     #[name_localized("fr", "Travailler")]
     #[name_localized("ja", "work")]
     #[name_localized("ru", "work")]
     #[name_localized("es-ES", "work")]
-    #[name = "work"]
     Work,
 }
 
@@ -210,7 +212,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(names, vec!["Rob", "Work"]);
+        assert_eq!(names, vec!["rob", "work"]);
         assert_eq!(SetCooldownKind::Rob.as_str(), "rob");
         assert_eq!(SetCooldownKind::Work.as_str(), "work");
         assert_eq!(
@@ -218,7 +220,7 @@ mod tests {
             Some(SetCooldownKind::Rob)
         );
         assert_eq!(
-            SetCooldownKind::from_name("WORK"),
+            SetCooldownKind::from_name("work"),
             Some(SetCooldownKind::Work)
         );
         assert_eq!(SetCooldownKind::from_name("daily"), None);

@@ -6,19 +6,21 @@ use super::*;
 /// `parse_config_action`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum TicketConfigAction {
-    #[name = "Remove the module"]
+    #[name = "off"]
+    #[name_localized("en-US", "Remove the module")]
+    #[name_localized("en-GB", "Remove the module")]
     #[name_localized("fr", "Supprimer le module")]
     #[name_localized("ja", "remove_the_module")]
     #[name_localized("ru", "remove_the_module")]
     #[name_localized("es-ES", "remove_the_module")]
-    #[name = "off"]
     Off,
-    #[name = "Power on the module"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power on the module")]
+    #[name_localized("en-GB", "Power on the module")]
     #[name_localized("fr", "Activer le module")]
     #[name_localized("ja", "power_on_the_module")]
     #[name_localized("ru", "power_on_the_module")]
     #[name_localized("es-ES", "power_on_the_module")]
-    #[name = "on"]
     On,
 }
 
@@ -149,8 +151,8 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "Remove the module".to_string(),
-                "Power on the module".to_string()
+                "off".to_string(),
+                "on".to_string()
             ]
         );
         assert_eq!(TicketConfigAction::Off.as_str(), "off");
@@ -160,7 +162,7 @@ mod tests {
             Some(TicketConfigAction::Off)
         );
         assert_eq!(
-            TicketConfigAction::from_name("POWER ON THE MODULE"),
+            TicketConfigAction::from_name("on"),
             Some(TicketConfigAction::On)
         );
         assert_eq!(TicketConfigAction::from_name("bogus"), None);

@@ -12,89 +12,101 @@ use super::*;
 /// variant back to the TS `value` (`10` … `100`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum VolumeChoice {
-    #[name = "10%"]
+    #[name = "10"]
+    #[name_localized("en-US", "10%")]
+    #[name_localized("en-GB", "10%")]
     #[name_localized("fr", "10%")]
     #[name_localized("ja", "10%")]
     #[name_localized("ru", "10%")]
     #[name_localized("es-ES", "10%")]
-    #[name = "10"]
     V10,
-    #[name = "20%"]
+    #[name = "20"]
+    #[name_localized("en-US", "20%")]
+    #[name_localized("en-GB", "20%")]
     #[name_localized("fr", "20%")]
     #[name_localized("ja", "20%")]
     #[name_localized("ru", "20%")]
     #[name_localized("es-ES", "20%")]
-    #[name = "20"]
     V20,
-    #[name = "30%"]
+    #[name = "30"]
+    #[name_localized("en-US", "30%")]
+    #[name_localized("en-GB", "30%")]
     #[name_localized("fr", "30%")]
     #[name_localized("ja", "30%")]
     #[name_localized("ru", "30%")]
     #[name_localized("es-ES", "30%")]
-    #[name = "30"]
     V30,
-    #[name = "35%"]
+    #[name = "35"]
+    #[name_localized("en-US", "35%")]
+    #[name_localized("en-GB", "35%")]
     #[name_localized("fr", "35%")]
     #[name_localized("ja", "35%")]
     #[name_localized("ru", "35%")]
     #[name_localized("es-ES", "35%")]
-    #[name = "35"]
     V35,
-    #[name = "45%"]
+    #[name = "45"]
+    #[name_localized("en-US", "45%")]
+    #[name_localized("en-GB", "45%")]
     #[name_localized("fr", "45%")]
     #[name_localized("ja", "45%")]
     #[name_localized("ru", "45%")]
     #[name_localized("es-ES", "45%")]
-    #[name = "45"]
     V45,
-    #[name = "55%"]
+    #[name = "55"]
+    #[name_localized("en-US", "55%")]
+    #[name_localized("en-GB", "55%")]
     #[name_localized("fr", "55%")]
     #[name_localized("ja", "55%")]
     #[name_localized("ru", "55%")]
     #[name_localized("es-ES", "55%")]
-    #[name = "55"]
     V55,
-    #[name = "60%"]
+    #[name = "60"]
+    #[name_localized("en-US", "60%")]
+    #[name_localized("en-GB", "60%")]
     #[name_localized("fr", "60%")]
     #[name_localized("ja", "60%")]
     #[name_localized("ru", "60%")]
     #[name_localized("es-ES", "60%")]
-    #[name = "60"]
     V60,
-    #[name = "70%"]
+    #[name = "70"]
+    #[name_localized("en-US", "70%")]
+    #[name_localized("en-GB", "70%")]
     #[name_localized("fr", "70%")]
     #[name_localized("ja", "70%")]
     #[name_localized("ru", "70%")]
     #[name_localized("es-ES", "70%")]
-    #[name = "70"]
     V70,
-    #[name = "80%"]
+    #[name = "80"]
+    #[name_localized("en-US", "80%")]
+    #[name_localized("en-GB", "80%")]
     #[name_localized("fr", "80%")]
     #[name_localized("ja", "80%")]
     #[name_localized("ru", "80%")]
     #[name_localized("es-ES", "80%")]
-    #[name = "80"]
     V80,
-    #[name = "90%"]
+    #[name = "90"]
+    #[name_localized("en-US", "90%")]
+    #[name_localized("en-GB", "90%")]
     #[name_localized("fr", "90%")]
     #[name_localized("ja", "90%")]
     #[name_localized("ru", "90%")]
     #[name_localized("es-ES", "90%")]
-    #[name = "90"]
     V90,
-    #[name = "95%"]
+    #[name = "95"]
+    #[name_localized("en-US", "95%")]
+    #[name_localized("en-GB", "95%")]
     #[name_localized("fr", "95%")]
     #[name_localized("ja", "95%")]
     #[name_localized("ru", "95%")]
     #[name_localized("es-ES", "95%")]
-    #[name = "95"]
     V95,
-    #[name = "100%"]
+    #[name = "100"]
+    #[name_localized("en-US", "100%")]
+    #[name_localized("en-GB", "100%")]
     #[name_localized("fr", "100%")]
     #[name_localized("ja", "100%")]
     #[name_localized("ru", "100%")]
     #[name_localized("es-ES", "100%")]
-    #[name = "100"]
     V100,
 }
 
@@ -190,13 +202,13 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "10%", "20%", "30%", "35%", "45%", "55%", "60%", "70%", "80%", "90%", "95%",
-                "100%",
+                "10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95",
+                "100",
             ]
         );
         assert_eq!(VolumeChoice::V10.as_str(), "10");
         assert_eq!(VolumeChoice::V100.as_str(), "100");
-        assert_eq!(VolumeChoice::from_name("80%"), Some(VolumeChoice::V80));
+        assert_eq!(VolumeChoice::from_name("80"), Some(VolumeChoice::V80));
         assert_eq!(VolumeChoice::from_name("100"), Some(VolumeChoice::V100));
         assert_eq!(VolumeChoice::from_name("75"), None);
         assert_eq!(VolumeChoice::from_index(0), Some(VolumeChoice::V10));

@@ -5,26 +5,29 @@ use super::*;
 /// the handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SetMoneyKind {
-    #[name = "Daily"]
+    #[name = "daily"]
+    #[name_localized("en-US", "Daily")]
+    #[name_localized("en-GB", "Daily")]
     #[name_localized("fr", "Quotidien")]
     #[name_localized("ja", "daily")]
     #[name_localized("ru", "daily")]
     #[name_localized("es-ES", "daily")]
-    #[name = "daily"]
     Daily,
-    #[name = "Weekly"]
+    #[name = "weekly"]
+    #[name_localized("en-US", "Weekly")]
+    #[name_localized("en-GB", "Weekly")]
     #[name_localized("fr", "Hebdomadaire")]
     #[name_localized("ja", "weekly")]
     #[name_localized("ru", "weekly")]
     #[name_localized("es-ES", "weekly")]
-    #[name = "weekly"]
     Weekly,
-    #[name = "Monthly"]
+    #[name = "monthly"]
+    #[name_localized("en-US", "Monthly")]
+    #[name_localized("en-GB", "Monthly")]
     #[name_localized("fr", "Mensuel")]
     #[name_localized("ja", "monthly")]
     #[name_localized("ru", "monthly")]
     #[name_localized("es-ES", "monthly")]
-    #[name = "monthly"]
     Monthly,
 }
 
@@ -143,7 +146,7 @@ mod tests {
     fn set_money_kind_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = SetMoneyKind::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Daily", "Weekly", "Monthly"]);
+        assert_eq!(names, vec!["daily", "weekly", "monthly"]);
         assert_eq!(SetMoneyKind::Daily.as_str(), "daily");
         assert_eq!(SetMoneyKind::Monthly.as_str(), "monthly");
         assert_eq!(
@@ -151,7 +154,7 @@ mod tests {
             Some(SetMoneyKind::Weekly)
         );
         assert_eq!(
-            SetMoneyKind::from_name("MONTHLY"),
+            SetMoneyKind::from_name("monthly"),
             Some(SetMoneyKind::Monthly)
         );
         assert_eq!(SetMoneyKind::from_name("yearly"), None);

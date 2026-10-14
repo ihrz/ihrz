@@ -6,47 +6,53 @@ use super::*;
 /// double as prefix aliases (the display form uses slashes).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ProfilPronoun {
-    #[name = "she/her"]
+    #[name = "she-her"]
+    #[name_localized("en-US", "she/her")]
+    #[name_localized("en-GB", "she/her")]
     #[name_localized("fr", "elle/elle")]
     #[name_localized("ja", "she_her")]
     #[name_localized("ru", "she_her")]
     #[name_localized("es-ES", "she_her")]
-    #[name = "she-her"]
     SheHer,
-    #[name = "he/him"]
+    #[name = "he-him"]
+    #[name_localized("en-US", "he/him")]
+    #[name_localized("en-GB", "he/him")]
     #[name_localized("fr", "il/il")]
     #[name_localized("ja", "he_him")]
     #[name_localized("ru", "he_him")]
     #[name_localized("es-ES", "he_him")]
-    #[name = "he-him"]
     HeHim,
-    #[name = "they/them"]
+    #[name = "they-them"]
+    #[name_localized("en-US", "they/them")]
+    #[name_localized("en-GB", "they/them")]
     #[name_localized("fr", "ils/ils")]
     #[name_localized("ja", "they_them")]
     #[name_localized("ru", "they_them")]
     #[name_localized("es-ES", "they_them")]
-    #[name = "they-them"]
     TheyThem,
-    #[name = "xe/xem"]
+    #[name = "xe-xem"]
+    #[name_localized("en-US", "xe/xem")]
+    #[name_localized("en-GB", "xe/xem")]
     #[name_localized("fr", "xe/xe")]
     #[name_localized("ja", "xe_xem")]
     #[name_localized("ru", "xe_xem")]
     #[name_localized("es-ES", "xe_xem")]
-    #[name = "xe-xem"]
     XeXem,
-    #[name = "ze/zem"]
+    #[name = "ze-zem"]
+    #[name_localized("en-US", "ze/zem")]
+    #[name_localized("en-GB", "ze/zem")]
     #[name_localized("fr", "ze/ze")]
     #[name_localized("ja", "ze_zem")]
     #[name_localized("ru", "ze_zem")]
     #[name_localized("es-ES", "ze_zem")]
-    #[name = "ze-zem"]
     ZeZem,
-    #[name = "other (say my name)"]
+    #[name = "other"]
+    #[name_localized("en-US", "other (say my name)")]
+    #[name_localized("en-GB", "other (say my name)")]
     #[name_localized("fr", "autre (dire mon nom)")]
     #[name_localized("ja", "other_say_my_name")]
     #[name_localized("ru", "other_say_my_name")]
     #[name_localized("es-ES", "other_say_my_name")]
-    #[name = "other"]
     Other,
 }
 
@@ -169,18 +175,18 @@ mod tests {
         assert_eq!(
             names,
             vec![
-                "she/her",
-                "he/him",
-                "they/them",
-                "xe/xem",
-                "ze/zem",
-                "other (say my name)"
+                "she-her",
+                "he-him",
+                "they-them",
+                "xe-xem",
+                "ze-zem",
+                "other"
             ]
         );
         assert_eq!(ProfilPronoun::SheHer.as_str(), "she-her");
         assert_eq!(ProfilPronoun::Other.as_str(), "other");
         assert_eq!(
-            ProfilPronoun::from_name("she/her"),
+            ProfilPronoun::from_name("she-her"),
             Some(ProfilPronoun::SheHer)
         );
         assert_eq!(
@@ -188,7 +194,7 @@ mod tests {
             Some(ProfilPronoun::SheHer)
         );
         assert_eq!(
-            ProfilPronoun::from_name("THEY/THEM"),
+            ProfilPronoun::from_name("they-them"),
             Some(ProfilPronoun::TheyThem)
         );
         assert_eq!(

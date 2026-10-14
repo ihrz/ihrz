@@ -5,40 +5,45 @@ use super::*;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum EcoBoostChoice {
-    #[name = "Default"]
+    #[name = "1"]
+    #[name_localized("en-US", "Default")]
+    #[name_localized("en-GB", "Default")]
     #[name_localized("fr", "Défaut")]
     #[name_localized("ja", "default")]
     #[name_localized("ru", "default")]
     #[name_localized("es-ES", "default")]
-    #[name = "1"]
     Default,
-    #[name = "x2"]
+    #[name = "2"]
+    #[name_localized("en-US", "x2")]
+    #[name_localized("en-GB", "x2")]
     #[name_localized("fr", "x2")]
     #[name_localized("ja", "x2")]
     #[name_localized("ru", "x2")]
     #[name_localized("es-ES", "x2")]
-    #[name = "2"]
     X2,
-    #[name = "x3"]
+    #[name = "3"]
+    #[name_localized("en-US", "x3")]
+    #[name_localized("en-GB", "x3")]
     #[name_localized("fr", "x3")]
     #[name_localized("ja", "x3")]
     #[name_localized("ru", "x3")]
     #[name_localized("es-ES", "x3")]
-    #[name = "3"]
     X3,
-    #[name = "x4"]
+    #[name = "4"]
+    #[name_localized("en-US", "x4")]
+    #[name_localized("en-GB", "x4")]
     #[name_localized("fr", "x4")]
     #[name_localized("ja", "x4")]
     #[name_localized("ru", "x4")]
     #[name_localized("es-ES", "x4")]
-    #[name = "4"]
     X4,
-    #[name = "x5"]
+    #[name = "5"]
+    #[name_localized("en-US", "x5")]
+    #[name_localized("en-GB", "x5")]
     #[name_localized("fr", "x5")]
     #[name_localized("ja", "x5")]
     #[name_localized("ru", "x5")]
     #[name_localized("es-ES", "x5")]
-    #[name = "5"]
     X5,
 }
 
@@ -157,12 +162,12 @@ mod tests {
     fn boost_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = EcoBoostChoice::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Default", "x2", "x3", "x4", "x5"]);
+        assert_eq!(names, vec!["1", "2", "3", "4", "5"]);
         assert_eq!(EcoBoostChoice::Default.as_str(), "1");
         assert_eq!(EcoBoostChoice::X5.as_str(), "5");
-        assert_eq!(EcoBoostChoice::from_name("x3"), Some(EcoBoostChoice::X3));
+        assert_eq!(EcoBoostChoice::from_name("3"), Some(EcoBoostChoice::X3));
         assert_eq!(
-            EcoBoostChoice::from_name("DEFAULT"),
+            EcoBoostChoice::from_name("1"),
             Some(EcoBoostChoice::Default)
         );
         assert_eq!(

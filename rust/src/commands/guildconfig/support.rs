@@ -6,19 +6,21 @@ use poise::serenity_prelude as serenity;
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SupportAction {
-    #[name = "Power On"]
+    #[name = "on"]
+    #[name_localized("en-US", "Power On")]
+    #[name_localized("en-GB", "Power On")]
     #[name_localized("fr", "Activer")]
     #[name_localized("ja", "power_on")]
     #[name_localized("ru", "power_on")]
     #[name_localized("es-ES", "power_on")]
-    #[name = "on"]
     On,
-    #[name = "Power Off"]
+    #[name = "off"]
+    #[name_localized("en-US", "Power Off")]
+    #[name_localized("en-GB", "Power Off")]
     #[name_localized("fr", "Désactiver")]
     #[name_localized("ja", "power_off")]
     #[name_localized("ru", "power_off")]
     #[name_localized("es-ES", "power_off")]
-    #[name = "off"]
     Off,
 }
 
@@ -37,19 +39,21 @@ impl SupportAction {
 /// handler maps each variant back to the TS `value`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum SupportKind {
-    #[name = "Something in the bio"]
+    #[name = "bio"]
+    #[name_localized("en-US", "Something in the bio")]
+    #[name_localized("en-GB", "Something in the bio")]
     #[name_localized("fr", "Quelques choses dans la bio")]
     #[name_localized("ja", "something_in_the_bio")]
     #[name_localized("ru", "something_in_the_bio")]
     #[name_localized("es-ES", "something_in_the_bio")]
-    #[name = "bio"]
     Bio,
-    #[name = "The guild tag (Boost perks)"]
+    #[name = "tag"]
+    #[name_localized("en-US", "The guild tag (Boost perks)")]
+    #[name_localized("en-GB", "The guild tag (Boost perks)")]
     #[name_localized("fr", "Le tag du serveur sur sont profil (Activable via des boosts)")]
     #[name_localized("ja", "the_guild_tag_boost_perks")]
     #[name_localized("ru", "the_guild_tag_boost_perks")]
     #[name_localized("es-ES", "the_guild_tag_boost_perks")]
-    #[name = "tag"]
     Tag,
 }
 
@@ -240,12 +244,12 @@ mod tests {
     fn support_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = SupportAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(SupportAction::On.as_str(), "on");
         assert_eq!(SupportAction::Off.as_str(), "off");
         assert_eq!(SupportAction::from_name("on"), Some(SupportAction::On));
         assert_eq!(
-            SupportAction::from_name("POWER OFF"),
+            SupportAction::from_name("off"),
             Some(SupportAction::Off)
         );
         assert_eq!(SupportAction::from_name("maybe"), None);
@@ -254,15 +258,15 @@ mod tests {
         assert_eq!(
             kinds,
             vec![
-                "Something in the bio".to_string(),
-                "The guild tag (Boost perks)".to_string()
+                "bio".to_string(),
+                "tag".to_string()
             ]
         );
         assert_eq!(SupportKind::Bio.as_str(), "bio");
         assert_eq!(SupportKind::Tag.as_str(), "tag");
         assert_eq!(SupportKind::from_name("tag"), Some(SupportKind::Tag));
         assert_eq!(
-            SupportKind::from_name("SOMETHING IN THE BIO"),
+            SupportKind::from_name("bio"),
             Some(SupportKind::Bio)
         );
         assert_eq!(SupportKind::from_name("other"), None);
