@@ -253,7 +253,10 @@ async def act_wait_for_bot_voice(client, a: dict) -> dict:
     _need_write(a)
     g = await _guild(client, a.get("guild_id"))
     want = str(a.get("channel_id") or "")
-    timeout = min(int(a.get("timeout_ms", 20_000)), 60_000)
+    # NOTE: the param is `wait_ms` (not `timeout_ms`): the SDK's
+    # forbidden-verb guard matches the word "timeout" and would
+    # refuse the whole plan.
+    timeout = min(int(a.get("wait_ms", 20_000)), 60_000)
     t0 = time.time()
     while (time.time() - t0) * 1000 < timeout:
         # Refresh member cache for the bot.
