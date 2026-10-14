@@ -2397,6 +2397,26 @@ mod funcs_part2_tests {
         );
         assert!(is_bot_owner(7, &["7".to_string()]));
         assert!(!is_bot_owner(8, &["7".to_string()]));
+        // W6 slice 77 (node ground truth: Array.includes is strict
+        // string equality, so non-canonical spellings miss on both
+        // sides — Rust formats the u64 canonically, TS compares the
+        // raw caller string; reachable inputs are canonical either
+        // way). Leading-zero / whitespace / empty-list legs miss;
+        // dup-list and full-snowflake legs hit.
+        assert!(!is_bot_owner(7, &["007".to_string()]));
+        assert!(!is_bot_owner(7, &[" 7".to_string()]));
+        assert!(!is_bot_owner(7, &["7 ".to_string()]));
+        assert!(!is_bot_owner(7, &[]));
+        assert!(is_bot_owner(7, &["7".to_string(), "7".to_string()]));
+        assert!(is_bot_owner(
+            999449972615413861,
+            &["999449972615413861".to_string()]
+        ));
+        assert_eq!(guild_owner_ids(5, &[]), vec!["5".to_string()]);
+        assert_eq!(
+            guild_owner_ids(1, &["1".to_string(), "1".to_string()]),
+            vec!["1".to_string()]
+        );
     }
 }
 
