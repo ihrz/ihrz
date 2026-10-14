@@ -242,15 +242,26 @@ pub fn check_prefix_args(
         }
     }
     if let Some(orig_idx) = missing_attachment_option(specs, has_attachments) {
+        // TS passes the raw original-options index (`command.options?
+        // .findIndex(opt => opt.name === ...)`) against the REORDERED
+        // render array `[...expectedArgs, ...attachmentArgs]`, so an
+        // attachment declared before a text option mispoints the caret
+        // (node ground truth, fun captions `[image, query]`: errorIndex 0
+        // puts `^` under `[string]`, wrongArgumentName "string"). No
+        // remap here: exactness over helpfulness.
         return Err(PrefixArgsError {
             option_index: orig_idx,
-            display_index: display_position(specs, orig_idx),
+            display_index: orig_idx,
         });
     }
     Ok(())
 }
 
 /// Position of an original-order option inside the usage line.
+/// Text-error paths only: a text option at text-order `i` renders at
+/// combined index `i` (`[text..., attach...]`), so the remap is the
+/// identity on reachable inputs. Attachment errors use the raw index
+/// (TS quirk, see above), never this helper.
 fn display_position(specs: &[ArgSpec], orig_idx: usize) -> usize {
     display_order(specs)
         .iter()
@@ -260,10 +271,14 @@ fn display_position(specs: &[ArgSpec], orig_idx: usize) -> usize {
 
 /// Usage tokens. Mirrors sendErrorMessage: required `[type]`,
 /// optional `<type>`. The missing-count path renders text options only;
-/// every other error renders text + attachments.
+/// every other error renders text + attachments, TEXT FIRST (TS
+/// `[...expectedArgs, ...attachmentArgs]` — original relative order
+/// inside each group, so fun captions `[image, query]` renders
+/// `[string] [attachment]`).
 pub fn usage_tokens(specs: &[ArgSpec], text_only: bool) -> Vec<String> {
-    specs
+    display_order(specs)
         .iter()
+        .map(|&i| &specs[i])
         .filter(|s| !text_only || !s.attachment)
         .map(|s| {
             if s.required {
@@ -389,6 +404,44 @@ mod tests {
         let mut args = vec!["1".to_string(), "2".to_string()];
         merge_long_tail(&mut args, &short);
         assert_eq!(args, vec!["1", "2"]);
+    }
+
+    #[test]
+    fn attachment_first_caret_matches_ts_quirk() {
+        // fun captions declares `[image(attachment), query(string)]`:
+        // TS findIndex(image) = 0 against the rendered `[query, image]`
+        // line, so the caret lands under `[string]` (node ground truth:
+        // argsString "[string] [attachment]", wrong "string"). Rust now
+        // passes the raw index too — no remap.
+        let specs = vec![
+            ArgSpec::attachment("image", true),
+            ArgSpec::text("query", "string", true, true),
+        ];
+        let no_channel = &|_: &str| None;
+        let mut args = vec!["some text".to_string()];
+        let err = check_prefix_args(&mut args, &specs, false, no_channel).unwrap_err();
+        assert_eq!(err.option_index, 0);
+        assert_eq!(err.display_index, 0);
+        let template =
+            crate::lang::get("en-US", "hybridcommands_args_error_embed_desc").unwrap_or_default();
+        let desc = usage_error_description(
+            &template,
+            "!",
+            "fun captions",
+            &specs,
+            false,
+            err.display_index,
+        );
+        assert!(desc.contains("[string] [attachment]"));
+        assert!(desc.contains("Error when sending \"string\" argument."));
+        // Attachment-last layout agrees under both indexings.
+        let last = vec![
+            ArgSpec::text("user", "user", true, false),
+            ArgSpec::attachment("proof", true),
+        ];
+        let mut args = vec!["@u".to_string()];
+        let err = check_prefix_args(&mut args, &last, false, no_channel).unwrap_err();
+        assert_eq!((err.option_index, err.display_index), (1, 1));
     }
 
     #[test]
