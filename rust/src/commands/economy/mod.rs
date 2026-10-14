@@ -651,7 +651,11 @@ pub const ECONOMY_LOG_COLOUR: u32 = 0xF1C232;
 /// Apply `{placeholder}` pairs to a log description template. Pure part
 /// of sendEmbed in economyLogs.ts: each TS call chains
 /// `.replace("{x}", v)` for its own placeholders, then resolves
-/// `{coin}` to the Coin app emoji. `coin_markup` is injected so the
+/// `{coin}` to the Coin app emoji. TS `String.replace` with a string
+/// pattern replaces the FIRST occurrence only, so each leg uses
+/// `replacen(.., 1)` (node ground truth: `"{a} x {a}"` keeps the
+/// second marker, and a substituted value holding a later marker is
+/// only re-scanned from its own leg on). `coin_markup` is injected so the
 /// replacement stays offline-testable; pass `None` to leave `{coin}`.
 pub fn apply_log_pairs(
     template: &str,
@@ -660,10 +664,10 @@ pub fn apply_log_pairs(
 ) -> String {
     let mut desc = template.to_string();
     for (k, v) in pairs {
-        desc = desc.replace(&format!("{{{k}}}"), v);
+        desc = desc.replacen(&format!("{{{k}}}"), v, 1);
     }
     if let Some(coin) = coin_markup {
-        desc = desc.replace("{coin}", coin);
+        desc = desc.replacen("{coin}", coin, 1);
     }
     desc
 }
@@ -1667,6 +1671,21 @@ mod tests {
         // path that never replaces it (callers always pass pairs).
         let out = apply_log_pairs("{amount} {coin}", &[("amount", "5")], None);
         assert_eq!(out, "5 {coin}");
+        // W6 slice 71: TS `.replace` is first-only per leg. A doubled
+        // marker keeps its second copy (Rust `replace` replaced both).
+        let out = apply_log_pairs("{author} x {author}", &[("author", "X")], None);
+        assert_eq!(out, "X x {author}");
+        // A substituted value holding a later marker is only re-scanned
+        // from its own leg on (node: "<@2> gave {target}").
+        let out = apply_log_pairs(
+            "{author} gave {target}",
+            &[("author", "{target}"), ("target", "<@2>")],
+            None,
+        );
+        assert_eq!(out, "<@2> gave {target}");
+        // Same first-only rule for the trailing {coin} leg.
+        let out = apply_log_pairs("{coin} {coin}", &[], Some("C"));
+        assert_eq!(out, "C {coin}");
     }
 }
 
