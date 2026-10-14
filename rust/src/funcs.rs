@@ -840,11 +840,16 @@ pub struct BatchProcessorResult {
 }
 
 /// Counted batch runner. Mirrors processBatch exactly: chunked loop
-/// over `batchSize` (default 10), per-item try/catch (a processor
-/// failure counts as failed, never aborts the run), `onProgress`
+/// over `batchSize` (default 10), per-item try/catch (a resolved
+/// `false` — or, in TS, a rejected processor caught to `false` —
+/// counts as failed, never aborts the run), `onProgress`
 /// after each batch with (completed, total), and `delay` ms between
 /// batches (skipped after the last one; 0 disables the sleep so
 /// offline tests stay instant).
+/// Deltas (doc-noted): `batch_size == 0` runs one item per batch
+/// (`max(1)`; TS `i += 0` loops forever), and a panicking processor
+/// propagates (TS only ever sees rejections, which have no Rust
+/// counterpart on a `bool`-returning future).
 pub async fn process_batch_full<T, F, Fut, P>(
     items: &[T],
     batch_size: usize,
@@ -1647,6 +1652,32 @@ mod tests {
             }
         );
         assert_eq!(rx.await.unwrap(), joined);
+    }
+
+    #[tokio::test]
+    async fn batch_size_zero_runs_one_per_batch() {
+        // Documented delta (W6 slice 48): TS `i += 0` loops forever;
+        // Rust clamps to one item per batch via `max(1)`.
+        let items = vec![1, 2, 3];
+        let mut seen = vec![];
+        let result = process_batch_full(
+            &items,
+            0,
+            0,
+            Some(&mut |done: usize, total: usize| {
+                seen.push((done, total));
+            }),
+            |x| async move { x % 2 == 1 },
+        )
+        .await;
+        assert_eq!(
+            result,
+            BatchProcessorResult {
+                success: 2,
+                failed: 1
+            }
+        );
+        assert_eq!(seen, vec![(1, 3), (2, 3), (3, 3)]);
     }
 
     #[test]

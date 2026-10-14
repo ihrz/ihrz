@@ -2442,7 +2442,8 @@ impl Handler {
                 None => by_channel.push((ch, vec![id])),
             }
         }
-        for batch in by_channel.chunks(ANTISPAM_CHANNEL_BATCH) {
+        let batch_count = by_channel.chunks(ANTISPAM_CHANNEL_BATCH).len();
+        for (batch_index, batch) in by_channel.chunks(ANTISPAM_CHANNEL_BATCH).enumerate() {
             for (ch, ids) in batch {
                 let channel = serenity::ChannelId::new(*ch);
                 for chunk in antispam_chunks(ids, ANTISPAM_BULK_CHUNK) {
@@ -2460,10 +2461,14 @@ impl Handler {
                     }
                 }
             }
-            tokio::time::sleep(std::time::Duration::from_millis(
-                ANTISPAM_CHANNEL_BATCH_DELAY_MS,
-            ))
-            .await;
+            // Pacing between channel batches, skipped after the last
+            // one like the TS `if (i + batchSize < items.length)` guard.
+            if batch_index + 1 < batch_count {
+                tokio::time::sleep(std::time::Duration::from_millis(
+                    ANTISPAM_CHANNEL_BATCH_DELAY_MS,
+                ))
+                .await;
+            }
         }
     }
 
