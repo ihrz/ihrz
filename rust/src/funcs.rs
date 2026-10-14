@@ -1655,6 +1655,47 @@ mod tests {
         assert!(is_discord_emoji("<:pepe:123>"));
         assert!(is_discord_emoji("<a:dance:456>"));
         assert!(!is_discord_emoji("👍"));
+        // Node ground truth pins (`/:(\w+):(\d+)>/`, unanchored, ASCII-only
+        // \w/\d): bare shapes, later-colon backtrack restarts (`:a:b:2>`,
+        // `::a:1>`), digit-run must abut `>` (`:a:12x>`), non-ASCII names /
+        // digits rejected (`é`, fullwidth), sign/space/tab in the id leg
+        // rejected, mid-string matches pass through.
+        assert!(is_discord_emoji(":a:1>"));
+        assert!(is_discord_emoji("hello :x:9> world"));
+        assert!(is_discord_emoji(":a1:2>"));
+        assert!(is_discord_emoji("<:a:1>"));
+        assert!(is_discord_emoji("::a:1>"));
+        assert!(is_discord_emoji(":a:b:2>"));
+        assert!(is_discord_emoji(":ab:12>trail"));
+        assert!(is_discord_emoji("a:bc:12>"));
+        assert!(is_discord_emoji("_:xy:77>"));
+        assert!(is_discord_emoji(":a:0>"));
+        assert!(is_discord_emoji(":0:0>"));
+        assert!(is_discord_emoji(":ABC_DEF:999>"));
+        assert!(is_discord_emoji("x:y:3>z"));
+        assert!(is_discord_emoji(":_:1>"));
+        assert!(is_discord_emoji(":A_:0>"));
+        assert!(is_discord_emoji(":a:1>2>"));
+        assert!(!is_discord_emoji(":a:b1>"));
+        assert!(!is_discord_emoji(":a::1>"));
+        assert!(!is_discord_emoji("::1>"));
+        assert!(!is_discord_emoji(":a:12x>"));
+        assert!(!is_discord_emoji(":é:1>"));
+        assert!(!is_discord_emoji(":a:1"));
+        assert!(!is_discord_emoji(":a:>"));
+        assert!(!is_discord_emoji("::>"));
+        assert!(!is_discord_emoji(":"));
+        assert!(!is_discord_emoji("<a:1>"));
+        assert!(!is_discord_emoji("text:with:colons"));
+        assert!(!is_discord_emoji("12:34"));
+        assert!(!is_discord_emoji(":-:1>"));
+        assert!(!is_discord_emoji(":.:1>"));
+        assert!(!is_discord_emoji(":a: 1>"));
+        assert!(!is_discord_emoji(":a:\t1>"));
+        assert!(!is_discord_emoji(":a:+1>"));
+        assert!(!is_discord_emoji(":a:-1>"));
+        assert!(!is_discord_emoji(":a:１２>"));
+        assert!(!is_discord_emoji("<: :1>"));
     }
 
     #[test]
