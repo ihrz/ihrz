@@ -3574,16 +3574,52 @@ mod funcs_part5_tests {
     use super::*;
 
     #[test]
-    fn expressions_pick() {
-        let (name, path) = random_expression(7);
-        assert!(EXPRESSIONS.iter().any(|(n, _)| n == &name));
-        assert!(path.ends_with(".png"));
-        assert_eq!(EXPRESSIONS.len(), 10);
+    fn expressions_match_ts_table_order_and_urls() {
+        // Node ground truth (randomExpression.ts): Object.keys insertion order
+        // is Blushed..Wink and each value is baseUrl + path with
+        // baseUrl = "https://www.ihorizon.org". expression_url must join
+        // identically; the draw stream itself is unseedable in TS
+        // (Math.random), so only table order + URL join + in-range index
+        // are portable. Neither side's random pick has live callers (TS
+        // default export uncalled; fixed named thumbnails only).
+        let names: Vec<&str> = EXPRESSIONS.iter().map(|(n, _)| *n).collect();
         assert_eq!(
-            expression_url("Pleading"),
-            "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_pleading.png"
+            names,
+            [
+                "Blushed",
+                "Grimacing",
+                "Grin",
+                "Nerd",
+                "Overhappy",
+                "Pleading",
+                "Sob",
+                "Sunglass",
+                "Thinking",
+                "Wink"
+            ]
+        );
+        for (name, path) in EXPRESSIONS {
+            assert_eq!(
+                expression_url(name),
+                format!("https://www.ihorizon.org{path}"),
+                "url join for {name}"
+            );
+        }
+        assert_eq!(
+            expression_url("Nerd"),
+            "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_nerd.png"
+        );
+        assert_eq!(
+            expression_url("Sob"),
+            "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_sob.png"
         );
         assert_eq!(expression_url("Nope"), "");
+        // Seeded draws always land in range on a known table entry.
+        for seed in [0u64, 1, 7, 42, 999, u64::MAX] {
+            let (name, path) = random_expression(seed);
+            assert!(EXPRESSIONS.iter().any(|(n, _)| n == &name));
+            assert!(path.ends_with(".png"));
+        }
     }
 
     #[test]
