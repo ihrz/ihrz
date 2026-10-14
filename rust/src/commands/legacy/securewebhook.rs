@@ -5,8 +5,10 @@ use super::*;
 /// Mirrors MessageCommands/utils/securewebhook.ts (`create` / `delete`
 /// / `list` via `HorizonGatewayInternal(SecureWebhook)` plus the
 /// `WH_SEC` rows of the shared `api` table — the same table handle
-/// `Events/client/ready.ts` exposes as `apiTable`). Unknown actions
-/// stay silent like the TS if/else chain.
+/// `Events/client/ready.ts` exposes as `apiTable`). An action outside
+/// the TS `choices` (create/delete/list) never reaches the if/else
+/// chain: `checkCommandArgs` rejects it first with the caret usage
+/// embed, so the command replays that embed instead of staying silent.
 #[poise::command(
     prefix_command,
     category = "utils",
@@ -36,6 +38,15 @@ pub async fn securewebhook(
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let author = ctx.author().id.get().to_string();
     let input = input.unwrap_or_default();
+    // TS `checkCommandArgs` validates the `action` option against its
+    // choices before the handler body runs: anything outside
+    // create/delete/list gets the caret usage embed (`+securewebhook
+    // [create/delete/list] <string>`, caret on the first arg). Poise
+    // parses `action` as a plain String, so replay that embed here.
+    if !is_valid_action(&action) {
+        usage_reply(&ctx, &code).await?;
+        return Ok(());
+    }
     if action == "create" {
         if !is_webhook_url(&input) {
             ctx.say(t("util_securewebhook_action_create")).await?;
@@ -257,6 +268,58 @@ async fn gateway_post_status(
         .as_u16())
 }
 
+/// The TS `action` option choices (`create`/`delete`/`list`).
+/// Anything else fails `isValidArgument` in `checkCommandArgs`.
+fn is_valid_action(action: &str) -> bool {
+    matches!(action, "create" | "delete" | "list")
+}
+
+/// Invalid-action usage embed. Replays the exact
+/// checkCommandArgs/sendErrorMessage shape TS sends for
+/// `+securewebhook test-key-1`: usage line `[create/delete/list]
+/// <string>`, caret on the first arg, red embed, shared bot footer
+/// with icon, sent as a reply (interactionSend). Both lang keys
+/// already exist in YAML, so no new key is needed.
+async fn usage_reply(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
+    let pool = &ctx.data().pool;
+    let gid = ctx.guild_id().map(|g| g.get());
+    let prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
+    let tokens = ["[create/delete/list]".to_string(), "<string>".to_string()];
+    let desc = crate::funcs_send::args_error_description(
+        code,
+        "securewebhook",
+        &prefix,
+        "securewebhook",
+        &crate::funcs_send::args_error_line(&[
+            ("create/delete/list".to_string(), true),
+            ("string".to_string(), false),
+        ]),
+        &crate::funcs_send::error_position(&prefix, "securewebhook", &tokens, 0),
+        "create/delete/list",
+    );
+    let footer = crate::lang::get(code, "hybridcommands_embed_footer_text")
+        .unwrap_or_else(|| {
+            "Options within [...] are required, while those within <...> are optional.\nUse the command: ${botPrefix}help [command] for more information."
+                .to_string()
+        })
+        .replace("${botPrefix}", &prefix);
+    let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
+    let (_, fbytes) = crate::commands::shared::footer_parts(ctx, &gid_str).await;
+    let embed = crate::commands::shared::embed_with_footer(
+        serenity::CreateEmbed::default()
+            .description(desc)
+            .colour(0xED_4245_u32),
+        &footer,
+        fbytes.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -301,6 +364,40 @@ mod tests {
         assert_eq!(
             format!("> [{}]({url}) - {} use(s)", w.code, w.use_count),
             "> [c](https://gw/api/webhooks/c/t) - 3 use(s)"
+        );
+    }
+
+    #[test]
+    fn invalid_action_triggers_usage_not_silence() {
+        // Live prodpare: `+securewebhook test-key-1` gets the caret
+        // usage embed while the port stayed silent. Gate pins that.
+        assert!(is_valid_action("create"));
+        assert!(is_valid_action("delete"));
+        assert!(is_valid_action("list"));
+        assert!(!is_valid_action("test-key-1"));
+        assert!(!is_valid_action(""));
+    }
+
+    #[test]
+    fn usage_line_matches_ts_check_command_args() {
+        // TS renders `action` (required, choices) as
+        // `[create/delete/list]` and `input` (optional String) as
+        // `<string>`; caret sits on the first arg.
+        assert_eq!(
+            crate::funcs_send::args_error_line(&[
+                ("create/delete/list".to_string(), true),
+                ("string".to_string(), false)
+            ]),
+            "[create/delete/list] <string>"
+        );
+        assert_eq!(
+            crate::funcs_send::error_position(
+                ".",
+                "securewebhook",
+                &["[create/delete/list]".to_string(), "<string>".to_string()],
+                0
+            ),
+            "               ^         "
         );
     }
 }

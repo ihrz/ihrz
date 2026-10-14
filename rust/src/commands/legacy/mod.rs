@@ -1218,9 +1218,13 @@ async fn render_help_page(
             .disabled(page + 1 >= total);
         components.push(serenity::CreateActionRow::Buttons(vec![prev, ind, next]));
     }
+    // TS @h.ts posts the panel with `interaction.channel.send` (no
+    // message reference); poise `ctx.send` replies by default, so opt
+    // out of the reference to stay shape-identical with prod.
     let reply = ctx
         .send(
             poise::CreateReply::default()
+                .reply(false)
                 .embed(embed)
                 .components(components),
         )
