@@ -1597,6 +1597,11 @@ mod tests {
         assert!(is_valid_link("https://"));
         assert!(!is_valid_link(""));
         assert!(!is_valid_link(" https://x"));
+        // Trailing content never invalidates a matched prefix; fullwidth
+        // colon and BOM prefixes never match (node battery).
+        assert!(is_valid_link("https://x "));
+        assert!(!is_valid_link("https：//x"));
+        assert!(!is_valid_link("\u{FEFF}https://x"));
         assert!(is_valid_color("#fff"));
         assert!(is_valid_color("#123456"));
         assert!(is_valid_color("#FFF"));
@@ -1614,6 +1619,18 @@ mod tests {
         assert!(!is_valid_color("#ſſſ"));
         assert!(!is_valid_color("#KKK"));
         assert!(!is_valid_color("#ＡＢＣ"));
+        // Ligatures/simple-folds (ﬁ/ﬀ/ß/SSS/kkk) never enter [0-9a-f];
+        // lengths other than 3/6 hex digits always fail (node battery).
+        assert!(!is_valid_color("#ﬁﬁﬁ"));
+        assert!(!is_valid_color("#ﬀﬀﬀ"));
+        assert!(!is_valid_color("#ßßß"));
+        assert!(!is_valid_color("#kkk"));
+        assert!(is_valid_color("#FFFFFF"));
+        assert!(is_valid_color("#aBcDeF"));
+        assert!(!is_valid_color("#ff"));
+        assert!(!is_valid_color("#fffff"));
+        assert!(!is_valid_color("#12345"));
+        assert!(!is_valid_color("#1234567"));
         assert!(is_valid_embed_id("abc123"));
         assert!(!is_valid_embed_id(""));
         assert!(!is_valid_embed_id("a.b."));
@@ -1630,6 +1647,16 @@ mod tests {
         // 32-segment cap is inclusive (key adds the EMBED segment).
         assert!(is_valid_embed_id(&vec!["a"; 31].join(".")));
         assert!(!is_valid_embed_id(&vec!["a"; 32].join(".")));
+        // Only dots/emptiness/length gate: spaces, glob chars, dashes,
+        // bare "EMBED" and astral ids all pass (node battery).
+        assert!(is_valid_embed_id("a b"));
+        assert!(is_valid_embed_id(" a"));
+        assert!(is_valid_embed_id("EMBED"));
+        assert!(is_valid_embed_id("a*b?c"));
+        assert!(is_valid_embed_id("-"));
+        assert!(is_valid_embed_id("😀"));
+        assert!(!is_valid_embed_id("."));
+        assert!(!is_valid_embed_id(".."));
     }
 
     #[test]
