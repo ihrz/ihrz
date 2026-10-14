@@ -1034,17 +1034,89 @@ pub fn guild_shard(guild_id: u64, total_shards: u64) -> u64 {
 
 /// True when `guild_id` is served by `shard_id`. Mirrors client.inShard
 /// (`guildShard === shardId`; the TS try/catch falls back to `shardId`
-/// on unparsable ids, i.e. true — see `in_shard_str`).
+/// on unparsable ids, i.e. true — see `in_shard_str`). A zero shard
+/// count also throws in TS (`% 0n` is a RangeError), so it is true too.
 pub fn in_shard(guild_id: u64, shard_id: u64, total_shards: u64) -> bool {
+    if total_shards == 0 {
+        return true;
+    }
     guild_shard(guild_id, total_shards) == shard_id
 }
 
-/// String-guild-id variant. Mirrors client.inShard exactly: an
-/// unparsable id falls back to the local shard, so this returns true.
+/// Reduced shard of a BigInt-grammar guild id: `(N >> 22) % total`,
+/// or `None` when `BigInt(guild_id)` throws (TS try/catch leg).
+/// Grammar replica (node ground truth): JS-whitespace trim, empty ->
+/// 0n, optional sign, `0x`/`0b`/`0o` radix prefixes (>= 1 digit),
+/// otherwise all-decimal-digits with full-string consume (no points,
+/// exponents, underscores, or trailing garbage). Arbitrary magnitudes
+/// need no bigint: only `floor(N / 2^22) mod total` is observed, which
+/// Horner reduction mod `total * 2^22` yields exactly.
+fn bigint_shard_reduced(
+    digits: &str,
+    negative: bool,
+    radix: u32,
+    total_shards: u64,
+) -> Option<u64> {
+    const SHIFT: u128 = 1 << 22;
+    let modulus = (total_shards as u128).checked_mul(SHIFT)?;
+    let mut acc: u128 = 0;
+    for c in digits.chars() {
+        acc = (acc * radix as u128 + c.to_digit(radix)? as u128) % modulus;
+    }
+    // acc = |N| mod (total * 2^22). Positive side: floor(|N| / 2^22)
+    // mod total. Negative side: floor(-|N| / 2^22) = -(kT + ceil(acc/M))
+    // (acc > 0), so the signed reduced value is 0 iff ceil(acc/M) is a
+    // multiple of total (else it is nonzero-negative and never ===
+    // a non-negative shard id).
+    if negative {
+        let ceil = if acc == 0 { 0 } else { (acc + SHIFT - 1) >> 22 };
+        if ceil % total_shards as u128 == 0 {
+            Some(0)
+        } else {
+            None
+        }
+    } else {
+        Some(((acc >> 22) % total_shards as u128) as u64)
+    }
+}
+
+/// String-guild-id variant. Mirrors client.inShard exactly: it runs the
+/// TS `BigInt(guild_id) >> 22n % BigInt(totalShards)` pipeline, and any
+/// throw (empty radix, bad digits, `% 0n`) falls back to the local
+/// shard, i.e. true. Whitespace-padded, `+`-signed, hex/octal/binary,
+/// and empty ids therefore compute like TS (node battery: `" 123 "`,
+/// `"+123"`, `"0x10"`, `"0b101"`, `""` all parse; `"1_000"`,
+/// `"12.5"`, `"1e3"` throw), while `str::parse::<u64>` alone agreed
+/// only on the throw legs.
 pub fn in_shard_str(guild_id: &str, shard_id: u64, total_shards: u64) -> bool {
-    match guild_id.parse::<u64>() {
-        Ok(id) => in_shard(id, shard_id, total_shards),
-        Err(_) => true,
+    if total_shards == 0 {
+        return true;
+    }
+    let s = js_trim(guild_id);
+    if s.is_empty() {
+        return guild_shard(0, total_shards) == shard_id;
+    }
+    let (negative, rest) = match s.strip_prefix('-') {
+        Some(r) => (true, r),
+        None => (false, s.strip_prefix('+').unwrap_or(s)),
+    };
+    let (radix, digits) =
+        if let Some(h) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
+            (16u32, h)
+        } else if let Some(b) = rest.strip_prefix("0b").or_else(|| rest.strip_prefix("0B")) {
+            (2u32, b)
+        } else if let Some(o) = rest.strip_prefix("0o").or_else(|| rest.strip_prefix("0O")) {
+            (8u32, o)
+        } else {
+            (10u32, rest)
+        };
+    if digits.is_empty() || !digits.chars().all(|c| c.is_digit(radix)) {
+        return true;
+    }
+    match bigint_shard_reduced(digits, negative, radix, total_shards) {
+        // Negative-nonzero reduced values never match (see helper).
+        None => false,
+        Some(reduced) => reduced == shard_id,
     }
 }
 
@@ -1670,6 +1742,29 @@ mod tests {
         assert!(in_shard_str(&(1 << 22).to_string(), 1, 4));
         // TS try/catch: unparsable id falls back to the local shard.
         assert!(in_shard_str("not-a-snowflake", 2, 4));
+        // BigInt-grammar legs (node battery on bot.ts inShard): trim,
+        // sign, radix, and empty all parse; points/exponents/underscores
+        // throw (fallback true); negatives reduce signed (false unless
+        // the reduced value is 0n); % 0n throws (true).
+        assert!(in_shard_str(" 123 ", 0, 4));
+        assert!(!in_shard_str(" 123 ", 1, 4));
+        assert!(in_shard_str("+123", 0, 4));
+        assert!(in_shard_str("0x10", 0, 4));
+        assert!(in_shard_str("0b101", 0, 4));
+        assert!(in_shard_str("010", 0, 4));
+        assert!(in_shard_str("", 0, 4));
+        assert!(!in_shard_str("", 1, 4));
+        assert!(!in_shard_str("-5", 0, 4));
+        assert!(!in_shard_str("-5", 3, 4));
+        assert!(in_shard_str("1_000", 2, 4));
+        assert!(in_shard_str("12.5", 0, 4));
+        assert!(in_shard_str("1e3", 3, 4));
+        assert!(in_shard_str("0x", 1, 4));
+        assert!(in_shard_str("999449972615413861", 2, 4));
+        assert!(in_shard_str("999999999999999999999999999999", 3, 4));
+        assert!(in_shard(7, 0, 0));
+        assert!(in_shard(7, 3, 0));
+        assert!(in_shard_str("123", 0, 0));
         // is_main_shard mirrors client.isMainShard (ids[0] === 0).
         assert!(is_main_shard(0));
         assert!(!is_main_shard(1));
