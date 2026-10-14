@@ -178,9 +178,11 @@ async fn suggest_disabled_routed(pool: &crate::db::Pool, gid: &str) -> bool {
         == Some("1")
 }
 
-/// GUILD.VOICE_INTERFACE.voice_channel lobby leaf.
+/// VOICE_INTERFACE.voice_channel lobby leaf (TS-exact key: db.set
+/// `<gid>.VOICE_INTERFACE.voice_channel`, no GUILD. prefix — like
+/// every other VOICE_INTERFACE leaf and writer).
 async fn voice_lobby_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
-    leaf_routed(pool, gid, "GUILD.VOICE_INTERFACE.voice_channel").await
+    leaf_routed(pool, gid, "VOICE_INTERFACE.voice_channel").await
 }
 
 /// VOICE_INTERFACE.voice_channel_name template leaf.
@@ -8052,6 +8054,12 @@ impl serenity::EventHandler for Handler {
                 }
                 // Lobby spawn (mirrors voicedashboard/voiceState.ts).
                 if let Some(lobby) = voice_lobby_routed(&self.pool, &gid).await {
+                    tracing::debug!(
+                        "voice lobby check: user {} -> {} (lobby {})",
+                        new.user_id.get(),
+                        new_ch.get(),
+                        lobby
+                    );
                     if lobby == new_ch.get().to_string() {
                         let own_key =
                             crate::events::temp_voice_key(guild_id.get(), new.user_id.get());
@@ -10847,7 +10855,7 @@ mod restore_tests {
         assert!(suggest_disabled_routed(&pool, "g1").await);
         assert!(!suggest_disabled_routed(&pool, "g9").await);
         // VOICE_INTERFACE leaves.
-        crate::db::tbl_set(&pool, "g1", "GUILD.VOICE_INTERFACE.voice_channel", "13")
+        crate::db::tbl_set(&pool, "g1", "VOICE_INTERFACE.voice_channel", "13")
             .await
             .unwrap();
         crate::db::tbl_set(
