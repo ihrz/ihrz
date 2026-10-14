@@ -433,8 +433,10 @@ async def run_plan(client: Sdk, actions: list) -> None:
             await sleep_maybe(min(int(action.get("ms", 1000)), 30_000))
             report.append({"kind": "wait", "ok": True})
             continue
-        channel = await client.fetch_channel(action["channel_id"])
-        await sleep_maybe(READ_GAP_MS)
+        channel = None
+        if kind in ("send", "slash"):
+            channel = await client.fetch_channel(action["channel_id"])
+            await sleep_maybe(READ_GAP_MS)
         if kind == "send":
             report.append(await act_send(client, channel, action["content"]))
         elif kind == "slash":
@@ -442,7 +444,17 @@ async def run_plan(client: Sdk, actions: list) -> None:
                                           action["path"],
                                           action.get("options", {})))
         else:
-            raise RuntimeError(f"unknown action kind: {kind}")
+            from actions import ACTIONS
+
+            handler = ACTIONS.get(kind or "")
+            if handler is None:
+                raise RuntimeError(f"unknown action kind: {kind}")
+            try:
+                report.append(await handler(client, action))
+            except Exception as e:  # noqa: BLE001 - recorded per action
+                report.append({"kind": kind, "ok": False,
+                               "verdict": f"error:{type(e).__name__}",
+                               "snippet": str(e)[:300]})
     print(json.dumps({"actions": report}, indent=2))
 
 
