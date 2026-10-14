@@ -1303,6 +1303,13 @@ mod tests {
         assert_eq!(mask_link("x.COM"), "x.COM");
         assert_eq!(mask_link("plain text"), "plain text");
         assert_eq!(message_url(1, 2, 3), "https://discord.com/channels/1/2/3");
+        // Mirrors getMessageURL.ts template literal exactly (node battery):
+        // full snowflakes interpolate verbatim, zeros included.
+        assert_eq!(
+            message_url(123456789012345678, 987654321098765432, 111222333444555666),
+            "https://discord.com/channels/123456789012345678/987654321098765432/111222333444555666"
+        );
+        assert_eq!(message_url(0, 0, 0), "https://discord.com/channels/0/0/0");
         assert_eq!(
             banner_url("fr-FR"),
             "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
