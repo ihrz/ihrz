@@ -583,11 +583,26 @@ pub fn welcomer_embed_key(embed_id: &str) -> String {
 /// Extract the embedSource payload from an EMBED record body.
 /// Returns None for missing/unparsable records or records without
 /// embedSource (mirrors the `if (!record?.embedSource) return null` leg).
+/// The guard is JS-falsy, not missing-only: explicit `null`, `0`,
+/// `""` and `false` all yield null in TS (node ground truth), while
+/// `[]`/`{}` are truthy and pass through on both sides.
 pub fn welcomer_embed_source(record_json: &str) -> Option<serde_json::Value> {
-    serde_json::from_str::<serde_json::Value>(record_json)
-        .ok()?
-        .get("embedSource")
-        .cloned()
+    let parsed: serde_json::Value = serde_json::from_str(record_json).ok()?;
+    let src = parsed.get("embedSource")?;
+    let falsy = match src {
+        serde_json::Value::Null => true,
+        serde_json::Value::Bool(b) => !b,
+        // JSON has no NaN/Infinity, so 0/-0 is the only falsy number.
+        serde_json::Value::Number(n) => n.as_f64().is_some_and(|f| f == 0.0),
+        serde_json::Value::String(s) => s.is_empty(),
+        // Arrays (even []) and objects are truthy in JS.
+        _ => false,
+    };
+    if falsy {
+        None
+    } else {
+        Some(src.clone())
+    }
 }
 
 /// Preview-render a stored embed. Mirrors resolveWelcomerEmbed: the
@@ -693,7 +708,12 @@ pub fn format_locale_date(year: i32, month: u32, day: u32, lang: &str) -> String
                 .map(|c| char::from_u32(c as u32 - '0' as u32 + 0x660).unwrap_or(c))
                 .collect::<String>()
         };
-        return format!("{}\u{200f}/{}\u{200f}/{}", ar(day), ar(month), ar(year as u32));
+        return format!(
+            "{}\u{200f}/{}\u{200f}/{}",
+            ar(day),
+            ar(month),
+            ar(year as u32)
+        );
     }
     match lang {
         "fr-FR" | "fr-ME" | "it-IT" | "pt-PT" => {
@@ -1762,6 +1782,25 @@ mod tests {
         assert!(welcomer_embed_source("{}").is_none());
         assert!(welcomer_embed_source("not json").is_none());
         assert!(welcomer_embed_source(r#"{"embedOwner":"9"}"#).is_none());
+        // JS-falsy embedSource values hit the same null leg in TS.
+        for falsy in [
+            r#"{"embedSource":null}"#,
+            r#"{"embedSource":0}"#,
+            r#"{"embedSource":-0.0}"#,
+            r#"{"embedSource":""}"#,
+            r#"{"embedSource":false}"#,
+        ] {
+            assert!(welcomer_embed_source(falsy).is_none(), "{falsy}");
+        }
+        // []/{} are truthy in JS: pass through on both sides.
+        assert_eq!(
+            welcomer_embed_source(r#"{"embedSource":[]}"#).unwrap(),
+            serde_json::json!([])
+        );
+        assert_eq!(
+            welcomer_embed_source(r#"{"embedSource":{"title":"t"}}"#).unwrap(),
+            serde_json::json!({"title": "t"})
+        );
     }
 
     #[tokio::test]
