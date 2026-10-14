@@ -3369,6 +3369,20 @@ pub fn expression_url(name: &str) -> String {
 // ---- assetsFinder ----
 
 /// Random asset gif URL. Mirrors apiUrlParser.assetsFinder.
+/// Index range is identical on reachable inputs: TS
+/// `Math.floor(Math.random() * count)` yields [0, count) (node ground
+/// truth: 200k samples in range, 0 bad) and one xorshift64* step mod
+/// `count` yields the same [0, count) range (the Math.random stream
+/// itself is unseedable, so only the range is portable — same
+/// established delta as `random_expression`).
+/// Delta (outcome-identical, doc-noted): TS emits a URL for
+/// degenerate counts (`0` -> `.../0.gif`, missing key -> `.../NaN.gif`;
+/// node ground truth) which 404s at runtime, so the TS caller falls
+/// into its catch leg and replies `fun_var_down_api`; Rust
+/// short-circuits `count == 0` to `""` and the caller (`fun/mod.rs`)
+/// maps empty straight to the same `fun_var_down_api` reply without
+/// the doomed GET. Negative counts are unreachable (length.json
+/// counts are >= 0; TS would emit a negative index — GIGO).
 pub fn assets_url(asset_type: &str, count: u64, seed: u64) -> String {
     if count == 0 {
         return String::new();
@@ -3413,7 +3427,35 @@ mod funcs_part5_tests {
         let u = assets_url("hug", 10, 3);
         assert!(u.starts_with("https://gitlab.com/ihrz/assets/-/raw/main/hug/"));
         assert!(u.ends_with(".gif?ref_type=heads"));
+        // W6 slice 49 (node ground truth): degenerate counts emit no
+        // usable URL on either side — TS builds `.../0.gif` (count 0)
+        // or `.../NaN.gif` (missing key), both 404 into the same
+        // `fun_var_down_api` catch leg; Rust short-circuits to "" and
+        // the caller maps empty to that same reply.
         assert_eq!(assets_url("hug", 0, 3), "");
+        assert_eq!(assets_url("hug", 0, 0), "");
+        // Count 1 pins the index leg: n = state % 1 = 0 for any seed.
+        assert_eq!(
+            assets_url("kiss", 1, 999),
+            "https://gitlab.com/ihrz/assets/-/raw/main/kiss/0.gif?ref_type=heads"
+        );
+        // Type interpolates verbatim (slap caller).
+        let s = assets_url("slap", 5, 11);
+        assert!(s.contains("/slap/"));
+        assert!(s.ends_with(".gif?ref_type=heads"));
+        // Index stays inside [0, count) across seeds.
+        for seed in 1..=50u64 {
+            let v = assets_url("hug", 10, seed);
+            let n: u64 = v
+                .rsplit('/')
+                .next()
+                .unwrap_or("")
+                .strip_suffix(".gif?ref_type=heads")
+                .unwrap_or("99")
+                .parse()
+                .unwrap_or(99);
+            assert!(n < 10, "seed {seed} gave {n}");
+        }
     }
 
     #[test]
