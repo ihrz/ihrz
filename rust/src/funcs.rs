@@ -2388,6 +2388,16 @@ pub struct PasswordOptions {
 /// with rejection (like the TS getSecureRandomChar limit-bucket loop
 /// over crypto.randomFillSync), strict mode guaranteeing one char per
 /// enabled class (like the TS crypto.randomInt patch-up).
+/// Index-domain delta (unreachable, documented): the TS pool is a
+/// UTF-16 string and both the per-char draw
+/// (`characters[byte % characters.length]`) and the strict patch-up
+/// (`chars[randomInt(0, chars.length)]`) index UTF-16 units, so a
+/// non-BMP custom symbol can emit a lone surrogate and `length` counts
+/// units; the Rust pool is `Vec<char>`, so draws are always whole
+/// chars and `length` counts chars. Pool assembly itself (order,
+/// exclude unit-splitting, ASCII-only similar-filter) agrees exactly —
+/// and no TS caller passes non-BMP custom symbols (all 7 call sites
+/// use the default/boolean sets), so live passwords are identical.
 /// `seed` is kept only so the existing call sites compile; it is
 /// ignored — every call draws from OsRng, so distinct seeds do NOT
 /// yield distinct passwords. Use generate_password_seeded for
@@ -3078,6 +3088,46 @@ mod funcs_part3_tests {
             generate_multiple_passwords(0, &base, 1).unwrap_err(),
             "Le nombre de mots de passe doit être positif"
         );
+    }
+
+    #[test]
+    fn password_pool_handles_astral_custom_symbols_like_ts() {
+        // Node ground truth (W6 slice 65): the TS pool is a UTF-16
+        // string, so "A😀B" is 4 units while the Rust pool is 3 chars;
+        // sampling indexes units there (a hit on either half emits a
+        // lone surrogate — node: unit idx 2 is U+DE00) and chars here
+        // (always whole). Pool assembly itself agrees exactly.
+        let astral = PasswordOptions {
+            length: 8,
+            numbers: false,
+            symbols: SymbolCharset::Custom("A😀B".to_string()),
+            lowercase: false,
+            uppercase: false,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: false,
+        };
+        let (pool, _) = password_pool(&astral).unwrap();
+        assert_eq!(pool, vec!['A', '😀', 'B']);
+        // exclude "😀" drops both TS halves == the one Rust char.
+        let (no_emoji, _) = password_pool(&PasswordOptions {
+            exclude: "😀".to_string(),
+            ..astral.clone()
+        })
+        .unwrap();
+        assert_eq!(no_emoji, vec!['A', 'B']);
+        // excludeSimilarCharacters keeps astral (regex is ASCII-only).
+        let (sim, _) = password_pool(&PasswordOptions {
+            symbols: SymbolCharset::Custom("😀lO0".to_string()),
+            exclude_similar: true,
+            ..astral.clone()
+        })
+        .unwrap();
+        assert_eq!(sim, vec!['😀']);
+        // Seeded draws over an astral pool stay whole chars.
+        let pw = generate_password_seeded(&astral, 7).unwrap();
+        assert_eq!(pw.chars().count(), 8);
+        assert!(pw.chars().all(|c| c == 'A' || c == '😀' || c == 'B'));
     }
 
     #[test]
