@@ -564,30 +564,34 @@ pub struct HelpNavButton {
 pub fn help_nav_row(cat_index: usize, page: usize, total_pages: usize) -> Vec<HelpNavButton> {
     let total = total_pages.max(1);
     let page = page.min(total - 1);
-    let id = |p: usize| format!("{HELP_NAV_PREFIX}{cat_index}:{p}");
+    // Slot segment keeps every id unique: Discord rejects duplicate
+    // custom_ids in one message, and the first/prev/indicator targets
+    // coincide on page 0 (like TS's verbatim first/previous/page/next/
+    // last ids, which are unique by construction).
+    let id = |slot: &str, p: usize| format!("{HELP_NAV_PREFIX}{cat_index}:{slot}:{p}");
     vec![
         HelpNavButton {
-            id: id(0),
+            id: id("first", 0),
             label: "<<<".to_string(),
             disabled: page == 0,
         },
         HelpNavButton {
-            id: id(page.saturating_sub(1)),
+            id: id("prev", page.saturating_sub(1)),
             label: "<".to_string(),
             disabled: page == 0,
         },
         HelpNavButton {
-            id: id(page),
+            id: id("cur", page),
             label: format!("{}/{}", page + 1, total),
             disabled: true,
         },
         HelpNavButton {
-            id: id((page + 1).min(total - 1)),
+            id: id("next", (page + 1).min(total - 1)),
             label: ">".to_string(),
             disabled: page + 1 >= total,
         },
         HelpNavButton {
-            id: id(total - 1),
+            id: id("last", total - 1),
             label: ">>>".to_string(),
             disabled: page + 1 >= total,
         },
@@ -595,10 +599,17 @@ pub fn help_nav_row(cat_index: usize, page: usize, total_pages: usize) -> Vec<He
 }
 
 /// Parse a pager button id back to (category index, target page).
+/// Accepts the current `cat:slot:page` shape and the legacy `cat:page`
+/// shape still live on posted messages.
 pub fn parse_help_nav(id: &str) -> Option<(usize, usize)> {
     let rest = id.strip_prefix(HELP_NAV_PREFIX)?;
-    let (cat, page) = rest.split_once(':')?;
-    Some((cat.parse().ok()?, page.parse().ok()?))
+    let mut parts = rest.split(':');
+    let cat: usize = parts.next()?.parse().ok()?;
+    let mid = parts.next()?;
+    match parts.next() {
+        Some(page) => Some((cat, page.parse().ok()?)),
+        None => Some((cat, mid.parse().ok()?)),
+    }
 }
 
 #[cfg(test)]
@@ -939,6 +950,19 @@ mod tests {
         assert!(!row[3].disabled && !row[4].disabled);
         assert_eq!(parse_help_nav(&row[3].id), Some((3, 1)));
         assert_eq!(parse_help_nav(&row[4].id), Some((3, 3)));
+        // Discord rejects duplicate custom_ids: all five ids unique on
+        // every page (first/prev/indicator coincide on page 0).
+        for (p, t) in [(0usize, 4usize), (2, 4), (3, 4)] {
+            let ids: Vec<_> = help_nav_row(3, p, t).iter().map(|b| b.id.clone()).collect();
+            let mut seen = std::collections::HashSet::new();
+            assert!(ids.iter().all(|id| seen.insert(id.clone())), "{ids:?}");
+            for (i, b) in help_nav_row(3, p, t).iter().enumerate() {
+                let want = [0, p.saturating_sub(1), p, (p + 1).min(t - 1), t - 1][i];
+                assert_eq!(parse_help_nav(&b.id), Some((3, want)), "{b:?}");
+            }
+        }
+        // Legacy two-part ids still parse.
+        assert_eq!(parse_help_nav("help-nav:3:1"), Some((3, 1)));
         // Last page: forward edge disabled, backward live.
         let last = help_nav_row(0, 2, 3);
         assert_eq!(last[2].label, "3/3");

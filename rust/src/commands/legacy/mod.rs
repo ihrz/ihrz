@@ -1356,14 +1356,17 @@ async fn handle_help_overview_component(
         help::HelpOverviewPick::Category(index) if index < cats.len() => {
             let (embed, components) =
                 render_help_leaf_page(http, pool, guild_id.get(), &code, &cats, index, 0).await;
-            let _ = comp
+            if let Err(e) = comp
                 .edit_response(
                     http,
                     serenity::EditInteractionResponse::new()
                         .embed(embed)
                         .components(components),
                 )
-                .await;
+                .await
+            {
+                tracing::warn!("help overview category edit failed index={index}: {e}");
+            }
         }
         _ => {
             let _ = comp
