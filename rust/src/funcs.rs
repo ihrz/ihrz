@@ -4585,6 +4585,59 @@ pub fn get_os() -> Option<OsInfo> {
     get_os_for(std::env::consts::OS, None)
 }
 
+/// JS `Number()` value for one numeric token. Mirrors the
+/// `Number(...)` legs in getOS.ts (`Number(release.split(".")[2])`)
+/// and slashlog.rs `ts_number_value`: JS-trimmed, empty -> 0,
+/// decimal via correctly-rounded `f64` parse (== JS ToNumber on
+/// decimal spellings), exact-case `Infinity` trio, hex/bin/oct radix
+/// legs (a sign before a radix is NaN in JS, unlike parseInt);
+/// anything else is NaN (notably the Rust-only `inf`/`infinity`
+/// spellings, which TS reads as NaN).
+pub(crate) fn js_number_value(s: &str) -> f64 {
+    let t = js_trim(s);
+    if t.is_empty() {
+        return 0.0;
+    }
+    let (neg, rest) = match t.strip_prefix(['+', '-']) {
+        Some(r) => (t.starts_with('-'), r),
+        None => (false, t),
+    };
+    let radix: Option<(&str, u32)> = if neg {
+        None
+    } else if let Some(h) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
+        Some((h, 16))
+    } else if let Some(b) = rest.strip_prefix("0b").or_else(|| rest.strip_prefix("0B")) {
+        Some((b, 2))
+    } else if let Some(o) = rest.strip_prefix("0o").or_else(|| rest.strip_prefix("0O")) {
+        Some((o, 8))
+    } else {
+        None
+    };
+    let val = if let Some((digits, base)) = radix {
+        if digits.is_empty() || !digits.bytes().all(|b| (b as char).is_digit(base)) {
+            return f64::NAN;
+        }
+        digits.bytes().fold(0.0, |a: f64, b| {
+            a * f64::from(base) + f64::from((b as char).to_digit(base).unwrap())
+        })
+    } else if rest == "Infinity" {
+        f64::INFINITY
+    } else {
+        if rest.bytes().next().is_some_and(|b| b.is_ascii_alphabetic()) {
+            return f64::NAN;
+        }
+        match rest.parse::<f64>() {
+            Ok(v) => v,
+            Err(_) => return f64::NAN,
+        }
+    };
+    if neg {
+        -val
+    } else {
+        val
+    }
+}
+
 /// Testable core. `platform` uses the Node names ("linux"/"darwin"/
 /// "win32", Rust "macos"/"windows" accepted); `release` is the
 /// Windows kernel release ("10.0.22000") for the Win11 split.
@@ -4600,12 +4653,11 @@ pub fn get_os_for(platform: &str, release: Option<&str>) -> Option<OsInfo> {
         }),
         "win32" | "windows" => {
             if let Some(r) = release.filter(|r| r.starts_with("10.0.")) {
-                let build = r
-                    .split('.')
-                    .nth(2)
-                    .and_then(|b| b.parse::<u32>().ok())
-                    .unwrap_or(0);
-                if build >= 22000 {
+                // TS is `Number(release.split(".")[2]) >= 22000`: full JS
+                // Number grammar (JS-trim, hex/bin/oct, exponent,
+                // Infinity, no u32 cap), NaN compares false -> Win10.
+                let build = js_number_value(r.split('.').nth(2).unwrap_or(""));
+                if build >= 22000.0 {
                     return Some(OsInfo {
                         emoji: "Win11",
                         name: "Windows 11",
@@ -4679,6 +4731,47 @@ mod get_os_tests {
                 name: "Windows",
             })
         );
+    }
+
+    #[test]
+    fn windows_build_uses_js_number_grammar_like_ts() {
+        // Node ground truth on `Number(release.split(".")[2]) >= 22000`
+        // (getOS.ts): padded/hex/oct/bin/exponent/Infinity/over-u32
+        // builds all reach Win11; NaN/garbage stays Win10.
+        let win11 = OsInfo {
+            emoji: "Win11",
+            name: "Windows 11",
+        };
+        let win10 = OsInfo {
+            emoji: "Win10",
+            name: "Windows 10",
+        };
+        for rel in [
+            "10.0. 22000",
+            "10.0.22000 ",
+            "10.0.0x56CE",
+            "10.0.1e5",
+            "10.0.0b101011000110010",
+            "10.0.0o103334",
+            "10.0.4294967296",
+            "10.0.+22000",
+            "10.0.Infinity",
+            "10.0.22000.1",
+        ] {
+            assert_eq!(get_os_for("win32", Some(rel)), Some(win11.clone()), "{rel}");
+        }
+        for rel in [
+            "10.0.",
+            "10.0.abc",
+            "10.0.-1",
+            "10.0.NaN",
+            "10.0.0x",
+            "10.0.2_2_0_0_0",
+            "10.0.21999",
+            "10.0.21999.9",
+        ] {
+            assert_eq!(get_os_for("win32", Some(rel)), Some(win10.clone()), "{rel}");
+        }
     }
 
     #[test]
