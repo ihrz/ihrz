@@ -4465,6 +4465,23 @@ mod funcs_punish_tests {
             vec!["admin".to_string(), "ban".to_string()]
         );
         assert_eq!(DANGEROUS_PERMISSION_BITS.len(), 10);
+        // W6 slice 62: exact bit values, node ground truth on the repo
+        // discord.js PermissionsBitField.Flags (last flag 1<<41).
+        assert_eq!(
+            DANGEROUS_PERMISSION_BITS,
+            [
+                1 << 3,
+                1 << 5,
+                1 << 28,
+                1 << 17,
+                1 << 2,
+                1 << 1,
+                1 << 29,
+                1 << 4,
+                1 << 30,
+                1 << 41,
+            ]
+        );
     }
 }
 

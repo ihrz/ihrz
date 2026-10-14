@@ -319,7 +319,10 @@ pub const DANGEROUS_ROLE_PERMS: &[(u64, &str)] = &[
     (0x2000_0000, "Manage Webhooks"),
     (0x0000_0010, "Manage Channels"),
     (0x4000_0000, "Manage Expressions"),
-    (0x0008_0000, "View Creator Monetization Analytics"),
+    // 1<<41, NOT 0x0008_0000 (1<<19 is ManageEvents): node ground truth
+    // on the repo discord.js (PermissionsBitField.Flags.
+    // ViewCreatorMonetizationAnalytics = 2199023255552), W6 slice 62.
+    (0x200_0000_0000, "View Creator Monetization Analytics"),
 ];
 
 /// English fallback names of the dangerous permissions held by
@@ -619,6 +622,18 @@ mod tests {
         );
         assert!(dangerous_role_perm_names(0).is_empty());
         assert_eq!(dangerous_role_perm_names(0x8).len(), 1);
+        // W6 slice 62: bit table stays index-parallel with the canonical
+        // DANGEROUS_PERMISSION_BITS (node ground truth on the repo
+        // discord.js: last flag is 1<<41 = 2199023255552, not 1<<19).
+        let bits: Vec<u64> = DANGEROUS_ROLE_PERMS.iter().map(|(flag, _)| *flag).collect();
+        assert_eq!(bits, crate::funcs::DANGEROUS_PERMISSION_BITS.to_vec());
+        // 1<<41 alone warns monetization; 1<<19 (ManageEvents, the old
+        // wrong bit) warns nothing.
+        assert_eq!(
+            dangerous_role_perm_names(1 << 41),
+            vec!["View Creator Monetization Analytics".to_string()]
+        );
+        assert!(dangerous_role_perm_names(1 << 19).is_empty());
     }
 
     #[test]
