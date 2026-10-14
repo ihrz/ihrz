@@ -3648,9 +3648,52 @@ mod funcs_part5_tests {
 
     #[test]
     fn logs_channel_match() {
+        // Node ground truth (ihorizon_logs.ts): `.find((c) =>
+        // c.name.includes("ihorizon-logs"))` -- case-sensitive substring,
+        // first match in cache order. Rust `str::contains` is byte-substring,
+        // which equals UTF-16 `includes` for this pure-ASCII needle on every
+        // input (ASCII bytes never occur inside multi-byte sequences; Rust
+        // strings hold no lone surrogates).
         let chans = vec![(1, "general".to_string()), (2, "ihorizon-logs".to_string())];
         assert_eq!(logs_channel_id(&chans), Some(2));
         assert_eq!(logs_channel_id(&[]), None);
+        // Case: no folding either side.
+        let chans = vec![(1, "IHORIZON-LOGS".to_string())];
+        assert_eq!(logs_channel_id(&chans), None);
+        let chans = vec![(1, "Ihorizon-Logs".to_string())];
+        assert_eq!(logs_channel_id(&chans), None);
+        // Substring anywhere.
+        let chans = vec![(1, "xihorizon-logs".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        let chans = vec![(1, "ihorizon-logs-2".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        let chans = vec![(1, "pre-ihorizon-logs-post".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        let chans = vec![(1, " ihorizon-logs".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        // First match wins, in order.
+        let chans = vec![
+            (1, "ihorizon-log".to_string()),
+            (2, "ihorizon-logs".to_string()),
+        ];
+        assert_eq!(logs_channel_id(&chans), Some(2));
+        let chans = vec![
+            (1, "ihorizon-logs".to_string()),
+            (2, "ihorizon-logs-2".to_string()),
+        ];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        // Near-misses.
+        for name in ["ihorizonlogs", "ihorizon--logs", "", "logs"] {
+            let chans = vec![(1, name.to_string())];
+            assert_eq!(logs_channel_id(&chans), None, "near-miss {name:?}");
+        }
+        // Non-ASCII haystacks: needle still found / still case-sensitive.
+        let chans = vec![(1, "g\u{e9}n\u{e9}ral-ihorizon-logs".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        let chans = vec![(1, "grinning-\u{1F600}-ihorizon-logs".to_string())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
+        let chans = vec![(1, "IHORIZON-LOGS".to_lowercase())];
+        assert_eq!(logs_channel_id(&chans), Some(1));
     }
 }
 
