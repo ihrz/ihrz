@@ -15,11 +15,15 @@ use std::time::Duration;
 pub const SUBMIT_TIMEOUT_SECS: u64 = 1240;
 
 /// Title cap. Mirrors `setTitle(title.substring(0, 32))` in
-/// iHorizonModalBuilder (char-based; TS slices UTF-16 units, close enough
-/// for the short titles used here).
+/// iHorizonModalBuilder: 32 UTF-16 code units (node ground truth:
+/// 20xU+1F600 -> 16 kept; a pair straddling unit 32 leaves a lone
+/// high surrogate in TS, which Rust cannot represent and Discord
+/// would reject as invalid JSON anyway — so we stop before
+/// splitting, identical on every Discord-acceptable input).
 pub const MAX_TITLE_CHARS: usize = 32;
 
-/// Text length fallbacks. Mirror `maxLength || 20` / `minLength || 5`.
+/// Text length fallbacks. Mirror `maxLength || 20` / `minLength || 5`
+/// (JS-falsy: an explicit 0 falls back, not just a missing value).
 pub const DEFAULT_MAX_LENGTH: u16 = 20;
 pub const DEFAULT_MIN_LENGTH: u16 = 5;
 
@@ -28,13 +32,23 @@ pub fn submit_timeout() -> Duration {
 }
 
 pub fn truncate_title(title: &str) -> String {
-    title.chars().take(MAX_TITLE_CHARS).collect()
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for c in title.chars() {
+        let w = c.len_utf16();
+        if units + w > MAX_TITLE_CHARS {
+            break;
+        }
+        units += w;
+        end += c.len_utf8();
+    }
+    title[..end].to_string()
 }
 
 pub fn text_lengths(min: Option<u16>, max: Option<u16>) -> (u16, u16) {
     (
-        min.unwrap_or(DEFAULT_MIN_LENGTH),
-        max.unwrap_or(DEFAULT_MAX_LENGTH),
+        min.filter(|v| *v != 0).unwrap_or(DEFAULT_MIN_LENGTH),
+        max.filter(|v| *v != 0).unwrap_or(DEFAULT_MAX_LENGTH),
     )
 }
 
@@ -161,11 +175,18 @@ pub fn build_modal(
                         .required(o.required)
                         .min_length(min)
                         .max_length(max);
+                // Mirrors `if (o.placeHolder)` / `if (o.value)`: an
+                // explicit "" is falsy in TS and never reaches the
+                // builder, so empty stays unset here too.
                 if let Some(ph) = &o.placeholder {
-                    input = input.placeholder(ph.clone());
+                    if !ph.is_empty() {
+                        input = input.placeholder(ph.clone());
+                    }
                 }
                 if let Some(v) = &o.value {
-                    input = input.value(v.clone());
+                    if !v.is_empty() {
+                        input = input.value(v.clone());
+                    }
                 }
                 rows.push(serenity::CreateActionRow::InputText(input));
             }
@@ -263,9 +284,48 @@ mod tests {
     }
 
     #[test]
+    fn title_truncates_utf16_units_like_ts_substring() {
+        // 20 astral chars = 40 UTF-16 units -> 16 kept (node:
+        // units=32, chars=16).
+        let emoji20 = "😀".repeat(20);
+        let got = truncate_title(&emoji20);
+        assert_eq!(got.encode_utf16().count(), 32);
+        assert_eq!(got.chars().count(), 16);
+        // 16 astral + 10 ASCII: the 32-unit budget is exactly full,
+        // so no ASCII survives (node: hasX=false).
+        let exact = "😀".repeat(16) + &"X".repeat(10);
+        let got = truncate_title(&exact);
+        assert_eq!(got, "😀".repeat(16));
+        // Pair straddling unit 32: TS keeps a lone high surrogate
+        // (unsendable); we stop before splitting instead.
+        let split = "a".repeat(31) + "😀";
+        assert_eq!(truncate_title(&split), "a".repeat(31));
+    }
+
+    #[test]
     fn text_length_defaults_match_ts() {
         assert_eq!(text_lengths(None, None), (5, 20));
         assert_eq!(text_lengths(Some(2), Some(150)), (2, 150));
+        // JS-falsy legs: explicit 0 falls back (node: 0->20, 0->5).
+        assert_eq!(text_lengths(Some(0), Some(0)), (5, 20));
+        assert_eq!(text_lengths(Some(0), None), (5, 20));
+        assert_eq!(text_lengths(None, Some(0)), (5, 20));
+    }
+
+    #[test]
+    fn empty_placeholder_and_value_stay_unset_like_ts() {
+        let mut field = text_field("e");
+        if let ModalField::Text(t) = &mut field {
+            t.placeholder = Some(String::new());
+            t.value = Some(String::new());
+        }
+        let mut opts = ModalOptions::new("T", "m");
+        opts.fields.push(field);
+        let modal = build_modal(&opts).expect("text modal builds");
+        let v = serde_json::to_value(&modal).expect("CreateModal serializes");
+        let row = &v["components"][0]["components"][0];
+        assert!(row.get("placeholder").is_none(), "empty placeholder unset");
+        assert!(row.get("value").is_none(), "empty value unset");
     }
 
     #[test]
