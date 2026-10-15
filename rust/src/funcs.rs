@@ -1143,6 +1143,22 @@ pub fn is_main_shard(shard_id: u64) -> bool {
     shard_id == 0
 }
 
+/// First guild-data hit across shards. Mirrors the tail of
+/// `getGuildData`/`getDetailedGuildData` in shard_helper.ts:
+/// `guildResults.find((result) => result !== null) || null`.
+/// The broadcast/cache legs themselves are discord.js infra with no
+/// portable shape (serenity resolves guilds from the local cache, one
+/// process per shard); only the first-non-null scan is pure.
+/// Exact on the whole reachable domain (`broadcastEval` yields objects
+/// or null, `None` here). DELTA (doc-noted, unrepresentable past
+/// `Option<T>`): TS `!== null` also "finds" `undefined`/`0`/`""`/
+/// `false`/`NaN` entries, but the trailing `|| null` maps those falsy
+/// hits to null — and they shadow later hits (`[0, hit]` yields null
+/// in TS, the hit here). No live callers (dead-helper parity).
+pub fn first_shard_hit<T>(results: &[Option<T>]) -> Option<&T> {
+    results.iter().find_map(|r| r.as_ref())
+}
+
 /// Guilds per shard used for gateway tuning. Mirrors
 /// `GUILDS_PER_SHARD = 700` in src/index.ts.
 pub const GUILDS_PER_SHARD: u64 = 700;
@@ -2117,6 +2133,30 @@ mod tests {
         // is_main_shard mirrors client.isMainShard (ids[0] === 0).
         assert!(is_main_shard(0));
         assert!(!is_main_shard(1));
+    }
+
+    #[test]
+    fn shard_first_hit_matches_ts_find_legs() {
+        // Battery on `arr.find((r) => r !== null) || null` (node ground
+        // truth): miss legs yield null, first non-null wins, falsy
+        // non-null entries (0/""/false/NaN/undefined) are found by
+        // `!== null` but collapse to null via `|| null` — and shadow
+        // later hits (`[0, hit]` -> null in TS).
+        let none: Vec<Option<&str>> = vec![];
+        assert_eq!(first_shard_hit(&none), None);
+        assert_eq!(first_shard_hit::<&str>(&[None, None, None]), None);
+        assert_eq!(first_shard_hit::<&str>(&[None]), None);
+        assert_eq!(first_shard_hit(&[Some("a"), None]), Some(&"a"));
+        assert_eq!(first_shard_hit(&[None, Some("b")]), Some(&"b"));
+        assert_eq!(
+            first_shard_hit(&[None, Some("c1"), Some("c2")]),
+            Some(&"c1")
+        );
+        assert_eq!(first_shard_hit(&[Some("d1"), Some("d2")]), Some(&"d1"));
+        assert_eq!(first_shard_hit(&[Some("e"), None, None]), Some(&"e"));
+        // NOTE (no assert): `[None, Some("")]` yields `Some("")` here
+        // while TS gives null (`"" || null`) — the documented falsy
+        // delta, unrepresentable on the reachable object-or-null domain.
     }
 
     #[tokio::test]
