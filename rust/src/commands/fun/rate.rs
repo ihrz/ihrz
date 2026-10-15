@@ -2,10 +2,10 @@ use super::*;
 
 /// Let me rate the followed subject
 // Alias note, maskLink on the subject, stripped allowedMentions.
-// Optional, defaulting to "nothing" like `string || "nothing"` in
-// !rate.ts: the TS slash option is required:true in fun.ts, but the
-// prefix path (`longString(args, 0)`) can be empty, so `Option` keeps
-// a bare `!rate` working instead of raising a framework error.
+// `the_things` is required:true in fun.ts, and prod's prefix path
+// runs checkCommandArgs counts-first: a bare `+rate` renders the
+// caret usage embed (verified live 2026-10-15, prod usage embed vs
+// test "nothing" content). The prefix head below mirrors that gate;
 // `#[rest]` keeps multi-word prefix subjects whole.
 #[poise::command(
     slash_command,
@@ -28,6 +28,15 @@ pub async fn rate(
     #[rest]
     the_things: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // TS checkCommandArgs counts first (`the_things` required:true in
+    // fun.ts): a bare prefix invocation renders the caret usage embed,
+    // never the "nothing" fallback (rolelimit.rs precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_subject_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // No fun guard: `!rate.ts` has no `GUILD.FUN.states` check,
     // so rating runs even with fun disabled.
     use rand::Rng;
@@ -66,6 +75,13 @@ pub fn rate_subject(raw: &str) -> String {
     }
 }
 
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `the_things` option.
+pub fn prefix_subject_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 #[cfg(test)]
 mod rate_tests {
     use super::*;
@@ -78,5 +94,15 @@ mod rate_tests {
             crate::funcs::mask_link(&rate_subject("https://evil.gg/x")),
             "Hidden Link"
         );
+    }
+
+    #[test]
+    fn bare_prefix_subject_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+rate`
+        // verified live), never the "nothing" content reply.
+        assert!(prefix_subject_missing(""));
+        assert!(prefix_subject_missing("   "));
+        assert!(!prefix_subject_missing("cats"));
     }
 }
