@@ -34,11 +34,15 @@ pub fn panel_store_json(channel_id: u64, message_id: u64) -> String {
 }
 
 /// Unique panel-post nonce. Mirrors `SnowflakeUtil.generate().toString()`
-/// in !channel.ts (time-based, unique per post for `enforceNonce`).
-/// The random suffix keeps two reconfigurations inside the same
-/// millisecond distinct (a plain `{channel}-{ms}` pair would collide).
-pub fn panel_nonce(channel_id: u64, now_ms: u64) -> String {
-    format!("{channel_id}-{now_ms}-{}", rand::random::<u32>())
+/// in !channel.ts: a time-ordered snowflake (`(ms - discord_epoch) << 22`
+/// plus a per-process sequence in the low 12 bits, exactly the discord.js
+/// layout), always ≤ 19 chars — Discord caps nonces at 25 chars, so the
+/// old `{channel}-{ms}-{rand}` shape (up to 44 chars) 400'd every post.
+pub fn panel_nonce(now_ms: u64) -> String {
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    const EPOCH: u64 = 1_420_070_400_000;
+    let seq = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed) & 0xFFF;
+    (((now_ms.saturating_sub(EPOCH)) << 22) | seq).to_string()
 }
 
 /// Audit entry for the panel post. Mirrors `client.func.ihorizon_logs`
@@ -177,9 +181,7 @@ pub async fn confession_channel(
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
     message = message
-        .nonce(serenity::model::channel::Nonce::String(panel_nonce(
-            target_id, now_ms,
-        )))
+        .nonce(serenity::model::channel::Nonce::String(panel_nonce(now_ms)))
         .enforce_nonce(true);
     if let Some(bytes) = footer_icon {
         message = message.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
@@ -261,11 +263,12 @@ mod tests {
 
     #[test]
     fn panel_nonce_is_unique_per_post() {
-        let a = panel_nonce(11, 1000);
-        assert!(a.starts_with("11-1000-"));
-        // Random suffix: same inputs still differ (same-ms reconfig).
-        assert_ne!(a, panel_nonce(11, 1000));
-        assert_ne!(a, panel_nonce(11, 1001));
-        assert_ne!(a, panel_nonce(22, 1000));
+        let a = panel_nonce(1_000);
+        // Snowflake shape: numeric, ≤ 25 chars (Discord nonce cap).
+        assert!(a.len() <= 25);
+        assert!(a.chars().all(|c| c.is_ascii_digit()));
+        // Sequence bits: same-ms calls still differ.
+        assert_ne!(a, panel_nonce(1_000));
+        assert_ne!(a, panel_nonce(1_001));
     }
 }
