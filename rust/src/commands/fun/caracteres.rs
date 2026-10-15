@@ -216,6 +216,17 @@ pub async fn caracteres(
     if fun_guard(&ctx).await {
         return Ok(());
     }
+    // Prefix count-check first (mirrors checkCommandArgs in
+    // method.ts:500-514). A bare `.caracteres` hits the framework
+    // usage embed on prod (the required `nickname`), never the
+    // provide-text prompt, so gate empty prefix args to the caret
+    // usage embed like warn does.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if pctx.args.trim().is_empty() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let Some(input) = nickname.filter(|s| !s.is_empty()) else {
