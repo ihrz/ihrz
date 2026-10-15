@@ -206,14 +206,28 @@ pub fn feed_mention_at(mentions: &[String], index: usize) -> Option<String> {
 /// Resolve a user id from a prefix arg. Mirrors method.ts user().
 /// `mentions` is the ordered parsedUsers list already passed through
 /// feed_user_mentions (bot-prefix filtering happens there, see
-/// method.ts user()); `members` is the guild member cache snapshot
-/// (id, username).
-pub fn resolve_user(arg: Option<&str>, mentions: &[String], members: &[Entry]) -> Option<String> {
+/// method.ts user()); `arg_index` is argsNumber: TS reads
+/// `parsedUsers[argsNumber]`, so an out-of-range index yields None
+/// with no fall-through to the id/username legs. `members` is the
+/// guild member cache snapshot (id, username).
+/// DELTAS (offline port): the sigil-strip and numeric legs `fetch()`
+/// over the Discord API in TS and resolve any valid id; here they are
+/// cache-only and miss to None. The numeric leg never falls through
+/// to the username leg (TS `else if` chain): a numeric cache miss
+/// yields None even when a username spells the same digits (W6 slice
+/// 130 node battery: "123" with username "123" on id "222" -> None,
+/// the mirror image of member()'s fall-through in slice 129).
+pub fn resolve_user(
+    arg: Option<&str>,
+    mentions: &[String],
+    members: &[Entry],
+    arg_index: usize,
+) -> Option<String> {
     let arg = arg?;
-    if let Some(id) = mentions.first() {
-        // TS: parsedUsers non-empty -> mentions path wins unconditionally.
-        let _ = arg;
-        return Some(id.clone());
+    if !mentions.is_empty() {
+        // TS: parsedUsers non-empty -> mentions[argsNumber] ?? null,
+        // unconditionally (no fall-through on an OOB index).
+        return mentions.get(arg_index).cloned();
     }
     if looks_like_user_mention(arg) {
         let id = strip_user_mention(arg);
@@ -222,8 +236,8 @@ pub fn resolve_user(arg: Option<&str>, mentions: &[String], members: &[Entry]) -
         }
         return None;
     }
-    if is_number(arg) && members.iter().any(|m| m.id == arg) {
-        return Some(arg.to_string());
+    if is_number(arg) {
+        return members.iter().find(|m| m.id == arg).map(|m| m.id.clone());
     }
     members.iter().find(|m| m.name == arg).map(|m| m.id.clone())
 }
@@ -565,7 +579,7 @@ mod tests {
     #[test]
     fn user_mention_list_wins_over_arg() {
         // Adversarial: arg names bob but mention list says 999 -> mention wins.
-        let out = resolve_user(Some("bob"), &["999".to_string()], &members());
+        let out = resolve_user(Some("bob"), &["999".to_string()], &members(), 0);
         assert_eq!(out.as_deref(), Some("999"));
     }
 
@@ -620,14 +634,14 @@ mod tests {
 
     #[test]
     fn user_mention_pattern_resolves_id() {
-        let out = resolve_user(Some("<@111>"), &[], &members());
+        let out = resolve_user(Some("<@111>"), &[], &members(), 0);
         assert_eq!(out.as_deref(), Some("111"));
     }
 
     #[test]
     fn user_unknown_mention_pattern_returns_none_not_fallback() {
         // Adversarial: <@999> must NOT fall through to username matching.
-        let out = resolve_user(Some("<@999>"), &[], &members());
+        let out = resolve_user(Some("<@999>"), &[], &members(), 0);
         assert_eq!(out, None);
     }
 
@@ -652,7 +666,7 @@ mod tests {
             Some("111")
         );
         assert_eq!(
-            resolve_user(Some("!111"), &[], &members()).as_deref(),
+            resolve_user(Some("!111"), &[], &members(), 0).as_deref(),
             Some("111")
         );
         // "@bob" strips to "bob", which is a name not an id -> None
@@ -665,15 +679,45 @@ mod tests {
     #[test]
     fn user_numeric_id_and_username_fallback() {
         assert_eq!(
-            resolve_user(Some("222"), &[], &members()).as_deref(),
+            resolve_user(Some("222"), &[], &members(), 0).as_deref(),
             Some("222")
         );
         assert_eq!(
-            resolve_user(Some("alice"), &[], &members()).as_deref(),
+            resolve_user(Some("alice"), &[], &members(), 0).as_deref(),
             Some("111")
         );
-        assert_eq!(resolve_user(Some("mallory"), &[], &members()), None);
-        assert_eq!(resolve_user(None, &[], &members()), None);
+        assert_eq!(resolve_user(Some("mallory"), &[], &members(), 0), None);
+        assert_eq!(resolve_user(None, &[], &members(), 0), None);
+    }
+
+    #[test]
+    fn user_matches_ts_battery_legs() {
+        // Pinned via a node battery replicating method.ts user()
+        // verbatim (fetch stubbed to the cache ids + API-only "999").
+        // Members carry a numeric username ("123" on id "222") to pin
+        // the else-if no-fall-through leg.
+        let num = vec![Entry::new("111", "alice"), Entry::new("222", "123")];
+        let r = |arg: Option<&str>, men: &[String], i: usize| resolve_user(arg, men, &num, i);
+        // Mention slot indexing: [argsNumber], OOB yields None with no
+        // fall-through to the id/username legs.
+        assert_eq!(
+            r(Some("x"), &["AAA".to_string(), "BBB".to_string()], 1).as_deref(),
+            Some("BBB")
+        );
+        assert_eq!(r(Some("222"), &["AAA".to_string()], 1), None);
+        // Numeric leg never reaches the username leg (mirror image of
+        // member()'s slice-129 fall-through): "123" is a username here
+        // but TS takes the fetch branch and misses -> None.
+        assert_eq!(r(Some("123"), &[], 0), None);
+        // Numeric cache hit still resolves.
+        assert_eq!(r(Some("222"), &[], 0).as_deref(), Some("222"));
+        // Username + miss + empty legs agree with TS.
+        assert_eq!(r(Some("alice"), &[], 0).as_deref(), Some("111"));
+        assert_eq!(r(Some("mallory"), &[], 0), None);
+        // Sigil-strip leg is cache-only (TS fetch()es): bracket hit
+        // agrees, API-only id misses here.
+        assert_eq!(r(Some("<@111>"), &[], 0).as_deref(), Some("111"));
+        assert_eq!(r(Some("<@999>"), &[], 0), None);
     }
 
     #[test]
@@ -1128,7 +1172,7 @@ mod tests {
         // Positional word names the same id the mention feed carries.
         assert_eq!(strip_user_mention(arg), feed[0]);
         assert_eq!(
-            resolve_user(Some(arg), &feed, &members()).as_deref(),
+            resolve_user(Some(arg), &feed, &members(), 0).as_deref(),
             Some("111")
         );
     }
