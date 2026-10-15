@@ -906,6 +906,10 @@ pub fn should_advertise_the_topgg_vote_button(_author_id: &str) -> bool {
 /// The commented-out TS rule as a pure predicate, so the 12h re-vote
 /// window stays testable once vote tracking lands: advertise unless
 /// already notified; a missing timestamp (never voted) advertises.
+/// Delta: TS tests `!lastVoteTimestamp`, so a stored `0` advertises via
+/// the falsy leg, while `Some(0)` here computes `now - 0 >= 12h`.
+/// Identical on every reachable input (real vote timestamps are epoch
+/// ms, always far past the 12h window).
 pub fn should_advertise_topgg_vote(
     now_ms: i64,
     last_vote_ms: Option<i64>,
@@ -1350,6 +1354,12 @@ mod tests {
             Some(now - TOPGG_REVOTE_MS),
             false
         ));
+        // W6 slice 124: the TS `>=` boundary excludes 1ms-early votes.
+        assert!(!should_advertise_topgg_vote(
+            now,
+            Some(now - TOPGG_REVOTE_MS + 1),
+            false
+        ));
         assert!(!should_advertise_topgg_vote(
             now,
             Some(now - TOPGG_REVOTE_MS),
@@ -1361,6 +1371,12 @@ mod tests {
     fn topgg_row_appends_or_seeds() {
         let seeded = add_topgg_button_to_components(vec![], 7, "Vote");
         assert_eq!(seeded.len(), 1);
+        // W6 slice 124: the seeded row carries the vote URL + label like
+        // generateTopggActionRow (TS hardcodes both; the label arrives via
+        // the caller here, the TOPGG app emoji stays omitted — see fn docs).
+        let dbg = format!("{:?}", seeded[0]);
+        assert!(dbg.contains("https://top.gg/bot/7/vote"), "{dbg}");
+        assert!(dbg.contains("Vote"), "{dbg}");
         let row = CreateActionRow::Buttons(vec![CreateButton::new_link("https://x").label("y")]);
         let grown = add_topgg_button_to_components(vec![row], 7, "Vote");
         assert_eq!(grown.len(), 2);
