@@ -514,7 +514,24 @@ pub fn inviter_display(
 ) -> (String, String) {
     match vanity_code {
         Some(code) => (format!(".wf/{code}"), format!("discord.wf/{code}")),
-        None => (username.to_string(), mention.to_string()),
+        // TS `||` legs (generateCustomMessagePreview `inviter?.user.username
+        // || "unknow_user"` / `inviter?.user.mention || "@unknow_user"`, node
+        // battery slice 114): a present-but-empty string falls back to the
+        // literal defaults, like a missing inviter. Live callers only ever
+        // pass real Discord usernames here, so this is exact with zero
+        // behavior change on reachable inputs.
+        None => (
+            if username.is_empty() {
+                "unknow_user".to_string()
+            } else {
+                username.to_string()
+            },
+            if mention.is_empty() {
+                "@unknow_user".to_string()
+            } else {
+                mention.to_string()
+            },
+        ),
     }
 }
 
@@ -1715,6 +1732,20 @@ mod tests {
         assert_eq!(
             render_inviter_slots("by {inviterUsername} ({inviterMention})", "b", "<@9>"),
             "by b (<@9>)"
+        );
+        // Slice 114 (node battery): present-but-empty inviter strings hit
+        // the TS `||` literal defaults, like a missing inviter.
+        assert_eq!(
+            inviter_display(None, "", ""),
+            ("unknow_user".to_string(), "@unknow_user".to_string())
+        );
+        assert_eq!(
+            inviter_display(None, "", "<@9>"),
+            ("unknow_user".to_string(), "<@9>".to_string())
+        );
+        assert_eq!(
+            inviter_display(None, "bob", ""),
+            ("bob".to_string(), "@unknow_user".to_string())
         );
     }
 

@@ -11933,4 +11933,24 @@ mod join_leave_render_tests {
         );
         assert_eq!(out, "unknow_user @unknow_user 1337");
     }
+
+    #[test]
+    fn zero_invite_count_renders_zero_not_default() {
+        // Slice 114 (node battery): `inviter?.invitesAmount.toString()`
+        // stringifies first, so 0 renders "0" (truthy) — only a missing
+        // inviter (None) renders the "1337" literal.
+        let out = render_join_leave_text(
+            "x{invitesCount}",
+            "bob",
+            "<@2>",
+            1,
+            "G",
+            "d",
+            0,
+            "alice",
+            "<@1>",
+            Some(0),
+        );
+        assert_eq!(out, "x0");
+    }
 }

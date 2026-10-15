@@ -3114,16 +3114,39 @@ pub struct NotifierSlots<'a> {
 
 /// Render a notifier announce template. Mirrors
 /// generateCustomMessagePreview for the StreamNotifier.refresh call
-/// (notifier slots resolved, blogger slots default).
+/// (notifier slots resolved, blogger slots default). The artist slots
+/// carry the TS `||` fallbacks (node battery slice 114): a fetched
+/// empty author/link/url renders "Ninja" and friends, not "".
 pub fn render_notifier_announce(template: &str, s: &NotifierSlots<'_>) -> String {
     template
         .replace("{memberUsername}", s.member_username)
         .replace("{memberMention}", s.member_mention)
         .replace("{memberCount}", &s.member_count.to_string())
         .replace("{guildName}", s.guild_name)
-        .replace("{artistAuthor}", s.artist_author)
-        .replace("{artistLink}", s.artist_link)
-        .replace("{mediaURL}", s.media_url)
+        .replace(
+            "{artistAuthor}",
+            if s.artist_author.is_empty() {
+                "Ninja"
+            } else {
+                s.artist_author
+            },
+        )
+        .replace(
+            "{artistLink}",
+            if s.artist_link.is_empty() {
+                "https://twitch.tv/Ninja"
+            } else {
+                s.artist_link
+            },
+        )
+        .replace(
+            "{mediaURL}",
+            if s.media_url.is_empty() {
+                "https://twitch.tv/Ninja/media"
+            } else {
+                s.media_url
+            },
+        )
         .replace("{articleTitle}", "Unknow Article")
         .replace("{articleAuthor}", "Unknown Author")
         .replace("{articleLink}", "Unknown Link")
@@ -3132,7 +3155,9 @@ pub fn render_notifier_announce(template: &str, s: &NotifierSlots<'_>) -> String
 
 /// Render a blogger announce template. Mirrors
 /// generateCustomMessagePreview for the BloggerNotifier.refresh call
-/// (blogger slots resolved, notifier slots default).
+/// (blogger slots resolved, notifier slots default). The article slots
+/// carry the TS `||` fallbacks (node battery slice 114): a fetched
+/// empty title/author/link/name renders the literals, not "".
 #[allow(clippy::too_many_arguments)]
 pub fn render_blogger_announce(
     template: &str,
@@ -3150,10 +3175,38 @@ pub fn render_blogger_announce(
         .replace("{artistAuthor}", "Ninja")
         .replace("{artistLink}", "https://twitch.tv/Ninja")
         .replace("{mediaURL}", "https://twitch.tv/Ninja/media")
-        .replace("{articleTitle}", article_title)
-        .replace("{articleAuthor}", article_author)
-        .replace("{articleLink}", article_link)
-        .replace("{blogName}", blog_name)
+        .replace(
+            "{articleTitle}",
+            if article_title.is_empty() {
+                "Unknow Article"
+            } else {
+                article_title
+            },
+        )
+        .replace(
+            "{articleAuthor}",
+            if article_author.is_empty() {
+                "Unknown Author"
+            } else {
+                article_author
+            },
+        )
+        .replace(
+            "{articleLink}",
+            if article_link.is_empty() {
+                "Unknown Link"
+            } else {
+                article_link
+            },
+        )
+        .replace(
+            "{blogName}",
+            if blog_name.is_empty() {
+                "Unknown Blog Name"
+            } else {
+                blog_name
+            },
+        )
 }
 
 /// One 120s live pass over every configured guild. Mirrors
@@ -3849,6 +3902,36 @@ mod tests {
             "G",
         );
         assert_eq!(bout, "T by A http://x/a Blog https://twitch.tv/Ninja/media");
+    }
+
+    #[test]
+    fn announce_empty_slots_hit_ts_literal_defaults() {
+        // Slice 114 (node battery): fetched empty strings hit the TS `||`
+        // literal defaults, not "".
+        let empty = NotifierSlots {
+            member_username: "bot",
+            member_mention: "<@1>",
+            member_count: 42,
+            guild_name: "G",
+            artist_author: "",
+            artist_link: "",
+            media_url: "",
+        };
+        assert_eq!(
+            render_notifier_announce("{artistAuthor}|{artistLink}|{mediaURL}", &empty),
+            "Ninja|https://twitch.tv/Ninja|https://twitch.tv/Ninja/media"
+        );
+        assert_eq!(
+            render_blogger_announce(
+                "{articleTitle}|{articleAuthor}|{articleLink}|{blogName}",
+                "",
+                "",
+                "",
+                "",
+                "G"
+            ),
+            "Unknow Article|Unknown Author|Unknown Link|Unknown Blog Name"
+        );
     }
 
     #[test]
