@@ -265,12 +265,19 @@ pub fn resolve_channel(
     None
 }
 
-/// Resolve a role id. Mirrors method.ts role().
+/// Resolve a role id. Mirrors method.ts role() exactly:
+/// `mentions[index]` wins unconditionally (even when the arg text at
+/// that slot is junk or missing), else the `[<@&>]`-stripped entry is
+/// tried as an id, then as an exact (case-sensitive) name. The strip
+/// removes those four chars anywhere in the string, so partial forms
+/// like `@&6` or `<@&6` still resolve; an empty entry can match an
+/// empty-named role via the name leg (the `roleEntry ? : null` gate
+/// only skips the id leg).
 pub fn resolve_role(arg: Option<&str>, mention: Option<&str>, roles: &[Entry]) -> Option<String> {
-    let arg = arg?;
     if let Some(m) = mention {
         return Some(m.to_string());
     }
+    let arg = arg?;
     let entry = strip_role_mention(arg);
     if let Some(r) = roles.iter().find(|r| r.id == entry) {
         return Some(r.id.clone());
@@ -694,6 +701,57 @@ mod tests {
             Some("5")
         );
         assert_eq!(resolve_role(Some("Nobody"), None, &roles), None);
+    }
+
+    #[test]
+    fn role_matches_ts_battery_legs() {
+        // Mirrors the 18-case node battery over method.ts role()
+        // (`mentions[n] || (entry ? get(entry) : null) || find(name) || null`).
+        let roles = vec![
+            Entry::new("5", "Mods"),
+            Entry::new("6", "VIP"),
+            Entry::new("7", ""),
+        ];
+        // Mention at the index wins even over a valid id or junk arg.
+        assert_eq!(
+            resolve_role(Some("5"), Some("M6"), &roles).as_deref(),
+            Some("M6")
+        );
+        assert_eq!(
+            resolve_role(Some("hello"), Some("M6"), &roles).as_deref(),
+            Some("M6")
+        );
+        // Mention wins even when the arg slot is missing entirely.
+        assert_eq!(
+            resolve_role(None, Some("M6"), &roles).as_deref(),
+            Some("M6")
+        );
+        assert_eq!(resolve_role(None, None, &roles), None);
+        // OOB mention falls through to the id/name legs.
+        assert_eq!(
+            resolve_role(Some("VIP"), None, &roles).as_deref(),
+            Some("6")
+        );
+        // Name leg is exact and case-sensitive.
+        assert_eq!(resolve_role(Some("vip"), None, &roles), None);
+        // Empty entry skips the id leg but still runs the name leg.
+        assert_eq!(resolve_role(Some(""), None, &roles).as_deref(), Some("7"));
+        assert_eq!(
+            resolve_role(Some("<@&>"), None, &roles).as_deref(),
+            Some("7")
+        );
+        // The strip removes the four chars anywhere, not just wrapping.
+        assert_eq!(
+            resolve_role(Some("@&6"), None, &roles).as_deref(),
+            Some("6")
+        );
+        assert_eq!(
+            resolve_role(Some("<@&6"), None, &roles).as_deref(),
+            Some("6")
+        );
+        // Trailing junk survives the strip and misses both legs.
+        assert_eq!(resolve_role(Some("<@&5>junk"), None, &roles), None);
+        assert_eq!(resolve_role(Some("a<b"), None, &roles), None);
     }
 
     #[test]
