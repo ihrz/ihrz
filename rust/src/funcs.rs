@@ -1641,6 +1641,76 @@ mod tests {
             media_by_message("hi", None),
             ("none".to_string(), String::new())
         );
+        // Node ground truth (W6 slice 90): full getMediaByMessage
+        // battery — content link wins even with an image attachment,
+        // scheme check is case-sensitive (HTTPS falls through to the
+        // attachment leg), missing/upper/bare content-types miss the
+        // case-sensitive `startsWith("image/")`, empty content still
+        // reaches the attachment, leading-space content is no link,
+        // suffixed content-type still an image, bare "http://" is a
+        // link, query-suffixed a_ name still animated (slice 89).
+        assert_eq!(
+            media_by_message(
+                "https://example.com",
+                Some(("https://cdn/x/a_1.png", Some("image/png")))
+            ),
+            ("url".to_string(), "https://example.com".to_string())
+        );
+        assert_eq!(
+            media_by_message(
+                "HTTPS://example.com",
+                Some(("https://cdn/x/a_1.png", Some("image/png")))
+            ),
+            ("image.gif".to_string(), "https://cdn/x/a_1.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/a_1.png", None))),
+            ("none".to_string(), String::new())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/a_1.png", Some("IMAGE/PNG")))),
+            ("none".to_string(), String::new())
+        );
+        assert_eq!(
+            media_by_message("", Some(("https://cdn/x/a_1.png", Some("image/png")))),
+            ("image.gif".to_string(), "https://cdn/x/a_1.png".to_string())
+        );
+        assert_eq!(
+            media_by_message(
+                " https://example.com",
+                Some(("https://cdn/x/b_1.png", Some("image/png")))
+            ),
+            ("image.png".to_string(), "https://cdn/x/b_1.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/a_1.png", Some("image/")))),
+            ("image.gif".to_string(), "https://cdn/x/a_1.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/a_1.png", Some("image")))),
+            ("none".to_string(), String::new())
+        );
+        assert_eq!(
+            media_by_message(
+                "hi",
+                Some(("https://cdn/x/b_1.png", Some("image/png; charset=x")))
+            ),
+            ("image.png".to_string(), "https://cdn/x/b_1.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("http://", None),
+            ("url".to_string(), "http://".to_string())
+        );
+        assert_eq!(
+            media_by_message(
+                "hi",
+                Some(("https://cdn/x/a_1.png?size=1024", Some("image/webp")))
+            ),
+            (
+                "image.gif".to_string(),
+                "https://cdn/x/a_1.png?size=1024".to_string()
+            )
+        );
     }
 
     #[test]
