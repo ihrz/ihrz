@@ -1161,6 +1161,22 @@ pub fn resolve_shard_count(
     recommended.map(tuned_shard_count)
 }
 
+/// Mirror of `isInVoiceChannel` in
+/// src/core/functions/leashModuleHelper.ts
+/// (`member.voice.channel ? true : false`). discord.js types the channel
+/// as `VoiceBasedChannel | null`, so on the whole reachable domain the
+/// ternary agrees with `Option::is_some` exactly (node battery: null ->
+/// false, object -> true, passthrough identity on
+/// `getDomSubVoiceChannel`). DELTA (doc-noted, unrepresentable):
+/// falsy non-object channel values (`0`, `""`, `false`) yield false in
+/// TS but true here; discord.js only ever produces an object or null.
+/// `getDomSubVoiceChannel` (bare `return member.voice.channel`) has zero
+/// TS callers and no Rust mirror by design -- live call sites keep the
+/// `Option` itself (e.g. the `voice_states` lookup in the leash gate).
+pub fn is_in_voice_channel(channel: Option<u64>) -> bool {
+    channel.is_some()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -4766,6 +4782,17 @@ mod content_type_image_tests {
         ] {
             assert!(!is_animated(url), "{url:?} must be static like TS");
         }
+    }
+
+    #[test]
+    fn in_voice_ternary_matches_ts() {
+        // Node ground truth (W6 slice 109): verbatim
+        // `member.voice.channel ? true : false` over the reachable
+        // discord.js domain (VoiceBasedChannel object | null).
+        assert!(!is_in_voice_channel(None));
+        assert!(is_in_voice_channel(Some(0)));
+        assert!(is_in_voice_channel(Some(1)));
+        assert!(is_in_voice_channel(Some(u64::MAX)));
     }
 }
 
