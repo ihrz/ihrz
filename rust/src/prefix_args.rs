@@ -404,6 +404,47 @@ mod tests {
         let mut args = vec!["1".to_string(), "2".to_string()];
         merge_long_tail(&mut args, &short);
         assert_eq!(args, vec!["1", "2"]);
+        // Node ground truth (method.ts 516-522 verbatim:
+        // `args[last] = args.slice(last).join(" "); args.splice(last+1)`):
+        // empty tail elements survive the join.
+        let mut args = vec!["@u".to_string(), "".to_string(), "x".to_string()];
+        merge_long_tail(&mut args, &specs);
+        assert_eq!(args, vec!["@u", " x"]);
+        // Single-element tail: join-of-one + empty splice is a no-op.
+        let mut args = vec!["@u".to_string(), "solo".to_string()];
+        merge_long_tail(&mut args, &specs);
+        assert_eq!(args, vec!["@u", "solo"]);
+        // Empty args: `0 > last` misses, untouched.
+        let mut args: Vec<String> = vec![];
+        merge_long_tail(&mut args, &specs);
+        assert!(args.is_empty());
+        // Interior empties keep their separators; all-empty tail -> " ".
+        let mut args = vec![
+            "@u".to_string(),
+            "a".to_string(),
+            "".to_string(),
+            "b".to_string(),
+        ];
+        merge_long_tail(&mut args, &specs);
+        assert_eq!(args, vec!["@u", "a  b"]);
+        let mut args = vec!["@u".to_string(), "".to_string(), "".to_string()];
+        merge_long_tail(&mut args, &specs);
+        assert_eq!(args, vec!["@u", " "]);
+        // Single long spec absorbs the whole tail from index 0.
+        let single = vec![ArgSpec::text("q", "string", false, true)];
+        let mut args = vec!["1".to_string(), "2".to_string()];
+        merge_long_tail(&mut args, &single);
+        assert_eq!(args, vec!["1 2"]);
+        // Attachment specs don't shift the text index (TS counts
+        // expectedArgs only; attachments live in a separate array).
+        let mixed = vec![
+            ArgSpec::text("user", "user", true, false),
+            ArgSpec::attachment("proof", false),
+            ArgSpec::text("note", "string", false, true),
+        ];
+        let mut args = vec!["@u".to_string(), "my".to_string(), "note".to_string()];
+        merge_long_tail(&mut args, &mixed);
+        assert_eq!(args, vec!["@u", "my note"]);
     }
 
     #[test]
