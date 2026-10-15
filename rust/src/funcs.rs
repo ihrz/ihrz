@@ -1654,6 +1654,22 @@ mod tests {
             fit_dimensions(1920, 1080, MEDIA_FIT_WIDTH, MEDIA_FIT_HEIGHT),
             (1920, 1080)
         );
+        // Node ground truth (W6 slice 87 battery): exact-aspect equality
+        // takes the else leg (strict `>`), downscale boxes, unit
+        // squares, and a Math.round half-tie (512x34 -> 1920/aspect =
+        // exactly 127.5 -> 128; Rust round() is half-away == half-up on
+        // non-negative inputs, so ties agree on the whole u32 domain).
+        assert_eq!(fit_dimensions(16, 9, 1920, 1080), (1920, 1080));
+        assert_eq!(fit_dimensions(1920, 1080, 800, 600), (800, 450));
+        assert_eq!(fit_dimensions(1, 1, 1920, 1080), (1080, 1080));
+        assert_eq!(fit_dimensions(512, 34, 1920, 1080), (1920, 128));
+        assert_eq!(fit_dimensions(3, 2, 1920, 1080), (1620, 1080));
+        // Extreme-ratio delta (doc-noted): TS Math.round yields a 0 side
+        // ([100000,1] -> [1920,0], [1,100000] -> [0,1080]) and hands it
+        // to Jimp.resize, while Rust clamps to 1 (Jimp images are >= 1px
+        // per side, so live inputs never reach this leg).
+        assert_eq!(fit_dimensions(100000, 1, 1920, 1080), (1920, 1));
+        assert_eq!(fit_dimensions(1, 100000, 1920, 1080), (1, 1080));
         // resizeImage letterbox: fit + centered offsets on black canvas.
         assert_eq!(
             letterbox_layout(3840, 1080, 1920, 1080),
@@ -1663,6 +1679,14 @@ mod tests {
             letterbox_layout(1080, 1080, 1920, 1080),
             (1080, 1080, 420, 0)
         );
+        // Node ground truth (W6 slice 87): odd-remainder centering rounds
+        // half-up ((3-2)/2 = 0.5 -> 1; non-negative so Rust agrees), and
+        // the (0,0) zero-guard leg (TS resizeImage `if (width && height)`
+        // falsy gate skips the fit entirely and writes the original, so
+        // zero canvas/src shapes are unreachable from Jimp images).
+        assert_eq!(letterbox_layout(7, 5, 3, 3), (3, 2, 0, 1));
+        assert_eq!(letterbox_layout(100, 1, 1920, 1080), (1920, 19, 0, 531));
+        assert_eq!(letterbox_layout(0, 0, 1920, 1080), (0, 0, 960, 540));
         // adjustImageQuality ladder 90..=10.
         assert_eq!(
             image_quality_steps(),
