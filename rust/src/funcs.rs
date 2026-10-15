@@ -937,23 +937,20 @@ where
 pub const ASSETS_LENGTHS_URL: &str = "https://www.ihorizon.org/cdn/repositories.json";
 
 /// Parse the repositories.json body into per-type asset URL lists.
-/// None when the body is not a JSON object (mirrors the TS JSON.parse,
-/// minus the throw: unusable bodies stay unusable). Entries without a
-/// `paths` string array are skipped like unknown keys. Picking a valid
+/// None when the body is not a JSON object (mirrors the TS JSON.parse
+/// throw-leg: a bare fragment or garbage leaves the table unset on both
+/// sides; a JSON array parses but is not an object, so it also yields
+/// None). Entries without a `paths` string array are skipped — TS
+/// `assetsFinder` returns `""` for those the same way (unknown key,
+/// missing/non-array/empty `paths` all hit `!paths?.length`). Delta
+/// (doc-noted): non-string items inside `paths` are filtered out here
+/// while TS could return one verbatim (numeric index pick); the live
+/// CDN body carries clean strings only, unreachable. Picking a valid
 /// index into `paths` (instead of building `/{n}.gif` from a count)
 /// fixes the historic off-by-one (`0.gif` does not exist) and covers
 /// same-stem siblings (`4.jpg` next to `4.gif`).
 pub fn parse_asset_paths(raw: &str) -> Option<std::collections::HashMap<String, Vec<String>>> {
-    // TS assetsCalc hands a bare fragment (repositories.json body
-    // without the opening brace); accept both fragment and full
-    // object shapes.
-    let shaped = raw.trim();
-    let shaped = if shaped.starts_with('{') {
-        shaped.to_string()
-    } else {
-        format!("{{{shaped}")
-    };
-    let value: serde_json::Value = serde_json::from_str(&shaped).ok()?;
+    let value: serde_json::Value = serde_json::from_str(raw.trim()).ok()?;
     let table = value.as_object()?;
     let mut out = std::collections::HashMap::with_capacity(table.len());
     for (key, entry) in table {
@@ -2008,6 +2005,25 @@ mod tests {
         assert_eq!(cached_asset_paths("hug"), None);
         assert!(parse_asset_paths("not json").is_none());
         assert!(parse_asset_paths("[1,2]").is_none());
+        // Bare fragment (no opening brace): TS JSON.parse throws, so the
+        // table stays unset there too (node ground truth: SyntaxError).
+        assert!(parse_asset_paths("\"hug\": {\"length\": 1, \"paths\": [\"u\"]}}").is_none());
+        // Whitespace-padded full object parses on both sides.
+        assert!(
+            parse_asset_paths("  {\"hug\": {\"length\": 1, \"paths\": [\"u\"]}}  \n").is_some()
+        );
+        // Empty/non-array `paths` entries are skipped here; TS assetsFinder
+        // returns "" for them the same way (no usable asset either side).
+        let empties = parse_asset_paths(
+            r#"{"a": {"length": 0, "paths": []}, "b": {"length": 1}, "c": {"length": 1, "paths": null}, "d": 30}"#,
+        )
+        .unwrap();
+        assert!(empties.is_empty());
+        // Non-string items are filtered (TS could return one verbatim;
+        // doc-noted delta, live CDN carries clean strings only).
+        let mixed_items =
+            parse_asset_paths(r#"{"hug": {"length": 2, "paths": ["u", 7]}}"#).unwrap();
+        assert_eq!(mixed_items["hug"], vec!["u".to_string()]);
         // Entries without a `paths` array are skipped, the rest kept.
         let mixed =
             parse_asset_paths(r#"{"hug": {"length": 1, "paths": ["u"]}, "bad": {"length": 1}}"#)
