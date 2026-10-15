@@ -333,6 +333,78 @@ mod tests {
     }
 
     #[test]
+    fn leaderboard_matches_ts_six_level_legs() {
+        // Node battery (slice 120): each of the six comparator levels
+        // decides alone; a full tie keeps input order (V8 stable sort ==
+        // `sort_by` stable); the cap keeps the first 3 of the sorted
+        // order; negatives sort below zero.
+        let full = |id: &str, d: u64, w: u64, m: u64, dv: i64, wv: i64, mv: i64| LeaderRow {
+            member_id: id.into(),
+            daily_messages: d,
+            weekly_messages: w,
+            monthly_messages: m,
+            daily_voice: dv,
+            weekly_voice: wv,
+            monthly_voice: mv,
+        };
+        // Monthly-messages level.
+        let top = stats_leaderboard(vec![
+            full("a", 2, 5, 1, 0, 0, 0),
+            full("b", 2, 5, 9, 0, 0, 0),
+        ]);
+        assert_eq!(
+            [top[0].member_id.as_str(), top[1].member_id.as_str()],
+            ["b", "a"]
+        );
+        // Weekly-voice level.
+        let top = stats_leaderboard(vec![
+            full("a", 2, 5, 9, 7, 1, 0),
+            full("b", 2, 5, 9, 7, 8, 0),
+        ]);
+        assert_eq!(
+            [top[0].member_id.as_str(), top[1].member_id.as_str()],
+            ["b", "a"]
+        );
+        // Monthly-voice level.
+        let top = stats_leaderboard(vec![
+            full("a", 2, 5, 9, 7, 8, 1),
+            full("b", 2, 5, 9, 7, 8, 2),
+        ]);
+        assert_eq!(
+            [top[0].member_id.as_str(), top[1].member_id.as_str()],
+            ["b", "a"]
+        );
+        // Full tie: input order kept.
+        let top = stats_leaderboard(vec![
+            full("x", 1, 1, 1, 1, 1, 1),
+            full("y", 1, 1, 1, 1, 1, 1),
+            full("z", 1, 1, 1, 1, 1, 1),
+        ]);
+        assert_eq!(
+            top.iter().map(|r| r.member_id.as_str()).collect::<Vec<_>>(),
+            ["x", "y", "z"]
+        );
+        // Cap: first 3 of 5 sorted rows.
+        let top = stats_leaderboard(vec![
+            full("a", 1, 0, 0, 0, 0, 0),
+            full("b", 2, 0, 0, 0, 0, 0),
+            full("c", 3, 0, 0, 0, 0, 0),
+            full("d", 4, 0, 0, 0, 0, 0),
+            full("e", 5, 0, 0, 0, 0, 0),
+        ]);
+        assert_eq!(
+            top.iter().map(|r| r.member_id.as_str()).collect::<Vec<_>>(),
+            ["e", "d", "c"]
+        );
+        // DELTAS (doc-noted, unreachable): TS filters `member === undefined`
+        // rows first -- unrepresentable here (`LeaderRow` always carries a
+        // member id, and the fn has no live callers); a NaN count would
+        // neutralize one comparator level in TS (`!==` true, difference NaN
+        // sorts as 0) while u64/i64 cannot hold NaN (live counts and voice
+        // minutes are integers).
+    }
+
+    #[test]
     fn top_n_helpers() {
         let rows = vec![
             ("a".to_string(), 3u64),
@@ -350,5 +422,37 @@ mod tests {
         ];
         assert_eq!(top_by_voice(rows, 10).len(), 3);
         assert_eq!(top_by_voice(vec![], 10), vec![]);
+        // Slice 120 (node battery): ties keep input order (stable sort
+        // both sides); limit 0 yields []; over-long limits keep all;
+        // negatives sort below zero on the voice leg.
+        let tied = vec![
+            ("a".to_string(), 5u64),
+            ("b".to_string(), 5),
+            ("c".to_string(), 5),
+        ];
+        assert_eq!(
+            top_by_messages(tied, 10),
+            vec![
+                ("a".to_string(), 5),
+                ("b".to_string(), 5),
+                ("c".to_string(), 5)
+            ]
+        );
+        assert_eq!(top_by_messages(vec![("a".to_string(), 3u64)], 0), vec![]);
+        assert_eq!(top_by_messages(vec![("a".to_string(), 3u64)], 10).len(), 1);
+        let vrows = vec![("a".to_string(), -5i64), ("b".to_string(), 0)];
+        assert_eq!(
+            top_by_voice(vrows, 10),
+            vec![("b".to_string(), 0), ("a".to_string(), -5)]
+        );
+        // DELTAS (doc-noted, unreachable at the fn): negative/fractional
+        // `limit` shapes (`slice(0, -1)` keeps all-but-last, `slice(0, 2.5)`
+        // keeps 2 -- node ground truth) are unrepresentable past the `usize`
+        // signature; the live call site resolves them via `js_slice_take`
+        // (+ prefix 5..=25 clamp / slash `|| 10`), all pinned in
+        // `top_period_and_limit_mirror_ts`. Side note (framework-level,
+        // NOT touched): poise parses the prefix `limit` as `Option<i64>`,
+        // so `!top-messages 2.5` reads None -> 10 while TS `parseInt` reads
+        // 2 -> clamp 5; same poise-vs-TS parse family as U-ETERNAL-241.
     }
 }
