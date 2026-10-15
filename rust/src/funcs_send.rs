@@ -736,19 +736,22 @@ pub fn topgg_vote_url(client_id: &str) -> String {
 }
 
 /// Pure buttonReact slot rule: 5+ rows throw; the button joins the
-/// first row with < 5 components, else a new row is appended.
+/// first row with < 5 components that already holds a button
+/// (TS `components.find((x) => x.type === ComponentType.Button)`
+/// skips roomy rows with no button), else a new row is appended.
+/// Each entry is `(component_count, has_button)`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReactSlot {
     ExistingRow(usize),
     NewRow,
 }
 
-pub fn react_slot(row_counts: &[usize]) -> Result<ReactSlot, &'static str> {
-    if row_counts.len() >= 5 {
+pub fn react_slot(rows: &[(usize, bool)]) -> Result<ReactSlot, &'static str> {
+    if rows.len() >= 5 {
         return Err(TOO_MANY_COMPONENTS);
     }
-    for (i, n) in row_counts.iter().enumerate() {
-        if *n < 5 {
+    for (i, (n, has_button)) in rows.iter().enumerate() {
+        if *n < 5 && *has_button {
             return Ok(ReactSlot::ExistingRow(i));
         }
     }
@@ -756,7 +759,7 @@ pub fn react_slot(row_counts: &[usize]) -> Result<ReactSlot, &'static str> {
 }
 
 /// Minimal component ref for the unreact filter.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompRef {
     pub is_button: bool,
     pub emoji_id: Option<String>,
@@ -1452,9 +1455,20 @@ mod tests {
             "Sent from MyGuild"
         );
         assert_eq!(topgg_vote_url("123"), "https://top.gg/bot/123/vote");
-        assert_eq!(react_slot(&[5, 5, 5, 5, 5]), Err(TOO_MANY_COMPONENTS));
-        assert_eq!(react_slot(&[5, 2]), Ok(ReactSlot::ExistingRow(1)));
-        assert_eq!(react_slot(&[5, 5]), Ok(ReactSlot::NewRow));
+        assert_eq!(
+            react_slot(&[(5, true), (5, true), (5, true), (5, true), (5, true)]),
+            Err(TOO_MANY_COMPONENTS)
+        );
+        // 5 rows throw even when the last row has room.
+        assert_eq!(
+            react_slot(&[(1, true), (1, true), (1, true), (1, true), (2, true)]),
+            Err(TOO_MANY_COMPONENTS)
+        );
+        assert_eq!(
+            react_slot(&[(5, true), (2, true)]),
+            Ok(ReactSlot::ExistingRow(1))
+        );
+        assert_eq!(react_slot(&[(5, true), (5, true)]), Ok(ReactSlot::NewRow));
         let rows = vec![
             vec![
                 CompRef {
@@ -1479,6 +1493,51 @@ mod tests {
         }]];
         let (kept, removed) = unreact_rows(solo, "e1");
         assert!(removed && kept.is_empty());
+    }
+
+    #[test]
+    fn react_slot_and_unreact_match_ts_battery() {
+        // Slot rule, mirroring the node battery 1:1 ((count, has_button)).
+        assert_eq!(react_slot(&[]), Ok(ReactSlot::NewRow));
+        assert_eq!(react_slot(&[(2, true)]), Ok(ReactSlot::ExistingRow(0)));
+        // Roomy row with NO button is skipped: TS falls to the next row.
+        assert_eq!(
+            react_slot(&[(2, false), (1, true)]),
+            Ok(ReactSlot::ExistingRow(1))
+        );
+        // Only no-button rows -> new row (old counts-only shape said row 0).
+        assert_eq!(react_slot(&[(3, false)]), Ok(ReactSlot::NewRow));
+        assert_eq!(
+            react_slot(&[(1, false), (5, true), (1, true)]),
+            Ok(ReactSlot::ExistingRow(2))
+        );
+        assert_eq!(
+            react_slot(&[(5, true), (5, true), (5, true), (5, true)]),
+            Ok(ReactSlot::NewRow)
+        );
+        fn b(e: Option<&str>) -> CompRef {
+            CompRef {
+                is_button: true,
+                emoji_id: e.map(|s| s.to_string()),
+            }
+        }
+        fn s() -> CompRef {
+            CompRef {
+                is_button: false,
+                emoji_id: None,
+            }
+        }
+        // Unreact filter legs.
+        let (kept, removed) = unreact_rows(vec![vec![b(None), b(Some("a"))]], "a");
+        assert!(removed && kept == vec![vec![b(None)]]);
+        let (kept, removed) = unreact_rows(vec![vec![s()]], "a");
+        assert!(!removed && kept == vec![vec![s()]]);
+        let (kept, removed) = unreact_rows(vec![], "a");
+        assert!(!removed && kept.is_empty());
+        let (kept, removed) = unreact_rows(vec![vec![b(Some(""))]], "");
+        assert!(removed && kept.is_empty());
+        let (kept, removed) = unreact_rows(vec![vec![b(Some("a"))], vec![b(Some("a")), s()]], "a");
+        assert!(removed && kept == vec![vec![s()]]);
     }
 
     #[test]
