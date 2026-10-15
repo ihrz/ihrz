@@ -1028,102 +1028,16 @@ fn help_options(
         .collect()
 }
 
-/// No-run help fallback. Mirrors runCommand's `!(target as Command)?.run`
-/// branch (prefix only): the per-command awesomeEmbed help instead of
-/// silence. Poise surfaces run-less parent commands as SubcommandRequired.
-/// (TS deletes both messages after 60s; this port leaves cleanup to the
-/// user like every other denial reply.)
+/// No-run bare-group cleanup (prefix only). The `+h` / `+help` commands
+/// already cover help, so a run-less parent invoked without a
+/// subcommand (poise SubcommandRequired) deletes the invoking message
+/// best-effort and replies nothing (TS deletes both messages after
+/// 60s; per operator direction the redundant help is dropped outright
+/// instead). A failed delete (missing ManageMessages) stays silent.
 async fn no_run_help(ctx: Ctx<'_>) {
-    if !matches!(ctx, poise::Context::Prefix(_)) {
-        return;
+    if let poise::Context::Prefix(pctx) = ctx {
+        let _ = pctx.msg.delete(ctx.http()).await;
     }
-    let pool = &ctx.data().pool;
-    let gid = ctx.guild_id().map(|g| g.get());
-    let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
-    let code = crate::db::guild_lang(pool, gid).await;
-    let t = |key: &str, fallback: &str| {
-        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
-    };
-    let cmd = ctx.command();
-    // TS picks the `fr` description when the guild lang starts with `fr-`.
-    let description = if code.starts_with("fr-") {
-        cmd.description_localizations
-            .get("fr")
-            .cloned()
-            .unwrap_or_else(|| cmd.description.clone().unwrap_or_default())
-    } else {
-        cmd.description.clone().unwrap_or_default()
-    };
-    let base_permission =
-        crate::lang::permission_names(&code, cmd.default_member_permissions.bits())
-            .unwrap_or_default();
-    let custom_perms =
-        crate::commands::guildconfig::load_cmd_perms(pool, &gid_str, &cmd.name).await;
-    let (footer_name, icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
-    let input = crate::commands::shared::AwesomeHelpInput {
-        command_name: cmd.name.clone(),
-        prefix_name: crate::commands::shared::prefix_name_for(&cmd.qualified_name)
-            .map(str::to_string),
-        description,
-        aliases: cmd.aliases.clone(),
-        base_permission,
-        custom_perms: custom_perms.as_ref(),
-        options: help_options(cmd),
-        subcommands: cmd
-            .subcommands
-            .iter()
-            .map(|s| crate::commands::shared::HelpSubcommandDoc {
-                name: s.name.clone(),
-                prefix_name: crate::commands::shared::prefix_name_for(&s.qualified_name)
-                    .map(str::to_string),
-                aliases: s.aliases.clone(),
-                options: help_options(s),
-            })
-            .collect(),
-        prefix: {
-            // Mention-type display mirrors createAwesomeEmbed
-            // (method.ts:330-336): a mention prefix renders
-            // `hybridcommands_global_prefix_mention` ("`@Ping-Me`", backticks,
-            // no trailing space) in the Use lines, never the raw `<@id>`.
-            let bot_id = ctx.serenity_context().cache.current_user().id.get();
-            let (resolved, is_mention) = crate::db::guild_prefix_display(
-                pool,
-                gid,
-                &ctx.data().config.prefix,
-                ctx.data().config.message_commands_mention,
-                bot_id,
-            )
-            .await;
-            if is_mention {
-                t("hybridcommands_global_prefix_mention", "`@Ping-Me`")
-            } else {
-                resolved
-            }
-        },
-        title_template: t(
-            "hybridcommands_embed_help_title",
-            "${commandName} Help Embed",
-        ),
-        fields_value_template: t(
-            "hybridcommands_embed_help_fields_value",
-            "**Aliases:** ${aliases}\n**Use:** ${use}",
-        ),
-        usage_label: t("var_usage", "Usage"),
-        permission_label: t("var_permission", "Permission"),
-        aliases_label: t("var_aliases", "Aliases"),
-        none_label: t("setjoinroles_var_none", "None"),
-        footer_text: footer_name.clone(),
-    };
-    let embed = crate::commands::shared::embed_with_footer(
-        crate::commands::shared::build_awesome_embed(&input),
-        &footer_name,
-        icon.is_some(),
-    );
-    let mut reply = poise::CreateReply::default().embed(embed);
-    if let Some(bytes) = icon {
-        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
-    }
-    let _ = ctx.send(reply).await;
 }
 
 /// Prefix parse denial router: entity failures keep their TS keys,
