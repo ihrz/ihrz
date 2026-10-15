@@ -4523,7 +4523,14 @@ pub async fn is_image_url(url: &str) -> bool {
 }
 
 /// Animated-attachment check. Mirrors method.isAnimated
-/// (file name starts with `a_`).
+/// (`attachmentUrl.split("/").pop() || ""` + `startsWith("a_")`).
+/// `split` on a string always yields >= 1 element so `pop()` never
+/// returns `undefined` — the `|| ""` is dead and `rsplit('/').next()`
+/// yields the identical last segment on every input (W6 slice 89:
+/// 19-case node battery, incl. trailing-slash `""`, double-slash,
+/// query-suffixed `a_?v=1`, leading-space and non-ASCII names —
+/// all verdict-equal; `startsWith("a_")` is an ASCII prefix so
+/// UTF-16 units vs bytes never diverge).
 pub fn is_animated(attachment_url: &str) -> bool {
     attachment_url
         .rsplit('/')
@@ -4550,6 +4557,39 @@ mod content_type_image_tests {
         assert!(!content_type_is_image(Some("text/html")));
         assert!(!content_type_is_image(Some("")));
         assert!(!content_type_is_image(None));
+    }
+
+    #[test]
+    fn is_animated_matches_ts_split_pop() {
+        // Node ground truth (W6 slice 89): verbatim
+        // `attachmentUrl.split("/").pop() || ""` + startsWith("a_").
+        for url in [
+            "https://cdn.discordapp.com/avatars/123/a_abc.gif",
+            "a_icon.png",
+            "https://x//a_b.png",
+            "https://x/a_.png",
+            "https://x/a_",
+            "https://x/a_?v=1",
+            "a_",
+            "https://x/A_B/a_c.gif",
+            "a__",
+        ] {
+            assert!(is_animated(url), "{url:?} must be animated like TS");
+        }
+        for url in [
+            "https://cdn.discordapp.com/avatars/123/abc.gif",
+            "https://cdn.discordapp.com/emojis/456.gif",
+            "",
+            "/",
+            "https://x/a_/",
+            "A_icon.png",
+            "https://x/%61_icon.png",
+            "https://x/é_a_b.png",
+            "https://x/dir.a_b/c",
+            " a_x.png",
+        ] {
+            assert!(!is_animated(url), "{url:?} must be static like TS");
+        }
     }
 }
 
