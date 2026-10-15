@@ -810,6 +810,70 @@ pub fn punish_action(sanction: Option<&str>) -> PunishAction {
     }
 }
 
+/// Minimal derank role shape: only the `managed` / `position` / `id`
+/// legs the filter reads.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DerankRole {
+    pub id: String,
+    pub managed: bool,
+    pub position: i64,
+}
+
+impl DerankRole {
+    pub fn plain(id: &str, position: i64) -> Self {
+        Self {
+            id: id.to_string(),
+            managed: false,
+            position,
+        }
+    }
+
+    pub fn managed(id: &str, position: i64) -> Self {
+        Self {
+            id: id.to_string(),
+            managed: true,
+            position,
+        }
+    }
+}
+
+/// Mirrors derank()'s `user_roles.find((x) => x.managed)`: the first
+/// managed (app) role id, or None. The caller clamps its permissions
+/// to ViewChannel only on `Some` (no-op else).
+/// DELTA (doc-noted, unrepresentable): `user?.roles.cache.values() || []`
+/// yields `[]` for a null user/member; the pure helper takes a slice.
+pub fn derank_managed_app(roles: &[DerankRole]) -> Option<&str> {
+    roles.iter().find(|r| r.managed).map(|r| r.id.as_str())
+}
+
+/// Mirrors derank()'s removal filter:
+/// `!x.managed && x.position < meHighest && x.id !== everyoneId`
+/// (strict `<`: an equal-position role survives; `@everyone` survives
+/// even below the bot). Order-preserving.
+/// DELTA (doc-noted, unrepresentable): `me?.roles.highest.position`
+/// is `undefined` for a null bot member, making every `<` false (miss
+/// all); the pure helper takes `me_highest: i64` directly.
+pub fn derank_removable<'a>(
+    roles: &'a [DerankRole],
+    me_highest: i64,
+    everyone_id: &str,
+) -> Vec<&'a str> {
+    roles
+        .iter()
+        .filter(|r| !r.managed && r.position < me_highest && r.id != everyone_id)
+        .map(|r| r.id.as_str())
+        .collect()
+}
+
+/// Mirrors derank()'s `reason || "Protection"`: missing AND empty
+/// reasons fall back (falsy `||`, not just missing).
+pub fn derank_reason(reason: Option<&str>) -> &str {
+    match reason {
+        Some(r) if !r.is_empty() => r,
+        _ => DERANK_REASON_FALLBACK,
+    }
+}
+
 /// Mirrors the warnMember DB push key.
 pub fn warn_db_key(guild_id: &str, user_id: &str) -> String {
     format!("{guild_id}.USER.{user_id}.WARNS")
@@ -1538,6 +1602,47 @@ mod tests {
         assert!(removed && kept.is_empty());
         let (kept, removed) = unreact_rows(vec![vec![b(Some("a"))], vec![b(Some("a")), s()]], "a");
         assert!(removed && kept == vec![vec![s()]]);
+    }
+
+    #[test]
+    fn derank_legs_match_ts_filter_legs() {
+        // Pinned via node battery slice 131 (verbatim derank() legs):
+        // find-first-managed, strict-`<` filter, everyone exclusion,
+        // `reason || "Protection"` falsy fallback.
+        use super::{derank_managed_app, derank_reason, derank_removable, DerankRole};
+        let roles = vec![
+            DerankRole::plain("1", 5),
+            DerankRole::plain("2", 15),
+            DerankRole::managed("3", 1),
+        ];
+        assert_eq!(derank_removable(&roles, 10, "0"), vec!["1"]);
+        // Strict `<`: equal position survives.
+        assert_eq!(
+            derank_removable(&[DerankRole::plain("1", 10)], 10, "0"),
+            Vec::<&str>::new()
+        );
+        // @everyone survives even below the bot.
+        assert_eq!(
+            derank_removable(&[DerankRole::plain("0", 1)], 10, "0"),
+            Vec::<&str>::new()
+        );
+        assert_eq!(derank_removable(&[], 10, "0"), Vec::<&str>::new());
+        // Order-preserving.
+        let ordered = vec![DerankRole::plain("b", 1), DerankRole::plain("a", 2)];
+        assert_eq!(derank_removable(&ordered, 10, "0"), vec!["b", "a"]);
+        // First managed wins.
+        assert_eq!(derank_managed_app(&roles), Some("3"));
+        assert_eq!(
+            derank_managed_app(&[DerankRole::managed("1", 5), DerankRole::managed("2", 1)]),
+            Some("1")
+        );
+        assert_eq!(derank_managed_app(&[DerankRole::plain("1", 5)]), None);
+        assert_eq!(derank_managed_app(&[]), None);
+        // Falsy `||`: missing AND empty fall back, whitespace kept.
+        assert_eq!(derank_reason(None), "Protection");
+        assert_eq!(derank_reason(Some("")), "Protection");
+        assert_eq!(derank_reason(Some("Spam")), "Spam");
+        assert_eq!(derank_reason(Some(" ")), " ");
     }
 
     #[test]
