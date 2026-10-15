@@ -19,12 +19,12 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gw_entries(
     ctx: Ctx<'_>,
-    // Option (not required): TS reads `getString("giveaway-id")` /
-    // `string(args, 0)` (both nullable, !list-entries.ts) while the
-    // slash schema marks it required (gw.ts). A missing id fails
-    // `isValid` in TS and answers `end_not_find_giveaway` with `${gw}`
-    // replaced by null (JS renders "null"); the bare form therefore
-    // gets the localized reply instead of a poise parse error.
+    // Option (not required) for slash (Discord validates `giveaway-id`
+    // required:true in gw.ts), but a bare PREFIX call never reaches the
+    // handler on prod: TS checkCommandArgs counts required args first
+    // (method.ts) and renders the caret usage embed. The gate below
+    // mirrors that; with an id present the TS `string(args, 0)`
+    // nullable path applies (isValid fail -> `end_not_find_giveaway`).
     #[description_localized(
         "fr",
         "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
@@ -39,6 +39,17 @@ pub async fn gw_entries(
     #[rename = "giveaway-id"]
     message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // TS checkCommandArgs counts first (`giveaway-id` required:true in
+    // HybridCommands/giveaway/gw.ts): a bare `.gw list-entries`
+    // renders the caret usage embed, never the null-id not-found leg
+    // (baninfo.rs / ranks channel.rs precedent). Gate runs before
+    // defer, like the executor.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_giveaway_id_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
     // footer snapshot below is an HTTP fetch, so defer up front
     // instead of risking the 3s interaction timeout.
@@ -123,9 +134,26 @@ pub async fn gw_entries(
     Ok(())
 }
 
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `giveaway-id` option.
+pub fn prefix_giveaway_id_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bare_prefix_id_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed, never the null-id
+        // not-found leg.
+        assert!(prefix_giveaway_id_missing(""));
+        assert!(prefix_giveaway_id_missing("   "));
+        assert!(!prefix_giveaway_id_missing("123"));
+    }
 
     #[test]
     fn ended_gate_parses_like_ts_isended() {
