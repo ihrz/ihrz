@@ -56,6 +56,17 @@ pub async fn backup_delete(
     #[rename = "backup-id"]
     backup_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Prefix count-check first (mirrors checkCommandArgs in
+    // method.ts:500-514 — counts before per-arg validation). A bare
+    // `.backup delete` hits the framework usage embed on prod (the
+    // required `backup-id`), never the doesnt-exist leg, so gate
+    // empty prefix args to the caret usage embed like warn does.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if pctx.args.trim().is_empty() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Missing id: TS falls through both gates into
     // `backup_backup_doesnt_exist` (!delete.ts:59-82).
     let Some(backup_id) = delete_id_or_missing(backup_id.as_deref()) else {
