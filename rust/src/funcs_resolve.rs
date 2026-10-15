@@ -750,6 +750,29 @@ mod tests {
     }
 
     #[test]
+    fn string_longstring_falsy_legs_match_ts() {
+        // Node ground-truth battery for method.ts string()/longString()
+        // (`args[n] || null`, `args.slice(n).join(" ") || null`), W6 slice 97:
+        // only "" and out-of-range are falsy ("0"/" " pass through); an
+        // all-empty slice joins to spaces (truthy) unless it is empty.
+        let s = |v: &[&str], i: usize| {
+            resolve_string(&v.iter().map(|x| x.to_string()).collect::<Vec<_>>(), i)
+        };
+        let l = |v: &[&str], i: usize| {
+            resolve_long_string(&v.iter().map(|x| x.to_string()).collect::<Vec<_>>(), i)
+        };
+        assert_eq!(s(&["a", "42", ""], 2), None);
+        assert_eq!(s(&["0"], 0).as_deref(), Some("0"));
+        assert_eq!(s(&[" "], 0).as_deref(), Some(" "));
+        assert_eq!(s(&[], 0), None);
+        assert_eq!(l(&["", ""], 0).as_deref(), Some(" "));
+        assert_eq!(l(&["", ""], 1), None);
+        assert_eq!(l(&["a", ""], 1), None);
+        assert_eq!(l(&["a", "", "b"], 1).as_deref(), Some(" b"));
+        assert_eq!(l(&["a", "", "b"], 0).as_deref(), Some("a  b"));
+    }
+
+    #[test]
     fn string_number_scalars() {
         let args = vec!["a".to_string(), "42".to_string(), "".to_string()];
         assert_eq!(resolve_string(&args, 0).as_deref(), Some("a"));
