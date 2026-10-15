@@ -605,6 +605,57 @@ pub fn welcomer_embed_source(record_json: &str) -> Option<serde_json::Value> {
     }
 }
 
+/// Dispatch-shape decision for welcomerMessage.ts (the Components V2
+/// vs legacy-embed branch the Discord-bound sender implements).
+/// `embed ? false : (useComponents ?? true)`: a stored embed always
+/// wins (never mixed with V2 in one payload); otherwise the explicit
+/// flag rules, defaulting to V2. `has_embed` folds the TS
+/// `options.embed ?? null` leg (node ground truth: null/undefined ->
+/// V2-default, any object -> legacy).
+pub fn welcomer_use_components(has_embed: bool, use_components: Option<bool>) -> bool {
+    if has_embed {
+        false
+    } else {
+        use_components.unwrap_or(true)
+    }
+}
+
+/// Banner attachment name. Mirrors
+/// `options.bannerAttachmentName ?? "image.png"`: only null/undefined
+/// fall back — an explicit `""` stays verbatim (node ground truth).
+pub fn welcomer_banner_name(name: Option<&str>) -> &str {
+    name.unwrap_or("image.png")
+}
+
+/// Message presence. Mirrors the `!options.message` legs (`message?:
+/// string | null`): `""`/null/undefined are all absent, `" "` sends.
+pub fn welcomer_has_message(message: Option<&str>) -> bool {
+    message.is_some_and(|m| !m.is_empty())
+}
+
+/// Legacy-path early-out. Mirrors
+/// `if (!options.message && !embed && !hasBanner) return null`.
+pub fn welcomer_legacy_should_send(
+    message: Option<&str>,
+    has_embed: bool,
+    has_banner: bool,
+) -> bool {
+    welcomer_has_message(message) || has_embed || has_banner
+}
+
+/// Components-V2-path early-out. Mirrors
+/// `if (!options.message && !hasBanner) return null` (no embed leg:
+/// embeds never reach the V2 path).
+pub fn welcomer_v2_should_send(message: Option<&str>, has_banner: bool) -> bool {
+    welcomer_has_message(message) || has_banner
+}
+
+/// Payload content. Mirrors `content: options.message || undefined`
+/// (`""` sends no content, `" "` sends a blank).
+pub fn welcomer_content(message: Option<&str>) -> Option<&str> {
+    message.filter(|m| !m.is_empty())
+}
+
 /// Preview-render a stored embed. Mirrors resolveWelcomerEmbed: the
 /// source is deep-cloned (like the TS JSON round-trip) and `render`
 /// — the generateCustomMessagePreview port (render_welcome /
@@ -1802,6 +1853,42 @@ mod tests {
             welcomer_embed_source(r#"{"embedSource":{"title":"t"}}"#).unwrap(),
             serde_json::json!({"title": "t"})
         );
+    }
+
+    #[test]
+    fn welcomer_dispatch_decisions_match_ts_legs() {
+        // `embed ? false : (useComponents ?? true)` — embed always wins.
+        assert!(welcomer_use_components(false, None));
+        assert!(welcomer_use_components(false, Some(true)));
+        assert!(!welcomer_use_components(false, Some(false)));
+        assert!(!welcomer_use_components(true, None));
+        assert!(!welcomer_use_components(true, Some(true)));
+        assert!(!welcomer_use_components(true, Some(false)));
+        // `bannerAttachmentName ?? "image.png"` — only nullish falls back.
+        assert_eq!(welcomer_banner_name(None), "image.png");
+        assert_eq!(welcomer_banner_name(Some("")), "");
+        assert_eq!(welcomer_banner_name(Some("b.png")), "b.png");
+        // `!message` legs: ""/None absent, " " sends.
+        assert!(!welcomer_has_message(None));
+        assert!(!welcomer_has_message(Some("")));
+        assert!(welcomer_has_message(Some(" ")));
+        assert!(welcomer_has_message(Some("hi")));
+        // Legacy `!message && !embed && !hasBanner -> null`.
+        assert!(!welcomer_legacy_should_send(None, false, false));
+        assert!(!welcomer_legacy_should_send(Some(""), false, false));
+        assert!(welcomer_legacy_should_send(Some(" "), false, false));
+        assert!(welcomer_legacy_should_send(None, true, false));
+        assert!(welcomer_legacy_should_send(None, false, true));
+        // V2 `!message && !hasBanner -> null` (no embed leg).
+        assert!(!welcomer_v2_should_send(None, false));
+        assert!(!welcomer_v2_should_send(Some(""), false));
+        assert!(welcomer_v2_should_send(Some(" "), false));
+        assert!(welcomer_v2_should_send(None, true));
+        // `content: message || undefined`.
+        assert_eq!(welcomer_content(None), None);
+        assert_eq!(welcomer_content(Some("")), None);
+        assert_eq!(welcomer_content(Some(" ")), Some(" "));
+        assert_eq!(welcomer_content(Some("hi")), Some("hi"));
     }
 
     #[tokio::test]
