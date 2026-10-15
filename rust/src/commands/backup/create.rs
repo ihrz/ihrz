@@ -100,8 +100,7 @@ pub async fn backup_create(
         None => (false, None),
     };
     if super::backup::backup_only_owner(&ctx.data().pool, &gid).await && !is_owner {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "backup_manage_nique_tes_mort",
                 "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked.",
@@ -121,8 +120,7 @@ pub async fn backup_create(
     // Prefix bare (`!backup create`) keeps the TS 0-message leg.
     let is_prefix = matches!(ctx, poise::Context::Prefix(_));
     let Some(budget) = save_messages_or_usage(save_messages.map(|m| m.as_str()), is_prefix) else {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "backup_create_usage_save_message",
                 "Usage: `/backup create save-message:<yes|no>` — pass `yes` to save up to 100 messages per channel, `no` otherwise.",

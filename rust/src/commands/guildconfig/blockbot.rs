@@ -105,6 +105,8 @@ pub async fn gc_blockbot(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
+    // Ack-first: audit post + write run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     // Owner gate. Mirrors `interaction.user.id !== ownerId` in !bot.ts.
     let is_owner = ctx
@@ -172,10 +174,7 @@ mod tests {
         assert_eq!(BlockbotAction::On.as_str(), "on");
         assert_eq!(BlockbotAction::Off.as_str(), "off");
         assert_eq!(BlockbotAction::from_name("on"), Some(BlockbotAction::On));
-        assert_eq!(
-            BlockbotAction::from_name("off"),
-            Some(BlockbotAction::Off)
-        );
+        assert_eq!(BlockbotAction::from_name("off"), Some(BlockbotAction::Off));
         assert_eq!(BlockbotAction::from_name("bogus"), None);
         assert_eq!(BlockbotAction::from_index(0), Some(BlockbotAction::On));
         assert_eq!(BlockbotAction::from_index(1), Some(BlockbotAction::Off));

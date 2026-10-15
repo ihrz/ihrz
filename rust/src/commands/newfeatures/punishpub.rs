@@ -212,7 +212,10 @@ mod tests {
         assert_eq!(names, vec!["true".to_string(), "false".to_string()]);
         assert_eq!(PunishpubStatus::On.as_str(), "true");
         assert_eq!(PunishpubStatus::Off.as_str(), "false");
-        assert_eq!(PunishpubStatus::from_name("true"), Some(PunishpubStatus::On));
+        assert_eq!(
+            PunishpubStatus::from_name("true"),
+            Some(PunishpubStatus::On)
+        );
         assert_eq!(
             PunishpubStatus::from_name("false"),
             Some(PunishpubStatus::Off)

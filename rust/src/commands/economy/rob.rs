@@ -11,10 +11,11 @@ pub fn rob_floor_ok(author_money: f64, victim_money: f64) -> bool {
     author_money >= ROB_MIN_MONEY && victim_money >= ROB_MIN_MONEY
 }
 
-/// Rob coins from another member!
+/// Rob a user!
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "rob",
     description_localized("fr", "Volé de l'argent d'un utilisateur"),
     description_localized("ja", "ユーザーから奪う！"),
@@ -28,7 +29,7 @@ pub async fn eco_rob(
     #[description_localized("ja", "お金を奪いたいメンバー")]
     #[description_localized("ru", "участник, у которого вы хотите украсть деньги")]
     #[description_localized("es-ES", "el miembro al que quieres robar dinero")]
-    #[description = "Member"]
+    #[description = "the member you want to rob a money"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
@@ -42,10 +43,14 @@ pub async fn eco_rob(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     // TS default `?? 3000000` for ECONOMY.settings.rob.cooldown.
-    let tune = set_cooldown::load_tuning_routed(&ctx.data().pool, &gid, "rob").await;
+    // Tuning, account and guild lang are independent keys; load concurrently.
+    let pool = &ctx.data().pool;
     let from = ctx.author().id.get();
-    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let (tune, mut a, code) = tokio::join!(
+        set_cooldown::load_tuning_routed(pool, &gid, "rob"),
+        balance::load_econ_routed(pool, &gid, from),
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get()))
+    );
     let now = now_ms();
     if a.rob != 0 && tune.cooldown_ms - (now - a.rob) > 0 {
         let units = time_units(&ctx).await;

@@ -97,10 +97,7 @@ mod tests {
         let names: Vec<_> = BloggerPower::list().into_iter().map(|c| c.name).collect();
         assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(BloggerPower::from_name("on"), Some(BloggerPower::On));
-        assert_eq!(
-            BloggerPower::from_name("off"),
-            Some(BloggerPower::Off)
-        );
+        assert_eq!(BloggerPower::from_name("off"), Some(BloggerPower::Off));
         assert_eq!(BloggerPower::from_name("bogus"), None);
         assert_eq!(BloggerPower::from_index(0), Some(BloggerPower::On));
         assert_eq!(BloggerPower::from_index(1), Some(BloggerPower::Off));

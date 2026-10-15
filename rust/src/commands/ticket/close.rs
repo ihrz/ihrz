@@ -58,6 +58,12 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let entries = delete::ticket_entries_routed(pool, &gid).await;
+    // Ack-first (PERF): transcript generation walks the full channel
+    // history plus prefetch HTTP, past the 3s interaction token. The
+    // notify below lands as the follow-up carrying the same content +
+    // embed + transcript file. Best-effort: a failed ack keeps the
+    // direct-send shape instead of aborting the close.
+    let _ = ctx.defer().await;
     // Uncached-owner verdict (documented keep): TS CloseTicket resolves
     // the owner via `members.cache.get(author)` with NO fetch fallback,
     // so an uncached owner (or one who left) makes `member?.user`

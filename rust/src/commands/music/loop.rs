@@ -120,7 +120,10 @@ mod tests {
             LoopModeChoice::from_name("TRACK"),
             Some(LoopModeChoice::Track)
         );
-        assert_eq!(LoopModeChoice::from_name("track"), Some(LoopModeChoice::Track));
+        assert_eq!(
+            LoopModeChoice::from_name("track"),
+            Some(LoopModeChoice::Track)
+        );
         assert_eq!(LoopModeChoice::from_name("queue"), None);
         assert_eq!(LoopModeChoice::from_index(0), Some(LoopModeChoice::Off));
         assert_eq!(LoopModeChoice::from_index(1), Some(LoopModeChoice::Track));

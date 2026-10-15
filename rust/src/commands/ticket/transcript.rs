@@ -51,20 +51,11 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let http = ctx.serenity_context().http.clone();
+    // Single fetch path (PERF): `channel_transcript_html(enriched)`
+    // already walks history once and inlines the bot-avatar favicon
+    // (TS `favicon` option) plus avatar/image data-URIs. No second
+    // avatar fetch here.
     let (html, _count) = channel_transcript_html(&http, channel_id, true).await;
-    // Favicon mirrors the TS `favicon: bot displayAvatarURL` option:
-    // prefer a fetched `data:` URL (offline-portable), else the remote
-    // URL (TS parity), else no tag (self-contained file).
-    let html = match bot_favicon_data_url(ctx.serenity_context()).await {
-        Some(data_url) => crate::transcript::insert_favicon(&html, &data_url),
-        None => {
-            let avatar: String = {
-                let me = ctx.serenity_context().cache.current_user();
-                me.avatar_url().unwrap_or_else(|| me.default_avatar_url())
-            };
-            crate::transcript::insert_favicon(&html, &avatar)
-        }
-    };
     // Mirrors TicketTranscript (ticketsManager.ts): ephemeral "check your
     // DMs" ack, then the transcript is DM'd to the caller.
     ctx.send(
@@ -99,27 +90,4 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
     }
     Ok(())
-}
-
-/// Best-effort bot-avatar fetch as a `data:` URL for the transcript
-/// favicon (mirrors the TS `favicon` option while keeping the file
-/// offline-portable). `None` on any failure; the caller falls back to
-/// the remote URL.
-async fn bot_favicon_data_url(ctx: &serenity::Context) -> Option<String> {
-    let url: String = {
-        let me = ctx.cache.current_user();
-        me.avatar_url().unwrap_or_else(|| me.default_avatar_url())
-    };
-    let ext = url
-        .split(['?', '#'])
-        .next()
-        .unwrap_or("")
-        .rsplit('.')
-        .next()
-        .unwrap_or("png");
-    let bytes = reqwest::get(&url).await.ok()?.bytes().await.ok()?;
-    if bytes.is_empty() || bytes.len() > 512_000 {
-        return None;
-    }
-    crate::emojis::data_uri(ext, &bytes)
 }

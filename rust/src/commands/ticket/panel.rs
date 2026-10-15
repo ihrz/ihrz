@@ -2,30 +2,59 @@ use super::*;
 use poise::serenity_prelude as serenity;
 use std::time::Duration;
 
-// ---- V2 panel editor ids (TS !panel.ts customIds) ----
+// ---- V2 panel editor ids (byte-exact TS !panel.ts customIds) ----
 
-/// Main editor menu. TS `panelSelect`.
-const EDITOR_SELECT_ID: &str = "ticket-panel-select";
-/// Editor send button. TS `send_embed`.
-const EDITOR_SEND_ID: &str = "ticket-panel-send";
+/// Main editor menu. TS `panelSelect` (!panel.ts:246).
+const EDITOR_SELECT_ID: &str = "panelSelect";
+/// Editor send button. TS `send_embed` (!panel.ts:337). Reused for the
+/// send-flow channel select (!panel.ts:689); the sequential next_pick
+/// loop disambiguates by position like the TS per-step collectors.
+const EDITOR_SEND_ID: &str = "send_embed";
 /// Preview opener menu. TS `ticket-open-selection-v2-preview` (ephemeral,
 /// never handled as a real open).
 pub const V2_PREVIEW_ID: &str = "ticket-open-selection-v2-preview";
 
-const OPT_PICK_ID: &str = "ticket-panel-option-pick";
-const ADD_REMOVE_ID: &str = "ticket-panel-add-remove";
-const ROLE_PICK_ID: &str = "ticket-panel-role-pick";
-const CATEGORY_PICK_ID: &str = "ticket-panel-category-pick";
-const CHANNEL_SEND_PICK_ID: &str = "ticket-panel-send-channel-pick";
-const FORM_QUESTION_PICK_ID: &str = "ticket-panel-form-question-pick";
+/// Per-option picker (selectOption menu id varies per flow).
+/// TS callers: `select_option_form`, `change_category_for_option`,
+/// `remove_option`, `change_channel_panel_id_for_option`,
+/// `select_option_role_ping`.
+const OPT_PICK_FORM_ID: &str = "select_option_form";
+const OPT_PICK_CATEGORY_ID: &str = "change_category_for_option";
+const OPT_PICK_REMOVE_ID: &str = "remove_option";
+const OPT_PICK_CHANNEL_PANEL_ID: &str = "change_channel_panel_id_for_option";
+const OPT_PICK_ROLE_PING_ID: &str = "select_option_role_ping";
+/// Add/remove submenu. TS `change_option` (changeOption), `change_form`
+/// (changeForm), `form_action` (per-option form).
+const ADD_REMOVE_OPTION_ID: &str = "change_option";
+const ADD_REMOVE_FORM_ID: &str = "change_form";
+const ADD_REMOVE_FORM_OPT_ID: &str = "form_action";
+/// Role picker. TS `change_role` (panel-level) / `change_role_option`
+/// (per-option).
+const ROLE_PICK_ID: &str = "change_role";
+const ROLE_PICK_OPTION_ID: &str = "change_role_option";
+/// Category picker. TS `change_category` (panel-level) /
+/// `change_category_for_option_channel` (per-option).
+const CATEGORY_PICK_ID: &str = "change_category";
+const CATEGORY_PICK_OPTION_ID: &str = "change_category_for_option_channel";
+/// Send-flow channel select. TS reuses `send_embed` (!panel.ts:689).
+const CHANNEL_SEND_PICK_ID: &str = "send_embed";
+/// Panel-level question remove menu / per-option question remove menu.
+/// TS `remove_form` / `remove_form_opt`.
+const FORM_QUESTION_PICK_ID: &str = "remove_form";
+const FORM_QUESTION_OPT_PICK_ID: &str = "remove_form_opt";
 
-const MODAL_OPT_ADD: &str = "ticket-panel-add-option";
-const MODAL_FORM_ADD: &str = "ticket-panel-add-form";
-const MODAL_FORM_OPT_ADD: &str = "ticket-panel-add-form-opt";
-const MODAL_PLACEHOLDER: &str = "ticket-panel-change-placeholder";
-const MODAL_EMBED: &str = "ticket-panel-change-embed";
-const MODAL_CHANNEL_PANEL: &str = "ticket-panel-change-channel-panel";
-const MODAL_OPT_PANEL: &str = "ticket-panel-change-opt-panel";
+/// Saved marker button. TS `saved` (disabled Success button, !panel.ts:563).
+const SAVED_BUTTON_ID: &str = "saved";
+
+/// TS modal ids (!panel.ts: modals add_option/add_form/add_form_opt/
+/// change_placeholder/change_embed/change_embed2/change_panel_channel_id).
+const MODAL_OPT_ADD: &str = "add_option";
+const MODAL_FORM_ADD: &str = "add_form";
+const MODAL_FORM_OPT_ADD: &str = "add_form_opt";
+const MODAL_PLACEHOLDER: &str = "change_placeholder";
+const MODAL_EMBED: &str = "change_embed";
+const MODAL_CHANNEL_PANEL: &str = "change_embed2";
+const MODAL_OPT_PANEL: &str = "change_panel_channel_id";
 
 /// Per-step editor await. Mirrors the `time: 1_250_000 * 10` ms
 /// (~3.47h) select + button collectors in !panel.ts:366,372.
@@ -204,45 +233,81 @@ pub fn sanitize_option_emoji(raw: &str) -> String {
     String::new()
 }
 
-/// Options summary for the editor embed (1024-char cap like
-/// stringifyOptions; falls back to the overflow key).
-pub fn summarize_options(t_overflow: &str, options: &[TicketOption]) -> String {
+/// Options summary for the editor embed. Mirrors stringifyOptions
+/// (!panel.ts:576-616): code-fenced list with box-drawing `┖` detail
+/// rows, the add-option modal field labels, the `📂` category mention
+/// and the `📚` per-option form block. Like TS, the 1024 cap counts
+/// UTF-16 units (`str.length`); overflow falls back to the
+/// `ticket_panel_option_fields` key.
+pub fn summarize_options(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    options: &[TicketOption],
+    role_name: &dyn Fn(&str) -> Option<String>,
+) -> String {
     if options.is_empty() {
         return String::new();
     }
+    let unknown = t("var_unknown");
     let mut out = String::from("```\n");
     for opt in options {
         out.push_str(&format!("- {}\n", opt.name));
-        if !opt.desc.trim().is_empty() {
-            out.push_str(&format!("  desc: {}\n", opt.desc));
+        if !opt.desc.is_empty() {
+            out.push_str(&format!(
+                "  ┖ {}: {}\n",
+                t("ticket_panel_add_option_modal_field2_label"),
+                opt.desc
+            ));
         }
-        if !opt.emoji.trim().is_empty() {
-            out.push_str(&format!("  emoji: {}\n", opt.emoji));
+        if !opt.emoji.is_empty() {
+            out.push_str(&format!(
+                "  ┖ {}: {}\n",
+                t("ticket_panel_add_option_modal_field3_label"),
+                opt.emoji
+            ));
         }
-        if !opt.category_id.trim().is_empty() {
-            out.push_str(&format!("  category: {}\n", opt.category_id));
+        if !opt.category_id.is_empty() {
+            // TS formatCategory resolves the cached channel mention and
+            // falls back to var_no_set when uncached; `<#id>` is the
+            // cached shape (the only one that renders as a mention).
+            out.push_str(&format!("  ┖ 📂: <#{}>\n", opt.category_id));
         }
-        if !opt.panel_id.trim().is_empty() {
-            out.push_str(&format!("  panel: {}\n", opt.panel_id));
+        if !opt.panel_id.is_empty() {
+            out.push_str(&format!(
+                "  ┖ {}: {}\n",
+                t("ticket_panel_change_embed_modal_placeholder"),
+                opt.panel_id
+            ));
         }
         if !opt.roles_to_ping.is_empty() {
-            out.push_str(&format!("  roles: {}\n", opt.roles_to_ping.join(" ")));
+            out.push_str(&format!("  ┖ {}:\n", t("ticket_panel_role_to_ping")));
+            for role in &opt.roles_to_ping {
+                let name = role_name(role).unwrap_or_else(|| unknown.clone());
+                out.push_str(&format!("     ┖ 🔹 {role} (@{name})\n"));
+            }
+            out.push('\n');
         }
         if !opt.form.is_empty() {
-            out.push_str("  form:\n");
+            out.push_str(&format!("  ┖ 📚 {}:\n", t("var_form")));
             for f in &opt.form {
-                out.push_str(&format!("    - {}\n", f.question_title));
+                out.push_str(&format!("     ┖ 🔹 {}\n", f.question_title));
+                if !f.question_placeholder.is_empty() {
+                    out.push_str(&format!("       ┖ {}\n", f.question_placeholder));
+                }
             }
         }
+        out.push('\n');
     }
     out.push_str("```");
-    if out.len() > 1024 {
-        return t_overflow.to_string();
+    if out.encode_utf16().count() > 1024 {
+        return t("ticket_panel_option_fields");
     }
     out
 }
 
-/// Panel-level form summary (mirrors stringifyForm, same cap).
+/// Panel-level form summary. Mirrors stringifyForm (!panel.ts:619):
+/// code-fenced `i - title` rows with `┖` placeholders and a blank line
+/// per question; overflow falls back to the same
+/// `ticket_panel_option_fields` key.
 pub fn summarize_forms(t_overflow: &str, forms: &[TicketForm]) -> String {
     if forms.is_empty() {
         return String::new();
@@ -251,8 +316,9 @@ pub fn summarize_forms(t_overflow: &str, forms: &[TicketForm]) -> String {
     for (i, f) in forms.iter().enumerate() {
         out.push_str(&format!("{i} - {}\n", f.question_title));
         if !f.question_placeholder.trim().is_empty() {
-            out.push_str(&format!("  {}\n", f.question_placeholder));
+            out.push_str(&format!("  ┖ {}\n", f.question_placeholder));
         }
+        out.push('\n');
     }
     out.push_str("```");
     if out.len() > 1024 {
@@ -263,8 +329,13 @@ pub fn summarize_forms(t_overflow: &str, forms: &[TicketForm]) -> String {
 
 /// Overflow gate: mirrors TS shouldAttachOptionsFile (true when the
 /// capped field summary fell back to the overflow key string).
-pub fn options_overflowed(t_overflow: &str, options: &[TicketOption]) -> bool {
-    !options.is_empty() && summarize_options(t_overflow, options) == t_overflow
+pub fn options_overflowed(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    options: &[TicketOption],
+    role_name: &dyn Fn(&str) -> Option<String>,
+) -> bool {
+    !options.is_empty()
+        && summarize_options(t, options, role_name) == t("ticket_panel_option_fields")
 }
 
 /// Overflow attachment filename: TS
@@ -290,24 +361,26 @@ pub fn detailed_options_content(
     let mut out = String::new();
     for opt in options {
         out.push_str(&format!("- {}\n", opt.name));
-        if !opt.desc.trim().is_empty() {
+        // TS truthiness (`if (opt.desc)`): empty string skips, any other
+        // content (even whitespace) renders.
+        if !opt.desc.is_empty() {
             out.push_str(&format!(
                 "  {}: {}\n",
                 t("ticket_panel_add_option_modal_field2_label"),
                 opt.desc
             ));
         }
-        if !opt.emoji.trim().is_empty() {
+        if !opt.emoji.is_empty() {
             out.push_str(&format!(
                 "  {}: {}\n",
                 t("ticket_panel_add_option_modal_field3_label"),
                 opt.emoji
             ));
         }
-        if !opt.category_id.trim().is_empty() {
-            out.push_str(&format!("  Category: <#{}>\n", opt.category_id.trim()));
+        if !opt.category_id.is_empty() {
+            out.push_str(&format!("  Category: <#{}>\n", opt.category_id));
         }
-        if !opt.panel_id.trim().is_empty() {
+        if !opt.panel_id.is_empty() {
             out.push_str(&format!(
                 "  {}: {}\n",
                 t("ticket_panel_change_embed_modal_placeholder"),
@@ -325,7 +398,7 @@ pub fn detailed_options_content(
             out.push_str(&format!("  {}:\n", t("var_form")));
             for f in &opt.form {
                 out.push_str(&format!("    - {}\n", f.question_title));
-                if !f.question_placeholder.trim().is_empty() {
+                if !f.question_placeholder.is_empty() {
                     out.push_str(&format!("      {}\n", f.question_placeholder));
                 }
             }
@@ -345,7 +418,7 @@ pub fn options_overflow_file(
     options: &[TicketOption],
     role_name: &dyn Fn(&str) -> Option<String>,
 ) -> Option<(String, Vec<u8>)> {
-    if !options_overflowed(&t("ticket_panel_option_fields"), options) {
+    if !options_overflowed(t, options, role_name) {
         return None;
     }
     let content = detailed_options_content(t, options, role_name);
@@ -370,7 +443,7 @@ fn cached_role_name(
 
 // ---- Editor command ----
 
-/// V2 ticket panel builder.
+/// Making a panel for custom ticket configuration.
 // Loads (or mints) the panel row, then runs the builder loop
 // (options, forms, roles, category, related embed, preview,
 // send-to-channel + marker write). Mirrors !panel.ts. Registry name,
@@ -387,7 +460,12 @@ fn cached_role_name(
 )]
 pub async fn ticket_panel(
     ctx: Ctx<'_>,
-    #[description = "Panel id (empty creates a new panel)"] panel_id: Option<String>,
+    #[description = "ID of your panel"]
+    #[description_localized("fr", "L'identifiant du panel")]
+    #[description_localized("ja", "パネルのID")]
+    #[description_localized("ru", "ID вашей панели")]
+    #[description_localized("es-ES", "ID de tu panel")]
+    panel_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -424,15 +502,16 @@ pub async fn ticket_panel(
     let mut saved = false;
 
     let author = ctx.author().id;
+    let sctx = ctx.serenity_context().clone();
+    let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
     let handle = ctx
         .send(
             poise::CreateReply::default()
-                .embed(editor_embed(&t, &panel, &panel_code, saved))
+                .embed(editor_embed(&t, &panel, &panel_code, saved, &role_of))
                 .components(editor_rows(&t)),
         )
         .await?;
     let mut msg = handle.into_message().await?;
-    let sctx = ctx.serenity_context().clone();
     // Slash-only tutorial follow-up (!panel.ts:356-360): ephemeral
     // youtu.be link once the editor is up. Prefix has no follow-up leg.
     if let poise::Context::Application(app_ctx) = ctx {
@@ -499,7 +578,7 @@ pub async fn ticket_panel(
                 break;
             }
             "preview" => {
-                run_preview(&sctx, &pick, pool, &gid, &t, &panel, &panel_code).await?;
+                run_preview(&sctx, &pick, pool, &gid, &t, &mut panel, &panel_code).await?;
                 continue;
             }
             step => {
@@ -522,35 +601,41 @@ pub async fn ticket_panel(
     }
 
     if saved {
-        // Mirrors save() (!panel.ts): the saved embed edit carries the
-        // overflow .txt (replacing stale attachments).
+        // Mirrors save() (!panel.ts:550): the editor message is edited
+        // in place to the disabled `saved` Success button plus the
+        // overflow .txt (replacing stale attachments). No separate
+        // confirmation message — TS stays on the edited message.
+        let yes = crate::emojis::app_emoji_markup(&sctx.http, "Yes")
+            .await
+            .unwrap_or_else(|| "✅".to_string());
+        let saved_row =
+            serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(SAVED_BUTTON_ID)
+                .label("Saved")
+                .style(serenity::ButtonStyle::Success)
+                .emoji(
+                    yes.parse()
+                        .unwrap_or(serenity::ReactionType::Unicode("✅".to_string())),
+                )
+                .disabled(true)]);
+        let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
         let mut edit = serenity::EditMessage::new()
-            .embed(editor_embed(&t, &panel, &panel_code, true))
-            .components(vec![]);
+            .embed(editor_embed(&t, &panel, &panel_code, true, &role_of))
+            .components(vec![saved_row]);
         let mut attachments = serenity::EditAttachments::new();
         if let Some((filename, bytes)) =
-            options_overflow_file(&t, &panel_code, &panel.config.option_fields, &|r| {
-                cached_role_name(&sctx, ctx.guild_id(), r)
-            })
+            options_overflow_file(&t, &panel_code, &panel.config.option_fields, &role_of)
         {
             attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
         }
         edit = edit.attachments(attachments);
         let _ = msg.edit(&sctx.http, edit).await;
-        let done = t("ticket_panel_successfully_saved");
-        let _ = ctx
-            .say(if done.is_empty() {
-                "Panel saved.".to_string()
-            } else {
-                done
-            })
-            .await;
     } else {
+        let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
         let _ = msg
             .edit(
                 &sctx.http,
                 serenity::EditMessage::new()
-                    .embed(editor_embed(&t, &panel, &panel_code, saved))
+                    .embed(editor_embed(&t, &panel, &panel_code, saved, &role_of))
                     .components(vec![]),
             )
             .await;
@@ -645,6 +730,7 @@ fn editor_embed(
     panel: &TicketPanel,
     panel_code: &str,
     saved: bool,
+    role_name: &dyn Fn(&str) -> Option<String>,
 ) -> serenity::CreateEmbed {
     let title_key = t("ticket_panel_embed_title");
     let mut desc = format!(
@@ -701,8 +787,7 @@ fn editor_embed(
         .title(format!("{title_key}{panel_code}"))
         .description(desc)
         .colour(serenity::Colour::new(0x397C16));
-    let overflow = t("ticket_panel_option_fields");
-    let opts = summarize_options(&overflow, &panel.config.option_fields);
+    let opts = summarize_options(t, &panel.config.option_fields, role_name);
     if !opts.is_empty() {
         embed = embed.field(
             t("ticket_panel_option_fields"),
@@ -710,7 +795,7 @@ fn editor_embed(
             false,
         );
     }
-    let forms = summarize_forms(&overflow, &panel.config.form);
+    let forms = summarize_forms(&t("ticket_panel_option_fields"), &panel.config.form);
     if !forms.is_empty() {
         embed = embed.field(
             t("ticket_panel_form"),
@@ -734,14 +819,13 @@ async fn refresh_editor(
     panel_code: &str,
     saved: bool,
 ) {
+    let role_of = |r: &str| cached_role_name(sctx, guild_id, r);
     let mut edit = serenity::EditMessage::new()
-        .embed(editor_embed(t, panel, panel_code, saved))
+        .embed(editor_embed(t, panel, panel_code, saved, &role_of))
         .components(editor_rows(t));
     let mut attachments = serenity::EditAttachments::new();
     if let Some((filename, bytes)) =
-        options_overflow_file(t, panel_code, &panel.config.option_fields, &|r| {
-            cached_role_name(sctx, guild_id, r)
-        })
+        options_overflow_file(t, panel_code, &panel.config.option_fields, &role_of)
     {
         attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
     }
@@ -820,6 +904,7 @@ async fn pick_option_index(
     author: serenity::UserId,
     t: &(dyn Fn(&str) -> String + Send + Sync),
     panel: &TicketPanel,
+    menu_id: &str,
     prompt_key: &str,
 ) -> Option<(usize, serenity::ComponentInteraction)> {
     if panel.config.option_fields.is_empty() {
@@ -844,7 +929,7 @@ async fn pick_option_index(
         })
         .collect();
     let menu = serenity::CreateSelectMenu::new(
-        OPT_PICK_ID,
+        menu_id,
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t("var_chose_option"));
@@ -857,7 +942,7 @@ async fn pick_option_index(
         )
         .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
-    if pick.data.custom_id != OPT_PICK_ID {
+    if pick.data.custom_id != menu_id {
         return None;
     }
     let idx: usize = match &pick.data.kind {
@@ -888,6 +973,7 @@ async fn pick_add_or_remove(
     msg: &mut serenity::Message,
     author: serenity::UserId,
     t: &(dyn Fn(&str) -> String + Send + Sync),
+    menu_id: &str,
     prompt: String,
     placeholder_key: &str,
     add_label_key: &str,
@@ -898,7 +984,7 @@ async fn pick_add_or_remove(
         serenity::CreateSelectMenuOption::new(t(remove_label_key), "remove".to_string()),
     ];
     let menu = serenity::CreateSelectMenu::new(
-        ADD_REMOVE_ID,
+        menu_id,
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t(placeholder_key));
@@ -911,7 +997,7 @@ async fn pick_add_or_remove(
         )
         .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
-    if pick.data.custom_id != ADD_REMOVE_ID {
+    if pick.data.custom_id != menu_id {
         return None;
     }
     let choice = match &pick.data.kind {
@@ -934,6 +1020,7 @@ async fn pick_roles(
     msg: &mut serenity::Message,
     author: serenity::UserId,
     t: &(dyn Fn(&str) -> String + Send + Sync),
+    menu_id: &str,
     current: &[String],
 ) -> Option<Vec<String>> {
     let defaults: Vec<serenity::RoleId> = current
@@ -941,7 +1028,7 @@ async fn pick_roles(
         .filter_map(|r| r.trim().parse::<u64>().ok().map(serenity::RoleId::new))
         .collect();
     let menu = serenity::CreateSelectMenu::new(
-        ROLE_PICK_ID,
+        menu_id,
         serenity::CreateSelectMenuKind::Role {
             default_roles: if defaults.is_empty() {
                 None
@@ -962,7 +1049,7 @@ async fn pick_roles(
         )
         .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
-    if pick.data.custom_id != ROLE_PICK_ID {
+    if pick.data.custom_id != menu_id {
         return None;
     }
     let roles = match &pick.data.kind {
@@ -984,9 +1071,10 @@ async fn pick_category(
     msg: &mut serenity::Message,
     author: serenity::UserId,
     t: &(dyn Fn(&str) -> String + Send + Sync),
+    menu_id: &str,
 ) -> Option<String> {
     let menu = serenity::CreateSelectMenu::new(
-        CATEGORY_PICK_ID,
+        menu_id,
         serenity::CreateSelectMenuKind::Channel {
             channel_types: Some(vec![serenity::ChannelType::Category]),
             default_channels: None,
@@ -1002,7 +1090,7 @@ async fn pick_category(
         )
         .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
-    if pick.data.custom_id != CATEGORY_PICK_ID {
+    if pick.data.custom_id != menu_id {
         return None;
     }
     let id = match &pick.data.kind {
@@ -1038,6 +1126,9 @@ async fn run_editor_step(
     let author = pick.user.id;
     match step {
         "change_embed" => {
+            // Mirrors changeEmbed (!panel.ts:1230): modal only, no tip
+            // follow-up (the tip is exclusive to the change_embed2 /
+            // channel-panel leg below).
             let Some(submit) = show_modal(
                 sctx,
                 pick,
@@ -1065,20 +1156,6 @@ async fn run_editor_step(
             }
             panel.related_embed_id = id;
             ack_modal(sctx, &submit).await;
-            // Mirrors the change_embed2 leg in !panel.ts: an ephemeral
-            // variables tip follows the modal submit (same pattern as
-            // the change_ticket_channel_panel arm below).
-            let tip = t("ticket_panel_tip_about_variable1");
-            if !tip.is_empty() {
-                let _ = submit
-                    .create_followup(
-                        &sctx.http,
-                        serenity::CreateInteractionResponseFollowup::new()
-                            .content(tip)
-                            .ephemeral(true),
-                    )
-                    .await;
-            }
             Ok(true)
         }
         "change_role" => {
@@ -1086,7 +1163,7 @@ async fn run_editor_step(
                 .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
                 .await;
             let current = panel.config.roles_to_ping.clone();
-            let Some(roles) = pick_roles(sctx, msg, author, t, &current).await else {
+            let Some(roles) = pick_roles(sctx, msg, author, t, ROLE_PICK_ID, &current).await else {
                 return Ok(false);
             };
             panel.config.roles_to_ping = roles;
@@ -1120,7 +1197,7 @@ async fn run_editor_step(
             let _ = pick
                 .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
                 .await;
-            let Some(id) = pick_category(sctx, msg, author, t).await else {
+            let Some(id) = pick_category(sctx, msg, author, t, CATEGORY_PICK_ID).await else {
                 return Ok(false);
             };
             panel.category_id = id;
@@ -1136,6 +1213,7 @@ async fn run_editor_step(
                 author,
                 t,
                 panel,
+                OPT_PICK_CATEGORY_ID,
                 "ticket_panel_option_change_category",
             )
             .await
@@ -1145,7 +1223,8 @@ async fn run_editor_step(
             let _ = opt_pick
                 .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
                 .await;
-            let Some(id) = pick_category(sctx, msg, author, t).await else {
+            let Some(id) = pick_category(sctx, msg, author, t, CATEGORY_PICK_OPTION_ID).await
+            else {
                 return Ok(false);
             };
             if let Some(opt) = panel.config.option_fields.get_mut(idx) {
@@ -1169,6 +1248,7 @@ async fn run_editor_step(
                 msg,
                 author,
                 t,
+                ADD_REMOVE_OPTION_ID,
                 t("ticket_panel_change_option_interaction_content"),
                 "ticket_panel_change_option_select_placeholder",
                 "ticket_panel_change_option_select_1_label",
@@ -1194,6 +1274,7 @@ async fn run_editor_step(
                 author,
                 t,
                 panel,
+                OPT_PICK_REMOVE_ID,
                 "ticket_panel_rempve_option_interaction_content",
             )
             .await
@@ -1216,6 +1297,27 @@ async fn run_editor_step(
             return run_panel_form_step(sctx, msg, author, t, panel).await;
         }
         "change_ticket_channel_panel" => {
+            // Mirrors changeTicketChannelPanel (!panel.ts:1268): the
+            // variables tip follows the step interaction up front
+            // (TS `i.followUp` before the embed check), a missing embed
+            // is answered on the modal and clears the stored panel id
+            // (`embedId = undefined`), then the modal is acked.
+            let tip = t("ticket_panel_tip_about_variable1").replace(
+                "${client.iHorizon_Emojis.VC_OpenChat}",
+                &crate::emojis::app_emoji_markup(&sctx.http, "VC_OpenChat")
+                    .await
+                    .unwrap_or_default(),
+            );
+            if !tip.trim().is_empty() {
+                let _ = pick
+                    .create_followup(
+                        &sctx.http,
+                        serenity::CreateInteractionResponseFollowup::new()
+                            .content(tip)
+                            .ephemeral(true),
+                    )
+                    .await;
+            }
             let Some(submit) = show_modal(
                 sctx,
                 pick,
@@ -1237,23 +1339,21 @@ async fn run_editor_step(
                 .trim()
                 .to_string();
             if !embed_exists(pool, gid, &id).await {
-                ack_modal(sctx, &submit).await;
-                ephemeral(sctx, pick, t("ticket_panel_change_embed_dont_exist")).await;
-                return Ok(false);
+                panel.ticket_channel_panel = String::new();
+                let _ = submit
+                    .create_response(
+                        &sctx.http,
+                        serenity::CreateInteractionResponse::Message(
+                            serenity::CreateInteractionResponseMessage::new()
+                                .content(t("ticket_panel_change_embed_dont_exist"))
+                                .ephemeral(true),
+                        ),
+                    )
+                    .await;
+                return Ok(true);
             }
             panel.ticket_channel_panel = id;
             ack_modal(sctx, &submit).await;
-            let tip = t("ticket_panel_tip_about_variable1");
-            if !tip.is_empty() {
-                let _ = submit
-                    .create_followup(
-                        &sctx.http,
-                        serenity::CreateInteractionResponseFollowup::new()
-                            .content(tip)
-                            .ephemeral(true),
-                    )
-                    .await;
-            }
             Ok(true)
         }
         "change_ticket_user_select_panel" => {
@@ -1287,6 +1387,7 @@ async fn run_editor_step(
                 author,
                 t,
                 panel,
+                OPT_PICK_CHANNEL_PANEL_ID,
                 "ticket_panel_change_embed_options",
             )
             .await
@@ -1340,6 +1441,7 @@ async fn run_editor_step(
                 author,
                 t,
                 panel,
+                OPT_PICK_ROLE_PING_ID,
                 "ticket_panel_chose_option_to_form",
             )
             .await
@@ -1355,7 +1457,8 @@ async fn run_editor_step(
                 .get(idx)
                 .map(|o| o.roles_to_ping.clone())
                 .unwrap_or_default();
-            let Some(roles) = pick_roles(sctx, msg, author, t, &current).await else {
+            let Some(roles) = pick_roles(sctx, msg, author, t, ROLE_PICK_OPTION_ID, &current).await
+            else {
                 return Ok(false);
             };
             if let Some(opt) = panel.config.option_fields.get_mut(idx) {
@@ -1386,6 +1489,7 @@ async fn run_panel_form_step(
         msg,
         author,
         t,
+        ADD_REMOVE_FORM_ID,
         t("ticket_panel_change_form_interaction_content"),
         "ticket_panel_change_option_select_placeholder",
         "ticket_panel_change_form_select_placeholder_1",
@@ -1488,6 +1592,7 @@ async fn run_option_form_step(
         author,
         t,
         panel,
+        OPT_PICK_FORM_ID,
         "ticket_panel_chose_option_to_form",
     )
     .await
@@ -1502,6 +1607,7 @@ async fn run_option_form_step(
         msg,
         author,
         t,
+        ADD_REMOVE_FORM_OPT_ID,
         t("ticket_panel_manage_form_title")
             .replace("${option.name}", &panel.config.option_fields[idx].name),
         "var_action",
@@ -1553,7 +1659,7 @@ async fn run_option_form_step(
         })
         .collect();
     let menu = serenity::CreateSelectMenu::new(
-        FORM_QUESTION_PICK_ID,
+        FORM_QUESTION_OPT_PICK_ID,
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t("ticket_panel_chose_a_question"));
@@ -1610,19 +1716,23 @@ async fn run_option_add_modal(
                 4,
                 128,
             ),
+            // TS add_option desc: optional, min 4, max 130
+            // (!panel.ts:1409-1416).
             (
                 t("ticket_panel_add_option_modal_field2_label"),
                 "desc".to_string(),
                 false,
-                0,
+                4,
                 130,
             ),
+            // TS add_option emoji: optional, min 1, max 1000
+            // (!panel.ts:1417-1424).
             (
                 t("ticket_panel_add_option_modal_field3_label"),
                 "emoji".to_string(),
                 false,
-                0,
-                100,
+                1,
+                1000,
             ),
         ],
     )
@@ -1671,24 +1781,37 @@ async fn run_form_add_modal(
     if target.len() >= 3 {
         return false;
     }
-    let title_label = if modal_id == MODAL_FORM_OPT_ADD {
-        t("var_title")
+    // TS field shapes per modal:
+    // - panel-level `add_form` (!panel.ts:1551): `questionTitle`
+    //   (required, min 4, max 128, label
+    //   ticket_panel_add_form_modal_field1_label) + `questionPlaceholder`
+    //   (optional, min 4, max 130, label field2), title
+    //   ticket_panel_add_form_modal_title.
+    // - per-option `add_form_opt` (!panel.ts:924): `title` (required, max
+    //   128, no min, label var_title) + `placeholder` (optional, max 100,
+    //   no min, label roleselect_modal2_label), title
+    //   ticket_panel_add_a_question.
+    let is_opt = modal_id == MODAL_FORM_OPT_ADD;
+    let (title_id, placeholder_id) = if is_opt {
+        ("title", "placeholder")
     } else {
-        t(title_key)
+        ("questionTitle", "questionPlaceholder")
     };
-    // Per-option form modal (!panel.ts:924-946): title
-    // `ticket_panel_add_a_question`, second field
-    // `roleselect_modal2_label`. The panel-level modal keeps
-    // `ticket_panel_add_form_modal_title` + field2 label (!panel.ts:1555).
-    let modal_title = if modal_id == MODAL_FORM_OPT_ADD {
+    let title_label = if is_opt { t("var_title") } else { t(title_key) };
+    let modal_title = if is_opt {
         t("ticket_panel_add_a_question")
     } else {
         t("ticket_panel_add_form_modal_title")
     };
-    let placeholder_label = if modal_id == MODAL_FORM_OPT_ADD {
+    let placeholder_label = if is_opt {
         t("roleselect_modal2_label")
     } else {
         t("ticket_panel_add_form_modal_field2_label")
+    };
+    let (title_min, title_max, placeholder_min, placeholder_max) = if is_opt {
+        (0, 128, 0, 100)
+    } else {
+        (4, 128, 4, 130)
     };
     let Some(submit) = show_modal(
         sctx,
@@ -1696,17 +1819,19 @@ async fn run_form_add_modal(
         modal_id,
         modal_title,
         vec![
-            (title_label, "title".to_string(), true, 1, 128),
+            (
+                title_label,
+                title_id.to_string(),
+                true,
+                title_min,
+                title_max,
+            ),
             (
                 placeholder_label,
-                "placeholder".to_string(),
+                placeholder_id.to_string(),
                 false,
-                0,
-                if modal_id == MODAL_FORM_OPT_ADD {
-                    100
-                } else {
-                    130
-                },
+                placeholder_min,
+                placeholder_max,
             ),
         ],
     )
@@ -1714,14 +1839,14 @@ async fn run_form_add_modal(
     else {
         return false;
     };
-    let qtitle = crate::modal_helper::text_value(&submit, "title")
+    let qtitle = crate::modal_helper::text_value(&submit, title_id)
         .trim()
         .to_string();
     if qtitle.is_empty() {
         ack_modal(sctx, &submit).await;
         return false;
     }
-    let qplaceholder = crate::modal_helper::text_value(&submit, "placeholder")
+    let qplaceholder = crate::modal_helper::text_value(&submit, placeholder_id)
         .trim()
         .to_string();
     let id = target.len() as u32;
@@ -1743,7 +1868,7 @@ async fn run_preview(
     pool: &crate::db::Pool,
     gid: &str,
     t: &(dyn Fn(&str) -> String + Send + Sync),
-    panel: &TicketPanel,
+    panel: &mut TicketPanel,
     panel_code: &str,
 ) -> Result<(), anyhow::Error> {
     let related: Option<serde_json::Value> = if panel.related_embed_id.trim().is_empty() {
@@ -1760,6 +1885,9 @@ async fn run_preview(
         ephemeral(sctx, pick, t("ticket_panel_need_1_option")).await;
         return Ok(());
     }
+    // TS preview() mints blank/duplicate option values before mapping
+    // (!panel.ts:1693); in-memory only, like the send flow.
+    ensure_unique_option_values(&mut panel.config.option_fields);
     let Some(embed) = create_embed_from_value(&source) else {
         ephemeral(sctx, pick, t("ticket_panel_related_embed_dont_exist")).await;
         return Ok(());
@@ -2116,16 +2244,49 @@ mod tests {
             ..Default::default()
         };
         let opts: Vec<TicketOption> = (0..10).map(|_| big.clone()).collect();
-        assert_eq!(summarize_options("OVERFLOW", &opts), "OVERFLOW");
+        assert_eq!(summarize_options(&overflow_t, &opts, &|_| None), "OVERFLOW");
         let small = vec![TicketOption {
             name: "Support".into(),
             value: "s".into(),
             ..Default::default()
         }];
-        let s = summarize_options("OVERFLOW", &small);
+        let s = summarize_options(&overflow_t, &small, &|_| None);
         assert!(s.contains("Support"));
-        assert!(summarize_options("OVERFLOW", &[]).is_empty());
+        assert!(summarize_options(&overflow_t, &[], &|_| None).is_empty());
         assert!(summarize_forms("OVERFLOW", &[]).is_empty());
+    }
+
+    #[test]
+    fn summary_matches_ts_stringify_options_shape() {
+        // Exact stringifyOptions (!panel.ts:576) shape: code fence,
+        // box-drawing detail rows, modal field labels, category mention,
+        // role and form blocks with trailing blank lines.
+        let opts = vec![full_option()];
+        let s = summarize_options(&overflow_t, &opts, &|_| None);
+        assert!(s.starts_with("```\n- Support\n"));
+        assert!(s.contains("  ┖ Description: help\n"));
+        assert!(s.contains("  ┖ Emoji: 🔥\n"));
+        assert!(s.contains("  ┖ 📂: <#77>\n"));
+        assert!(s.contains("  ┖ Embed ID: 99\n"));
+        assert!(s.contains("  ┖ Role to ping:\n     ┖ 🔹 123 (@Unknown)\n\n"));
+        assert!(s.contains("  ┖ 📚 Form:\n     ┖ 🔹 Q1\n       ┖ P1\n"));
+        assert!(s.ends_with("\n```"));
+        // Role names resolve like `r?.name || lang.var_unknown`.
+        let named = summarize_options(&overflow_t, &opts, &|_| Some("Mods".to_string()));
+        assert!(named.contains("     ┖ 🔹 123 (@Mods)\n"));
+    }
+
+    #[test]
+    fn forms_summary_matches_ts_stringify_form_shape() {
+        let forms = vec![TicketForm {
+            question_id: 0,
+            question_title: "Q1".into(),
+            question_placeholder: "P1".into(),
+        }];
+        assert_eq!(
+            summarize_forms("OVERFLOW", &forms),
+            "```\n0 - Q1\n  ┖ P1\n\n```"
+        );
     }
 
     #[test]
@@ -2192,8 +2353,8 @@ mod tests {
             value: "s".into(),
             ..Default::default()
         }];
-        assert!(!options_overflowed("OVERFLOW", &small));
-        assert!(!options_overflowed("OVERFLOW", &[]));
+        assert!(!options_overflowed(&overflow_t, &small, &|_| None));
+        assert!(!options_overflowed(&overflow_t, &[], &|_| None));
         let big = TicketOption {
             name: "n".repeat(200),
             desc: "d".repeat(200),
@@ -2201,8 +2362,8 @@ mod tests {
             ..Default::default()
         };
         let opts: Vec<TicketOption> = (0..10).map(|_| big.clone()).collect();
-        assert!(options_overflowed("OVERFLOW", &opts));
-        assert_eq!(summarize_options("OVERFLOW", &opts), "OVERFLOW");
+        assert!(options_overflowed(&overflow_t, &opts, &|_| None));
+        assert_eq!(summarize_options(&overflow_t, &opts, &|_| None), "OVERFLOW");
     }
 
     #[test]

@@ -1,6 +1,6 @@
 use super::*;
 
-/// Reset your current voice channel region to automatic. Mirrors !renewvc.ts.
+/// Set the voice region of your current voice channel to automatic
 #[poise::command(
     slash_command,
     prefix_command,
@@ -31,13 +31,24 @@ pub async fn renewvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .get(&ctx.author().id)
             .and_then(|v| v.channel_id)
     });
+    // TS refetches the invoker when the cached voice state is empty
+    // (!renewvc.ts:55-59) to defeat a stale cache; mirror with a single
+    // HTTP voice-state read before answering not_in_voice.
+    let target = match target {
+        Some(t) => Some(t),
+        None => ctx
+            .http()
+            .get_user_voice_state(guild_id, ctx.author().id)
+            .await
+            .ok()
+            .and_then(|vs| vs.channel_id),
+    };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let Some(target) = target else {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
-        ctx.say(
-            crate::lang::get(&code, "renewvc_not_in_voice")
+        ctx.say(crate::lang::get(&code, "renewvc_not_in_voice")
                 .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
                 .unwrap_or_else(|| "${client.iHorizon_Emojis.No} You must be connected to a voice channel to use this command!".to_string()),
         )

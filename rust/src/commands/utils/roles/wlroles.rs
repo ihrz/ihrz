@@ -18,9 +18,9 @@ const CHOICE_TIMEOUT_ID: &str = "utils-wlRoles-choice-timeOut";
 const PANEL_TIMEOUT_SECS: u64 = 240;
 const DANGER_TIMEOUT_SECS: u64 = 20;
 
-/// Dangerous-permission flag checks. Mirrors
-/// `getDangerousPermissions` (`method.ts`): each entry pairs a
-/// serenity permission bit with its `setjoinroles_var_perm_*` lang key.
+// Dangerous-permission flag checks. Mirrors
+// `getDangerousPermissions` (`method.ts`): each entry pairs a
+// serenity permission bit with its `setjoinroles_var_perm_*` lang key.
 pub fn dangerous_perm_keys() -> Vec<(poise::serenity_prelude::Permissions, &'static str)> {
     use poise::serenity_prelude::Permissions as P;
     vec![
@@ -43,8 +43,8 @@ pub fn dangerous_perm_keys() -> Vec<(poise::serenity_prelude::Permissions, &'sta
     ]
 }
 
-/// Lang keys of the dangerous permissions held by `perms`.
-/// Mirrors the `roleDangerousPermissions` loop in !wlroles.ts.
+// Lang keys of the dangerous permissions held by `perms`.
+// Mirrors the `roleDangerousPermissions` loop in !wlroles.ts.
 pub fn role_danger_keys(perms: poise::serenity_prelude::Permissions) -> Vec<&'static str> {
     dangerous_perm_keys()
         .into_iter()
@@ -53,8 +53,8 @@ pub fn role_danger_keys(perms: poise::serenity_prelude::Permissions) -> Vec<&'st
         .collect()
 }
 
-/// Bot permission union + highest role position from the guild cache.
-/// Mirrors the derogation.rs snapshot; `None` when uncached.
+// Bot permission union + highest role position from the guild cache.
+// Mirrors the derogation.rs snapshot; `None` when uncached.
 fn bot_snapshot(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,
@@ -73,8 +73,8 @@ fn bot_snapshot(
     Some((perms, top))
 }
 
-/// Cached role view needed by the select leg (name / position /
-/// permissions for the danger + hierarchy guards).
+// Cached role view needed by the select leg (name / position /
+// permissions for the danger + hierarchy guards).
 fn cached_role(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,
@@ -85,9 +85,9 @@ fn cached_role(
     Some((role.name.clone(), role.position, role.permissions))
 }
 
-/// Post the wlroles audit embed to the `ihorizon-logs` channel.
-/// Mirrors `client.func.ihorizon_logs` via
-/// `crate::funcs::logs_channel_id`; silent when absent.
+// Post the wlroles audit embed to the `ihorizon-logs` channel.
+// Mirrors `client.func.ihorizon_logs` via
+// `crate::funcs::logs_channel_id`; silent when absent.
 async fn post_wlroles_log(ctx: &Ctx<'_>, guild_id: poise::serenity_prelude::GuildId, code: &str) {
     use poise::serenity_prelude as serenity;
     let Ok(channels) = guild_id.channels(ctx.http()).await else {
@@ -145,9 +145,9 @@ pub async fn wlroles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     run_wlroles_panel(&ctx).await
 }
 
-/// Run the wlroles interactive panel. Shared by `wlroles` and the
-/// legacy `wlroles-add` / `wlroles-list` leaves (which have no TS
-/// basis as separate subcommands).
+// Run the wlroles interactive panel. Shared by `wlroles` and the
+// legacy `wlroles-add` / `wlroles-list` leaves (which have no TS
+// basis as separate subcommands).
 pub async fn run_wlroles_panel(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -313,8 +313,10 @@ pub async fn run_wlroles_panel(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
                     .await;
             }
         } else if id == WLROLES_SAVE_ID {
-            // Mirrors the save leg: persist the pending array, ack by
-            // turning the save button green, audit-log, stop.
+            // Mirrors the save leg: persist the pending array, replace
+            // the panel with the save-button-only green row
+            // (`og_response.edit({ components: [newComp_2] })`),
+            // audit-log, stop.
             let _ = press
                 .create_response(
                     http,
@@ -332,24 +334,33 @@ pub async fn run_wlroles_panel(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .await?;
             saved = true;
+            let _ = msg
+                .edit(
+                    http,
+                    serenity::EditMessage::new().components(vec![save_only_row()]),
+                )
+                .await;
             post_wlroles_log(ctx, guild_id, &code).await;
             break;
         }
     }
-    // Collector `end` leg: disable the rows like TS (after a save the
-    // button keeps its green confirmed style).
-    let _ = msg
-        .edit(
-            http,
-            serenity::EditMessage::new().components(panel_rows(&t, &pending, saved)),
-        )
-        .await;
+    // Collector `end` leg (`collector.on("end")` in TS): disable BOTH
+    // rows. After a save the panel already shows the save-only green
+    // row, so only the timeout path re-edits here.
+    if !saved {
+        let _ = msg
+            .edit(
+                http,
+                serenity::EditMessage::new().components(panel_rows_disabled(&pending)),
+            )
+            .await;
+    }
     Ok(())
 }
 
-/// Mirrors `handleDangerousRolesConfirmation`: ephemeral warn embed
-/// with Yes/No, 20s to answer. Yes marks the roles confirmed;
-/// No shows the canceled label; timeout shows the times-up label.
+// Mirrors `handleDangerousRolesConfirmation`: ephemeral warn embed
+// with Yes/No, 20s to answer. Yes marks the roles confirmed;
+// No shows the canceled label; timeout shows the times-up label.
 async fn handle_dangerous_confirm(
     ctx: &Ctx<'_>,
     press: &serenity::ComponentInteraction,
@@ -458,8 +469,8 @@ async fn handle_dangerous_confirm(
     }
 }
 
-/// Mirrors `handleTooHighterRoles`: ephemeral warn embed listing the
-/// roles above the bot (no panel update, like TS).
+// Mirrors `handleTooHighterRoles`: ephemeral warn embed listing the
+// roles above the bot (no panel update, like TS).
 async fn handle_too_high(
     ctx: &Ctx<'_>,
     press: &serenity::ComponentInteraction,
@@ -474,10 +485,16 @@ async fn handle_too_high(
     let mut embed = serenity::CreateEmbed::default()
         .title(t("setjoinroles_warn_title"))
         .description(t("setjoinroles_too_highter_roles"));
+    // TS value: `<@&id>: `position` vs ${client.user}: `highest`` — the
+    // bot side is the bot mention, like `user.toString()`.
+    let bot_mention = format!(
+        "<@{}>",
+        ctx.serenity_context().cache.current_user().id.get()
+    );
     for (role_id, name, position) in too_high {
         embed = embed.field(
             format!("@{name} ({role_id})"),
-            format!("<@&{role_id}>: `{position}` vs bot: `{bot_top}`"),
+            format!("<@&{role_id}>: `{position}` vs {bot_mention}: `{bot_top}`"),
             false,
         );
     }
@@ -493,8 +510,8 @@ async fn handle_too_high(
         .await;
 }
 
-/// Panel embed. Mirrors !wlroles.ts: `#475387`, title + desc keys,
-/// single field of `<@&id>` mentions with the none fallback.
+// Panel embed. Mirrors !wlroles.ts: `#475387`, title + desc keys,
+// single field of `<@&id>` mentions with the none fallback.
 fn render_wlroles_embed(t: &impl Fn(&str) -> String, pending: &[String]) -> serenity::CreateEmbed {
     serenity::CreateEmbed::default()
         .title(t("utils_wlroles_embed_title"))
@@ -507,8 +524,8 @@ fn render_wlroles_embed(t: &impl Fn(&str) -> String, pending: &[String]) -> sere
         )
 }
 
-/// Panel rows: role multi-select (min 0 / max 25, current list as
-/// defaults) + save button (💾 Primary; green Yes-check when saved).
+// Panel rows: role multi-select (min 0 / max 25, current list as
+// defaults) + save button (💾 Primary; green Yes-check when saved).
 fn panel_rows(
     t: &impl Fn(&str) -> String,
     pending: &[String],
@@ -542,8 +559,44 @@ fn panel_rows(
     ]
 }
 
-/// Render the wlroles setup-panel field. Mirrors the !wlroles.ts embed
-/// field (`<@&id>` joins, `setjoinroles_var_none` fallback).
+// Save-only row after a save. Mirrors the TS save leg
+// (`og_response.edit({ components: [newComp_2] })`): the select row is
+// dropped, leaving the green disabled save button.
+fn save_only_row() -> serenity::CreateActionRow {
+    serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(WLROLES_SAVE_ID)
+        .style(serenity::ButtonStyle::Success)
+        .emoji('✅')
+        .disabled(true)])
+}
+
+// Disabled end-state of the full panel. Mirrors the TS
+// `collector.on("end")` leg, which disables both rows (select + save).
+fn panel_rows_disabled(pending: &[String]) -> Vec<serenity::CreateActionRow> {
+    let defaults: Vec<serenity::RoleId> = pending
+        .iter()
+        .filter_map(|r| r.parse::<u64>().ok().map(serenity::RoleId::new))
+        .collect();
+    let menu = serenity::CreateSelectMenu::new(
+        WLROLES_SELECT_ID,
+        serenity::CreateSelectMenuKind::Role {
+            default_roles: (!defaults.is_empty()).then_some(defaults),
+        },
+    )
+    .min_values(0)
+    .max_values(25)
+    .disabled(true);
+    let save = serenity::CreateButton::new(WLROLES_SAVE_ID)
+        .style(serenity::ButtonStyle::Primary)
+        .emoji('💾')
+        .disabled(true);
+    vec![
+        serenity::CreateActionRow::SelectMenu(menu),
+        serenity::CreateActionRow::Buttons(vec![save]),
+    ]
+}
+
+// Render the wlroles setup-panel field. Mirrors the !wlroles.ts embed
+// field (`<@&id>` joins, `setjoinroles_var_none` fallback).
 pub fn wlroles_field(role_ids: &[String], none: &str) -> String {
     if role_ids.is_empty() {
         none.to_string()

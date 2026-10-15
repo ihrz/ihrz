@@ -1,6 +1,7 @@
 use super::*;
 
-/// Leash a member onto the invoker. Mirrors utils !leash.ts.
+// Leash a member onto the invoker. Mirrors utils !leash.ts.
+/// Leash a member in the guild
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +19,7 @@ pub async fn leash(
     #[description_localized("ja", "リードでつなぎたいメンバー")]
     #[description_localized("ru", "участник для привязки")]
     #[description_localized("es-ES", "miembro que quieres atar")]
-    #[description = "Member to leash"]
+    #[description = "member you want to leash"]
     member: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -128,8 +129,7 @@ pub async fn leash(
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());
-    ctx.say(
-        crate::lang::get(&code, "util_leash_confirmed_leash")
+    ctx.say(crate::lang::get(&code, "util_leash_confirmed_leash")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes_mark))
             .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} | You have successfully leashed the user in this guild :smirk:".to_string()),
     )
@@ -137,15 +137,15 @@ pub async fn leash(
     Ok(())
 }
 
-/// Confirm gate from !leash.ts: prompt when the target is NOT in voice
-/// or the invoker IS (`!isInVoiceChannel(user) || isInVoiceChannel(me)`).
+// Confirm gate from !leash.ts: prompt when the target is NOT in voice
+// or the invoker IS (`!isInVoiceChannel(user) || isInVoiceChannel(me)`).
 pub fn needs_leash_confirm(target_in_vc: bool, invoker_in_vc: bool) -> bool {
     !target_in_vc || invoker_in_vc
 }
 
-/// Yes-markup fill for the confirm template. Mirrors the TS third
-/// `.replace("${client.iHorizon_Emojis.Yes}", ...)` on
-/// `util_leash_confirm_message`.
+// Yes-markup fill for the confirm template. Mirrors the TS third
+// `.replace("${client.iHorizon_Emojis.Yes}", ...)` on
+// `util_leash_confirm_message`.
 async fn yes_mark_opt(ctx: &Ctx<'_>) -> String {
     crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await

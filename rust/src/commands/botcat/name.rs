@@ -175,10 +175,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["reset".to_string(), "set".to_string()]
-        );
+        assert_eq!(names, vec!["reset".to_string(), "set".to_string()]);
         assert_eq!(CustomNameAction::Reset.as_str(), "reset");
         assert_eq!(CustomNameAction::Set.as_str(), "set");
         assert_eq!(

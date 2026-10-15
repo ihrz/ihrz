@@ -1,8 +1,7 @@
 use super::*;
 
-/// Mirrors `!work.ts`.
-/// Work for a random payout.
-// Mirrors economy !work.ts (1..=1024 times boost, ephemeral
+/// Claim a work reward!
+// Mirrors `!work.ts` (1..=1024 times boost, ephemeral
 // cooldown reply, gold embed, reply BEFORE the money add).
 #[poise::command(
     slash_command,
@@ -22,8 +21,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     if config::economy_disabled_routed(pool, &gid).await {
-        ctx.say(
-            crate::commands::lang_for(&ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
+        ctx.say(crate::commands::lang_for(&ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
                 .await
                 .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
         )

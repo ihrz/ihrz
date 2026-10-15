@@ -85,6 +85,9 @@ pub(crate) async fn deny_foreign_press(
     description_localized("es-ES", "Mostrar una lista con todos los miembros baneados")
 )]
 pub async fn mod_banlist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };

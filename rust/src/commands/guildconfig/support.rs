@@ -141,6 +141,8 @@ pub async fn gc_support(
         return Ok(());
     };
     let gid = guild_id.get().to_string();
+    // Ack-first: write + reply run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
     // Mirrors `support.ts` (`if (action == "on")`): the match is exact.
@@ -163,8 +165,7 @@ pub async fn gc_support(
         // (`type: type || "tag"`) — no bio/tag allowlist rejection.
         let kind = r#type.map(|k| k.as_str()).unwrap_or_default();
         if kind.is_empty() {
-            ctx.say(
-                crate::lang::get(&code, "support_command_not_type").unwrap_or_else(|| {
+            ctx.say(crate::lang::get(&code, "support_command_not_type").unwrap_or_else(|| {
                     ":x: | You did not specify the type of support you want in the user profile (bio = the bio, e.g. server link; tag = the server’s Discord tag)!".to_string()
                 }),
             )
@@ -248,27 +249,15 @@ mod tests {
         assert_eq!(SupportAction::On.as_str(), "on");
         assert_eq!(SupportAction::Off.as_str(), "off");
         assert_eq!(SupportAction::from_name("on"), Some(SupportAction::On));
-        assert_eq!(
-            SupportAction::from_name("off"),
-            Some(SupportAction::Off)
-        );
+        assert_eq!(SupportAction::from_name("off"), Some(SupportAction::Off));
         assert_eq!(SupportAction::from_name("maybe"), None);
         assert_eq!(SupportAction::from_index(1), Some(SupportAction::Off));
         let kinds: Vec<_> = SupportKind::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(
-            kinds,
-            vec![
-                "bio".to_string(),
-                "tag".to_string()
-            ]
-        );
+        assert_eq!(kinds, vec!["bio".to_string(), "tag".to_string()]);
         assert_eq!(SupportKind::Bio.as_str(), "bio");
         assert_eq!(SupportKind::Tag.as_str(), "tag");
         assert_eq!(SupportKind::from_name("tag"), Some(SupportKind::Tag));
-        assert_eq!(
-            SupportKind::from_name("bio"),
-            Some(SupportKind::Bio)
-        );
+        assert_eq!(SupportKind::from_name("bio"), Some(SupportKind::Bio));
         assert_eq!(SupportKind::from_name("other"), None);
         assert_eq!(SupportKind::from_index(0), Some(SupportKind::Bio));
         let list = SupportAction::list();

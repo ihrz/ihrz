@@ -59,6 +59,9 @@ async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow
     )
 )]
 pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     // Decline/timeout reply lives in the shared helper, mirroring the
     // TS `else { setjoinroles_action_canceled }` branch
     // (!clear-all-warns.ts): `prompt_reset_confirm` sends the cancel

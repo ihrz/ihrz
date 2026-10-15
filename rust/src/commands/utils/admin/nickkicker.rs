@@ -14,7 +14,8 @@ pub const NICK_KICKER_MODAL_ID: &str = "nick-kicker-add";
 pub const NICK_KICKER_WORD_FIELD: &str = "word";
 const PANEL_TIMEOUT_SECS: u64 = 60 * 15;
 
-/// Nickname kicker config. Mirrors util !nick-kicker.ts.
+// Nickname kicker config. Mirrors util !nick-kicker.ts.
+/// Kick a user if their nickname contains a specific word
 #[poise::command(
     slash_command,
     prefix_command,
@@ -204,9 +205,9 @@ async fn save_nick_config(pool: &crate::db::Pool, gid: &str, enabled: bool, word
     .await;
 }
 
-/// Mirrors the TS `AddWord` flow: 15-word cap reply, the
-/// `nick-kicker-add` modal (`word`, Short, required, 1..=20), then
-/// lowercase + truncate + push + persist + re-render.
+// Mirrors the TS `AddWord` flow: 15-word cap reply, the
+// `nick-kicker-add` modal (`word`, Short, required, 1..=20), then
+// lowercase + truncate + push + persist + re-render.
 #[allow(clippy::too_many_arguments)]
 async fn add_word(
     ctx: &Ctx<'_>,
@@ -278,7 +279,7 @@ async fn add_word(
         .await;
 }
 
-/// First text value of a modal submit field.
+// First text value of a modal submit field.
 fn modal_text(submit: &serenity::ModalInteraction, field_id: &str) -> String {
     for row in &submit.data.components {
         for comp in &row.components {
@@ -292,8 +293,8 @@ fn modal_text(submit: &serenity::ModalInteraction, field_id: &str) -> String {
     String::new()
 }
 
-/// Status embed: title + desc keys, enabled ✅/❌ + words ```…```
-/// fields, both inline — like the TS panel.
+// Status embed: title + desc keys, enabled ✅/❌ + words ```…```
+// fields, both inline — like the TS panel.
 fn render_nick_embed(
     t: &impl Fn(&str) -> String,
     enabled: bool,
@@ -310,7 +311,7 @@ fn render_nick_embed(
         )
 }
 
-/// The four main options, shared by the live and disabled rows.
+// The four main options, shared by the live and disabled rows.
 fn main_options(t: &impl Fn(&str) -> String) -> Vec<serenity::CreateSelectMenuOption> {
     vec![
         serenity::CreateSelectMenuOption::new(t("rolesaver_embed_fields_1_name"), "enable")
@@ -328,7 +329,7 @@ fn main_options(t: &impl Fn(&str) -> String) -> Vec<serenity::CreateSelectMenuOp
     ]
 }
 
-/// Main select row (customId `nick-kicker`, four options).
+// Main select row (customId `nick-kicker`, four options).
 fn main_row(t: &impl Fn(&str) -> String) -> serenity::CreateActionRow {
     serenity::CreateActionRow::SelectMenu(
         serenity::CreateSelectMenu::new(
@@ -354,7 +355,7 @@ fn main_row_disabled(t: &impl Fn(&str) -> String) -> serenity::CreateActionRow {
     )
 }
 
-/// Remove picker row: one `nick-kicker-remove-{word}` option per word.
+// Remove picker row: one `nick-kicker-remove-{word}` option per word.
 fn remove_row(t: &dyn Fn(&str) -> String, words: &[String]) -> serenity::CreateActionRow {
     serenity::CreateActionRow::SelectMenu(
         serenity::CreateSelectMenu::new(
@@ -377,14 +378,14 @@ fn remove_row(t: &dyn Fn(&str) -> String, words: &[String]) -> serenity::CreateA
     )
 }
 
-/// Option value for a removable word. Mirrors
-/// `"nick-kicker-remove-" + word`.
+// Option value for a removable word. Mirrors
+// `"nick-kicker-remove-" + word`.
 pub fn remove_option_value(word: &str) -> String {
     format!("nick-kicker-remove-{word}")
 }
 
-/// Parse a remove-picker value back to the word. Mirrors
-/// `i.values[0].split("-")[3]`.
+// Parse a remove-picker value back to the word. Mirrors
+// `i.values[0].split("-")[3]`.
 pub fn parse_remove_value(value: &str) -> Option<String> {
     let mut parts = value.split('-');
     parts.next()?;
@@ -393,13 +394,13 @@ pub fn parse_remove_value(value: &str) -> Option<String> {
     parts.next().map(|s| s.to_string())
 }
 
-/// Max words before `util_nick_kicker_words_max_15` (TS `>= 15`).
+// Max words before `util_nick_kicker_words_max_15` (TS `>= 15`).
 pub const NICK_KICKER_MAX_WORDS: usize = 15;
-/// Max chars per word (modal `maxLength: 20`, TS `substring(0, 20)`).
+// Max chars per word (modal `maxLength: 20`, TS `substring(0, 20)`).
 pub const NICK_KICKER_MAX_WORD_LEN: usize = 20;
 
-/// Normalize an added word. Mirrors the TS add flow:
-/// `word.toLowerCase().substring(0, 20)`.
+// Normalize an added word. Mirrors the TS add flow:
+// `word.toLowerCase().substring(0, 20)`.
 pub fn normalize_nick_word(raw: &str) -> String {
     raw.to_lowercase()
         .chars()
@@ -407,7 +408,7 @@ pub fn normalize_nick_word(raw: &str) -> String {
         .collect()
 }
 
-/// Render the words embed field (```-wrapped, `none` fallback).
+// Render the words embed field (```-wrapped, `none` fallback).
 pub fn nick_words_field(words: &[String], none: &str) -> String {
     format!(
         "```{}```",

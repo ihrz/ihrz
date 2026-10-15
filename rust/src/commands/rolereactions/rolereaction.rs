@@ -222,8 +222,7 @@ async fn rolereaction_add(
     let gid = guild_id.get().to_string();
     let Some(role) = role else {
         // Missing role: the blue help embed, like TS.
-        ctx.send(
-            poise::CreateReply::default().embed(
+        ctx.send(poise::CreateReply::default().embed(
                 serenity::CreateEmbed::default()
                     .colour(serenity::Colour::new(0x0000ff))
                     .title("/reactionroles Help !")
@@ -286,8 +285,7 @@ async fn rolereaction_add(
         let no = crate::emojis::app_emoji_markup(&http, "No")
             .await
             .unwrap_or_default();
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 ctx,
                 "reactionroles_invalid_emote_format_added",
                 "${client.iHorizon_Emojis.No} | You can't send me a `CUSTOM_EMOJI` in format `<::xxx>`! I only need its ID!",
@@ -774,8 +772,7 @@ async fn rolebutton_add(
     };
     let bot_id = ctx.serenity_context().cache.current_user().id;
     if msg.author.id != bot_id {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 ctx,
                 "buttonreaction_message_other_user_error",
                 "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
@@ -806,8 +803,7 @@ async fn rolebutton_add(
             .await
             .is_ok();
     if !edited {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 ctx,
                 "buttonreaction_dont_message_found",
                 "Can't add this button, the roles seem to be already set in one of the existing buttons!",
@@ -821,8 +817,7 @@ async fn rolebutton_add(
         let no = crate::emojis::app_emoji_markup(&http, "No")
             .await
             .unwrap_or_default();
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 ctx,
                 "reactionroles_invalid_emote_format_added",
                 "${client.iHorizon_Emojis.No} | You can't send me a `CUSTOM_EMOJI` in format `<::xxx>`! I only need its ID!",
@@ -931,8 +926,7 @@ async fn rolebutton_remove(
         return Ok(());
     };
     if msg.author.id != ctx.serenity_context().cache.current_user().id {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 ctx,
                 "buttonreaction_message_other_user_error",
                 "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
@@ -1329,8 +1323,7 @@ pub async fn roleselect(
         return Ok(());
     };
     if target.author.id != ctx.serenity_context().cache.current_user().id {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "buttonreaction_message_other_user_error",
                 "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
@@ -2039,10 +2032,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["add".to_string(), "remove".to_string()]
-        );
+        assert_eq!(names, vec!["add".to_string(), "remove".to_string()]);
         assert_eq!(RolebuttonValue::Add.as_str(), "add");
         assert_eq!(RolebuttonValue::Remove.as_str(), "remove");
         assert_eq!(
@@ -2085,10 +2075,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["add".to_string(), "remove".to_string()]
-        );
+        assert_eq!(names, vec!["add".to_string(), "remove".to_string()]);
         assert_eq!(RolereactionValue::Add.as_str(), "add");
         assert_eq!(RolereactionValue::Remove.as_str(), "remove");
         assert_eq!(

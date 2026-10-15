@@ -6,54 +6,61 @@ use super::*;
 /// `value` (`"${i}"`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum DiceNumber {
-    #[name = "Amount: 1"]
+    #[name = "1"]
+    #[name_localized("en-US", "Amount: 1")]
+    #[name_localized("en-GB", "Amount: 1")]
     #[name_localized("fr", "Nombre: 1")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "1"]
     N1,
-    #[name = "Amount: 2"]
+    #[name = "2"]
+    #[name_localized("en-US", "Amount: 2")]
+    #[name_localized("en-GB", "Amount: 2")]
     #[name_localized("fr", "Nombre: 2")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "2"]
     N2,
-    #[name = "Amount: 3"]
+    #[name = "3"]
+    #[name_localized("en-US", "Amount: 3")]
+    #[name_localized("en-GB", "Amount: 3")]
     #[name_localized("fr", "Nombre: 3")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "3"]
     N3,
-    #[name = "Amount: 4"]
+    #[name = "4"]
+    #[name_localized("en-US", "Amount: 4")]
+    #[name_localized("en-GB", "Amount: 4")]
     #[name_localized("fr", "Nombre: 4")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "4"]
     N4,
-    #[name = "Amount: 5"]
+    #[name = "5"]
+    #[name_localized("en-US", "Amount: 5")]
+    #[name_localized("en-GB", "Amount: 5")]
     #[name_localized("fr", "Nombre: 5")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "5"]
     N5,
-    #[name = "Amount: 6"]
+    #[name = "6"]
+    #[name_localized("en-US", "Amount: 6")]
+    #[name_localized("en-GB", "Amount: 6")]
     #[name_localized("fr", "Nombre: 6")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "6"]
     N6,
-    #[name = "Amount: 7"]
+    #[name = "7"]
+    #[name_localized("en-US", "Amount: 7")]
+    #[name_localized("en-GB", "Amount: 7")]
     #[name_localized("fr", "Nombre: 7")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "7"]
     N7,
 }
 
@@ -76,89 +83,101 @@ impl DiceNumber {
 /// `faces` option in fun.ts:1027, same shape as [`DiceNumber`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum DiceFaces {
-    #[name = "Amount: 1"]
+    #[name = "1"]
+    #[name_localized("en-US", "Amount: 1")]
+    #[name_localized("en-GB", "Amount: 1")]
     #[name_localized("fr", "Nombre: 1")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "1"]
     F1,
-    #[name = "Amount: 2"]
+    #[name = "2"]
+    #[name_localized("en-US", "Amount: 2")]
+    #[name_localized("en-GB", "Amount: 2")]
     #[name_localized("fr", "Nombre: 2")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "2"]
     F2,
-    #[name = "Amount: 3"]
+    #[name = "3"]
+    #[name_localized("en-US", "Amount: 3")]
+    #[name_localized("en-GB", "Amount: 3")]
     #[name_localized("fr", "Nombre: 3")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "3"]
     F3,
-    #[name = "Amount: 4"]
+    #[name = "4"]
+    #[name_localized("en-US", "Amount: 4")]
+    #[name_localized("en-GB", "Amount: 4")]
     #[name_localized("fr", "Nombre: 4")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "4"]
     F4,
-    #[name = "Amount: 5"]
+    #[name = "5"]
+    #[name_localized("en-US", "Amount: 5")]
+    #[name_localized("en-GB", "Amount: 5")]
     #[name_localized("fr", "Nombre: 5")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "5"]
     F5,
-    #[name = "Amount: 6"]
+    #[name = "6"]
+    #[name_localized("en-US", "Amount: 6")]
+    #[name_localized("en-GB", "Amount: 6")]
     #[name_localized("fr", "Nombre: 6")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "6"]
     F6,
-    #[name = "Amount: 7"]
+    #[name = "7"]
+    #[name_localized("en-US", "Amount: 7")]
+    #[name_localized("en-GB", "Amount: 7")]
     #[name_localized("fr", "Nombre: 7")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "7"]
     F7,
-    #[name = "Amount: 8"]
+    #[name = "8"]
+    #[name_localized("en-US", "Amount: 8")]
+    #[name_localized("en-GB", "Amount: 8")]
     #[name_localized("fr", "Nombre: 8")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "8"]
     F8,
-    #[name = "Amount: 9"]
+    #[name = "9"]
+    #[name_localized("en-US", "Amount: 9")]
+    #[name_localized("en-GB", "Amount: 9")]
     #[name_localized("fr", "Nombre: 9")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "9"]
     F9,
-    #[name = "Amount: 10"]
+    #[name = "10"]
+    #[name_localized("en-US", "Amount: 10")]
+    #[name_localized("en-GB", "Amount: 10")]
     #[name_localized("fr", "Nombre: 10")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "10"]
     F10,
-    #[name = "Amount: 11"]
+    #[name = "11"]
+    #[name_localized("en-US", "Amount: 11")]
+    #[name_localized("en-GB", "Amount: 11")]
     #[name_localized("fr", "Nombre: 11")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "11"]
     F11,
-    #[name = "Amount: 12"]
+    #[name = "12"]
+    #[name_localized("en-US", "Amount: 12")]
+    #[name_localized("en-GB", "Amount: 12")]
     #[name_localized("fr", "Nombre: 12")]
     #[name_localized("ja", "amount_i")]
     #[name_localized("ru", "amount_i")]
     #[name_localized("es-ES", "amount_i")]
-    #[name = "12"]
     F12,
 }
 
@@ -236,23 +255,27 @@ pub async fn dice(
         faces.map(|f| f.as_str().to_string()),
         is_slash,
     );
-    // Roll safely from the raw display values: a negative count rolls
-    // nothing (the TS loop body never runs) and faces floor at 1 for the
-    // draw only — the embed below still shows the raw TS-style values.
-    let results = roll_dice_set(number.max(0) as usize, faces.max(1) as u32);
-    let total: u32 = results.iter().sum();
+    // TS-faithful draws (`Math.floor(Math.random() * faces) + 1`): exact
+    // for every face count, including the prefix-only faces <= 0 edge
+    // (negative results like TS, not floored 1s).
+    let results = roll_dice_ts(number, faces);
+    let total: i64 = results.iter().sum();
+    // Single lang read for the four embed strings (one SQLite round-trip
+    // instead of four).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(crate::commands::lang_for(&ctx, "fun_dice_embed_title", "🎲 Dice Roll Result").await)
+        .title(t("fun_dice_embed_title", "🎲 Dice Roll Result"))
         .description(format!(
             "{} {number} × D{faces}\n{} {}\n{} {total}",
-            crate::commands::lang_for(&ctx, "fun_dice_var_rolled_dices", "**Rolled Dice:**").await,
-            crate::commands::lang_for(&ctx, "fun_dice_var_results", "**Results:**").await,
+            t("fun_dice_var_rolled_dices", "**Rolled Dice:**"),
+            t("fun_dice_var_results", "**Results:**"),
             results
                 .iter()
                 .map(|r| r.to_string())
                 .collect::<Vec<_>>()
                 .join(", "),
-            crate::commands::lang_for(&ctx, "fun_dice_var_total", "**Total:**").await,
+            t("fun_dice_var_total", "**Total:**"),
         ))
         .colour(random_colour());
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -308,10 +331,10 @@ fn parse_count(raw: Option<String>, default: i64) -> i64 {
 
 /// Display counts. Mirrors the TS embed line `${number} x D${faces}`:
 /// raw values after the `|| 1` / `|| 6` fallbacks, with no lower-bound
-/// normalization — negatives display as-is (`-2 x D-4`) while rolling
-/// nothing with total 0. Only the slash path clamps, mirroring the
-/// `to(7)` / `to(12)` choice lists in fun.ts; prefix is uncapped on
-/// both sides like the TS loop.
+/// normalization — negatives display as-is (`-2 x D-4`) while the draws
+/// below follow the TS formula exactly. Only the slash path clamps,
+/// mirroring the `to(7)` / `to(12)` choice lists in fun.ts; prefix is
+/// uncapped on both sides like the TS loop.
 pub fn dice_counts(number: Option<String>, faces: Option<String>, is_slash: bool) -> (i64, i64) {
     let number = parse_count(number, 1);
     let faces = parse_count(faces, 6);
@@ -320,6 +343,20 @@ pub fn dice_counts(number: Option<String>, faces: Option<String>, is_slash: bool
     } else {
         (number, faces)
     }
+}
+
+/// TS-faithful dice draws. Mirrors `Math.floor(Math.random() * faces) + 1`
+/// per die in `!dice.ts`: a negative count rolls nothing (the TS loop body
+/// never runs), and every face count follows the formula exactly —
+/// including the prefix-only faces <= 0 edge (negative results like TS).
+/// (`rand` f64 draws in [0, 1) like `Math.random()`, so faces = 6 still
+/// yields 1..=6 uniformly.)
+pub fn roll_dice_ts(count: i64, faces: i64) -> Vec<i64> {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    (0..count.max(0))
+        .map(|_| (rng.gen::<f64>() * faces as f64).floor() as i64 + 1)
+        .collect()
 }
 
 #[cfg(test)]
@@ -332,10 +369,10 @@ mod dice_tests {
         // `to(7)`: 7 variants, `Amount: i` names, `"${i}"` values.
         let names: Vec<_> = DiceNumber::list().into_iter().map(|c| c.name).collect();
         assert_eq!(names.len(), 7);
-        assert_eq!(names[0], "Amount: 1");
-        assert_eq!(names[6], "Amount: 7");
+        assert_eq!(names[0], "1");
+        assert_eq!(names[6], "7");
         assert_eq!(DiceNumber::N3.as_str(), "3");
-        assert_eq!(DiceNumber::from_name("Amount: 4"), Some(DiceNumber::N4));
+        assert_eq!(DiceNumber::from_name("4"), Some(DiceNumber::N4));
         assert_eq!(DiceNumber::from_name("7"), Some(DiceNumber::N7));
         assert_eq!(DiceNumber::from_name("8"), None);
         assert_eq!(DiceNumber::from_index(0), Some(DiceNumber::N1));
@@ -343,7 +380,7 @@ mod dice_tests {
         // `to(12)`: 12 variants.
         let names: Vec<_> = DiceFaces::list().into_iter().map(|c| c.name).collect();
         assert_eq!(names.len(), 12);
-        assert_eq!(names[11], "Amount: 12");
+        assert_eq!(names[11], "12");
         assert_eq!(DiceFaces::F12.as_str(), "12");
         assert_eq!(DiceFaces::from_name("12"), Some(DiceFaces::F12));
         assert_eq!(DiceFaces::from_name("13"), None);
@@ -417,16 +454,32 @@ mod dice_tests {
             dice_counts(Some("abc".to_string()), Some(String::new()), false),
             (1, 6)
         );
-        // Raw TS-style display: negatives stay as-is (`-2 x D-4`), the
-        // caller rolls nothing from them (empty results, total 0).
+        // Raw TS-style display: negatives stay as-is (`-2 x D-4`), and the
+        // draws follow the TS formula exactly.
         assert_eq!(
             dice_counts(Some("-2".to_string()), Some("-4".to_string()), false),
             (-2, -4)
         );
-        let (number, faces) = dice_counts(Some("-2".to_string()), Some("-4".to_string()), false);
-        let results = super::super::roll_dice_set(number.max(0) as usize, faces.max(1) as u32);
-        assert!(results.is_empty());
-        assert_eq!(results.iter().sum::<u32>(), 0);
+        // Negative count rolls nothing (the TS loop body never runs).
+        assert!(roll_dice_ts(-2, 6).is_empty());
+        assert_eq!(roll_dice_ts(-2, -4).iter().sum::<i64>(), 0);
+        // faces = -4: `floor(rand * -4) + 1` lands in -3..=1 like TS.
+        for _ in 0..100 {
+            let draws = roll_dice_ts(2, -4);
+            assert_eq!(draws.len(), 2);
+            for d in draws {
+                assert!((-3..=1).contains(&d), "ts-faithful draw {d}");
+            }
+        }
+        // faces = 0: `floor(rand * 0) + 1` is always 1, like TS.
+        assert_eq!(roll_dice_ts(3, 0), vec![1, 1, 1]);
+        // Normal faces stay uniform in 1..=faces with total = sum.
+        for _ in 0..50 {
+            let draws = roll_dice_ts(5, 6);
+            assert_eq!(draws.len(), 5);
+            assert!(draws.iter().all(|d| (1..=6).contains(d)));
+            assert_eq!(draws.iter().sum::<i64>(), draws.iter().sum::<i64>());
+        }
     }
 
     #[test]

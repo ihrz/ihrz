@@ -154,6 +154,8 @@ pub async fn gc_toonew(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
+    // Ack-first: audit post + write run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let author_mention = format!("<@{}>", ctx.author().id.get());
     // Mirrors `if (action === "off")` in !too-new-account.ts:111-132:
@@ -168,8 +170,7 @@ pub async fn gc_toonew(
             .map(|s| s.replace("${interaction.user}", &author_mention))
             .unwrap_or_else(|| format!("{author_mention} has disabled the module!"));
         post_tonew_log(&ctx, &title, &desc).await;
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_command_work_on_disable")
+        ctx.say(crate::lang::get(&code, "too_new_account_command_work_on_disable")
                 .map(|s| s.replace("${interaction.user}", &author_mention))
                 .unwrap_or_else(|| "${interaction.user}, the module has been successfully disabled. New members' account creation dates will no longer be checked.".to_string()),
         )
@@ -180,8 +181,7 @@ pub async fn gc_toonew(
     // !too-new-account.ts:48-54: enabling without a date hits the
     // `dont_specified_time` leg instead of parsing.
     let Some(age) = age else {
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_dont_specified_time_on_enable")
+        ctx.say(crate::lang::get(&code, "too_new_account_dont_specified_time_on_enable")
                 .unwrap_or_else(|| {
                     "You did not specify a time. To enable this module, a minimum account age is required!".to_string()
                 }),
@@ -192,8 +192,7 @@ pub async fn gc_toonew(
     // Full unit table (mo/y + FR variants), like
     // `client.timeCalculator.to_ms` in !too-new-account.ts.
     let Some(ms) = crate::commands::confession::parse_cooldown_ms(&age) else {
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
+        ctx.say(crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
                 .unwrap_or_else(|| "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4 month(s); 4 weeks; 4 years".to_string()),
         )
         .await?;
@@ -242,10 +241,12 @@ pub async fn gc_toonew(
         .unwrap_or_else(|| {
             format!("{author_mention} enabled the TooNewAccount module. Accounts must now be at least {beautiful} old, and if a user joins more than `{max_join}` times, they will be banned.")
         });
-    post_tonew_log(&ctx, &title, &audit).await;
-    let sparkles = crate::emojis::app_emoji_markup(ctx.http(), "Sparkles")
-        .await
-        .unwrap_or_else(|| "✨".to_string());
+    // Audit post + emoji fetch are independent: one round-trip.
+    let ((), sparkles) = tokio::join!(post_tonew_log(&ctx, &title, &audit), async {
+        crate::emojis::app_emoji_markup(ctx.http(), "Sparkles")
+            .await
+            .unwrap_or_else(|| "✨".to_string())
+    });
     let reply_template = crate::lang::get(&code, "too_new_account_logEmbed_desc_on_enable")
         .unwrap_or_else(|| "${interaction.user} enabled the TooNewAccount module. Accounts must now be at least ${beautifulTime} old, and if a user joins more than `${maxJoin}` times, they will be banned.".to_string());
     let reply_suffix =
@@ -275,10 +276,7 @@ mod tests {
         assert_eq!(TooNewAction::On.as_str(), "on");
         assert_eq!(TooNewAction::Off.as_str(), "off");
         assert_eq!(TooNewAction::from_name("on"), Some(TooNewAction::On));
-        assert_eq!(
-            TooNewAction::from_name("off"),
-            Some(TooNewAction::Off)
-        );
+        assert_eq!(TooNewAction::from_name("off"), Some(TooNewAction::Off));
         assert_eq!(TooNewAction::from_name("bogus"), None);
         assert_eq!(TooNewAction::from_index(0), Some(TooNewAction::On));
         assert_eq!(TooNewAction::from_index(1), Some(TooNewAction::Off));

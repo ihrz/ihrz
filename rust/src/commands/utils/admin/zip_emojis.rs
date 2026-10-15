@@ -1,6 +1,7 @@
 use super::*;
 
-/// Download all guild emojis as a zip. Mirrors !zip-emojis.ts.
+// Download all guild emojis as a zip. Mirrors !zip-emojis.ts.
+/// Create zip files with all guild emojis in!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -30,7 +31,46 @@ pub async fn zip_emojis(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     let started = std::time::Instant::now();
+    // Ack-first: TS runs with `thinking: true`, so the progress reply
+    // goes out before the zip work starts.
+    let _ = ctx.defer().await;
     let client = reqwest::Client::new();
+    // Parallel downloads, mirroring `Promise.all(downloadPromises)`
+    // (!zip-emojis.ts:46-71) via a tokio JoinSet (same pattern as
+    // notifier authors fetch).
+    let mut set = tokio::task::JoinSet::new();
+    for emoji in emojis.iter() {
+        let ext = if emoji.animated { "gif" } else { "png" };
+        let name = format!("{}_{}.{}", emoji.name, emoji.id.get(), ext);
+        let url = format!(
+            "https://cdn.discordapp.com/emojis/{}.{ext}?size=2048",
+            emoji.id.get()
+        );
+        let http = client.clone();
+        set.spawn(async move {
+            let bytes = http
+                .get(&url)
+                .send()
+                .await
+                .ok()?
+                .error_for_status()
+                .ok()?
+                .bytes()
+                .await
+                .ok()?
+                .to_vec();
+            if bytes.is_empty() {
+                return None;
+            }
+            Some((name, bytes))
+        });
+    }
+    let mut files: Vec<(String, Vec<u8>)> = vec![];
+    while let Some(done) = set.join_next().await {
+        if let Ok(Some(file)) = done {
+            files.push(file);
+        }
+    }
     let mut buf = std::io::Cursor::new(Vec::<u8>::new());
     // Mirrors `zip.generateAsync({ compression: "DEFLATE",
     // compressionOptions: { level: 9 } })` in !zip-emojis.ts.
@@ -42,33 +82,12 @@ pub async fn zip_emojis(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // try/catch, errors silently swallowed).
     {
         let mut zip = zip::ZipWriter::new(&mut buf);
-        for emoji in emojis.iter() {
-            let ext = if emoji.animated { "gif" } else { "png" };
-            // Filename mirrors `${emoji.name}_${emoji.id}.gif/.png`;
-            // CDN URL mirrors `emoji.imageURL({ size: 2048, extension })`.
-            let name = format!("{}_{}.{}", emoji.name, emoji.id.get(), ext);
-            let url = format!(
-                "https://cdn.discordapp.com/emojis/{}.{ext}?size=2048",
-                emoji.id.get()
-            );
-            let bytes = match client.get(&url).send().await {
-                Ok(r) => match r.error_for_status() {
-                    Ok(ok) => match ok.bytes().await {
-                        Ok(b) => b.to_vec(),
-                        Err(_) => continue,
-                    },
-                    Err(_) => continue,
-                },
-                Err(_) => continue,
-            };
-            if bytes.is_empty() {
-                continue;
-            }
-            if zip.start_file(&name, options).is_err() {
+        for (name, bytes) in &files {
+            if zip.start_file(name, options).is_err() {
                 continue;
             }
             use std::io::Write;
-            if zip.write_all(&bytes).is_err() {
+            if zip.write_all(bytes).is_err() {
                 continue;
             }
         }

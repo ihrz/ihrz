@@ -1,6 +1,6 @@
 use super::*;
 
-/// Hide a channel from a role. Mirrors chanel !hide.ts.
+/// Hide the current channel from everyone
 // TS always hides the current channel.
 #[poise::command(
     slash_command,
@@ -20,7 +20,7 @@ pub async fn chan_hide(
     #[description_localized("ja", "チャンネルで非表示にしたいロール")]
     #[description_localized("ru", "роль, которую нужно скрыть в канале")]
     #[description_localized("es-ES", "el rol que quieres ocultar en el canal")]
-    #[description = "Role, defaults to @everyone"]
+    #[description = "the role that you want to hide into the channel"]
     role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

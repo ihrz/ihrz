@@ -24,6 +24,9 @@ const TRASH_ID: &str = "trash-mutelist-embed";
     description_localized("es-ES", "Mostrar una lista con todos los miembros silenciados")
 )]
 pub async fn mod_mutelist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -139,16 +142,21 @@ pub async fn mod_mutelist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             x if x == PREV_ID => cur = wrap_page(cur, descs.len(), false),
             x if x == NEXT_ID => cur = wrap_page(cur, descs.len(), true),
             x if x == TRASH_ID => {
-                // One member fetch + one PATCH per entry: ack first (TS
+                // One PATCH per entry, no member fetch: ack first (TS
                 // deferUpdate) so mass unmutes never blow the 3s
-                // interaction window, then edit afterwards.
+                // interaction window, then edit afterwards. Failures are
+                // absorbed like the TS `.catch(() => {})`.
                 let _ = press
                     .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
                     .await;
                 for (uid, _) in &ids {
-                    if let Ok(mut member) = guild_id.member(ctx.http(), *uid).await {
-                        let _ = member.enable_communication(ctx.http()).await;
-                    }
+                    let _ = guild_id
+                        .edit_member(
+                            ctx.http(),
+                            *uid,
+                            serenity::builder::EditMember::new().enable_communication(),
+                        )
+                        .await;
                 }
                 ids.clear();
                 cleared = true;

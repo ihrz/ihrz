@@ -1,8 +1,8 @@
 use crate::bot::Ctx;
 
-/// Remove the slowdown on the current channel. Mirrors
-/// MessageCommands/utils/unslowmode.ts (thin prefix-only wrapper calling
-/// the cooldown run with `0`): delegates to the shared slowmode edit.
+/// Removed the cooldown on the current channel
+// MessageCommands/utils/unslowmode.ts (thin prefix-only wrapper calling
+// the cooldown run with `0`): delegates to the shared slowmode edit.
 #[poise::command(
     prefix_command,
     category = "utils",

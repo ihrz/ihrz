@@ -1,13 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Collector lifetime from !allbots.ts (`60_000`).
+// Collector lifetime from !allbots.ts (`60_000`).
 pub const ALLBOTS_COLLECTOR_SECS: u64 = 60;
 
-/// Allbots pager size from !allbots.ts.
+// Allbots pager size from !allbots.ts.
 pub const ALLBOTS_PER_PAGE: usize = 5;
 
-/// List bots. Mirrors !allbots.ts.
+// List bots. Mirrors !allbots.ts.
+/// Get the list of all bot in the guild
 #[poise::command(
     slash_command,
     prefix_command,
@@ -125,28 +126,15 @@ pub async fn allbots(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .await;
     }
+    // TS `end` strips components (:146-148) — no disabled row.
     let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![allbots_dead_row()]),
-        )
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
 }
 
-/// Disabled navigation row for the timeout cleanup.
-fn allbots_dead_row() -> serenity::CreateActionRow {
-    let btn = |id: &str, label: &str| {
-        serenity::CreateButton::new(id)
-            .label(label)
-            .style(serenity::ButtonStyle::Secondary)
-            .disabled(true)
-    };
-    serenity::CreateActionRow::Buttons(vec![btn("previousPage", "<<<"), btn("nextPage", ">>>")])
-}
-
-/// Build pager pages (5 bots each). The title template's
-/// `${i / usersPerPage + 1}` placeholder becomes the 1-based page no.
+// Build pager pages (5 bots each). The title template's
+// `${i / usersPerPage + 1}` placeholder becomes the 1-based page no.
 pub fn allbots_pages(entries: &[String], title_tpl: &str) -> Vec<(String, String)> {
     entries
         .chunks(ALLBOTS_PER_PAGE)

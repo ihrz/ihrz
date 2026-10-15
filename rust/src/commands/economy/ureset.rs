@@ -12,10 +12,12 @@ async fn clear_user_econ(
     crate::db::kv_del_prefix(pool, guild_id, &econ_key(user_id)).await
 }
 
-/// Mirrors `!ureset.ts`.
+/// Reset the balance of an user
+// Mirrors `!ureset.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "ureset",
     aliases("economy-ureset"),
     default_member_permissions = "ADMINISTRATOR",
@@ -33,7 +35,7 @@ pub async fn eco_ureset(
         "es-ES",
         "El usuario al que quieres restablecer los datos de economía"
     )]
-    #[description = "Member"]
+    #[description = "The user you want to reset the economy data"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     // NOTE: !ureset.ts has no disabled gate — none here either.

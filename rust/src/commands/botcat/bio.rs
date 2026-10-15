@@ -105,8 +105,7 @@ pub async fn custom_bio(
         let username = ctx.serenity_context().cache.current_user().name.clone();
         let restored = default_bio(meta.as_deref(), &username);
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_desc_reset")
+        ctx.say(crate::lang::get(&code, "custom_desc_reset")
                 .unwrap_or_else(|| "You have decided to reset the bot's description on the server. Embed footers will return to their default state, as well as the bot's description on the server.".to_string()),
         )
         .await?;
@@ -158,8 +157,7 @@ pub async fn custom_bio(
     let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
         .await
         .unwrap_or_else(|| "👑".to_string());
-    ctx.say(
-        crate::lang::get(&code, "custom_desc_set")
+    ctx.say(crate::lang::get(&code, "custom_desc_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
@@ -213,10 +211,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["reset".to_string(), "set".to_string()]
-        );
+        assert_eq!(names, vec!["reset".to_string(), "set".to_string()]);
         assert_eq!(CustomBioAction::Reset.as_str(), "reset");
         assert_eq!(CustomBioAction::Set.as_str(), "set");
         assert_eq!(

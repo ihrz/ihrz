@@ -399,8 +399,7 @@ pub async fn protect_actions(
         let _ = crate::commands::owner::main::tbl_del(&ctx.data().pool, &gid, "PROTECTION").await;
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
-        ctx.say(
-            crate::lang::get(&code, "authorization_actions_rule_clear")
+        ctx.say(crate::lang::get(&code, "authorization_actions_rule_clear")
                 .map(|s| {
                     s.replace(
                         "${interaction.user}",
@@ -514,8 +513,7 @@ pub async fn protect_sanction(
     )
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "authorization_sanction_command_work")
+    ctx.say(crate::lang::get(&code, "authorization_sanction_command_work")
             .map(|s| {
                 s.replace(
                     "${interaction.user}",
@@ -785,14 +783,7 @@ mod tests {
     #[test]
     fn protect_allow_choices_mirror_ts_names_values_and_locales() {
         let names: Vec<_> = ProtectAllow::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(
-            names,
-            vec![
-                "allowlist",
-                "member",
-                "nobody"
-            ]
-        );
+        assert_eq!(names, vec!["allowlist", "member", "nobody"]);
         assert_eq!(ProtectAllow::Allowlist.as_str(), "allowlist");
         assert_eq!(ProtectAllow::Member.as_str(), "member");
         assert_eq!(ProtectAllow::Nobody.as_str(), "nobody");
@@ -832,14 +823,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "simply",
-                "simply+derank",
-                "simply+ban"
-            ]
-        );
+        assert_eq!(names, vec!["simply", "simply+derank", "simply+ban"]);
         assert_eq!(ProtectSanction::Simply.as_str(), "simply");
         assert_eq!(ProtectSanction::SimplyDerank.as_str(), "simply+derank");
         assert_eq!(ProtectSanction::SimplyBan.as_str(), "simply+ban");

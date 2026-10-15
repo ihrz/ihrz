@@ -18,16 +18,28 @@ pub enum RanksConfigAction {
     #[name_localized("es-ES", "power_on_the_module_send_message")]
     On,
     #[name = "off"]
-    #[name_localized("en-US", "Power Off the module (don't send any message but user still earn xp level)")]
-    #[name_localized("en-GB", "Power Off the module (don't send any message but user still earn xp level)")]
+    #[name_localized(
+        "en-US",
+        "Power Off the module (don't send any message but user still earn xp level)"
+    )]
+    #[name_localized(
+        "en-GB",
+        "Power Off the module (don't send any message but user still earn xp level)"
+    )]
     #[name_localized("fr", "Désactiver le module (ne pas envoyer de message mais l'utilisateur gagne toujours un niveau XP)")]
     #[name_localized("ja", "power_off_the_module_don_t_send_")]
     #[name_localized("ru", "power_off_the_module_don_t_send_")]
     #[name_localized("es-ES", "power_off_the_module_don_t_send_")]
     Off,
     #[name = "disable"]
-    #[name_localized("en-US", "Disable the module (don't send any message and user don't earn xp level)")]
-    #[name_localized("en-GB", "Disable the module (don't send any message and user don't earn xp level)")]
+    #[name_localized(
+        "en-US",
+        "Disable the module (don't send any message and user don't earn xp level)"
+    )]
+    #[name_localized(
+        "en-GB",
+        "Disable the module (don't send any message and user don't earn xp level)"
+    )]
     #[name_localized("fr", "Désactiver le module (ne pas envoyer de message et l'utilisateur ne gagne pas de niveau XP)")]
     #[name_localized("ja", "disable_the_module_don_t_send_an")]
     #[name_localized("ru", "disable_the_module_don_t_send_an")]
@@ -163,14 +175,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "on",
-                "off",
-                "disable",
-            ]
-        );
+        assert_eq!(names, vec!["on", "off", "disable",]);
         assert_eq!(RanksConfigAction::On.as_str(), "on");
         assert_eq!(RanksConfigAction::Off.as_str(), "off");
         assert_eq!(RanksConfigAction::Disable.as_str(), "disable");
@@ -179,9 +184,7 @@ mod tests {
             Some(RanksConfigAction::Disable)
         );
         assert_eq!(
-            RanksConfigAction::from_name(
-                "off"
-            ),
+            RanksConfigAction::from_name("off"),
             Some(RanksConfigAction::Off)
         );
         assert_eq!(RanksConfigAction::from_name("bogus"), None);

@@ -309,6 +309,84 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// `podiumRanksModule` HTML template
+/// (`src/assets/html/podiumRanksModule.html`, TS
+/// `!leaderboard.ts:86`). The Rust render path reuses the
+/// self-contained `cards::podium_ranks_svg` output (already wired
+/// above), so this fill exists to pin the TS placeholder mapping;
+/// it is covered by `podium_ranks_html_fill_replaces_every_placeholder`.
+const PODIUM_RANKS_TEMPLATE: &str =
+    include_str!("../../../../src/assets/html/podiumRanksModule.html");
+
+/// One podium slot for the HTML fill: pre-rendered username, level
+/// label, avatar URL and beautified XP.
+pub struct PodiumRankSlot {
+    pub username: String,
+    pub level: String,
+    pub avatar: String,
+    pub xp: String,
+}
+
+/// Fill the `podiumRanksModule` template. Mirrors the replace chain
+/// in TS `!leaderboard.ts:94-157` (`replaceAll` throughout; the
+/// `{title}` replace runs
+/// `lang.ranks_leaderboard_embed_title.replace("${interaction.guild?.name}",
+/// guild.name)` first, which the caller pre-renders).
+pub fn podium_ranks_card_html(
+    title: &str,
+    first: &PodiumRankSlot,
+    second: &PodiumRankSlot,
+    third: &PodiumRankSlot,
+) -> String {
+    PODIUM_RANKS_TEMPLATE
+        .replace("{title}", title)
+        .replace("{1_username}", &first.username)
+        .replace("{2_username}", &second.username)
+        .replace("{3_username}", &third.username)
+        .replace("{1_level}", &first.level)
+        .replace("{2_level}", &second.level)
+        .replace("{3_level}", &third.level)
+        .replace("{1_avatar}", &first.avatar)
+        .replace("{2_avatar}", &second.avatar)
+        .replace("{3_avatar}", &third.avatar)
+        .replace("{1_xp}", &first.xp)
+        .replace("{2_xp}", &second.xp)
+        .replace("{3_xp}", &third.xp)
+}
+
+#[cfg(test)]
+mod podium_ranks_html_tests {
+    use super::{podium_ranks_card_html, PodiumRankSlot};
+
+    #[test]
+    fn podium_ranks_html_fill_replaces_every_placeholder() {
+        let slot = |u: &str| PodiumRankSlot {
+            username: u.to_string(),
+            level: "Level 1".to_string(),
+            avatar: "AV".to_string(),
+            xp: "100".to_string(),
+        };
+        let html = podium_ranks_card_html("T", &slot("a"), &slot("b"), &slot("c"));
+        for ph in [
+            "{title}",
+            "{1_username}",
+            "{2_username}",
+            "{3_username}",
+            "{1_level}",
+            "{2_level}",
+            "{3_level}",
+            "{1_avatar}",
+            "{2_avatar}",
+            "{3_avatar}",
+            "{1_xp}",
+            "{2_xp}",
+            "{3_xp}",
+        ] {
+            assert!(!html.contains(ph), "placeholder left: {ph}");
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{board_rows, medal_for, page_count};

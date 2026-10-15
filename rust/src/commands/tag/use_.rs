@@ -56,8 +56,7 @@ pub async fn tag_use(
     let content = entry.content.clone();
     let embed_id = entry.embed_id.clone();
     if !tag_allowed(&ctx, "whitelist_use").await {
-        ctx.say(
-            crate::lang::get(&code, "tag_use_not_allowed")
+        ctx.say(crate::lang::get(&code, "tag_use_not_allowed")
                 .map(|s| {
                     s.replace("${tag_name}", &name)
                         .replace("${tag.createBy}", &create_by)

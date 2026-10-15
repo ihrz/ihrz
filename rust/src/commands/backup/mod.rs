@@ -139,15 +139,17 @@ fn channel_parent_name(
 
 /// Fetch one image as base64 (saveImages legs). None on any error,
 /// mirroring the TS per-image try/catch that keeps the other field.
+/// Bounded: a stalled CDN fetch degrades to None (URL fallback in
+/// `collect_emojis`, no base64 for guild images) instead of holding
+/// the already-deferred create past any caller's patience.
 pub async fn fetch_image_base64(url: &str) -> Option<String> {
-    let bytes = reqwest::Client::new()
-        .get(url)
-        .send()
-        .await
-        .ok()?
-        .bytes()
-        .await
-        .ok()?;
+    let bytes = tokio::time::timeout(
+        std::time::Duration::from_secs(8),
+        crate::commands::shared::download_bytes(url),
+    )
+    .await
+    .ok()
+    .flatten()?;
     Some(crate::emojis::base64_encode(&bytes))
 }
 
@@ -694,6 +696,21 @@ mod tests {
         assert_eq!(id.len(), 16);
         assert!(id.chars().all(|c| c.is_ascii_hexdigit()));
         assert_eq!(backup_key("abc"), "BACKUP.abc");
+    }
+
+    #[tokio::test]
+    async fn image_fetch_gives_up_like_a_failed_fetch() {
+        // Nothing listens on the discard port: connection refused must
+        // resolve to None well inside the 8s bound (a stalled guild
+        // image degrades to no base64 instead of holding the
+        // already-deferred create).
+        let out = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            super::fetch_image_base64("http://127.0.0.1:9/icon.png"),
+        )
+        .await
+        .expect("bounded image fetch resolves inside its own bound");
+        assert!(out.is_none());
     }
 
     #[test]

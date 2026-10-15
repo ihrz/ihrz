@@ -1,5 +1,10 @@
 use super::*;
 
+/// List pager customIds. Byte-exact with !list.ts:148-153
+/// (`previous` / `next`, Secondary, `<<<` / `>>>`).
+pub const LIST_PREV_ID: &str = "previous";
+pub const LIST_NEXT_ID: &str = "next";
+
 /// List embed color. Mirrors !list.ts:123 (`#bf0bb9`).
 pub const BACKUP_LIST_COLOR: u32 = 0xbf0bb9;
 
@@ -150,11 +155,11 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors generateButtons in !list.ts:145 (<<< / >>>, Secondary).
     let mk_row = |page: usize| {
         serenity::CreateActionRow::Buttons(vec![
-            serenity::CreateButton::new("backup-list-prev")
+            serenity::CreateButton::new(LIST_PREV_ID)
                 .style(serenity::ButtonStyle::Secondary)
                 .label("<<<")
                 .disabled(page == 0 || fields.is_empty()),
-            serenity::CreateButton::new("backup-list-next")
+            serenity::CreateButton::new(LIST_NEXT_ID)
                 .style(serenity::ButtonStyle::Secondary)
                 .label(">>>")
                 .disabled(page + 1 >= total_pages || fields.is_empty()),
@@ -191,8 +196,8 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         // bare `continue`, which would leave the press unanswered
         // ("interaction failed").
         match press.data.custom_id.as_str() {
-            "backup-list-prev" => page = page.saturating_sub(1),
-            "backup-list-next" => {
+            id if id == LIST_PREV_ID => page = page.saturating_sub(1),
+            id if id == LIST_NEXT_ID => {
                 if page + 1 < total_pages {
                     page += 1;
                 }
@@ -225,6 +230,14 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pager_ids_are_byte_exact_with_ts() {
+        // !list.ts:148-153 (`previous` / `next`); every other Rust
+        // pager (banlist, allwebhooks, tag/list) already uses these.
+        assert_eq!(LIST_PREV_ID, "previous");
+        assert_eq!(LIST_NEXT_ID, "next");
+    }
 
     #[test]
     fn author_falls_back_to_display_name_like_ts() {

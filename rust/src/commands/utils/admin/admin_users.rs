@@ -1,10 +1,11 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Collector lifetime from !admin-users.ts (`1_60_000`).
+// Collector lifetime from !admin-users.ts (`1_60_000`).
 pub const ADMIN_USERS_COLLECTOR_SECS: u64 = 160;
 
-/// List admins. Mirrors admin-users/admin-roles (cache scan).
+// List admins. Mirrors admin-users/admin-roles (cache scan).
+/// Get the list of all guild member whose have admin permissions
 #[poise::command(
     slash_command,
     prefix_command,
@@ -173,24 +174,24 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                         )
                         .await;
                     let mut good = 0u64;
-                    let mut bad = 0u64;
+                    // TS (!admin-users.ts:201-211) awaits
+                    // `member.roles.set(...).catch(() => false)` then
+                    // `good++`: caught per-member failures still count as
+                    // GOOD; `bad++` only fires on a sync throw outside the
+                    // promise, so every settled member lands in `good`.
+                    let bad = 0u64;
                     for (uid, member_roles, _) in &admins {
                         let keep = keep_non_admin_roles(&roles, member_roles);
-                        if guild_id
+                        let _ = guild_id
                             .edit_member(
                                 ctx.http(),
                                 *uid,
                                 serenity::EditMember::new()
                                     .roles(keep)
-                                    .audit_log_reason("[AdminUsers] clearing admin on server"),
+                                    .audit_log_reason("[AdminUsers] clearing admin on the server"),
                             )
-                            .await
-                            .is_ok()
-                        {
-                            good += 1;
-                        } else {
-                            bad += 1;
-                        }
+                            .await;
+                        good += 1;
                     }
                     let mut done_footer = serenity::CreateEmbedFooter::new(footer_name.clone());
                     if footer_icon {
@@ -201,7 +202,7 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                         .timestamp(serenity::Timestamp::now())
                         .description(fill_unrank_result(
                             &t("all_admins_unrank_embed_desc"),
-                            &author.to_string(),
+                            &format!("<@{}>", author.get()),
                             good,
                             bad,
                         ))
@@ -246,43 +247,16 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .await;
     }
+    // TS `end` clears components outright (:264-266) — strip, don't
+    // leave a disabled row.
     let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![admin_users_dead_row(hide_bots)]),
-        )
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
 }
 
-/// Disabled row for the timeout cleanup (TS `end` clears components).
-fn admin_users_dead_row(hide_bots: bool) -> serenity::CreateActionRow {
-    let btn = |id: &str, label: &str| {
-        serenity::CreateButton::new(id)
-            .label(label)
-            .style(serenity::ButtonStyle::Secondary)
-            .disabled(true)
-    };
-    serenity::CreateActionRow::Buttons(vec![
-        btn("previousPage", "<<<"),
-        btn("nextPage", ">>>"),
-        serenity::CreateButton::new("trash-button-embed")
-            .label("🗑️")
-            .style(serenity::ButtonStyle::Danger)
-            .disabled(true),
-        serenity::CreateButton::new("filter-bot")
-            .emoji(serenity::ReactionType::Unicode("🤖".to_string()))
-            .style(if hide_bots {
-                serenity::ButtonStyle::Success
-            } else {
-                serenity::ButtonStyle::Danger
-            })
-            .disabled(true),
-    ])
-}
-
-/// Role ids to keep: drop every role granting Administrator.
-/// Pure part of the TS `filtered_roles` build in !admin-users.ts:190.
+// Role ids to keep: drop every role granting Administrator.
+// Pure part of the TS `filtered_roles` build in !admin-users.ts:190.
 pub fn keep_non_admin_roles(
     roles: &std::collections::HashMap<serenity::RoleId, serenity::Role>,
     member_roles: &[serenity::RoleId],
@@ -299,11 +273,11 @@ pub fn keep_non_admin_roles(
         .collect()
 }
 
-/// Admin-users pager size from !admin-users.ts.
+// Admin-users pager size from !admin-users.ts.
 pub const ADMIN_USERS_PER_PAGE: usize = 5;
 
-/// Format one admin entry. Bots get the `🤖 (BOT)` suffix, mirroring
-/// the TS page-content map.
+// Format one admin entry. Bots get the `🤖 (BOT)` suffix, mirroring
+// the TS page-content map.
 pub fn format_admin_member(mention: &str, is_bot: bool) -> String {
     if is_bot {
         format!("{mention}🤖 (BOT)")
@@ -312,8 +286,8 @@ pub fn format_admin_member(mention: &str, is_bot: bool) -> String {
     }
 }
 
-/// Build pager pages (5 entries each). The title template's
-/// `${i / usersPerPage + 1}` placeholder becomes the 1-based page no.
+// Build pager pages (5 entries each). The title template's
+// `${i / usersPerPage + 1}` placeholder becomes the 1-based page no.
 pub fn admin_user_pages(entries: &[String], title_tpl: &str) -> Vec<(String, String)> {
     entries
         .chunks(ADMIN_USERS_PER_PAGE)
@@ -327,7 +301,7 @@ pub fn admin_user_pages(entries: &[String], title_tpl: &str) -> Vec<(String, Str
         .collect()
 }
 
-/// Bot filter toggle. When hiding bots, drop lines ending with `(BOT)`.
+// Bot filter toggle. When hiding bots, drop lines ending with `(BOT)`.
 pub fn filter_admin_bots(description: &str, hide_bots: bool) -> String {
     if !hide_bots {
         return description.to_string();
@@ -339,8 +313,8 @@ pub fn filter_admin_bots(description: &str, hide_bots: bool) -> String {
         .join("\n")
 }
 
-/// Fill `all_admins_unrank_embed_desc`
-/// (`${interaction.member?.user.toString()}`, `${good}`, `${bad}`).
+// Fill `all_admins_unrank_embed_desc`
+// (`${interaction.member?.user.toString()}`, `${good}`, `${bad}`).
 pub fn fill_unrank_result(template: &str, invoker: &str, good: u64, bad: u64) -> String {
     template
         .replace("${interaction.member?.user.toString()}", invoker)

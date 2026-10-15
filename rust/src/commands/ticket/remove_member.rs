@@ -20,7 +20,12 @@ pub fn render_remove_work(template: &str, username: &str) -> String {
 )]
 pub async fn ticket_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
+    #[description = "The user you want to remove into your ticket"]
+    #[description_localized("fr", "L'utilisateur que vous souhaitez supprimer de votre ticket")]
+    #[description_localized("ja", "チケットから削除したいユーザー")]
+    #[description_localized("ru", "Пользователь, которого вы хотите удалить из тикета")]
+    #[description_localized("es-ES", "El usuario que quieres eliminar de tu ticket")]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

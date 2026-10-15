@@ -3,7 +3,9 @@ pub const GW_GETDATA_COLOR: u32 = 0x0099ff;
 
 use super::*;
 
-/// Show one giveaway's data. Mirrors !get-data.ts.
+// Show one giveaway's data. Mirrors !get-data.ts.
+// (Doc line below is the slash description, TS-verbatim.)
+/// Get informations about a giveaway (JSON Body)
 #[poise::command(
     slash_command,
     prefix_command,
@@ -34,10 +36,14 @@ pub async fn gw_get_data(
     #[description_localized("ja", "ギブアウェイのID")]
     #[description_localized("ru", "ID розыгрыша")]
     #[description_localized("es-ES", "ID del sorteo")]
-    #[description = "Giveaway message id"]
+    #[description = "Giveaway's ID"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
+    // guild-icon + footer snapshots below are HTTP fetches, so defer
+    // up front instead of risking the 3s interaction timeout.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

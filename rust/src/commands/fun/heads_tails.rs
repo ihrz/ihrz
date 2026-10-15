@@ -22,18 +22,20 @@ pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // No fun guard: `!heads-tails.ts` has no `GUILD.FUN.states` check,
     // so the flip runs even with fun disabled.
     let heads = coin_flip_random();
+    // Single lang read for the three embed strings (one SQLite round-trip
+    // instead of three).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let result = if heads {
-        crate::commands::lang_for(&ctx, "fun_coinflip_result_heads", "Heads").await
+        t("fun_coinflip_result_heads", "Heads")
     } else {
-        crate::commands::lang_for(&ctx, "fun_coinflip_result_tails", "Tails").await
+        t("fun_coinflip_result_tails", "Tails")
     };
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(
-            crate::commands::lang_for(&ctx, "fun_coinflip_embed_title", "🪙 Heads or Tails").await,
-        )
+        .title(t("fun_coinflip_embed_title", "🪙 Heads or Tails"))
         .description(format!(
             "{} {result}",
-            crate::commands::lang_for(&ctx, "fun_coinflip_result_text", "The result is:").await
+            t("fun_coinflip_result_text", "The result is:")
         ))
         .colour(random_colour());
     ctx.send(poise::CreateReply::default().embed(embed)).await?;

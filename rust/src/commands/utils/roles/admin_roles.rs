@@ -1,6 +1,6 @@
 use super::*;
 
-/// Pager entry. Mirrors the admin-roles list run.
+/// Get the list of all guild roles whose have admin permissions
 #[poise::command(
     slash_command,
     prefix_command,

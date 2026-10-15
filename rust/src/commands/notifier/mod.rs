@@ -277,6 +277,26 @@ pub async fn delete_notifier_key(
     Ok(())
 }
 
+/// Assemble embed rows from entries + resolved display names.
+/// Pure (order-preserving): the batched fetch resolves names out of
+/// order, so the index pairing happens here, keeping TS row order.
+pub fn author_rows(
+    entries: &[NotifierEntry],
+    names: Vec<String>,
+) -> Vec<(String, String, Option<String>)> {
+    entries
+        .iter()
+        .zip(names)
+        .map(|(e, name)| {
+            (
+                e.platform.clone(),
+                name,
+                author_link(&e.platform, &e.id_or_username),
+            )
+        })
+        .collect()
+}
+
 /// Authors + configuration embeds for the add/remove/list replies.
 /// Mirrors the TS replies sending generateAuthorsEmbed +
 /// generateConfigurationEmbed together. Display names resolve live
@@ -288,15 +308,32 @@ pub async fn authors_and_config_embeds(
     code: &str,
 ) -> (serenity::CreateEmbed, serenity::CreateEmbed) {
     let entries = load_entries(pool, guild_id).await;
-    let mut rows = Vec::with_capacity(entries.len());
-    for e in &entries {
-        let name = crate::scheduler::author_display_name(&e.platform, &e.id_or_username).await;
-        rows.push((
-            e.platform.clone(),
-            name,
-            author_link(&e.platform, &e.id_or_username),
-        ));
+    // Batched display-name fetch: TS generateAuthorsEmbed awaits
+    // getChannelNameById serially per author (one YouTube API call
+    // each), so N authors cost N round trips back-to-back. The names
+    // are independent, so they resolve concurrently here (tokio
+    // JoinSet, no new deps); rows are re-paired by index, keeping
+    // the TS embed order.
+    let mut names: Vec<String> = entries.iter().map(|e| e.id_or_username.clone()).collect();
+    if !entries.is_empty() {
+        let mut set = tokio::task::JoinSet::new();
+        for (i, e) in entries.iter().enumerate() {
+            let platform = e.platform.clone();
+            let id = e.id_or_username.clone();
+            set.spawn(async move {
+                (
+                    i,
+                    crate::scheduler::author_display_name(&platform, &id).await,
+                )
+            });
+        }
+        while let Some(done) = set.join_next().await {
+            if let Ok((i, name)) = done {
+                names[i] = name;
+            }
+        }
     }
+    let rows = author_rows(&entries, names);
     let channel = load_notifier_string(pool, guild_id, "NOTIFIER.channelId").await;
     let message = load_notifier_string(pool, guild_id, "NOTIFIER.message").await;
     (
@@ -379,6 +416,54 @@ mod tests {
         assert_eq!(
             authors_embed_desc("list:\n", &rows),
             "list:\ntwitch - [`Ninja`](https://twitch.tv/ninja)\n"
+        );
+    }
+
+    #[test]
+    fn author_rows_pair_names_by_index_in_ts_order() {
+        let entries = vec![
+            NotifierEntry {
+                id_or_username: "UC1".into(),
+                platform: "youtube".into(),
+            },
+            NotifierEntry {
+                id_or_username: "ninja".into(),
+                platform: "twitch".into(),
+            },
+            // Legacy kick row (no TS verify/feed path): kept, plain code.
+            NotifierEntry {
+                id_or_username: "x".into(),
+                platform: "kick".into(),
+            },
+        ];
+        let rows = author_rows(
+            &entries,
+            vec!["Chan One".to_string(), "ninja".to_string(), "x".to_string()],
+        );
+        assert_eq!(rows.len(), 3);
+        assert_eq!(
+            rows[0],
+            (
+                "youtube".to_string(),
+                "Chan One".to_string(),
+                Some("https://youtube.com/channel/UC1".to_string())
+            )
+        );
+        assert_eq!(
+            rows[1],
+            (
+                "twitch".to_string(),
+                "ninja".to_string(),
+                Some("https://twitch.tv/ninja".to_string())
+            )
+        );
+        // Unknown platform: name kept verbatim, no link.
+        assert_eq!(rows[2], ("kick".to_string(), "x".to_string(), None));
+        assert_eq!(
+            authors_embed_desc("list:\n", &rows),
+            "list:\nyoutube - [`Chan One`](https://youtube.com/channel/UC1)\n\
+             twitch - [`ninja`](https://twitch.tv/ninja)\n\
+             kick - `x`\n"
         );
     }
 

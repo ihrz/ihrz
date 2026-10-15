@@ -72,7 +72,7 @@ pub async fn ticket_del_user_routed(pool: &crate::db::Pool, gid: &str, user_key:
             .await;
 }
 
-/// Delete this ticket channel (TicketDelete pipeline).
+/// Delete a iHorizon ticket!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -118,10 +118,13 @@ pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if !user_key.is_empty() {
         ticket_del_user_routed(pool, &gid, &user_key).await;
     }
-    let channel_name = channel_id
-        .name(&http)
+    let channel_name = ctx
+        .guild_channel()
         .await
-        .unwrap_or_else(|_| "ticket".to_string());
+        .map(|gc| gc.name.clone())
+        // Cache-only like TS (`interaction.channel.name`, no HTTP fetch
+        // on the hot path).
+        .unwrap_or_else(|| "ticket".to_string());
     let Some(logs) = ticket_logs_channel(pool, &gid).await else {
         let _ = channel_id.delete(&http).await;
         return Ok(());

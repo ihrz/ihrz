@@ -28,5 +28,8 @@ pub async fn mod_unlock_all(
     #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     lock_all_inner(&ctx, true, role).await
 }

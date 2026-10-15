@@ -47,6 +47,9 @@ pub async fn mod_clear(
     #[description = "The member you want to delete the message"]
     member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let channel_id = ctx.channel_id();

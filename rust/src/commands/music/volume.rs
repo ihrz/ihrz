@@ -201,10 +201,7 @@ mod tests {
         let names: Vec<_> = VolumeChoice::list().into_iter().map(|c| c.name).collect();
         assert_eq!(
             names,
-            vec![
-                "10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95",
-                "100",
-            ]
+            vec!["10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95", "100",]
         );
         assert_eq!(VolumeChoice::V10.as_str(), "10");
         assert_eq!(VolumeChoice::V100.as_str(), "100");

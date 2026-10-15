@@ -92,8 +92,7 @@ pub async fn backup_manage(
         .map(|g| g.owner_id.get() == ctx.author().id.get())
         .unwrap_or(true);
     if !is_owner {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "backup_manage_nique_tes_mort",
                 "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked.",
@@ -123,8 +122,7 @@ pub async fn backup_manage(
         },
     )
     .await;
-    ctx.say(
-        crate::commands::lang_for(
+    ctx.say(crate::commands::lang_for(
             &ctx,
             "backup_manage_command_ok",
             "The backup module has been updated. From now on, ${allowed_user_string} can perform backup creation/loading on this server.",
@@ -148,10 +146,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["owner".to_string(), "admin".to_string()]
-        );
+        assert_eq!(names, vec!["owner".to_string(), "admin".to_string()]);
         assert_eq!(BackupScopeChoice::Owner.as_str(), "owner");
         assert_eq!(BackupScopeChoice::Admin.as_str(), "admin");
         assert_eq!(

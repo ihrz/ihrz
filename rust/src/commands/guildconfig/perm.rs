@@ -8,7 +8,7 @@ use poise::serenity_prelude as serenity;
 // option (perm.ts:362-393) is built from the live `client.commands`
 // registry. Both stay free-form here (numeric level 0-9 / command path).
 
-/// Escalation gate for `perm-user`. Mirrors `!set-user.ts`:
+/// Escalation gate for `set-user`. Mirrors `!set-user.ts`:
 /// `fetchedPerm <= parseInt(perm) && guild.ownerId !== member.id`
 /// warns and returns. `checkUserPermissions` reads the caller's
 /// `UTILS.USER_PERMS.<caller>` row (or 0); the `Array.isArray` arm in

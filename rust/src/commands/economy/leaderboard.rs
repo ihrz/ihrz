@@ -22,12 +22,53 @@ fn filter_cached_users(
         .collect()
 }
 
-// NOTE: no podium card is attached. TS renders `podiumEconomyModule`
-// to PNG via Chromium/html2png (`economy/!leaderboard.ts:187-195`);
-// Chromium rendering is unavailable in this port, and Discord cannot
-// render SVG, so both the file attach and the `.image()` leg are
-// dropped — the board is text-only (embed description).
+/// `podiumEconomyModule` HTML card (`src/assets/html/podiumEconomyModule.html`,
+/// TS `economy/!leaderboard.ts:96`). Rendered through HorizonGateway
+/// like the TS `html2png` call (`!leaderboard.ts:187-192`); the
+/// text board stays as fallback when the gateway is unset/fails.
+const PODIUM_ECONOMY_TEMPLATE: &str =
+    include_str!("../../../../src/assets/html/podiumEconomyModule.html");
 
+/// html2png options mirror (TS `!leaderboard.ts:187-192`).
+const PODIUM_ECONOMY_OPTIONS_JSON: &str = r#"{"elementSelector":"body","omitBackground":true,"selectElement":false,"width":1024,"height":512}"#;
+
+/// Avatar fallback when the member is not in cache. Mirrors the
+/// `"https://www.ihorizon.org/assets/img/unknown-user.png"` fallback
+/// in the TS podium replaces.
+pub const PODIUM_AVATAR_FALLBACK: &str = "https://www.ihorizon.org/assets/img/unknown-user.png";
+
+/// One podium slot for the HTML fill: pre-rendered username,
+/// beautified wealth and avatar URL.
+pub struct PodiumEcoSlot {
+    pub username: String,
+    pub wealth: String,
+    pub avatar: String,
+}
+
+/// Fill the `podiumEconomyModule` template. Mirrors the replace
+/// chain in TS `economy/!leaderboard.ts:101-141` (`replaceAll`
+/// throughout; the `{title}` source replace is the backtick-quoted
+/// no-op, so the caller passes the same title as the embed).
+pub fn podium_economy_card_html(
+    title: &str,
+    first: &PodiumEcoSlot,
+    second: &PodiumEcoSlot,
+    third: &PodiumEcoSlot,
+    coin_emoji: &str,
+) -> String {
+    PODIUM_ECONOMY_TEMPLATE
+        .replace("{title}", title)
+        .replace("{1_username}", &first.username)
+        .replace("{2_username}", &second.username)
+        .replace("{3_username}", &third.username)
+        .replace("{1_wealth}", &first.wealth)
+        .replace("{2_wealth}", &second.wealth)
+        .replace("{3_wealth}", &third.wealth)
+        .replace("{1_avatar}", &first.avatar)
+        .replace("{2_avatar}", &second.avatar)
+        .replace("{3_avatar}", &third.avatar)
+        .replace("{coin_emoji}", coin_emoji)
+}
 /// Routed board scan: table `USER` root walked first, then legacy-only
 /// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
 /// must not double-count). Table values win on uid conflicts.
@@ -83,10 +124,20 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f6
     parsed
 }
 
-/// Get the xp's leaderboard of the guild!
+/// Pager button custom ids. Byte-exact with `!leaderboard.ts`
+/// (`first`/`previous`/`page_info`/`next`/`last`); the end-handler reuses
+/// the same ids with flipped styles.
+pub const LB_FIRST: &str = "first";
+pub const LB_PREV: &str = "previous";
+pub const LB_PAGE: &str = "page_info";
+pub const LB_NEXT: &str = "next";
+pub const LB_LAST: &str = "last";
+
+/// Get the users balance's leaderboard of the guild!
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "leaderboard",
     aliases("eclb", "eco-lb", "economy-lb"),
     description_localized("fr", "Obtenez le classement du solde des utilisateurs du serveur"),
@@ -130,11 +181,61 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|s| s.replace("${interaction.guild.name}", &guild_name(&ctx)))
         .unwrap_or_else(|| "Economy leaderboard".to_string());
     // Rows only on every page like TS (`createEmbed`: the podium lives in
-    // the attached PNG card, never as embed text). No card is attached
-    // here (see NOTE above): text-only board.
+    // the attached PNG card, never as embed text). The card renders
+    // through HorizonGateway (`!leaderboard.ts:187-192`); gateway
+    // unset/fail keeps the text-only board.
+    let unknown =
+        crate::lang::get(&code, "profil_unknown").unwrap_or_else(|| "Unknown".to_string());
+    let eco_slot = |(uid, total, _, _): &(u64, f64, f64, f64)| {
+        let (username, avatar) = match ctx.cache().user(*uid) {
+            Some(u) => (
+                u.name.clone(),
+                crate::commands::fun::avatar_png_url(&u, 128),
+            ),
+            None => (unknown.clone(), PODIUM_AVATAR_FALLBACK.to_string()),
+        };
+        PodiumEcoSlot {
+            username,
+            wealth: format_num(*total),
+            avatar,
+        }
+    };
+    let pad_slot = || PodiumEcoSlot {
+        username: unknown.clone(),
+        wealth: format_num(0.0),
+        avatar: PODIUM_AVATAR_FALLBACK.to_string(),
+    };
+    let (s1, s2, s3) = (
+        parsed.first().map(&eco_slot).unwrap_or_else(&pad_slot),
+        parsed.get(1).map(&eco_slot).unwrap_or_else(&pad_slot),
+        parsed.get(2).map(&eco_slot).unwrap_or_else(&pad_slot),
+    );
+    let card_png: Option<Vec<u8>> = match ctx
+        .data()
+        .config
+        .gateway_internal()
+        .map(|base| (base, crate::config::api_token().unwrap_or_default()))
+    {
+        Some((base, token)) => {
+            let html = podium_economy_card_html(&title, &s1, &s2, &s3, &coin);
+            crate::funcs::gateway_render_html(
+                &base,
+                &token,
+                &html,
+                PODIUM_ECONOMY_OPTIONS_JSON,
+                &[],
+                Some(std::time::Duration::from_secs(30)),
+            )
+            .await
+            .ok()
+        }
+        None => None,
+    };
     let items_per_page = 10usize;
     let total_pages = parsed.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    // Copy the flag out: `mk_embed` borrows it across later uses of `card_png`.
+    let has_card = card_png.is_some();
     let mk_embed = |page: usize| {
         let start = page * items_per_page;
         let lines: Vec<String> = parsed
@@ -160,10 +261,17 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             (page + 1) as u64,
             total_pages as u64,
         );
-        serenity::CreateEmbed::default()
+        let mut embed = serenity::CreateEmbed::default()
             .title(title.clone())
             .colour(0xFFD700)
-            .description(desc)
+            .description(desc);
+        // The podium PNG is attached once at send time (like TS);
+        // page updates reuse it, so the image leg is always armed
+        // when the render succeeded.
+        if has_card {
+            embed = embed.image("attachment://image.png");
+        }
+        embed
             .footer(if fbytes.is_some() {
                 serenity::CreateEmbedFooter::new(footer).icon_url("attachment://footer_icon.png")
             } else {
@@ -174,23 +282,23 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let mk_row = |page: usize| {
         serenity::CreateActionRow::Buttons(vec![
-            serenity::CreateButton::new("eco-lb-first")
+            serenity::CreateButton::new(LB_FIRST)
                 .style(serenity::ButtonStyle::Primary)
                 .label("<<<")
                 .disabled(page == 0),
-            serenity::CreateButton::new("eco-lb-prev")
+            serenity::CreateButton::new(LB_PREV)
                 .style(serenity::ButtonStyle::Primary)
                 .label("<")
                 .disabled(page == 0),
-            serenity::CreateButton::new("eco-lb-page")
+            serenity::CreateButton::new(LB_PAGE)
                 .style(serenity::ButtonStyle::Secondary)
                 .label(format!("{page_word} {}/{}", page + 1, total_pages))
                 .disabled(true),
-            serenity::CreateButton::new("eco-lb-next")
+            serenity::CreateButton::new(LB_NEXT)
                 .style(serenity::ButtonStyle::Primary)
                 .label(">")
                 .disabled(page + 1 >= total_pages),
-            serenity::CreateButton::new("eco-lb-last")
+            serenity::CreateButton::new(LB_LAST)
                 .style(serenity::ButtonStyle::Primary)
                 .label(">>>")
                 .disabled(page + 1 >= total_pages),
@@ -199,6 +307,10 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut reply = poise::CreateReply::default()
         .embed(mk_embed(0))
         .components(vec![mk_row(0)]);
+    // Podium card (`economy/!leaderboard.ts:187-195`, `image.png`).
+    if let Some(png) = card_png {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(png, "image.png"));
+    }
     if let Some(bytes) = fbytes.clone() {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -212,19 +324,19 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .timeout(std::time::Duration::from_secs(60 * 15))
             .await;
         let Some(press) = press else { break };
-        if !press.data.custom_id.starts_with("eco-lb-") {
-            continue;
-        }
+        // Mirrors the TS switch (`first`/`previous`/`next`/`last`): no
+        // author filter, no custom-id prefilter. Unknown ids fall through
+        // and re-render the same page, like the TS update below the switch.
         match press.data.custom_id.as_str() {
-            "eco-lb-first" => page = 0,
-            "eco-lb-prev" => page = page.saturating_sub(1),
-            "eco-lb-next" => {
+            id if id == LB_FIRST => page = 0,
+            id if id == LB_PREV => page = page.saturating_sub(1),
+            id if id == LB_NEXT => {
                 if page + 1 < total_pages {
                     page += 1;
                 }
             }
-            "eco-lb-last" => page = total_pages - 1,
-            _ => continue,
+            id if id == LB_LAST => page = total_pages - 1,
+            _ => {}
         }
         let _ = press
             .create_response(
@@ -239,23 +351,23 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     // Disable the row when the collector ends, like the TS end handler.
     let end_row = serenity::CreateActionRow::Buttons(vec![
-        serenity::CreateButton::new("eco-lb-first")
+        serenity::CreateButton::new(LB_FIRST)
             .style(serenity::ButtonStyle::Secondary)
             .label("<<<")
             .disabled(true),
-        serenity::CreateButton::new("eco-lb-prev")
+        serenity::CreateButton::new(LB_PREV)
             .style(serenity::ButtonStyle::Secondary)
             .label("<")
             .disabled(true),
-        serenity::CreateButton::new("eco-lb-page")
+        serenity::CreateButton::new(LB_PAGE)
             .style(serenity::ButtonStyle::Primary)
             .label(format!("{page_word} {}/{}", page + 1, total_pages))
             .disabled(true),
-        serenity::CreateButton::new("eco-lb-next")
+        serenity::CreateButton::new(LB_NEXT)
             .style(serenity::ButtonStyle::Secondary)
             .label(">")
             .disabled(true),
-        serenity::CreateButton::new("eco-lb-last")
+        serenity::CreateButton::new(LB_LAST)
             .style(serenity::ButtonStyle::Secondary)
             .label(">>>")
             .disabled(true),
@@ -270,9 +382,50 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 #[cfg(test)]
+mod podium_economy_html_tests {
+    use super::{podium_economy_card_html, PodiumEcoSlot};
+
+    #[test]
+    fn podium_economy_fill_replaces_every_placeholder() {
+        let slot = |u: &str, w: &str| PodiumEcoSlot {
+            username: u.to_string(),
+            wealth: w.to_string(),
+            avatar: "AV".to_string(),
+        };
+        let html =
+            podium_economy_card_html("T", &slot("a", "1"), &slot("b", "2"), &slot("c", "3"), "🪙");
+        for ph in [
+            "{title}",
+            "{1_username}",
+            "{2_username}",
+            "{3_username}",
+            "{1_wealth}",
+            "{2_wealth}",
+            "{3_wealth}",
+            "{1_avatar}",
+            "{2_avatar}",
+            "{3_avatar}",
+            "{coin_emoji}",
+        ] {
+            assert!(!html.contains(ph), "placeholder left: {ph}");
+        }
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::board_rows;
     use super::filter_cached_users;
+    use super::{LB_FIRST, LB_LAST, LB_NEXT, LB_PAGE, LB_PREV};
+
+    #[test]
+    fn pager_custom_ids_are_byte_exact_with_ts() {
+        // `!leaderboard.ts` setCustomId values, live row and end handler.
+        assert_eq!(
+            (LB_FIRST, LB_PREV, LB_PAGE, LB_NEXT, LB_LAST),
+            ("first", "previous", "page_info", "next", "last")
+        );
+    }
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

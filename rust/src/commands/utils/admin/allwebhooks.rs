@@ -1,13 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Collector lifetime from !allwebhooks.ts (`60_000 * 15`).
+// Collector lifetime from !allwebhooks.ts (`60_000 * 15`).
 pub const ALLWEBHOOKS_COLLECTOR_SECS: u64 = 900;
 
-/// Webhooks pager size from !allwebhooks.ts.
+// Webhooks pager size from !allwebhooks.ts.
 pub const ALLWEBHOOKS_PER_PAGE: usize = 5;
 
-/// List webhooks. Mirrors !allwebhooks.ts.
+// List webhooks. Mirrors !allwebhooks.ts.
+/// List all registered webhook on the server
 #[poise::command(
     slash_command,
     prefix_command,
@@ -181,12 +182,12 @@ pub async fn allwebhooks(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Token display length for the masked webhook URL.
-///
-/// The token field hides its contents (no accessor, and `Secret<String>`
-/// has no usable `Serialize` impl), but serenity's `Webhook` serializer
-/// exposes it — enough to mirror the TS per-character `◯` mask without
-/// ever holding the secret ourselves.
+// Token display length for the masked webhook URL.
+//
+// The token field hides its contents (no accessor, and `Secret<String>`
+// has no usable `Serialize` impl), but serenity's `Webhook` serializer
+// exposes it — enough to mirror the TS per-character `◯` mask without
+// ever holding the secret ourselves.
 fn webhook_token_len(webhook: &serenity::Webhook) -> usize {
     serde_json::to_value(webhook)
         .ok()
@@ -194,7 +195,7 @@ fn webhook_token_len(webhook: &serenity::Webhook) -> usize {
         .unwrap_or(0)
 }
 
-/// One pager line: `[name](url) (<#channel>)`, mirroring !allwebhooks.ts.
+// One pager line: `[name](url) (<#channel>)`, mirroring !allwebhooks.ts.
 pub fn format_allwebhook_entry(
     name: String,
     id: u64,
@@ -208,7 +209,7 @@ pub fn format_allwebhook_entry(
     format!("[{name}](https://discord.com/api/webhooks/{id}/{masked}) ({channel})")
 }
 
-/// Build pager pages (5 webhooks each) sharing one title.
+// Build pager pages (5 webhooks each) sharing one title.
 pub fn allwebhooks_pages(entries: &[String], title: &str) -> Vec<(String, String)> {
     entries
         .chunks(ALLWEBHOOKS_PER_PAGE)

@@ -1,7 +1,8 @@
 use super::*;
 
-/// Re-ban the members unbanned by unban-all. Mirrors unbanall !undo.ts.
+// Re-ban the members unbanned by unban-all. Mirrors unbanall !undo.ts.
 // TS subcommand `undo` under `unban-all`.
+/// Undo the unban all of all members
 #[poise::command(
     slash_command,
     prefix_command,
@@ -103,12 +104,12 @@ pub async fn unban_undo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Fill the `${unbanned_members.length}` progress template.
+// Fill the `${unbanned_members.length}` progress template.
 pub fn fill_progress(template: &str, n: usize) -> String {
     template.replace("${unbanned_members.length}", &n.to_string())
 }
 
-/// Fill the Yes/count/No/count undo result template.
+// Fill the Yes/count/No/count undo result template.
 pub fn fill_desc(template: &str, yes: &str, ok: usize, no: &str, failed: usize) -> String {
     template
         .replace("${client.iHorizon_Emojis.Yes}", yes)

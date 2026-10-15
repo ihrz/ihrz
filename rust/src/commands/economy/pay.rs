@@ -1,9 +1,10 @@
 use super::*;
 
-/// Pay coins to another member!
+/// Pay a user a certain amount!
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "pay",
     description_localized("fr", "Payer à un utilisateur un certain montant"),
     description_localized("ja", "ユーザーに特定の金額を支払う！"),
@@ -26,13 +27,13 @@ pub async fn eco_pay(
     #[description_localized("ja", "寄付したい金額")]
     #[description_localized("ru", "Сумма денег, которую вы хотите пожертвовать")]
     #[description_localized("es-ES", "La cantidad de dinero que quieres donarles")]
-    #[description = "Amount"]
+    #[description = "The amount of money you want to donate to them"]
     amount: f64,
     #[description_localized("fr", "Le membre à qui vous souhaitez donner de l'argent")]
     #[description_localized("ja", "お金を寄付したいメンバー")]
     #[description_localized("ru", "Участник, которому пожертвовать деньги")]
     #[description_localized("es-ES", "El miembro al que quieres donar el dinero")]
-    #[description = "Member"]
+    #[description = "The member you want to donate the money"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
@@ -71,7 +72,13 @@ pub async fn eco_pay(
     } else {
         None
     };
-    let a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
+    // Both accounts load concurrently: independent keys, one round each,
+    // and no write happens between the loads and the reply below.
+    let pool = &ctx.data().pool;
+    let (a, mut b) = tokio::join!(
+        balance::load_econ_routed(pool, &gid, from),
+        balance::load_econ_routed(pool, &gid, to)
+    );
     // TS: `if (amount && member < amount)` — falsy amounts (0) skip the
     // check and flow through to a no-op add/sub + success reply.
     if amount != 0.0 && a.money < amount {
@@ -110,7 +117,6 @@ pub async fn eco_pay(
     )
     .await?;
     let mut a = a;
-    let mut b = balance::load_econ_routed(&ctx.data().pool, &gid, to).await;
     add_money(&mut b, amount);
     add_money(&mut a, -amount);
     balance::save_econ_routed(&ctx.data().pool, &gid, from, &a).await?;

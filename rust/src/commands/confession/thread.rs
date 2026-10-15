@@ -82,13 +82,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "yes".to_string(),
-                "no".to_string()
-            ]
-        );
+        assert_eq!(names, vec!["yes".to_string(), "no".to_string()]);
         assert_eq!(ConfessionThreadAction::Yes.as_str(), "yes");
         assert_eq!(ConfessionThreadAction::No.as_str(), "no");
         assert_eq!(

@@ -87,8 +87,9 @@ pub struct TicketPanel {
     pub name: String,
     #[serde(default)]
     pub description: String,
-    // TS writes `category`; alias keeps TS-written V2 rows parsing.
-    #[serde(default, alias = "category")]
+    // TS writes `category`; rename keeps TS-written V2 rows parsing
+    // on write, alias keeps Rust-written `categoryId` rows readable.
+    #[serde(default, rename = "category", alias = "categoryId")]
     pub category_id: String,
     // V2 extras (defaulted so legacy rows still parse).
     #[serde(default)]

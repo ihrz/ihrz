@@ -10,7 +10,7 @@ use super::{
     voice::{massmove, vc_list},
 };
 
-/// Run-less group root. Mirrors the TS `utils` command.
+/// SubCommand category for utils command
 // (src/Interaction/HybridCommands/utils/utils.ts, exactly 25 subcommands).
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.

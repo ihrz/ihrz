@@ -50,6 +50,10 @@ pub async fn notifier_add(
     {
         return Ok(());
     }
+    // Ack-first: the live platform check + per-author display-name
+    // fetches below run past the 3s slash window, so defer before
+    // any network I/O (output shape unchanged: public reply).
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())

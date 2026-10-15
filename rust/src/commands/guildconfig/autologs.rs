@@ -14,6 +14,8 @@ use super::*;
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_autologs(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Ack-first: the preset creates a category + ~10 channels.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     super::setlogschannel::handle_auto(&ctx, &code, None).await?;
     Ok(())

@@ -1,13 +1,15 @@
 use super::*;
 
-/// Unban everyone, storing the list for undo. Mirrors unbanall !all.ts.
-// TS decl: command `unban-all` (prefix `unbanall`), alias `massunban`.
+// Unban everyone, storing the list for undo. Mirrors unbanall !all.ts.
+// TS decl: command `unban-all` (prefix `unbanall`); `massunban` lives on
+// the GROUP root (unbanall.ts), not on this subcommand.
+/// Unban all member of the guild
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "all",
-    aliases("unbanall", "massunban"),
+    aliases("unbanall"),
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Débannir toute les personnes bannis du serveur"),
     description_localized("ja", "サーバーの全メンバーのバンを解除"),
@@ -92,7 +94,7 @@ pub async fn unban_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Guild icon, falling back to the bot avatar. Mirrors the TS thumbnail.
+// Guild icon, falling back to the bot avatar. Mirrors the TS thumbnail.
 async fn guild_thumb(ctx: &Ctx<'_>, guild_id: serenity::GuildId) -> Option<String> {
     let cache = &ctx.serenity_context().cache;
     if let Some(icon) = cache.guild(guild_id).and_then(|g| g.icon_url()) {
@@ -101,12 +103,12 @@ async fn guild_thumb(ctx: &Ctx<'_>, guild_id: serenity::GuildId) -> Option<Strin
     cache.current_user().avatar_url()
 }
 
-/// Fill the `${banned_members.size}` progress template.
+// Fill the `${banned_members.size}` progress template.
 pub fn fill_progress(template: &str, n: usize) -> String {
     template.replace("${banned_members.size}", &n.to_string())
 }
 
-/// Fill the Yes/count/No/count result template.
+// Fill the Yes/count/No/count result template.
 pub fn fill_desc(template: &str, yes: &str, ok: usize, no: &str, failed: usize) -> String {
     template
         .replace("${client.iHorizon_Emojis.Yes}", yes)

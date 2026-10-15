@@ -21,6 +21,9 @@ pub async fn notifier_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     {
         return Ok(());
     }
+    // Ack-first: display-name fetches for the reply embeds run past
+    // the 3s slash window, so defer before any network I/O.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx
         .guild_id()

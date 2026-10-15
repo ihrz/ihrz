@@ -1,7 +1,7 @@
 use super::talk::post_util_log;
 use super::*;
 
-/// Allow a member in the frozen channel. Mirrors util !wlvc.ts.
+/// Allow a member to join the frozen voice channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,7 +20,7 @@ pub async fn wlvc(
     #[description_localized("ja", "許可したいメンバー")]
     #[description_localized("ru", "Участник, которого вы хотите разрешить")]
     #[description_localized("es-ES", "El miembro que quieres permitir")]
-    #[description = "Allowed member"]
+    #[description = "The member you want to allow"]
     member: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

@@ -146,8 +146,7 @@ pub async fn m_play(
         let speaker =
             crate::lavalink::LavalinkManager::request_stage_speaker(ctx.http(), gid, voice).await;
         if !speaker {
-            ctx.say(
-                "I can't get speaker permission in this stage channel. Ask a moderator to invite me to speak, then try again.",
+            ctx.say("I can't get speaker permission in this stage channel. Ask a moderator to invite me to speak, then try again.",
             )
             .await?;
             return Ok(());
@@ -161,6 +160,15 @@ pub async fn m_play(
     // Single-query batch through the pinned-node pipeline (mirrors
     // `handleMusicPlay` looping `queries[]` with `currentNode` pinned
     // from the first successful search; one query pins trivially).
+    // Platform queries resolve exactly where TS does: Spotify / Apple /
+    // Amazon / Tidal URLs are scraped via the
+    // `commands::music::metadata::{spotify, apple_music, amazon_music,
+    // tidal}` ports and re-searched on Deezer inside
+    // `resolve_query_tracks` (TS `searchQueryOnNode` + `handle*` legs in
+    // musicPlay.ts), falling back to previous behavior (no-matches ->
+    // no-result embed) on scrape failure. Genuinely unsupported links
+    // never reach here: the `is_allowed_links` denial above keeps the
+    // "link not supported, use Deezer/Spotify/Soundcloud" gate.
     let mut results = m
         .play_queries(gid, std::slice::from_ref(&query), requester, now_ms())
         .await;
@@ -174,14 +182,10 @@ pub async fn m_play(
             // carry the masked form.
             let shown_title = crate::funcs::mask_link(&t.title);
             let requester_tag = format!("<@{requester}>");
-            record_history_full(
-                &ctx.data().pool,
-                gid,
-                &shown_title,
-                t.uri.as_deref(),
-                Some(&requester_tag),
-            )
-            .await;
+            // History rows need owned copies: the write lands after the
+            // reply below (TS `respond` precedes the `db.push` legs).
+            let history_title = shown_title.clone();
+            let history_uri = t.uri.clone();
             let timer = emoji_markup(&ctx, "Timer", "⏱️").await;
             let result = if is_playlist { "playlist" } else { "track" };
             let content = crate::lang::get(&code, "p_loading_message")
@@ -229,6 +233,16 @@ pub async fn m_play(
             let reply = ctx
                 .send(poise::CreateReply::default().content(content).embed(embed))
                 .await?;
+            // Rich entry (mirrors musicPlay.ts buffer/embed rows after
+            // `respond`): two DB round-trips off the user-visible path.
+            record_history_full(
+                &ctx.data().pool,
+                gid,
+                &history_title,
+                history_uri.as_deref(),
+                Some(&requester_tag),
+            )
+            .await;
             // Auto-clear the loading line after 3s (mirrors
             // `deleteAfterMs = 3000`: content nulled, embed kept).
             // Best-effort: failures (deleted message, 403) are ignored.

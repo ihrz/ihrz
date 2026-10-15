@@ -53,7 +53,7 @@ pub fn remind_field_value(channel_link: &str, time: &str, message_id: Option<u64
     }
 }
 
-/// Remind the ticket owner (TicketRemind pipeline).
+/// Remind the ticket owner that they not have responded since while !
 #[poise::command(
     slash_command,
     prefix_command,
@@ -103,11 +103,21 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     // Owner member first (TicketRemind resolves the guild member, then
-    // messages). Absent member -> cant-DM reply, no DM attempt.
+    // messages): cache first, fetch fallback (ticketsManager.ts:2093).
+    // Absent member -> cant-DM reply, no DM attempt.
     let owner_uid = serenity::UserId::new(owner_id);
-    let member = match ctx.guild_id() {
-        Some(g) => http.get_member(g, owner_uid).await.ok(),
-        None => None,
+    let cached = ctx.guild_id().and_then(|g| {
+        ctx.serenity_context()
+            .cache
+            .guild(g)
+            .and_then(|gu| gu.members.get(&owner_uid).cloned())
+    });
+    let member = match cached {
+        Some(m) => Some(m),
+        None => match ctx.guild_id() {
+            Some(g) => http.get_member(g, owner_uid).await.ok(),
+            None => None,
+        },
     };
     let Some(member) = member else {
         let no = crate::emojis::app_emoji_markup(&http, "No")

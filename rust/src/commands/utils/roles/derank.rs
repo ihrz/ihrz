@@ -1,6 +1,6 @@
 use super::*;
 
-/// Remove all roles from a member. Mirrors !derank.ts.
+/// Remove all roles of an members
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +18,7 @@ pub async fn derank(
     #[description_localized("ja", "ユーザー")]
     #[description_localized("ru", "Пользователь")]
     #[description_localized("es-ES", "El usuario")]
-    #[description = "Member (defaults to self on prefix)"]
+    #[description = "The user"]
     // TS HybridCommands/utils/!derank.ts reads getMember("member").
     #[rename = "member"]
     user: Option<poise::serenity_prelude::User>,
@@ -174,7 +174,7 @@ pub async fn derank(
     Ok(())
 }
 
-/// Drop @everyone from the strip list.
+// Drop @everyone from the strip list.
 pub fn without_everyone(
     roles: &[serenity::RoleId],
     everyone: serenity::RoleId,
@@ -182,14 +182,14 @@ pub fn without_everyone(
     roles.iter().copied().filter(|r| *r != everyone).collect()
 }
 
-/// Fill the `${rolesToRemove.length}` / `${member.user.username}` progress template.
+// Fill the `${rolesToRemove.length}` / `${member.user.username}` progress template.
 pub fn fill_progress(template: &str, n: usize, username: &str) -> String {
     template
         .replace("${rolesToRemove.length}", &n.to_string())
         .replace("${member.user.username}", username)
 }
 
-/// Fill the `${good}` / `${bad}` / `${member.id}` result template.
+// Fill the `${good}` / `${bad}` / `${member.id}` result template.
 pub fn fill_desc(template: &str, good: usize, bad: usize, member_id: u64) -> String {
     template
         .replace("${good}", &good.to_string())

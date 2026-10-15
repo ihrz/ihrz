@@ -268,58 +268,18 @@ async fn announce_to_player_channel(
     let _ = ctx.say(text).await;
 }
 
-fn percent_encode(s: &str) -> String {
-    let mut out = String::with_capacity(s.len());
-    for b in s.bytes() {
-        if b.is_ascii_alphanumeric() || b"-_.~".contains(&b) {
-            out.push(b as char);
-        } else {
-            out.push_str(&format!("%{b:02X}"));
-        }
+/// Refresh wait: TS re-renders the card every 5.9s while playing.
+/// While paused the card is frozen (TS clears the interval on the
+/// pause press), so park on a long window instead of waking every
+/// 5.9s for a snapshot that changes nothing. Button presses still
+/// wake the wait immediately; the cap keeps an external track change
+/// (another skip/stop command) visible within a minute.
+pub fn nowplaying_wait_ms(paused: bool, remaining_ms: u64) -> u64 {
+    if paused {
+        remaining_ms.min(60_000)
+    } else {
+        NOWPLAYING_REFRESH_MS
     }
-    out
-}
-
-/// Local lyrics lookup (lyrics.ovh suggest + body), same shape as the
-/// lyrics command — kept here because that module owns its helper.
-/// Lyrics source verdict (kept): plain ovh text stays; the Lavalink
-/// lyrics-plugin transport (`search` + `lyrics.get(track)` in
-/// searchLyrics.ts) is excluded on this button leg, which has no live
-/// node session to reuse and must not open a plugin round-trip per
-/// press — the stateless HTTP lookup is enough for an ephemeral card.
-async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
-    let client = reqwest::Client::new();
-    let suggest: serde_json::Value = client
-        .get(format!(
-            "https://api.lyrics.ovh/suggest/{}",
-            percent_encode(query)
-        ))
-        .send()
-        .await
-        .ok()?
-        .json()
-        .await
-        .ok()?;
-    let first = suggest.get("data")?.as_array()?.first()?;
-    let title = first.get("title")?.as_str()?;
-    let artist = first.get("artist")?.get("name")?.as_str()?;
-    let body: serde_json::Value = client
-        .get(format!(
-            "https://api.lyrics.ovh/v1/{}/{}",
-            percent_encode(artist),
-            percent_encode(title)
-        ))
-        .send()
-        .await
-        .ok()?
-        .json()
-        .await
-        .ok()?;
-    let text = body.get("lyrics")?.as_str()?;
-    if text.trim().is_empty() {
-        return None;
-    }
-    Some((format!("{artist} - {title}"), text.to_string()))
 }
 
 /// App-emoji button glyph with a Unicode fallback (backup
@@ -487,10 +447,13 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     reply = reply.embed(embed);
     // Emoji-only buttons mirroring `!nowplaying.ts:58-76`: customIds
     // `stop` / `pause` / `lyrics` with the Music_Stop / Pause / Paper
-    // app emojis, no labels.
-    let stop_emoji = button_emoji(&ctx, "Music_Stop", "⏹️").await;
-    let pause_emoji = button_emoji(&ctx, "Pause", "⏸️").await;
-    let lyrics_emoji = button_emoji(&ctx, "Paper", "📝").await;
+    // app emojis, no labels. The three lookups are independent, so
+    // they run concurrently instead of stacking before the reply.
+    let (stop_emoji, pause_emoji, lyrics_emoji) = tokio::join!(
+        button_emoji(&ctx, "Music_Stop", "⏹️"),
+        button_emoji(&ctx, "Pause", "⏸️"),
+        button_emoji(&ctx, "Paper", "📝")
+    );
     let mk_row = || {
         serenity::CreateActionRow::Buttons(vec![
             serenity::CreateButton::new("stop")
@@ -513,9 +476,15 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let invoker_mention = format!("<@{}>", ctx.author().id.get());
 
     loop {
+        // Parked wait while paused (see `nowplaying_wait_ms`): the
+        // timeout doubles as the 5.9s refresh tick, and a button press
+        // still resolves it immediately.
+        let (wall0, paused0) = tick_ms(&started, paused_ms, &pause_began);
+        let wait_ms =
+            nowplaying_wait_ms(paused, nowplaying_remaining_ms(wall0, paused0, duration_ms));
         let press = msg
             .await_component_interaction(ctx.serenity_context().shard.clone())
-            .timeout(Duration::from_millis(NOWPLAYING_REFRESH_MS))
+            .timeout(Duration::from_millis(wait_ms))
             .await;
         let Some(press) = press else {
             // 5.9s refresh tick: re-render while the same track plays.
@@ -709,7 +678,9 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     )
                     .await;
                 let query = format!("{} - {}", track.title, track.author);
-                match fetch_lyrics_text(&query).await {
+                // Plain ovh text via the lyrics module (no lyrics-plugin
+                // round-trip on this leg — see the E1 note there).
+                match super::lyrics::fetch_lyrics_text(&query).await {
                     Some((_, body)) => {
                         let youtube = emoji_markup(&ctx, "YouTube_Icon", "🎶").await;
                         let trimmed = trim_lyrics_1997(&body);
@@ -784,10 +755,35 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[cfg(test)]
 mod tests {
     use super::{
-        artwork_or_fallback, card_percent_js, format_clock_secs, nowplaying_card_html,
-        nowplaying_position_ms, nowplaying_progress, nowplaying_remaining_ms, parse_hex_colour,
-        trim_lyrics_1997, NOWPLAYING_ARTWORK_FALLBACK, STREAM_COLLECTOR_CAP_MS,
+        artwork_or_fallback, banner_artwork_or_fallback, card_percent_js, format_clock_secs,
+        music_banner_card_html, nowplaying_card_html, nowplaying_position_ms, nowplaying_progress,
+        nowplaying_remaining_ms, nowplaying_wait_ms, parse_hex_colour, trim_lyrics_1997,
+        MUSIC_BANNER_ARTWORK_FALLBACK, NOWPLAYING_ARTWORK_FALLBACK, NOWPLAYING_REFRESH_MS,
+        STREAM_COLLECTOR_CAP_MS,
     };
+
+    #[test]
+    fn music_banner_fill_replaces_all_slots() {
+        let html = music_banner_card_html("Title", "Artist", "https://cdn/art.png");
+        assert!(!html.contains("{song_title}"));
+        assert!(!html.contains("{song_artist}"));
+        assert!(!html.contains("{song_thumbnail}"));
+        assert!(html.contains("Title"));
+        assert!(html.contains("Artist"));
+        // Artwork fallback mirrors the `|| unknown-user.png` replace.
+        assert_eq!(
+            banner_artwork_or_fallback(None),
+            MUSIC_BANNER_ARTWORK_FALLBACK
+        );
+        assert_eq!(
+            banner_artwork_or_fallback(Some("")),
+            MUSIC_BANNER_ARTWORK_FALLBACK
+        );
+        assert_eq!(
+            banner_artwork_or_fallback(Some("https://cdn/a.png")),
+            "https://cdn/a.png"
+        );
+    }
 
     #[test]
     fn clock_pads_like_ts_format_time() {
@@ -911,5 +907,21 @@ mod tests {
         assert_eq!(parse_hex_colour("#6fa8dc"), 0x6FA8DC);
         assert_eq!(parse_hex_colour("cd703a"), 0xCD703A);
         assert_eq!(parse_hex_colour("not-a-color"), 0x6FA8DC);
+    }
+
+    #[test]
+    fn wait_ticks_every_5_9s_while_playing() {
+        assert_eq!(nowplaying_wait_ms(false, 180_000), NOWPLAYING_REFRESH_MS);
+        assert_eq!(nowplaying_wait_ms(false, 0), NOWPLAYING_REFRESH_MS);
+    }
+
+    #[test]
+    fn wait_parks_while_paused_with_60s_cap() {
+        // Paused: no 5.9s snapshot/render wakeups; the wait stretches
+        // to the remaining time, capped so an external track change
+        // surfaces within a minute.
+        assert_eq!(nowplaying_wait_ms(true, 180_000), 60_000);
+        assert_eq!(nowplaying_wait_ms(true, 30_000), 30_000);
+        assert_eq!(nowplaying_wait_ms(true, 0), 0);
     }
 }

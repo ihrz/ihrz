@@ -319,13 +319,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            threads,
-            vec![
-                "yes".to_string(),
-                "no".to_string()
-            ]
-        );
+        assert_eq!(threads, vec!["yes".to_string(), "no".to_string()]);
         assert_eq!(StarboardThreadAction::Yes.as_str(), "yes");
         assert_eq!(StarboardThreadAction::No.as_str(), "no");
         assert_eq!(

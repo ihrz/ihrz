@@ -1,5 +1,42 @@
 use super::*;
 
+/// `twitterCommentCard` HTML template
+/// (`src/assets/html/twitterCommentCard.html`, TS `!tweet.ts:85`).
+const TWEET_CARD_TEMPLATE: &str =
+    include_str!("../../../../src/assets/html/twitterCommentCard.html");
+
+/// html2png options mirror (TS `!tweet.ts:105-112`).
+const TWEET_OPTIONS_JSON: &str = r#"{"omitBackground":true,"selectElement":true,"elementSelector":".tweet-card","width":1200,"height":500,"scaleSize":3}"#;
+
+/// Every template value for the `twitterCommentCard` card.
+pub struct TweetCardData {
+    pub tweet: String,
+    pub ago: String,
+    pub pfp: String,
+    pub displayname: String,
+    pub handle: String,
+    pub likes: String,
+    pub retweets: String,
+    pub replies: String,
+    pub views: String,
+}
+
+/// Fill the `twitterCommentCard` template. Mirrors the replace chain
+/// in TS `!tweet.ts:85-103` (`replaceAll` throughout; `{ago}` is the
+/// hardcoded `"2h"`).
+pub fn tweet_card_html(d: &TweetCardData) -> String {
+    TWEET_CARD_TEMPLATE
+        .replace("{tweet}", &d.tweet)
+        .replace("{ago}", &d.ago)
+        .replace("{pfp}", &d.pfp)
+        .replace("{displayname}", &d.displayname)
+        .replace("{handle}", &d.handle)
+        .replace("{likes}", &d.likes)
+        .replace("{retweets}", &d.retweets)
+        .replace("{replies}", &d.replies)
+        .replace("{views}", &d.views)
+}
+
 /// Permit to send custom tweet !
 #[poise::command(
     slash_command,
@@ -56,11 +93,57 @@ pub async fn tweet(
     let retweets = crate::funcs::format_number(s.retweets as f64);
     let replies = crate::funcs::format_number(s.replies as f64);
     let views = crate::funcs::format_number(s.views as f64);
-    // Standing exclusion: the TS card renders via `client.func.html2png`
-    // (headless Chromium, `.tweet-card` selector); no renderer exists in
-    // the Rust tree, so the text shape above is the ported surface.
-    ctx.say(
-        crate::lang::get(&code, "fun_tweet_pending")
+    // Card leg (`!tweet.ts:85-112`): the filled `twitterCommentCard`
+    // through HorizonGateway, attached as `twitter.png` on a
+    // black embed like TS. Gateway unset/fail keeps the text reply.
+    let card = TweetCardData {
+        tweet: comment.clone(),
+        ago: "2h".to_string(),
+        // Mirrors `displayAvatarURL({extension:"png", size:1024})`.
+        pfp: avatar_png_url(user, 1024),
+        displayname: display.clone(),
+        handle: handle.clone(),
+        likes: likes.clone(),
+        retweets: retweets.clone(),
+        replies: replies.clone(),
+        views: views.clone(),
+    };
+    if let Some(base) = ctx.data().config.gateway_internal() {
+        let token = crate::config::api_token().unwrap_or_default();
+        let html = tweet_card_html(&card);
+        if let Ok(png) = crate::funcs::gateway_render_html(
+            &base,
+            &token,
+            &html,
+            TWEET_OPTIONS_JSON,
+            &[],
+            Some(std::time::Duration::from_secs(30)),
+        )
+        .await
+        {
+            use poise::serenity_prelude as serenity;
+            let gid_str = ctx
+                .guild_id()
+                .map(|g| g.get().to_string())
+                .unwrap_or_default();
+            let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
+            let mut embed = serenity::CreateEmbed::default()
+                .colour(0x000000)
+                .image("attachment://twitter.png")
+                .timestamp(serenity::Timestamp::now());
+            embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some());
+            let mut reply = poise::CreateReply::default()
+                .embed(embed)
+                .attachment(serenity::CreateAttachment::bytes(png, "twitter.png"));
+            if let Some(bytes) = fbytes {
+                reply =
+                    reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
+            ctx.send(reply).await?;
+            return Ok(());
+        }
+    }
+    ctx.say(crate::lang::get(&code, "fun_tweet_pending")
             .map(|t| {
                 t.replace("${display}", &display)
                     .replace("${handle}", &handle)
@@ -78,4 +161,39 @@ pub async fn tweet(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tweet_card_tests {
+    use super::*;
+
+    #[test]
+    fn fill_replaces_every_placeholder() {
+        let d = TweetCardData {
+            tweet: "hello".to_string(),
+            ago: "2h".to_string(),
+            pfp: "P".to_string(),
+            displayname: "bob".to_string(),
+            handle: "@bob".to_string(),
+            likes: "1K".to_string(),
+            retweets: "2K".to_string(),
+            replies: "3".to_string(),
+            views: "4K".to_string(),
+        };
+        let html = tweet_card_html(&d);
+        for ph in [
+            "{tweet}",
+            "{ago}",
+            "{pfp}",
+            "{displayname}",
+            "{handle}",
+            "{likes}",
+            "{retweets}",
+            "{replies}",
+            "{views}",
+        ] {
+            assert!(!html.contains(ph), "placeholder left: {ph}");
+        }
+        assert!(html.contains("hello"));
+    }
 }

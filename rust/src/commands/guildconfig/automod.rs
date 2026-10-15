@@ -456,6 +456,8 @@ macro_rules! keyword_command {
                 .unwrap_or_default();
             let enabled = matches!(action, AutomodAction::On);
             let pool = &ctx.data().pool;
+            // Ack-first: native rule sync + writes run past the 3s window.
+            ctx.defer().await?;
             if let Some(guild_id) = ctx.guild_id() {
                 sync_keyword_rule(
                     ctx.serenity_context(),
@@ -492,16 +494,14 @@ macro_rules! keyword_command {
                 .map(|c| format!("<#{}>", c.id.get()))
                 .unwrap_or_else(|| "None".to_string());
             if enabled {
-                ctx.say(
-                    crate::commands::lang_for(&ctx, $on_key, $on_fb)
+                ctx.say(crate::commands::lang_for(&ctx, $on_key, $on_fb)
                         .await
                         .replace("${interaction.user}", &author_mention)
                         .replace("${logs_channel}", &channel_label),
                 )
                 .await?;
             } else {
-                ctx.say(
-                    crate::commands::lang_for(&ctx, $off_key, $off_fb)
+                ctx.say(crate::commands::lang_for(&ctx, $off_key, $off_fb)
                         .await
                         .replace("${interaction.user}", &author_mention),
                 )
@@ -630,6 +630,8 @@ pub async fn gc_automod_spam(
         .unwrap_or_default();
     let enabled = matches!(action, AutomodAction::On);
     let pool = &ctx.data().pool;
+    // Ack-first: native rule sync + writes run past the 3s window.
+    ctx.defer().await?;
     if let Some(guild_id) = ctx.guild_id() {
         sync_spam_rule(
             ctx.serenity_context(),
@@ -639,28 +641,26 @@ pub async fn gc_automod_spam(
         )
         .await;
     }
-    crate::db::tbl_set(
-        pool,
-        &gid,
-        "GUILD.GUILD_CONFIG.spam",
-        if enabled { "on" } else { "off" },
-    )
-    .await?;
-    crate::db::tbl_set(
-        pool,
-        &gid,
-        &automod_key("spam"),
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
+    // One round-trip for the legacy leaf + the AUTOMOD flag.
+    let spam_key = automod_key("spam");
+    let (r1, r2) = tokio::join!(
+        crate::db::tbl_set(
+            pool,
+            &gid,
+            "GUILD.GUILD_CONFIG.spam",
+            if enabled { "on" } else { "off" },
+        ),
+        crate::db::tbl_set(pool, &gid, &spam_key, if enabled { "1" } else { "0" },)
+    );
+    r1?;
+    r2?;
     let author_mention = ctx.author().to_string();
     let channel_label = logs_channel
         .as_ref()
         .map(|c| format!("<#{}>", c.id.get()))
         .unwrap_or_else(|| "None".to_string());
     if enabled {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "automod_block_spam_command_on",
                 "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow users can't spam anymore.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
@@ -671,8 +671,7 @@ pub async fn gc_automod_spam(
         )
         .await?;
     } else {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "automod_block_spam_command_off",
                 "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow users can spam.\nAutoMod x iHorizon has been disabled on your server!",
@@ -747,6 +746,8 @@ pub async fn gc_automod_mass(
     let enabled = matches!(action, AutomodAction::On);
     let limit = mention_limit(max_mention);
     let pool = &ctx.data().pool;
+    // Ack-first: native rule sync + writes run past the 3s window.
+    ctx.defer().await?;
     let synced = if let Some(guild_id) = ctx.guild_id() {
         sync_mention_rule(
             ctx.serenity_context(),
@@ -769,20 +770,20 @@ pub async fn gc_automod_mass(
         ctx.say(format!("Error 404. {detail}")).await?;
         return Ok(());
     }
-    crate::db::tbl_set(
-        pool,
-        &gid,
-        "GUILD.GUILD_CONFIG.mass_mention",
-        if enabled { "on" } else { "off" },
-    )
-    .await?;
-    crate::db::tbl_set(
-        pool,
-        &gid,
-        &automod_key("mass-mention"),
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
+    // One round-trip for the legacy leaf + the AUTOMOD flag (the
+    // limit row below is conditional on `enabled`, so it stays separate).
+    let mass_key = automod_key("mass-mention");
+    let (r1, r2) = tokio::join!(
+        crate::db::tbl_set(
+            pool,
+            &gid,
+            "GUILD.GUILD_CONFIG.mass_mention",
+            if enabled { "on" } else { "off" },
+        ),
+        crate::db::tbl_set(pool, &gid, &mass_key, if enabled { "1" } else { "0" },)
+    );
+    r1?;
+    r2?;
     // The native rule owns the only other copy of the limit; persist
     // one for the event-side fallback (absent rows read as default 3).
     if enabled {
@@ -796,8 +797,7 @@ pub async fn gc_automod_mass(
         .map(|c| format!("<#{}>", c.id.get()))
         .unwrap_or_else(|| "None".to_string());
     if enabled {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "automod_block_massmention_command_on",
                 "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow users can't send more than **${max_mention}** mention(s) in their messages.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
@@ -809,8 +809,7 @@ pub async fn gc_automod_mass(
         )
         .await?;
     } else {
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "automod_block_massmention_command_off",
                 "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow users can send mentions in their messages.\nAutoMod x iHorizon has been disabled on your server!",
@@ -873,10 +872,7 @@ mod tests {
         assert_eq!(AutomodAction::On.as_str(), "on");
         assert_eq!(AutomodAction::Off.as_str(), "off");
         assert_eq!(AutomodAction::from_name("on"), Some(AutomodAction::On));
-        assert_eq!(
-            AutomodAction::from_name("off"),
-            Some(AutomodAction::Off)
-        );
+        assert_eq!(AutomodAction::from_name("off"), Some(AutomodAction::Off));
         assert_eq!(AutomodAction::from_name("bogus"), None);
         assert_eq!(AutomodAction::from_index(0), Some(AutomodAction::On));
         assert_eq!(AutomodAction::from_index(1), Some(AutomodAction::Off));

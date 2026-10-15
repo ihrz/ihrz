@@ -80,8 +80,7 @@ pub async fn custom_avatar(
         // banner. `face()` is only the fallback when the bot has no
         // custom global avatar.
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_avatar_reset")
+        ctx.say(crate::lang::get(&code, "custom_avatar_reset")
                 .unwrap_or_else(|| "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server.".to_string()),
         )
         .await?;
@@ -157,8 +156,7 @@ pub async fn custom_avatar(
         .ok()
         .and_then(|m| m.avatar_url());
     let x = super::post_change_display(member_avatar.as_deref(), &avatar.url);
-    ctx.say(
-        crate::lang::get(&code, "custom_avatar_set")
+    ctx.say(crate::lang::get(&code, "custom_avatar_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
@@ -185,10 +183,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["reset".to_string(), "set".to_string()]
-        );
+        assert_eq!(names, vec!["reset".to_string(), "set".to_string()]);
         assert_eq!(CustomAvatarAction::Reset.as_str(), "reset");
         assert_eq!(CustomAvatarAction::Set.as_str(), "set");
         assert_eq!(

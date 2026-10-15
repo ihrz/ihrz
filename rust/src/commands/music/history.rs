@@ -1,4 +1,5 @@
 use super::*;
+use crate::commands::shared::embed_with_footer;
 
 /// Collector lifetime, mirroring TS `time: 60_000 * 15` (15 minutes).
 pub const HISTORY_COLLECTOR_SECS: u64 = 900;
@@ -105,6 +106,11 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild(serenity::GuildId::new(gid))
         .map(|g| g.name.clone())
         .unwrap_or_else(|| "Music".to_string());
+    // TS `footerPaginationBuilder` shape (`bot • Page x/y` plus the
+    // `footer_icon.png` attachment). The `history_embed_footer_text`
+    // lang key is dead in TS (never referenced), so it is not used.
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, key.as_str()).await;
+    let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
     let mk_embed = |page_idx: usize| {
         let lines: Vec<String> = history_page(&list, page_idx)
             .iter()
@@ -117,18 +123,23 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     .replace("${i / usersPerPage + 1}", &shown.to_string())
             })
             .unwrap_or_else(|| format!("{guild_name} Music's History | Page {shown}"));
-        let footer = crate::lang::get(&code, "history_embed_footer_text")
-            .map(|s| {
-                s.replace("${currentPage + 1}", &shown.to_string())
-                    .replace("${pages.length}", &pages.to_string())
-            })
-            .unwrap_or_else(|| format!("iHorizon | Page {shown}/{pages}"));
-        serenity::CreateEmbed::default()
+        let footer_text = crate::commands::shared::footer_page_text(
+            &fname,
+            &page_word,
+            shown as u64,
+            pages as u64,
+        );
+        let mut embed = serenity::CreateEmbed::default()
             .title(title)
             .description(lines.join("\n"))
-            .footer(serenity::CreateEmbedFooter::new(footer))
             .colour(0x00CC1A)
-            .timestamp(serenity::Timestamp::now())
+            .timestamp(serenity::Timestamp::now());
+        embed = if fbytes.is_some() {
+            embed_with_footer(embed, &footer_text, true)
+        } else {
+            embed.footer(serenity::CreateEmbedFooter::new(footer_text))
+        };
+        embed
     };
     // TS customIds (`previousPage` / `nextPage` / `deleteHistory`).
     let mk_row = |disabled: bool| {
@@ -151,14 +162,15 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         history_export_txt(&list).into_bytes(),
         HISTORY_EXPORT_NAME,
     );
-    let handle = ctx
-        .send(
-            poise::CreateReply::default()
-                .embed(mk_embed(current))
-                .attachment(attachment)
-                .components(vec![mk_row(false)]),
-        )
-        .await?;
+    // TS `files: [txt, footerAttachment]`: the export plus the bot
+    // footer icon the paged footer references.
+    let mut initial = poise::CreateReply::default()
+        .embed(mk_embed(current))
+        .attachment(attachment);
+    if let Some(bytes) = fbytes.clone() {
+        initial = initial.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(initial.components(vec![mk_row(false)])).await?;
     let Ok(mut msg) = handle.into_message().await else {
         return Ok(());
     };

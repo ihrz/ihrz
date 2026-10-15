@@ -311,19 +311,12 @@ async fn social_gif(
             .unwrap_or(false)
     };
     if !reachable {
-        ctx.say(
-            crate::commands::lang_for(
-                ctx,
-                "fun_var_down_api",
-                "Error: Seems like the API is down!",
-            )
-            .await,
-        )
-        .await?;
+        ctx.say(t("fun_var_down_api", "Error: Seems like the API is down!"))
+            .await?;
         return Ok(());
     }
     let desc = social_embed_desc(
-        &crate::commands::lang_for(ctx, title_key, title_fallback).await,
+        &t(title_key, title_fallback),
         ctx.author().id.get(),
         target_token,
         target.id.get(),
@@ -850,22 +843,21 @@ pub async fn animal_pic(
     if fun_guard(ctx).await {
         return Ok(());
     }
+    // Single lang read for both the title and the down-API deny (one
+    // SQLite round-trip instead of two).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     match fetch_json_image(api_url, field).await {
         Some(u) => {
             let embed = poise::serenity_prelude::CreateEmbed::default()
                 .image(u)
-                .title(crate::commands::lang_for(ctx, title_key, fallback_title).await)
+                .title(t(title_key, fallback_title))
                 .timestamp(poise::serenity_prelude::Timestamp::now());
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
         }
         None => {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "fun_var_down_api")
-                    .unwrap_or_else(|| "Error: Seems like the API is down!".to_string()),
-            )
-            .await?;
+            ctx.say(t("fun_var_down_api", "Error: Seems like the API is down!"))
+                .await?;
         }
     }
     Ok(())

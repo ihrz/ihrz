@@ -1,6 +1,6 @@
 use super::*;
 
-/// Distribute voice members across a category. Mirrors util !bringall.ts.
+/// Randomly distribute members from a voice channel to all voice channels in a category
 // Takes `from` (source voice channel) + `category` options, shuffles the
 // members, then moves them round-robin with moved/error counts.
 #[poise::command(
@@ -20,7 +20,7 @@ pub async fn bringall(
     #[description_localized("ja", "メンバーを移動する元のボイスチャンネル")]
     #[description_localized("ru", "Исходный голосовой канал для перемещения участников")]
     #[description_localized("es-ES", "El canal de voz de origen para mover miembros")]
-    #[description = "Source voice channel to move members from"]
+    #[description = "The source voice channel to move members from"]
     #[channel_types("Voice", "Stage")]
     from: poise::serenity_prelude::GuildChannel,
     #[description_localized(
@@ -33,7 +33,7 @@ pub async fn bringall(
         "es-ES",
         "La categoría que contiene los canales de voz a los que distribuir miembros"
     )]
-    #[description = "Category with voice channels to distribute members to"]
+    #[description = "The category containing voice channels to distribute members to"]
     #[channel_types("Category")]
     category: poise::serenity_prelude::GuildChannel,
 ) -> Result<(), anyhow::Error> {
@@ -113,8 +113,13 @@ pub async fn bringall(
         return Ok(());
     }
 
-    // Shuffle members randomly, then distribute round-robin.
+    // Loading ack like TS (`Discord_Loading` send at !bringall.ts:112-114),
+    // then shuffle members randomly and distribute round-robin.
     // Mirrors `membersToMove.sort(() => Math.random() - 0.5)`.
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| "⏳".to_string());
+    ctx.say(&loading).await?;
     {
         use rand::seq::SliceRandom;
         members.shuffle(&mut rand::thread_rng());
@@ -130,7 +135,10 @@ pub async fn bringall(
         }
     }
 
-    ctx.say(fill_bringall_results(
+    // Result embed mirrors !bringall.ts:133-166 (color #007fff, footer,
+    // timestamp, guild-icon thumbnail, footer attachment, `bringall_results`
+    // description).
+    let desc = fill_bringall_results(
         &code,
         &format!("<@{}>", ctx.author().id.get()),
         moved,
@@ -138,8 +146,34 @@ pub async fn bringall(
         &format!("<#{}>", from.id.get()),
         &format!("<#{}>", category.id.get()),
         targets.len() as u64,
-    ))
-    .await?;
+    );
+    let gid = guild_id.get().to_string();
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let mut footer = poise::serenity_prelude::CreateEmbedFooter::new(footer_name);
+    if footer_bytes.is_some() {
+        footer = footer.icon_url("attachment://footer_icon.png");
+    }
+    let mut embed = poise::serenity_prelude::CreateEmbed::default()
+        .colour(0x007fff)
+        .description(desc)
+        .footer(footer)
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    if let Some(icon) = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.icon_url())
+    {
+        embed = embed.thumbnail(icon);
+    }
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

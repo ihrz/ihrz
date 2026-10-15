@@ -29,6 +29,9 @@ pub async fn notifier_channel(
     {
         return Ok(());
     }
+    // Ack-first: the config-log post + writes below run before the
+    // first reply, so defer before any I/O (output shape unchanged).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -79,8 +82,7 @@ pub async fn notifier_channel(
         &target.id.get().to_string(),
     )
     .await?;
-    ctx.say(
-        say(
+    ctx.say(say(
             "notifier_config_message_command_ok",
             "Now, when a streamer or YouTuber publishes a video, I will send a message in ${channel.toString()}",
         )

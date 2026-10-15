@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Sync a category's overwrites to children. Mirrors !sync.ts.
+/// Sync all channels to the parent category
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,8 @@ pub async fn syncchan(
     #[description_localized("ja", "チャンネルを同期するカテゴリ")]
     #[description_localized("ru", "Категория для синхронизации каналов")]
     #[description_localized("es-ES", "La categoría a la que sincronizar los canales")]
-    #[description = "Category"]
+    #[description = "The category to sync channels to"]
+    #[channel_types("Category")]
     category: poise::serenity_prelude::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -48,7 +49,10 @@ pub async fn syncchan(
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Only inherit into unlocked children, like the TS permissionsLocked
     // gate; each inherit is one overwrites edit (= lockPermissions()).
+    // A throw in TS aborts the loop with no success embed, so an edit
+    // failure aborts here into the error reply instead of success.
     let mut changed: Vec<serenity::ChannelId> = vec![];
+    let mut failed = false;
     for (child_id, child_ows) in &children {
         if overwrites_locked(child_ows, &parent) {
             continue;
@@ -62,7 +66,18 @@ pub async fn syncchan(
             .is_ok()
         {
             changed.push(*child_id);
+        } else {
+            failed = true;
+            break;
         }
+    }
+    let gid = guild_id.get().to_string();
+    if failed {
+        let desc = crate::lang::get(&code, "util_sync_error")
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| "An error occurred while synchronizing channels.".to_string());
+        send_sync_embed(&ctx, &gid, &desc).await?;
+        return Ok(());
     }
     let changes = sync_changes_text(&changed);
     let desc = if changes.is_empty() {
@@ -70,8 +85,14 @@ pub async fn syncchan(
     } else {
         fill_sync_desc(&t("util_sync_embed_description_1"), &cat_name, &changes)
     };
-    let gid = guild_id.get().to_string();
-    let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    send_sync_embed(&ctx, &gid, &desc).await?;
+    Ok(())
+}
+
+/// Send a sync embed (success or error) with the standard footer,
+/// timestamp and footer attachment.
+async fn send_sync_embed(ctx: &Ctx<'_>, gid: &str, desc: &str) -> Result<(), anyhow::Error> {
+    let (footer_name, footer_bytes) = footer_parts(ctx, gid).await;
     let mut footer = serenity::CreateEmbedFooter::new(footer_name);
     if footer_bytes.is_some() {
         footer = footer.icon_url("attachment://footer_icon.png");

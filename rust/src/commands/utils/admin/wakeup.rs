@@ -1,13 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Wakeup loop length from !wakeup.ts (`60_000 * 2`).
+// Wakeup loop length from !wakeup.ts (`60_000 * 2`).
 pub const WAKEUP_LOOP_MS: u64 = 60_000 * 2;
 
-/// Delay between moves from !wakeup.ts (`wait(300)`).
+// Delay between moves from !wakeup.ts (`wait(300)`).
 pub const WAKEUP_STEP_MS: u64 = 300;
 
-/// Move a member to your voice channel. Mirrors !wakeup.ts.
+// Move a member to your voice channel. Mirrors !wakeup.ts.
+/// Wake up an user with mass mooving randomly in voice channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -35,7 +36,7 @@ pub async fn wakeup(
     #[description_localized("ja", "起こすメンバー")]
     #[description_localized("ru", "Участник, которого нужно разбудить")]
     #[description_localized("es-ES", "El miembro a despertar")]
-    #[description = "Member"]
+    #[description = "The member to wake up"]
     // TS HybridCommands/utils/util/!wakeup.ts reads getMember("member").
     #[rename = "member"]
     user: poise::serenity_prelude::User,
@@ -115,13 +116,13 @@ pub async fn wakeup(
     Ok(())
 }
 
-/// True once the 2-minute wakeup loop budget is spent.
+// True once the 2-minute wakeup loop budget is spent.
 pub fn wakeup_expired(elapsed_ms: u64) -> bool {
     elapsed_ms >= WAKEUP_LOOP_MS
 }
 
-/// Pick a random candidate channel. Sorted input keeps the choice
-/// uniform; `None` when there is nothing to move to.
+// Pick a random candidate channel. Sorted input keeps the choice
+// uniform; `None` when there is nothing to move to.
 pub fn choose_candidate(candidates: &[serenity::ChannelId]) -> Option<serenity::ChannelId> {
     use rand::seq::SliceRandom;
     candidates.choose(&mut rand::thread_rng()).cloned()

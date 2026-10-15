@@ -115,16 +115,22 @@ pub fn image_data_uri(base64_body: &str) -> Option<String> {
 }
 
 async fn fetch_data_uri(url: &str) -> Option<String> {
-    let bytes = reqwest::Client::new()
-        .get(url)
-        .send()
-        .await
-        .ok()?
-        .bytes()
-        .await
-        .ok()?;
-    let body = crate::emojis::base64_encode(&bytes);
+    let body = crate::emojis::base64_encode(&bounded_get_bytes(url).await?);
     image_data_uri(&body)
+}
+
+/// Bounded GET for the restore path. `download_bytes` has no timeout,
+/// so a stalled CDN/attachment fetch would hold the already-deferred
+/// load past any caller's patience; a slow fetch degrades to None
+/// (emoji skipped, attachment dropped) exactly like a failed one.
+async fn bounded_get_bytes(url: &str) -> Option<Vec<u8>> {
+    tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        crate::commands::shared::download_bytes(url),
+    )
+    .await
+    .ok()
+    .flatten()
 }
 
 fn community(features: &[String]) -> bool {
@@ -375,15 +381,12 @@ async fn replay_messages(
             builder = builder.in_thread(thread);
         }
         if let Some(files) = msg.files.as_deref() {
-            // TS replays the first attachment only.
+            // TS replays the first attachment only; bounded so a
+            // stalled CDN never stalls the whole restore.
             if let Some(first) = files.first() {
-                if let Ok(resp) = reqwest::Client::new().get(&first.attachment).send().await {
-                    if let Ok(bytes) = resp.bytes().await {
-                        builder = builder.add_file(serenity::CreateAttachment::bytes(
-                            bytes.to_vec(),
-                            &first.name,
-                        ));
-                    }
+                if let Some(bytes) = bounded_get_bytes(&first.attachment).await {
+                    builder =
+                        builder.add_file(serenity::CreateAttachment::bytes(bytes, &first.name));
                 }
             }
         }
@@ -860,6 +863,21 @@ mod tests {
         let opts = default_load_options();
         assert!(opts.clear_guild_before_restore);
         assert_eq!(opts.max_messages_per_channel, Some(100));
+    }
+
+    #[tokio::test]
+    async fn bounded_get_gives_up_like_a_failed_fetch() {
+        // Nothing listens on the discard port: connection refused must
+        // resolve to None well inside the 10s bound (a stalled emoji
+        // or attachment degrades to skipped instead of holding the
+        // already-deferred load).
+        let out = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            super::bounded_get_bytes("http://127.0.0.1:9/emoji.png"),
+        )
+        .await
+        .expect("bounded restore download resolves inside its own bound");
+        assert!(out.is_none());
     }
 
     #[test]

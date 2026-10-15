@@ -22,6 +22,9 @@ pub async fn mod_unmute(
     #[description = "The user you want to unmuted"]
     user: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };

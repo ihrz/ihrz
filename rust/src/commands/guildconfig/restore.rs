@@ -25,6 +25,8 @@ pub async fn gc_config_restore(
     backup_to_load: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
+    // Ack-first: attachment download + decrypt run past the 3s window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
     if let (Some(gid), Some(att)) = (ctx.guild_id().map(|g| g.get().to_string()), backup_to_load) {

@@ -40,8 +40,7 @@ pub async fn add_react(
     )
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "add_react_command_work")
+    ctx.say(crate::lang::get(&code, "add_react_command_work")
             .map(|s| {
                 s.replace(
                     "${interaction.member?.id}",

@@ -1,16 +1,16 @@
 use super::*;
 
-/// Seconds for a `timeConversion[duration]` key. Mirrors the table in
-/// util !cooldown.ts exactly: only these 14 keys change the channel
-/// rate limit. The TS prefix leg reads the raw first arg
-/// (`string(args, 0)`), so anything else (`1`, `5`, `90s`) hits
-/// `Number(undefined)` → NaN — a fire-and-forget no-op on the Discord
-/// call — while the ok reply still sends with
-/// `to_beautiful_string(input)`. poise 0.6 cannot express that split
-/// with a `ChoiceParameter` enum (off-list prefix input fails with
-/// `InvalidChoice` before the body runs), so the param stays a plain
-/// free-text string on both paths — the same precedent as the economy
-/// tuning commands — and the body constrains the edit to this table.
+// Seconds for a `timeConversion[duration]` key. Mirrors the table in
+// util !cooldown.ts exactly: only these 14 keys change the channel
+// rate limit. The TS prefix leg reads the raw first arg
+// (`string(args, 0)`), so anything else (`1`, `5`, `90s`) hits
+// `Number(undefined)` → NaN — a fire-and-forget no-op on the Discord
+// call — while the ok reply still sends with
+// `to_beautiful_string(input)`. poise 0.6 cannot express that split
+// with a `ChoiceParameter` enum (off-list prefix input fails with
+// `InvalidChoice` before the body runs), so the param stays a plain
+// free-text string on both paths — the same precedent as the economy
+// tuning commands — and the body constrains the edit to this table.
 pub fn time_conversion_secs(input: &str) -> Option<u16> {
     Some(match input {
         "0" => 0,
@@ -31,7 +31,7 @@ pub fn time_conversion_secs(input: &str) -> Option<u16> {
     })
 }
 
-/// Set a cooldown in the current channel. Mirrors util cooldown (!cooldown.ts).
+/// Set a cooldown in the current channel
 // Canonical slash name is `cooldown` (TS util/util.ts); `slowmode`
 // stays as a prefix/slash alias. Disable via the `0` choice.
 #[poise::command(
@@ -56,7 +56,7 @@ pub async fn slowmode(
     #[description_localized("ja", "低速モードの時間")]
     #[description_localized("ru", "Длительность замедленного режима")]
     #[description_localized("es-ES", "La duración del modo lento")]
-    #[description = "Duration"]
+    #[description = "The duration of the slowmode"]
     duration: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // A missing prefix arg crashes to_ms in TS (silent on prefix);
@@ -130,7 +130,12 @@ pub async fn apply_slowmode(
     ch_id
         .edit(
             ctx.http(),
-            poise::serenity_prelude::EditChannel::new().rate_limit_per_user(secs),
+            poise::serenity_prelude::EditChannel::new()
+                .rate_limit_per_user(secs)
+                .audit_log_reason(&format!(
+                    "Slow command executed by {}",
+                    ctx.author().id.get()
+                )),
         )
         .await?;
     // TS fills `${duration_in_string}` with `to_beautiful_string`

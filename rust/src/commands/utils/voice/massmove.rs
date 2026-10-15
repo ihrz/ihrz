@@ -1,6 +1,6 @@
 use super::*;
 
-/// Mass-move voice members. Mirrors utils !massmove.ts.
+/// Move all members connected in a voice channel to another one
 // TS decl (utils.ts): permission [MoveMembers, ModerateMembers],
 // cooldown 5m; a null target is a silent return (`if (toChannel ===
 // null) return`).
@@ -31,14 +31,14 @@ pub async fn massmove(
     #[description_localized("ja", "メンバーを移動する元のボイスチャンネル")]
     #[description_localized("ru", "Голосовой канал, откуда перемещать участников")]
     #[description_localized("es-ES", "El canal de voz desde donde mover miembros")]
-    #[description = "From channel (omit for all voice)"]
+    #[description = "The voice channel to move members from"]
     #[channel_types("Voice")]
     from: Option<poise::serenity_prelude::GuildChannel>,
     #[description_localized("fr", "Le canal vocal où déplacer les membres")]
     #[description_localized("ja", "メンバーを移動する先のボイスチャンネル")]
     #[description_localized("ru", "Голосовой канал, куда перемещать участников")]
     #[description_localized("es-ES", "El canal de voz al que mover miembros")]
-    #[description = "To channel"]
+    #[description = "The voice channel to move members to"]
     #[channel_types("Voice")]
     #[rename = "channel"]
     to: Option<poise::serenity_prelude::GuildChannel>,

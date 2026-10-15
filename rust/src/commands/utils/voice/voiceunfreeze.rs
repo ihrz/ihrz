@@ -1,7 +1,7 @@
 use super::talk::post_util_log;
 use super::*;
 
-/// Clear the active voice freeze. Mirrors util !unfreeze.ts.
+/// Remove the active voice freeze
 #[poise::command(
     slash_command,
     prefix_command,

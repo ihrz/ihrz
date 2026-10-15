@@ -1,6 +1,6 @@
 use super::*;
 
-/// Recreate the current channel now (clone + delete). Mirrors !renew.ts.
+/// Re-created a channels (cloning permission and all configurations). nuke equivalent
 // The TS subcommand (utils.ts:513) takes NO options: it always acts on
 // `interaction.channel`. The clone preserves name, parent, permission
 // overwrites, topic, nsfw, rate limit and position; the system-channel

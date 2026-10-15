@@ -185,13 +185,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "on",
-                "off"
-            ]
-        );
+        assert_eq!(names, vec!["on", "off"]);
         assert_eq!(SetsuggestAction::On.as_str(), "on");
         assert_eq!(SetsuggestAction::Off.as_str(), "off");
         assert_eq!(

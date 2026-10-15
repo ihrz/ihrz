@@ -45,7 +45,7 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
     }
 }
 
-/// Config the message when user earn new xp level message!
+/// Disable ticket commands on a guild!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -59,12 +59,25 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
 )]
 pub async fn ticket_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: TicketConfigAction,
+    // Option (not required): TS reads `getString("action")`
+    // (!config.ts:45, nullable) and the prefix path reads
+    // `string(args, 0)` (nullable); an unknown value is a silent
+    // no-op (neither the `off` nor the `on` leg). A required poise
+    // choice would parse-error on the bare prefix form instead.
+    #[description = "What you want to do ?"]
+    #[description_localized("fr", "Que veux-tu faire? ")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    action: Option<TicketConfigAction>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let Some(action) = action else {
+        return Ok(());
+    };
     let Some(enabled) = parse_config_action(action.as_str()) else {
         return Ok(());
     };
@@ -148,13 +161,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "off".to_string(),
-                "on".to_string()
-            ]
-        );
+        assert_eq!(names, vec!["off".to_string(), "on".to_string()]);
         assert_eq!(TicketConfigAction::Off.as_str(), "off");
         assert_eq!(TicketConfigAction::On.as_str(), "on");
         assert_eq!(

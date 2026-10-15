@@ -34,12 +34,19 @@ impl MassiveroleAction {
     }
 }
 
-/// Add/remove a role for every member. Mirrors !massiverole.ts.
+/// Add/Remove roles to everyone on the server
+// Prefix null-flow: TS `method.role()` can return null and the body has
+// no early return, so the role param is `Option` (missing -> None) plus
+// `discard_spare_arguments` (present-but-bad token is swallowed by the
+// wildcard instead of hard-erroring as ArgumentParse before the body).
+// Slash surface keeps the same `action` / `role` names and types; only
+// requiredness relaxes.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "massiverole",
+    discard_spare_arguments,
     aliases("massrole", "massroles"),
     default_member_permissions = "ADMINISTRATOR",
     user_cooldown = 300,
@@ -54,14 +61,16 @@ pub async fn massiverole(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
-    #[description = "add or sub"]
+    #[description = "What you want to do?"]
     action: MassiveroleAction,
     #[description_localized("fr", "Le rôle spécifié que vous souhaitez ajouter")]
     #[description_localized("ja", "追加したい指定ロール")]
     #[description_localized("ru", "Указанная роль для добавления")]
     #[description_localized("es-ES", "El rol especificado que quieres añadir")]
-    #[description = "Role"]
-    role: poise::serenity_prelude::Role,
+    #[description = "The specified role you want to add"]
+    // Nullable: TS `method.role(interaction, args!, 1)` can be null and
+    // !massiverole.ts keeps flowing (`role?.id`, `role?.toString()`).
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -80,7 +89,15 @@ pub async fn massiverole(
         ctx.say(t("massiverole_too_much_member")).await?;
         return Ok(());
     }
-    // TS parity (!massiverole.ts:73,181): only `add` / `sub` run a branch.
+    // Loading ack FIRST, mirroring the TS `ogInteraction`
+    // (`Discord_Loading`) sent before `members.fetch()`
+    // (!massiverole.ts:71-76); edited with the progress line, then the
+    // final embed below.
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| "...".to_string());
+    let progress = ctx.say(loading).await?;
+    // TS parity (!massiverole.ts:78,181): only `add` / `sub` run a branch.
     // Any other action leaves just the loading ack in TS, so here it is
     // a silent return with no members touched.
     let add = match mass_action(action.as_str()) {
@@ -89,23 +106,37 @@ pub async fn massiverole(
     };
     let members = fetch_all_members(ctx.http(), guild_id).await;
     let total = members.len();
+    // Null role: TS filters `!has(role?.id)` (add: everyone matches) /
+    // `has(role?.id)` (sub: nobody matches) and every per-member mutation
+    // then rejects. `has` is false for None, reproducing both filters;
+    // the batch leg below counts those failures without issuing
+    // role-less HTTP calls.
     let targets: Vec<serenity::UserId> = members
         .iter()
-        .filter(|m| m.roles.contains(&role.id) != add)
+        .filter(|m| {
+            let has = role.as_ref().is_some_and(|r| m.roles.contains(&r.id));
+            has != add
+        })
         .map(|m| m.user.id)
         .collect();
     // Skipped = already-had (add) / no-longer-had (sub).
     let skipped = total.saturating_sub(targets.len());
-    // Immediate progress reply, edited with the final embed.
-    // Mirrors ogInteraction + processBatchAsync (10/150ms).
+    // Progress edit on the loading ack, mirroring the TS
+    // `ogInteraction.edit` with `batch_*_process` before the
+    // processBatchAsync run (10/150ms).
     let progress_tpl = if add {
         t("batch_massiverole_process")
     } else {
         t("batch_unmassiverole_process")
     };
-    let progress = ctx.say(fill_progress(&progress_tpl, targets.len())).await?;
+    progress
+        .edit(
+            ctx,
+            poise::CreateReply::default().content(fill_progress(&progress_tpl, targets.len())),
+        )
+        .await?;
     let http = ctx.http();
-    let role_id = role.id;
+    let role_id = role.as_ref().map(|r| r.id);
     // Audit reasons verbatim from !massiverole.ts (`member.roles.add(role,
     // "[Massrole] Module")` / `.remove(role, "[MassiveRole] Command")`).
     let reason = mass_audit_reason(add);
@@ -114,11 +145,15 @@ pub async fn massiverole(
             async move {
                 // Http role endpoints carry the audit reason (like
                 // rolepanel.rs); the Member add/remove helpers take none.
+                // Null role: every TS per-member call rejects, counted as
+                // errors — same counts here with no role-less HTTP call.
+                let Some(rid) = role_id else {
+                    return false;
+                };
                 let out = if add {
-                    http.add_member_role(guild_id, uid, role_id, Some(reason))
-                        .await
+                    http.add_member_role(guild_id, uid, rid, Some(reason)).await
                 } else {
-                    http.remove_member_role(guild_id, uid, role_id, Some(reason))
+                    http.remove_member_role(guild_id, uid, rid, Some(reason))
                         .await
                 };
                 out.is_ok()
@@ -135,7 +170,12 @@ pub async fn massiverole(
         result.success,
         skipped,
         result.failed,
-        &role.to_string(),
+        // TS `.replaceAll("${role}", role?.toString()!)`: null coerces to
+        // the literal "undefined".
+        &role
+            .as_ref()
+            .map(|r| r.to_string())
+            .unwrap_or_else(|| "undefined".to_string()),
     );
     let gid = guild_id.get().to_string();
     let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
@@ -160,9 +200,9 @@ pub async fn massiverole(
     Ok(())
 }
 
-/// Fetch every guild member over the paged REST endpoint (1000/page).
-/// Mirrors TS guild.members.fetch() with no options, which returns the
-/// whole member list: a single page would cap mass processing at 1000.
+// Fetch every guild member over the paged REST endpoint (1000/page).
+// Mirrors TS guild.members.fetch() with no options, which returns the
+// whole member list: a single page would cap mass processing at 1000.
 async fn fetch_all_members(
     http: &serenity::Http,
     guild_id: serenity::GuildId,
@@ -187,11 +227,11 @@ async fn fetch_all_members(
     all
 }
 
-/// Parse the action option. Mirrors the `action === "add"` / `action ===
-/// "sub"` branches in !massiverole.ts: exact match, no case fold.
-/// `Some(true)` adds, `Some(false)` removes, and any other input is
-/// `None` — the caller returns silently with no members touched, like
-/// TS leaving just the loading ack.
+// Parse the action option. Mirrors the `action === "add"` / `action ===
+// `sub"` branches in !massiverole.ts: exact match, no case fold.
+// `Some(true)` adds, `Some(false)` removes, and any other input is
+// `None` — the caller returns silently with no members touched, like
+// TS leaving just the loading ack.
 pub fn mass_action(action: &str) -> Option<bool> {
     match action {
         "add" => Some(true),
@@ -200,7 +240,7 @@ pub fn mass_action(action: &str) -> Option<bool> {
     }
 }
 
-/// Audit reason per branch, verbatim from !massiverole.ts.
+// Audit reason per branch, verbatim from !massiverole.ts.
 pub fn mass_audit_reason(add: bool) -> &'static str {
     if add {
         "[Massrole] Module"
@@ -209,12 +249,12 @@ pub fn mass_audit_reason(add: bool) -> &'static str {
     }
 }
 
-/// Fill the `${membersToProcess.length}` progress template.
+// Fill the `${membersToProcess.length}` progress template.
 pub fn fill_progress(template: &str, n: usize) -> String {
     template.replace("${membersToProcess.length}", &n.to_string())
 }
 
-/// Fill the `${interaction.user}` / `${a}` / `${s}` / `${e}` / `${role}` work template.
+// Fill the `${interaction.user}` / `${a}` / `${s}` / `${e}` / `${role}` work template.
 pub fn fill_work(
     template: &str,
     invoker: &str,

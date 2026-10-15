@@ -54,8 +54,7 @@ pub async fn tag_edit(
     if !is_admin && entry.create_by != ctx.author().id.get().to_string() {
         // Put the entry back: the rename must not happen on deny.
         store.stored_tags.insert(current.clone(), entry);
-        ctx.say(
-            crate::lang::get(&code, "tag_edit_error_perm").unwrap_or_else(|| {
+        ctx.say(crate::lang::get(&code, "tag_edit_error_perm").unwrap_or_else(|| {
                 "To modify the tag, you need to have Administrator permissions or be the tag's owner.".to_string()
             }),
         )

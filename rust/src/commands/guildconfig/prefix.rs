@@ -142,6 +142,8 @@ pub async fn gc_prefix(
     #[rename = "name"]
     name: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack-first: the write + reply run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx
         .guild_id()

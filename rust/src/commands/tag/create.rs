@@ -36,8 +36,7 @@ pub async fn tag_create(
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !tag_allowed(&ctx, "whitelist_create").await {
-        ctx.say(
-            crate::lang::get(&code, "tag_create_not_permited")
+        ctx.say(crate::lang::get(&code, "tag_create_not_permited")
                 .unwrap_or_else(|| "You are not allowed to create a tag.\nYou need the Administrator permission or you need to be in the whitelist (`/tag wlroles-create`).".to_string()),
         )
         .await?;

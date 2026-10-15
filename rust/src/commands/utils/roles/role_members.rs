@@ -1,18 +1,19 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Collector lifetime from !role-members.ts (`1_60_000` ms).
+// Collector lifetime from !role-members.ts (`1_60_000` ms).
 pub const ROLE_MEMBERS_COLLECTOR_SECS: u64 = 160;
 
-/// Role members pager size from !role-members.ts.
+// Role members pager size from !role-members.ts.
 pub const ROLE_MEMBERS_PER_PAGE: usize = 5;
 
-/// List role members. Mirrors role-members.
+/// See all server member(s) who have the same roles
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "role-members",
+    discard_spare_arguments,
     aliases("rolemembers", "rolemember"),
     default_member_permissions = "MANAGE_ROLES",
     description_localized(
@@ -32,14 +33,27 @@ pub async fn role_members(
     #[description_localized("ja", "確認したいロール")]
     #[description_localized("ru", "Роль для проверки")]
     #[description_localized("es-ES", "El rol que quieres comprobar")]
-    #[description = "Role"]
-    role: poise::serenity_prelude::Role,
+    #[description = "The role you want to check"]
+    // Nullable: TS prefix `method.role(...)!` throws on a null role and
+    // the body answers `addrolereact_role_not_found`; `Option` plus
+    // `discard_spare_arguments` reaches the body as None instead of
+    // hard-erroring as ArgumentParse.
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Null role: TS replies the not-found key (!role-members.ts).
+    let Some(role) = role else {
+        ctx.say(
+            crate::lang::get(&code, "addrolereact_role_not_found")
+                .unwrap_or_else(|| "Role not found.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     // TS reads `role.members` (gateway cache). Fetch over HTTP too so
     // members missing from the cache are still listed; cache fills the
     // gaps of the paged HTTP endpoint.
@@ -160,7 +174,7 @@ pub async fn role_members(
     Ok(())
 }
 
-/// One pager line: mention plus the TS `🤖 (BOT)` suffix for bots.
+// One pager line: mention plus the TS `🤖 (BOT)` suffix for bots.
 pub fn format_role_member(user_id: u64, bot: bool) -> String {
     if bot {
         format!("<@{user_id}>🤖 (BOT)")
@@ -169,7 +183,7 @@ pub fn format_role_member(user_id: u64, bot: bool) -> String {
     }
 }
 
-/// Build pager pages (5 members each) sharing one title.
+// Build pager pages (5 members each) sharing one title.
 pub fn role_members_pages(entries: &[String], title: &str) -> Vec<(String, String)> {
     entries
         .chunks(ROLE_MEMBERS_PER_PAGE)

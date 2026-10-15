@@ -113,7 +113,34 @@ pub async fn ranks_show(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Snapshot the avatar via the shared image64 helper so the card and
     // the thumbnail survive avatar changes (never a raw CDN URL).
-    let face_url = member.face();
+    // Avatar URL mirrors `user.displayAvatarURL({ extension: "png",
+    // size: 4096 })` in !show.ts:62-65 (guild avatar first, then the
+    // user avatar). PNG explicitly: `member.face()` yields webp, which
+    // the image crate cannot decode, so every analysis failed into the
+    // fallback colour instead of the pfp's.
+    let face_url = match ctx
+        .author_member()
+        .await
+        .as_deref()
+        .and_then(|m| m.avatar.as_ref())
+        .map(|h| {
+            format!(
+                "https://cdn.discordapp.com/guilds/{}/users/{}/avatars/{}.png?size=4096",
+                ctx.guild_id().map(|g| g.get()).unwrap_or_default(),
+                member.id.get(),
+                h
+            )
+        }) {
+        Some(url) => url,
+        None => match &member.avatar {
+            Some(hash) => format!(
+                "https://cdn.discordapp.com/avatars/{}/{}.png?size=4096",
+                member.id.get(),
+                hash
+            ),
+            None => member.default_avatar_url(),
+        },
+    };
     let face_bytes = crate::image64::image64(&face_url).await;
     let title = crate::lang::get(&code, "level_embed_title")
         .map(|s| s.replace("${user.username}", &display))

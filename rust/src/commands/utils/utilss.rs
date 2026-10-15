@@ -2,7 +2,7 @@ use super::*;
 
 use super::voice::renewvc;
 
-/// Run-less group root. Mirrors the TS `utilss` command.
+/// SubCommand category for utils command
 // (src/Interaction/HybridCommands/utils/utilss/utilss.ts).
 #[poise::command(
     slash_command,
