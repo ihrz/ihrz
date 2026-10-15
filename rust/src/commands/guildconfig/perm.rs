@@ -321,6 +321,36 @@ pub async fn gc_perm_command(
     }
 }
 
+/// TS `!command.ts` existence gate: a single word must name a
+/// registered top-level command (`client.commands.get`), a
+/// multi-word path must name a registered subcommand
+/// (`client.subCommands.get` on the full path). Anything else
+/// answers `var_unreachable_command`.
+pub fn perm_command_exists<T, E>(commands: &[poise::Command<T, E>], requested: &str) -> bool {
+    let parts: Vec<&str> = requested.split_whitespace().collect();
+    if parts.is_empty() {
+        return false;
+    }
+    if parts.len() == 1 {
+        return commands.iter().any(|c| c.name == parts[0]);
+    }
+    let mut stack: Vec<(Vec<String>, &[poise::Command<T, E>])> = commands
+        .iter()
+        .map(|c| (vec![c.name.clone()], c.subcommands.as_slice()))
+        .collect();
+    while let Some((path, subs)) = stack.pop() {
+        for sub in subs {
+            let mut full = path.clone();
+            full.push(sub.name.clone());
+            if full.iter().map(|s| s.as_str()).collect::<Vec<_>>() == parts {
+                return true;
+            }
+            stack.push((full, sub.subcommands.as_slice()));
+        }
+    }
+    false
+}
+
 /// Shared change body (TS `command` subcommand, change action).
 // Mirrors the change action in !command.ts: level set (0 clears),
 // role/user toggle, change summary, row deleted when emptied.
@@ -344,6 +374,12 @@ pub async fn run_perm_change(
         .filter(|c| !c.is_empty())
     else {
         ctx.say(t("perm_add_args_error")).await?;
+        return Ok(());
+    };
+    // TS `!command.ts:111-118`: unknown command names answer
+    // `var_unreachable_command` before any row is touched.
+    if !perm_command_exists(&ctx.framework().options().commands, &command) {
+        ctx.say(t("var_unreachable_command")).await?;
         return Ok(());
     };
     let mut perms = load_cmd_perms(pool, &gid, &command)
@@ -730,6 +766,38 @@ mod tests {
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    fn test_commands() -> Vec<poise::Command<crate::bot::Data, anyhow::Error>> {
+        vec![
+            poise::Command {
+                name: "ping".to_string(),
+                subcommands: vec![],
+                ..Default::default()
+            },
+            poise::Command {
+                name: "perm".to_string(),
+                subcommands: vec![poise::Command {
+                    name: "command".to_string(),
+                    subcommands: vec![],
+                    ..Default::default()
+                }],
+                ..Default::default()
+            },
+        ]
+    }
+
+    #[test]
+    fn perm_command_exists_matches_ts_lookup() {
+        let cmds = test_commands();
+        assert!(perm_command_exists(&cmds, "ping"));
+        assert!(perm_command_exists(&cmds, "perm command"));
+        assert!(!perm_command_exists(&cmds, "nope"));
+        // Single unknown word is NOT deep-matched (TS checks
+        // top-level only); unknown sub paths miss too.
+        assert!(!perm_command_exists(&cmds, "command"));
+        assert!(!perm_command_exists(&cmds, "perm nope"));
+        assert!(!perm_command_exists(&cmds, ""));
     }
 
     #[tokio::test]
