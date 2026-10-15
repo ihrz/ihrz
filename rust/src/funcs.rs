@@ -1607,6 +1607,31 @@ mod tests {
         assert!(!is_valid_image_type(Some("IMAGE\u{212a}PNG")));
         assert!(!is_valid_image_type(Some("\u{130}mage/png")));
         assert!(is_valid_image_type(Some("IMAGE/PNG")));
+        // W6 slice 111 battery (node ground truth, validImageType.ts verbatim):
+        // full 5-type case matrix, exact-equality (params/padding miss),
+        // miss family, and every Unicode-fold shape (BMP sweep proves
+        // U+212A->k is the only non-ASCII single-ASCII folder, no empty or
+        // multi-ASCII lowers exist, and no allowlist entry contains `k`).
+        assert!(is_valid_image_type(Some("image/jpeg")));
+        assert!(is_valid_image_type(Some("image/jpg")));
+        assert!(is_valid_image_type(Some("image/gif")));
+        assert!(is_valid_image_type(Some("IMAGE/JPEG")));
+        assert!(is_valid_image_type(Some("iMaGe/GiF")));
+        assert!(!is_valid_image_type(Some("image/svg")));
+        assert!(!is_valid_image_type(Some("application/json")));
+        assert!(!is_valid_image_type(Some("image/pngx")));
+        assert!(!is_valid_image_type(Some("image/")));
+        assert!(!is_valid_image_type(Some("image/png;charset=utf-8")));
+        assert!(!is_valid_image_type(Some("image/png ")));
+        assert!(!is_valid_image_type(Some(" image/png")));
+        assert!(!is_valid_image_type(Some("image/png\n")));
+        assert!(!is_valid_image_type(Some("IMAGE/PN\u{212a}")));
+        assert!(!is_valid_image_type(Some("image/pn\u{17f}")));
+        assert!(!is_valid_image_type(Some("\u{130}MAGE/PNG")));
+        assert!(!is_valid_image_type(Some(
+            "\u{ff29}\u{ff2d}\u{ff21}\u{ff27}\u{ff25}\u{ff0f}\u{ff30}\u{ff2e}\u{ff27}"
+        )));
+        assert!(!is_valid_image_type(Some("image/pn\u{df}")));
         assert!(is_allowed_links("https://open.spotify.com/x"));
         assert!(!is_allowed_links("https://evil.example/x"));
         assert!(is_allowed_links("not a url"));
