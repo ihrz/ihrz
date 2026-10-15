@@ -3753,18 +3753,26 @@ pub fn missing_intents(current_flags: u64) -> u64 {
 }
 
 /// PATCH verdict leg. Mirrors `patched.flags === current -> warn + false`:
-/// a body that fails to parse (TS throw -> catch -> false) or reports
-/// unchanged flags means the API rejected the update.
+/// only an EXACTLY-unchanged numeric flags value means the API rejected
+/// the update. A missing/non-numeric flags key (`undefined`/`null`/string/
+/// NaN/object) is `!==` any number in TS, so it counts as changed -> true
+/// (node ground truth: `0 vs undefined/null` -> true, `565248 vs "565248"`
+/// -> true, `0 vs NaN/{}` -> true, `565248 vs 565248.0` -> false); the
+/// `as_u64` fold at the call site maps exactly those shapes to None, and
+/// integral floats through `Some` like `===`.
 pub fn patch_verdict(current: u64, patched_flags: Option<u64>) -> bool {
-    matches!(patched_flags, Some(f) if f != current)
+    !matches!(patched_flags, Some(f) if f == current)
 }
 
 /// Enable privileged intents on the application. Mirrors enableRequiredIntents
 /// (GET then PATCH /applications/@me). Returns true when all set.
 /// Deltas (doc-noted): `data.flags ?? 0` keeps hostile non-null shapes
 /// (TS coerces them via ToInt32 in the `&`/`|` ops) while the mirror
-/// folds non-u64 to 0; JS bitwise wraps past 2^31 (unreachable: Discord
-/// application flags fit far below it). Non-2xx bodies are rejected
+/// folds non-u64 to 0; `updated = current | REQUIRED` uses u64 OR while
+/// TS ToInt32-wraps past 2^31 (`1<<31 | R` -> negative, `2^32 | R` -> R)
+/// — unreachable, real Discord flag words are small ints; negative or
+/// fractional `current` is unrepresentable past the `u64` signature.
+/// Non-2xx bodies are rejected
 /// before parsing like TS `!res.ok`, so an error payload carrying a
 /// `flags` key can no longer trigger a PATCH.
 pub async fn enable_required_intents(token: &str) -> bool {
@@ -3957,12 +3965,28 @@ mod funcs_part4_tests {
         assert_eq!(missing_intents(32768), 565248 & !32768);
         assert_eq!(missing_intents(32768), 532480);
         assert_eq!(32768 | REQUIRED_INTENTS, 565248);
-        // PATCH verdict leg: unchanged flags (or unparsable body) means
-        // the API rejected the update -> false.
+        // PATCH verdict leg: only an exactly-unchanged numeric flags value
+        // means rejection -> false; a missing/non-numeric flags key is `!==`
+        // any number in TS -> true (old code returned false on None).
         assert!(!patch_verdict(565248, Some(565248)));
-        assert!(!patch_verdict(0, None));
+        assert!(patch_verdict(0, None));
         assert!(patch_verdict(0, Some(565248)));
         assert!(patch_verdict(32768, Some(565248)));
+        // W6 slice 92 battery (node ground truth, `REQUIRED & ~current` is
+        // low-32-bit-exact on the whole u64 domain since REQUIRED < 2^31):
+        // single-bit legs, near-miss 565247, extra-bit passthrough.
+        assert_eq!(missing_intents(8192), 557056);
+        assert_eq!(missing_intents(524288), 40960);
+        assert_eq!(missing_intents(565247), 8192);
+        assert_eq!(missing_intents(1 << 20), 565248);
+        assert_eq!(missing_intents(5), 565248);
+        // High-bit legs: bits >= 32 never intersect REQUIRED, so the u64
+        // mirror agrees with the TS ToInt32 path exactly.
+        assert_eq!(missing_intents(1 << 32), 565248);
+        assert_eq!(missing_intents((1 << 32) + 8192), 557056);
+        assert_eq!(missing_intents((1 << 32) + 565248), 0);
+        assert_eq!(missing_intents(1 << 53), 565248);
+        assert_eq!(missing_intents(u64::MAX), 0);
     }
 
     #[test]
