@@ -292,13 +292,13 @@ pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         let html = guild_stats_card_html(&card);
         if let Some(png) = render_card_png(&base, &token, &html, GSTATS_OPTIONS_JSON).await {
             use poise::serenity_prelude as serenity;
-            let embed = serenity::CreateEmbed::default()
-                .description(&text)
-                .image("attachment://gstats.png");
+            // TS `!gstats.ts:362` edits to the bare file
+            // (`{ content: null, files: [image.png] }`): no embed, no
+            // text — the file alone is the final shape (same class as
+            // the ustats fix).
             ctx.send(
                 poise::CreateReply::default()
-                    .embed(embed)
-                    .attachment(serenity::CreateAttachment::bytes(png, "gstats.png")),
+                    .attachment(serenity::CreateAttachment::bytes(png, "image.png")),
             )
             .await?;
             return Ok(());

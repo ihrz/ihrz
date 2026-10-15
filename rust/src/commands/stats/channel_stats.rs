@@ -282,12 +282,11 @@ pub async fn stats_channel(
         let html = channel_stats_card_html(&card);
         if let Some(png) = render_card_png(&base, &token, &html, CHANNEL_STATS_OPTIONS_JSON).await {
             use poise::serenity_prelude as serenity;
-            let embed = serenity::CreateEmbed::default()
-                .description(&text)
-                .image("attachment://channel-stats.png");
+            // TS `!channel-stats.ts:335` edits to the bare file
+            // (`{ content: null, files: [channel-stats.png] }`): no
+            // embed, no text — the file alone is the final shape.
             ctx.send(
                 poise::CreateReply::default()
-                    .embed(embed)
                     .attachment(serenity::CreateAttachment::bytes(png, "channel-stats.png")),
             )
             .await?;

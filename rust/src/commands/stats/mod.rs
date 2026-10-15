@@ -912,12 +912,11 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
                 } else {
                     "top-messages.png"
                 };
-                let embed = serenity::CreateEmbed::default()
-                    .description(&text)
-                    .image(format!("attachment://{name}"));
+                // TS `!top-messages.ts:199` / `!top-voice.ts:205` edit to
+                // the bare file (`{ content: null, files: [attachment] }`):
+                // no embed, no text — the file alone is the final shape.
                 ctx.send(
                     poise::CreateReply::default()
-                        .embed(embed)
                         .attachment(serenity::CreateAttachment::bytes(png, name)),
                 )
                 .await?;
