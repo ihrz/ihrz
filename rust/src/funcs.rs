@@ -932,6 +932,23 @@ where
     })
 }
 
+/// Async millisecond sleep. Mirrors wait.ts (`new Promise((resolve) =>
+/// setTimeout(resolve, milliseconds))`).
+/// Deltas (doc-noted, all unreachable — every TS call site passes a
+/// small non-negative constant: `wait(300)` x4, honeypot/h247 delay
+/// consts): the `u64` signature makes the JS-coercion legs
+/// unrepresentable — negatives/NaN/Infinity all clamp to ~1ms in TS
+/// (node ground truth: TimeoutNegativeWarning/TimeoutNaNWarning/
+/// TimeoutOverflowWarning, `1.9` truncates to ~1ms, `"100"` coerces
+/// to 100ms, `undefined` resolves in ~1ms with no warning), values
+/// past 2^31-1 clamp to 1ms in TS while Rust sleeps the full
+/// duration, and `0` resolves without the ~1ms timer floor TS pays.
+/// No live Rust callers (call sites sleep inline); pure port closing
+/// the last zero-mention core/functions file.
+pub async fn wait_ms(millis: u64) {
+    tokio::time::sleep(std::time::Duration::from_millis(millis)).await;
+}
+
 /// Remote asset manifest. Mirrors the repositories.json fetch in
 /// assetsCalc.ts (TS `Assets`: string keys to `{ length, paths }`).
 pub const ASSETS_LENGTHS_URL: &str = "https://www.ihorizon.org/cdn/repositories.json";
@@ -2186,6 +2203,28 @@ mod tests {
             }
         );
         assert_eq!(seen, vec![(1, 3), (2, 3), (3, 3)]);
+    }
+
+    #[tokio::test]
+    async fn wait_ms_matches_ts_set_timeout_legs() {
+        // wait.ts is `setTimeout(resolve, ms)`; node ground truth legs
+        // (W6 slice 112 battery): 0/1/undefined resolve in ~1ms,
+        // 100 (and "100" via ToNumber) sleep ~100ms, 1.9 truncates to
+        // ~1ms, negatives/NaN/Infinity/2^31 all clamp to ~1ms with a
+        // TimeoutNegative/NaN/Overflow warning. The u64 signature makes
+        // every coercion leg unrepresentable, so only the resolve +
+        // lower-bound legs are pinnable here.
+        let t0 = std::time::Instant::now();
+        wait_ms(0).await;
+        assert!(t0.elapsed() < std::time::Duration::from_secs(5));
+        let t0 = std::time::Instant::now();
+        wait_ms(50).await;
+        assert!(t0.elapsed() >= std::time::Duration::from_millis(50));
+        // Sequential waits accumulate like chained TS awaits.
+        let t0 = std::time::Instant::now();
+        wait_ms(20).await;
+        wait_ms(20).await;
+        assert!(t0.elapsed() >= std::time::Duration::from_millis(40));
     }
 
     #[test]
