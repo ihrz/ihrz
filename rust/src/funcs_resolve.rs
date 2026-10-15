@@ -246,6 +246,11 @@ pub fn resolve_member(arg: Option<&str>, members: &[Entry]) -> Option<String> {
 
 /// Resolve a text channel id. Mirrors method.ts channel().
 /// `mention` is mentions.channels[index], if any.
+/// DELTA (offline port): on a cache id-miss TS `fetch()`es the channel
+/// over the Discord API and returns `fetched || null`; here a miss
+/// yields None (no network in the pure helper). Name-first ordering,
+/// exact case-sensitive name match, and the `[<#>]-anywhere` strip are
+/// all TS-exact (W6 slice 127 battery).
 pub fn resolve_channel(
     arg: Option<&str>,
     mention: Option<&str>,
@@ -759,6 +764,60 @@ mod tests {
         // Trailing junk survives the strip and misses both legs.
         assert_eq!(resolve_role(Some("<@&5>junk"), None, &roles), None);
         assert_eq!(resolve_role(Some("a<b"), None, &roles), None);
+    }
+
+    #[test]
+    fn channel_matches_ts_battery_legs() {
+        // 17-case node battery over method.ts channel() (W6 slice 127):
+        // exact-name first (beats mention/id), mention at index, strip
+        // `[<#>]-anywhere` + `^\d+$` id leg, fetch-miss -> None.
+        let chs = vec![
+            Entry::new("1", "general"),
+            Entry::new("22", "nope"),
+            Entry::new("7", "22"),
+            Entry::new("8", "<#22>"),
+        ];
+        // Name leg wins over a present mention and over the id legs.
+        assert_eq!(
+            resolve_channel(Some("general"), Some("9"), &chs).as_deref(),
+            Some("1")
+        );
+        // A numeric name resolves to its owner, not to the id holder.
+        assert_eq!(
+            resolve_channel(Some("22"), None, &chs).as_deref(),
+            Some("7")
+        );
+        // The bracket form hits the literal name before the strip leg.
+        assert_eq!(
+            resolve_channel(Some("<#22>"), None, &[Entry::new("22", "nope")]).as_deref(),
+            Some("22")
+        );
+        // Name leg is exact and case-sensitive.
+        assert_eq!(resolve_channel(Some("General"), None, &chs), None);
+        // Mention at the index wins when no name matches.
+        assert_eq!(
+            resolve_channel(Some("zzz"), Some("9"), &chs).as_deref(),
+            Some("9")
+        );
+        // Stripped mention/id legs hit the cache.
+        assert_eq!(
+            resolve_channel(Some("<#1>"), None, &chs).as_deref(),
+            Some("1")
+        );
+        // Non-digit, partial-digit, padded, empty and missing all miss.
+        assert_eq!(resolve_channel(Some("abc"), None, &chs), None);
+        assert_eq!(resolve_channel(Some("12a"), None, &chs), None);
+        assert_eq!(resolve_channel(Some(" 1 "), None, &chs), None);
+        assert_eq!(resolve_channel(Some(""), None, &chs), None);
+        assert_eq!(resolve_channel(Some("<#>"), None, &chs), None);
+        assert_eq!(resolve_channel(None, None, &chs), None);
+        // Cache id-miss is None here; TS would fetch() over the API.
+        assert_eq!(resolve_channel(Some("999"), None, &chs), None);
+        // An empty-named channel matches an empty arg via the name leg.
+        assert_eq!(
+            resolve_channel(Some(""), None, &[Entry::new("5", "")]).as_deref(),
+            Some("5")
+        );
     }
 
     #[test]
