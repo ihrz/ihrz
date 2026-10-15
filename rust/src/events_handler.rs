@@ -9048,10 +9048,21 @@ impl serenity::EventHandler for Handler {
                 matched,
             ) {
                 crate::commands::h247::grant::RankGrant::Grant => {
-                    let _ = member.add_role(&ctx.http, role_id).await;
+                    // TS `rankRoleModule_2.ts:58` passes "[Rank] Module"
+                    // as the audit reason (Member::add_role carries
+                    // none, so go through Http — same precedent as the
+                    // rank-role assignment legs).
+                    let _ = ctx
+                        .http
+                        .add_member_role(gid, new.id, role_id, Some("[Rank] Module"))
+                        .await;
                 }
                 crate::commands::h247::grant::RankGrant::Remove => {
-                    let _ = member.remove_role(&ctx.http, role_id).await;
+                    // TS `rankRoleModule_2.ts:54`, same reason.
+                    let _ = ctx
+                        .http
+                        .remove_member_role(gid, new.id, role_id, Some("[Rank] Module"))
+                        .await;
                 }
                 crate::commands::h247::grant::RankGrant::Keep => {}
             }
