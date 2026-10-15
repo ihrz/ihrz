@@ -4,7 +4,7 @@ use super::{
     thread::confession_thread,
 };
 
-/// Parent group. Mirrors the TS `confession` HybridCommand definition.
+/// Subcommand for confession category!
 #[poise::command(
     slash_command,
     prefix_command,
