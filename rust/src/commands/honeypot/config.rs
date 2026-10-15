@@ -580,13 +580,20 @@ pub async fn handle_panel_press(
         }
     };
 
+    // TS `getDefaultHoneypotConfig`: a fresh config defaults
+    // `createdBy` to the guild owner, not the panel opener.
+    let owner_id = ctx
+        .cache
+        .guild(guild_id)
+        .map(|g| g.owner_id.get().to_string())
+        .unwrap_or_else(|| comp.user.id.get().to_string());
     let mut cfg: serde_json::Value = load_honeypot_raw(pool, &gid)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({
             "enabled": false,
             "action": "none",
-            "createdBy": comp.user.id.get().to_string(),
+            "createdBy": owner_id,
             "lastTriggeredAt": 0,
         }));
 
