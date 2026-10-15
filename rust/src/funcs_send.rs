@@ -115,7 +115,8 @@ pub struct EmbedField {
 /// Pure createAwesomeEmbed payload. `perm_display` is the already-resolved
 /// permission line (TS resolves command.permission / DB overrides first).
 /// `description` / `description_fr` feed the `startsWith("fr-")` branch;
-/// `subcommands` (name, aliases) selects the hasSubCommand branch.
+/// `subcommands` (name, aliases, per-sub options) selects the
+/// hasSubCommand branch.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AwesomeEmbed {
     pub title: String,
@@ -125,10 +126,15 @@ pub struct AwesomeEmbed {
     pub footer_text: String,
 }
 
-/// One subcommand entry (name + aliases) for the hasSubCommand branch.
+/// One subcommand entry (name + aliases + its own options) for the
+/// hasSubCommand branch. TS renders each row from the SUBCOMMAND's own
+/// options (`boldStringifyOption(x.options || [])`, node battery slice
+/// 100) — never the top-level list — and the `use` line keeps its
+/// trailing space when the path is empty (`!list `, untrimmed).
 pub struct SubCommandInfo {
     pub name: String,
     pub aliases: Vec<String>,
+    pub options: Vec<UsageOption>,
 }
 
 /// Arity mirrors createAwesomeEmbed (TS takes the same resolved inputs).
@@ -190,7 +196,7 @@ pub fn awesome_embed(
             "**Aliases:** ${aliases}\n**Use:** ${use}",
         );
         for sub in subs {
-            let path = bold_stringify_options(options);
+            let path = bold_stringify_options(&sub.options);
             let alias_str = if sub.aliases.is_empty() {
                 none.clone()
             } else {
@@ -205,7 +211,7 @@ pub fn awesome_embed(
                 name: format!("{}{}", prefix, sub.name),
                 value: field_tpl
                     .replace("${aliases}", &alias_str)
-                    .replace("${use}", use_line.trim_end()),
+                    .replace("${use}", &use_line),
                 inline: false,
             });
         }
@@ -844,6 +850,7 @@ mod tests {
         let subs = [SubCommandInfo {
             name: "create".to_string(),
             aliases: vec!["c".to_string()],
+            options: vec![],
         }];
         let e = awesome_embed(
             "en-US",
@@ -861,7 +868,49 @@ mod tests {
         );
         assert_eq!(e.description, None);
         assert_eq!(e.fields[0].name, "!create");
-        assert_eq!(e.fields[0].value, "**Aliases:** `c`\n**Use:** !create");
+        // TS `use` is `${prefix}${name} ${path}` untrimmed: empty path
+        // keeps the trailing space (node battery slice 100).
+        assert_eq!(e.fields[0].value, "**Aliases:** `c`\n**Use:** !create ");
+    }
+
+    #[test]
+    fn awesome_embed_subcommand_per_sub_options() {
+        // Each row renders its OWN subcommand options (slice 100: the old
+        // mirror reused the top-level list for every row).
+        let subs = [
+            SubCommandInfo {
+                name: "create".to_string(),
+                aliases: vec!["c".to_string()],
+                options: vec![UsageOption::new("member", true)],
+            },
+            SubCommandInfo {
+                name: "list".to_string(),
+                aliases: vec![],
+                options: vec![],
+            },
+        ];
+        let e = awesome_embed(
+            "en-US",
+            "ticket",
+            None,
+            "!",
+            false,
+            &[],
+            &[UsageOption::new("top", false)],
+            None,
+            "",
+            None,
+            "en-US",
+            Some(&subs),
+        );
+        assert_eq!(e.fields.len(), 2);
+        assert_eq!(
+            e.fields[0].value,
+            "**Aliases:** `c`\n**Use:** !create **`[member]`**"
+        );
+        assert_eq!(e.fields[0].name, "!create");
+        assert_eq!(e.fields[1].name, "!list");
+        assert_eq!(e.fields[1].value, "**Aliases:** None\n**Use:** !list ");
     }
 
     #[test]
