@@ -1,11 +1,15 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Set someting/behaviours into this guild!
+/// Set the current message for AuthRestore button
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "set",
+    description_localized("fr", "Définir le message actuel pour le bouton de AuthRestore"),
+    description_localized("ja", "AuthRestoreボタン用の現在のメッセージを設定"),
+    description_localized("ru", "Установить текущее сообщение для кнопки AuthRestore"),
+    description_localized("es-ES", "Establecer el mensaje actual para el botón AuthRestore"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn authrestore_set(

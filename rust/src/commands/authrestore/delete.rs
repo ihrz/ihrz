@@ -1,11 +1,15 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Delete a role for a certain amount of money!
+/// Delete the AuthRestore module button
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "delete",
+    description_localized("fr", "Supprimer le bouton du module de AuthRestore"),
+    description_localized("ja", "AuthRestoreモジュールのボタンを削除"),
+    description_localized("ru", "Удалить кнопку модуля AuthRestore"),
+    description_localized("es-ES", "Eliminar el botón del módulo AuthRestore"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

@@ -1,11 +1,15 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Change the role given after verify.
+/// Set new roles for the AuthRestore module
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "roles",
+    description_localized("fr", "Définir un nouveau rôle pour le module AuthRestore"),
+    description_localized("ja", "AuthRestoreモジュールの新しいロールを設定"),
+    description_localized("ru", "Установить новые роли для модуля AuthRestore"),
+    description_localized("es-ES", "Establecer nuevos roles para el módulo AuthRestore"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn authrestore_roles(
