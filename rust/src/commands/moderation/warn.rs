@@ -30,6 +30,23 @@ pub async fn mod_warn(
     #[description = "The reason why you want to warn this member"]
     reason: String,
 ) -> Result<(), anyhow::Error> {
+    // Prefix count-check first (mirrors checkCommandArgs in
+    // method.ts:500-514 — counts before per-arg validation). Poise
+    // backtracks `Option<User>` greedily: with only a mention present
+    // the member parse succeeds, `reason` then fails, and poise
+    // retries with member=None + reason=mention, reaching the
+    // not-found leg for a present member. Fewer than 2 tokens means
+    // the required reason is missing → caret usage embed (prod
+    // behavior for `.warn @X`), never the member reply.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if !warn_prefix_complete(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -135,6 +152,15 @@ pub async fn mod_warn(
     Ok(())
 }
 
+/// Prefix completeness gate: member + reason (2 whitespace-separated
+/// tokens minimum). Below that the required reason is missing, so the
+/// caller renders the caret usage embed instead of letting poise's
+/// `Option<User>` backtrack steal the lone mention into `reason` and
+/// hit the member-not-found leg for a present member.
+pub fn warn_prefix_complete(args: &str) -> bool {
+    args.split_whitespace().count() >= 2
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,5 +175,13 @@ mod tests {
         let cmd = mod_warn();
         let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
         assert_eq!(names, vec!["reason", "member"]);
+    }
+
+    #[test]
+    fn warn_prefix_completeness_gate() {
+        assert!(!warn_prefix_complete(""));
+        assert!(!warn_prefix_complete("<@123>"));
+        assert!(warn_prefix_complete("<@123> rrr"));
+        assert!(warn_prefix_complete("<@123> some longer reason"));
     }
 }

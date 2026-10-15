@@ -909,7 +909,7 @@ async fn cooldown_denial(ctx: Ctx<'_>, remaining: std::time::Duration) {
 /// numbers, attachments): the caret description from prefix_args (same
 /// hybridcommands_args_error_embed_desc template), red like
 /// sendErrorMessage, shared bot footer with icon when available.
-async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
+pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
     if !matches!(ctx, poise::Context::Prefix(_)) {
         // Slash args are Discord-validated; keep the legacy member key.
         denial_reply(
