@@ -200,14 +200,14 @@ pub async fn gc_support(
             )
             .await?;
         } else {
-            // Empty bio input is kept as-is (TS stores a null/empty input
-            // for `bio` and renders `${input}` verbatim; no extra
-            // validation exists there, so none is added here).
+            // TS `support.ts:251`: `.replace("${input}", input!)` — a
+            // missing bio input is null at runtime, which JS coerces to
+            // the literal "null" (never "").
             ctx.say(
                 crate::lang::get(&code, "support_command_work")
                     .map(|s| {
                         s.replace("${interaction.guild.name}", &guild_name)
-                            .replace("${input}", input.as_deref().unwrap_or_default())
+                            .replace("${input}", input.as_deref().unwrap_or("null"))
                             .replace("${roles.id}", &role.id.get().to_string())
                     })
                     .unwrap_or_else(|| "Support on.".to_string()),
