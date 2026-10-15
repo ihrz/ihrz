@@ -10227,6 +10227,17 @@ impl serenity::EventHandler for Handler {
             let _ =
                 crate::commands::confession::main::handle_confess_button(&ctx, &comp, &self.pool)
                     .await;
+        } else if let Some(rest) =
+            id.strip_prefix(crate::commands::confession::main::CONFESS_PUB_PREFIX)
+        {
+            // Post-submit privacy toggle (`confess-pub:anon:<code>` /
+            // `confess-pub:named:<code>`).
+            if let Some((mode, code)) = rest.split_once(':') {
+                let _ = crate::commands::confession::main::handle_confess_publish(
+                    &ctx, &comp, &self.pool, mode, code,
+                )
+                .await;
+            }
         } else if id.starts_with(crate::commands::confession::main::CONFESSIONRES_PREFIX) {
             let _ = crate::commands::confession::main::handle_confession_response(
                 &ctx, &comp, &self.pool,

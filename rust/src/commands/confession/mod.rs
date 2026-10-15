@@ -428,8 +428,6 @@ pub async fn handle_confess_button(
         now,
     )
     .unwrap_or_else(|_| format!("{now:06}"));
-    let mut posted_id: Option<u64> = None;
-    let mut thread_id: Option<u64> = None;
     let title = crate::lang::get(&lang_code, "confession_module_modal_title").unwrap_or_default();
     let label = crate::lang::get(&lang_code, "confession_module_modal_components1_label")
         .unwrap_or_default();
@@ -438,11 +436,11 @@ pub async fn handle_confess_button(
         "confession_module_modal_components1_placeholder",
     )
     .unwrap_or_default();
-    // Privacy toggle. Mirrors the `case_private` checkbox (default true)
-    // in new-confession-button.ts; native modals have no checkbox, so a
-    // short yes/no field carries it (empty = private like the TS default).
-    let private_label = crate::lang::get(&lang_code, "confession_module_modal_components2_label")
-        .unwrap_or_else(|| "Is this private?".to_string());
+    // Text field only. The TS `case_private` checkbox (Label+Checkbox
+    // components, types 18/19) is unbuildable AND unreadable on
+    // serenity 0.12 (unknown to its deserializer — the submit would be
+    // unparseable, values silently dropped). The privacy toggle is
+    // therefore a post-submit ephemeral choice (see handle_confess_publish).
     let modal = serenity::CreateModal::new("confess-modal", title).components(vec![
         serenity::CreateActionRow::InputText(
             serenity::CreateInputText::new(
@@ -454,19 +452,14 @@ pub async fn handle_confess_button(
             .min_length(2)
             .max_length(2500),
         ),
-        serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                private_label,
-                "confess-private",
-            )
-            .placeholder("yes")
-            .min_length(1)
-            .max_length(3),
-        ),
     ]);
-    comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
-        .await?;
+    if let Err(e) = comp
+        .create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
+        .await
+    {
+        tracing::warn!("confess modal open failed: {e}");
+        return Ok(());
+    }
     let Some(submit) = crate::commands::await_modal_submit(ctx, comp, "confess-modal").await else {
         tracing::info!(
             "confess modal: no submit (timeout/duplicate) for {}",
@@ -475,35 +468,92 @@ pub async fn handle_confess_button(
         return Ok(());
     };
     let mut text = String::new();
-    let mut private_raw: Option<String> = None;
     for row in &submit.data.components {
         if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
             if input.custom_id == "confess-text" {
                 text = input.value.clone().unwrap_or_default();
-            } else if input.custom_id == "confess-private" {
-                private_raw = input.value.clone();
             }
         }
     }
-    // `case_private` default true: anonymous unless the input is an
-    // explicit no-like answer (`no`/`n`/`non`).
-    let private = parse_confession_private(private_raw.as_deref());
     text = crate::funcs::mask_link(&text);
     if text.len() < 2 {
         tracing::debug!("confess submit dropped: text too short");
         return Ok(());
     }
+    // Privacy toggle (post-submit ephemeral choice): the TS
+    // `case_private` checkbox cannot be built/read on serenity 0.12,
+    // so the choice happens here with two buttons instead of typing.
+    // Default-true preserved: ignoring this message posts nothing.
+    confess_pending_store(
+        comp.user.id.get(),
+        PendingConfession {
+            code: code.clone(),
+            text: text.clone(),
+            target_ch,
+            bound_msg,
+            lang_code: lang_code.clone(),
+            author_id: comp.user.id.get(),
+            author_name: comp
+                .user
+                .global_name
+                .clone()
+                .unwrap_or_else(|| comp.user.name.clone()),
+            author_avatar: comp.user.avatar_url(),
+            created_ms: now,
+        },
+    );
+    let row = serenity::CreateActionRow::Buttons(vec![
+        serenity::CreateButton::new(format!("{CONFESS_PUB_PREFIX}anon:{code}"))
+            .label("🔒 Anonyme")
+            .style(serenity::ButtonStyle::Success),
+        serenity::CreateButton::new(format!("{CONFESS_PUB_PREFIX}named:{code}"))
+            .label("👤 Avec mon nom")
+            .style(serenity::ButtonStyle::Secondary),
+    ]);
     let _ = submit
-        .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
+        .create_response(
+            ctx,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content("Publier cette confession :")
+                    .components(vec![row])
+                    .ephemeral(true),
+            ),
+        )
         .await;
+    Ok(())
+}
+
+/// Publish a pending confession (shared by the anon/named publish
+/// buttons). Extracted from the post-submit half of
+/// `handle_confess_button`: embed, nonce, thread, post, cooldown stamp,
+/// archive, mod-log, panel rotation. Returns posted message/thread ids.
+#[allow(clippy::too_many_arguments)]
+pub async fn publish_confession(
+    http: &std::sync::Arc<serenity::Http>,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    target_ch: u64,
+    bound_msg: Option<u64>,
+    code: &str,
+    text: &str,
+    private: bool,
+    author_id: u64,
+    author_name: &str,
+    author_global_name: Option<String>,
+    author_avatar: Option<String>,
+) -> (Option<u64>, Option<u64>) {
+    let mut posted_id: Option<u64> = None;
+    let mut thread_id: Option<u64> = None;
     let thread_on =
-        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.CONFESSION.thread")
+        crate::commands::owner::main::routed_get(pool, gid, gid, "GUILD.CONFESSION.thread")
             .await
             .map(|v| v == "yes")
             .unwrap_or(false);
     // Public embed title mirrors `### <field> #<code>` in
     // new-confession-button.ts.
-    let field = crate::lang::get(&lang_code, "help_confession_fields").unwrap_or_default();
+    let field = crate::lang::get(lang_code, "help_confession_fields").unwrap_or_default();
     let mut embed = serenity::CreateEmbed::default()
         .description(format!("### {field} #{code}\n\n`{text}`"))
         .colour(2829617)
@@ -512,12 +562,10 @@ pub async fn handle_confess_button(
     // Mirrors the `!view` branch (user_icon.png, globalName||username).
     let mut files: Vec<serenity::CreateAttachment> = Vec::new();
     if !private {
-        let name = comp
-            .user
-            .global_name
+        let name = author_global_name
             .clone()
-            .unwrap_or_else(|| comp.user.name.clone());
-        if let Some(url) = comp.user.avatar_url() {
+            .unwrap_or_else(|| author_name.to_string());
+        if let Some(url) = author_avatar.clone() {
             if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
                 files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
                 embed = embed.footer(
@@ -551,7 +599,7 @@ pub async fn handle_confess_button(
     // surface, mirroring new-confession-button.ts.
     if thread_on {
         let respond_label =
-            crate::lang::get(&lang_code, "confession_channel_button_name").unwrap_or_default();
+            crate::lang::get(lang_code, "confession_channel_button_name").unwrap_or_default();
         message = message.button(
             serenity::CreateButton::new(format!("{CONFESSIONRES_PREFIX}{code}"))
                 .label(respond_label)
@@ -559,7 +607,7 @@ pub async fn handle_confess_button(
         );
     }
     if let Ok(posted) = serenity::ChannelId::new(target_ch)
-        .send_message(&ctx.http, message)
+        .send_message(http, message)
         .await
     {
         posted_id = Some(posted.id.get());
@@ -567,7 +615,7 @@ pub async fn handle_confess_button(
             if let Ok(thread) = posted
                 .channel_id
                 .create_thread_from_message(
-                    &ctx.http,
+                    http,
                     posted.id,
                     serenity::CreateThread::new(format!("{field} #{code}"))
                         .audit_log_reason("Pic Only"),
@@ -575,10 +623,9 @@ pub async fn handle_confess_button(
                 .await
             {
                 // Mirrors `x.edit({ invitable: true, locked: false,
-                // archived: false })` after startThread in
+                // archived: false }) after startThread in
                 // new-confession-button.ts.
-                let _ = ctx
-                    .http
+                let _ = http
                     .edit_thread(
                         thread.id,
                         &serenity::EditThread::new()
@@ -595,6 +642,7 @@ pub async fn handle_confess_button(
     // Cooldown stamped at post time (mirrors the tempTable.set(Date.now())
     // after posting in new-confession-button.ts), not at click time:
     // global temp-table scope like the TS global cooldown.
+    let last_key = format!("CONFESSION_LAST.{author_id}");
     let _ = crate::commands::owner::main::routed_set(
         pool,
         "temp",
@@ -612,12 +660,12 @@ pub async fn handle_confess_button(
     // table walk and the legacy kv scan see the row.
     let _ = crate::commands::owner::main::routed_set(
         pool,
-        &gid,
-        &gid,
+        gid,
+        gid,
         &format!("GUILD.CONFESSION.ALL_CONFESSIONS.{post_ms}"),
         &serde_json::json!({
             "code": code,
-            "userId": comp.user.id.get().to_string(),
+            "userId": author_id.to_string(),
             "timestamp": post_ms,
             "private": private,
             "threadChannel": thread_id.map(|t| t.to_string()),
@@ -630,15 +678,15 @@ pub async fn handle_confess_button(
     // Mod log mirrors the SERVER_LOGS.confession post in
     // new-confession-button.ts (title key confession_embed_logs_title).
     post_confession_log(
-        &ctx.http,
+        http,
         pool,
         &ConfessionLog {
-            gid: &gid,
-            lang_code: &lang_code,
+            gid,
+            lang_code,
             title_key: "confession_embed_logs_title",
-            code: &code,
-            text: &text,
-            author_id: comp.user.id.get(),
+            code,
+            text,
+            author_id,
         },
     )
     .await;
@@ -650,7 +698,7 @@ pub async fn handle_confess_button(
     // Best-effort, silent.
     if let Some(mid) = bound_msg {
         if let Ok(panel_msg) = serenity::ChannelId::new(target_ch)
-            .message(&ctx.http, serenity::MessageId::new(mid))
+            .message(http, serenity::MessageId::new(mid))
             .await
         {
             let old_embed = panel_msg.embeds.first().cloned();
@@ -676,19 +724,19 @@ pub async fn handle_confess_button(
                         .and_then(|l| l.as_str())
                         .map(|s| s.to_string())
                 });
-            let _ = panel_msg.delete(&ctx.http).await;
+            let _ = panel_msg.delete(http).await;
             if let (Some(re_embed), Some(label)) = (old_embed, old_label) {
                 // Fresh footer on the repost. Mirrors footerBuilder +
                 // footerAttachmentBuilder in the TS rotation repost: the
                 // old embed is not reused verbatim, the bot footer only
                 // refreshes here.
                 let footer_name =
-                    crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botName")
+                    crate::commands::owner::main::routed_get(pool, gid, gid, "BOT.botName")
                         .await
                         .filter(|s| !s.trim().is_empty())
                         .unwrap_or_else(|| "iHorizon".to_string());
                 let footer_icon =
-                    crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botPFP")
+                    crate::commands::owner::main::routed_get(pool, gid, gid, "BOT.botPFP")
                         .await
                         .and_then(|s| crate::emojis::base64_decode(&s));
                 let mut repost = serenity::CreateMessage::new()
@@ -711,13 +759,13 @@ pub async fn handle_confess_button(
                         .add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
                 }
                 if let Ok(posted) = serenity::ChannelId::new(target_ch)
-                    .send_message(&ctx.http, repost)
+                    .send_message(http, repost)
                     .await
                 {
                     let _ = crate::commands::owner::main::routed_set(
                         pool,
-                        &gid,
-                        &gid,
+                        gid,
+                        gid,
                         "GUILD.CONFESSION.panel",
                         &channel::panel_store_json(target_ch, posted.id.get()),
                     )
@@ -725,6 +773,121 @@ pub async fn handle_confess_button(
                 }
             }
         }
+    }
+
+    (posted_id, thread_id)
+}
+
+/// Pending confession awaiting the privacy toggle choice.
+pub struct PendingConfession {
+    pub code: String,
+    pub text: String,
+    pub target_ch: u64,
+    pub bound_msg: Option<u64>,
+    pub lang_code: String,
+    pub author_id: u64,
+    pub author_name: String,
+    pub author_avatar: Option<String>,
+    pub created_ms: u64,
+}
+
+static CONFESS_PENDING: std::sync::OnceLock<
+    std::sync::Mutex<std::collections::HashMap<u64, PendingConfession>>,
+> = std::sync::OnceLock::new();
+
+fn confess_pending() -> &'static std::sync::Mutex<std::collections::HashMap<u64, PendingConfession>>
+{
+    CONFESS_PENDING.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+}
+
+/// Store a pending confession (sweeps entries older than 15 min).
+/// Older pending for the same user is replaced (latest submit wins).
+pub fn confess_pending_store(user_id: u64, pending: PendingConfession) {
+    let lock = confess_pending();
+    let mut map = lock.lock().unwrap_or_else(|e| e.into_inner());
+    map.retain(|_, v| pending.created_ms.saturating_sub(v.created_ms) < 900_000);
+    map.insert(user_id, pending);
+}
+
+/// Take a pending confession when the code matches (single use).
+pub fn confess_pending_take(user_id: u64, code: &str) -> Option<PendingConfession> {
+    let lock = confess_pending();
+    let mut map = lock.lock().unwrap_or_else(|e| e.into_inner());
+    match map.get(&user_id) {
+        Some(p) if p.code == code => map.remove(&user_id),
+        _ => None,
+    }
+}
+
+/// `confess-pub:<mode>:<code>` publish choice (post-submit ephemeral
+/// toggle). `mode` is `anon` or `named`.
+pub const CONFESS_PUB_PREFIX: &str = "confess-pub:";
+/// Handle a publish-toggle press: validate the pending confession,
+/// publish with the chosen privacy, confirm ephemerally.
+pub async fn handle_confess_publish(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    pool: &crate::db::Pool,
+    mode: &str,
+    code: &str,
+) -> anyhow::Result<()> {
+    let Some(pending) = confess_pending_take(comp.user.id.get(), code) else {
+        let _ = comp
+            .create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .content("Confession expirée — soumets à nouveau depuis le panel.")
+                        .ephemeral(true),
+                ),
+            )
+            .await;
+        return Ok(());
+    };
+    let Some(guild_id) = comp.guild_id else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let private = mode != "named";
+    let (posted, _) = publish_confession(
+        &ctx.http,
+        pool,
+        &gid,
+        &pending.lang_code,
+        pending.target_ch,
+        pending.bound_msg,
+        &pending.code,
+        &pending.text,
+        private,
+        pending.author_id,
+        &pending.author_name,
+        None,
+        pending.author_avatar.clone(),
+    )
+    .await;
+    let msg = if posted.is_some() {
+        if private {
+            "Confession publiée anonymement."
+        } else {
+            "Confession publiée avec ton nom."
+        }
+    } else {
+        "Échec de publication — réessaie."
+    };
+    // Edit the ephemeral toggle message (the submit ack) into the
+    // confirmation, buttons removed.
+    if let Err(e) = comp
+        .create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::UpdateMessage(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content(msg)
+                    .components(vec![]),
+            ),
+        )
+        .await
+    {
+        tracing::debug!("confess publish confirm failed: {e}");
     }
     Ok(())
 }
@@ -1105,6 +1268,39 @@ mod tests {
         assert!(!parse_confession_private(Some("n")));
         assert!(!parse_confession_private(Some("non")));
         assert!(parse_confession_private(Some("bogus")));
+    }
+
+    fn pending(code: &str, created_ms: u64) -> PendingConfession {
+        PendingConfession {
+            code: code.to_string(),
+            text: "t".to_string(),
+            target_ch: 1,
+            bound_msg: None,
+            lang_code: "en-US".to_string(),
+            author_id: 7,
+            author_name: "u".to_string(),
+            author_avatar: None,
+            created_ms,
+        }
+    }
+
+    #[test]
+    fn pending_take_matches_code_single_use() {
+        confess_pending_store(7, pending("ABC123", 1_000));
+        // Wrong code leaves the entry in place.
+        assert!(confess_pending_take(7, "WRONG").is_none());
+        assert_eq!(confess_pending_take(7, "ABC123").unwrap().text, "t");
+        // Single use: second take finds nothing.
+        assert!(confess_pending_take(7, "ABC123").is_none());
+    }
+
+    #[test]
+    fn pending_store_sweeps_expired() {
+        confess_pending_store(8, pending("OLD", 0));
+        confess_pending_store(8, pending("NEW", 1_000_000));
+        // The sweep on store drops entries older than 15 min.
+        assert!(confess_pending_take(8, "OLD").is_none());
+        assert!(confess_pending_take(8, "NEW").is_some());
     }
 
     #[test]
