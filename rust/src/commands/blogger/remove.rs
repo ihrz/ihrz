@@ -34,10 +34,15 @@ pub async fn blogger_remove(
     let before = blogs.len();
     blogs.retain(|b| b.id != id);
     if blogs.len() == before {
-        ctx.say(say(
-            "blogger_blog_remove_not_found",
-            "No RSS feed found with this ID.",
-        ))
+        // TS `!remove.ts:72-75` replies not-found ephemeral.
+        ctx.send(
+            poise::CreateReply::default()
+                .content(say(
+                    "blogger_blog_remove_not_found",
+                    "No RSS feed found with this ID.",
+                ))
+                .ephemeral(true),
+        )
         .await?;
         return Ok(());
     }
