@@ -1,36 +1,17 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Setsuggest config action choice. Mirrors the `action` option `choices`
-/// in setsuggest.ts:71-92 (`config`): slash shows the localized display
-/// names, the handler maps each variant back to the TS `value`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum SetsuggestAction {
-    #[name = "on"]
-    #[name_localized("en-US", "Power On the Suggestion Module")]
-    #[name_localized("en-GB", "Power On the Suggestion Module")]
-    #[name_localized("fr", "Activer le module de suggestion")]
-    #[name_localized("ja", "power_on_the_suggestion_module")]
-    #[name_localized("ru", "power_on_the_suggestion_module")]
-    #[name_localized("es-ES", "power_on_the_suggestion_module")]
-    On,
-    #[name = "off"]
-    #[name_localized("en-US", "Power Off the Suggestion Module")]
-    #[name_localized("en-GB", "Power Off the Suggestion Module")]
-    #[name_localized("fr", "Désactiver le module de suggestion")]
-    #[name_localized("ja", "power_off_the_suggestion_module")]
-    #[name_localized("ru", "power_off_the_suggestion_module")]
-    #[name_localized("es-ES", "power_off_the_suggestion_module")]
-    Off,
-}
-
-impl SetsuggestAction {
-    /// TS `value` (`on` / `off`).
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::On => "on",
-            Self::Off => "off",
-        }
+/// Resolve the free-text `action` word to the TS `!config.ts:46-69`
+/// branch: exact `"on"` enables, exact `"off"` disables, anything
+/// else (missing, bogus, the old power-on/enable extras, case
+/// variants) falls through silently — the TS `if / else if` has no
+/// trailing else, so prod answers those legs with silence, never a
+/// usage embed. Pure for unit tests.
+pub fn setsuggest_config_enabled(action: Option<&str>) -> Option<bool> {
+    match action {
+        Some("on") => Some(true),
+        Some("off") => Some(false),
+        _ => None,
     }
 }
 
@@ -139,19 +120,22 @@ pub async fn setsuggest_config(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "What you want to do ?"]
-    action: SetsuggestAction,
+    // Free-text on purpose: the TS handler compares the raw string
+    // (`action === "on" / "off"`, setsuggest.ts choices are
+    // slash-UI-only values) and falls through silently on anything
+    // else. A choice enum would make poise answer missing/bogus
+    // prefix words with a usage-error embed prod never sends.
+    action: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let action = action.as_str();
+    // TS fall-through (!config.ts:46-69): only exact on/off act.
+    let Some(enabled) = setsuggest_config_enabled(action.as_deref()) else {
+        return Ok(());
+    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
-    // TS choices are on/off; accept the membercount-style power variants too.
-    let enabled = matches!(
-        action.to_ascii_lowercase().as_str(),
-        "on" | "power on" | "enable"
-    );
     // JSON boolean write, mirroring !config.ts `db.set(..., false/true)`.
     save_suggest_disable(pool, &gid, !enabled).await?;
     let key = if enabled {
@@ -176,37 +160,23 @@ pub async fn setsuggest_config(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use poise::ChoiceParameter as _;
+    use super::setsuggest_config_enabled;
 
     #[test]
-    fn setsuggest_action_choices_mirror_ts_names_values_and_locales() {
-        let names: Vec<_> = SetsuggestAction::list()
-            .into_iter()
-            .map(|c| c.name)
-            .collect();
-        assert_eq!(names, vec!["on", "off"]);
-        assert_eq!(SetsuggestAction::On.as_str(), "on");
-        assert_eq!(SetsuggestAction::Off.as_str(), "off");
-        assert_eq!(
-            SetsuggestAction::from_name("on"),
-            Some(SetsuggestAction::On)
-        );
-        assert_eq!(
-            SetsuggestAction::from_name("off"),
-            Some(SetsuggestAction::Off)
-        );
-        assert_eq!(SetsuggestAction::from_name("bogus"), None);
-        assert_eq!(SetsuggestAction::from_index(0), Some(SetsuggestAction::On));
-        assert_eq!(SetsuggestAction::from_index(1), Some(SetsuggestAction::Off));
-        let list = SetsuggestAction::list();
-        assert_eq!(
-            list[0].localizations.get("fr").map(String::as_str),
-            Some("Activer le module de suggestion")
-        );
-        assert_eq!(
-            list[1].localizations.get("fr").map(String::as_str),
-            Some("Désactiver le module de suggestion")
-        );
+    fn setsuggest_config_matches_ts_exact_branches_and_silent_fallthrough() {
+        // TS `action === "on"` / `=== "off"` (!config.ts:46-69).
+        assert_eq!(setsuggest_config_enabled(Some("on")), Some(true));
+        assert_eq!(setsuggest_config_enabled(Some("off")), Some(false));
+        // No trailing else in TS: missing, bogus, the old
+        // power-on/enable extras and case variants all fall through
+        // silently (no reply, no write).
+        assert_eq!(setsuggest_config_enabled(None), None);
+        assert_eq!(setsuggest_config_enabled(Some("")), None);
+        assert_eq!(setsuggest_config_enabled(Some("bogus")), None);
+        assert_eq!(setsuggest_config_enabled(Some("power on")), None);
+        assert_eq!(setsuggest_config_enabled(Some("enable")), None);
+        assert_eq!(setsuggest_config_enabled(Some("On")), None);
+        assert_eq!(setsuggest_config_enabled(Some("OFF")), None);
+        assert_eq!(setsuggest_config_enabled(Some(" on")), None);
     }
 }
