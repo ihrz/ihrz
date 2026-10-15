@@ -349,6 +349,21 @@ pub fn usage_error_description(
         .replace("${wrongArgumentName}", &wrong_name)
 }
 
+/// TS-exact usage token for a choice param whose TS `value`s differ
+/// from the slash display names. Poise 0.6 erases values (only `name`
+/// survives in the registry), but `getArgumentOptionTypeWithOptions`
+/// (method.ts:294-299) renders choice VALUES, and `required` mirrors
+/// the TS decl — not the poise Option-ness. Returns
+/// `(type_label, required)`; `None` keeps the generic rendering.
+pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static str, bool)> {
+    match (qualified, param) {
+        // backup.ts create/save-message: values `yes`/`no` (names
+        // `Yes`/`No`), required:true -> prod `[yes/no]`.
+        ("backup create", "save-message") => Some(("yes/no", true)),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -656,5 +671,18 @@ mod tests {
         );
         assert_eq!(split_args(""), vec![String::new()]);
         assert!(is_missing_text_args(&split_args(""), &text_specs()[..1]));
+    }
+
+    #[test]
+    fn choice_token_override_pins_ts_values_not_names() {
+        // backup create/save-message: TS renders choice VALUES
+        // (`yes/no`, required) — never the poise-erased display names
+        // (`Yes/No`, optional).
+        assert_eq!(
+            choice_token_override("backup create", "save-message"),
+            Some(("yes/no", true))
+        );
+        assert_eq!(choice_token_override("backup create", "other"), None);
+        assert_eq!(choice_token_override("utils dm", "save-message"), None);
     }
 }

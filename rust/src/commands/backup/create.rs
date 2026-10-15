@@ -58,6 +58,14 @@ pub fn save_messages_or_usage(save_messages: Option<&str>, is_prefix: bool) -> O
     }
 }
 
+/// Bare-prefix guard (TS checkCommandArgs order): with no save-message
+/// word the prefix call answers the caret usage embed before the defer
+/// and the owner gate. Pins that a missing arg takes the usage leg,
+/// never the owner-denial leg prod never reaches bare.
+pub fn backup_create_prefix_needs_usage(save_messages: Option<SaveMessagesChoice>) -> bool {
+    save_messages.is_none()
+}
+
 /// Create a backup!
 #[poise::command(
     slash_command,
@@ -84,6 +92,14 @@ pub async fn backup_create(
     #[rename = "save-message"]
     save_messages: Option<SaveMessagesChoice>,
 ) -> Result<(), anyhow::Error> {
+    // TS guard order (checkCommandArgs runs before the handler, and
+    // backup.ts:99 declares `save-message` required): a bare prefix
+    // call never reaches the defer or the owner gate — prod answers
+    // the caret usage embed (`+backup-create [yes/no]`).
+    if backup_create_prefix_needs_usage(save_messages) && matches!(ctx, poise::Context::Prefix(_)) {
+        crate::bot::prefix_usage_denial(ctx, None).await;
+        return Ok(());
+    }
     // Defer up front: the snapshot walks message pages plus per-emoji
     // image fetches, past the 3s interaction token (backup.ts:260
     // `thinking: true`).
@@ -310,5 +326,19 @@ mod tests {
             render_backup_create_log("<@${interaction.user.id}> created a backup!", 42),
             "<@42> created a backup!"
         );
+    }
+
+    #[test]
+    fn bare_prefix_takes_usage_before_owner_gate() {
+        // WAVE-20261014p: bare `.backup create` must render the caret
+        // usage embed (prod `+backup-create [yes/no]`), never the
+        // owner-gate denial — args validate before the gate.
+        assert!(backup_create_prefix_needs_usage(None));
+        assert!(!backup_create_prefix_needs_usage(Some(
+            SaveMessagesChoice::Yes
+        )));
+        assert!(!backup_create_prefix_needs_usage(Some(
+            SaveMessagesChoice::No
+        )));
     }
 }

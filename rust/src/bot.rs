@@ -935,8 +935,17 @@ pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
         .iter()
         .map(|pm| {
             let label = usage_type_label(pm);
-            prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
-                .with_channel_types(pm.channel_types.clone())
+            let mut spec = prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
+                .with_channel_types(pm.channel_types.clone());
+            // TS renders choice VALUES (not slash display names) with
+            // the TS decl's required-ness (choice_token_override).
+            if let Some((ts_label, ts_required)) =
+                prefix_args::choice_token_override(&ctx.command().qualified_name, &pm.name)
+            {
+                spec.type_label = ts_label.to_string();
+                spec.required = ts_required;
+            }
+            spec
         })
         .collect();
     if specs.is_empty() {
