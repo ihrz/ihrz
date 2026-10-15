@@ -365,6 +365,11 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // but poise 0.6 erases required-ness on Option params, so the
         // generic render would emit `<attachment>`.
         ("util unzip-emojis", "zip_file") => Some(("attachment", true)),
+        // ticket.ts config/action: required:true with choices off/on
+        // (prod WAVE-J answers the bare prefix with `[off/on]`), but
+        // poise 0.6 erases required-ness on Option params, so the
+        // generic render would emit `<off/on>`.
+        ("ticket config", "action") => Some(("off/on", true)),
         _ => None,
     }
 }
@@ -697,5 +702,13 @@ mod tests {
             Some(("attachment", true))
         );
         assert_eq!(choice_token_override("util unzip-emojis", "other"), None);
+        // ticket config/action: TS decl required:true renders `[off/on]`
+        // on the bare prefix (prod WAVE-J) — never the poise-erased
+        // `<off/on>`.
+        assert_eq!(
+            choice_token_override("ticket config", "action"),
+            Some(("off/on", true))
+        );
+        assert_eq!(choice_token_override("ticket config", "other"), None);
     }
 }

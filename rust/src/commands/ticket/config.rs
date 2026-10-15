@@ -45,6 +45,14 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
     }
 }
 
+/// Bare-prefix guard (TS checkCommandArgs order): with no action word
+/// the prefix call answers the caret usage embed before the handler.
+/// Pins that a missing arg takes the usage leg, never the silent
+/// no-op prod never reaches bare.
+pub fn ticket_config_prefix_needs_usage(action: &Option<TicketConfigAction>) -> bool {
+    action.is_none()
+}
+
 /// Disable ticket commands on a guild!
 #[poise::command(
     slash_command,
@@ -71,6 +79,18 @@ pub async fn ticket_config(
     #[description_localized("es-ES", "Que quieres hacer?")]
     action: Option<TicketConfigAction>,
 ) -> Result<(), anyhow::Error> {
+    // TS guard order (commandExecutor.ts runCommand: checkNativePermission
+    // passes for admins, then checkCommandArgs before the handler, and
+    // ticket.ts:184 declares `action` required:true with choices
+    // off/on): a bare prefix call from an admin never reaches the
+    // handler — prod answers the caret usage embed
+    // (`+ticket-config [off/on]`). Non-admins never reach here either:
+    // poise default_member_permissions denies first, like TS
+    // checkNativePermission before checkCommandArgs.
+    if ticket_config_prefix_needs_usage(&action) && matches!(ctx, poise::Context::Prefix(_)) {
+        crate::bot::prefix_usage_denial(ctx, None).await;
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -211,6 +231,21 @@ mod tests {
         }
     }
 
+    #[test]
+    fn bare_prefix_takes_usage_before_handler() {
+        use super::ticket_config_prefix_needs_usage;
+        // Bare prefix (None) takes the caret usage leg prod answers;
+        // any supplied value reaches the handler (valid on/off act,
+        // bogus dies in the ArgumentParse caret leg, never here).
+        assert!(ticket_config_prefix_needs_usage(&None));
+        assert!(!ticket_config_prefix_needs_usage(&Some(
+            TicketConfigAction::On
+        )));
+        assert!(!ticket_config_prefix_needs_usage(&Some(
+            TicketConfigAction::Off
+        )));
+    }
+
     #[tokio::test]
     async fn disable_flag_dual_writes_table_and_legacy() {
         use crate::commands::owner::main::tbl_get_value;
@@ -227,5 +262,28 @@ mod tests {
         assert!(tbl_get_value(&pool, "g", "GUILD.TICKET.disable")
             .await
             .is_some());
+    }
+
+    #[test]
+    fn registry_key_matches_usage_override() {
+        // The `choice_token_override` pin in prefix_args keys on the
+        // runtime poise qualified name (`parent leaf`, filled by
+        // poise's set_qualified_names at framework build, NOT present
+        // on the raw `all()` vec): compose the path the same way so a
+        // rename of either level fails here instead of silently
+        // missing the override in prod.
+        let cmds = crate::commands::all();
+        let ticket = cmds
+            .iter()
+            .find(|c| c.name == "ticket")
+            .expect("ticket parent missing");
+        let leaf = ticket
+            .subcommands
+            .iter()
+            .find(|c| c.name == "config")
+            .expect("config leaf missing");
+        assert_eq!(format!("{} {}", ticket.name, leaf.name), "ticket config");
+        assert_eq!(leaf.parameters.len(), 1);
+        assert_eq!(leaf.parameters[0].name, "action");
     }
 }
