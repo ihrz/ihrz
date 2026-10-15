@@ -1368,6 +1368,16 @@ pub fn ticket_bucket_without_channel(
 /// live callers' `parse` + `!= 0` gate). Returns `None` when the key is
 /// absent (caller keeps scanning); `Some` — even `Some(None)` — stops the
 /// scan, like the TS walk returning `?.author` at the first key hit.
+///
+/// `in`-operator note (`TicketSearch` uses `channelId in userTickets`,
+/// not an own-key lookup): on a hostile store this diverges three ways,
+/// all unreachable live (`channelId` is always a channel snowflake and
+/// writers store plain ticket objects) — (1) prototype names
+/// (`toString`/`constructor`/`hasOwnProperty`/`__proto__`, array
+/// `length`) hit the chain in TS but miss `Map::get` here; (2) array
+/// buckets hit small index keys in TS but miss `as_object` here;
+/// (3) null/primitive buckets THROW `TypeError` in TS (bare `in`, no
+/// guard) while this fn yields `None` and the caller walks on.
 pub fn ticket_bucket_owner_for_channel(
     bucket: &serde_json::Value,
     want: &str,
@@ -2668,6 +2678,54 @@ mod tests {
         for b in [json!("c1"), json!(7), json!(null), json!(true)] {
             assert_eq!(ticket_bucket_owner_for_channel(&b, "c1"), None);
         }
+    }
+
+    #[test]
+    fn ticket_search_in_operator_matches_ts_walk_legs() {
+        use serde_json::json;
+        // Own-key hit / miss / empty agree with `in` on plain ticket
+        // objects (22-case node battery replicating TicketSearch verbatim).
+        assert_eq!(
+            ticket_bucket_owner_for_channel(
+                &json!({"111": {"channel": "111", "author": "7"}}),
+                "111"
+            ),
+            Some(Some(7))
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(
+                &json!({"111": {"channel": "111", "author": "7"}}),
+                "999"
+            ),
+            None
+        );
+        assert_eq!(ticket_bucket_owner_for_channel(&json!({}), "111"), None);
+        // Prototype-chain names hit `in` in TS (inherited function/object)
+        // but miss the own-key lookup here — hostile-only delta, doc-noted
+        // on the fn (`channelId` is always a snowflake live).
+        for proto in ["toString", "constructor", "hasOwnProperty", "__proto__"] {
+            assert_eq!(ticket_bucket_owner_for_channel(&json!({}), proto), None);
+        }
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!([{"author": "1"}]), "length"),
+            None
+        );
+        // Array index keys hit `in` in TS but miss `as_object` here —
+        // same hostile-only delta.
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!([{"author": "1"}]), "0"),
+            None
+        );
+        // Null/primitive buckets THROW TypeError in TS (bare `in`) while
+        // this fn forgives to `None` — corrupt-store-only delta.
+        for b in [json!(null), json!(5), json!("abc"), json!(true)] {
+            assert_eq!(ticket_bucket_owner_for_channel(&b, "111"), None);
+        }
+        // Null ticket value: TS returns null (no author); `?.author` leg.
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"111": null}), "111"),
+            Some(None)
+        );
     }
 
     #[test]
