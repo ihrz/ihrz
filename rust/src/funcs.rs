@@ -3024,6 +3024,18 @@ pub async fn http_head(
 }
 
 /// Database round-trip latency in ms. Mirrors database_latency.ts.
+///
+/// Node ground truth (W6 slice 79): `Date.now()` before/after one
+/// `metasTable.get("LAST_WRITE")`, errors swallowed by try/catch, elapsed
+/// returned verbatim (normal read -> 0, throwing read -> 0, 25ms read ->
+/// 25, always an integer >= 0). The Rust port reads the missing
+/// `__ping__/__ping__` key instead (no metas table exists in db.rs; both
+/// are a single KV read round-trip) and `kv_get` already folds errors to
+/// `None`, matching the try/catch swallow leg. `Instant` (monotonic)
+/// replaces `Date.now()` (wall clock) so a mid-await NTP backstep cannot
+/// yield a negative diff; `.as_millis()` truncates to integer ms like
+/// `Date.now()`. TS upstream has zero callers (dead helper); the single
+/// Rust caller is the legacy status shape.
 pub async fn database_latency(pool: &crate::db::Pool) -> u128 {
     let start = std::time::Instant::now();
     let _ = crate::db::kv_get(pool, "__ping__", "__ping__").await;
@@ -3409,7 +3421,13 @@ mod funcs_part3_tests {
     #[tokio::test]
     async fn latency_nonnegative() {
         let pool = crate::db::memory_pool().await;
-        let _ = database_latency(&pool).await;
+        // Empty pool: kv_get folds the missing key to None (== TS
+        // try/catch swallow leg) and elapsed is still returned.
+        let ms = database_latency(&pool).await;
+        assert!(
+            ms < 60_000,
+            "in-memory round-trip must be instant, got {ms}ms"
+        );
     }
 }
 
