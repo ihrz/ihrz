@@ -127,6 +127,64 @@ pub fn is_sub_command(option_type: u8) -> bool {
 }
 
 // ---------------------------------------------------------------------------
+// findOptionRecursively (method.ts).
+// ---------------------------------------------------------------------------
+
+/// Minimal TS `Option` shape for the recursive search: only the `name`,
+/// `type` and optional `options` legs the helper reads.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FindOption {
+    pub name: String,
+    pub option_type: u8,
+    pub options: Option<Vec<FindOption>>,
+}
+
+impl FindOption {
+    pub fn leaf(name: &str, option_type: u8) -> Self {
+        Self {
+            name: name.to_string(),
+            option_type,
+            options: None,
+        }
+    }
+
+    pub fn branch(name: &str, option_type: u8, options: Vec<FindOption>) -> Self {
+        Self {
+            name: name.to_string(),
+            option_type,
+            options: Some(options),
+        }
+    }
+}
+
+/// Mirrors `findOptionRecursively`: pre-order DFS, strict (`===`) name match
+/// with no type gate on the name leg; descent only into Subcommand(1) /
+/// SubcommandGroup(2) options carrying an `options` array (`None` == the TS
+/// missing-`options` leg; `Some([])` recurses like the truthy empty array).
+/// No live callers either side (only self-recursion in TS) -- dead-helper
+/// parity like the discriminant helpers above.
+pub fn find_option_recursively<'a>(
+    options: &'a [FindOption],
+    subcommand_name: &str,
+) -> Option<&'a FindOption> {
+    for option in options {
+        if option.name == subcommand_name {
+            return Some(option);
+        }
+        if let Some(children) = option.options.as_ref() {
+            if option.option_type == OPTION_SUBCOMMAND_GROUP
+                || option.option_type == OPTION_SUBCOMMAND
+            {
+                if let Some(found) = find_option_recursively(children, subcommand_name) {
+                    return Some(found);
+                }
+            }
+        }
+    }
+    None
+}
+
+// ---------------------------------------------------------------------------
 // createAwesomeEmbed (pure payload).
 // ---------------------------------------------------------------------------
 
@@ -959,6 +1017,163 @@ mod tests {
         assert!(is_sub_command(OPTION_SUBCOMMAND));
         assert!(!is_sub_command(OPTION_SUBCOMMAND_GROUP));
         assert!(!is_sub_command(3));
+    }
+
+    #[test]
+    fn find_option_recursively_matches_ts_dfs_legs() {
+        // Pinned via node battery slice 103 (verbatim TS replica):
+        // pre-order DFS, strict name match, descent gated on type 1/2.
+        use super::{find_option_recursively, FindOption};
+        use super::{OPTION_SUBCOMMAND, OPTION_SUBCOMMAND_GROUP};
+        const STR: u8 = 3;
+        let show = |v: Option<&FindOption>| {
+            v.map(|o| format!("{}:{}", o.name, o.option_type))
+                .unwrap_or_else(|| "MISS".to_string())
+        };
+        assert_eq!(
+            show(find_option_recursively(&[FindOption::leaf("q", STR)], "q")),
+            "q:3"
+        );
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::branch(
+                    "mod",
+                    OPTION_SUBCOMMAND,
+                    vec![FindOption::leaf("ban", STR)]
+                )],
+                "ban"
+            )),
+            "ban:3"
+        );
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::branch(
+                    "g",
+                    OPTION_SUBCOMMAND_GROUP,
+                    vec![FindOption::branch(
+                        "s",
+                        OPTION_SUBCOMMAND,
+                        vec![FindOption::leaf("deep", STR)]
+                    )]
+                )],
+                "deep"
+            )),
+            "deep:3"
+        );
+        // Children of a String-typed option are never descended into.
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::branch(
+                    "w",
+                    STR,
+                    vec![FindOption::leaf("hid", STR)]
+                )],
+                "hid"
+            )),
+            "MISS"
+        );
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::branch(
+                    "a",
+                    OPTION_SUBCOMMAND,
+                    vec![FindOption::leaf("b", STR)]
+                )],
+                "zzz"
+            )),
+            "MISS"
+        );
+        assert_eq!(show(find_option_recursively(&[], "x")), "MISS");
+        // `Some([])` recurses like the truthy empty array, then continues.
+        assert_eq!(
+            show(find_option_recursively(
+                &[
+                    FindOption::branch("e", OPTION_SUBCOMMAND, vec![]),
+                    FindOption::leaf("t", STR),
+                ],
+                "t"
+            )),
+            "t:3"
+        );
+        // Pre-order: top-level match beats a deeper duplicate.
+        assert_eq!(
+            show(find_option_recursively(
+                &[
+                    FindOption::leaf("dup", STR),
+                    FindOption::branch(
+                        "g",
+                        OPTION_SUBCOMMAND_GROUP,
+                        vec![FindOption::leaf("dup", STR)]
+                    ),
+                ],
+                "dup"
+            )),
+            "dup:3"
+        );
+        // Earlier sibling subtree beats a later one.
+        assert_eq!(
+            show(find_option_recursively(
+                &[
+                    FindOption::branch(
+                        "g1",
+                        OPTION_SUBCOMMAND_GROUP,
+                        vec![FindOption::leaf("dup", 3)]
+                    ),
+                    FindOption::branch(
+                        "g2",
+                        OPTION_SUBCOMMAND_GROUP,
+                        vec![FindOption::leaf("dup", 4)]
+                    ),
+                ],
+                "dup"
+            )),
+            "dup:3"
+        );
+        // Strict (`===`) name match: case differs, no hit.
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::leaf("ban", STR)],
+                "Ban"
+            )),
+            "MISS"
+        );
+        // Group without an `options` key skips descent, siblings continue.
+        assert_eq!(
+            show(find_option_recursively(
+                &[
+                    FindOption::leaf("g", OPTION_SUBCOMMAND_GROUP),
+                    FindOption::leaf("t", STR),
+                ],
+                "t"
+            )),
+            "t:3"
+        );
+        // The group option itself matches by name.
+        assert_eq!(
+            show(find_option_recursively(
+                &[FindOption::branch(
+                    "g",
+                    OPTION_SUBCOMMAND_GROUP,
+                    vec![FindOption::leaf("x", STR)]
+                )],
+                "g"
+            )),
+            "g:2"
+        );
+        assert_eq!(
+            show(find_option_recursively(
+                &[
+                    FindOption::branch(
+                        "g",
+                        OPTION_SUBCOMMAND_GROUP,
+                        vec![FindOption::leaf("no", STR)]
+                    ),
+                    FindOption::leaf("want", OPTION_SUBCOMMAND),
+                ],
+                "want"
+            )),
+            "want:1"
+        );
     }
 
     #[test]
