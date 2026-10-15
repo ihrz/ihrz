@@ -669,21 +669,11 @@ fn ticket_owner_id(entries: &[(String, String)], channel_id: &str) -> Option<u64
             continue;
         }
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) {
-            if let Some(obj) = v.as_object() {
-                for (ch, data) in obj {
-                    if ch == channel_id
-                        || data.get("channel").and_then(|c| c.as_str()) == Some(channel_id)
-                    {
-                        if let Some(id) = data
-                            .get("author")
-                            .and_then(|a| a.as_str())
-                            .and_then(|a| a.parse::<u64>().ok())
-                            .filter(|id| *id != 0)
-                        {
-                            return Some(id);
-                        }
-                    }
-                }
+            // Pure verdict mirrors the ticketsManager.ts owner walks (key
+            // match only: a value-only match with a differing key is a
+            // miss in TS — corrupt-row-only delta, fixed here).
+            if let Some(owner) = ticket_bucket_owner_for_channel(&v, channel_id) {
+                return owner;
             }
         }
     }
@@ -1364,6 +1354,31 @@ pub fn ticket_bucket_without_channel(
             .filter(|(_, data)| data.get("channel").and_then(|c| c.as_str()) != Some(want))
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect(),
+    )
+}
+
+/// Owner-lookup twin for the `CloseTicket`/transcript/open/delete walks in
+/// ticketsManager.ts (`for user / for channel / channel === id ->
+/// .author`) plus `TicketSearch` (`channelId in userTickets`): the ticket
+/// KEY is the only match leg — `.channel` is never compared, so a key hit
+/// with a differing or missing `.channel` still yields the author, while a
+/// value-only match (key differs, `.channel` equals) is a miss. Optional
+/// chaining (`?.author`) maps null/primitive ticketData to no author.
+/// Returns the parsed author id (non-numeric and `0` yield `None`, like the
+/// live callers' `parse` + `!= 0` gate). Returns `None` when the key is
+/// absent (caller keeps scanning); `Some` — even `Some(None)` — stops the
+/// scan, like the TS walk returning `?.author` at the first key hit.
+pub fn ticket_bucket_owner_for_channel(
+    bucket: &serde_json::Value,
+    want: &str,
+) -> Option<Option<u64>> {
+    let obj = bucket.as_object()?;
+    let data = obj.get(want)?;
+    Some(
+        data.get("author")
+            .and_then(|a| a.as_str())
+            .and_then(|a| a.parse::<u64>().ok())
+            .filter(|id| *id != 0),
     )
 }
 
@@ -2592,6 +2607,67 @@ mod tests {
             ticket_bucket_without_channel(&json!({"123": {"channel": "999"}}), "123"),
             None
         );
+    }
+
+    #[test]
+    fn ticket_bucket_owner_matches_ts_key_legs() {
+        use serde_json::json;
+        // Key hit yields the author even when `.channel` differs or is
+        // missing (TS never compares the value).
+        assert_eq!(
+            ticket_bucket_owner_for_channel(
+                &json!({"c1": {"channel": "ZZZ", "author": "42"}}),
+                "c1"
+            ),
+            Some(Some(42))
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c1": {"author": "42"}}), "c1"),
+            Some(Some(42))
+        );
+        // Key hit stops the scan even with a useless author (`?.author`
+        // legs: null/primitive ticketData, missing/non-numeric/"0").
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c1": null}), "c1"),
+            Some(None)
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c1": 7}), "c1"),
+            Some(None)
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c1": {}}), "c1"),
+            Some(None)
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(
+                &json!({"c1": {"channel": "c1", "author": "nope"}}),
+                "c1"
+            ),
+            Some(None)
+        );
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c1": {"channel": "c1", "author": "0"}}), "c1"),
+            Some(None)
+        );
+        // Value-only match is a MISS (the fixed leg: old Rust returned
+        // the author here, TS walks on).
+        assert_eq!(
+            ticket_bucket_owner_for_channel(
+                &json!({"other": {"channel": "c1", "author": "42"}}),
+                "c1"
+            ),
+            None
+        );
+        // Plain misses: caller keeps scanning like the TS miss legs.
+        assert_eq!(
+            ticket_bucket_owner_for_channel(&json!({"c9": {"channel": "c9", "author": "1"}}), "c1"),
+            None
+        );
+        assert_eq!(ticket_bucket_owner_for_channel(&json!({}), "c1"), None);
+        for b in [json!("c1"), json!(7), json!(null), json!(true)] {
+            assert_eq!(ticket_bucket_owner_for_channel(&b, "c1"), None);
+        }
     }
 
     #[test]
