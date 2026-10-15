@@ -74,7 +74,9 @@ pub async fn custom_banner(
         return Ok(());
     };
     let token = crate::config::bot_token();
-    if action.trim().eq_ignore_ascii_case("reset") {
+    // TS `!banner.ts:53` is strict (`action === "reset"`): "RESET" or
+    // padded variants fall to the error leg, never PATCH.
+    if action.trim() == "reset" {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "custom_banner_reset").unwrap_or_else(|| {

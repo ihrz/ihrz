@@ -84,6 +84,9 @@ pub async fn custom_bio(
     #[description_localized("ja", "説明")]
     #[description_localized("ru", "Описание")]
     #[description_localized("es-ES", "La descripción")]
+    // TS prefix reads the whole tail (`longString(args!, 1)` in
+    // !bio.ts:51); #[rest] is prefix-only, slash still takes one value.
+    #[rest]
     bio: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let action = action.as_str();
@@ -96,7 +99,8 @@ pub async fn custom_bio(
         .await?;
         return Ok(());
     };
-    if action.trim().eq_ignore_ascii_case("reset") {
+    // TS `!bio.ts:54` is strict (`action === "reset"`).
+    if action.trim() == "reset" {
         // Reset restores the persisted default (TS `metasTable`
         // `BOT.user.bio`, else the bot username) — not an empty bio.
         // TS `!bio.ts` replies first, then PATCHes (like the other
