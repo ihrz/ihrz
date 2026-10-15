@@ -60,6 +60,13 @@ pub async fn gc_welcomer(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|m| m.roles.clone())
         .unwrap_or_default();
     let author = actx.author().clone();
+    // Collector bind: the panel answers only to its opener (see
+    // `crate::collector`); anyone else gets the ephemeral denial.
+    crate::collector::collector_bind(
+        &format!("welcomer:{ph_id}"),
+        author.id.get(),
+        crate::commands::welcomer_panel::main::WELCOMER_COLLECTOR_TIMEOUT_SECS as u64,
+    );
     let (components, files) = wp_main::render_panel_message(
         actx.serenity_context,
         pool,

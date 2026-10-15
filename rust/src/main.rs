@@ -15,6 +15,7 @@ mod backup_types;
 mod bot;
 mod cards;
 mod cmd_debug;
+mod collector;
 mod commands;
 mod config;
 mod core;

@@ -1047,6 +1047,13 @@ pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         false,
     )
     .await?;
+    // Collector bind: the panel answers only to its opener (see
+    // `crate::collector`); anyone else gets the ephemeral denial.
+    crate::collector::collector_bind(
+        &format!("welcomer:{msg_id}"),
+        pctx.author().id.get(),
+        WELCOMER_COLLECTOR_TIMEOUT_SECS as u64,
+    );
     super::v2::patch_message_v2(channel_id, msg_id, &components, files)
         .await
         .map_err(|e| anyhow::anyhow!(e))?;
@@ -1290,6 +1297,16 @@ pub async fn handle_welcomer_component(
         return Ok(());
     }
     let id = comp.data.custom_id.as_str();
+    // Collector guard: the panel answers only to its opener. Anyone
+    // else (or an unbound/expired panel) gets the ephemeral denial —
+    // never silence, never a config write. See `crate::collector`.
+    let key = format!("welcomer:{}", comp.message.id.get());
+    if crate::collector::check_collector_owner(&ctx.http, comp, &key, &lang_code)
+        .await
+        .is_none()
+    {
+        return Ok(());
+    }
 
     if id == WELCOMER_SECTION_ID {
         if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind {

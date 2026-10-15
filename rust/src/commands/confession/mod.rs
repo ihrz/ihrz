@@ -828,6 +828,18 @@ pub fn confess_pending_take(user_id: u64, code: &str) -> Option<PendingConfessio
     }
 }
 
+/// Peek the owner of a pending confession by code (no consume).
+/// Used by the collector guard to tell "not your interaction" apart
+/// from "expired": a code owned by someone else denies without
+/// consuming the real author's pending.
+pub fn confess_pending_owner(code: &str) -> Option<u64> {
+    let lock = confess_pending();
+    let map = lock.lock().unwrap_or_else(|e| e.into_inner());
+    map.iter()
+        .find(|(_, p)| p.code == code)
+        .map(|(uid, _)| *uid)
+}
+
 /// `confess-pub:<mode>:<code>` publish choice (post-submit ephemeral
 /// toggle). `mode` is `anon` or `named`.
 pub const CONFESS_PUB_PREFIX: &str = "confess-pub:";
@@ -848,6 +860,15 @@ pub async fn handle_confess_publish(
     let t = |key: &str, fallback: &str| {
         crate::lang::get(&lang_code, key).unwrap_or_else(|| fallback.to_string())
     };
+    // Collector guard: the toggle belongs to the submit author only.
+    // Anyone else gets the ephemeral denial (never silence, never
+    // publish); the pending stays stored for the real author.
+    if let Some(owner) = confess_pending_owner(code) {
+        if !crate::collector::check_owner(comp.user.id.get(), owner) {
+            crate::collector::deny_not_owner(&ctx.http, comp, &lang_code).await;
+            return Ok(());
+        }
+    }
     let Some(pending) = confess_pending_take(comp.user.id.get(), code) else {
         let _ = comp
             .create_response(
@@ -1323,6 +1344,17 @@ mod tests {
         // The sweep on store drops entries older than 15 min.
         assert!(confess_pending_take(8, "OLD").is_none());
         assert!(confess_pending_take(8, "NEW").is_some());
+    }
+
+    #[test]
+    fn pending_owner_peek_does_not_consume() {
+        confess_pending_store(9, pending("PEEK01", 1_000));
+        // Peek finds the owner without consuming…
+        assert_eq!(confess_pending_owner("PEEK01"), Some(9));
+        assert_eq!(confess_pending_owner("NOPE01"), None);
+        // …so the author take still succeeds afterwards.
+        assert!(confess_pending_take(9, "PEEK01").is_some());
+        assert_eq!(confess_pending_owner("PEEK01"), None);
     }
 
     #[test]

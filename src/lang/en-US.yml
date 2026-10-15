@@ -2880,6 +2880,7 @@ confession_publish_expired: "Confession expired — submit again from the panel.
 confession_publish_ok_anon: "Confession published anonymously."
 confession_publish_ok_named: "Confession published with your name."
 confession_publish_fail: "Publish failed — try again."
+interaction_not_for_you: "This interaction isn't for you."
 confession_1_embed_log_title: "New confession response"
 
 # Context Menu Interaction
