@@ -490,17 +490,22 @@ fn ip_cache() -> &'static std::sync::Mutex<(Option<String>, Option<String>)> {
     CACHE.get_or_init(|| std::sync::Mutex::new((None, None)))
 }
 
-/// Cached IP for the family (`None` while unfilled, mirrors `""`).
+/// Cached IP for the family. Mirrors the `CacheValue.ipv? !== ""` read
+/// in getIp.ts: an empty row counts as unfilled (a fetched empty body is
+/// stored verbatim but never served, so the next call refetches).
 pub fn cached_ip(use_ipv6: bool) -> Option<String> {
     let guard = ip_cache().lock().ok()?;
-    if use_ipv6 {
+    let hit = if use_ipv6 {
         guard.1.clone()
     } else {
         guard.0.clone()
-    }
+    };
+    hit.filter(|s| !s.is_empty())
 }
 
-/// Store a fetched IP. Mirrors the CacheValue write after fetch.
+/// Store a fetched IP. Mirrors the CacheValue write after fetch
+/// (`response.text()` stored and returned verbatim — no trim: a
+/// trailing-newline body round-trips raw in TS).
 pub fn set_cached_ip(use_ipv6: bool, ip: &str) {
     if let Ok(mut guard) = ip_cache().lock() {
         if use_ipv6 {
@@ -537,7 +542,7 @@ pub async fn fetch_ip(use_ipv6: bool) -> Result<String, String> {
         .text()
         .await
         .map_err(|e| format!("Failed to fetch IP address: {e}"))?;
-    let ip = ip.trim().to_string();
+    // No trim: getIp.ts stores/returns response.text() verbatim.
     set_cached_ip(use_ipv6, &ip);
     Ok(ip)
 }
@@ -1084,6 +1089,19 @@ mod tests {
         assert_eq!(cached_ip(false).as_deref(), Some("5.6.7.8"));
         clear_ip_cache();
         assert_eq!(cached_ip(false), None);
+    }
+
+    #[test]
+    fn ip_cache_body_rules_match_getip_ts() {
+        // Node ground truth, W6 slice 82: response.text() is stored and
+        // served verbatim (no trim), and an empty body never counts as a
+        // hit (`CacheValue.ipv? !== ""`), so the next call refetches.
+        clear_ip_cache();
+        set_cached_ip(false, "1.2.3.4\n");
+        assert_eq!(cached_ip(false).as_deref(), Some("1.2.3.4\n"));
+        set_cached_ip(true, "");
+        assert_eq!(cached_ip(true), None);
+        clear_ip_cache();
     }
 
     // ---- Service checks (mocked endpoints) ----
