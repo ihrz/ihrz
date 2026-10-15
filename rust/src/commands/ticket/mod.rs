@@ -808,21 +808,13 @@ async fn delete_ticket_row(pool: &crate::db::Pool, gid: &str, channel_id: sereni
         let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) else {
             continue;
         };
-        let Some(obj) = v.as_object() else {
+        // Value-only verdict mirrors method.ts (same corrupt-row fix as
+        // the slice-115 scan: a nested key equal to `want` with a
+        // differing `.channel` is never deleted in TS; non-object
+        // buckets yield None, like the TS miss legs).
+        let Some(kept) = ticket_bucket_without_channel(&v, &want) else {
             continue;
         };
-        if !obj.keys().any(|ch| {
-            ch == &want || obj[ch].get("channel").and_then(|c| c.as_str()) == Some(want.as_str())
-        }) {
-            continue;
-        }
-        let kept: serde_json::Map<String, serde_json::Value> = obj
-            .iter()
-            .filter(|(ch, data)| {
-                *ch != &want && data.get("channel").and_then(|c| c.as_str()) != Some(want.as_str())
-            })
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect();
         if kept.is_empty() {
             let _ = routed_del(pool, gid, gid, key).await;
         } else {
@@ -1341,6 +1333,38 @@ pub fn ticket_bucket_has_channel(bucket: &serde_json::Value, want: &str) -> bool
     children(bucket)
         .iter()
         .any(|ticket| ticket.get("channel").and_then(|c| c.as_str()) == Some(want))
+}
+
+/// Delete-filter twin of `ticket_bucket_has_channel` for
+/// `deleteTicketChannelFromDatabase` in method.ts: TS deletes
+/// `TICKET_ALL.<authorId>.<ticketId>` iff
+/// `ticketData && ticketData.channel === channel.id` — the ticket key is
+/// never compared, so a nested key equal to `want` with a differing
+/// `.channel` survives. Returns `None` when no sub-entry value-matches
+/// (caller skips the write, like the TS miss leg); otherwise the kept
+/// object (empty = caller drops the whole bucket key).
+///
+/// Multi-match note: TS returns after the FIRST hit, deleting one row;
+/// this filter drops every value-matching sub-entry. Writers key rows by
+/// channelId (`TICKET_ALL.<uid>.<channelId>`), so one channel owns at
+/// most one ticket and both agree on reachable stores.
+pub fn ticket_bucket_without_channel(
+    bucket: &serde_json::Value,
+    want: &str,
+) -> Option<serde_json::Map<String, serde_json::Value>> {
+    let obj = bucket.as_object()?;
+    if !obj
+        .values()
+        .any(|data| data.get("channel").and_then(|c| c.as_str()) == Some(want))
+    {
+        return None;
+    }
+    Some(
+        obj.iter()
+            .filter(|(_, data)| data.get("channel").and_then(|c| c.as_str()) != Some(want))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect(),
+    )
 }
 
 /// Selection whose numeric id matches the select value, like
@@ -2522,6 +2546,52 @@ mod tests {
             &json!({"123": {"channel": "111"}}),
             "123"
         ));
+    }
+
+    #[test]
+    fn ticket_bucket_delete_matches_ts_value_legs() {
+        use serde_json::json;
+        // Hit: matching sub-entry dropped, sibling kept.
+        assert_eq!(
+            ticket_bucket_without_channel(
+                &json!({"t1": {"channel": "x"}, "t2": {"channel": "123"}}),
+                "123"
+            ),
+            Some(serde_json::Map::from_iter([(
+                "t1".to_string(),
+                json!({"channel": "x"})
+            )]))
+        );
+        // Sole hit: empty kept map (caller drops the bucket key).
+        assert_eq!(
+            ticket_bucket_without_channel(&json!({"t": {"channel": "123"}}), "123"),
+            Some(serde_json::Map::new())
+        );
+        // Misses: None, caller skips the write like the TS miss leg.
+        assert_eq!(
+            ticket_bucket_without_channel(&json!({"t": {"channel": "999"}}), "123"),
+            None
+        );
+        assert_eq!(
+            ticket_bucket_without_channel(&json!({"t": {"channel": 123}}), "123"),
+            None
+        );
+        assert_eq!(ticket_bucket_without_channel(&json!({}), "123"), None);
+        for td in [json!(null), json!(0), json!(""), json!(false)] {
+            assert_eq!(
+                ticket_bucket_without_channel(&json!({"t": td}), "123"),
+                None
+            );
+        }
+        for b in [json!("abc"), json!(7), json!(null), json!(true)] {
+            assert_eq!(ticket_bucket_without_channel(&b, "123"), None);
+        }
+        // Corrupt key-match row: TS deletes nothing (battery:
+        // `{"123": {"123": {channel: "999"}}}` -> false, no delete).
+        assert_eq!(
+            ticket_bucket_without_channel(&json!({"123": {"channel": "999"}}), "123"),
+            None
+        );
     }
 
     #[test]
