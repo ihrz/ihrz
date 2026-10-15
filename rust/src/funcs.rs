@@ -3110,6 +3110,13 @@ fn secure_index(limit: usize) -> usize {
 /// Multiple passwords. Mirrors generateMultiplePasswords
 /// (amount <= 0 errors, like the TS throw). Each password draws from
 /// OsRng; `seed` is ignored (kept for call-site compatibility).
+/// Amount-coercion delta (unreachable, documented — node ground truth,
+/// W6 slice 113): TS `amount` is a number run through ToLength by
+/// `Array.from({length})`, so fractions floor (2.5/2.9 -> 2, 1.5 -> 1),
+/// 0.5 and NaN yield an EMPTY array with no throw (guard `<= 0` misses
+/// them, ToLength gives 0), and Infinity throws a RangeError (not the
+/// French literal). The `usize` signature makes every one of those legs
+/// unrepresentable; all live callers pass integer counts.
 pub fn generate_multiple_passwords(
     amount: usize,
     opts: &PasswordOptions,
@@ -3531,6 +3538,10 @@ mod funcs_part3_tests {
 
     #[test]
     fn multiple_passwords_match_ts() {
+        // Node ground truth (W6 slice 113): integer N yields exactly N
+        // passwords; 0 throws the French literal; fractional/NaN/Infinity
+        // legs (ToLength floor, 0.5/NaN empty-array, Infinity RangeError)
+        // are unrepresentable past the usize signature — see the fn doc.
         let opts = PasswordOptions {
             length: 16,
             numbers: true,
@@ -3547,7 +3558,13 @@ mod funcs_part3_tests {
             assert_eq!(pw.chars().count(), 16);
             assert!(pw.chars().all(|c| c.is_ascii_alphanumeric()));
         }
-        assert!(generate_multiple_passwords(0, &opts, 7).is_err());
+        let one = generate_multiple_passwords(1, &opts, 7).unwrap();
+        assert_eq!(one.len(), 1);
+        assert_eq!(one[0].chars().count(), 16);
+        assert_eq!(
+            generate_multiple_passwords(0, &opts, 7).unwrap_err(),
+            "Le nombre de mots de passe doit être positif"
+        );
     }
 
     #[test]
