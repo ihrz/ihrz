@@ -73,7 +73,8 @@ pub async fn custom_avatar(
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     let token = crate::config::bot_token();
-    if action.trim().eq_ignore_ascii_case("reset") {
+    // TS `!avatar.ts:53` is strict (`action === "reset"`).
+    if action.trim() == "reset" {
         crate::db::tbl_del(pool, &gid, BOT_PFP_KEY).await?;
         // TS replies first, then restores the *current global* avatar
         // (`client.user.avatarURL()`), like banner.rs does for the
