@@ -239,7 +239,9 @@ pub fn resolve_member(arg: Option<&str>, members: &[Entry]) -> Option<String> {
         if let Some(m) = members.iter().find(|m| m.id == arg) {
             return Some(m.id.clone());
         }
-        return None;
+        // TS `isNumber(arg) && cache.get(arg)`: a numeric cache miss
+        // falls through to the username leg (W6 slice 129 node battery:
+        // "123" with username "123" on id "222" resolves to "222").
     }
     members.iter().find(|m| m.name == arg).map(|m| m.id.clone())
 }
@@ -684,12 +686,41 @@ mod tests {
             resolve_member(Some("111"), &members()).as_deref(),
             Some("111")
         );
-        // Adversarial: numeric arg with no cache hit must not match username.
+        // Numeric arg with no cache hit falls through to the username leg
+        // like TS (`isNumber(arg) && cache.get(arg)` conjunction fails,
+        // then the username `find` runs): "999" has no such username.
         assert_eq!(resolve_member(Some("999"), &members()), None);
         assert_eq!(
             resolve_member(Some("bob"), &members()).as_deref(),
             Some("222")
         );
+    }
+
+    #[test]
+    fn member_numeric_miss_falls_through_to_username_like_ts() {
+        // W6 slice 129: 13-case node battery replicating member()
+        // verbatim (mention hit/miss, numeric hit, numeric-miss-to-name,
+        // username hit/miss, empty, padded, bare-"!", undefined).
+        let ms = vec![
+            Entry::new("111", "bob"),
+            Entry::new("222", "123"),
+            Entry::new("333", "alice"),
+        ];
+        assert_eq!(resolve_member(Some("<@111>"), &ms).as_deref(), Some("111"));
+        assert_eq!(resolve_member(Some("<@!111>"), &ms).as_deref(), Some("111"));
+        assert_eq!(resolve_member(Some("<@999>"), &ms), None);
+        assert_eq!(resolve_member(Some("@bob"), &ms), None);
+        assert_eq!(resolve_member(Some("111"), &ms).as_deref(), Some("111"));
+        assert_eq!(resolve_member(Some("999"), &ms), None);
+        // The fixed leg: numeric "123" is no id, but IS a username.
+        assert_eq!(resolve_member(Some("123"), &ms).as_deref(), Some("222"));
+        assert_eq!(resolve_member(Some("bob"), &ms).as_deref(), Some("111"));
+        assert_eq!(resolve_member(Some("alice"), &ms).as_deref(), Some("333"));
+        assert_eq!(resolve_member(Some("nobody"), &ms), None);
+        assert_eq!(resolve_member(Some(""), &ms), None);
+        assert_eq!(resolve_member(Some(" 111 "), &ms), None);
+        assert_eq!(resolve_member(Some("!111"), &ms).as_deref(), Some("111"));
+        assert_eq!(resolve_member(None, &ms), None);
     }
 
     #[test]
