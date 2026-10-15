@@ -1837,6 +1837,50 @@ mod tests {
         assert_eq!(&png[1..4], b"PNG");
     }
 
+    #[tokio::test]
+    async fn kdenlive_naming_and_failure_legs_match_ts() {
+        // Node ground truth (W6 slice 95 battery replicating
+        // kdenliveManipulator.ts verbatim with stubbed Date.now):
+        // tempSave -> `<tempDir>/<ms>.kdenlive` ("0.kdenlive",
+        // "1705321845000.kdenlive"); export -> `merged_video_<ms>.mp4`;
+        // command `xvfb-run -a melt -audio-samplerate 44100 <proj>
+        // -consumer avformat:<out>`. tempDir itself is
+        // path.join(os.tmpdir(), "media-manipulation") == media_temp_dir.
+        assert_eq!(
+            media_temp_dir(),
+            std::env::temp_dir().join("media-manipulation")
+        );
+        // tempSave shape + open roundtrip (mirrors KdenLive.open utf8 read).
+        let saved = kdenlive_temp_save("<mlt>data</mlt>", 1705321845000).expect("save");
+        assert_eq!(saved.parent(), Some(media_temp_dir().as_path()));
+        assert_eq!(
+            saved.file_name().and_then(|s| s.to_str()),
+            Some("1705321845000.kdenlive")
+        );
+        assert_eq!(kdenlive_open(&saved).expect("open"), "<mlt>data</mlt>");
+        let zero = kdenlive_temp_save("z", 0).expect("save0");
+        assert_eq!(
+            zero.file_name().and_then(|s| s.to_str()),
+            Some("0.kdenlive")
+        );
+        // Failure leg: TS `await execAsync` throws so `rm` is skipped and
+        // the error propagates; Rust returns Err before remove_file. A
+        // missing project fails on every host (spawn error where xvfb-run
+        // is absent, melt error where present).
+        let missing = media_temp_dir().join("kdenlive-slice95-missing.kdenlive");
+        let _ = std::fs::remove_file(&missing);
+        assert!(kdenlive_export(&missing, 1705321845000).await.is_err());
+        assert!(!missing.exists());
+        let _ = std::fs::remove_file(&saved);
+        let _ = std::fs::remove_file(&zero);
+        // Deltas (doc-noted, unreachable live): the Rust output name adds
+        // `_<pid>` (`merged_video_<ms>_<pid>.mp4`) so same-ms exports never
+        // collide on the TS scheme; argv (no shell) keeps space-bearing
+        // paths literal where the TS unquoted interpolation word-splits;
+        // non-UTF8 project bytes resolve with U+FFFD in TS readFile but
+        // Err in kdenlive_open (live projects are XML text).
+    }
+
     #[test]
     fn emoji_checks() {
         assert!(is_single_emoji("👍"));
