@@ -4041,6 +4041,30 @@ mod funcs_part4_tests {
         assert_eq!(parse_meminfo(": 123\n").total, 0);
         // Later duplicate keys win, like the TS record overwrite.
         assert_eq!(parse_meminfo("MemTotal: 1 kB\nMemTotal: 2 kB\n").total, 2);
+        // Node ground truth (W6 slice 94, 20-case battery replicating the
+        // Linux leg verbatim): first-two-colon-segments, JS-trim/split
+        // legs, case-sensitive keys.
+        assert_eq!(parse_meminfo("MemTotal:: 5\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal:\t4096\tkB\n").total, 4096);
+        assert_eq!(parse_meminfo("MemTotal:\u{a0}100 kB\n").total, 100);
+        assert_eq!(parse_meminfo("memtotal: 100 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal 100 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal:\n").total, 0);
+        assert_eq!(parse_meminfo(":\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal:\u{b}77 kB\n").total, 77);
+        assert_eq!(parse_meminfo("MemTotal:\u{c}88 kB\n").total, 88);
+        assert_eq!(parse_meminfo("\tMemTotal\t: 55 kB\n").total, 55);
+        assert_eq!(parse_meminfo("MemTotal:    66    kB\n").total, 66);
+        assert_eq!(parse_meminfo("MemTotal\u{c}: 123 kB\n").total, 123);
+        assert_eq!(parse_meminfo("MemTotal: 0 kB\n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: +42 kB\n").total, 42);
+        // Documented deltas (u64 cannot hold TS NaN/negatives/f64): TS
+        // yields NaN on whitespace-only/garbage values (`?? 0` keeps NaN),
+        // -5 on negatives, 1e+23 on the 23-digit run; the mirror reports
+        // 0/0/u64::MAX. Unreachable: the kernel always writes clean
+        // non-negative integers that fit in u64.
+        assert_eq!(parse_meminfo("MemTotal:   \n").total, 0);
+        assert_eq!(parse_meminfo("MemTotal: abc kB\n").total, 0);
     }
 
     #[test]
