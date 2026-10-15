@@ -810,6 +810,18 @@ pub fn punish_action(sanction: Option<&str>) -> PunishAction {
     }
 }
 
+/// Mirrors punish()'s ban reason leg: `reason || "Protect!"` (falsy
+/// `None`/`""` fall back; whitespace-only is truthy and kept verbatim).
+/// DELTA (doc-noted): the ban-failure path calls `derank(user, reason)`
+/// with the RAW reason, so a failed ban with no reason deranks under
+/// derank's own `"Protection"` fallback, not this one.
+pub fn punish_ban_reason(reason: Option<&str>) -> &str {
+    match reason {
+        Some(r) if !r.is_empty() => r,
+        _ => BAN_REASON_FALLBACK,
+    }
+}
+
 /// Minimal derank role shape: only the `managed` / `position` / `id`
 /// legs the filter reads.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1706,6 +1718,31 @@ mod tests {
         for s in [0u16, 201, 204, 400, 401, 403, 404, 429, 500] {
             assert!(!voice_status_ok(s));
         }
+    }
+
+    #[test]
+    fn punish_legs_match_ts_switch_legs() {
+        // Pinned via node battery slice 133 replicating punish() verbatim
+        // (`data?.["SANCTION"]` switch + `reason || "Protect!"`): strict
+        // case-sensitive match, padded/empty/unknown/null-data all miss.
+        use super::{derank_reason, punish_action, punish_ban_reason, PunishAction};
+        assert_eq!(punish_action(Some("simply+derank")), PunishAction::Derank);
+        assert_eq!(punish_action(Some("simply+ban")), PunishAction::Ban);
+        assert_eq!(punish_action(Some("simply")), PunishAction::None);
+        assert_eq!(punish_action(Some("SIMPLY+BAN")), PunishAction::None);
+        assert_eq!(punish_action(Some(" simply+ban")), PunishAction::None);
+        assert_eq!(punish_action(Some("simply+ban ")), PunishAction::None);
+        assert_eq!(punish_action(Some("")), PunishAction::None);
+        assert_eq!(punish_action(None), PunishAction::None);
+        // Ban reason `||` legs: falsy falls back, whitespace kept.
+        assert_eq!(punish_ban_reason(None), "Protect!");
+        assert_eq!(punish_ban_reason(Some("")), "Protect!");
+        assert_eq!(punish_ban_reason(Some(" ")), " ");
+        assert_eq!(punish_ban_reason(Some("raid")), "raid");
+        // Ban-failure path reuses the RAW reason: a failed ban with no
+        // reason deranks under derank's own "Protection" fallback.
+        assert_eq!(derank_reason(None), "Protection");
+        assert_eq!(punish_ban_reason(None), "Protect!");
     }
 
     #[test]
