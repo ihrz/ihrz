@@ -1134,11 +1134,13 @@ pub fn proximity_similarity(a: &str, b: &str) -> f64 {
 }
 
 /// `title + author` label compared against queries (mirrors
-/// `buildTrackLabel`).
+/// `buildTrackLabel`: `` `${title} ${author}`.trim() `` — the parts are
+/// NOT trimmed individually, so a trailing space in the title (or a
+/// leading space in the author) survives as an inner double space;
+/// only the whole is JS-trimmed. Slice 96 battery: ("a ","b") and
+/// ("a"," b") both yield "a  b"; ("  ","  ") yields "").
 pub fn build_track_label(title: &str, author: &str) -> String {
-    format!("{} {}", title.trim(), author.trim())
-        .trim()
-        .to_string()
+    crate::funcs::js_trim(&format!("{title} {author}")).to_string()
 }
 
 /// Word-level fuzzy match (mirrors `music_proximity.isSimilar` with
@@ -1186,14 +1188,15 @@ pub fn is_similar_thresholds(
 
 /// A loaded search hit counts when it carries a titled first track
 /// (mirrors `responseExist`: `tracks.length > 0 &&
-/// !!tracks[0].info.title`). The title check is INTENTIONAL: untitled
-/// placeholder rows must not count as a match, so callers fall through
+/// !!tracks[0].info.title`). The check is raw JS truthiness — a
+/// whitespace-only title (" ") COUNTS (slice 96 battery: true), so no
+/// `.trim()` here; only the empty string misses. Callers fall through
 /// to the no-match path exactly like the TS `searchQueryOnNode`
-/// Deezer/SoundCloud legs.
+/// Deezer/SoundCloud legs. Unrepresentable past the `&[Track]`
+/// signature (live `SearchResult.tracks` is always an array):
+/// `tracks: null` throws in TS instead of returning false.
 pub fn response_exists(tracks: &[Track]) -> bool {
-    tracks
-        .first()
-        .is_some_and(|t| !t.info.title.trim().is_empty())
+    tracks.first().is_some_and(|t| !t.info.title.is_empty())
 }
 
 /// Provider tag for the play reply (mirrors `platformLabel`:
@@ -6358,6 +6361,31 @@ mod tests {
             "Rick Astley"
         ));
         assert_eq!(build_track_label("Title", "Author"), "Title Author");
+    }
+
+    #[test]
+    fn music_play_label_response_platform_match_ts_battery() {
+        // Slice 96 battery (node ground truth over musicPlay.ts verbatim):
+        // buildTrackLabel never trims the parts, only the whole, so edge
+        // spaces survive as inner doubles.
+        assert_eq!(build_track_label("a ", "b"), "a  b");
+        assert_eq!(build_track_label("a", " b"), "a  b");
+        assert_eq!(build_track_label(" a", "b "), "a b");
+        assert_eq!(build_track_label("", ""), "");
+        assert_eq!(build_track_label("  ", "  "), "");
+        assert_eq!(build_track_label("a  b", "c"), "a  b c");
+        assert_eq!(build_track_label("\tt", "a"), "t a");
+        // responseExist is raw JS truthiness: whitespace-only counts.
+        assert!(response_exists(&[lava_test_track("x")]));
+        assert!(response_exists(&[lava_test_track(" ")]));
+        assert!(!response_exists(&[lava_test_track("")]));
+        assert!(!response_exists(&[]));
+        // platformLabel: case-sensitive substring, deezer first.
+        assert_eq!(platform_source_tag(Some("https://DEEZER.com/x")), None);
+        assert_eq!(
+            platform_source_tag(Some("https://xQC/soundcloudyy")),
+            Some("SoundCloud")
+        );
     }
 
     #[test]
