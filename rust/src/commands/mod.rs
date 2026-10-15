@@ -423,14 +423,17 @@ pub async fn await_modal_submit(
 pub const CONFIRM_YES_ID: &str = "yes";
 pub const CONFIRM_NO_ID: &str = "no";
 
-/// Confirm-prompt button row. Pure: yes (Danger when the action is
-/// destructive), disabled "<   >" spacer, no (inverted style).
-/// Mirrors the ActionRowBuilder in promptYesOrNo.
-pub fn confirm_row(
+/// Pure shape of the promptYesOrNo button row as
+/// (custom_id, style, label, disabled) triples. Node ground truth
+/// (discord.js 14.27 `toJSON`): danger=false -> yes Success(3), no
+/// Danger(4); danger=true -> yes Danger(4), no Success(3); middle is
+/// always Secondary(2) `<   >` disabled `blank1`. `confirm_row` below
+/// is the Discord-bound wrapper over this table.
+pub fn confirm_buttons(
     yes_label: &str,
     no_label: &str,
     danger: bool,
-) -> poise::serenity_prelude::CreateActionRow {
+) -> [(String, poise::serenity_prelude::ButtonStyle, String, bool); 3] {
     use poise::serenity_prelude as serenity;
     let (yes_style, no_style) = if danger {
         (
@@ -443,18 +446,52 @@ pub fn confirm_row(
             serenity::ButtonStyle::Danger,
         )
     };
-    serenity::CreateActionRow::Buttons(vec![
-        serenity::CreateButton::new(CONFIRM_YES_ID)
-            .style(yes_style)
-            .label(yes_label),
-        serenity::CreateButton::new("blank1")
-            .style(serenity::ButtonStyle::Secondary)
-            .label("<   >")
-            .disabled(true),
-        serenity::CreateButton::new(CONFIRM_NO_ID)
-            .style(no_style)
-            .label(no_label),
-    ])
+    [
+        (
+            CONFIRM_YES_ID.to_string(),
+            yes_style,
+            yes_label.to_string(),
+            false,
+        ),
+        (
+            "blank1".to_string(),
+            serenity::ButtonStyle::Secondary,
+            "<   >".to_string(),
+            true,
+        ),
+        (
+            CONFIRM_NO_ID.to_string(),
+            no_style,
+            no_label.to_string(),
+            false,
+        ),
+    ]
+}
+
+/// Verdict leg of promptYesOrNo: TS `e.customId === "yes"` (strict,
+/// case-sensitive, untrimmed — `"Yes"`/`" yes"`/`"yes "` are all false).
+pub fn is_yes_press(custom_id: &str) -> bool {
+    custom_id == CONFIRM_YES_ID
+}
+
+/// Confirm-prompt button row. Pure: yes (Danger when the action is
+/// destructive), disabled "<   >" spacer, no (inverted style).
+/// Mirrors the ActionRowBuilder in promptYesOrNo.
+pub fn confirm_row(
+    yes_label: &str,
+    no_label: &str,
+    danger: bool,
+) -> poise::serenity_prelude::CreateActionRow {
+    use poise::serenity_prelude as serenity;
+    let buttons =
+        confirm_buttons(yes_label, no_label, danger).map(|(id, style, label, disabled)| {
+            let mut b = serenity::CreateButton::new(id).style(style).label(label);
+            if disabled {
+                b = b.disabled(true);
+            }
+            b
+        });
+    serenity::CreateActionRow::Buttons(buttons.to_vec())
 }
 
 /// Send a yes/no confirm prompt and await the invoker's answer.
@@ -497,7 +534,7 @@ pub async fn prompt_yes_or_no(
         .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(pressed
-        .map(|i| i.data.custom_id == CONFIRM_YES_ID)
+        .map(|i| is_yes_press(&i.data.custom_id))
         .unwrap_or(false))
 }
 
@@ -536,6 +573,42 @@ mod tests {
                 }
                 _ => panic!("confirm prompt must be a button row"),
             }
+        }
+    }
+
+    #[test]
+    fn confirm_buttons_match_ts_action_row() {
+        use poise::serenity_prelude::ButtonStyle;
+        // Node ground truth (discord.js 14.27 toJSON): danger=false ->
+        // yes Success(3), no Danger(4); danger=true flips both; the
+        // middle spacer is always Secondary(2) "<   >" disabled.
+        for (danger, yes_style, no_style) in [
+            (false, ButtonStyle::Success, ButtonStyle::Danger),
+            (true, ButtonStyle::Danger, ButtonStyle::Success),
+        ] {
+            let [yes, spacer, no] = confirm_buttons("Oui", "Non", danger);
+            assert_eq!(
+                yes,
+                ("yes".to_string(), yes_style, "Oui".to_string(), false)
+            );
+            assert_eq!(
+                spacer,
+                (
+                    "blank1".to_string(),
+                    ButtonStyle::Secondary,
+                    "<   >".to_string(),
+                    true
+                )
+            );
+            assert_eq!(no, ("no".to_string(), no_style, "Non".to_string(), false));
+        }
+    }
+
+    #[test]
+    fn yes_verdict_is_strict_like_ts_triple_equals() {
+        assert!(is_yes_press("yes"));
+        for other in ["Yes", "YES", " yes", "yes ", "no", "blank1", ""] {
+            assert!(!is_yes_press(other), "{other:?} must not count as yes");
         }
     }
 
