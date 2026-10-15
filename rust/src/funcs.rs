@@ -4967,6 +4967,12 @@ mod get_os_tests {
 
     #[test]
     fn platforms_map_like_ts() {
+        // Node ground truth on the getOS.ts switch: case-sensitive
+        // (`"Linux"`/`"Darwin"`/`"Win32"` fall to default -> null),
+        // unknown platforms (`freebsd`/`aix`/`sunos`/`openbsd`/`android`/
+        // `cygwin`/`""`) -> null, win32 without a `10.0.` release ->
+        // generic Windows. Rust `match` is equally case-sensitive, so
+        // all of these are exact.
         assert_eq!(
             get_os_for("linux", None),
             Some(OsInfo {
@@ -4982,6 +4988,41 @@ mod get_os_tests {
             })
         );
         assert_eq!(get_os_for("freebsd", None), None);
+        for p in [
+            "Linux", "LINUX", " linux", "Darwin", "DARWIN", "Win32", "WIN32", " win32", "aix",
+            "sunos", "openbsd", "android", "cygwin", "netbsd", "",
+        ] {
+            assert_eq!(get_os_for(p, None), None, "{p}");
+        }
+        // `startsWith("10.0.")` is space-sensitive: `"10.0"` (no trailing
+        // dot) and `" 10.0.22000"` (leading space) take the generic leg.
+        for rel in ["10.0", " 10.0.22000", "11.0.22000", "6.3.9600"] {
+            assert_eq!(
+                get_os_for("win32", Some(rel)),
+                Some(OsInfo {
+                    emoji: "Win10",
+                    name: "Windows",
+                }),
+                "{rel}"
+            );
+        }
+        // Documented superset delta: TS returns null for these (no such
+        // Node platform names), Rust accepts them so `get_os()` resolves
+        // on Rust platform names (`std::env::consts::OS`).
+        assert_eq!(
+            get_os_for("macos", None),
+            Some(OsInfo {
+                emoji: "Finder",
+                name: "macOS",
+            })
+        );
+        assert_eq!(
+            get_os_for("windows", None),
+            Some(OsInfo {
+                emoji: "Win10",
+                name: "Windows",
+            })
+        );
     }
 
     #[test]
