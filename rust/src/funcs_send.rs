@@ -902,6 +902,52 @@ mod tests {
     }
 
     #[test]
+    fn stringify_bold_bracket_join_trim_match_ts() {
+        // W6 slice 105 (node ground truth on method.ts stringifyOption /
+        // boldStringifyOption verbatim): `[n]` when required, `<n>` when
+        // the `required` key is missing/falsy, single-space join, trailing
+        // separator eaten by `_.trim()` (Rust `join(" ")` never emits it),
+        // `[]` for no options at all.
+        let mixed = vec![UsageOption::new("a", true), UsageOption::new("b", false)];
+        assert_eq!(stringify_options(&[]), "");
+        assert_eq!(bold_stringify_options(&[]), "");
+        assert_eq!(stringify_options(&[UsageOption::new("a", true)]), "[a]");
+        assert_eq!(
+            bold_stringify_options(&[UsageOption::new("a", true)]),
+            "**`[a]`**"
+        );
+        assert_eq!(stringify_options(&mixed), "[a] <b>");
+        assert_eq!(bold_stringify_options(&mixed), "**`[a]`** **`<b>`**");
+        let three = vec![
+            UsageOption::new("a", true),
+            UsageOption::new("b", false),
+            UsageOption::with_choices("m", true, &["x", "y"]),
+        ];
+        assert_eq!(stringify_options(&three), "[a] <b> [x/y]");
+        assert_eq!(
+            bold_stringify_options(&three),
+            "**`[a]`** **`<b>`** **`[x/y]`**"
+        );
+        // Optional + explicit-empty choices renders `<>` (display name is
+        // `""`, brackets still apply; node: `{choices:[]}` no-required leg).
+        let empty_opt = UsageOption {
+            name: "e".to_string(),
+            required: false,
+            choices: Some(vec![]),
+        };
+        assert_eq!(stringify_options(&[empty_opt.clone()]), "<>");
+        assert_eq!(bold_stringify_options(&[empty_opt]), "**`<>`**");
+        // Interior spaces survive; TS numeric choice values arrive
+        // pre-stringified (live feeds are name strings, slice 27).
+        let spaced = vec![
+            UsageOption::new("a b", true),
+            UsageOption::with_choices("n", true, &["1", "2.5"]),
+        ];
+        assert_eq!(stringify_options(&spaced), "[a b] [1/2.5]");
+        assert_eq!(bold_stringify_options(&spaced), "**`[a b]`** **`[1/2.5]`**");
+    }
+
+    #[test]
     fn awesome_embed_title_capitalizes_and_prefixes() {
         let e = awesome_embed(
             "en-US",
