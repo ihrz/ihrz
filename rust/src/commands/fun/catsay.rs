@@ -118,8 +118,9 @@ pub async fn catsay(
         None
     };
     // Speech-bubble render (`html2png` catsay template, `.meme-container`)
-    // pending; the fetched thecatapi image is sent directly with the text
-    // as the description so no input is lost. Footer mirrors TS.
+    // pending; the fetched thecatapi image is sent directly. No
+    // description: TS never calls setDescription (text lives only in
+    // the image). Footer mirrors TS.
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -128,7 +129,6 @@ pub async fn catsay(
     let embed = crate::commands::shared::embed_with_footer(
         poise::serenity_prelude::CreateEmbed::default()
             .colour(0x010101)
-            .description(&text)
             .image(if gateway_png.is_some() {
                 "attachment://catsay.png"
             } else {
