@@ -504,10 +504,16 @@ pub async fn handle_confess_button(
     );
     let row = serenity::CreateActionRow::Buttons(vec![
         serenity::CreateButton::new(format!("{CONFESS_PUB_PREFIX}anon:{code}"))
-            .label("🔒 Anonyme")
+            .label(
+                crate::lang::get(&lang_code, "confession_publish_anon")
+                    .unwrap_or_else(|| "🔒 Anonymous".to_string()),
+            )
             .style(serenity::ButtonStyle::Success),
         serenity::CreateButton::new(format!("{CONFESS_PUB_PREFIX}named:{code}"))
-            .label("👤 Avec mon nom")
+            .label(
+                crate::lang::get(&lang_code, "confession_publish_named")
+                    .unwrap_or_else(|| "👤 With my name".to_string()),
+            )
             .style(serenity::ButtonStyle::Secondary),
     ]);
     let _ = submit
@@ -515,7 +521,10 @@ pub async fn handle_confess_button(
             ctx,
             serenity::CreateInteractionResponse::Message(
                 serenity::CreateInteractionResponseMessage::new()
-                    .content("Publier cette confession :")
+                    .content(
+                        crate::lang::get(&lang_code, "confession_publish_choice")
+                            .unwrap_or_else(|| "Publish this confession:".to_string()),
+                    )
                     .components(vec![row])
                     .ephemeral(true),
             ),
@@ -831,23 +840,30 @@ pub async fn handle_confess_publish(
     mode: &str,
     code: &str,
 ) -> anyhow::Result<()> {
+    let Some(guild_id) = comp.guild_id else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |key: &str, fallback: &str| {
+        crate::lang::get(&lang_code, key).unwrap_or_else(|| fallback.to_string())
+    };
     let Some(pending) = confess_pending_take(comp.user.id.get(), code) else {
         let _ = comp
             .create_response(
                 &ctx.http,
                 serenity::CreateInteractionResponse::Message(
                     serenity::CreateInteractionResponseMessage::new()
-                        .content("Confession expirée — soumets à nouveau depuis le panel.")
+                        .content(t(
+                            "confession_publish_expired",
+                            "Confession expired — submit again from the panel.",
+                        ))
                         .ephemeral(true),
                 ),
             )
             .await;
         return Ok(());
     };
-    let Some(guild_id) = comp.guild_id else {
-        return Ok(());
-    };
-    let gid = guild_id.get().to_string();
     let private = mode != "named";
     let (posted, _) = publish_confession(
         &ctx.http,
@@ -867,12 +883,18 @@ pub async fn handle_confess_publish(
     .await;
     let msg = if posted.is_some() {
         if private {
-            "Confession publiée anonymement."
+            t(
+                "confession_publish_ok_anon",
+                "Confession published anonymously.",
+            )
         } else {
-            "Confession publiée avec ton nom."
+            t(
+                "confession_publish_ok_named",
+                "Confession published with your name.",
+            )
         }
     } else {
-        "Échec de publication — réessaie."
+        t("confession_publish_fail", "Publish failed — try again.")
     };
     // Edit the ephemeral toggle message (the submit ack) into the
     // confirmation, buttons removed.

@@ -2870,6 +2870,13 @@ guild_leave_data_clear_cancelled_message: "Ouaiiiis youpii, merci d'avoir remis 
 # Confession Event
 confession_embed_logs_title: "Nouvelle confession"
 confession_channel_button_name: "Répondre anonymement"
+confession_publish_choice: "Publier cette confession :"
+confession_publish_anon: "🔒 Anonyme"
+confession_publish_named: "👤 Avec mon nom"
+confession_publish_expired: "Confession expirée — soumets à nouveau depuis le panel."
+confession_publish_ok_anon: "Confession publiée anonymement."
+confession_publish_ok_named: "Confession publiée avec ton nom."
+confession_publish_fail: "Échec de publication — réessaie."
 confession_1_embed_log_title: "Nouvelle réponse à la confession"
 
 # Context Menu Interaction

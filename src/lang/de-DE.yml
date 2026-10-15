@@ -2872,6 +2872,13 @@ guild_leave_data_clear_cancelled_message: "Juhuuu, danke, dass du iHorizon wiede
 # Confession Event
 confession_embed_logs_title: "Neues Geständnis"
 confession_channel_button_name: "Anonym antworten"
+confession_publish_choice: "Publish this confession:"
+confession_publish_anon: "🔒 Anonymous"
+confession_publish_named: "👤 With my name"
+confession_publish_expired: "Confession expired — submit again from the panel."
+confession_publish_ok_anon: "Confession published anonymously."
+confession_publish_ok_named: "Confession published with your name."
+confession_publish_fail: "Publish failed — try again."
 confession_1_embed_log_title: "Neue Antwort auf Geständnis"
 
 # Context Menu Interaction

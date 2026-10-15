@@ -2871,6 +2871,13 @@ guild_leave_data_clear_cancelled_message: "Урааа, спасибо, что д
 # Confession Event
 confession_embed_logs_title: "Новое признание"
 confession_channel_button_name: "Ответить анонимно"
+confession_publish_choice: "Publish this confession:"
+confession_publish_anon: "🔒 Anonymous"
+confession_publish_named: "👤 With my name"
+confession_publish_expired: "Confession expired — submit again from the panel."
+confession_publish_ok_anon: "Confession published anonymously."
+confession_publish_ok_named: "Confession published with your name."
+confession_publish_fail: "Publish failed — try again."
 confession_1_embed_log_title: "Новый ответ на признание"
 
 # Context Menu Interaction

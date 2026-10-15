@@ -8442,12 +8442,9 @@ impl serenity::EventHandler for Handler {
         // lavalink-client/lastFMScrobbler.ts -> handleVoiceStateUpdate ->
         // lastFMScrobblerManager.handleVoiceStateUpdate): the move is
         // classified against the player voice channel via
-        // lastfm_tracked_change. Per-listener session-key I/O (decrypted
-        // `<uid>.lastfm` profile rows, signed now-playing/scrobble POSTs
-        // plus per-listener thresholds) stays with the live scrobbler
-        // caller behind rows and secrets this handler cannot reach, so
-        // the resolution itself — attach / detach / no-op — runs here
-        // on every voice move instead of staying deferred.
+        // lastfm_tracked_change, then driven live (now-playing attach
+        // on join, finalize-credit + drop on leave) once a music
+        // command has registered the driver ctx.
         {
             let member = new
                 .member
