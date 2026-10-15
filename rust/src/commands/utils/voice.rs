@@ -19,6 +19,15 @@ fn is_guild_admin(
     })
 }
 
+/// Prefix count-check predicate shared by the voice leaves whose TS
+/// option is required:true (wlvc/unwlvc `member` in
+/// HybridCommands/utils/util/util.ts): a bare (or whitespace-only)
+/// prefix invocation must render the caret usage embed via
+/// `prefix_usage_denial`, mirroring TS checkCommandArgs.
+fn prefix_member_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 pub mod bringall;
 pub mod massmove;
 pub mod renewvc;

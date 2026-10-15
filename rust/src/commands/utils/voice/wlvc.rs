@@ -28,6 +28,17 @@ pub async fn wlvc(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS checkCommandArgs counts first (`member` required:true in
+    // HybridCommands/utils/util/util.ts): a bare `.util wlvc` renders
+    // the caret usage embed, never the no-member content leg
+    // (rolelimit.rs/rate.rs/baninfo.rs precedent). The content leg
+    // below stays for unresolvable-member input, mirroring !wlvc.ts.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_member_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let Some(target) = member else {
         ctx.say(
             crate::lang::get(&code, "util_wlvc_no_member").unwrap_or_else(|| {
@@ -136,5 +147,16 @@ mod tests {
             fill_reply("${member.toString()} is now allowed.", "<@2>"),
             "<@2> is now allowed."
         );
+    }
+
+    #[test]
+    fn bare_prefix_member_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+wlvc`
+        // bare renders the framework usage embed), never the
+        // `util_wlvc_no_member` content reply.
+        assert!(prefix_member_missing(""));
+        assert!(prefix_member_missing("   "));
+        assert!(!prefix_member_missing("<@1132574182270570557>"));
     }
 }

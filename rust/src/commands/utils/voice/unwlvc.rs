@@ -34,6 +34,17 @@ pub async fn unwlvc(
     };
     let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    // TS checkCommandArgs counts first (`member` required:true in
+    // HybridCommands/utils/util/util.ts): a bare `.util unwlvc` renders
+    // the caret usage embed, never the no-member content leg
+    // (rolelimit.rs/rate.rs/baninfo.rs precedent). The content leg
+    // below stays for unresolvable-member input, mirroring !unwlvc.ts.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_member_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let Some(target) = member else {
         ctx.say(
             crate::lang::get(&code, "util_unwlvc_no_member").unwrap_or_else(|| {
@@ -172,5 +183,16 @@ mod tests {
             fill_reply("${member.toString()} can no longer join.", "<@2>"),
             "<@2> can no longer join."
         );
+    }
+
+    #[test]
+    fn bare_prefix_member_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+unwlvc`
+        // bare renders the framework usage embed), never the
+        // `util_unwlvc_no_member` content reply.
+        assert!(prefix_member_missing(""));
+        assert!(prefix_member_missing("   "));
+        assert!(!prefix_member_missing("<@1132574182270570557>"));
     }
 }
