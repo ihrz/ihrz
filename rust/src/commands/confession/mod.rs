@@ -323,6 +323,7 @@ pub async fn handle_confess_button(
     // new-confession-button.ts; both the legacy `CONFESSION.disable`
     // boolean and `GUILD.CONFESSION.disable` disable.
     if is_confession_disabled(pool, &gid).await {
+        tracing::debug!("confess click ignored: module disabled (guild {gid})");
         return Ok(());
     }
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
@@ -387,13 +388,25 @@ pub async fn handle_confess_button(
         crate::commands::owner::main::routed_get(pool, &gid, &gid, "CONFESSION.channel").await;
     let (target_ch, bound_msg) = panel_target(panel_raw.as_deref(), fallback.as_deref());
     let Some(target_ch) = target_ch else {
+        tracing::debug!("confess click ignored: no panel bound (guild {gid})");
         return Ok(());
     };
     if let Some(mid) = bound_msg {
         if comp.channel_id.get() != target_ch || comp.message.id.get() != mid {
+            tracing::debug!(
+                "confess click ignored: stale panel (clicked {}:{}, bound {}:{})",
+                comp.channel_id.get(),
+                comp.message.id.get(),
+                target_ch,
+                mid
+            );
             return Ok(());
         }
     } else if comp.channel_id.get() != target_ch {
+        tracing::info!(
+            "confess click ignored: wrong channel {}",
+            comp.channel_id.get()
+        );
         return Ok(());
     }
     // Short code linking the post to confessionres% replies. Mirrors
@@ -455,6 +468,10 @@ pub async fn handle_confess_button(
     comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
         .await?;
     let Some(submit) = crate::commands::await_modal_submit(ctx, comp, "confess-modal").await else {
+        tracing::info!(
+            "confess modal: no submit (timeout/duplicate) for {}",
+            comp.user.id.get()
+        );
         return Ok(());
     };
     let mut text = String::new();
@@ -473,6 +490,7 @@ pub async fn handle_confess_button(
     let private = parse_confession_private(private_raw.as_deref());
     text = crate::funcs::mask_link(&text);
     if text.len() < 2 {
+        tracing::debug!("confess submit dropped: text too short");
         return Ok(());
     }
     let _ = submit
