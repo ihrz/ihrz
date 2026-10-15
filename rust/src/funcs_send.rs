@@ -101,6 +101,53 @@ pub fn bold_stringify_options(options: &[UsageOption]) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// Argument option type labels (getArgumentOptionType /
+// getArgumentOptionTypeWithOptions in method.ts).
+// ---------------------------------------------------------------------------
+
+/// discord.js `ApplicationCommandOptionType` discriminants covered by the
+/// type switch (node ground truth slice 104: String=3, Integer=4,
+/// User=6, Channel=7, Role=8, Number=10, Attachment=11).
+pub const OPTION_TYPE_STRING: u8 = 3;
+pub const OPTION_TYPE_INTEGER: u8 = 4;
+pub const OPTION_TYPE_USER: u8 = 6;
+pub const OPTION_TYPE_CHANNEL: u8 = 7;
+pub const OPTION_TYPE_ROLE: u8 = 8;
+pub const OPTION_TYPE_NUMBER: u8 = 10;
+pub const OPTION_TYPE_ATTACHMENT: u8 = 11;
+
+/// Mirrors getArgumentOptionType: String->"string", User->"user",
+/// Role->"roles", Number/Integer->"number", Channel->"channel",
+/// Attachment->"attachment", anything else (Subcommand=1,
+/// SubcommandGroup=2, Boolean=5, Mentionable=9, out-of-range) ->"unknown".
+/// The TS switch is strict (no coercion): only the exact numeric
+/// discriminant matches.
+pub fn argument_option_type(option_type: u8) -> &'static str {
+    match option_type {
+        OPTION_TYPE_STRING => "string",
+        OPTION_TYPE_USER => "user",
+        OPTION_TYPE_ROLE => "roles",
+        OPTION_TYPE_INTEGER | OPTION_TYPE_NUMBER => "number",
+        OPTION_TYPE_CHANNEL => "channel",
+        OPTION_TYPE_ATTACHMENT => "attachment",
+        _ => "unknown",
+    }
+}
+
+/// Mirrors getArgumentOptionTypeWithOptions: `Some` choices (even empty --
+/// TS `if (o.choices)` is truthy on `[]`) render the values joined with
+/// `/`; `None` (no `choices` key) falls back to the type label.
+/// NOTE: the sibling live path `usage_type_label` (bot.rs) joins poise
+/// choice *names* and treats empty choices as absent; TS joins choice
+/// *values* and renders `[]` as `""` (battery legs below).
+pub fn argument_option_type_with_options(choices: Option<&[String]>, option_type: u8) -> String {
+    match choices {
+        Some(values) => values.join("/"),
+        None => argument_option_type(option_type).to_string(),
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Subcommand discriminants (hasSubCommand / hasSubCommandGroup /
 // isSubCommand in method.ts).
 // ---------------------------------------------------------------------------
@@ -1407,5 +1454,55 @@ mod tests {
         assert_eq!(w.button_id, "guild-id-g");
         assert_eq!(w.button_label, "Sent from MyGuild");
         assert!(w.button_disabled);
+    }
+
+    #[test]
+    fn argument_option_type_labels_match_ts_switch_legs() {
+        // Pinned via node battery slice 104 (discord.js 14.27 discriminants
+        // replicated verbatim): strict switch, no coercion.
+        use super::{
+            argument_option_type, argument_option_type_with_options, OPTION_TYPE_ATTACHMENT,
+            OPTION_TYPE_CHANNEL, OPTION_TYPE_INTEGER, OPTION_TYPE_NUMBER, OPTION_TYPE_ROLE,
+            OPTION_TYPE_STRING, OPTION_TYPE_USER,
+        };
+        assert_eq!(
+            (
+                OPTION_TYPE_STRING,
+                OPTION_TYPE_INTEGER,
+                OPTION_TYPE_USER,
+                OPTION_TYPE_CHANNEL,
+                OPTION_TYPE_ROLE,
+                OPTION_TYPE_NUMBER,
+                OPTION_TYPE_ATTACHMENT
+            ),
+            (3, 4, 6, 7, 8, 10, 11)
+        );
+        assert_eq!(argument_option_type(3), "string");
+        assert_eq!(argument_option_type(4), "number");
+        assert_eq!(argument_option_type(10), "number");
+        assert_eq!(argument_option_type(6), "user");
+        assert_eq!(argument_option_type(7), "channel");
+        assert_eq!(argument_option_type(8), "roles");
+        assert_eq!(argument_option_type(11), "attachment");
+        // Subcommand=1, Group=2, Boolean=5, Mentionable=9 fall to unknown.
+        for t in [0u8, 1, 2, 5, 9, 12, 99, 255] {
+            assert_eq!(argument_option_type(t), "unknown");
+        }
+        let s = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        // Choices leg joins values with `/`, even a single one.
+        assert_eq!(
+            argument_option_type_with_options(Some(&s(&["a", "b"])), 3),
+            "a/b"
+        );
+        assert_eq!(
+            argument_option_type_with_options(Some(&s(&["1", "2"])), 10),
+            "1/2"
+        );
+        // `choices: []` is truthy in TS -> `""`, not the type label.
+        assert_eq!(argument_option_type_with_options(Some(&s(&[])), 3), "");
+        // No `choices` key -> type label.
+        assert_eq!(argument_option_type_with_options(None, 3), "string");
+        assert_eq!(argument_option_type_with_options(None, 6), "user");
+        assert_eq!(argument_option_type_with_options(None, 9), "unknown");
     }
 }
