@@ -149,9 +149,12 @@ async fn run_channel_action(
     let author_id = ctx.author().id.get().to_string();
     // Mirrors `ranks/!channel.ts:60-146`: only an explicit `on`/`off`
     // acts. The slash `action` option is `required: true`, so a
-    // missing action on slash answers the usage reply (never silent);
-    // a bare prefix call keeps the TS silent no-op. The text lives
-    // behind `ranks_channel_missing_action` — never a hardcoded string.
+    // missing action on slash answers the usage reply (never silent).
+    // A bare prefix call is gated counts-first in `ranks_channel`
+    // below (TS `action` required:true in ranks.ts, prod pair E5
+    // renders the caret usage embed); this branch stays as a silent
+    // fallback for direct callers only. The text lives behind
+    // `ranks_channel_missing_action` — never a hardcoded string.
     let Some(action) = action else {
         if matches!(ctx, poise::Context::Prefix(_)) {
             return Ok(());
@@ -331,16 +334,45 @@ pub async fn ranks_channel(
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
+    // TS checkCommandArgs counts first (`action` required:true in
+    // HybridCommands/ranks/ranks.ts): a bare `.ranks channel` renders
+    // the caret usage embed (prod pair E5, `+ranks-channel [off/on]
+    // <channel>`), never the silent no-op (baninfo.rs precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_action_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     run_channel_action(ctx, action, channel).await
+}
+
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `action` option.
+pub fn prefix_action_missing(args: &str) -> bool {
+    args.trim().is_empty()
 }
 
 #[cfg(test)]
 mod tests {
     use super::{channel_action_kind, clear_xp_channel_routed, load_xp_channel_routed};
-    use super::{save_xp_channel_routed, ChannelAction};
+    use super::{prefix_action_missing, save_xp_channel_routed, ChannelAction};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn bare_prefix_action_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+ranks
+        // channel` bare renders `+ranks-channel [off/on] <channel>`
+        // with caret), never the silent no-op.
+        assert!(prefix_action_missing(""));
+        assert!(prefix_action_missing("   "));
+        assert!(!prefix_action_missing("on"));
+        assert!(!prefix_action_missing("off #chan"));
     }
 
     #[test]
