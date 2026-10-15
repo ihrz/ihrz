@@ -338,6 +338,159 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Rule choice. Mirrors the `rule` option `choices` in
+/// authorization.ts:131-136 (static `rules` array: slash shows the
+/// placeholder, the handler receives the `value`). All locales share
+/// the placeholder as the display name, exactly like TS
+/// (`name_localizations` = placeholder everywhere).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ProtectRule {
+    #[name = "cls"]
+    #[name_localized("en-US", "Delete All Settings")]
+    #[name_localized("en-GB", "Delete All Settings")]
+    #[name_localized("fr", "Delete All Settings")]
+    #[name_localized("ja", "Delete All Settings")]
+    #[name_localized("ru", "Delete All Settings")]
+    #[name_localized("es-ES", "Delete All Settings")]
+    Cls,
+    #[name = "all"]
+    #[name_localized("en-US", "Select All Rules")]
+    #[name_localized("en-GB", "Select All Rules")]
+    #[name_localized("fr", "Select All Rules")]
+    #[name_localized("ja", "Select All Rules")]
+    #[name_localized("ru", "Select All Rules")]
+    #[name_localized("es-ES", "Select All Rules")]
+    All,
+    #[name = "webhook"]
+    #[name_localized("en-US", "Create Webhook")]
+    #[name_localized("en-GB", "Create Webhook")]
+    #[name_localized("fr", "Create Webhook")]
+    #[name_localized("ja", "Create Webhook")]
+    #[name_localized("ru", "Create Webhook")]
+    #[name_localized("es-ES", "Create Webhook")]
+    Webhook,
+    #[name = "updateguild"]
+    #[name_localized("en-US", "Edit Guild")]
+    #[name_localized("en-GB", "Edit Guild")]
+    #[name_localized("fr", "Edit Guild")]
+    #[name_localized("ja", "Edit Guild")]
+    #[name_localized("ru", "Edit Guild")]
+    #[name_localized("es-ES", "Edit Guild")]
+    UpdateGuild,
+    #[name = "createchannel"]
+    #[name_localized("en-US", "Create Channel")]
+    #[name_localized("en-GB", "Create Channel")]
+    #[name_localized("fr", "Create Channel")]
+    #[name_localized("ja", "Create Channel")]
+    #[name_localized("ru", "Create Channel")]
+    #[name_localized("es-ES", "Create Channel")]
+    CreateChannel,
+    #[name = "updatechannel"]
+    #[name_localized("en-US", "Update Channel")]
+    #[name_localized("en-GB", "Update Channel")]
+    #[name_localized("fr", "Update Channel")]
+    #[name_localized("ja", "Update Channel")]
+    #[name_localized("ru", "Update Channel")]
+    #[name_localized("es-ES", "Update Channel")]
+    UpdateChannel,
+    #[name = "deletechannel"]
+    #[name_localized("en-US", "Delete Channel")]
+    #[name_localized("en-GB", "Delete Channel")]
+    #[name_localized("fr", "Delete Channel")]
+    #[name_localized("ja", "Delete Channel")]
+    #[name_localized("ru", "Delete Channel")]
+    #[name_localized("es-ES", "Delete Channel")]
+    DeleteChannel,
+    #[name = "createrole"]
+    #[name_localized("en-US", "Create Role")]
+    #[name_localized("en-GB", "Create Role")]
+    #[name_localized("fr", "Create Role")]
+    #[name_localized("ja", "Create Role")]
+    #[name_localized("ru", "Create Role")]
+    #[name_localized("es-ES", "Create Role")]
+    CreateRole,
+    #[name = "deleterole"]
+    #[name_localized("en-US", "Delete Role")]
+    #[name_localized("en-GB", "Delete Role")]
+    #[name_localized("fr", "Delete Role")]
+    #[name_localized("ja", "Delete Role")]
+    #[name_localized("ru", "Delete Role")]
+    #[name_localized("es-ES", "Delete Role")]
+    DeleteRole,
+    #[name = "updaterole"]
+    #[name_localized("en-US", "Update Role")]
+    #[name_localized("en-GB", "Update Role")]
+    #[name_localized("fr", "Update Role")]
+    #[name_localized("ja", "Update Role")]
+    #[name_localized("ru", "Update Role")]
+    #[name_localized("es-ES", "Update Role")]
+    UpdateRole,
+    #[name = "updatemember"]
+    #[name_localized("en-US", "Add/Remove Member Role(s)")]
+    #[name_localized("en-GB", "Add/Remove Member Role(s)")]
+    #[name_localized("fr", "Add/Remove Member Role(s)")]
+    #[name_localized("ja", "Add/Remove Member Role(s)")]
+    #[name_localized("ru", "Add/Remove Member Role(s)")]
+    #[name_localized("es-ES", "Add/Remove Member Role(s)")]
+    UpdateMember,
+    #[name = "banmembers"]
+    #[name_localized("en-US", "Ban Members")]
+    #[name_localized("en-GB", "Ban Members")]
+    #[name_localized("fr", "Ban Members")]
+    #[name_localized("ja", "Ban Members")]
+    #[name_localized("ru", "Ban Members")]
+    #[name_localized("es-ES", "Ban Members")]
+    BanMembers,
+    #[name = "kickmember"]
+    #[name_localized("en-US", "Kick Members")]
+    #[name_localized("en-GB", "Kick Members")]
+    #[name_localized("fr", "Kick Members")]
+    #[name_localized("ja", "Kick Members")]
+    #[name_localized("ru", "Kick Members")]
+    #[name_localized("es-ES", "Kick Members")]
+    KickMember,
+    #[name = "unbanmembers"]
+    #[name_localized("en-US", "Unban Members")]
+    #[name_localized("en-GB", "Unban Members")]
+    #[name_localized("fr", "Unban Members")]
+    #[name_localized("ja", "Unban Members")]
+    #[name_localized("ru", "Unban Members")]
+    #[name_localized("es-ES", "Unban Members")]
+    UnbanMembers,
+    #[name = "add_admin_roles"]
+    #[name_localized("en-US", "Add admin role")]
+    #[name_localized("en-GB", "Add admin role")]
+    #[name_localized("fr", "Add admin role")]
+    #[name_localized("ja", "Add admin role")]
+    #[name_localized("ru", "Add admin role")]
+    #[name_localized("es-ES", "Add admin role")]
+    AddAdminRoles,
+}
+
+impl ProtectRule {
+    /// TS `value` (`cls` / `all` / `webhook` / …), fed into the
+    /// existing `valid_rule` gate like the raw TS option.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Cls => "cls",
+            Self::All => "all",
+            Self::Webhook => "webhook",
+            Self::UpdateGuild => "updateguild",
+            Self::CreateChannel => "createchannel",
+            Self::UpdateChannel => "updatechannel",
+            Self::DeleteChannel => "deletechannel",
+            Self::CreateRole => "createrole",
+            Self::DeleteRole => "deleterole",
+            Self::UpdateRole => "updaterole",
+            Self::UpdateMember => "updatemember",
+            Self::BanMembers => "banmembers",
+            Self::KickMember => "kickmember",
+            Self::UnbanMembers => "unbanmembers",
+            Self::AddAdminRoles => "add_admin_roles",
+        }
+    }
+}
+
 /// Choose an actions to Deny/Allow for the user!
 // TS name is `actions` (authorization.ts:106); `rule` is its option.
 #[poise::command(
@@ -351,17 +504,14 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn protect_actions(
     ctx: Ctx<'_>,
-    // FAILED-unexpressible as a static ChoiceParameter: the TS `rule`
-    // choices are computed at runtime via
-    // `Object.entries(rules).map(...)` (authorization.ts:131) over the
-    // `rules` array (including the `cls`/`all` pseudo-entries), so the
-    // free-form String + `valid_rule` gate stays.
+    // Static `rules` array in authorization.ts (placeholder labels in
+    // every locale) — a value-first `ProtectRule` choice, like `allow`.
     #[description = "Whats is the rule to configure?"]
     #[description_localized("fr", "Quelle est la règle à configurer ?")]
     #[description_localized("ja", "設定するルールは？")]
     #[description_localized("ru", "Какое правило настроить?")]
     #[description_localized("es-ES", "Cual es la regla a configurar?")]
-    rule: String,
+    rule: ProtectRule,
     #[description_localized("fr", "Les règles sont contournables pour qui ?")]
     #[description_localized("ja", "ルールをバイパスできるのは誰？")]
     #[description_localized("ru", "Для кого правила обходятся?")]
@@ -378,7 +528,7 @@ pub async fn protect_actions(
     {
         return Ok(());
     }
-    let rule = rule.trim().to_ascii_lowercase();
+    let rule = rule.as_str().trim().to_ascii_lowercase();
     if !valid_rule(&rule) {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
@@ -931,6 +1081,36 @@ mod tests {
         }
         assert!(!all.contains("cls"));
         assert_eq!(rule_display("webhook"), "WEBHOOK");
+    }
+
+    #[test]
+    fn protect_rule_choice_values_match_ts_rules() {
+        // Every TS `rules` value (authorization.ts) has a choice
+        // variant, and every variant passes the `valid_rule` gate.
+        let all = [
+            ProtectRule::Cls,
+            ProtectRule::All,
+            ProtectRule::Webhook,
+            ProtectRule::UpdateGuild,
+            ProtectRule::CreateChannel,
+            ProtectRule::UpdateChannel,
+            ProtectRule::DeleteChannel,
+            ProtectRule::CreateRole,
+            ProtectRule::DeleteRole,
+            ProtectRule::UpdateRole,
+            ProtectRule::UpdateMember,
+            ProtectRule::BanMembers,
+            ProtectRule::KickMember,
+            ProtectRule::UnbanMembers,
+            ProtectRule::AddAdminRoles,
+        ];
+        assert_eq!(all.len(), 15);
+        for v in all {
+            assert!(valid_rule(v.as_str()), "choice {} rejected", v.as_str());
+        }
+        for r in RULES {
+            assert!(all.iter().any(|v| v.as_str() == r), "missing {r}");
+        }
     }
 
     #[test]

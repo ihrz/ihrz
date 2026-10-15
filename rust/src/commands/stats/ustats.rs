@@ -247,13 +247,12 @@ pub async fn stats_user(
         let html = user_stats_card_html(&card);
         if let Some(png) = render_card_png(&base, &token, &html, USTATS_OPTIONS_JSON).await {
             use poise::serenity_prelude as serenity;
-            let embed = serenity::CreateEmbed::default()
-                .description(&text)
-                .image("attachment://ustats.png");
+            // TS `!ustats.ts:361` edits to the bare file
+            // (`{ content: null, files: [image.png] }`): no embed, no
+            // text — the file alone is the final shape.
             ctx.send(
                 poise::CreateReply::default()
-                    .embed(embed)
-                    .attachment(serenity::CreateAttachment::bytes(png, "ustats.png")),
+                    .attachment(serenity::CreateAttachment::bytes(png, "image.png")),
             )
             .await?;
             return Ok(());
