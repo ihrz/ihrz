@@ -835,15 +835,22 @@ mod tests {
         // Valid: alnum groups joined by single hyphens, max 32.
         assert!(is_valid_vanity_code("abc"));
         assert!(is_valid_vanity_code("ABC-123-x"));
+        assert!(is_valid_vanity_code("0-0"));
+        assert!(is_valid_vanity_code("Z-9-x"));
         assert!(is_valid_vanity_code(&"a".repeat(32)));
         // Invalid: empty, too long, edge/double hyphens, bad chars.
         assert!(!is_valid_vanity_code(""));
         assert!(!is_valid_vanity_code(&"a".repeat(33)));
+        assert!(!is_valid_vanity_code(&format!("{}-b", "a".repeat(31))));
         assert!(!is_valid_vanity_code("-abc"));
         assert!(!is_valid_vanity_code("abc-"));
         assert!(!is_valid_vanity_code("a--b"));
         assert!(!is_valid_vanity_code("ab_c"));
         assert!(!is_valid_vanity_code("ab c"));
+        assert!(!is_valid_vanity_code("a.b"));
+        assert!(!is_valid_vanity_code("a/b"));
+        assert!(!is_valid_vanity_code("-"));
+        assert!(!is_valid_vanity_code("--"));
         assert!(!is_valid_vanity_code("caf\u{e9}"));
         // Node ground truth (non-unicode /i has no Annex-B foldings):
         // ſ/İ/ı/K/Σ/ß all fail the TS regex, like the ASCII-only check.
