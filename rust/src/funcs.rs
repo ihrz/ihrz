@@ -1483,6 +1483,20 @@ mod tests {
         assert_eq!(mask_link("see HTTP://x.y"), "see HTTP://x.y");
         assert_eq!(mask_link("Discordapp x"), "Discordapp x");
         assert_eq!(mask_link("x.COM"), "x.COM");
+        // W6 slice 91 (maskLink.ts node battery, 46 cases): strictly
+        // case-sensitive ASCII substring search; byte-substring equals
+        // UTF-16-substring for pure-ASCII needles on every input.
+        assert_eq!(mask_link(""), "");
+        assert_eq!(mask_link("see HTTPS://x.y"), "see HTTPS://x.y");
+        assert_eq!(mask_link("DISCORDAPP x"), "DISCORDAPP x");
+        assert_eq!(mask_link("x.Com"), "x.Com");
+        assert_eq!(mask_link(".GG hi"), ".GG hi");
+        assert_eq!(mask_link("a.comb"), "Hidden Link");
+        assert_eq!(mask_link("x discordappy"), "Hidden Link");
+        assert_eq!(mask_link("HTTPS://UPPER"), "HTTPS://UPPER");
+        assert_eq!(mask_link("FTP://x.com"), "Hidden Link");
+        assert_eq!(mask_link("line1\n.com"), "Hidden Link");
+        assert_eq!(mask_link("tab\t.gg"), "Hidden Link");
         assert_eq!(mask_link("plain text"), "plain text");
         assert_eq!(message_url(1, 2, 3), "https://discord.com/channels/1/2/3");
         // Mirrors getMessageURL.ts template literal exactly (node battery):
