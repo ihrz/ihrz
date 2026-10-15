@@ -927,6 +927,34 @@ pub fn warn_payload(
     }
 }
 
+/// Mirrors method.ts changeVoiceChannelStatus request shape
+/// (`PUT https://discord.com/api/v10/channels/${channelId}/voice-status`,
+/// `Authorization: Bot <token>`, JSON body `{status}`, `res.status === 200`).
+/// Delivery lives in lavalink.rs (`clear_voice_status` / `set_voice_status`
+/// via serenity `edit_voice_status`); this owns the TS-exact pure legs.
+/// The channel id interpolates verbatim (no encoding); the `${status}`
+/// shorthand key keeps the literal `"status"` name.
+pub fn voice_status_url(channel_id: &str) -> String {
+    format!("https://discord.com/api/v10/channels/{channel_id}/voice-status")
+}
+
+/// Mirrors `JSON.stringify({ status })`: `{"status":"..."}` with full JSON
+/// string escaping. `serde_json::to_string` agrees with `JSON.stringify`
+/// on every valid-UTF8 input (short control escapes, `\u00XX` for other
+/// C0, non-ASCII incl. astral passed through literally); lone surrogates
+/// are unrepresentable in `&str` (TS emits `\uXXXX` there).
+pub fn voice_status_body(status: &str) -> String {
+    format!(
+        "{{\"status\":{}}}",
+        serde_json::to_string(status).unwrap_or_else(|_| "\"\"".to_string())
+    )
+}
+
+/// Mirrors the strict `res.status === 200` verdict (201/204/4xx/5xx false).
+pub fn voice_status_ok(http_status: u16) -> bool {
+    http_status == 200
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1643,6 +1671,41 @@ mod tests {
         assert_eq!(derank_reason(Some("")), "Protection");
         assert_eq!(derank_reason(Some("Spam")), "Spam");
         assert_eq!(derank_reason(Some(" ")), " ");
+    }
+
+    #[test]
+    fn voice_status_legs_match_ts_request_shape() {
+        // Pinned via node battery slice 132 (verbatim changeVoiceChannelStatus
+        // legs): template-literal URL, JSON.stringify body, strict-200 verdict.
+        use super::{voice_status_body, voice_status_ok, voice_status_url};
+        assert_eq!(
+            voice_status_url("123456789012345678"),
+            "https://discord.com/api/v10/channels/123456789012345678/voice-status"
+        );
+        assert_eq!(
+            voice_status_url(""),
+            "https://discord.com/api/v10/channels//voice-status"
+        );
+        // Live payloads: trackStart line + queueEnd clear.
+        assert_eq!(
+            voice_status_body(":musical_note: Title - Author"),
+            "{\"status\":\":musical_note: Title - Author\"}"
+        );
+        assert_eq!(voice_status_body(""), "{\"status\":\"\"}");
+        // JSON escaping agrees with JSON.stringify on every valid-UTF8 input.
+        assert_eq!(
+            voice_status_body("a\"b\\c\nd\te\x08f\x0Cg"),
+            "{\"status\":\"a\\\"b\\\\c\\nd\\te\\bf\\fg\"}"
+        );
+        assert_eq!(
+            voice_status_body("héllo wörld 🔑"),
+            "{\"status\":\"héllo wörld 🔑\"}"
+        );
+        // Strict `=== 200`: 201/204/4xx/5xx all false.
+        assert!(voice_status_ok(200));
+        for s in [0u16, 201, 204, 400, 401, 403, 404, 429, 500] {
+            assert!(!voice_status_ok(s));
+        }
     }
 
     #[test]
