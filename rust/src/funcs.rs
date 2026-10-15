@@ -1351,6 +1351,13 @@ mod tests {
     fn cipher_roundtrip_and_rejects() {
         let enc = encrypt_text("pw", "hello guild");
         assert_eq!(enc.split(':').count(), 4);
+        // Envelope shape mirrors the TS join: 16B salt / 12B iv /
+        // 16B auth tag as hex (ct leg is 22 hex for 11 input bytes).
+        let segs: Vec<&str> = enc.split(':').collect();
+        assert_eq!((segs[0].len(), segs[1].len(), segs[3].len()), (32, 24, 32));
+        assert_eq!(segs[2].len(), 22);
+        // Fresh random salt+iv per call: two envelopes never agree.
+        assert_ne!(enc, encrypt_text("pw", "hello guild"));
         assert_eq!(decrypt_text("pw", &enc).as_deref(), Some("hello guild"));
         assert_eq!(decrypt_text("wrong", &enc), None);
         assert_eq!(decrypt_text("pw", "not:valid"), None);
@@ -1381,6 +1388,25 @@ mod tests {
         // Fixed vector produced by the TS implementation (node:crypto).
         let ts = "d00a16daa41250a3a64a254f10bbdbc3:5626ea095456cc1121843a32:3b16d14a2c4ac1854e0a60:35a1c55e9161f75e235bcd40cf3c30e4";
         assert_eq!(decrypt_text("pw", ts).as_deref(), Some("hello guild"));
+        // Unicode password/plaintext interop vector (node battery: salt
+        // 00..0f, iv 10..1b; pbkdf2Sync takes the password as UTF-8,
+        // exactly like Rust `as_bytes()`).
+        let ts_uni = "000102030405060708090a0b0c0d0e0f:101112131415161718191a1b:aa4cbb45115233015c5053d5fe:6b2af82f23e26fe1199e008f672ea96b";
+        assert_eq!(
+            decrypt_text("pâsswörd🔑", ts_uni).as_deref(),
+            Some("héllo wörld")
+        );
+        // DELTA (doc-noted): a valid-GCM envelope decrypting to
+        // non-UTF8 bytes (key-holder-crafted only) yields the U+FFFD
+        // replacement string in TS (`toString("utf8")` never throws)
+        // but None in Rust (`String::from_utf8` rejects). Unreachable
+        // from `encrypt` (string input is always valid UTF-8); node
+        // ground truth decrypts the envelope below to `"���"`.
+        let bad_utf8 = "000102030405060708090a0b0c0d0e0f:101112131415161718191a1b:8fac83:8e85dca64606b6cb2db098d42132ad17";
+        assert_eq!(decrypt_text("pw", bad_utf8), None);
+        // Whitespace-only segments match TS (createDecipheriv throws
+        // on the short nonce -> undefined).
+        assert_eq!(decrypt_text("pw", "  :  :  :  "), None);
     }
 
     #[test]
