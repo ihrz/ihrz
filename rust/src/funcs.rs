@@ -1258,6 +1258,60 @@ mod tests {
     }
 
     #[test]
+    fn beautiful_long_plural_and_locale_shorts_match_ts() {
+        // Node ground truth (ms.ts to_beautiful_string battery, slice 80):
+        // long singular/plural boundary per unit, ms-tail singular,
+        // fractional leftovers floor into the ms tail, non-en shorts come
+        // from the var_* YAML keys verbatim.
+        assert_eq!(
+            beautiful_ms_in(1001.0, "en-US", true),
+            "1 second 1 millisecond"
+        );
+        assert_eq!(beautiful_ms_in(1.0, "en-US", true), "1 millisecond");
+        assert_eq!(beautiful_ms_in(2.0, "en-US", true), "2 milliseconds");
+        assert_eq!(
+            beautiful_ms_in(90_061.0, "en-US", true),
+            "1 minute 30 seconds 61 milliseconds"
+        );
+        assert_eq!(
+            beautiful_ms_in(90_061.0, "en-US", false),
+            "1minute(s)30second(s)61ms"
+        );
+        assert_eq!(
+            beautiful_ms_in(61_000.0, "en-US", true),
+            "1 minute 1 second"
+        );
+        assert_eq!(beautiful_ms_long(31_557_600_000.0), "1 year");
+        assert_eq!(beautiful_ms_long(63_115_200_000.0), "2 years");
+        assert_eq!(beautiful_ms_long(2_592_000_000.0), "1 month");
+        assert_eq!(beautiful_ms_long(1_209_600_000.0), "2 weeks");
+        assert_eq!(beautiful_ms_long(86_400_000.0), "1 day");
+        assert_eq!(beautiful_ms_long(120_000.0), "2 minutes");
+        assert_eq!(beautiful_ms_long(1000.0), "1 second");
+        // Fractional leftovers floor into the ms tail, exactly like TS.
+        assert_eq!(beautiful_ms_in(1500.5, "en-US", false), "1second(s)500ms");
+        assert_eq!(
+            beautiful_ms_in(1500.5, "en-US", true),
+            "1 second 500 milliseconds"
+        );
+        assert_eq!(beautiful_ms_in(999.9, "en-US", false), "999ms");
+        // fr-FR shorts are the var_* values verbatim (ms tail stays "ms").
+        assert_eq!(beautiful_ms_in(3_600_000.0, "fr-FR", false), "1heure(s)");
+        assert_eq!(
+            beautiful_ms_in(90_000.0, "fr-FR", false),
+            "1minute(s)30seconde(s)"
+        );
+        assert_eq!(
+            beautiful_ms_in(90_061.0, "fr-FR", false),
+            "1minute(s)30seconde(s)61ms"
+        );
+        assert_eq!(
+            beautiful_ms_in(61_000.0, "fr-FR", false),
+            "1minute(s)1seconde(s)"
+        );
+    }
+
+    #[test]
     fn beautiful_str_parses_first() {
         // String input runs time_ms first (H5).
         assert_eq!(
