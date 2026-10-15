@@ -620,15 +620,9 @@ pub async fn owner(
     user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
-    // Neither bot nor guild owner: answer the TS `owner_not_owner`
-    // denial instead of going silent.
+    // Neither bot nor guild owner: TS `run` returns silently (no reply).
+    // Verified live WAVE-20261015N: prod `+owner` silent, test must match.
     let Some(scope) = owner_scope(&ctx).await else {
-        ctx.say(lt(
-            &code,
-            "owner_not_owner",
-            "You are not an owner of the iHorizon Project. You can't use this command.",
-        ))
-        .await?;
         return Ok(());
     };
     match scope {
