@@ -392,22 +392,45 @@ pub fn fallback_identifier(source: FallbackSource, title: &str, author: &str) ->
 
 /// Bot user id from a Discord token. Mirrors userIdFromToken in
 /// playerManager.ts (`Buffer.from(token.split(".")[0], "base64")`,
-/// None for the empty-string case). The first segment is unpadded
-/// base64, so padding is restored before decoding (no new dep: the
-/// self-contained decoder in [`crate::emojis`]).
+/// `|| null` on the empty-string case). Node ground truth (v24
+/// battery): the decoder keeps the base64 + base64url alphabet
+/// (`-` -> 62, `_` -> 63) plus `=`, skips every other char
+/// (whitespace, `!`, non-ASCII BMP, ...), truncates at the first
+/// `=`, then decodes full quanta plus a 2/3-char tail (a lone
+/// trailing char is dropped). Astral-plane chars are GIGO (Node
+/// stops, skips, or emits garbage depending on the codepoint --
+/// version-fragile, unrepresentable in real tokens); Rust drops
+/// them like any other non-alphabet char.
 pub fn user_id_from_token(token: &str) -> Option<String> {
     let first = token.split('.').next().unwrap_or("");
-    let mut compact: String = first.chars().filter(|c| !c.is_ascii_whitespace()).collect();
-    if compact.is_empty() {
+    let mut clean: String = first
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '/' | '-' | '_' | '='))
+        .collect();
+    if let Some(pos) = clean.find('=') {
+        clean.truncate(pos);
+    }
+    let mut std: String = clean
+        .chars()
+        .map(|c| match c {
+            '-' => '+',
+            '_' => '/',
+            c => c,
+        })
+        .collect();
+    if std.len() % 4 == 1 {
+        std.pop();
+    }
+    if std.is_empty() {
         return None;
     }
-    let rem = compact.len() % 4;
+    let rem = std.len() % 4;
     if rem != 0 {
         for _ in 0..(4 - rem) {
-            compact.push('=');
+            std.push('=');
         }
     }
-    let bytes = crate::emojis::base64_decode(&compact)?;
+    let bytes = crate::emojis::base64_decode(&std)?;
     let id = String::from_utf8_lossy(&bytes).into_owned();
     (!id.is_empty()).then_some(id)
 }
@@ -4540,23 +4563,55 @@ mod tests {
     }
 
     #[test]
-    fn user_id_from_token_decodes_first_segment() {
-        // "123456789" -> "MTIzNDU2Nzg5" (no padding needed).
-        assert_eq!(
-            user_id_from_token("MTIzNDU2Nzg5.fake.sig"),
-            Some("123456789".to_string())
-        );
-        // "12345678" -> "MTIzNDU2Nzg=" (unpadded token form needs padding).
-        assert_eq!(
-            user_id_from_token("MTIzNDU2Nzg.fake.sig"),
-            Some("12345678".to_string())
-        );
-        // No dots: the whole token is the segment.
-        assert_eq!(user_id_from_token("OTk5"), Some("999".to_string()));
-        // Empty / undecodable segments mirror the TS `|| null`.
-        assert_eq!(user_id_from_token(""), None);
-        assert_eq!(user_id_from_token("..."), None);
-        assert_eq!(user_id_from_token("!!!.a.b"), None);
+    fn user_id_from_token_matches_ts_base64_leniency() {
+        // Node ground truth (`Buffer.from(seg, "base64").toString() || null`):
+        // skips non-alphabet chars, decodes `-`/`_` as 62/63, truncates
+        // at the first `=`, drops a lone trailing char past a multiple of 4.
+        let cases: &[(&str, Option<&str>)] = &[
+            ("MTIzNDU2Nzg5.fake.sig", Some("123456789")),
+            ("MTIzNDU2Nzg.fake.sig", Some("12345678")),
+            ("OTk5", Some("999")),
+            ("MTIzNDU2Nzg5", Some("123456789")),
+            ("MTIz ND\nU2\tNzg5.x.y", Some("123456789")),
+            ("MT!IzNDU2Nzg5.a.b", Some("123456789")),
+            ("MTIzNDU2Nzg5!!.a.b", Some("123456789")),
+            ("TQ", Some("M")),
+            ("TQ==.a", Some("M")),
+            ("TWFuT", Some("Man")),
+            ("TWFuTW", Some("ManM")),
+            ("TWFuTWF", Some("ManMa")),
+            ("ABCDE", Some("\0\u{10}\u{fffd}")),
+            ("AB=C.a.b", Some("\0")),
+            ("MTIz====.a.b", Some("123")),
+            ("QUI=Q0Q=", Some("AB")),
+            ("AB==CD.x", Some("\0")),
+            ("TWFu===TWFu", Some("Man")),
+            ("TWFu=.x", Some("Man")),
+            ("TWF-", Some("Ma~")),
+            ("TWF_", Some("Ma\u{7f}")),
+            ("AA-_", Some("\0\u{f}\u{fffd}")),
+            ("//79.a.b", Some("\u{fffd}\u{fffd}\u{fffd}")),
+            ("4oI.x", Some("\u{fffd}")),
+            ("MTIzéNDU2.a", Some("123456")),
+            ("MTIz\x7fNDU2.a", Some("123456")),
+            ("MTIz\u{1}NDU2.a", Some("123456")),
+            ("", None),
+            (".a.b", None),
+            ("...", None),
+            ("!!!.a.b", None),
+            ("T", None),
+            ("A", None),
+            ("M.R.I.z", None),
+            ("====.a", None),
+            ("=TWFu.x", None),
+        ];
+        for (input, want) in cases {
+            assert_eq!(
+                user_id_from_token(input),
+                want.map(str::to_string),
+                "input {input:?}"
+            );
+        }
     }
 
     #[test]
