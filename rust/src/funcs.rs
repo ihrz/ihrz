@@ -2497,8 +2497,12 @@ pub fn sanitize_option(option_name: &str, option_value: &str) -> String {
 
 // ---- userStatsUtils time buckets ----
 
-/// Partition timestamps into daily/weekly/monthly windows.
-/// Mirrors calculateMessageTime/calculateVoiceActivity.
+/// Daily/weekly/monthly stamp partition. Mirrors the bucket legs of
+/// userStatsUtils.ts calculateMessageTime/calculateVoiceActivity
+/// (`>= now - timeout`, cumulative nesting, input order kept).
+/// Delta: TS compares f64 timestamps, the mirror i64 (live stamps are
+/// integer Date.now()/DB values; fractional-boundary truncation noted
+/// in test `buckets_partition`).
 pub fn bucketize(
     stamps: &[i64],
     now: i64,
@@ -3135,6 +3139,39 @@ mod funcs_part3_tests {
         assert_eq!(d, vec![95]);
         assert_eq!(w, vec![95, 50]);
         assert_eq!(m, vec![95, 50, 5]);
+        // Node ground truth for userStatsUtils.ts calculateMessageTime /
+        // calculateVoiceActivity bucket legs (`>=` lower-bound inclusive,
+        // cumulative nesting, input order kept, no sort): exact-boundary
+        // stamps land in the bucket, just-below miss, future stamps land
+        // everywhere, zero timeouts keep only exact-now, negative
+        // timeouts gate above now, empty input yields three empties.
+        // Delta (doc-noted): TS compares f64 timestamps, the mirror i64 —
+        // fractional stamps near a boundary can differ by truncation
+        // (e.g. stamp 90.5 vs gate 90.9 misses in TS, hits truncated);
+        // live stamps are integer Date.now()/DB values, unreachable.
+        let (d, w, m) = bucketize(&[90, 40, 0], 100, 10, 60, 100);
+        assert_eq!(d, vec![90]);
+        assert_eq!(w, vec![90, 40]);
+        assert_eq!(m, vec![90, 40, 0]);
+        let (d, w, m) = bucketize(&[150, 200], 100, 10, 60, 1000);
+        assert_eq!(d, vec![150, 200]);
+        assert_eq!(w, vec![150, 200]);
+        assert_eq!(m, vec![150, 200]);
+        let (d, w, m) = bucketize(&[100], 100, 0, 0, 0);
+        assert_eq!(d, vec![100]);
+        assert_eq!(w, vec![100]);
+        assert_eq!(m, vec![100]);
+        let (d, w, m) = bucketize(&[50], 100, 0, 0, 0);
+        assert!(d.is_empty() && w.is_empty() && m.is_empty());
+        let (d, w, m) = bucketize(&[50], 100, -10, -5, 1000);
+        assert!(d.is_empty() && w.is_empty());
+        assert_eq!(m, vec![50]);
+        let (d, w, m) = bucketize(&[], 100, 10, 60, 1000);
+        assert!(d.is_empty() && w.is_empty() && m.is_empty());
+        let (d, w, m) = bucketize(&[5, 50, 95], 100, 10, 60, 1000);
+        assert_eq!(d, vec![95]);
+        assert_eq!(w, vec![50, 95]);
+        assert_eq!(m, vec![5, 50, 95]);
     }
 
     #[test]
