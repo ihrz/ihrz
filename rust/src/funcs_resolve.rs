@@ -329,9 +329,19 @@ pub fn similarity(a: &str, b: &str) -> f64 {
 }
 
 /// Resolve a voice channel id. Mirrors method.ts voiceChannel():
-/// numeric id (voice types only) first, then fuzzy name (>= 0.6).
+/// falsy arg -> None (`!arg` guard, empty included); numeric id
+/// (voice types only) first with fall-through to fuzzy on a type
+/// miss, then fuzzy name (>= 0.6) over voice channels only, using
+/// the RAW arg (unstripped).
+/// DELTAS (offline port, doc-noted): a cache id-miss that the Discord
+/// API could fetch-hit yields None here (no network in the pure
+/// helper); the no-guild leg is unrepresentable (the caller passes a
+/// snapshot). W6 slice 128 battery-verified.
 pub fn resolve_voice_channel(arg: Option<&str>, channels: &[VoiceChannel]) -> Option<String> {
     let arg = arg?;
+    if arg.is_empty() {
+        return None;
+    }
     let id = strip_channel_mention(arg);
     if all_digits(&id) {
         if let Some(c) = channels.iter().find(|c| c.id == id && c.is_voice) {
@@ -845,6 +855,55 @@ mod tests {
         // Fuzzy must not match text channels.
         assert_eq!(resolve_voice_channel(Some("general"), &chs), None);
         assert_eq!(resolve_voice_channel(Some("zzz-nope"), &chs), None);
+    }
+
+    #[test]
+    fn voice_channel_matches_ts_battery_legs() {
+        // Battery mirror of method.ts voiceChannel() (node, verbatim
+        // minus fetch-or-null): id/stage hit, text-id falls through to
+        // fuzzy on the RAW arg, mention strip, fuzzy legs, guards.
+        let vc = |id: &str, name: &str, is_voice: bool| VoiceChannel {
+            id: id.into(),
+            name: name.into(),
+            is_voice,
+        };
+        let chs = vec![
+            vc("10", "General", true),
+            vc("11", "general", true),
+            vc("12", "lobby", false),
+            vc("13", "Stage", true),
+            vc("14", "123", true),
+        ];
+        let r = |arg: Option<&str>| resolve_voice_channel(arg, &chs);
+        // Id legs: voice + stage-voice hit; text id falls to fuzzy.
+        assert_eq!(r(Some("10")).as_deref(), Some("10"));
+        assert_eq!(r(Some("13")).as_deref(), Some("13"));
+        // "12" is a text channel: id leg skips it, fuzzy("12") hits
+        // voice "123" (1 - 1/3 = 0.667 >= 0.6), exactly like TS.
+        assert_eq!(r(Some("12")).as_deref(), Some("14"));
+        assert_eq!(r(Some("99")), None);
+        assert_eq!(r(Some("<#10>")).as_deref(), Some("10"));
+        // Text-id mention: id leg skips, fuzzy uses the RAW
+        // unstripped "<#12>" -> no voice hit.
+        assert_eq!(r(Some("<#12>")), None);
+        // Name legs: exact + case-insensitive fuzzy; first voice
+        // channel wins on ties (cache order).
+        assert_eq!(r(Some("General")).as_deref(), Some("10"));
+        assert_eq!(r(Some("GENERAL")).as_deref(), Some("10"));
+        assert_eq!(r(Some("Gener")).as_deref(), Some("10"));
+        // "lobby" is text-only -> fuzzy skips it -> None.
+        assert_eq!(r(Some("lobby")), None);
+        assert_eq!(r(Some("stage")).as_deref(), Some("13")); // stage-voice
+        assert_eq!(r(Some("zzzq")), None);
+        assert_eq!(r(Some(" 10")), None); // space breaks the digit leg
+        assert_eq!(r(Some("123")).as_deref(), Some("14")); // numeric name
+                                                           // Guards: !arg (empty + missing) -> None, before any fuzzy.
+        assert_eq!(r(Some("")), None);
+        assert_eq!(r(None), None);
+        // Empty-named voice channel still yields None on empty arg
+        // (TS `!arg` guard); the fuzzy 1.0 leg is unreachable.
+        let with_empty = vec![vc("15", "", true)];
+        assert_eq!(resolve_voice_channel(Some(""), &with_empty), None);
     }
 
     #[test]
