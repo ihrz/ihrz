@@ -35,10 +35,15 @@ pub async fn blogger_add(
     // a padded URL validates/fetches or fails exactly like TS.
     let (valid, feed_title) = validate_rss_feed(&rss).await;
     if !valid {
-        ctx.say(say(
-            "blogger_blog_add_invalid_rss",
-            "The provided RSS feed is invalid or unreachable. Please check the URL and try again.",
-        ))
+        // TS `!add.ts:105-108` replies `invalid_rss` ephemeral.
+        ctx.send(
+            poise::CreateReply::default()
+                .content(say(
+                    "blogger_blog_add_invalid_rss",
+                    "The provided RSS feed is invalid or unreachable. Please check the URL and try again.",
+                ))
+                .ephemeral(true),
+        )
         .await?;
         return Ok(());
     }
