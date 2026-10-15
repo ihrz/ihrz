@@ -723,6 +723,56 @@ mod tests {
         // "pass" as substring of a longer name is not sensitive (TS
         // uses the full normalized name in the set).
         assert_eq!(sanitize_interaction_option_value("passage", "x"), "x");
+        // W6 slice 119 node battery (verbatim TS fn): separator/pad
+        // stripping hits the set; affixes, digits, unicode folds miss.
+        for name in [
+            "Pass-Word",
+            "p.a.s.s",
+            "p a s s",
+            "PASS/WORD",
+            "api key",
+            "SESSION-TOKEN",
+            "session.token",
+            "SECRET!!",
+            "token\n",
+            "\ttoken\t",
+            "pass\u{200b}word",
+            "ses\u{feff}sionkey",
+            "Session Key",
+        ] {
+            assert_eq!(
+                sanitize_interaction_option_value(name, "hunter2"),
+                "[REDACTED]",
+                "name: {name:?}"
+            );
+        }
+        for name in [
+            "TOKENS",
+            "pass1",
+            "1pass",
+            "mytoken",
+            "secrets",
+            "credentialX",
+            "",
+            " ",
+            "___",
+            "PÄSSWORD",
+            "ＳＥＣＲＥＴ",
+            "TOKENİ",
+            "ſecret",
+            "ßecret",
+            "KTOKEN",
+            "Ｓecret",
+            "apikey2",
+            "2apikey",
+            "credéntial",
+        ] {
+            assert_eq!(
+                sanitize_interaction_option_value(name, "hunter2"),
+                "hunter2",
+                "name: {name:?}"
+            );
+        }
     }
 
     #[test]
