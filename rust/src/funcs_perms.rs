@@ -340,11 +340,30 @@ mod tests {
         // Adversarial: level 0 + targets must become None (targets-only gate).
         let p = normalize(vec!["u1".into()], vec![], Some(0));
         assert_eq!(p.level, None);
+        let p = normalize(vec![], vec!["r1".into()], Some(0));
+        assert_eq!(p.level, None);
         let p = normalize(vec![], vec![], None);
         assert_eq!(p.level, Some(0));
         // No targets, no level -> open (Some(0)).
         let p = normalize(vec![], vec![], None);
         assert!(!has_requirements(Some(&p)));
+        // U-ETERNAL-270: full normalize matrix vs node battery replicating
+        // normalizeCommandPermissionData verbatim. TS `??` fires on both
+        // undefined and null, so Rust None covers both spellings exactly:
+        // missing/null level + targets -> null, + empty -> 0.
+        let p = normalize(vec!["u1".into()], vec![], None);
+        assert_eq!(p.level, None);
+        let p = normalize(vec![], vec!["r1".into()], None);
+        assert_eq!(p.level, None);
+        let p = normalize(vec!["u1".into()], vec!["r1".into()], None);
+        assert_eq!(p.level, None);
+        // Non-zero levels pass through untouched with or without targets.
+        let p = normalize(vec!["u1".into()], vec![], Some(3));
+        assert_eq!(p.level, Some(3));
+        let p = normalize(vec![], vec![], Some(9));
+        assert_eq!(p.level, Some(9));
+        // default_perm is normalize([], [], missing): open record.
+        assert_eq!(default_perm(), normalize(vec![], vec![], None));
     }
 
     #[test]
@@ -353,6 +372,13 @@ mod tests {
         assert!(!has_requirements(Some(&default_perm())));
         assert!(has_requirements(Some(&full(&["u1"], &[], None))));
         assert!(has_requirements(Some(&full(&[], &[], Some(3)))));
+        // U-ETERNAL-270: node ground truth — `(level ?? 0) > 0`, so explicit
+        // null/0 with targets is still a requirement (users/roles legs).
+        assert!(has_requirements(Some(&full(&[], &["r1"], None))));
+        assert!(has_requirements(Some(&full(&["u1"], &[], Some(0)))));
+        assert!(has_requirements(Some(&full(&[], &[], Some(9)))));
+        assert!(!has_requirements(Some(&full(&[], &[], None))));
+        assert!(!has_requirements(Some(&full(&[], &[], Some(0)))));
     }
 
     #[test]
