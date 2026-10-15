@@ -56,22 +56,47 @@ pub fn show_page_keys(page: usize) -> &'static [&'static str] {
 /// Short display label for a kv key (page-1 set mirrors the TS field
 /// names; other pages use the key itself until the rich formatters
 /// are ported).
-pub fn show_field_name(key: &str) -> &str {
+pub fn show_field_name(key: &str, lang_code: &str) -> String {
+    let lang_key = match key {
+        "GUILD.GUILD_CONFIG.joinmessage" => Some("guildprofil_embed_fields_joinmessage"),
+        "GUILD.GUILD_CONFIG.leavemessage" => Some("guildprofil_embed_fields_leavemessage"),
+        "GUILD.GUILD_CONFIG.join" => Some("guildprofil_embed_fields_setchannelsjoin"),
+        "GUILD.GUILD_CONFIG.leave" => Some("guildprofil_embed_fields_setchannelsleave"),
+        "GUILD.GUILD_CONFIG.joinroles" => Some("guildprofil_embed_fields_joinroles"),
+        "GUILD.GUILD_CONFIG.joindm" => Some("guildprofil_embed_fields_joinDmMessage"),
+        "GUILD.GUILD_CONFIG.antipub" => Some("guildprofil_embed_fields_blockpub"),
+        _ => None,
+    };
+    match lang_key {
+        Some(k) => show_lang(lang_code, k, key),
+        None => key.to_string(),
+    }
+}
+
+/// Lang lookup with a TS-EN fallback (never a hardcoded display
+/// string: visible text comes from `src/lang/*.yml`).
+fn show_lang(lang_code: &str, key: &str, fallback: &str) -> String {
+    crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
+}
+
+/// Not-set lang key per config key (TS `!show.ts` field bodies).
+fn show_not_set_key(key: &str) -> &'static str {
     match key {
-        "GUILD.GUILD_CONFIG.joinmessage" => "Join message",
-        "GUILD.GUILD_CONFIG.leavemessage" => "Leave message",
-        "GUILD.GUILD_CONFIG.join" => "Join channel",
-        "GUILD.GUILD_CONFIG.leave" => "Leave channel",
-        "GUILD.GUILD_CONFIG.joinroles" => "Join roles",
-        "GUILD.GUILD_CONFIG.joindm" => "Join DM",
-        _ => key,
+        "GUILD.GUILD_CONFIG.joinmessage" => "guildprofil_not_set_joinmessage",
+        "GUILD.GUILD_CONFIG.leavemessage" => "guildprofil_not_set_leavemessage",
+        "GUILD.GUILD_CONFIG.join" => "guildprofil_not_set_setchannelsjoin",
+        "GUILD.GUILD_CONFIG.leave" => "guildprofil_not_set_setchannelsleave",
+        "GUILD.GUILD_CONFIG.joinroles" => "guildprofil_not_set_joinroles",
+        "GUILD.GUILD_CONFIG.joindm" => "guildprofil_not_set_joinDmMessage",
+        "GUILD.GUILD_CONFIG.antipub" => "guildprofil_not_set_blockpub",
+        _ => "guildprofil_not_set_joinmessage",
     }
 }
 
 /// Format one stored value. Page-1 keys mirror the TS field bodies;
-/// anything else renders truncated raw JSON (or "Not set").
-pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
-    const NOT_SET: &str = "Not set";
+/// anything else renders truncated raw JSON (or the lang not-set).
+pub fn show_format_value(key: &str, raw: Option<&str>, lang_code: &str) -> String {
+    let not_set = || show_lang(lang_code, show_not_set_key(key), "Not set!");
     match key {
         "GUILD.GUILD_CONFIG.joinmessage"
         | "GUILD.GUILD_CONFIG.leavemessage"
@@ -83,14 +108,14 @@ pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
                 }
                 format!("```{v}```")
             }
-            None => NOT_SET.to_string(),
+            None => not_set(),
         },
         "GUILD.GUILD_CONFIG.join" | "GUILD.GUILD_CONFIG.leave" => match raw
             .map(|s| s.trim().trim_matches('"').to_string())
             .filter(|s| !s.is_empty())
         {
             Some(id) => format!("<#{id}>"),
-            None => NOT_SET.to_string(),
+            None => not_set(),
         },
         "GUILD.GUILD_CONFIG.joinroles" => {
             let ids: Vec<String> = raw
@@ -109,7 +134,7 @@ pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
                 })
                 .unwrap_or_default();
             if ids.is_empty() {
-                NOT_SET.to_string()
+                not_set()
             } else {
                 ids.iter()
                     .map(|id| format!("<@&{id}>"))
@@ -122,9 +147,9 @@ pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
                 .map(|s| s.trim() == "\"on\"" || s.trim() == "on")
                 .unwrap_or(false)
             {
-                "Blocked".to_string()
+                show_lang(lang_code, "guildprofil_set_blockpub", "Power on")
             } else {
-                "Allowed".to_string()
+                show_lang(lang_code, "guildprofil_not_set_blockpub", "Power off")
             }
         }
         _ => match raw {
@@ -136,7 +161,7 @@ pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
                 }
                 v
             }
-            _ => NOT_SET.to_string(),
+            _ => not_set(),
         },
     }
 }
@@ -146,6 +171,7 @@ pub fn show_format_value(key: &str, raw: Option<&str>) -> String {
 pub fn show_page_fields(
     page: usize,
     doc: &serde_json::Map<String, serde_json::Value>,
+    lang_code: &str,
 ) -> Vec<(String, String, bool)> {
     let page = page.clamp(1, SHOW_PAGES);
     show_page_keys(page)
@@ -158,8 +184,8 @@ pub fn show_page_fields(
                 _ => v.to_string(),
             });
             (
-                show_field_name(key).to_string(),
-                show_format_value(key, raw_text.as_deref()),
+                show_field_name(key, lang_code),
+                show_format_value(key, raw_text.as_deref(), lang_code),
                 false,
             )
         })
@@ -232,7 +258,7 @@ pub async fn gc_show(
             "Guild profile — {guild_name} ({page}/{SHOW_PAGES})"
         ))
         .timestamp(serenity::Timestamp::now());
-    for (name, value, inline) in show_page_fields(page, &doc) {
+    for (name, value, inline) in show_page_fields(page, &doc, &code) {
         embed = embed.field(name, value, inline);
     }
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
@@ -258,37 +284,44 @@ mod tests {
 
     #[test]
     fn page_one_formats_mirror_ts() {
+        // "en" resolves the real yml keys (TS-exact: "Not set!",
+        // "Power on"/"Power off").
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.join", Some("123")),
+            show_format_value("GUILD.GUILD_CONFIG.join", Some("123"), "en"),
             "<#123>"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.join", Some("\"123\"")),
+            show_format_value("GUILD.GUILD_CONFIG.join", Some("\"123\""), "en"),
             "<#123>"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.join", None),
-            "Not set"
+            show_format_value("GUILD.GUILD_CONFIG.join", None, "en"),
+            "Not set!"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.joinroles", Some("[\"1\",\"2\"]")),
+            show_format_value("GUILD.GUILD_CONFIG.joinroles", Some("[\"1\",\"2\"]"), "en"),
             "<@&1>, <@&2>"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.joinroles", Some("[]")),
-            "Not set"
+            show_format_value("GUILD.GUILD_CONFIG.joinroles", Some("[]"), "en"),
+            "Not set!"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.joinmessage", Some("hi")),
+            show_format_value("GUILD.GUILD_CONFIG.joinmessage", Some("hi"), "en"),
             "```hi```"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.antipub", Some("on")),
-            "Blocked"
+            show_format_value("GUILD.GUILD_CONFIG.antipub", Some("on"), "en"),
+            "Power on"
         );
         assert_eq!(
-            show_format_value("GUILD.GUILD_CONFIG.antipub", Some("off")),
-            "Allowed"
+            show_format_value("GUILD.GUILD_CONFIG.antipub", Some("off"), "en"),
+            "Power off"
+        );
+        // Unknown locale falls back to the TS-EN literals.
+        assert_eq!(
+            show_format_value("GUILD.GUILD_CONFIG.join", None, "xx-YY"),
+            "Not set!"
         );
     }
 
@@ -299,12 +332,12 @@ mod tests {
             "GUILD.GUILD_CONFIG.join".to_string(),
             serde_json::Value::String("42".to_string()),
         );
-        let fields = show_page_fields(99, &doc);
+        let fields = show_page_fields(99, &doc, "en");
         // Clamped to page 6 (5 fields).
         assert_eq!(fields.len(), 5);
-        let fields = show_page_fields(1, &doc);
+        let fields = show_page_fields(1, &doc, "en");
         assert_eq!(fields.len(), 6);
-        let join = fields.iter().find(|(n, _, _)| n == "Join channel").unwrap();
+        let join = fields.iter().find(|(n, _, _)| n == "Channel Join").unwrap();
         assert_eq!(join.1, "<#42>");
     }
 }
