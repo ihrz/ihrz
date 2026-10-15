@@ -46,6 +46,16 @@ pub async fn mod_baninfo(
     #[description = "the member you want to check"]
     user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    // TS checkCommandArgs counts first (`user` required:true in
+    // HybridCommands/moderation/mod.ts): a bare `.mod baninfo` renders
+    // the caret usage embed, never the not-found leg (rolelimit.rs and
+    // rate.rs precedent). Gate runs before defer, like the executor.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_user_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
     // reply before running; defer here for the same 3s window.
     ctx.defer().await?;
@@ -112,6 +122,13 @@ pub async fn mod_baninfo(
     Ok(())
 }
 
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `user` option.
+pub fn prefix_user_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -144,5 +161,16 @@ mod tests {
         let cmd = mod_baninfo();
         let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
         assert_eq!(names, vec!["user"]);
+    }
+
+    #[test]
+    fn bare_prefix_user_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+baninfo`
+        // bare renders the framework usage embed), never the
+        // `baninfo_user_not_found` content reply.
+        assert!(prefix_user_missing(""));
+        assert!(prefix_user_missing("   "));
+        assert!(!prefix_user_missing("<@1132574182270570557>"));
     }
 }
