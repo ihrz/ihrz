@@ -508,6 +508,13 @@ pub async fn sub_coins(
 
 /// Add coins to a member's wallet. Mirrors addCoins in method.ts
 /// (`db.add` on the same key). Returns the new wallet balance.
+///
+/// Corrupt-store delta (unreachable: writers always store numbers):
+/// TS `parseFloat` coerces stored strings with a numeric prefix
+/// (`"42abc"` -> 42) and propagates NaN (`"abc"`/`""` -> NaN balance),
+/// while a failed blob parse falls back to the default account here
+/// (base 0). Missing/null/numeric-string/whitespace/Infinity/hex
+/// legs all agree (node battery, W6 slice 126).
 pub async fn add_coins(
     pool: &crate::db::Pool,
     guild_id: &str,
@@ -1051,5 +1058,39 @@ mod tests {
         assert_eq!(sub_coins(&pool, "g", 9, 5.0).await.unwrap(), -5.0);
         // Routed readers see the same balance (table + legacy in sync).
         assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 70.1);
+    }
+
+    #[tokio::test]
+    async fn coins_coercion_legs_match_ts_add_subtract() {
+        // Node ground truth (W6 slice 126): verbatim json.ts addSubtract
+        // core (null -> 0, parseFloat coerce, float persist, new value).
+        async fn bal(pool: &crate::db::Pool, uid: u64, blob: &str, sub: bool) -> f64 {
+            crate::db::kv_set(&pool, "g", &format!("USER.{uid}.ECONOMY"), blob)
+                .await
+                .unwrap();
+            if sub {
+                sub_coins(pool, "g", uid, 2.0).await.unwrap()
+            } else {
+                add_coins(pool, "g", uid, 2.0).await.unwrap()
+            }
+        }
+        let pool = mem_pool().await;
+        // Numeric-string leaf coerces like parseFloat ("42" - 2 = 40).
+        assert_eq!(bal(&pool, 11, r#"{"money":"42"}"#, true).await, 40.0);
+        // Surrounding whitespace is trimmed both sides ("  7  " + 2 = 9).
+        // NOTE: delta is 2.0 here (helper shape), TS battery used +3 = 10.
+        assert_eq!(bal(&pool, 12, r#"{"money":"  7  "}"#, false).await, 9.0);
+        // Null leaf reads as 0 (None + 2 = 2).
+        assert_eq!(bal(&pool, 13, r#"{"money":null}"#, false).await, 2.0);
+        // "Infinity" parses both sides (inf + 2 = inf).
+        assert_eq!(
+            bal(&pool, 14, r#"{"money":"Infinity"}"#, false).await,
+            f64::INFINITY
+        );
+        // "0x10": parseFloat yields 0 while strict parse fails, but both
+        // land on base 0 (0 + 2 = 2 either way).
+        assert_eq!(bal(&pool, 15, r#"{"money":"0x10"}"#, false).await, 2.0);
+        // Missing blob starts at 0 (0 + 2 = 2).
+        assert_eq!(add_coins(&pool, "g", 16, 2.0).await.unwrap(), 2.0);
     }
 }
