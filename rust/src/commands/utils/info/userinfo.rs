@@ -3,24 +3,8 @@ use ::serenity::model::user::OnlineStatus;
 
 /// Get information about a user!
 // Mirrors utils !userinfo.ts (best-effort).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    category = "utils",
-    rename = "userinfo",
-    aliases("ui"),
-    description_localized("fr", "Obtenir des informations sur un utilisateur"),
-    description_localized("ja", "ユーザーの情報を取得！"),
-    description_localized("ru", "Получить информацию о пользователе!"),
-    description_localized("es-ES", "Obtener información sobre un usuario!")
-)]
-pub async fn userinfo(
+pub async fn run_userinfo(
     ctx: Ctx<'_>,
-    #[description_localized("fr", "utilisateur que vous souhaitez rechercher")]
-    #[description_localized("ja", "検索したいユーザー")]
-    #[description_localized("ru", "пользователь для поиска")]
-    #[description_localized("es-ES", "usuario que quieres buscar")]
-    #[description = "user you want to lookup"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
@@ -333,6 +317,30 @@ pub async fn userinfo(
     }
     progress.edit(ctx, reply).await?;
     Ok(())
+}
+
+/// Get information about a user!
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "utils",
+    rename = "userinfo",
+    aliases("ui"),
+    description_localized("fr", "Obtenir des informations sur un utilisateur"),
+    description_localized("ja", "ユーザーの情報を取得！"),
+    description_localized("ru", "Получить информацию о пользователе!"),
+    description_localized("es-ES", "Obtener información sobre un usuario!")
+)]
+pub async fn userinfo(
+    ctx: Ctx<'_>,
+    #[description_localized("fr", "utilisateur que vous souhaitez rechercher")]
+    #[description_localized("ja", "検索したいユーザー")]
+    #[description_localized("ru", "пользователь для поиска")]
+    #[description_localized("es-ES", "usuario que quieres buscar")]
+    #[description = "user you want to lookup"]
+    user: Option<poise::serenity_prelude::User>,
+) -> Result<(), anyhow::Error> {
+    run_userinfo(ctx, user).await
 }
 
 /// App-emoji markup with a unicode fallback. Mirrors the

@@ -41,7 +41,7 @@ pub use self::serverpic::serverpic;
 pub use self::snipe::snipe;
 pub use self::sticker::sticker;
 pub use self::top::top;
-pub use self::userinfo::userinfo;
+pub use self::userinfo::{run_userinfo, userinfo};
 pub use self::whereis::whereis;
 
 #[allow(unused_imports)]
