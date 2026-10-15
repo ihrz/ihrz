@@ -516,17 +516,17 @@ pub async fn handle_confess_button(
     for file in files {
         message = message.add_file(file);
     }
-    // Unique nonce per confession post. Mirrors `enforceNonce: true` +
-    // the generated nonce in new-confession-button.ts. The same
-    // timestamp doubles as the post-time cooldown/archive stamp below.
+    // Unique nonce per confession post (discord.js
+    // `SnowflakeUtil.generate()` — Discord caps nonces at 25 chars).
+    // The post-time cooldown/archive stamp below uses its own clock.
     let post_ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
     message = message
-        .nonce(serenity::model::channel::Nonce::String(format!(
-            "confession-{code}-{post_ms}"
-        )))
+        .nonce(serenity::model::channel::Nonce::String(
+            crate::commands::shared::snowflake_nonce(),
+        ))
         .enforce_nonce(true);
     // Thread mode gets the anonymous-reply button (customId
     // `confessionres%<code>`); without a thread there is no reply

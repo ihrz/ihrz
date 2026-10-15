@@ -3053,16 +3053,11 @@ pub fn truncate_notified_media(list: &mut Vec<NotifiedMedia>) {
     }
 }
 
-/// Unique send nonce: watch/blog id + millis + a random suffix, so two
-/// sends inside the same millisecond never share a nonce.
-fn unique_nonce(prefix: &str, key: &str) -> poise::serenity_prelude::Nonce {
-    use rand::Rng;
-    let ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis())
-        .unwrap_or(0);
-    let rnd: u32 = rand::thread_rng().gen();
-    poise::serenity_prelude::Nonce::String(format!("{prefix}-{key}-{ms}-{rnd:08x}"))
+/// Unique send nonce (discord.js `SnowflakeUtil.generate()` via the
+/// shared helper — Discord caps nonces at 25 chars, so the old
+/// `{prefix}-{key}-{ms}-{rand}` shape 400'd every send).
+fn unique_nonce(_prefix: &str, _key: &str) -> poise::serenity_prelude::Nonce {
+    poise::serenity_prelude::Nonce::String(crate::commands::shared::snowflake_nonce())
 }
 
 /// Store write: guild-table row plus legacy kv (routed dual-write).
@@ -4019,6 +4014,16 @@ mod tests {
             .map(|_| format!("{:?}", unique_nonce("notifier", "watch")))
             .collect();
         assert_eq!(nonces.len(), 50);
+        // Discord nonce cap: every nonce is a short numeric snowflake.
+        // (Debug renders `String("...")` — unwrap to the inner value.)
+        for n in &nonces {
+            let s = n
+                .strip_prefix("String(\"")
+                .and_then(|s| s.strip_suffix("\")"))
+                .unwrap_or(n);
+            assert!(s.len() <= 25, "{s}");
+            assert!(s.chars().all(|c| c.is_ascii_digit()), "{s}");
+        }
     }
 
     #[tokio::test]

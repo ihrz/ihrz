@@ -33,18 +33,6 @@ pub fn panel_store_json(channel_id: u64, message_id: u64) -> String {
     .to_string()
 }
 
-/// Unique panel-post nonce. Mirrors `SnowflakeUtil.generate().toString()`
-/// in !channel.ts: a time-ordered snowflake (`(ms - discord_epoch) << 22`
-/// plus a per-process sequence in the low 12 bits, exactly the discord.js
-/// layout), always ≤ 19 chars — Discord caps nonces at 25 chars, so the
-/// old `{channel}-{ms}-{rand}` shape (up to 44 chars) 400'd every post.
-pub fn panel_nonce(now_ms: u64) -> String {
-    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-    const EPOCH: u64 = 1_420_070_400_000;
-    let seq = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed) & 0xFFF;
-    (((now_ms.saturating_sub(EPOCH)) << 22) | seq).to_string()
-}
-
 /// Audit entry for the panel post. Mirrors `client.func.ihorizon_logs`
 /// (best-effort, silent when the `ihorizon-logs` channel is missing).
 /// No new YAML: exact lang keys with a plain fallback.
@@ -173,15 +161,12 @@ pub async fn confession_channel(
     let mut message = serenity::CreateMessage::new()
         .embed(embed)
         .components(vec![row]);
-    // Unique nonce per panel post, like `enforceNonce: true, nonce` in
-    // !channel.ts (serenity Nonce has no snowflake generator, so the
-    // channel id + millis plays that time-unique role).
-    let now_ms = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(0);
+    // Unique nonce per panel post: discord.js `SnowflakeUtil.generate()`
+    // (shared helper — Discord caps nonces at 25 chars).
     message = message
-        .nonce(serenity::model::channel::Nonce::String(panel_nonce(now_ms)))
+        .nonce(serenity::model::channel::Nonce::String(
+            crate::commands::shared::snowflake_nonce(),
+        ))
         .enforce_nonce(true);
     if let Some(bytes) = footer_icon {
         message = message.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
@@ -263,12 +248,13 @@ mod tests {
 
     #[test]
     fn panel_nonce_is_unique_per_post() {
-        let a = panel_nonce(1_000);
+        use crate::commands::shared::snowflake_nonce;
+        let a = snowflake_nonce();
         // Snowflake shape: numeric, ≤ 25 chars (Discord nonce cap).
         assert!(a.len() <= 25);
         assert!(a.chars().all(|c| c.is_ascii_digit()));
-        // Sequence bits: same-ms calls still differ.
-        assert_ne!(a, panel_nonce(1_000));
-        assert_ne!(a, panel_nonce(1_001));
+        // Sequence bits: back-to-back calls still differ.
+        assert_ne!(a, snowflake_nonce());
+        assert_ne!(a, snowflake_nonce());
     }
 }

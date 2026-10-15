@@ -176,6 +176,23 @@ pub fn footer_icon_bytes(stored: Option<&str>) -> Option<Vec<u8>> {
         .filter(|b| !b.is_empty())
 }
 
+/// Unique send nonce. Mirrors discord.js `SnowflakeUtil.generate()`:
+/// a time-ordered snowflake (`(ms - discord_epoch) << 22` plus a
+/// per-process sequence in the low 12 bits), always ≤ 19 chars.
+/// Discord caps nonces at 25 chars — every `{prefix}-{ids}-{ms}`
+/// hand-rolled shape exceeds it (guild+user ids alone are 40 chars)
+/// and 400s the send. Use this for EVERY `.nonce(...)` call site.
+pub fn snowflake_nonce() -> String {
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    const EPOCH: u64 = 1_420_070_400_000;
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    let seq = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed) & 0xFFF;
+    (((now_ms.saturating_sub(EPOCH)) << 22) | seq).to_string()
+}
+
 /// Paginated footer text. Mirrors footerPaginationBuilder.
 pub fn footer_page_text(name: &str, page_word: &str, page: u64, max: u64) -> String {
     format!("{name} • {page_word} {page}/{max}")
@@ -1152,6 +1169,15 @@ mod tests {
         assert_eq!(bot_footer_name(Some("  ")), "  ");
         assert_eq!(bot_footer_name(Some(" Bob ")), " Bob ");
         assert_eq!(bot_footer_name(Some("Bob")), "Bob");
+    }
+
+    #[test]
+    fn snowflake_nonce_shape_and_uniqueness() {
+        // Discord nonce cap is 25 chars; snowflakes are ≤ 19 digits.
+        let a = snowflake_nonce();
+        assert!(a.len() <= 25);
+        assert!(a.chars().all(|c| c.is_ascii_digit()));
+        assert_ne!(a, snowflake_nonce());
     }
 
     #[test]

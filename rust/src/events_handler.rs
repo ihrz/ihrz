@@ -5796,17 +5796,11 @@ impl serenity::EventHandler for Handler {
                 // nonce: SnowflakeUtil.generate()`: the prime ping is a real
                 // send (so watch channels toast) instantly deleted; the
                 // unique nonce keeps client-side dedup sane.
-                let nonce_ms = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|d| d.as_millis() as u64)
-                    .unwrap_or(0);
                 let prime = serenity::CreateMessage::new()
                     .content(format!("<@{}>", new_member.user.id.get()))
-                    .nonce(serenity::model::channel::Nonce::String(format!(
-                        "ghostping-{}-{}-{nonce_ms}",
-                        new_member.guild_id.get(),
-                        new_member.user.id.get()
-                    )))
+                    .nonce(serenity::model::channel::Nonce::String(
+                        crate::commands::shared::snowflake_nonce(),
+                    ))
                     .enforce_nonce(true);
                 if let Ok(sent) = serenity::ChannelId::new(ch_id)
                     .send_message(&ctx.http, prime)
@@ -5871,11 +5865,9 @@ impl serenity::EventHandler for Handler {
                                     // SnowflakeUtil.generate()`), same pattern as
                                     // the ghost-ping prime above: a unique nonce
                                     // keeps client-side dedup sane.
-                                    .nonce(serenity::model::channel::Nonce::String(format!(
-                                        "captcha-{}-{}-{expires}",
-                                        new_member.guild_id.get(),
-                                        new_member.user.id.get()
-                                    )))
+                                    .nonce(serenity::model::channel::Nonce::String(
+                                        crate::commands::shared::snowflake_nonce(),
+                                    ))
                                     .enforce_nonce(true),
                             )
                             .await
