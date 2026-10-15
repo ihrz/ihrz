@@ -4993,6 +4993,74 @@ mod funcs_dominant_tests {
     }
 
     #[test]
+    fn dominant_math_matches_ts_battery() {
+        // W6 slice 93 (U-ETERNAL-275): node battery replicating
+        // image_dominant_color.ts rgbToHsl/rgbToHex/getVibrancyScore +
+        // bucket/filter/sort/fallback legs verbatim.
+        // Switch-tie: max == r == g takes the r branch -> h = 60.
+        let (h, s, l) = rgb_to_hsl(255, 255, 0);
+        assert!((h - 60.0).abs() < 1e-9);
+        assert!((s - 100.0).abs() < 1e-9);
+        assert!((l - 50.0).abs() < 1e-9);
+        // Achromatic gray: h = 0, s = 0.
+        let (h, s, l) = rgb_to_hsl(128, 128, 128);
+        assert!((h - 0.0).abs() < 1e-9);
+        assert!(s.abs() < 1e-9);
+        assert!((l - 50.19607843137255).abs() < 1e-9);
+        // Vibrancy spots: (100,60) -> 250, (0,0) -> 40, (50,100) -> 135.
+        assert!((vibrancy_score(100.0, 60.0) - 250.0).abs() < 1e-9);
+        assert!((vibrancy_score(0.0, 0.0) - 40.0).abs() < 1e-9);
+        assert!((vibrancy_score(50.0, 100.0) - 135.0).abs() < 1e-9);
+        // Bucket half-legs through the pipeline (Math.round half-up ==
+        // round() half-away on non-negative inputs): 5 -> 10, 255 -> 260
+        // (clamped to #ffffff at the hex step), 254 -> 250.
+        let faint = vec![(5u8, 5u8, 5u8); 400];
+        assert_eq!(
+            vibrant_and_dark_colors(&faint),
+            ("#0a0a0a".to_string(), "#0a0a0a".to_string())
+        );
+        let white = vec![(255u8, 255u8, 255u8); 400];
+        assert_eq!(
+            vibrant_and_dark_colors(&white),
+            ("#ffffff".to_string(), "#ffffff".to_string())
+        );
+        let near = vec![(254u8, 0u8, 0u8); 400];
+        assert_eq!(
+            vibrant_and_dark_colors(&near),
+            ("#fa0000".to_string(), "#fa0000".to_string())
+        );
+        // Strict-> filter boundary (total 200): count 2 dropped, count 3 kept.
+        let mut drop_b = vec![(200u8, 50u8, 50u8); 198];
+        drop_b.extend(vec![(0u8, 0u8, 200u8); 2]);
+        assert_eq!(
+            vibrant_and_dark_colors(&drop_b),
+            ("#c83232".to_string(), "#c83232".to_string())
+        );
+        let mut keep_b = vec![(200u8, 50u8, 50u8); 197];
+        keep_b.extend(vec![(0u8, 0u8, 200u8); 3]);
+        assert_eq!(
+            vibrant_and_dark_colors(&keep_b),
+            ("#0000c8".to_string(), "#0000c8".to_string())
+        );
+        // Vibrant tie keeps the first-inserted bucket (green scores 240,
+        // yellow scores 240); with no dark bucket, color2 is the LAST kept.
+        let mut bright = vec![(0u8, 255u8, 0u8); 100];
+        bright.extend(vec![(255u8, 255u8, 0u8); 100]);
+        assert_eq!(
+            vibrant_and_dark_colors(&bright),
+            ("#00ff00".to_string(), "#ffff00".to_string())
+        );
+        // DELTAS (doc-noted, unreachable): TS rgbToHex rounds fractional
+        // inputs (254.6 -> ff, 254.4 -> fe) and falls back to #000000 on
+        // NaN ("NaN" fails the length-7 security check) -- both legs are
+        // unrepresentable past the i32 signature (live buckets are
+        // Math.round integers). The count*100 > total integer rewrite of
+        // count > total/100 agreed on a 40000-case node sweep (totals
+        // 1..20000, both boundary counts); only astronomical pixel counts
+        // past f64 exactness could ever split them.
+    }
+
+    #[test]
     fn solid_red_pair() {
         let pixels = vec![(255u8, 0u8, 0u8); 400];
         assert_eq!(
