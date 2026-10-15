@@ -616,14 +616,11 @@ async fn is_ticket_channel(
             continue;
         }
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) {
-            if let Some(obj) = v.as_object() {
-                for (ch, data) in obj {
-                    if ch == &want
-                        || data.get("channel").and_then(|c| c.as_str()) == Some(want.as_str())
-                    {
-                        return true;
-                    }
-                }
+            // Pure verdict mirrors method.ts (no key-name matching: a
+            // nested key equal to `want` with a differing `.channel` is
+            // false in TS — corrupt-row-only delta, fixed here).
+            if ticket_bucket_has_channel(&v, &want) {
+                return true;
             }
         }
     }
@@ -1317,6 +1314,33 @@ pub fn first_ticket_channel(nested: &serde_json::Value) -> Option<String> {
         .get("channel")?
         .as_str()
         .map(|s| s.to_string())
+}
+
+/// One author-bucket of the nested ticket verdict. Mirrors the inner walk
+/// of `isTicketChannel` in method.ts (`ticketsByAuthor &&
+/// typeof === "object"` guard, `Object.keys` walk, `ticketData &&
+/// ticketData.channel === channel.id` with the redundant `?.` re-check):
+/// verdict is true iff some candidate carries `.channel` strictly equal
+/// to `want`. (The outer `!allTickets` guard maps to zero entries at the
+/// call site — same false verdict.)
+///
+/// Shape notes: `Object.keys` on an array yields index keys, so candidates
+/// accept objects AND arrays (battery: array-bucket hit legs); only objects
+/// can carry `.channel`, so primitives at any level miss. Strict `===`
+/// means a numeric `.channel` never equals a string id (`as_str` only is
+/// exact). No key-name matching: TS never compares the ticket key, so a
+/// nested key equal to `want` with a differing `.channel` is false.
+pub fn ticket_bucket_has_channel(bucket: &serde_json::Value, want: &str) -> bool {
+    fn children(v: &serde_json::Value) -> Vec<&serde_json::Value> {
+        match v {
+            serde_json::Value::Object(map) => map.values().collect(),
+            serde_json::Value::Array(items) => items.iter().collect(),
+            _ => Vec::new(),
+        }
+    }
+    children(bucket)
+        .iter()
+        .any(|ticket| ticket.get("channel").and_then(|c| c.as_str()) == Some(want))
 }
 
 /// Selection whose numeric id matches the select value, like
@@ -2439,6 +2463,65 @@ mod tests {
         );
         assert_eq!(find_ticket_by_channel(&entries, "999"), None);
         assert_eq!(find_ticket_by_channel(&[], "222"), None);
+    }
+
+    #[test]
+    fn ticket_bucket_scan_matches_ts_walk_legs() {
+        use serde_json::json;
+        // Hit / miss / strict-equality legs.
+        assert!(ticket_bucket_has_channel(
+            &json!({"t": {"channel": "123", "author": "u", "alive": true}}),
+            "123"
+        ));
+        assert!(!ticket_bucket_has_channel(
+            &json!({"t": {"channel": "999"}}),
+            "123"
+        ));
+        assert!(!ticket_bucket_has_channel(&json!({}), "123"));
+        // Numeric `.channel` never strictly equals a string id.
+        assert!(!ticket_bucket_has_channel(
+            &json!({"t": {"channel": 123}}),
+            "123"
+        ));
+        assert!(!ticket_bucket_has_channel(
+            &json!({"t": {"author": "u"}}),
+            "123"
+        ));
+        // Falsy / primitive ticketData all miss.
+        for td in [
+            json!(null),
+            json!(0),
+            json!(""),
+            json!(false),
+            json!(5),
+            json!("123"),
+            json!(true),
+        ] {
+            assert!(!ticket_bucket_has_channel(&json!({"t": td}), "123"));
+        }
+        // Non-object buckets miss; arrays walk index keys like Object.keys.
+        for b in [json!("abc"), json!(7), json!(null), json!(true)] {
+            assert!(!ticket_bucket_has_channel(&b, "123"));
+        }
+        assert!(ticket_bucket_has_channel(
+            &json!([{"channel": "123"}]),
+            "123"
+        ));
+        assert!(!ticket_bucket_has_channel(
+            &json!([{"channel": "999"}]),
+            "123"
+        ));
+        assert!(!ticket_bucket_has_channel(&json!(["123", 5]), "123"));
+        // Second-ticket hit.
+        assert!(ticket_bucket_has_channel(
+            &json!({"t1": {"channel": "1"}, "t2": {"channel": "123"}}),
+            "123"
+        ));
+        // Corrupt key-match row: TS never compares the ticket key.
+        assert!(!ticket_bucket_has_channel(
+            &json!({"123": {"channel": "111"}}),
+            "123"
+        ));
     }
 
     #[test]
