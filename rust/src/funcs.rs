@@ -379,7 +379,9 @@ fn format_time(total_secs: u64) -> String {
 /// (`"00:00 ┃ ● ┃ 00:00"` — node ground truth). Deliberate graceful
 /// deltas where TS throws `RangeError` via `String.repeat`: overrun
 /// (past-duration, `before > 15`) clamps to a full bar, and
-/// positive-position/zero-duration clamps to an empty bar.
+/// positive-position/zero-duration clamps to an empty bar, and negative
+/// inputs (TS `RangeError` + garbage clocks like `"-1:-2"`, node ground
+/// truth) are unrepresentable past the `u64` signature.
 pub fn progress_bar(
     current_ms: u64,
     total_ms: u64,
@@ -1423,6 +1425,25 @@ mod tests {
         // Overrun clamps to a full bar (TS throws RangeError; graceful delta).
         let (over, _, _) = progress_bar(300_000, 180_000, "━", "●");
         assert_eq!(over.chars().filter(|c| *c == '━').count(), 15);
+        // Sub-second floor leg: 999ms -> "00:00", 59999ms -> "00:59".
+        let (_, sub_cur, _) = progress_bar(999, 1000, "━", "●");
+        assert_eq!(sub_cur, "00:00");
+        let (sub_bar, _, _) = progress_bar(59_999, 60_000, "━", "●");
+        assert_eq!(sub_bar, "00:59 ┃ ━━━━━━━━━━━━━━●━ ┃ 01:00");
+        // Positive-position/zero-duration clamps to an empty bar
+        // (TS: Infinity progress -> repeat(Infinity) throws RangeError).
+        let (inf, inf_c, inf_t) = progress_bar(1500, 0, "━", "●");
+        assert_eq!(inf_c, "00:01");
+        assert_eq!(inf_t, "00:00");
+        assert_eq!(inf, "00:01 ┃ ●━━━━━━━━━━━━━━━ ┃ 00:00");
+        // Sub-second/zero-duration stays pointer-only (0/0 NaN leg).
+        let (nano, _, _) = progress_bar(100, 0, "━", "●");
+        assert_eq!(nano, "00:00 ┃ ● ┃ 00:00");
+        // No hour fold on big clocks (TS verbatim, node ground truth).
+        let (_, _, big_tot) = progress_bar(3_661_000, 10_000_000, "━", "●");
+        assert_eq!(big_tot, "166:40");
+        let (hour, _, _) = progress_bar(3_600_000, 3_600_000, "━", "●");
+        assert_eq!(hour, "60:00 ┃ ━━━━━━━━━━━━━━━● ┃ 60:00");
     }
 
     #[test]
