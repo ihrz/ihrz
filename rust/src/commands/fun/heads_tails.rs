@@ -1,8 +1,6 @@
 use super::*;
 
-/// Coin flip. Mirrors !heads-tails.ts (pileouface/pile-ou-face aliases,
-/// `Math.random() < 0.5`).
-// No `coinflip` alias: fun.ts declares only pileouface/pile-ou-face.
+/// Heads or tail?
 #[poise::command(
     slash_command,
     prefix_command,
