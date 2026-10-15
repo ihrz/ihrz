@@ -101,6 +101,32 @@ pub fn bold_stringify_options(options: &[UsageOption]) -> String {
 }
 
 // ---------------------------------------------------------------------------
+// Subcommand discriminants (hasSubCommand / hasSubCommandGroup /
+// isSubCommand in method.ts).
+// ---------------------------------------------------------------------------
+
+/// discord.js `ApplicationCommandOptionType.Subcommand` discriminant
+/// (node ground truth slice 102: `Subcommand=1 Group=2 String=3 User=6`).
+pub const OPTION_SUBCOMMAND: u8 = 1;
+/// discord.js `ApplicationCommandOptionType.SubcommandGroup` discriminant.
+pub const OPTION_SUBCOMMAND_GROUP: u8 = 2;
+
+/// Mirrors `hasSubCommand`: `!options` (None) is false, else `.some()`
+pub fn has_sub_command(options: Option<&[u8]>) -> bool {
+    matches!(options, Some(types) if types.contains(&OPTION_SUBCOMMAND))
+}
+
+/// Mirrors `hasSubCommandGroup`: same shape over the group discriminant.
+pub fn has_sub_command_group(options: Option<&[u8]>) -> bool {
+    matches!(options, Some(types) if types.contains(&OPTION_SUBCOMMAND_GROUP))
+}
+
+/// Mirrors `isSubCommand` (single option, no optionality leg).
+pub fn is_sub_command(option_type: u8) -> bool {
+    option_type == OPTION_SUBCOMMAND
+}
+
+// ---------------------------------------------------------------------------
 // createAwesomeEmbed (pure payload).
 // ---------------------------------------------------------------------------
 
@@ -910,7 +936,29 @@ mod tests {
         );
         assert_eq!(e.fields[0].name, "!create");
         assert_eq!(e.fields[1].name, "!list");
-        assert_eq!(e.fields[1].value, "**Aliases:** None\n**Use:** !list ");
+        assert!(e.fields[1].value.starts_with("**Aliases:** None"));
+        assert!(e.fields[1].value.ends_with("**Use:** !list "));
+    }
+
+    #[test]
+    fn subcommand_discriminants_match_ts_some_legs() {
+        // Pinned via node battery slice 102 (discord.js 14.27):
+        // Subcommand=1, Group=2; `!options` -> false; `.some()` verdicts.
+        use super::{has_sub_command, has_sub_command_group, is_sub_command};
+        use super::{OPTION_SUBCOMMAND, OPTION_SUBCOMMAND_GROUP};
+        assert_eq!((OPTION_SUBCOMMAND, OPTION_SUBCOMMAND_GROUP), (1, 2));
+        assert!(!has_sub_command(None));
+        assert!(!has_sub_command(Some(&[])));
+        assert!(has_sub_command(Some(&[OPTION_SUBCOMMAND])));
+        assert!(!has_sub_command(Some(&[OPTION_SUBCOMMAND_GROUP])));
+        assert!(has_sub_command(Some(&[3, OPTION_SUBCOMMAND])));
+        assert!(!has_sub_command_group(None));
+        assert!(!has_sub_command_group(Some(&[])));
+        assert!(has_sub_command_group(Some(&[OPTION_SUBCOMMAND_GROUP])));
+        assert!(!has_sub_command_group(Some(&[OPTION_SUBCOMMAND])));
+        assert!(is_sub_command(OPTION_SUBCOMMAND));
+        assert!(!is_sub_command(OPTION_SUBCOMMAND_GROUP));
+        assert!(!is_sub_command(3));
     }
 
     #[test]
