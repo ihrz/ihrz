@@ -360,6 +360,11 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // backup.ts create/save-message: values `yes`/`no` (names
         // `Yes`/`No`), required:true -> prod `[yes/no]`.
         ("backup create", "save-message") => Some(("yes/no", true)),
+        // util.ts unzip-emojis/zip_file: required:true in the TS decl
+        // (prod WAVE-af answers the bare prefix with `[attachment]`),
+        // but poise 0.6 erases required-ness on Option params, so the
+        // generic render would emit `<attachment>`.
+        ("util unzip-emojis", "zip_file") => Some(("attachment", true)),
         _ => None,
     }
 }
@@ -684,5 +689,13 @@ mod tests {
         );
         assert_eq!(choice_token_override("backup create", "other"), None);
         assert_eq!(choice_token_override("utils dm", "save-message"), None);
+        // util unzip-emojis/zip_file: TS decl required:true renders
+        // `[attachment]` on the bare prefix (prod WAVE-af) — never the
+        // poise-erased `<attachment>`.
+        assert_eq!(
+            choice_token_override("util unzip-emojis", "zip_file"),
+            Some(("attachment", true))
+        );
+        assert_eq!(choice_token_override("util unzip-emojis", "other"), None);
     }
 }

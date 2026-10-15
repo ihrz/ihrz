@@ -27,8 +27,21 @@ pub async fn unzip_emojis(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    // TS no-file guard (!unzip-emojis.ts:50-56): the prefix path reads
-    // `interaction.attachments.first()`, which may be missing.
+    // Prefix counts-first gate (TS util.ts unzip-emojis decl:
+    // `zip_file` required:true, executor checkCommandArgs runs before
+    // run): a prefix message carries no attachment, so the required
+    // attachment leg renders the caret usage embed (`+util
+    // unzip-emojis [attachment]`, prod WAVE-af 1560204187705548871),
+    // never the no-file content leg (addrolereact precedent).
+    if let poise::Context::Prefix(_) = ctx {
+        if attachment.is_none() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
+    // TS no-file guard (!unzip-emojis.ts:50-56): reachable on slash
+    // only now (prefix without attachments is gated above); the prefix
+    // path reads `interaction.attachments.first()`, which may be missing.
     let Some(attachment) = attachment else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.send(
@@ -192,5 +205,28 @@ mod tests {
             clean_unzip_name("a!b_c-1_9.png"),
             Some(("ab c1".to_string(), "png".to_string()))
         );
+    }
+
+    #[test]
+    fn registry_key_matches_usage_override() {
+        // The `choice_token_override` pin in prefix_args keys on the
+        // runtime poise qualified name (`parent leaf`, filled by
+        // poise's set_qualified_names at framework build, NOT present
+        // on the raw `all()` vec): compose the path the same way so a
+        // rename of either level fails here instead of silently
+        // missing the override in prod.
+        let cmds = crate::commands::all();
+        let util = cmds
+            .iter()
+            .find(|c| c.name == "util")
+            .expect("util parent missing");
+        let leaf = util
+            .subcommands
+            .iter()
+            .find(|c| c.name == "unzip-emojis")
+            .expect("unzip-emojis leaf missing");
+        assert_eq!(format!("{} {}", util.name, leaf.name), "util unzip-emojis");
+        assert_eq!(leaf.parameters.len(), 1);
+        assert_eq!(leaf.parameters[0].name, "zip_file");
     }
 }
