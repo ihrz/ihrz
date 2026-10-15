@@ -2274,10 +2274,7 @@ mod tests {
         assert_eq!(PositionChoice::Top.as_str(), "top");
         assert_eq!(PositionChoice::Bottom.as_str(), "bottom");
         let names: Vec<_> = PositionChoice::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(
-            names,
-            vec!["top".to_string(), "bottom".to_string()]
-        );
+        assert_eq!(names, vec!["top".to_string(), "bottom".to_string()]);
         // Localized display names, byte-exact from voicedashboard.ts:198+.
         let list = PositionChoice::list();
         assert_eq!(

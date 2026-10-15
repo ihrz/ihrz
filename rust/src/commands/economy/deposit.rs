@@ -1,9 +1,10 @@
 use super::*;
 
-/// Deposit coins into your bank!
+/// Deposit coin in your bank!
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "deposit",
     aliases("dep"),
     description_localized("fr", "Déposez des pièces dans votre banque"),
@@ -18,7 +19,7 @@ pub async fn eco_deposit(
     #[description_localized("ja", "銀行にいくら預けますか？")]
     #[description_localized("ru", "Сколько монет вы хотите положить в банк?")]
     #[description_localized("es-ES", "Cuántas monedas quieres depositar en tu banco?")]
-    #[description = "Amount or all"]
+    #[description = "How much coin you want to deposit in your bank?"]
     #[rename = "how-much"]
     amount: String,
 ) -> Result<(), anyhow::Error> {
@@ -32,8 +33,12 @@ pub async fn eco_deposit(
     let uid = ctx.author().id.get();
     // Serialize the read-modify-write (see tx_lock).
     let _tx = super::tx_lock::guard_user(uid).await;
-    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Account and guild lang are independent keys; load concurrently.
+    let pool = &ctx.data().pool;
+    let (mut a, code) = tokio::join!(
+        balance::load_econ_routed(pool, &gid, uid),
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get()))
+    );
     // Mirrors !deposit.ts: `toDeposit === "all"` takes the wallet, then
     // `isNaN(Number(...))` / `Number(...) <= 0` gate on the not-integer
     // key, and only `toDeposit > balance` (Number comparison, untruncated)

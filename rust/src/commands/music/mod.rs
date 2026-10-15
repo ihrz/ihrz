@@ -637,45 +637,21 @@ pub fn meta_source_tag(s: MetaSource) -> &'static str {
 }
 
 fn url_host(url: &str) -> String {
-    let lower = url.to_ascii_lowercase();
-    lower
-        .split("://")
-        .nth(1)
-        .unwrap_or("")
-        .split('/')
-        .next()
-        .unwrap_or("")
-        .to_string()
+    crate::lavalink::whatwg_host(url).unwrap_or_default()
 }
 
 /// Source-detect a track URL. Returns None when no metadata provider
-/// matches (Lavalink fallback path).
+/// matches (Lavalink fallback path). Detection itself lives in
+/// `metadata::{spotify, apple_music, amazon_music, tidal}::is_*_url`
+/// (host-`contains`, mirroring the TS `is*URL` guards in musicPlay.ts);
+/// the `spotify:` URI arm is display-enrichment-only (the TS bot routes
+/// those as generic URLs — `new URL("spotify:…").host` is empty).
 pub fn detect_meta_source(url: &str) -> Option<MetaSource> {
     let lower = url.to_ascii_lowercase();
     if lower.starts_with("spotify:") {
         return Some(MetaSource::Spotify);
     }
-    let host = url_host(url);
-    if host.is_empty() {
-        return None;
-    }
-    if host == "open.spotify.com" || host == "play.spotify.com" || host == "embed.spotify.com" {
-        return Some(MetaSource::Spotify);
-    }
-    if host == "music.apple.com" || host == "itunes.apple.com" {
-        return Some(MetaSource::Apple);
-    }
-    if host.starts_with("music.amazon.") {
-        return Some(MetaSource::Amazon);
-    }
-    if host == "tidal.com"
-        || host.ends_with(".tidal.com")
-        || host == "listen.tidal.com"
-        || host == "embed.tidal.com"
-    {
-        return Some(MetaSource::Tidal);
-    }
-    None
+    metadata::classify(url)
 }
 
 /// Provider-agnostic preview for rich embeds. `source` is None on the
@@ -699,25 +675,11 @@ fn non_empty(s: &str) -> Option<String> {
 }
 
 pub fn preview_from_spotify(p: &crate::metadata::spotify::Preview) -> NormalizedPreview {
-    NormalizedPreview {
-        title: p.title.clone(),
-        artist: p.artist.clone().filter(|a| !a.trim().is_empty()),
-        image: p.image.clone().filter(|u| !u.trim().is_empty()),
-        link: p.link.clone(),
-        date: p.date.clone(),
-        source: Some(MetaSource::Spotify),
-    }
+    metadata::spotify::preview_meta(p).to_normalized()
 }
 
 pub fn preview_from_apple_track(t: &crate::metadata::apple_music::Track) -> NormalizedPreview {
-    NormalizedPreview {
-        title: t.title.clone(),
-        artist: non_empty(&t.artist.name),
-        image: None,
-        link: t.url.clone(),
-        date: None,
-        source: Some(MetaSource::Apple),
-    }
+    metadata::apple_music::track_meta(t).to_normalized()
 }
 
 pub fn preview_from_apple_result(
@@ -751,14 +713,7 @@ pub fn preview_from_apple_result(
 }
 
 pub fn preview_from_amazon_track(t: &crate::metadata::amazon_music::Track) -> NormalizedPreview {
-    NormalizedPreview {
-        title: t.title.clone(),
-        artist: non_empty(&t.artist.name),
-        image: None,
-        link: t.url.clone(),
-        date: None,
-        source: Some(MetaSource::Amazon),
-    }
+    metadata::amazon_music::track_meta(t).to_normalized()
 }
 
 pub fn preview_from_amazon_result(
@@ -792,14 +747,7 @@ pub fn preview_from_amazon_result(
 }
 
 pub fn preview_from_tidal_track(t: &crate::metadata::tidal::Track) -> NormalizedPreview {
-    NormalizedPreview {
-        title: t.title.clone(),
-        artist: non_empty(&t.artist.name),
-        image: None,
-        link: t.url.clone(),
-        date: None,
-        source: Some(MetaSource::Tidal),
-    }
+    metadata::tidal::track_meta(t).to_normalized()
 }
 
 pub fn preview_from_tidal_result(r: &crate::metadata::tidal::TidalResult) -> NormalizedPreview {
@@ -996,6 +944,7 @@ pub mod clear_queue;
 pub mod history;
 pub mod r#loop;
 pub mod lyrics;
+pub mod metadata;
 #[allow(clippy::module_inception)]
 pub mod music;
 pub mod nowplaying;

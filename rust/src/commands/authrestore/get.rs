@@ -324,6 +324,159 @@ pub async fn authrestore_get(
     Ok(())
 }
 
+/// `authRestoreGetPage` HTML template
+/// (`src/assets/html/authRestoreGetPage.html`, TS
+/// `SlashCommands/authrestore/!get.ts:135`). The Rust stats path
+/// reuses the self-contained `cards::authrestore_dashboard_svg`
+/// output (already wired above), so this fill exists to pin the TS
+/// placeholder mapping; it is covered by
+/// `auth_restore_card_fill_replaces_every_placeholder`.
+const AUTH_RESTORE_GET_TEMPLATE: &str =
+    include_str!("../../../../src/assets/html/authRestoreGetPage.html");
+
+/// html2png options mirror (`!get.ts:260-264`).
+const AUTH_RESTORE_GET_OPTIONS_JSON: &str =
+    r#"{"elementSelector":".container","omitBackground":true,"selectElement":true}"#;
+
+/// Every template value for the `authRestoreGetPage` card. The chart
+/// slots carry pre-rendered JSON (`{registrationData}`,
+/// `{timeLabels}`, `{localeData}`, `{recentVerifications}`).
+pub struct AuthRestoreCardData {
+    pub author_pfp: String,
+    pub author_username: String,
+    pub guild_name: String,
+    pub config_author: String,
+    pub create_date: String,
+    pub role_id: String,
+    pub total_members: String,
+    pub total_verifications: String,
+    pub key_used_count: String,
+    pub registration_data: String,
+    pub time_labels: String,
+    pub locale_data: String,
+    pub recent_verifications: String,
+    pub created_by: String,
+    pub created_on: String,
+    pub total_members2: String,
+    pub total_verification2: String,
+    pub key_used_count2: String,
+    pub recent_locales_distribution: String,
+    pub recent_verifications_label: String,
+    pub registration_over_time: String,
+    pub role: String,
+}
+
+/// Fill the `authRestoreGetPage` template. Mirrors the replace chain
+/// in TS `!get.ts:197-258` (`replaceAll` throughout).
+pub fn auth_restore_get_card_html(d: &AuthRestoreCardData) -> String {
+    AUTH_RESTORE_GET_TEMPLATE
+        .replace("{author_pfp}", &d.author_pfp)
+        .replace("{author_username}", &d.author_username)
+        .replace("{guild_name}", &d.guild_name)
+        .replace("{config_author}", &d.config_author)
+        .replace("{create_date}", &d.create_date)
+        .replace("{role_id}", &d.role_id)
+        .replace("{total_members}", &d.total_members)
+        .replace("{total_verifications}", &d.total_verifications)
+        .replace("{key_used_count}", &d.key_used_count)
+        .replace("{registrationData}", &d.registration_data)
+        .replace("{timeLabels}", &d.time_labels)
+        .replace("{localeData}", &d.locale_data)
+        .replace("{recentVerifications}", &d.recent_verifications)
+        .replace("{created_by}", &d.created_by)
+        .replace("{created_on}", &d.created_on)
+        .replace("{total_members2}", &d.total_members2)
+        .replace("{total_verification2}", &d.total_verification2)
+        .replace("{key_used_count2}", &d.key_used_count2)
+        .replace(
+            "{recent_locales_distribution}",
+            &d.recent_locales_distribution,
+        )
+        .replace("{recent_verifications}", &d.recent_verifications_label)
+        .replace("{registration_over_time}", &d.registration_over_time)
+        .replace("{role}", &d.role)
+}
+
+/// Render the filled page through HorizonGateway. `None` on any
+/// failure so the caller keeps the SVG dashboard.
+/// Unwired (the SVG dashboard in `cards.rs` is already attached
+/// above); kept for a future gateway switch.
+#[allow(dead_code)]
+async fn render_auth_restore_get_png(base: &str, token: &str, html: &str) -> Option<Vec<u8>> {
+    crate::funcs::gateway_render_html(
+        base,
+        token,
+        html,
+        AUTH_RESTORE_GET_OPTIONS_JSON,
+        &[],
+        Some(std::time::Duration::from_secs(30)),
+    )
+    .await
+    .ok()
+}
+
+#[cfg(test)]
+mod auth_restore_card_tests {
+    use super::auth_restore_get_card_html;
+    use super::AuthRestoreCardData;
+
+    #[test]
+    fn auth_restore_card_fill_replaces_every_placeholder() {
+        let s = |v: &str| v.to_string();
+        let d = AuthRestoreCardData {
+            author_pfp: s("P"),
+            author_username: s("U"),
+            guild_name: s("G"),
+            config_author: s("A"),
+            create_date: s("D"),
+            role_id: s("R"),
+            total_members: s("1"),
+            total_verifications: s("2"),
+            key_used_count: s("3"),
+            registration_data: s("[]"),
+            time_labels: s("[]"),
+            locale_data: s("{}"),
+            recent_verifications: s("[]"),
+            created_by: s("CB"),
+            created_on: s("CO"),
+            total_members2: s("TM"),
+            total_verification2: s("TV"),
+            key_used_count2: s("KU"),
+            recent_locales_distribution: s("LD"),
+            recent_verifications_label: s("RV"),
+            registration_over_time: s("RO"),
+            role: s("RL"),
+        };
+        let html = auth_restore_get_card_html(&d);
+        for ph in [
+            "{author_pfp}",
+            "{author_username}",
+            "{guild_name}",
+            "{config_author}",
+            "{create_date}",
+            "{role_id}",
+            "{total_members}",
+            "{total_verifications}",
+            "{key_used_count}",
+            "{registrationData}",
+            "{timeLabels}",
+            "{localeData}",
+            "{recentVerifications}",
+            "{created_by}",
+            "{created_on}",
+            "{total_members2}",
+            "{total_verification2}",
+            "{key_used_count2}",
+            "{recent_locales_distribution}",
+            "{recent_verifications}",
+            "{registration_over_time}",
+            "{role}",
+        ] {
+            assert!(!html.contains(ph), "placeholder left: {ph}");
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

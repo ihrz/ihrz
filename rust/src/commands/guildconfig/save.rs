@@ -15,6 +15,8 @@ pub async fn gc_config_save(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let pool = &ctx.data().pool;
+    // Ack-first: row dump + encrypt + DM run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
     ctx.send(

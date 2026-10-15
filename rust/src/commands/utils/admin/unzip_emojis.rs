@@ -1,6 +1,7 @@
 use super::*;
 
-/// Upload emojis from a zip attachment. Mirrors !unzip-emojis.ts.
+// Upload emojis from a zip attachment. Mirrors !unzip-emojis.ts.
+/// Recreate all emojis from a zip file
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,11 +20,26 @@ pub async fn unzip_emojis(
     #[description_localized("ja", "絵文字を再作成するZIPファイル")]
     #[description_localized("ru", "ZIP-файл для воссоздания эмодзи")]
     #[description_localized("es-ES", "El archivo zip para recrear emojis")]
-    #[description = "Zip file"]
+    #[description = "The zip file to recreate emojis"]
     #[rename = "zip_file"]
-    attachment: poise::serenity_prelude::Attachment,
+    attachment: Option<poise::serenity_prelude::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    // TS no-file guard (!unzip-emojis.ts:50-56): the prefix path reads
+    // `interaction.attachments.first()`, which may be missing.
+    let Some(attachment) = attachment else {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.send(
+            poise::CreateReply::default()
+                .content(
+                    crate::lang::get(&code, "util_unzip_emojis_command_no_file")
+                        .unwrap_or_else(|| "Please attach a zip file.".to_string()),
+                )
+                .ephemeral(true),
+        )
+        .await?;
         return Ok(());
     };
     // TS wraps the whole run in try/catch answering
@@ -42,35 +58,47 @@ pub async fn unzip_emojis(
             return unzip_failed(&ctx).await;
         }
     };
-    let mut pending: Vec<(String, Vec<u8>)> = vec![];
-    for i in 0..archive.len().min(20) {
+    let mut pending: Vec<(String, String, Vec<u8>)> = vec![];
+    // TS (!unzip-emojis.ts:69-92): keep only `name_<id>.png|gif` entries,
+    // clean the name (`_` -> space, strip non-word chars, 32 max), skip
+    // emojis already in cache, then cap at 50.
+    let cached: Vec<String> = guild_id
+        .emojis(ctx.http())
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|e| e.name)
+        .collect();
+    for i in 0..archive.len() {
+        if pending.len() >= 50 {
+            break;
+        }
         let mut file = match archive.by_index(i) {
             Ok(f) => f,
             Err(_) => continue,
         };
-        let name = file.name().to_string();
-        if !(name.ends_with(".png") || name.ends_with(".gif") || name.ends_with(".jpg")) {
+        let Some((emoji_name, ext)) = clean_unzip_name(file.name()) else {
+            continue;
+        };
+        if cached.iter().any(|n| n == &emoji_name) {
             continue;
         }
         let mut data = vec![];
         use std::io::Read;
-        if file.read_to_end(&mut data).is_err() || data.is_empty() || data.len() > 256 * 1024 {
+        if file.read_to_end(&mut data).is_err() || data.is_empty() {
             continue;
         }
-        pending.push((name, data));
+        pending.push((emoji_name, ext, data));
     }
     drop(archive);
     let mut done = 0;
-    for (name, data) in pending {
-        let stem = name.rsplit('/').next().unwrap_or(&name);
-        let stem = stem.rsplit_once('.').map(|(s, _)| s).unwrap_or(stem);
-        let ext = if name.ends_with(".gif") { "gif" } else { "png" };
+    for (emoji_name, ext, data) in pending {
         let image = format!(
             "data:image/{ext};base64,{}",
             crate::emojis::base64_encode(&data)
         );
         if guild_id
-            .create_emoji(ctx.http(), stem, &image)
+            .create_emoji(ctx.http(), &emoji_name, &image)
             .await
             .is_ok()
         {
@@ -96,8 +124,30 @@ pub async fn unzip_emojis(
     Ok(())
 }
 
-/// Ephemeral `util_unzip_emojis_command_error` reply. Mirrors the TS
-/// try/catch around the whole run (download + unzip failures).
+// Clean one zip entry into `(emoji_name, ext)`. Mirrors the TS filter
+// (!unzip-emojis.ts:74-81): bare `name_<id>.png|gif`, `_` -> space,
+// strip non-word chars, 32 chars max. `None` rejects the entry.
+pub fn clean_unzip_name(path: &str) -> Option<(String, String)> {
+    let bare = path.rsplit('/').next().unwrap_or(path);
+    let (stem, ext) = bare.rsplit_once('.')?;
+    if ext != "png" && ext != "gif" {
+        return None;
+    }
+    let (name, id) = stem.rsplit_once('_')?;
+    if name.is_empty() || id.is_empty() || !id.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    let cleaned: String = name
+        .replace('_', " ")
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || c.is_ascii_whitespace())
+        .take(32)
+        .collect();
+    Some((cleaned, ext.to_string()))
+}
+
+// Ephemeral `util_unzip_emojis_command_error` reply. Mirrors the TS
+// try/catch around the whole run (download + unzip failures).
 async fn unzip_failed(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.send(
@@ -110,4 +160,37 @@ async fn unzip_failed(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn name_id_filter_mirrors_ts_regex() {
+        assert_eq!(
+            clean_unzip_name("smile_123.png"),
+            Some(("smile".to_string(), "png".to_string()))
+        );
+        // Greedy `(.+)`: the LAST `_digits` split wins, `_` -> space.
+        assert_eq!(
+            clean_unzip_name("my_cool_emoji_456.gif"),
+            Some(("my cool emoji".to_string(), "gif".to_string()))
+        );
+        // Folders are stripped to the bare filename.
+        assert_eq!(
+            clean_unzip_name("a/b/c_789.png"),
+            Some(("c".to_string(), "png".to_string()))
+        );
+        // jpg rejected (png/gif only).
+        assert_eq!(clean_unzip_name("smile_123.jpg"), None);
+        // No numeric id suffix.
+        assert_eq!(clean_unzip_name("smile.png"), None);
+        assert_eq!(clean_unzip_name("smile_abc.png"), None);
+        // Dirty chars stripped.
+        assert_eq!(
+            clean_unzip_name("a!b_c-1_9.png"),
+            Some(("ab c1".to_string(), "png".to_string()))
+        );
+    }
 }

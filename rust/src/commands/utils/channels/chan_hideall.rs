@@ -1,6 +1,6 @@
 use super::*;
 
-/// Hide/unhide every text channel. Mirrors chanel hideall/unhideall.
+/// Hide all channels in the server from everyone
 #[poise::command(
     slash_command,
     prefix_command,
@@ -22,7 +22,7 @@ pub async fn chan_hideall(
         "es-ES",
         "el rol que quieres ocultar en todos los canales del servidor"
     )]
-    #[description = "Role, defaults to @everyone"]
+    #[description = "the role that you want to hide into all guild channels"]
     role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let role_id = role

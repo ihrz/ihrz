@@ -6,7 +6,7 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "clearwarn",
-    aliases("clearwarn", "clearwarns", "clearsanctions", "clearsanction"),
+    aliases("clearwarns", "clearwarn", "clearsanctions", "clearsanction"),
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "effacer tout les avertissement d'un utilisateur"),
     description_localized("ja", "ユーザーの全警告をクリア"),
@@ -22,6 +22,9 @@ pub async fn mod_clearwarn(
     #[description = "The member you want to clear"]
     member: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -103,5 +106,20 @@ mod tests {
         let cmd = mod_clearwarn();
         let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
         assert_eq!(names, vec!["member"]);
+    }
+
+    #[test]
+    fn prefix_aliases_match_ts_order() {
+        // TS mod.ts clearwarn aliases, in order.
+        let cmd = mod_clearwarn();
+        assert_eq!(
+            cmd.aliases,
+            vec![
+                "clearwarns".to_string(),
+                "clearwarn".to_string(),
+                "clearsanctions".to_string(),
+                "clearsanction".to_string()
+            ]
+        );
     }
 }

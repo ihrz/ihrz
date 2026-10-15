@@ -1,6 +1,7 @@
 use super::*;
 
-/// Remove a leash. Mirrors utils !unleash.ts.
+// Remove a leash. Mirrors utils !unleash.ts.
+/// UnLeash a member in the guild
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +19,7 @@ pub async fn unleash(
     #[description_localized("ja", "リードを外したいメンバー")]
     #[description_localized("ru", "участник для отвязки")]
     #[description_localized("es-ES", "miembro que quieres desatar")]
-    #[description = "Member to unleash"]
+    #[description = "member you want to unleash"]
     member: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -69,8 +70,7 @@ pub async fn unleash(
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());
-    ctx.say(
-        crate::lang::get(&code, "util_unleash_command_ok")
+    ctx.say(crate::lang::get(&code, "util_unleash_command_ok")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes_mark))
             .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)".to_string()),
     )

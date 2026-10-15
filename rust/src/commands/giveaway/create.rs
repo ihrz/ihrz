@@ -200,7 +200,7 @@ pub async fn gw_create(
     #[description_localized("ja", "ギブアウェイの当選者数")]
     #[description_localized("ru", "Количество победителей розыгрыша")]
     #[description_localized("es-ES", "Número de ganadores del sorteo")]
-    #[description = "Winners"]
+    #[description = "Number of winner for the giveaways"]
     #[rename = "winner"]
     winners: Option<f64>,
     #[name_localized("fr", "temps")]
@@ -211,7 +211,7 @@ pub async fn gw_create(
     #[description_localized("ja", "ギブアウェイの開催時間")]
     #[description_localized("ru", "Длительность розыгрыша")]
     #[description_localized("es-ES", "La duración del sorteo")]
-    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    #[description = "The time duration of the giveaways"]
     time: String,
     // Option (not required): TS reads `getString("requirement")` /
     // `string(args, 2)` (both nullable, !create.ts) while the slash
@@ -223,7 +223,7 @@ pub async fn gw_create(
     #[description_localized("ja", "ギブアウェイ参加要件")]
     #[description_localized("ru", "Требование для участия в розыгрыше")]
     #[description_localized("es-ES", "El requisito para entrar en el sorteo")]
-    #[description = "Requirement: none, invites, messages, roles"]
+    #[description = "The requirement to enter into the giveaway"]
     requirement: Option<GwRequirement>,
     // Option (not required): TS stores `(prize || "").substring(0,256)`
     // (!create.ts:140), so a missing prize creates with an empty prize.
@@ -235,22 +235,29 @@ pub async fn gw_create(
     #[description_localized("ja", "ギブアウェイの賞品")]
     #[description_localized("ru", "Приз розыгрыша")]
     #[description_localized("es-ES", "El premio del sorteo")]
-    #[description = "Prize"]
+    #[description = "The giveaway's prize"]
     prize: Option<String>,
     #[description_localized("fr", "La valeur du prérequis pour entrer dans le giveaway")]
     #[description_localized("ja", "要件の値")]
     #[description_localized("ru", "Значение требования")]
     #[description_localized("es-ES", "El valor del requisito")]
-    #[description = "Requirement value"]
+    #[description = "The requirement value"]
     #[rename = "requirement-value"]
     requirement_value: Option<String>,
     #[description_localized("fr", "le lien d'une image qui seras inclu dans l'embed du giveaway")]
     #[description_localized("ja", "ギブアウェイの埋め込みに表示される画像")]
     #[description_localized("ru", "Изображение в эмбеде розыгрыша")]
     #[description_localized("es-ES", "Imagen mostrada en el embed del sorteo")]
-    #[description = "Embed image URL (must be an image)"]
+    #[description = "Image showed on the giveaway's embed"]
     image: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
+    // handler below does store + HTTP work (guild icon snapshot,
+    // role resolution, image probe) before answering, so defer up
+    // front instead of risking the 3s interaction timeout. Later
+    // `say`/`send` calls become followups, like the TS deferred
+    // `interactionSend` path.
+    ctx.defer().await?;
     let pool_early = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !create.ts:77-85 (raw count validated in-handler:
@@ -271,8 +278,7 @@ pub async fn gw_create(
     // the full timeCalculator mirror (compound sums, FR/EN aliases).
     let delta = super::gw_parse_duration_ms(&time);
     let Some(delta) = delta else {
-        ctx.say(
-            crate::lang::get(&code_early, "start_time_not_valid")
+        ctx.say(crate::lang::get(&code_early, "start_time_not_valid")
                 .map(|s| {
                     s.replace(
                         "${interaction.user}",
@@ -329,7 +335,20 @@ pub async fn gw_create(
     let now = crate::commands::schedule::main::now_ms();
     // Prefix invocations carry no image option (TS forces imageUrl
     // to "" on the prefix path); slash honors a valid image URL.
+    // The footer snapshot and the image-URL probe are independent,
+    // so they run concurrently instead of sequentially.
     let is_prefix = matches!(ctx, poise::Context::Prefix(_));
+    let pool = &ctx.data().pool;
+    let image_candidate = resolve_image_source(is_prefix, image.as_deref());
+    let ((footer_name, footer_icon), image_ok) = tokio::join!(
+        giveaway_footer(pool, &ctx.serenity_context().http, &gid),
+        async {
+            match image_candidate {
+                Some(url) => crate::funcs::is_image_url(url).await,
+                None => false,
+            }
+        },
+    );
     let gw = Giveaway {
         guild_id: gid.clone(),
         channel_id: ctx.channel_id().get().to_string(),
@@ -346,13 +365,12 @@ pub async fn gw_create(
         requirement: requirement.to_string(),
         requirement_value: req_value,
         is_valid: true,
-        embed_image_url: match resolve_image_source(is_prefix, image.as_deref()) {
-            Some(url) if crate::funcs::is_image_url(url).await => Some(url.to_string()),
+        embed_image_url: match image_candidate {
+            Some(url) if image_ok => Some(url.to_string()),
             _ => None,
         },
     };
     // Rich board post. Mirrors create() in giveawaysManager.ts.
-    let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let (end_r, end_d) = stamp_pair(gw.expire_in_ms);
@@ -361,8 +379,6 @@ pub async fn gw_create(
         .replace("${end_string2}", &end_d)
         .replace("${data.hostedBy}", &gw.hosted_by)
         .replace("${winners_amount}", &gw.winner_count.to_string());
-    let (footer_name, footer_icon) =
-        giveaway_footer(pool, &ctx.serenity_context().http, &gid).await;
     let mut embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::new(GW_COLOR))
         .title(gw.prize.clone())
@@ -555,15 +571,7 @@ mod tests {
         .into_iter()
         .map(|c| c.name().to_string())
         .collect();
-        assert_eq!(
-            names,
-            vec![
-                "none",
-                "invites",
-                "messages",
-                "roles",
-            ]
-        );
+        assert_eq!(names, vec!["none", "invites", "messages", "roles",]);
         assert_eq!(
             GwRequirement::from_name("invites"),
             Some(GwRequirement::Invites)

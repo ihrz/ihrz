@@ -399,7 +399,12 @@ pub async fn gc_autoreact(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let gid = guild_id.get().to_string();
     let pool = ctx.data().pool.clone();
-    let code = crate::db::guild_lang(&pool, Some(guild_id.get())).await;
+    // Ack-first + one round-trip for the lang row and the stored map.
+    ctx.defer().await?;
+    let (code, mut map) = tokio::join!(
+        crate::db::guild_lang(&pool, Some(guild_id.get())),
+        load_autoreact_map_routed(&pool, &gid)
+    );
     let author = ctx.author().id;
     let http = ctx.http();
     let not_for_you = tr_or(
@@ -419,7 +424,6 @@ pub async fn gc_autoreact(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .collect()
         })
         .unwrap_or_default();
-    let mut map = load_autoreact_map_routed(&pool, &gid).await;
     let mut ids = sorted_channel_ids(&map);
     let mut page0: usize = 0;
     let handle = ctx
@@ -707,13 +711,18 @@ pub async fn gc_toggle_react(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    let raw = crate::commands::owner::main::routed_get(
-        pool,
-        &gid,
-        &gid,
-        "GUILD.GUILD_CONFIG.hey_reaction",
-    )
-    .await;
+    // Ack-first + one round-trip for the stored flag and the lang row
+    // (the write below depends on the read, so only the lang fetch joins).
+    ctx.defer().await?;
+    let (raw, code) = tokio::join!(
+        crate::commands::owner::main::routed_get(
+            pool,
+            &gid,
+            &gid,
+            "GUILD.GUILD_CONFIG.hey_reaction",
+        ),
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get()))
+    );
     let next = toggle_hey_reaction_value(raw.as_deref());
     crate::commands::owner::main::routed_set(
         pool,
@@ -723,15 +732,13 @@ pub async fn gc_toggle_react(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         &next.to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let active_msg = if next {
         crate::lang::get(&code, "toggle_react_react").unwrap_or_else(|| "react".to_string())
     } else {
         crate::lang::get(&code, "toggle_react_doesnt_react")
             .unwrap_or_else(|| "no longer react".to_string())
     };
-    ctx.say(
-        crate::lang::get(&code, "toggle_react_command_work")
+    ctx.say(crate::lang::get(&code, "toggle_react_command_work")
             .map(|s| {
                 s.replace("{activeMsg}", &active_msg).replace(
                     "${interaction.member?.id}",

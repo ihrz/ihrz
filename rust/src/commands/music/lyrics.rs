@@ -1,6 +1,13 @@
 use super::*;
 use crate::commands::shared::{embed_with_footer, footer_parts};
 
+/// Shared HTTP client for the lyrics.ovh legs (suggest + body): one
+/// process-wide pool instead of a fresh TLS handshake per lookup.
+pub(crate) fn http_client() -> reqwest::Client {
+    static CLIENT: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
+    CLIENT.get_or_init(reqwest::Client::new).clone()
+}
+
 /// Backend divergence (documented, E1): TS `searchLyrics.ts:25-60`
 /// resolves lyrics through the Lavalink node (`search` + the
 /// lyrics-plugin `lyrics.get(track)`, synced lyrics, `null` when none).
@@ -10,7 +17,7 @@ use crate::commands::shared::{embed_with_footer, footer_parts};
 /// author, see `resolve_lyrics_meta`). `None` here covers both TS
 /// null legs (no suggest hit, empty text).
 pub(crate) async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
-    let client = reqwest::Client::new();
+    let client = http_client();
     let suggest: serde_json::Value = client
         .get(format!(
             "https://api.lyrics.ovh/suggest/{}",
@@ -144,13 +151,20 @@ pub async fn m_lyrics(
     let not_found = || {
         crate::lang::get(&code, "lyrics_not_found").unwrap_or_else(|| "No lyrics found".to_string())
     };
-    let Some((suggest_title, text)) = fetch_lyrics_text(&query).await else {
+    // Lyrics text (ovh suggest + body) and track identity (Lavalink
+    // search hit) are independent: run them concurrently instead of
+    // stacking both round-trips before the first reply.
+    let mgr = synced_mgr(&ctx).await;
+    let gid_opt = ctx.guild_id().map(|g| g.get());
+    let (lyrics, meta) = tokio::join!(fetch_lyrics_text(&query), async {
+        match gid_opt {
+            Some(g) => resolve_lyrics_meta(mgr, g, &query).await,
+            None => LyricsTrackMeta::default(),
+        }
+    });
+    let Some((suggest_title, text)) = lyrics else {
         ctx.say(not_found()).await?;
         return Ok(());
-    };
-    let meta = match ctx.guild_id() {
-        Some(g) => resolve_lyrics_meta(synced_mgr(&ctx).await, g.get(), &query).await,
-        None => LyricsTrackMeta::default(),
     };
     let title = meta.title.clone().unwrap_or(suggest_title);
     let author = meta.author.clone().unwrap_or_else(|| {
@@ -203,6 +217,12 @@ pub async fn m_lyrics(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn shared_http_client_initializes() {
+        // Smoke: the process-wide pool builds without panicking.
+        let _ = http_client();
+    }
 
     #[test]
     fn description_passes_short_through() {

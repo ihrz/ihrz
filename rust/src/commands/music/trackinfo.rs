@@ -141,18 +141,29 @@ async fn reply_for_trackinfo(
     lyrics_query: Option<&str>,
 ) -> Result<(), anyhow::Error> {
     let link = uri.unwrap_or_default();
-    let trimmed = match lyrics_query {
-        Some(q) => super::lyrics::fetch_lyrics_text(q)
-            .await
-            .map(|(_, text)| trackinfo_lyrics_excerpt(&text)),
-        None => None,
-    }
-    .filter(|s| !s.trim().is_empty())
-    .unwrap_or_else(|| {
-        crate::lang::get(code, "lyrics_not_found").unwrap_or_else(|| "No lyrics found".to_string())
-    });
-    let micro = emoji_markup(ctx, "Micro", "🎤").await;
-    let music_icon = emoji_markup(ctx, "Music_Icon", "🎵").await;
+    // Lyrics text and artwork colour are independent network legs;
+    // run them concurrently instead of stacking both before the reply.
+    let (trimmed, colour) = tokio::join!(
+        async {
+            match lyrics_query {
+                Some(q) => super::lyrics::fetch_lyrics_text(q)
+                    .await
+                    .map(|(_, text)| trackinfo_lyrics_excerpt(&text)),
+                None => None,
+            }
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or_else(|| {
+                crate::lang::get(code, "lyrics_not_found")
+                    .unwrap_or_else(|| "No lyrics found".to_string())
+            })
+        },
+        dominant_colour(artwork)
+    );
+    // Independent emoji lookups: resolve concurrently.
+    let (micro, music_icon) = tokio::join!(
+        emoji_markup(ctx, "Micro", "🎤"),
+        emoji_markup(ctx, "Music_Icon", "🎵")
+    );
     let lyrics_word =
         crate::lang::get(code, "music_lyrics").unwrap_or_else(|| "Lyrics".to_string());
     let requested_by =
@@ -161,7 +172,6 @@ async fn reply_for_trackinfo(
         .unwrap_or_else(|| "Link here: [Click here]({link})".to_string());
     let visit_here =
         crate::lang::get(code, "music_visit_here").unwrap_or_else(|| "Visit here".to_string());
-    let colour = dominant_colour(artwork).await;
     let mut embed = serenity::CreateEmbed::default()
         .colour(colour)
         .title(format!("{music_icon} {title}"))

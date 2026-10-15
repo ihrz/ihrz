@@ -1,5 +1,22 @@
 use super::*;
 
+/// `love` HTML template (`src/assets/html/love.html`, driven by
+/// `images.love` in `src/core/images.ts`).
+const LOVE_CARD_TEMPLATE: &str = include_str!("../../../../src/assets/html/love.html");
+
+/// html2png options mirror (`images.love`: `.love-container`,
+/// 1600x600, scale 1).
+const LOVE_OPTIONS_JSON: &str = r#"{"omitBackground":true,"selectElement":true,"elementSelector":".love-container","width":1600,"height":600,"scaleSize":1}"#;
+
+/// Fill the `love` template. Mirrors the replaces in `images.love`
+/// (`{Y}` heart asset, `{X}`/`{Z}` avatar URLs).
+pub fn love_card_html(avatar1: &str, avatar2: &str) -> String {
+    LOVE_CARD_TEMPLATE
+        .replace("{Y}", love_heart_url())
+        .replace("{X}", avatar1)
+        .replace("{Z}", avatar2)
+}
+
 /// Output filename. Mirrors `name: "love.png"` in `!love.ts`.
 pub fn love_output_name() -> &'static str {
     "love.png"
@@ -181,8 +198,9 @@ pub async fn love(
     let score = love_roll(u1.id.get(), u2.id.get(), &ctx.data().config.always100);
     // Composite `love.png` (avatar | heart | avatar tile strip, the
     // `image`-crate stand-in for the `love.html` html2png render).
-    // Avatar download failure degrades to the text embed, like the TS
-    // catch path that replies with `love_command_error`.
+    // When an avatar blob does not decode the render fails like the TS
+    // `love()` throw, so the reply is `love_command_error` exactly like
+    // the TS catch path (never an imageless embed).
     // Mirrors `displayAvatarURL({ extension: "png", size: 512 })`
     // (forced PNG, not the webp `face()` URL).
     // The three downloads run concurrently: sequentially they can
@@ -193,15 +211,47 @@ pub async fn love(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let (avatar_url1, avatar_url2) = (avatar_png_url(&u1, 512), avatar_png_url(&u2, 512));
+    // Gateway leg (`images.love` in `src/core/images.ts`): the filled
+    // `love.html` through HorizonGateway (Chromium fetches the avatar
+    // URLs itself, so no download is needed). Failure falls through
+    // to the composite stand-in below, which stays as fallback.
+    let gateway_png: Option<Vec<u8>> = if let Some(base) = ctx.data().config.gateway_internal() {
+        let token = crate::config::api_token().unwrap_or_default();
+        let html = love_card_html(&avatar_url1, &avatar_url2);
+        crate::funcs::gateway_render_html(
+            &base,
+            &token,
+            &html,
+            LOVE_OPTIONS_JSON,
+            &[],
+            Some(std::time::Duration::from_secs(30)),
+        )
+        .await
+        .ok()
+    } else {
+        None
+    };
     let (avatar1, avatar2, heart, (fname, fbytes)) = tokio::join!(
         crate::commands::shared::download_bytes(&avatar_url1),
         crate::commands::shared::download_bytes(&avatar_url2),
         crate::commands::shared::download_bytes(love_heart_url()),
         crate::commands::shared::footer_parts(&ctx, &gid),
     );
-    let png = match (avatar1, avatar2) {
-        (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
-        _ => None,
+    let png = match gateway_png {
+        Some(bytes) => Some(bytes),
+        None => match (avatar1, avatar2) {
+            (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
+            _ => None,
+        },
+    };
+    let Some(png) = png else {
+        ctx.say(
+            crate::lang::get(&code, "love_command_error").unwrap_or_else(|| {
+                "An error occurred while trying to create the image".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
     };
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xFFC0CB)
@@ -215,18 +265,13 @@ pub async fn love(
             &u1.name,
             &u2.name,
             score,
-        ));
-    if png.is_some() {
-        embed = embed.image("attachment://love.png");
-    }
+        ))
+        .image("attachment://love.png");
     embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some())
         .timestamp(poise::serenity_prelude::Timestamp::now());
-    let mut reply = poise::CreateReply::default().embed(embed);
-    if let Some(bytes) = png {
-        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
-            bytes, "love.png",
-        ));
-    }
+    let mut reply = poise::CreateReply::default().embed(embed).attachment(
+        poise::serenity_prelude::CreateAttachment::bytes(png, "love.png"),
+    );
     if let Some(bytes) = fbytes {
         reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
             bytes,
@@ -274,6 +319,17 @@ mod love_tests {
             42,
         );
         assert_eq!(out, "**ann** + **bob** = __42%__");
+    }
+
+    #[test]
+    fn love_card_fill_replaces_xyz() {
+        let html = love_card_html("A1", "A2");
+        assert!(!html.contains("{X}"));
+        assert!(!html.contains("{Y}"));
+        assert!(!html.contains("{Z}"));
+        assert!(html.contains("A1"));
+        assert!(html.contains("A2"));
+        assert!(html.contains(love_heart_url()));
     }
 
     #[test]

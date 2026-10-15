@@ -1,11 +1,12 @@
 use super::*;
 
-/// Named `vanity` table handle for the bot-global api.VANITY map.
-/// Legacy scope "0" and keys are unchanged (prevnames precedent).
+// Named `vanity` table handle for the bot-global api.VANITY map.
+// Legacy scope "0" and keys are unchanged (prevnames precedent).
 pub const VANITY_TABLE: &str = "vanity";
 
-/// Claim a custom vanity URL for this guild.
+// Claim a custom vanity URL for this guild.
 // TS decl: `code` required + 24h command cooldown (utils.ts).
+/// Get your own vanity URL in discord.wf format!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -25,7 +26,7 @@ pub async fn vanity_generator(
     #[description_localized("ja", "バニティURLコード")]
     #[description_localized("ru", "Код персональной ссылки")]
     #[description_localized("es-ES", "Código de URL de vanidad")]
-    #[description = "Vanity code"]
+    #[description = "Vanity URL code"]
     code: String,
 ) -> Result<(), anyhow::Error> {
     let invalid_tpl = crate::commands::lang_for(

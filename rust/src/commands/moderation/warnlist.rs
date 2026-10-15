@@ -49,6 +49,9 @@ pub async fn mod_warnlist(
     #[description = "The member you want to lookup"]
     member: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -228,10 +231,10 @@ mod tests {
 
     #[test]
     fn slash_option_names_match_ts() {
-        // TS mod.ts warnlist option: member (`page` is a Rust-side
-        // pagination extra with no TS counterpart).
+        // TS mod.ts warnlist option: member (only option; paging is via
+        // the previousPage/nextPage buttons).
         let cmd = mod_warnlist();
         let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
-        assert_eq!(names[0], "member");
+        assert_eq!(names, vec!["member"]);
     }
 }

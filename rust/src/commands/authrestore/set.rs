@@ -79,8 +79,7 @@ pub async fn authrestore_set(
         }
     };
     if stored_msg.author.id != bot_id {
-        ctx.say(
-            t(
+        ctx.say(t(
                 &ctx,
                 "buttonreaction_message_other_user_error",
                 "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
@@ -155,8 +154,7 @@ pub async fn authrestore_set(
     super::authrestore::restore_record_set(&ctx.data().pool, &guild_id, &record).await?;
     let channel_str = channel_id.get().to_string();
     let msg_link = format!("https://discord.com/channels/{guild_id}/{channel_str}/{message_id}");
-    ctx.send(
-        poise::CreateReply::default()
+    ctx.send(poise::CreateReply::default()
             .content(
                 t(
                     &ctx,
@@ -192,8 +190,7 @@ pub async fn authrestore_set(
         .await
         .is_err()
     {
-        ctx.send(
-            poise::CreateReply::default()
+        ctx.send(poise::CreateReply::default()
                 .content(t(&ctx, "rc_command_dm_failed", "I tried to send you the code in a private message, but you have blocked your DMs :/").await)
                 .ephemeral(true),
         )

@@ -1,5 +1,20 @@
 use super::*;
 
+/// `bubbles` HTML template (`src/assets/html/bubbles.html`, driven by
+/// `images.bubbles` in `src/core/images.ts`).
+const BUBBLES_CARD_TEMPLATE: &str = include_str!("../../../../src/assets/html/bubbles.html");
+
+/// html2png options mirror (`images.bubbles`: `.meme-container`,
+/// no viewport overrides).
+const BUBBLES_OPTIONS_JSON: &str =
+    r#"{"omitBackground":true,"selectElement":true,"elementSelector":".meme-container"}"#;
+
+/// Fill the `bubbles` template. Mirrors the replace in
+/// `images.bubbles(img)` (`{X}` source image).
+pub fn bubbles_card_html(image_url: &str) -> String {
+    BUBBLES_CARD_TEMPLATE.replace("{X}", image_url)
+}
+
 /// Add bubble on top of your own image
 #[poise::command(
     slash_command,
@@ -30,6 +45,34 @@ pub async fn bubbles(
         ctx.say(no).await?;
         return Ok(());
     }
+    // Gateway leg (`images.bubbles` in `src/core/images.ts`): the
+    // filled `bubbles.html` through HorizonGateway. The gateway
+    // returns a PNG still (attached as `bubbles.png`); failure keeps
+    // the pending-text reply below.
+    if let Some(base) = ctx.data().config.gateway_internal() {
+        let token = crate::config::api_token().unwrap_or_default();
+        let html = bubbles_card_html(&image.url);
+        if let Ok(png) = crate::funcs::gateway_render_html(
+            &base,
+            &token,
+            &html,
+            BUBBLES_OPTIONS_JSON,
+            &[],
+            Some(std::time::Duration::from_secs(30)),
+        )
+        .await
+        {
+            use poise::serenity_prelude as serenity;
+            let embed = serenity::CreateEmbed::default().image("attachment://bubbles.png");
+            ctx.send(
+                poise::CreateReply::default()
+                    .embed(embed)
+                    .attachment(serenity::CreateAttachment::bytes(png, "bubbles.png")),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     // GIF render (html2png bubbles template) pending; validation shape ported.
     let file = bubbles_output_name();
     ctx.say(
@@ -39,4 +82,16 @@ pub async fn bubbles(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod bubbles_card_tests {
+    use super::*;
+
+    #[test]
+    fn bubbles_card_fill_replaces_x() {
+        let html = bubbles_card_html("https://cdn/x.png");
+        assert!(!html.contains("{X}"));
+        assert!(html.contains("https://cdn/x.png"));
+    }
 }

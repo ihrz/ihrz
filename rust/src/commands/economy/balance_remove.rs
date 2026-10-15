@@ -1,9 +1,11 @@
 use super::*;
 
-/// Mirrors `!balance-remove.ts`.
+/// Remove money from a user!
+// Mirrors `!balance-remove.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "balance-remove",
     aliases("removemoney"),
     default_member_permissions = "ADMINISTRATOR",
@@ -24,13 +26,13 @@ pub async fn eco_balance_remove(
     #[description_localized("ja", "追加したい金額")]
     #[description_localized("ru", "сумма для добавления")]
     #[description_localized("es-ES", "cantidad de $ que quieres añadir")]
-    #[description = "Amount"]
+    #[description = "amount of $ you want add"]
     amount: f64,
     #[description_localized("fr", "le membre auquel vous souhaitez ajouter de l'argent")]
     #[description_localized("ja", "お金を追加したいメンバー")]
     #[description_localized("ru", "участник, которому добавить деньги")]
     #[description_localized("es-ES", "el miembro al que quieres añadir dinero")]
-    #[description = "Member"]
+    #[description = "the member you want to add the money"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {

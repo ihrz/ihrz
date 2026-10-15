@@ -35,10 +35,14 @@ pub async fn gw_reroll(
         "es-ES",
         "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
     )]
-    #[description = "Giveaway message id"]
+    #[description = "The giveaway id (is the message id of the embed's giveaways)"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419):
+    // reroll() awaits the board edit before confirming, so defer up
+    // front instead of risking the 3s interaction timeout.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

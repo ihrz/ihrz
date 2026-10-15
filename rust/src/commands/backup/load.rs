@@ -65,8 +65,7 @@ pub async fn backup_load(
             .map(|g| g.owner_id.get() == ctx.author().id.get())
             .unwrap_or(true);
         if !is_owner {
-            ctx.say(
-                crate::commands::lang_for(
+            ctx.say(crate::commands::lang_for(
                     &ctx,
                     "backup_manage_nique_tes_mort",
                     "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked.",
@@ -222,8 +221,7 @@ pub async fn backup_load(
         }
         // Corrupt snapshot: neither kv entries nor a guild backup.
         // Mirrors the backup_error_on_load catch in !load.ts:137.
-        ctx.say(
-            crate::commands::lang_for(
+        ctx.say(crate::commands::lang_for(
                 &ctx,
                 "backup_error_on_load",
                 ":x: | Sorry, an error occurred... Please check that I have administrator permissions!",

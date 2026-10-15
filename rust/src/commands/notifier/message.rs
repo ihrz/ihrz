@@ -157,6 +157,10 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     {
         return Ok(());
     }
+    // Ack-first: the emoji-table fetch + preview render run before the
+    // first reply, so defer before any I/O (the panel send below stays
+    // the public reply; into_message works on the deferred handle).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -268,7 +272,10 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 },
             )];
             let Ok(modal) = crate::modal_helper::build_modal(&opts) else {
-                break;
+                // TS iHorizonModalResolve throwing here rejects the
+                // collect handler while the 80s collector keeps
+                // running, so keep listening instead of ending early.
+                continue;
             };
             if pressed
                 .create_response(
@@ -278,13 +285,17 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .await
                 .is_err()
             {
-                break;
+                continue;
             }
             let sctx = ctx.serenity_context().clone();
             let Some(submit) =
                 crate::commands::await_modal_submit(&sctx, &pressed, NOTIFY_MODAL_ID).await
             else {
-                break;
+                // TS `if (!modalInteraction) return;`
+                // (!message.ts:145): a modal timeout only leaves the
+                // collect handler — the 80s collector stays alive.
+                // Ending the loop here would disable the buttons early.
+                continue;
             };
             let response = crate::modal_helper::text_value(&submit, NOTIFY_INPUT_ID);
             // No extra length gate here: the modal itself enforces
@@ -373,6 +384,22 @@ mod tests {
         let capped = truncate_notify_message(&emoji);
         assert_eq!(capped.chars().count(), 505);
         assert_eq!(capped.encode_utf16().count(), 1010);
+    }
+
+    #[test]
+    fn truncation_boundary_is_byte_exact_at_1010_units() {
+        // Exactly at budget: kept whole (TS substring(0, 1010) no-op).
+        assert_eq!(truncate_notify_message(&"a".repeat(1010)).len(), 1010);
+        // One unit over: cut to 1010, never splitting a char.
+        let over = format!("{}é", "a".repeat(1010));
+        let capped = truncate_notify_message(&over);
+        assert_eq!(capped.encode_utf16().count(), 1010);
+        assert_eq!(capped, "a".repeat(1010));
+        // Mixed BMP + non-BMP: 1009 ASCII + 1 emoji = 1011 units,
+        // so the emoji is dropped and the cut stays whole.
+        let mixed = format!("{}😀", "b".repeat(1009));
+        let capped = truncate_notify_message(&mixed);
+        assert_eq!(capped, "b".repeat(1009));
     }
 
     #[test]

@@ -22,7 +22,7 @@ pub async fn chan_unhideall(
         "es-ES",
         "el rol que quieres mostrar en todos los canales del servidor"
     )]
-    #[description = "Role, defaults to @everyone"]
+    #[description = "the role that you want to unhide into all guild channels"]
     role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let role_id = role

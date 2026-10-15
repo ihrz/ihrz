@@ -101,16 +101,18 @@ pub fn validate_set_cooldown_kind(kind: &str) -> bool {
     SET_COOLDOWN_KINDS.contains(&kind)
 }
 
-/// Mirrors `!set-cooldown.ts`.
-///
-/// CONSTRAINED (deliberate divergence): TS stores
-/// `ECONOMY.settings.${type}.cooldown` for any verbatim `type` with no
-/// registry check. Here only the two slash choice values tune a leaf;
-/// an unknown type writes nothing and replies with the invalid-type
-/// error.
+/// Manage the cooldown of the actions!
+// Mirrors `!set-cooldown.ts`.
+//
+// CONSTRAINED (deliberate divergence): TS stores
+// `ECONOMY.settings.${type}.cooldown` for any verbatim `type` with no
+// registry check. Here only the two slash choice values tune a leaf;
+// an unknown type writes nothing and replies with the invalid-type
+// error.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "set-cooldown",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Gérer le temps de recharge des actions"),
@@ -124,14 +126,14 @@ pub async fn eco_set_cooldown(
     #[description_localized("ja", "設定したいアクション")]
     #[description_localized("ru", "Действия, которые вы хотите определить")]
     #[description_localized("es-ES", "Las acciones que deseas definir")]
-    #[description = "rob, work"]
+    #[description = "Les actions que vous souhaitez définir"]
     #[rename = "type"]
     kind: SetCooldownKind,
     #[description_localized("fr", "Le temps que vous souhaitez définir")]
     #[description_localized("ja", "設定したい時間")]
     #[description_localized("ru", "Время, которое вы хотите установить")]
     #[description_localized("es-ES", "El tiempo que quieres establecer")]
-    #[description = "Cooldown (e.g. 10s, 1h)"]
+    #[description = "The time you want to set"]
     #[rename = "time"]
     cooldown: String,
 ) -> Result<(), anyhow::Error> {

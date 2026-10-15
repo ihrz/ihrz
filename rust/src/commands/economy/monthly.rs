@@ -1,6 +1,6 @@
 use super::*;
 
-/// Claim your monthly reward!
+/// Claim a monthly reward!
 #[poise::command(
     slash_command,
     prefix_command,

@@ -1,9 +1,11 @@
 use super::*;
 
-/// Shop role list. Mirrors `!list.ts`.
+/// List all roles that you can buy!
+// Mirrors `!list.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "list",
     aliases("economy-role-list"),
     default_member_permissions = "MANAGE_GUILD",

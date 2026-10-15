@@ -12,11 +12,13 @@
 // `UserStats` deserialization). Window calculators + ustats
 // periods/top-channels ported (text form).
 //
-// PNG note (kept, intentional): the TS top-messages/top-voice/
-// channel-stats cards render HTML via client.func.html2png (puppeteer
-// Chromium or HorizonGateway). Chromium is excluded from this runtime
-// and the gateway is external infra, so the PNG leg stays unported;
-// the same rankings render as text. Compare (pure embed) fully ported.
+// PNG note: the TS stats cards render HTML via client.func.html2png
+// (puppeteer Chromium or HorizonGateway). Chromium is excluded from
+// this runtime; the cards below render through HorizonGateway
+// (`gateway_render_html`, same FormData/options shape as the TS
+// gateway branch) with the text rankings kept as fallback when the
+// gateway is unset or the render fails. Compare (pure embed) fully
+// ported.
 
 use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
@@ -582,26 +584,29 @@ pub fn parse_top_period(raw: Option<&str>) -> &'static str {
 /// variant back to the TS `value` read by [`parse_top_period`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum TopPeriod {
-    #[name = "Daily"]
+    #[name = "daily"]
+    #[name_localized("en-US", "Daily")]
+    #[name_localized("en-GB", "Daily")]
     #[name_localized("fr", "Quotidien")]
     #[name_localized("ja", "daily")]
     #[name_localized("ru", "daily")]
     #[name_localized("es-ES", "daily")]
-    #[name = "daily"]
     Daily,
-    #[name = "Weekly"]
+    #[name = "weekly"]
+    #[name_localized("en-US", "Weekly")]
+    #[name_localized("en-GB", "Weekly")]
     #[name_localized("fr", "Hebdomadaire")]
     #[name_localized("ja", "weekly")]
     #[name_localized("ru", "weekly")]
     #[name_localized("es-ES", "weekly")]
-    #[name = "weekly"]
     Weekly,
-    #[name = "Monthly"]
+    #[name = "monthly"]
+    #[name_localized("en-US", "Monthly")]
+    #[name_localized("en-GB", "Monthly")]
     #[name_localized("fr", "Mensuel")]
     #[name_localized("ja", "monthly")]
     #[name_localized("ru", "monthly")]
     #[name_localized("es-ES", "monthly")]
-    #[name = "monthly"]
     Monthly,
 }
 
@@ -760,6 +765,7 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
         .iter()
         .map(|(id, _, label)| (*id, label.clone()))
         .collect();
+    let nums: HashMap<u64, u64> = parsed.iter().map(|(id, n, _)| (*id, *n)).collect();
     let ordered_ids: Vec<u64> = if kind == "voice" {
         crate::stats_calc::top_by_voice(
             parsed
@@ -791,14 +797,360 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
             format!("{}. <@{uid}> — {label}", i + 1)
         })
         .collect();
-    ctx.say(if top.is_empty() {
+    let text = if top.is_empty() {
         crate::lang::get(&code, "stats_no_data")
             .unwrap_or_else(|| "No statistics data available for this server.".to_string())
     } else {
         top.join("\n")
-    })
-    .await?;
+    };
+    // Card leg (`!top-messages.ts:123-195`, `!top-voice.ts:123-201`):
+    // the same ranking as HTML via HorizonGateway (`top-messages.png`
+    // / `top-voice.png`). Gateway unset/fail keeps the text reply.
+    if !ordered_ids.is_empty() {
+        if let Some((base, token)) = card_gateway(ctx) {
+            let word =
+                |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+            let (guild_name, guild_icon) = guild_name_icon(ctx);
+            let bot_avatar = ctx.cache().current_user().avatar_url().unwrap_or_default();
+            let unknown = word("var_unknown", "Unknown");
+            let msg_word = word("messages_word", "Messages");
+            // `period === "daily" ? var_1d : weekly ? var_7d : var_14d`.
+            let period_label = match period {
+                "daily" => word("var_1d", "Daily"),
+                "weekly" => word("var_7d", "Weekly"),
+                _ => word("var_14d", "Monthly"),
+            };
+            let rows_html = ordered_ids
+                .iter()
+                .enumerate()
+                .map(|(i, uid)| {
+                    let (avatar, name) = match ctx.cache().user(*uid) {
+                        Some(u) => (u.face(), u.name.clone()),
+                        None => (gstats::GSTATS_DEFAULT_AVATAR.to_string(), unknown.clone()),
+                    };
+                    if kind == "voice" {
+                        let vt = labels.get(uid).cloned().unwrap_or_default();
+                        member_list_item(
+                            i,
+                            &avatar,
+                            &name,
+                            &format!("{}: {vt}", word("var_total", "Total")),
+                            &vt,
+                            &word("voice_activity", "Voice Activity"),
+                        )
+                    } else {
+                        let n = nums.get(uid).copied().unwrap_or(0);
+                        member_list_item(
+                            i,
+                            &avatar,
+                            &name,
+                            &format!("{}: {n} {msg_word}", word("var_total", "Total")),
+                            &n.to_string(),
+                            &msg_word,
+                        )
+                    }
+                })
+                .collect::<String>();
+            let member_count = ctx
+                .guild_id()
+                .and_then(|g| ctx.cache().guild(g))
+                .map(|g| g.member_count.to_string())
+                .unwrap_or_else(|| ordered_ids.len().to_string());
+            let png_opt = if kind == "voice" {
+                let html = top_voice::top_voice_card_html(&top_voice::TopVoiceCardData {
+                    header_h1_value: word("top_voice_title", "Top Voice"),
+                    guild_pfp: if guild_icon.is_empty() {
+                        bot_avatar.clone()
+                    } else {
+                        guild_icon.clone()
+                    },
+                    author_username: guild_name.clone(),
+                    member_count,
+                    current_date: format_current_date(now_ms),
+                    period_label,
+                    top_voice_users: rows_html,
+                    top_voice_title: word("top_voice_title", "Top Voice"),
+                    top_active_users_title: word("top_active_users_title", "Most Active Users"),
+                    var_members: word("var_members", "Members"),
+                });
+                render_card_png(
+                    &base,
+                    &token,
+                    &html,
+                    &top_voice::top_voice_options_json(ordered_ids.len()),
+                )
+                .await
+            } else {
+                let html =
+                    top_messages::top_messages_card_html(&top_messages::TopMessagesCardData {
+                        header_h1_value: word("top_messages_title", "Top Messages"),
+                        guild_pfp: if guild_icon.is_empty() {
+                            bot_avatar.clone()
+                        } else {
+                            guild_icon.clone()
+                        },
+                        author_username: guild_name.clone(),
+                        member_count,
+                        current_date: format_current_date(now_ms),
+                        period_label,
+                        top_message_users: rows_html,
+                        top_active_users_title: word("top_active_users_title", "Most Active Users"),
+                        var_members: word("var_members", "Members"),
+                    });
+                render_card_png(
+                    &base,
+                    &token,
+                    &html,
+                    &top_messages::top_messages_options_json(ordered_ids.len()),
+                )
+                .await
+            };
+            if let Some(png) = png_opt {
+                use poise::serenity_prelude as serenity;
+                let name = if kind == "voice" {
+                    "top-voice.png"
+                } else {
+                    "top-messages.png"
+                };
+                let embed = serenity::CreateEmbed::default()
+                    .description(&text)
+                    .image(format!("attachment://{name}"));
+                ctx.send(
+                    poise::CreateReply::default()
+                        .embed(embed)
+                        .attachment(serenity::CreateAttachment::bytes(png, name)),
+                )
+                .await?;
+                return Ok(());
+            }
+        }
+    }
+    ctx.say(text).await?;
     Ok(())
+}
+
+// ---- HTML card rendering via HorizonGateway ----
+// Mirrors the `client.func.html2png` gateway branch
+// (`src/core/functions/html2png.ts`): multipart POST
+// (adminKey/options/code) through `gateway_render_html`. `None` on
+// any failure so callers keep the text-embed fallback.
+use chrono::{Datelike as _, Timelike as _};
+
+/// Gateway base + token for card renders, `None` when unset (mirrors
+/// the nowplaying `card_gateway` pattern).
+pub fn card_gateway(ctx: &Ctx<'_>) -> Option<(String, String)> {
+    ctx.data()
+        .config
+        .gateway_internal()
+        .map(|base| (base, crate::config::api_token().unwrap_or_default()))
+}
+
+/// Render filled card HTML through HorizonGateway. `None` on any
+/// failure so the caller falls back to the text reply.
+pub async fn render_card_png(
+    base: &str,
+    token: &str,
+    html: &str,
+    options_json: &str,
+) -> Option<Vec<u8>> {
+    crate::funcs::gateway_render_html(
+        base,
+        token,
+        html,
+        options_json,
+        &[],
+        Some(std::time::Duration::from_secs(30)),
+    )
+    .await
+    .ok()
+}
+
+/// Guild display name + icon URL for card headers. Mirrors
+/// `interaction.guild.name` / `interaction.guild.iconURL({size:512})`
+/// (empty icon when the guild has none; TS falls back to the bot
+/// avatar there, which the caller passes instead).
+pub fn guild_name_icon(ctx: &Ctx<'_>) -> (String, String) {
+    match ctx.guild_id().and_then(|g| ctx.cache().guild(g)) {
+        Some(g) => (g.name.clone(), g.icon_url().unwrap_or_default()),
+        None => (String::new(), String::new()),
+    }
+}
+
+/// Channel display name for cards. Mirrors `getChannelName`
+/// (`userStatsUtils.ts:142-144`): the cached channel name, else
+/// `"Deleted Channel"`.
+pub fn card_channel_name(ctx: &Ctx<'_>, guild_id: Option<u64>, channel_id: u64) -> String {
+    guild_id
+        .and_then(|g| {
+            ctx.serenity_context()
+                .cache
+                .guild(poise::serenity_prelude::GuildId::new(g))
+        })
+        .and_then(|g| {
+            g.channels
+                .get(&poise::serenity_prelude::ChannelId::new(channel_id))
+                .map(|c| c.name.clone())
+        })
+        .unwrap_or_else(|| "Deleted Channel".to_string())
+}
+
+/// Rank CSS class for card list rows. Mirrors the TS ternaries
+/// (`index === 0 ? "rank-1" : ... : ""`).
+pub fn rank_class(index: usize) -> &'static str {
+    match index {
+        0 => "rank-1",
+        1 => "rank-2",
+        2 => "rank-3",
+        _ => "",
+    }
+}
+
+/// `en-US` short month/day labels for the trailing 30 days, oldest
+/// first. Mirrors the `timeLabels` builders (`toLocaleDateString`
+/// `"en-US"`, `{month:"short", day:"numeric"}`).
+pub fn time_labels_30d(now_ms: i64) -> Vec<String> {
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    (0..30)
+        .map(|i| {
+            let ts = now_ms - (29 - i as i64) * 24 * 60 * 60 * 1000;
+            match chrono::DateTime::from_timestamp_millis(ts) {
+                Some(dt) => {
+                    let dt = dt.naive_utc();
+                    format!("{} {}", MONTHS[dt.month() as usize - 1], dt.day())
+                }
+                None => String::new(),
+            }
+        })
+        .collect()
+}
+
+/// Per-day message counts for the trailing 30 days (index 29 =
+/// today). Mirrors the `messageDataArray` loop in `!ustats.ts`
+/// (`Math.floor((now - sentTimestamp) / 86400000)`, single pass).
+pub fn message_buckets_30d(messages: &[StatsMessage], now_ms: i64) -> Vec<u64> {
+    let mut out = vec![0u64; 30];
+    for m in messages {
+        let day = (now_ms - m.sent_ts).div_euclid(86_400_000);
+        if (0..30).contains(&day) {
+            out[(29 - day) as usize] += 1;
+        }
+    }
+    out
+}
+
+/// Per-day voice minutes (fractional, like TS) for the trailing 30
+/// days. Mirrors the `voiceDataArray` loop in `!ustats.ts`
+/// (`(endTimestamp - startTimestamp) / 1000 / 60` bucketed by the
+/// session start day).
+pub fn voice_buckets_30d(voices: &[StatsVoice], now_ms: i64) -> Vec<f64> {
+    let mut out = vec![0f64; 30];
+    for v in voices {
+        let day = (now_ms - v.start_ts).div_euclid(86_400_000);
+        if (0..30).contains(&day) {
+            out[(29 - day) as usize] += (v.end_ts - v.start_ts) as f64 / 1000.0 / 60.0;
+        }
+    }
+    out
+}
+
+/// Footer date for card headers. Mirrors `new
+/// Date().toLocaleDateString(lang, {year, month:long, day, hour,
+/// minute})` (`!gstats.ts`, `!channel-stats.ts`, `!top-messages.ts`,
+/// `!top-voice.ts`: en-US shape `"October 13, 2026, 02:30 PM"`).
+pub fn format_current_date(now_ms: i64) -> String {
+    const MONTHS: [&str; 12] = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
+    match chrono::DateTime::from_timestamp_millis(now_ms) {
+        Some(dt) => {
+            let dt = dt.naive_utc();
+            let h24 = dt.hour();
+            let (h12, ap) = match h24 {
+                0 => (12, "AM"),
+                12 => (12, "PM"),
+                1..=11 => (h24, "AM"),
+                _ => (h24 - 12, "PM"),
+            };
+            format!(
+                "{} {}, {}, {:02}:{:02} {}",
+                MONTHS[dt.month() as usize - 1],
+                dt.day(),
+                dt.year(),
+                h12,
+                dt.minute(),
+                ap
+            )
+        }
+        None => String::new(),
+    }
+}
+
+/// Dynamic board height for the top-messages/top-voice cards.
+/// Mirrors `Math.min(1080, 200 + topUsers.length * 120)`.
+pub fn top_board_height(n: usize) -> u64 {
+    (200 + n as u64 * 120).min(1080)
+}
+
+/// One member list-item row for the leaderboard cards. Mirrors the
+/// `.map(...).join("")` row builders in `!gstats.ts` /
+/// `!channel-stats.ts` / `!top-messages.ts` / `!top-voice.ts`.
+pub fn member_list_item(
+    index: usize,
+    avatar_url: &str,
+    name: &str,
+    detail: &str,
+    stat: &str,
+    stat_word: &str,
+) -> String {
+    format!(
+        "\n        <div class=\"list-item\">\n            <div class=\"rank {}\">{}</div>\n            <img class=\"avatar\" src=\"{}\" alt=\"User\">\n            <div class=\"info\">\n                <div class=\"name\">@{}</div>\n                <div class=\"detail\">{}</div>\n            </div>\n            <div class=\"stat\">{} <span>{}</span></div>\n        </div>\n        ",
+        rank_class(index),
+        index + 1,
+        avatar_url,
+        name,
+        detail,
+        stat,
+        stat_word
+    )
+}
+
+/// One `#`/`microphone` channel list-item row. Mirrors the
+/// `{top_text_channels}` / `{top_voice_channels}` builders in
+/// `!gstats.ts` / `!channel-stats.ts`.
+#[allow(clippy::too_many_arguments)]
+pub fn channel_list_item(
+    index: usize,
+    icon: &str,
+    name: &str,
+    category: &str,
+    stat: &str,
+    stat_word: &str,
+    category_word: &str,
+) -> String {
+    format!(
+        "\n        <div class=\"list-item\">\n            <div class=\"rank {}\">{}</div>\n            <div class=\"channel-icon\">{}</div>\n            <div class=\"info\">\n                <div class=\"name\">{}</div>\n                <div class=\"detail\">{}: {}</div>\n            </div>\n            <div class=\"stat\">{} <span>{}</span></div>\n        </div>\n        ",
+        rank_class(index),
+        index + 1,
+        icon,
+        name,
+        category_word,
+        category,
+        stat,
+        stat_word
+    )
 }
 
 #[cfg(test)]
@@ -809,12 +1161,12 @@ mod tests {
     fn top_period_choices_mirror_ts_names_values_and_locales() {
         use poise::ChoiceParameter as _;
         let names: Vec<_> = TopPeriod::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(names, vec!["Daily", "Weekly", "Monthly"]);
+        assert_eq!(names, vec!["daily", "weekly", "monthly"]);
         assert_eq!(TopPeriod::Daily.as_str(), "daily");
         assert_eq!(TopPeriod::Weekly.as_str(), "weekly");
         assert_eq!(TopPeriod::Monthly.as_str(), "monthly");
         assert_eq!(TopPeriod::from_name("daily"), Some(TopPeriod::Daily));
-        assert_eq!(TopPeriod::from_name("WEEKLY"), Some(TopPeriod::Weekly));
+        assert_eq!(TopPeriod::from_name("weekly"), Some(TopPeriod::Weekly));
         assert_eq!(TopPeriod::from_name("yearly"), None);
         assert_eq!(TopPeriod::from_index(0), Some(TopPeriod::Daily));
         assert_eq!(TopPeriod::from_index(2), Some(TopPeriod::Monthly));
@@ -1130,6 +1482,47 @@ mod tests {
         // Only day-window rows rank (mirrors topThree on daily keys).
         assert_eq!(text, vec![(9, 1)]);
         assert_eq!(voice, vec![(7, 1_000)]);
+    }
+
+    #[test]
+    fn card_helpers_mirror_ts_shapes() {
+        assert_eq!(rank_class(0), "rank-1");
+        assert_eq!(rank_class(2), "rank-3");
+        assert_eq!(rank_class(5), "");
+        assert_eq!(top_board_height(0), 200);
+        assert_eq!(top_board_height(5), 800);
+        // Math.min(1080, 200 + n*120).
+        assert_eq!(top_board_height(10), 1080);
+        assert_eq!(top_board_height(25), 1080);
+        let row = member_list_item(0, "av", "bob", "Total: 3", "3", "Messages");
+        assert!(row.contains("rank-1"));
+        assert!(row.contains("@bob"));
+        let ch = channel_list_item(1, "#", "general", "Cat", "5", "Messages", "Category");
+        assert!(ch.contains("rank-2"));
+        assert!(ch.contains("Category: Cat"));
+        // 30 labels, oldest first, "Oct 13" shape.
+        let labels = time_labels_30d(1_760_000_000_000);
+        assert_eq!(labels.len(), 30);
+        assert!(labels[29].contains(' '));
+        // Buckets: today + yesterday land at 29/28.
+        let now = 1_760_000_000_000i64;
+        let msgs = vec![msg(now - 1_000, 9), msg(now - 86_400_000 - 1_000, 9)];
+        let b = message_buckets_30d(&msgs, now);
+        assert_eq!(b[29], 1);
+        assert_eq!(b[28], 1);
+        assert_eq!(b.iter().sum::<u64>(), 2);
+        let voices = vec![StatsVoice {
+            start_ts: now - 60_000,
+            end_ts: now,
+            channel_id: 7,
+        }];
+        let vb = voice_buckets_30d(&voices, now);
+        assert!((vb[29] - 1.0).abs() < 1e-9);
+        // "October 13, 2026, 02:30 PM" shape.
+        assert_eq!(
+            format_current_date(1_791_901_800_000),
+            "October 13, 2026, 02:30 PM"
+        );
     }
 }
 

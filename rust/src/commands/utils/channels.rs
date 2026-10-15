@@ -136,28 +136,29 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
     })
     .await?;
     // TS fetches the channel list over HTTP
-    // (`interaction.guild.channels.fetch()`); the guild cache may hold
-    // no channels, which enumerated to 0/0. Always fetch like TS, with
-    // the cache as the fallback. Overwrite reads below use the fetched
-    // objects for the same reason (an empty cache has no overwrites).
+    // (`interaction.guild.channels.fetch()`); a fetch failure answers
+    // the `hideall_error` reply (:104-108) — no cache fallback into a
+    // success reply. Overwrite reads below use the fetched objects for
+    // the same reason (an empty cache has no overwrites).
     let channels: Vec<poise::serenity_prelude::GuildChannel> =
         match guild_id.channels(ctx.http()).await {
             Ok(map) => map
                 .into_values()
                 .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
                 .collect(),
-            Err(_) => ctx
-                .serenity_context()
-                .cache
-                .guild(guild_id)
-                .map(|g| {
-                    g.channels
-                        .values()
-                        .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
-                        .cloned()
-                        .collect()
-                })
-                .unwrap_or_default(),
+            Err(_) => {
+                let key = if unhide {
+                    "channel_unhideall_error"
+                } else {
+                    "channel_hideall_error"
+                };
+                ctx.say(
+                    crate::lang::get(&code, key)
+                        .unwrap_or_else(|| "An error occurred while hiding channels.".to_string()),
+                )
+                .await?;
+                return Ok(());
+            }
         };
     let mut done = 0;
     let mut errors = 0;
@@ -248,8 +249,7 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
         }
     }
     if unhide {
-        ctx.say(
-            crate::lang::get(&code, "channel_unhideall_success")
+        ctx.say(crate::lang::get(&code, "channel_unhideall_success")
                 .map(|s| {
                     s.replace("{unhiddenCount}", &done.to_string())
                         .replace("{errorCount}", &errors.to_string())
@@ -258,8 +258,7 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
         )
         .await?;
     } else {
-        ctx.say(
-            crate::lang::get(&code, "channel_hideall_success")
+        ctx.say(crate::lang::get(&code, "channel_hideall_success")
                 .map(|s| {
                     s.replace("{hiddenCount}", &done.to_string())
                         .replace("{errorCount}", &errors.to_string())

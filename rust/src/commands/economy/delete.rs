@@ -1,9 +1,11 @@
 use super::*;
 
-/// Shop role delete. Mirrors `!delete.ts`.
+/// Delete a role for a certain amount of money!
+// Mirrors `!delete.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "delete",
     aliases("economy-role-delete"),
     default_member_permissions = "MANAGE_GUILD",
@@ -18,7 +20,7 @@ pub async fn eco_role_delete(
     #[description_localized("ja", "削除したいロール")]
     #[description_localized("ru", "Роль, которую вы хотите удалить")]
     #[description_localized("es-ES", "El rol que quieres eliminar")]
-    #[description = "Role"]
+    #[description = "The role you want to delete"]
     role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {

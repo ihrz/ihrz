@@ -53,10 +53,12 @@ impl EcoConfigAction {
     }
 }
 
-/// Mirrors `!config.ts`.
+/// Disable the economy module into your guild
+// Mirrors `!config.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "config",
     aliases("ecconfig"),
     default_member_permissions = "ADMINISTRATOR",
@@ -71,7 +73,7 @@ pub async fn eco_config(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
-    #[description = "on or off"]
+    #[description = "What do you want to do ?"]
     action: EcoConfigAction,
 ) -> Result<(), anyhow::Error> {
     // CONSTRAINED (deliberate divergence from `!config.ts`): the TS
@@ -198,13 +200,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec![
-                "on".to_string(),
-                "off".to_string()
-            ]
-        );
+        assert_eq!(names, vec!["on".to_string(), "off".to_string()]);
         assert_eq!(EcoConfigAction::On.as_str(), "on");
         assert_eq!(EcoConfigAction::Off.as_str(), "off");
         assert_eq!(EcoConfigAction::from_name("on"), Some(EcoConfigAction::On));

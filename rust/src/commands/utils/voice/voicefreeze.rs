@@ -1,7 +1,7 @@
 use super::talk::post_util_log;
 use super::*;
 
-/// Freeze your current voice channel. Mirrors util !freeze.ts.
+/// Freeze access to your current voice channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -25,6 +25,22 @@ pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     });
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let Some(channel_id) = channel_id else {
+        ctx.say(
+            crate::lang::get(&code, "util_not_in_vc")
+                .unwrap_or_else(|| "The members are not in a voice channel".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
+    // Freeze requires a GuildVoice channel (!freeze.ts:50, Stage rejected);
+    // mirror the kind gate.
+    let is_voice = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.channels.get(&channel_id).map(|c| c.kind))
+        == Some(poise::serenity_prelude::ChannelType::Voice);
+    if !is_voice {
         ctx.say(
             crate::lang::get(&code, "util_not_in_vc")
                 .unwrap_or_else(|| "The members are not in a voice channel".to_string()),

@@ -28,6 +28,9 @@ pub async fn mod_unwarn(
     #[rename = "warn-id"]
     warn_id: String,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Unlink this channel from the ticket store (single row).
+/// Unlink a ticket!
 #[poise::command(
     slash_command,
     prefix_command,

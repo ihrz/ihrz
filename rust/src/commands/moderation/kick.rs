@@ -27,6 +27,9 @@ pub async fn mod_kick(
     #[description = "the reason of the kick"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -53,11 +56,13 @@ pub async fn mod_kick(
         return Ok(());
     }
     // TS `if (!member) return;`: missing member is a silent return, no reply.
+    // Single cache-then-HTTP load; the hierarchy guard below reuses it
+    // instead of fetching the same member a second time.
     let guild_member = guild_id.member(ctx.http(), member.id).await.ok();
     let Some(guild_member) = guild_member else {
         return Ok(());
     };
-    if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
+    if let Some(target_pos) = member_top(&ctx, guild_id, &guild_member) {
         let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
         let author_id = ctx.author().id.get();
         let owner = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);

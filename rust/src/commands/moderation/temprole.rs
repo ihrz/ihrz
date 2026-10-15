@@ -43,6 +43,9 @@ pub async fn mod_temprole(
     #[description = "The reason why you added this role"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -86,8 +89,9 @@ pub async fn mod_temprole(
     }
     // TS `if (!roleTime || !memberToAdd || !roleToAdd) return;`
     // (!temprole.ts:72-74): an unresolvable member is a silent return,
-    // no additive reply.
-    if guild_id.member(ctx.http(), member.id).await.is_err() {
+    // no additive reply. Single cache-then-HTTP load; the hierarchy
+    // guard below reuses it instead of fetching a second time.
+    let Ok(target_member) = guild_id.member(ctx.http(), member.id).await else {
         return Ok(());
     };
     let author_id = ctx.author().id.get();
@@ -95,7 +99,7 @@ pub async fn mod_temprole(
         .as_ref()
         .map(|g| (g.bot_top, g.owner_id))
         .unwrap_or((u16::MAX, author_id));
-    if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
+    if let Some(target_pos) = member_top(&ctx, guild_id, &target_member) {
         if target_pos >= bot_top && owner != author_id {
             ctx.say(
                 t("temprole_tomute_highest_role_or_same")

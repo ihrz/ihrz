@@ -147,6 +147,9 @@ pub async fn mod_rolepanel(
     #[description = "The member who will receive the roles"]
     member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -376,14 +379,16 @@ pub async fn mod_rolepanel(
             let _ = press
                 .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
                 .await;
+            // Single target load for the whole apply (TS reads the cached
+            // member); a vanished target counts every role as absent.
+            let has_roles = guild_id.member(ctx.http(), target_id).await.ok();
             for role in &selected {
                 if let Some(why) = setup_refused_reason(role, guild_id, &snap, author_id, &tl) {
                     refused_apply.push(format!("<@&{}>: {why}", role.id.get()));
                     continue;
                 }
-                let has = guild_id
-                    .member(ctx.http(), target_id)
-                    .await
+                let has = has_roles
+                    .as_ref()
                     .map(|m| m.roles.contains(&role.id))
                     .unwrap_or(false);
                 if has {

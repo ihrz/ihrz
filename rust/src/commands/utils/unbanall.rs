@@ -2,13 +2,16 @@ use super::*;
 
 use super::admin::{unban_all, unban_undo};
 
-/// Run-less group root. Mirrors the TS `unban-all` command.
+// Run-less group root. Mirrors the TS `unban-all` command.
 // (src/Interaction/HybridCommands/utils/unbanall/unbanall.ts).
+// TS group-level alias: `massunban`.
+/// Mass action about unban
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "unban-all",
+    aliases("massunban"),
     default_member_permissions = "ADMINISTRATOR",
     subcommands("unban_all", "unban_undo"),
     subcommand_required,

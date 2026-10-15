@@ -188,8 +188,13 @@ pub async fn gc_show(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<(String, String)> = crate::db::kv_scan(&ctx.data().pool, &gid)
-        .await
+    // Ack-first + one round-trip for the kv scan and the lang row.
+    ctx.defer().await?;
+    let (rows, code) = tokio::join!(
+        crate::db::kv_scan(&ctx.data().pool, &gid),
+        crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get()))
+    );
+    let rows: Vec<(String, String)> = rows
         .into_iter()
         .filter(|(k, _)| {
             k.starts_with("GUILD.")
@@ -200,7 +205,6 @@ pub async fn gc_show(
                 || k.starts_with("VOICE")
         })
         .collect();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if rows.is_empty() {
         ctx.say(
             crate::lang::get(&code, "msg_guildconfig_show_empty")

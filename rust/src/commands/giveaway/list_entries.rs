@@ -35,10 +35,14 @@ pub async fn gw_entries(
         "es-ES",
         "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
     )]
-    #[description = "Giveaway message id"]
+    #[description = "The giveaway id (is the message id of the embed's giveaways)"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
+    // footer snapshot below is an HTTP fetch, so defer up front
+    // instead of risking the 3s interaction timeout.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -83,12 +87,9 @@ pub async fn gw_entries(
     }
     let entries: Vec<String> = gw.entries.clone();
     if entries.is_empty() {
-        ctx.send(
-            poise::CreateReply::default()
-                .content(t_early("history_no_entries"))
-                .ephemeral(true),
-        )
-        .await?;
+        // Public like the TS slash path (`interaction.editReply` after
+        // `thinking: true`, giveawaysManager.ts:618-621).
+        ctx.say(t_early("history_no_entries")).await?;
         return Ok(());
     }
     let http = ctx.serenity_context().http.clone();
@@ -109,10 +110,12 @@ pub async fn gw_entries(
     else {
         return Ok(());
     };
+    // Public page 0 like the TS slash path (deferred `editReply`,
+    // not the ephemeral button reply; the button leg stays ephemeral
+    // in `handle_giveaway_list`).
     let mut reply = poise::CreateReply::default()
         .embed(embed)
-        .components(components)
-        .ephemeral(true);
+        .components(components);
     if let Some(bytes) = icon {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }

@@ -9,7 +9,7 @@ pub fn logchannel_desc(template: &str, user_mention: &str, channel_mention: &str
         .replace("${channel}", channel_mention)
 }
 
-/// Ticket logs channel. Mirrors !log-channel.ts (used by close transcript).
+/// Set a channel where iHorizon sent a logs about tickets!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -28,7 +28,11 @@ pub fn logchannel_desc(template: &str, user_mention: &str, channel_mention: &str
 )]
 pub async fn ticket_log_channel(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
+    #[description = "Where you want the logs"]
+    #[description_localized("fr", "Où voulez-vous les journaux ?")]
+    #[description_localized("ja", "ログを送信する場所")]
+    #[description_localized("ru", "Куда вы хотите отправлять логи")]
+    #[description_localized("es-ES", "Donde quieres los registros")]
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {

@@ -304,8 +304,7 @@ pub async fn authrestore_force_join(
                         .await
                     {
                         Ok(_) => {
-                            ctx.send(
-                                poise::CreateReply::default()
+                            ctx.send(poise::CreateReply::default()
                                     .content(
                                         t(
                                             &ctx,
@@ -319,8 +318,7 @@ pub async fn authrestore_force_join(
                             .await?;
                         }
                         Err(_) => {
-                            ctx.send(
-                                poise::CreateReply::default()
+                            ctx.send(poise::CreateReply::default()
                                     .content(
                                         t(
                                             &ctx,
@@ -334,8 +332,7 @@ pub async fn authrestore_force_join(
                             .await?;
                         }
                     }
-                    ctx.send(
-                        poise::CreateReply::default()
+                    ctx.send(poise::CreateReply::default()
                             .content(
                                 t(
                                     &ctx,

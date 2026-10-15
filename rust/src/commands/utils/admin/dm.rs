@@ -1,9 +1,10 @@
 use super::*;
 
-/// DM a member. Mirrors utils !dm.ts (param order private, user, message).
+// DM a member. Mirrors utils !dm.ts (param order private, user, message).
 // The `private` option is a Yes/No slash choice; "yes" hides the author.
 // (Including the TS quirk where the success reply is sent before the
 // failure reply when the DM fails.)
+/// Send a private message to the user1
 #[poise::command(
     slash_command,
     prefix_command,
@@ -26,13 +27,13 @@ pub async fn dm(
     #[description_localized("ja", "非公開ですか？")]
     #[description_localized("ru", "приватный?")]
     #[description_localized("es-ES", "es privado?")]
-    #[description = "Private (yes to hide the author button)"]
+    #[description = "is private ?"]
     private: PrivateChoice,
     #[description_localized("fr", "l'autheur que vous voulez")]
     #[description_localized("ja", "対象のメンバー")]
     #[description_localized("ru", "желаемый участник")]
     #[description_localized("es-ES", "el miembro que deseas")]
-    #[description = "Member"]
+    #[description = "the member you want"]
     // TS HybridCommands/utils/!dm.ts reads getMember("member").
     #[rename = "member"]
     user: poise::serenity_prelude::User,
@@ -40,7 +41,10 @@ pub async fn dm(
     #[description_localized("ja", "プライベートメッセージ")]
     #[description_localized("ru", "приватное сообщение")]
     #[description_localized("es-ES", "el mensaje privado")]
-    #[description = "Message"]
+    #[description = "the private message"]
+    // TS prefix reads the whole tail (`longString(args!, 2)`); #[rest] is
+    // prefix-only, so slash keeps the required string option unchanged.
+    #[rest]
     message: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
@@ -103,9 +107,9 @@ pub async fn dm(
     Ok(())
 }
 
-/// Yes/No slash choice for the DM `private` option.
-/// Mirrors the TS `private` option choices in utils.ts:319-336
-/// (`Yes` / `No`, values `yes` / `no`).
+// Yes/No slash choice for the DM `private` option.
+// Mirrors the TS `private` option choices in utils.ts:319-336
+// (`Yes` / `No`, values `yes` / `no`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PrivateChoice {
     #[name = "Yes"]
@@ -122,9 +126,9 @@ pub enum PrivateChoice {
     No,
 }
 
-/// Is the `private` choice set to "yes"? Mirrors
-/// `interaction.options.getString("private") === "yes"`
-/// (required yes/no choice in utils.ts).
+// Is the `private` choice set to "yes"? Mirrors
+// `interaction.options.getString("private") === "yes"`
+// (required yes/no choice in utils.ts).
 pub fn is_private_choice(private: PrivateChoice) -> bool {
     matches!(private, PrivateChoice::Yes)
 }

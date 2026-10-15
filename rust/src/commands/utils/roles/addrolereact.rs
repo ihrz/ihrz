@@ -1,12 +1,12 @@
 use super::*;
 
-/// Grant a role to every human who reacted to a message.
-/// Mirrors utils/util !addrolereact.ts.
+/// Add a role to all users who reacted to a specific message
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "addrolereact",
+    discard_spare_arguments,
     default_member_permissions = "MANAGE_ROLES",
     description_localized(
         "fr",
@@ -25,14 +25,17 @@ pub async fn addrolereact(
     #[description_localized("ja", "リアクションを確認するメッセージのID")]
     #[description_localized("ru", "ID сообщения для проверки реакций")]
     #[description_localized("es-ES", "El ID del mensaje para comprobar las reacciones")]
-    #[description = "Message id"]
+    #[description = "The ID of the message to check reactions from"]
     message_id: String,
     #[description_localized("fr", "Le rôle à ajouter aux utilisateurs")]
     #[description_localized("ja", "ユーザーに追加するロール")]
     #[description_localized("ru", "Роль для добавления пользователям")]
     #[description_localized("es-ES", "El rol a añadir a los usuarios")]
-    #[description = "Role"]
-    role: serenity::Role,
+    #[description = "The role to add to users"]
+    // Nullable (addrole null-flow pattern): TS prefix
+    // `method.role(...)?.id!` throws on a null role; answer the
+    // not-found key instead so prefix never hard-errors.
+    role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     if let Err(e) = addrolereact_inner(&ctx, &message_id, &role).await {
         // Catch-all. Mirrors the TS try/catch -> addrolereact_error.
@@ -46,12 +49,12 @@ pub async fn addrolereact(
     Ok(())
 }
 
-/// Parse the message id the TS way. `String(messageId)` input that is
-/// missing or non-numeric never reaches the fetch: TS
-/// `channel.messages.fetch` rejects it and `!addrolereact.ts:96-101`
-/// replies `addrolereact_message_not_found`. Here unparsable input maps
-/// to 0, which the caller treats as not-found (never passed to
-/// `MessageId::new`, which panics on 0).
+// Parse the message id the TS way. `String(messageId)` input that is
+// missing or non-numeric never reaches the fetch: TS
+// `channel.messages.fetch` rejects it and `!addrolereact.ts:96-101`
+// replies `addrolereact_message_not_found`. Here unparsable input maps
+// to 0, which the caller treats as not-found (never passed to
+// `MessageId::new`, which panics on 0).
 fn parse_message_id(raw: &str) -> u64 {
     raw.trim().parse().unwrap_or(0)
 }
@@ -59,7 +62,7 @@ fn parse_message_id(raw: &str) -> u64 {
 async fn addrolereact_inner(
     ctx: &Ctx<'_>,
     message_id: &str,
-    role: &serenity::Role,
+    role: &Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -67,6 +70,13 @@ async fn addrolereact_inner(
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    // Prefix null-flow (addrole pattern): a null role answers the
+    // not-found key.
+    let Some(role) = role else {
+        ctx.say(say("addrolereact_role_not_found", "Role not found."))
+            .await?;
+        return Ok(());
     };
     // Role from the guild cache, like
     // `guild.roles.cache.get(roleId)` (`!addrolereact.ts:60`).
@@ -162,7 +172,7 @@ async fn addrolereact_inner(
                 "addrolereact_adding_role",
                 "Adding role {role} in progress...",
             )
-            .replace("{role}", &cached.name),
+            .replacen("{role}", &cached.name, 1),
         )
         .await?;
     let mut total = 0u64;
@@ -195,14 +205,26 @@ async fn addrolereact_inner(
                         "addrolereact_adding_role_progress",
                         "Adding role {role} in progress for {count} users...",
                     )
-                    .replace("{role}", &cached.name)
-                    .replace("{count}", &humans.len().to_string()),
+                    .replacen("{role}", &cached.name, 1)
+                    .replacen("{count}", &humans.len().to_string(), 1),
                 ),
             )
             .await?;
         for user in humans {
-            let Ok(m) = guild_id.member(ctx.http(), user.id).await else {
-                continue;
+            // TS `guild.members.cache.get(user.id) || await
+            // guild.members.fetch(user.id)` (:135-139): cache first,
+            // HTTP fallback — not always-HTTP.
+            let cached_member = ctx
+                .serenity_context()
+                .cache
+                .guild(guild_id)
+                .and_then(|g| g.members.get(&user.id).cloned());
+            let m = match cached_member {
+                Some(m) => m,
+                None => match guild_id.member(ctx.http(), user.id).await {
+                    Ok(m) => m,
+                    Err(_) => continue,
+                },
             };
             if m.roles.contains(&cached.id) {
                 continue;
@@ -233,20 +255,20 @@ async fn addrolereact_inner(
                     "addrolereact_role_added",
                     "Role {role} added. {count} users received the role.",
                 )
-                .replace("{role}", &cached.name)
-                .replace("{count}", &total.to_string()),
+                .replacen("{role}", &cached.name, 1)
+                .replacen("{count}", &total.to_string(), 1),
             ),
         )
         .await?;
     Ok(())
 }
 
-/// Fill the `{role}` / `{count}` summary template (both are plain
-/// `String.replace`, so every occurrence fills).
+// Fill the `{role}` / `{count}` summary template. Mirrors the TS
+// `String.replace`: only the FIRST occurrence of each fills.
 pub fn fill_role_summary(template: &str, role_name: &str, count: usize) -> String {
     template
-        .replace("{role}", role_name)
-        .replace("{count}", &count.to_string())
+        .replacen("{role}", role_name, 1)
+        .replacen("{count}", &count.to_string(), 1)
 }
 
 #[cfg(test)]
@@ -280,6 +302,11 @@ mod tests {
         assert_eq!(
             fill_role_summary("Adding role {role} in progress...", "Mod", 0),
             "Adding role Mod in progress..."
+        );
+        // TS `String.replace` fills the FIRST occurrence only.
+        assert_eq!(
+            fill_role_summary("{role} and {role} ({count}/{count})", "Mod", 7),
+            "Mod and {role} (7/{count})"
         );
     }
 }

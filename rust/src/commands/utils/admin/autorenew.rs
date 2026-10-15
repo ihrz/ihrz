@@ -1,6 +1,7 @@
 use super::*;
 
-/// Auto-renew a channel on a timer.
+// Auto-renew a channel on a timer.
+/// Renew automaticaly X time a channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,14 +19,14 @@ pub async fn autorenew(
     #[description_localized("ja", "X回ごとに更新するチャンネル")]
     #[description_localized("ru", "Канал для обновления каждые X раз")]
     #[description_localized("es-ES", "El canal a renovar cada X veces")]
-    #[description = "Channel"]
+    #[description = "The channel to renew every x times"]
     #[channel_types("Text")]
     channel: poise::serenity_prelude::GuildChannel,
     #[description_localized("fr", "Le temps x")]
     #[description_localized("ja", "X回")]
     #[description_localized("ru", "X раз")]
     #[description_localized("es-ES", "Las X veces")]
-    #[description = "Every (e.g. 1h, 7d) or off"]
+    #[description = "The x time"]
     // TS HybridCommands/utils/util/!autorenew.ts reads getString("time").
     #[rename = "time"]
     every: String,
@@ -35,23 +36,9 @@ pub async fn autorenew(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let key = format!("UTILS.renew_channel.{}", channel.id.get());
-    if every.trim().eq_ignore_ascii_case("off") {
-        let _ = crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &key).await;
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_auto_renew_off")
-                .unwrap_or_else(|| "Auto-renew off.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
+    // TS (!autorenew.ts:60-100): an unparsable time is silently ignored —
+    // no reply and no `off` handling; only a parsed time does anything.
     let Some(ms) = crate::commands::shared::parse_duration_ms(&every) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_bad_duration")
-                .unwrap_or_else(|| "Bad duration.".to_string()),
-        )
-        .await?;
         return Ok(());
     };
     // Bounds mirror util !autorenew.ts: 1 minute .. 30 days
@@ -106,8 +93,7 @@ pub async fn autorenew(
         .unwrap_or_else(|| "✅".to_string());
     // TS fills `${time}` with `to_beautiful_string(parseTime, lang)`.
     let pretty = crate::commands::guildconfig::beautiful_ms_lang(ms as f64, &code);
-    ctx.say(
-        crate::lang::get(&code, "util_autorenew_command_ok")
+    ctx.say(crate::lang::get(&code, "util_autorenew_command_ok")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
@@ -119,10 +105,10 @@ pub async fn autorenew(
     Ok(())
 }
 
-/// Renew bounds from util !autorenew.ts: below 1 minute is too short,
-/// above 30 days (2_629_800_000 ms) is too long.
+// Renew bounds from util !autorenew.ts: below 1 minute is too short,
+// above 30 days (2_629_800_000 ms) is too long.
 pub const AUTORENEW_MIN_MS: i64 = 60_000;
-/// 30 days in ms, the TS `parseTime > 2_629_800_000` ceiling.
+// 30 days in ms, the TS `parseTime > 2_629_800_000` ceiling.
 pub const AUTORENEW_MAX_MS: i64 = 2_629_800_000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -133,8 +119,8 @@ pub enum AutorenewDecision {
     BadDuration,
 }
 
-/// Pure bound classifier, unit-tested. `None` (unparsable input) maps
-/// to BadDuration.
+// Pure bound classifier, unit-tested. `None` (unparsable input) maps
+// to BadDuration.
 pub fn classify_autorenew(ms: Option<i64>) -> AutorenewDecision {
     match ms {
         None => AutorenewDecision::BadDuration,

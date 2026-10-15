@@ -20,6 +20,8 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    // Ack-first: channel create + emoji fetch run past the 3s slash window.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let exists = ctx
         .serenity_context()
@@ -32,8 +34,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         })
         .unwrap_or(false);
     if exists {
-        ctx.say(
-            crate::lang::get(&code, "setup_command_error")
+        ctx.say(crate::lang::get(&code, "setup_command_error")
                 .unwrap_or_else(|| "The bot has already set up the logs channels, or the bot doesn't have enough permissions...".to_string()),
         )
         .await?;
@@ -57,8 +58,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await
         .is_err()
     {
-        ctx.say(
-            crate::lang::get(&code, "setup_command_error")
+        ctx.say(crate::lang::get(&code, "setup_command_error")
                 .unwrap_or_else(|| "The bot has already set up the logs channels, or the bot doesn't have enough permissions...".to_string()),
         )
         .await?;

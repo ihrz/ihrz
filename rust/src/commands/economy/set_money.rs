@@ -52,16 +52,18 @@ pub fn validate_set_money_kind(kind: &str) -> bool {
     SET_MONEY_KINDS.contains(&kind)
 }
 
-/// Mirrors `!set-money.ts`.
-///
-/// CONSTRAINED (deliberate divergence): TS stores
-/// `ECONOMY.settings.${type}.amount` for any verbatim `type` with no
-/// registry check. Here only the three slash choice values tune a leaf;
-/// an unknown type writes nothing and replies with the invalid-type
-/// error.
+/// Manage how much money you can get from daily, weekly and monthly!
+// Mirrors `!set-money.ts`.
+//
+// CONSTRAINED (deliberate divergence): TS stores
+// `ECONOMY.settings.${type}.amount` for any verbatim `type` with no
+// registry check. Here only the three slash choice values tune a leaf;
+// an unknown type writes nothing and replies with the invalid-type
+// error.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "set-money",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"),
@@ -75,14 +77,14 @@ pub async fn eco_set_money(
     #[description_localized("ja", "設定したい報酬の種類")]
     #[description_localized("ru", "Тип награды, которую вы хотите установить")]
     #[description_localized("es-ES", "El tipo de recompensa que quieres establecer")]
-    #[description = "daily, weekly, monthly"]
+    #[description = "The type of reward you want to set"]
     #[rename = "type"]
     kind: SetMoneyKind,
     #[description_localized("fr", "Combien d'argent vous souhaitez définir")]
     #[description_localized("ja", "設定したい金額")]
     #[description_localized("ru", "Сколько денег вы хотите установить")]
     #[description_localized("es-ES", "Cuánto dinero quieres establecer")]
-    #[description = "Amount"]
+    #[description = "How much money you want to set"]
     #[rename = "how-much"]
     amount: f64,
 ) -> Result<(), anyhow::Error> {

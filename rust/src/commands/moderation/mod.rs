@@ -223,6 +223,19 @@ async fn target_top(
     Some(top_of(&guild.roles, &roles))
 }
 
+/// Target top role from an already-loaded member. Pure cache read, no
+/// HTTP: pair with a single `GuildId::member` load (itself
+/// cache-then-HTTP-once) so hierarchy guards never fetch the same
+/// member twice.
+fn member_top(
+    ctx: &Ctx<'_>,
+    guild_id: serenity::GuildId,
+    member: &serenity::Member,
+) -> Option<u16> {
+    let guild = ctx.serenity_context().cache.guild(guild_id)?;
+    Some(top_of(&guild.roles, &member.roles))
+}
+
 /// Administrator check from cached role flags (avoids the deprecated
 /// `Member::permissions`, which ignores overwrites).
 fn member_is_admin(ctx: &Ctx<'_>, guild_id: serenity::GuildId, member: &serenity::Member) -> bool {
@@ -585,12 +598,7 @@ async fn lock_all_inner(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let author_id = ctx.author().id.get().to_string();
-    ctx.say(if unlock {
-        t("unlockall_embed_message_description").replace("${interaction.user.id}", &author_id)
-    } else {
-        t("lockall_embed_message_description").replace("${interaction.user.id}", &author_id)
-    })
-    .await?;
+    // TS (!lock-all.ts / !unlock-all.ts) logs before replying.
     post_mod_log(
         ctx.http(),
         guild_id,
@@ -607,6 +615,12 @@ async fn lock_all_inner(
         .replace("${interaction.user.id}", &author_id),
     )
     .await;
+    ctx.say(if unlock {
+        t("unlockall_embed_message_description").replace("${interaction.user.id}", &author_id)
+    } else {
+        t("lockall_embed_message_description").replace("${interaction.user.id}", &author_id)
+    })
+    .await?;
     Ok(())
 }
 
@@ -947,6 +961,42 @@ mod localization_tests {
         } else {
             find_path(&cmd.subcommands, &path[1..])
         }
+    }
+
+    #[test]
+    fn all_22_leaves_registered() {
+        // TS moderation/mod.ts registers 22 subcommands: no leaf added
+        // or dropped, no slash surface renamed.
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod"]);
+        let mut names: Vec<&str> = cmd.subcommands.iter().map(|c| c.name.as_str()).collect();
+        names.sort_unstable();
+        let mut expected = vec![
+            "ban",
+            "baninfo",
+            "banlist",
+            "clear",
+            "clear-all-warns",
+            "clearwarn",
+            "kick",
+            "lock",
+            "lock-all",
+            "mutelist",
+            "rolepanel",
+            "tempban",
+            "tempmute",
+            "temprole",
+            "unban",
+            "unlock",
+            "unlock-all",
+            "unmute",
+            "unmuteall",
+            "unwarn",
+            "warn",
+            "warnlist",
+        ];
+        expected.sort_unstable();
+        assert_eq!(names, expected);
     }
 
     #[test]

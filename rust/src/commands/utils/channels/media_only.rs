@@ -1,6 +1,6 @@
 use super::*;
 
-/// Media-only channel panel. Mirrors !media-only.ts.
+/// Define channels for only pictures/videos sending (block other content)
 // The TS subcommand (utils.ts:404) takes NO options: it shows a panel
 // embed (title, description, registered channels, threshold, mute
 // time, thread toggle) with a channel select menu, an option string

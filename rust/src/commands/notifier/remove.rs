@@ -35,6 +35,9 @@ pub async fn notifier_remove(
     {
         return Ok(());
     }
+    // Ack-first: display-name fetches for the reply embeds run past
+    // the 3s slash window, so defer before any network I/O.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())

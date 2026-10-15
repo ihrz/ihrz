@@ -1,9 +1,10 @@
 use super::*;
 
-/// Withdraw coins from your bank!
+/// Withdraw coin from your bank!
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "withdraw",
     description_localized("fr", "Retirer des pièces de votre banque"),
     description_localized("ja", "銀行からコインを引き出す！"),
@@ -17,7 +18,7 @@ pub async fn eco_withdraw(
     #[description_localized("ja", "銀行からいくら引き出しますか？")]
     #[description_localized("ru", "Сколько монет вы хотите снять из банка?")]
     #[description_localized("es-ES", "Cuántas monedas quieres retirar de tu banco?")]
-    #[description = "Amount or all"]
+    #[description = "How much coin you want to withdraw from your bank?"]
     #[rename = "how-much"]
     amount: String,
 ) -> Result<(), anyhow::Error> {
@@ -31,8 +32,12 @@ pub async fn eco_withdraw(
     let uid = ctx.author().id.get();
     // Serialize the read-modify-write (see tx_lock).
     let _tx = super::tx_lock::guard_user(uid).await;
-    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Account and guild lang are independent keys; load concurrently.
+    let pool = &ctx.data().pool;
+    let (mut a, code) = tokio::join!(
+        balance::load_econ_routed(pool, &gid, uid),
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get()))
+    );
     // Mirrors !withdraw.ts: `toWithdraw === "all"` takes the bank, then
     // `isNaN(Number(...))` gates on not-integer, `parseInt(...) <= 0`
     // gates on not-integer, and only `parseInt(...) > bank` gates on

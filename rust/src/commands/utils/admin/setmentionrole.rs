@@ -34,7 +34,8 @@ impl SetmentionAction {
     }
 }
 
-/// Nickname-role rule (GUILD.RANK_ROLES.nicknames).
+// Nickname-role rule (GUILD.RANK_ROLES.nicknames).
+/// Give a specific role to the user who pings me!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -53,13 +54,13 @@ pub async fn setmentionrole(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
-    #[description = "on or off"]
+    #[description = "What you want to do?"]
     action: SetmentionAction,
     #[description_localized("fr", "Les rôles spécifiques à donner")]
     #[description_localized("ja", "付与する特定のロール！")]
     #[description_localized("ru", "Конкретные роли для выдачи!")]
     #[description_localized("es-ES", "Los roles específicos a dar!")]
-    #[description = "Role"]
+    #[description = "The specific roles to give !"]
     #[rename = "roles"]
     role: Option<poise::serenity_prelude::Role>,
     #[description_localized(
@@ -72,8 +73,11 @@ pub async fn setmentionrole(
         "es-ES",
         "La parte del apodo que deseas que la persona tenga en su apodo"
     )]
-    #[description = "Nickname part"]
+    #[description = "La partie du surnom que vous souhaitez que la personne ait dans son surnom"]
     #[rename = "part-of-nickname"]
+    // TS prefix reads the whole tail (`longString(args!, 2)`); #[rest] is
+    // prefix-only, so slash keeps the optional string option unchanged.
+    #[rest]
     part: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -93,13 +97,14 @@ pub async fn setmentionrole(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         // TS posts the disable audit embed before answering.
         post_rankrole_log(&ctx, false, None, &code).await;
+        // TS (!setmentionrole.ts:156-161) answers the off path with plain
+        // CONTENT, not an embed.
         let desc = crate::lang::get(&code, "setrankroles_command_work_disable")
             .map(|s| s.replace("${interaction.user.id}", &ctx.author().id.get().to_string()))
             .unwrap_or_else(|| {
                 "<@${interaction.user.id}>, you have deleted the rank role!".to_string()
             });
-        let embed = poise::serenity_prelude::CreateEmbed::default().description(desc);
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        ctx.say(desc).await?;
         return Ok(());
     }
     // TS (!setmentionrole.ts): `on` needs a role; the nickname part is
@@ -122,6 +127,10 @@ pub async fn setmentionrole(
         return Ok(());
     };
     let part = part.map(|p| p.trim().to_string()).filter(|p| !p.is_empty());
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS (!setmentionrole.ts:76-84) posts the enable audit embed BEFORE
+    // the already-configured check, so the log fires first here too.
+    post_rankrole_log(&ctx, true, Some(role.id.get()), &code).await;
     let already = crate::commands::owner::main::routed_get(
         &ctx.data().pool,
         &gid,
@@ -130,12 +139,10 @@ pub async fn setmentionrole(
     )
     .await;
     if already_configured(already.as_deref(), role.id.get()) {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
-        ctx.say(
-            crate::lang::get(&code, "setrankroles_already_this_in_db")
+        ctx.say(crate::lang::get(&code, "setrankroles_already_this_in_db")
                 .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
                 .unwrap_or_else(|| {
                     "${client.iHorizon_Emojis.No} The rank roles are already in the database for this server."
@@ -153,10 +160,6 @@ pub async fn setmentionrole(
         &role.id.get().to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // TS answers the work message as an embed description, after the
-    // enable audit embed.
-    post_rankrole_log(&ctx, true, Some(role.id.get()), &code).await;
     if let Some(nick) = part {
         crate::commands::owner::main::routed_set(
             &ctx.data().pool,
@@ -200,9 +203,9 @@ pub async fn setmentionrole(
     Ok(())
 }
 
-/// Post the rank-role audit embed to the `ihorizon-logs` channel.
-/// Mirrors `client.func.ihorizon_logs` in !setmentionrole.ts; silent
-/// when the channel is absent.
+// Post the rank-role audit embed to the `ihorizon-logs` channel.
+// Mirrors `client.func.ihorizon_logs` in !setmentionrole.ts; silent
+// when the channel is absent.
 async fn post_rankrole_log(ctx: &Ctx<'_>, enable: bool, role_id: Option<u64>, code: &str) {
     use poise::serenity_prelude as serenity;
     let Some(guild_id) = ctx.guild_id() else {
@@ -252,19 +255,19 @@ async fn post_rankrole_log(ctx: &Ctx<'_>, enable: bool, role_id: Option<u64>, co
         .await;
 }
 
-/// Already-this-role guard. Mirrors `already === argsid.id` in
-/// !setmentionrole.ts (stored role id string, plain compare).
+// Already-this-role guard. Mirrors `already === argsid.id` in
+// !setmentionrole.ts (stored role id string, plain compare).
 pub fn already_configured(stored: Option<&str>, role_id: u64) -> bool {
     stored == Some(role_id.to_string()).as_deref()
 }
 
-/// Fill `setrankroles_command_work` (`${argsid}` is the bare id).
+// Fill `setrankroles_command_work` (`${argsid}` is the bare id).
 pub fn fill_work(template: &str, role_id: u64) -> String {
     template.replace("${argsid}", &role_id.to_string())
 }
 
-/// Fill `setrankroles_command_work_with_nicknames`
-/// (`${argsid}` bare id, `${nicknames}` raw string).
+// Fill `setrankroles_command_work_with_nicknames`
+// (`${argsid}` bare id, `${nicknames}` raw string).
 pub fn fill_work_with_nicknames(template: &str, role_id: u64, nicknames: &str) -> String {
     template
         .replace("${argsid}", &role_id.to_string())

@@ -8,7 +8,7 @@ use super::{
     voice::{bringall, talk, untalk, unwlvc, vkick, voicefreeze, voicemove, voiceunfreeze, wlvc},
 };
 
-/// Run-less group root. Mirrors the TS `util` command.
+/// SubCommand category for utils command
 // (src/Interaction/HybridCommands/utils/util/util.ts).
 #[poise::command(
     slash_command,

@@ -96,8 +96,7 @@ pub async fn confession_cooldown(
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let raw = time.as_deref().unwrap_or("0s");
     let Some(ms) = parse_cooldown_ms(raw) else {
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
+        ctx.say(crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
                 .unwrap_or_else(|| "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4 month(s); 4 weeks; 4 years".to_string()),
         )
         .await?;

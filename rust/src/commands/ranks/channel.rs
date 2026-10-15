@@ -79,8 +79,14 @@ pub async fn clear_xp_channel_routed(
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ChannelAction {
     #[name = "off"]
-    #[name_localized("en-US", "Remove the module (send xp message on the user's message channel)")]
-    #[name_localized("en-GB", "Remove the module (send xp message on the user's message channel)")]
+    #[name_localized(
+        "en-US",
+        "Remove the module (send xp message on the user's message channel)"
+    )]
+    #[name_localized(
+        "en-GB",
+        "Remove the module (send xp message on the user's message channel)"
+    )]
     #[name_localized(
         "fr",
         "Supprimer le module (envoyer un message XP sur le canal du message de l'utilisateur)"
@@ -355,13 +361,7 @@ mod tests {
         use poise::ChoiceParameter as _;
         // TS order: off first, then on.
         let names: Vec<_> = ChannelAction::list().into_iter().map(|c| c.name).collect();
-        assert_eq!(
-            names,
-            vec![
-                "off",
-                "on",
-            ]
-        );
+        assert_eq!(names, vec!["off", "on",]);
         assert_eq!(ChannelAction::Off.as_str(), "off");
         assert_eq!(ChannelAction::On.as_str(), "on");
         assert_eq!(ChannelAction::from_name("off"), Some(ChannelAction::Off));

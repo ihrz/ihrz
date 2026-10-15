@@ -1,9 +1,11 @@
 use super::*;
 
-/// Mirrors `!balance-add.ts`.
+/// Add money to a user!
+// Mirrors `!balance-add.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "balance-add",
     aliases("addmoney"),
     default_member_permissions = "ADMINISTRATOR",
@@ -21,13 +23,13 @@ pub async fn eco_balance_add(
     #[description_localized("ja", "追加したい金額")]
     #[description_localized("ru", "Сумма денег для добавления")]
     #[description_localized("es-ES", "La cantidad de dinero que quieres añadir")]
-    #[description = "Amount"]
+    #[description = "The amount of money you want to add"]
     amount: f64,
     #[description_localized("fr", "Le membre à qui vous souhaitez ajouter de l'argent")]
     #[description_localized("ja", "お金を追加したいメンバー")]
     #[description_localized("ru", "Участник, которому добавить деньги")]
     #[description_localized("es-ES", "El miembro al que quieres añadir dinero")]
-    #[description = "Member"]
+    #[description = "The member who you want to add money"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {

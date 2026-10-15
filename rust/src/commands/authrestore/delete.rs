@@ -88,8 +88,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
     };
     if stored_msg.author.id != http.cache.current_user().id {
-        ctx.say(
-            t(
+        ctx.say(t(
                 &ctx,
                 "buttonreaction_message_other_user_error",
                 "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
@@ -118,8 +117,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     super::authrestore::restore_record_del(&ctx.data().pool, &guild_id).await?;
-    ctx.send(
-        poise::CreateReply::default()
+    ctx.send(poise::CreateReply::default()
             .content(
                 t(
                     &ctx,

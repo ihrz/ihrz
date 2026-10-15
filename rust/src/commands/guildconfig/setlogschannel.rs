@@ -259,6 +259,10 @@ pub async fn gc_setlogs(
     if ctx.guild_id().is_none() {
         return Ok(());
     }
+    // Ack-first (TS `thinking: true`): creates + audit posts run past
+    // the 3s slash window; the unknown-type leg replies instead of
+    // leaving a deferred interaction hanging.
+    ctx.defer().await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = log_type.as_str().to_string();
     if is_log_mode(&t) {
@@ -864,10 +868,7 @@ mod tests {
             ]
         );
         assert_eq!(SetLogsKind::from_name("auto"), Some(SetLogsKind::Auto));
-        assert_eq!(
-            SetLogsKind::from_name("voice"),
-            Some(SetLogsKind::Voice)
-        );
+        assert_eq!(SetLogsKind::from_name("voice"), Some(SetLogsKind::Voice));
         assert_eq!(SetLogsKind::from_name("bogus"), None);
         assert_eq!(SetLogsKind::from_index(0), Some(SetLogsKind::Auto));
         assert_eq!(SetLogsKind::from_index(11), Some(SetLogsKind::Economy));

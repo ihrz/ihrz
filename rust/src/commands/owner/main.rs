@@ -1113,8 +1113,7 @@ async fn blacklist_inner(
                     )
                     .await?;
                 } else {
-                    ctx.say(
-                        lt(
+                    ctx.say(lt(
                             &code,
                             "blacklist_blacklisted_but_can_ban_him",
                             "${client.iHorizon_Emojis.No} is now blacklisted. I can't ban this member here, missing permission?",
@@ -1165,8 +1164,7 @@ async fn blacklist_inner(
             let (total_success, total_guilds) =
                 sweep_ban(&ctx, target.id.get(), &full_reason).await;
             let score = format!("{total_success}/{total_guilds}");
-            ctx.say(
-                lt(
+            ctx.say(lt(
                     &code,
                     "blacklist_command_work_shard",
                     "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)",
@@ -1264,8 +1262,7 @@ async fn blacklist_inner(
                 )
                 .await?;
             } else {
-                ctx.say(
-                    lt(
+                ctx.say(lt(
                         &code,
                         "blacklist_blacklisted_but_can_ban_him",
                         "${client.iHorizon_Emojis.No} is now blacklisted. I can't ban this member here, missing permission?",
@@ -1392,8 +1389,7 @@ async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), any
                 )
                 .await?;
             } else {
-                ctx.say(
-                    lt(
+                ctx.say(lt(
                         &code,
                         "unblacklist_unblacklisted_but_can_unban_him",
                         "${client.iHorizon_Emojis.No} has been removed from the blacklist, but I can't unban this member here; missing permission or already unbanned?",
@@ -1403,8 +1399,7 @@ async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), any
                 .await?;
             }
             // Cross-guild sweep with progress + final shard report.
-            ctx.say(
-                lt(
+            ctx.say(lt(
                     &code,
                     "batch_unblacklist_process",
                     "🔄 Unblacklisting ${bannedMember.username} from ${guildObjects.length} servers in progress...",
@@ -1415,8 +1410,7 @@ async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), any
             .await?;
             let (total_success, total_guilds) = sweep_unban(&ctx, user.id.get()).await;
             let score = format!("{total_success}/{total_guilds}");
-            ctx.say(
-                lt(
+            ctx.say(lt(
                     &code,
                     "unblacklist_command_work_across_all_shard",
                     "✅ ${bannedMember.username} is now unbanned on **${totalSuccess}** server(s) across all shards (`${score}`)",
@@ -1466,8 +1460,7 @@ async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), any
                 )
                 .await?;
             } else {
-                ctx.say(
-                    lt(
+                ctx.say(lt(
                         &code,
                         "unblacklist_unblacklisted_but_can_unban_him",
                         "${client.iHorizon_Emojis.No} has been removed from the blacklist, but I can't unban this member here; missing permission or already unbanned?",

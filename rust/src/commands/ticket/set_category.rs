@@ -10,7 +10,7 @@ pub fn setcategory_desc(template: &str, category_name: &str, author_id: u64) -> 
         .replace("${interaction.user.id}", &author_id.to_string())
 }
 
-/// Default ticket category (TS !set-category.ts).
+/// Set the category where ticket are create!
 //
 // The slash option is the raw `category-name` channel picker (no
 // picker-type filter, like TS `getChannel("category-name", true)`);
@@ -33,7 +33,11 @@ pub fn setcategory_desc(template: &str, category_name: &str, author_id: u64) -> 
 )]
 pub async fn ticket_set_category(
     ctx: Ctx<'_>,
-    #[description = "Category"]
+    #[description = "The name of you ticket's panel."]
+    #[description_localized("fr", "Le nom du panneau de votre ticket")]
+    #[description_localized("ja", "チケットパネルの名前。")]
+    #[description_localized("ru", "Название вашей панели тикетов.")]
+    #[description_localized("es-ES", "El nombre de tu panel de tickets.")]
     #[rename = "category-name"]
     category: Option<serenity::Channel>,
 ) -> Result<(), anyhow::Error> {

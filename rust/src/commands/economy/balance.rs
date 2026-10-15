@@ -29,10 +29,12 @@ pub async fn save_econ_routed(
     .await
 }
 
-/// Mirrors `!balance.ts`.
+/// Get the balance of a user!
+// Mirrors `!balance.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "balance",
     aliases("wallet", "coins", "bal"),
     description_localized("fr", "Obtenir le solde d'un utilisateur"),
@@ -52,7 +54,7 @@ pub async fn eco_balance(
         "es-ES",
         "Selecciona un usuario para ver su saldo actual o déjalo en blanco para ti"
     )]
-    #[description = "Member"]
+    #[description = "Target a user for see their current balance or keep blank for yourself"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
@@ -66,8 +68,19 @@ pub async fn eco_balance(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let a = load_econ_routed(&ctx.data().pool, &gid, uid).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Independent reads run concurrently: account, shop blob (boost) and
+    // guild lang are three separate keys with no ordering dependency.
+    let pool = &ctx.data().pool;
+    let guild_opt = ctx.guild_id().map(|g| g.get());
+    let (a, shop_json, code) = tokio::join!(
+        load_econ_routed(pool, &gid, uid),
+        async {
+            crate::commands::owner::main::routed_get(pool, &gid, &gid, shop_key())
+                .await
+                .unwrap_or_else(|| "{}".to_string())
+        },
+        crate::db::guild_lang(pool, guild_opt)
+    );
     let coin = coin_markup(&ctx).await;
     let wallet = wallet_markup(&ctx).await;
     // Mirrors `!balance.ts:84`: the title always uses the username,
@@ -80,10 +93,6 @@ pub async fn eco_balance(
         .as_ref()
         .map(|u| u.to_string())
         .unwrap_or_else(|| ctx.author().to_string());
-    let shop_json =
-        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, shop_key())
-            .await
-            .unwrap_or_else(|| "{}".to_string());
     let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
     let total = a.money + a.bank;
     // Mirrors !balance.ts: #e3c6ff embed, "`name`'s Wallet" title,

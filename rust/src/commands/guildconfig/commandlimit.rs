@@ -115,9 +115,13 @@ pub async fn gc_commandlimit(
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Ack-first + one round-trip for the lang row and the stored limits.
+    ctx.defer().await?;
+    let (code, raw) = tokio::join!(
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())),
+        load_command_limits_routed(pool, &gid)
+    );
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let raw = load_command_limits_routed(pool, &gid).await;
     let mut map: HashMap<String, CommandLimit> = raw;
     // The dropdown constrains slash input to the TS choices; prefix
     // words resolve case-insensitively through the choice names, so

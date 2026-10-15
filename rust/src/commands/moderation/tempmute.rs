@@ -48,6 +48,9 @@ pub async fn mod_timeout(
     #[description = "the reason why you tempmuted"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -96,7 +99,8 @@ pub async fn mod_timeout(
     }
     // TS `if (!mutetime || !tomute || !mutetime) return;`
     // (!tempmute.ts:67-69): an unresolvable member is a silent return,
-    // no additive reply.
+    // no additive reply. Single cache-then-HTTP load; the hierarchy
+    // guards below reuse it instead of fetching a second time.
     let member = guild_id.member(ctx.http(), user.id).await.ok();
     let Some(mut member) = member else {
         return Ok(());
@@ -106,7 +110,7 @@ pub async fn mod_timeout(
             .await?;
         return Ok(());
     }
-    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+    if let Some(target_pos) = member_top(&ctx, guild_id, &member) {
         let author_id = ctx.author().id.get();
         let (bot_top, author_top, owner) = guards
             .as_ref()

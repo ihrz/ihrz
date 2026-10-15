@@ -1,6 +1,6 @@
 use super::*;
 
-/// Move one member between voice channels. Mirrors utils move.
+/// Move an user from voice-channel.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,7 @@ pub async fn voicemove(
     #[description_localized("ja", "移動したいメンバー")]
     #[description_localized("ru", "Участник для перемещения")]
     #[description_localized("es-ES", "El miembro que quieres mover")]
-    #[description = "Member"]
+    #[description = "The member you want to move"]
     // TS HybridCommands/utils/util/util.ts registers "member" / "channel" (!move.ts).
     #[rename = "member"]
     user: poise::serenity_prelude::User,
@@ -27,8 +27,8 @@ pub async fn voicemove(
     #[description_localized("ja", "希望するチャンネル")]
     #[description_localized("ru", "Желаемый канал")]
     #[description_localized("es-ES", "El canal que deseas")]
-    #[description = "To channel"]
-    #[channel_types("Voice")]
+    #[description = "The channel you want"]
+    #[channel_types("Voice", "Stage")]
     // TS HybridCommands/utils/util/util.ts registers the destination as "channel".
     #[rename = "channel"]
     to: poise::serenity_prelude::GuildChannel,
@@ -54,23 +54,24 @@ pub async fn voicemove(
         return Ok(());
     }
     // Admin-victim guard. Mirrors !move.ts: a non-admin invoker cannot
-    // move a member holding Administrator.
+    // move a member holding Administrator. Single member fetch (perf):
+    // the victim is fetched once; the invoker side reuses the guild cache
+    // (a cache miss fails closed to non-admin, and the invoker row is
+    // present in practice).
     let victim_admin = guild_id
         .member(ctx.http(), user.id)
         .await
         .ok()
-        .map(|m| is_guild_admin(&ctx, guild_id, &m))
-        .unwrap_or(false);
+        .is_some_and(|m| is_guild_admin(&ctx, guild_id, &m));
     if victim_admin {
-        let invoker_admin = guild_id
-            .member(ctx.http(), ctx.author().id)
-            .await
-            .ok()
-            .map(|m| is_guild_admin(&ctx, guild_id, &m))
-            .unwrap_or(false);
+        let invoker_admin = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .and_then(|g| g.members.get(&ctx.author().id).cloned())
+            .is_some_and(|m| is_guild_admin(&ctx, guild_id, &m));
         if !invoker_admin {
-            ctx.say(
-                crate::lang::get(&code, "util_move_impossible_to_move_admin").unwrap_or_else(|| {
+            ctx.say(crate::lang::get(&code, "util_move_impossible_to_move_admin").unwrap_or_else(|| {
                     "The member you want to move is an administrator, and you are not an administrator either.".to_string()
                 }),
             )

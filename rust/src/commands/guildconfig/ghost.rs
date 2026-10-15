@@ -138,10 +138,15 @@ pub async fn gc_ghost_add(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Ack-first + one round-trip for the lang row, the stored watch
+    // list and the live channel ids (all independent).
+    ctx.defer().await?;
+    let (code, live, stored) = tokio::join!(
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())),
+        live_channel_ids(&ctx),
+        load_ghost_routed(pool, &gid)
+    );
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
-    let live = live_channel_ids(&ctx).await;
-    let stored = load_ghost_routed(pool, &gid).await;
     let pruned = prune_ghost_channels(&stored, &live);
     let id = channel.id.get().to_string();
     // Duplicate reply first (TS `joinghostping_add_already_set`).
@@ -224,10 +229,15 @@ pub async fn gc_ghost_remove(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Ack-first + one round-trip for the lang row, the stored watch
+    // list and the live channel ids (all independent).
+    ctx.defer().await?;
+    let (code, live, stored) = tokio::join!(
+        crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())),
+        live_channel_ids(&ctx),
+        load_ghost_routed(pool, &gid)
+    );
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
-    let live = live_channel_ids(&ctx).await;
-    let stored = load_ghost_routed(pool, &gid).await;
     let pruned = prune_ghost_channels(&stored, &live);
     let id = channel.id.get().to_string();
     // Missing reply first (TS `joinghostping_remove_isnt_set`).
@@ -287,8 +297,12 @@ pub async fn gc_ghost_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let list = load_ghost_routed(&ctx.data().pool, &gid).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Ack-first + one round-trip for the watch list and the lang row.
+    ctx.defer().await?;
+    let (list, code) = tokio::join!(
+        load_ghost_routed(&ctx.data().pool, &gid),
+        crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get()))
+    );
     ctx.say(if list.is_empty() {
         crate::lang::get(&code, "msg_ghost_list_empty")
             .unwrap_or_else(|| "No ghost-ping watches.".to_string())
@@ -355,6 +369,15 @@ mod tests {
             "<#1>\n<#2>"
         );
         assert_eq!(GHOST_COLOR, 0x475387);
+    }
+
+    #[test]
+    fn ghost_mention_list_empty_is_empty() {
+        // The remove summary shows `var_no_set` for an empty list, so
+        // the mention renderer itself must yield "" (never "<#>" noise).
+        let empty: Vec<String> = vec![];
+        assert_eq!(ghost_mention_list(&empty), "");
+        assert_eq!(ghost_mention_list(&["7".to_string()]), "<#7>");
     }
 
     #[tokio::test]

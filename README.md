@@ -19,7 +19,7 @@
 [![Discord](https://img.shields.io/discord/972538524790304788?style=for-the-badge&logo=discord&color=7289DA&label=Support%20Server)](http://discord.ihorizon.org/)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-**iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
+**iHorizon** is a powerful and feature-rich Discord bot. The original runtime is [TypeScript](https://www.typescriptlang.org/) + [discord.js](https://npmjs.com/discord.js); the bot is currently being ported to **Rust** ([serenity](https://github.com/serenity-rs/serenity) + [poise](https://github.com/serenity-rs/poise), branch `rust-recode`) — same slash commands, same behavior, a single compiled binary instead of a Bun/Node runtime. Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
 
 [**📚 Documentation (BETA)**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
@@ -199,13 +199,47 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 ## 🚀 Installation & Self-Hosting
 
-### 📋 Prerequisites
+### 📋 Prerequisites (TypeScript runtime)
 
 **[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
 
 **Operating System**: Linux, macOS, or Windows
 
-### ⚙️ Configuration
+### 🦀 Rust port (branch `rust-recode`)
+
+**[Rust toolchain](https://rustup.rs)** (stable, edition 2021) — the port lives in `rust/` and uses [serenity](https://github.com/serenity-rs/serenity) + [poise](https://github.com/serenity-rs/poise), with Lavalink for music (`lava-rs`) and HorizonGateway for HTML-card rendering.
+
+**1. Download the repository**
+
+```bash
+# Clone the GitLab repository (active development)
+git clone https://gitlab.com/ihrz/ihrz.git
+cd ihrz
+git checkout rust-recode
+```
+
+**2. Configure the bot**
+
+- Open [`rust/config.example.toml`](https://gitlab.com/ihrz/ihrz/blob/rust-recode/rust/config.example.toml)
+- Fill in your information (Discord token, Lavalink node, HorizonGateway URL + token, etc.)
+- Save it as `rust/config.toml` (gitignored — never commit secrets)
+
+**3. Build and launch**
+
+```bash
+cd rust
+
+# Check + tests (the migration gate: fmt clean, 0 clippy warnings, suite green)
+cargo fmt --all --check
+cargo clippy --workspace --all-targets
+cargo test --workspace
+
+# Build and run
+cargo build
+./target/debug/ihrz
+```
+
+### ⚙️ Configuration (TypeScript runtime)
 
 **1. Download the repository**
 
@@ -347,6 +381,7 @@ Past developers and contributors who have helped make iHorizon what it is today.
 📈 **2021-2023**: Continuous growth and major feature additions  
 🔄 **2024**: Migration to GitLab for better development management  
 ⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime
+🦀 **2026**: Full port to Rust (serenity + poise, `rust-recode`) — same commands, single binary
 😎 **2026**: Enforcing bot structure, features, community, adding major philosophical changes
 
 ---
@@ -394,5 +429,7 @@ Need help? Several options are available:
 [![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Powered by discord.js](https://img.shields.io/badge/Powered%20by-discord.js-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.js.org/)
 [![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh/)
+[![Ported to Rust](https://img.shields.io/badge/Ported%20to-Rust-CE422B?style=for-the-badge&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![serenity + poise](https://img.shields.io/badge/serenity%20%2B%20poise-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://github.com/serenity-rs/poise)
 
 </div>

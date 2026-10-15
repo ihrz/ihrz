@@ -6,11 +6,10 @@ use super::welcomer::gc_welcomer;
 // Mirrors the TS `guildconfig` SlashCommand `set` SubcommandGroup
 // (`guildconfig.ts:227-259`: single `welcomer` leaf — no options,
 // Administrator; `someting` typo kept verbatim). `gc_welcomer` is
-// that TS-exact leaf. The atomic `wc-*` setters (`welcomer.rs`),
-// `joindm` and `joinrole` bodies stay defined for prefix use but
-// have no standalone slash home in TS (their state surface is the
-// `welcomerPanel` buttons / prefix flows), so they are NOT
-// registered here and the slash surface matches TS exactly.
+// that TS-exact leaf. The `joindm` / `joinrole` atomic setters had no
+// TS command home (state surface is the `welcomerPanel` buttons /
+// prefix flows) and no registry entry, so they were removed for
+// exactness; the slash surface matches TS exactly.
 #[poise::command(
     slash_command,
     prefix_command,

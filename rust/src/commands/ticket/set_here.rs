@@ -148,7 +148,7 @@ pub fn parse_reason_choice(value: &str) -> bool {
     value == "yes"
 }
 
-/// Post a ticket panel here (button or select type picker).
+/// Make a embed for allowing to user to create a ticket!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -170,8 +170,18 @@ pub async fn ticket_set_here(
     // reaches the type picker and creates with a null name (TS
     // `setTitle(null)` = untitled). A required poise String would
     // parse-error on the bare form instead.
-    #[description = "Panel name"] name: Option<String>,
-    #[description = "Description"] description: Option<String>,
+    #[description = "The name of you ticket's panel."]
+    #[description_localized("fr", "Le nom du panneau de votre ticket")]
+    #[description_localized("ja", "チケットパネルの名前。")]
+    #[description_localized("ru", "Название вашей панели тикетов.")]
+    #[description_localized("es-ES", "El nombre de tu panel de tickets.")]
+    name: Option<String>,
+    #[description = "The description of you ticket's panel."]
+    #[description_localized("fr", "La description du panneau de votre ticket")]
+    #[description_localized("ja", "チケットパネルの説明。")]
+    #[description_localized("ru", "Описание вашей панели тикетов.")]
+    #[description_localized("es-ES", "La descripción de tu panel de tickets.")]
+    description: Option<String>,
     // Verdict: keep `#[channel_types("Category")]` (document, don't
     // loosen). TS restricts the slash picker the same way
     // (`channel_types: [GuildCategory]`, ticket.ts set-here options),
@@ -181,7 +191,11 @@ pub async fn ticket_set_here(
     // storing whatever channel id it gets. Poise applies
     // `channel_types` to slash registration like Discord does, so both
     // paths match TS as-is.
-    #[description = "Ticket category"]
+    #[description = "The category for the ticket."]
+    #[description_localized("fr", "La catégorie pour les ticket")]
+    #[description_localized("ja", "チケットのカテゴリ。")]
+    #[description_localized("ru", "Категория для тикета.")]
+    #[description_localized("es-ES", "La categoría para el ticket.")]
     #[channel_types("Category")]
     category: Option<serenity::Channel>,
 ) -> Result<(), anyhow::Error> {
@@ -257,6 +271,7 @@ pub async fn ticket_set_here(
             &code,
             name.as_deref().unwrap_or_default(),
             ctx.author().id,
+            &ctx.author().name,
             ctx.channel_id(),
         )
         .await?;
@@ -387,6 +402,7 @@ async fn run_select_builder(
     lang_code: &str,
     panel_name: &str,
     author: serenity::UserId,
+    author_name: &str,
     channel_id: serenity::ChannelId,
 ) -> anyhow::Result<()> {
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
@@ -435,7 +451,16 @@ async fn run_select_builder(
             }
             BUILDER_SAVE_ID => {
                 if run_builder_save(
-                    sctx, pool, gid, lang_code, &pick, &mut msg, panel_name, author, &mut cases,
+                    sctx,
+                    pool,
+                    gid,
+                    lang_code,
+                    &pick,
+                    &mut msg,
+                    panel_name,
+                    author,
+                    author_name,
+                    &mut cases,
                 )
                 .await?
                 {
@@ -594,6 +619,7 @@ async fn run_builder_save(
     msg: &mut serenity::Message,
     panel_name: &str,
     author: serenity::UserId,
+    author_name: &str,
     cases: &mut [LegacySelection],
 ) -> anyhow::Result<bool> {
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
@@ -640,8 +666,9 @@ async fn run_builder_save(
     }
     let mut desc = crate::modal_helper::text_value(&submit, "embed_desc");
     if desc.trim().is_empty() {
-        desc =
-            t("sethereticket_description_embed").replace("${user.username}", &author.to_string());
+        // TS fallback fills `${user.username}` (ticketsManager.ts:356),
+        // not the mention/id.
+        desc = t("sethereticket_description_embed").replace("${user.username}", author_name);
     }
     // Disable the buttons like TS (`button.components.forEach(setDisabled)`).
     refresh_builder(&sctx.http, msg, &t, panel_name, cases, true).await;

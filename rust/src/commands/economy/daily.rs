@@ -1,6 +1,6 @@
 use super::*;
 
-/// Claim your daily reward!
+/// Claim a daily reward!
 #[poise::command(
     slash_command,
     prefix_command,

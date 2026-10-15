@@ -374,8 +374,6 @@ pub mod ghost;
 #[allow(clippy::module_inception)]
 pub mod guildconfig;
 pub mod join_ghostping;
-pub mod joindm;
-pub mod joinrole;
 pub mod perm;
 pub mod perm_parent;
 pub mod prefix;
@@ -403,8 +401,6 @@ pub mod main {
     pub use super::ghost::*;
     pub use super::guildconfig::*;
     pub use super::join_ghostping::*;
-    pub use super::joindm::*;
-    pub use super::joinrole::*;
     pub use super::perm::*;
     pub use super::perm_parent::*;
     pub use super::prefix::*;
@@ -441,6 +437,33 @@ mod tests {
         assert!(!valid_log_type("all"));
         assert!(!valid_log_type("boosts"));
         assert!(!valid_log_type("bogus"));
+    }
+
+    #[test]
+    fn log_types_and_automod_kinds_byte_exact() {
+        // TS `type` choices minus the auto/off modes (setlogschannel.ts
+        // values: antispam/boost/channel/message/moderation/roles/
+        // ticket/voice/confession/economy — singular, no `all`).
+        assert_eq!(
+            LOG_TYPES,
+            [
+                "antispam",
+                "boost",
+                "channel",
+                "message",
+                "moderation",
+                "roles",
+                "ticket",
+                "voice",
+                "confession",
+                "economy"
+            ]
+        );
+        // TS automod `block` group leaves (automod.ts:57-415).
+        assert_eq!(
+            AUTOMOD_KINDS,
+            ["link", "spam", "mass-mention", "discord-invite", "telegram"]
+        );
     }
 
     #[test]

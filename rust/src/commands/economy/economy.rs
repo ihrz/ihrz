@@ -24,6 +24,7 @@ use super::{
 // names, prefix aliases (`economy-role-add` etc.) and per-command
 // permissions; the extra parent-group gate and the `ecrole` group
 // prefix path are not reproduced.
+/// Subcommand for economy category!
 #[poise::command(
     slash_command,
     prefix_command,

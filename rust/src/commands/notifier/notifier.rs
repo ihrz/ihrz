@@ -47,7 +47,8 @@ pub async fn notifier_author(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// Configuration for the Notifier Module.
-// Mirrors the TS `config` SubcommandGroup (notifier.ts:232-301).
+// Mirrors the TS `config` SubcommandGroup (notifier.ts:232-301,
+// permission ManageGuild like the TS group leg).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -55,6 +56,7 @@ pub async fn notifier_author(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     rename = "config",
     subcommands("notifier_channel", "notifier_message"),
     subcommand_required,
+    default_member_permissions = "MANAGE_GUILD",
     description_localized("fr", "La configuration pour le module de Notifier"),
     description_localized("ja", "Notifierモジュールの設定"),
     description_localized("ru", "Настройка модуля Notifier"),

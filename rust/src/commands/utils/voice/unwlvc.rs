@@ -26,7 +26,7 @@ pub async fn unwlvc(
     #[description_localized("ja", "削除したいメンバー")]
     #[description_localized("ru", "Участник для удаления")]
     #[description_localized("es-ES", "El miembro que quieres eliminar")]
-    #[description = "Member to remove"]
+    #[description = "The member you want to remove"]
     member: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -124,7 +124,15 @@ pub async fn unwlvc(
         .map(|c| c.get().to_string() == channel_id)
         .unwrap_or(false);
     if in_frozen {
-        let _ = guild_id.disconnect_member(ctx.http(), target.id).await;
+        let _ = guild_id
+            .edit_member(
+                ctx.http(),
+                target.id,
+                poise::serenity_prelude::EditMember::new()
+                    .disconnect_member()
+                    .audit_log_reason("[FreezeVC] User get removed from the wlvc"),
+            )
+            .await;
     }
     Ok(())
 }

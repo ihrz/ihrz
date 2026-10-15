@@ -9,7 +9,9 @@ pub fn giveaway_message_url(guild_id: &str, channel_id: &str, giveaway_id: &str)
     format!("https://discord.com/channels/{guild_id}/{channel_id}/{giveaway_id}")
 }
 
-/// List all giveaways with status. Mirrors !get-all.ts.
+// List all giveaways with status. Mirrors !get-all.ts.
+// (Doc line below is the slash description, TS-verbatim.)
+/// Get informations about all giveaways in a guild (JSON Body)
 #[poise::command(
     slash_command,
     prefix_command,
@@ -32,6 +34,10 @@ pub fn giveaway_message_url(guild_id: &str, channel_id: &str, giveaway_id: &str)
     )
 )]
 pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
+    // guild-icon + footer snapshots below are HTTP fetches, so defer
+    // up front instead of risking the 3s interaction timeout.
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -59,18 +65,22 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Author icon is an image64 snapshot sent as guild_icon.png, never
     // a raw CDN URL (which rots to "media lost"). Mirrors
     // !get-all.ts:66-69 + 92-100 (guild iconURL, bot avatar
-    // fallback, empty buffer when the fetch fails).
-    let bot_face = ctx
-        .serenity_context()
-        .http
+    // fallback, empty buffer when the fetch fails). The icon bytes
+    // and the shared footer are independent, so they fetch
+    // concurrently instead of sequentially.
+    let http = &ctx.serenity_context().http;
+    let bot_face = http
         .get_current_user()
         .await
         .map(|u| u.face())
         .unwrap_or_default();
     let guild_icon = ctx.guild().and_then(|g| g.icon_url());
-    let icon_bytes = crate::image64::image64(guild_icon_source(guild_icon.as_deref(), &bot_face))
-        .await
-        .unwrap_or_default();
+    let icon_source = guild_icon_source(guild_icon.as_deref(), &bot_face).to_string();
+    let (icon_bytes, (footer_name, footer_icon)) = tokio::join!(
+        crate::image64::image64(&icon_source),
+        giveaway_footer(&ctx.data().pool, http, &gid),
+    );
+    let icon_bytes = icon_bytes.unwrap_or_default();
     embed = embed.author(
         serenity::CreateEmbedAuthor::new(guild_name.clone())
             .icon_url("attachment://guild_icon.png"),
@@ -97,9 +107,8 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             );
         }
     }
-    // Footer mirrors !get-all.ts:70-74 (shared bot footer).
-    let (footer_name, footer_icon) =
-        giveaway_footer(&ctx.data().pool, &ctx.serenity_context().http, &gid).await;
+    // Footer mirrors !get-all.ts:70-74 (shared bot footer), fetched
+    // concurrently with the icon bytes above.
     embed = giveaway_embed_footer(embed, &footer_name, footer_icon.is_some());
     let mut reply =
         poise::CreateReply::default()

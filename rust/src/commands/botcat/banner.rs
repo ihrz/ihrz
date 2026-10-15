@@ -157,8 +157,7 @@ pub async fn custom_banner(
         .ok()
         .and_then(|m| m.banner_url());
     let x = super::post_change_display(member_banner.as_deref(), &banner.url);
-    ctx.say(
-        crate::lang::get(&code, "custom_banner_set")
+    ctx.say(crate::lang::get(&code, "custom_banner_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
@@ -185,10 +184,7 @@ mod tests {
             .into_iter()
             .map(|c| c.name)
             .collect();
-        assert_eq!(
-            names,
-            vec!["reset".to_string(), "set".to_string()]
-        );
+        assert_eq!(names, vec!["reset".to_string(), "set".to_string()]);
         assert_eq!(CustomBannerAction::Reset.as_str(), "reset");
         assert_eq!(CustomBannerAction::Set.as_str(), "set");
         assert_eq!(

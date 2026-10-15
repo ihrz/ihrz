@@ -10,10 +10,12 @@ pub fn shop_at_cap(role_count: usize) -> bool {
     role_count >= MAX_BUYABLE_ROLES
 }
 
-/// Shop role add. Mirrors `!add.ts`.
+/// Add a role for a certain amount of money!
+// Mirrors `!add.ts`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "add",
     aliases("economy-role-add"),
     default_member_permissions = "MANAGE_GUILD",
@@ -28,13 +30,13 @@ pub async fn eco_role_add(
     #[description_localized("ja", "追加したいロール")]
     #[description_localized("ru", "Роль, которую вы хотите добавить")]
     #[description_localized("es-ES", "El rol que quieres añadir")]
-    #[description = "Role"]
+    #[description = "The role you want to add"]
     role: poise::serenity_prelude::Role,
     #[description_localized("fr", "Le montant d'argent que vous souhaitez ajouter")]
     #[description_localized("ja", "追加したい金額")]
     #[description_localized("ru", "Сумма денег для добавления")]
     #[description_localized("es-ES", "La cantidad de dinero que quieres añadir")]
-    #[description = "Price"]
+    #[description = "The amount of money you want to add"]
     // TS HybridCommands/economy/!add.ts reads getNumber("amount").
     #[rename = "amount"]
     price: f64,
@@ -69,9 +71,12 @@ pub async fn eco_role_add(
             "View Monetization Analytics",
         ),
     ];
+    // One lang fetch for all ten names: `lang_for` re-reads the guild
+    // lang row per key, so loop it and resolve locally instead.
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let mut owned = Vec::with_capacity(10);
     for (key, fallback) in perm_keys {
-        owned.push(crate::commands::lang_for(&ctx, key, fallback).await);
+        owned.push(crate::lang::get(&lang_code, key).unwrap_or_else(|| fallback.to_string()));
     }
     let names: [&str; 10] = owned
         .iter()

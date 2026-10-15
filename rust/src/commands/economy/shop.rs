@@ -110,10 +110,12 @@ pub fn shop_menu_options(
         .collect()
 }
 
-/// Shop display + interactive buy flow. Mirrors `shop.ts`.
+/// Get the shop of the guild!
+// Mirrors `shop.ts` (display + interactive buy flow).
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "shop",
     description_localized("fr", "Obtenez le magasin du serveur"),
     description_localized("ja", "サーバーのショップを取得！"),
@@ -162,9 +164,9 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .await?;
         return Ok(());
     }
-    let shop_json = crate::commands::owner::main::routed_get(pool, &gid, &gid, shop_key())
-        .await
-        .unwrap_or_else(|| "{}".to_string());
+    // Reuse the already-loaded map instead of a second DB round-trip for
+    // the same key (claim_inner serializes the same way).
+    let shop_json = serde_json::to_string(&shop).unwrap_or_else(|_| "{}".to_string());
     let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
     let coin = coin_markup(&ctx).await;
     // Mirrors the !shop.ts embed (title with guild name, #45f712,
@@ -198,18 +200,19 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             true,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());
-    // Role-name lookup for select labels (cache miss -> unknown role).
-    let names: HashMap<String, String> = match ctx.guild_id() {
-        Some(g) => ctx
-            .http()
-            .get_guild_roles(g)
-            .await
-            .unwrap_or_default()
-            .into_iter()
-            .map(|r| (r.id.get().to_string(), r.name))
-            .collect(),
-        None => HashMap::new(),
-    };
+    // Role-name lookup from the gateway cache, like TS
+    // (`interaction.guild?.roles.cache.get(role.roleId)`): cache misses
+    // fall back to the unknown-role label with no HTTP fetch.
+    let names: HashMap<String, String> = ctx
+        .guild_id()
+        .and_then(|g| ctx.cache().guild(g))
+        .map(|gd| {
+            gd.roles
+                .iter()
+                .map(|(id, r)| (id.get().to_string(), r.name.clone()))
+                .collect()
+        })
+        .unwrap_or_default();
     // Select-menu options over ALL buyable roles with owned-role
     // marking (!shop.ts:129-137; no owned filter, per line 96).
     let rows = shop_menu_options(
@@ -506,6 +509,26 @@ mod tests {
         );
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].2, "Already owned");
+    }
+
+    #[test]
+    fn long_role_label_is_capped_at_discord_limit() {
+        // DELIBERATE KEEP: TS shows raw role names; over-100-char labels
+        // would fail the whole menu send, so they cap at 100 chars.
+        let long: String = std::iter::repeat('r').take(150).collect();
+        let shop: ShopMap = [(
+            "111".to_string(),
+            ShopEntry {
+                price: 10.0,
+                boost: None,
+            },
+        )]
+        .into_iter()
+        .collect();
+        let names: HashMap<String, String> = [("111".to_string(), long)].into_iter().collect();
+        let rows = shop_menu_options(&shop, &[], &names, "Price", "Already owned", "Unknown Role");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].0.chars().count(), 100);
     }
 
     #[test]

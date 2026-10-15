@@ -1,7 +1,7 @@
 use super::talk::post_util_log;
 use super::*;
 
-/// Voice kick (disconnect). Mirrors !vkick.ts.
+/// Disconnect a member from a voice channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,7 @@ pub async fn vkick(
     #[description_localized("ja", "切断したいメンバー")]
     #[description_localized("ru", "Участник для отключения")]
     #[description_localized("es-ES", "El miembro que quieres desconectar")]
-    #[description = "Member"]
+    #[description = "The member you want to disconnect"]
     // TS HybridCommands/utils/util/!vkick.ts reads getMember("member").
     #[rename = "member"]
     user: poise::serenity_prelude::User,

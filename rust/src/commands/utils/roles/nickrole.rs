@@ -34,12 +34,19 @@ impl NickroleAction {
     }
 }
 
-/// Mass-assign a role by nickname match. Mirrors !nickrole.ts.
+/// Give a roles to all user who have specified char in their username!
+// Prefix null-flow: TS returns silently on a null role
+// (`if (!part_of_nickname || !role) return`), so the role param is
+// `Option` (missing -> None) plus `discard_spare_arguments`
+// (present-but-bad token is swallowed by the wildcard instead of
+// hard-erroring as ArgumentParse before the body). Slash surface keeps
+// the same names and types; only the role's requiredness relaxes.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "nickrole",
+    discard_spare_arguments,
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"),
     description_localized("ja", "ユーザー名に特定の文字を含む全ユーザーにロールを付与！"),
@@ -52,20 +59,22 @@ pub async fn nickrole(
     #[description_localized("ja", "実行したいアクション")]
     #[description_localized("ru", "Действие, которое вы хотите выполнить")]
     #[description_localized("es-ES", "La acción que quieres realizar")]
-    #[description = "add or sub"]
+    #[description = "The action you want to do"]
     action: NickroleAction,
     #[description_localized("fr", "La partie incluant dans le pseudo")]
     #[description_localized("ja", "ニックネームに含める部分")]
     #[description_localized("ru", "Часть, включаемая в никнейм")]
     #[description_localized("es-ES", "La parte a incluir en el apodo")]
-    #[description = "Nickname part"]
+    #[description = "The part including in the nickname"]
     nickname: String,
     #[description_localized("fr", "Le rôle que vous souhaitez donner")]
     #[description_localized("ja", "付与したいロール")]
     #[description_localized("ru", "Роль, которую вы хотите выдать")]
     #[description_localized("es-ES", "El rol que quieres dar")]
-    #[description = "Role"]
-    role: poise::serenity_prelude::Role,
+    #[description = "The role you want to give"]
+    // Nullable: TS `method.role(interaction, args!, 2)` can be null and
+    // !nickrole.ts returns silently (`if (!part_of_nickname || !role)`).
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -74,8 +83,12 @@ pub async fn nickrole(
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Lower the query once here; the matcher compares raw fields.
-    // TS early-returns on an empty nickname (falsy): without this,
-    // contains("") would match everyone.
+    // TS (`if (!part_of_nickname || !role) return`) bails silently on a
+    // missing nickname part or a null role, before any ack or fetch:
+    // without the empty check, contains("") would match everyone.
+    let Some(role) = role else {
+        return Ok(());
+    };
     let part = nickname.to_lowercase();
     if part.is_empty() {
         return Ok(());
@@ -106,14 +119,15 @@ pub async fn nickrole(
         .map(|m| m.user.id)
         .collect();
     let skipped = total.saturating_sub(targets.len());
-    // Immediate progress reply, edited with the final embed.
+    // Progress reply stays as-is; the final result below is a NEW
+    // message via `interactionSend` (!nickrole.ts:143,228).
     // Mirrors ogInteraction + processBatchAsync (10/150ms).
     let progress_tpl = if add {
         t("batch_massiverole_process")
     } else {
         t("batch_unmassiverole_process")
     };
-    let progress = ctx.say(fill_progress(&progress_tpl, targets.len())).await?;
+    let _progress = ctx.say(fill_progress(&progress_tpl, targets.len())).await?;
     let http = ctx.http();
     let role_id = role.id;
     // Audit reason verbatim from !nickrole.ts (both branches use
@@ -125,20 +139,15 @@ pub async fn nickrole(
         150,
         None::<fn(usize, usize)>,
         |uid| async move {
-            let Ok(member) = guild_id.member(&http, uid).await else {
-                return false;
-            };
+            // Single fetch: targets already carry everything from the full
+            // member list above, so no per-member re-fetch (TS reuses the
+            // fetched GuildMember objects too).
             let out = if add {
-                http.add_member_role(guild_id, member.user.id, role_id, Some("[NickRole] Module"))
+                http.add_member_role(guild_id, uid, role_id, Some("[NickRole] Module"))
                     .await
             } else {
-                http.remove_member_role(
-                    guild_id,
-                    member.user.id,
-                    role_id,
-                    Some("[NickRole] Module"),
-                )
-                .await
+                http.remove_member_role(guild_id, uid, role_id, Some("[NickRole] Module"))
+                    .await
             };
             out.is_ok()
         },
@@ -176,13 +185,15 @@ pub async fn nickrole(
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
-    progress.edit(ctx, reply).await?;
+    // Fresh send for the final embed (TS `interactionSend` posts a new
+    // message); the progress message above is left untouched.
+    ctx.send(reply).await?;
     Ok(())
 }
 
-/// Fetch every guild member over the paged REST endpoint (1000/page).
-/// Mirrors TS guild.members.fetch() with no options, which returns the
-/// whole member list: a single page would cap mass processing at 1000.
+// Fetch every guild member over the paged REST endpoint (1000/page).
+// Mirrors TS guild.members.fetch() with no options, which returns the
+// whole member list: a single page would cap mass processing at 1000.
 async fn fetch_all_members(
     http: &serenity::Http,
     guild_id: serenity::GuildId,
@@ -207,11 +218,11 @@ async fn fetch_all_members(
     all
 }
 
-/// Parse the action option. Mirrors the `action_1 === "add"` /
-/// `action_1 === "sub"` branches in !nickrole.ts: exact match, no case
-/// fold, no catch-all. `Some(true)` adds, `Some(false)` removes, and any
-/// other input is `None` — the caller returns silently with no members
-/// touched, like TS falling through both branches.
+// Parse the action option. Mirrors the `action_1 === "add"` /
+// `action_1 === "sub"` branches in !nickrole.ts: exact match, no case
+// fold, no catch-all. `Some(true)` adds, `Some(false)` removes, and any
+// other input is `None` — the caller returns silently with no members
+// touched, like TS falling through both branches.
 pub fn nick_action(action: &str) -> Option<bool> {
     match action {
         "add" => Some(true),
@@ -220,20 +231,20 @@ pub fn nick_action(action: &str) -> Option<bool> {
     }
 }
 
-/// Case-insensitive substring match over guild nickname and global
-/// display name only. The caller lowers the query once; the fields are
-/// matched raw here. Mirrors the TS globalName/nickname filter
-/// (!nickrole.ts:75-81); the bare username is never consulted.
+// Case-insensitive substring match over guild nickname and global
+// display name only. The caller lowers the query once; the fields are
+// matched raw here. Mirrors the TS globalName/nickname filter
+// (!nickrole.ts:75-81); the bare username is never consulted.
 pub fn nick_matches_part(nick: &str, global_name: &str, lowered_part: &str) -> bool {
     nick.to_lowercase().contains(lowered_part) || global_name.to_lowercase().contains(lowered_part)
 }
 
-/// Fill the `${membersToProcess.length}` progress template.
+// Fill the `${membersToProcess.length}` progress template.
 pub fn fill_progress(template: &str, n: usize) -> String {
     template.replace("${membersToProcess.length}", &n.to_string())
 }
 
-/// Fill the nickrole work template (`${part_of_nickname}` extra).
+// Fill the nickrole work template (`${part_of_nickname}` extra).
 pub fn fill_work(
     template: &str,
     invoker: &str,

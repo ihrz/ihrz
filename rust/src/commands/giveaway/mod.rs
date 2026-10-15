@@ -375,7 +375,12 @@ impl serde::Serialize for Giveaway {
             Some(iso) => s.serialize_field("expireIn", iso)?,
             None => s.serialize_field("expireIn", &self.expire_in_ms)?,
         }
-        s.serialize_field("ended", &self.ended)?;
+        // Numeric status like TS `db.Create`/`SetEnded`
+        // (GiveawayEndedStatus: ENDED = 1, NOT_ENDED = 2). A boolean
+        // here breaks TS readers (`true === 1` is false), so the
+        // in-memory bool maps to the TS numbers on write; the
+        // Deserialize impl above accepts both shapes back.
+        s.serialize_field("ended", &(if self.ended { 1 } else { 2 }))?;
         s.serialize_field("entries", &self.entries)?;
         s.serialize_field("winners", &self.winners)?;
         s.serialize_field("isValid", &self.is_valid)?;
@@ -465,20 +470,29 @@ async fn gw_stats_value(
 /// u64 counter (plus `msg_log` length). Takes the max so split-brain
 /// rows never undercount.
 pub async fn load_messages_count(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> u64 {
+    // The four reads are independent (distinct keys / stores), so
+    // they run concurrently instead of sequentially: one slow
+    // backend no longer delays the entry-gate answer.
+    let array_key = format!("STATS.USER.{user_id}.messages");
+    let flat_key = format!("STATS.USER.{user_id}");
+    let (array, flat, root, stats) = tokio::join!(
+        gw_stats_value(pool, guild_id, &array_key),
+        gw_stats_value(pool, guild_id, &flat_key),
+        gw_stats_value(pool, guild_id, "STATS.USER"),
+        crate::commands::stats::main::load_stats(pool, guild_id, user_id),
+    );
     let mut best = 0u64;
-    if let Some(v) = gw_stats_value(pool, guild_id, &format!("STATS.USER.{user_id}.messages")).await
-    {
+    if let Some(v) = array {
         best = best.max(count_messages_value(&v));
     }
-    if let Some(v) = gw_stats_value(pool, guild_id, &format!("STATS.USER.{user_id}")).await {
+    if let Some(v) = flat {
         best = best.max(count_messages_value(&v));
     }
-    if let Some(v) = gw_stats_value(pool, guild_id, "STATS.USER").await {
+    if let Some(v) = root {
         if let Some(user) = v.get(user_id.to_string()) {
             best = best.max(count_messages_value(user));
         }
     }
-    let stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     best.max(stats.messages.max(stats.msg_log.len() as u64))
 }
 
@@ -947,19 +961,23 @@ pub async fn handle_giveaway_leave(
     }
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let mut entries: Vec<String> = load_giveaway(pool, &gid, mid)
-        .await
-        .and_then(|v| v.get("entries").cloned())
+    // Single row load, reused for the entry removal below (the TS
+    // collector leg reads the row once per press; a second fetch
+    // here only doubled store traffic).
+    let Some(mut v) = load_giveaway(pool, &gid, mid).await else {
+        return;
+    };
+    let mut entries: Vec<String> = v
+        .get("entries")
+        .cloned()
         .and_then(|e| serde_json::from_value(e).ok())
         .unwrap_or_default();
     let uid = comp.user.id.get().to_string();
     entries.retain(|e| e != &uid);
-    if let Some(mut v) = load_giveaway(pool, &gid, mid).await {
-        if let Some(obj) = v.as_object_mut() {
-            obj.insert("entries".into(), serde_json::json!(entries.clone()));
-        }
-        let _ = gw::store_set(pool, &gid, mid, &v.to_string()).await;
+    if let Some(obj) = v.as_object_mut() {
+        obj.insert("entries".into(), serde_json::json!(entries.clone()));
     }
+    let _ = gw::store_set(pool, &gid, mid, &v.to_string()).await;
     // Board count edit (best-effort fetch of the board message).
     if let Ok(channel) = comp.channel_id.to_channel(http).await {
         if let Ok(board) = channel
@@ -1307,6 +1325,68 @@ mod tests {
     #[test]
     fn empty_entries_no_winners() {
         assert!(pick_winners(&[], &[], 3, 1).is_empty());
+    }
+
+    #[test]
+    fn pick_winners_excludes_past_winners_like_ts_select() {
+        // selectWinners filters `!fetch.winners.includes(entry)`
+        // (giveawaysManager.ts:500-502): past winners never win again.
+        let entries = vec!["1".into(), "2".into(), "3".into()];
+        let exclude = vec!["1".into(), "2".into()];
+        assert_eq!(
+            pick_winners(&entries, &exclude, 5, 7),
+            vec!["3".to_string()]
+        );
+        // Count caps at the available pool, like the TS `break` when
+        // `availableMembers` runs out (giveawaysManager.ts:507).
+        let w = pick_winners(&entries, &[], 99, 7);
+        assert_eq!(w.len(), 3);
+        // Same seed replays the same draw (deterministic for tests);
+        // production passes a nanos seed per end/reroll call.
+        assert_eq!(
+            pick_winners(&entries, &[], 2, 1234),
+            pick_winners(&entries, &[], 2, 1234)
+        );
+    }
+
+    #[test]
+    fn ended_serializes_as_ts_status_numbers() {
+        // TS stores GiveawayEndedStatus (ENDED = 1, NOT_ENDED = 2),
+        // never a boolean; TS readers compare `=== 1`.
+        let live = Giveaway {
+            guild_id: "g".into(),
+            channel_id: "c".into(),
+            winner_count: 1,
+            prize: "p".into(),
+            hosted_by: "h".into(),
+            expire_in_ms: 1_700_000_000_000,
+            ended: false,
+            entries: vec![],
+            winners: vec![],
+            requirement: "none".into(),
+            requirement_value: String::new(),
+            is_valid: true,
+            embed_image_url: None,
+        };
+        let raw = serde_json::to_string(&live).unwrap();
+        assert!(
+            raw.contains("\"ended\":2"),
+            "live board must write 2: {raw}"
+        );
+        let mut over = live.clone();
+        over.ended = true;
+        let raw = serde_json::to_string(&over).unwrap();
+        assert!(
+            raw.contains("\"ended\":1"),
+            "ended board must write 1: {raw}"
+        );
+        // Both numeric (TS) and boolean (legacy Rust) rows read back.
+        let back: Giveaway = serde_json::from_str(&raw).unwrap();
+        assert!(back.ended);
+        let back: Giveaway = serde_json::from_str(r#"{"ended":2,"isValid":true}"#).unwrap();
+        assert!(!back.ended);
+        let back: Giveaway = serde_json::from_str(r#"{"ended":true,"isValid":true}"#).unwrap();
+        assert!(back.ended);
     }
 
     #[test]
@@ -1894,6 +1974,87 @@ mod localization_tests {
         assert_eq!(
             prm.description_localizations.get("ja").map(String::as_str),
             Some("ギブアウェイID（埋め込みギブアウェイのメッセージID）")
+        );
+    }
+
+    #[test]
+    fn base_descriptions_match_ts() {
+        // gw.ts base (non-localized) descriptions: the slash surface
+        // must read exactly like the TS options.
+        let cmds = crate::commands::all();
+        let gw = find_path(&cmds, &["gw"]);
+        assert_eq!(
+            gw.description.as_deref(),
+            Some("Subcommand for giveaway category!")
+        );
+        let param = |cmd: &LocCmd, name: &str| {
+            cmd.parameters
+                .iter()
+                .find(|x| x.name == name)
+                .unwrap_or_else(|| panic!("param {name}"))
+                .description
+                .clone()
+        };
+        let create = find_path(&cmds, &["gw", "create"]);
+        assert_eq!(create.description.as_deref(), Some("Start a giveaway!"));
+        assert_eq!(
+            param(create, "winner").as_deref(),
+            Some("Number of winner for the giveaways")
+        );
+        assert_eq!(
+            param(create, "time").as_deref(),
+            Some("The time duration of the giveaways")
+        );
+        assert_eq!(
+            param(create, "requirement").as_deref(),
+            Some("The requirement to enter into the giveaway")
+        );
+        assert_eq!(
+            param(create, "prize").as_deref(),
+            Some("The giveaway's prize")
+        );
+        assert_eq!(
+            param(create, "requirement-value").as_deref(),
+            Some("The requirement value")
+        );
+        assert_eq!(
+            param(create, "image").as_deref(),
+            Some("Image showed on the giveaway's embed")
+        );
+        let end = find_path(&cmds, &["gw", "end"]);
+        assert_eq!(end.description.as_deref(), Some("Stop a giveaway!"));
+        assert_eq!(
+            param(end, "giveaway-id").as_deref(),
+            Some("The giveaway id (is the message id of the embed's giveaways)")
+        );
+        let reroll = find_path(&cmds, &["gw", "reroll"]);
+        assert_eq!(
+            reroll.description.as_deref(),
+            Some("Reroll a giveaway winner(s)!")
+        );
+        assert_eq!(
+            param(reroll, "giveaway-id").as_deref(),
+            Some("The giveaway id (is the message id of the embed's giveaways)")
+        );
+        let entries = find_path(&cmds, &["gw", "list-entries"]);
+        assert_eq!(
+            entries.description.as_deref(),
+            Some("List all entries in giveaway!")
+        );
+        assert_eq!(
+            param(entries, "giveaway-id").as_deref(),
+            Some("The giveaway id (is the message id of the embed's giveaways)")
+        );
+        let data = find_path(&cmds, &["gw", "get-data"]);
+        assert_eq!(
+            data.description.as_deref(),
+            Some("Get informations about a giveaway (JSON Body)")
+        );
+        assert_eq!(param(data, "giveaway-id").as_deref(), Some("Giveaway's ID"));
+        let all = find_path(&cmds, &["gw", "get-all"]);
+        assert_eq!(
+            all.description.as_deref(),
+            Some("Get informations about all giveaways in a guild (JSON Body)")
         );
     }
 }

@@ -20,7 +20,12 @@ pub fn render_add_work(template: &str, username: &str) -> String {
 )]
 pub async fn ticket_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
+    #[description = "The user you want to add into your ticket"]
+    #[description_localized("fr", "L'utilisateur que vous souhaitez ajouter à votre ticket")]
+    #[description_localized("ja", "チケットに追加したいユーザー")]
+    #[description_localized("ru", "Пользователь, которого вы хотите добавить в тикет")]
+    #[description_localized("es-ES", "El usuario que quieres añadir a tu ticket")]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

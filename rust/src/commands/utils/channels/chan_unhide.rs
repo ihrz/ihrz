@@ -1,6 +1,6 @@
 use super::*;
 
-/// Unhide a channel for a role. Mirrors chanel !unhide.ts.
+/// Unhide the current channel from everyone
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,7 @@ pub async fn chan_unhide(
     #[description_localized("ja", "チャンネルで表示したいロール")]
     #[description_localized("ru", "роль, которую нужно показать в канале")]
     #[description_localized("es-ES", "el rol que quieres mostrar en el canal")]
-    #[description = "Role, defaults to @everyone"]
+    #[description = "the role that you want to unhide into the channel"]
     role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

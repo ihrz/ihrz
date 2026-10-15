@@ -1,5 +1,22 @@
 use super::*;
 
+/// `catsay` HTML template (`src/assets/html/catsay.html`, driven by
+/// `images.catsay` in `src/core/images.ts`).
+const CATSAY_CARD_TEMPLATE: &str = include_str!("../../../../src/assets/html/catsay.html");
+
+/// html2png options mirror (`images.catsay`: `.meme-container`,
+/// no viewport overrides).
+const CATSAY_OPTIONS_JSON: &str =
+    r#"{"omitBackground":true,"selectElement":true,"elementSelector":".meme-container"}"#;
+
+/// Fill the `catsay` template. Mirrors the replaces in
+/// `images.catsay(img, text)` (`{X}` cat image, `{Z}` speech text).
+pub fn catsay_card_html(image_url: &str, text: &str) -> String {
+    CATSAY_CARD_TEMPLATE
+        .replace("{X}", image_url)
+        .replace("{Z}", text)
+}
+
 /// Output filename. Mirrors `name: "catsay.png"` in `!catsay.ts`.
 pub fn catsay_output_name() -> &'static str {
     "catsay.png"
@@ -81,6 +98,25 @@ pub async fn catsay(
     // Mirrors `.slice(0, 70)` on the text option.
     let text = truncate_catsay_text(&text);
     let (_img_var, _text_var) = catsay_render_vars(&cat_url, &text);
+    // Gateway leg (`images.catsay` in `src/core/images.ts`): the
+    // filled `catsay.html` through HorizonGateway, attached as
+    // `catsay.png`. Failure keeps the direct-image reply below.
+    let gateway_png: Option<Vec<u8>> = if let Some(base) = ctx.data().config.gateway_internal() {
+        let token = crate::config::api_token().unwrap_or_default();
+        let html = catsay_card_html(&cat_url, &text);
+        crate::funcs::gateway_render_html(
+            &base,
+            &token,
+            &html,
+            CATSAY_OPTIONS_JSON,
+            &[],
+            Some(std::time::Duration::from_secs(30)),
+        )
+        .await
+        .ok()
+    } else {
+        None
+    };
     // Speech-bubble render (`html2png` catsay template, `.meme-container`)
     // pending; the fetched thecatapi image is sent directly with the text
     // as the description so no input is lost. Footer mirrors TS.
@@ -93,12 +129,22 @@ pub async fn catsay(
         poise::serenity_prelude::CreateEmbed::default()
             .colour(0x010101)
             .description(&text)
-            .image(cat_url)
+            .image(if gateway_png.is_some() {
+                "attachment://catsay.png"
+            } else {
+                cat_url.as_str()
+            })
             .timestamp(poise::serenity_prelude::Timestamp::now()),
         &fname,
         fbytes.is_some(),
     );
     let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(png) = gateway_png {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            png,
+            "catsay.png",
+        ));
+    }
     if let Some(bytes) = fbytes {
         reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
             bytes,
@@ -181,5 +227,14 @@ mod catsay_tests {
             Some("https://cdn/c.jpg")
         );
         assert_eq!(parse_cat_json("[]"), None);
+    }
+
+    #[test]
+    fn catsay_card_fill_replaces_xz() {
+        let html = catsay_card_html("https://cdn/c.jpg", "meow");
+        assert!(!html.contains("{X}"));
+        assert!(!html.contains("{Z}"));
+        assert!(html.contains("https://cdn/c.jpg"));
+        assert!(html.contains("meow"));
     }
 }

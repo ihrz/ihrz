@@ -19,9 +19,10 @@ pub const EMBED_BTN_SAVE: &str = "save";
 pub const EMBED_BTN_SEND: &str = "send";
 pub const EMBED_BTN_REPLACE: &str = "replace";
 pub const EMBED_BTN_CANCEL: &str = "cancel";
-/// Mirrors `time_maximum = 1_420_000` ms.
+// Mirrors `time_maximum = 1_420_000` ms.
 pub const BUILDER_TIMEOUT_MS: u64 = 1_420_000;
 
+// Create a beautiful embed!
 /// Create a beautiful embed!
 #[poise::command(
     slash_command,
@@ -43,7 +44,7 @@ pub async fn embed_post(
     #[description_localized("ja", "埋め込みのIDがある場合！")]
     #[description_localized("ru", "Если у вас есть ID эмбеда!")]
     #[description_localized("es-ES", "Si tienes un ID de embed!")]
-    #[description = "Saved embed ID to repost"]
+    #[description = "If you have an embed's ID!"]
     id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -169,8 +170,8 @@ pub async fn embed_post(
     Ok(())
 }
 
-/// The 15 builder select options in TS order: (value, lang label key,
-/// emoji). Mirrors `createComponents` (`chooseAction` keys).
+// The 15 builder select options in TS order: (value, lang label key,
+// emoji). Mirrors `createComponents` (`chooseAction` keys).
 pub const EMBED_BUILDER_OPTIONS: &[(&str, &str, &str)] = &[
     ("0", "embed_placeholder_option_copy_embed", "📥"),
     ("1", "embed_placeholder_option_edit_title", "🖊"),
@@ -222,9 +223,9 @@ fn panel_rows(t: &impl Fn(&str) -> String) -> Vec<serenity::CreateActionRow> {
     ]
 }
 
-/// Re-render the builder message. Mirrors `updateResponse` (embeds +
-/// components; TS also re-sends uploaded files — this port references
-/// attachment URLs directly, so no file plumbing is needed).
+// Re-render the builder message. Mirrors `updateResponse` (embeds +
+// components; TS also re-sends uploaded files — this port references
+// attachment URLs directly, so no file plumbing is needed).
 async fn update_response(
     http: &serenity::Http,
     msg: &mut serenity::Message,
@@ -241,8 +242,8 @@ async fn update_response(
         .await;
 }
 
-/// Restore the main interface after a failed replace. Mirrors
-/// `restoreMainInterface`.
+// Restore the main interface after a failed replace. Mirrors
+// `restoreMainInterface`.
 async fn restore_main(
     http: &serenity::Http,
     msg: &mut serenity::Message,
@@ -260,9 +261,9 @@ async fn restore_main(
         .await;
 }
 
-/// Mirrors `handleCollector`: ephemeral prompt reply, then the next
-/// author message in this channel (max 1, builder timeout). The
-/// prompt reply and the user message are deleted like TS.
+// Mirrors `handleCollector`: ephemeral prompt reply, then the next
+// author message in this channel (max 1, builder timeout). The
+// prompt reply and the user message are deleted like TS.
 async fn prompt_next_message(
     ctx: &Ctx<'_>,
     press: &serenity::ComponentInteraction,
@@ -301,8 +302,8 @@ async fn prompt_next_message(
     Some(message)
 }
 
-/// Ephemeral follow-up on an interaction. Mirrors `i.followUp` /
-/// `confirmation.followUp` with `flags: [1 << 6]`.
+// Ephemeral follow-up on an interaction. Mirrors `i.followUp` /
+// `confirmation.followUp` with `flags: [1 << 6]`.
 async fn followup_ephemeral(
     press: &serenity::ComponentInteraction,
     http: &serenity::Http,
@@ -318,8 +319,8 @@ async fn followup_ephemeral(
         .await;
 }
 
-/// The select-menu dispatch. Mirrors `chooseAction` (`"0"`..`"13"`,
-/// `"7bis"`).
+// The select-menu dispatch. Mirrors `chooseAction` (`"0"`..`"13"`,
+// `"7bis"`).
 #[allow(clippy::too_many_arguments)]
 async fn choose_action(
     ctx: &Ctx<'_>,
@@ -433,10 +434,10 @@ async fn choose_action(
     }
 }
 
-/// Copy source resolution + guards. Mirrors `copyEmbed`: Discord URL
-/// parts, same-guild check, channel fetch, message fetch, first
-/// embed. Returns the draft-ready source value or the follow-up
-/// error text.
+// Copy source resolution + guards. Mirrors `copyEmbed`: Discord URL
+// parts, same-guild check, channel fetch, message fetch, first
+// embed. Returns the draft-ready source value or the follow-up
+// error text.
 async fn copy_embed_from_input(
     ctx: &Ctx<'_>,
     input: &str,
@@ -490,9 +491,9 @@ async fn copy_embed_from_input(
     Ok(message_embed_to_value(found))
 }
 
-/// Mirrors `sendEmbed`: swap to the channel picker, send the draft to
-/// the chosen text channel, then the done message. Returns true when
-/// the builder should stop.
+// Mirrors `sendEmbed`: swap to the channel picker, send the draft to
+// the chosen text channel, then the done message. Returns true when
+// the builder should stop.
 async fn send_flow(
     ctx: &Ctx<'_>,
     press: &serenity::ComponentInteraction,
@@ -572,10 +573,10 @@ async fn send_flow(
     true
 }
 
-/// Mirrors `replaceEmbed`: ask for the target message URL, edit that
-/// message in place, then the done message. Errors follow up and
-/// restore the main interface; the builder keeps running. Returns
-/// true when the builder should stop.
+// Mirrors `replaceEmbed`: ask for the target message URL, edit that
+// message in place, then the done message. Errors follow up and
+// restore the main interface; the builder keeps running. Returns
+// true when the builder should stop.
 async fn replace_flow(
     ctx: &Ctx<'_>,
     press: &serenity::ComponentInteraction,
@@ -664,8 +665,8 @@ async fn replace_flow(
     }
 }
 
-/// Resolve a replace target to its channel + message ids, running the
-/// same guards as `copyEmbed`.
+// Resolve a replace target to its channel + message ids, running the
+// same guards as `copyEmbed`.
 async fn copy_target(
     ctx: &Ctx<'_>,
     input: &str,
@@ -716,9 +717,9 @@ async fn copy_target(
     Ok((channel.id, message_id))
 }
 
-/// Persist the draft. Mirrors `saveEmbed`: when the entry id is a
-/// valid id whose stored owner is the author, overwrite it and return
-/// it; otherwise store under a fresh 16-char id.
+// Persist the draft. Mirrors `saveEmbed`: when the entry id is a
+// valid id whose stored owner is the author, overwrite it and return
+// it; otherwise store under a fresh 16-char id.
 async fn save_draft(
     pool: &crate::db::Pool,
     entry_id: Option<&str>,
@@ -767,20 +768,20 @@ async fn save_draft(
     fresh
 }
 
-/// Interactive builder parity. Mirrors the pure logic in utils
-/// !embed.ts + `src/core/functions/embedHelper.ts`; the validators,
-/// URL parsing, copy guards, and reply fills live here.
-/// Action values of the builder select menu (`chooseAction` keys).
+// Interactive builder parity. Mirrors the pure logic in utils
+// !embed.ts + `src/core/functions/embedHelper.ts`; the validators,
+// URL parsing, copy guards, and reply fills live here.
+// Action values of the builder select menu (`chooseAction` keys).
 pub const EMBED_ACTIONS: &[&str] = &[
     "0", "1", "2", "3", "4", "5", "6", "7", "7bis", "8", "9", "10", "11", "12", "13",
 ];
 
-/// Mirrors `embedHelper.isValidLink` (http(s):// prefix).
+// Mirrors `embedHelper.isValidLink` (http(s):// prefix).
 pub fn is_valid_embed_link(url: &str) -> bool {
     url.starts_with("https://") || url.starts_with("http://")
 }
 
-/// Mirrors `embedHelper.isValidColor` (`/^#([0-9a-f]{3}){1,2}$/i`).
+// Mirrors `embedHelper.isValidColor` (`/^#([0-9a-f]{3}){1,2}$/i`).
 pub fn is_valid_embed_color(color: &str) -> bool {
     let hex = color.strip_prefix('#').unwrap_or("");
     (hex.len() == 3 || hex.len() == 6)
@@ -788,9 +789,9 @@ pub fn is_valid_embed_color(color: &str) -> bool {
         && hex.bytes().all(|b| b.is_ascii_hexdigit())
 }
 
-/// Mirrors `embedHelper.isValidEmbedId`: non-empty id whose
-/// `EMBED.{id}` key fits the 255-byte / 32-segment / no-empty-segment
-/// store limits.
+// Mirrors `embedHelper.isValidEmbedId`: non-empty id whose
+// `EMBED.{id}` key fits the 255-byte / 32-segment / no-empty-segment
+// store limits.
 pub fn is_valid_embed_id(id: Option<&str>) -> bool {
     let Some(id) = id.filter(|s| !s.is_empty()) else {
         return false;
@@ -806,8 +807,8 @@ pub fn is_valid_embed_id(id: Option<&str>) -> bool {
     !segments.iter().any(|s| s.is_empty())
 }
 
-/// Parsed `discord.com/channels/{guild}/{channel}/{message}` URL.
-/// Mirrors `extractDiscordUrlParts` (first segment must be `channels`).
+// Parsed `discord.com/channels/{guild}/{channel}/{message}` URL.
+// Mirrors `extractDiscordUrlParts` (first segment must be `channels`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DiscordUrlParts {
     pub guild_or_channel_owner: String,
@@ -830,54 +831,54 @@ pub fn extract_discord_url_parts(url: &str) -> Option<DiscordUrlParts> {
     })
 }
 
-/// Copy guard: the source message must come from the same guild
-/// (`parts.userIdOrGuildId !== interaction.guildId`).
+// Copy guard: the source message must come from the same guild
+// (`parts.userIdOrGuildId !== interaction.guildId`).
 pub fn copy_same_guild(parts: &DiscordUrlParts, guild_id: &str) -> bool {
     parts.guild_or_channel_owner == guild_id
 }
 
-/// Fill `embed_save_message`
-/// (`${interaction.user.id}`, `${await saveEmbed()}`).
+// Fill `embed_save_message`
+// (`${interaction.user.id}`, `${await saveEmbed()}`).
 pub fn fill_embed_save_message(template: &str, user_id: u64, embed_id: &str) -> String {
     template
         .replace("${interaction.user.id}", &user_id.to_string())
         .replace("${await saveEmbed()}", embed_id)
 }
 
-/// Fill `embed_send_embed_work`
-/// (`${interaction.user.id}`, `${message.content}` channel id).
+// Fill `embed_send_embed_work`
+// (`${interaction.user.id}`, `${message.content}` channel id).
 pub fn fill_embed_send_done(template: &str, user_id: u64, channel_id: &str) -> String {
     template
         .replace("${interaction.user.id}", &user_id.to_string())
         .replace("${message.content}", channel_id)
 }
 
-/// Fill `embed_replace_message` (`{user}`, `{messageUrl}`).
+// Fill `embed_replace_message` (`{user}`, `{messageUrl}`).
 pub fn fill_embed_replace_done(template: &str, user: &str, message_url: &str) -> String {
     template
         .replace("{user}", user)
         .replace("{messageUrl}", message_url)
 }
 
-/// Fill `embed_copy_bad_guild_msg` (`${interaction.guild?.name}`).
+// Fill `embed_copy_bad_guild_msg` (`${interaction.guild?.name}`).
 pub fn fill_copy_bad_guild(template: &str, guild_name: &str) -> String {
     template.replace("${interaction.guild?.name}", guild_name)
 }
 
-/// Storage key for a saved embed. Mirrors `` `EMBED.${arg}` ``.
+// Storage key for a saved embed. Mirrors `` `EMBED.${arg}` ``.
 pub fn saved_embed_key(id: &str) -> String {
     format!("EMBED.{id}")
 }
 
-/// Extract `embedSource` from a stored `EMBED.{id}` value
-/// (`{embedOwner, embedSource}`), tolerating a bare source object.
+// Extract `embedSource` from a stored `EMBED.{id}` value
+// (`{embedOwner, embedSource}`), tolerating a bare source object.
 pub fn stored_embed_source(stored: &serde_json::Value) -> Option<&serde_json::Value> {
     stored.get("embedSource").or(Some(stored))
 }
 
-/// Copy input kinds. Mirrors the `copyEmbed(message.content)` input:
-/// a full Discord message URL, or a bare message id from the current
-/// channel (prefix path).
+// Copy input kinds. Mirrors the `copyEmbed(message.content)` input:
+// a full Discord message URL, or a bare message id from the current
+// channel (prefix path).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CopySource {
     MessageUrl(DiscordUrlParts),
@@ -898,12 +899,12 @@ pub fn resolve_copy_source(input: &str) -> CopySource {
     CopySource::Invalid
 }
 
-/// Apply a free-text edit to the draft. Mirrors the text legs of
-/// `chooseAction`: `"1"` title, `"3"` description, `"5"` author,
-/// `"7"` footer text (keeps an existing icon), `"11"` title URL
-/// (only when `isValidLink`, like TS — otherwise no-op). Returns
-/// false for anything else (e.g. an invalid link for `"11"`, which
-/// TS silently ignores).
+// Apply a free-text edit to the draft. Mirrors the text legs of
+// `chooseAction`: `"1"` title, `"3"` description, `"5"` author,
+// `"7"` footer text (keeps an existing icon), `"11"` title URL
+// (only when `isValidLink`, like TS — otherwise no-op). Returns
+// false for anything else (e.g. an invalid link for `"11"`, which
+// TS silently ignores).
 pub fn draft_apply_text(draft: &mut serde_json::Value, action: &str, content: &str) -> bool {
     let Some(obj) = draft.as_object_mut() else {
         return false;
@@ -950,10 +951,10 @@ pub fn draft_apply_text(draft: &mut serde_json::Value, action: &str, content: &s
     true
 }
 
-/// Instant draft resets. Mirrors the ack legs: `"2"` clears the
-/// title, `"4"` resets the description to `"** **"`, `"6"` clears the
-/// author, `"8"` clears the footer (and its file), `"13"` clears the
-/// color. Returns false for anything else.
+// Instant draft resets. Mirrors the ack legs: `"2"` clears the
+// title, `"4"` resets the description to `"** **"`, `"6"` clears the
+// author, `"8"` clears the footer (and its file), `"13"` clears the
+// color. Returns false for anything else.
 pub fn draft_clear(draft: &mut serde_json::Value, action: &str) -> bool {
     let Some(obj) = draft.as_object_mut() else {
         return false;
@@ -982,9 +983,9 @@ pub fn draft_clear(draft: &mut serde_json::Value, action: &str) -> bool {
     true
 }
 
-/// Apply a color edit. Mirrors action `"12"` (`isValidColor` gate,
-/// `setColor`). Returns false without touching the draft when the
-/// color is invalid (TS posts the channel error instead).
+// Apply a color edit. Mirrors action `"12"` (`isValidColor` gate,
+// `setColor`). Returns false without touching the draft when the
+// color is invalid (TS posts the channel error instead).
 pub fn draft_apply_color(draft: &mut serde_json::Value, content: &str) -> bool {
     if !is_valid_embed_color(content) {
         return false;
@@ -1000,9 +1001,9 @@ pub fn draft_apply_color(draft: &mut serde_json::Value, content: &str) -> bool {
     }
 }
 
-/// Classified media input for the footer / thumbnail / image legs.
-/// Mirrors `getMediaByMessage`: a link in the content wins, then the
-/// first image attachment, otherwise none (clear).
+// Classified media input for the footer / thumbnail / image legs.
+// Mirrors `getMediaByMessage`: a link in the content wins, then the
+// first image attachment, otherwise none (clear).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MediaInput {
     Url(String),
@@ -1020,10 +1021,10 @@ pub fn classify_media(content: &str, image_attachments: Vec<String>) -> MediaInp
     MediaInput::None
 }
 
-/// Apply a media edit for `kind` (`footer` / `image` / `thumbnail`).
-/// Mirrors `updateMedia` + `handleUrlMedia` / `handleFileMedia` /
-/// `clearMedia`. Attachment URLs are referenced directly (TS
-/// re-uploads the bytes; the rendered embed is identical).
+// Apply a media edit for `kind` (`footer` / `image` / `thumbnail`).
+// Mirrors `updateMedia` + `handleUrlMedia` / `handleFileMedia` /
+// `clearMedia`. Attachment URLs are referenced directly (TS
+// re-uploads the bytes; the rendered embed is identical).
 pub fn draft_apply_media(draft: &mut serde_json::Value, kind: &str, media: &MediaInput) {
     let Some(obj) = draft.as_object_mut() else {
         return;
@@ -1074,9 +1075,9 @@ pub fn draft_apply_media(draft: &mut serde_json::Value, kind: &str, media: &Medi
     }
 }
 
-/// First image attachment URLs of a collected message (content-type
-/// `image/*`), newest first. Mirrors the attachment leg of
-/// `getMediaByMessage` (TS reads `attachments.first()`).
+// First image attachment URLs of a collected message (content-type
+// `image/*`), newest first. Mirrors the attachment leg of
+// `getMediaByMessage` (TS reads `attachments.first()`).
 fn image_attachment_urls(message: &serenity::Message) -> Vec<String> {
     message
         .attachments
@@ -1090,11 +1091,11 @@ fn image_attachment_urls(message: &serenity::Message) -> Vec<String> {
         .collect()
 }
 
-/// Build a sendable embed from a stored discord.js `embedSource` object
-/// (`title`, `description`, `color`, `fields[]`, `footer.text` (+
-/// `icon_url`), `author.name`, `url`, `image.url`, `thumbnail.url`).
-/// Falls back to the `** **` default description like
-/// `new EmbedBuilder().setDescription("** **")` when empty.
+// Build a sendable embed from a stored discord.js `embedSource` object
+// (`title`, `description`, `color`, `fields[]`, `footer.text` (+
+// `icon_url`), `author.name`, `url`, `image.url`, `thumbnail.url`).
+// Falls back to the `** **` default description like
+// `new EmbedBuilder().setDescription("** **")` when empty.
 pub fn create_embed_from_source(
     source: &serde_json::Value,
 ) -> poise::serenity_prelude::CreateEmbed {
@@ -1184,8 +1185,8 @@ pub fn create_embed_from_source(
     embed
 }
 
-/// Parse a `#rgb` / `#rrggbb` color into components. Mirrors the
-/// `isValidColor` shape accepted by action `"12"`.
+// Parse a `#rgb` / `#rrggbb` color into components. Mirrors the
+// `isValidColor` shape accepted by action `"12"`.
 pub fn parse_hex_color(hex: &str) -> Option<(u8, u8, u8)> {
     if !is_valid_embed_color(hex) {
         return None;
@@ -1204,8 +1205,8 @@ pub fn parse_hex_color(hex: &str) -> Option<(u8, u8, u8)> {
     ))
 }
 
-/// Draft-ready source value for a received message embed. Mirrors
-/// `EmbedBuilder.from(targetMessage.embeds[0])` in `copyEmbed`.
+// Draft-ready source value for a received message embed. Mirrors
+// `EmbedBuilder.from(targetMessage.embeds[0])` in `copyEmbed`.
 pub fn message_embed_to_value(found: &poise::serenity_prelude::Embed) -> serde_json::Value {
     let mut value = serde_json::json!({});
     if let Some(t) = &found.title {
@@ -1249,15 +1250,15 @@ pub fn message_embed_to_value(found: &poise::serenity_prelude::Embed) -> serde_j
     value
 }
 
-/// Rebuild a sendable embed from a received message embed.
-/// Mirrors `EmbedBuilder.from(targetMessage.embeds[0])` in `copyEmbed`.
+// Rebuild a sendable embed from a received message embed.
+// Mirrors `EmbedBuilder.from(targetMessage.embeds[0])` in `copyEmbed`.
 pub fn create_embed_from_message_embed(
     found: &poise::serenity_prelude::Embed,
 ) -> poise::serenity_prelude::CreateEmbed {
     create_embed_from_source(&message_embed_to_value(found))
 }
 
-/// New saved-embed id. Mirrors `generatePassword({ length: 16 })`.
+// New saved-embed id. Mirrors `generatePassword({ length: 16 })`.
 pub fn generate_embed_id() -> String {
     use rand::Rng;
     const ALPHABET: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

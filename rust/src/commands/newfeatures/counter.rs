@@ -110,8 +110,7 @@ pub async fn counter_channel(
         .await
         .is_err()
     {
-        ctx.say(
-            crate::lang::get(&code, "counter_channel_command_error")
+        ctx.say(crate::lang::get(&code, "counter_channel_command_error")
                 .map(|s| s.replace("${interaction.user}", &author))
                 .unwrap_or_else(|| {
                     format!("{author}, the command returned an error. Please verify the channel you specified exists, and verify the Counter Module has been enabled!")
@@ -120,8 +119,7 @@ pub async fn counter_channel(
         .await?;
         return Ok(());
     }
-    ctx.say(
-        crate::lang::get(&code, "counter_channel_command_work")
+    ctx.say(crate::lang::get(&code, "counter_channel_command_work")
             .map(|s| {
                 s.replace("${interaction.user}", &author)
                     .replace("${channel}", &format!("<#{}>", channel.id.get()))

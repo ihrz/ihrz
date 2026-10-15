@@ -25,6 +25,9 @@ pub async fn mod_unlock(
     #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -63,11 +66,7 @@ pub async fn mod_unlock(
             },
         )
         .await;
-    ctx.say(
-        crate::lang::get(&code, "unlock_embed_message_description")
-            .unwrap_or_else(|| "The channel has been successfully unlocked!".to_string()),
-    )
-    .await?;
+    // TS (!unlock.ts) logs before replying.
     post_mod_log(
         ctx.http(),
         guild_id,
@@ -77,6 +76,11 @@ pub async fn mod_unlock(
             .replace("${interaction.channel.id}", &current.id.get().to_string()),
     )
     .await;
+    ctx.say(
+        crate::lang::get(&code, "unlock_embed_message_description")
+            .unwrap_or_else(|| "The channel has been successfully unlocked!".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

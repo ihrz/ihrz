@@ -34,6 +34,9 @@ pub async fn mod_tempban(
     #[description = "The reason for the ban"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
+    // reply before running; defer here for the same 3s window.
+    ctx.defer().await?;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -88,13 +91,15 @@ pub async fn mod_tempban(
         }
     }
     // In-guild hierarchy + admin guards (skipped for non-members like TS).
+    // Single cache-then-HTTP load; the hierarchy guard reuses it instead
+    // of fetching the same member a second time.
     if let Ok(in_guild) = guild_id.member(ctx.http(), user.id).await {
         let author_id = ctx.author().id.get();
         let (bot_top, owner) = guards
             .as_ref()
             .map(|g| (g.bot_top, g.owner_id))
             .unwrap_or((u16::MAX, author_id));
-        if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        if let Some(target_pos) = member_top(&ctx, guild_id, &in_guild) {
             if target_pos >= bot_top && owner != author_id {
                 ctx.say(
                     t("tempban_user_highest_role_or_same")

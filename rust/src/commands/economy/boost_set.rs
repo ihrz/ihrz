@@ -68,14 +68,16 @@ pub fn validate_boost(raw: &str) -> Option<f64> {
     (1..=5).contains(&n).then_some(n as f64)
 }
 
-/// Mirrors `!boost-set.ts`.
-///
-/// CONSTRAINED (deliberate divergence): TS stores the parsed boost raw
-/// with no 1-5 clamp on either path. Here an out-of-range boost writes
-/// nothing and replies with the invalid-boost error.
+/// Set a money boost for a certain role!
+// Mirrors `!boost-set.ts`.
+//
+// CONSTRAINED (deliberate divergence): TS stores the parsed boost raw
+// with no 1-5 clamp on either path. Here an out-of-range boost writes
+// nothing and replies with the invalid-boost error.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "economy",
     rename = "boost-set",
     aliases("economy-boost-set"),
     default_member_permissions = "MANAGE_GUILD",
@@ -90,13 +92,13 @@ pub async fn eco_boost_set(
     #[description_localized("ja", "ブーストを変更したいロール")]
     #[description_localized("ru", "Роль, для которой изменить бонус")]
     #[description_localized("es-ES", "El rol para el que quieres modificar el impulso")]
-    #[description = "Role"]
+    #[description = "The role you want to modify the boost"]
     role: poise::serenity_prelude::Role,
     #[description_localized("fr", "Le boost que vous souhaitez ajouter")]
     #[description_localized("ja", "追加したいブースト")]
     #[description_localized("ru", "Бонус, который вы хотите добавить")]
     #[description_localized("es-ES", "El impulso que quieres añadir")]
-    #[description = "Boost (e.g. 2)"]
+    #[description = "The boost you want to add"]
     boost: EcoBoostChoice,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {

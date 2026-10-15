@@ -1,7 +1,8 @@
 use super::*;
 
-/// Derogation fake-admin role. Mirrors util !derogation.ts.
+// Derogation fake-admin role. Mirrors util !derogation.ts.
 // No member param; role id stored at GUILD.UTILS.DEROGATION.
+/// Create one fake-admin role managed by iHorizon
 #[poise::command(
     slash_command,
     prefix_command,
@@ -21,7 +22,9 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
-    // Bot must hold ManageRoles + ManageChannels, like the TS gate.
+    // Bot must hold ManageRoles + ManageChannels, like the TS gate
+    // (!derogation.ts:53-66). TS `.has()` implies Administrator, so an
+    // admin-only bot passes too.
     let bot_id = ctx.serenity_context().cache.current_user().id;
     let bot_perms = ctx
         .serenity_context()
@@ -44,7 +47,7 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             perms
         })
         .unwrap_or_default();
-    if !(bot_perms.manage_roles() && bot_perms.manage_channels()) {
+    if !(bot_perms.administrator() || (bot_perms.manage_roles() && bot_perms.manage_channels())) {
         ctx.send(
             poise::CreateReply::default()
                 .content(
@@ -56,6 +59,12 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
+    // Ack-first: TS posts the loading message (:71-76) before the slow
+    // role + channel work, then edits it with the result.
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| "…".to_string());
+    let progress = ctx.say(loading).await?;
     let wanted = poise::serenity_prelude::Permissions::all()
         .difference(poise::serenity_prelude::Permissions::ADMINISTRATOR);
     // Stored role id (plain string, like the TS db.set(role.id)).
@@ -71,17 +80,27 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     None
                 }
             });
-    let mut role_id: Option<u64> =
-        stored
-            .as_deref()
-            .and_then(|s| s.parse().ok())
-            .and_then(|id: u64| {
-                ctx.serenity_context().cache.guild(guild_id).and_then(|g| {
-                    g.roles
-                        .get(&poise::serenity_prelude::RoleId::new(id))
-                        .map(|_| id)
-                })
-            });
+    // Cache first, then `roles.fetch` fallback (!derogation.ts:82-87).
+    let stored_id: Option<u64> = stored.as_deref().and_then(|s| s.parse().ok());
+    let mut role_id: Option<u64> = stored_id.filter(|id| {
+        ctx.serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.roles
+                    .contains_key(&poise::serenity_prelude::RoleId::new(*id))
+            })
+            .unwrap_or(false)
+    });
+    if role_id.is_none() {
+        if let Some(id) = stored_id {
+            if let Ok(roles) = guild_id.roles(ctx.http()).await {
+                if roles.contains_key(&poise::serenity_prelude::RoleId::new(id)) {
+                    role_id = Some(id);
+                }
+            }
+        }
+    }
     let mut created = false;
     if role_id.is_none() {
         match guild_id
@@ -198,18 +217,22 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     } else {
         "utils_derogation_already_exists"
     };
-    ctx.say(
-        crate::lang::get(&code, key)
-            .map(|s| {
-                s.replace("${role}", &format!("<@&{role_id}>"))
-                    .replace("${updatedChannels}", &updated.to_string())
-                    .replace("${failedChannels}", &failed.to_string())
-                    .replace("${missingChannels}", &missing.to_string())
-                    .replace("${client.iHorizon_Emojis.Yes}", &yes)
-                    .replace("${client.iHorizon_Emojis.No}", &no)
-            })
-            .unwrap_or_else(|| "Derogation added.".to_string()),
-    )
-    .await?;
+    progress
+        .edit(
+            ctx,
+            poise::CreateReply::default().content(
+                crate::lang::get(&code, key)
+                    .map(|s| {
+                        s.replace("${role}", &format!("<@&{role_id}>"))
+                            .replace("${updatedChannels}", &updated.to_string())
+                            .replace("${failedChannels}", &failed.to_string())
+                            .replace("${missingChannels}", &missing.to_string())
+                            .replace("${client.iHorizon_Emojis.Yes}", &yes)
+                            .replace("${client.iHorizon_Emojis.No}", &no)
+                    })
+                    .unwrap_or_else(|| "Derogation added.".to_string()),
+            ),
+        )
+        .await?;
     Ok(())
 }
