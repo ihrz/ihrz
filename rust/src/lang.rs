@@ -45,8 +45,11 @@ fn table() -> &'static HashMap<String, serde_yaml::Value> {
 /// here we resolve a language code to its YAML table with en-US fallback
 /// for the *lookup* only (never a substitute for missing keys).
 /// FORGIVING FALLBACK, INTENTIONAL (H20): unknown codes resolve to the
-/// en-US table instead of erroring, mirroring getLanguageDataByCode's
-/// default branch. Every guild path must still do DB -> code -> table
+/// en-US table instead of erroring. TS getLanguageDataByCode has no such
+/// branch (a cache miss on an unknown code throws at the dynamic
+/// `import(".../CODE.yml")` — node ground truth, slice 99); the fallback
+/// extends getLanguageData's `!lang` → en-US guard to unknown codes.
+/// Every guild path must still do DB -> code -> table
 /// (`tbl_get GUILD.LANG` with legacy kv fallback, default `"en-US"`
 /// when unset, then this fn) —
 /// cf. getLanguageData.ts and funcs::guild_banner_url. Callers resolve
@@ -276,6 +279,48 @@ mod tests {
     #[test]
     fn unknown_lang_falls_back_to_en_us_table() {
         assert_eq!(table_for("xx-XX"), table_for("en-US"));
+    }
+
+    #[test]
+    fn by_code_lookup_matches_ts_cache_and_fallback_legs() {
+        // U-ETERNAL-281 (W6 slice 99: getLanguageDataByCode.ts lookup
+        // exactness — node battery 2026-10-15 replicating the helper
+        // verbatim): `LangsData[locale]` hit returns the cached object
+        // (Rust OnceCell: repeated table_for calls are value-identical);
+        // all 10 shipped codes resolve to their OWN table (guards against
+        // table_for collapsing everything to en-US); unknown/empty codes
+        // resolve to the en-US table here while TS THROWS at the dynamic
+        // `import(".../CODE.yml")` (ENOENT on "xx-YY" and " de-DE ") —
+        // an intentional forgiving-fallback delta (H20), hostile-row-only:
+        // the live writer (setserverlang select) stores valid codes and
+        // getLanguageData's `!lang` guard already maps falsy leaves to
+        // en-US on both sides (slice 57).
+        for code in [
+            "ar-EG", "de-DE", "en-US", "es-ES", "fr-FR", "fr-ME", "it-IT", "jp-JP", "pt-PT",
+            "ru-RU",
+        ] {
+            assert_eq!(table_for(code), table_for(code), "{code} cache leg");
+            assert!(table_for(code).is_mapping(), "{code} own table");
+        }
+        // Per-code identity: these locales translate var_member, so a
+        // collapse-to-en-US would show here (de "Mitglieder", es
+        // "Miembros", fr "Membres" vs en "Members").
+        for (code, want) in [
+            ("de-DE", "Mitglieder"),
+            ("es-ES", "Miembros"),
+            ("fr-FR", "Membres"),
+        ] {
+            assert_eq!(get(code, "var_member").as_deref(), Some(want));
+        }
+        // Throw-vs-forgive delta legs (TS throws, Rust resolves en-US).
+        for code in ["xx-YY", "", " de-DE ", "en-XX"] {
+            assert_eq!(table_for(code), table_for("en-US"), "{code} forgives");
+            assert_eq!(
+                get(code, "var_member").as_deref(),
+                Some("Members"),
+                "{code} key lookup forgives"
+            );
+        }
     }
 
     #[test]
