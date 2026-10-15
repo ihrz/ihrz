@@ -46,9 +46,10 @@ pub async fn bubbles(
         return Ok(());
     }
     // Gateway leg (`images.bubbles` in `src/core/images.ts`): the
-    // filled `bubbles.html` through HorizonGateway. The gateway
-    // returns a PNG still (attached as `bubbles.png`); failure keeps
-    // the pending-text reply below.
+    // filled `bubbles.html` through HorizonGateway. `html2png`
+    // returns PNG bytes, but TS attaches them as `bubbles.gif`
+    // (`!bubbles.ts:54`) with no embed — mirror that verbatim
+    // (filename + bare file); failure keeps the pending-text reply.
     if let Some(base) = ctx.data().config.gateway_internal() {
         let token = crate::config::api_token().unwrap_or_default();
         let html = bubbles_card_html(&image.url);
@@ -63,11 +64,9 @@ pub async fn bubbles(
         .await
         {
             use poise::serenity_prelude as serenity;
-            let embed = serenity::CreateEmbed::default().image("attachment://bubbles.png");
             ctx.send(
                 poise::CreateReply::default()
-                    .embed(embed)
-                    .attachment(serenity::CreateAttachment::bytes(png, "bubbles.png")),
+                    .attachment(serenity::CreateAttachment::bytes(png, "bubbles.gif")),
             )
             .await?;
             return Ok(());
