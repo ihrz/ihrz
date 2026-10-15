@@ -2525,13 +2525,24 @@ pub fn bucketize(
 
 // ---- authRestoreHelper OAuth link ----
 
-/// OAuth2 link renderer. Mirrors Oauth2_Link template.
+/// OAuth2 link renderer. Mirrors `createOauth2LinkWithGuild`
+/// (authRestoreHelper.ts:108-119): sequential single-occurrence
+/// `.replace` in template order `{client_id}`, `{guild_id}`,
+/// `{redirect_uri}`, `{scope}` — NOT the parameter order. Each leg
+/// replaces the FIRST occurrence only, so an earlier-injected value
+/// can capture a later leg when it sits before the template marker
+/// in the string (node ground truth: client `C{scope}C` consumes the
+/// scope leg, leaving the template `{scope}` literal), while a value
+/// injected after its leg keeps the marker verbatim (redirect holding
+/// `{guild_id}`, scope holding `{guild_id}`). Rust `str::replace`
+/// never rescans replacement text, so single-occurrence template
+/// markers make `replacen(.., 1)` exactly equivalent.
 pub fn oauth2_link(client_id: &str, redirect_uri: &str, scope: &str, guild_id: &str) -> String {
     "https://discord.com/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&state={guild_id}"
-        .replace("{client_id}", client_id)
-        .replace("{redirect_uri}", redirect_uri)
-        .replace("{scope}", scope)
-        .replace("{guild_id}", guild_id)
+        .replacen("{client_id}", client_id, 1)
+        .replacen("{guild_id}", guild_id, 1)
+        .replacen("{redirect_uri}", redirect_uri, 1)
+        .replacen("{scope}", scope, 1)
 }
 
 // ---- encryptDecryptMethod AES-256-GCM ----
@@ -3130,6 +3141,39 @@ mod funcs_part3_tests {
     fn oauth_link_renders() {
         let u = oauth2_link("1", "https://x/cb", "identify", "9");
         assert!(u.contains("client_id=1") && u.contains("state=9"));
+    }
+
+    #[test]
+    fn oauth2_link_matches_ts_replace_order() {
+        // Node ground truth for `createOauth2LinkWithGuild` (sequential
+        // first-only `.replace`, template order client/guild/redirect/scope).
+        assert_eq!(
+            oauth2_link("123", "https://gw/cb", "identify+guilds+guilds.join", "456"),
+            "https://discord.com/oauth2/authorize?client_id=123&redirect_uri=https://gw/cb&response_type=code&scope=identify+guilds+guilds.join&state=456"
+        );
+        // Redirect injected after the guild leg: its `{guild_id}` survives.
+        assert_eq!(
+            oauth2_link("123", "https://gw/{guild_id}/cb", "identify", "456"),
+            "https://discord.com/oauth2/authorize?client_id=123&redirect_uri=https://gw/{guild_id}/cb&response_type=code&scope=identify&state=456"
+        );
+        // Client value sits before the template scope marker, so it
+        // captures the single scope leg; the template `{scope}` stays.
+        assert_eq!(
+            oauth2_link("C{scope}C", "https://gw/cb", "identify", "456"),
+            "https://discord.com/oauth2/authorize?client_id=CidentifyC&redirect_uri=https://gw/cb&response_type=code&scope={scope}&state=456"
+        );
+        // Scope injected after the guild leg: its `{guild_id}` survives.
+        assert_eq!(
+            oauth2_link("123", "https://gw/cb", "S{guild_id}S", "456"),
+            "https://discord.com/oauth2/authorize?client_id=123&redirect_uri=https://gw/cb&response_type=code&scope=S{guild_id}S&state=456"
+        );
+        // Guild value holding a later marker: the scope leg hits the
+        // template marker first (earlier string position), so the
+        // injected copy survives — same as TS.
+        assert_eq!(
+            oauth2_link("123", "https://gw/cb", "identify", "G{scope}G"),
+            "https://discord.com/oauth2/authorize?client_id=123&redirect_uri=https://gw/cb&response_type=code&scope=identify&state=G{scope}G"
+        );
     }
 
     #[test]
