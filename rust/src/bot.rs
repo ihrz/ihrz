@@ -979,9 +979,14 @@ pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
         .map(str::to_string)
         .unwrap_or_else(|| invoked.name.clone());
     let args = match ctx {
-        poise::Context::Prefix(p) => prefix_args::split_args(p.args),
+        poise::Context::Prefix(p) => prefix_args::split_caret_args(p.args),
         _ => vec![String::new()],
     };
+    // TS messageCommandHandler shifts the command name off, so a bare
+    // invocation reaches checkCommandArgs as [] (missingIndex 0), never
+    // [""]: split_caret_args normalizes the split_args [""] shape (kept
+    // for the missing-args DETECTION guard) so the caret flags index 0
+    // like prod (bare `+dm` flags `[yes/no]`, not `[user]`).
     let tokens = prefix_args::usage_tokens(&specs, false);
     let idx = caret_error_index(&args, input.as_deref()).min(tokens.len().saturating_sub(1));
     let desc =

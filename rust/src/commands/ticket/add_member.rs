@@ -33,6 +33,16 @@ pub async fn ticket_add(
         .unwrap_or_default();
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Prefix counts-first gate (TS ticket.ts add-member decl: `user`
+    // required, executor checkCommandArgs runs before run and before
+    // the disable guard): a bare `.ticket add-member` renders the
+    // caret usage embed (prod pair Q6), never add_command_error.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if pctx.args.trim().is_empty() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Verdict (messageCommandHandler.ts:79-81 strips the subcommand name,
     // so prefix args[0] is the user): TS !remove-member.ts index 0 is
     // correct while !add-member.ts index 1 is off-by-one (reads past the

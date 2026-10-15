@@ -50,6 +50,16 @@ pub async fn rolelimit(
     // `|| 0` also coerces NaN to 0, so non-finite limits fall to
     // bad_opt the same way.
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Prefix counts-first gate (TS util.ts rolelimit decl: `role`
+    // required, executor checkCommandArgs runs before run): a bare
+    // `.util rolelimit` renders the caret usage embed (prod pair Q4),
+    // never the bad_opt leg (backup/delete.rs precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if pctx.args.trim().is_empty() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let limit_count = sanitize_limit(limit);
     if role.is_none() || limit_count == 0.0 {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")

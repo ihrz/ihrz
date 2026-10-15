@@ -37,6 +37,17 @@ pub async fn addrolereact(
     // not-found key instead so prefix never hard-errors.
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
+    // Prefix counts-first gate (TS util.ts addrolereact decl:
+    // `message_id` + `role` both required, executor checkCommandArgs
+    // runs before run): fewer than 2 tokens renders the caret usage
+    // embed (prod pair Q5 flags `[roles]`), never the not-found leg
+    // (warn.rs warn_prefix_complete precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if !addrolereact_prefix_complete(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     if let Err(e) = addrolereact_inner(&ctx, &message_id, &role).await {
         // Catch-all. Mirrors the TS try/catch -> addrolereact_error.
         let _ = e;
@@ -271,9 +282,17 @@ pub fn fill_role_summary(template: &str, role_name: &str, count: usize) -> Strin
         .replacen("{count}", &count.to_string(), 1)
 }
 
+/// Prefix completeness gate: message id + role (2 whitespace-separated
+/// tokens minimum). Below that a required arg is missing, so the caller
+/// renders the caret usage embed instead of letting the body answer a
+/// not-found leg prod never reaches (warn.rs precedent).
+pub fn addrolereact_prefix_complete(args: &str) -> bool {
+    args.split_whitespace().count() >= 2
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{fill_role_summary, parse_message_id};
+    use super::{addrolereact_prefix_complete, fill_role_summary, parse_message_id};
 
     #[test]
     fn unparsable_ids_map_to_zero_like_ts_fetch_failure() {
@@ -308,5 +327,12 @@ mod tests {
             fill_role_summary("{role} and {role} ({count}/{count})", "Mod", 7),
             "Mod and {role} (7/{count})"
         );
+    }
+
+    #[test]
+    fn prefix_gate_needs_both_required_args() {
+        assert!(!addrolereact_prefix_complete(""));
+        assert!(!addrolereact_prefix_complete("123456789012345678"));
+        assert!(addrolereact_prefix_complete("123456789012345678 @role"));
     }
 }

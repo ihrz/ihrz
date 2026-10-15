@@ -176,6 +176,21 @@ pub fn is_valid_choice(type_label: &str, value: &str) -> bool {
     }
 }
 
+/// Split raw prefix rest for the usage-caret path. Mirrors
+/// messageCommandHandler (the command name is shifted off, so a bare
+/// invocation reaches checkCommandArgs as [], missingIndex 0):
+/// split_args manufactures [""] for the missing-args DETECTION guard
+/// only — the caret index must see [] so it flags 0 like prod (bare
+/// `+dm` flags `[yes/no]`, not `[user]`). Pure for unit tests.
+pub fn split_caret_args(rest: &str) -> Vec<String> {
+    let args = split_args(rest);
+    if args.len() == 1 && args[0].is_empty() {
+        vec![]
+    } else {
+        args
+    }
+}
+
 /// Channel-type allowlist. Mirrors the isValidArgument channel leg
 /// (`!optArgs || optArgs.includes(channel.type)`): no allowlist passes;
 /// otherwise the resolved kind must be listed.
@@ -623,5 +638,23 @@ mod tests {
         let desc = usage_error_description(template, "😀", "ban", &specs, false, 1);
         let caret_line = desc.lines().find(|l| l.contains('^')).unwrap_or("");
         assert_eq!(caret_line, "             ^");
+    }
+
+    #[test]
+    fn caret_split_sees_bare_invocation_as_empty() {
+        // messageCommandHandler shifts the command name off, so a bare
+        // invocation reaches checkCommandArgs as [] (missingIndex 0):
+        // the caret flags the first token like prod (bare `+dm` flags
+        // `[yes/no]`), while split_args keeps [""] for the missing-args
+        // DETECTION guard (is_missing_text_args).
+        assert!(split_caret_args("").is_empty());
+        assert!(split_caret_args("   ").is_empty());
+        assert_eq!(split_caret_args("yes"), vec!["yes".to_string()]);
+        assert_eq!(
+            split_caret_args("123 @x"),
+            vec!["123".to_string(), "@x".to_string()]
+        );
+        assert_eq!(split_args(""), vec![String::new()]);
+        assert!(is_missing_text_args(&split_args(""), &text_specs()[..1]));
     }
 }

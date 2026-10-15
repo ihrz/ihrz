@@ -166,10 +166,13 @@ pub async fn ticket_set_here(
     ctx: Ctx<'_>,
     // Option (not required): TS reads `getString("name")`
     // (!set-here.ts:50, nullable) and the prefix path reads
-    // `string(args, 0)` (nullable), so a bare `!ticket set-here` still
-    // reaches the type picker and creates with a null name (TS
-    // `setTitle(null)` = untitled). A required poise String would
-    // parse-error on the bare form instead.
+    // `string(args, 0)` (nullable), so WITH args present a null name
+    // still reaches the type picker (TS `setTitle(null)` = untitled).
+    // A required poise String would parse-error on the bare form
+    // instead. The BARE form never gets here on either side: the TS
+    // `name` option is required:true (ticket.ts:323), so executor
+    // checkCommandArgs rejects it with the caret usage embed first —
+    // mirrored by the prefix gate below (prod pair Q7).
     #[description = "The name of you ticket's panel."]
     #[description_localized("fr", "Le nom du panneau de votre ticket")]
     #[description_localized("ja", "チケットパネルの名前。")]
@@ -206,6 +209,16 @@ pub async fn ticket_set_here(
     let pool = &ctx.data().pool;
     // Mirrors !set-here.ts: disable guard.
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Prefix counts-first gate (TS ticket.ts set-here decl: `name`
+    // required, executor checkCommandArgs runs before run): a bare
+    // `.ticket set-here` renders the caret usage embed (prod pair Q7),
+    // never the type picker.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if pctx.args.trim().is_empty() {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }
