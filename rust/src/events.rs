@@ -678,6 +678,15 @@ pub fn welcomer_content(message: Option<&str>) -> Option<&str> {
 /// — the generateCustomMessagePreview port (render_welcome /
 /// render_join_dm / render_inviter_slots) — runs over title,
 /// description, footer.text, author.name and every fields[].name/value.
+/// Guard shape (node ground truth): title/description/footer.text /
+/// author.name apply only when TRUTHY (`""`/missing/non-string-falsy
+/// stay verbatim); the fields loop applies UNCONDITIONALLY, so a
+/// missing/null/non-string field name/value (or a non-object entry, or
+/// a truthy non-string title) THROWS TypeError in TS. The Rust port
+/// keeps such slots untouched instead of throwing (hostile-row-only:
+/// the embed builder always writes string name/value pairs); the
+/// divergence is pinned in
+/// `welcomer_embed_field_application_matches_ts_guards`.
 pub fn apply_embed_preview(
     source: &serde_json::Value,
     render: impl Fn(&str) -> String,
@@ -1884,6 +1893,61 @@ mod tests {
             welcomer_embed_source(r#"{"embedSource":{"title":"t"}}"#).unwrap(),
             serde_json::json!({"title": "t"})
         );
+    }
+
+    #[test]
+    fn welcomer_embed_field_application_matches_ts_guards() {
+        // Guard shape of resolveWelcomerEmbed (node battery, verbatim):
+        // truthy-guarded top slots vs unconditional field application.
+        let render = |s: &str| render_join_dm(s, "bob", "<@9>", 42, "G");
+        // Empty top slots stay "" on both sides (TS `if` skips, render("") == "").
+        let src = serde_json::json!({
+            "title": "", "description": "",
+            "footer": { "text": "" }, "author": { "name": "" },
+            "fields": [{ "name": "", "value": "" }]
+        });
+        let out = apply_embed_preview(&src, render);
+        assert_eq!(out["title"], "");
+        assert_eq!(out["description"], "");
+        assert_eq!(out["footer"]["text"], "");
+        assert_eq!(out["author"]["name"], "");
+        assert_eq!(out["fields"][0]["name"], "");
+        assert_eq!(out["fields"][0]["value"], "");
+        // Missing top slots stay missing; non-array fields untouched;
+        // non-object footer/author survivors untouched (TS `?.` skips).
+        let src = serde_json::json!({
+            "footer": "txt", "author": {},
+            "fields": { "name": "n", "value": "v" }
+        });
+        let out = apply_embed_preview(&src, render);
+        assert!(out.get("title").is_none());
+        assert_eq!(out["footer"], "txt");
+        assert_eq!(out["author"], serde_json::json!({}));
+        assert_eq!(
+            out["fields"],
+            serde_json::json!({ "name": "n", "value": "v" })
+        );
+        // THROW-vs-skip delta (TS TypeErrors, Rust keeps the slot):
+        // truthy non-string title, missing/null/numeric field legs,
+        // non-object field entry. Hostile-row-only: the embed builder
+        // always writes string name/value pairs.
+        let src = serde_json::json!({
+            "title": 5,
+            "fields": [
+                { "value": "v" },
+                { "name": "n", "value": null },
+                { "name": 7, "value": "v" },
+                null,
+                { "name": "Hi {memberUsername}", "value": "v" }
+            ]
+        });
+        let out = apply_embed_preview(&src, render);
+        assert_eq!(out["title"], 5);
+        assert!(out["fields"][0].get("name").is_none());
+        assert_eq!(out["fields"][1]["value"], serde_json::Value::Null);
+        assert_eq!(out["fields"][2]["name"], 7);
+        assert_eq!(out["fields"][3], serde_json::Value::Null);
+        assert_eq!(out["fields"][4]["name"], "Hi bob");
     }
 
     #[test]
