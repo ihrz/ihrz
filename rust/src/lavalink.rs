@@ -870,6 +870,30 @@ pub fn prefers_soundcloud(deezer_score: f64, sc_score: f64) -> bool {
     sc_score > deezer_score
 }
 
+/// Album/playlist fan-out cap (mirrors the `tracks.slice(0, 100)` in
+/// `handleSpotify`/`handleAppleMusic`/`handleTidalMusic`/
+/// `handleAmazonMusic`, musicPlay.ts:170/:340: only the first 100
+/// metadata tracks are re-searched, input order kept).
+pub const PLAYLIST_FANOUT_CAP: usize = 100;
+
+/// Deezer re-search identifier for one metadata track (mirrors
+/// `handleSpotify`'s `` { query: `${track.artist} ${track.name}`,
+/// source: "deezer" } `` legs, musicPlay.ts:160-166/:175-181: the
+/// identifier is `dzsearch:<artist> <name>`, single space).
+/// DELTAS (doc, convergent on reachable inputs): TS interpolates
+/// verbatim (no trim, so a padded artist sends padded; a missing
+/// artist renders the literal `"undefined"`) while this trims both
+/// halves and maps a missing artist to `""` — the metadata port
+/// (`metadata::spotify::join_artist_names`) only ever yields clean
+/// joined names, so the legs agree on every real input.
+pub fn spotify_track_query(artist: Option<&str>, title: &str) -> String {
+    format!(
+        "dzsearch:{} {}",
+        artist.unwrap_or_default().trim(),
+        title.trim()
+    )
+}
+
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
 /// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
 /// The whitespace collapse mirrors JS `/\s+/g` + `trim()`: U+0085 is
@@ -3776,7 +3800,7 @@ impl LavalinkManager {
         artist: &str,
         title: &str,
     ) -> Option<Track> {
-        let identifier = format!("dzsearch:{} {}", artist.trim(), title.trim());
+        let identifier = spotify_track_query(Some(artist), title);
         match self.load_on_node(node, &identifier).await {
             Ok(loaded) => split_loaded(loaded).0.into_iter().next(),
             Err(_) => None,
@@ -3799,11 +3823,11 @@ impl LavalinkManager {
         let base = node.base_url();
         let password = node.lava_cfg.password.clone();
         let mut set = tokio::task::JoinSet::new();
-        for (idx, (artist, title)) in queries.iter().enumerate().take(100) {
+        for (idx, (artist, title)) in queries.iter().enumerate().take(PLAYLIST_FANOUT_CAP) {
             let http = http.clone();
             let base = base.clone();
             let password = password.clone();
-            let identifier = format!("dzsearch:{} {}", artist.trim(), title.trim());
+            let identifier = spotify_track_query(Some(artist.as_str()), title);
             set.spawn(async move {
                 let hit = load_first_hit(&http, &base, &password, &identifier).await;
                 (idx, hit)
@@ -5664,6 +5688,28 @@ mod tests {
         assert!(!prefers_soundcloud(0.5, 0.5));
         assert!(prefers_soundcloud(0.6, 0.61));
         assert!(!prefers_soundcloud(0.61, 0.6));
+    }
+
+    #[test]
+    fn spotify_fanout_shape_matches_ts_handle_spotify_legs() {
+        use super::{spotify_track_query, PLAYLIST_FANOUT_CAP};
+        // Query build (node battery: `${artist} ${name}`, single space).
+        assert_eq!(
+            spotify_track_query(Some("Daft Punk"), "One More Time"),
+            "dzsearch:Daft Punk One More Time"
+        );
+        assert_eq!(spotify_track_query(Some(""), "X"), "dzsearch: X");
+        assert_eq!(spotify_track_query(None, "X"), "dzsearch: X");
+        assert_eq!(spotify_track_query(Some("A"), ""), "dzsearch:A ");
+        // Cap (node battery: 150 -> first 100 in order, short vecs whole).
+        assert_eq!(PLAYLIST_FANOUT_CAP, 100);
+        let big: Vec<u32> = (0..150).collect();
+        let capped: Vec<u32> = big.iter().take(PLAYLIST_FANOUT_CAP).copied().collect();
+        assert_eq!(capped.len(), 100);
+        assert_eq!(capped[0], 0);
+        assert_eq!(capped[99], 99);
+        let small = [1u32, 2, 3];
+        assert_eq!(small.iter().take(PLAYLIST_FANOUT_CAP).count(), 3);
     }
 
     #[tokio::test]
