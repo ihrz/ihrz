@@ -1620,6 +1620,22 @@ mod tests {
             "https://discord.com/channels/123456789012345678/987654321098765432/111222333444555666"
         );
         assert_eq!(message_url(0, 0, 0), "https://discord.com/channels/0/0/0");
+        // W6 slice 174 (sanitizer.ts node battery, 30 cases): TS uses
+        // Node querystring.escape (UTF-8 percent-encoding, throws on lone
+        // surrogates) + decodeURIComponent, so EVERY BMP scalar value is
+        // kept verbatim -- controls, NBSP, ZWSP, BOM, CJK, combining
+        // marks, HTML chars, bare `%` -- and astral halves die one at a
+        // time (`"a\u{D800}b"` -> `"ab"` in TS, unrepresentable in &str).
+        assert_eq!(sanitizing("na\u{ef}ve"), "na\u{ef}ve");
+        assert_eq!(sanitizing("\u{4e2d}\u{6587}"), "\u{4e2d}\u{6587}");
+        assert_eq!(sanitizing("e\u{301}"), "e\u{301}");
+        assert_eq!(sanitizing("<>&\"`"), "<>&\"`");
+        assert_eq!(sanitizing("%20"), "%20");
+        assert_eq!(sanitizing("a\nb\tc"), "a\nb\tc");
+        assert_eq!(sanitizing("\u{a0}"), "\u{a0}");
+        assert_eq!(sanitizing("x\u{200d}z"), "x\u{200d}z");
+        assert_eq!(sanitizing("\u{feff}bom"), "\u{feff}bom");
+        assert_eq!(sanitizing("😀😁"), "<malformed string>");
         assert_eq!(
             banner_url("fr-FR"),
             "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
