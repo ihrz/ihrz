@@ -200,7 +200,9 @@ fn render_autoreact_embed(
 ) -> serenity::CreateEmbed {
     let page = autoreact_list_page(ids, page0 + 1);
     let mut embed = serenity::CreateEmbed::default()
-        .colour(serenity::Colour::BLURPLE)
+        // discord.js `Colors.Blurple` (0x5865F2), not serenity's legacy
+        // `Colour::BLURPLE` (0x7289DA) — prod renders 5793266.
+        .colour(0x5865F2)
         .title(tr_or(code, "autoreact_embed_title", "Autoreact"))
         .description(crate::lang::get(code, "autoreact_embed_desc").unwrap_or_default());
     if page.is_empty() {
@@ -1010,6 +1012,18 @@ mod tests {
         assert!(!autoreact_remove_channel(&mut map, "9"));
         assert!(autoreact_remove_channel(&mut map, "7"));
         assert_eq!(sorted_channel_ids(&map), vec!["3".to_string()]);
+    }
+
+    #[test]
+    fn dashboard_embed_uses_discordjs_blurple_not_legacy() {
+        // TS `Colors.Blurple` = 0x5865F2 (5793266, prod-observed);
+        // serenity `Colour::BLURPLE` is the legacy 0x7289DA (7506394).
+        let map: AutoreactMap = BTreeMap::new();
+        let ids: Vec<String> = vec![];
+        let names: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+        let json =
+            serde_json::to_value(&render_autoreact_embed("en-US", &map, &ids, 0, &names)).unwrap();
+        assert_eq!(json.get("color").and_then(|c| c.as_u64()), Some(0x5865F2));
     }
 
     #[test]
