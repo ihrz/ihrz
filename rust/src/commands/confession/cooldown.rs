@@ -69,11 +69,21 @@ async fn post_cooldown_log(ctx: &Ctx<'_>, title: &str, description: &str) {
         .await;
 }
 
+/// TS guard order (`checkCommandArgs` counts first; confession.ts
+/// declares the `time` option `required: true`): a bare prefix call
+/// never reaches the handler — prod answers the caret usage embed
+/// (`+confess-cooldown [string]`, verified live WAVE-20261016AK).
+/// Without this head, poise `Option<String>` backtracking misroutes
+/// bare input to the invalid-time leg.
+pub fn confession_cooldown_prefix_needs_usage(time: &Option<String>) -> bool {
+    time.is_none()
+}
+
 /// Change the cooldown between confessions. Mirrors !cooldown.ts.
-// The slash `time` option is required in the TS schema; the prefix
-// path defaults a missing arg to `"0s"` (like
-// `string(args!, 0) || "0s"`), which parses to no time and answers
-// the invalid-time line, exactly like TS (`to_ms("0s")` is falsy).
+// The slash `time` option is required in the TS schema, and a bare
+// prefix call is answered by the usage head above (like TS
+// `checkCommandArgs`). A present-but-unparsable arg falls through
+// to the invalid-time line, exactly like TS (`to_ms(...)` falsy).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -94,6 +104,12 @@ pub async fn confession_cooldown(
     };
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Bare prefix guard (see `confession_cooldown_prefix_needs_usage`):
+    // TS answers the caret usage embed before the handler runs.
+    if confession_cooldown_prefix_needs_usage(&time) && matches!(ctx, poise::Context::Prefix(_)) {
+        crate::bot::prefix_usage_denial(ctx, None).await;
+        return Ok(());
+    }
     let raw = time.as_deref().unwrap_or("0s");
     let Some(ms) = parse_cooldown_ms(raw) else {
         ctx.say(crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
@@ -143,6 +159,17 @@ pub async fn confession_cooldown(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bare_prefix_needs_usage_embed() {
+        // TS `checkCommandArgs` counts first (confession.ts `time`
+        // required): bare prefix renders the caret usage embed, a
+        // present arg reaches the handler either way.
+        assert!(confession_cooldown_prefix_needs_usage(&None));
+        assert!(!confession_cooldown_prefix_needs_usage(&Some(
+            "3h".to_string()
+        )));
+    }
 
     #[test]
     fn reply_renders_both_placeholders() {
