@@ -213,6 +213,46 @@ pub fn h247_refuses(enabled: bool, h247_voice: Option<u64>, member_voice: Option
     enabled && member_voice != h247_voice
 }
 
+/// Entry-guard decision (mirrors musicPlay.ts:775-782
+/// `!client.user || !interaction.member || !interaction.guild ||
+/// !interaction.channel` -> silent return): true when the handler must
+/// return before any voice check. Poise guarantees all four on every
+/// reachable call, so this has no live caller (dead-helper parity).
+pub fn entry_guard_returns(
+    user_present: bool,
+    member_present: bool,
+    guild_present: bool,
+    channel_present: bool,
+) -> bool {
+    !(user_present && member_present && guild_present && channel_present)
+}
+
+/// TTS-cleanup decision (mirrors musicPlay.ts:807-808
+/// `ttsData && ttsData.enabled` -> `cleanupTTS`): a missing row never
+/// cleans up; only an enabled stored row does. The live play.rs site
+/// keeps its `if let Some + if enabled` shape (identical verdicts);
+/// this pure form exists for the battery pin.
+pub fn tts_needs_cleanup(row_present: bool, enabled: bool) -> bool {
+    row_present && enabled
+}
+
+/// Play-path same-voice decision (mirrors musicPlay.ts:812-815
+/// `members.me?.voice.channelId && member !== me.voice.channelId`):
+/// a bot outside voice never refuses (the `&&` short-circuit), unlike
+/// the per-command `!==` shape (!pause.ts/!skip.ts, matched by
+/// `guard_same_voice`'s bare `!=`). The live play.rs site keeps its
+/// `if let Some(bot)` wrapper (identical verdicts); this pure form
+/// exists for the battery pin.
+/// W6 slice 162 battery (verbatim decision legs, 25/25 green): EXACT on
+/// the whole Option<u64> domain, zero behavior change. DELTAS
+/// (unrepresentable past Option/bool, convergent outcomes): TS truthy
+/// `enabled: 1` refuses on mismatch (bool folds it to disabled-proceed;
+/// the store only yields real bools); empty-string channelIds are falsy
+/// in TS (proceed) while only None exists here (same proceed outcome).
+pub fn play_same_voice_refuses(user_voice: Option<u64>, bot_voice: Option<u64>) -> bool {
+    bot_voice.is_some_and(|b| Some(b) != user_voice)
+}
+
 /// H247-parked stop decision (mirrors the
 /// `handleH247PlayerIdleDestroy` channel-match guard): the stop keeps
 /// the player + voice connection (never destroys) when 24/7 is enabled
@@ -1221,6 +1261,35 @@ mod tests {
         assert!(!h247_refuses(true, Some(7), Some(7)));
         assert!(!h247_refuses(false, Some(7), Some(8)));
         assert!(!h247_refuses(false, None, None));
+        // W6 slice 162 battery legs: missing row (null/undefined data)
+        // folds to disabled-proceed; missing-channel both sides
+        // (`undefined !== undefined` false) proceeds; enabled with no
+        // parked channel refuses any present member.
+        assert!(!h247_refuses(false, Some(5), Some(7)));
+        assert!(!h247_refuses(true, None, None));
+        assert!(h247_refuses(true, None, Some(7)));
+    }
+
+    #[test]
+    fn play_gate_chain_matches_ts_decision_legs() {
+        // Entry guard (musicPlay.ts:775-782): any missing leg returns.
+        assert!(!entry_guard_returns(true, true, true, true));
+        assert!(entry_guard_returns(false, true, true, true));
+        assert!(entry_guard_returns(true, false, true, true));
+        assert!(entry_guard_returns(true, true, false, true));
+        assert!(entry_guard_returns(true, true, true, false));
+        // TTS cleanup (musicPlay.ts:807-808): row + enabled only.
+        assert!(tts_needs_cleanup(true, true));
+        assert!(!tts_needs_cleanup(false, true));
+        assert!(!tts_needs_cleanup(true, false));
+        assert!(!tts_needs_cleanup(false, false));
+        // Play same-voice (musicPlay.ts:812-815 `&&` shape): bot
+        // outside voice never refuses; mismatch refuses; match proceeds.
+        assert!(!play_same_voice_refuses(Some(7), None));
+        assert!(!play_same_voice_refuses(None, None));
+        assert!(!play_same_voice_refuses(Some(7), Some(7)));
+        assert!(play_same_voice_refuses(Some(7), Some(5)));
+        assert!(play_same_voice_refuses(None, Some(5)));
     }
 
     #[test]
