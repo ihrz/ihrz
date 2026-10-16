@@ -189,10 +189,7 @@ pub async fn m_play(
             let timer = emoji_markup(&ctx, "Timer", "⏱️").await;
             let result = if is_playlist { "playlist" } else { "track" };
             let content = crate::lang::get(&code, "p_loading_message")
-                .map(|s| {
-                    s.replace("${client.iHorizon_Emojis.Timer}", &timer)
-                        .replace("{result}", result)
-                })
+                .map(|s| render_loading_content(&s, &timer, result))
                 .unwrap_or_else(|| format!("Loading: **{result}**!"));
             let duration =
                 crate::lang::get(&code, "p_duration").unwrap_or_else(|| "Duration: ".to_string());
@@ -218,7 +215,7 @@ pub async fn m_play(
             let mut embed = serenity::CreateEmbed::default()
                 .description(format!("**{shown_title}**{platform_line}"))
                 // TS `SUCCESS_EMBED_COLOR` (#00cc1a, musicPlay.ts:76).
-                .colour(0x00CC1A)
+                .colour(SUCCESS_EMBED_COLOR)
                 .timestamp(serenity::Timestamp::now())
                 .footer(serenity::CreateEmbedFooter::new(format!(
                     "{duration}{}",
@@ -330,9 +327,27 @@ pub fn render_queue_add_desc(template: &str, icon: &str, title: &str) -> String 
         .replacen("${track.title}", title, 1)
 }
 
+/// Loading-line fill (mirrors the `p_loading_message` two-`.replace`
+/// chain, musicPlay.ts:913-922, timer first then `{result}`).
+/// TS `String.replace(string)` swaps FIRST-ONLY; `replacen` keeps that
+/// shape, so a doubled template leaves later occurrences literal and an
+/// injected `{result}` inside the timer value is filled exactly once
+/// (the template's own slot stays literal) exactly like TS.
+pub fn render_loading_content(template: &str, timer: &str, result: &str) -> String {
+    template
+        .replacen("${client.iHorizon_Emojis.Timer}", timer, 1)
+        .replacen("{result}", result, 1)
+}
+
+/// Success-embed accent (mirrors `SUCCESS_EMBED_COLOR = "#00cc1a"`,
+/// musicPlay.ts:76; discord.js resolves it to 52250 == 0x00CC1A).
+pub const SUCCESS_EMBED_COLOR: u32 = 0x00CC1A;
+
 #[cfg(test)]
 mod tests {
-    use super::{queue_add_target, render_queue_add_desc};
+    use super::{
+        queue_add_target, render_loading_content, render_queue_add_desc, SUCCESS_EMBED_COLOR,
+    };
 
     #[test]
     fn queue_add_gate_and_desc_match_ts_send_queue_add_legs() {
@@ -360,6 +375,48 @@ mod tests {
         assert_eq!(
             render_queue_add_desc(&format!("{tpl}{tpl}"), "<:m:1>", "Song"),
             "<:m:1> - Song has been added to the queue!${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!"
+        );
+    }
+
+    #[test]
+    fn loading_content_and_success_color_match_ts_handle_music_play_legs() {
+        // discord.js resolves "#00cc1a" to 52250 (node battery).
+        assert_eq!(SUCCESS_EMBED_COLOR, 52250);
+        // Loading-line legs (shipped en-US `p_loading_message` shape).
+        let tpl = "${client.iHorizon_Emojis.Timer} Loading: **{result}**!";
+        assert_eq!(
+            render_loading_content(tpl, "<:timer:1>", "track"),
+            "<:timer:1> Loading: **track**!"
+        );
+        assert_eq!(
+            render_loading_content(tpl, "<:timer:1>", "playlist"),
+            "<:timer:1> Loading: **playlist**!"
+        );
+        // Doubled template: only the first occurrence of each fills.
+        assert_eq!(
+            render_loading_content(&format!("{tpl}{tpl}"), "<:timer:1>", "track"),
+            "<:timer:1> Loading: **track**!${client.iHorizon_Emojis.Timer} Loading: **{result}**!"
+        );
+        // Doubled `{result}` slot: first-only.
+        assert_eq!(
+            render_loading_content(
+                &tpl.replace("{result}", "{result} {result}"),
+                "<:timer:1>",
+                "track"
+            ),
+            "<:timer:1> Loading: **track {result}**!"
+        );
+        // `{result}` injected via the timer value fills once; the
+        // template's own slot stays literal (sequential-chain shape).
+        assert_eq!(
+            render_loading_content(tpl, "T{result}", "track"),
+            "Ttrack Loading: **{result}**!"
+        );
+        // Timer token injected via the timer value survives (second
+        // replace only targets `{result}`).
+        assert_eq!(
+            render_loading_content(tpl, "X${client.iHorizon_Emojis.Timer}Y", "track"),
+            "X${client.iHorizon_Emojis.Timer}Y Loading: **track**!"
         );
     }
 }
