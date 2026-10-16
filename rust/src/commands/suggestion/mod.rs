@@ -114,8 +114,8 @@ pub async fn delete_suggestion(
 
 /// Table-routed plain-string read with legacy fallback
 /// (SUGGEST.channel / SUGGEST.disable). JSON booleans normalize to
-/// "1"/"0" so `== "1"` readers (events_handler) keep working after
-/// the boolean write.
+/// "1"/"0" so the shared `suggest_disabled_value` keeps matching the
+/// writer's boolean rows.
 pub async fn load_suggest_string(
     pool: &crate::db::Pool,
     guild_id: &str,
@@ -139,7 +139,12 @@ pub async fn load_suggest_string(
 /// SUGGEST.disable read. Accepts the TS JSON boolean (`true`), the
 /// legacy "1" string and the normalized "1" from `load_suggest_string`.
 /// Mirrors `baseData?.disable === true` / truthy checks in
-/// !accept/!deny/!reply/!delete.ts.
+/// !accept/!deny/!reply/!delete.ts, and since W7 slice 1 also the
+/// messageCreate event's `baseData?.disable` truthiness (both legs share
+/// this predicate; residual manual-DB-only delta: TS-truthy leftovers
+/// like "0"/"false"/objects still read enabled here, and no single
+/// predicate can match both TS legs there — TS commands are strict
+/// `=== true` while the TS event is truthy).
 pub fn suggest_disabled_value(raw: Option<&str>) -> bool {
     matches!(
         raw.map(str::trim)
@@ -179,6 +184,15 @@ pub async fn save_suggest_disable(
         .table(guild_id)
         .set("SUGGEST.disable", disabled)
         .await
+}
+
+/// 5-token gate. Mirrors `message.content.split(" ")` + `args.length < 5`
+/// in Events/suggestion/onNewMessage.ts: the original message is deleted
+/// first, then short texts return early with no embed/thread/record.
+/// JS splits on the literal one-space string (tabs/newlines do NOT split,
+/// empties kept), exactly like `split(' ')` here — battery legs below.
+pub fn suggestion_word_gate_passes(content: &str) -> bool {
+    content.split(' ').count() >= 5
 }
 
 /// 12-char mixed-case code. Mirrors TS `generatePassword({ length: 12 })`
@@ -240,7 +254,7 @@ mod tests {
         let pool = memory_pool().await;
         save_suggest_disable(&pool, "g1", true).await.unwrap();
         assert!(load_suggest_disabled(&pool, "g1").await);
-        // Normalized for `== "1"` readers.
+        // Normalized ("1"/"0") for the shared disabled reader.
         assert_eq!(
             load_suggest_string(&pool, "g1", "SUGGEST.disable")
                 .await
@@ -256,6 +270,27 @@ mod tests {
         assert!(load_suggest_disabled(&pool, "g2").await);
         assert!(!load_suggest_disabled(&pool, "g9").await);
     }
+    #[test]
+    fn word_gate_matches_ts_split_length() {
+        // Node battery (slice-w7s1-suggest.js): literal one-space split,
+        // empties kept; tab/newline are NOT separators (they ride inside a
+        // token, so "a\tb c d e f" is 5 tokens, not 2).
+        assert!(!suggestion_word_gate_passes(""));
+        assert!(!suggestion_word_gate_passes("a"));
+        assert!(!suggestion_word_gate_passes("a b c d"));
+        assert!(!suggestion_word_gate_passes("  "));
+        assert!(!suggestion_word_gate_passes(" a"));
+        assert!(suggestion_word_gate_passes("a b c d e"));
+        assert!(suggestion_word_gate_passes("a b c d e f"));
+        assert!(suggestion_word_gate_passes("    "));
+        assert!(suggestion_word_gate_passes("     "));
+        assert!(suggestion_word_gate_passes(" a b c d "));
+        assert!(suggestion_word_gate_passes("a  b  c"));
+        assert!(suggestion_word_gate_passes("a\tb c d e f"));
+        assert!(suggestion_word_gate_passes("a\nb c d e f"));
+        assert!(suggestion_word_gate_passes("a b c d "));
+    }
+
     #[test]
     fn code_is_12_mixed_alpha_like_ts() {
         let c = gen_suggest_code(42);

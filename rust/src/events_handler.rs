@@ -170,12 +170,21 @@ async fn suggest_channel_routed(pool: &crate::db::Pool, gid: &str) -> Option<Str
     crate::commands::suggestion::load_suggest_string(pool, gid, "SUGGEST.channel").await
 }
 
-/// SUGGEST.disable leaf, true on "1".
+/// SUGGEST.disable leaf. Mirrors the event's `baseData?.disable` truthiness
+/// via the shared [`suggest_disabled_value`](crate::commands::suggestion::suggest_disabled_value)
+/// (`"1"` covering the writer's JSON `true`, plus legacy `"true"` rows —
+/// both disabled in TS; writer booleans normalize through
+/// `load_suggest_string`). Residual manual-DB-only delta, doc-noted on the
+/// helper: TS-truthy leftovers (`"0"`, `"false"`, objects) still read
+/// enabled here, and TS commands use strict `=== true`, so no single
+/// predicate matches both TS legs off the boolean domain — all four agree
+/// on every writer-produced value.
 async fn suggest_disabled_routed(pool: &crate::db::Pool, gid: &str) -> bool {
-    crate::commands::suggestion::load_suggest_string(pool, gid, "SUGGEST.disable")
-        .await
-        .as_deref()
-        == Some("1")
+    crate::commands::suggestion::suggest_disabled_value(
+        crate::commands::suggestion::load_suggest_string(pool, gid, "SUGGEST.disable")
+            .await
+            .as_deref(),
+    )
 }
 
 /// VOICE_INTERFACE.voice_channel lobby leaf (TS-exact key: db.set
@@ -7227,7 +7236,7 @@ impl serenity::EventHandler for Handler {
                 if !suggest_disabled_routed(&self.pool, &gid).await {
                     if msg.webhook_id.is_none() {
                         let _ = msg.delete(&_ctx.http).await;
-                        if msg.content.split(' ').count() >= 5 {
+                        if crate::commands::suggestion::suggestion_word_gate_passes(&msg.content) {
                             let now = std::time::SystemTime::now()
                                 .duration_since(std::time::UNIX_EPOCH)
                                 .map(|d| d.as_nanos() as u64)
@@ -10972,6 +10981,12 @@ mod restore_tests {
         );
         assert!(suggest_disabled_routed(&pool, "g1").await);
         assert!(!suggest_disabled_routed(&pool, "g9").await);
+        // Legacy "true" rows disable the event like TS truthiness (the
+        // shared helper; previously only "1" did).
+        crate::commands::suggestion::save_suggest_string(&pool, "g2", "SUGGEST.disable", "true")
+            .await
+            .unwrap();
+        assert!(suggest_disabled_routed(&pool, "g2").await);
         // VOICE_INTERFACE leaves.
         crate::db::tbl_set(&pool, "g1", "VOICE_INTERFACE.voice_channel", "13")
             .await
