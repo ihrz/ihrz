@@ -8806,10 +8806,14 @@ impl serenity::EventHandler for Handler {
         let Some(guild_id) = event.guild_id else {
             return;
         };
+        let m = crate::lavalink::manager();
+        // TS `h247Manager.ts:106-114` nulls the cached token/endpoint
+        // on a null-endpoint packet (invalidates stale credentials);
+        // the push gate then needs all three legs fresh.
         let Some(endpoint) = event.endpoint else {
+            m.drop_pending_voice(guild_id.get()).await;
             return;
         };
-        let m = crate::lavalink::manager();
         if let Some(voice) = m
             .note_voice_server(guild_id.get(), event.token, endpoint)
             .await
