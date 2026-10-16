@@ -117,6 +117,21 @@ pub fn is_missing_text_args(args: &[String], specs: &[ArgSpec]) -> bool {
     args.len() < required_text_count(specs) || (args.len() == 1 && args[0].is_empty())
 }
 
+/// Long-tail absorption gate. Mirrors
+/// `longString: option.type === 3 && !option.choices` (checkCommandArgs
+/// spec build, method.ts:484): only String options (discriminant 3,
+/// strict `===`, so `"3"`/missing/other types miss) WITHOUT choices
+/// absorb the tail. Choice presence is JS-truthiness: `[]` is truthy
+/// (no merge) while missing/null merge; `None` is the missing/null
+/// leg, `Some` (even empty) the present leg. Falsy-but-present hostile
+/// shapes (`""`/`0`) merge in TS and are unrepresentable past
+/// `Option<&[T]>` (no live writer emits them). Zero live callers: the
+/// live prefix path builds specs with `long_string: false` (bot.rs) and
+/// poise parses the tail itself (dead-helper parity).
+pub fn is_long_string_param<T>(option_type: u8, choices: Option<&[T]>) -> bool {
+    option_type == 3 && choices.is_none()
+}
+
 /// Display order of the usage line. Mirrors
 /// `[...expectedArgs, ...attachmentArgs]`: text options first, then
 /// attachments. Returns indices into the original specs order.
@@ -549,6 +564,24 @@ mod tests {
         let none: Vec<ArgSpec> = vec![ArgSpec::text("q", "string", false, true)];
         assert!(is_missing_text_args(&[String::new()], &none));
         assert!(!is_missing_text_args(&[], &none));
+    }
+
+    #[test]
+    fn long_string_gate_matches_ts_type_and_choices_legs() {
+        // Node battery replicating `option.type === 3 && !option.choices`
+        // verbatim (12 legs, green 12/12): strict `===` misses `"3"` and
+        // missing/other discriminants; `[]` is truthy (no merge).
+        assert!(is_long_string_param::<u8>(3, None));
+        assert!(!is_long_string_param(3, Some(&[1u8][..])));
+        assert!(!is_long_string_param(3, Some(&[][..] as &[u8])));
+        assert!(!is_long_string_param::<u8>(6, None));
+        assert!(!is_long_string_param(6, Some(&[1u8][..])));
+        assert!(!is_long_string_param::<u8>(1, None));
+        assert!(!is_long_string_param::<u8>(11, None));
+        assert!(!is_long_string_param::<u8>(0, None));
+        assert!(!is_long_string_param::<u8>(99, None));
+        // Hostile falsy-but-present shapes (`""`/`0`) merge in TS;
+        // unrepresentable past `Option<&[T]>`, pinned as doc only.
     }
 
     #[test]
