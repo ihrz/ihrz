@@ -552,14 +552,21 @@ async fn youtube_oembed_title(http: &reqwest::Client, url: &str) -> Option<(Stri
 /// Query-batch normalization (mirrors `handleMusicPlay` +
 /// `searchMusicQuery`, musicPlay.ts:825-827:
 /// `queries.map((query) => query.trim()).filter(Boolean)`).
-/// Trims every query, drops the empties (whitespace-only included),
-/// order preserved. JS `filter(Boolean)` drops exactly the empty
-/// string post-trim (node battery: `["  song  ","   ",""]` ->
+/// Trims every query with the JS whitespace set ([`crate::funcs::js_trim`]),
+/// drops the empties, order preserved. JS `filter(Boolean)` drops exactly
+/// the empty string post-trim (node battery: `["  song  ","   ",""]` ->
 /// `["song"]`, `[]` -> `[]`), which is `!is_empty` here.
+///
+/// JS-TRIM EXACTNESS (W6 slice 163): this previously used Rust
+/// `str::trim`, which strips U+0085 NEL (`White_Space=yes`) while JS
+/// `String.trim` keeps it (node ground truth: `"\u0085".trim()` is
+/// length 1, so `["\u0085"]` normalizes to one query and plays; the old
+/// Rust folded it to `[]` and answered the no-result embed). U+180E
+/// matches on both sides (neither trims, post-ES2016 table).
 pub fn normalize_play_queries(queries: &[String]) -> Vec<String> {
     queries
         .iter()
-        .map(|q| q.trim().to_string())
+        .map(|q| crate::funcs::js_trim(q).to_string())
         .filter(|q| !q.is_empty())
         .collect()
 }
@@ -5813,6 +5820,27 @@ mod tests {
         // Empty in, empty out (TS answers the no-result embed).
         assert!(normalize_play_queries(&[]).is_empty());
         assert!(normalize_play_queries(&q(&["   ", "\n\t "])).is_empty());
+        // W6 slice 163: JS-whitespace-set exactness (node battery
+        // `slice163-trim.js`, 13 cases). U+0085 NEL is NOT trimmed by
+        // JS, so it survives as a query (old Rust `trim` dropped it).
+        assert_eq!(
+            normalize_play_queries(&q(&["\u{85}", "\u{85}x", "x\u{85}", " \u{85} "])),
+            vec![
+                "\u{85}".to_string(),
+                "\u{85}x".to_string(),
+                "x\u{85}".to_string(),
+                "\u{85}".to_string()
+            ]
+        );
+        // FEFF/NBSP/LS/PS trim like Rust; ZWSP/U+180E survive both sides.
+        assert_eq!(
+            normalize_play_queries(&q(&["\u{feff}x", "\u{a0}x\u{a0}", "\u{2028}x\u{2029}"])),
+            vec!["x".to_string(), "x".to_string(), "x".to_string()]
+        );
+        assert_eq!(
+            normalize_play_queries(&q(&["\u{200b}x", "\u{180e}"])),
+            vec!["\u{200b}x".to_string(), "\u{180e}".to_string()]
+        );
     }
 
     #[test]

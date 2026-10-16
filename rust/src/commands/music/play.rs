@@ -106,12 +106,11 @@ pub async fn m_play(
     }
     // Empty-query (mirrors the normalizedQueries.length === 0 leg):
     // blank input answers the no-result embed, never the pipeline.
-    let query = title.trim().to_string();
-    if query.is_empty() {
+    let Some(query) = normalize_single_query(&title) else {
         ctx.send(poise::CreateReply::default().embed(no_result_embed(&code)))
             .await?;
         return Ok(());
-    }
+    };
     // Allowed-links last (mirrors musicPlay.ts:834
     // `normalizedQueries.some((query) => !isAllowedLinks(query))`):
     // plain search terms carry no scheme, so `is_allowed_links` lets
@@ -327,6 +326,22 @@ pub fn render_queue_add_desc(template: &str, icon: &str, title: &str) -> String 
         .replacen("${track.title}", title, 1)
 }
 
+/// Single-query normalization (mirrors the `!play` single-element
+/// `queries.map((query) => query.trim()).filter(Boolean)` leg,
+/// musicPlay.ts:825-827, into the `length === 0` no-result gate at
+/// 829-832). JS-trim via [`crate::funcs::js_trim`] (W6 slice 163:
+/// U+0085 NEL survives JS trim and plays; Rust `str::trim` would
+/// fold it to empty and misroute to the no-result embed).
+/// `None` means TS normalized to `[]`.
+pub fn normalize_single_query(title: &str) -> Option<String> {
+    let trimmed = crate::funcs::js_trim(title);
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
 /// Loading-line fill (mirrors the `p_loading_message` two-`.replace`
 /// chain, musicPlay.ts:913-922, timer first then `{result}`).
 /// TS `String.replace(string)` swaps FIRST-ONLY; `replacen` keeps that
@@ -380,9 +395,29 @@ pub fn render_history_embed(
 #[cfg(test)]
 mod tests {
     use super::{
-        queue_add_target, render_history_buffer, render_history_embed, render_loading_content,
-        render_queue_add_desc, SUCCESS_EMBED_COLOR,
+        normalize_single_query, queue_add_target, render_history_buffer, render_history_embed,
+        render_loading_content, render_queue_add_desc, SUCCESS_EMBED_COLOR,
     };
+
+    #[test]
+    fn single_query_normalization_matches_ts_trim_filter_leg() {
+        // W6 slice 163: single-element `[query].map(trim).filter(Boolean)`
+        // (node battery `slice163-trim.js`). Plain trims + empty drop.
+        assert_eq!(normalize_single_query("  song  "), Some("song".to_string()));
+        assert_eq!(normalize_single_query("   "), None);
+        assert_eq!(normalize_single_query(""), None);
+        assert_eq!(
+            normalize_single_query("\u{feff}x\u{a0}"),
+            Some("x".to_string())
+        );
+        // U+0085 NEL survives JS trim and plays (old Rust `trim`
+        // folded it to `None`, misrouting to the no-result embed).
+        assert_eq!(normalize_single_query("\u{85}"), Some("\u{85}".to_string()));
+        assert_eq!(
+            normalize_single_query("\u{200b}x"),
+            Some("\u{200b}x".to_string())
+        );
+    }
 
     #[test]
     fn queue_add_gate_and_desc_match_ts_send_queue_add_legs() {
