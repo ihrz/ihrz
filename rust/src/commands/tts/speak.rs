@@ -120,6 +120,14 @@ pub fn ftts_identifier(sanitized: &str, voice_id: Option<&str>) -> String {
     id
 }
 
+/// Fallback identifier when the node's `flowery-tts` source answers
+/// empty (observed live: `ftts:<text>` -> `{"loadType":"empty"}` while
+/// the bundled `speak` source resolves the same text via Google
+/// Translate TTS). Same percent-encoding, no voice param.
+pub fn speak_identifier(sanitized: &str) -> String {
+    format!("speak:{}", percent_encode(sanitized))
+}
+
 /// Speak one message in a TTS guild. Mirrors speakTTS: sanitize, skip
 /// empties, resolve the Flowery voice (best-effort), load the ftts
 /// track, queue it and play when idle. Returns true when a track was
@@ -167,7 +175,18 @@ pub async fn speak_tts(
         lava_rs::rest::LoadResult::Track(t) => Some(t),
         lava_rs::rest::LoadResult::Playlist(data) => data.tracks.into_iter().next(),
         lava_rs::rest::LoadResult::Search(mut v) => v.drain(..).next(),
-        lava_rs::rest::LoadResult::Empty | lava_rs::rest::LoadResult::Error(_) => None,
+        lava_rs::rest::LoadResult::Empty | lava_rs::rest::LoadResult::Error(_) => {
+            // `flowery-tts` answered empty: retry through the bundled
+            // `speak` source before giving up (single attempt, same text).
+            let fallback = speak_identifier(&sanitized);
+            tracing::debug!("tts: ftts empty for \"{sanitized}\", retrying via speak source");
+            match mgr.rest_load(&node, &fallback).await {
+                Ok(lava_rs::rest::LoadResult::Track(t)) => Some(t),
+                Ok(lava_rs::rest::LoadResult::Playlist(data)) => data.tracks.into_iter().next(),
+                Ok(lava_rs::rest::LoadResult::Search(mut v)) => v.drain(..).next(),
+                _ => None,
+            }
+        }
     };
     let Some(track) = track else {
         tracing::debug!("tts: no tracks returned for \"{sanitized}\" in guild {guild_id}");
