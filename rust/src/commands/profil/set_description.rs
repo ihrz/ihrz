@@ -2,11 +2,11 @@ use super::*;
 
 /// Set your description. Mirrors `!set-description.ts`.
 ///
-/// The TS stores the text verbatim (`profilTable.set(..., desc)`): the
-/// prefix path defaults a missing/empty arg list to `"None"`
-/// (`args?.join(" ") || "None"`), and anything else — including
-/// whitespace-only or padded input — stores exactly as given. Only a
-/// missing (`None`) or empty value maps to `"None"` here on both paths.
+/// The TS stores the text verbatim (`profilTable.set(..., desc)`): past
+/// the prefix count-check gate, anything reaching the handler — including
+/// whitespace-only or padded input — stores exactly as given
+/// (`args?.join(" ") || "None"` only defaults falsy). Only a missing
+/// (`None`) or empty value maps to `"None"` here on both paths.
 pub fn default_description(desc: Option<String>) -> String {
     match desc {
         Some(d) if !d.is_empty() => d,
@@ -15,10 +15,13 @@ pub fn default_description(desc: Option<String>) -> String {
 }
 
 /// Set your description on the iHorizon's Profil!
-// The `description` param is optional so a bare prefix call stores
-// `"None"` like the TS `args?.join(" ") || "None"` default (slash in TS
-// is `getString("description")!`, always provided; here `None`/empty
-// maps to `"None"` via `default_description` on both paths).
+// The `description` option is required:true in
+// HybridCommands/profil/profil.ts, so TS checkCommandArgs counts first
+// (see commandExecutor.ts): a bare prefix call renders the caret usage
+// embed (prod live: `+set-description [string]` caret 1emb), never the
+// handler default. Slash always supplies the option; on prefix a
+// residual None past the count gate maps to `"None"` via
+// `default_description` (TS `args?.join(" ") || "None"`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -44,6 +47,15 @@ pub async fn profil_description(
     #[rest]
     description: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // TS checkCommandArgs counts first (`description` required:true):
+    // a bare prefix invocation renders the caret usage embed, never a
+    // stored `"None"` (slowmode.rs precedent; prod live 2026-10-17).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_description_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Ack first: the load + dual-write save below can outlast the 3s
     // interaction window (see `ack_setter`).
     super::profil::ack_setter(&ctx).await;
@@ -62,9 +74,27 @@ pub async fn profil_description(
     Ok(())
 }
 
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `description` option.
+pub fn prefix_description_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 #[cfg(test)]
 mod tests {
     use super::default_description;
+    use super::prefix_description_missing;
+
+    #[test]
+    fn bare_prefix_needs_usage_embed() {
+        // TS checkCommandArgs counts first: empty prefix args render
+        // the caret usage embed, any text reaches the handler.
+        assert!(prefix_description_missing(""));
+        assert!(prefix_description_missing("   "));
+        assert!(!prefix_description_missing("hi"));
+        assert!(!prefix_description_missing("  parity check  "));
+    }
 
     #[test]
     fn empty_description_defaults_to_none_like_ts_prefix() {
