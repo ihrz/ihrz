@@ -4892,6 +4892,53 @@ pub fn is_animated(attachment_url: &str) -> bool {
         .starts_with("a_")
 }
 
+/// Discord-invite validation. Mirrors method.isValidDiscordInvite
+/// (`input.trim()` + `patterns.some((p) => p.test(trimmed))` over the
+/// three anchored patterns; W6 slice 140: 29-case node battery).
+/// Exactness notes: the trim is the JS set ([`js_trim`], so U+0085
+/// padding stays invalid while NBSP padding trims); the patterns are
+/// case-sensitive (`DISCORD.GG/abc` false) and ASCII-only; the
+/// `discord.com/invite/` form is NOT accepted (false both sides);
+/// `+` needs >= 1 code char (`discord.gg/` false); a hyphen,
+/// underscore, query char, or second slash in the code leg fails all
+/// three (`discord.gg/abc-def`, `abc-def`, `gg/abc` false — the hyphen
+/// leg lives only in [`is_valid_discord_invite_code`]).
+pub fn is_valid_discord_invite(input: &str) -> bool {
+    fn code(s: &str) -> bool {
+        !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric())
+    }
+    let t = js_trim(input);
+    if t.is_empty() {
+        return false;
+    }
+    if let Some(rest) = t.strip_prefix("https://discord.gg/") {
+        return code(rest);
+    }
+    if let Some(rest) = t.strip_prefix("discord.gg/") {
+        return code(rest);
+    }
+    code(t)
+}
+
+/// Vanity-code validation. Mirrors method.isValidDiscordInviteCode
+/// (`VanityCode.length > 32` + `/^[a-z0-9]+(-[a-z0-9]+)*$/i`;
+/// W6 slice 140: 27-case node battery). The class is ASCII-only with
+/// ASCII case folding (`é` false, `ABC-DEF` true); every `-`-separated
+/// segment must be non-empty (`-abc`/`abc-`/`abc--def` false); `""`
+/// false (`+` needs >= 1). ONE DELTA (doc-noted, no code change):
+/// `length` is UTF-16 units ([`utf16_len`]) — unobservable here
+/// because every astral char already fails the ASCII class, so unit
+/// vs scalar counts are verdict-equal on all inputs.
+pub fn is_valid_discord_invite_code(code: &str) -> bool {
+    if utf16_len(code) > 32 {
+        return false;
+    }
+    !code.is_empty()
+        && code
+            .split('-')
+            .all(|seg| !seg.is_empty() && seg.bytes().all(|b| b.is_ascii_alphanumeric()))
+}
+
 #[cfg(test)]
 mod content_type_image_tests {
     use super::*;
@@ -4954,6 +5001,94 @@ mod content_type_image_tests {
         assert!(is_in_voice_channel(Some(0)));
         assert!(is_in_voice_channel(Some(1)));
         assert!(is_in_voice_channel(Some(u64::MAX)));
+    }
+
+    #[test]
+    fn discord_invite_validators_match_ts_battery() {
+        // Node ground truth (W6 slice 140): verbatim
+        // `isValidDiscordInvite` (trim + three anchored patterns)
+        // and `isValidDiscordInviteCode` (len<=32 + hyphen segments).
+        for input in [
+            "https://discord.gg/abc",
+            "https://discord.gg/AbC123",
+            "discord.gg/abc",
+            "abc123",
+            "A",
+            "  https://discord.gg/abc  ",
+            "https://discord.gg/ABC",
+            "0",
+            "https://discord.gg/0",
+            "\t\ndiscord.gg/x\n",
+            "  abc  ",
+        ] {
+            assert!(
+                is_valid_discord_invite(input),
+                "{input:?} must pass like TS"
+            );
+        }
+        for input in [
+            " ",
+            "",
+            "https://discord.gg/",
+            "discord.gg/",
+            "https://discord.gg/abc/def",
+            "https://discord.gg/abc?x=1",
+            "http://discord.gg/abc",
+            "https://discord.com/invite/abc",
+            "DISCORD.GG/abc",
+            "discord.gg/abc-def",
+            "abc-def",
+            "https://discord.gg/abc_def",
+            "https://discord.gg/a b",
+            "discord.gg/a!b",
+            "gg/abc",
+            "https://discord.gg./abc",
+            "https://discordxgg/abc",
+            "discord.gg/abc/",
+        ] {
+            assert!(
+                !is_valid_discord_invite(input),
+                "{input:?} must fail like TS"
+            );
+        }
+        for code in [
+            "abc",
+            "ABC",
+            "AbC-123-xYz",
+            "a",
+            "0",
+            "a1-b2-c3",
+            "abcdefghijklmnopqrstuvwxyz123456",
+            "ABC-DEF",
+            "123",
+            "1-2-3",
+            "aBcDeFgHiJkLmNoPqRsT1-2",
+        ] {
+            assert!(
+                is_valid_discord_invite_code(code),
+                "{code:?} must pass like TS"
+            );
+        }
+        for code in [
+            "abcdefghijklmnopqrstuvwxyz1234567",
+            "-",
+            "-abc",
+            "abc-",
+            "abc--def",
+            "a-",
+            "",
+            "abc_def",
+            "abc def",
+            "abc.def",
+            "é",
+            "Abc-Def-Ghi-Jkl-Mno-Pqr-Stu-Vwx-Yz1",
+            "Abc-Def-Ghi-Jkl-Mno-Pqr-Stu-Vwx-Yz12",
+        ] {
+            assert!(
+                !is_valid_discord_invite_code(code),
+                "{code:?} must fail like TS"
+            );
+        }
     }
 }
 
