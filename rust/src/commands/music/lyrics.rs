@@ -108,6 +108,31 @@ pub fn lyrics_or_unknown<'a>(value: Option<&'a str>, unknown: &'a str) -> &'a st
     value.filter(|v| !v.is_empty()).unwrap_or(unknown)
 }
 
+/// W6 slice 166: `!lyrics.ts:76,89` embed constants. Battery
+/// slice166-lyrics-render.js: `setColor("#cd703a")` resolves to
+/// 13463610 (`0xCD703A`); `uri || "https://www.ihorizon.org"`
+/// falls back on nullish/empty only (whitespace-only URIs stay
+/// verbatim — truthy — matching the `filter(!empty).unwrap_or`
+/// shape at the live site, TS-exact).
+pub const LYRICS_EMBED_COLOR: u32 = 0xCD703A;
+pub const LYRICS_URL_FALLBACK: &str = "https://www.ihorizon.org";
+
+/// W6 slice 166: `!lyrics.ts:56` prefix title leg
+/// (`args?.join(" ") || " "`). Nullish/empty/empty-joined args
+/// yield a single space; whitespace-only joins stay verbatim
+/// (truthy in TS — `["  "]` -> `"  "`); segments join with
+/// single spaces, untrimmed. Zero live callers: poise parses the
+/// `#[rest] query` itself (no-arg invocations get a framework
+/// usage error instead of searching `" "`) — dead-helper parity
+/// like slices 145/152/161/162/164. DELTA (doc-noted, no code
+/// change): TS searches `" "` and replies `lyrics_not_found`;
+/// here the usage error fires first — convergent refusal UX.
+pub fn prefix_lyrics_title(args: Option<&[&str]>) -> String {
+    args.map(|a| a.join(" "))
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| " ".to_string())
+}
+
 /// TS `substring(0, 1997)` + `"..."` suffix rule (`trimmed.length ===
 /// 1997`, which holds whenever the source reached that width —
 /// including an exactly-1997 source). `substring`/`.length` count
@@ -242,11 +267,11 @@ pub async fn m_lyrics(
             meta.uri
                 .as_deref()
                 .filter(|u| !u.is_empty())
-                .unwrap_or("https://www.ihorizon.org"),
+                .unwrap_or(LYRICS_URL_FALLBACK),
         )
         .author(serenity::CreateEmbedAuthor::new(author))
         .description(lyrics_embed_description(&text))
-        .colour(0xCD703A)
+        .colour(LYRICS_EMBED_COLOR)
         .timestamp(serenity::Timestamp::now());
     if let Some(art) = meta.artwork.as_deref().filter(|u| !u.is_empty()) {
         embed = embed.thumbnail(art);
@@ -345,6 +370,34 @@ mod tests {
             lyrics_or_unknown(Some(""), "https://www.ihorizon.org"),
             "https://www.ihorizon.org"
         );
+    }
+
+    #[test]
+    fn lyrics_render_consts_and_prefix_title_match_ts_legs() {
+        // Battery slice166-lyrics-render.js: setColor("#cd703a")
+        // resolves to 13463610; uri || fallback on nullish/empty.
+        assert_eq!(LYRICS_EMBED_COLOR, 13463610);
+        assert_eq!(LYRICS_URL_FALLBACK, "https://www.ihorizon.org");
+        assert_eq!(
+            lyrics_or_unknown(Some(""), LYRICS_URL_FALLBACK),
+            LYRICS_URL_FALLBACK
+        );
+        assert_eq!(
+            lyrics_or_unknown(None, LYRICS_URL_FALLBACK),
+            LYRICS_URL_FALLBACK
+        );
+        assert_eq!(
+            lyrics_or_unknown(Some("https://x.test/t"), LYRICS_URL_FALLBACK),
+            "https://x.test/t"
+        );
+        // Prefix title leg (!lyrics.ts:56): nullish/empty/empty-join
+        // -> " "; ws-only joins stay verbatim; no trim.
+        assert_eq!(prefix_lyrics_title(None), " ");
+        assert_eq!(prefix_lyrics_title(Some(&[])), " ");
+        assert_eq!(prefix_lyrics_title(Some(&[""])), " ");
+        assert_eq!(prefix_lyrics_title(Some(&["  "])), "  ");
+        assert_eq!(prefix_lyrics_title(Some(&["a", "b"])), "a b");
+        assert_eq!(prefix_lyrics_title(Some(&[" a "])), " a ");
     }
 
     #[test]
