@@ -665,6 +665,10 @@ impl SendPayload {
     /// keeps content/embeds and always (interactionSend) or never
     /// (reply) overrides allowedMentions. `via_interaction_send`
     /// selects which.
+    /// NOTE: `reply_without_ping` is true for both, but TS reply()
+    /// with an object input keeps the caller's allowedMentions (only
+    /// the interactionSend branch forces the roles/users strip, which
+    /// `strips_roles_users_mentions` carries).
     pub fn message_reply(input: &SendInput, via_interaction_send: bool) -> Self {
         Self {
             content: input.content.clone(),
@@ -679,6 +683,9 @@ impl SendPayload {
 
     /// Mirrors channelSend: string input becomes content-only; object
     /// input is spread with a fresh nonce + enforceNonce:true.
+    /// NOTE: the TS string branch carries no nonce at build time (the
+    /// fresh nonce is minted later in sendToChannel); the flags here
+    /// describe the send stage, not the built options object.
     pub fn channel(input: &SendInput) -> Self {
         Self {
             content: input.content.clone(),
@@ -709,6 +716,53 @@ impl SendPayload {
             fresh_nonce: false,
         }
     }
+}
+
+/// Mirrors channelSend's channelId resolution: a raw id string passes
+/// through, a text channel contributes its id, otherwise the
+/// interaction's `channel?.id` is used; a missing/empty id throws
+/// `Channel not found`.
+pub const CHANNEL_NOT_FOUND_MSG: &str = "Channel not found";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelTarget<'a> {
+    /// `typeof interaction === "string"`.
+    Id(&'a str),
+    /// `interaction instanceof BaseGuildTextChannel`.
+    TextChannel(&'a str),
+    /// Any other interaction/message: `interaction.channel?.id`.
+    InteractionChannel(Option<&'a str>),
+}
+
+impl<'a> ChannelTarget<'a> {
+    pub fn resolve(&self) -> Result<&'a str, &'static str> {
+        let id = match self {
+            Self::Id(id) => Some(*id),
+            Self::TextChannel(id) => Some(*id),
+            Self::InteractionChannel(id) => *id,
+        };
+        match id {
+            Some(id) if !id.is_empty() => Ok(id),
+            _ => Err(CHANNEL_NOT_FOUND_MSG),
+        }
+    }
+}
+
+/// Mirrors sendToChannel's shard fan-out verdict: the first truthy
+/// broadcastEval result wins, otherwise `Channel <id> not found on any
+/// shard` is thrown, and the synthesized message carries `options.content ?? ""`.
+pub fn shard_channel_not_found(channel_id: &str) -> String {
+    format!("Channel {channel_id} not found on any shard")
+}
+
+pub fn first_shard_result<'a>(
+    results: &[Option<(&'a str, &'a str)>],
+) -> Option<(&'a str, &'a str)> {
+    results.iter().find_map(|r| *r)
+}
+
+pub fn shard_result_content(content: Option<&str>) -> &str {
+    content.unwrap_or("")
 }
 
 // ---------------------------------------------------------------------------
@@ -1549,6 +1603,40 @@ mod tests {
         let it = SendPayload::interaction(&rich, Some("plain"));
         assert_eq!(it.content, Some("plain".to_string()));
         assert!(!it.ephemeral);
+    }
+
+    #[test]
+    fn channel_send_legs_match_ts_resolution_legs() {
+        // Node ground truth (method.ts channelSend / sendToChannel): a raw
+        // id string passes through, a text channel contributes its id,
+        // otherwise interaction.channel?.id is used; missing/empty throws
+        // "Channel not found". Shard fan-out takes the first truthy
+        // broadcastEval result, throws `Channel <id> not found on any
+        // shard` when all are null, and the synthesized message carries
+        // `options.content ?? ""`.
+        assert_eq!(ChannelTarget::Id("123").resolve(), Ok("123"));
+        assert_eq!(ChannelTarget::TextChannel("456").resolve(), Ok("456"));
+        assert_eq!(
+            ChannelTarget::InteractionChannel(Some("789")).resolve(),
+            Ok("789")
+        );
+        assert_eq!(
+            ChannelTarget::InteractionChannel(None).resolve(),
+            Err(CHANNEL_NOT_FOUND_MSG)
+        );
+        assert_eq!(ChannelTarget::Id("").resolve(), Err(CHANNEL_NOT_FOUND_MSG));
+        assert_eq!(
+            first_shard_result(&[None, Some(("m1", "1"))]),
+            Some(("m1", "1"))
+        );
+        assert_eq!(first_shard_result(&[None, None]), None);
+        assert_eq!(
+            shard_channel_not_found("42"),
+            "Channel 42 not found on any shard"
+        );
+        assert_eq!(shard_result_content(Some("a")), "a");
+        assert_eq!(shard_result_content(None), "");
+        assert_eq!(shard_result_content(Some("")), "");
     }
 
     #[test]
