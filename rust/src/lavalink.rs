@@ -526,6 +526,21 @@ async fn youtube_oembed_title(http: &reqwest::Client, url: &str) -> Option<(Stri
 
 // ---- search pipeline (mirrors searchQueryOnNode in musicPlay.ts) ----
 
+/// Query-batch normalization (mirrors `handleMusicPlay` +
+/// `searchMusicQuery`, musicPlay.ts:825-827:
+/// `queries.map((query) => query.trim()).filter(Boolean)`).
+/// Trims every query, drops the empties (whitespace-only included),
+/// order preserved. JS `filter(Boolean)` drops exactly the empty
+/// string post-trim (node battery: `["  song  ","   ",""]` ->
+/// `["song"]`, `[]` -> `[]`), which is `!is_empty` here.
+pub fn normalize_play_queries(queries: &[String]) -> Vec<String> {
+    queries
+        .iter()
+        .map(|q| q.trim().to_string())
+        .filter(|q| !q.is_empty())
+        .collect()
+}
+
 /// True when the query already carries a `source:` search prefix
 /// (lavalink-client `transformQuery` extracts these before routing, so
 /// they pass through instead of stacking a second prefix).
@@ -4256,11 +4271,7 @@ impl LavalinkManager {
         requester: u64,
         now_ms: i64,
     ) -> Vec<Result<(usize, QueuedTrack, bool), MusicError>> {
-        let normalized: Vec<String> = queries
-            .iter()
-            .map(|q| q.trim().to_string())
-            .filter(|q| !q.is_empty())
-            .collect();
+        let normalized = normalize_play_queries(queries);
         let mut out = Vec::with_capacity(normalized.len());
         let mut pinned: Option<Arc<NodeEntry>> = None;
         for query in &normalized {
@@ -5560,6 +5571,26 @@ mod tests {
         assert!(!LavalinkManager::h247_rejoin_after_destroy(true, None));
         assert!(!LavalinkManager::h247_rejoin_after_destroy(false, Some(7)));
         assert!(!LavalinkManager::h247_rejoin_after_destroy(false, None));
+    }
+
+    #[test]
+    fn normalize_play_queries_match_ts_trim_filter_legs() {
+        // W6 slice 152 battery: TS
+        // `queries.map((query) => query.trim()).filter(Boolean)`
+        // replicated verbatim in node.
+        let q = |ss: &[&str]| ss.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        assert_eq!(
+            normalize_play_queries(&q(&["  song  ", "   ", "", "\ttab\t", "a", "  "])),
+            vec!["song".to_string(), "tab".to_string(), "a".to_string()]
+        );
+        // Order preserved, inner whitespace kept.
+        assert_eq!(
+            normalize_play_queries(&q(&["b", "  a  b  ", "c"])),
+            vec!["b".to_string(), "a  b".to_string(), "c".to_string()]
+        );
+        // Empty in, empty out (TS answers the no-result embed).
+        assert!(normalize_play_queries(&[]).is_empty());
+        assert!(normalize_play_queries(&q(&["   ", "\n\t "])).is_empty());
     }
 
     #[tokio::test]
