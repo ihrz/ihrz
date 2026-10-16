@@ -608,6 +608,15 @@ async fn guard_user_voice(ctx: &Ctx<'_>, code: &str, key: &str, user_voice: Opti
 
 /// No-result embed. Mirrors `buildNoResultEmbed` in musicPlay.ts
 /// (`p_embed_title`, #ff0000).
+///
+/// W6 slice 147 battery (discord.js 14.27, verbatim fn): EXACT on every
+/// reachable input — `setColor("#ff0000")` resolves to `16711680`
+/// (`0xFF0000` here), title is the verbatim lang string, `setTimestamp()`
+/// stamps now. DELTAS (hostile-only, no code change): discord.js throws at
+/// build time on an empty or >256-char title while serenity defers to the
+/// API (shipped `p_embed_title` values are short in all 10 langs); the
+/// `"No results"` fallback is unreachable (key present in all 10 langs,
+/// `table_for` falls back to en-US for unknown codes).
 fn no_result_embed(code: &str) -> serenity::CreateEmbed {
     let title = crate::lang::get(code, "p_embed_title").unwrap_or_else(|| "No results".to_string());
     serenity::CreateEmbed::default()
@@ -1735,5 +1744,26 @@ mod localization_tests {
             prm.description_localizations.get("ja").map(String::as_str),
             Some("希望するトラックタイトル（URLでも可）")
         );
+    }
+
+    #[test]
+    fn no_result_embed_matches_ts_build_legs() {
+        // W6 slice 147 battery (discord.js 14.27, verbatim
+        // `buildNoResultEmbed`): `setColor("#ff0000")` resolves to
+        // `color: 16711680`; title is the verbatim `p_embed_title`
+        // string; `setTimestamp()` stamps now. Fields are internal to
+        // `CreateEmbed`, so round-trip through Debug (precedent:
+        // embed_post.rs).
+        for code in ["en-US", "fr-FR", "jp-JP"] {
+            let title =
+                crate::lang::get(code, "p_embed_title").expect("p_embed_title in all langs");
+            let dbg = format!("{:?}", super::no_result_embed(code));
+            assert!(dbg.contains(&title), "title verbatim for {code}: {dbg}");
+            assert!(dbg.contains("16711680"), "red colour for {code}: {dbg}");
+            assert!(
+                dbg.contains("timestamp: Some"),
+                "timestamp set for {code}: {dbg}"
+            );
+        }
     }
 }
