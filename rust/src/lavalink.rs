@@ -7090,6 +7090,89 @@ mod tests {
     }
 
     #[test]
+    fn mask_legs_match_ts_blacklist_legs() {
+        // Node ground truth (35-case battery on the verbatim
+        // maskLink.ts + the forEach loop, script at scratch
+        // `slice159-masklink.js`): `String.includes` is
+        // case-sensitive ASCII-substring, so `str::contains` agrees
+        // on every input (ASCII needles can never match inside a
+        // UTF-8 multi-byte sequence).
+        for title in [
+            "",
+            " ",
+            "HTTP://X",
+            "HTTPS://X",
+            ".COM",
+            ".Gg",
+            "http:/x",
+            "htp://x",
+            "discor dapp",
+            ".c0m",
+            "com",
+            "gg",
+            "http",
+            "a.b",
+            "x,com",
+            "null",
+            "undefined",
+            "0",
+            "Hidden Link",
+        ] {
+            assert_eq!(mask_link(title), title, "clean title kept: {title:?}");
+        }
+        for title in [
+            "http://",
+            "https://",
+            ".com",
+            ".gg",
+            "discordapp",
+            "mydiscordappname",
+            "a .comb",
+            "Hidden Link http://x",
+            "  https://x  ",
+            "\u{e9}.com \u{2713}",
+            "http://\u{1F600}.com/x",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+        ] {
+            assert_eq!(
+                mask_link(title),
+                "Hidden Link",
+                "blacklist title masked: {title:?}"
+            );
+        }
+        // The forEach loop masks EVERY track in place (playlist
+        // tracks past index 0 included); `mask_tracks` is the same
+        // per-element pure map, so order/length are preserved.
+        fn track_with_title(title: &str) -> Track {
+            Track {
+                encoded: String::new(),
+                info: lava_rs::model::TrackInfo {
+                    identifier: String::new(),
+                    is_seekable: false,
+                    author: String::new(),
+                    length: 0,
+                    is_stream: false,
+                    position: 0,
+                    title: title.to_string(),
+                    uri: None,
+                    artwork_url: None,
+                    isrc: None,
+                    source_name: String::new(),
+                },
+                plugin_info: None,
+            }
+        }
+        let masked = mask_tracks(vec![
+            track_with_title("a.com"),
+            track_with_title("clean"),
+            track_with_title("x https://y"),
+        ]);
+        let titles: Vec<&str> = masked.iter().map(|t| t.info.title.as_str()).collect();
+        assert_eq!(titles, vec!["Hidden Link", "clean", "Hidden Link"]);
+        assert!(mask_tracks(vec![]).is_empty());
+    }
+
+    #[test]
     fn proximity_matches_ts_utf16_units() {
         // Node ground truth: TS lengths are UTF-16 units, astral = 2.
         assert_eq!(levenshtein("\u{1F600}", "X"), 2);
