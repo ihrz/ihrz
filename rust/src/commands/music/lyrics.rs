@@ -99,12 +99,30 @@ pub(crate) async fn resolve_lyrics_meta(
     }
 }
 
+/// TS `||` fallback leg for the `!lyrics.ts` embed render
+/// (`title || unknown`, `author || unknown`, `uri || FALLBACK`):
+/// only nullish/empty fall back; whitespace-only stays verbatim
+/// (truthy in TS). Battery slice 165: `""` -> unknown, `"   "` ->
+/// `"   "`, `None` -> unknown.
+pub fn lyrics_or_unknown<'a>(value: Option<&'a str>, unknown: &'a str) -> &'a str {
+    value.filter(|v| !v.is_empty()).unwrap_or(unknown)
+}
+
 /// TS `substring(0, 1997)` + `"..."` suffix rule (`trimmed.length ===
 /// 1997`, which holds whenever the source reached that width —
 /// including an exactly-1997 source). `substring`/`.length` count
 /// UTF-16 code units, so astral-plane chars cost 2: the cut walks
 /// `char_indices` accumulating `len_utf16` and never splits a
 /// surrogate pair.
+/// Deltas (doc-noted, no code change — battery slice 165):
+/// astral straddling the 1997-unit boundary keeps a lone high
+/// surrogate in TS (`"x"*1996 + "\uD83D"`, length 1997, suffix
+/// applies) while this drops the char (a Rust `String` cannot hold
+/// a lone surrogate; strictly more robust — Discord-bound payloads
+/// never carry unpaired halves); the `?? "null"` description leg is
+/// dead for string text (the `!response?.res.text` gate already
+/// filtered falsy, and truthy non-string text throws at the
+/// `.substring` call into the outer catch -> `lyrics_not_found`).
 pub fn lyrics_embed_description(text: &str) -> String {
     let mut units = 0usize;
     let mut end = 0usize;
@@ -205,17 +223,19 @@ pub async fn m_lyrics(
         ctx.say(not_found()).await?;
         return Ok(());
     };
-    let title = meta.title.clone().unwrap_or(suggest_title);
-    let author = meta.author.clone().unwrap_or_else(|| {
-        crate::lang::get(&code, "lyrics_embed_author_name_unknown")
-            .unwrap_or_else(|| "Unknown author".to_string())
-    });
-    let title = if title.trim().is_empty() {
-        crate::lang::get(&code, "lyrics_embed_title_unknown")
-            .unwrap_or_else(|| "Unknown title".to_string())
-    } else {
-        title
-    };
+    let unknown_title = crate::lang::get(&code, "lyrics_embed_title_unknown")
+        .unwrap_or_else(|| "Unknown title".to_string());
+    let unknown_author = crate::lang::get(&code, "lyrics_embed_author_name_unknown")
+        .unwrap_or_else(|| "Unknown author".to_string());
+    // TS `||` legs: only nullish/empty fall back; whitespace-only stays
+    // verbatim (truthy). `meta` misses fall back to the ovh suggest
+    // title first (E1 backend structure: no TS counterpart for suggest).
+    let title = lyrics_or_unknown(
+        Some(meta.title.as_deref().unwrap_or(&suggest_title)),
+        &unknown_title,
+    )
+    .to_string();
+    let author = lyrics_or_unknown(meta.author.as_deref(), &unknown_author).to_string();
     let mut embed = serenity::CreateEmbed::default()
         .title(title)
         .url(
@@ -311,6 +331,20 @@ mod tests {
         let mixed = format!("{}{}", "x".repeat(1996), "😀");
         let out = lyrics_embed_description(&mixed);
         assert_eq!(out, format!("{}...", "x".repeat(1996)));
+    }
+
+    #[test]
+    fn lyrics_or_unknown_matches_ts_double_pipe_legs() {
+        // Battery slice165-lyrics-render.js: `||` is falsy-only —
+        // whitespace-only stays verbatim, empty/nullish fall back.
+        assert_eq!(lyrics_or_unknown(Some("T"), "UT"), "T");
+        assert_eq!(lyrics_or_unknown(Some(""), "UT"), "UT");
+        assert_eq!(lyrics_or_unknown(Some("   "), "UT"), "   ");
+        assert_eq!(lyrics_or_unknown(None, "UA"), "UA");
+        assert_eq!(
+            lyrics_or_unknown(Some(""), "https://www.ihorizon.org"),
+            "https://www.ihorizon.org"
+        );
     }
 
     #[test]
