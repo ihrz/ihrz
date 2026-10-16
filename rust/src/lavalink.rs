@@ -474,6 +474,29 @@ pub fn deezer_title_identifier(title: &str) -> String {
     format!("dzsearch:{}", title.trim())
 }
 
+/// YouTube title-to-deezer fallback query (mirrors the
+/// `handleYoutube` tail: `removeParenthesesContent(title)`, then the
+/// `if (itemName !== "" || itemName !== null)` gate).
+/// DELTA (deliberate, documented): the TS gate is a tautology — a
+/// string is never both `""` and `null`, so even a title that strips
+/// to `""` (e.g. `"(Official Video)"`) is searched on deezer with an
+/// empty query. The `else { return undefined }` branch is dead code.
+/// Here an empty cleaned name folds to `None` (no-matches) instead:
+/// an empty `dzsearch:` query can only yield an empty/error load,
+/// which the `searchMusicQuery` accept gate
+/// (`res?.tracks.length && length > 0`) rejects downstream anyway,
+/// so both sides converge to no-result without a wasted node round
+/// trip. `Some` carries the exact `deezer_title_identifier` string
+/// (trimmed — `removeParenthesesContent` already trims, so the
+/// second trim is a no-op on reachable inputs).
+pub fn youtube_deezer_fallback_query(cleaned_name: &str) -> Option<String> {
+    let trimmed = cleaned_name.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    Some(format!("dzsearch:{trimmed}"))
+}
+
 /// Single first-hit load for the concurrent fan-out. None on any
 /// failure (transport, REST status, parse, empty/error load): the
 /// per-track catch, mirroring the TS `catch { return undefined }`.
@@ -4125,11 +4148,8 @@ impl LavalinkManager {
         }
         if let Some((title, _)) = youtube_oembed_title(&self.http, &clean).await {
             let name = remove_parentheses_content(&title);
-            if !name.is_empty() {
-                if let Ok(loaded) = self
-                    .load_on_node(node, &deezer_title_identifier(&name))
-                    .await
-                {
+            if let Some(identifier) = youtube_deezer_fallback_query(&name) {
+                if let Ok(loaded) = self.load_on_node(node, &identifier).await {
                     let (hits, _) = split_loaded(loaded);
                     if response_exists(&hits) {
                         return Ok((hits, false));
@@ -6514,6 +6534,41 @@ mod tests {
             deezer_title_identifier("  Never Gonna Give You Up  "),
             "dzsearch:Never Gonna Give You Up"
         );
+    }
+
+    #[test]
+    fn youtube_fallback_gate_matches_ts_tautology_legs() {
+        // Battery (node, verbatim handleYoutube tail): `!video` is
+        // falsy-only (undefined/null/0/""/false miss, {} proceeds);
+        // `title.text || ""` falls back on undefined/null/"";
+        // `itemName !== "" || itemName !== null` is a tautology —
+        // even "" proceeds to the deezer search (dead else branch).
+        // The pure port folds the dead "" leg to None (convergent
+        // downstream via the searchMusicQuery accept gate); every
+        // Some leg carries the exact `deezer_title_identifier` string.
+        assert_eq!(
+            youtube_deezer_fallback_query("Never Gonna Give You Up"),
+            Some("dzsearch:Never Gonna Give You Up".to_string())
+        );
+        assert_eq!(
+            youtube_deezer_fallback_query("0"),
+            Some("dzsearch:0".to_string())
+        );
+        // Paren-only titles strip to "" (battery:
+        // "(Official Video)" -> ""): TS searches anyway, here None.
+        assert_eq!(
+            youtube_deezer_fallback_query(&remove_parentheses_content("(Official Video) [HD]")),
+            None
+        );
+        assert_eq!(youtube_deezer_fallback_query(""), None);
+        assert_eq!(youtube_deezer_fallback_query("   "), None);
+        // Non-empty legs agree byte-for-byte with the live helper.
+        for name in ["x", "Daft Punk One More Time", "  padded  "] {
+            assert_eq!(
+                youtube_deezer_fallback_query(name),
+                Some(deezer_title_identifier(name))
+            );
+        }
     }
 
     fn lava_test_track(title: &str) -> Track {
