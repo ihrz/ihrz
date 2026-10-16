@@ -99,19 +99,137 @@ pub fn counter_data_json(data: &CounterData) -> String {
     serde_json::json!({"amount": data.amount, "userId": data.user_id}).to_string()
 }
 
-/// TS Number() semantics for the counter: blank never counts;
-/// non-finite Rust-only parses ("inf") do not count either.
+/// TS `Number()` semantics for the counter: blank never counts;
+/// hex/binary/octal literals, exact-case `Infinity` (optional sign)
+/// and decimal/exponent forms parse like JS; Rust-only spellings
+/// (`inf`, `nan`, lowercase `infinity`) and signed non-decimal
+/// literals (`+0x10`) stay non-numeric, exactly like `Number()`.
+/// Trimming uses the shared JS set (`funcs::js_trim`), so U+0085
+/// padding does NOT trim (TS keeps it, `Number()` then fails).
 pub fn counter_number(content: &str) -> Option<f64> {
-    let trimmed = content.trim();
+    let trimmed = crate::funcs::js_trim(content);
     if trimmed.is_empty() {
         return None;
+    }
+    let (neg, rest) = match trimmed.strip_prefix('-') {
+        Some(r) => (true, r),
+        None => (false, trimmed.strip_prefix('+').unwrap_or(trimmed)),
+    };
+    if rest == "Infinity" {
+        return Some(if neg {
+            f64::NEG_INFINITY
+        } else {
+            f64::INFINITY
+        });
+    }
+    if rest.len() == trimmed.len() {
+        // No sign: unsigned hex/binary/octal legs (`Number("0x10")`
+        // is 16, but `Number("+0x10")` is NaN).
+        let rest_bytes = rest.as_bytes();
+        if rest_bytes.len() > 2 && rest_bytes[0] == b'0' {
+            let radix = match rest_bytes[1] {
+                b'x' | b'X' => 16,
+                b'b' | b'B' => 2,
+                b'o' | b'O' => 8,
+                _ => 0,
+            };
+            if radix != 0 {
+                return radix_value(&rest[2..], radix);
+            }
+        }
     }
     let n: f64 = trimmed.parse().ok()?;
     if n.is_finite() {
         Some(n)
     } else {
+        // Rust-only spellings (`inf`, `nan`, ...) parse but JS
+        // `Number()` rejects them: non-numeric either way.
         None
     }
+}
+
+/// Unsigned integer-literal value for the `counter_number` radix
+/// legs. Exact through u128 (every game-reachable literal); longer
+/// digit strings fold in f64 (last-ulp only past 2^128, unreachable
+/// from a counting channel).
+fn radix_value(digits: &str, radix: u32) -> Option<f64> {
+    if digits.is_empty() {
+        return None;
+    }
+    if let Ok(v) = u128::from_str_radix(digits, radix) {
+        #[allow(clippy::cast_precision_loss)]
+        return Some(v as f64);
+    }
+    let mut acc = 0.0f64;
+    for c in digits.chars() {
+        acc = acc * f64::from(radix) + f64::from(c.to_digit(radix)?);
+    }
+    Some(acc)
+}
+
+/// JS `String(number)` rendering for f64 (used for the `${number}`
+/// fill in the counter repeat-count reply): Rust `Display` never
+/// emits exponents (`inf`, 22-digit expansions, `-0`), while TS
+/// prints `Infinity`, `1e+21`-style exponents and `0`. Shortest
+/// round-trip digits agree both sides, so the Rust expansion is
+/// re-cut with the JS magnitude rules (plain while `k <= n <= 21`
+/// or `0 < n <= 21`, fraction while `-6 < n <= 0`, exponential
+/// otherwise with an always-signed exponent).
+pub fn js_number_to_string(n: f64) -> String {
+    if n.is_nan() {
+        return "NaN".to_string();
+    }
+    if n.is_infinite() {
+        if n.is_sign_positive() {
+            return "Infinity".to_string();
+        }
+        return "-Infinity".to_string();
+    }
+    if n == 0.0 {
+        // Collapses `-0`: `String(-0)` is `"0"`.
+        return "0".to_string();
+    }
+    let mut out = String::new();
+    if n.is_sign_negative() {
+        out.push('-');
+    }
+    // Shortest round-trip positional expansion (ASCII digits only).
+    let rendered = n.abs().to_string();
+    let (int_part, frac_part) = match rendered.split_once('.') {
+        Some((i, f)) => (i, f),
+        None => (rendered.as_str(), ""),
+    };
+    let int_len = int_part.len() as i64;
+    let all = format!("{int_part}{frac_part}");
+    let stripped = all.len() as i64 - all.trim_start_matches('0').len() as i64;
+    let digits = &all[stripped as usize..];
+    let pos = int_len - stripped;
+    let k = digits.len() as i64;
+    if k <= pos && pos <= 21 {
+        out.push_str(digits);
+        out.extend(std::iter::repeat_n('0', (pos - k) as usize));
+    } else if 0 < pos && pos <= 21 {
+        out.push_str(&digits[..pos as usize]);
+        out.push('.');
+        out.push_str(&digits[pos as usize..]);
+    } else if -6 < pos && pos <= 0 {
+        out.push_str("0.");
+        out.extend(std::iter::repeat_n('0', (-pos) as usize));
+        out.push_str(digits);
+    } else {
+        // Shortest mantissa: drop the positional trailing zeros the
+        // Rust expansion carries (`1e21` expands to `1000...0`).
+        let mant = digits.trim_end_matches('0');
+        out.push_str(&mant[..1]);
+        if mant.len() > 1 {
+            out.push('.');
+            out.push_str(&mant[1..]);
+        }
+        out.push('e');
+        let exp = pos - 1;
+        out.push_str(&format!("{exp:+}"));
+    }
+    out
 }
 
 /// One counting-game step. Mirrors Events/counter/onNewMessage.ts:
@@ -245,6 +363,106 @@ mod tests {
             counter_step(&fresh, "u1", "1.5"),
             CounterOutcome::WrongNumber { .. }
         ));
+    }
+
+    #[test]
+    fn counter_number_grammar_matches_ts_battery() {
+        // Battery: slice-w7s3-counter.js replicates isNumber/Number verbatim.
+        assert_eq!(counter_number("0x10"), Some(16.0));
+        assert_eq!(counter_number("0XFF"), Some(255.0));
+        assert_eq!(counter_number("0b11"), Some(3.0));
+        assert_eq!(counter_number("0o17"), Some(15.0));
+        assert_eq!(counter_number("+0x10"), None);
+        assert_eq!(counter_number("-0x10"), None);
+        assert_eq!(counter_number("0b102"), None);
+        assert_eq!(counter_number("0x"), None);
+        assert_eq!(counter_number("Infinity"), Some(f64::INFINITY));
+        assert_eq!(counter_number("+Infinity"), Some(f64::INFINITY));
+        assert_eq!(counter_number("-Infinity"), Some(f64::NEG_INFINITY));
+        assert_eq!(counter_number("infinity"), None);
+        assert_eq!(counter_number("inf"), None);
+        assert_eq!(counter_number("NaN"), None);
+        assert_eq!(counter_number("1_000"), None);
+        assert_eq!(counter_number("1e3"), Some(1000.0));
+        assert_eq!(counter_number("  5  "), Some(5.0));
+        assert_eq!(counter_number("5."), Some(5.0));
+        assert_eq!(counter_number(".5"), Some(0.5));
+        assert_eq!(counter_number("\u{a0}5\u{a0}"), Some(5.0)); // NBSP padding: both sides trim, then 5
+        assert_eq!(counter_number("\u{85}5\u{85}"), None); // NEL padding: TS keeps, Number fails
+        assert_eq!(counter_number(""), None);
+        assert_eq!(counter_number("   "), None);
+        // Full-verdict legs through counter_step.
+        let base = CounterData {
+            amount: 15,
+            user_id: Some("u9".to_string()),
+        };
+        assert_eq!(
+            counter_step(&base, "u1", "0x10"),
+            CounterOutcome::Accept { number: 16 }
+        );
+        let mine = CounterData {
+            amount: 0,
+            user_id: Some("u1".to_string()),
+        };
+        assert_eq!(
+            counter_step(&mine, "u1", "Infinity"),
+            CounterOutcome::WrongNumber {
+                same_user: true,
+                number: f64::INFINITY
+            }
+        );
+        assert_eq!(
+            counter_step(&base, "u1", "Infinity"),
+            CounterOutcome::WrongNumber {
+                same_user: false,
+                number: f64::INFINITY
+            }
+        );
+        assert_eq!(
+            counter_step(&base, "u1", "1_000"),
+            CounterOutcome::NotNumber
+        );
+        let neg = CounterData {
+            amount: -1,
+            user_id: Some("u9".to_string()),
+        };
+        assert_eq!(
+            counter_step(&neg, "u3", "-0"),
+            CounterOutcome::Accept { number: 0 }
+        );
+    }
+
+    #[test]
+    fn js_number_to_string_matches_ts_string_ctor() {
+        // Literals verified against node String(n), same order as probe.
+        let cases: &[(f64, &str)] = &[
+            (16.0, "16"),
+            (f64::INFINITY, "Infinity"),
+            (f64::NEG_INFINITY, "-Infinity"),
+            (f64::NAN, "NaN"),
+            (-0.0, "0"),
+            (1e21, "1e+21"),
+            (1e30, "1e+30"),
+            (1e-7, "1e-7"),
+            (1.5e-7, "1.5e-7"),
+            (1e-6, "0.000001"),
+            (5e-7, "5e-7"),
+            (100.0, "100"),
+            (2.5, "2.5"),
+            (123.456, "123.456"),
+            (-123.456, "-123.456"),
+            (0.5, "0.5"),
+            (0.30000000000000004, "0.30000000000000004"),
+            (1e20, "100000000000000000000"),
+            (1e22, "1e+22"),
+            (123456789012345680000.0, "123456789012345680000"),
+            (123456789012345678.0, "123456789012345680"),
+            (f64::MAX, "1.7976931348623157e+308"),
+            (5e-324, "5e-324"),
+        ];
+        for (n, want) in cases {
+            assert_eq!(js_number_to_string(*n), *want, "n = {n}");
+        }
     }
 
     #[test]

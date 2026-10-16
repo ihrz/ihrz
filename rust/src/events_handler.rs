@@ -6980,7 +6980,7 @@ impl serenity::EventHandler for Handler {
                                         "${message.author.id}",
                                         &msg.author.id.get().to_string(),
                                     )
-                                    .replace("${number}", &number.to_string());
+                                    .replace("${number}", &nf::js_number_to_string(number));
                                     let _ = msg.reply(&_ctx.http, reply).await;
                                 } else {
                                     let reply = text(
