@@ -990,6 +990,49 @@ mod tests {
         assert_eq!(cmds.len(), 2);
         assert_eq!(cmds[0].command, "/a continued words");
         assert_eq!(cmds[1].command, "/b");
+        // W6 slice 173 node battery (verbatim TS parse()): several
+        // continuation lines join with single spaces.
+        let text = "[09/10/2026 12:00:00] \"G\" #c: U: /a\nline two\nline three\n[09/10/2026 12:01:00] \"G\" #c: U: /b\n";
+        let cmds = parse_legacy_log(text);
+        assert_eq!(cmds.len(), 2);
+        assert_eq!(cmds[0].command, "/a line two line three");
+        // Blank lines are filtered before the loop, so they never
+        // break a continuation run.
+        let text =
+            "[09/10/2026 12:00:00] \"G\" #c: U: /a\n\n\ncont after blanks\n[09/10/2026 12:01:00] \"G\" #c: U: /b\n";
+        let cmds = parse_legacy_log(text);
+        assert_eq!(cmds.len(), 2);
+        assert_eq!(cmds[0].command, "/a cont after blanks");
+        // Leading noise is skipped; a trailing non-bracket line is
+        // absorbed into the last row.
+        let cmds = parse_legacy_log("hello\nnoise\n[09/10/2026 12:00:00] \"G\" #c: U: /a");
+        assert_eq!(cmds.len(), 1);
+        assert_eq!(cmds[0].command, "/a");
+        let cmds = parse_legacy_log("[09/10/2026 12:00:00] \"G\" #c: U: /a\ntrailing tail");
+        assert_eq!(cmds.len(), 1);
+        assert_eq!(cmds[0].command, "/a trailing tail");
+        // An unparseable bracket row is skipped together with the
+        // lines it absorbed (the index still jumps past them).
+        let cmds = parse_legacy_log(
+            "[bad] \"g\" #c: u\nstray cont\n[09/10/2026 12:00:00] \"G\" #c: U: /ok\n",
+        );
+        assert_eq!(cmds.len(), 1);
+        assert_eq!(cmds[0].command, "/ok");
+        // Colons inside the command survive verbatim (only the
+        // channel/user slots are colon-free).
+        let cmds = parse_legacy_log("[09/10/2026 12:00:00] \"G\" #c: U: /x a: b\n");
+        assert_eq!(cmds.len(), 1);
+        assert_eq!(cmds[0].command, "/x a: b");
+        // CRLF endings trim like LF ones.
+        let cmds = parse_legacy_log(
+            "[09/10/2026 12:00:00] \"G\" #c: U: /a\r\n[09/10/2026 12:01:00] \"G\" #c: U: /b\r\n",
+        );
+        assert_eq!(cmds.len(), 2);
+        assert_eq!(cmds[0].command, "/a");
+        assert_eq!(cmds[1].command, "/b");
+        // Empty and noise-only inputs yield no rows.
+        assert!(parse_legacy_log("").is_empty());
+        assert!(parse_legacy_log("just noise\nno brackets here").is_empty());
     }
 
     #[test]
@@ -1024,6 +1067,53 @@ mod tests {
         assert_eq!(stats.command_types.get("/ban"), Some(&1));
         let stats = legacy_statistics(&[mk("a", "g", "/x"), mk("a", "g", "/y")]);
         assert_eq!(stats.most_active_user, "a");
+        // W6 slice 173 node battery (verbatim TS getStatistics):
+        // three-way user tie falls through to the last key.
+        let stats = legacy_statistics(&[
+            mk("a", "g1", "/ban x"),
+            mk("b", "g1", "/kick y"),
+            mk("c", "g2", "/ban z"),
+        ]);
+        assert_eq!(stats.most_active_user, "c");
+        assert_eq!(stats.most_active_guild, "g1");
+        assert_eq!(stats.unique_users, 3);
+        assert_eq!(stats.unique_guilds, 2);
+        assert_eq!(stats.unique_channels, 1);
+        assert_eq!(stats.total_commands, 3);
+        assert_eq!(stats.command_types.get("/ban"), Some(&2));
+        assert_eq!(stats.command_types.get("/kick"), Some(&1));
+        // Guild ties fall through to the later guild; channels dedupe.
+        let stats = legacy_statistics(&[
+            ParsedSavedCommand {
+                guild_name: "g1".to_string(),
+                guild_id: None,
+                executor_username: "a".to_string(),
+                timestamp: 0,
+                channel_name: "c1".to_string(),
+                channel_id: "0".to_string(),
+                command: "/x".to_string(),
+            },
+            ParsedSavedCommand {
+                guild_name: "g2".to_string(),
+                guild_id: None,
+                executor_username: "b".to_string(),
+                timestamp: 0,
+                channel_name: "c2".to_string(),
+                channel_id: "0".to_string(),
+                command: "/y".to_string(),
+            },
+        ]);
+        assert_eq!(stats.most_active_guild, "g2");
+        assert_eq!(stats.most_active_user, "b");
+        assert_eq!(stats.unique_channels, 2);
+        // Empty and leading-space commands key the type map under "".
+        let stats = legacy_statistics(&[
+            mk("a", "g", ""),
+            mk("a", "g", " /lead"),
+            mk("a", "g", "/multi word cmd"),
+        ]);
+        assert_eq!(stats.command_types.get(""), Some(&2));
+        assert_eq!(stats.command_types.get("/multi"), Some(&1));
     }
 
     fn test_dir(name: &str) -> PathBuf {
