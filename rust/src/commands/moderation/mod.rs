@@ -381,6 +381,40 @@ pub struct WarnContext<'a> {
     pub lang_code: &'a str,
 }
 
+/// Pure warn-DM text render. Mirrors the `method.warnMember` replace
+/// chain verbatim: title `${warnObject.id}`; desc `${warnObject.reason}`
+/// -> `${author.user.username}` -> `${author.roles.highest.name}` ->
+/// `${time}` (discord.js `time(date)` with no style renders `<t:unix>`
+/// with NO `:R` suffix — node ground truth, so `<t:unix>` here is exact);
+/// button label `${author.guild.name}`. Sequential `replace` keeps the TS
+/// injection order (a reason containing a later placeholder is rewritten
+/// by that later leg — node battery: reason `${author.user.username}`
+/// renders `bob`). ONE DELTA (doc-noted): TS `String.replace(string)`
+/// swaps the FIRST occurrence only while `str::replace` swaps all;
+/// shipped templates carry each placeholder once, so reachable renders
+/// agree.
+#[allow(clippy::too_many_arguments)]
+pub fn render_warn_dm(
+    title_tpl: &str,
+    desc_tpl: &str,
+    label_tpl: &str,
+    id: &str,
+    reason: &str,
+    username: &str,
+    top_role: &str,
+    at_ms: i64,
+    guild_name: &str,
+) -> (String, String, String) {
+    let title = title_tpl.replace("${warnObject.id}", id);
+    let desc = desc_tpl
+        .replace("${warnObject.reason}", reason)
+        .replace("${author.user.username}", username)
+        .replace("${author.roles.highest.name}", top_role)
+        .replace("${time}", &format!("<t:{}>", at_ms / 1000));
+    let label = label_tpl.replace("${author.guild.name}", guild_name);
+    (title, desc, label)
+}
+
 /// Record a warn + DM the member. Mirrors method.warnMember
 /// (generatePassword id, USER.<uid>.WARNS push, Red DM embed with the
 /// disabled guild button; send is best-effort like TS .catch).
@@ -441,21 +475,26 @@ pub async fn warn_member_with_author(
         .guild_name
         .clone()
         .unwrap_or_else(|| "this server".to_string());
+    let (title, desc, label) = render_warn_dm(
+        &text("global_warn_embed_title"),
+        &text("global_warn_embed_desc"),
+        &text("global_warn_component_button_label"),
+        &id,
+        w.reason,
+        w.author_name,
+        &top_role,
+        at,
+        &guild_name,
+    );
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::RED)
-        .title(text("global_warn_embed_title").replace("${warnObject.id}", &id))
-        .description(
-            text("global_warn_embed_desc")
-                .replace("${warnObject.reason}", w.reason)
-                .replace("${author.user.username}", w.author_name)
-                .replace("${author.roles.highest.name}", &top_role)
-                .replace("${time}", &format!("<t:{}>", at / 1000)),
-        );
+        .title(title)
+        .description(desc);
     let row = serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(format!(
         "guild-id-{}",
         w.guild_id.get()
     ))
-    .label(text("global_warn_component_button_label").replace("${author.guild.name}", &guild_name))
+    .label(label)
     .style(serenity::ButtonStyle::Secondary)
     .disabled(true)]);
     let _ = w
@@ -932,6 +971,51 @@ mod tests {
         map.insert(serenity::RoleId::new(2), ("Mod".to_string(), 9u16));
         let roles = Some(vec![serenity::RoleId::new(1), serenity::RoleId::new(2)]);
         assert_eq!(warn_top_role_name(&roles, &Some(map)), "Mod".to_string());
+    }
+
+    #[test]
+    fn warn_dm_render_matches_ts_replace_legs() {
+        // Shipped en-US templates, node battery verbatim (ts 1760573412000).
+        let title_tpl = "You got warned - Case **`${warnObject.id}`**";
+        let desc_tpl = "> **Reason:** ${warnObject.reason}\n> **Responsible:** @${author.user.username} (*${author.roles.highest.name}*)\nWarn generated ${time}";
+        let label_tpl = "Sent from ${author.guild.name}";
+        let (title, desc, label) = render_warn_dm(
+            title_tpl,
+            desc_tpl,
+            label_tpl,
+            "AB12CD34",
+            "spam",
+            "bob",
+            "Mod",
+            1760573412000,
+            "Acme",
+        );
+        assert_eq!(title, "You got warned - Case **`AB12CD34`**");
+        assert_eq!(
+            desc,
+            "> **Reason:** spam\n> **Responsible:** @bob (*Mod*)\nWarn generated <t:1760573412>"
+        );
+        assert_eq!(label, "Sent from Acme");
+        // Injection order: a reason containing a later placeholder is
+        // rewritten by that later leg, like TS.
+        let (_, injected, _) = render_warn_dm(
+            title_tpl,
+            desc_tpl,
+            label_tpl,
+            "AB12CD34",
+            "${author.user.username}",
+            "bob",
+            "Mod",
+            1760573412000,
+            "Acme",
+        );
+        assert!(injected.starts_with("> **Reason:** bob\n"));
+        // `${time}` is the style-less discord.js `time(date)` shape
+        // (`<t:unix>`, no `:R` — node ground truth), not ShortTime.
+        let (_, desc2, _) = render_warn_dm(
+            title_tpl, desc_tpl, label_tpl, "X", "r", "u", "t", 1000, "g",
+        );
+        assert!(desc2.ends_with("Warn generated <t:1>"));
     }
 
     #[test]
