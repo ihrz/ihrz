@@ -1289,6 +1289,33 @@ mod tests {
     }
 
     #[test]
+    fn member_boost_f64_matches_ts_get_member_boost_legs() {
+        // W6 slice 180 battery (`economyHelper.ts:26-46`,
+        // script at scratch `slice180-boost.js`, 22/22 green):
+        // filter-then-`?? 0`-then-desc-sort-then-`|| 1`, try/catch -> 1.
+        // `-0` is falsy like `0` (`-0.0 == 0.0` here, so the fold agrees).
+        assert_eq!(member_boost_f64(r#"{"1":{"boost":-0.0}}"#, &[1]), 1.0);
+        // A held `0` outranks a held negative, then folds to 1.
+        let zero_neg = r#"{"1":{"boost":-2},"2":{"boost":0}}"#;
+        assert_eq!(member_boost_f64(zero_neg, &[1, 2]), 1.0);
+        // Non-object shops: TS `Object.entries(x || [])` is empty.
+        assert_eq!(member_boost_f64("5", &[1]), 1.0);
+        assert_eq!(member_boost_f64("[]", &[1]), 1.0);
+        assert_eq!(member_boost_f64("null", &[1]), 1.0);
+        // `""`/`null` boosts are nullish-or-falsy to the same `1`.
+        assert_eq!(member_boost_f64(r#"{"1":{"boost":""}}"#, &[1]), 1.0);
+        assert_eq!(member_boost_f64(r#"{"1":{"boost":null}}"#, &[1]), 1.0);
+        // DELTA (doc-noted, legacy/manual rows only): a stored `"x3"`
+        // string is returned verbatim in TS (falsy-proof truthy, NaNs
+        // downstream) while here it normalizes to `3.0` (see `num`).
+        assert_eq!(member_boost_f64(r#"{"1":{"boost":"x3"}}"#, &[1]), 3.0);
+        // DELTA (doc-noted, manual rows only): a stored `"NaN"` string
+        // stays a truthy string in TS (NaN downstream) while here it
+        // parses to NaN (NaN downstream too — convergent outcome).
+        assert!(member_boost_f64(r#"{"1":{"boost":"NaN"}}"#, &[1]).is_nan());
+    }
+
+    #[test]
     fn cooldown_zero_when_ready() {
         assert_eq!(cooldown_remaining(0, 1000, 1000), 0);
         assert_eq!(cooldown_remaining(0, 1000, 500), 500);
