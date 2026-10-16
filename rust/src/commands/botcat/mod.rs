@@ -128,13 +128,17 @@ pub fn application_url() -> String {
 }
 
 /// Fetch the global application object. Mirrors the module-level
-/// fetch in retrieveMyself.ts (`GET /oauth2/applications/@me`).
+/// fetch in retrieveMyself.ts (`GET /oauth2/applications/@me`,
+/// `res.ok ? await res.json() : null`): non-2xx yields `None` even
+/// when the error body parses as JSON (W6 slice 142: node battery).
 pub async fn fetch_application(token: &str) -> Option<serde_json::Value> {
     reqwest::Client::new()
         .get(application_url())
         .header("Authorization", format!("Bot {token}"))
         .send()
         .await
+        .ok()?
+        .error_for_status()
         .ok()?
         .json()
         .await
@@ -148,7 +152,16 @@ pub fn app_banner_url(bot_id: u64, banner_hash: &str) -> String {
 }
 
 /// Extract the bot banner hash from the application object
-/// (`app["bot"]["banner"]`, mirrors retrieveMyself.ts).
+/// (`app?.["bot"]["banner"]`, mirrors retrieveMyself.ts; W6 slice 142:
+/// 23-case node battery). `?.` short-circuits the whole chain, so a
+/// null app yields `undefined` with NO throw (== `None` here), while a
+/// missing/`null` `bot` key throws in TS (graceful `None` here).
+/// DELTAS (doc-noted, unreachable — Discord always serves a `bot`
+/// object with a string|null hash): `{"bot": {}}` interpolates the
+/// literal `"undefined"` into the TS URL, `{"bot": {"banner": null}}`
+/// the literal `"null"`, numeric hashes their digits — all `None`
+/// here, so the live `banner.rs` reset path skips instead of GETting
+/// a doomed URL (TS axios.get would reject unhandled).
 pub fn app_bot_banner_hash(app: &serde_json::Value) -> Option<String> {
     app.get("bot")?
         .get("banner")?
@@ -157,7 +170,14 @@ pub fn app_bot_banner_hash(app: &serde_json::Value) -> Option<String> {
 }
 
 /// Bot description from the application object. Mirrors
-/// retrieveBio() (`app?.["description"]`, null when missing).
+/// retrieveBio() (`app?.["description"]`, null when missing;
+/// W6 slice 142: 23-case node battery). Verbatim on every string
+/// leg — empty and whitespace-padded descriptions pass through
+/// untouched (no trim here; the trim+empty-filter lives in the live
+/// `fetch_app_bio` reinterpretation, documented there).
+/// DELTAS (doc-noted, unreachable — Discord serves string|null):
+/// a numeric description returns the number in TS but `None` here
+/// (`as_str` only is exact on the string legs).
 pub fn app_bio(app: &serde_json::Value) -> Option<String> {
     app.get("description")?.as_str().map(|s| s.to_string())
 }
@@ -492,6 +512,44 @@ mod tests {
         assert_eq!(app_bio(&no_desc), None);
         let no_banner = serde_json::json!({"description": "hello", "bot": {}});
         assert_eq!(app_banner_for(&no_banner, 9), None);
+    }
+
+    #[test]
+    fn retrieve_myself_verbatim_legs_match_ts_battery() {
+        // Node ground truth (W6 slice 142): `app?.["description"]`
+        // short-circuits the whole chain (null app -> undefined, no
+        // throw) and returns strings VERBATIM (empty + padded kept,
+        // no trim in the pure fn); `app?.["bot"]["banner"]` throws
+        // only on a missing/null `bot` key (graceful None here),
+        // while primitive `bot` values box to undefined (== None).
+        // Non-string banner/description payloads are None here (TS
+        // interpolates/returns them verbatim — unreachable, Discord
+        // serves string|null).
+        assert_eq!(app_bio(&serde_json::Value::Null), None);
+        assert_eq!(
+            app_bio(&serde_json::json!({"description": ""})).as_deref(),
+            Some("")
+        );
+        assert_eq!(
+            app_bio(&serde_json::json!({"description": "  x  "})).as_deref(),
+            Some("  x  ")
+        );
+        assert_eq!(app_bio(&serde_json::json!({"description": 5})), None);
+        assert_eq!(app_bio(&serde_json::json!({"description": null})), None);
+        assert_eq!(app_bot_banner_hash(&serde_json::Value::Null), None);
+        assert_eq!(app_bot_banner_hash(&serde_json::json!({})), None);
+        assert_eq!(app_bot_banner_hash(&serde_json::json!({"bot": null})), None);
+        assert_eq!(app_bot_banner_hash(&serde_json::json!({"bot": 5})), None);
+        assert_eq!(app_bot_banner_hash(&serde_json::json!({"bot": "x"})), None);
+        assert_eq!(
+            app_bot_banner_hash(&serde_json::json!({"bot": {"banner": null}})),
+            None
+        );
+        assert_eq!(
+            app_bot_banner_hash(&serde_json::json!({"bot": {"banner": 123}})),
+            None
+        );
+        assert_eq!(app_banner_for(&serde_json::Value::Null, 9), None);
     }
 
     #[test]
