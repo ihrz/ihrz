@@ -569,6 +569,24 @@ fn bot_voice_channel(ctx: &Ctx<'_>, gid: u64, snapshot_voice: Option<u64>) -> Op
     snapshot_voice
 }
 
+/// Voice-gate denial fill. Mirrors the single-`.replace` legs in
+/// `handleMusicPlay` (musicPlay.ts:788-825: `p_not_in_voice_channel`
+/// verbatim, `h247_play_refused` + `music_cannot` each one `.replace`)
+/// and the per-command not-in-voice denials (`!pause.ts`/`!skip.ts`
+/// single `.replace` of the `Warning_Icon` token): TS
+/// `String.replace(string)` swaps FIRST-ONLY.
+///
+/// W6 slice 160 battery (node, verbatim legs): baseline fills, doubled
+/// template fills first-only, an icon value carrying the token fills the
+/// injected slot once (the template's own token stays literal),
+/// no-occurrence no-ops. Old Rust used replace-ALL here and diverged on
+/// doubled/hostile inputs. Behavior-preserving on shipped inputs: every
+/// `music_cannot` / `h247_play_refused` / `*_not_in_voice_channel`
+/// template carries its placeholder exactly once in all 10 langs.
+pub fn render_gate_denial(template: &str, placeholder: &str, value: &str) -> String {
+    template.replacen(placeholder, value, 1)
+}
+
 /// Same-voice-as-bot gate. Mirrors the `music_cannot` checks
 /// (`member.voice.channelId !== members.me.voice.channelId`).
 /// Returns true when the caller must stop.
@@ -581,7 +599,7 @@ async fn guard_same_voice(
     if user_voice != bot_voice {
         let no = emoji_markup(ctx, "No", "❌").await;
         let msg = crate::lang::get(code, "music_cannot")
-            .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+            .map(|s| render_gate_denial(&s, "${client.iHorizon_Emojis.No}", &no))
             .unwrap_or_else(|| {
                 "You need to be in the same voice channel as me to use this command!".to_string()
             });
@@ -598,7 +616,7 @@ async fn guard_user_voice(ctx: &Ctx<'_>, code: &str, key: &str, user_voice: Opti
     if user_voice.is_none() {
         let icon = emoji_markup(ctx, "Warning_Icon", "⚠️").await;
         let msg = crate::lang::get(code, key)
-            .map(|s| s.replace("${client.iHorizon_Emojis.Warning_Icon}", &icon))
+            .map(|s| render_gate_denial(&s, "${client.iHorizon_Emojis.Warning_Icon}", &icon))
             .unwrap_or_else(|| "You're not in a voice channel!".to_string());
         let _ = ctx.say(msg).await;
         return true;
@@ -1765,5 +1783,44 @@ mod localization_tests {
                 "timestamp set for {code}: {dbg}"
             );
         }
+    }
+
+    #[test]
+    fn gate_denial_fill_is_first_only_like_ts_replace() {
+        // W6 slice 160 battery (node, verbatim `handleMusicPlay`
+        // voice-gate legs + `!pause.ts`/`!skip.ts` denials): single
+        // `.replace` swaps first-only.
+        const NO_TOK: &str = "${client.iHorizon_Emojis.No}";
+        const WARN_TOK: &str = "${client.iHorizon_Emojis.Warning_Icon}";
+        let no = "<:no:1>";
+        // Baselines through the shipped en-US templates.
+        let cannot = crate::lang::get("en-US", "music_cannot").expect("music_cannot");
+        assert_eq!(
+            super::render_gate_denial(&cannot, NO_TOK, no),
+            "<:no:1> You need to be in the same voice channel as me to use this command!"
+        );
+        let h247 = crate::lang::get("en-US", "h247_play_refused").expect("h247_play_refused");
+        assert_eq!(
+            super::render_gate_denial(&h247, NO_TOK, no),
+            "<:no:1> The H24/7 module is active on this server. Join the H24/7 voice channel to play music!"
+        );
+        // Doubled template: first-only (old replace-ALL filled both).
+        assert_eq!(
+            super::render_gate_denial(&format!("{NO_TOK} X {NO_TOK}"), NO_TOK, no),
+            "<:no:1> X ${client.iHorizon_Emojis.No}"
+        );
+        // Icon value carrying the token: injected slot filled once,
+        // the template's own token stays literal.
+        assert_eq!(
+            super::render_gate_denial(&cannot, NO_TOK, "N${client.iHorizon_Emojis.No}"),
+            "N${client.iHorizon_Emojis.No} You need to be in the same voice channel as me to use this command!"
+        );
+        // No-occurrence: no-op; verbatim key has no token to fill.
+        let plain =
+            crate::lang::get("en-US", "p_not_in_voice_channel").expect("p_not_in_voice_channel");
+        assert_eq!(super::render_gate_denial(&plain, NO_TOK, no), plain);
+        // Warning-icon leg (per-command not-in-voice denials).
+        let skip = crate::lang::get("en-US", "skip_not_in_voice_channel").expect("skip key");
+        assert!(super::render_gate_denial(&skip, WARN_TOK, "X").starts_with("X"));
     }
 }

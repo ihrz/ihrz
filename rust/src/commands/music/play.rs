@@ -62,7 +62,7 @@ pub async fn m_play(
     if h247_refuses(h247.enabled, h247_voice, Some(voice)) {
         let no = emoji_markup(&ctx, "No", "❌").await;
         let msg = crate::lang::get(&code, "h247_play_refused")
-            .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+            .map(|s| render_gate_denial(&s, "${client.iHorizon_Emojis.No}", &no))
             .unwrap_or_else(|| {
                 "The H24/7 module is active on this server. Join the H24/7 voice channel to play music!"
                     .to_string()
