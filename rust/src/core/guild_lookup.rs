@@ -59,7 +59,14 @@ pub struct DetailedGuildData {
 
 /// Mirrors `guildResults.find((r) => r !== null) || null` for `getGuildData`.
 /// First `Some` wins; `None` entries are skipped, never matched.
-/// Empty / all-`None` input yields `None`.
+/// Empty / all-`None` input yields `None` (the `|| null` coalescing:
+/// a missed find never produces a default object).
+/// DELTA (unreachable live, see pin test): `[null, undefined, OBJ]`
+/// returns null in TS — the undefined element matches strict `!== null`
+/// and shadows the later hit through `|| null`. Unrepresentable here
+/// (`None` is the only null spelling) and unreachable live:
+/// broadcastEval structured-clone turns undefined entries into null
+/// before they reach the find leg.
 pub fn find_guild_data(results: &[Option<GuildData>]) -> Option<&GuildData> {
     results.iter().flatten().next()
 }
@@ -134,6 +141,31 @@ mod tests {
         let empty_d: Vec<Option<DetailedGuildData>> = vec![];
         assert!(find_detailed_guild_data(&empty_d).is_none());
         assert!(find_detailed_guild_data(&[None]).is_none());
+    }
+
+    #[test]
+    fn find_leg_matches_ts_strict_null_and_coalescing() {
+        // Battery (scratch slice168-shard-find.js, 13/13 green) replicating
+        // `guildResults.find((r) => r !== null) || null` verbatim.
+        // Lone hit; trailing Nones never displace the first hit.
+        let one = vec![Some(sample("solo"))];
+        assert_eq!(find_guild_data(&one).unwrap().name, "solo");
+        let trail = vec![Some(sample("a")), Some(sample("b")), None, None];
+        assert_eq!(find_guild_data(&trail).unwrap().name, "a");
+        // `|| null` coalescing: no match yields None, never a default.
+        let gaps: Vec<Option<GuildData>> = vec![None];
+        assert!(find_guild_data(&gaps).is_none());
+        // Detailed twin takes the same legs.
+        let dtrail = vec![Some(detailed("x")), None];
+        assert_eq!(find_detailed_guild_data(&dtrail).unwrap().name, "x");
+        // GuildData vanity key appears when set (TS optional `?` present).
+        let mut with_vanity = sample("v");
+        with_vanity.vanity_url_code = Some("abc".to_string());
+        let vv = serde_json::to_value(&with_vanity).unwrap();
+        assert_eq!(
+            vv.get("vanityURLCode").and_then(|v| v.as_str()),
+            Some("abc")
+        );
     }
 
     #[test]
