@@ -1394,6 +1394,71 @@ mod tests {
     }
 
     #[test]
+    fn local_render_legs_match_ts_battery() {
+        // W6 slice 144 (node battery, html2png.ts local branch verbatim):
+        // asset loop replaces ALL occurrences with the data URI, miss and
+        // empty-html are no-ops, `$` shapes in the html are literal (the
+        // replacement never carries `$`: base64 alphabet has none), the
+        // empty-token leg interleaves at every boundary both sides.
+        // Hardcoded base64 literals (no tautology): "R"->"Ug==",
+        // "X"->"WA==", "Y"->"WQ==".
+        let r = "data:image/png;base64,Ug==".to_string();
+        let x = "data:image/png;base64,WA==".to_string();
+        let y = "data:image/png;base64,WQ==".to_string();
+        let one = |t: &str, b: &str| {
+            (
+                t.to_string(),
+                "image/png".to_string(),
+                b.as_bytes().to_vec(),
+            )
+        };
+        assert_eq!(
+            inline_render_assets("a {t} b {t}", &[one("{t}", "R")]),
+            format!("a {r} b {r}")
+        );
+        assert_eq!(
+            inline_render_assets("{a}{b}", &[one("{a}", "X"), one("{b}", "Y")]),
+            format!("{x}{y}")
+        );
+        assert_eq!(
+            inline_render_assets("$$ $& $' $`", &[one("{t}", "R")]),
+            "$$ $& $' $`"
+        );
+        assert_eq!(
+            inline_render_assets("no tokens here", &[one("{t}", "R")]),
+            "no tokens here"
+        );
+        assert_eq!(inline_render_assets("", &[one("{t}", "R")]), "");
+        assert_eq!(
+            inline_render_assets("ab", &[one("", "X")]),
+            format!("{x}a{x}b{x}")
+        );
+        // Viewport `??` legs: only missing falls through; 0/negatives kept.
+        assert_eq!(
+            resolve_render_viewport(None, None, None),
+            (1280.0, 800.0, 1.0)
+        );
+        assert_eq!(
+            resolve_render_viewport(Some(0.0), Some(0.0), Some(0.0)),
+            (0.0, 0.0, 0.0)
+        );
+        assert_eq!(
+            resolve_render_viewport(Some(800.0), Some(600.0), Some(3.0)),
+            (800.0, 600.0, 3.0)
+        );
+        assert_eq!(
+            resolve_render_viewport(Some(-5.0), Some(10.0), Some(2.0)),
+            (-5.0, 10.0, 2.0)
+        );
+        assert_eq!(LOCAL_RENDER_DEFAULT_SELECTOR, ".container");
+        // Element-screenshot gate truth table.
+        assert!(select_element_gate(true, Some(".c")));
+        assert!(!select_element_gate(true, Some("")));
+        assert!(!select_element_gate(true, None));
+        assert!(!select_element_gate(false, Some(".c")));
+    }
+
+    #[test]
     fn cipher_roundtrip_and_rejects() {
         let enc = encrypt_text("pw", "hello guild");
         assert_eq!(enc.split(':').count(), 4);
@@ -2586,6 +2651,62 @@ pub async fn gateway_render_html(
         return Err(GatewayRenderError::EmptyImage);
     }
     Ok(bytes.to_vec())
+}
+
+// Element-screenshot vs full-page gate plus local asset inlining.
+// First coverage of the html2png.ts LOCAL (puppeteer) branch — the
+// gateway branch is mirrored above; no Chromium render exists here
+// (standing exclusion), but these pure legs decide WHAT would render.
+
+/// Defaults from localRender's default parameter object and the
+/// setViewport `??` fallbacks (html2png.ts localRender).
+pub const LOCAL_RENDER_DEFAULT_WIDTH: f64 = 1280.0;
+/// Default viewport height (html2png.ts localRender).
+pub const LOCAL_RENDER_DEFAULT_HEIGHT: f64 = 800.0;
+/// Default deviceScaleFactor (html2png.ts localRender).
+pub const LOCAL_RENDER_DEFAULT_SCALE: f64 = 1.0;
+/// Default elementSelector (html2png.ts localRender).
+pub const LOCAL_RENDER_DEFAULT_SELECTOR: &str = ".container";
+
+/// Inline asset buffers as data URIs. Mirrors the TS else-branch loop
+/// verbatim (sequential `html.replaceAll(token, data-uri)`).
+/// `str::replace` is exactly equivalent here: the TS pattern is a plain
+/// string (never a regex), and the replacement can never trigger `$`
+/// substitutions (`$&`/`$$`/`$'` expand only on `$`, which the base64
+/// alphabet does not contain — node-verified), so both sides replace
+/// literally, all occurrences, in order — including the empty-token
+/// interleave leg (`"ab"` with `""` yields URI+a+URI+b+URI both sides).
+pub fn inline_render_assets(html: &str, assets: &[(String, String, Vec<u8>)]) -> String {
+    let mut out = html.to_string();
+    for (token, mime, bytes) in assets {
+        let uri = format!("data:{mime};base64,{}", crate::emojis::base64_encode(bytes));
+        out = out.replace(token, &uri);
+    }
+    out
+}
+
+/// Resolve the setViewport triple. Mirrors
+/// `width ?? 1280, height ?? 800, scaleSize ?? 1`: only missing
+/// (None) falls through — `0` and negatives are kept because JS `??`
+/// is nullish, not falsy (node-verified: `(0,0,0)` stays `(0,0,0)`).
+pub fn resolve_render_viewport(
+    width: Option<f64>,
+    height: Option<f64>,
+    scale: Option<f64>,
+) -> (f64, f64, f64) {
+    (
+        width.unwrap_or(LOCAL_RENDER_DEFAULT_WIDTH),
+        height.unwrap_or(LOCAL_RENDER_DEFAULT_HEIGHT),
+        scale.unwrap_or(LOCAL_RENDER_DEFAULT_SCALE),
+    )
+}
+
+/// Element-screenshot gate. Mirrors
+/// `if (options.selectElement && options.elementSelector)`: an empty or
+/// missing selector takes the fullPage branch even when selectElement is
+/// set (node-verified truth table).
+pub fn select_element_gate(select_element: bool, element_selector: Option<&str>) -> bool {
+    select_element && element_selector.map(|s| !s.is_empty()).unwrap_or(false)
 }
 
 /// Cheap non-crypto boundary nonce (uniqueness only, not secrecy).
