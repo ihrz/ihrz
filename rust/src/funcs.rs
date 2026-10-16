@@ -2088,6 +2088,70 @@ mod tests {
     }
 
     #[test]
+    fn emoji_single_legs_match_ts_battery() {
+        // W6 slice 172 (emojiChecker.ts isSingleEmoji exactness): 100-case
+        // node battery (V8 13.6, script at scratch `slice172-emoji.js`)
+        // replicating `/^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u`
+        // verbatim. Newer-Unicode pins (U+1FAC0/U+1FABF/U+1F6DE/U+1F6DD)
+        // guard the hardcoded table against V8 \p{Emoji} version drift.
+        for s in [
+            "👍", "⭐", "‼", "©", "®", "™", "ℹ", "⌨", "⏰", "☀", "☁", "☂", "☃", "♠", "♥", "♦", "♣",
+            "⬛", "⬜", "❤", "✔", "➡", "☺", "❣", "✈", "⌚", "⏩", "⏪", "⏫", "⏬", "▪", "▫", "◀",
+            "▶", "♻", "♿", "⚠", "⚽", "⛄", "⛔", "✊", "✋", "✨", "❌", "❓", "⭕", "💯", "↔",
+            "↕", "↩", "↪", "⏏", "🔀", "🔁", "🔂", "⏸", "⏯", "⏹", "⏺", "🏴", "🏳", "🫀", "🪿", "🛞",
+            "🛝", "😀", "0", "9", "1", "#", "*",
+        ] {
+            assert!(is_single_emoji(s), "expected true: {s:?}");
+        }
+        for s in [
+            "★",
+            "☆",
+            "🌢",
+            "ab",
+            "",
+            "A",
+            " ",
+            "‍",
+            "00",
+            "🇫🇷",
+            "👨‍👩‍👧",
+            "👍👍",
+            "👍x",
+            "x👍",
+            "©x",
+            "~️",
+            "1️⃣",
+            "0️⃣",
+            "9️⃣",
+            "#️⃣",
+            "*️⃣",
+            "🏴‍☠️",
+            "❤️‍🔥",
+        ] {
+            assert!(!is_single_emoji(s), "expected false: {s:?}");
+        }
+        // Modifier / variation-selector tail legs.
+        assert!(is_single_emoji("👍🏽"));
+        assert!(is_single_emoji("👍🏿"));
+        assert!(is_single_emoji("😀🏽"));
+        assert!(is_single_emoji("©️"));
+        assert!(is_single_emoji("#️"));
+        assert!(is_single_emoji("9🏿"));
+        assert!(is_single_emoji("©🏻"));
+        // Discord legs from the same battery (substring, ASCII-only \w).
+        assert!(is_discord_emoji("/:a:1>/"));
+        assert!(is_discord_emoji("é:x:1>"));
+        assert!(is_discord_emoji("text <:a:1> tail <:b:2>"));
+        assert!(!is_discord_emoji("::123>"));
+        assert!(!is_discord_emoji(":ab:12"));
+        assert!(!is_discord_emoji(":ab:12x>"));
+        assert!(!is_discord_emoji(":ab:c>"));
+        assert!(!is_discord_emoji(":::>"));
+        assert!(!is_discord_emoji(" : :1>"));
+        assert!(!is_discord_emoji("<:...:1>"));
+    }
+
+    #[test]
     fn embed_validators() {
         assert!(is_valid_link("https://x.y"));
         assert!(!is_valid_link("ftp://x"));
