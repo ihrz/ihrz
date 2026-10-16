@@ -886,9 +886,11 @@ pub fn route_query_source(query: &str) -> QueryRoute {
     }
 }
 
-/// Deezer-vs-SoundCloud winner pick (mirrors
+/// Deezer-vs-SoundCloud winner pick (mirrors the URL branch's
 /// `soundcloudScore > deezerScore ? soundcloudRes : deezerRes`: strict
-/// greater, so an exact tie keeps the deezer result).
+/// greater, so an exact tie keeps the deezer result; URL-branch-only —
+/// the bare-text tail serves the dissimilarity re-search verbatim with
+/// no pick, W6 slice 157).
 pub fn prefers_soundcloud(deezer_score: f64, sc_score: f64) -> bool {
     sc_score > deezer_score
 }
@@ -3954,11 +3956,35 @@ impl LavalinkManager {
         mask_tracks(ordered.into_iter().map(|(_, t)| t).collect())
     }
 
-    /// Bare-text search with the deezer-vs-soundcloud proximity legs
-    /// (mirrors the non-URL tail of `searchQueryOnNode`): deezer first,
-    /// soundcloud fallback when deezer misses or looks dissimilar, and
-    /// the similarity-score pick when both hit. Single-hit results
-    /// only (TS enqueues `res.tracks[0]` for non-playlists).
+    /// Bare-text search with the deezer-vs-soundcloud legs (mirrors the
+    /// non-URL tail of `searchQueryOnNode`, musicPlay.ts:655-701).
+    /// Single-hit results only (TS enqueues `res.tracks[0]` for
+    /// non-playlists). Node battery (W6 slice 157, stubbed `node.search`
+    /// plus `isSimilar`):
+    ///
+    /// ```text
+    /// dz-hit-similar             => [dz] serve dz, no sc call
+    /// dz-miss + sc1-hit-similar  => [dz, sc1] serve sc1, no sc2 call
+    /// dz-hit-dissimilar + sc2-hit   => [dz, sc2] serve sc2 verbatim
+    /// dz-hit-dissimilar + sc2-empty => [dz, sc2] ABANDON (empty res fails
+    ///    the searchMusicQuery accept gate, failover continues)
+    /// dz-hit-dissimilar + sc2-throw => ABANDON
+    /// dz-miss + sc1-miss         => [dz, sc1] ABANDON
+    /// dz-miss + sc1-throw        => ABANDON
+    /// dz-throw                   => ABANDON, no same-node sc call
+    /// ```
+    /// Divergences fixed here (all in this tail; the URL branch already
+    /// mirrors its shape). First, a dissimilar-dz plus bad-sc2 leg served
+    /// deezer while TS abandons the node. Second, a dz throw fell through
+    /// to same-node sc while TS abandons the node outright (`catch ->
+    /// undefined`: the sc fallback only runs when dz RESOLVED with no
+    /// hit). Third, dz-miss plus sc1-hit returned sc1 while TS falls
+    /// through to the dissimilarity gate (a dissimilar sc1 is discarded
+    /// for a second soundcloud search). Fourth, the deezer-vs-soundcloud
+    /// score pick ran here, but the bare tail has NO pick (`return res`
+    /// verbatim — the strict-`>` pick is URL-branch-only, kept in
+    /// `search_url_tracks_on`): a dissimilar dz-hit plus sc2-hit serves
+    /// sc2 even when dz scores higher.
     pub async fn search_text_tracks(
         &self,
         guild_id: u64,
@@ -3973,51 +3999,56 @@ impl LavalinkManager {
         Err(MusicError::NoMatches)
     }
 
-    /// [`Self::search_text_tracks`] on one pinned node.
+    /// [`Self::search_text_tracks`] on one pinned node. An abandoned
+    /// node is `Err(NoMatches)`: both callers treat it exactly like the
+    /// TS `searchMusicQuery` accept gate failing (`res?.tracks.length
+    /// && length > 0` false on the undefined/empty `res`) and fail over
+    /// to the next node.
     async fn search_text_tracks_on(
         &self,
         node: &NodeEntry,
         query: &str,
     ) -> Result<Vec<Track>, MusicError> {
+        // Deezer leg: a throw abandons the node outright (TS `catch ->
+        // undefined` covers the whole try, so the sc fallback below only
+        // runs when dz RESOLVED with no hit — never after a throw).
         let deezer = match self.load_on_node(node, &format!("dzsearch:{query}")).await {
             Ok(loaded) => split_loaded(loaded).0,
-            Err(_) => vec![],
+            Err(_) => return Err(MusicError::NoMatches),
         };
-        if !response_exists(&deezer) {
+        // First fallback (dz resolved-miss): a throw abandons the node,
+        // a miss abandons it too (TS `res = undefined`). A HIT does not
+        // return yet — TS falls through into the dissimilarity gate
+        // below with `res = sc1` (a dissimilar sc1 hit is discarded for
+        // a second soundcloud search, not served).
+        let mut res = if response_exists(&deezer) {
+            deezer
+        } else {
             let sc = match self.load_on_node(node, &format!("scsearch:{query}")).await {
                 Ok(loaded) => split_loaded(loaded).0,
-                Err(_) => vec![],
+                Err(_) => return Err(MusicError::NoMatches),
             };
-            if response_exists(&sc) {
-                return Ok(sc);
+            if !response_exists(&sc) {
+                return Err(MusicError::NoMatches);
             }
-            return Err(MusicError::NoMatches);
-        }
-        let first = &deezer[0];
-        if is_similar(query, &first.info.title, &first.info.author) {
-            return Ok(deezer);
-        }
-        let sc = match self.load_on_node(node, &format!("scsearch:{query}")).await {
-            Ok(loaded) => split_loaded(loaded).0,
-            Err(_) => vec![],
+            sc
         };
-        if !response_exists(&sc) {
-            return Ok(deezer);
+        // `res` carries a titled first track here on every path, which
+        // is exactly the TS `res?.tracks[0] &&` leg.
+        if !is_similar(query, &res[0].info.title, &res[0].info.author) {
+            // Dissimilarity re-search: served VERBATIM — no exist check
+            // and no score pick (the strict-`>` pick is URL-branch-only).
+            // An empty leg fails the caller accept gate (node abandoned,
+            // same as the TS empty `res`); a throw abandons it directly.
+            res = match self.load_on_node(node, &format!("scsearch:{query}")).await {
+                Ok(loaded) => split_loaded(loaded).0,
+                Err(_) => return Err(MusicError::NoMatches),
+            };
+            if !response_exists(&res) {
+                return Err(MusicError::NoMatches);
+            }
         }
-        let deezer_score = proximity_similarity(
-            query,
-            &build_track_label(&first.info.title, &first.info.author),
-        );
-        let sc_first = &sc[0];
-        let sc_score = proximity_similarity(
-            query,
-            &build_track_label(&sc_first.info.title, &sc_first.info.author),
-        );
-        if prefers_soundcloud(deezer_score, sc_score) {
-            Ok(sc)
-        } else {
-            Ok(deezer)
-        }
+        Ok(res)
     }
 
     /// Generic-URL search with the deezer-then-soundcloud legs (mirrors
@@ -4055,7 +4086,7 @@ impl LavalinkManager {
             url,
             &build_track_label(&sc_first.info.title, &sc_first.info.author),
         );
-        if sc_score > deezer_score {
+        if prefers_soundcloud(deezer_score, sc_score) {
             Ok((sc, sc_playlist))
         } else {
             Ok((deezer, deezer_playlist))
