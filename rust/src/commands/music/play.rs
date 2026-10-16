@@ -264,29 +264,23 @@ pub async fn m_play(
             // Queued: echo in the player's text channel when it differs
             // from the interaction channel (TS `sendQueueAddMessage`
             // gates purely on the channel mismatch, for every added
-            // track — no position check).
-            if text_channel
-                != snap
-                    .as_ref()
-                    .and_then(|s| s.text_channel)
-                    .unwrap_or(text_channel)
+            // track — no position check). `snap` predates the
+            // `with_player` rebind above, so it carries the previously
+            // bound channel like TS `player.textChannelId`.
+            if let Some(text) =
+                queue_add_target(snap.as_ref().and_then(|s| s.text_channel), text_channel)
             {
-                if let Some(text) = snap.as_ref().and_then(|s| s.text_channel) {
-                    let icon = emoji_markup(&ctx, "Music_Icon", "🎵").await;
-                    let desc = crate::lang::get(&code, "event_mp_audioTrackAdd")
-                        .map(|s| {
-                            s.replace("${client.iHorizon_Emojis.Music_Icon}", &icon)
-                                .replace("${track.title}", &shown_title)
-                        })
-                        .unwrap_or_else(|| format!("{shown_title} added to the queue!"));
-                    let embed = serenity::CreateEmbed::default()
-                        // TS `QUEUE_ADD_EMBED_COLOR` (2829617, musicPlay.ts:77).
-                        .colour(0x2B2D31)
-                        .description(desc);
-                    let _ = serenity::ChannelId::new(text)
-                        .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))
-                        .await;
-                }
+                let icon = emoji_markup(&ctx, "Music_Icon", "🎵").await;
+                let desc = crate::lang::get(&code, "event_mp_audioTrackAdd")
+                    .map(|s| render_queue_add_desc(&s, &icon, &shown_title))
+                    .unwrap_or_else(|| format!("{shown_title} added to the queue!"));
+                let embed = serenity::CreateEmbed::default()
+                    // TS `QUEUE_ADD_EMBED_COLOR` (2829617 == 0x2B2D31, musicPlay.ts:77).
+                    .colour(0x2B2D31)
+                    .description(desc);
+                let _ = serenity::ChannelId::new(text)
+                    .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))
+                    .await;
             }
         }
         Some(Err(crate::lavalink::MusicError::NoMatches))
@@ -307,4 +301,65 @@ pub async fn m_play(
         }
     }
     Ok(())
+}
+
+/// Queue-add echo target (mirrors `sendQueueAddMessage`'s
+/// `channel?.id !== interaction.channelId` gate, musicPlay.ts:747).
+/// `player_text_channel` is the PRE-play snapshot: the player is created
+/// with `textChannelId: interaction.channelId`, so a fresh player never
+/// echoes and a rebound player echoes into its previously bound channel.
+/// Returns the channel id to send into, or `None` to skip.
+///
+/// DELTA (doc-noted, no code change): a missing channel
+/// (`player_text_channel: None`) passes the TS gate
+/// (`undefined !== id`) and then throws on `.send`; Rust folds it to a
+/// silent skip (the player always carries a text channel in practice,
+/// set at creation).
+pub fn queue_add_target(player_text_channel: Option<u64>, interaction_channel: u64) -> Option<u64> {
+    player_text_channel.filter(|id| *id != interaction_channel)
+}
+
+/// Queue-add description fill (mirrors the `event_mp_audioTrackAdd`
+/// two-`.replace` chain, musicPlay.ts:752-765, icon first then title).
+/// TS `String.replace(string)` swaps FIRST-ONLY; `replacen` keeps that
+/// shape, so a track titled `${track.title}` (or carrying the icon
+/// token) leaves the injected occurrence literal exactly like TS.
+pub fn render_queue_add_desc(template: &str, icon: &str, title: &str) -> String {
+    template
+        .replacen("${client.iHorizon_Emojis.Music_Icon}", icon, 1)
+        .replacen("${track.title}", title, 1)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{queue_add_target, render_queue_add_desc};
+
+    #[test]
+    fn queue_add_gate_and_desc_match_ts_send_queue_add_legs() {
+        // Gate legs (`channel?.id !== interaction.channelId`).
+        assert_eq!(queue_add_target(Some(1), 2), Some(1));
+        assert_eq!(queue_add_target(Some(1), 1), None);
+        assert_eq!(queue_add_target(None, 1), None);
+        // Description legs (en-US `event_mp_audioTrackAdd` shape).
+        let tpl =
+            "${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!";
+        assert_eq!(
+            render_queue_add_desc(tpl, "<:m:1>", "Song"),
+            "<:m:1> - Song has been added to the queue!"
+        );
+        // Hostile titles: injected placeholders survive (first-only).
+        assert_eq!(
+            render_queue_add_desc(tpl, "<:m:1>", "${track.title}"),
+            "<:m:1> - ${track.title} has been added to the queue!"
+        );
+        assert_eq!(
+            render_queue_add_desc(tpl, "<:m:1>", "${client.iHorizon_Emojis.Music_Icon}"),
+            "<:m:1> - ${client.iHorizon_Emojis.Music_Icon} has been added to the queue!"
+        );
+        // Doubled template: only the first occurrence fills.
+        assert_eq!(
+            render_queue_add_desc(&format!("{tpl}{tpl}"), "<:m:1>", "Song"),
+            "<:m:1> - Song has been added to the queue!${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!"
+        );
+    }
 }
