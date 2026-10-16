@@ -191,7 +191,11 @@ pub fn loop_glyph(mode: &str) -> &'static str {
     }
 }
 
-/// `HH:MM:SS` duration (mirrors `buildTrackDuration` in musicPlay.ts).
+/// `HH:MM:SS` duration (mirrors `buildTrackDuration` in musicPlay.ts;
+/// battery-pinned in `track_duration_formats_hh_mm_ss`, W6 slice 146).
+/// DELTA: negative Lavalink durations render `-0X`-style garbage in TS
+/// (`Math.floor` on negatives); the `u64` signature makes that
+/// unrepresentable — Lavalink serves non-negative durations.
 pub fn fmt_track_duration(total_ms: u64) -> String {
     let total_sec = total_ms / 1000;
     format!(
@@ -1145,10 +1149,26 @@ mod tests {
 
     #[test]
     fn track_duration_formats_hh_mm_ss() {
+        // Pinned by a node ground-truth battery replicating
+        // `buildTrackDuration` verbatim (W6 slice 146): sub-second
+        // truncation, minute/hour/day rollovers, and the unpadded
+        // 100-hour leg (`padStart(2)` is a minimum width, like `{:02}`).
         assert_eq!(fmt_track_duration(0), "00:00:00");
+        assert_eq!(fmt_track_duration(1), "00:00:00");
+        assert_eq!(fmt_track_duration(999), "00:00:00");
+        assert_eq!(fmt_track_duration(1_000), "00:00:01");
+        assert_eq!(fmt_track_duration(1_500), "00:00:01");
+        assert_eq!(fmt_track_duration(59_999), "00:00:59");
+        assert_eq!(fmt_track_duration(60_000), "00:01:00");
         assert_eq!(fmt_track_duration(65_000), "00:01:05");
+        assert_eq!(fmt_track_duration(3_599_999), "00:59:59");
         assert_eq!(fmt_track_duration(3_600_000), "01:00:00");
+        assert_eq!(fmt_track_duration(3_661_000), "01:01:01");
         assert_eq!(fmt_track_duration(3_726_000), "01:02:06");
+        assert_eq!(fmt_track_duration(86_399_999), "23:59:59");
+        assert_eq!(fmt_track_duration(86_400_000), "24:00:00");
+        assert_eq!(fmt_track_duration(359_999_999), "99:59:59");
+        assert_eq!(fmt_track_duration(360_000_000), "100:00:00");
     }
 
     #[test]

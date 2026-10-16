@@ -547,30 +547,70 @@ fn has_search_prefix(query: &str) -> bool {
 }
 
 /// True when the query parses as a URL (mirrors `isUrlQuery`: the TS
-/// side runs `new URL(query)`, which accepts any scheme, not just
-/// http(s) — e.g. `spotify:track:…` counts as a URL, while opaque
-/// paths with whitespace do not).
+/// side runs `new URL(query)`).
+///
+/// node ground-truth battery (W6 slice 146): any scheme parses, not just
+/// http(s) (`spotify:track:abc`, `tel:+123`, `C:\path` all true); scheme
+/// grammar is ASCII `^[A-Za-z][A-Za-z0-9+.-]*:` (`:foo`/`1abc:def`/nonascii
+/// false). Non-special schemes accept ANY opaque rest, including empty
+/// (`foo:`, `tel:`, `ab:`, `just:`) and whitespace (`foo:ba r`,
+/// `title: test`, `foo:  a  b  `, `dzsearch:never gonna give you up`).
+/// A `//` rest opens authority parsing even for non-special schemes
+/// (`foo://`/`foo:////` true via the empty-host leg, `foo://h/` true,
+/// `foo://a b/`/`foo://h:bad/`/`foo://h:99999/` false). Special schemes
+/// (http/https/ws/wss/ftp) need a real host (`http://`/`http:`/`wss://`
+/// false; `http:example.com`/`http:/x`/`http:///x`/upper-scheme true).
+/// `file:` allows an empty host (`file:`/`file://`/`file:///x` true).
+/// Preprocessing is WHATWG, not a plain trim: tabs/newlines are stripped
+/// everywhere (`foo:bar-tab`, `https://a-tab.com` true) and ends trim to
+/// C0/space only, so U+0085 is NOT stripped (NEL-prefixed false).
+/// DELTA (unrepresentable): lone surrogates (impossible in `&str`).
 pub fn is_url_query(query: &str) -> bool {
-    let q = query.trim();
-    let Some(colon) = q.find(':') else {
+    let stripped: String = query
+        .chars()
+        .filter(|&c| !matches!(c, '\t' | '\n' | '\r'))
+        .collect();
+    let src = trim_url_ends(&stripped);
+    let Some(colon) = src.find(':') else {
         return false;
     };
-    let (scheme, rest) = q.split_at(colon);
-    let rest = &rest[1..];
-    if scheme.is_empty() || rest.is_empty() {
+    let (scheme_raw, after) = (&src[..colon], &src[colon + 1..]);
+    if scheme_raw.is_empty() {
         return false;
     }
-    // Opaque-path URLs carry no whitespace (`new URL("title: test")`
-    // throws, `new URL("title:test")` parses).
-    if rest.chars().any(char::is_whitespace) {
-        return false;
-    }
-    let mut chars = scheme.chars();
+    let mut chars = scheme_raw.chars();
     match chars.next() {
         Some(c) if c.is_ascii_alphabetic() => {}
         _ => return false,
     }
-    chars.all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.')
+    if !chars.all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.') {
+        return false;
+    }
+    let scheme = scheme_raw.to_ascii_lowercase();
+    // Authority-bearing rests (`//...`) validate the host even for
+    // non-special schemes; `file:` additionally tolerates an empty host.
+    if scheme == "file" {
+        match after.strip_prefix("//") {
+            None => return true,
+            Some(rest) => {
+                let auth_end = rest.find(['/', '?', '#']).unwrap_or(rest.len());
+                if rest[..auth_end].is_empty() {
+                    return true;
+                }
+            }
+        }
+    } else if is_special_scheme(&scheme) {
+        return whatwg_host(src).is_some();
+    } else if let Some(rest) = after.strip_prefix("//") {
+        let auth_end = rest.find(['/', '?', '#']).unwrap_or(rest.len());
+        if rest[..auth_end].is_empty() {
+            return true;
+        }
+    } else {
+        // Opaque rest: always parses (empty, spaces, NUL all fine).
+        return true;
+    }
+    whatwg_host(src).is_some()
 }
 
 /// Mirror of `new URL(url).host` — the `.host` the TS `is*URL` guards
@@ -5936,16 +5976,75 @@ mod tests {
         }
         assert!(!is_url_query("never gonna give you up"));
         assert!(is_url_query("https://example.test/x"));
-        // Any-scheme detection (mirrors `new URL(query)`): non-http
-        // schemes count as URLs; opaque paths carry no whitespace.
+        // Any-scheme detection (mirrors `new URL(query)`), pinned by a
+        // node ground-truth battery (W6 slice 146): non-special schemes
+        // accept any opaque rest, empty or whitespace-bearing.
         assert!(is_url_query("spotify:track:abc123"));
         assert!(is_url_query("https://example.test/x"));
         assert!(!is_url_query("never gonna give you up"));
-        assert!(!is_url_query("dzsearch:never gonna give you up"));
+        assert!(is_url_query("dzsearch:never gonna give you up"));
         assert!(!is_url_query("12:34"));
-        assert!(!is_url_query("title: test"));
-        assert!(!is_url_query("just:"));
+        assert!(is_url_query("title: test"));
+        assert!(is_url_query("just:"));
+        assert!(is_url_query("foo:"));
+        assert!(is_url_query("tel:+123"));
+        assert!(is_url_query("mailto:a@b.c"));
+        assert!(is_url_query("foo:ba r"));
+        assert!(is_url_query("foo:  a  b  "));
+        assert!(is_url_query("aB1+-.:x"));
+        assert!(!is_url_query(":foo"));
+        assert!(!is_url_query("1abc:def"));
+        assert!(!is_url_query("foo :bar"));
+        assert!(!is_url_query("relative/path"));
+        assert!(!is_url_query("?q=1"));
+        assert!(!is_url_query("#f"));
+        assert!(!is_url_query("//host/path"));
+        assert!(!is_url_query(""));
+        assert!(!is_url_query("   "));
+        // `//` rests open authority parsing, even off-special-scheme.
+        assert!(is_url_query("foo://"));
+        assert!(is_url_query("foo:////"));
+        assert!(is_url_query("foo://h/"));
+        assert!(is_url_query("foo://user@h/"));
+        assert!(is_url_query("foo://h:80/x"));
+        assert!(!is_url_query("foo://a b/"));
+        assert!(!is_url_query("foo://h:bad/"));
+        assert!(!is_url_query("foo://h:99999/"));
+        assert!(!is_url_query("foo://h\\x"));
+        // Special schemes need a real host; slashless still parses.
+        assert!(!is_url_query("http://"));
+        assert!(!is_url_query("http:"));
+        assert!(!is_url_query("https:"));
+        assert!(!is_url_query("wss://"));
+        assert!(!is_url_query("http://exa mple.com"));
+        assert!(!is_url_query("http://a:99999/"));
+        assert!(!is_url_query("http://a:b/"));
+        assert!(is_url_query("http:example.com"));
+        assert!(is_url_query("http:/x"));
+        assert!(is_url_query("http:///x"));
+        assert!(is_url_query("HtTp://a"));
+        assert!(is_url_query("HTTP:EXAMPLE.COM"));
+        assert!(is_url_query("http://user@h/"));
+        assert!(is_url_query("http://h\\x"));
+        assert!(is_url_query("wss://a:443"));
+        // `file:` tolerates an empty host.
+        assert!(is_url_query("file:"));
+        assert!(is_url_query("file://"));
+        assert!(is_url_query("file:///x"));
+        assert!(is_url_query("file://h/x"));
+        assert!(!is_url_query("file://a b/"));
+        // WHATWG preprocessing: tabs/newlines stripped everywhere, ends
+        // trim to C0/space only (U+0085 is NOT stripped).
         assert!(is_url_query("  https://example.test/x  "));
+        assert!(is_url_query("\thttps://example.test/x\n"));
+        assert!(is_url_query("foo:bar\tbaz"));
+        assert!(is_url_query("https://a\t.com"));
+        assert!(is_url_query("C:\\path"));
+        assert!(is_url_query("a:é"));
+        assert!(!is_url_query("é:a"));
+        assert!(!is_url_query("été:x"));
+        assert!(!is_url_query("\u{85}foo:bar"));
+        assert!(is_url_query("foo:bar\u{85}"));
     }
 
     #[test]
