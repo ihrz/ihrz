@@ -952,6 +952,24 @@ pub fn platform_album_track_query(artist: Option<&str>, title: &str) -> String {
     )
 }
 
+/// How many resolved tracks the multi-query loop enqueues for one
+/// query result (mirrors `player.queue.add(loadType === "playlist"
+/// ? tracks : tracks[0])` in `handleMusicPlay`, musicPlay.ts:883-885:
+/// strict-`===` playlist takes every track, any other loadType takes
+/// exactly the first hit; battery slice 158 replicating the verbatim
+/// legs (`TRACK`/uppercase is single, empty stays empty). The
+/// `firstResult ??= res` latch needs no fn (`Option::or`, same
+/// nullish-only swap, pinned below); the per-query abort gate
+/// (`!res || tracks.length === 0` -> NoResult + return, :854-857)
+/// folds into the existing `response_exists` + `NoMatches` path.
+pub fn enqueue_take(is_playlist: bool, track_count: usize) -> usize {
+    if is_playlist {
+        track_count
+    } else {
+        track_count.min(1)
+    }
+}
+
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
 /// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
 /// The whitespace collapse mirrors JS `/\s+/g` + `trim()`: U+0085 is
@@ -4376,13 +4394,14 @@ impl LavalinkManager {
         if !response_exists(&tracks) {
             return Err(MusicError::NoMatches);
         }
+        let take = enqueue_take(is_playlist, tracks.len());
         let first = QueuedTrack::from((&tracks[0], requester));
         let shown = first.clone();
-        let rest: Vec<Track> = if is_playlist {
-            tracks.into_iter().skip(1).collect()
-        } else {
-            vec![]
-        };
+        let rest: Vec<Track> = tracks
+            .into_iter()
+            .skip(1)
+            .take(take.saturating_sub(1))
+            .collect();
         let position = self
             .with_player(guild_id, |p| {
                 let mut pos = p.enqueue(first, now_ms);
@@ -5881,6 +5900,26 @@ mod tests {
         assert_eq!(platform_song_query(None, "X"), "dzsearch:X - ");
         assert_eq!(platform_album_track_query(None, "X"), "dzsearch:X ");
         assert_eq!(platform_song_query(Some(""), ""), "dzsearch: - ");
+    }
+
+    #[test]
+    fn enqueue_take_matches_ts_playlist_vs_single_legs() {
+        use super::enqueue_take;
+        // Playlist legs (strict `=== "playlist"` takes every track).
+        assert_eq!(enqueue_take(true, 3), 3);
+        assert_eq!(enqueue_take(true, 1), 1);
+        assert_eq!(enqueue_take(true, 0), 0);
+        // Single legs (any other loadType takes exactly the first hit;
+        // node battery: `TRACK`/uppercase is single, empty stays empty).
+        assert_eq!(enqueue_take(false, 3), 1);
+        assert_eq!(enqueue_take(false, 1), 1);
+        assert_eq!(enqueue_take(false, 0), 0);
+        // `firstResult ??= res` latch leg (nullish-only swap == Option::or).
+        let mut first: Option<&str> = None;
+        first = first.or(Some("R1"));
+        assert_eq!(first, Some("R1"));
+        first = first.or(Some("R2"));
+        assert_eq!(first, Some("R1"));
     }
 
     #[tokio::test]
