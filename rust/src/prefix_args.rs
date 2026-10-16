@@ -229,6 +229,29 @@ pub fn channel_name_matches(
     })
 }
 
+/// Number-arg decision. Mirrors the isValidArgument "number" leg
+/// (method.ts: `!isNaN(Number(arg))` BARE -- no trim guard, unlike
+/// isNumber()): blank inputs (`""`, `" "`, NBSP, BOM-only) coerce to 0
+/// and PASS, so they return true here while
+/// `funcs_resolve::is_number` (the isNumber() mirror) rejects them.
+/// Non-blank inputs delegate to `is_number` (JS Number grammar:
+/// unsigned hex/bin/oct, exact-case Infinity, decimals/exponents).
+/// The blank check uses `funcs::js_trim` (exact JS trim incl. FEFF,
+/// excl. U+0085), NOT `str::trim`, so U+0085-only input falls through
+/// to `is_number` and correctly misses like TS.
+/// DELTA (doc-noted, pre-existing in `is_number`, no code change):
+/// U+0085-prefixed numerics (`"\u{85}5"`) are trimmed by Rust but not
+/// by JS, so they hit here while TS yields NaN. `check_prefix_args`
+/// still defers number args to poise's typed parse (same convergent
+/// caret embed as the slice-136 channel-name deferral); this fn pins
+/// the decision legs (W6 slice 137 battery). Zero live callers.
+pub fn is_valid_number_arg(arg: &str) -> bool {
+    if crate::funcs::js_trim(arg).is_empty() {
+        return true;
+    }
+    crate::funcs_resolve::is_number(arg)
+}
+
 /// Full prefix validation in TS order: required-count, longString tail
 /// merge (mutates args), per-arg required presence + choices membership
 /// + channel-type allowlist, attachment gate.
@@ -757,6 +780,46 @@ mod tests {
         let none: [super::serenity::ChannelType; 0] = [];
         assert!(!channel_name_matches("general", &chs, Some(&none)));
         assert!(!channel_name_matches("<#111>", &chs, Some(&none)));
+    }
+
+    #[test]
+    fn number_arg_legs_match_ts_battery() {
+        // W6 slice 137 (node ground truth on method.ts isValidArgument
+        // "number", `!isNaN(Number(arg))` bare -- no trim guard, unlike
+        // isNumber()): blanks coerce to 0 and pass, the rest follows
+        // the JS Number grammar via is_number.
+        // Blank legs (is_number rejects all of these; TS passes).
+        assert!(is_valid_number_arg(""));
+        assert!(is_valid_number_arg(" "));
+        assert!(is_valid_number_arg("  "));
+        assert!(is_valid_number_arg("\t\n"));
+        assert!(is_valid_number_arg(" "));
+        assert!(is_valid_number_arg("﻿"));
+        // Decimal / exponent hits.
+        assert!(is_valid_number_arg("42"));
+        assert!(is_valid_number_arg("-5"));
+        assert!(is_valid_number_arg("+5"));
+        assert!(is_valid_number_arg("5."));
+        assert!(is_valid_number_arg(".5"));
+        assert!(is_valid_number_arg("+.5e-3"));
+        assert!(is_valid_number_arg("1e3"));
+        // Unsigned radix + exact-case Infinity hits.
+        assert!(is_valid_number_arg("0x10"));
+        assert!(is_valid_number_arg("0XFF"));
+        assert!(is_valid_number_arg("0b101"));
+        assert!(is_valid_number_arg("0o17"));
+        assert!(is_valid_number_arg("Infinity"));
+        assert!(is_valid_number_arg("-Infinity"));
+        // Misses: bad exponents, signed radix, wrong-case words,
+        // trailing junk, bare prefixes/signs/dots, non-numerics,
+        // U+0085-only (JS does not trim it, Number yields NaN).
+        for arg in [
+            "1e", "e5", "-0x10", "+0x10", "infinity", "inf", "NaN", "123abc", "abc", "1_2", "--5",
+            "0x", "0b", ".", "+", "-", "null",
+        ] {
+            assert!(!is_valid_number_arg(arg), "{arg:?} must miss");
+        }
+        assert!(!is_valid_number_arg(""));
     }
 
     #[test]
