@@ -21,8 +21,15 @@ use super::*;
 pub async fn report(
     ctx: Ctx<'_>,
     // TS SlashCommands/newfeatures/report.ts registers "message-to-dev".
+    // `#[rest]` keeps multi-word prefix reports whole (rest-of-line,
+    // like TS `longString(args, 0)`); without it poise fails parsing
+    // any message containing a space (`command error: failed to parse
+    // argument` + usage embed, verified live) and the prefix leg can
+    // never submit. `#[rest]` only affects prefix parsing, the slash
+    // `message-to-dev` option still registers (required).
     #[description = "Message to devs (8+ words)"]
     #[rename = "message-to-dev"]
+    #[rest]
     message: String,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -124,6 +131,8 @@ pub async fn report(
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }
@@ -167,6 +176,24 @@ mod tests {
             crate::db::tbl_get(&pool, "g", "USER.2.REPORT.cooldown").await,
             None
         );
+    }
+
+    #[test]
+    fn rest_keeps_slash_message_required() {
+        // `#[rest]` only affects prefix parsing (rest-of-line, so a
+        // multi-word report survives like the slash free-text option);
+        // the same parameter still registers as the slash
+        // `message-to-dev` option. Required like TS
+        // (`getString("message-to-dev")`, required: true).
+        let cmd = report();
+        assert!(cmd.slash_action.is_some());
+        assert!(cmd.prefix_action.is_some());
+        let param = cmd
+            .parameters
+            .iter()
+            .find(|p| p.name == "message-to-dev")
+            .expect("slash `message-to-dev` option");
+        assert!(param.required);
     }
 
     #[test]
