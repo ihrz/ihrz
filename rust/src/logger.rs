@@ -166,6 +166,49 @@ pub fn current_shard_id() -> Option<String> {
         .filter(|s| !s.trim().is_empty())
 }
 
+/// ANSI table mirroring `src/core/functions/colors.ts` (W6 slice 175,
+/// U-ETERNAL-357). TS decorates dev-console output via 24
+/// `String.prototype` getters, each `code + this + Reset` verbatim
+/// (node battery `slice175-colors.mjs`: ALL GREEN -- empty/unicode/
+/// inner-reset/chaining/multiline/padded all verbatim, descriptors
+/// non-enumerable + configurable, 5 logger level legs green/yellow/
+/// red/cyan/gray). Dev-console decoration only, zero Discord-visible
+/// behavior: live Rust logging goes through tracing_subscriber (own
+/// ANSI), so this table pins the byte contract and has zero live
+/// callers (dead-helper parity).
+pub mod ansi {
+    pub const BLACK: &str = "\u{1b}[30m";
+    pub const RED: &str = "\u{1b}[31m";
+    pub const GREEN: &str = "\u{1b}[32m";
+    pub const YELLOW: &str = "\u{1b}[33m";
+    pub const BLUE: &str = "\u{1b}[34m";
+    pub const MAGENTA: &str = "\u{1b}[35m";
+    pub const CYAN: &str = "\u{1b}[36m";
+    pub const WHITE: &str = "\u{1b}[37m";
+    pub const BG_BLACK: &str = "\u{1b}[40m";
+    pub const BG_RED: &str = "\u{1b}[41m";
+    pub const BG_GREEN: &str = "\u{1b}[42m";
+    pub const BG_YELLOW: &str = "\u{1b}[43m";
+    pub const BG_BLUE: &str = "\u{1b}[44m";
+    pub const BG_MAGENTA: &str = "\u{1b}[45m";
+    pub const BG_CYAN: &str = "\u{1b}[46m";
+    pub const BG_WHITE: &str = "\u{1b}[47m";
+    pub const DIM: &str = "\u{1b}[2m";
+    pub const ITALIC: &str = "\u{1b}[3m";
+    pub const UNDERLINE: &str = "\u{1b}[4m";
+    pub const INVERSE: &str = "\u{1b}[7m";
+    pub const HIDDEN: &str = "\u{1b}[8m";
+    pub const STRIKETHROUGH: &str = "\u{1b}[9m";
+    pub const GRAY: &str = "\u{1b}[90m";
+    pub const BOLD: &str = "\u{1b}[1m";
+    pub const RESET: &str = "\u{1b}[0m";
+
+    /// Mirrors one TS getter: `colorCode + this + Color.Reset`.
+    pub fn wrap(code: &str, s: &str) -> String {
+        format!("{code}{s}{RESET}")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -238,5 +281,63 @@ mod tests {
     async fn spawn_tracked_swallows_err_without_panic() {
         let handle = spawn_tracked("probe-err", true, async { Err::<u32, &str>("boom") });
         assert!(handle.await.is_ok());
+    }
+
+    #[test]
+    fn ansi_table_matches_ts_colors_getters() {
+        // Battery slice175-colors.mjs (node, ALL GREEN): every getter is
+        // `code + s + Reset` verbatim. Escapes via char codes, no raw ESC.
+        use super::ansi::*;
+        let e = |n: u8| char::from(n);
+        let esc = e(27);
+        // All 24 codes byte-exact.
+        for (code, tail) in [
+            (BLACK, "30m"),
+            (RED, "31m"),
+            (GREEN, "32m"),
+            (YELLOW, "33m"),
+            (BLUE, "34m"),
+            (MAGENTA, "35m"),
+            (CYAN, "36m"),
+            (WHITE, "37m"),
+            (BG_BLACK, "40m"),
+            (BG_RED, "41m"),
+            (BG_GREEN, "42m"),
+            (BG_YELLOW, "43m"),
+            (BG_BLUE, "44m"),
+            (BG_MAGENTA, "45m"),
+            (BG_CYAN, "46m"),
+            (BG_WHITE, "47m"),
+            (DIM, "2m"),
+            (ITALIC, "3m"),
+            (UNDERLINE, "4m"),
+            (INVERSE, "7m"),
+            (HIDDEN, "8m"),
+            (STRIKETHROUGH, "9m"),
+            (GRAY, "90m"),
+            (BOLD, "1m"),
+        ] {
+            assert_eq!(code, format!("{esc}[{tail}"));
+        }
+        assert_eq!(RESET, format!("{esc}[0m"));
+        // Wrap legs: plain, empty, unicode, inner-reset, chain, multiline.
+        assert_eq!(wrap(RED, "hi"), "\u{1b}[31mhi\u{1b}[0m");
+        assert_eq!(wrap(GREEN, ""), "\u{1b}[32m\u{1b}[0m");
+        assert_eq!(wrap(CYAN, "日本語"), "\u{1b}[36m日本語\u{1b}[0m");
+        assert_eq!(
+            wrap(GREEN, &format!("a{esc}[0mb")),
+            format!("\u{1b}[32ma{esc}[0mb\u{1b}[0m")
+        );
+        assert_eq!(
+            wrap(BOLD, &wrap(RED, "x")),
+            "\u{1b}[1m\u{1b}[31mx\u{1b}[0m\u{1b}[0m"
+        );
+        assert_eq!(wrap(YELLOW, "a\nb"), "\u{1b}[33ma\nb\u{1b}[0m");
+        // Logger level legs (logger.ts:79-94): LOG/WARN/ERROR/LEGACY/DEBUG.
+        assert_eq!(wrap(GREEN, "P"), "\u{1b}[32mP\u{1b}[0m");
+        assert_eq!(wrap(YELLOW, "P"), "\u{1b}[33mP\u{1b}[0m");
+        assert_eq!(wrap(RED, "P"), "\u{1b}[31mP\u{1b}[0m");
+        assert_eq!(wrap(CYAN, "P"), "\u{1b}[36mP\u{1b}[0m");
+        assert_eq!(wrap(GRAY, "P"), "\u{1b}[90mP\u{1b}[0m");
     }
 }
