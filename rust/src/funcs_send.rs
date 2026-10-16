@@ -525,6 +525,9 @@ fn check_shape(type_label: &str, value: &str) -> Shape {
 /// per-arg shape validation, required-attachment gate. `attachments`
 /// is the message attachment count. `original_option_index` maps an
 /// attachment arg name to its index in the original options order.
+/// `attachment_required` carries REQUIRED attachment args only (TS checks
+/// `attachmentArg.required` per loop leg; the (name, index) pair has no
+/// required flag, so callers must filter before passing).
 pub fn check_args(
     expected: &[CheckArg],
     attachment_required: &[(String, usize)],
@@ -1486,6 +1489,74 @@ mod tests {
             check_args(&[], &attach, vec![], 0, &|_| 2),
             CheckVerdict::Missing { index: 2 }
         );
+    }
+
+    #[test]
+    fn check_args_gate_chain_matches_ts_battery() {
+        // W6 slice 176 battery (node ground truth, checkCommandArgs head +
+        // attachment gates verbatim, script at scratch `slice176-gates.js`):
+        // required-count reports args.len(); the single-empty gate fires
+        // even when min == 0 (`[""]` -> Missing{1}); strict `=== ""` lets
+        // whitespace through (`[" "]` validates as a string).
+        let two_req = vec![
+            CheckArg::new("string", true, false),
+            CheckArg::new("string", true, false),
+        ];
+        assert_eq!(
+            check_args(&two_req, &[], vec!["a".to_string()], 0, &|_| 0),
+            CheckVerdict::Missing { index: 1 }
+        );
+        let opt = vec![CheckArg::new("string", false, false)];
+        assert_eq!(
+            check_args(&opt, &[], vec!["".to_string()], 0, &|_| 0),
+            CheckVerdict::Missing { index: 1 }
+        );
+        assert!(matches!(
+            check_args(&opt, &[], vec![" ".to_string()], 0, &|_| 0),
+            CheckVerdict::Ok { .. }
+        ));
+        // Optional tail beyond the given args is skipped, not missing.
+        let req_opt = vec![
+            CheckArg::new("string", true, false),
+            CheckArg::new("string", false, false),
+        ];
+        assert!(matches!(
+            check_args(&req_opt, &[], vec!["x".to_string()], 0, &|_| 0),
+            CheckVerdict::Ok { .. }
+        ));
+        // Required tail beyond the given args reports its own index.
+        assert_eq!(
+            check_args(&two_req, &[], vec!["x".to_string()], 0, &|_| 0),
+            CheckVerdict::Missing { index: 1 }
+        );
+        // Attachment args are excluded from the head-gate minimum: text is
+        // optional and empty, so the head gate passes and the attachment
+        // loop reports the original option index.
+        assert_eq!(
+            check_args(&opt, &[("file".to_string(), 4usize)], vec![], 0, &|_| 4),
+            CheckVerdict::Missing { index: 4 }
+        );
+        // First required attachment wins; optional ones never block; any
+        // upload count satisfies every required attachment leg.
+        let multi = vec![("a".to_string(), 3usize), ("b".to_string(), 5usize)];
+        assert_eq!(
+            check_args(&[], &multi, vec![], 0, &|n| if n == "a" { 3 } else { 5 }),
+            CheckVerdict::Missing { index: 3 }
+        );
+        let optional_attach = vec![("f".to_string(), 9usize)];
+        // Optional attachments are never passed here (TS checks
+        // `attachmentArg.required` per leg; the slice type carries
+        // required-only entries by contract, see `check_args` docs).
+        assert!(matches!(
+            check_args(&[], &optional_attach, vec![], 3, &|_| 9),
+            CheckVerdict::Ok { .. }
+        ));
+        assert!(matches!(
+            check_args(&[], &multi, vec![], 2, &|_| 0),
+            CheckVerdict::Ok { .. }
+        ));
+        // DELTA (doc-noted): TS `!Array.isArray(args)` is unrepresentable
+        // past the `Vec<String>` signature (callers always pass a vec).
     }
 
     #[test]
