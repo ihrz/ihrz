@@ -5240,14 +5240,15 @@ impl serenity::EventHandler for Handler {
                         .get("state")
                         .map(|s| {
                             s.as_bool().unwrap_or_else(|| {
-                                s.as_str().map(|t| {
-                                    !t.is_empty()
-                                        && !matches!(
-                                            t.to_ascii_lowercase().as_str(),
-                                            "false" | "0" | "off" | "no"
-                                        )
-                                })
-                                .unwrap_or(false)
+                                s.as_str()
+                                    .map(|t| {
+                                        !t.is_empty()
+                                            && !matches!(
+                                                t.to_ascii_lowercase().as_str(),
+                                                "false" | "0" | "off" | "no"
+                                            )
+                                    })
+                                    .unwrap_or(false)
                             })
                         })
                         .unwrap_or(false);
@@ -5255,53 +5256,53 @@ impl serenity::EventHandler for Handler {
                     // listener-local return) — the join pipeline below
                     // (roles, welcome, DM…) must still run.
                     if active {
-                    let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
-                    let max_join = v.get("maxJoin").and_then(|m| m.as_i64());
-                    let now = std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .map(|d| d.as_secs() as i64)
-                        .unwrap_or(0);
-                    if crate::commands::guildconfig::too_young(
-                        new_member.user.created_at().unix_timestamp(),
-                        req,
-                        now,
-                    ) {
-                        let count_key =
-                            format!("USER.{}.BLOCK_NEW_ACCOUNT", new_member.user.id.get());
-                        let join_count = too_new_join_count(
-                            crate::db::tbl_get(&self.pool, &gid, &count_key)
-                                .await
-                                .as_deref(),
-                        ) + 1;
-                        let _ = crate::db::tbl_set(
-                            &self.pool,
-                            &gid,
-                            &count_key,
-                            &join_count.to_string(),
-                        )
-                        .await;
-                        if too_new_should_ban(join_count, max_join) {
-                            let _ = new_member
-                                .guild_id
-                                .ban_with_reason(
-                                    &ctx.http,
-                                    new_member.user.id,
-                                    0,
-                                    "[TooNewAccount] User join too much.",
-                                )
-                                .await;
-                        } else {
-                            let _ = new_member
-                                .guild_id
-                                .kick_with_reason(
-                                    &ctx.http,
-                                    new_member.user.id,
-                                    "[TooNewAccount] Account is too new",
-                                )
-                                .await;
+                        let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
+                        let max_join = v.get("maxJoin").and_then(|m| m.as_i64());
+                        let now = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_secs() as i64)
+                            .unwrap_or(0);
+                        if crate::commands::guildconfig::too_young(
+                            new_member.user.created_at().unix_timestamp(),
+                            req,
+                            now,
+                        ) {
+                            let count_key =
+                                format!("USER.{}.BLOCK_NEW_ACCOUNT", new_member.user.id.get());
+                            let join_count = too_new_join_count(
+                                crate::db::tbl_get(&self.pool, &gid, &count_key)
+                                    .await
+                                    .as_deref(),
+                            ) + 1;
+                            let _ = crate::db::tbl_set(
+                                &self.pool,
+                                &gid,
+                                &count_key,
+                                &join_count.to_string(),
+                            )
+                            .await;
+                            if too_new_should_ban(join_count, max_join) {
+                                let _ = new_member
+                                    .guild_id
+                                    .ban_with_reason(
+                                        &ctx.http,
+                                        new_member.user.id,
+                                        0,
+                                        "[TooNewAccount] User join too much.",
+                                    )
+                                    .await;
+                            } else {
+                                let _ = new_member
+                                    .guild_id
+                                    .kick_with_reason(
+                                        &ctx.http,
+                                        new_member.user.id,
+                                        "[TooNewAccount] Account is too new",
+                                    )
+                                    .await;
+                            }
+                            return;
                         }
-                        return;
-                    }
                     }
                 }
             }
