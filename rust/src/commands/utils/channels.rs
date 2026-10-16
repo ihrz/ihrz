@@ -2,23 +2,36 @@ use super::*;
 
 /// Union of the bot's role permissions from the guild cache.
 /// Mirrors the derogation.rs snapshot; empty when uncached.
+/// discord.js `permissions.has()` (what TS calls, e.g. in
+/// `!cooldown.ts`) resolves ADMINISTRATOR to every permission bit
+/// and folds in @everyone: an ADMIN-only role with no explicit
+/// ManageChannels bit still passes. Mirror both so gates agree
+/// with prod exactly; empty when uncached.
 pub(crate) fn bot_guild_permissions(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,
 ) -> poise::serenity_prelude::Permissions {
+    use poise::serenity_prelude::{Permissions, RoleId};
     let bot_id = ctx.serenity_context().cache.current_user().id;
     let cached = ctx.serenity_context().cache.guild(guild_id);
     let Some(guild) = cached else {
-        return poise::serenity_prelude::Permissions::empty();
+        return Permissions::empty();
     };
     let Some(member) = guild.members.get(&bot_id).cloned() else {
-        return poise::serenity_prelude::Permissions::empty();
+        return Permissions::empty();
     };
-    let mut perms = poise::serenity_prelude::Permissions::empty();
+    let mut perms = Permissions::empty();
+    // @everyone shares the guild id; discord.js includes it.
+    if let Some(everyone) = guild.roles.get(&RoleId::new(guild_id.get())) {
+        perms |= everyone.permissions;
+    }
     for r in &member.roles {
         if let Some(role) = guild.roles.get(r) {
             perms |= role.permissions;
         }
+    }
+    if perms.administrator() {
+        return Permissions::all();
     }
     perms
 }
