@@ -59,9 +59,19 @@ pub async fn slowmode(
     #[description = "The duration of the slowmode"]
     duration: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    // A missing prefix arg crashes to_ms in TS (silent on prefix);
-    // slash always supplies the required option, so None only
-    // happens on the prefix leg.
+    // TS checkCommandArgs counts first (`duration` required:true in
+    // HybridCommands/utils/util/util.ts): a bare `.util cooldown`
+    // renders the caret usage embed (prod pair BX2,
+    // `+cooldown [0/5s/10s/15s/30s/1m/2m/5m/10m/15m/30m/1h/2h/6h]`),
+    // never the silent no-op.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_duration_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
+    // Past the count gate prefix always carries the arg; slash
+    // requires the option, so a residual None stays silent.
     let Some(raw) = duration.as_deref() else {
         return Ok(());
     };
@@ -144,9 +154,26 @@ pub async fn apply_slowmode(
     reply_cooldown_ok(&ctx, &code, &pretty).await
 }
 
+/// Prefix count-check predicate: a bare (or whitespace-only) prefix
+/// invocation must render the caret usage embed, mirroring TS
+/// checkCommandArgs for the required `duration` option.
+pub fn prefix_duration_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bare_prefix_needs_usage_embed() {
+        // TS checkCommandArgs counts first: empty prefix args render
+        // the caret usage embed, any text reaches the handler.
+        assert!(prefix_duration_missing(""));
+        assert!(prefix_duration_missing("   "));
+        assert!(!prefix_duration_missing("5s"));
+        assert!(!prefix_duration_missing(" 0 "));
+    }
 
     #[test]
     fn time_conversion_table_mirrors_ts() {
