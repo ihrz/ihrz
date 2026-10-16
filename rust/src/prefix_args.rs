@@ -252,6 +252,71 @@ pub fn is_valid_number_arg(arg: &str) -> bool {
     crate::funcs_resolve::is_number(arg)
 }
 
+/// User-mention shape. Mirrors the isValidArgument "user" leg's
+/// `/^<@!?(\d+)>$/` (`\d` is ASCII-only, `!?` one optional bang,
+/// `+` requires 1+ digits): `<@123>`/`<@!123>` hit; `<@&123>`,
+/// `<@!>`, `<@!!123>` miss.
+pub fn is_user_mention(arg: &str) -> bool {
+    let rest = match arg.strip_prefix("<@") {
+        Some(r) => r,
+        None => return false,
+    };
+    let rest = rest.strip_prefix('!').unwrap_or(rest);
+    match rest.strip_suffix('>') {
+        Some(digits) => !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()),
+        None => false,
+    }
+}
+
+/// Role-mention shape. Mirrors the isValidArgument "roles" leg's
+/// `/^<@&(\d+)>$/`: `<@&123>` hits; `<@123>` (no `&`), `<@&>`,
+/// `<@&12a>` miss.
+pub fn is_role_mention(arg: &str) -> bool {
+    let rest = match arg.strip_prefix("<@&") {
+        Some(r) => r,
+        None => return false,
+    };
+    match rest.strip_suffix('>') {
+        Some(digits) => !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()),
+        None => false,
+    }
+}
+
+/// User-arg decision. Mirrors the isValidArgument "user" leg
+/// (`mention || !isNaN(Number(arg)) || username-find`): the Number
+/// leg is the same BARE coercion as the "number" leg (blanks and
+/// padded numerics hit), so it reuses `is_valid_number_arg`; the
+/// username find is Discord-bound, taken as `name_hit` from the
+/// caller (guild cache). `check_prefix_args` still defers user args
+/// to poise's typed parse (convergent caret embed); this fn pins
+/// the decision legs (W6 slice 138 battery). Zero live callers.
+pub fn is_valid_user_arg(arg: &str, name_hit: bool) -> bool {
+    is_user_mention(arg) || is_valid_number_arg(arg) || name_hit
+}
+
+/// Role-arg decision. Mirrors the isValidArgument "roles" leg
+/// (`mention || !isNaN(Number(arg)) || name-find?.id`): same shape
+/// as the user leg with the `&` mention form; `name_hit` is the
+/// caller-resolved exact-name lookup. Same poise deferral and
+/// zero-caller status (W6 slice 138 battery).
+pub fn is_valid_role_arg(arg: &str, name_hit: bool) -> bool {
+    is_role_mention(arg) || is_valid_number_arg(arg) || name_hit
+}
+
+/// Trivial isValidArgument legs. Mirrors the switch's `"string"`
+/// (arg is always a string on the prefix path) and `"unknown"`
+/// (unconditional true) cases plus the `default` miss leg. Returns
+/// `None` for the Discord-typed legs (`user`/`roles`/`number`/
+/// `channel`, each with a dedicated pure fn) and for slash-union
+/// labels (handled by `is_valid_choice` before the switch).
+pub fn trivial_arg_verdict(type_label: &str) -> Option<bool> {
+    match type_label {
+        "string" | "unknown" => Some(true),
+        "user" | "roles" | "number" | "channel" => None,
+        _ => Some(false),
+    }
+}
+
 /// Full prefix validation in TS order: required-count, longString tail
 /// merge (mutates args), per-arg required presence + choices membership
 /// + channel-type allowlist, attachment gate.
@@ -820,6 +885,57 @@ mod tests {
             assert!(!is_valid_number_arg(arg), "{arg:?} must miss");
         }
         assert!(!is_valid_number_arg(""));
+    }
+
+    #[test]
+    fn user_role_arg_legs_match_ts_battery() {
+        // W6 slice 138 (node ground truth on method.ts isValidArgument
+        // "user" `/^<@!?(\d+)>$/ || !isNaN(Number(arg)) || name-find`
+        // and "roles" `/^<@&(\d+)>$/ || ...`, 27 cases green): the
+        // Number leg is the same bare coercion as the "number" leg
+        // (blanks + padded numerics hit), the name legs are exact
+        // case-sensitive matches passed in as name_hit.
+        // Mention shapes.
+        assert!(is_valid_user_arg("<@123>", false));
+        assert!(is_valid_user_arg("<@!123>", false));
+        assert!(!is_valid_user_arg("<@&123>", false));
+        assert!(!is_valid_user_arg("<@!>", false));
+        assert!(!is_valid_user_arg("<@!!123>", false));
+        assert!(!is_valid_user_arg("<@123", false));
+        assert!(is_valid_role_arg("<@&123>", false));
+        assert!(is_valid_role_arg("<@&0>", false));
+        assert!(!is_valid_role_arg("<@123>", false));
+        assert!(!is_valid_role_arg("<@&>", false));
+        assert!(!is_valid_role_arg("<@&12a>", false));
+        assert!(!is_valid_role_arg("<#123>", false));
+        // Bare-Number legs (shared with the number leg).
+        assert!(is_valid_user_arg("123", false));
+        assert!(is_valid_user_arg("  123  ", false));
+        assert!(is_valid_user_arg("", false));
+        assert!(is_valid_user_arg(" ", false));
+        assert!(is_valid_user_arg("12.5", false));
+        assert!(is_valid_user_arg("0x10", false));
+        assert!(is_valid_user_arg("Infinity", false));
+        assert!(!is_valid_user_arg("NaN", false));
+        assert!(!is_valid_user_arg("123abc", false));
+        assert!(is_valid_role_arg("0", false));
+        // Name legs: exact only (padded/case variants miss), and the
+        // numeric-name hit needs no Number leg ("123" hits regardless).
+        assert!(is_valid_user_arg("alice", true));
+        assert!(!is_valid_user_arg("bob", false));
+        assert!(!is_valid_user_arg("  alice  ", false));
+        assert!(!is_valid_user_arg("ALICE", false));
+        assert!(is_valid_role_arg("mod", true));
+        assert!(!is_valid_role_arg("mod", false));
+        // Trivial switch legs: string/unknown always true, default miss;
+        // typed + union legs defer (None).
+        assert_eq!(trivial_arg_verdict("string"), Some(true));
+        assert_eq!(trivial_arg_verdict("unknown"), Some(true));
+        assert_eq!(trivial_arg_verdict("boolean"), Some(false));
+        assert_eq!(trivial_arg_verdict("user"), None);
+        assert_eq!(trivial_arg_verdict("roles"), None);
+        assert_eq!(trivial_arg_verdict("number"), None);
+        assert_eq!(trivial_arg_verdict("channel"), None);
     }
 
     #[test]
