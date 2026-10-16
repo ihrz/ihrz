@@ -5233,6 +5233,28 @@ impl serenity::EventHandler for Handler {
         if !new_member.user.bot {
             if let Some(raw) = block_new_account_routed(&self.pool, &gid).await {
                 if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+                    // TS `tooNewAccount.ts:38`: `if (!baseData?.state)
+                    // return` — a row without truthy state (legacy or
+                    // residual) never kicks.
+                    let active = v
+                        .get("state")
+                        .map(|s| {
+                            s.as_bool().unwrap_or_else(|| {
+                                s.as_str().map(|t| {
+                                    !t.is_empty()
+                                        && !matches!(
+                                            t.to_ascii_lowercase().as_str(),
+                                            "false" | "0" | "off" | "no"
+                                        )
+                                })
+                                .unwrap_or(false)
+                            })
+                        })
+                        .unwrap_or(false);
+                    // Skip only this leg when the module is off (TS
+                    // listener-local return) — the join pipeline below
+                    // (roles, welcome, DM…) must still run.
+                    if active {
                     let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
                     let max_join = v.get("maxJoin").and_then(|m| m.as_i64());
                     let now = std::time::SystemTime::now()
@@ -5279,6 +5301,7 @@ impl serenity::EventHandler for Handler {
                                 .await;
                         }
                         return;
+                    }
                     }
                 }
             }
