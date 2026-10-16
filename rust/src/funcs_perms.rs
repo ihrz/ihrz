@@ -120,6 +120,11 @@ pub fn check_role_hierarchy(
     let mut highest: u8 = 0;
     for lvl in 1u8..=9 {
         if let Some(role_id) = level_roles.get(&lvl) {
+            // TS gates on `if (roleId && ...)` (JS-falsy skip): an empty
+            // stored role id never matches, even a member holding "".
+            if role_id.is_empty() {
+                continue;
+            }
             if member_roles.iter().any(|r| r == role_id) {
                 highest = highest.max(lvl);
             }
@@ -354,6 +359,10 @@ mod tests {
         }
     }
 
+    fn lvl(pairs: &[(u8, &str)]) -> HashMap<u8, String> {
+        pairs.iter().map(|(k, v)| (*k, v.to_string())).collect()
+    }
+
     #[test]
     fn normalize_collapses_zero_with_targets() {
         // Adversarial: level 0 + targets must become None (targets-only gate).
@@ -496,6 +505,111 @@ mod tests {
         assert!(check_user_level("u1", &ul, &p));
         assert!(!check_user_level("u9", &ul, &p));
         assert!(!check_user_level("u1", &ul, &full(&[], &[], None)));
+    }
+
+    #[test]
+    fn perm_gate_legs_match_ts_battery() {
+        // W6 slice 182 (U-ETERNAL-364): 28-case node battery replicating
+        // checkExplicitUserPermission/checkRoleHierarchy/
+        // checkExplicitRolePermission/checkUserPermLevel verbatim (script at
+        // scratch `slice182-perm-gates.js`).
+        // Explicit user: hit, miss, dead second leg (level 0 + listed),
+        // empty record, null-level hit, roles-only record miss.
+        assert!(check_explicit_user("u1", &full(&["u1"], &[], Some(3))));
+        assert!(!check_explicit_user("u2", &full(&["u1"], &[], Some(3))));
+        assert!(!check_explicit_user("u2", &full(&["u1"], &[], Some(0))));
+        assert!(!check_explicit_user("u1", &full(&[], &[], Some(0))));
+        assert!(check_explicit_user("u1", &full(&["u1"], &[], None)));
+        assert!(!check_explicit_user("u1", &full(&[], &["r1"], None)));
+        // Hierarchy: null member (empty roles), missing roles map, 0/null
+        // level never fires, exact boundary, below-need miss, multi-role
+        // max, single high role, empty stored role id skips (falsy gate).
+        let p3 = full(&[], &[], Some(3));
+        assert!(!check_role_hierarchy(&[], &HashMap::new(), &p3));
+        assert!(!check_role_hierarchy(&["r3".into()], &HashMap::new(), &p3));
+        assert!(!check_role_hierarchy(
+            &["r3".into()],
+            &lvl(&[(3, "r3")]),
+            &full(&[], &[], Some(0))
+        ));
+        assert!(!check_role_hierarchy(
+            &["r3".into()],
+            &lvl(&[(3, "r3")]),
+            &full(&[], &[], None)
+        ));
+        assert!(check_role_hierarchy(
+            &["r3".into()],
+            &lvl(&[(3, "r3")]),
+            &p3
+        ));
+        assert!(!check_role_hierarchy(
+            &["r3".into()],
+            &lvl(&[(3, "r3")]),
+            &full(&[], &[], Some(4))
+        ));
+        let p5 = full(&[], &[], Some(5));
+        assert!(check_role_hierarchy(
+            &["r1".into(), "r5".into()],
+            &lvl(&[(1, "r1"), (5, "r5")]),
+            &p5
+        ));
+        assert!(check_role_hierarchy(
+            &["r5".into()],
+            &lvl(&[(1, "r1"), (5, "r5")]),
+            &p5
+        ));
+        assert!(!check_role_hierarchy(&["".into()], &lvl(&[(3, "")]), &p3));
+        // Explicit role: null member (empty roles) misses, hit/miss,
+        // level-0 hit/miss, empty record.
+        assert!(!check_explicit_role(&[], &full(&[], &["r1"], Some(5))));
+        assert!(check_explicit_role(
+            &["r1".into()],
+            &full(&[], &["r1"], Some(5))
+        ));
+        assert!(!check_explicit_role(
+            &["r2".into()],
+            &full(&[], &["r1"], Some(5))
+        ));
+        assert!(check_explicit_role(
+            &["r1".into()],
+            &full(&[], &["r1"], Some(0))
+        ));
+        assert!(!check_explicit_role(
+            &["r2".into()],
+            &full(&[], &["r1"], Some(0))
+        ));
+        assert!(!check_explicit_role(
+            &["r9".into()],
+            &full(&[], &[], Some(5))
+        ));
+        // User level: boundary hit/miss, unknown user, missing table,
+        // stored zero, 0/null level never fires.
+        let mut ul = HashMap::new();
+        ul.insert("u1".into(), 5u8);
+        assert!(check_user_level("u1", &ul, &p5));
+        assert!(!check_user_level("u1", &ul, &full(&[], &[], Some(6))));
+        assert!(!check_user_level("u9", &ul, &full(&[], &[], Some(1))));
+        assert!(!check_user_level(
+            "u1",
+            &HashMap::new(),
+            &full(&[], &[], Some(1))
+        ));
+        let mut ul0 = HashMap::new();
+        ul0.insert("u1".into(), 0u8);
+        assert!(!check_user_level("u1", &ul0, &full(&[], &[], Some(1))));
+        assert!(!check_user_level("u1", &ul, &full(&[], &[], Some(0))));
+        assert!(!check_user_level("u1", &ul, &full(&[], &[], None)));
+        // Composition: all-false record denies even with roles set.
+        let mut s = snap(full(&["other"], &["other-role"], Some(9)));
+        s.user_id = "u1".into();
+        s.member_roles = vec!["r9".into()];
+        assert!(!check_permission(&s));
+        // DELTAS (doc-noted, unreachable): TS `|| 0` folds falsy stored
+        // user levels (""/null/NaN) to 0 -- unrepresentable past
+        // HashMap<String, u8> (live writer stores integers); a null
+        // guildPerm THROWS at `.roles` in TS while the early
+        // `if (!guildPerm)` return in checkCommandPermission keeps it
+        // off the live path (Rust takes the roles map directly).
     }
 
     #[test]
