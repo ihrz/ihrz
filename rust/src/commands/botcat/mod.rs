@@ -486,15 +486,42 @@ mod tests {
     }
 
     #[test]
-    fn footer_icon_bytes_decodes_stored_pfp() {
-        let raw = b"fakepngbytes";
-        let stored = crate::emojis::base64_encode(raw);
-        assert_eq!(
-            footer_icon_bytes(Some(&stored)).as_deref(),
-            Some(raw.as_slice())
-        );
+    fn footer_icon_bytes_matches_ts_botpp_legs() {
+        // Battery: node replication of displayBotName.displayBotPP
+        // (`!botPFP` -> type 1 URL passthrough, else type 2) +
+        // footerAttachmentBuilder `Buffer.from(s, "base64")`
+        // (script at scratch slice171-botpp.js). The live !avatar.ts
+        // setter stores RAW base64 (buffer.toString("base64"), no
+        // data-URI prefix), so padded single-line rows are the only
+        // reachable stored shape -- exact on every one of them.
         assert_eq!(footer_icon_bytes(None), None);
+        assert_eq!(footer_icon_bytes(Some("")), None);
+        assert_eq!(
+            footer_icon_bytes(Some("aGVsbG8=")).as_deref(),
+            Some(b"hello".as_slice())
+        );
+        assert_eq!(
+            footer_icon_bytes(Some("  aGVsbG8=  ")).as_deref(),
+            Some(b"hello".as_slice())
+        );
+        assert_eq!(
+            footer_icon_bytes(Some("aGVsbG8h")).as_deref(),
+            Some(b"hello!".as_slice())
+        );
+        // DELTAS (doc-noted, unreachable via the live setter -- only
+        // manually-edited DB rows): TS attaches a 0-byte file for
+        // `"  "`/`"!!!"` (truthy -> type 2, Buffer swallows the chars)
+        // and 2 bytes (69b7) for len-3 `"abc"`, while Rust yields no
+        // icon; a full `data:...;base64,...` string decodes to 19
+        // garbage-prefixed bytes in TS (prefix letters are valid
+        // alphabet) while Rust strips the prefix to the clean payload.
+        assert_eq!(footer_icon_bytes(Some("  ")), None);
         assert_eq!(footer_icon_bytes(Some("!!!")), None);
+        assert_eq!(footer_icon_bytes(Some("abc")), None);
+        assert_eq!(
+            footer_icon_bytes(Some("data:image/png;base64,aGVsbG8=")).as_deref(),
+            Some(b"hello".as_slice())
+        );
     }
 
     #[test]
