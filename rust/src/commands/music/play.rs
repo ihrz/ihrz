@@ -343,10 +343,45 @@ pub fn render_loading_content(template: &str, timer: &str, result: &str) -> Stri
 /// musicPlay.ts:76; discord.js resolves it to 52250 == 0x00CC1A).
 pub const SUCCESS_EMBED_COLOR: u32 = 0x00CC1A;
 
+/// History buffer entry (mirrors the `MUSIC_HISTORY.buffer` push,
+/// musicPlay.ts:929-932: `` `[${date}: PLAYED]: { ${requester} -
+/// ${title} | ${uri} } by ${requester}` ``). Pure template-literal
+/// concat, no replaces: hostile braces/tokens in the title render
+/// verbatim on both sides. The date is the fr-FR Europe/Paris locale
+/// string, passed in (no Rust consumer yet -- the live path never
+/// pushes MUSIC_HISTORY; dead-helper parity like the query fns).
+pub fn render_history_buffer(date_str: &str, requester: &str, title: &str, uri: &str) -> String {
+    format!("[{date_str}: PLAYED]: {{ {requester} - {title} | {uri} }} by {requester}")
+}
+
+/// History embed entry (mirrors the `MUSIC_HISTORY.embed` push,
+/// musicPlay.ts:933-936: `` `${time(new Date(), "R")}:
+/// ${current?.requester} - ${current?.info.title} |
+/// ${current?.info.uri} by ${current?.requester}` ``). `?.` on a
+/// missing current interpolates literal `"undefined"` in TS, so
+/// `None` slots render `"undefined"` here. No Rust consumer yet
+/// (same dead-helper parity note as `render_history_buffer`).
+pub fn render_history_embed(
+    time_tag: &str,
+    requester: Option<&str>,
+    title: Option<&str>,
+    uri: Option<&str>,
+) -> String {
+    format!(
+        "{}: {} - {} | {} by {}",
+        time_tag,
+        requester.unwrap_or("undefined"),
+        title.unwrap_or("undefined"),
+        uri.unwrap_or("undefined"),
+        requester.unwrap_or("undefined"),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        queue_add_target, render_loading_content, render_queue_add_desc, SUCCESS_EMBED_COLOR,
+        queue_add_target, render_history_buffer, render_history_embed, render_loading_content,
+        render_queue_add_desc, SUCCESS_EMBED_COLOR,
     };
 
     #[test]
@@ -417,6 +452,39 @@ mod tests {
         assert_eq!(
             render_loading_content(tpl, "X${client.iHorizon_Emojis.Timer}Y", "track"),
             "X${client.iHorizon_Emojis.Timer}Y Loading: **track**!"
+        );
+    }
+
+    #[test]
+    fn history_entries_match_ts_music_history_push_legs() {
+        // Buffer legs (musicPlay.ts:929-932 shape; requester twice).
+        assert_eq!(
+            render_history_buffer("16/10/2026 13:00:00", "123", "Song", "https://x"),
+            "[16/10/2026 13:00:00: PLAYED]: { 123 - Song | https://x } by 123"
+        );
+        // Hostile braces in the title render verbatim (concat, no replace).
+        assert_eq!(
+            render_history_buffer("d", "R", "${x} } by {", "U"),
+            "[d: PLAYED]: { R - ${x} } by { | U } by R"
+        );
+        // Embed legs (musicPlay.ts:933-936 shape; discord.js `time()` tag).
+        assert_eq!(
+            render_history_embed(
+                "<t:1700000000:R>",
+                Some("123"),
+                Some("Song"),
+                Some("https://x")
+            ),
+            "<t:1700000000:R>: 123 - Song | https://x by 123"
+        );
+        // Missing current: TS `?.` interpolates literal "undefined".
+        assert_eq!(
+            render_history_embed("<t:1:R>", None, None, None),
+            "<t:1:R>: undefined - undefined | undefined by undefined"
+        );
+        assert_eq!(
+            render_history_embed("<t:1:R>", Some("R"), None, None),
+            "<t:1:R>: R - undefined | undefined by R"
         );
     }
 }
