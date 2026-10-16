@@ -804,7 +804,9 @@ pub fn is_valid_link(url: &str) -> bool {
 /// the `#` prefix is REQUIRED — bare `"fff"`/`"ffffff"` are rejected — and
 /// the `i` flag folds no non-ASCII char into `[0-9a-f]` (node ground
 /// truth: KELVIN SIGN, LONG S, TURKISH I, fullwidth ABC all rejected),
-/// so `is_ascii_hexdigit` is exactly equivalent.
+/// so `is_ascii_hexdigit` is exactly equivalent. JS `$` without the `m`
+/// flag anchors at end-of-input only, so a trailing `\n`/`\r`/U+2028
+/// never validates (node battery) — the fixed-length check subsumes it.
 pub fn is_valid_color(color: &str) -> bool {
     let bytes = color.as_bytes();
     (bytes.len() == 4 || bytes.len() == 7)
@@ -2209,6 +2211,12 @@ mod tests {
         // prefixes alone accepted, leading space rejected (node battery).
         assert!(!is_valid_link("HTTPS://x"));
         assert!(!is_valid_link("HTTP://x"));
+        assert!(!is_valid_link("Http://x"));
+        assert!(!is_valid_link("http"));
+        assert!(!is_valid_link("https:/x"));
+        assert!(is_valid_link("https:///x"));
+        assert!(is_valid_link("http://x\n"));
+        assert!(!is_valid_link("javascript:https://x"));
         assert!(is_valid_link("http://"));
         assert!(is_valid_link("https://"));
         assert!(!is_valid_link(""));
@@ -2247,6 +2255,17 @@ mod tests {
         assert!(!is_valid_color("#fffff"));
         assert!(!is_valid_color("#12345"));
         assert!(!is_valid_color("#1234567"));
+        assert!(!is_valid_color("#"));
+        // JS `$` (no `m` flag) is end-of-input only: a trailing newline
+        // (or CR/U+2028/U+2029) never satisfies the anchor (node battery —
+        // one wrong prediction corrected here); surrounding spaces fail too.
+        assert!(!is_valid_color("#fff\n"));
+        assert!(!is_valid_color("#ffffff\n"));
+        assert!(!is_valid_color("#fff\r"));
+        assert!(!is_valid_color("#fff\u{2028}"));
+        assert!(!is_valid_color("#fff\nx"));
+        assert!(!is_valid_color(" #fff"));
+        assert!(!is_valid_color("#fff "));
         assert!(is_valid_embed_id("abc123"));
         assert!(!is_valid_embed_id(""));
         assert!(!is_valid_embed_id("a.b."));
