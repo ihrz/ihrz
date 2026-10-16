@@ -212,13 +212,32 @@ pub fn needed_perm_text(lang_code: &str, perm: Option<&CommandPerm>) -> String {
 /// `${interaction.member?.user.toString()}` -> member mention and
 /// `${neededPerm}` -> [`needed_perm_text`]. Exact en-US fallback when the
 /// guild lang table misses the key.
+/// Both fills are FIRST-ONLY (`replacen(..., 1)`), matching TS
+/// `String.replace(string)` (W6 slice 177 battery): a doubled template
+/// keeps the second marker literal, and a member value carrying
+/// `${neededPerm}` consumes the single neededPerm leg (it sorts first),
+/// leaving the template's own marker literal. Behavior-preserving on the
+/// shipped templates (each placeholder occurs exactly once in all 10
+/// langs, verified `grep -c` x10).
 pub fn denied_message(lang_code: &str, member_mention: &str, perm: Option<&CommandPerm>) -> String {
     let template = crate::lang::get(lang_code, "event_permission_wrong").unwrap_or_else(|| {
         "${interaction.member?.user.toString()}, you are not allowed to use this command! You need this permission: ${neededPerm}".to_string()
     });
+    fill_denial_template(
+        &template,
+        member_mention,
+        &needed_perm_text(lang_code, perm),
+    )
+}
+
+/// Pure two-leg template fill behind [`denied_message`]: member token
+/// first, neededPerm token second, each FIRST-ONLY like TS
+/// `String.replace(string)`. Split out so the takeover battery can pin
+/// doubled/injected shapes without a lang-table round-trip.
+pub fn fill_denial_template(template: &str, member_mention: &str, needed_perm: &str) -> String {
     template
-        .replace("${interaction.member?.user.toString()}", member_mention)
-        .replace("${neededPerm}", &needed_perm_text(lang_code, perm))
+        .replacen("${interaction.member?.user.toString()}", member_mention, 1)
+        .replacen("${neededPerm}", needed_perm, 1)
 }
 
 /// Owner-list flag, table-first with legacy kv fallback.
@@ -561,6 +580,45 @@ mod tests {
         assert_eq!(
             denied_message("en-US", "<@123>", None),
             "<@123>, you are not allowed to use this command! You need this permission: **`Discord Permission`**"
+        );
+    }
+
+    #[test]
+    fn denial_fill_is_first_only_like_ts_replace() {
+        // Node ground-truth battery for the sendErrorMessage content fill
+        // (W6 slice 177, script at scratch `slice177-denial.js`): TS chains
+        // `.replace(string)`, which swaps the FIRST occurrence per leg.
+        let m = "${interaction.member?.user.toString()}";
+        let n = "${neededPerm}";
+        // Baselines fill both legs once.
+        assert_eq!(
+            fill_denial_template(&format!("M:{m} P:{n}"), "<@1>", "N"),
+            "M:<@1> P:N"
+        );
+        // Doubled templates keep the second marker literal.
+        assert_eq!(
+            fill_denial_template(&format!("A {n} B {n}"), "<@1>", "N"),
+            "A N B ${neededPerm}"
+        );
+        assert_eq!(
+            fill_denial_template(&format!("A {m} B {m} C"), "<@1>", "N"),
+            "A <@1> B ${interaction.member?.user.toString()} C"
+        );
+        // A member value carrying `${neededPerm}` sorts first, so it
+        // consumes the single neededPerm leg; the template's own marker
+        // stays literal (same shape as the slice-141 injection leg).
+        assert_eq!(
+            fill_denial_template(&format!("M:{m} P:{n}"), "X${neededPerm}Y", "N"),
+            "M:XNY P:${neededPerm}"
+        );
+        // No-occurrence templates and empty fills are no-ops.
+        assert_eq!(
+            fill_denial_template("plain text", "<@1>", "N"),
+            "plain text"
+        );
+        assert_eq!(
+            fill_denial_template(&format!("M:{m} P:{n}"), "<@1>", ""),
+            "M:<@1> P:"
         );
     }
 
