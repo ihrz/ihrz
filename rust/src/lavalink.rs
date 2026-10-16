@@ -894,6 +894,39 @@ pub fn spotify_track_query(artist: Option<&str>, title: &str) -> String {
     )
 }
 
+/// Deezer re-search identifier for one Apple/Tidal/Amazon single song
+/// (mirrors the `// Single song` legs of `handleAppleMusic` /
+/// `handleTidalMusic` / `handleAmazonMusic`, musicPlay.ts:328/:407/:486:
+/// `` { query: `${res.title} - ${res.artist.name}`, source: "deezer" } ``
+/// — title FIRST with a ` - ` separator, reversed vs the Spotify leg).
+/// DELTAS (doc, convergent on reachable inputs): TS interpolates
+/// verbatim (no trim, so padded input sends padded; a missing artist
+/// renders the literal `"undefined"`) while this trims both halves and
+/// maps a missing artist to `""` — the metadata ports yield clean
+/// non-optional `String` fields (`title`, `artist.name`), so the legs
+/// agree on every real input.
+pub fn platform_song_query(artist: Option<&str>, title: &str) -> String {
+    format!(
+        "dzsearch:{} - {}",
+        title.trim(),
+        artist.unwrap_or_default().trim()
+    )
+}
+
+/// Deezer re-search identifier for one Apple/Tidal/Amazon album/playlist
+/// track (mirrors the fan-out legs, musicPlay.ts:347/:426/:505:
+/// `` { query: `${track.title} ${track.artist.name}`, source: "deezer" } ``
+/// — title FIRST with a single space and NO dash, reversed vs the
+/// Spotify fan-out leg). Same trim/missing deltas as
+/// [`platform_song_query`]; same reachability (clean port strings).
+pub fn platform_album_track_query(artist: Option<&str>, title: &str) -> String {
+    format!(
+        "dzsearch:{} {}",
+        title.trim(),
+        artist.unwrap_or_default().trim()
+    )
+}
+
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
 /// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
 /// The whitespace collapse mirrors JS `/\s+/g` + `trim()`: U+0085 is
@@ -3807,6 +3840,23 @@ impl LavalinkManager {
         }
     }
 
+    /// First-hit track for one Apple/Tidal/Amazon `title - artist` deezer
+    /// query on the pinned node (same miss/transport-None shape as
+    /// [`Self::deezer_first_hit_on`]; the identifier is the reversed
+    /// [`platform_song_query`], not the Spotify order).
+    async fn platform_first_hit_on(
+        &self,
+        node: &NodeEntry,
+        artist: &str,
+        title: &str,
+    ) -> Option<Track> {
+        let identifier = platform_song_query(Some(artist), title);
+        match self.load_on_node(node, &identifier).await {
+            Ok(loaded) => split_loaded(loaded).0.into_iter().next(),
+            Err(_) => None,
+        }
+    }
+
     /// Concurrent deezer fan-out for album/playlist metadata (mirrors
     /// the TS `Promise.all(tracks.map(...))` with its per-track
     /// try/catch): one in-flight load per `(artist, title)` pair,
@@ -3828,6 +3878,43 @@ impl LavalinkManager {
             let base = base.clone();
             let password = password.clone();
             let identifier = spotify_track_query(Some(artist.as_str()), title);
+            set.spawn(async move {
+                let hit = load_first_hit(&http, &base, &password, &identifier).await;
+                (idx, hit)
+            });
+        }
+        let mut ordered: Vec<(usize, Track)> = Vec::new();
+        while let Some(res) = set.join_next().await {
+            // Per-track catch: transport/parse/join failures drop the track.
+            if let Ok((idx, Some(hit))) = res {
+                ordered.push((idx, hit));
+            }
+        }
+        ordered.sort_by_key(|(idx, _)| *idx);
+        mask_tracks(ordered.into_iter().map(|(_, t)| t).collect())
+    }
+
+    /// Concurrent deezer fan-out for Apple/Tidal/Amazon album/playlist
+    /// metadata (same `Promise.all` + per-track-catch + order-restore +
+    /// cap shape as [`Self::deezer_fan_out_queries`]; each identifier is
+    /// the title-first [`platform_album_track_query`], not Spotify order).
+    async fn platform_fan_out_queries(
+        &self,
+        node: &NodeEntry,
+        queries: &[(String, String)],
+    ) -> Vec<Track> {
+        if queries.is_empty() {
+            return vec![];
+        }
+        let http = self.http.clone();
+        let base = node.base_url();
+        let password = node.lava_cfg.password.clone();
+        let mut set = tokio::task::JoinSet::new();
+        for (idx, (artist, title)) in queries.iter().enumerate().take(PLAYLIST_FANOUT_CAP) {
+            let http = http.clone();
+            let base = base.clone();
+            let password = password.clone();
+            let identifier = platform_album_track_query(Some(artist.as_str()), title);
             set.spawn(async move {
                 let hit = load_first_hit(&http, &base, &password, &identifier).await;
                 (idx, hit)
@@ -4096,7 +4183,7 @@ impl LavalinkManager {
         match res {
             crate::metadata::apple_music::AppleResult::Song(t) => {
                 match self
-                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
+                    .platform_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
@@ -4109,7 +4196,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -4121,7 +4208,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -4141,7 +4228,7 @@ impl LavalinkManager {
         match res {
             crate::metadata::tidal::TidalResult::Song(t) => {
                 match self
-                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
+                    .platform_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
@@ -4154,7 +4241,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -4166,7 +4253,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -4187,7 +4274,7 @@ impl LavalinkManager {
         match res {
             crate::metadata::amazon_music::AmazonResult::Song(t) => {
                 match self
-                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
+                    .platform_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
@@ -4200,7 +4287,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -4212,7 +4299,7 @@ impl LavalinkManager {
                     .iter()
                     .map(|t| (t.artist.name.clone(), t.title.clone()))
                     .collect();
-                let found = self.deezer_fan_out_queries(node, &queries).await;
+                let found = self.platform_fan_out_queries(node, &queries).await;
                 if found.is_empty() {
                     return Err(MusicError::NoMatches);
                 }
@@ -5710,6 +5797,39 @@ mod tests {
         assert_eq!(capped[99], 99);
         let small = [1u32, 2, 3];
         assert_eq!(small.iter().take(PLAYLIST_FANOUT_CAP).count(), 3);
+    }
+
+    #[test]
+    fn platform_queries_match_ts_apple_tidal_amazon_legs() {
+        use super::{platform_album_track_query, platform_song_query};
+        // Single-song legs (node battery: `${title} - ${artist.name}`,
+        // title first with ` - `; shared by all three handlers).
+        assert_eq!(
+            platform_song_query(Some("Daft Punk"), "One More Time"),
+            "dzsearch:One More Time - Daft Punk"
+        );
+        assert_eq!(
+            platform_song_query(Some("Taylor Swift"), "Shake It Off"),
+            "dzsearch:Shake It Off - Taylor Swift"
+        );
+        // Album/playlist fan-out legs (node battery:
+        // `${title} ${artist.name}`, title first, no dash).
+        assert_eq!(
+            platform_album_track_query(Some("Daft Punk"), "One More Time"),
+            "dzsearch:One More Time Daft Punk"
+        );
+        // Cross-check: platform shapes differ from the Spotify leg on the
+        // same input (artist-first there, title-first here).
+        assert_eq!(
+            spotify_track_query(Some("Daft Punk"), "One More Time"),
+            "dzsearch:Daft Punk One More Time"
+        );
+        // Missing-artist legs (node battery renders literal "undefined";
+        // the pure fns map it to "" — unreachable: metadata ports yield
+        // clean non-optional Strings, doc-noted on the fns).
+        assert_eq!(platform_song_query(None, "X"), "dzsearch:X - ");
+        assert_eq!(platform_album_track_query(None, "X"), "dzsearch:X ");
+        assert_eq!(platform_song_query(Some(""), ""), "dzsearch: - ");
     }
 
     #[tokio::test]
