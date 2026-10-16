@@ -451,6 +451,41 @@ mod tests {
     }
 
     #[test]
+    fn footer_page_text_matches_ts_template_legs() {
+        // Battery: node replication of displayBotName.footerPaginationBuilder
+        // `` `${footer.text} • ${lang.var_page} ${page}/${maxPage}` ``
+        // (script at scratch slice170-footer-page.js). Single template eval:
+        // brace tokens in the inputs render verbatim, no rescan.
+        assert_eq!(
+            footer_page_text("iHorizon", "Page", 1, 3),
+            "iHorizon • Page 1/3"
+        );
+        assert_eq!(footer_page_text("  ", "Page", 1, 1), "   • Page 1/1");
+        assert_eq!(
+            footer_page_text(" MyBot ", "Page", 10, 100),
+            " MyBot  • Page 10/100"
+        );
+        assert_eq!(footer_page_text("iHorizon", "", 1, 2), "iHorizon •  1/2");
+        assert_eq!(
+            footer_page_text("iHorizon", "Page", 0, 5),
+            "iHorizon • Page 0/5"
+        );
+        assert_eq!(
+            footer_page_text("Bot•Name", "Seite", 123, 4567),
+            "Bot•Name • Seite 123/4567"
+        );
+        assert_eq!(
+            footer_page_text("{page}", "{maxPage}", 1, 1),
+            "{page} • {maxPage} 1/1"
+        );
+        assert_eq!(footer_page_text("", "Page", 1, 1), " • Page 1/1");
+        // DELTAS (doc-noted, unrepresentable past u64 + unreachable: every
+        // live caller passes `(page + 1)` / `pages.len()` as u64): TS
+        // `${1.5}` renders `1.5` and `${1e21}` renders `1e+21`, while
+        // float-integral `${2.0}` renders `2` exactly like Rust Display.
+    }
+
+    #[test]
     fn footer_icon_bytes_decodes_stored_pfp() {
         let raw = b"fakepngbytes";
         let stored = crate::emojis::base64_encode(raw);
