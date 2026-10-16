@@ -6305,6 +6305,14 @@ mod tests {
             "Song Title"
         );
         assert_eq!(remove_parentheses_content("  spaced   out  "), "spaced out");
+        // Slice 150 battery (node ground truth): cross-type brackets share
+        // one depth counter, unmatched closers are swallowed, unterminated
+        // opens drop the tail.
+        assert_eq!(remove_parentheses_content("a (b] c"), "a c");
+        assert_eq!(remove_parentheses_content("a ) b"), "a b");
+        assert_eq!(remove_parentheses_content("a(b(c)d)e"), "ae");
+        assert_eq!(remove_parentheses_content("(a"), "");
+        assert_eq!(remove_parentheses_content("a)"), "a");
     }
 
     #[test]
@@ -6640,6 +6648,28 @@ mod tests {
             ("file:///watch?si=1", "file:///watch?si=1"),
             ("mailto:v@example.com?si=1", "mailto:v@example.com?si=1"),
             ("spotify:track:1", "spotify:track:1"),
+            // Slice 150 battery (node ground truth): %20 reserializes to +,
+            // middle drops keep order, http scheme + app param, m. host miss.
+            (
+                "https://www.youtube.com/watch?v=a%20b&si=1",
+                "https://www.youtube.com/watch?v=a+b",
+            ),
+            (
+                "https://music.youtube.com/watch?v=abc&pp=1&other=2",
+                "https://music.youtube.com/watch?v=abc&other=2",
+            ),
+            (
+                "http://youtu.be/abc?app=desktop&x=1",
+                "http://youtu.be/abc?x=1",
+            ),
+            (
+                "https://m.youtube.com/watch?v=abc&si=1",
+                "https://m.youtube.com/watch?v=abc&si=1",
+            ),
+            (
+                "https://www.youtube.com/watch?v=abc&feature=shared&t=1",
+                "https://www.youtube.com/watch?v=abc",
+            ),
         ];
         for (input, expected) in cases {
             assert_eq!(sanitize_youtube_url(input), expected, "input: {input}");
@@ -6727,6 +6757,11 @@ mod tests {
         assert!(!response_exists(&[]));
         // platformLabel: case-sensitive substring, deezer first.
         assert_eq!(platform_source_tag(Some("https://DEEZER.com/x")), None);
+        // Slice 150 battery: deezer wins when both substrings match.
+        assert_eq!(
+            platform_source_tag(Some("https://deezersoundcloud.com/x")),
+            Some("Deezer")
+        );
         assert_eq!(
             platform_source_tag(Some("https://xQC/soundcloudyy")),
             Some("SoundCloud")
