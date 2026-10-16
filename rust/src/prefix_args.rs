@@ -201,6 +201,34 @@ pub fn is_allowed_channel_type(
     allowed.map(|list| list.contains(&actual)).unwrap_or(true)
 }
 
+/// Channel name/fuzzy decision. Mirrors the isValidArgument "channel"
+/// fall-through AFTER the mention/id leg (method.ts): the mention/id
+/// cache+fetch walk is Discord-bound and stays live-side (like TS
+/// `guild.channels.fetch`). `arg` is the RAW arg (mention/id forms
+/// already missed or type-mismatched): `query = arg.to_lowercase()`
+/// with `query.length` in UTF-16 units; a candidate passes the
+/// allowlist (`None` == TS `!optArgs`; `Some([])` rejects all, like TS
+/// `includes` on the truthy `[]`) AND (`name.to_lowercase() == query`
+/// at any length, else `len >= 3 && similarity(query, name) >= 0.6`).
+/// DELTA (doc-noted): length-changing lowercases (U+0130 İ) shift the
+/// similarity maxLen (TS measures pre-lower, here post-lower) --
+/// verdict-equal on every ASCII input. `check_prefix_args` still
+/// defers plain names to poise's typed parse (convergent caret embed);
+/// this fn pins the decision legs (W6 slice 136 battery).
+pub fn channel_name_matches(
+    arg: &str,
+    channels: &[(&str, serenity::ChannelType)],
+    allowed: Option<&[serenity::ChannelType]>,
+) -> bool {
+    let query = arg.to_lowercase();
+    let query_len = arg.encode_utf16().count();
+    channels.iter().any(|(name, kind)| {
+        allowed.map(|list| list.contains(kind)).unwrap_or(true)
+            && (name.to_lowercase() == query
+                || (query_len >= 3 && crate::funcs_resolve::similarity(&query, name) >= 0.6))
+    })
+}
+
 /// Full prefix validation in TS order: required-count, longString tail
 /// merge (mutates args), per-arg required presence + choices membership
 /// + channel-type allowlist, attachment gate.
@@ -681,6 +709,54 @@ mod tests {
         );
         assert_eq!(split_args(""), vec![String::new()]);
         assert!(is_missing_text_args(&split_args(""), &text_specs()[..1]));
+    }
+
+    #[test]
+    fn channel_name_fuzzy_legs_match_ts_battery() {
+        // W6 slice 136 (node ground truth on method.ts isValidArgument
+        // "channel" fall-through, fetch stubbed to miss): exact
+        // case-insensitive hit at any length, else len>=3 (UTF-16 units)
+        // + similarity>=0.6 fuzzy, every candidate allowlist-gated.
+        use super::serenity::ChannelType::{Text, Voice};
+        let chs = [
+            ("general", Text),
+            ("Voice Lounge", Voice),
+            ("ab", Text),
+            ("announcements", Text),
+        ];
+        let t = [Text];
+        let v = [Voice];
+        // Exact legs (any length, incl. 2-char "ab").
+        assert!(channel_name_matches("general", &chs, None));
+        assert!(channel_name_matches("GENERAL", &chs, None));
+        assert!(channel_name_matches("General", &chs, Some(&t)));
+        assert!(channel_name_matches("ab", &chs, None));
+        assert!(channel_name_matches("voice lounge", &chs, Some(&v)));
+        // Exact gated out by the allowlist.
+        assert!(!channel_name_matches("general", &chs, Some(&v)));
+        assert!(!channel_name_matches("ab", &chs, Some(&v)));
+        assert!(!channel_name_matches("VOICE LOUNGE", &chs, Some(&t)));
+        // Fuzzy hits (node sims: 0.8571 / 0.7778 / 0.6154).
+        assert!(channel_name_matches("generl", &chs, None));
+        assert!(channel_name_matches(" general ", &chs, None));
+        assert!(channel_name_matches("announce", &chs, None));
+        // Len-gate passed but below threshold ("ann" sim 0.2308).
+        assert!(!channel_name_matches("ann", &chs, Some(&t)));
+        // Below the len gate / empty / unknown.
+        assert!(!channel_name_matches("an", &chs, Some(&t)));
+        assert!(!channel_name_matches("a", &chs, None));
+        assert!(!channel_name_matches("", &chs, None));
+        assert!(!channel_name_matches("xyz", &chs, None));
+        // Padded miss (" lounge" sim 0.5833 < 0.6) + raw mention/id
+        // fall-throughs (sims 0.0: type-mismatched id legs in TS).
+        assert!(!channel_name_matches(" Lounge", &chs, Some(&v)));
+        assert!(!channel_name_matches("222", &chs, None));
+        assert!(!channel_name_matches("<#111>", &chs, None));
+        // Empty allowlist rejects all (TS `[]` is truthy, `includes`
+        // misses everything).
+        let none: [super::serenity::ChannelType; 0] = [];
+        assert!(!channel_name_matches("general", &chs, Some(&none)));
+        assert!(!channel_name_matches("<#111>", &chs, Some(&none)));
     }
 
     #[test]
