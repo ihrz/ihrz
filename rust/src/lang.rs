@@ -235,6 +235,27 @@ pub fn permission_name_key(bits: u64) -> Option<(&'static str, &'static str)> {
         .map(|(_, key, fallback)| (*key, *fallback))
 }
 
+/// Array leg of getPermissionByValue (permissonsCalculator.ts:477-491).
+/// Each element resolves by exact value match (TS `===`, so only real
+/// bit values hit); misses filter out, empty/all-miss yields None (TS
+/// returns null, never `[]`). Order and duplicates are kept verbatim.
+/// Zero live callers (dead-helper parity): the live denial path takes a
+/// combined bitmask through `permission_names` below. ONE DELTA: a single
+/// COMBINED bitmask (e.g. 72) resolves to null in TS (no exact key) while
+/// `permission_names` decomposes it into names — convergent on the live
+/// path, which only formats real single/array permission declarations.
+pub fn permission_entries(values: &[u64]) -> Option<Vec<(&'static str, &'static str)>> {
+    let hits: Vec<(&'static str, &'static str)> = values
+        .iter()
+        .filter_map(|v| permission_name_key(*v))
+        .collect();
+    if hits.is_empty() {
+        None
+    } else {
+        Some(hits)
+    }
+}
+
 /// Localized display names for a combined permission bitmask.
 /// Mirrors formatPermissionName in src/core/commandExecutor.ts: every
 /// known set bit resolves through the guild lang table with the exact
@@ -595,5 +616,54 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn permission_by_value_matches_ts_single_and_array_legs() {
+        // W6 slice 169 (node battery, script at scratch
+        // `slice169-perm-by-value.js`, 23 rows green): getPermissionByValue
+        // resolves by strict `===` bigint equality — number `8`, string
+        // `"8"` and `true` all miss — and combined single `72n` misses
+        // (no exact key); the array leg keeps order + duplicates, filters
+        // misses, and returns null (never `[]`) when empty/all-miss.
+        assert_eq!(
+            permission_name_key(8).map(|(k, _)| k),
+            Some("perm_administrator_name")
+        );
+        assert_eq!(
+            permission_name_key(1125899906842624).map(|(k, _)| k),
+            Some("perm_useexternalapps_name")
+        );
+        assert_eq!(permission_name_key(72), None);
+        assert_eq!(permission_name_key(0), None);
+        assert_eq!(permission_name_key(999), None);
+        let keys = |v: &[u64]| {
+            permission_entries(v)
+                .map(|hits| hits.iter().map(|(k, _)| k.to_string()).collect::<Vec<_>>())
+        };
+        assert_eq!(
+            keys(&[8, 64]),
+            Some(vec![
+                "perm_administrator_name".to_string(),
+                "perm_addreactions_name".to_string()
+            ])
+        );
+        assert_eq!(
+            keys(&[8, 999, 64]),
+            Some(vec![
+                "perm_administrator_name".to_string(),
+                "perm_addreactions_name".to_string()
+            ])
+        );
+        assert_eq!(
+            keys(&[8, 8]),
+            Some(vec![
+                "perm_administrator_name".to_string(),
+                "perm_administrator_name".to_string()
+            ])
+        );
+        assert_eq!(keys(&[]), None);
+        assert_eq!(keys(&[999]), None);
+        assert_eq!(keys(&[0]), None);
     }
 }
