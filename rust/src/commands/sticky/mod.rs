@@ -142,6 +142,27 @@ pub async fn load_sticky(
         .filter(|cfg: &StickyConfig| cfg.enabled)
 }
 
+/// Pure guard-chain verdict for Events/sticky/onNewMessage.ts
+/// (`!guild || !channel || author.bot || webhookId` skip,
+/// non-GuildText skip, `!config?.enabled` skip). Callers feed the
+/// cache-resolved channel kind and the enabled-filtered
+/// [`load_sticky`] outcome; the bot/guild legs are upstream
+/// guarantees in `Handler::message` (early returns) but stay in
+/// the table so the battery pins the full TS chain.
+///
+/// Delta (manual-DB-only): TS reads `enabled` truthiness, so a
+/// non-bool truthy leaf (`1`) refreshes while the typed
+/// `StickyConfig.enabled: bool` rejects the row here (writers
+/// store booleans exclusively).
+pub fn sticky_event_should_refresh(
+    bot: bool,
+    webhook: bool,
+    guild_text: bool,
+    enabled: bool,
+) -> bool {
+    !bot && !webhook && guild_text && enabled
+}
+
 /// Type label for show/list (resolveStickyType / resolveListLine
 /// share the content+embedId ordering).
 pub fn sticky_type_label(
@@ -355,6 +376,18 @@ mod tests {
     #[test]
     fn key_layout() {
         assert_eq!(sticky_key(123), "STICKY.123");
+    }
+
+    #[test]
+    fn event_guard_chain_matches_ts_battery() {
+        // Mirrors slice-w7s2-sticky.js 1:1 (bot/webhook/kind/enabled).
+        let t = sticky_event_should_refresh;
+        assert!(!t(true, false, true, true)); // bot author
+        assert!(!t(false, true, true, true)); // webhook
+        assert!(!t(false, false, false, true)); // thread/voice/announcement kind
+        assert!(!t(false, false, true, false)); // disabled / missing config
+        assert!(!t(true, true, false, false)); // all skip legs
+        assert!(t(false, false, true, true)); // GuildText + enabled
     }
 
     #[test]

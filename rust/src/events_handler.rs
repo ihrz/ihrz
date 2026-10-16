@@ -7203,28 +7203,30 @@ impl serenity::EventHandler for Handler {
         if autoreact_on {
             Self::autoreact_emit(&self.pool, &_ctx.http, &gid, &msg).await;
         }
-        // Mirrors Events/sticky/onNewMessage.ts: 5s debounced
-        // repost of the enabled sticky (bot/webhook messages skip).
-        if !msg.author.bot && msg.webhook_id.is_none() {
-            if let Some(guild_id) = msg.guild_id {
-                if crate::commands::sticky::main::load_sticky(
-                    &self.pool,
-                    &gid,
-                    msg.channel_id.get(),
-                )
+        // Mirrors Events/sticky/onNewMessage.ts: GuildText-only 5s
+        // debounced repost of the enabled sticky (bot/webhook
+        // messages skip). The bot + guild legs are upstream
+        // guarantees (Handler::message early returns); the kind leg
+        // resolves via cache with HTTP fallback (fail-closed).
+        let sticky_guild_text = Self::is_guild_text_channel(&_ctx, guild_id, msg.channel_id).await;
+        let sticky_enabled =
+            crate::commands::sticky::main::load_sticky(&self.pool, &gid, msg.channel_id.get())
                 .await
-                .is_some()
-                {
-                    crate::commands::sticky::main::schedule_refresh(
-                        _ctx.http.clone(),
-                        _ctx.cache.clone(),
-                        self.pool.clone(),
-                        gid.clone(),
-                        guild_id,
-                        msg.channel_id,
-                    );
-                }
-            }
+                .is_some();
+        if crate::commands::sticky::sticky_event_should_refresh(
+            msg.author.bot,
+            msg.webhook_id.is_some(),
+            sticky_guild_text,
+            sticky_enabled,
+        ) {
+            crate::commands::sticky::main::schedule_refresh(
+                _ctx.http.clone(),
+                _ctx.cache.clone(),
+                self.pool.clone(),
+                gid.clone(),
+                guild_id,
+                msg.channel_id,
+            );
         }
         // Mirrors Events/suggestion/onNewMessage.ts: delete the original,
         // 5-word gate, bot-posted `#code` embed, thread on the bot
