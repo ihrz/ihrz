@@ -68,6 +68,15 @@ pub(crate) fn wl_allows_role(allowed: &[String], role_id: Option<u64>) -> bool {
     }
 }
 
+/// Prefix count-check predicate for leaves whose TS option is
+/// required:true (`role` in HybridCommands/utils/util/util.ts for
+/// role-members): a bare (or whitespace-only) prefix invocation must
+/// render the caret usage embed via `prefix_usage_denial`, mirroring
+/// TS checkCommandArgs (voice.rs `prefix_member_missing` precedent).
+fn prefix_role_missing(args: &str) -> bool {
+    args.trim().is_empty()
+}
+
 pub mod addrole;
 pub mod addrolereact;
 pub mod admin_roles;

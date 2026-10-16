@@ -45,6 +45,17 @@ pub async fn role_members(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS checkCommandArgs counts first (`role` required:true in
+    // HybridCommands/utils/util/util.ts): a bare `.util role-members`
+    // renders the caret usage embed, never the not-found content leg
+    // (wlvc/unwlvc precedent). The content leg below stays for
+    // unresolvable-role input, mirroring !role-members.ts.
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_role_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Null role: TS replies the not-found key (!role-members.ts).
     let Some(role) = role else {
         ctx.say(
@@ -214,5 +225,16 @@ mod tests {
     #[test]
     fn collector_window_is_160s() {
         assert_eq!(ROLE_MEMBERS_COLLECTOR_SECS, 160);
+    }
+
+    #[test]
+    fn bare_prefix_role_counts_as_missing() {
+        // Pins the TS checkCommandArgs gate: bare or whitespace-only
+        // prefix args render the caret usage embed (prod `+role-members`
+        // bare renders the framework usage embed), never the
+        // `addrolereact_role_not_found` content reply.
+        assert!(prefix_role_missing(""));
+        assert!(prefix_role_missing("   "));
+        assert!(!prefix_role_missing("<@&1132574182270570557>"));
     }
 }

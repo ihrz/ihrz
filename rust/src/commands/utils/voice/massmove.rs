@@ -46,6 +46,17 @@ pub async fn massmove(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    // TS checkCommandArgs counts first (`channel` required:true in
+    // HybridCommands/utils/utils.ts): a bare `.utils massmove` renders
+    // the caret usage embed, never the silent no-op (wlvc/unwlvc
+    // precedent). The silent leg below stays for unresolvable input,
+    // mirroring `!massmove.ts` (`if (toChannel === null) return`).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if prefix_member_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Mirrors `!massmove.ts` (`if (toChannel === null) return`): no
     // target is a silent no-op, before any loading ack.
     let Some(to) = to else {
