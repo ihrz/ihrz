@@ -124,6 +124,45 @@ pub fn lyrics_embed_description(text: &str) -> String {
     }
 }
 
+/// W6 slice 164: `searchLyrics.ts` node-loop pick, pure decision leg.
+/// The TS loop skips only `connected === false` (strict: `0`/`""`/
+/// `null`/`undefined` are all searched — node battery slice 164),
+/// searches every other node in insertion order, and breaks at the
+/// first `res?.tracks.length > 0` (empty/nullish results never break).
+/// `connected` models the flag with `None` for nullish (searched);
+/// `track_counts` models the searched result with `None` for a
+/// nullish `res` (never a hit). Zero live callers: the Rust lyrics
+/// flow resolves through the lyrics.ovh backend + a single live node
+/// (documented E1 divergence on `fetch_lyrics_text`), so the
+/// multi-node loop shape has no mirror — dead-helper parity like
+/// slices 145/152/161/162. DELTA (doc-noted, no code change): a
+/// present-but-trackless `res` (`{}`) throws TypeError in TS at the
+/// `.length` read; here it is `None` (no hit), strictly more robust.
+pub fn lyrics_first_hit(
+    connected: &[Option<bool>],
+    track_counts: &[Option<usize>],
+) -> Option<usize> {
+    for (i, (c, t)) in connected.iter().zip(track_counts.iter()).enumerate() {
+        if *c == Some(false) {
+            continue;
+        }
+        if matches!(t, Some(n) if *n > 0) {
+            return Some(i);
+        }
+    }
+    None
+}
+
+/// W6 slice 164: `searchLyrics.ts` tail null legs. `res?.tracks.length
+/// === 0` returns null even when a lyrics response exists; otherwise
+/// `!response` (any falsy shape) returns null; else the
+/// `{ track: res?.tracks[0], res: response }` pair is served.
+/// `tracks_len` is `None` for a nullish `res` (never `=== 0`, so the
+/// flow proceeds to the response leg, TS-exact).
+pub fn lyrics_tail_is_null(tracks_len: Option<usize>, response_present: bool) -> bool {
+    matches!(tracks_len, Some(0)) || !response_present
+}
+
 /// Find the lyrics of a title!
 ///
 /// Lyrics command.
@@ -272,5 +311,49 @@ mod tests {
         let mixed = format!("{}{}", "x".repeat(1996), "😀");
         let out = lyrics_embed_description(&mixed);
         assert_eq!(out, format!("{}...", "x".repeat(1996)));
+    }
+
+    #[test]
+    fn lyrics_node_pick_and_tail_match_ts_search_lyrics_legs() {
+        // Node-loop legs (battery slice164-lyrics.js, 13 rows): skip
+        // only literal false, empty/nullish never break, first hit wins.
+        assert_eq!(
+            lyrics_first_hit(&[Some(false), Some(false)], &[Some(1), Some(1)]),
+            None
+        );
+        assert_eq!(
+            lyrics_first_hit(&[Some(false), Some(true)], &[Some(1), Some(2)]),
+            Some(1)
+        );
+        assert_eq!(
+            lyrics_first_hit(&[Some(true), Some(true)], &[Some(0), Some(1)]),
+            Some(1)
+        );
+        assert_eq!(
+            lyrics_first_hit(&[Some(true), Some(true)], &[Some(1), Some(2)]),
+            Some(0)
+        );
+        // Strict `=== false`: nullish flags are searched, not skipped.
+        assert_eq!(
+            lyrics_first_hit(&[None, None], &[Some(1), Some(1)]),
+            Some(0)
+        );
+        assert_eq!(lyrics_first_hit(&[Some(false)], &[Some(1)]), None);
+        // Nullish results never break the loop.
+        assert_eq!(
+            lyrics_first_hit(
+                &[Some(true), Some(true), Some(true)],
+                &[None, None, Some(1)]
+            ),
+            Some(2)
+        );
+        // Tail null legs: `=== 0` nulls even with a response; nullish
+        // res proceeds to the response leg; any missing response nulls.
+        assert!(!lyrics_tail_is_null(None, true));
+        assert!(lyrics_tail_is_null(Some(0), true));
+        assert!(lyrics_tail_is_null(Some(1), false));
+        assert!(lyrics_tail_is_null(None, false));
+        assert!(!lyrics_tail_is_null(Some(1), true));
+        assert!(!lyrics_tail_is_null(Some(2), true));
     }
 }
