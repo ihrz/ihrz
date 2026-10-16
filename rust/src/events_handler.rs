@@ -8850,12 +8850,29 @@ impl serenity::EventHandler for Handler {
                         .unwrap_or(false)
                 {
                     if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
-                        // Toggle, like the TS has/remove legs (no audit
-                        // reason in serenity 0.12).
+                        // Toggle, like the TS has/remove legs
+                        // (`onReactAdd.ts:54-58`, "[ReactionRoles] Module"
+                        // via Http — Member::*_role has no reason slot).
                         if member.roles.contains(&role_id) {
-                            let _ = member.remove_role(&ctx.http, role_id).await;
+                            let _ = ctx
+                                .http
+                                .remove_member_role(
+                                    guild_id,
+                                    user_id,
+                                    role_id,
+                                    Some("[ReactionRoles] Module"),
+                                )
+                                .await;
                         } else {
-                            let _ = member.add_role(&ctx.http, role_id).await;
+                            let _ = ctx
+                                .http
+                                .add_member_role(
+                                    guild_id,
+                                    user_id,
+                                    role_id,
+                                    Some("[ReactionRoles] Module"),
+                                )
+                                .await;
                         }
                     }
                 }
@@ -8901,9 +8918,17 @@ impl serenity::EventHandler for Handler {
                         reaction_role_routed(&self.pool, &gid, removed.message_id.get(), &name)
                             .await
                     {
-                        if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
-                            let _ = member
-                                .remove_role(&ctx.http, serenity::RoleId::new(role_id))
+                        if guild_id.member(&ctx.http, user_id).await.is_ok() {
+                            // TS `onReactRemove.ts:48` / `:73`,
+                            // "[ReactionRoles] Module" via Http.
+                            let _ = ctx
+                                .http
+                                .remove_member_role(
+                                    guild_id,
+                                    user_id,
+                                    serenity::RoleId::new(role_id),
+                                    Some("[ReactionRoles] Module"),
+                                )
                                 .await;
                         }
                     }
@@ -9200,13 +9225,28 @@ impl serenity::EventHandler for Handler {
         // No TS channel-delete log file exists — the protection
         // guard above is the whole parity surface.
         // Purge ticket rows bound to this channel (mirrors
-        // deleteTicketPanel.ts).
+        // deleteTicketPanel.ts: a matching channel wipes the whole
+        // TICKET_ALL.<user> node, not just the one row.
         let gid = channel.guild_id.get().to_string();
-        // Purge ticket rows bound to this channel: TICKET_ALL.<user>.<channel>.
         let chan_suffix = format!(".{}", channel.id.get());
+        let mut hit_users: Vec<String> = Vec::new();
         for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
             if k.ends_with(&chan_suffix) {
-                let _ = crate::db::tbl_del(&self.pool, &gid, &k).await;
+                // Row shape is TICKET_ALL.<user>.<channel>.
+                if let Some(rest) = k.strip_prefix("TICKET_ALL.") {
+                    if let Some((user, _)) = rest.split_once('.') {
+                        if !hit_users.iter().any(|u| u == user) {
+                            hit_users.push(user.to_string());
+                        }
+                    }
+                }
+            }
+        }
+        for user in hit_users {
+            for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
+                if k.starts_with(&format!("TICKET_ALL.{user}.")) {
+                    let _ = crate::db::tbl_del(&self.pool, &gid, &k).await;
+                }
             }
         }
         // Live restore (mirrors avoidChannelDelete.ts): punish ran inside
@@ -9590,20 +9630,22 @@ impl serenity::EventHandler for Handler {
                             }
                         }
                     }
-                    // Only newly added roles are ever removed (a removed
-                    // role or an untouched over-cap role is left alone).
-                    // REMOVAL-REASON VERDICT: TS passes "[RoleLimit] - The
-                    // limit of users is reached!"; serenity 0.12
-                    // Member::remove_role carries no reason slot.
+                    // REMOVAL-REASON: TS `roleLimit.ts:163-166` passes
+                    // "[RoleLimit] - The limit of users is reached!"
+                    // (via Http — Member::remove_role has no reason slot).
                     for rid in &added {
                         if let Some(limit) = role_limit_routed(&self.pool, &gid, *rid).await {
                             let role_id = serenity::RoleId::new(*rid);
                             if holders(&role_id) > limit.max(1) {
-                                if let Ok(member) =
-                                    updated.guild_id.member(&ctx.http, updated.user.id).await
-                                {
-                                    let _ = member.remove_role(&ctx.http, role_id).await;
-                                }
+                                let _ = ctx
+                                    .http
+                                    .remove_member_role(
+                                        updated.guild_id,
+                                        updated.user.id,
+                                        role_id,
+                                        Some("[RoleLimit] - The limit of users is reached!"),
+                                    )
+                                    .await;
                             }
                         }
                     }
@@ -10064,7 +10106,17 @@ impl serenity::EventHandler for Handler {
                 .is_none()
         {
             if has {
-                let _ = member.remove_role(&ctx.http, role_id).await;
+                // TS `supportModule.ts:74-77` passes "[Support] Module"
+                // (Member::*_role carries no reason, so go through Http).
+                let _ = ctx
+                    .http
+                    .remove_member_role(
+                        guild_id,
+                        new_data.user.id,
+                        role_id,
+                        Some("[Support] Module"),
+                    )
+                    .await;
             }
             return;
         }
@@ -10080,7 +10132,16 @@ impl serenity::EventHandler for Handler {
                 == Some(guild_id);
             if !tagged {
                 if has {
-                    let _ = member.remove_role(&ctx.http, role_id).await;
+                    // TS `supportModule.ts:84-87`, same reason.
+                    let _ = ctx
+                        .http
+                        .remove_member_role(
+                            guild_id,
+                            new_data.user.id,
+                            role_id,
+                            Some("[Support] Module"),
+                        )
+                        .await;
                 }
                 return;
             }
@@ -10120,10 +10181,28 @@ impl serenity::EventHandler for Handler {
         };
         if matched {
             if !has {
-                let _ = member.add_role(&ctx.http, role_id).await;
+                // TS `supportModule.ts:104`, same reason.
+                let _ = ctx
+                    .http
+                    .add_member_role(
+                        guild_id,
+                        new_data.user.id,
+                        role_id,
+                        Some("[Support] Module"),
+                    )
+                    .await;
             }
         } else if has {
-            let _ = member.remove_role(&ctx.http, role_id).await;
+            // TS `supportModule.ts:108`, same reason.
+            let _ = ctx
+                .http
+                .remove_member_role(
+                    guild_id,
+                    new_data.user.id,
+                    role_id,
+                    Some("[Support] Module"),
+                )
+                .await;
         }
     }
 
