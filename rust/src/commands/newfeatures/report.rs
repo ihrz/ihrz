@@ -20,13 +20,15 @@ use super::*;
 )]
 pub async fn report(
     ctx: Ctx<'_>,
-    // TS SlashCommands/newfeatures/report.ts registers "message-to-dev".
-    // `#[rest]` keeps multi-word prefix reports whole (rest-of-line,
-    // like TS `longString(args, 0)`); without it poise fails parsing
-    // any message containing a space (`command error: failed to parse
-    // argument` + usage embed, verified live) and the prefix leg can
-    // never submit. `#[rest]` only affects prefix parsing, the slash
-    // `message-to-dev` option still registers (required).
+    // TS SlashCommands/newfeatures/report.ts registers "message-to-dev"
+    // (slash-only; the prefix twin is a Rust addition). `#[rest]`
+    // keeps multi-word prefix reports whole (rest-of-line, the same
+    // free-text shape as the slash option); without it poise fails
+    // parsing any message containing a space (`command error: failed
+    // to parse argument` + usage embed, verified live) and the
+    // prefix leg can never submit. `#[rest]` only affects prefix
+    // parsing, the slash `message-to-dev` option still registers
+    // (required).
     #[description = "Message to devs (8+ words)"]
     #[rename = "message-to-dev"]
     #[rest]

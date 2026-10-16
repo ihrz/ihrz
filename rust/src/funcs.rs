@@ -480,12 +480,17 @@ pub async fn guild_banner_url(pool: &crate::db::Pool, guild_id: &str) -> String 
     banner_url(&lang)
 }
 
-/// Image content-type guard. Mirrors validImageType.ts exactly.
+/// Image content-type guard. Mirrors validImageType.ts exactly
+/// (`includes` after full `toLowerCase()`; falsy -> false).
+/// Full `to_lowercase` (not ASCII-only): the only non-ASCII char
+/// whose lowercase is an ASCII letter is Kelvin (U+212A -> `k`),
+/// and `k` appears in no allowlist entry, so the two lowerings
+/// agree on every input (node battery slice 178).
 pub fn is_valid_image_type(content_type: Option<&str>) -> bool {
     match content_type {
         None => false,
         Some(ct) => matches!(
-            ct.to_ascii_lowercase().as_str(),
+            ct.to_lowercase().as_str(),
             "image/png" | "image/jpeg" | "image/jpg" | "image/gif" | "image/webp"
         ),
     }
@@ -1213,6 +1218,35 @@ pub fn is_in_voice_channel(channel: Option<u64>) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn is_valid_image_type_matches_ts_battery() {
+        // Node ground truth (validImageType.ts verbatim, 22 rows):
+        // falsy -> false, case-insensitive ASCII includes, params and
+        // padding miss, Kelvin/dotted-capital lowerings still miss.
+        assert!(!is_valid_image_type(None));
+        assert!(!is_valid_image_type(Some("")));
+        assert!(is_valid_image_type(Some("image/png")));
+        assert!(is_valid_image_type(Some("IMAGE/PNG")));
+        assert!(is_valid_image_type(Some("Image/Jpeg")));
+        assert!(is_valid_image_type(Some("image/JPG")));
+        assert!(is_valid_image_type(Some("image/gif")));
+        assert!(is_valid_image_type(Some("IMAGE/WEBP")));
+        assert!(is_valid_image_type(Some("IMAGE/GIF")));
+        assert!(!is_valid_image_type(Some("image/svg+xml")));
+        assert!(!is_valid_image_type(Some("text/plain")));
+        assert!(!is_valid_image_type(Some("application/json")));
+        assert!(!is_valid_image_type(Some("image/bmp")));
+        assert!(!is_valid_image_type(Some("image/avif")));
+        assert!(!is_valid_image_type(Some("image/tiff")));
+        assert!(!is_valid_image_type(Some("image/png; charset=x")));
+        assert!(!is_valid_image_type(Some(" image/png")));
+        assert!(!is_valid_image_type(Some("image/png ")));
+        assert!(!is_valid_image_type(Some("image/pngK")));
+        assert!(!is_valid_image_type(Some("image/pngK")));
+        assert!(!is_valid_image_type(Some("IMAGE/KJPEG")));
+        assert!(!is_valid_image_type(Some("image/İpng")));
+    }
 
     #[test]
     fn time_full_units() {
