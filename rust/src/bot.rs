@@ -3077,6 +3077,30 @@ mod tests {
     }
 
     #[test]
+    fn cooldown_gate_matches_ts_helper_cooldown_legs() {
+        // Node battery (scratch slice167-cooldown.js) replicating
+        // `fetch !== null && ms - (tn - fetch) > 0` verbatim: every
+        // leg below agrees with TS. `undefined`-fetch and NaN/Infinity
+        // windows are unrepresentable past Option<i64> (the TS
+        // `fetch || null` coalescing already maps store-miss/0 to the
+        // None arm, same as temp_get_i64's zero filter).
+        // 1ms inside the window denies with the exact remainder.
+        assert_eq!(cooldown_remaining(Some(4001), 1000, 5000), 1);
+        // Custom-window strict boundary allows at elapsed == window.
+        assert_eq!(cooldown_remaining(Some(5000), 5000, 10000), 0);
+        // Future stamp (clock skew) denies: elapsed goes negative.
+        assert_eq!(cooldown_remaining(Some(6000), 1000, 5000), 2000);
+        // Zero window allows on a fresh stamp...
+        assert_eq!(cooldown_remaining(Some(5000), 0, 5000), 0);
+        // ...but denies on a future stamp (0 - negative > 0).
+        assert_eq!(cooldown_remaining(Some(6000), 0, 5000), 1000);
+        // Negative window always allows.
+        assert_eq!(cooldown_remaining(Some(5000), -5, 5000), 0);
+        // All-zero allows.
+        assert_eq!(cooldown_remaining(Some(0), 0, 0), 0);
+    }
+
+    #[test]
     fn rate_limit_window_allows_under_count_and_records() {
         let (active, left) = rate_limit_step(&[], 2, 60_000, 1000);
         assert_eq!((active, left), (vec![1000], 0));
