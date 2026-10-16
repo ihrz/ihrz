@@ -1,5 +1,6 @@
 use super::*;
 use poise::serenity_prelude as serenity;
+use serde_json::{json, Value};
 use std::time::Duration;
 
 // ---- V2 panel editor ids (byte-exact TS !panel.ts customIds) ----
@@ -55,6 +56,565 @@ const MODAL_PLACEHOLDER: &str = "change_placeholder";
 const MODAL_EMBED: &str = "change_embed";
 const MODAL_CHANNEL_PANEL: &str = "change_embed2";
 const MODAL_OPT_PANEL: &str = "change_panel_channel_id";
+
+// ---- Components V2 message-render layer (raw JSON + reqwest REST) ----
+// Serenity 0.12 has no Components V2 builders (no TextDisplay /
+// Separator / Container; its ComponentType stops at ChannelSelect), so
+// the editor message ships V2 as hand-built JSON over reqwest with
+// `flags: 1 << 15`, mirroring rust/src/commands/welcomer_panel/v2.rs.
+// Receiving is unaffected: clicks arrive as the same V1 interaction
+// shapes, so the `next_pick` collector loop and every step/modal/DB leg
+// below are untouched — only the render + transport changed.
+
+/// `MessageFlags.IsComponentsV2`.
+const FLAGS_V2: u64 = 1 << 15;
+/// `PANEL_ACCENT` in !panel.ts:156.
+const PANEL_ACCENT: u32 = 0x397c16;
+// Component type numbers (discord-api-types v10, Components V2).
+const CT_ACTION_ROW: u8 = 1;
+const CT_BUTTON: u8 = 2;
+const CT_STRING_SELECT: u8 = 3;
+const CT_TEXT_DISPLAY: u8 = 10;
+const CT_SEPARATOR: u8 = 14;
+const CT_CONTAINER: u8 = 17;
+const API: &str = "https://discord.com/api/v10";
+const USER_AGENT: &str = "iHorizonRust/1.0 (ticket-panel-v2)";
+
+fn text_display(content: &str) -> Value {
+    json!({"type": CT_TEXT_DISPLAY, "content": content})
+}
+
+/// TS `new SeparatorBuilder()` defaults (divider on, Small spacing).
+fn separator() -> Value {
+    json!({"type": CT_SEPARATOR, "divider": true, "spacing": 1})
+}
+
+fn container(accent_color: u32, children: Vec<Value>) -> Value {
+    json!({"type": CT_CONTAINER, "accent_color": accent_color, "components": children})
+}
+
+/// TS `buildPromptContainer(text)` (!panel.ts:234).
+fn prompt_container(text: &str) -> Value {
+    container(PANEL_ACCENT, vec![text_display(text)])
+}
+
+/// Convert serenity-built ActionRows to their exact V2 JSON form
+/// (numeric styles/kinds). Select/button rows keep using the builders
+/// so customIds/placeholders/kinds cannot drift from the collector legs.
+fn rows_json(rows: Vec<serenity::CreateActionRow>) -> Result<Vec<Value>, String> {
+    rows.into_iter()
+        .map(|r| {
+            let v = serde_json::to_value(&r).map_err(|e| e.to_string())?;
+            if v.get("type").and_then(Value::as_u64) != Some(u64::from(CT_ACTION_ROW)) {
+                return Err("non ActionRow payload".to_string());
+            }
+            Ok(v)
+        })
+        .collect()
+}
+
+fn bot_token() -> Result<String, String> {
+    crate::config::bot_token().ok_or_else(|| "missing bot token".to_string())
+}
+
+fn rest_client() -> reqwest::Client {
+    reqwest::Client::builder()
+        .user_agent(USER_AGENT)
+        .build()
+        .unwrap_or_else(|_| reqwest::Client::new())
+}
+
+async fn check_ok(resp: reqwest::Response, what: &str) -> Result<Value, String> {
+    let status = resp.status().as_u16();
+    let body = resp.text().await.unwrap_or_default();
+    if !(200..300).contains(&status) {
+        return Err(format!(
+            "{what}: HTTP {status}: {}",
+            &body[..body.len().min(200)]
+        ));
+    }
+    serde_json::from_str::<Value>(&body).map_err(|e| format!("{what}: bad JSON: {e}"))
+}
+
+/// One multipart field: (name, bytes, optional (filename, mime)).
+type MultipartField<'a> = (&'a str, Vec<u8>, Option<(String, String)>);
+
+fn multipart(fields: Vec<MultipartField<'_>>, files: &[(String, Vec<u8>)]) -> (Vec<u8>, String) {
+    let boundary = format!("ihrz{:x}{:x}", rand_part(), rand_part());
+    let mut body: Vec<u8> = Vec::new();
+    for (name, data, file) in &fields {
+        body.extend_from_slice(format!("--{boundary}\r\n").as_bytes());
+        match file {
+            Some((filename, mime)) => body.extend_from_slice(
+                format!(
+                    "Content-Disposition: form-data; name=\"{name}\"; filename=\"{filename}\"\r\nContent-Type: {mime}\r\n\r\n"
+                )
+                .as_bytes(),
+            ),
+            None => body.extend_from_slice(
+                format!("Content-Disposition: form-data; name=\"{name}\"\r\n\r\n").as_bytes(),
+            ),
+        }
+        body.extend_from_slice(data);
+        body.extend_from_slice(b"\r\n");
+    }
+    for (i, (filename, bytes)) in files.iter().enumerate() {
+        body.extend_from_slice(format!("--{boundary}\r\n").as_bytes());
+        body.extend_from_slice(
+            format!(
+                "Content-Disposition: form-data; name=\"files[{i}]\"; filename=\"{filename}\"\r\nContent-Type: application/octet-stream\r\n\r\n"
+            )
+            .as_bytes(),
+        );
+        body.extend_from_slice(bytes);
+        body.extend_from_slice(b"\r\n");
+    }
+    body.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
+    (body, boundary)
+}
+
+fn rand_part() -> u64 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let t = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.subsec_nanos() as u64 ^ (d.as_secs() << 32))
+        .unwrap_or(0x9e3779b9);
+    t.wrapping_mul(0x2545f4914f6cdd1d) ^ std::process::id() as u64
+}
+
+/// Initial editor post on the prefix leg. Mirrors `interactionSend`'s
+/// message leg: a reply to the invoking message carrying the full
+/// `buildPanelMessage` payload (container + select row + button row +
+/// flags 32768 + optional options .txt). Returns the posted message id.
+async fn post_channel_v2(
+    channel_id: u64,
+    reply_to: Option<u64>,
+    components: &[Value],
+    files: Vec<(String, Vec<u8>)>,
+) -> Result<u64, String> {
+    let mut payload = json!({
+        "components": components,
+        "flags": FLAGS_V2,
+        "allowed_mentions": {"parse": []},
+    });
+    if let Some(mid) = reply_to {
+        payload["message_reference"] = json!({"message_id": mid.to_string()});
+        payload["allowed_mentions"] = json!({"parse": [], "replied_user": false});
+    }
+    let body = if files.is_empty() {
+        check_ok(
+            rest_client()
+                .post(format!("{API}/channels/{channel_id}/messages"))
+                .header("Authorization", format!("Bot {}", bot_token()?))
+                .json(&payload)
+                .send()
+                .await
+                .map_err(|e| format!("post panel: {e}"))?,
+            "post panel",
+        )
+        .await?
+    } else {
+        let (body, boundary) = multipart(
+            vec![("payload_json", payload.to_string().into_bytes(), None)],
+            &files,
+        );
+        let resp = rest_client()
+            .post(format!("{API}/channels/{channel_id}/messages"))
+            .header("Authorization", format!("Bot {}", bot_token()?))
+            .header(
+                "Content-Type",
+                format!("multipart/form-data; boundary={boundary}"),
+            )
+            .body(body)
+            .send()
+            .await
+            .map_err(|e| format!("post panel: {e}"))?;
+        check_ok(resp, "post panel").await?
+    };
+    body.get("id")
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse::<u64>().ok())
+        .ok_or_else(|| "post panel: no message id".to_string())
+}
+
+/// Slash-leg initial post: deferred followup carrying the full
+/// `buildPanelMessage` payload (mirrors the interaction `reply` of
+/// `interactionSend`). Returns the created message id.
+async fn webhook_followup_v2(
+    app_id: u64,
+    interaction_token: &str,
+    components: &[Value],
+    files: Vec<(String, Vec<u8>)>,
+) -> Result<u64, String> {
+    let payload = json!({"components": components, "flags": FLAGS_V2});
+    let body = if files.is_empty() {
+        check_ok(
+            rest_client()
+                .post(format!(
+                    "{API}/webhooks/{app_id}/{interaction_token}?wait=true"
+                ))
+                .json(&payload)
+                .send()
+                .await
+                .map_err(|e| format!("panel followup: {e}"))?,
+            "panel followup",
+        )
+        .await?
+    } else {
+        let (body, boundary) = multipart(
+            vec![("payload_json", payload.to_string().into_bytes(), None)],
+            &files,
+        );
+        let resp = rest_client()
+            .post(format!(
+                "{API}/webhooks/{app_id}/{interaction_token}?wait=true"
+            ))
+            .header(
+                "Content-Type",
+                format!("multipart/form-data; boundary={boundary}"),
+            )
+            .body(body)
+            .send()
+            .await
+            .map_err(|e| format!("panel followup: {e}"))?;
+        check_ok(resp, "panel followup").await?
+    };
+    body.get("id")
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse::<u64>().ok())
+        .ok_or_else(|| "panel followup: no message id".to_string())
+}
+
+/// Full re-render edit of the editor message. `clear` mirrors the TS
+/// `attachments: []` legs (refresh + save); prompt/timeout-end edits
+/// leave attachments untouched like their TS counterparts.
+async fn patch_message_v2(
+    channel_id: u64,
+    message_id: u64,
+    components: &[Value],
+    files: Vec<(String, Vec<u8>)>,
+    clear: bool,
+) -> Result<(), String> {
+    let mut payload = json!({"components": components, "flags": FLAGS_V2});
+    if clear {
+        payload["attachments"] = json!([]);
+    }
+    let req = rest_client().patch(format!("{API}/channels/{channel_id}/messages/{message_id}"));
+    let req = req.header("Authorization", format!("Bot {}", bot_token()?));
+    let resp = if files.is_empty() {
+        req.json(&payload)
+            .send()
+            .await
+            .map_err(|e| format!("patch panel: {e}"))?
+    } else {
+        let (body, boundary) = multipart(
+            vec![("payload_json", payload.to_string().into_bytes(), None)],
+            &files,
+        );
+        req.header(
+            "Content-Type",
+            format!("multipart/form-data; boundary={boundary}"),
+        )
+        .body(body)
+        .send()
+        .await
+        .map_err(|e| format!("patch panel: {e}"))?
+    };
+    check_ok(resp, "patch panel").await.map(|_| ())
+}
+
+/// TS `buildContainer()` (!panel.ts:185): Container(PANEL_ACCENT) with
+/// the same text blocks — header, saved + related ids, separator,
+/// role/ping/placeholder/category/toggles, option fields, form.
+/// `header_emoji` is the `Ticket_Main` app-emoji markup (None/absent
+/// renders no emoji, like the TS ternary).
+fn build_container(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    panel: &TicketPanel,
+    panel_code: &str,
+    saved: bool,
+    role_name: &dyn Fn(&str) -> Option<String>,
+    header_emoji: Option<&str>,
+) -> Value {
+    let none = t("var_no_set");
+    let show = |v: &str| {
+        if v.trim().is_empty() {
+            none.clone()
+        } else {
+            v.to_string()
+        }
+    };
+    let head = match header_emoji {
+        Some(e) if !e.trim().is_empty() => format!("{e} "),
+        _ => String::new(),
+    };
+    let header = format!(
+        "## {head}{}{panel_code}\n{}",
+        t("ticket_panel_embed_title"),
+        t("ticket_panel_embed_desc"),
+    );
+    let ids = format!(
+        "-# {}: {}\n**{}**\n{}\n**{}**\n{}",
+        t("ticket_panel_saved_conf"),
+        if saved { "🟢" } else { "🔴" },
+        t("ticket_panel_related_embed"),
+        show(&panel.related_embed_id),
+        t("ticket_panel_channel_panel_embed_id"),
+        show(&panel.ticket_channel_panel),
+    );
+    let roles = if panel.config.roles_to_ping.is_empty() {
+        none.clone()
+    } else {
+        panel
+            .config
+            .roles_to_ping
+            .iter()
+            .map(|r| format!("<@&{r}>"))
+            .collect::<Vec<_>>()
+            .join(" ")
+    };
+    // TS formatCategory: the cached channel mention, else var_no_set;
+    // `<#id>` is the cached shape (the only one that renders).
+    let category = if panel.category_id.trim().is_empty() {
+        none.clone()
+    } else {
+        format!("<#{}>", panel.category_id)
+    };
+    let flag = |on: bool| if on { "🟢" } else { "🔴" };
+    let toggles = format!(
+        "**{}**\n{}\n**{}** {}\n**{}**\n{}\n**{}**\n{}\n**{}** {}\n**{}** {}\n**{}** {}",
+        t("ticket_panel_role_to_ping"),
+        roles,
+        t("ticket_panel_ping_user"),
+        flag(panel.config.ping_user),
+        t("ticket_panel_placeholder"),
+        show(&panel.placeholder),
+        t("ticket_panel_category"),
+        category,
+        t("ticket_panel_select_user"),
+        flag(panel.config.user_select_panel),
+        t("ticket_panel_button_delete"),
+        flag(panel.config.delete_button),
+        t("ticket_panel_button_transcript"),
+        flag(panel.config.transcript_button),
+    );
+    let opts = summarize_options(t, &panel.config.option_fields, role_name);
+    let opts_block = format!(
+        "### {}\n{}",
+        t("ticket_panel_option_fields"),
+        if opts.is_empty() { none.clone() } else { opts },
+    );
+    let forms = summarize_forms(&t("ticket_panel_option_fields"), &panel.config.form);
+    let form_block = format!(
+        "### {}\n{}",
+        t("ticket_panel_form"),
+        if forms.is_empty() { none } else { forms },
+    );
+    container(
+        PANEL_ACCENT,
+        vec![
+            text_display(&header),
+            text_display(&ids),
+            separator(),
+            text_display(&toggles),
+            text_display(&opts_block),
+            text_display(&form_block),
+        ],
+    )
+}
+
+/// The 17 editor steps in TS order: (label lang key, value, emoji name).
+/// Emoji names are byte-exact from !panel.ts:249-333.
+const EDITOR_STEPS: [(&str, &str, &str); 17] = [
+    ("ticket_panel_panel_1_label", "save", "Ticket_Save"),
+    ("ticket_panel_panel_2_label", "preview", "Ticket_Preview"),
+    ("ticket_panel_panel_3_label", "change_embed", "Ticket_Nitro"),
+    ("ticket_panel_panel_4_label", "change_role", "Ticket_Role"),
+    (
+        "ticket_panel_panel_5_label",
+        "change_placeholder",
+        "Ticket_Paint",
+    ),
+    (
+        "ticket_panel_panel_6_label",
+        "change_category",
+        "Ticket_Category",
+    ),
+    (
+        "ticket_panel_panel_10_label",
+        "change_category_2",
+        "Ticket_Category",
+    ),
+    ("ticket_panel_panel_7_label", "change_ping", "Ticket_Bell"),
+    ("ticket_panel_panel_8_label", "change_option", "Ticket_List"),
+    ("ticket_panel_panel_9_label", "change_form", "Ticket_Form"),
+    (
+        "ticket_panel_panel_11_label",
+        "change_ticket_channel_panel",
+        "Ticket_Hash",
+    ),
+    (
+        "ticket_panel_panel_12_label",
+        "change_ticket_user_select_panel",
+        "Ticket_User",
+    ),
+    (
+        "ticket_panel_panel_13_label",
+        "change_ticket_button_delete_panel",
+        "Ticket_Trash",
+    ),
+    (
+        "ticket_panel_panel_14_label",
+        "change_ticket_button_transcript_panel",
+        "Ticket_Transcript",
+    ),
+    (
+        "ticket_panel_panel_15_label",
+        "change_ticket_channel_panel_options",
+        "Ticket_Settings",
+    ),
+    (
+        "ticket_panel_panel_16_label",
+        "change_ticket_forms_options",
+        "Ticket_Form",
+    ),
+    (
+        "ticket_panel_panel_17_label",
+        "change_role_to_ping_options",
+        "Ticket_Megaphone",
+    ),
+];
+
+/// Parse an app-emoji markup (`<:Name:id>`) or single unicode glyph
+/// into a ReactionType for the serenity row builders (which then
+/// serialize to exact V2 JSON via `rows_json`).
+fn parse_emoji(markup: &str) -> Option<serenity::ReactionType> {
+    let e = markup.trim();
+    if e.is_empty() {
+        return None;
+    }
+    e.parse::<serenity::ReactionType>().ok()
+}
+
+/// TS `panelSelect` (!panel.ts:245): the 17-option string select row.
+async fn editor_select_row_v2(
+    sctx: &serenity::Context,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+) -> Value {
+    let mut options = Vec::with_capacity(EDITOR_STEPS.len());
+    for (label_key, value, emoji_name) in EDITOR_STEPS {
+        let mut opt = serenity::CreateSelectMenuOption::new(t(label_key), value.to_string());
+        if let Some(markup) = crate::emojis::app_emoji_markup(&sctx.http, emoji_name).await {
+            if let Some(rt) = parse_emoji(&markup) {
+                opt = opt.emoji(rt);
+            }
+        }
+        options.push(opt);
+    }
+    let menu = serenity::CreateSelectMenu::new(
+        EDITOR_SELECT_ID,
+        serenity::CreateSelectMenuKind::String { options },
+    )
+    .placeholder(t("ticket_panel_panel_placeholder"));
+    rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])
+        .ok()
+        .and_then(|mut v| v.pop())
+        .unwrap_or(json!({"type": CT_ACTION_ROW, "components": []}))
+}
+
+/// TS `sendButton` (!panel.ts:336): `send_embed`, Primary, the
+/// `ticket_panel_button_send` label and the `Ticket_Send` emoji with the
+/// `GreenTick` fallback.
+async fn send_button_row_v2(
+    sctx: &serenity::Context,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+) -> Value {
+    let label = t("ticket_panel_button_send");
+    let mut button = serenity::CreateButton::new(EDITOR_SEND_ID)
+        .label(if label.is_empty() {
+            "Send".to_string()
+        } else {
+            label
+        })
+        .style(serenity::ButtonStyle::Primary);
+    let send_markup = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Send").await;
+    let green_markup = if send_markup.is_none() {
+        crate::emojis::app_emoji_markup(&sctx.http, "GreenTick").await
+    } else {
+        None
+    };
+    let markup = send_markup.or(green_markup);
+    let rt = markup
+        .as_deref()
+        .and_then(parse_emoji)
+        .unwrap_or(serenity::ReactionType::Unicode("✅".to_string()));
+    button = button.emoji(rt);
+    rows_json(vec![serenity::CreateActionRow::Buttons(vec![button])])
+        .ok()
+        .and_then(|mut v| v.pop())
+        .unwrap_or(json!({"type": CT_ACTION_ROW, "components": []}))
+}
+
+/// TS `saved` marker row (!panel.ts:560-568): disabled Success `Saved`
+/// button with the `Yes` app emoji.
+async fn saved_row_v2(sctx: &serenity::Context) -> Value {
+    let yes = crate::emojis::app_emoji_markup(&sctx.http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let rt = parse_emoji(&yes).unwrap_or(serenity::ReactionType::Unicode("✅".to_string()));
+    let button = serenity::CreateButton::new(SAVED_BUTTON_ID)
+        .label("Saved")
+        .style(serenity::ButtonStyle::Success)
+        .emoji(rt)
+        .disabled(true);
+    rows_json(vec![serenity::CreateActionRow::Buttons(vec![button])])
+        .ok()
+        .and_then(|mut v| v.pop())
+        .unwrap_or(json!({"type": CT_ACTION_ROW, "components": []}))
+}
+
+/// TS `buildPanelMessage` (!panel.ts:531): container + select row +
+/// button row, with the overflow .txt when options exceed the caps.
+async fn full_panel_payload(
+    sctx: &serenity::Context,
+    guild_id: Option<serenity::GuildId>,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    panel: &TicketPanel,
+    panel_code: &str,
+    is_saved: bool,
+    header_emoji: Option<&str>,
+) -> (Vec<Value>, Vec<(String, Vec<u8>)>) {
+    let role_of = |r: &str| cached_role_name(sctx, guild_id, r);
+    let components = vec![
+        build_container(t, panel, panel_code, is_saved, &role_of, header_emoji),
+        editor_select_row_v2(sctx, t).await,
+        send_button_row_v2(sctx, t).await,
+    ];
+    let files = options_overflow_file(t, panel_code, &panel.config.option_fields, &role_of)
+        .into_iter()
+        .collect();
+    (components, files)
+}
+
+/// Patch a prompt container + one picker row (the sub-flow legs), like
+/// the TS `originalResponse.edit({components: [buildPromptContainer,
+/// row], files: [], flags})` steps.
+async fn patch_prompt_row(msg: &serenity::Message, prompt_text: &str, row: Value) {
+    let _ = patch_message_v2(
+        msg.channel_id.get(),
+        msg.id.get(),
+        &[prompt_container(prompt_text), row],
+        vec![],
+        false,
+    )
+    .await;
+}
+
+fn first_row(rows: Result<Vec<Value>, String>) -> Value {
+    rows.ok()
+        .and_then(|mut v| v.pop())
+        .unwrap_or(json!({"type": CT_ACTION_ROW, "components": []}))
+}
 
 /// Per-step editor await. Mirrors the `time: 1_250_000 * 10` ms
 /// (~3.47h) select + button collectors in !panel.ts:366,372.
@@ -503,15 +1063,43 @@ pub async fn ticket_panel(
 
     let author = ctx.author().id;
     let sctx = ctx.serenity_context().clone();
-    let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
-    let handle = ctx
-        .send(
-            poise::CreateReply::default()
-                .embed(editor_embed(&t, &panel, &panel_code, saved, &role_of))
-                .components(editor_rows(&t)),
+    let guild_id_opt = ctx.guild_id();
+    let channel_id = ctx.channel_id().get();
+    let header_emoji = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+    // V2 initial post per leg (raw REST, flags 32768): prefix replies to
+    // the invoking message, slash defers then follows up — mirrors
+    // `interactionSend` + `buildPanelMessage` in !panel.ts.
+    let (components, files) = full_panel_payload(
+        &sctx,
+        guild_id_opt,
+        &t,
+        &panel,
+        &panel_code,
+        saved,
+        header_emoji.as_deref(),
+    )
+    .await;
+    let posted_id = match ctx {
+        poise::Context::Prefix(pctx) => {
+            post_channel_v2(channel_id, Some(pctx.msg.id.get()), &components, files)
+                .await
+                .map_err(|e| anyhow::anyhow!(e))?
+        }
+        poise::Context::Application(app_ctx) => {
+            app_ctx.defer().await?;
+            let app_id = sctx.cache.current_user().id.get();
+            webhook_followup_v2(app_id, &app_ctx.interaction.token, &components, files)
+                .await
+                .map_err(|e| anyhow::anyhow!(e))?
+        }
+    };
+    let mut msg = sctx
+        .http
+        .get_message(
+            serenity::ChannelId::new(channel_id),
+            serenity::MessageId::new(posted_id),
         )
         .await?;
-    let mut msg = handle.into_message().await?;
     // Slash-only tutorial follow-up (!panel.ts:356-360): ephemeral
     // youtu.be link once the editor is up. Prefix has no follow-up leg.
     if let poise::Context::Application(app_ctx) = ctx {
@@ -602,43 +1190,42 @@ pub async fn ticket_panel(
 
     if saved {
         // Mirrors save() (!panel.ts:550): the editor message is edited
-        // in place to the disabled `saved` Success button plus the
-        // overflow .txt (replacing stale attachments). No separate
-        // confirmation message — TS stays on the edited message.
-        let yes = crate::emojis::app_emoji_markup(&sctx.http, "Yes")
-            .await
-            .unwrap_or_else(|| "✅".to_string());
-        let saved_row =
-            serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(SAVED_BUTTON_ID)
-                .label("Saved")
-                .style(serenity::ButtonStyle::Success)
-                .emoji(
-                    yes.parse()
-                        .unwrap_or(serenity::ReactionType::Unicode("✅".to_string())),
-                )
-                .disabled(true)]);
+        // in place to the container plus the disabled `saved` Success
+        // button row plus the overflow .txt (replacing stale
+        // attachments). No separate confirmation message — TS stays on
+        // the edited message.
         let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
-        let mut edit = serenity::EditMessage::new()
-            .embed(editor_embed(&t, &panel, &panel_code, true, &role_of))
-            .components(vec![saved_row]);
-        let mut attachments = serenity::EditAttachments::new();
-        if let Some((filename, bytes)) =
-            options_overflow_file(&t, &panel_code, &panel.config.option_fields, &role_of)
-        {
-            attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
-        }
-        edit = edit.attachments(attachments);
-        let _ = msg.edit(&sctx.http, edit).await;
+        let header = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+        let components = vec![
+            build_container(&t, &panel, &panel_code, true, &role_of, header.as_deref()),
+            saved_row_v2(&sctx).await,
+        ];
+        let files = options_overflow_file(&t, &panel_code, &panel.config.option_fields, &role_of)
+            .into_iter()
+            .collect();
+        let _ =
+            patch_message_v2(msg.channel_id.get(), msg.id.get(), &components, files, true).await;
     } else {
+        // Mirrors the selectCollector `end` handler (!panel.ts:467):
+        // container-only, no rows, attachments untouched.
         let role_of = |r: &str| cached_role_name(&sctx, ctx.guild_id(), r);
-        let _ = msg
-            .edit(
-                &sctx.http,
-                serenity::EditMessage::new()
-                    .embed(editor_embed(&t, &panel, &panel_code, saved, &role_of))
-                    .components(vec![]),
-            )
-            .await;
+        let header = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+        let components = vec![build_container(
+            &t,
+            &panel,
+            &panel_code,
+            saved,
+            &role_of,
+            header.as_deref(),
+        )];
+        let _ = patch_message_v2(
+            msg.channel_id.get(),
+            msg.id.get(),
+            &components,
+            vec![],
+            false,
+        )
+        .await;
     }
     Ok(())
 }
@@ -671,145 +1258,9 @@ async fn next_pick(
     }
 }
 
-fn editor_rows(t: &(dyn Fn(&str) -> String + Send + Sync)) -> Vec<serenity::CreateActionRow> {
-    let steps = [
-        ("ticket_panel_panel_1_label", "save"),
-        ("ticket_panel_panel_2_label", "preview"),
-        ("ticket_panel_panel_3_label", "change_embed"),
-        ("ticket_panel_panel_4_label", "change_role"),
-        ("ticket_panel_panel_5_label", "change_placeholder"),
-        ("ticket_panel_panel_6_label", "change_category"),
-        ("ticket_panel_panel_10_label", "change_category_2"),
-        ("ticket_panel_panel_7_label", "change_ping"),
-        ("ticket_panel_panel_8_label", "change_option"),
-        ("ticket_panel_panel_9_label", "change_form"),
-        ("ticket_panel_panel_11_label", "change_ticket_channel_panel"),
-        (
-            "ticket_panel_panel_12_label",
-            "change_ticket_user_select_panel",
-        ),
-        (
-            "ticket_panel_panel_13_label",
-            "change_ticket_button_delete_panel",
-        ),
-        (
-            "ticket_panel_panel_14_label",
-            "change_ticket_button_transcript_panel",
-        ),
-        (
-            "ticket_panel_panel_15_label",
-            "change_ticket_channel_panel_options",
-        ),
-        ("ticket_panel_panel_16_label", "change_ticket_forms_options"),
-        ("ticket_panel_panel_17_label", "change_role_to_ping_options"),
-    ];
-    let options = steps
-        .iter()
-        .map(|(key, value)| serenity::CreateSelectMenuOption::new(t(key), (*value).to_string()))
-        .collect();
-    let menu = serenity::CreateSelectMenu::new(
-        EDITOR_SELECT_ID,
-        serenity::CreateSelectMenuKind::String { options },
-    )
-    .placeholder(t("ticket_panel_panel_placeholder"));
-    let send_label = t("ticket_panel_button_send");
-    vec![
-        serenity::CreateActionRow::SelectMenu(menu),
-        serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(EDITOR_SEND_ID)
-            .label(if send_label.is_empty() {
-                "Send".to_string()
-            } else {
-                send_label
-            })
-            .style(serenity::ButtonStyle::Primary)]),
-    ]
-}
-
-fn editor_embed(
-    t: &(dyn Fn(&str) -> String + Send + Sync),
-    panel: &TicketPanel,
-    panel_code: &str,
-    saved: bool,
-    role_name: &dyn Fn(&str) -> Option<String>,
-) -> serenity::CreateEmbed {
-    let title_key = t("ticket_panel_embed_title");
-    let mut desc = format!(
-        "{title_key}{panel_code}\n{}\n{}: {}\n",
-        t("ticket_panel_embed_desc"),
-        t("ticket_panel_saved_conf"),
-        if saved { "🟢" } else { "🔴" }
-    );
-    let none = t("var_no_set");
-    let show = |v: &str| {
-        if v.trim().is_empty() {
-            none.clone()
-        } else {
-            v.to_string()
-        }
-    };
-    desc.push_str(&format!(
-        "**{}**\n{}\n**{}**\n{}\n",
-        t("ticket_panel_related_embed"),
-        show(&panel.related_embed_id),
-        t("ticket_panel_channel_panel_embed_id"),
-        show(&panel.ticket_channel_panel),
-    ));
-    let roles = if panel.config.roles_to_ping.is_empty() {
-        none.clone()
-    } else {
-        panel
-            .config
-            .roles_to_ping
-            .iter()
-            .map(|r| format!("<@&{r}>"))
-            .collect::<Vec<_>>()
-            .join(" ")
-    };
-    let flag = |on: bool| if on { "🟢" } else { "🔴" };
-    desc.push_str(&format!(
-        "**{}**\n{}\n**{}** {}\n**{}**\n{}\n**{}**\n{}\n**{}** {}\n**{}** {}\n**{}** {}\n",
-        t("ticket_panel_role_to_ping"),
-        roles,
-        t("ticket_panel_ping_user"),
-        flag(panel.config.ping_user),
-        t("ticket_panel_placeholder"),
-        show(&panel.placeholder),
-        t("ticket_panel_category"),
-        show(&panel.category_id),
-        t("ticket_panel_select_user"),
-        flag(panel.config.user_select_panel),
-        t("ticket_panel_button_delete"),
-        flag(panel.config.delete_button),
-        t("ticket_panel_button_transcript"),
-        flag(panel.config.transcript_button),
-    ));
-    let mut embed = serenity::CreateEmbed::default()
-        .title(format!("{title_key}{panel_code}"))
-        .description(desc)
-        .colour(serenity::Colour::new(0x397C16));
-    let opts = summarize_options(t, &panel.config.option_fields, role_name);
-    if !opts.is_empty() {
-        embed = embed.field(
-            t("ticket_panel_option_fields"),
-            opts.chars().take(1024).collect::<String>(),
-            false,
-        );
-    }
-    let forms = summarize_forms(&t("ticket_panel_option_fields"), &panel.config.form);
-    if !forms.is_empty() {
-        embed = embed.field(
-            t("ticket_panel_form"),
-            forms.chars().take(1024).collect::<String>(),
-            false,
-        );
-    }
-    let _ = panel;
-    embed
-}
-
-/// Editor refresh: re-render the embed + steps and re-attach the
+/// Editor refresh: re-render the V2 container + rows and re-attach the
 /// overflow .txt (replacing stale attachments). Mirrors
-/// refreshPanelMessage (!panel.ts: `attachments: [], files: [...]`).
+/// refreshPanelMessage (!panel.ts:540: `attachments: [], files: [...]`).
 async fn refresh_editor(
     sctx: &serenity::Context,
     guild_id: Option<serenity::GuildId>,
@@ -819,18 +1270,18 @@ async fn refresh_editor(
     panel_code: &str,
     saved: bool,
 ) {
-    let role_of = |r: &str| cached_role_name(sctx, guild_id, r);
-    let mut edit = serenity::EditMessage::new()
-        .embed(editor_embed(t, panel, panel_code, saved, &role_of))
-        .components(editor_rows(t));
-    let mut attachments = serenity::EditAttachments::new();
-    if let Some((filename, bytes)) =
-        options_overflow_file(t, panel_code, &panel.config.option_fields, &role_of)
-    {
-        attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
-    }
-    edit = edit.attachments(attachments);
-    let _ = msg.edit(&sctx.http, edit).await;
+    let header = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+    let (components, files) = full_panel_payload(
+        sctx,
+        guild_id,
+        t,
+        panel,
+        panel_code,
+        saved,
+        header.as_deref(),
+    )
+    .await;
+    let _ = patch_message_v2(msg.channel_id.get(), msg.id.get(), &components, files, true).await;
 }
 
 async fn show_modal(
@@ -908,12 +1359,24 @@ async fn pick_option_index(
     prompt_key: &str,
 ) -> Option<(usize, serenity::ComponentInteraction)> {
     if panel.config.option_fields.is_empty() {
-        let _ = msg
-            .edit(
-                &sctx.http,
-                serenity::EditMessage::new().content(t("ticket_panel_remove_option_empty")),
-            )
-            .await;
+        // Mirrors selectOption's empty leg (!panel.ts:783): prompt
+        // container + full editor rows + overflow file.
+        let header = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+        let code = panel.panel_code.clone();
+        let (mut full, files) = full_panel_payload(
+            sctx,
+            msg.guild_id,
+            t,
+            panel,
+            &code,
+            false,
+            header.as_deref(),
+        )
+        .await;
+        if !full.is_empty() {
+            full[0] = prompt_container(&t("ticket_panel_remove_option_empty"));
+        }
+        let _ = patch_message_v2(msg.channel_id.get(), msg.id.get(), &full, files, true).await;
         return None;
     }
     let options = panel
@@ -933,14 +1396,12 @@ async fn pick_option_index(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t("var_chose_option"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t(prompt_key))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &t(prompt_key),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != menu_id {
         return None;
@@ -988,14 +1449,12 @@ async fn pick_add_or_remove(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t(placeholder_key));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(prompt)
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &prompt,
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != menu_id {
         return None;
@@ -1040,14 +1499,12 @@ async fn pick_roles(
     .placeholder(t("ticket_panel_change_role_roleSelect_placeholder"))
     .min_values(0)
     .max_values(10);
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t("ticket_panel_change_role_interaction_content"))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &t("ticket_panel_change_role_interaction_content"),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != menu_id {
         return None;
@@ -1081,14 +1538,12 @@ async fn pick_category(
         },
     )
     .placeholder(t("ticket_panel_change_category_channelSelect_placeholder"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t("ticket_panel_select_channel_to_send"))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &t("ticket_panel_select_channel_to_send"),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != menu_id {
         return None;
@@ -1521,14 +1976,24 @@ async fn run_panel_form_step(
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
     if panel.config.form.is_empty() {
-        // Mirrors removeForm's empty leg (!panel.ts:1597-1611): the
-        // editor shows `ticket_panel_remove_option_empty`.
-        let _ = msg
-            .edit(
-                &sctx.http,
-                serenity::EditMessage::new().content(t("ticket_panel_remove_option_empty")),
-            )
-            .await;
+        // Mirrors removeForm's empty leg (!panel.ts:1597-1611): prompt
+        // container + full editor rows + overflow file.
+        let header = crate::emojis::app_emoji_markup(&sctx.http, "Ticket_Main").await;
+        let code = panel.panel_code.clone();
+        let (mut full, files) = full_panel_payload(
+            sctx,
+            msg.guild_id,
+            t,
+            panel,
+            &code,
+            false,
+            header.as_deref(),
+        )
+        .await;
+        if !full.is_empty() {
+            full[0] = prompt_container(&t("ticket_panel_remove_option_empty"));
+        }
+        let _ = patch_message_v2(msg.channel_id.get(), msg.id.get(), &full, files, true).await;
         return Ok(false);
     }
     let options = panel
@@ -1548,14 +2013,12 @@ async fn run_panel_form_step(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t("ticket_panel_remove_option_select_placeholder"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t("ticket_panel_rempve_option_interaction_content"))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &t("ticket_panel_rempve_option_interaction_content"),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let Some(rm) = next_pick(msg, sctx, author, &t("help_not_for_you")).await else {
         return Ok(false);
     };
@@ -1663,14 +2126,12 @@ async fn run_option_form_step(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(t("ticket_panel_chose_a_question"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t("ticket_panel_select_question_to_delete"))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    patch_prompt_row(
+        msg,
+        &t("ticket_panel_select_question_to_delete"),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let Some(rm) = next_pick(msg, sctx, author, &t("help_not_for_you")).await else {
         return Ok(false);
     };
@@ -1949,7 +2410,22 @@ async fn run_send_flow(
     panel: &mut TicketPanel,
 ) -> Result<bool, anyhow::Error> {
     if panel.config.option_fields.is_empty() {
-        ephemeral(sctx, pick, t("ticket_panel_need_1_option")).await;
+        // Mirrors sendEmbed's empty leg (!panel.ts:672): prompt container
+        // + full editor rows instead of an ephemeral reply.
+        let select_row = editor_select_row_v2(sctx, t).await;
+        let button_row = send_button_row_v2(sctx, t).await;
+        let _ = patch_message_v2(
+            msg.channel_id.get(),
+            msg.id.get(),
+            &[
+                prompt_container(&t("ticket_panel_need_1_option")),
+                select_row,
+                button_row,
+            ],
+            vec![],
+            false,
+        )
+        .await;
         return Ok(false);
     }
     ensure_unique_option_values(&mut panel.config.option_fields);
@@ -1965,14 +2441,14 @@ async fn run_send_flow(
         },
     )
     .placeholder(t("ticket_panel_select_channel_to_send"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(t("ticket_panel_select_channel_to_send"))
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await;
+    // Mirrors sendEmbed's channel-select step (!panel.ts:693): prompt
+    // container + channel select row.
+    patch_prompt_row(
+        msg,
+        &t("ticket_panel_select_channel_to_send"),
+        first_row(rows_json(vec![serenity::CreateActionRow::SelectMenu(menu)])),
+    )
+    .await;
     let Some(chan_pick) = next_pick(msg, sctx, pick.user.id, &t("help_not_for_you")).await else {
         return Ok(false);
     };
@@ -2043,14 +2519,16 @@ async fn run_send_flow(
     let done = t("ticket_panel_saved_and_sended_panel")
         .replace("${panelCode}", panel_code)
         .replace("${channel.toString()}", &format!("<#{target}>"));
-    let _ = msg
-        .edit(
-            &sctx.http,
-            serenity::EditMessage::new()
-                .content(done)
-                .components(vec![]),
-        )
-        .await;
+    // Mirrors sendEmbed's end state (!panel.ts:765): prompt container
+    // only, attachments untouched.
+    let _ = patch_message_v2(
+        msg.channel_id.get(),
+        msg.id.get(),
+        &[prompt_container(&done)],
+        vec![],
+        false,
+    )
+    .await;
     Ok(true)
 }
 
@@ -2305,6 +2783,247 @@ mod tests {
         let v = mint_option_value(&used);
         assert!(v.starts_with("ticket_option_"));
         assert!(!used.contains(&v));
+    }
+
+    #[test]
+    fn v2_component_numbers_and_flags() {
+        assert_eq!(FLAGS_V2, 32_768);
+        assert_eq!(PANEL_ACCENT, 0x397c16);
+        assert_eq!(CT_ACTION_ROW, 1);
+        assert_eq!(CT_BUTTON, 2);
+        assert_eq!(CT_STRING_SELECT, 3);
+        assert_eq!(CT_TEXT_DISPLAY, 10);
+        assert_eq!(CT_SEPARATOR, 14);
+        assert_eq!(CT_CONTAINER, 17);
+        assert_eq!(
+            text_display("x"),
+            serde_json::json!({"type": 10, "content": "x"})
+        );
+        assert_eq!(
+            separator(),
+            serde_json::json!({"type": 14, "divider": true, "spacing": 1})
+        );
+        assert_eq!(
+            prompt_container("hi"),
+            serde_json::json!({"type": 17, "accent_color": 0x397c16, "components": [{"type": 10, "content": "hi"}]})
+        );
+    }
+
+    #[test]
+    fn editor_steps_match_ts_values_and_emojis() {
+        let values: Vec<&str> = EDITOR_STEPS.iter().map(|(_, v, _)| *v).collect();
+        assert_eq!(
+            values,
+            vec![
+                "save",
+                "preview",
+                "change_embed",
+                "change_role",
+                "change_placeholder",
+                "change_category",
+                "change_category_2",
+                "change_ping",
+                "change_option",
+                "change_form",
+                "change_ticket_channel_panel",
+                "change_ticket_user_select_panel",
+                "change_ticket_button_delete_panel",
+                "change_ticket_button_transcript_panel",
+                "change_ticket_channel_panel_options",
+                "change_ticket_forms_options",
+                "change_role_to_ping_options",
+            ]
+        );
+        let emojis: Vec<&str> = EDITOR_STEPS.iter().map(|(_, _, e)| *e).collect();
+        assert_eq!(
+            emojis,
+            vec![
+                "Ticket_Save",
+                "Ticket_Preview",
+                "Ticket_Nitro",
+                "Ticket_Role",
+                "Ticket_Paint",
+                "Ticket_Category",
+                "Ticket_Category",
+                "Ticket_Bell",
+                "Ticket_List",
+                "Ticket_Form",
+                "Ticket_Hash",
+                "Ticket_User",
+                "Ticket_Trash",
+                "Ticket_Transcript",
+                "Ticket_Settings",
+                "Ticket_Form",
+                "Ticket_Megaphone",
+            ]
+        );
+        // Label keys track the same 1..17 numbering as TS (10 = per-option).
+        let labels: Vec<&str> = EDITOR_STEPS.iter().map(|(l, _, _)| *l).collect();
+        assert_eq!(
+            labels,
+            vec![
+                "ticket_panel_panel_1_label",
+                "ticket_panel_panel_2_label",
+                "ticket_panel_panel_3_label",
+                "ticket_panel_panel_4_label",
+                "ticket_panel_panel_5_label",
+                "ticket_panel_panel_6_label",
+                "ticket_panel_panel_10_label",
+                "ticket_panel_panel_7_label",
+                "ticket_panel_panel_8_label",
+                "ticket_panel_panel_9_label",
+                "ticket_panel_panel_11_label",
+                "ticket_panel_panel_12_label",
+                "ticket_panel_panel_13_label",
+                "ticket_panel_panel_14_label",
+                "ticket_panel_panel_15_label",
+                "ticket_panel_panel_16_label",
+                "ticket_panel_panel_17_label",
+            ]
+        );
+    }
+
+    #[test]
+    fn build_container_matches_ts_build_container() {
+        // Identity lang map: every visible string must come from a lang
+        // key (asserted literally), never a hardcoded sentence.
+        let id_t = |k: &str| k.to_string();
+        let panel = TicketPanel {
+            panel_code: "CODE1".into(),
+            related_embed_id: "99".into(),
+            placeholder: "pick".into(),
+            category_id: "77".into(),
+            ticket_channel_panel: String::new(),
+            config: TicketPanelConfig {
+                roles_to_ping: vec!["5".into()],
+                option_fields: vec![full_option()],
+                ping_user: true,
+                form: vec![TicketForm {
+                    question_id: 0,
+                    question_title: "Q1".into(),
+                    question_placeholder: "P1".into(),
+                }],
+                user_select_panel: false,
+                delete_button: true,
+                transcript_button: false,
+            },
+            ..Default::default()
+        };
+        let c = build_container(
+            &id_t,
+            &panel,
+            "CODE1",
+            false,
+            &|_| None,
+            Some("<:Ticket_Main:123>"),
+        );
+        assert_eq!(c["type"], serde_json::json!(17));
+        assert_eq!(c["accent_color"], serde_json::json!(0x397c16));
+        let kids = c["components"].as_array().unwrap();
+        assert_eq!(kids.len(), 6);
+        // Header: `## <emoji> <title><code>\n<desc>`.
+        let head = kids[0]["content"].as_str().unwrap();
+        assert!(head.starts_with("## <:Ticket_Main:123> ticket_panel_embed_titleCODE1\n"));
+        // Saved + related ids block.
+        let ids = kids[1]["content"].as_str().unwrap();
+        assert!(ids.contains("-# ticket_panel_saved_conf: 🔴"));
+        assert!(ids.contains("**ticket_panel_related_embed**\n99"));
+        assert!(ids.contains("**ticket_panel_channel_panel_embed_id**\nvar_no_set"));
+        // Separator, then the toggles block.
+        assert_eq!(kids[2]["type"], serde_json::json!(14));
+        let tog = kids[3]["content"].as_str().unwrap();
+        assert!(tog.contains("**ticket_panel_role_to_ping**\n<@&5>"));
+        assert!(tog.contains("**ticket_panel_ping_user** 🟢"));
+        assert!(tog.contains("**ticket_panel_placeholder**\npick"));
+        assert!(tog.contains("**ticket_panel_category**\n<#77>"));
+        assert!(tog.contains("**ticket_panel_select_user** 🔴"));
+        assert!(tog.contains("**ticket_panel_button_delete** 🟢"));
+        assert!(tog.contains("**ticket_panel_button_transcript** 🔴"));
+        // Option fields + form sections.
+        let opts = kids[4]["content"].as_str().unwrap();
+        assert!(opts.starts_with("### ticket_panel_option_fields\n"));
+        assert!(opts.contains("- Support"));
+        let forms = kids[5]["content"].as_str().unwrap();
+        assert!(forms.starts_with("### ticket_panel_form\n"));
+        assert!(forms.contains("0 - Q1"));
+        // Saved flag flips, missing header emoji renders bare.
+        let saved = build_container(&id_t, &panel, "CODE1", true, &|_| None, None);
+        assert!(saved["components"][0]["content"]
+            .as_str()
+            .unwrap()
+            .starts_with("## ticket_panel_embed_titleCODE1\n"));
+        assert!(saved["components"][1]["content"]
+            .as_str()
+            .unwrap()
+            .contains("ticket_panel_saved_conf: 🟢"));
+        // Empty option/form lists fall back to var_no_set like TS `||`.
+        let bare = TicketPanel {
+            panel_code: "C".into(),
+            ..Default::default()
+        };
+        let c0 = build_container(&id_t, &bare, "C", false, &|_| None, None);
+        assert!(c0["components"][3]["content"]
+            .as_str()
+            .unwrap()
+            .contains("**ticket_panel_role_to_ping**\nvar_no_set"));
+        assert!(c0["components"][4]["content"]
+            .as_str()
+            .unwrap()
+            .ends_with("ticket_panel_option_fields\nvar_no_set"));
+        assert!(c0["components"][5]["content"]
+            .as_str()
+            .unwrap()
+            .ends_with("ticket_panel_form\nvar_no_set"));
+    }
+
+    #[test]
+    fn rows_json_keeps_select_and_button_wire_shapes() {
+        let row = poise::serenity_prelude::CreateActionRow::SelectMenu(
+            poise::serenity_prelude::CreateSelectMenu::new(
+                "panelSelect",
+                poise::serenity_prelude::CreateSelectMenuKind::String {
+                    options: vec![poise::serenity_prelude::CreateSelectMenuOption::new(
+                        "Save", "save",
+                    )],
+                },
+            )
+            .placeholder("Pick"),
+        );
+        let out = first_row(rows_json(vec![row]));
+        assert_eq!(out["type"], serde_json::json!(1));
+        let menu = &out["components"][0];
+        assert_eq!(menu["type"], serde_json::json!(3));
+        assert_eq!(menu["custom_id"], serde_json::json!("panelSelect"));
+        assert_eq!(menu["options"][0]["value"], serde_json::json!("save"));
+        let btn = poise::serenity_prelude::CreateActionRow::Buttons(vec![
+            poise::serenity_prelude::CreateButton::new("send_embed")
+                .label("Send")
+                .style(poise::serenity_prelude::ButtonStyle::Primary),
+        ]);
+        let brow = first_row(rows_json(vec![btn]));
+        let b = &brow["components"][0];
+        assert_eq!(b["type"], serde_json::json!(2));
+        assert_eq!(b["style"], serde_json::json!(1));
+        assert_eq!(b["custom_id"], serde_json::json!("send_embed"));
+    }
+
+    #[test]
+    fn parse_emoji_shapes() {
+        assert!(parse_emoji("").is_none());
+        assert!(parse_emoji("   ").is_none());
+        assert_eq!(
+            parse_emoji("🔥"),
+            Some(poise::serenity_prelude::ReactionType::Unicode(
+                "🔥".to_string()
+            ))
+        );
+        let custom = parse_emoji("<:Ticket_Save:123>").unwrap();
+        match custom {
+            poise::serenity_prelude::ReactionType::Custom { id, .. } => {
+                assert_eq!(id.get(), 123);
+            }
+            other => panic!("expected custom, got {other:?}"),
+        }
     }
 
     fn overflow_t(key: &str) -> String {
