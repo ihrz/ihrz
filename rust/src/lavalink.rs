@@ -826,6 +826,50 @@ pub fn is_tidal_url(query: &str) -> bool {
     whatwg_host(query).is_some_and(|h| h.contains("tidal"))
 }
 
+/// Source-routing outcome for one play query (mirrors the
+/// `searchQueryOnNode` if/else chain in musicPlay.ts, whose order is
+/// spotify → youtube → apple → amazon → tidal → url-query → bare
+/// text; first hit wins, so overlap hosts route by position).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum QueryRoute {
+    Spotify,
+    Youtube,
+    Apple,
+    Amazon,
+    Tidal,
+    Url,
+    Bare,
+}
+
+/// Pure port of the `searchQueryOnNode` routing chain (musicPlay.ts).
+/// NOTE: `resolve_on` trims the query before routing, which converges
+/// with TS — WHATWG URL parsing strips leading/trailing spaces anyway
+/// (node battery: a space-padded Spotify URL still routes `spotify`).
+pub fn route_query_source(query: &str) -> QueryRoute {
+    if is_spotify_url(query) {
+        QueryRoute::Spotify
+    } else if is_youtube_url(query) {
+        QueryRoute::Youtube
+    } else if is_apple_music_url(query) {
+        QueryRoute::Apple
+    } else if is_amazon_music_url(query) {
+        QueryRoute::Amazon
+    } else if is_tidal_url(query) {
+        QueryRoute::Tidal
+    } else if is_url_query(query) {
+        QueryRoute::Url
+    } else {
+        QueryRoute::Bare
+    }
+}
+
+/// Deezer-vs-SoundCloud winner pick (mirrors
+/// `soundcloudScore > deezerScore ? soundcloudRes : deezerRes`: strict
+/// greater, so an exact tie keeps the deezer result).
+pub fn prefers_soundcloud(deezer_score: f64, sc_score: f64) -> bool {
+    sc_score > deezer_score
+}
+
 /// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
 /// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
 /// The whitespace collapse mirrors JS `/\s+/g` + `trim()`: U+0085 is
@@ -3835,7 +3879,7 @@ impl LavalinkManager {
             query,
             &build_track_label(&sc_first.info.title, &sc_first.info.author),
         );
-        if sc_score > deezer_score {
+        if prefers_soundcloud(deezer_score, sc_score) {
             Ok(sc)
         } else {
             Ok(deezer)
@@ -3910,11 +3954,11 @@ impl LavalinkManager {
     }
 
     /// [`Self::resolve_query_tracks`] on one pinned node. Mirrors
-    /// `searchQueryOnNode`: Spotify/Apple/Amazon/Tidal URLs resolve via
-    /// the metadata ports and re-search on deezer (albums/playlists fan
-    /// out to per-track deezer hits, like TS); YouTube URLs load direct
-    /// with a title-to-deezer fallback (mirrors `handleYoutube`); other
-    /// URLs run the deezer/soundcloud legs; bare text goes through
+    /// `searchQueryOnNode`: Spotify/YouTube/Apple/Amazon/Tidal URLs
+    /// resolve via their metadata ports (YouTube loads direct with a
+    /// title-to-deezer fallback, like `handleYoutube`; albums/playlists
+    /// fan out to per-track deezer hits, like TS); other URLs run the
+    /// deezer/soundcloud legs; bare text goes through
     /// [`Self::search_text_tracks_on`].
     async fn resolve_on(
         &self,
@@ -3922,32 +3966,29 @@ impl LavalinkManager {
         query: &str,
     ) -> Result<(Vec<Track>, bool), MusicError> {
         let query = query.trim();
-        if is_spotify_url(query) {
-            return self.resolve_spotify_on(node, query).await;
-        }
-        if is_apple_music_url(query) {
-            if let Some(res) = self.resolve_apple_on(node, query).await? {
-                return Ok(res);
+        match route_query_source(query) {
+            QueryRoute::Spotify => return self.resolve_spotify_on(node, query).await,
+            QueryRoute::Youtube => return self.resolve_youtube_on(node, query).await,
+            QueryRoute::Apple => {
+                if let Some(res) = self.resolve_apple_on(node, query).await? {
+                    return Ok(res);
+                }
+                return Err(MusicError::NoMatches);
             }
-            return Err(MusicError::NoMatches);
-        }
-        if is_amazon_music_url(query) {
-            if let Some(res) = self.resolve_amazon_on(node, query).await? {
-                return Ok(res);
+            QueryRoute::Amazon => {
+                if let Some(res) = self.resolve_amazon_on(node, query).await? {
+                    return Ok(res);
+                }
+                return Err(MusicError::NoMatches);
             }
-            return Err(MusicError::NoMatches);
-        }
-        if is_tidal_url(query) {
-            if let Some(res) = self.resolve_tidal_on(node, query).await? {
-                return Ok(res);
+            QueryRoute::Tidal => {
+                if let Some(res) = self.resolve_tidal_on(node, query).await? {
+                    return Ok(res);
+                }
+                return Err(MusicError::NoMatches);
             }
-            return Err(MusicError::NoMatches);
-        }
-        if is_youtube_url(query) {
-            return self.resolve_youtube_on(node, query).await;
-        }
-        if is_url_query(query) {
-            return self.search_url_tracks_on(node, query).await;
+            QueryRoute::Url => return self.search_url_tracks_on(node, query).await,
+            QueryRoute::Bare => {}
         }
         let tracks = self.search_text_tracks_on(node, query).await?;
         if !response_exists(&tracks) {
@@ -5591,6 +5632,38 @@ mod tests {
         // Empty in, empty out (TS answers the no-result embed).
         assert!(normalize_play_queries(&[]).is_empty());
         assert!(normalize_play_queries(&q(&["   ", "\n\t "])).is_empty());
+    }
+
+    #[test]
+    fn route_query_source_matches_ts_chain_order() {
+        use super::{prefers_soundcloud, route_query_source, QueryRoute as R};
+        // W6 slice 153 battery: the `searchQueryOnNode` if/else chain
+        // replicated verbatim in node (spotify -> youtube -> apple ->
+        // amazon -> tidal -> url -> bare; first hit wins).
+        let cases = [
+            ("https://open.spotify.com/track/abc", R::Spotify),
+            ("https://www.youtube.com/watch?v=abc", R::Youtube),
+            ("https://youtu.be/abc", R::Youtube),
+            ("https://music.apple.com/us/album/x", R::Apple),
+            ("https://music.amazon.com/albums/x", R::Amazon),
+            ("https://tidal.com/browse/track/1", R::Tidal),
+            // Overlap hosts route by chain position (youtube is 2nd).
+            ("https://youtu.be.apple.com/x", R::Youtube),
+            ("https://apple.com.youtube.com/x", R::Youtube),
+            ("https://spotify.youtube.com/x", R::Spotify),
+            ("https://example.com/foo", R::Url),
+            ("just some words", R::Bare),
+            // WHATWG trims padding, so padded URLs still route (node: spotify).
+            ("  https://open.spotify.com/x  ", R::Spotify),
+            ("https://open.spotify.com:443/x", R::Spotify),
+        ];
+        for (q, want) in cases {
+            assert_eq!(route_query_source(q), want, "route {q:?}");
+        }
+        // Strict-greater pick: tie keeps deezer, sc wins only above.
+        assert!(!prefers_soundcloud(0.5, 0.5));
+        assert!(prefers_soundcloud(0.6, 0.61));
+        assert!(!prefers_soundcloud(0.61, 0.6));
     }
 
     #[tokio::test]
