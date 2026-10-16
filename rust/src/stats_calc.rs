@@ -306,6 +306,51 @@ mod tests {
         assert_eq!(channel_minutes_count("q", &[voice(0, 30_000, "q")]), 1);
     }
 
+    /// W6 slice 183: getChannelMessagesCount/getChannelMinutesCount legs
+    /// match the TS battery 1:1 (24-case node run, script at scratch
+    /// `slice183-channel-counters.js`). Strict `===` filter (case-sensitive,
+    /// empty id hits the empty row); minutes round half toward +inf AFTER
+    /// summing (`floor(x + 0.5)` == Math.round on every battery leg, incl.
+    /// negative halves: -1.5 -> -1, -0.5 -> -0 == 0, -1.5000167 -> -2).
+    /// DELTA (doc-noted, unreachable): magnitudes past i64 saturate here
+    /// while TS returns the f64 (needs ~292M years of voice).
+    #[test]
+    fn channel_counters_match_ts_battery_legs() {
+        // Messages: `.filter(===).length || 0` (length >= 0, so `|| 0` is dead).
+        let msgs = vec![msg(1, "a"), msg(2, "a"), msg(3, "b")];
+        assert_eq!(channel_messages_count("a", &msgs), 2);
+        assert_eq!(channel_messages_count("zzz", &msgs), 0);
+        assert_eq!(channel_messages_count("a", &[]), 0);
+        assert_eq!(channel_messages_count("A", &msgs), 0);
+        let empties = vec![msg(1, ""), msg(2, "a")];
+        assert_eq!(channel_messages_count("", &empties), 1);
+        // Minutes: exact, halves up, just-below stays down.
+        assert_eq!(channel_minutes_count("v", &[]), 0);
+        assert_eq!(channel_minutes_count("zzz", &[voice(0, 60_000, "v")]), 0);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 60_000, "v")]), 1);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 120_000, "v")]), 2);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 150_000, "v")]), 3);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 89_999, "v")]), 1);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 29_999, "v")]), 0);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 90_001, "v")]), 2);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 1_000, "v")]), 0);
+        // Sum-then-round (not round-then-sum) + other-channel ignored.
+        let two = vec![voice(0, 30_000, "v"), voice(0, 29_999, "v")];
+        assert_eq!(channel_minutes_count("v", &two), 1);
+        let mixed = vec![voice(0, 60_000, "v"), voice(0, 600_000, "w")];
+        assert_eq!(channel_minutes_count("v", &mixed), 1);
+        assert_eq!(channel_minutes_count("v", &[voice(0, 3_600_000, "v")]), 60);
+        // Negative durations (end < start): halves toward +inf.
+        assert_eq!(channel_minutes_count("v", &[voice(90_000, 0, "v")]), -1);
+        assert_eq!(channel_minutes_count("v", &[voice(90_001, 0, "v")]), -2);
+        assert_eq!(channel_minutes_count("v", &[voice(30_000, 0, "v")]), 0);
+        // Non-zero base: duration only, wall offset irrelevant.
+        assert_eq!(
+            channel_minutes_count("v", &[voice(1_000_000, 1_120_000, "v")]),
+            2
+        );
+    }
+
     #[test]
     fn leaderboard_order_and_top3_cap() {
         let row = |id: &str, d: u64, w: u64, dv: i64| LeaderRow {
