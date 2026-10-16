@@ -90,6 +90,15 @@ pub struct RestoreRecord {
 
 /// Secret-code lookup. Mirrors `getGuildDataPerSecretCode`
 /// (linear scan, first row whose config.securityCode matches).
+/// Node ground truth (W6 slice 179): strict-`===` first match in
+/// ascending index order; empty secret matches an empty code; case,
+/// padding, and prefix legs all miss. DELTAS (unrepresentable past
+/// the typed signature, convergent outcomes): TS skips null
+/// value/config rows inside the scan via the `&&` chain while here
+/// such rows never parse at load (`parse_blob` drops them, so they
+/// never reach this fn); a numeric `securityCode` misses every
+/// string secret under `===` in TS while here the `String` field
+/// rejects it at deserialize (row dropped at load).
 pub fn find_guild_by_secret<'a>(
     entries: &'a [(String, GuildAuthRestore)],
     secret: &str,
@@ -855,6 +864,32 @@ mod tests {
         assert_eq!(id, "g2");
         assert_eq!(data.members.len(), 2);
         assert!(find_guild_by_secret(&entries, "nope").is_none());
+        // W6 slice 179 node battery (verbatim getGuildDataPerSecretCode):
+        // strict-=== first-match scan, ascending index order.
+        let dupes = vec![
+            sample_guild("g1", "s1"),
+            sample_guild("g2", "s2"),
+            sample_guild("g3", "s2"),
+            sample_guild("g4", ""),
+            sample_guild("g5", " S3 "),
+        ];
+        // Duplicate codes keep the first row (for...in index order == scan).
+        assert_eq!(find_guild_by_secret(&dupes, "s2").unwrap().0, "g2");
+        // Strict equality: case, padding, prefix legs all miss.
+        for miss in ["S1", "s1 ", " s1", "s", "s11", "undefined", "null", "0"] {
+            assert!(
+                find_guild_by_secret(&dupes, miss).is_none(),
+                "miss: {miss:?}"
+            );
+        }
+        // Whitespace is verbatim: padded query hits the padded row only.
+        assert_eq!(find_guild_by_secret(&dupes, " S3 ").unwrap().0, "g5");
+        assert!(find_guild_by_secret(&dupes, "S3").is_none());
+        // Empty secret matches the empty-code row (no falsy guard in TS).
+        assert_eq!(find_guild_by_secret(&dupes, "").unwrap().0, "g4");
+        // Empty table yields None.
+        let empty: Vec<(String, GuildAuthRestore)> = vec![];
+        assert!(find_guild_by_secret(&empty, "s1").is_none());
     }
 
     #[test]
