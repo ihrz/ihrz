@@ -1005,7 +1005,7 @@ pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
             "Options within [...] are required, while those within <...> are optional.\nUse the command: ${botPrefix}help [command] for more information."
                 .to_string()
         })
-        .replace("${botPrefix}", &bot_prefix);
+        .replacen("${botPrefix}", &bot_prefix, 1);
     let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
     let (_, icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
     let embed = crate::commands::shared::embed_with_footer(

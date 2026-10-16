@@ -623,12 +623,18 @@ pub fn args_error_description(
         "hybridcommands_args_error_embed_desc",
         "```ts\nCommand Name: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nError when sending \"${wrongArgumentName}\" argument.\n```",
     )
-    .replace("${currentCommand.name}", current_name)
-    .replace("${botPrefix}", bot_prefix)
-    .replace("${fullNameCommand}", full_command)
-    .replace("${argsString}", args_string)
-    .replace("${errorPosition}", error_position)
-    .replace("${wrongArgumentName}", wrong_arg)
+    // JS `String.replace(string)` swaps the FIRST occurrence only (never
+    // global): `replacen(..., 1)` keeps doubled placeholders and
+    // value-injected later placeholders verbatim like TS (W6 slice 141:
+    // node battery: `"${botPrefix}|${botPrefix}"` -> `"!|${botPrefix}"`;
+    // prefix `P${argsString}` fills the injected slot first, leaving the
+    // template's own `${argsString}` literal).
+    .replacen("${currentCommand.name}", current_name, 1)
+    .replacen("${botPrefix}", bot_prefix, 1)
+    .replacen("${fullNameCommand}", full_command, 1)
+    .replacen("${argsString}", args_string, 1)
+    .replacen("${errorPosition}", error_position, 1)
+    .replacen("${wrongArgumentName}", wrong_arg, 1)
 }
 
 // ---------------------------------------------------------------------------
@@ -1563,6 +1569,24 @@ mod tests {
         assert!(desc.contains("Command Name: ban"));
         assert!(desc.contains("!ban [user] <reason>"));
         assert!(desc.contains("Error when sending \"user\" argument."));
+    }
+
+    #[test]
+    fn args_error_fill_is_first_only_like_ts_replace() {
+        // Node ground truth (W6 slice 141): TS `String.replace(string)`
+        // swaps the FIRST occurrence only. The old `.replace` (all)
+        // diverged on doubled placeholders and on early values that
+        // inject a later placeholder (reachable: guild custom prefixes).
+        let line = "[user] <reason>";
+        let pos = "     ^";
+        // Injected later-placeholder via the prefix: TS fills the
+        // injected slot first, leaving the template's own literal.
+        let desc =
+            args_error_description("en-US", "ban", "P${argsString}", "ban", line, pos, "user");
+        assert!(desc.contains("P[user] <reason>ban ${argsString}"), "{desc}");
+        // Baseline still fills every placeholder exactly once.
+        let desc = args_error_description("en-US", "ban", "!", "ban", line, pos, "user");
+        assert!(!desc.contains("${"));
     }
 
     #[test]

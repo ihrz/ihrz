@@ -456,13 +456,19 @@ pub fn usage_error_description(
             error_position.push_str(&" ".repeat(crate::funcs::utf16_len(token) + 1));
         }
     }
+    // JS `String.replace(string)` swaps the FIRST occurrence only (never
+    // global): `replacen(..., 1)` keeps doubled placeholders and
+    // value-injected later placeholders verbatim like TS (W6 slice 141:
+    // node battery: `"${botPrefix}|${botPrefix}"` -> `"!|${botPrefix}"`;
+    // prefix `P${argsString}` fills the injected slot first, leaving the
+    // template's own `${argsString}` literal).
     template
-        .replace("${currentCommand.name}", command_display)
-        .replace("${botPrefix}", bot_prefix)
-        .replace("${fullNameCommand}", command_display)
-        .replace("${argsString}", &args_string)
-        .replace("${errorPosition}", &error_position)
-        .replace("${wrongArgumentName}", &wrong_name)
+        .replacen("${currentCommand.name}", command_display, 1)
+        .replacen("${botPrefix}", bot_prefix, 1)
+        .replacen("${fullNameCommand}", command_display, 1)
+        .replacen("${argsString}", &args_string, 1)
+        .replacen("${errorPosition}", &error_position, 1)
+        .replacen("${wrongArgumentName}", &wrong_name, 1)
 }
 
 /// TS-exact usage token for a choice param whose TS `value`s differ
@@ -757,6 +763,34 @@ mod tests {
             .trim_end();
         // Caret sits under the first token: "!" + "ban" = 4-wide pad, then " ^".
         assert_eq!(caret_line, "     ^");
+    }
+
+    #[test]
+    fn caret_fill_is_first_only_like_ts_replace() {
+        // Node ground truth (W6 slice 141): TS `String.replace(string)`
+        // swaps the FIRST occurrence only. The old `.replace` (all)
+        // diverged on doubled placeholders and on early values that
+        // inject a later placeholder (reachable: guild custom prefixes).
+        let specs = text_specs();
+        // Doubled placeholder: only the first fills.
+        let desc =
+            usage_error_description("${botPrefix}|${botPrefix}", "!", "ban", &specs, false, 0);
+        assert!(desc.starts_with("!|${botPrefix}"), "{desc}");
+        // Prefix injects a later placeholder: TS fills the injected
+        // slot first, leaving the template's own `${argsString}` literal.
+        let template = "${botPrefix}${fullNameCommand} ${argsString}";
+        let desc = usage_error_description(template, "P${argsString}", "ban", &specs, false, 0);
+        assert!(desc.contains("P[user] <string>ban ${argsString}"), "{desc}");
+        // Late-injected earlier placeholder stays literal on both sides
+        // (the botPrefix step already ran when fullNameCommand lands).
+        let desc = usage_error_description(template, "!", "F${botPrefix}", &specs, false, 0);
+        assert!(desc.contains("!F${botPrefix}"), "{desc}");
+        // Wrong-arg value injecting a placeholder: last step, literal.
+        let template = "[${wrongArgumentName}]";
+        let desc = usage_error_description(template, "!", "ban", &specs, false, 0);
+        assert!(desc.contains("[user]"), "{desc}");
+        let desc = usage_error_description("${wrongArgumentName}", "!", "ban", &specs, false, 0);
+        assert_eq!(desc, "user");
     }
 
     #[test]
