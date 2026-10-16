@@ -4408,6 +4408,46 @@ mod funcs_part5_tests {
             "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_sob.png"
         );
         assert_eq!(expression_url("Nope"), "");
+        // Hardcoded full URLs: the join-loop above derives the expected
+        // value from the table itself, so only literal pins catch a
+        // path typo in EXPRESSIONS (node battery: every value is
+        // baseUrl + "/assets/img/bot/expression/ihorizon_<lower>.png").
+        for (name, url) in [
+            (
+                "Blushed",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_blushed.png",
+            ),
+            (
+                "Grimacing",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_grimacing.png",
+            ),
+            (
+                "Grin",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_grin.png",
+            ),
+            (
+                "Overhappy",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_overhappy.png",
+            ),
+            (
+                "Pleading",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_pleading.png",
+            ),
+            (
+                "Sunglass",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_sunglass.png",
+            ),
+            (
+                "Thinking",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_thinking.png",
+            ),
+            (
+                "Wink",
+                "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_wink.png",
+            ),
+        ] {
+            assert_eq!(expression_url(name), url, "literal url for {name}");
+        }
         // Seeded draws always land in range on a known table entry.
         for seed in [0u64, 1, 7, 42, 999, u64::MAX] {
             let (name, path) = random_expression(seed);
