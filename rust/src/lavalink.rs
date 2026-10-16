@@ -708,7 +708,7 @@ pub fn whatwg_host(input: &str) -> Option<String> {
         }
         host_raw.to_ascii_lowercase()
     } else {
-        decode_host(host_raw)?.to_ascii_lowercase()
+        decode_host(host_raw, special)?.to_ascii_lowercase()
     };
     let keep_port = match port {
         None => None,
@@ -736,8 +736,11 @@ pub fn whatwg_host(input: &str) -> Option<String> {
 /// Percent-decode a URL host (`%HH` must be valid hex); None on a bare
 /// `%`, undecodable UTF-8, or a decoded forbidden host char (WHATWG
 /// forbidden host code points + C0/space/DEL). Non-ASCII bytes pass
-/// through raw (no IDNA — see `whatwg_host` deltas).
-fn decode_host(s: &str) -> Option<String> {
+/// through raw (no IDNA — see `whatwg_host` deltas). For special schemes
+/// C1 controls (U+0080–U+009F) also fail: TS `new URL` runs domain to
+/// ASCII (UTS-46) there and throws, so every `is*URL` classifier is
+/// false; opaque (non-special) hosts keep them percent-encoded instead.
+fn decode_host(s: &str, special: bool) -> Option<String> {
     let b = s.as_bytes();
     let mut out = Vec::with_capacity(b.len());
     let mut i = 0;
@@ -776,7 +779,9 @@ fn decode_host(s: &str) -> Option<String> {
             return None;
         }
     }
-    String::from_utf8(out).ok()
+    String::from_utf8(out)
+        .ok()
+        .filter(|h| !special || !h.chars().any(|c| ('\u{80}'..='\u{9f}').contains(&c)))
 }
 
 /// Mirrors `isSpotifyURL` (host contains "spotify", any scheme with an
@@ -4554,6 +4559,192 @@ pub fn manager() -> &'static LavalinkManager {
 mod tests {
     use super::*;
     use lava_rs::rest::Player as RestPlayer;
+
+    #[test]
+    fn platform_url_classifiers_match_ts_host_includes_legs() {
+        // W6 slice 149 battery: TS `new URL(url).host.includes(<token>)`
+        // try/catch legs, replicated verbatim in node (single source).
+        // `.host` is the lowercased host (+ non-default port), so the
+        // `includes` is effectively case-insensitive and substring-based
+        // (`notspotify.com` / `evilspotify.com` / `apple.com.evil.com`
+        // all hit); opaque `spotify:track:...` URIs stay hostless (false).
+        let hit: &[(&str, bool, bool, bool, bool, bool)] = &[
+            (
+                "https://open.spotify.com/track/abc",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://SPOTIFY.COM/x", true, false, false, false, false),
+            (
+                "https://open.spotify.com:443/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://open.spotify.com:8080/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://user@open.spotify.com/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://notspotify.com/x", true, false, false, false, false),
+            (
+                "https://spotify.evil.com/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "https://evilspotify.com/x",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            ("https://spotify.com", true, false, false, false, false),
+            ("https://spotify.com./x", true, false, false, false, false),
+            ("spotify:track:abc", false, false, false, false, false),
+            ("spotify://open/x", false, false, false, false, false),
+            ("ftp://spotify.com/x", true, false, false, false, false),
+            (
+                "https://www.youtube.com/watch?v=1",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            ("https://youtu.be/abc", false, true, false, false, false),
+            (
+                "https://music.youtube.com/x",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            ("https://YOUTU.BE/abc", false, true, false, false, false),
+            (
+                "https://youtube.com:443/x",
+                false,
+                true,
+                false,
+                false,
+                false,
+            ),
+            ("https://notyoutu.com/x", false, true, false, false, false),
+            (
+                "https://music.apple.com/us/x",
+                false,
+                false,
+                true,
+                false,
+                false,
+            ),
+            ("https://APPLE.COM/x", false, false, true, false, false),
+            (
+                "https://apple.com.evil.com/x",
+                false,
+                false,
+                true,
+                false,
+                false,
+            ),
+            (
+                "https://music.amazon.com/x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            (
+                "https://www.amazon.co.uk/x",
+                false,
+                false,
+                false,
+                true,
+                false,
+            ),
+            ("https://tidal.com/x", false, false, false, false, true),
+            (
+                "https://listen.tidal.com/x",
+                false,
+                false,
+                false,
+                false,
+                true,
+            ),
+            (
+                "https://user:pass@tidal.com:8080/x",
+                false,
+                false,
+                false,
+                false,
+                true,
+            ),
+            (
+                "https://open.spotify.com/x?foo=1#frag",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+            (
+                "  https://open.spotify.com/x  ",
+                true,
+                false,
+                false,
+                false,
+                false,
+            ),
+        ];
+        let miss = [
+            "not a url",
+            "",
+            "https://",
+            "https://[::1]/x",
+            "https://192.168.1.1/x",
+            "http://localhost:3000/x",
+            "https://\u{85}spotify.com/x",
+            "https://a\u{80}spotify.com/x",
+            "https://a\u{9f}spotify.com/x",
+            "https://a\u{7f}spotify.com/x",
+        ];
+        for (url, s, y, a, m, t) in hit {
+            assert_eq!(is_spotify_url(url), *s, "spotify {url:?}");
+            assert_eq!(is_youtube_url(url), *y, "youtube {url:?}");
+            assert_eq!(is_apple_music_url(url), *a, "apple {url:?}");
+            assert_eq!(is_amazon_music_url(url), *m, "amazon {url:?}");
+            assert_eq!(is_tidal_url(url), *t, "tidal {url:?}");
+        }
+        for url in miss {
+            assert!(!is_spotify_url(url), "spotify miss {url:?}");
+            assert!(!is_youtube_url(url), "youtube miss {url:?}");
+            assert!(!is_apple_music_url(url), "apple miss {url:?}");
+            assert!(!is_amazon_music_url(url), "amazon miss {url:?}");
+            assert!(!is_tidal_url(url), "tidal miss {url:?}");
+        }
+    }
 
     fn sample_track(title: &str) -> QueuedTrack {
         QueuedTrack {
