@@ -42,6 +42,9 @@ pub async fn gc_welcomer(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     use crate::commands::welcomer_panel::{main as wp_main, v2 as wp_v2};
+    // Fresh panels open on join like the TS in-memory init: reset any
+    // section persisted by an earlier panel's select interaction.
+    wp_main::set_section(pool, &gid, wp_main::WELCOMER_ENTRY_SECTION).await;
     // Placeholder followup then the full render() edit, like
     // interactionSend + render() in TS. Join section never previews.
     let app_id = actx.serenity_context.cache.current_user().id.get();

@@ -3,6 +3,15 @@ use poise::serenity_prelude as serenity;
 
 pub const WELCOMER_PREFIX: &str = "welcomer-";
 pub const WELCOMER_SECTION_ID: &str = "welcomer-section";
+
+/// Fresh panels always open on the join section. Mirrors the
+/// `section: "join"` state init in `openWelcomerPanel`
+/// (`src/Interaction/SlashCommands/guildconfig/welcomerPanel.ts`):
+/// TS keeps the section in memory only, so every new panel starts on
+/// join. The persisted `welcomerPanelSection` blob is the stateless
+/// stand-in for the in-memory section across component rerenders —
+/// entries must reset it, rerenders must keep reading it.
+pub const WELCOMER_ENTRY_SECTION: &str = "join";
 pub const WELCOMER_SECTIONS: [&str; 6] = ["join", "leave", "dm", "roles", "channels", "banner"];
 pub const PANEL_ACCENT: u32 = 0xffb3cc;
 const PANEL_SECTION_FIELD: &str = "welcomerPanelSection";
@@ -1020,6 +1029,9 @@ pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let pool = &pctx.data.pool;
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    // Fresh panels open on join like the TS in-memory init: reset any
+    // section persisted by an earlier panel's select interaction.
+    set_section(pool, &guild_id.get().to_string(), WELCOMER_ENTRY_SECTION).await;
     // Placeholder post (reply) then the full render() edit, like
     // interactionSend + render() in TS. Join section never previews.
     let channel_id = pctx.channel_id().get();
@@ -1060,6 +1072,19 @@ pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Read the persisted panel section (the stateless stand-in for the
+/// TS in-memory `state.section`). Absent/invalid reads as join, like
+/// the TS `section: "join"` init.
+pub(crate) async fn stored_section(pool: &crate::db::Pool, gid: &str) -> String {
+    crate::commands::guildconfig::load_guild_config(pool, gid)
+        .await
+        .get(PANEL_SECTION_FIELD)
+        .and_then(|v| v.as_str())
+        .filter(|s| welcomer_section(s).is_some())
+        .unwrap_or(WELCOMER_ENTRY_SECTION)
+        .to_string()
+}
+
 /// Load state + build the full V2 payload (with banner preview when
 /// applicable). Shared by the entry edit, rerenders and the slash leg.
 /// Returns (components, files).
@@ -1074,12 +1099,7 @@ pub(crate) async fn render_panel_message(
     member_roles: &[serenity::RoleId],
     disabled: bool,
 ) -> Result<(Vec<serde_json::Value>, Vec<(String, Vec<u8>)>), anyhow::Error> {
-    let section = crate::commands::guildconfig::load_guild_config(pool, gid)
-        .await
-        .get(PANEL_SECTION_FIELD)
-        .and_then(|v| v.as_str())
-        .unwrap_or("join")
-        .to_string();
+    let section = stored_section(pool, gid).await;
     let st = load_panel_state(
         pool,
         gid,
@@ -1203,7 +1223,7 @@ async fn render_disabled(
     }
 }
 
-async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
+pub(crate) async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
     let mut cfg = crate::commands::guildconfig::load_guild_config(pool, gid).await;
     crate::commands::guildconfig::welcomer_set(
         &mut cfg,
@@ -2194,6 +2214,38 @@ mod tests {
         assert_eq!(welcomer_section("join"), Some("join"));
         assert_eq!(welcomer_section("banner"), Some("banner"));
         assert_eq!(welcomer_section("nope"), None);
+    }
+
+    #[tokio::test]
+    async fn fresh_entry_resets_persisted_section_to_join() {
+        // Live wave EH (2026-10-16): a bare `.welcomer` rendered the
+        // channels section because an earlier panel's select had
+        // persisted it, while prod (TS in-memory `section: "join"`
+        // init in openWelcomerPanel) always opens join. Entries reset
+        // to WELCOMER_ENTRY_SECTION; rerenders keep stored_section.
+        assert_eq!(WELCOMER_ENTRY_SECTION, "join");
+        let pool = crate::db::memory_pool().await;
+        // Fresh guild: no persisted section reads as join.
+        assert_eq!(stored_section(&pool, "g").await, "join");
+        // Earlier panel switched to channels (component path).
+        set_section(&pool, "g", "channels").await;
+        assert_eq!(stored_section(&pool, "g").await, "channels");
+        // Fresh entry resets to join.
+        set_section(&pool, "g", WELCOMER_ENTRY_SECTION).await;
+        assert_eq!(stored_section(&pool, "g").await, "join");
+        // Corrupt values fall back to join, never panic a render.
+        {
+            let mut cfg = crate::commands::guildconfig::load_guild_config(&pool, "g").await;
+            crate::commands::guildconfig::welcomer_set(
+                &mut cfg,
+                "welcomerPanelSection",
+                Some(serde_json::json!("nope")),
+            );
+            crate::commands::guildconfig::save_guild_config(&pool, "g", &cfg)
+                .await
+                .unwrap();
+        }
+        assert_eq!(stored_section(&pool, "g").await, "join");
     }
 
     #[test]
