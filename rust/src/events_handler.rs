@@ -1374,6 +1374,35 @@ pub fn admin_grant_new_admin_ids(
     out
 }
 
+/// Mode-dispatch sanction predicate backing protection_guard.
+/// Mirrors the `if (data.<rule>.mode === "allowlist") ... else if
+/// (... === "nobody")` arms shared by every Events/protection/avoid*.ts
+/// file (battery slice W7-35 on avoidKickMember.ts: 34/34 legs green):
+/// `allowlist` sanctions anyone without an allowlist entry, `nobody`
+/// sanctions anyone but the guild owner. `allowlist_present` is the
+/// `ALLOWLIST.list.<exec>` row existence; `owner_id` is `None` when the
+/// partial-guild fetch fails (fail-open toward sanction, like TS where
+/// `ownerId` is always cached).
+/// The guard pre-filters modes (only `allowlist`/`nobody` reach this),
+/// so any other mode reads `false` here exactly like the TS arms falling
+/// through with `shouldSanction` untouched.
+/// DELTA (manual-DB-only, shared with all guarded rules): a stored
+/// falsy-scalar allowlist row (`0`/`""`) sanctions in TS (`!baseData`)
+/// but reads present here (`is_some`). Writers only store objects.
+/// Pure, unit-tested below.
+pub fn protection_mode_sanctions(
+    mode: &str,
+    allowlist_present: bool,
+    executor_id: u64,
+    owner_id: Option<u64>,
+) -> bool {
+    match mode {
+        "allowlist" => !allowlist_present,
+        "nobody" => Some(executor_id) != owner_id,
+        _ => false,
+    }
+}
+
 /// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
 /// Events/guildconfig/blockBot.ts: the module triggers unless the audit
 /// adder IS the server owner. Plain `Option` equality is the exact mirror
@@ -3208,16 +3237,19 @@ impl Handler {
         // branch — no cross-mode allowlist exemption exists in either
         // path, so keep it nested and deliberate.
         let should = match mode.as_str() {
-            "allowlist" => allowlist_entry_routed(&self.pool, &gid, exec.get())
-                .await
-                .is_none(),
+            "allowlist" => {
+                let present = allowlist_entry_routed(&self.pool, &gid, exec.get())
+                    .await
+                    .is_some();
+                protection_mode_sanctions(&mode, present, exec.get(), None)
+            }
             _ => {
                 let owner = guild_id
                     .to_partial_guild(&ctx.http)
                     .await
-                    .map(|g| g.owner_id)
+                    .map(|g| g.owner_id.get())
                     .ok();
-                Some(exec) != owner
+                protection_mode_sanctions(&mode, false, exec.get(), owner)
             }
         };
         if !should {
@@ -12390,6 +12422,31 @@ mod restore_tests {
         assert!(admin_grant_new_admin_ids(&[111], &[111], &admin_of).is_empty());
         // Reorder-only never trips
         assert!(admin_grant_new_admin_ids(&[111, 222], &[222, 111], &admin_of).is_empty());
+    }
+
+    #[test]
+    fn protection_mode_sanctions_matches_ts_kick_battery() {
+        // Mirrors scratch/slice-w7s35-kickmember.cjs gates C/D 1:1
+        // (U-ETERNAL-400): the allowlist/nobody arms shared by every
+        // Events/protection/avoid*.ts file, first numbered coverage via
+        // the kickmember leg.
+        // C1 allowlist, no entry -> sanction
+        assert!(protection_mode_sanctions("allowlist", false, 9, Some(1)));
+        // C2/C3 allowlist with entry (even {allowed:false}, truthy) -> silent
+        assert!(!protection_mode_sanctions("allowlist", true, 9, Some(1)));
+        // C6 nobody, non-owner -> sanction
+        assert!(protection_mode_sanctions("nobody", false, 9, Some(1)));
+        // C7 nobody, owner -> silent
+        assert!(!protection_mode_sanctions("nobody", false, 1, Some(1)));
+        // Nobody with unfetchable owner fails open (TS ownerId cached)
+        assert!(protection_mode_sanctions("nobody", false, 9, None));
+        // C8/B7-B9 other modes (member/undefined-true/string/object) -> silent
+        assert!(!protection_mode_sanctions("member", false, 9, Some(1)));
+        assert!(!protection_mode_sanctions("member", true, 9, Some(1)));
+        // Cross-mode: allowlist entry never exempts the nobody arm
+        assert!(protection_mode_sanctions("nobody", true, 9, Some(1)));
+        // ...and the owner never exempts the allowlist arm
+        assert!(protection_mode_sanctions("allowlist", false, 1, Some(1)));
     }
 
     #[test]
