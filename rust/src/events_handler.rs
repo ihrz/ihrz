@@ -3824,6 +3824,17 @@ fn welcomer_template<'a>(stored: Option<&'a str>, default: &'a str) -> &'a str {
     }
 }
 
+/// Strict `!== false` flag read mirroring joinMessage.ts:302-303 /
+/// leaveMessage.ts:59-60 (`textEnabled`/`componentsEnabled`). Only a
+/// stored boolean `false` disables; every other JSON shape (missing,
+/// null, `"false"`, `0`, `""`) stays enabled — node ground truth
+/// (scratch slice-w7s21-welcomer.js, 15/15 legs). Equivalent to the
+/// previous `as_bool().unwrap_or(true)` on the full JSON domain,
+/// kept as one named predicate so the pin covers all call sites.
+pub fn welcomer_text_enabled(stored: Option<&serde_json::Value>) -> bool {
+    !matches!(stored, Some(serde_json::Value::Bool(false)))
+}
+
 /// Join-message sender. Mirrors joinMessage.ts sendWelcome ->
 /// welcomerMessage.ts: `message` is None when joinTextEnabled is false,
 /// `stored` is the resolveWelcomerEmbed result (None when no
@@ -5836,10 +5847,7 @@ impl serenity::EventHandler for Handler {
                     let rendered = render_join(&tpl_owned);
                     // joinTextEnabled off skips the text (mirrors
                     // `message: textEnabled ? msg : null` in sendWelcome).
-                    let join_text_enabled = cfg
-                        .get("joinTextEnabled")
-                        .and_then(|v| v.as_bool())
-                        .unwrap_or(true);
+                    let join_text_enabled = welcomer_text_enabled(cfg.get("joinTextEnabled"));
                     // resolveWelcomerEmbed(joinEmbedId, variables): global
                     // EMBED.<id> record, embedSource preview-rendered over
                     // the same mention/inviter slots, like the leave leg.
@@ -6265,17 +6273,11 @@ impl serenity::EventHandler for Handler {
         {
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-            let text_enabled = cfg
-                .get("leaveTextEnabled")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(true);
+            let text_enabled = welcomer_text_enabled(cfg.get("leaveTextEnabled"));
             // componentsEnabled is read for parity (`useComponents:
             // embed ? false : componentsEnabled`); serenity 0.12 has no
             // Components V2, so the send below is embed-only either way.
-            let _components_enabled = cfg
-                .get("leaveComponentsEnabled")
-                .and_then(|v| v.as_bool())
-                .unwrap_or(true);
+            let _components_enabled = welcomer_text_enabled(cfg.get("leaveComponentsEnabled"));
             // Inviter display for the {inviterUsername}/{inviterMention}
             // slots (mirrors the base?.inviter branch; the stats
             // decrement itself stays in the leaves-tracking leg above).
@@ -12181,6 +12183,28 @@ mod welcomer_tests {
         assert_eq!(welcomer_template(Some(""), "D"), "D");
         assert_eq!(welcomer_template(Some(" "), "D"), " ");
         assert_eq!(welcomer_template(Some("hi"), "D"), "hi");
+    }
+
+    #[test]
+    fn welcomer_text_enabled_matches_ts_strict_not_false() {
+        // joinMessage.ts:302-303 / leaveMessage.ts:59-60 `!== false`:
+        // only boolean false disables (node battery slice-w7s21, 15/15).
+        use serde_json::{json, Value};
+        let enabled = |v: Option<Value>| welcomer_text_enabled(v.as_ref());
+        assert!(enabled(None));
+        assert!(enabled(Some(Value::Null)));
+        assert!(enabled(Some(json!(true))));
+        assert!(!enabled(Some(json!(false))));
+        assert!(enabled(Some(json!("false"))));
+        assert!(enabled(Some(json!("0"))));
+        assert!(enabled(Some(json!(""))));
+        assert!(enabled(Some(json!(" "))));
+        assert!(enabled(Some(json!(0))));
+        assert!(enabled(Some(json!(1))));
+        assert!(enabled(Some(json!(0.0))));
+        assert!(enabled(Some(json!("off"))));
+        assert!(enabled(Some(json!({}))));
+        assert!(enabled(Some(json!([]))));
     }
 
     #[test]
