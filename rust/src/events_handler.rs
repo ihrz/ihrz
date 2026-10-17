@@ -1103,11 +1103,16 @@ pub fn audit_entry_relevant(
 
 /// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
 /// Events/guildconfig/blockBot.ts: the module triggers unless the audit
-/// adder IS the server owner. Unknown adder (no entry) stays fail-closed
-/// like TS (`undefined !== ownerId`), so only a positive owner match
-/// exempts. Pure, unit-tested below.
+/// adder IS the server owner. Plain `Option` equality is the exact mirror
+/// of JS `!==`, including `undefined !== undefined === false`: an unknown
+/// adder with an unknown owner exempts (battery leg
+/// `unknown-adder-unknown-owner -> noop`). The all-`None` edge is
+/// Rust-only in practice (TS reads the always-cached
+/// `member.guild.ownerId`; here the owner comes from a partial-guild HTTP
+/// fetch that can fail) — the literal TS verdict is kept anyway.
+/// Pure, unit-tested below.
 pub fn blockbot_owner_exempt(adder: Option<u64>, owner: Option<u64>) -> bool {
-    matches!((adder, owner), (Some(a), Some(o)) if a == o)
+    adder == owner
 }
 
 /// Anti-pub staff exemption core. Mirrors blockSpam.ts
@@ -5231,9 +5236,9 @@ impl serenity::EventHandler for Handler {
             }
             // Owner-exempt adder (mirrors the `executorId !== ownerId`
             // gate): an owner-added bot skips ban, derank and owner DM.
-            // Unknown adder (no entry) stays fail-closed like TS
-            // (`undefined !== ownerId`), so only a positive owner match
-            // returns early.
+            // Unknown adder with known owner stays fail-closed like TS
+            // (`undefined !== ownerId`); the all-unknown edge exempts per
+            // the literal `!==` (`undefined !== undefined` is false).
             let owner_id = new_member
                 .guild_id
                 .to_partial_guild(&ctx.http)
@@ -11858,15 +11863,23 @@ mod protection_audit_tests {
     }
 
     #[test]
-    fn blockbot_exempt_only_on_positive_owner_match() {
+    fn blockbot_exempt_matches_ts_strict_not_equal_battery() {
         use super::blockbot_owner_exempt;
+        // Battery: scratch/slice-w7s10-blockbot.js (18/18 green) replicating
+        // `data === true && filteredLog?.executorId !== ownerId` verbatim.
         // Owner adds the bot -> module skipped entirely.
         assert!(blockbot_owner_exempt(Some(7), Some(7)));
         // Non-owner adder -> triggers.
         assert!(!blockbot_owner_exempt(Some(8), Some(7)));
-        // Unknown adder (no audit entry) -> fail-closed like TS.
+        // Unknown adder (no audit entry) with known owner -> triggers
+        // (fail-closed like TS: `undefined !== ownerId`).
         assert!(!blockbot_owner_exempt(None, Some(7)));
-        assert!(!blockbot_owner_exempt(None, None));
+        // Unknown adder + unknown owner -> exempt: TS
+        // `undefined !== undefined` is false, so no ban (battery leg
+        // `unknown-adder-unknown-owner -> noop`). Reachable here only when
+        // the owner partial-guild fetch fails (TS ownerId always cached).
+        assert!(blockbot_owner_exempt(None, None));
+        // Known adder + unknown owner -> triggers (`'A' !== undefined`).
         assert!(!blockbot_owner_exempt(Some(7), None));
     }
 
