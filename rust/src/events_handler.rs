@@ -12600,6 +12600,37 @@ mod restore_tests {
     }
 
     #[test]
+    fn role_avoids_match_ts_battery() {
+        // Mirrors scratch/slice-w7s38-role.cjs 1:1 (U-ETERNAL-403):
+        // avoidRoleCreate.ts + avoidRoleUpdate.ts + avoidRoleDelete.ts
+        // punish OUTSIDE their mode arms (brace-verified: the `nobody`
+        // arm closes before `const isOwner` in all three files), so BOTH
+        // modes sanction — no dead rule, unlike the channel-update leg.
+        // Full verdict table (TS battery rows 1:1) — identical for all
+        // three legs, so one closure covers create/update/delete.
+        let verdict = |mode: &str, listed: bool, guild_owner: bool, owner_row: bool| {
+            let exec = 9u64;
+            let owner = if guild_owner { Some(9u64) } else { Some(1u64) };
+            protection_mode_sanctions(mode, listed, exec, owner) && !owner_row
+        };
+        assert!(verdict("allowlist", false, false, false));
+        assert!(!verdict("allowlist", true, false, false));
+        assert!(!verdict("allowlist", false, false, true));
+        assert!(verdict("nobody", false, false, false));
+        assert!(!verdict("nobody", false, true, false));
+        assert!(!verdict("nobody", false, false, true));
+        assert!(!verdict("member", false, false, false));
+        assert!(!verdict("", false, false, false));
+        // Gate order (data, admin, rule, log) reduces to arm && perm &&
+        // log, same as the guard's (mode, bot-gate, log) — same
+        // no-sanction outcome on all corners (battery section C).
+        // Uncached executor: TS `simply` still restores (punish no-ops
+        // on the switch) while derank/ban sanctions throw before the
+        // restore; the guard sanctions by id and always restores.
+        // Member cache is warm on live paths — documented delta.
+    }
+
+    #[test]
     fn snipe_avatar_falls_back_to_default_url() {
         // TS displayAvatarURL() never yields "": users without a custom
         // avatar get the default-avatar URL (new system: (id >> 22) % 6).
