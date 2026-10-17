@@ -1403,6 +1403,17 @@ pub fn protection_mode_sanctions(
     }
 }
 
+/// Channel-update guard gate. Mirrors avoidChannelUpdate.ts exactly: the
+/// owner check + punish + revert live INSIDE the
+/// `else if (data.updatechannel.mode === "nobody")` arm (brace-verified),
+/// so `allowlist` mode never sanctions — a dead rule, silent even for
+/// non-listed executors. The sibling create/delete avoids punish OUTSIDE
+/// their arms (both modes sanction), so this gate applies to the update
+/// leg only. Pure, unit-tested below.
+pub fn channel_update_guard_armed(rule_mode: &str) -> bool {
+    rule_mode == "nobody"
+}
+
 /// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
 /// Events/guildconfig/blockBot.ts: the module triggers unless the audit
 /// adder IS the server owner. Plain `Option` equality is the exact mirror
@@ -9901,15 +9912,26 @@ impl serenity::EventHandler for Handler {
         new: serenity::GuildChannel,
     ) {
         use serenity::model::guild::audit_log::{Action, ChannelAction, ChannelOverwriteAction};
-        let hit = self
-            .protection_guard(
+        // avoidChannelUpdate.ts arms the punish + revert ONLY in the
+        // `nobody` branch (`allowlist` is a dead rule). Pre-read the mode
+        // so a non-listed updater no longer sanctions under `allowlist`.
+        let armed =
+            protection_rule_routed(&self.pool, &new.guild_id.get().to_string(), "updatechannel")
+                .await
+                .map(|r| channel_update_guard_armed(r.effective_mode()))
+                .unwrap_or(false);
+        let hit = if armed {
+            self.protection_guard(
                 &ctx,
                 new.guild_id,
                 Action::Channel(ChannelAction::Update),
                 "updatechannel",
                 Some(new.id.get()),
             )
-            .await;
+            .await
+        } else {
+            None
+        };
         // Unauthorized channel-update revert (mirrors
         // avoidChannelUpdate.ts): punish ran inside the guard, then the
         // pre-update snapshot is written back.
@@ -12523,6 +12545,58 @@ mod restore_tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn channel_avoids_match_ts_battery() {
+        // Mirrors scratch/slice-w7s37-channel.cjs 1:1 (U-ETERNAL-402):
+        // avoidChannelCreate.ts + avoidChannelDelete.ts punish OUTSIDE
+        // their mode arms (both modes sanction); avoidChannelUpdate.ts
+        // nests punish + revert INSIDE the `nobody` arm (brace-verified),
+        // so `allowlist` updates are a dead rule — always silent.
+        // Gate A: update arming (the fix: guard runs on `nobody` only).
+        assert!(channel_update_guard_armed("nobody"));
+        assert!(!channel_update_guard_armed("allowlist"));
+        assert!(!channel_update_guard_armed("member"));
+        assert!(!channel_update_guard_armed(""));
+        // Gate B: create/delete dispatch (shared protection_mode_sanctions,
+        // unchanged — both modes sanction strangers, owner rows exempt).
+        assert!(protection_mode_sanctions("allowlist", false, 9, Some(1)));
+        assert!(protection_mode_sanctions("nobody", false, 9, Some(1)));
+        assert!(protection_mode_sanctions("allowlist", false, 9, Some(9)));
+        // Gate C: full verdict table (TS battery rows 1:1) —
+        // (create, delete-cached, update) per (mode, listed, guildOwner,
+        // ownerRow). Update/allowlist/stranger is the divergence leg:
+        // (true, true, false).
+        let verdict = |mode: &str, listed: bool, guild_owner: bool, owner_row: bool| {
+            let exec = 9u64;
+            let owner = if guild_owner { Some(9u64) } else { Some(1u64) };
+            let create = protection_mode_sanctions(mode, listed, exec, owner) && !owner_row;
+            let delete = create && true; // cached member; uncached leg below
+            let update = channel_update_guard_armed(mode) && create;
+            (create, delete, update)
+        };
+        assert_eq!(
+            verdict("allowlist", true, false, false),
+            (false, false, false)
+        );
+        assert_eq!(
+            verdict("allowlist", false, false, false),
+            (true, true, false)
+        );
+        assert_eq!(
+            verdict("allowlist", false, false, true),
+            (false, false, false)
+        );
+        assert_eq!(verdict("nobody", false, false, false), (true, true, true));
+        assert_eq!(verdict("nobody", false, true, false), (false, false, false));
+        assert_eq!(verdict("nobody", false, false, true), (false, false, false));
+        assert_eq!(
+            verdict("member", false, false, false),
+            (false, false, false)
+        );
+        // Gate D: delete `if (!user) return` — uncached executor skips
+        // punish + restore in TS (guard sanctions by id; documented delta).
     }
 
     #[test]
