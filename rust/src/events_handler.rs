@@ -939,6 +939,19 @@ async fn save_snipe_routed(
     crate::commands::owner::main::routed_set(pool, gid, gid, key, value).await
 }
 
+/// Snipe write gate. Mirrors Events/utils/snipeModule.ts verbatim: skip
+/// when the author is the bot itself (`message.author.id == client.user?.id`
+/// — loose `==`, but both sides are ID strings so verdicts match strict
+/// equality; an unknown bot id never equals a real author id) or when the
+/// content is empty (`content.length == 0`; the follow-up `=== ""` leg is
+/// redundant for strings and takes the same verdict — battery leg).
+/// The `!message.guild` / `!message.author` early returns live in the call
+/// site (`guild_id` is `Option`, cache hits always carry an author).
+/// Pure, unit-tested below.
+pub fn snipe_snapshot_allowed(author_is_bot: bool, content: &str) -> bool {
+    !author_is_bot && !content.is_empty()
+}
+
 /// TS snipe snapshot JSON. Mirrors Events/utils/snipeModule.ts verbatim:
 /// `{snipe, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` with the
 /// content masked via maskLink (`Hidden Link` on any URL-ish input).
@@ -8048,7 +8061,9 @@ impl serenity::EventHandler for Handler {
             let snap: Option<(String, String)> = ctx
                 .cache
                 .message(channel_id, deleted_message_id)
-                .filter(|cached| cached.author.id.get() != bot_id && !cached.content.is_empty())
+                .filter(|cached| {
+                    snipe_snapshot_allowed(cached.author.id.get() == bot_id, &cached.content)
+                })
                 .map(|cached| {
                     (
                         serde_json::json!({
@@ -8060,8 +8075,11 @@ impl serenity::EventHandler for Handler {
                             &cached.content,
                             &cached.author.name,
                             cached.author.id.get(),
-                            &cached.author.avatar_url().unwrap_or_default(),
-                            cached.timestamp.unix_timestamp() * 1000,
+                            &cached
+                                .author
+                                .avatar_url()
+                                .unwrap_or_else(|| cached.author.default_avatar_url()),
+                            cached.timestamp.timestamp_millis(),
                         ),
                     )
                 });
@@ -12168,6 +12186,36 @@ mod restore_tests {
         assert_eq!(lastfm_tracked_change(Some(7), Some(7), 7), None);
         assert_eq!(lastfm_tracked_change(None, None, 7), None);
         assert_eq!(lastfm_tracked_change(Some(1), Some(2), 7), None);
+    }
+
+    #[test]
+    fn snipe_gate_matches_ts_battery_legs() {
+        // Mirrors scratch/slice-w7s30-snipe.cjs 1:1 (U-ETERNAL-395).
+        assert!(!snipe_snapshot_allowed(true, "hi")); // bot-self skips
+        assert!(!snipe_snapshot_allowed(false, "")); // length == 0 skips
+        assert!(snipe_snapshot_allowed(false, "hi")); // normal proceeds
+        assert!(snipe_snapshot_allowed(false, "0")); // falsy-but-nonempty proceeds
+        assert!(snipe_snapshot_allowed(false, "   ")); // whitespace-only proceeds
+                                                       // The follow-up `=== ""` leg is redundant: it can only fire when
+                                                       // `length == 0` already fired (both false for every non-empty
+                                                       // string — proven case-by-case in the node battery).
+        for s in ["a", "0", " ", "\n", "🔥"] {
+            assert!(!s.is_empty());
+        }
+    }
+
+    #[test]
+    fn snipe_avatar_falls_back_to_default_url() {
+        // TS displayAvatarURL() never yields "": users without a custom
+        // avatar get the default-avatar URL (new system: (id >> 22) % 6).
+        let user = serenity::User::default();
+        assert!(user.avatar_url().is_none());
+        let fallback = user.default_avatar_url();
+        assert!(
+            fallback.starts_with("https://cdn.discordapp.com/embed/avatars/"),
+            "unexpected fallback: {fallback}"
+        );
+        assert!(fallback.ends_with(".png"));
     }
 
     #[test]
