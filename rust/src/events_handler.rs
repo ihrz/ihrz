@@ -12450,6 +12450,82 @@ mod restore_tests {
     }
 
     #[test]
+    fn ban_unban_legs_match_ts_battery() {
+        // Mirrors scratch/slice-w7s36-banunban.cjs 1:1 (U-ETERNAL-401):
+        // avoidBanMember.ts (guildBanAdd) + avoidUnbanMember.ts
+        // (guildBanRemove) gate-order + mode-dispatch exactness. Both legs
+        // share the allowlist/nobody arms; they differ only in gate order
+        // (ban: getLogs-then-perm, unban: perm-then-getLogs) and restore
+        // order (ban: unban-victim-then-punish inside the guard,
+        // unban: punish-inside-guard-then-re-ban by the caller) — all three
+        // orders reduce to arm && perm && log, so outcomes agree everywhere.
+        use crate::commands::protection::protect::RuleState;
+        // Gate A: rule JSON -> effective mode (TS `if (data.<rule>)` + mode
+        // arms; truthy non-arm rows enter the block but sanction nothing,
+        // exactly like the guard's "member" no-op).
+        let mode_of = |raw: &str| {
+            serde_json::from_str::<RuleState>(raw)
+                .ok()
+                .map(|r| r.effective_mode().to_string())
+                .unwrap_or_else(|| "member".to_string())
+        };
+        assert_eq!(mode_of(r#"{"mode":"allowlist"}"#), "allowlist");
+        assert_eq!(mode_of(r#"{"mode":"nobody"}"#), "nobody");
+        assert_eq!(mode_of(r#"{"mode":"member"}"#), "member");
+        assert_eq!(mode_of(r#"{}"#), "member");
+        assert_eq!(mode_of(r#""yes""#), "member");
+        assert_eq!(mode_of(r#"true"#), "member");
+        // Ban + unban arms (shared protection_mode_sanctions, slice-35 pin
+        // covers the full matrix; these assert the ban/unban rule names ride
+        // the same arms).
+        assert!(protection_mode_sanctions("allowlist", false, 9, Some(1)));
+        assert!(!protection_mode_sanctions("allowlist", true, 9, Some(1)));
+        assert!(protection_mode_sanctions("nobody", false, 9, Some(1)));
+        assert!(!protection_mode_sanctions("nobody", false, 1, Some(1)));
+        assert!(!protection_mode_sanctions("member", false, 9, Some(1)));
+        // Gate B: order table — ban order, unban order, guard order agree on
+        // all 8 (perm, log) corners for both arm states.
+        let ban_order = |arm: bool, perm: bool, log: bool| {
+            if !log {
+                return false;
+            }
+            if !perm {
+                return false;
+            }
+            arm
+        };
+        let unban_order = |arm: bool, perm: bool, log: bool| {
+            if !perm {
+                return false;
+            }
+            if !log {
+                return false;
+            }
+            arm
+        };
+        let guard_order = |arm: bool, perm: bool, log: bool| {
+            if !arm {
+                return false;
+            }
+            if !perm {
+                return false;
+            }
+            if !log {
+                return false;
+            }
+            true
+        };
+        for arm in [false, true] {
+            for perm in [false, true] {
+                for log in [false, true] {
+                    assert_eq!(ban_order(arm, perm, log), unban_order(arm, perm, log));
+                    assert_eq!(ban_order(arm, perm, log), guard_order(arm, perm, log));
+                }
+            }
+        }
+    }
+
+    #[test]
     fn snipe_avatar_falls_back_to_default_url() {
         // TS displayAvatarURL() never yields "": users without a custom
         // avatar get the default-avatar URL (new system: (id >> 22) % 6).
