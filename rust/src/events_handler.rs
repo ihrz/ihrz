@@ -74,6 +74,16 @@ pub fn invite_seed_allowed(is_owner: bool, view_audit_log: bool, manage_guild: b
     is_owner || (view_audit_log && manage_guild)
 }
 
+/// Invite-create gate. Mirrors the `!invite.guild || !members.me?.permissions.has(ViewAuditLog)`
+/// early return in invitemanager/onInviteCreate.ts: without the guild or the bit neither the cache
+/// write nor the zero-row seed runs. Note the single-bit gate here (unlike `invite_seed_allowed`
+/// above, which mirrors the ready/guildCreate AND pair). `bot_effective_perms` at the call site is
+/// fail-closed (empty when our member row is unresolvable), which matches the TS `?.` miss leg
+/// (no me -> return).
+pub fn invite_create_proceeds(has_guild: bool, view_audit_log: bool) -> bool {
+    has_guild && view_audit_log
+}
+
 // tbl_* routing lives in crate::db (single home, C5); the forks that
 // lived here are deleted and call sites below use `crate::db::tbl_*`.
 
@@ -10265,11 +10275,22 @@ impl serenity::EventHandler for Handler {
         }
     }
 
-    async fn invite_create(&self, _ctx: serenity::Context, creation: serenity::InviteCreateEvent) {
+    async fn invite_create(&self, ctx: serenity::Context, creation: serenity::InviteCreateEvent) {
         // Mirrors invitemanager/onInviteCreate.ts: cache uses by code.
         let Some(guild_id) = creation.guild_id else {
             return;
         };
+        // Single-bit ViewAuditLog gate (mirrors the `!invite.guild ||
+        // !members.me?.permissions.has(ViewAuditLog)` early return; the
+        // no-guild leg is the let-else above). Fail-closed like TS.
+        if !invite_create_proceeds(
+            true,
+            self.bot_effective_perms(&ctx, guild_id)
+                .await
+                .view_audit_log(),
+        ) {
+            return;
+        }
         let gid = guild_id.get().to_string();
         let inviter_id = creation.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0);
         {
@@ -10284,6 +10305,18 @@ impl serenity::EventHandler for Handler {
         // {regular: 0, bonus: 0, leaves: 0, invites: 0} row so later
         // increments read zeros, not missing). Existing rows are never
         // touched; skipped with no inviter.
+        // DELTAS (doc-noted, unreachable downstream): TS keys the seed
+        // `USER.${inviter?.id}.INVITES`, so an inviter-less create writes
+        // a literal `USER.undefined.INVITES` zero row while we skip (no
+        // reader ever addresses that key); the cache entry drops
+        // `inviterUsername` (tuple keeps uses + id) because the only TS
+        // consumer (`joinMessage.ts` greeting fallback) sits behind
+        // `if (invite?.inviterId)`, and a live invite with an inviter
+        // always carries its username, so the cached fallback never
+        // fires; `entry().or_default()` self-heals a missing guild entry
+        // where TS `?.set` no-ops (unreachable past the gate + the
+        // ready/guildCreate seeds except races, and the join leg falls
+        // back to `|| 0` either way).
         if inviter_id != 0 {
             let key = crate::commands::invitesmanager::inv::invites_key(inviter_id);
             if leaf_routed(&self.pool, &gid, &key).await.is_none() {
@@ -12554,6 +12587,18 @@ mod component_registry_tests {
         assert!(!invite_seed_allowed(false, true, false));
         assert!(!invite_seed_allowed(false, false, true));
         assert!(!invite_seed_allowed(false, false, false));
+    }
+
+    #[test]
+    fn invite_create_gate_matches_ts_single_bit_legs() {
+        // Battery slice-w7s15-invites.js legs: no-guild skips, no-bit
+        // skips, bit proceeds (the `?.set` + `!check`-seed only run
+        // past this gate). Delete/leave legs carry no gate (TS-gated
+        // nowhere), so no predicate here.
+        assert!(!invite_create_proceeds(false, true));
+        assert!(!invite_create_proceeds(false, false));
+        assert!(!invite_create_proceeds(true, false));
+        assert!(invite_create_proceeds(true, true));
     }
 }
 
