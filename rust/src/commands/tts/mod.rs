@@ -115,15 +115,25 @@ pub fn tts_voice_left(old_channel: Option<u64>, new_channel: Option<u64>, tts_vo
 }
 
 /// TS getTTSData interop (`if (!data || !data.enabled) return null`):
-/// TS rows carry `enabled`; Rust rows omit it (row presence = enabled).
-/// A missing flag means enabled; malformed rows mean disabled.
+/// JS falsy on the flag decides. Rust rows omit the flag (row
+/// presence = enabled) so a missing flag stays enabled — deliberate
+/// delta, documented on TtsConfig; every writer (TS setTTSData +
+/// Rust save_tts) stores a real boolean. A PRESENT falsy flag
+/// (`false`, `0`, `""`, null) disables like TS; anything else
+/// (truthy strings/numbers/objects) enables.
 pub fn tts_row_enabled(raw: &str) -> bool {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) else {
         return false;
     };
     match v.get("enabled") {
-        Some(e) => e.as_bool().unwrap_or(true),
+        // Missing flag: Rust-written rows omit it (presence = enabled).
         None => true,
+        Some(serde_json::Value::Bool(b)) => *b,
+        Some(serde_json::Value::Null) => false,
+        Some(serde_json::Value::Number(n)) => n.as_f64().is_some_and(|f| f != 0.0),
+        Some(serde_json::Value::String(s)) => !s.is_empty(),
+        // Arrays/objects are truthy in JS.
+        Some(_) => true,
     }
 }
 
@@ -489,11 +499,14 @@ pub fn detect_message_locale(text: &str) -> Option<&'static str> {
 /// and `http://` throw).
 ///
 /// Rules: strip ASCII tab/CR/LF anywhere (WHATWG removes them), trim
-/// C0/space edges, require `^[A-Za-z][A-Za-z0-9+.-]*:`, then for the
-/// hierarchical schemes (http/https/ws/wss/ftp) require a non-empty
-/// whitespace-free host; every other scheme accepts any remainder
-/// (opaque path, empty included); `file` accepts everything past the
-/// scheme.
+/// C0/space edges, require `^[A-Za-z][A-Za-z0-9+.-]*:`. Opaque
+/// (non-hierarchical) schemes accept any remainder, empty included —
+/// the WHATWG opaque-path legs (spaces, fragments, queries) always
+/// parse. Hierarchical schemes (http/https/ws/wss/ftp) delegate the
+/// authority verdict to the slice-32-exact `lavalink::whatwg_host`
+/// (garbage/oversize ports, C0/C1/DEL hosts, empty hosts all fail
+/// like `new URL`); `file` accepts everything past the scheme (empty
+/// file hosts parse).
 pub fn tts_is_url(text: &str) -> bool {
     let nospace: String = text
         .chars()
@@ -503,7 +516,7 @@ pub fn tts_is_url(text: &str) -> bool {
     let Some(colon) = t.find(':') else {
         return false;
     };
-    let (scheme, rest) = t.split_at(colon);
+    let (scheme, _) = t.split_at(colon);
     if scheme.is_empty()
         || !scheme.starts_with(|c: char| c.is_ascii_alphabetic())
         || !scheme
@@ -512,31 +525,26 @@ pub fn tts_is_url(text: &str) -> bool {
     {
         return false;
     }
-    let after = &rest[1..];
     if ["http", "https", "ws", "wss", "ftp"].contains(&scheme.to_ascii_lowercase().as_str()) {
-        let host = after
-            .trim_start_matches(['/', '\\'])
-            .split(['/', '?', '#'])
-            .next()
-            .unwrap_or("");
-        return !host.is_empty() && !host.chars().any(|c| c.is_whitespace() || (c as u32) < 0x20);
+        return crate::lavalink::whatwg_host(t).is_some();
     }
     true
 }
 
 /// Locale fallback chain, mirroring
 /// `detectedLocale || ttsData.lang || serverLocale || "en-US"`.
-/// JS `||` treats empty strings as missing, so blank legs fall
-/// through instead of pinning an empty locale.
+/// JS `||` treats exactly the empty string as missing (whitespace-only
+/// strings are truthy and pin the locale), so blank legs fall through
+/// on `is_empty` only — no trim.
 pub fn resolve_tts_locale(
     detected: Option<&str>,
     tts_lang: Option<&str>,
     server_lang: Option<&str>,
 ) -> String {
     detected
-        .filter(|s| !s.trim().is_empty())
-        .or_else(|| tts_lang.filter(|s| !s.trim().is_empty()))
-        .or_else(|| server_lang.filter(|s| !s.trim().is_empty()))
+        .filter(|s| !s.is_empty())
+        .or_else(|| tts_lang.filter(|s| !s.is_empty()))
+        .or_else(|| server_lang.filter(|s| !s.is_empty()))
         .unwrap_or("en-US")
         .to_string()
 }
@@ -630,6 +638,8 @@ mod tests {
         // Join from nowhere: nothing left.
         assert!(!tts_voice_left(None, Some(10), 10));
         assert!(!tts_voice_left(None, None, 10));
+        // Moving into the TTS channel from elsewhere: not a leave.
+        assert!(!tts_voice_left(Some(20), Some(10), 10));
     }
 
     #[test]
@@ -661,6 +671,19 @@ mod tests {
         // Noise-only text: no override.
         assert_eq!(detect_message_locale("... !!  "), None);
         assert_eq!(detect_message_locale(""), None);
+        // 40% boundary + detector order (node battery, W7 slice 23):
+        // exactly 2/5 Cyrillic hits take ru-RU, 2/6 miss.
+        assert_eq!(detect_message_locale("abcпр"), Some("ru-RU"));
+        assert_eq!(detect_message_locale("abcdпр"), None);
+        // Both scripts share >= 40%: first detector (ru-RU) wins.
+        assert_eq!(detect_message_locale("привこんにちは"), Some("ru-RU"));
+        assert_eq!(detect_message_locale("abこんにちは"), Some("jp-JP"));
+        // Astral CJK Extension-B counts UTF-16-double, never hits.
+        assert_eq!(detect_message_locale("𠀀𠀀𠀀ab"), None);
+        // Hebrew maps to ar-EG (TS detector quirk, like Hangul->jp-JP).
+        assert_eq!(detect_message_locale("שלום"), Some("ar-EG"));
+        // Inverted punctuation strips like ASCII punctuation.
+        assert_eq!(detect_message_locale("¿привет?"), Some("ru-RU"));
     }
 
     #[test]
@@ -671,13 +694,30 @@ mod tests {
         // Opaque-scheme URLs parse (`new URL` true): skipped like TS.
         assert!(tts_is_url("mailto:a@b.com"));
         assert!(tts_is_url("hello: world"));
+        assert!(tts_is_url("foo:ba r"));
+        assert!(tts_is_url("tel:+1 23"));
         assert!(tts_is_url("https:example.com"));
         assert!(tts_is_url("HTTPS://X.Y"));
+        assert!(tts_is_url("http://h:0/"));
+        assert!(tts_is_url("http://h:/"));
+        assert!(tts_is_url("https:/one-slash.com/"));
         assert!(!tts_is_url("notaurl"));
         assert!(!tts_is_url("example.com/path"));
         assert!(!tts_is_url("http://"));
         assert!(!tts_is_url("http://?q"));
         assert!(!tts_is_url(""));
+        // Hierarchical authority verdicts (node battery, W7 slice 23):
+        // C1/DEL hosts and garbage/oversize ports throw in TS.
+        assert!(!tts_is_url("https://\u{85}x/"));
+        assert!(!tts_is_url("https://a\u{7f}x/"));
+        assert!(!tts_is_url("http://h:99999/"));
+        assert!(!tts_is_url("http://h:abc/"));
+        assert!(!tts_is_url("http://[::1/"));
+        assert!(!tts_is_url("http://ho st/"));
+        // IDNA/edge hosts that still parse in TS.
+        assert!(tts_is_url("https://caf\u{e9}.com/"));
+        assert!(tts_is_url("https://a_b.com/"));
+        assert!(tts_is_url("https://a\u{200b}x/"));
     }
 
     #[test]
@@ -698,7 +738,9 @@ mod tests {
             "fr-FR"
         );
         assert_eq!(resolve_tts_locale(Some(""), Some(""), Some("")), "en-US");
-        assert_eq!(resolve_tts_locale(None, Some("  "), Some("de-DE")), "de-DE");
+        // JS `||` keeps whitespace-only legs (truthy): pinned, not skipped.
+        assert_eq!(resolve_tts_locale(Some(" "), None, None), " ");
+        assert_eq!(resolve_tts_locale(None, Some("  "), Some("de-DE")), "  ");
         assert_eq!(sanitize_tts_text("  hello \t\n  world  "), "hello world");
         assert_eq!(sanitize_tts_text("   "), "");
     }
@@ -714,6 +756,14 @@ mod tests {
             r#"{"enabled":false,"voiceChannelId":"2"}"#
         ));
         assert!(!tts_row_enabled("not json"));
+        // JS falsy on a PRESENT flag disables (node battery, W7 slice 23).
+        assert!(!tts_row_enabled(r#"{"enabled":0}"#));
+        assert!(!tts_row_enabled(r#"{"enabled":""}"#));
+        assert!(!tts_row_enabled(r#"{"enabled":null}"#));
+        // Truthy non-booleans enable.
+        assert!(tts_row_enabled(r#"{"enabled":"false"}"#));
+        assert!(tts_row_enabled(r#"{"enabled":1}"#));
+        assert!(tts_row_enabled(r#"{"enabled":{}}"#));
     }
 
     #[test]
