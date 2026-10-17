@@ -1341,6 +1341,39 @@ pub fn member_roles_same(old: &[serenity::RoleId], new: &[serenity::RoleId]) -> 
     old.len() == new.len() && old.iter().all(|r| new.contains(r))
 }
 
+/// Newly-granted Administrator role ids between two membership snapshots.
+/// Mirrors the `$add` + `permissions.has(Administrator)` filter in
+/// Events/protection/avoidAdminRankWithoutConsent.ts: only role ids
+/// present after but not before AND carrying the Administrator bit trip
+/// the leg (battery slice W7-34: 18/18 reachable legs converge with the
+/// TS verdict, incl. phone multi-entry/multi-role `$add`, `new: null` /
+/// missing, null entries, fetch-fail skip, `$remove`-only, wrong-case
+/// keys ignored).
+/// DELTAS (all Discord-shape/pathological, unwritable by bot writers --
+/// the writers only store PROTECTION/ALLOWLIST rows, never audit
+/// entries): (c1) `changes` undefined throws in TS (no sanction) while
+/// the snapshot comparison still sanctions here; (c2) a non-`$add`
+/// audit key carrying the grant is ignored in TS but sanctioned here;
+/// (c3) an add-then-remove race (audit `$add` present, snapshot clean)
+/// sanctions in TS but not here; (c4) an admin role missing from the
+/// role cache reads non-admin here (`unwrap_or(false)`) while the TS
+/// API `fetch` still finds it (convergent once the RoleCreate event
+/// warms the cache). Pure, unit-tested below.
+pub fn admin_grant_new_admin_ids(
+    before: &[u64],
+    after: &[u64],
+    is_admin: &impl Fn(u64) -> bool,
+) -> Vec<u64> {
+    let mut out: Vec<u64> = after
+        .iter()
+        .copied()
+        .filter(|r| !before.contains(r) && is_admin(*r))
+        .collect();
+    out.sort_unstable();
+    out.dedup();
+    out
+}
+
 /// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
 /// Events/guildconfig/blockBot.ts: the module triggers unless the audit
 /// adder IS the server owner. Plain `Option` equality is the exact mirror
@@ -10232,22 +10265,16 @@ impl serenity::EventHandler for Handler {
         let (Some(old), Some(new)) = (old_if_available, new) else {
             return;
         };
-        let admin_roles = |member: &serenity::Member| -> Vec<u64> {
-            member
-                .roles
-                .iter()
-                .filter(|r| {
-                    ctx.cache
-                        .guild(new.guild_id)
-                        .and_then(|g| g.roles.get(r).cloned())
-                        .map(|role| role.permissions.administrator())
-                        .unwrap_or(false)
-                })
-                .map(|r| r.get())
-                .collect()
+        let is_admin = |r: u64| {
+            ctx.cache
+                .guild(new.guild_id)
+                .and_then(|g| g.roles.get(&serenity::RoleId::new(r)).cloned())
+                .map(|role| role.permissions.administrator())
+                .unwrap_or(false)
         };
-        let before = admin_roles(&old);
-        if admin_roles(&new).iter().any(|r| !before.contains(r)) {
+        let before: Vec<u64> = old.roles.iter().map(|r| r.get()).collect();
+        let after: Vec<u64> = new.roles.iter().map(|r| r.get()).collect();
+        if !admin_grant_new_admin_ids(&before, &after, &is_admin).is_empty() {
             use serenity::model::guild::audit_log::{Action, MemberAction};
             if self
                 .protection_guard(
@@ -12322,6 +12349,47 @@ mod restore_tests {
                                                          // Duplicate-free on both sides (Discord invariant): length check
                                                          // keeps single-vs-double honest.
         assert!(!member_roles_same(&r(&[1, 1]), &r(&[1])));
+    }
+
+    #[test]
+    fn admin_grant_new_admin_ids_matches_ts_add_filter_battery() {
+        // Mirrors scratch/slice-w7s34-adminrank.cjs reachable legs 1:1
+        // (U-ETERNAL-399): TS sanctions iff the audit `$add` set carries
+        // a live Administrator-bit role; the snapshot comparison agrees
+        // on every reachable leg.
+        let admin_of = |r: u64| r == 111;
+        // T1 single added admin -> sanction
+        assert_eq!(admin_grant_new_admin_ids(&[], &[111], &admin_of), vec![111]);
+        // T2 added non-admin -> silent
+        assert!(admin_grant_new_admin_ids(&[], &[222], &admin_of).is_empty());
+        // T4 phone multi add, mixed -> only the admin reported
+        assert_eq!(
+            admin_grant_new_admin_ids(&[], &[222, 111], &admin_of),
+            vec![111]
+        );
+        // T5 removal-only -> silent
+        assert!(admin_grant_new_admin_ids(&[111], &[], &admin_of).is_empty());
+        // T10/T11 deleted/unknown ids read non-admin -> silent
+        assert!(admin_grant_new_admin_ids(&[], &[333], &admin_of).is_empty());
+        assert!(admin_grant_new_admin_ids(&[], &[333, 222], &admin_of).is_empty());
+        // T13 admin only removed, non-admin added -> silent
+        assert!(admin_grant_new_admin_ids(&[111], &[111, 222], &admin_of).is_empty());
+        // T14 duplicate adds collapse to one
+        assert_eq!(
+            admin_grant_new_admin_ids(&[], &[111, 111], &admin_of),
+            vec![111]
+        );
+        // T19 pre-existing admin + new non-admin -> silent
+        assert!(admin_grant_new_admin_ids(&[111], &[111, 222], &admin_of).is_empty());
+        // T20 pre-existing non-admin + new admin -> sanction
+        assert_eq!(
+            admin_grant_new_admin_ids(&[222], &[222, 111], &admin_of),
+            vec![111]
+        );
+        // Held admin bit (no grant) never trips
+        assert!(admin_grant_new_admin_ids(&[111], &[111], &admin_of).is_empty());
+        // Reorder-only never trips
+        assert!(admin_grant_new_admin_ids(&[111, 222], &[222, 111], &admin_of).is_empty());
     }
 
     #[test]
