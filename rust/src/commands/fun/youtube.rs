@@ -32,6 +32,48 @@ pub fn youtube_card_html(d: &YoutubeCardData) -> String {
         .replace("{reply}", &d.reply)
 }
 
+/// Prefix gate mirroring `checkCommandArgs` (method.ts:493-557) for the
+/// youtube leaf. Both TS options are required (`user` User, `comment`
+/// String longString; fun.ts youtube decl). Fewer than 2 tokens is the
+/// missing-arg leg (caret at the missing index via `prefix_usage_denial`
+/// with no input — prod WAVE-HI answers
+/// `.fun image youtube notaproperuser123` with
+/// `+youtube [user] [string]`, caret on `[string]`). A first token
+/// failing the TS `isValidArgument` "user" leg (method.ts:598-604:
+/// `<@id>`/`<@!id>` mention, numeric id, or exact cached-member
+/// username) is the caret usage embed on `[user]`
+/// (`prefix_usage_denial` with the offending token).
+/// Without this head, poise `Option<User>` backtracking swallows the
+/// bad token into `comment` and renders a card prod never reaches
+/// (same latent class as the tweet WAVE-HD fix).
+#[derive(Debug, PartialEq, Eq)]
+pub enum YoutubePrefixGate {
+    Proceed,
+    MissingArgs,
+    BadUser(String),
+}
+
+pub fn youtube_prefix_gate(
+    tokens: &[String],
+    member_username_known: impl Fn(&str) -> bool,
+) -> YoutubePrefixGate {
+    if tokens.len() < 2 {
+        return YoutubePrefixGate::MissingArgs;
+    }
+    if !youtube_first_token_is_user(&tokens[0], &member_username_known) {
+        return YoutubePrefixGate::BadUser(tokens[0].clone());
+    }
+    YoutubePrefixGate::Proceed
+}
+
+/// TS `isValidArgument` "user" leg (method.ts:598-604) via the shared
+/// decision helper (mention, JS-numeric id, or exact cached-member
+/// username); `member_username_known` is the Discord-bound username
+/// find, taken from the guild cache by the caller.
+fn youtube_first_token_is_user(token: &str, member_username_known: impl Fn(&str) -> bool) -> bool {
+    crate::bot::prefix_args::is_valid_user_arg(token, member_username_known(token))
+}
+
 /// Permit to send custom youtube comment (real) !
 #[poise::command(
     slash_command,
@@ -69,6 +111,31 @@ pub async fn youtube(
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
+    }
+    // Prefix checkCommandArgs head (method.ts:493-557): both TS options
+    // are required, and the first must pass the "user" leg before the
+    // handler runs — poise `Option<User>` backtracking would otherwise
+    // swallow a bad first token into `comment` and render a card prod
+    // answers with the caret usage embed instead (WAVE-HI, same class
+    // as the tweet WAVE-HD fix).
+    if let poise::Context::Prefix(pctx) = ctx {
+        let tokens = crate::bot::prefix_args::split_caret_args(pctx.args);
+        let gate = youtube_prefix_gate(&tokens, |name| {
+            ctx.guild_id()
+                .and_then(|gid| ctx.serenity_context().cache.guild(gid))
+                .is_some_and(|g| g.members.values().any(|m| m.user.name == name))
+        });
+        match gate {
+            YoutubePrefixGate::Proceed => {}
+            YoutubePrefixGate::MissingArgs => {
+                crate::bot::prefix_usage_denial(ctx, None).await;
+                return Ok(());
+            }
+            YoutubePrefixGate::BadUser(tok) => {
+                crate::bot::prefix_usage_denial(ctx, Some(tok)).await;
+                return Ok(());
+            }
+        }
     }
     let user = user.as_ref().unwrap_or_else(|| ctx.author());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -171,5 +238,74 @@ mod youtube_card_tests {
             assert!(!html.contains(ph), "placeholder left: {ph}");
         }
         assert!(html.contains("nice"));
+    }
+
+    #[test]
+    fn prefix_gate_mirrors_check_command_args() {
+        use YoutubePrefixGate::*;
+        let toks = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        fn nobody(_: &str) -> bool {
+            false
+        }
+        // Fewer than 2 tokens (both TS options required): missing leg
+        // (caret on `[string]` — prod WAVE-HI answers the single-token
+        // leg with `+youtube [user] [string]`, caret at index 1).
+        assert_eq!(youtube_prefix_gate(&toks(&[]), nobody), MissingArgs);
+        assert_eq!(youtube_prefix_gate(&toks(&["<@123>"]), nobody), MissingArgs);
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["notaproperuser123"]), nobody),
+            MissingArgs
+        );
+        // Unresolvable first token: BadUser (caret usage embed on
+        // `[user]`, never a card).
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["parity", "check"]), nobody),
+            BadUser("parity".to_string())
+        );
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["<@abc>", "hi"]), nobody),
+            BadUser("<@abc>".to_string())
+        );
+        // Mention / numeric id / known username: proceed.
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["<@324942190222770176>", "hello"]), nobody),
+            Proceed
+        );
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["<@!324942190222770176>", "hello"]), nobody),
+            Proceed
+        );
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["324942190222770176", "hello"]), nobody),
+            Proceed
+        );
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["somemember", "hello"]), |n| n == "somemember"),
+            Proceed
+        );
+        assert_eq!(
+            youtube_prefix_gate(&toks(&["somemember", "hello"]), nobody),
+            BadUser("somemember".to_string())
+        );
+    }
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // Poise 0.6 sorts optional params last in `parameters`
+        // ([comment, user]), while the TS fun.ts youtube options — and
+        // the prod usage line (WAVE-HI `[user] [string]`) — keep
+        // declaration order; `ts_param_order` restores it for the
+        // denial render.
+        let cmd = youtube();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["comment", "user"]);
+        assert_eq!(
+            crate::bot::prefix_args::ts_param_order("fun image youtube"),
+            Some(&["user", "comment"][..])
+        );
+        assert_eq!(
+            crate::bot::prefix_args::ts_param_order("fun image other"),
+            None
+        );
     }
 }

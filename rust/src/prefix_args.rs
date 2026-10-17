@@ -514,6 +514,13 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // param is Option (prefix falls back to the invoker), so the
         // generic render would emit `<user>`.
         ("fun image tweet", "user") => Some(("user", true)),
+        // fun.ts youtube/user: required:true User option (prod WAVE-HI
+        // answers `.fun image youtube notaproperuser123` with
+        // `+youtube [user] [string]`, caret on `[string]`; the BadUser
+        // leg carets `[user]`), but the poise param is Option (prefix
+        // falls back to the invoker), so the generic render would emit
+        // `<user>`.
+        ("fun image youtube", "user") => Some(("user", true)),
         _ => None,
     }
 }
@@ -529,6 +536,9 @@ pub fn ts_param_order(qualified: &str) -> Option<&'static [&'static str]> {
         // fun.ts tweet options: user, comment (poise registry holds
         // [comment, user]; prod WAVE-HD renders `[user] [string]`).
         "fun image tweet" => Some(&["user", "comment"]),
+        // fun.ts youtube options: user, comment (poise registry holds
+        // [comment, user]; prod WAVE-HI renders `[user] [string]`).
+        "fun image youtube" => Some(&["user", "comment"]),
         _ => None,
     }
 }
