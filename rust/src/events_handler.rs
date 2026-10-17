@@ -1640,6 +1640,30 @@ pub fn strip_dm_suffix(id: &str) -> &str {
     id.strip_suffix("?dm").unwrap_or(id)
 }
 
+/// Gate for button presses. Mirrors buttonHandler.ts:27-32
+/// (`!isButton() || user.bot` drop; `!guild?.channels && !endsWith("?dm")`
+/// drop). `has_guild_channels` maps TS `!!interaction.guild?.channels`
+/// onto serenity's payload `guild_id` (always present for guild presses).
+/// Pure, unit-tested below.
+pub fn button_event_proceeds(is_bot: bool, has_guild_channels: bool, custom_id: &str) -> bool {
+    if is_bot {
+        return false;
+    }
+    if !has_guild_channels && !custom_id.ends_with("?dm") {
+        return false;
+    }
+    true
+}
+
+/// Gate for select-menu presses. Mirrors selectMenuHandler.ts:28-33
+/// (`!isAnySelectMenu() || !guild?.channels || user.bot` drop — DM
+/// selects always drop, there is no `?dm` leg and no `?dm` strip on the
+/// select side: the registry key is `split("%")[0]` of the RAW id).
+/// Pure, unit-tested below.
+pub fn select_event_proceeds(is_bot: bool, has_guild_channels: bool) -> bool {
+    !is_bot && has_guild_channels
+}
+
 /// Prefix segment of a component custom id. Mirrors
 /// buttonHandler.ts:38 / selectMenuHandler.ts:35 (`split("%")[0]`,
 /// the client.buttons / client.selectmenu registry key). Pure,
@@ -11089,6 +11113,36 @@ impl serenity::EventHandler for Handler {
         let serenity::Interaction::Component(comp) = interaction else {
             return;
         };
+        // Gates mirror buttonHandler.ts:27-32 (bot drop; DM non-?dm drop)
+        // and selectMenuHandler.ts:28-33 (bot drop; DM always drops).
+        // `Unknown` kinds drop: both TS handlers drop non-button /
+        // non-select presses. The raw custom id feeds the button gate
+        // (the `?dm` leg reads the unstripped suffix).
+        if matches!(
+            comp.data.kind,
+            serenity::ComponentInteractionDataKind::Button
+        ) {
+            if !button_event_proceeds(
+                comp.user.bot,
+                comp.guild_id.is_some(),
+                comp.data.custom_id.as_str(),
+            ) {
+                return;
+            }
+        } else if matches!(
+            comp.data.kind,
+            serenity::ComponentInteractionDataKind::StringSelect { .. }
+                | serenity::ComponentInteractionDataKind::UserSelect { .. }
+                | serenity::ComponentInteractionDataKind::RoleSelect { .. }
+                | serenity::ComponentInteractionDataKind::MentionableSelect { .. }
+                | serenity::ComponentInteractionDataKind::ChannelSelect { .. }
+        ) {
+            if !select_event_proceeds(comp.user.bot, comp.guild_id.is_some()) {
+                return;
+            }
+        } else {
+            return;
+        }
         // Global ?dm-strip (mirrors buttonHandler.ts:30-37): DM-variant
         // buttons carry a `?dm` suffix; per-id arms below match the
         // clean id.
@@ -13647,6 +13701,39 @@ mod component_registry_tests {
         let id = strip_dm_suffix("newsletter-toggle%123?dm");
         assert!(id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX));
         assert_eq!(component_prefix(id), "newsletter-toggle");
+    }
+
+    #[test]
+    fn button_and_select_gates_match_ts_battery() {
+        // Mirrors scratch slice-w7s43-interaction.cjs (buttonHandler.ts
+        // gates + selectMenuHandler.ts gates, verbatim).
+        assert!(!button_event_proceeds(true, true, "x"));
+        assert!(!button_event_proceeds(true, false, "x?dm"));
+        assert!(button_event_proceeds(false, true, "plain-id"));
+        assert!(button_event_proceeds(false, true, "a?dm"));
+        assert!(button_event_proceeds(
+            false,
+            false,
+            "newsletter-toggle%123?dm"
+        ));
+        assert!(!button_event_proceeds(false, false, "plain-id"));
+        assert!(!button_event_proceeds(false, false, "a?dmb"));
+        assert!(!button_event_proceeds(false, false, "?dmfoo"));
+        assert!(button_event_proceeds(false, true, ""));
+        assert!(button_event_proceeds(false, false, "?dm"));
+        // Button registry key is strip-?dm THEN split("%")[0].
+        assert_eq!(
+            component_prefix(strip_dm_suffix("newsletter-toggle%123?dm")),
+            "newsletter-toggle"
+        );
+        assert!(!select_event_proceeds(true, true));
+        assert!(!select_event_proceeds(false, false));
+        assert!(select_event_proceeds(false, true));
+        // DELTA (doc-noted, unreachable: the sole `?dm` producer,
+        // releaseNotifier.ts, builds a Button): the TS select key is
+        // split("%")[0] of the RAW id (no ?dm strip), so a `foo?dm`
+        // select would look up `foo?dm` in TS but `foo` here.
+        assert_eq!(component_prefix("foo?dm"), "foo?dm");
     }
 
     #[test]
