@@ -872,9 +872,10 @@ pub enum QueryRoute {
 }
 
 /// Pure port of the `searchQueryOnNode` routing chain (musicPlay.ts).
-/// NOTE: `resolve_on` trims the query before routing, which converges
+/// NOTE: `resolve_on` JS-trims the query before routing, which converges
 /// with TS — WHATWG URL parsing strips leading/trailing spaces anyway
-/// (node battery: a space-padded Spotify URL still routes `spotify`).
+/// (node battery: a space-padded Spotify URL still routes `spotify`;
+/// U+0085 is kept by both and fails the parse, routing bare).
 pub fn route_query_source(query: &str) -> QueryRoute {
     if is_spotify_url(query) {
         QueryRoute::Spotify
@@ -4155,7 +4156,12 @@ impl LavalinkManager {
         node: &NodeEntry,
         query: &str,
     ) -> Result<(Vec<Track>, bool), MusicError> {
-        let query = query.trim();
+        // JS-trim, not Rust trim: the TS query reaching `searchQueryOnNode`
+        // is `String.trim()`-normalized (U+0085 NEL survives and fails the
+        // WHATWG parse, routing NEL-padded URLs to bare text). Rust `trim`
+        // would strip NEL first and misroute e.g. "\u{85}https://…spotify…"
+        // to the Spotify leg (same W6 slice 163 class as `js_trim`).
+        let query = crate::funcs::js_trim(query);
         match route_query_source(query) {
             QueryRoute::Spotify => return self.resolve_spotify_on(node, query).await,
             QueryRoute::Youtube => return self.resolve_youtube_on(node, query).await,
@@ -5865,6 +5871,12 @@ mod tests {
             // WHATWG trims padding, so padded URLs still route (node: spotify).
             ("  https://open.spotify.com/x  ", R::Spotify),
             ("https://open.spotify.com:443/x", R::Spotify),
+            // U+0085 NEL survives JS trim: a leading NEL fails the WHATWG
+            // parse on both sides (node: `new URL` throws) and routes bare,
+            // while `resolve_on` JS-trims (never Rust-trims) before routing.
+            // A trailing NEL stays in the path and keeps the Spotify host.
+            ("\u{85}https://open.spotify.com/x", R::Bare),
+            ("https://open.spotify.com/x\u{85}", R::Spotify),
         ];
         for (q, want) in cases {
             assert_eq!(route_query_source(q), want, "route {q:?}");

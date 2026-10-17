@@ -3238,7 +3238,20 @@ pub fn nice_bytes(kb: f64) -> String {
         return "NaN undefined".to_string();
     }
     let units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    let idx = ((kb * 1024.0).log(1024.0).floor() as usize).min(units.len() - 1);
+    // TS clamps only the top (`Math.min(..., 8)`): sub-byte inputs
+    // (`kb * 1024 < 1`) yield a negative index, `units[negative]` is
+    // `undefined`, and `bytes` rescales into `[1, 1024)` (node ground
+    // truth: `0.0005` -> `"524 undefined"`). The old `as usize` saturated
+    // negatives to 0 and printed `"1 bytes"`.
+    let idx = ((kb * 1024.0).log(1024.0).floor() as i64).min(units.len() as i64 - 1);
+    if idx < 0 {
+        let bytes = (kb * 1024.0) / 1024f64.powi(idx as i32);
+        if !bytes.is_finite() {
+            return "Infinity undefined".to_string();
+        }
+        return format!("{} undefined", js_to_fixed_0(bytes));
+    }
+    let idx = idx as usize;
     let bytes = (kb * 1024.0) / 1024f64.powi(idx as i32);
     if !bytes.is_finite() {
         return format!("Infinity {}", units[idx]);
@@ -3828,6 +3841,31 @@ mod funcs_part3_tests {
         // toFixed(0) is half-up ("11"), not banker's ("10").
         assert_eq!(nice_bytes(10.5), "11 KB");
         assert_eq!(nice_bytes(9.5), "9.50 KB");
+        // Node ground truth: sub-byte inputs take the negative-index leg
+        // (`units[negative]` is `undefined`), not the `bytes` leg.
+        assert_eq!(nice_bytes(0.0005), "524 undefined");
+        assert_eq!(nice_bytes(0.0009765624), "1024 undefined");
+        assert_eq!(nice_bytes(0.0009765625), "1 bytes");
+        assert_eq!(nice_bytes(1e-7), "107 undefined");
+        // Node ground truth: toFixed(2) rounds the exact binary value —
+        // binary-near-halves stay down (scale-first `round()` gave "2.68").
+        assert_eq!(nice_bytes(2739.2), "2.67 MB");
+        assert_eq!(nice_bytes(6999.04), "6.83 MB");
+        assert_eq!(nice_bytes(5688.32), "5.55 MB");
+        assert_eq!(nice_bytes(2053.12), "2.00 MB");
+        assert_eq!(nice_bytes(10214.4), "9.97 MB");
+        // Node ground truth: toFixed(0) at >= 1e21 returns String(v).
+        assert_eq!(nice_bytes(1e300), "8.470329472543004e+278 YB");
+        assert_eq!(nice_bytes(1e308), "Infinity YB");
+        // Node ground truth: exact powers of 1024 upscale, near-misses
+        // round within their leg.
+        assert_eq!(nice_bytes(1099511627776.0), "1.00 PB");
+        assert_eq!(nice_bytes(1125899906842624.0), "1.00 EB");
+        assert_eq!(nice_bytes(1152921504606846976.0), "1.00 ZB");
+        assert_eq!(nice_bytes(1180591620717411303424.0), "1.00 YB");
+        assert_eq!(nice_bytes(9.999), "10.00 KB");
+        assert_eq!(nice_bytes(0.9999999), "1024 bytes");
+        assert_eq!(nice_bytes(1023.9999), "1024 KB");
     }
 
     #[test]
@@ -4407,6 +4445,26 @@ mod funcs_part4_tests {
         assert!(patch_verdict(0, None));
         assert!(patch_verdict(0, Some(565248)));
         assert!(patch_verdict(32768, Some(565248)));
+        // json_flags_u64: plain ints + integral finite floats fold to Some
+        // like `===` (node: `565248.0 === 565248`); every other shape is
+        // `!==` any number -> None.
+        let f = |raw: &str| json_flags_u64(&serde_json::from_str(raw).unwrap());
+        assert_eq!(f("565248"), Some(565248));
+        assert_eq!(f("565248.0"), Some(565248));
+        assert_eq!(f("-0.0"), Some(0));
+        assert_eq!(f("0"), Some(0));
+        assert_eq!(f("565248.5"), None);
+        assert_eq!(f("-1"), None);
+        assert_eq!(f("-1.0"), None);
+        assert_eq!(f("\"565248\""), None);
+        assert_eq!(f("null"), None);
+        assert_eq!(f("true"), None);
+        assert_eq!(f("{}"), None);
+        // Integral-float verdict leg: `565248 vs 565248.0` is `===` in TS
+        // -> unchanged -> false (old `as_u64` fold returned true here).
+        assert!(!patch_verdict(565248, f("565248.0")));
+        assert!(!patch_verdict(0, f("-0.0")));
+        assert!(patch_verdict(0, f("565248.5")));
         // W6 slice 92 battery (node ground truth, `REQUIRED & ~current` is
         // low-32-bit-exact on the whole u64 domain since REQUIRED < 2^31):
         // single-bit legs, near-miss 565247, extra-bit passthrough.
@@ -4975,6 +5033,10 @@ pub fn image_quality_steps() -> Vec<u8> {
 /// Decode any supported buffer, fit inside 1920x1080, return PNG bytes.
 /// Mirrors convertToPng (Jimp.read → resize → getBuffer PNG).
 pub fn convert_to_png(bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
+    // TS ensures <os-tmp>/media-manipulation exists on every convertToPng
+    // call (`if (!existsSync(tempDir)) mkdir recursive`), even though the
+    // PNG bytes are returned in memory.
+    let _ = std::fs::create_dir_all(media_temp_dir());
     let img = image::load_from_memory(bytes).map_err(|e| anyhow::anyhow!("decode failed: {e}"))?;
     let (w, h) = (img.width(), img.height());
     let (nw, nh) = fit_dimensions(w, h, MEDIA_FIT_WIDTH, MEDIA_FIT_HEIGHT);
@@ -4996,10 +5058,12 @@ pub fn adjust_image_quality(path: &std::path::Path) -> anyhow::Result<()> {
         if size <= MEDIA_MAX_IMAGE_BYTES {
             break;
         }
-        let is_jpeg = matches!(
-            path.extension().and_then(|e| e.to_str()),
-            Some("jpg") | Some("jpeg")
-        );
+        // TS has no extension gate (Jimp re-encodes whatever is on disk;
+        // quality only bites on JPEG content). Case-insensitive so `F.JPG`
+        // shrinks like TS instead of stalling oversized.
+        let is_jpeg = path.extension().and_then(|e| e.to_str()).is_some_and(|e| {
+            e.eq_ignore_ascii_case("jpg") || e.eq_ignore_ascii_case("jpeg")
+        });
         if !is_jpeg {
             break;
         }
@@ -5025,6 +5089,9 @@ pub fn resize_image_file(
     let img =
         image::load_from_memory(png_bytes).map_err(|e| anyhow::anyhow!("decode failed: {e}"))?;
     let meta = (img.width(), img.height());
+    // TS gates on `width && height` (both truthy): a 0/undefined side
+    // takes the copy leg and never builds a canvas.
+    let dims = dims.filter(|(w, h)| *w != 0 && *h != 0);
     if let Some((canvas_w, canvas_h)) = dims {
         let (w, h, x, y) = letterbox_layout(meta.0, meta.1, canvas_w.max(1), canvas_h.max(1));
         let fit = img.resize(w.max(1), h.max(1), image::imageops::FilterType::Triangle);

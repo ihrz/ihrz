@@ -52,8 +52,10 @@
 /// rejects hex/bin/oct (false negatives) and accepts `inf`/`NaN` in
 /// any case (false positives), so the grammar is scanned by hand.
 pub fn is_number(s: &str) -> bool {
-    // JS String trim also strips a BOM; Rust trim does not.
-    let t = s.trim().trim_matches('\u{FEFF}');
+    // JS `String.trim()` set exactly (see crate::funcs::js_trim): Rust
+    // `trim` is WRONG here — it strips U+0085 NEL (JS keeps it, so
+    // "\u{85}123" is NaN -> false) and keeps U+FEFF (JS strips it).
+    let t = crate::funcs::js_trim(s);
     if t.is_empty() {
         return false;
     }
@@ -223,12 +225,15 @@ pub fn resolve_user(
     members: &[Entry],
     arg_index: usize,
 ) -> Option<String> {
-    let arg = arg?;
+    // TS checks parsedUsers FIRST, without consulting the arg text at
+    // all: a missing arg word with a mention at [argsNumber] still
+    // resolves (the `let arg = arg?` gate must come after this leg).
     if !mentions.is_empty() {
         // TS: parsedUsers non-empty -> mentions[argsNumber] ?? null,
         // unconditionally (no fall-through on an OOB index).
         return mentions.get(arg_index).cloned();
     }
+    let arg = arg?;
     if looks_like_user_mention(arg) {
         let id = strip_user_mention(arg);
         if members.iter().any(|m| m.id == id) {
@@ -272,7 +277,13 @@ pub fn resolve_channel(
     mention: Option<&str>,
     channels: &[Entry],
 ) -> Option<String> {
-    let arg = arg?;
+    // TS with a missing arg word: the exact-name find (name === undefined)
+    // misses, but the mention leg still fires — so None arg + mention
+    // resolves (only the name/id legs need the arg text).
+    let arg = match arg {
+        Some(a) => a,
+        None => return mention.map(|m| m.to_string()),
+    };
     if let Some(c) = channels.iter().find(|c| c.name == arg) {
         return Some(c.id.clone());
     }
@@ -627,9 +638,15 @@ mod tests {
         for s in [
             "-0x10", "0b2", "0o9", "infinity", "inf", "NaN", "nan", "", "   ", "12abc", "0b", "0x",
             "1_2", "--5", "0x1g", "1e", "e5", "-", ".", "+", "0d5",
+            // U+0085 NEL is NOT JS whitespace (node: "\u{85}123" is NaN):
+            // Rust `trim` strips it, js_trim keeps it -> false.
+            "\u{85}123", "123\u{85}", "\u{85}",
         ] {
             assert!(!is_number(s), "{s:?} must NOT be numeric");
         }
+        // JS-trim-only members still numeric: VT + BOM are trimmed.
+        assert!(is_number("\u{0b}123"));
+        assert!(is_number("﻿42"));
     }
 
     #[test]
@@ -688,6 +705,27 @@ mod tests {
         );
         assert_eq!(resolve_user(Some("mallory"), &[], &members(), 0), None);
         assert_eq!(resolve_user(None, &[], &members(), 0), None);
+    }
+
+    #[test]
+    fn missing_arg_word_still_hits_mention_legs_like_ts() {
+        // method.ts user()/channel() consult the mention lists without
+        // reading the arg text in those legs: a missing arg word (None)
+        // with a mention at [argsNumber] still resolves; OOB still None.
+        let men = vec!["AAA".to_string(), "BBB".to_string()];
+        assert_eq!(
+            resolve_user(None, &men, &members(), 0).as_deref(),
+            Some("AAA")
+        );
+        assert_eq!(resolve_user(None, &men, &members(), 1).as_deref(), Some("BBB"));
+        assert_eq!(resolve_user(None, &men, &members(), 2), None);
+        assert_eq!(resolve_user(None, &[], &members(), 0), None);
+        let chs = vec![Entry::new("10", "general")];
+        assert_eq!(
+            resolve_channel(None, Some("10"), &chs).as_deref(),
+            Some("10")
+        );
+        assert_eq!(resolve_channel(None, None, &chs), None);
     }
 
     #[test]
