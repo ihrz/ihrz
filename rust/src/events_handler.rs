@@ -594,10 +594,17 @@ fn too_new_join_count(raw: Option<&str>) -> u64 {
 }
 
 /// Ban once the counter passes maxJoin (mirrors
-/// `if (baseData.maxJoin && joinCount > baseData.maxJoin)`; a missing
-/// or non-positive maxJoin never bans).
-fn too_new_should_ban(join_count: u64, max_join: Option<i64>) -> bool {
-    max_join.is_some_and(|m| m > 0 && (join_count as i64) > m)
+/// `if (baseData.maxJoin && joinCount > baseData.maxJoin)`; U-ETERNAL-372
+/// battery: any nonzero maxJoin is truthy, so a writer-reachable negative
+/// maxJoin (no min_value on the `maximum-join` Number option) bans on the
+/// first join, and a writer-reachable float maxJoin (getNumber) compares
+/// numerically (`3 > 2.5` bans, `2 > 2.5` kicks). Hence f64 + `!= 0.0`,
+/// not `m > 0`. NaN converges (falsy in TS, `> NaN` false here).
+/// DELTAS (manual-DB-only, writers store JSON numbers): string maxJoin is
+/// truthy with numeric comparison in TS but None here; null req handled
+/// by the caller default.
+fn too_new_should_ban(join_count: u64, max_join: Option<f64>) -> bool {
+    max_join.is_some_and(|m| m != 0.0 && (join_count as f64) > m)
 }
 
 /// Voice talk/freeze bypass (mirrors voiceTalkFreeze.ts: bots,
@@ -5266,7 +5273,7 @@ impl serenity::EventHandler for Handler {
                     // (roles, welcome, DM…) must still run.
                     if active {
                         let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
-                        let max_join = v.get("maxJoin").and_then(|m| m.as_i64());
+                        let max_join = v.get("maxJoin").and_then(|m| m.as_f64());
                         let now = std::time::SystemTime::now()
                             .duration_since(std::time::UNIX_EPOCH)
                             .map(|d| d.as_secs() as i64)
@@ -11259,10 +11266,18 @@ mod restore_tests {
         assert_eq!(too_new_join_count(None), 0);
         assert_eq!(too_new_join_count(Some("3")), 3);
         assert_eq!(too_new_join_count(Some("nope")), 0);
-        assert!(too_new_should_ban(4, Some(3)));
-        assert!(!too_new_should_ban(3, Some(3)));
+        assert!(too_new_should_ban(4, Some(3.0)));
+        assert!(!too_new_should_ban(3, Some(3.0)));
         assert!(!too_new_should_ban(99, None));
-        assert!(!too_new_should_ban(99, Some(0)));
+        assert!(!too_new_should_ban(99, Some(0.0)));
+        // U-ETERNAL-372 battery (slice-w7s7-toonew.js): negative maxJoin
+        // is truthy so it bans (no min_value on the Number option);
+        // float maxJoin compares numerically.
+        assert!(too_new_should_ban(1, Some(-2.0)));
+        assert!(too_new_should_ban(1, Some(-1.0)));
+        assert!(too_new_should_ban(3, Some(2.5)));
+        assert!(!too_new_should_ban(2, Some(2.5)));
+        assert!(!too_new_should_ban(1, Some(3.0)));
         // Pic-only allowlist (mirrors validMediaTypes, case-insensitive).
         assert!(pic_only_has_media(&[Some("image/png".to_string())]));
         assert!(pic_only_has_media(&[Some("IMAGE/JPEG".to_string())]));
