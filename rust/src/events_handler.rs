@@ -2641,7 +2641,11 @@ impl Handler {
     }
 
     /// Autoreact emitter. Extracted from the message handler so the
-    /// master switch gates it cleanly.
+    /// master switch gates it cleanly. Reaction routing runs through
+    /// [`crate::commands::guildconfig::autoreact::autoreact_reaction_for`]
+    /// (discord.js `resolvePartialEmoji` parity: custom `<:name:id>` /
+    /// `<a:name:id>` / bare `name:id` take the custom path, unroutable
+    /// strings skip like the TS per-reaction try/catch `continue`).
     async fn autoreact_emit(
         pool: &crate::db::Pool,
         http: &std::sync::Arc<poise::serenity_prelude::Http>,
@@ -2656,14 +2660,10 @@ impl Handler {
             &list,
             &msg.channel_id.get().to_string(),
         ) {
-            let reaction = if let Ok(id) = emoji.parse::<u64>() {
-                serenity::ReactionType::Custom {
-                    animated: false,
-                    id: serenity::EmojiId::new(id),
-                    name: None,
-                }
-            } else {
-                serenity::ReactionType::Unicode(emoji.clone())
+            let Some(reaction) =
+                crate::commands::guildconfig::autoreact::autoreact_reaction_for(&emoji)
+            else {
+                continue;
             };
             let _ = msg.react(http, reaction).await;
         }

@@ -97,6 +97,141 @@ pub async fn reactions_for_channel_routed(
         .unwrap_or_default()
 }
 
+/// Route one stored autoreact string to the Discord reaction type, mirroring
+/// `Events/guildconfig/autoreact.ts` (`message.react`) through the discord.js
+/// 14.27 `resolvePartialEmoji` + `ReactionManager.react` wire-`e` rules
+/// (node battery: `slice-w7s5-autoreact.js`):
+/// - `/^\d{17,19}$/` takes the id-only custom path (TS wire
+///   `undefined:{id}`; ours `:{id}` via `as_data` — Discord resolves custom
+///   emoji by id either way).
+/// - discord.js `parseEmoji` (`/<?(?:(a):)?(\w{2,32}):(\d{17,19})>?/`,
+///   unanchored, id group optional) hits route to custom `name:id`
+///   (`<:name:id>`, `<a:name:id>`, bare `name:id`, `:name:id`). The animated
+///   `a:` prefix is kept on the struct but serenity's `as_data` wire form is
+///   `name:id` either way — Discord resolves by id, same reaction.
+/// - A match with an empty id group (`"abc:def"`) takes the unicode path in
+///   TS (`e` = the name, always API-400); verbatim here is likewise never a
+///   valid emoji once percent-encoded — same visible outcome (skip).
+/// - No match at all (`"<:x:123>"`, one-char names, non-strings upstream),
+///   empty strings, and `decodeURIComponent`-throwing `%` sequences return
+///   `None`, mirroring the TS throw caught by the event's per-reaction
+///   try/catch (no API call). The writer gate (`isSingleEmoji ||
+///   isDiscordEmoji`) keeps `%` shapes manual-DB-only.
+pub fn autoreact_reaction_for(stored: &str) -> Option<serenity::ReactionType> {
+    if stored.is_empty() || uri_decode_throws(stored) {
+        return None;
+    }
+    if is_bare_snowflake(stored) {
+        return stored
+            .parse::<u64>()
+            .ok()
+            .map(|id| serenity::ReactionType::Custom {
+                animated: false,
+                id: serenity::EmojiId::new(id),
+                name: None,
+            });
+    }
+    if !stored.contains(':') {
+        return Some(serenity::ReactionType::Unicode(stored.to_string()));
+    }
+    match match_discord_emoji(stored) {
+        Some((animated, name, Some(id))) => {
+            id.parse::<u64>()
+                .ok()
+                .map(|n| serenity::ReactionType::Custom {
+                    animated,
+                    id: serenity::EmojiId::new(n),
+                    name: Some(name),
+                })
+        }
+        Some((_, _, None)) => Some(serenity::ReactionType::Unicode(stored.to_string())),
+        None => None,
+    }
+}
+
+/// discord.js `resolvePartialEmoji` id-only leg: `/^\d{17,19}$/`.
+fn is_bare_snowflake(s: &str) -> bool {
+    (17..=19).contains(&s.len()) && s.bytes().all(|b| b.is_ascii_digit())
+}
+
+fn is_word_byte(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_'
+}
+
+/// Whether discord.js `parseEmoji`'s leading `decodeURIComponent` would throw
+/// (`URIError` on a bare/malformed `%` or non-UTF-8 bytes): the TS event's
+/// try/catch turns it into a skip.
+fn uri_decode_throws(s: &str) -> bool {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' {
+            if i + 2 >= b.len() {
+                return true;
+            }
+            let (Some(h), Some(l)) = (
+                (b[i + 1] as char).to_digit(16),
+                (b[i + 2] as char).to_digit(16),
+            ) else {
+                return true;
+            };
+            out.push((h * 16 + l) as u8);
+            i += 3;
+        } else {
+            out.push(b[i]);
+            i += 1;
+        }
+    }
+    std::str::from_utf8(&out).is_err()
+}
+
+/// First (leftmost) match of the discord.js `parseEmoji` emoji pattern
+/// `/<?(?:(a):)?(\w{2,32}):(\d{17,19})>?/` (no `u` flag: `\w` is ASCII).
+/// Returns `(animated, name, id)` with `id` empty exactly when the optional
+/// digits group matches empty, mirroring JS backtracking (longest name
+/// first, longest id run second, empty id last — first success wins).
+fn match_discord_emoji(s: &str) -> Option<(bool, String, Option<String>)> {
+    let b = s.as_bytes();
+    for i in 0..b.len() {
+        if !s.is_char_boundary(i) {
+            continue;
+        }
+        let mut j = i;
+        if b.get(j) == Some(&b'<') {
+            j += 1;
+        }
+        let mut animated = false;
+        if b.get(j) == Some(&b'a') && b.get(j + 1) == Some(&b':') {
+            animated = true;
+            j += 2;
+        }
+        let mut run = 0;
+        while run < 32 && j + run < b.len() && is_word_byte(b[j + run]) {
+            run += 1;
+        }
+        for len in (2..=run).rev() {
+            if b.get(j + len) != Some(&b':') {
+                continue;
+            }
+            let mut digits = 0;
+            while digits < 19
+                && j + len + 1 + digits < b.len()
+                && b[j + len + 1 + digits].is_ascii_digit()
+            {
+                digits += 1;
+            }
+            let id = if digits >= 17 {
+                Some(s[j + len + 1..j + len + 1 + digits.min(19)].to_string())
+            } else {
+                None
+            };
+            return Some((animated, s[j..j + len].to_string(), id));
+        }
+    }
+    None
+}
+
 /// Channel ids, numeric-descending like the TS config embed.
 pub fn sorted_channel_ids(map: &AutoreactMap) -> Vec<String> {
     let mut ids: Vec<String> = map.keys().cloned().collect();
@@ -1054,5 +1189,82 @@ mod tests {
         let raw2 = crate::commands::owner::main::routed_get(&pool, "g1", "g1", key).await;
         assert_eq!(raw2.as_deref(), Some("true"));
         assert!(!toggle_hey_reaction_value(raw2.as_deref()));
+    }
+
+    #[test]
+    fn reaction_routing_matches_ts_resolve_partial_emoji_legs() {
+        // Node battery (`slice-w7s5-autoreact.js`, discord.js 14.27
+        // `resolvePartialEmoji` + `ReactionManager.react` replicated verbatim).
+        const ID: &str = "123456789012345678";
+        let custom = |animated: bool, name: Option<&str>| serenity::ReactionType::Custom {
+            animated,
+            id: serenity::EmojiId::new(123456789012345678),
+            name: name.map(|s| s.to_string()),
+        };
+        // Custom syntax takes the custom path (TS wire `name:id` / `a:name:id`).
+        assert_eq!(
+            autoreact_reaction_for(&format!("<:wave:{ID}>")),
+            Some(custom(false, Some("wave")))
+        );
+        assert_eq!(
+            autoreact_reaction_for(&format!("<a:dance:{ID}>")),
+            Some(custom(true, Some("dance")))
+        );
+        assert_eq!(
+            autoreact_reaction_for(&format!("wave:{ID}")),
+            Some(custom(false, Some("wave")))
+        );
+        assert_eq!(
+            autoreact_reaction_for(&format!("a:wave:{ID}")),
+            Some(custom(true, Some("wave")))
+        );
+        assert_eq!(
+            autoreact_reaction_for(&format!(":wave:{ID}")),
+            Some(custom(false, Some("wave")))
+        );
+        // Bare 17-19 digits take the id-only path (TS wire `undefined:{id}`,
+        // ours `:{id}` — both resolve by id).
+        assert_eq!(autoreact_reaction_for(ID), Some(custom(false, None)));
+        assert_eq!(
+            autoreact_reaction_for(ID).map(|r| r.as_data()),
+            Some(format!(":{ID}"))
+        );
+        // Wire form keeps `name:id` (animated prefix is resolve-by-id only).
+        assert_eq!(
+            autoreact_reaction_for(&format!("<a:dance:{ID}>")).map(|r| r.as_data()),
+            Some(format!("dance:{ID}"))
+        );
+        // Plain unicode passes through (Discord validates).
+        assert_eq!(
+            autoreact_reaction_for("👍"),
+            Some(serenity::ReactionType::Unicode("👍".to_string()))
+        );
+        // Empty-id match (`"abc:def"` -> TS `e = "abc"`, always API-400) and
+        // short digits (TS `e` verbatim, always API-400) stay unicode here —
+        // same visible outcome (skip) once percent-encoded.
+        assert_eq!(
+            autoreact_reaction_for("abc:def"),
+            Some(serenity::ReactionType::Unicode("abc:def".to_string()))
+        );
+        assert_eq!(
+            autoreact_reaction_for("12345"),
+            Some(serenity::ReactionType::Unicode("12345".to_string()))
+        );
+        assert_eq!(
+            autoreact_reaction_for("123456789012345678901234567890"),
+            Some(serenity::ReactionType::Unicode(
+                "123456789012345678901234567890".to_string()
+            ))
+        );
+        // No match at all -> TS throw -> caught -> skip (no API call).
+        assert_eq!(autoreact_reaction_for(""), None);
+        assert_eq!(autoreact_reaction_for("<:x:123>"), None);
+        assert_eq!(autoreact_reaction_for(&format!("x:{ID}")), None);
+        // `decodeURIComponent` throw legs -> skip.
+        assert_eq!(autoreact_reaction_for("100%"), None);
+        assert_eq!(
+            autoreact_reaction_for("a%20b"),
+            Some(serenity::ReactionType::Unicode("a%20b".to_string()))
+        );
     }
 }
