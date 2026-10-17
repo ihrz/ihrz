@@ -1123,6 +1123,33 @@ pub fn antipub_exempt(author: u64, owner: Option<u64>, admin: bool, manage: bool
     Some(author) == owner || admin || manage
 }
 
+/// Anti-pub pipeline gate. Mirrors blockSpam.ts exactly: the early
+/// `type === "off" || staff → return` plus the later `if (type === "on")`
+/// compose to "run iff raw leaf is \"on\" and not staff". The leaf read
+/// yields the bare scalar ("on"/"off", never JSON-quoted), so the raw
+/// string compares like TS `===` — no JSON re-parse (which never matches
+/// bare scalars and silently dropped the "off" switch).
+/// Pure, unit-tested below.
+pub fn punishpub_pipeline_runs(antipub_raw: Option<&str>, is_staff: bool) -> bool {
+    antipub_raw == Some("on") && !is_staff
+}
+
+/// Max-flags verdict core. Mirrors `LOG?.amountMax === LOGfetched?.flags
+/// && LOG?.state === "true"` with strict-`===` semantics: two missing
+/// sides are `undefined === undefined` (true), so the state flag decides.
+/// Pure, unit-tested below.
+pub fn punishpub_max_reached(max: Option<i64>, state_on: bool, stored: Option<i64>) -> bool {
+    state_on && max == stored
+}
+
+/// Link-scan early exit. Mirrors the blockSpam.ts `return false` inside
+/// `if (links.length > 0)` when every link is media or any link is
+/// whitelisted: the blacklist scan below never runs on that path.
+/// Pure, unit-tested below.
+pub fn punishpub_links_exempt(has_links: bool, all_media: bool, whitelisted: bool) -> bool {
+    has_links && (all_media || whitelisted)
+}
+
 /// Cached guild owner id (the crown). None on cache miss.
 fn guild_owner_id(ctx: &serenity::Context, guild_id: serenity::GuildId) -> Option<u64> {
     ctx.cache.guild(guild_id).map(|g| g.owner_id.get())
@@ -1864,15 +1891,15 @@ impl Handler {
         gid: &str,
         guild_id: serenity::GuildId,
         author: serenity::UserId,
-        kind: &str,
+        kind: Option<&str>,
     ) {
         match kind {
-            "kick" => {
+            Some("kick") => {
                 let _ = guild_id
                     .kick_with_reason(&ctx.http, author, "Kick by PunishPub")
                     .await;
             }
-            "mute" => {
+            Some("mute") => {
                 if let Ok(member) = guild_id.member(&ctx.http, author).await {
                     let mut member = member;
                     if let Ok(until) = serenity::Timestamp::from_unix_timestamp(
@@ -1922,11 +1949,16 @@ impl Handler {
                     .await;
                 }
             }
-            _ => {
+            Some("ban") => {
                 let _ = guild_id
                     .ban_with_reason(&ctx.http, author, 0, "Ban by PUNISHPUB")
                     .await;
             }
+            // blockSpam.ts `switch` has no default arm: an unknown or
+            // missing punishementType (the option is `required: false`,
+            // so slash writes null when omitted) sanctions nothing but
+            // still falls through to the flag-row clear below.
+            _ => {}
         }
         // Exact-row clear of the flag (mirrors the post-sanction
         // `table.set(`${guildId}.PUNISH_DATA.${author}`, {})` reset in
@@ -1964,11 +1996,10 @@ impl Handler {
         if !Self::is_guild_text_channel(ctx, guild_id, msg.channel_id).await {
             return;
         }
-        let antipub_off: bool = guild_config_field_routed(&self.pool, gid, "antipub")
-            .await
-            .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-            .and_then(|v| v.as_str().map(|x| x == "off"))
-            .unwrap_or(false);
+        // Exact blockSpam.ts run-gate (`type === "off" || staff → return`
+        // composed with `if (type === "on")`): only "on" proceeds.
+        let antipub_raw: Option<String> =
+            guild_config_field_routed(&self.pool, gid, "antipub").await;
         let is_staff = if Some(msg.author.id.get()) == guild_owner_id(&ctx, guild_id) {
             // Crown exemption: discord.js grants the guild owner every
             // permission, so `member.permissions.has(Admin|ManageGuild)`
@@ -1982,7 +2013,7 @@ impl Handler {
             // role permissions like TS `message.member.permissions`.
             http_member_staff(&ctx, guild_id, msg.author.id).await
         };
-        if antipub_off || is_staff {
+        if !punishpub_pipeline_runs(antipub_raw.as_deref(), is_staff) {
             return;
         }
         // Mirrors the blockSpam.ts native Keyword rule + exemptRoles
@@ -2019,7 +2050,7 @@ impl Handler {
         // analysis so the max-flags pre-check below runs on every
         // message like blockSpam.ts (which reads LOG + LOGfetched
         // right after the exemptRoles gate).
-        let cfg: Option<(Option<i64>, bool, String)> = punish_pub_routed(&self.pool, gid)
+        let cfg: Option<(Option<i64>, bool, Option<String>)> = punish_pub_routed(&self.pool, gid)
             .await
             .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok())
             .map(|cfg| {
@@ -2028,8 +2059,7 @@ impl Handler {
                     cfg.get("state").and_then(|s| s.as_str()) == Some("true"),
                     cfg.get("punishementType")
                         .and_then(|s| s.as_str())
-                        .unwrap_or("ban")
-                        .to_string(),
+                        .map(|s| s.to_string()),
                 )
             });
         let stored: Option<i64> = punish_data_routed(&self.pool, gid, msg.author.id.get())
@@ -2046,13 +2076,12 @@ impl Handler {
         // sanctionable link. Quirk parity, kept on purpose; like TS
         // the pipeline continues to the link analysis afterwards.
         if let Some((max, state_on, kind)) = cfg.as_ref() {
-            if *state_on && *max == stored {
-                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind)
+            if punishpub_max_reached(*max, *state_on, stored) {
+                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind.as_deref())
                     .await;
             }
         }
         let links = crate::funcs::extract_links(&msg.content);
-        let mut sanction = false;
         if !links.is_empty() {
             let mut all_media = true;
             let mut whitelisted = false;
@@ -2064,32 +2093,44 @@ impl Handler {
                     whitelisted = true;
                 }
             }
-            sanction = !all_media && !whitelisted;
+            // blockSpam.ts `return false` BEFORE the blacklist scan: an
+            // all-media or any-whitelisted link set never sanctions, even
+            // with ".gg/" text alongside (or the link's own "https://").
+            if punishpub_links_exempt(true, all_media, whitelisted) {
+                return;
+            }
         }
-        if !sanction && crate::funcs::has_blacklisted_term(&msg.content) {
-            sanction = true;
-        }
-        if !sanction {
+        if !crate::funcs::has_blacklisted_term(&msg.content) {
             return;
         }
-        let _ = msg.delete(&ctx.http).await;
+        // blockSpam.ts `await message.delete()` throws into the
+        // swallow-catch on failure: a failed delete increments nothing.
+        if msg.delete(&ctx.http).await.is_err() {
+            return;
+        }
         // Flag increment runs even without a PUNISH_PUB row (mirrors
         // blockSpam.ts, which deletes + counts before consulting
         // LOG?.amountMax / LOG?.state).
         let new_flags = stored.unwrap_or(0) + 1;
         let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
-        let _ = crate::db::tbl_set(
+        // blockSpam.ts `await tempTable.set(...)` throws into the same
+        // swallow-catch on failure: a failed write skips the post-check.
+        if crate::db::tbl_set(
             &self.pool,
             gid,
             &flag_key,
             &serde_json::json!({"flags": new_flags}).to_string(),
         )
-        .await;
+        .await
+        .is_err()
+        {
+            return;
+        }
         // Post-increment sanction (mirrors the
         // `LOG?.amountMax === newFlagsCount` check in blockSpam.ts).
         if let Some((max, state_on, kind)) = cfg.as_ref() {
-            if *state_on && *max == Some(new_flags) {
-                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind)
+            if punishpub_max_reached(*max, *state_on, Some(new_flags)) {
+                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind.as_deref())
                     .await;
             }
         }
@@ -11895,6 +11936,36 @@ mod protection_audit_tests {
         // Plain member triggers.
         assert!(!antipub_exempt(8, Some(7), false, false));
         assert!(!antipub_exempt(8, None, false, false));
+    }
+
+    #[test]
+    fn punishpub_gates_match_ts_blockspam_battery() {
+        use super::{punishpub_links_exempt, punishpub_max_reached, punishpub_pipeline_runs};
+        // Run-gate: only raw "on" + non-staff proceeds (battery leg A).
+        assert!(punishpub_pipeline_runs(Some("on"), false));
+        assert!(!punishpub_pipeline_runs(Some("on"), true));
+        assert!(!punishpub_pipeline_runs(Some("off"), false));
+        assert!(!punishpub_pipeline_runs(Some("off"), true));
+        assert!(!punishpub_pipeline_runs(None, false));
+        assert!(!punishpub_pipeline_runs(Some("0"), false));
+        assert!(!punishpub_pipeline_runs(Some(""), false));
+        assert!(!punishpub_pipeline_runs(Some("ON"), false));
+        assert!(!punishpub_pipeline_runs(Some(" on"), false));
+        // Max-flags verdict: strict-`===` on both legs (battery leg C).
+        assert!(punishpub_max_reached(Some(2), true, Some(2)));
+        assert!(!punishpub_max_reached(Some(2), true, Some(1)));
+        assert!(!punishpub_max_reached(Some(2), false, Some(2)));
+        // `undefined === undefined`: two missing sides still sanction
+        // when the state flag is on (cleared `{}` row included).
+        assert!(punishpub_max_reached(None, true, None));
+        assert!(!punishpub_max_reached(None, false, None));
+        // Link early exit: all-media or any-whitelisted skips the
+        // blacklist scan entirely (battery legs B4/B5/B7/B8).
+        assert!(punishpub_links_exempt(true, true, false));
+        assert!(punishpub_links_exempt(true, false, true));
+        assert!(punishpub_links_exempt(true, true, true));
+        assert!(!punishpub_links_exempt(true, false, false));
+        assert!(!punishpub_links_exempt(false, true, true));
     }
 
     #[test]
