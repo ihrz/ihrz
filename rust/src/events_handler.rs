@@ -1329,6 +1329,37 @@ pub fn leash_is_dom(entry: &LeashEntry, changing_id: &str) -> bool {
     entry.dom == changing_id
 }
 
+/// Move verdict for one matched leash pairing. Mirrors the two
+/// leashModule.ts branches verbatim: the dom leg keys on the NEW
+/// channel (`newState.channel`, `None` on disconnect -> no drag) while
+/// the sub leg keys on the OLD channel (`oldState.channel`, `None`
+/// when joining from disconnected -> differs from any live dom
+/// channel -> pull). Pure, unit-tested below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LeashMove {
+    DragSubs,
+    PullChanger,
+    Noop,
+}
+
+pub fn leash_move_verdict<T: PartialEq>(
+    is_dom: bool,
+    target: Option<T>,
+    dom_ch: Option<T>,
+) -> LeashMove {
+    if is_dom {
+        if target.is_some() {
+            LeashMove::DragSubs
+        } else {
+            LeashMove::Noop
+        }
+    } else if dom_ch.is_some() && target != dom_ch {
+        LeashMove::PullChanger
+    } else {
+        LeashMove::Noop
+    }
+}
+
 /// In-flight temp-voice creation key. Mirrors the
 /// `${guildId}.${userId}` key of pendingCustomVoiceCreations in
 /// Events/voicedashboard/voiceState.ts. Pure, unit-tested below.
@@ -8348,20 +8379,33 @@ impl serenity::EventHandler for Handler {
                         let Some(dom_ch) = dom_channels.get(&pairing.dom).copied() else {
                             continue;
                         };
+                        // Direction targets mirror leashModule.ts: the dom
+                        // leg drags to the NEW channel (payload, not cache),
+                        // the sub leg compares the OLD channel (payload) to
+                        // the dom's live channel.
                         if leash_is_dom(pairing, &changing) {
                             // Dom moved: drag every sub that is not already
-                            // in the dom's new channel.
+                            // in the dom's new channel. Disconnect (new
+                            // channel None) drags nothing, like TS.
+                            let Some(target) = new.channel_id else {
+                                continue;
+                            };
                             for sub in &subs {
-                                if dom_channels.get(sub).copied() == Some(dom_ch) {
+                                if dom_channels.get(sub).copied() == Some(target) {
                                     continue;
                                 }
                                 if let Ok(uid) = sub.parse::<u64>() {
                                     let _ = guild_id
-                                        .move_member(&ctx.http, serenity::UserId::new(uid), dom_ch)
+                                        .move_member(&ctx.http, serenity::UserId::new(uid), target)
                                         .await;
                                 }
                             }
-                        } else if dom_channels.get(&changing).copied() != Some(dom_ch) {
+                        } else if leash_move_verdict(
+                            false,
+                            old.as_ref().and_then(|o| o.channel_id),
+                            Some(dom_ch),
+                        ) == LeashMove::PullChanger
+                        {
                             // Sub moved away: pull it back to the dom.
                             let _ = guild_id.move_member(&ctx.http, new.user_id, dom_ch).await;
                         }
@@ -11159,6 +11203,56 @@ mod restore_tests {
         // Direction: dom move drags subs, sub move pulls back.
         assert!(leash_is_dom(&entry, "9"));
         assert!(!leash_is_dom(&entry, "1"));
+    }
+
+    #[test]
+    fn leash_event_gates_match_ts_battery() {
+        // Mirrors scratch/slice-w7s27-leash.js (29 legs, green).
+        // Expiry: exact-boundary valid, one-ms-over expired, future
+        // stamps stay valid (saturating_sub clamps like the negative
+        // age in TS).
+        assert!(leash_valid(1_000, 1_000 + LEASH_EXPIRY_MS));
+        assert!(!leash_valid(1_000, 1_000 + LEASH_EXPIRY_MS + 1));
+        assert!(leash_valid(1_000_000, 1_000_000 - 60_000));
+        // Prune-write gate (`expiredEntries.length > 0`): a partition,
+        // so write-iff-any-expired holds through leash_valid.
+        let rows = [1_000, 2_000];
+        assert!(!rows.iter().any(|t| !leash_valid(*t, 2_000)));
+        assert!(rows
+            .iter()
+            .any(|t| !leash_valid(*t, 2_000 + LEASH_EXPIRY_MS + 1)));
+        // Match: whole-string sub compare -- a multi-sub CSV never
+        // matches a single part, the dom side still matches.
+        let entry = LeashEntry {
+            dom: "9".to_string(),
+            sub: "1,2".to_string(),
+            timestamp: 0,
+        };
+        assert!(leash_entry_matches(&entry, "9"));
+        assert!(!leash_entry_matches(&entry, "1"));
+        assert!(!leash_entry_matches(&entry, "2"));
+        assert!(!leash_entry_matches(&entry, "1,2,"));
+        // Direction verdicts: dom + new channel drags (disconnect None
+        // is a noop); sub pulls iff the OLD channel differs from the
+        // dom's live channel (join-from-disconnected None pulls).
+        assert_eq!(
+            leash_move_verdict(true, Some("C1"), Some("C1")),
+            LeashMove::DragSubs
+        );
+        assert_eq!(leash_move_verdict(true, None, Some("C1")), LeashMove::Noop);
+        assert_eq!(
+            leash_move_verdict(false, Some("C2"), Some("C1")),
+            LeashMove::PullChanger
+        );
+        assert_eq!(
+            leash_move_verdict(false, Some("C1"), Some("C1")),
+            LeashMove::Noop
+        );
+        assert_eq!(leash_move_verdict(false, Some("C2"), None), LeashMove::Noop);
+        assert_eq!(
+            leash_move_verdict(false, None, Some("C1")),
+            LeashMove::PullChanger
+        );
     }
 
     #[test]
