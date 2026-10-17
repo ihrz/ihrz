@@ -100,6 +100,78 @@ pub fn prevnames_key(user_id: u64) -> String {
     format!("PREVNAMES.{user_id}")
 }
 
+/// userUpdate change detection. Mirrors prevnamesModule.ts verbatim:
+/// the username leg records on strict inequality; the globalName leg
+/// records only when the previous value is non-nullish AND differs, so
+/// a null->name transition is dropped while name->null records the old
+/// name. Username is checked first (TS push order). `prev_*` are the
+/// cache-first resolutions (`cached?.x ?? old.x`); `None` means neither
+/// source knew the value (serenity `old` is optional, TS always has
+/// oldUser) and yields no change -- never the new name itself.
+/// Pure, unit-tested below (W7 slice 24 battery).
+pub fn prevnames_user_changes(
+    prev_name: Option<&str>,
+    prev_global: Option<Option<&str>>,
+    new_name: &str,
+    new_global: Option<&str>,
+) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    if let Some(pn) = prev_name {
+        if pn != new_name {
+            out.push(("username".to_string(), pn.to_string()));
+        }
+    }
+    if let Some(pg) = prev_global {
+        if pg != new_global {
+            if let Some(g) = pg {
+                out.push(("globalName".to_string(), g.to_string()));
+            }
+        }
+    }
+    out
+}
+
+/// Nickname previous-value resolution. Mirrors prevnamesModuleGuild.ts
+/// `cachedGuildNicks?.get(guildId) ?? oldMember.nickname`: JS `??`
+/// falls through on BOTH null and undefined, so a cached known-no-nick
+/// (null) still yields the old payload nick -- exactly what the
+/// `and_then(...).unwrap_or_else(old)` live site does. Pure,
+/// unit-tested below (W7 slice 24 battery).
+pub fn prevnames_resolve_nick(
+    cached: Option<Option<String>>,
+    old: Option<String>,
+) -> Option<String> {
+    match cached {
+        Some(Some(nick)) => Some(nick),
+        _ => old,
+    }
+}
+
+/// guildMemberUpdate nick leg outcome. Mirrors prevnamesModuleGuild.ts:
+/// equal nicks hit the early return (the retained map is NOT refreshed);
+/// a differing nick always refreshes the map, and records the previous
+/// nick only when it is non-nullish. DELTA (doc-noted, unreachable):
+/// an empty-string previous nick records in TS but folds to
+/// `UpdateMapOnly` here -- Discord rejects empty nicknames, so no live
+/// payload can reach that leg. Pure, unit-tested below (W7 slice 24
+/// battery).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PrevNickAction {
+    Unchanged,
+    UpdateMapOnly,
+    Record(String),
+}
+
+pub fn prevnames_nick_action(prev: Option<&str>, new: Option<&str>) -> PrevNickAction {
+    if prev == new {
+        return PrevNickAction::Unchanged;
+    }
+    match prev {
+        Some(p) if !p.is_empty() => PrevNickAction::Record(p.to_string()),
+        _ => PrevNickAction::UpdateMapOnly,
+    }
+}
+
 /// Parse one prevnames history blob: Rust JSON-string-array rows;
 /// a bare pushed string (TS single-push shape) counts as one entry.
 pub fn parse_prevnames_history(raw: &str) -> Vec<String> {
@@ -1512,6 +1584,85 @@ mod tests {
         ];
         assert_eq!(roles_earned(&roles, 1, 3), vec!["a".to_string()]);
         assert!(roles_earned(&roles, 3, 4).is_empty());
+    }
+
+    #[test]
+    fn prevnames_user_and_nick_match_ts_battery() {
+        // W7 slice 24 battery (scratch slice-w7s24-prevnames.js, 20/20):
+        // prevnamesModule.ts userUpdate + prevnamesModuleGuild.ts
+        // guildMemberUpdate verbatim legs.
+        let u = |pn: Option<&str>, pg: Option<Option<&str>>, nn: &str, ng: Option<&str>| {
+            prevnames_user_changes(pn, pg, nn, ng)
+        };
+        // Name change with null globals: one username change.
+        assert_eq!(
+            u(Some("a"), Some(None::<&str>), "b", None),
+            vec![("username".to_string(), "a".to_string())]
+        );
+        // No change anywhere.
+        assert!(u(Some("a"), Some(None::<&str>), "a", None).is_empty());
+        // Null -> name global transition is dropped (strict !== plus the
+        // non-nullish gate).
+        assert!(u(Some("a"), Some(None::<&str>), "a", Some("x")).is_empty());
+        // Name -> null global records the OLD name.
+        assert_eq!(
+            u(Some("a"), Some(Some("x")), "a", None),
+            vec![("globalName".to_string(), "x".to_string())]
+        );
+        // Name -> name global records the OLD name.
+        assert_eq!(
+            u(Some("a"), Some(Some("x")), "a", Some("y")),
+            vec![("globalName".to_string(), "x".to_string())]
+        );
+        // Both legs fire, username first (TS push order).
+        assert_eq!(
+            u(Some("o"), Some(Some("og")), "n", Some("ng")),
+            vec![
+                ("username".to_string(), "o".to_string()),
+                ("globalName".to_string(), "og".to_string()),
+            ]
+        );
+        // Neither source knows the value: no change, never the new name.
+        assert!(u(None, None, "n", Some("g")).is_empty());
+        // `??` resolution: cached known-no-nick (None) still yields old;
+        // a cached nick wins; no row yields old.
+        assert_eq!(
+            prevnames_resolve_nick(None, Some("o".to_string())),
+            Some("o".to_string())
+        );
+        assert_eq!(
+            prevnames_resolve_nick(Some(None::<String>), Some("o".to_string())),
+            Some("o".to_string())
+        );
+        assert_eq!(
+            prevnames_resolve_nick(Some(Some("c".to_string())), Some("o".to_string())),
+            Some("c".to_string())
+        );
+        assert_eq!(prevnames_resolve_nick(None, None), None);
+        // Nick outcome gate: equal hits the early return (map untouched);
+        // null previous only refreshes the map; a real previous records.
+        assert_eq!(
+            prevnames_nick_action(Some("a"), Some("a")),
+            PrevNickAction::Unchanged
+        );
+        assert_eq!(prevnames_nick_action(None, None), PrevNickAction::Unchanged);
+        assert_eq!(
+            prevnames_nick_action(None, Some("x")),
+            PrevNickAction::UpdateMapOnly
+        );
+        assert_eq!(
+            prevnames_nick_action(Some("a"), Some("b")),
+            PrevNickAction::Record("a".to_string())
+        );
+        assert_eq!(
+            prevnames_nick_action(Some("a"), None),
+            PrevNickAction::Record("a".to_string())
+        );
+        // Cache-first beats matching old/new payloads (battery stale leg).
+        assert_eq!(
+            prevnames_nick_action(Some("stale"), Some("s")),
+            PrevNickAction::Record("stale".to_string())
+        );
     }
 
     #[test]

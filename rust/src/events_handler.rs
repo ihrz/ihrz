@@ -9326,19 +9326,18 @@ impl serenity::EventHandler for Handler {
         };
         if let (Some(pn), Some(pg)) = (&prev_name, &prev_global) {
             let now = crate::commands::context::now_ms() / 1000;
-            let mut changes: Vec<String> = Vec::new();
-            if *pn != new.name {
-                changes.push(crate::events::prevname_entry(now, "username", pn));
-            }
-            if *pg != new.global_name {
-                if let Some(prev_global) = pg.as_deref() {
-                    changes.push(crate::events::prevname_entry(
-                        now,
-                        "globalName",
-                        prev_global,
-                    ));
-                }
-            }
+            // Change detection lives in the pure
+            // `prevnames_user_changes` (prevnamesModule.ts gates, pinned
+            // below); behavior-preserving rewire.
+            let changes: Vec<String> = crate::events::prevnames_user_changes(
+                Some(pn.as_str()),
+                Some(pg.as_deref()),
+                &new.name,
+                new.global_name.as_deref(),
+            )
+            .iter()
+            .map(|(kind, old)| crate::events::prevname_entry(now, kind, old))
+            .collect();
             if !changes.is_empty() {
                 let key = crate::events::prevnames_key(new.id.get());
                 let mut history: Vec<String> = prevnames_routed(&self.pool, new.id.get()).await;
@@ -10256,14 +10255,22 @@ impl serenity::EventHandler for Handler {
         // A missing `old` returns earlier (TS oldMember is non-optional),
         // so with neither source known nothing is stored — never the new
         // nick itself.
-        let previous: Option<String> = self
-            .nicks
-            .lock()
-            .await
-            .get(&new.user.id.get())
-            .and_then(|guilds| guilds.get(&new.guild_id.get()).cloned())
-            .unwrap_or_else(|| old.nick.clone());
-        if previous != new.nick {
+        // Previous-nick resolution is the pure `prevnames_resolve_nick`
+        // (`??` null/undefined fallthrough, pinned below); the outcome
+        // gate is the pure `prevnames_nick_action` (early return leaves
+        // the map untouched, map-only refreshes without recording).
+        // Behavior-preserving rewire of the prevnamesModuleGuild.ts leg.
+        let previous: Option<String> = crate::events::prevnames_resolve_nick(
+            self.nicks
+                .lock()
+                .await
+                .get(&new.user.id.get())
+                .and_then(|guilds| guilds.get(&new.guild_id.get()).cloned()),
+            old.nick.clone(),
+        );
+        let nick_action =
+            crate::events::prevnames_nick_action(previous.as_deref(), new.nick.as_deref());
+        if nick_action != crate::events::PrevNickAction::Unchanged {
             // Refresh the retained map (mirrors the trailing
             // `guildNicknames.set(guildId, newNickname)`).
             self.nicks
@@ -10272,33 +10279,30 @@ impl serenity::EventHandler for Handler {
                 .entry(new.user.id.get())
                 .or_default()
                 .insert(new.guild_id.get(), new.nick.clone());
-            if let Some(previous) = previous {
-                if !previous.is_empty() {
-                    let guild_name = new
-                        .guild_id
-                        .to_partial_guild(&ctx.http)
-                        .await
-                        .map(|g| g.name)
-                        .unwrap_or_default();
-                    let entry = format!(
-                        "<t:{}:d> - [nickname:{}] {}",
-                        crate::commands::context::now_ms() / 1000,
-                        guild_name,
-                        previous
-                    );
-                    let key = crate::events::prevnames_key(new.user.id.get());
-                    let history: Vec<String> =
-                        prevnames_routed(&self.pool, new.user.id.get()).await;
-                    let next =
-                        crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
-                    let _ = crate::db::tbl_set(
-                        &self.pool,
-                        "0",
-                        &key,
-                        &serde_json::to_string(&next).unwrap_or_default(),
-                    )
-                    .await;
-                }
+            if let crate::events::PrevNickAction::Record(previous) = nick_action {
+                let guild_name = new
+                    .guild_id
+                    .to_partial_guild(&ctx.http)
+                    .await
+                    .map(|g| g.name)
+                    .unwrap_or_default();
+                let entry = format!(
+                    "<t:{}:d> - [nickname:{}] {}",
+                    crate::commands::context::now_ms() / 1000,
+                    guild_name,
+                    previous
+                );
+                let key = crate::events::prevnames_key(new.user.id.get());
+                let history: Vec<String> = prevnames_routed(&self.pool, new.user.id.get()).await;
+                let next =
+                    crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
+                let _ = crate::db::tbl_set(
+                    &self.pool,
+                    "0",
+                    &key,
+                    &serde_json::to_string(&next).unwrap_or_default(),
+                )
+                .await;
             }
         }
         // Nickname-role rules (mirrors !setmentionrole.ts enforcement).
