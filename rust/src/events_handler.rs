@@ -1306,7 +1306,9 @@ pub struct ProtectionHit {
 /// Pure audit-log attribution predicate backing protection_guard.
 /// Mirrors getLogs in Events/protection/ready.ts: target-id match,
 /// executor present and not the bot, entry created within the 20s
-/// window. `entry_created_ms` is the snowflake-derived creation time
+/// window (strict: `createdTimestamp > now - 20000`, so an entry
+/// exactly 20000ms old is NOT recent — battery slice W7-40).
+/// `entry_created_ms` is the snowflake-derived creation time
 /// in ms. Unit-tested below (no Discord needed).
 pub fn audit_entry_relevant(
     entry_target: Option<u64>,
@@ -1325,7 +1327,19 @@ pub fn audit_entry_relevant(
     target_ok
         && executor_id != 0
         && executor_id != bot_id
-        && now_ms.saturating_sub(entry_created_ms) <= AUDIT_LOG_WINDOW_MS
+        && now_ms.saturating_sub(entry_created_ms) < AUDIT_LOG_WINDOW_MS
+}
+
+/// Channel-log both-bot gate backing the logs/channelUpdateLogs.ts
+/// early return. Mirrors `relevantLog?.executor?.id === botId &&
+/// relevantLog_2?.executor?.id === botId`: a missing entry reads as
+/// non-bot through `?.`, so only two present bot-executed entries skip
+/// the embed. Dead in practice (found entries passed the not-bot find
+/// in getLogs) but kept structural; the either-found gate (`!rel &&
+/// !rel2`) does the real work. Pure, unit-tested below (battery slice
+/// W7-40).
+pub fn channel_logs_both_bot(e1_is_bot: Option<bool>, e2_is_bot: Option<bool>) -> bool {
+    e1_is_bot.unwrap_or(false) && e2_is_bot.unwrap_or(false)
 }
 
 /// Role-set equality backing the avoidMemberUpdate.ts gate. Mirrors
@@ -3049,6 +3063,24 @@ impl Handler {
     /// GUILD.SERVER_LOGS.moderation. Silent when no log channel or
     /// no audit entry, like TS. Executor comes from the audit entry;
     /// target from the caller.
+    ///
+    /// Attribution mirrors getLogs in Events/protection/ready.ts
+    /// (battery slice W7-40): the last 40 entries are scanned for a
+    /// target-id match instead of trusting the latest entry blindly,
+    /// the executor must be present and not the bot, and the entry
+    /// must be within the 20s window. The old limit-1 `.first()`
+    /// misattributed whenever a newer entry for another target sat on
+    /// top (two bans in a row) and posted bot-attributed embeds TS
+    /// skips (e.g. a protection +ban sanction ban, whose executor is
+    /// the bot itself).
+    /// DELTA (doc-noted): no handled-set consult here. The TS LOGS
+    /// set only dedups double-delivery of the same entry (events
+    /// arrive once); kickLogs.ts shares the PROTECTION set with
+    /// avoidKickMember.ts, so in TS the kick embed and the kick
+    /// sanction race (first getLogs wins, loser gets undefined) while
+    /// here the guard runs first and the embed always follows -- the
+    /// race is timing-dependent and unmirrorable, sanction + embed is
+    /// the intended outcome either way.
     async fn mod_audit_log(
         &self,
         ctx: &serenity::Context,
@@ -3071,12 +3103,29 @@ impl Handler {
             return;
         };
         let Ok(logs) = guild_id
-            .audit_logs(&ctx.http, Some(action), None, None, Some(1))
+            .audit_logs(
+                &ctx.http,
+                Some(action),
+                None,
+                None,
+                Some(AUDIT_LOG_FETCH_LIMIT),
+            )
             .await
         else {
             return;
         };
-        let Some(entry) = logs.entries.first() else {
+        let bot_id = ctx.cache.current_user().id.get();
+        let now_ms = chrono::Local::now().timestamp_millis();
+        let Some(entry) = logs.entries.iter().find(|e| {
+            audit_entry_relevant(
+                e.target_id.map(|t| t.get()),
+                e.user_id.get(),
+                bot_id,
+                e.id.created_at().unix_timestamp() * 1000,
+                now_ms,
+                Some(target_id),
+            )
+        }) else {
             return;
         };
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
@@ -9941,10 +9990,20 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Rich channel-update log (mirrors logs/channelUpdateLogs.ts):
-        // latest ChannelUpdate + ChannelOverwriteUpdate audit entries
-        // -> #010101 embed with the name/overwrite change list.
-        // Silent when no audit entry, both executors are the bot, or
-        // the diff is empty, like TS.
+        // ChannelUpdate + ChannelOverwriteUpdate audit entries ->
+        // #010101 embed with the name/overwrite change list. Silent
+        // when no audit entry, both executors are the bot, or the diff
+        // is empty, like TS.
+        //
+        // Attribution mirrors getLogs in Events/protection/ready.ts
+        // (battery slice W7-40): each action scans the last 40 entries
+        // for a target-id match (recent, non-bot executor) and the leg
+        // proceeds when EITHER entry is found (`!rel && !rel2` return).
+        // The old limit-1 both-required shape dropped every plain
+        // rename (no ChannelOverwriteUpdate entry exists then) while
+        // TS sends the embed. The TS both-bot early return is dead in
+        // practice (found entries passed the not-bot find) but kept
+        // structurally via channel_logs_both_bot, pinned below.
         let Some(old) = old else {
             return;
         };
@@ -9959,6 +10018,8 @@ impl serenity::EventHandler for Handler {
             return;
         };
         let self_id = ctx.cache.current_user().id;
+        let now_ms = chrono::Local::now().timestamp_millis();
+        let target = Some(new.id.get());
         let rel = new
             .guild_id
             .audit_logs(
@@ -9966,7 +10027,7 @@ impl serenity::EventHandler for Handler {
                 Some(Action::Channel(ChannelAction::Update)),
                 None,
                 None,
-                Some(1),
+                Some(AUDIT_LOG_FETCH_LIMIT),
             )
             .await
             .ok();
@@ -9977,17 +10038,44 @@ impl serenity::EventHandler for Handler {
                 Some(Action::ChannelOverwrite(ChannelOverwriteAction::Update)),
                 None,
                 None,
-                Some(1),
+                Some(AUDIT_LOG_FETCH_LIMIT),
             )
             .await
             .ok();
-        let (Some(rel), Some(rel2)) = (rel.as_ref(), rel2.as_ref()) else {
+        let e1 = rel.as_ref().and_then(|r| {
+            r.entries.iter().find(|e| {
+                audit_entry_relevant(
+                    e.target_id.map(|t| t.get()),
+                    e.user_id.get(),
+                    self_id.get(),
+                    e.id.created_at().unix_timestamp() * 1000,
+                    now_ms,
+                    target,
+                )
+            })
+        });
+        let e2 = rel2.as_ref().and_then(|r| {
+            r.entries.iter().find(|e| {
+                audit_entry_relevant(
+                    e.target_id.map(|t| t.get()),
+                    e.user_id.get(),
+                    self_id.get(),
+                    e.id.created_at().unix_timestamp() * 1000,
+                    now_ms,
+                    target,
+                )
+            })
+        });
+        // TS `if (!relevantLog && !relevantLog_2) return`.
+        if e1.is_none() && e2.is_none() {
             return;
-        };
-        let (Some(e1), Some(e2)) = (rel.entries.first(), rel2.entries.first()) else {
-            return;
-        };
-        if e1.user_id == self_id && e2.user_id == self_id {
+        }
+        // TS `rel?.executor?.id === bot && rel2?.executor?.id === bot`
+        // early return (missing entry counts as non-bot via `?.`).
+        if channel_logs_both_bot(
+            e1.map(|e| e.user_id == self_id),
+            e2.map(|e| e.user_id == self_id),
+        ) {
             return;
         }
         let lang_code = crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
@@ -10041,12 +10129,17 @@ impl serenity::EventHandler for Handler {
             }
             changes = format!("{}...", &changes[..end]);
         }
-        let executor_name = e1
-            .user_id
-            .to_user(&ctx.http)
-            .await
-            .map(|u| u.name.clone())
-            .unwrap_or_else(|_| text("var_unknown"));
+        // TS author is `relevantLog?.executor` (the ChannelUpdate leg,
+        // possibly undefined -> var_unknown), never the overwrite leg.
+        let executor_name = match e1 {
+            Some(e) => e
+                .user_id
+                .to_user(&ctx.http)
+                .await
+                .map(|u| u.name.clone())
+                .unwrap_or_else(|_| text("var_unknown")),
+            None => text("var_unknown"),
+        };
         let desc = text("event_srvLogs_channelUpdate_embed_desc")
             .replace("${newChannel.toString()}", &format!("<#{}>", new.id.get()));
         let embed = serenity::CreateEmbed::default()
@@ -10402,6 +10495,13 @@ impl serenity::EventHandler for Handler {
             if let Some(logs_ch) = logs_ch {
                 use serenity::model::guild::audit_log::{Action, Change, MemberAction};
                 let self_id = ctx.cache.current_user().id;
+                // getLogs attribution (battery slice W7-40): scan the
+                // last 40 MemberRoleUpdate entries for a target-id
+                // match (recent, non-bot executor). The old limit-1
+                // `.first()` dropped the embed whenever a newer entry
+                // for another member sat on top, while TS finds the
+                // target's own entry.
+                let now_ms = chrono::Local::now().timestamp_millis();
                 if let Ok(logs) = new
                     .guild_id
                     .audit_logs(
@@ -10409,95 +10509,93 @@ impl serenity::EventHandler for Handler {
                         Some(Action::Member(MemberAction::RoleUpdate)),
                         None,
                         None,
-                        Some(1),
+                        Some(AUDIT_LOG_FETCH_LIMIT),
                     )
                     .await
                 {
-                    if let Some(entry) = logs.entries.first() {
-                        let target_ok = entry
-                            .target_id
-                            .map(|t| t.get() == new.user.id.get())
-                            .unwrap_or(false);
-                        if entry.user_id != self_id && target_ok {
-                            let mut added: Vec<u64> = vec![];
-                            let mut removed: Vec<u64> = vec![];
-                            for change in entry.changes.clone().unwrap_or_default() {
-                                match change {
-                                    Change::RolesAdded { new, .. } => {
-                                        added.extend(
-                                            new.unwrap_or_default().iter().map(|r| r.id.get()),
-                                        );
-                                    }
-                                    Change::RolesRemove { new, .. } => {
-                                        removed.extend(
-                                            new.unwrap_or_default().iter().map(|r| r.id.get()),
-                                        );
-                                    }
-                                    _ => {}
+                    if let Some(entry) = logs.entries.iter().find(|e| {
+                        audit_entry_relevant(
+                            e.target_id.map(|t| t.get()),
+                            e.user_id.get(),
+                            self_id.get(),
+                            e.id.created_at().unix_timestamp() * 1000,
+                            now_ms,
+                            Some(new.user.id.get()),
+                        )
+                    }) {
+                        let mut added: Vec<u64> = vec![];
+                        let mut removed: Vec<u64> = vec![];
+                        for change in entry.changes.clone().unwrap_or_default() {
+                            match change {
+                                Change::RolesAdded { new, .. } => {
+                                    added
+                                        .extend(new.unwrap_or_default().iter().map(|r| r.id.get()));
                                 }
+                                Change::RolesRemove { new, .. } => {
+                                    removed
+                                        .extend(new.unwrap_or_default().iter().map(|r| r.id.get()));
+                                }
+                                _ => {}
                             }
-                            if !added.is_empty() || !removed.is_empty() {
-                                let lang_code =
-                                    crate::db::guild_lang(&self.pool, Some(new.guild_id.get()))
-                                        .await;
-                                let text =
-                                    |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-                                let username = new
-                                    .user
-                                    .id
-                                    .to_user(&ctx.http)
-                                    .await
-                                    .map(|u| u.name.clone())
-                                    .unwrap_or_else(|_| new.user.name.clone());
-                                let avatar = new.user.avatar_url().unwrap_or_default();
-                                let mut desc = " ".to_string();
-                                if !removed.is_empty() {
-                                    desc += &(text("event_srvLogs_guildMemberUpdate_description")
-                                        .replace(
-                                            "${firstEntry.executor.id}",
-                                            &entry.user_id.get().to_string(),
-                                        )
-                                        .replace(
-                                            "${removedRoles}",
-                                            &removed
-                                                .iter()
-                                                .map(|id| format!("<@&{id}>"))
-                                                .collect::<Vec<_>>()
-                                                .join(","),
-                                        )
-                                        .replace("${oldMember.user.username}", &username)
-                                        + "\n");
-                                }
-                                if !added.is_empty() {
-                                    desc += &text("event_srvLogs_guildMemberUpdate_2_description")
-                                        .replace(
-                                            "${firstEntry.executor.id}",
-                                            &entry.user_id.get().to_string(),
-                                        )
-                                        .replace(
-                                            "${addedRoles}",
-                                            &added
-                                                .iter()
-                                                .map(|id| format!("<@&{id}>"))
-                                                .collect::<Vec<_>>()
-                                                .join(","),
-                                        )
-                                        .replace("${oldMember.user.username}", &username);
-                                }
-                                let embed = serenity::CreateEmbed::default()
-                                    .colour(0x010101_u32)
-                                    .author(
-                                        serenity::CreateEmbedAuthor::new(username).icon_url(avatar),
+                        }
+                        if !added.is_empty() || !removed.is_empty() {
+                            let lang_code =
+                                crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
+                            let text =
+                                |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                            let username = new
+                                .user
+                                .id
+                                .to_user(&ctx.http)
+                                .await
+                                .map(|u| u.name.clone())
+                                .unwrap_or_else(|_| new.user.name.clone());
+                            let avatar = new.user.avatar_url().unwrap_or_default();
+                            let mut desc = " ".to_string();
+                            if !removed.is_empty() {
+                                desc += &(text("event_srvLogs_guildMemberUpdate_description")
+                                    .replace(
+                                        "${firstEntry.executor.id}",
+                                        &entry.user_id.get().to_string(),
                                     )
-                                    .description(desc)
-                                    .timestamp(serenity::Timestamp::now());
-                                let _ = serenity::ChannelId::new(logs_ch)
-                                    .send_message(
-                                        &ctx.http,
-                                        serenity::CreateMessage::new().embed(embed),
+                                    .replace(
+                                        "${removedRoles}",
+                                        &removed
+                                            .iter()
+                                            .map(|id| format!("<@&{id}>"))
+                                            .collect::<Vec<_>>()
+                                            .join(","),
                                     )
-                                    .await;
+                                    .replace("${oldMember.user.username}", &username)
+                                    + "\n");
                             }
+                            if !added.is_empty() {
+                                desc += &text("event_srvLogs_guildMemberUpdate_2_description")
+                                    .replace(
+                                        "${firstEntry.executor.id}",
+                                        &entry.user_id.get().to_string(),
+                                    )
+                                    .replace(
+                                        "${addedRoles}",
+                                        &added
+                                            .iter()
+                                            .map(|id| format!("<@&{id}>"))
+                                            .collect::<Vec<_>>()
+                                            .join(","),
+                                    )
+                                    .replace("${oldMember.user.username}", &username);
+                            }
+                            let embed = serenity::CreateEmbed::default()
+                                .colour(0x010101_u32)
+                                .author(serenity::CreateEmbedAuthor::new(username).icon_url(avatar))
+                                .description(desc)
+                                .timestamp(serenity::Timestamp::now());
+                            let _ = serenity::ChannelId::new(logs_ch)
+                                .send_message(
+                                    &ctx.http,
+                                    serenity::CreateMessage::new().embed(embed),
+                                )
+                                .await;
                         }
                     }
                 }
@@ -12660,6 +12758,86 @@ mod restore_tests {
     }
 
     #[test]
+    fn logs_attribution_matches_ts_getlogs_battery() {
+        // Mirrors scratch/slice-w7s40-logs.cjs 1:1 (U-ETERNAL-405):
+        // getLogs scans 40 entries for target-id match + present
+        // non-bot executor + strict-20s recency; the channel leg
+        // proceeds when EITHER entry is found; the TS both-bot return
+        // reads missing entries as non-bot via `?.`.
+        // Battery: banA-finds-E1 (newer other-target on top).
+        assert!(audit_entry_relevant(
+            Some(11),
+            21,
+            99,
+            1_000_000 - 5_000,
+            1_000_000,
+            Some(11)
+        ));
+        // Battery: bot-executor-skips (protection +ban sanction ban).
+        assert!(!audit_entry_relevant(
+            Some(12),
+            99,
+            99,
+            1_000_000 - 1_000,
+            1_000_000,
+            Some(12)
+        ));
+        // Battery: stale-skips (25s lag) + exact-boundary-skips
+        // (strict `>`, `NOW - 20000` is not recent).
+        assert!(!audit_entry_relevant(
+            Some(13),
+            22,
+            99,
+            1_000_000 - 25_000,
+            1_000_000,
+            Some(13)
+        ));
+        assert!(!audit_entry_relevant(
+            Some(14),
+            22,
+            99,
+            1_000_000 - 20_000,
+            1_000_000,
+            Some(14)
+        ));
+        // Battery: inside-boundary-finds (19999ms still recent).
+        assert!(audit_entry_relevant(
+            Some(15),
+            22,
+            99,
+            1_000_000 - 19_999,
+            1_000_000,
+            Some(15)
+        ));
+        // Battery: rolesX-finds-R1 (older target match under newer miss).
+        assert!(audit_entry_relevant(
+            Some(16),
+            23,
+            99,
+            1_000_000 - 2_000,
+            1_000_000,
+            Some(16)
+        ));
+        assert!(!audit_entry_relevant(
+            Some(17),
+            23,
+            99,
+            1_000_000 - 1_000,
+            1_000_000,
+            Some(16)
+        ));
+        // Channel either/both gates (battery chan-* legs): proceed is
+        // decided by either-found at the call site; both-bot only skips
+        // on two present bot-executed entries.
+        assert!(!channel_logs_both_bot(Some(false), None));
+        assert!(!channel_logs_both_bot(None, Some(false)));
+        assert!(!channel_logs_both_bot(None, None));
+        assert!(channel_logs_both_bot(Some(true), Some(true)));
+        assert!(!channel_logs_both_bot(Some(true), None));
+        assert!(!channel_logs_both_bot(Some(true), Some(false)));
+    }
+
+    #[test]
     fn snipe_avatar_falls_back_to_default_url() {
         // TS displayAvatarURL() never yields "": users without a custom
         // avatar get the default-avatar URL (new system: (id >> 22) % 6).
@@ -13010,8 +13188,9 @@ mod protection_audit_tests {
             1_000 + AUDIT_LOG_WINDOW_MS + 1,
             Some(10)
         ));
-        // Exactly at the window edge still counts.
-        assert!(audit_entry_relevant(
+        // Exactly at the window edge does NOT count (battery slice
+        // W7-40: TS is strict `createdTimestamp > now - 20000`).
+        assert!(!audit_entry_relevant(
             Some(10),
             7,
             99,
