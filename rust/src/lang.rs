@@ -44,6 +44,10 @@ fn table() -> &'static HashMap<String, serde_yaml::Value> {
 /// Mirrors getLanguageData(guildId): guild lookup happens in db layer;
 /// here we resolve a language code to its YAML table with en-US fallback
 /// for the *lookup* only (never a substitute for missing keys).
+/// EAGER PRELOAD, INTENTIONAL: all 10 tables load on the first call
+/// while TS imports lazily per locale and caches on success. Convergent
+/// for every shipped code; a file added at runtime stays invisible until
+/// restart (TS would pick it up on the next cache miss).
 /// FORGIVING FALLBACK, INTENTIONAL (H20): unknown codes resolve to the
 /// en-US table instead of erroring. TS getLanguageDataByCode has no such
 /// branch (a cache miss on an unknown code throws at the dynamic

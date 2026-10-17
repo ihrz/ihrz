@@ -174,6 +174,17 @@ pub fn check_permission(snap: &GateSnapshot) -> bool {
         || snap.is_owner
 }
 
+/// Full checkCommandPermission() gate: head + tail. TS returns
+/// `{allowed:false}` when the `${guildId}.UTILS` row is missing, BEFORE
+/// the owner leg runs, so a missing UTILS denies even the owner.
+/// `utils_present` is `load_utils_json(...).await.is_some()`.
+pub fn check_command_permission(utils_present: bool, snap: &GateSnapshot) -> bool {
+    if !utils_present {
+        return false;
+    }
+    check_permission(snap)
+}
+
 /// Build the `neededPerm` segment of the permission-denial reply.
 /// Pure mirror of sendErrorMessage() in
 /// src/core/functions/permissonsCalculator.ts:236-269 (no Discord delivery).
@@ -260,6 +271,13 @@ pub async fn load_utils_json(pool: &crate::db::Pool, guild_id: &str) -> Option<S
     crate::db::tbl_get(pool, guild_id, "UTILS").await
 }
 
+/// Saturating u64->u8 for DB levels: the writer stores 0..=9, but a
+/// garbage value >255 must deny (TS keeps the raw number, so the need
+/// stays unreachable), never wrap (`as u8`) into a reachable need.
+fn sat_u8(n: u64) -> u8 {
+    u8::try_from(n).unwrap_or(u8::MAX)
+}
+
 /// Parse the UTILS JSON blob into (perms, level_roles, user_levels).
 /// Unknown shapes fall back to empty maps (deny-by-default at the gate).
 pub fn parse_utils_json(
@@ -281,7 +299,7 @@ pub fn parse_utils_json(
     if let Some(map) = v.get("PERMS").and_then(|p| p.as_object()) {
         for (k, val) in map {
             if let Some(n) = val.as_u64() {
-                perms.insert(k.clone(), StoredPerm::Level(n as u8));
+                perms.insert(k.clone(), StoredPerm::Level(sat_u8(n)));
             } else if val.is_object() {
                 let users = val
                     .get("users")
@@ -305,7 +323,7 @@ pub fn parse_utils_json(
                     if l.is_null() {
                         None
                     } else {
-                        l.as_u64().map(|n| n as u8)
+                        l.as_u64().map(sat_u8)
                     }
                 });
                 perms.insert(
@@ -331,7 +349,7 @@ pub fn parse_utils_json(
     if let Some(users) = v.get("USER_PERMS").and_then(|u| u.as_object()) {
         for (k, val) in users {
             if let Some(n) = val.as_u64() {
-                user_levels.insert(k.clone(), n as u8);
+                user_levels.insert(k.clone(), sat_u8(n));
             }
         }
     }
@@ -474,6 +492,21 @@ mod tests {
         assert!(!check_permission(&s));
         s.is_owner = true;
         assert!(check_permission(&s));
+    }
+
+    #[test]
+    fn missing_utils_denies_even_owner_like_ts_head() {
+        // TS checkCommandPermission returns {allowed:false} when the
+        // UTILS row is missing, before the owner leg runs.
+        let mut s = snap(default_perm());
+        s.is_owner = true;
+        assert!(!check_command_permission(false, &s));
+        assert!(check_command_permission(true, &s));
+        let mut locked = snap(full(&["other"], &["other-role"], Some(9)));
+        locked.user_id = "u1".into();
+        assert!(!check_command_permission(true, &locked));
+        locked.is_owner = true;
+        assert!(check_command_permission(true, &locked));
     }
 
     #[test]
@@ -748,6 +781,21 @@ mod tests {
         assert!(check_explicit_user("u1", &get_cmd_perm_data("kick", &p)));
         assert_eq!(r.get(&3).map(String::as_str), Some("r3"));
         assert_eq!(u.get("u1").copied(), Some(3));
+    }
+
+    #[test]
+    fn parse_utils_json_saturates_garbage_levels() {
+        // Writer stores 0..=9; 300 must saturate (deny), never wrap
+        // (`300 as u8` == 44, a reachable need). TS keeps the raw
+        // number, so the need stays unreachable there too.
+        let raw = r#"{"PERMS":{"ban":300},"USER_PERMS":{"u1":44}}"#;
+        let (p, _, u) = parse_utils_json(Some(raw));
+        assert_eq!(get_cmd_perm_data("ban", &p).level, Some(255));
+        assert!(!check_user_level("u1", &u, &get_cmd_perm_data("ban", &p)));
+        // Valid levels pass through untouched.
+        let raw = r#"{"PERMS":{"ban":5},"USER_PERMS":{"u1":5}}"#;
+        let (p, _, u) = parse_utils_json(Some(raw));
+        assert!(check_user_level("u1", &u, &get_cmd_perm_data("ban", &p)));
     }
 
     #[tokio::test]

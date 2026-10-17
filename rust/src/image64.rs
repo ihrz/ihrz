@@ -2,9 +2,9 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Shared image fetcher. Mirrors src/core/functions/image64.ts image64()
 // (GET url as bytes, None on any error). Canonical home deduplicating the
-// inline call sites: botcat/avatar (download + base64 data URL),
-// profil/show (avatar snapshot for the thumbnail attachment), ticket
-// transcript stub (prefetched avatar/image caches).
+// inline call sites: rank/profil cards (avatar snapshot bytes for canvas
+// thumbnails), giveaway/invitesmanager embeds (guild icon / face bytes
+// attached as `attachment://` files), birthday card faces.
 //
 // The HEAD content-type predicate (`isImageUrl`) intentionally does NOT
 // live here — see funcs::is_image_url, the canonical home documenting the
