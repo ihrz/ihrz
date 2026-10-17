@@ -277,12 +277,21 @@ fn truthy(v: &serde_json::Value) -> bool {
     }
 }
 
+/// Admin-role skip for the rolesaver leave snapshot. Mirrors
+/// Events/rolesaver/onMemberLeave.ts exactly: the role is skipped only
+/// when it carries Administrator AND the stored `admin` flag is the
+/// literal string `"no"` (strict `===` — `"No"`, `""`, booleans and a
+/// missing flag all keep admin roles).
+pub fn rolesaver_skip_admin(admin: Option<&str>) -> bool {
+    admin == Some("no")
+}
+
 pub async fn load_rolesaver_cfg(pool: &crate::db::Pool, guild_id: &str) -> RolesaverCfg {
     if let Some(raw) = crate::db::tbl_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver").await {
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
             return RolesaverCfg {
                 enabled: v.get("enable").map(truthy).unwrap_or(false),
-                skip_admin: v.get("admin").and_then(|a| a.as_str()) == Some("no"),
+                skip_admin: rolesaver_skip_admin(v.get("admin").and_then(|a| a.as_str())),
             };
         }
     }
@@ -546,6 +555,16 @@ mod tests {
             .await
             .unwrap();
         assert!(rolesaver_enabled(&pool, "g").await);
+    }
+
+    #[test]
+    fn rolesaver_skip_admin_matches_ts_strict_no_legs() {
+        // onMemberLeave.ts `admin === "no"`: only the literal skips.
+        assert!(rolesaver_skip_admin(Some("no")));
+        assert!(!rolesaver_skip_admin(Some("yes")));
+        assert!(!rolesaver_skip_admin(Some("No")));
+        assert!(!rolesaver_skip_admin(Some("")));
+        assert!(!rolesaver_skip_admin(None));
     }
 }
 

@@ -179,9 +179,15 @@ pub fn active_voice_session_key(user_id: u64) -> String {
 /// (`Math.floor(durationMin / 10) * getMemberBoost(member)`): the boost
 /// is the float-preserving shop multiplier, so the product stays float
 /// like the TS number all the way into the float wallet (addCoins adds
-/// the raw number; no integer truncation anywhere).
+/// the raw number; no integer truncation anywhere). NO lower clamp:
+/// `getMemberBoost` returns `highestBoost || 1`, so a stored negative
+/// boost (writer-reachable: !boost-set parses with parseInt and never
+/// validates) passes through and the TS product goes negative (voice
+/// time debits the wallet); a fractional boost scales fractionally.
+/// Callers must pass the raw [`member_boost_f64`](crate::commands::economy::member_boost_f64)
+/// value, never `.max(1.0)`.
 pub fn coins_for_voice(minutes: u64, boost_mult: f64) -> f64 {
-    ((minutes / 10) as f64) * boost_mult.max(1.0)
+    ((minutes / 10) as f64) * boost_mult
 }
 
 pub async fn voice_join(
@@ -244,6 +250,45 @@ pub fn parse_voice_session(raw: &str) -> Option<(i64, u64)> {
     let start: i64 = start_s.parse().ok()?;
     let channel: u64 = chan_s.parse().unwrap_or(0);
     Some((start, channel))
+}
+
+/// Stats message gate. Mirrors Events/stats/onNewMessage.ts
+/// (`if (!message.guild || message.author.bot || !message.channel)
+/// return`): the row is pushed only for non-bot authors in a guild with
+/// a channel. (Live: the bot leg is the `msg.author.bot` early return
+/// and the guild leg the `let Some(guild_id) ... else return` in
+/// `Handler::message`; the channel is always present on a received
+/// message, so its leg is pinned here only.)
+pub fn stats_message_records(has_guild: bool, is_bot: bool, has_channel: bool) -> bool {
+    has_guild && !is_bot && has_channel
+}
+
+/// Voice routing verdict. Mirrors the two legs of
+/// Events/stats/onVoiceUpdate.ts: leg 1
+/// (`userId && newChannelId && oldChannelId !== newChannelId`) opens a
+/// new session (join or move — the old leg is closed first when one is
+/// stored); leg 2 (`userId && oldChannelId && !newChannelId`) closes on
+/// leave; anything else (mute/deaf toggle, double-absent) is ignored.
+/// `userId` (`oldState.id`) is always a non-empty snowflake on a real
+/// event, so it carries no leg.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VoiceSessionRoute {
+    Open,
+    Close,
+    Ignore,
+}
+
+pub fn voice_session_route(
+    old_channel: Option<u64>,
+    new_channel: Option<u64>,
+) -> VoiceSessionRoute {
+    if new_channel.is_some() && old_channel != new_channel {
+        VoiceSessionRoute::Open
+    } else if old_channel.is_some() && new_channel.is_none() {
+        VoiceSessionRoute::Close
+    } else {
+        VoiceSessionRoute::Ignore
+    }
 }
 
 /// Raw session read across both keys: the Rust `VOICE_SESSION.<uid>`
@@ -1584,7 +1629,30 @@ mod tests {
         assert_eq!(coins_for_voice(0, 5.0), 0.0);
         // Fractional shop boosts stay fractional like the TS number.
         assert_eq!(coins_for_voice(20, 1.5), 3.0);
-        assert_eq!(coins_for_voice(10, 0.5), 1.0);
+        // NO clamp (U-ETERNAL-381 battery): TS multiplies the raw
+        // `highestBoost || 1` product, so a sub-1 boost scales down and a
+        // negative boost (writer-reachable via !boost-set parseInt, which
+        // never validates) debits the wallet.
+        assert_eq!(coins_for_voice(10, 0.5), 0.5);
+        assert_eq!(coins_for_voice(10, -2.0), -2.0);
+        assert_eq!(coins_for_voice(9, -2.0), 0.0);
+    }
+
+    #[test]
+    fn stats_message_and_voice_route_match_ts_battery() {
+        // stats/onNewMessage.ts `!guild || bot || !channel` gate.
+        assert!(stats_message_records(true, false, true));
+        assert!(!stats_message_records(false, false, true));
+        assert!(!stats_message_records(true, true, true));
+        assert!(!stats_message_records(true, false, false));
+        assert!(!stats_message_records(false, true, false));
+        // stats/onVoiceUpdate.ts two-leg routing.
+        use VoiceSessionRoute::*;
+        assert_eq!(voice_session_route(None, Some(7)), Open);
+        assert_eq!(voice_session_route(Some(6), Some(7)), Open);
+        assert_eq!(voice_session_route(Some(6), None), Close);
+        assert_eq!(voice_session_route(Some(6), Some(6)), Ignore);
+        assert_eq!(voice_session_route(None, None), Ignore);
     }
 
     #[test]

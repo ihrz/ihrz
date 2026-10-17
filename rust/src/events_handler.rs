@@ -8199,8 +8199,18 @@ impl serenity::EventHandler for Handler {
         // Rich voice log (mirrors logs/voiceLogs.ts).
         self.voice_state_log(&ctx, &gid, old.as_ref(), &new).await;
         // Session tracking (mirrors stats/onVoiceUpdate.ts + economy coins).
-        match (old.as_ref().and_then(|o| o.channel_id), new.channel_id) {
-            (old_ch, Some(new_ch)) if old_ch != Some(new_ch) => {
+        // Routed through the pure `voice_session_route` verdict so the
+        // TS two-leg shape (`new && old !== new` open / `old && !new`
+        // close) stays pinned in one place; the `(Open, None)` /
+        // `(Close, Some)` combos are unreachable by construction.
+        match (
+            crate::events::voice_session_route(
+                old.as_ref().and_then(|o| o.channel_id.map(|c| c.get())),
+                new.channel_id.map(|c| c.get()),
+            ),
+            new.channel_id,
+        ) {
+            (crate::events::VoiceSessionRoute::Open, Some(new_ch)) => {
                 // Boost from shop roles (mirrors getMemberBoost in
                 // processSessionEnd, also applied on move).
                 let roles: Vec<u64> = guild_id
@@ -8209,8 +8219,7 @@ impl serenity::EventHandler for Handler {
                     .map(|m| m.roles.iter().map(|r| r.get()).collect())
                     .unwrap_or_default();
                 let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
-                let boost =
-                    crate::commands::economy::main::member_boost_f64(&shop_raw, &roles).max(1.0);
+                let boost = crate::commands::economy::main::member_boost_f64(&shop_raw, &roles);
                 crate::events::voice_switch(
                     &self.pool,
                     &gid,
@@ -8583,7 +8592,7 @@ impl serenity::EventHandler for Handler {
                     }
                 }
             }
-            (Some(_), None) => {
+            (crate::events::VoiceSessionRoute::Close, _) => {
                 // Member gate (mirrors `newState.member` in processSessionEnd):
                 // a user who left the guild earns nothing. Roles prefer the
                 // event member, falling back to a fetch.
@@ -8595,8 +8604,7 @@ impl serenity::EventHandler for Handler {
                     },
                 };
                 let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
-                let boost =
-                    crate::commands::economy::main::member_boost_f64(&shop_raw, &roles).max(1.0);
+                let boost = crate::commands::economy::main::member_boost_f64(&shop_raw, &roles);
                 crate::events::voice_leave(
                     &self.pool,
                     &gid,
