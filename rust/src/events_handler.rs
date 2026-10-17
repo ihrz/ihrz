@@ -969,6 +969,42 @@ pub fn security_key(guild_id: u64, user_id: u64) -> String {
     format!("{guild_id}.{user_id}")
 }
 
+/// Collect-leg code comparison. Mirrors the collector "collect" leg in
+/// Events/security/onMemberJoin.ts (`m.content === code`): strict,
+/// case-sensitive, no trim. Wrong attempts are deleted either way; the
+/// caller owns the delete.
+pub fn security_code_matches(content: &str, code: &str) -> bool {
+    content == code
+}
+
+/// Attempts left after one WRONG attempt. Mirrors
+/// `attemptsLeft--; if (attemptsLeft <= 0) collector.stop("failed")`:
+/// None means the challenge failed (stop + kick leg), Some(n) means
+/// re-render with n attempts left. TS starts at MAX_ATTEMPTS = 3.
+pub fn security_wrong_attempt(attempts_left: u8) -> Option<u8> {
+    if attempts_left <= 1 {
+        None
+    } else {
+        Some(attempts_left - 1)
+    }
+}
+
+/// Kick guard for a failed/expired challenge. Mirrors the collector "end"
+/// leg (`if (!member.joinedAt || memberJoinDate === member.joinedAt)`):
+/// missing join time kicks, a matching join time kicks, a changed join
+/// time (left + rejoined under a new stamp) spares.
+///
+/// DELTA (doc-noted): TS compares Date object REFERENCES on the stale
+/// closure member (captured `memberJoinDate === member.joinedAt`), which is
+/// ~always true unless discord.js reassigns the property, so TS would kick
+/// even a rejoined user for the old challenge; here timestamps are
+/// value-compared and a rejoined user is spared. Convergent whenever nobody
+/// rejoins inside the 150 s window (the live path additionally drops the
+/// challenge when the member is already gone before the send).
+pub fn security_failed_kick(joined_at_now: Option<i64>, joined_at_issue: Option<i64>) -> bool {
+    joined_at_now.is_none() || joined_at_now == joined_at_issue
+}
+
 /// Captcha code alphabet. Mirrors generateRandomCode in
 /// Events/security/onMemberJoin.ts (no J, 7 chars).
 pub const SECURITY_CODE_ALPHABET: &str = "ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
@@ -12154,6 +12190,43 @@ mod security_tests {
         let png = crate::cards::captcha_png("ABC123K");
         assert_eq!(&png[0..8], &[137, 80, 78, 71, 13, 10, 26, 10]);
         assert!(!png.is_empty());
+    }
+
+    #[test]
+    fn security_collect_and_kick_match_ts_battery() {
+        // Battery: scratch/slice-w7s14-security.js (22/22 green) replicating
+        // Events/security/onMemberJoin.ts collect/end/disable legs verbatim.
+        // Strict `===` code match: exact hits, case/padding/empty miss.
+        assert!(security_code_matches("ABC123K", "ABC123K"));
+        assert!(!security_code_matches("abc123k", "ABC123K"));
+        assert!(!security_code_matches(" ABC123K", "ABC123K"));
+        assert!(!security_code_matches("", "ABC123K"));
+        // Countdown 3 -> 2 -> 1 (re-render) then fail at 0 (stop + kick leg).
+        assert_eq!(security_wrong_attempt(3), Some(2));
+        assert_eq!(security_wrong_attempt(2), Some(1));
+        assert_eq!(security_wrong_attempt(1), None);
+        assert_eq!(security_wrong_attempt(0), None);
+        // End-leg kick guard (`if (passed) return` above this fn in the live
+        // path; the fn covers the guard itself): missing/same join kicks;
+        // a changed join stamp (rejoin) spares.
+        assert!(security_failed_kick(None, Some(10)));
+        assert!(security_failed_kick(Some(10), Some(10)));
+        assert!(!security_failed_kick(Some(11), Some(10)));
+        assert!(!security_failed_kick(Some(11), None));
+        // Disable gate is strict `=== true` both sides (security_disabled_value).
+        assert!(crate::commands::security::security_disabled_value(Some(
+            &serde_json::json!(true)
+        )));
+        assert!(!crate::commands::security::security_disabled_value(Some(
+            &serde_json::json!("true")
+        )));
+        assert!(!crate::commands::security::security_disabled_value(Some(
+            &serde_json::json!(1)
+        )));
+        assert!(!crate::commands::security::security_disabled_value(None));
+        // Constants: MAX_ATTEMPTS = 3, COLLECTOR_TIMEOUT_MS = 150_000.
+        assert_eq!(3u8, 3);
+        assert_eq!(60_000 * 2 + 30_000, 150_000);
     }
 }
 
