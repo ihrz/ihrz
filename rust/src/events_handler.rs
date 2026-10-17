@@ -988,6 +988,47 @@ async fn ticket_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, S
     crate::db::tbl_scan_prefix(pool, gid, "TICKET_ALL.").await
 }
 
+/// Ticket-panel marker delete gate. Mirrors
+/// Events/ticket/deleteTicketPanelOnMessageDelete.ts verbatim: skip when
+/// there is no guild, no author, or the author is the bot itself
+/// (`message.author.id == client.user?.id` — loose `==`, but both sides
+/// are ID strings so verdicts match strict equality).
+/// DELTA (doc-noted): serenity's `message_delete` payload carries no
+/// author, so the live site cannot evaluate the author legs and always
+/// drops the marker. Observably equivalent: markers are written for
+/// bot-authored panel messages (ticketsManager.ts), so the TS bot leg
+/// fires on every real panel delete and the marker is kept — but
+/// readers key on live interaction message ids
+/// (`GUILD.TICKET.<interaction.message.id>`), which never address a
+/// deleted message, so a kept marker is unreadable either way.
+/// Pure, unit-tested below.
+pub fn ticket_panel_delete_allowed(has_guild: bool, has_author: bool, author_is_bot: bool) -> bool {
+    has_guild && has_author && !author_is_bot
+}
+
+/// Ticket node wipe list for a deleted channel. Mirrors
+/// Events/ticket/deleteTicketPanel.ts verbatim: the `channel.id ===
+/// channel_2` match runs against the INNER KEY of each user's node
+/// (never the row value's `.channel` field — the writer stores both
+/// from the same `channel.id`, ticketsManager.ts), and a hit wipes the
+/// whole `TICKET_ALL.<user>` node, not just the matching row. A
+/// nullish fetch is a silent no-op (`for...in` over nullish), which is
+/// the empty-slice case here. Order-stable, deduplicated.
+/// Pure, wired into the channelDelete site, unit-tested below.
+pub fn ticket_channel_delete_hit_users(row_keys: &[String], channel_id: &str) -> Vec<String> {
+    let mut hit_users: Vec<String> = Vec::new();
+    for k in row_keys {
+        if let Some(rest) = k.strip_prefix("TICKET_ALL.") {
+            if let Some((user, inner)) = rest.split_once('.') {
+                if inner == channel_id && !hit_users.iter().any(|u| u == user) {
+                    hit_users.push(user.to_string());
+                }
+            }
+        }
+    }
+    hit_users
+}
+
 /// Last-known names per user: (username, globalName).
 /// Mirrors `usersNamesMap` in src/core/prevnamesModule.ts.
 pub type NamesMap = HashMap<u64, (String, Option<String>)>;
@@ -6614,6 +6655,10 @@ impl serenity::EventHandler for Handler {
         // close_ticket_channel still deletes the channel without a
         // logs channel, and every ticket is processed, so one missing
         // channel can never orphan the rest.
+        // DELTA (doc-noted, manual-DB-only): the channel id is read
+        // from the row KEY while TS reads the row value's `.channel`
+        // field. The writer stores both from the same `channel.id`
+        // (ticketsManager.ts), so they agree on every writer path.
         let ticket_rows: Vec<String> =
             ticket_user_rows_routed(&self.pool, &gid, user.id.get()).await;
         if !ticket_rows.is_empty() {
@@ -8114,7 +8159,11 @@ impl serenity::EventHandler for Handler {
             )
             .await;
             // Drop any ticket-panel marker bound to the deleted message
-            // (mirrors deleteTicketPanelOnMessageDelete.ts).
+            // (mirrors deleteTicketPanelOnMessageDelete.ts, whose gate is
+            // pinned by ticket_panel_delete_allowed; DELTA doc-noted
+            // there: the payload carries no author, so the bot-author leg
+            // cannot be evaluated and the marker always drops — observably
+            // equivalent since readers key on live message ids).
             let _ = crate::db::tbl_del(
                 &self.pool,
                 &gid,
@@ -9744,23 +9793,16 @@ impl serenity::EventHandler for Handler {
         // No TS channel-delete log file exists — the protection
         // guard above is the whole parity surface.
         // Purge ticket rows bound to this channel (mirrors
-        // deleteTicketPanel.ts: a matching channel wipes the whole
-        // TICKET_ALL.<user> node, not just the one row.
+        // deleteTicketPanel.ts via ticket_channel_delete_hit_users: a
+        // matching inner key wipes the whole TICKET_ALL.<user> node,
+        // not just the one row).
         let gid = channel.guild_id.get().to_string();
-        let chan_suffix = format!(".{}", channel.id.get());
-        let mut hit_users: Vec<String> = Vec::new();
-        for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
-            if k.ends_with(&chan_suffix) {
-                // Row shape is TICKET_ALL.<user>.<channel>.
-                if let Some(rest) = k.strip_prefix("TICKET_ALL.") {
-                    if let Some((user, _)) = rest.split_once('.') {
-                        if !hit_users.iter().any(|u| u == user) {
-                            hit_users.push(user.to_string());
-                        }
-                    }
-                }
-            }
-        }
+        let row_keys: Vec<String> = ticket_rows_routed(&self.pool, &gid)
+            .await
+            .into_iter()
+            .map(|(k, _)| k)
+            .collect();
+        let hit_users = ticket_channel_delete_hit_users(&row_keys, &channel.id.get().to_string());
         for user in hit_users {
             for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
                 if k.starts_with(&format!("TICKET_ALL.{user}.")) {
@@ -12202,6 +12244,50 @@ mod restore_tests {
         for s in ["a", "0", " ", "\n", "🔥"] {
             assert!(!s.is_empty());
         }
+    }
+
+    #[test]
+    fn ticket_delete_legs_match_ts_battery() {
+        // Mirrors scratch/slice-w7s31-ticketdelete.cjs 1:1 (U-ETERNAL-396).
+        // Gate (deleteTicketPanelOnMessageDelete.ts): no guild / no
+        // author / bot-self all skip; only a guild user message proceeds.
+        assert!(!ticket_panel_delete_allowed(false, true, false));
+        assert!(!ticket_panel_delete_allowed(true, false, false));
+        assert!(!ticket_panel_delete_allowed(true, true, true));
+        assert!(ticket_panel_delete_allowed(true, true, false));
+        // Channel match (deleteTicketPanel.ts): inner KEY equality wipes
+        // the whole node; value `.channel` never consulted.
+        let rows = vec![
+            "TICKET_ALL.u1.c100".to_string(),
+            "TICKET_ALL.u1.c101".to_string(),
+            "TICKET_ALL.u2.c200".to_string(),
+        ];
+        assert_eq!(
+            ticket_channel_delete_hit_users(&rows, "c100"),
+            vec!["u1".to_string()]
+        );
+        assert_eq!(
+            ticket_channel_delete_hit_users(&rows, "c200"),
+            vec!["u2".to_string()]
+        );
+        assert!(ticket_channel_delete_hit_users(&rows, "c999").is_empty());
+        assert!(ticket_channel_delete_hit_users(&[], "c100").is_empty());
+        // Corrupt row (key != value.channel): TS matches the key.
+        let corrupt = vec!["TICKET_ALL.u9.c100".to_string()];
+        assert_eq!(
+            ticket_channel_delete_hit_users(&corrupt, "c100"),
+            vec!["u9".to_string()]
+        );
+        assert!(ticket_channel_delete_hit_users(&corrupt, "cOTHER").is_empty());
+        // One channel shared by two users' nodes wipes both, order-stable.
+        let shared = vec![
+            "TICKET_ALL.u1.c100".to_string(),
+            "TICKET_ALL.u2.c100".to_string(),
+        ];
+        assert_eq!(
+            ticket_channel_delete_hit_users(&shared, "c100"),
+            vec!["u1".to_string(), "u2".to_string()]
+        );
     }
 
     #[test]
