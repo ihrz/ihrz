@@ -455,7 +455,15 @@ pub fn code_extension(filename: &str) -> String {
 }
 
 /// The feature runs unless explicitly disabled (TS gate is
-/// `UTILS.git_lines === false`; "0" is this bot's own off-write).
+/// `UTILS.git_lines === false`: only boolean `false` skips).
+/// Legacy boolean rows render through `table_string`, so TS-era
+/// `false` arrives as `"false"` and stays disabled here.
+/// DELTAS (manual-DB rows only, both writers emit just bool / "1" /
+/// "0"): a string `"0"` or `"false"` row reads ENABLED in TS
+/// (`!== false`) but disabled here (`"0"` is this bot's own
+/// off-write, so narrowing to boolean-false would re-enable
+/// Rust-disabled guilds); a numeric `0` row reads ENABLED in TS
+/// but renders `"0"` (disabled) here.
 pub fn github_lines_enabled(stored: Option<&str>) -> bool {
     !matches!(stored, Some("false") | Some("0"))
 }
@@ -920,6 +928,31 @@ mod tests {
         assert!(github_lines_enabled(Some("true")));
         assert!(!github_lines_enabled(Some("false")));
         assert!(!github_lines_enabled(Some("0")));
+    }
+
+    #[test]
+    fn github_lines_event_gate_matches_ts_strict_false_legs() {
+        // Battery `slice-w7s4-gitlines.js`: TS `get(...) === false`
+        // skips on boolean false ONLY (12/12 legs).
+        // `table_string` renders legacy TS rows, so the convergent
+        // legs read: bool false -> "false" (disabled, both sides),
+        // everything else enabled on both sides.
+        assert!(github_lines_enabled(None)); // missing key: enabled
+        assert!(github_lines_enabled(Some("true"))); // bool true row
+        assert!(github_lines_enabled(Some("1"))); // Rust on-write
+        assert!(!github_lines_enabled(Some("false"))); // bool false row
+        assert!(github_lines_enabled(Some(""))); // empty string row
+                                                 // Promo upsell gate `!has(key) && floor(rand*8)===0`: the
+                                                 // `stored.is_none()` half is this None leg; the dice half is
+                                                 // distribution-equal (battery 0.1252 vs u8%8==0 exactly 1/8).
+                                                 // Promo fill is single-occurrence (battery token_count=1),
+                                                 // so Rust `.replace` == TS first-only `.replace`.
+                                                 // Threshold legs (handleMessage verbatim): `totalLines > 50`
+                                                 // and `botMsg.length >= 2000` map to `total > 50` and
+                                                 // `joined.len() >= 2000` at the event site. DELTA (doc-noted
+                                                 // on the callers): Rust counts bytes, TS counts UTF-16 units
+                                                 // (battery: 660 e-acutes read 669 vs 1329) -- identical for
+                                                 // ASCII snippets, bytes trip sooner on non-ASCII.
     }
 
     #[test]
