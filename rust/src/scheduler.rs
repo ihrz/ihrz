@@ -73,9 +73,12 @@ pub fn membercount_slot_enabled(cfg: &serde_json::Value) -> bool {
 }
 
 /// Half-time warning window: |elapsed - max/2| < 15s. Mirrors
-/// autorenewManager.ts isHalfTimeWindow.
+/// autorenewManager.ts isHalfTimeWindow exactly: TS divides maxTime
+/// by 2 in float, so `|2*elapsed - max| < 30_000` on integers is the
+/// exact equivalent (no 0.5ms truncation for odd maxTime, no float).
+/// i128 keeps ancient/garbage timestamps from overflowing.
 pub fn autorenew_half_window(timestamp_ms: i64, max_ms: i64, now_ms: i64) -> bool {
-    (now_ms - timestamp_ms - max_ms / 2).abs() < 15_000
+    ((now_ms as i128 - timestamp_ms as i128) * 2 - max_ms as i128).abs() < 30_000
 }
 
 /// Autorenew expiry with saturating add (mirrors timeElapsed >= maxTime).
@@ -736,15 +739,93 @@ pub fn mcount_table_slots(root: &serde_json::Value) -> Vec<(String, serde_json::
         .unwrap_or_default()
 }
 
+/// `formatNumber` from src/core/functions/numberBeautifuer.ts.
+/// memberCountManager applies it to the member slot only
+/// (`{ key: "member", count: formatNumber(guild.memberCount) }`):
+/// >=1T/1B/1M/1K collapse to one decimal + suffix, smaller values
+/// render plain.
+pub fn format_mcount_number(num: u64) -> String {
+    let n = num as f64;
+    if n >= 1_000_000_000_000.0 {
+        return format!("{:.1}T", n / 1_000_000_000_000.0);
+    }
+    if n >= 1_000_000_000.0 {
+        return format!("{:.1}B", n / 1_000_000_000.0);
+    }
+    if n >= 1_000_000.0 {
+        return format!("{:.1}M", n / 1_000_000.0);
+    }
+    if n >= 1_000.0 {
+        return format!("{:.1}K", n / 1_000.0);
+    }
+    num.to_string()
+}
+
+/// Fill the first `{...Count}` (capital C) then the first `{...count}`
+/// (lowercase c) placeholder of a template with one slot's count.
+/// Mirrors the per-slot rename in memberCountManager.Refresh exactly:
+/// `name.replace(/{\w+Count}/, count).replace(/{\w+count}/, count)`
+/// (single non-global replace each, generic `\w+` key).
+fn fill_first_count_placeholder(template: &str, capital: bool, value: &str) -> String {
+    let suffix = if capital { "Count}" } else { "count}" };
+    let bytes = template.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'{' {
+            if let Some(end) = template[i..].find('}') {
+                let inner = &template[i + 1..i + end];
+                if inner.len() > suffix.len() - 1
+                    && inner.ends_with(&suffix[..suffix.len() - 1])
+                    && inner[..inner.len() - suffix.len() + 1]
+                        .bytes()
+                        .all(|b| b.is_ascii_alphanumeric() || b == b'_')
+                {
+                    let mut out = String::with_capacity(template.len() + value.len());
+                    out.push_str(&template[..i]);
+                    out.push_str(value);
+                    out.push_str(&template[i + end + 1..]);
+                    return out;
+                }
+            }
+        }
+        i += 1;
+    }
+    template.to_string()
+}
+
+/// Per-slot sweep rename, mirroring memberCountManager.Refresh exactly:
+/// the slot's own count fills the template's first placeholder; the
+/// member slot is beautified with `formatNumber`; the channel slot
+/// reuses the roles count (upstream quirk at memberCountManager.ts:104).
+/// Unknown slots render nothing (TS `mappings` only covers the 7 keys).
+pub fn render_mcount_slot_name(
+    slot: &str,
+    template: &str,
+    counts: &crate::commands::membercount::MemberCounts,
+) -> Option<String> {
+    let value = match slot {
+        "bot" => counts.bot.to_string(),
+        "member" => format_mcount_number(counts.member),
+        "roles" => counts.roles.to_string(),
+        "boost" => counts.boost.to_string(),
+        "channel" => counts.roles.to_string(),
+        "voice" => counts.voice.to_string(),
+        "online" => counts.online.to_string(),
+        _ => return None,
+    };
+    let once = fill_first_count_placeholder(template, true, &value);
+    Some(fill_first_count_placeholder(&once, false, &value))
+}
+
 /// Membercount refresh. Mirrors memberCountManager 5min tick: for each
-/// GUILD.MCOUNT.<slot> config, render all 7 placeholders from live
-/// counts (exact `guild.member_count` preferred over the preview
-/// approximation) and rename the voice channel from its template.
+/// GUILD.MCOUNT.<slot> config, rename the voice channel from its
+/// template with that slot's live count (see [`render_mcount_slot_name`]).
+/// Counts come from [`crate::commands::membercount::membercount::fetch_channel_counts`]
+/// (exact walk preferred over the preview approximation) with voice
+/// occupancy snapshotted from the gateway cache.
 ///
 /// Sources: table-routed `tbl:<gid>` GUILD roots first, legacy flat
 /// `GUILD.MCOUNT.%` rows as fallback (table wins per slot).
-/// Note: TS Refresh renders the channel slot with the roles count
-/// (upstream quirk); the sweep uses the real channel count instead.
 pub async fn sweep_membercount(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
@@ -806,7 +887,7 @@ pub async fn sweep_membercount(
     }
 
     let mut done = 0u64;
-    for ((gid, _slot), cfg) in slots {
+    for ((gid, slot), cfg) in slots {
         let Ok(gid_num) = gid.parse::<u64>() else {
             continue;
         };
@@ -834,7 +915,10 @@ pub async fn sweep_membercount(
                 )
             })
             .unwrap_or(0);
-        let name = crate::commands::membercount::render_name(tpl, &counts);
+        let name = match render_mcount_slot_name(&slot, tpl, &counts) {
+            Some(n) => n,
+            None => continue,
+        };
         if ChannelId::new(ch_num)
             .edit(
                 http,
@@ -901,104 +985,6 @@ pub async fn pfps_guild_configs(
         }
     }
     (channels, disabled)
-}
-
-pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelude::Http>) -> u64 {
-    use poise::serenity_prelude::{
-        ChannelId, CreateActionRow, CreateButton, CreateEmbed, CreateMessage, GuildId,
-    };
-    let (channels, disabled) = pfps_guild_configs(pool).await;
-    let mut done = 0u64;
-    for (gid, ch) in channels {
-        if disabled.contains(&gid) {
-            continue;
-        }
-        let (Ok(gid_num), Ok(ch_num)) = (gid.parse::<u64>(), ch.parse::<u64>()) else {
-            continue;
-        };
-        let code = crate::db::guild_lang(pool, Some(gid_num)).await;
-        let Ok(members) = http
-            .get_guild_members(GuildId::new(gid_num), Some(200), None)
-            .await
-        else {
-            continue;
-        };
-        // Bot filter (mirrors `.filter((user) => !user.user.bot)`).
-        let members: Vec<_> = members.iter().filter(|m| !m.user.bot).collect();
-        if members.is_empty() {
-            continue;
-        }
-        let rand = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos() as usize)
-            .unwrap_or(0);
-        // Anti-repeat: step forward when the pick matches the last one.
-        let last_id = pfps_last().lock().ok().and_then(|m| m.get(&gid).cloned());
-        let last_idx = last_id.as_deref().and_then(|id| {
-            id.parse::<u64>()
-                .ok()
-                .and_then(|n| members.iter().position(|m| m.user.id.get() == n))
-        });
-        let Some(idx) = pick_pfps_index(members.len(), last_idx, rand) else {
-            continue;
-        };
-        let pick = members[idx];
-        if let Ok(mut m) = pfps_last().lock() {
-            m.insert(gid.clone(), pick.user.id.get().to_string());
-        }
-        let username = pick
-            .user
-            .global_name
-            .clone()
-            .unwrap_or_else(|| pick.user.name.clone());
-        let user_url = pick.user.face();
-        let user_title = crate::lang::get(&code, "pfps_embed_user_title")
-            .map(|s| s.replace("{username}", &username))
-            .unwrap_or_else(|| format!("{username}'s **User** avatar"));
-        let guild_title = crate::lang::get(&code, "pfps_embed_guild_title")
-            .map(|s| s.replace("{username}", &username))
-            .unwrap_or_else(|| format!("{username}'s **Guild** avatar"));
-        // Guild-avatar embed (only when the member has one) plus the
-        // always-present user-avatar embed, with one download link
-        // button each. Mirrors the embeds/buttons in SendMessage.
-        let mut embeds = Vec::with_capacity(2);
-        let mut buttons = Vec::with_capacity(2);
-        if let Some(guild_url) = pick.avatar_url() {
-            embeds.push(
-                CreateEmbed::default()
-                    .colour(poise::serenity_prelude::Colour::new(0xa2add0))
-                    .title(guild_title)
-                    .image(guild_url.clone()),
-            );
-            buttons.push(
-                CreateButton::new_link(guild_url).label(
-                    crate::lang::get(&code, "pfps_download_guild_button")
-                        .unwrap_or_else(|| "Download Guild Avatar".to_string()),
-                ),
-            );
-        }
-        embeds.push(
-            CreateEmbed::default()
-                .colour(poise::serenity_prelude::Colour::new(0xa2add0))
-                .title(user_title)
-                .image(user_url.clone())
-                .timestamp(poise::serenity_prelude::Timestamp::now()),
-        );
-        buttons.push(
-            CreateButton::new_link(user_url).label(
-                crate::lang::get(&code, "pfps_download_user_button")
-                    .unwrap_or_else(|| "Download User Avatar".to_string()),
-            ),
-        );
-        let mut msg = CreateMessage::new().embeds(embeds);
-        if !buttons.is_empty() {
-            msg = msg.components(vec![CreateActionRow::Buttons(buttons)]);
-        }
-        if ChannelId::new(ch_num).send_message(http, msg).await.is_ok() {
-            done += 1;
-        }
-    }
-    done
 }
 
 /// Auto-renew sweep. Mirrors autorenewManager 30s tick: at half time
@@ -1069,6 +1055,10 @@ pub async fn sweep_autorenew(
             .strip_prefix("UTILS.renew_channel.")
             .and_then(|s| s.parse::<u64>().ok())
         else {
+            // TS fetches the channel id and deletes the row when the
+            // fetch fails; a non-numeric suffix can never resolve, so
+            // drop the stale row like the TS per-channel catch does.
+            let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
             continue;
         };
         let Ok(gid_num) = gid.parse::<u64>() else {
@@ -1086,6 +1076,10 @@ pub async fn sweep_autorenew(
                 continue;
             };
             let Some(guild_ch) = channel.guild() else {
+                // Not a guild channel: it can never be warned/renewed,
+                // and the TS per-channel catch drops rows that fail to
+                // resolve into a usable guild channel.
+                let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
                 continue;
             };
             let expire_secs = ts.saturating_add(max) / 1000;
@@ -1108,6 +1102,10 @@ pub async fn sweep_autorenew(
             continue;
         };
         let Some(guild_ch) = channel.guild() else {
+            // Same stale-row cleanup as the warning branch: a channel
+            // id that no longer resolves to a guild channel is dropped
+            // like the TS per-channel catch drops unusable rows.
+            let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
             continue;
         };
         // Clone fidelity (mirrors channel.clone({name, parent,
@@ -1116,13 +1114,27 @@ pub async fn sweep_autorenew(
             .kind(guild_ch.kind)
             .nsfw(guild_ch.nsfw)
             .permissions(guild_ch.permission_overwrites.clone())
-            .position(guild_ch.position);
+            .position(guild_ch.position)
+            .audit_log_reason("Channel re-create by Auto-Renew");
         if let Some(parent) = guild_ch.parent_id {
             builder = builder.category(parent);
         }
-        let Ok(new_ch) = GuildId::new(gid_num).create_channel(http, builder).await else {
+        let Ok(mut new_ch) = GuildId::new(gid_num).create_channel(http, builder).await else {
+            // TS wraps the whole per-channel block in try/catch and
+            // deletes the row when the clone (or anything else) throws;
+            // without this the sweep would retry a doomed clone forever.
+            let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
             continue;
         };
+        // Explicit re-position mirrors newChannel.setPosition(rawPosition)
+        // (creation-time position alone does not always land exactly).
+        // Best-effort like every other Discord leg here.
+        let _ = new_ch
+            .edit(
+                http,
+                poise::serenity_prelude::EditChannel::new().position(guild_ch.position),
+            )
+            .await;
         // Keep the system channel pointing at the replacement
         // (mirrors guild.setSystemChannel(newChannel.id)).
         if let Ok(guild) = http.get_guild(GuildId::new(gid_num)).await {
@@ -1336,18 +1348,19 @@ pub async fn record_notified_articles(
 /// Nightmode tick. Mirrors nightModeManager 60s refresh: per-guild
 /// timezone minute window ([startHour, startMinute, endHour,
 /// endMinute]), transitions tracked by UTILS.NIGHT_MODE.last_state so
-/// they run once, owner DM when `notify` is set, @everyone
-/// SEND_MESSAGES toggled on text channels at window edges.
+/// they run once, owner DM when `notify` is set, Administrator stripped
+/// from admin roles at window start (ids kept under
+/// UTILS.NIGHT_MODE.changed_roles) and restored at window end.
 pub async fn sweep_nightmode(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
     cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
-    use poise::serenity_prelude::{
-        ChannelType, PermissionOverwrite, PermissionOverwriteType, Permissions, RoleId,
-    };
+    use poise::serenity_prelude::{EditRole, Permissions, RoleId};
     /// TS state key (UTILS.NIGHT_MODE.last_state, "started" | "ended").
     const LAST_STATE_KEY: &str = "UTILS.NIGHT_MODE.last_state";
+    /// TS changed-roles key (UTILS.NIGHT_MODE.changed_roles, role ids).
+    const CHANGED_ROLES_KEY: &str = "UTILS.NIGHT_MODE.changed_roles";
     let now_secs = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs() as i64)
@@ -1393,45 +1406,132 @@ pub async fn sweep_nightmode(
         if current.as_deref() == Some(want) {
             continue;
         }
-        let channels = http.get_channels(guild_id).await.unwrap_or_default();
-        let everyone = RoleId::new(guild_id.get());
-        for ch in channels.iter().filter(|c| c.kind == ChannelType::Text) {
-            if night {
-                let _ = ch
-                    .id
-                    .create_permission(
-                        http,
-                        PermissionOverwrite {
-                            allow: Permissions::empty(),
-                            deny: Permissions::SEND_MESSAGES,
-                            kind: PermissionOverwriteType::Role(everyone),
-                        },
-                    )
-                    .await;
-            } else {
-                let _ = ch
-                    .id
-                    .delete_permission(http, PermissionOverwriteType::Role(everyone))
-                    .await;
-            }
-        }
-        // Table-first dual-write (keys unchanged).
-        let _ = crate::db::tbl_set(pool, &gid, LAST_STATE_KEY, want).await;
-        // Owner notify (mirrors Notify_Server_Owner on transition).
+        // Identity + roles up front: TS reads them from cache, so a fetch
+        // failure here is the Refresh try/catch path (skip, retry next
+        // tick) rather than a handled transition.
+        let bot_id = match http.get_current_user().await {
+            Ok(u) => u.id,
+            Err(_) => continue,
+        };
+        let roles = match http.get_guild_roles(guild_id).await {
+            Ok(r) => r,
+            Err(_) => continue,
+        };
+        let member_roles = match http.get_member(guild_id, bot_id).await {
+            Ok(m) => m.roles,
+            Err(_) => continue,
+        };
+        let lang_code = crate::db::guild_lang(pool, guild_id.get().into()).await;
+        // Transition embed first (mirrors Refresh: only when `notify`).
         if notify {
-            let code = crate::db::guild_lang(pool, guild_id.get().into()).await;
-            notify_nightmode_owner(
-                http,
-                guild_id,
-                &code,
-                night,
-                &format!(
-                    "{:02}:{:02}-{:02}:{:02}",
-                    time[0], time[1], time[2], time[3]
-                ),
-                utc,
+            notify_nightmode_owner(http, guild_id, &lang_code, night, &time, utc).await;
+        }
+        // TS sets last_state at the top of Remove/Add_All_PA, before the
+        // hierarchy check, so a handled window never re-fires.
+        let _ = crate::db::tbl_set(pool, &gid, LAST_STATE_KEY, want).await;
+        // Basics_Check: bot integration role present, on top, holding
+        // Administrator (`is_admin` counts every member role + @everyone,
+        // like members.me.permissions).
+        let bot_role = roles.iter().find(|r| r.tags.bot_id == Some(bot_id));
+        let highest = roles.iter().map(|r| r.position).max().unwrap_or(0);
+        let everyone = RoleId::new(guild_id.get());
+        let is_admin = member_roles
+            .iter()
+            .chain(std::iter::once(&everyone))
+            .any(|rid| {
+                roles
+                    .iter()
+                    .any(|r| &r.id == rid && r.permissions.administrator())
+            });
+        let im_on_top = bot_role.map(|r| r.position == highest).unwrap_or(false);
+        let im_self_admin = bot_role
+            .map(|r| r.permissions.administrator())
+            .unwrap_or(false);
+        if !im_self_admin || !im_on_top || !is_admin {
+            warn_nightmode_owner(http, guild_id, &lang_code, night, im_on_top, im_self_admin)
+                .await;
+            done += 1;
+            continue;
+        }
+        if night {
+            // Remove_All_PA: strip Administrator from every admin role
+            // except the bot integration role. With `derankBot` set (and a
+            // `wlBots` list present, even empty) managed roles outside the
+            // whitelist go too — the TS leg compares role ids against the
+            // whitelist, kept verbatim.
+            let wl: Vec<String> = cfg
+                .get("wlBots")
+                .and_then(|v| v.as_array())
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|n| n.as_str().map(str::to_string))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let has_wl = cfg.get("wlBots").and_then(|v| v.as_array()).is_some();
+            let derank = cfg
+                .get("derankBot")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let bot_role_id = bot_role.map(|r| r.id);
+            let mut stripped: Vec<(String, String)> = Vec::new();
+            for role in roles.iter().filter(|r| r.permissions.administrator()) {
+                if Some(role.id) == bot_role_id {
+                    continue;
+                }
+                if derank
+                    && has_wl
+                    && role.managed
+                    && !wl.iter().any(|w| w == &role.id.get().to_string())
+                {
+                    continue;
+                }
+                let mut perms = role.permissions;
+                perms.remove(Permissions::ADMINISTRATOR);
+                if http
+                    .edit_role(guild_id, role.id, &EditRole::new().permissions(perms), None)
+                    .await
+                    .is_ok()
+                {
+                    stripped.push((role.id.get().to_string(), role.name.clone()));
+                }
+            }
+            let ids: Vec<&str> = stripped.iter().map(|(id, _)| id.as_str()).collect();
+            let _ = crate::db::tbl_set(
+                pool,
+                &gid,
+                CHANGED_ROLES_KEY,
+                &serde_json::to_string(&ids).unwrap_or_else(|_| "[]".to_string()),
             )
             .await;
+            // Trailing results DM (mirrors the Notify_Server_Owner msg leg).
+            let names: Vec<&str> = stripped.iter().map(|(_, n)| n.as_str()).collect();
+            nightmode_results_dm(http, guild_id, &lang_code, true, &names).await;
+        } else {
+            // Add_All_PA: restore Administrator to the stored roles, then
+            // drop the key (a missing key restores nothing, like the TS).
+            let stored: Vec<String> = crate::db::tbl_get(pool, &gid, CHANGED_ROLES_KEY)
+                .await
+                .and_then(|s| serde_json::from_str(&s).ok())
+                .unwrap_or_default();
+            let live = http.get_guild_roles(guild_id).await.unwrap_or_default();
+            let mut restored: Vec<String> = Vec::new();
+            for id in &stored {
+                if let Some(role) = live.iter().find(|r| &r.id.get().to_string() == id) {
+                    let mut perms = role.permissions;
+                    perms.insert(Permissions::ADMINISTRATOR);
+                    if http
+                        .edit_role(guild_id, role.id, &EditRole::new().permissions(perms), None)
+                        .await
+                        .is_ok()
+                    {
+                        restored.push(role.name.clone());
+                    }
+                }
+            }
+            let _ = crate::db::tbl_del(pool, &gid, CHANGED_ROLES_KEY).await;
+            let names: Vec<&str> = restored.iter().map(|n| n.as_str()).collect();
+            nightmode_results_dm(http, guild_id, &lang_code, false, &names).await;
         }
         done += 1;
     }
@@ -1439,20 +1539,20 @@ pub async fn sweep_nightmode(
 }
 
 /// Owner DM on a nightmode transition. Mirrors Notify_Server_Owner
-/// (title + type line + time-range field). Best-effort.
+/// (title + type line + time-range field, green embed like the TS
+/// `notify ? 0x00ff00` leg — this call only happens when notify is
+/// set). Best-effort.
 async fn notify_nightmode_owner(
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
     guild_id: poise::serenity_prelude::GuildId,
     code: &str,
     started: bool,
-    range: &str,
+    time: &[i64],
     utc: i64,
 ) {
     use poise::serenity_prelude::{CreateEmbed, CreateMessage};
-    let guild = match http.get_guild(guild_id).await {
-        Ok(g) => g,
-        Err(_) => return,
-    };
+    let range = nm_time_label(time);
+    let zone = nm_zone_label(utc);
     let type_word = crate::lang::get(
         code,
         if started {
@@ -1476,17 +1576,135 @@ async fn notify_nightmode_owner(
         .unwrap_or_else(|| "Time Range".to_string());
     let tz_word = crate::lang::get(code, "nightmode_utc_timezone_on")
         .unwrap_or_else(|| "UTC timezone on".to_string());
-    let embed = CreateEmbed::default().title(title).description(desc).field(
-        field_name,
-        format!("{range} ({tz_word} UTC{utc:+})"),
-        true,
-    );
+    let embed = CreateEmbed::default()
+        .title(title)
+        .description(desc)
+        .colour(0x00FF00)
+        .field(field_name, format!("{range} ({tz_word} {zone})"), true);
+    nightmode_dm(http, guild_id, CreateMessage::new().embed(embed)).await;
+}
+
+/// `start24 - end24 (start12 - end12)` label over a TS time blob.
+/// Mirrors time_beautifuer; missing slots read as 0.
+fn nm_time_label(time: &[i64]) -> String {
+    let slot = |i: usize| {
+        let max = if i % 2 == 0 { 23 } else { 59 };
+        time.get(i).copied().unwrap_or(0).clamp(0, max) as u8
+    };
+    crate::commands::newfeatures::nightmode::time_beautifuer([slot(0), slot(1), slot(2), slot(3)])
+}
+
+/// IANA zone for a UTC offset, `UTC±n` fallback. Mirrors the
+/// Notify_Server_Owner field (`utcTimezones[utc]`); the TS prints
+/// `undefined` for the missing +8 slot, the fallback label instead.
+fn nm_zone_label(utc: i64) -> String {
+    utc.try_into()
+        .ok()
+        .and_then(crate::commands::newfeatures::nightmode::utc_timezone_name)
+        .map(str::to_string)
+        .unwrap_or_else(|| format!("UTC{utc:+}"))
+}
+
+/// Owner DM helper. Mirrors the `fetchOwner().user.send().catch(()=>{})`
+/// legs: best-effort, never fails the tick.
+async fn nightmode_dm(
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: poise::serenity_prelude::GuildId,
+    msg: poise::serenity_prelude::CreateMessage,
+) {
+    let Ok(guild) = http.get_guild(guild_id).await else {
+        return;
+    };
     let Ok(dm) = guild.owner_id.create_dm_channel(http).await else {
         return;
     };
-    let _ = dm
-        .send_message(http, CreateMessage::new().embed(embed))
-        .await;
+    let _ = dm.send_message(http, msg).await;
+}
+
+/// Hierarchy-failure DM. Mirrors warn_owner: `var_nm_error_occured`
+/// with the running/stopping word, plus the not-high / not-admin legs.
+async fn warn_nightmode_owner(
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: poise::serenity_prelude::GuildId,
+    code: &str,
+    started: bool,
+    im_on_top: bool,
+    im_self_admin: bool,
+) {
+    use poise::serenity_prelude::CreateMessage;
+    let type_word = crate::lang::get(
+        code,
+        if started {
+            "var_nm_running"
+        } else {
+            "var_nm_stopping"
+        },
+    )
+    .unwrap_or_else(|| {
+        if started {
+            "running".to_string()
+        } else {
+            "stopping".to_string()
+        }
+    });
+    let mut warn_msg = crate::lang::get(code, "var_nm_error_occured")
+        .map(|s| s.replace("${type}", &type_word))
+        .unwrap_or_else(|| format!("Nightmode {type_word} error"));
+    let icon = crate::emojis::app_emoji_markup(http, "Warning_Icon")
+        .await
+        .unwrap_or_else(|| "⚠️".to_string());
+    if !im_on_top {
+        warn_msg += &crate::lang::get(code, "var_nm_role_app_not_high")
+            .map(|s| s.replace("${client.iHorizon_Emojis.Warning_Icon}", &icon))
+            .unwrap_or_default();
+    }
+    if !im_self_admin {
+        warn_msg += &crate::lang::get(code, "var_nm_role_app_not_admin")
+            .map(|s| s.replace("${client.iHorizon_Emojis.Warning_Icon}", &icon))
+            .unwrap_or_default();
+    }
+    nightmode_dm(http, guild_id, CreateMessage::new().content(warn_msg)).await;
+}
+
+/// Results DM after a strip/restore. Mirrors the trailing
+/// Notify_Server_Owner `msg` leg (`var_nm_start/end_main` plus the
+/// `@role` list). Sent even when `notify` is off, like the TS.
+async fn nightmode_results_dm(
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: poise::serenity_prelude::GuildId,
+    code: &str,
+    started: bool,
+    role_names: &[&str],
+) {
+    use poise::serenity_prelude::CreateMessage;
+    let mut msg = crate::lang::get(
+        code,
+        if started {
+            "var_nm_start_main"
+        } else {
+            "var_nm_end_main"
+        },
+    )
+    .unwrap_or_else(|| {
+        if started {
+            "Night mode started".to_string()
+        } else {
+            "Night mode ended".to_string()
+        }
+    });
+    if !role_names.is_empty() {
+        msg += &crate::lang::get(code, "var_nm_edited_roles")
+            .unwrap_or_else(|| "Edited roles:".to_string());
+        msg += &format!(
+            "\n>>> {}",
+            role_names
+                .iter()
+                .map(|n| format!("@{n}"))
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
+    }
+    nightmode_dm(http, guild_id, CreateMessage::new().content(msg)).await;
 }
 
 /// Protection structure backup. Mirrors backupGuildStructure in
@@ -2326,18 +2544,9 @@ pub fn spawn(
         });
     }
 
-    // PFPS poster (real, mirrors 45s manager tick).
-    {
-        let pool = pool.clone();
-        let http = http.clone();
-        tokio::spawn(async move {
-            let mut t = tokio::time::interval(Duration::from_secs(45));
-            loop {
-                t.tick().await;
-                sweep_pfps(&pool, &http).await;
-            }
-        });
-    }
+    // PFPS poster lives in events_handler ready() (`pfps_refresh_tick`,
+    // same 45s cadence) — a second spawn here would double-post, so no
+    // scheduler leg (TS has a single PfpsManager_Init interval).
 
     // Auto-renew sweep (real, mirrors 30s manager tick).
     {
@@ -3467,6 +3676,24 @@ mod tests {
         crate::db::memory_pool().await
     }
 
+    #[test]
+    fn nightmode_labels_match_ts() {
+        // time_beautifuer([22,30,6,15]) shape over a TS time blob.
+        assert_eq!(
+            nm_time_label(&[22, 30, 6, 15]),
+            "22:30 - 06:15 (10:30PM - 6:15AM)"
+        );
+        assert_eq!(
+            nm_time_label(&[21, 0, 9, 0]),
+            "21:00 - 09:00 (9:00PM - 9:00AM)"
+        );
+        // IANA zone per offset, UTC±n fallback (TS prints undefined for
+        // the missing +8 slot).
+        assert_eq!(nm_zone_label(1), "Europe/Paris");
+        assert_eq!(nm_zone_label(-5), "America/New_York");
+        assert_eq!(nm_zone_label(8), "UTC+8");
+    }
+
     #[tokio::test]
     async fn sweep_removes_only_expired() {
         let p = pool().await;
@@ -4177,6 +4404,56 @@ mod tests {
     }
 
     #[test]
+    fn mcount_number_beautifies_like_ts_format_number() {
+        assert_eq!(format_mcount_number(0), "0");
+        assert_eq!(format_mcount_number(999), "999");
+        assert_eq!(format_mcount_number(1000), "1.0K");
+        assert_eq!(format_mcount_number(1500), "1.5K");
+        assert_eq!(format_mcount_number(2_500_000), "2.5M");
+        assert_eq!(format_mcount_number(3_000_000_000), "3.0B");
+        assert_eq!(format_mcount_number(4_000_000_000_000), "4.0T");
+    }
+
+    #[test]
+    fn mcount_sweep_rename_matches_ts_refresh_per_slot() {
+        use crate::commands::membercount::MemberCounts;
+        let counts = MemberCounts {
+            member: 1500,
+            roles: 10,
+            channel: 20,
+            boost: 3,
+            bot: 5,
+            voice: 7,
+            online: 42,
+        };
+        // Member slot is beautified; first placeholder only.
+        assert_eq!(
+            render_mcount_slot_name("member", "Members: {MemberCount}", &counts),
+            Some("Members: 1.5K".to_string())
+        );
+        // Channel slot reuses the roles count (TS quirk).
+        assert_eq!(
+            render_mcount_slot_name("channel", "Channels: {ChannelCount}", &counts),
+            Some("Channels: 10".to_string())
+        );
+        // Generic first-`{...Count}` wins, like the TS regex.
+        assert_eq!(
+            render_mcount_slot_name("bot", "{MemberCount} / {BotCount}", &counts),
+            Some("5 / {BotCount}".to_string())
+        );
+        // Only one replacement per pass.
+        assert_eq!(
+            render_mcount_slot_name("online", "{OnlineCount} + {OnlineCount}", &counts),
+            Some("42 + {OnlineCount}".to_string())
+        );
+        // Unknown slots are skipped (TS mappings covers 7 keys).
+        assert_eq!(
+            render_mcount_slot_name("nope", "x {MemberCount}", &counts),
+            None
+        );
+    }
+
+    #[test]
     fn autorenew_half_window_matches_ts() {
         // ts=0, max=60_000 -> half at 30_000, window +/-15s.
         assert!(autorenew_half_window(0, 60_000, 30_000));
@@ -4187,6 +4464,13 @@ mod tests {
         assert!(!autorenew_half_window(0, 60_000, 60_000));
         assert!(autorenew_expired(0, 60_000, 60_000));
         assert!(!autorenew_expired(0, 60_000, 59_999));
+        // Odd maxTime: TS halves in float (half = 30000.5), so the
+        // integer-exact window is elapsed in 15001..=45000.
+        assert!(autorenew_half_window(0, 60_001, 30_000));
+        assert!(autorenew_half_window(0, 60_001, 15_001));
+        assert!(autorenew_half_window(0, 60_001, 45_000));
+        assert!(!autorenew_half_window(0, 60_001, 15_000));
+        assert!(!autorenew_half_window(0, 60_001, 45_001));
     }
 
     #[test]

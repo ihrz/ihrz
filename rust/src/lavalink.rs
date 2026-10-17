@@ -574,8 +574,12 @@ pub fn normalize_play_queries(queries: &[String]) -> Vec<String> {
 /// True when the query already carries a `source:` search prefix
 /// (lavalink-client `transformQuery` extracts these before routing, so
 /// they pass through instead of stacking a second prefix).
+/// JS-trimmed, not Rust-trimmed: U+0085 NEL survives `String.trim`
+/// but not `str::trim` (same W6 slice 163 class as
+/// `normalize_play_queries`), so a NEL-padded query must route bare
+/// on both sides.
 fn has_search_prefix(query: &str) -> bool {
-    let q = query.trim();
+    let q = crate::funcs::js_trim(query);
     let Some(colon) = q.find(':') else {
         return false;
     };
@@ -1486,6 +1490,13 @@ pub struct IdleDestroyTarget {
 /// voice-state + voice-server events feed `note_voice_state` /
 /// `note_voice_server` below (hook these in the serenity
 /// voice_state_update / voice_server_update handlers).
+///
+/// Flag shape mirrors lavalink-client exactly (verified against the
+/// bundled dist): `connect()` sends `self_mute: selfMute ?? false,
+/// self_deaf: selfDeaf ?? true` (the TS player is created with
+/// `selfDeaf: true, selfMute: false`), while `disconnect()` — the
+/// leave leg every destroy path funnels through — sends
+/// `channel_id: null, self_mute: false, self_deaf: false`.
 pub fn voice_state_update_op(guild_id: u64, channel_id: Option<u64>) -> serde_json::Value {
     serde_json::json!({
         "op": 4,
@@ -1493,7 +1504,7 @@ pub fn voice_state_update_op(guild_id: u64, channel_id: Option<u64>) -> serde_js
             "guild_id": guild_id.to_string(),
             "channel_id": channel_id.map(|c| c.to_string()),
             "self_mute": false,
-            "self_deaf": true,
+            "self_deaf": channel_id.is_some(),
         }
     })
 }
@@ -3541,7 +3552,7 @@ impl LavalinkManager {
     /// Already-prefixed queries (`ytsearch:…`, …) carry a `source:`
     /// prefix and pass through instead of stacking a second one.
     pub fn search_identifier(query: &str) -> String {
-        let q = query.trim();
+        let q = crate::funcs::js_trim(query);
         if has_search_prefix(q) {
             q.to_string()
         } else {
@@ -5176,8 +5187,15 @@ mod tests {
         assert_eq!(join["op"], 4);
         assert_eq!(join["d"]["guild_id"], "123");
         assert_eq!(join["d"]["channel_id"], "456");
+        // connect() leg: selfDeaf:true/selfMute:false creation options.
+        assert_eq!(join["d"]["self_mute"], false);
+        assert_eq!(join["d"]["self_deaf"], true);
         let leave = voice_state_update_op(123, None);
         assert!(leave["d"]["channel_id"].is_null());
+        // disconnect() leg: channel_id:null + self_mute:false +
+        // self_deaf:false (every destroy path funnels through it).
+        assert_eq!(leave["d"]["self_mute"], false);
+        assert_eq!(leave["d"]["self_deaf"], false);
     }
 
     #[test]

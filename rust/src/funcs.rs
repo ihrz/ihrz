@@ -527,8 +527,7 @@ fn pct_userinfo_valid(s: &str) -> bool {
     let mut out: Vec<u8> = Vec::with_capacity(b.len());
     while i < b.len() {
         if b[i] == b'%' {
-            if i + 2 >= b.len() || !b[i + 1].is_ascii_hexdigit() || !b[i + 2].is_ascii_hexdigit()
-            {
+            if i + 2 >= b.len() || !b[i + 1].is_ascii_hexdigit() || !b[i + 2].is_ascii_hexdigit() {
                 return false;
             }
             let v = (b[i + 1] as char).to_digit(16).unwrap() * 16
@@ -5385,9 +5384,10 @@ pub fn adjust_image_quality(path: &std::path::Path) -> anyhow::Result<()> {
         // TS has no extension gate (Jimp re-encodes whatever is on disk;
         // quality only bites on JPEG content). Case-insensitive so `F.JPG`
         // shrinks like TS instead of stalling oversized.
-        let is_jpeg = path.extension().and_then(|e| e.to_str()).is_some_and(|e| {
-            e.eq_ignore_ascii_case("jpg") || e.eq_ignore_ascii_case("jpeg")
-        });
+        let is_jpeg = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .is_some_and(|e| e.eq_ignore_ascii_case("jpg") || e.eq_ignore_ascii_case("jpeg"));
         if !is_jpeg {
             break;
         }
@@ -5961,11 +5961,12 @@ pub fn decode_png_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
 /// shape — the PNG-only path above silently dropped every JPEG
 /// artwork (all YouTube thumbnails) to the `#6fa8dc` fallback.
 /// Images larger than 300px are downscaled to fit 300x300 first
-/// (TS `scaleToFit`), so the bucket scan runs on the same sample set.
+/// (TS `scaleToFit` preserves aspect ratio, so `thumbnail` — not
+/// `resize`, which would stretch non-square art — is the exact leg).
 pub fn decode_image_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
     let img = image::load_from_memory(bytes)?;
     let img = if img.width() > 300 || img.height() > 300 {
-        img.resize(300, 300, image::imageops::FilterType::Triangle)
+        img.thumbnail(300, 300)
     } else {
         img
     };

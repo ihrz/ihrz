@@ -636,11 +636,32 @@ mod tests {
             assert!(is_number(s), "{s:?} must be numeric");
         }
         for s in [
-            "-0x10", "0b2", "0o9", "infinity", "inf", "NaN", "nan", "", "   ", "12abc", "0b", "0x",
-            "1_2", "--5", "0x1g", "1e", "e5", "-", ".", "+", "0d5",
+            "-0x10",
+            "0b2",
+            "0o9",
+            "infinity",
+            "inf",
+            "NaN",
+            "nan",
+            "",
+            "   ",
+            "12abc",
+            "0b",
+            "0x",
+            "1_2",
+            "--5",
+            "0x1g",
+            "1e",
+            "e5",
+            "-",
+            ".",
+            "+",
+            "0d5",
             // U+0085 NEL is NOT JS whitespace (node: "\u{85}123" is NaN):
             // Rust `trim` strips it, js_trim keeps it -> false.
-            "\u{85}123", "123\u{85}", "\u{85}",
+            "\u{85}123",
+            "123\u{85}",
+            "\u{85}",
         ] {
             assert!(!is_number(s), "{s:?} must NOT be numeric");
         }
@@ -717,7 +738,10 @@ mod tests {
             resolve_user(None, &men, &members(), 0).as_deref(),
             Some("AAA")
         );
-        assert_eq!(resolve_user(None, &men, &members(), 1).as_deref(), Some("BBB"));
+        assert_eq!(
+            resolve_user(None, &men, &members(), 1).as_deref(),
+            Some("BBB")
+        );
         assert_eq!(resolve_user(None, &men, &members(), 2), None);
         assert_eq!(resolve_user(None, &[], &members(), 0), None);
         let chs = vec![Entry::new("10", "general")];

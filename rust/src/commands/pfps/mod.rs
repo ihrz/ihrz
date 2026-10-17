@@ -170,17 +170,51 @@ pub async fn pfps_refresh_tick(
                     .image(full),
             );
         }
-        // User avatar leg (always posted).
-        let animated = pick.user.avatar.map(|h| h.is_animated()).unwrap_or(false);
-        let ext = if animated { "gif" } else { "png" };
-        let uface = pick.user.face().replace(".webp", &format!(".{ext}"));
-        let ufull = format!("{uface}?size=4096");
+        // User avatar leg (always posted). Built from hash parts like
+        // the guild leg: face() already carries `?size=1024`, so a
+        // replace + append would emit a double-query URL
+        // (`...png?size=1024?size=4096`). TS displayAvatarURL emits
+        // a single `?size=4096`.
+        let ufull = match pick.user.avatar.as_ref().map(|h| h.to_string()) {
+            Some(ahash) => {
+                let ext = if ahash.starts_with("a_") {
+                    "gif"
+                } else {
+                    "png"
+                };
+                format!(
+                    "https://cdn.discordapp.com/avatars/{}/{ahash}.{ext}?size=4096",
+                    pick.user.id.get()
+                )
+            }
+            // No custom avatar: default embed avatar (TS
+            // displayAvatarURL falls back to it with no size leg).
+            None => pick.user.face(),
+        };
         buttons.push(
             poise::serenity_prelude::CreateButton::new_link(ufull.clone())
                 .label(t("pfps_download_user_button", "Download User Avatar")),
         );
-        let (footer_name, footer_icon) =
-            crate::commands::shared::footer_parts_pool(pool, &gs).await;
+        // Footer (mirrors footerBuilder + footerAttachmentBuilder /
+        // displayBotPP: stored BOT.botPFP base64 wins, else the live
+        // bot avatar). Cache-local current user, like TS
+        // `client.user.displayAvatarURL`: zero extra REST per guild
+        // per tick. A failed download degrades to a text-only footer
+        // (no orphan attachment).
+        let (footer_name, footer_icon) = {
+            let (name, stored) = crate::commands::shared::footer_parts_pool(pool, &gs).await;
+            if stored.is_some() {
+                (name, stored)
+            } else {
+                let face = cache.current_user().face();
+                (
+                    name,
+                    crate::commands::shared::download_bytes(&face)
+                        .await
+                        .filter(|b| !b.is_empty()),
+                )
+            }
+        };
         let user_embed = crate::commands::shared::embed_with_footer(
             poise::serenity_prelude::CreateEmbed::new()
                 .color(0xa2add0_u32)
