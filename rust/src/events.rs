@@ -1064,11 +1064,27 @@ pub fn channel_perm_diff(
 /// Line diff for edited-message logs. Mirrors getDetailedDiff in
 /// Events/logs/messageUpdateLogs.ts (30-char window around the
 /// first difference, ```diff fenced).
+///
+/// TS counts `.length` / indexes `line[i]` / slices `substring` in
+/// UTF-16 code units, so the diff index and the truncation window
+/// are computed on the UTF-16 encoding here too (astral characters
+/// count 2). ONE DELTA (doc-noted): `substring` can split a
+/// surrogate pair and keep a lone half; Rust strings cannot hold
+/// lone surrogates, so window edges landing mid-pair snap to the
+/// nearest whole character (start back, end forward).
 pub fn message_diff(old_text: &str, new_text: &str) -> String {
     const MAX_LINE: usize = 30;
-    fn diff_index(a: &str, b: &str) -> usize {
-        let a: Vec<char> = a.chars().collect();
-        let b: Vec<char> = b.chars().collect();
+    const HALF: usize = MAX_LINE / 2;
+    fn is_lead(u: u16) -> bool {
+        (0xD800..0xDC00).contains(&u)
+    }
+    fn is_trail(u: u16) -> bool {
+        (0xDC00..0xE000).contains(&u)
+    }
+    fn mid_pair(units: &[u16], idx: usize) -> bool {
+        idx > 0 && idx < units.len() && is_lead(units[idx - 1]) && is_trail(units[idx])
+    }
+    fn diff_index(a: &[u16], b: &[u16]) -> usize {
         for i in 0..a.len().min(b.len()) {
             if a[i] != b[i] {
                 return i;
@@ -1077,10 +1093,17 @@ pub fn message_diff(old_text: &str, new_text: &str) -> String {
         a.len().max(b.len())
     }
     fn trunc(line: &str, idx: usize) -> String {
-        let chars: Vec<char> = line.chars().collect();
-        let start = idx.saturating_sub(MAX_LINE / 2);
-        let end = (start + MAX_LINE).min(chars.len());
-        chars[start..end].iter().collect()
+        let units: Vec<u16> = line.encode_utf16().collect();
+        let mut start = idx.saturating_sub(HALF);
+        let mut end = (start + MAX_LINE).min(units.len());
+        if start < end && mid_pair(&units, start) {
+            start -= 1;
+        }
+        if end < units.len() && mid_pair(&units, end) {
+            end += 1;
+        }
+        String::from_utf16(&units[start..end])
+            .unwrap_or_else(|_| String::from_utf16_lossy(&units[start..end]))
     }
     let old_lines: Vec<&str> = old_text.trim().split('\n').collect();
     let new_lines: Vec<&str> = new_text.trim().split('\n').collect();
@@ -1089,15 +1112,19 @@ pub fn message_diff(old_text: &str, new_text: &str) -> String {
         let o = old_lines.get(i).copied().unwrap_or("");
         let n = new_lines.get(i).copied().unwrap_or("");
         let (to, tn) = (
-            // TS compares `.length` (UTF-16 units); byte len would
-            // over-truncate astral-heavy lines.
+            // TS compares `.length` (UTF-16 units); byte/char len
+            // would over-truncate astral-heavy lines.
             if o.encode_utf16().count() > MAX_LINE {
-                trunc(o, diff_index(o, n))
+                let (ou, nu): (Vec<u16>, Vec<u16>) =
+                    (o.encode_utf16().collect(), n.encode_utf16().collect());
+                trunc(o, diff_index(&ou, &nu))
             } else {
                 o.to_string()
             },
             if n.encode_utf16().count() > MAX_LINE {
-                trunc(n, diff_index(o, n))
+                let (ou, nu): (Vec<u16>, Vec<u16>) =
+                    (o.encode_utf16().collect(), n.encode_utf16().collect());
+                trunc(n, diff_index(&ou, &nu))
             } else {
                 n.to_string()
             },
@@ -2674,6 +2701,82 @@ mod tests {
         let d2 = message_diff(&long_old, &long_new);
         assert!(d2.contains("- "));
         assert!(d2.contains("+ "));
+    }
+
+    /// W7 slice 44 battery: `message_diff` must match
+    /// getDetailedDiff verbatim (UTF-16 units for the diff index
+    /// and the 30-unit window). Vectors from node script at
+    /// scratch `slice-w7s44-messagediff.cjs` (green).
+    #[test]
+    fn message_diff_utf16_matches_ts_battery() {
+        // identical -> empty body
+        assert_eq!(message_diff("same", "same"), "```diff\n\n```");
+        assert_eq!(message_diff("", ""), "```diff\n\n```");
+        // multiline add/remove
+        assert_eq!(
+            message_diff("l1\nl2\nl3", "l1\nlX\nl3\nl4"),
+            "```diff\n- l2\n+ lX\n+ l4\n```"
+        );
+        // long lines, diff at end: 30-unit window ending at the line end
+        assert_eq!(
+            message_diff(&"a".repeat(50), &("a".repeat(49) + "b")),
+            "```diff\n- aaaaaaaaaaaaaaaa\n+ aaaaaaaaaaaaaaab\n```"
+        );
+        // long lines, diff at start
+        assert_eq!(
+            message_diff(
+                &("b".to_owned() + &"a".repeat(50)),
+                &("c".to_owned() + &"a".repeat(50))
+            ),
+            "```diff\n- baaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n+ caaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```"
+        );
+        // exactly 30 units: no truncation (strict `> 30`)
+        assert_eq!(
+            message_diff(&"x".repeat(30), &("x".repeat(29) + "y")),
+            "```diff\n- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxy\n```"
+        );
+        // 31 units: truncation kicks in, diff at unit 30
+        assert_eq!(
+            message_diff(&"x".repeat(31), &("x".repeat(30) + "y")),
+            "```diff\n- xxxxxxxxxxxxxxxx\n+ xxxxxxxxxxxxxxxy\n```"
+        );
+        // short-vs-long: diff index past the short line end, window
+        // shows the tail of the long line
+        assert_eq!(
+            message_diff("short", "short and much longer than thirty characters here"),
+            "```diff\n- short\n+ characters here\n```"
+        );
+        // astral: 20 emoji = 40 units; diff at unit 39 (trail
+        // surrogate), window units 24..40 = 8 emoji. The old
+        // chars()-based code rendered 16 emoji here.
+        assert_eq!(
+            message_diff(&"😀".repeat(20), &("😀".repeat(19) + "😁")),
+            "```diff\n- 😀😀😀😀😀😀😀😀\n+ 😀😀😀😀😀😀😀😁\n```"
+        );
+        // astral mid-line: diff at unit 32, window units 18..34
+        assert_eq!(
+            message_diff(
+                &("a".repeat(10) + &"😀".repeat(12)),
+                &("a".repeat(10) + &"😀".repeat(11) + "😁")
+            ),
+            "```diff\n- 😀😀😀😀😀😀😀😀\n+ 😀😀😀😀😀😀😀😁\n```"
+        );
+        // diff inside a surrogate pair: TS compares the trail unit
+        // (index 2); window units 0..30 = marker + 26 x's, NOT the
+        // 30 chars the old code rendered (marker + 27 x's).
+        assert_eq!(
+            message_diff(
+                &("a😀b".to_owned() + &"x".repeat(40)),
+                &("a😁b".to_owned() + &"x".repeat(40))
+            ),
+            "```diff\n- a😀bxxxxxxxxxxxxxxxxxxxxxxxxxx\n+ a😁bxxxxxxxxxxxxxxxxxxxxxxxxxx\n```"
+        );
+        // whitespace-only trims to empty; padded trims then diffs
+        assert_eq!(message_diff("   ", "hi"), "```diff\n+ hi\n```");
+        assert_eq!(
+            message_diff("  padded  ", "  padded x  "),
+            "```diff\n- padded\n+ padded x\n```"
+        );
     }
 
     #[tokio::test]
