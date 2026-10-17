@@ -12631,6 +12631,35 @@ mod restore_tests {
     }
 
     #[test]
+    fn guild_webhook_avoids_match_ts_battery() {
+        // Mirrors scratch/slice-w7s39-guildwebhook.cjs 1:1 (U-ETERNAL-404):
+        // avoidGuildEdit.ts + avoidWebhookModifying.ts punish OUTSIDE
+        // their mode arms (brace-verified: `const isOwner` sits at the
+        // same 3-tab level as the if/else-if in both files), so BOTH
+        // modes sanction — no dead rule, same as the role legs.
+        // Dispatch is byte-identical in both files, so one closure pins
+        // guild-update and webhook-create alike (battery sections G + W).
+        let verdict = |mode: &str, listed: bool, guild_owner: bool, owner_row: bool| {
+            let exec = 9u64;
+            let owner = if guild_owner { Some(9u64) } else { Some(1u64) };
+            protection_mode_sanctions(mode, listed, exec, owner) && !owner_row
+        };
+        assert!(verdict("allowlist", false, false, false));
+        assert!(!verdict("allowlist", true, false, false));
+        assert!(verdict("allowlist", false, true, false));
+        assert!(!verdict("allowlist", false, false, true));
+        assert!(verdict("nobody", false, false, false));
+        assert!(!verdict("nobody", false, true, false));
+        assert!(!verdict("nobody", false, false, true));
+        assert!(!verdict("member", false, false, false));
+        assert!(!verdict("", false, false, false));
+        // Webhook delete filter (battery section D): only the audit
+        // target id is removed (`webhook.id === relevantLog.targetId`),
+        // never the channel's other webhooks — mirrored at the live
+        // site via `Some(h.id.get()) == hit.entry_target`.
+    }
+
+    #[test]
     fn snipe_avatar_falls_back_to_default_url() {
         // TS displayAvatarURL() never yields "": users without a custom
         // avatar get the default-avatar URL (new system: (id >> 22) % 6).
