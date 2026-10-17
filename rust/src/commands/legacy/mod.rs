@@ -81,6 +81,22 @@ pub fn is_greeting_word(text: &str) -> bool {
     !first.is_empty() && REACT_GREETINGS.contains(&first.as_str())
 }
 
+/// First `GUILD.REACT_MSG.*` key whose trigger suffix is a non-empty
+/// substring of the already-lowered message content. Mirrors the
+/// `Object.keys(customReacts).find((r) => lowered.includes(r))` leg in
+/// guildconfig/reactToMessage.ts: first hit in iteration order wins, and
+/// the raw key is matched un-lowered (so a stored uppercase key never
+/// hits lowered content). Empty suffixes are skipped here while TS
+/// `includes("")` always hits; the writer rejects blank messages
+/// (`!message?.trim()` in @add-react.ts), so that leg is manual-DB-only.
+pub fn reactmsg_first_trigger<'a>(keys: &'a [String], lowered: &str) -> Option<&'a str> {
+    keys.iter().find_map(|key| {
+        key.strip_prefix("GUILD.REACT_MSG.")
+            .filter(|trigger| !trigger.is_empty() && lowered.contains(*trigger))
+            .map(|_| key.as_str())
+    })
+}
+
 /// Parse a stored react emoji into a ReactionType (id, custom
 /// markup, or unicode). Mirrors the emoji values accepted by
 /// @add-react.ts (isSingleEmoji / isDiscordEmoji).
@@ -1837,6 +1853,55 @@ mod tests {
             parse_react_emoji("<:wave:123>"),
             serenity::ReactionType::Custom { .. }
         ));
+    }
+
+    #[test]
+    fn reactmsg_trigger_and_greeting_match_ts_battery() {
+        // Node battery (`slice-w7s6-reactmsg.js`): trigger `find` +
+        // first-word greeting legs of reactToMessage.ts replicated verbatim.
+        let keys = |names: &[&str]| {
+            names
+                .iter()
+                .map(|n| format!("GUILD.REACT_MSG.{n}"))
+                .collect::<Vec<_>>()
+        };
+        // First hit in iteration order wins.
+        assert_eq!(
+            reactmsg_first_trigger(&keys(&["hello", "hell"]), "well hello there"),
+            Some("GUILD.REACT_MSG.hello")
+        );
+        assert_eq!(
+            reactmsg_first_trigger(&keys(&["hell", "hello"]), "well hello there"),
+            Some("GUILD.REACT_MSG.hell")
+        );
+        // Raw key matched un-lowered: a stored uppercase key never hits.
+        assert_eq!(
+            reactmsg_first_trigger(&keys(&["HELLO"]), "well hello there"),
+            None
+        );
+        // Empty suffix skipped here (TS `includes("")` always hits, but the
+        // writer rejects blank messages, so manual-DB-only).
+        assert_eq!(reactmsg_first_trigger(&keys(&[""]), "anything"), None);
+        assert_eq!(
+            reactmsg_first_trigger(&keys(&["zzz"]), "nothing here"),
+            None
+        );
+        // Non REACT_MSG keys never participate.
+        assert_eq!(
+            reactmsg_first_trigger(&["GUILD.OTHER.hello".to_string()], "say hello"),
+            None
+        );
+        // Call-site fold must be full-Unicode like TS `toLowerCase` (battery:
+        // Kelvin sign folds to `k`; `to_ascii_lowercase` kept it verbatim).
+        assert!("well \u{212a} there".to_lowercase().contains('k'));
+        assert!(!"well \u{212a} there".to_ascii_lowercase().contains('k'));
+        // Greeting: space is the only separator, strict equality.
+        assert!(is_greeting_word("hi"));
+        assert!(!is_greeting_word(" hello"));
+        assert!(!is_greeting_word("hi\tthere"));
+        assert!(!is_greeting_word("hi\nthere"));
+        assert!(!is_greeting_word("hello!"));
+        assert!(!is_greeting_word("helloworld"));
     }
 
     #[test]

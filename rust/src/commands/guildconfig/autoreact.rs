@@ -1222,6 +1222,17 @@ mod tests {
             autoreact_reaction_for(&format!(":wave:{ID}")),
             Some(custom(false, Some("wave")))
         );
+        // Trailing-`>`-only bare forms (the @add-react writer gate
+        // `:(\w+):(\d+)>` admits them; W7 slice 6 battery
+        // `slice-w7s6-reactmsg.js` proves TS routes them custom).
+        assert_eq!(
+            autoreact_reaction_for(&format!("wave:{ID}>")),
+            Some(custom(false, Some("wave")))
+        );
+        assert_eq!(
+            autoreact_reaction_for(&format!("a:wave:{ID}>")),
+            Some(custom(true, Some("wave")))
+        );
         // Bare 17-19 digits take the id-only path (TS wire `undefined:{id}`,
         // ours `:{id}` — both resolve by id).
         assert_eq!(autoreact_reaction_for(ID), Some(custom(false, None)));

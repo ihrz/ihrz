@@ -7471,27 +7471,37 @@ impl serenity::EventHandler for Handler {
             // GUILD.GUILD_CONFIG.hey_reaction disables; otherwise a
             // case-insensitive trigger substring earns its emoji react
             // and a greeting first word earns a wave.
+            //
+            // W7 slice 6 notes: `tbl_scan_prefix` sorts keys while TS
+            // `Object.keys().find` uses insertion order, so with 2+
+            // simultaneously-matching triggers the first hit may differ
+            // (writer stores one row per trigger; order only matters for
+            // overlapping triggers). Empty-string keys always hit in TS
+            // (`includes("")`) but are skipped here; the writer rejects
+            // blank messages (`!message?.trim()`), so both are
+            // manual-DB-only.
             let hey_off = guild_config_field_routed(&self.pool, &gid, "hey_reaction")
                 .await
                 .as_deref()
                 == Some("false");
             if !hey_off {
-                let lowered = msg.content.to_ascii_lowercase();
+                // Full-Unicode fold like TS `toLowerCase` (battery leg:
+                // Kelvin `K` folds to `k`, `to_ascii_lowercase` kept it).
+                let lowered = msg.content.to_lowercase();
                 let triggers: Vec<String> = react_msg_keys_routed(&self.pool, &gid).await;
-                for key in triggers {
-                    if let Some(trigger) = key.strip_prefix("GUILD.REACT_MSG.") {
-                        if !trigger.is_empty() && lowered.contains(trigger) {
-                            if let Some(emoji) =
-                                react_msg_emoji_routed(&self.pool, &gid, &key).await
-                            {
-                                let _ = msg
-                                    .react(
-                                        &_ctx.http,
-                                        crate::commands::legacy::parse_react_emoji(&emoji),
-                                    )
-                                    .await;
-                            }
-                            break;
+                if let Some(key) =
+                    crate::commands::legacy::reactmsg_first_trigger(&triggers, &lowered)
+                {
+                    if let Some(emoji) = react_msg_emoji_routed(&self.pool, &gid, key).await {
+                        // Same routing as the autoreact emitter
+                        // (`resolvePartialEmoji` parity): writer-gated
+                        // bare `name:id>` / `a:name:id>` values take
+                        // the custom path; unroutable values skip
+                        // like the TS per-react try/catch.
+                        if let Some(reaction) =
+                            crate::commands::guildconfig::autoreact::autoreact_reaction_for(&emoji)
+                        {
+                            let _ = msg.react(&_ctx.http, reaction).await;
                         }
                     }
                 }
