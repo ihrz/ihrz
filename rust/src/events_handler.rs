@@ -6445,28 +6445,21 @@ impl serenity::EventHandler for Handler {
                     .guild(guild_id)
                     .is_some_and(|g| g.channels.contains_key(&serenity::ChannelId::new(id)))
             });
-        // Leaves tracking (mirrors invitesmanager leaves): decrement the
-        // recorded inviter, record the leave.
+        // Leaves tracking (mirrors leaveMessage.ts `base?.inviter` block
+        // via apply_leave_accounting: no row writes nothing, the sub
+        // fires only at invites >= 1, negatives are preserved).
         let mut leave_invites: Option<i64> = None;
         if leave_open {
             if let Some(by) = invites_by_routed(&self.pool, &gid, user.id.get())
                 .await
                 .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
             {
-                let stats =
-                    crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
-                let next = crate::commands::invitesmanager::inv::InviteStats {
-                    invites: (stats.invites - 1).max(0),
-                    regular: stats.regular,
-                    bonus: stats.bonus,
-                    leaves: stats.leaves + 1,
-                };
-                let _ =
-                    crate::commands::invitesmanager::inv::save_invites(&self.pool, &gid, by, &next)
+                // Post-leg total rides along for the {invitesCount} slot
+                // below (TS reads it after the sub/add; absent renders
+                // "1337" like TS `?.toString() || "1337"`).
+                leave_invites =
+                    crate::commands::invitesmanager::apply_leave_accounting(&self.pool, &gid, by)
                         .await;
-                // Post-decrement total rides along for the {invitesCount}
-                // slot below (TS reads it after the sub/add).
-                leave_invites = Some(next.invites);
             }
         }
         // Leave message (mirrors leaveMessage.ts sendGoodbye ->

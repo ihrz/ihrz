@@ -148,6 +148,56 @@ pub async fn load_invites(pool: &crate::db::Pool, guild_id: &str, user_id: u64) 
         .unwrap_or_default()
 }
 
+/// Leave-accounting core. Mirrors the `base?.inviter` block in
+/// `Events/guildconfig/leaveMessage.ts` exactly:
+/// - no INVITES row (`None`, TS `if (inviterStats)` false) writes nothing
+///   and the post-read `invitesAmount` stays `undefined` (renders
+///   `{invitesCount}` as `"1337"`, see method.ts) — the old call site
+///   instead saved a phantom `{0,0,0,1}` row and rendered `"0"`;
+/// - the sub fires only under the truthy `invites && invites >= 1` gate
+///   (for numbers: `>= 1`), so `0`/negative/missing counts are preserved
+///   — the old call site clamped with `.max(0)`, zeroing negatives TS
+///   keeps (e.g. `-3` stays `-3`);
+/// - `leaves` always `+1` (missing leaf reads `null` → `0` → `1`, like
+///   `db.add` over `addSubtract`);
+/// - `regular`/`bonus` are untouched (TS only subs `invites`).
+///
+/// Returns the row to save (`None` = write nothing) plus the post-leg
+/// `invites` sub-key (`None` = key absent, renders `"1337"`).
+///
+/// Manual-DB-only deltas: a non-integer `invites` leg or a non-object row
+/// falls back to defaults / `"1337"` (all writers store integer objects).
+pub fn leave_invites_update(raw: Option<&serde_json::Value>) -> (Option<InviteStats>, Option<i64>) {
+    let Some(v) = raw else {
+        return (None, None);
+    };
+    let mut stats: InviteStats = serde_json::from_value(v.clone()).unwrap_or_default();
+    if stats.invites >= 1 {
+        stats.invites -= 1;
+    }
+    stats.leaves += 1;
+    let amount = v
+        .get("invites")
+        .and_then(|n| n.as_i64())
+        .map(|_| stats.invites);
+    (Some(stats), amount)
+}
+
+/// Leave-accounting delivery: raw-row read, pure update, conditional save.
+/// Returns the `{invitesCount}` value (`None` renders `"1337"`).
+pub async fn apply_leave_accounting(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+) -> Option<i64> {
+    let raw = table_value_or_legacy(pool, guild_id, &invites_key(user_id)).await;
+    let (next, amount) = leave_invites_update(raw.as_ref());
+    if let Some(stats) = next {
+        let _ = save_invites(pool, guild_id, user_id, &stats).await;
+    }
+    amount
+}
+
 pub async fn save_invites(
     pool: &crate::db::Pool,
     guild_id: &str,
@@ -296,6 +346,104 @@ mod tests {
             Some(987)
         );
         assert_eq!(parse_inviter_by_str("not-an-id"), None);
+    }
+
+    #[test]
+    fn leave_accounting_matches_ts_battery() {
+        // Verbatim pins from scratch/slice-w7s32-leaveinvites.cjs (10/10
+        // node legs): leaveMessage.ts `base?.inviter` block.
+        let row = |v: serde_json::Value| leave_invites_update(Some(&v));
+        // No row: TS `if (inviterStats)` false — nothing written,
+        // invitesAmount undefined (renders "1337").
+        assert_eq!(leave_invites_update(None), (None, None));
+        // invites 5 -> sub to 4, leaves +1, regular/bonus untouched.
+        let (next, amount) =
+            row(serde_json::json!({"invites": 5, "regular": 5, "bonus": 0, "leaves": 2}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 4,
+                regular: 5,
+                bonus: 0,
+                leaves: 3
+            })
+        );
+        assert_eq!(amount, Some(4));
+        // invites 1 -> sub to 0 (renders "0", not "1337").
+        let (next, amount) =
+            row(serde_json::json!({"invites": 1, "regular": 0, "bonus": 1, "leaves": 0}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 0,
+                regular: 0,
+                bonus: 1,
+                leaves: 1
+            })
+        );
+        assert_eq!(amount, Some(0));
+        // invites 0 -> falsy gate, no sub, leaves still +1.
+        let (next, amount) =
+            row(serde_json::json!({"invites": 0, "regular": 0, "bonus": 0, "leaves": 7}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 0,
+                regular: 0,
+                bonus: 0,
+                leaves: 8
+            })
+        );
+        assert_eq!(amount, Some(0));
+        // Negative invites preserved (old `.max(0)` zeroed them).
+        let (next, amount) =
+            row(serde_json::json!({"invites": -3, "regular": 0, "bonus": -3, "leaves": 1}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: -3,
+                regular: 0,
+                bonus: -3,
+                leaves: 2
+            })
+        );
+        assert_eq!(amount, Some(-3));
+        // Missing invites key: no sub, amount absent (renders "1337").
+        let (next, amount) = row(serde_json::json!({"leaves": 2}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 0,
+                regular: 0,
+                bonus: 0,
+                leaves: 3
+            })
+        );
+        assert_eq!(amount, None);
+        // Missing leaves key: sub fires, leaves null->0+1.
+        let (next, amount) = row(serde_json::json!({"invites": 2}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 1,
+                regular: 0,
+                bonus: 0,
+                leaves: 1
+            })
+        );
+        assert_eq!(amount, Some(1));
+        // Empty row: leaves 1, amount absent.
+        let (next, amount) = row(serde_json::json!({}));
+        assert_eq!(
+            next,
+            Some(InviteStats {
+                invites: 0,
+                regular: 0,
+                bonus: 0,
+                leaves: 1
+            })
+        );
+        assert_eq!(amount, None);
     }
 
     #[test]
