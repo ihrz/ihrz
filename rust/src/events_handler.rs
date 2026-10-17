@@ -294,6 +294,10 @@ async fn owner_entry_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> 
 /// True when the executor holds an owner row. Mirrors the TS
 /// `${gid}.OWNER.${uid}` read (top-level key); the GUILD.OWNER.*
 /// shape stays as a fallback.
+/// DELTA (manual-DB-only, slice W7-33): a stored falsy scalar row
+/// (`false`/`0`/`""`) is falsy in TS (`!isOwner` proceeds) but `Some`
+/// here (exempt). Writers only store `{owner:true}` objects or delete
+/// rows, so the shapes never occur on live paths.
 async fn owner_exempt_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> bool {
     leaf_routed(pool, gid, &format!("OWNER.{user_id}"))
         .await
@@ -1322,6 +1326,19 @@ pub fn audit_entry_relevant(
         && executor_id != 0
         && executor_id != bot_id
         && now_ms.saturating_sub(entry_created_ms) <= AUDIT_LOG_WINDOW_MS
+}
+
+/// Role-set equality backing the avoidMemberUpdate.ts gate. Mirrors
+/// `oldMember.roles.cache.equals(newMember.roles.cache)`: discord.js
+/// `Collection.equals` compares the key sets (values are the shared guild
+/// role objects, so same keys mean the same roles) with no order
+/// sensitivity — a reorder-only update returns early in TS. An
+/// order-sensitive `Vec` comparison would proceed on reorders and burn an
+/// audit-log fetch (battery leg A2, slice W7-33). Role id lists hold no
+/// duplicates on either side, so length + containment is exact.
+/// Pure, unit-tested below.
+pub fn member_roles_same(old: &[serenity::RoleId], new: &[serenity::RoleId]) -> bool {
+    old.len() == new.len() && old.iter().all(|r| new.contains(r))
 }
 
 /// BlockBot owner gate. Mirrors `filteredLog?.executorId !== ownerId` in
@@ -10258,8 +10275,10 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Any role add/remove (mirrors avoidMemberUpdate.ts).
-        if old.roles != new.roles {
+        // Any role add/remove (mirrors avoidMemberUpdate.ts: the TS
+        // `roles.cache.equals` gate is order-insensitive, hence
+        // `member_roles_same`, not `!=`).
+        if !member_roles_same(&old.roles, &new.roles) {
             use serenity::model::guild::audit_log::{Action, MemberAction};
             if self
                 .protection_guard(
@@ -12281,6 +12300,28 @@ mod restore_tests {
             ticket_channel_delete_hit_users(&shared, "c100"),
             vec!["u1".to_string(), "u2".to_string()]
         );
+    }
+
+    #[test]
+    fn updatemember_roles_gate_matches_ts_equals_battery() {
+        // Mirrors scratch/slice-w7s33-updatemember.cjs gate A 1:1
+        // (U-ETERNAL-398): discord.js Collection.equals is key-set based
+        // with no order sensitivity, so reorder-only updates skip.
+        let r = |ids: &[u64]| {
+            ids.iter()
+                .map(|i| serenity::RoleId::new(*i))
+                .collect::<Vec<_>>()
+        };
+        assert!(member_roles_same(&r(&[1, 2]), &r(&[1, 2]))); // same order skips
+        assert!(member_roles_same(&r(&[1, 2]), &r(&[2, 1]))); // reorder skips (A2)
+        assert!(!member_roles_same(&r(&[1]), &r(&[1, 2]))); // added proceeds
+        assert!(!member_roles_same(&r(&[1, 2]), &r(&[1]))); // removed proceeds
+        assert!(member_roles_same(&r(&[]), &r(&[]))); // empty-empty skips
+        assert!(!member_roles_same(&r(&[]), &r(&[1]))); // empty-vs-one proceeds
+        assert!(!member_roles_same(&r(&[1]), &r(&[2]))); // swap proceeds
+                                                         // Duplicate-free on both sides (Discord invariant): length check
+                                                         // keeps single-vs-double honest.
+        assert!(!member_roles_same(&r(&[1, 1]), &r(&[1])));
     }
 
     #[test]
