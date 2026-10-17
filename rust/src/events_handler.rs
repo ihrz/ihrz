@@ -614,6 +614,75 @@ fn voice_talk_bypass(is_bot: bool, administrator: bool, manage_channels: bool) -
     is_bot || administrator || manage_channels
 }
 
+/// Voice talk leave-cleanup verdict (mirrors the UTILS.VOICE_TALK leave
+/// leg of voiceTalkFreeze.ts: leaving the talk channel while server-muted
+/// unmutes; the talk conjunction also subsumes the file-top
+/// `oldState.channelId === newState.channelId → return` gate (a same-channel
+/// update can never satisfy old==talk && new!=talk). U-ETERNAL-373 battery:
+/// the member/bot legs live at the call site fetch (a failed fetch skips
+/// like a null `oldState.member`; the fetched bot flag mirrors
+/// `!oldState.member.user.bot`). Pure for unit tests.
+fn voice_talk_leave_unmute(
+    old_ch: Option<&str>,
+    new_ch: Option<&str>,
+    talk_ch: &str,
+    has_member: bool,
+    is_bot: bool,
+    server_mute: bool,
+) -> bool {
+    old_ch == Some(talk_ch) && new_ch != Some(talk_ch) && has_member && !is_bot && server_mute
+}
+
+/// Voice talk join auto-mute verdict (mirrors the UTILS.VOICE_TALK join leg:
+/// joining the talk channel server-mutes unless bypassed
+/// (`voice_talk_bypass`) or already server-muted; same-channel subsumed like
+/// above. U-ETERNAL-373 battery: member presence and the bypass live at the
+/// call site fetch like the leave leg). Pure for unit tests.
+fn voice_talk_join_mute(
+    new_ch: Option<&str>,
+    old_ch: Option<&str>,
+    talk_ch: &str,
+    has_member: bool,
+    bypass: bool,
+    server_mute: bool,
+) -> bool {
+    new_ch == Some(talk_ch) && old_ch != Some(talk_ch) && has_member && !bypass && !server_mute
+}
+
+/// Voice freeze stale-row drop (mirrors the two early UTILS.VOICE_FREEZE legs
+/// of voiceTalkFreeze.ts: a missing/non-voice frozen channel, or an emptied
+/// one, drops the row and returns; `channel_voice` is false when the fetch
+/// failed or the kind is not GuildVoice). Pure for unit tests.
+fn voice_freeze_stale_drop(channel_voice: bool, occupants: usize) -> bool {
+    !channel_voice || occupants == 0
+}
+
+/// Voice freeze enforcement verdict (mirrors the UTILS.VOICE_FREEZE join leg:
+/// joining the frozen channel disconnects + 5s-times-out unless bypassed
+/// (bot/Admin/ManageChannels or the `allowedUsers` list) or the member
+/// already left it again (`member.voice.channelId === freezeData.channelId`,
+/// re-read live because the fetch above awaits). U-ETERNAL-373 battery.
+/// Pure for unit tests (one flat predicate so the pin covers the full TS
+/// chain — hence the argument count, cf. the precedent below).
+#[allow(clippy::too_many_arguments)]
+fn voice_freeze_should_enforce(
+    new_ch: Option<&str>,
+    old_ch: Option<&str>,
+    freeze_ch: &str,
+    has_member: bool,
+    bypass: bool,
+    allowed: &[String],
+    member_id: &str,
+    current_ch: Option<&str>,
+) -> bool {
+    new_ch == Some(freeze_ch)
+        && old_ch != Some(freeze_ch)
+        && has_member
+        && !bypass
+        && !allowed.iter().any(|a| a == member_id)
+        && current_ch == Some(freeze_ch)
+}
+
 /// Autocomplete choice filter for the commandlimit `command` option
 /// (mirrors commandlimit.ts autocomplete: substring-or-prefix match
 /// on the focused value, first 25). Pure for unit tests.
@@ -8425,10 +8494,19 @@ impl serenity::EventHandler for Handler {
             }
             _ => {}
         }
+        // Voice-channel move gate (mirrors the `oldState.channelId ===
+        // newState.channelId → return` top of voiceTalkFreeze.ts): mute/deaf
+        // toggles are not moves. The talk verdicts below already subsume it
+        // (U-ETERNAL-373 battery: same-channel is noop on both legs), but the
+        // freeze stale-row drop must not run on toggles — TS keeps a stale
+        // row until the next real move, and dropping it early would disarm
+        // enforcement for a rejoin after an empty period.
+        let channel_changed = old.as_ref().and_then(|o| o.channel_id) != new.channel_id;
         // Voice talk auto-mute (mirrors the UTILS.VOICE_TALK leg of
         // voiceTalkFreeze.ts): leaving the talk channel while
         // server-muted unmutes; joining it server-mutes. Bots,
-        // Administrators and ManageChannels members bypass both.
+        // Administrators and ManageChannels members bypass the join mute
+        // (the leave cleanup has no bypass in TS either).
         if let Some(raw) = voice_talk_routed(&self.pool, &gid).await {
             if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
                 if let Some(talk_ch) = v
@@ -8441,26 +8519,40 @@ impl serenity::EventHandler for Handler {
                         .and_then(|o| o.channel_id)
                         .map(|c| c.get().to_string());
                     let new_ch = new.channel_id.map(|c| c.get().to_string());
-                    // Leave cleanup (runs even when leaving to nowhere).
-                    if old_ch.as_deref() == Some(&talk_ch) && new_ch.as_deref() != Some(&talk_ch) {
-                        let was_muted = old.as_ref().map(|o| o.mute).unwrap_or(false);
-                        if was_muted {
-                            if let Ok(mut member) = guild_id.member(&ctx.http, new.user_id).await {
-                                if !member.user.bot {
-                                    let _ = member
-                                        .edit(
-                                            &ctx.http,
-                                            serenity::EditMember::new()
-                                                .mute(false)
-                                                .audit_log_reason("talk leave cleanup"),
-                                        )
-                                        .await;
-                                }
+                    // Leave cleanup (runs even when leaving to nowhere; the
+                    // member/bot legs live in the fetch below: a failed fetch
+                    // skips like a null oldState.member in TS).
+                    if voice_talk_leave_unmute(
+                        old_ch.as_deref(),
+                        new_ch.as_deref(),
+                        &talk_ch,
+                        true,
+                        false,
+                        old.as_ref().map(|o| o.mute).unwrap_or(false),
+                    ) {
+                        if let Ok(mut member) = guild_id.member(&ctx.http, new.user_id).await {
+                            if !member.user.bot {
+                                let _ = member
+                                    .edit(
+                                        &ctx.http,
+                                        serenity::EditMember::new()
+                                            .mute(false)
+                                            .audit_log_reason("talk leave cleanup"),
+                                    )
+                                    .await;
                             }
                         }
                     }
-                    // Join auto-mute.
-                    if new_ch.as_deref() == Some(&talk_ch) && old_ch.as_deref() != Some(&talk_ch) {
+                    // Join auto-mute (member presence + bypass live in the
+                    // fetch below, like the leave leg).
+                    if voice_talk_join_mute(
+                        new_ch.as_deref(),
+                        old_ch.as_deref(),
+                        &talk_ch,
+                        true,
+                        false,
+                        new.mute,
+                    ) {
                         let member_opt = match new.member.clone() {
                             Some(m) => Some(m),
                             None => guild_id.member(&ctx.http, new.user_id).await.ok(),
@@ -8474,7 +8566,7 @@ impl serenity::EventHandler for Handler {
                                     (p.administrator(), p.manage_channels())
                                 })
                                 .unwrap_or((false, false));
-                            if !voice_talk_bypass(member.user.bot, admin, manage) && !new.mute {
+                            if !voice_talk_bypass(member.user.bot, admin, manage) {
                                 let mut member = member;
                                 let _ = member
                                     .edit(
@@ -8557,29 +8649,35 @@ impl serenity::EventHandler for Handler {
                     .map(str::to_string)
                 {
                     let freeze_id = freeze_ch.parse::<u64>().unwrap_or(0);
-                    let occupants = match serenity::ChannelId::new(freeze_id)
+                    let (channel_voice, occupants) = match serenity::ChannelId::new(freeze_id)
                         .to_channel(&ctx.http)
                         .await
                     {
                         Ok(serenity::Channel::Guild(g))
                             if g.kind == serenity::ChannelType::Voice =>
                         {
-                            ctx.cache
-                                .guild(guild_id)
-                                .map(|gd| {
-                                    gd.voice_states
-                                        .values()
-                                        .filter(|vs| {
-                                            vs.channel_id
-                                                == Some(serenity::ChannelId::new(freeze_id))
-                                        })
-                                        .count()
-                                })
-                                .unwrap_or(usize::MAX)
+                            (
+                                true,
+                                ctx.cache
+                                    .guild(guild_id)
+                                    .map(|gd| {
+                                        gd.voice_states
+                                            .values()
+                                            .filter(|vs| {
+                                                vs.channel_id
+                                                    == Some(serenity::ChannelId::new(freeze_id))
+                                            })
+                                            .count()
+                                    })
+                                    .unwrap_or(usize::MAX),
+                            )
                         }
-                        _ => usize::MAX - 1,
+                        _ => (false, 0),
                     };
-                    if occupants == 0 || occupants == usize::MAX - 1 {
+                    // Stale-row drop runs only on real moves (see the
+                    // channel_changed gate above): TS keeps the row through
+                    // mute/deaf toggles.
+                    if channel_changed && voice_freeze_stale_drop(channel_voice, occupants) {
                         let _ = crate::db::tbl_del(&self.pool, &gid, "UTILS.VOICE_FREEZE").await;
                     } else {
                         let old_ch = old
@@ -8607,9 +8705,32 @@ impl serenity::EventHandler for Handler {
                                         (p.administrator(), p.manage_channels())
                                     })
                                     .unwrap_or((false, false));
-                                if !voice_talk_bypass(member.user.bot, admin, manage)
-                                    && !allowed.contains(&new.user_id.get().to_string())
-                                {
+                                // Still-inside re-check (mirrors
+                                // `member.voice.channelId === freezeData.channelId`):
+                                // a joiner who left again during the fetch above
+                                // must not be disconnected from their new channel.
+                                // Cache-held like the occupants count, so the guard
+                                // drops before the awaits below. (Member presence
+                                // itself comes from the fetch fallback: TS skips a
+                                // null newState.member where a successful fetch
+                                // still acts here — pathological, the member is
+                                // essentially always present on join updates.)
+                                let current_ch = ctx.cache.guild(guild_id).and_then(|gd| {
+                                    gd.voice_states
+                                        .get(&new.user_id)
+                                        .and_then(|vs| vs.channel_id)
+                                        .map(|c| c.get().to_string())
+                                });
+                                if voice_freeze_should_enforce(
+                                    new_ch.as_deref(),
+                                    old_ch.as_deref(),
+                                    &freeze_ch,
+                                    true,
+                                    voice_talk_bypass(member.user.bot, admin, manage),
+                                    &allowed,
+                                    &new.user_id.get().to_string(),
+                                    current_ch.as_deref(),
+                                ) {
                                     let _ =
                                         guild_id.disconnect_member(&ctx.http, new.user_id).await;
                                     if let Ok(mut member) =
@@ -11309,6 +11430,211 @@ mod restore_tests {
         assert!(voice_talk_bypass(false, true, false));
         assert!(voice_talk_bypass(false, false, true));
         assert!(!voice_talk_bypass(false, false, false));
+        // U-ETERNAL-373 battery (slice-w7s8-voicetalk.js, 40 legs verbatim
+        // from voiceTalkFreeze.ts): talk leave/join verdicts (same-channel
+        // subsumes the file-top early return), freeze stale-drop + join
+        // enforcement incl. the allowedUsers list and the still-inside
+        // re-check. DELTA (manual-DB-only): an empty-string channelId skips
+        // the whole block in TS (falsy) but drops the row here on a move.
+        assert!(voice_talk_leave_unmute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            false,
+            true
+        ));
+        assert!(voice_talk_leave_unmute(
+            Some("T"),
+            None,
+            "T",
+            true,
+            false,
+            true
+        ));
+        assert!(!voice_talk_leave_unmute(
+            Some("T"),
+            Some("T"),
+            "T",
+            true,
+            false,
+            true
+        ));
+        assert!(!voice_talk_leave_unmute(
+            Some("X"),
+            Some("Y"),
+            "T",
+            true,
+            false,
+            true
+        ));
+        assert!(!voice_talk_leave_unmute(
+            Some("T"),
+            Some("X"),
+            "T",
+            false,
+            false,
+            true
+        ));
+        assert!(!voice_talk_leave_unmute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            true,
+            true
+        ));
+        assert!(!voice_talk_leave_unmute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            false,
+            false
+        ));
+        assert!(voice_talk_join_mute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            false,
+            false
+        ));
+        assert!(!voice_talk_join_mute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            false,
+            true
+        ));
+        assert!(!voice_talk_join_mute(
+            Some("T"),
+            Some("X"),
+            "T",
+            true,
+            true,
+            false
+        ));
+        assert!(!voice_talk_join_mute(
+            Some("T"),
+            Some("T"),
+            "T",
+            true,
+            false,
+            false
+        ));
+        assert!(!voice_talk_join_mute(
+            Some("X"),
+            Some("T"),
+            "T",
+            true,
+            false,
+            false
+        ));
+        assert!(!voice_talk_join_mute(
+            Some("T"),
+            Some("X"),
+            "T",
+            false,
+            false,
+            false
+        ));
+        assert!(!voice_freeze_stale_drop(true, 3));
+        assert!(!voice_freeze_stale_drop(true, usize::MAX));
+        assert!(voice_freeze_stale_drop(true, 0));
+        assert!(voice_freeze_stale_drop(false, 3));
+        assert!(voice_freeze_stale_drop(false, 0));
+        assert!(voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            false,
+            &[],
+            "M",
+            Some("F")
+        ));
+        assert!(voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            false,
+            &["Z".to_string()],
+            "M",
+            Some("F")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            false,
+            &["M".to_string()],
+            "M",
+            Some("F")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            false,
+            &[],
+            "M",
+            Some("X")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            false,
+            &[],
+            "M",
+            None
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            true,
+            true,
+            &[],
+            "M",
+            Some("F")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("F"),
+            "F",
+            true,
+            false,
+            &[],
+            "M",
+            Some("F")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("X"),
+            Some("Y"),
+            "F",
+            true,
+            false,
+            &[],
+            "M",
+            Some("X")
+        ));
+        assert!(!voice_freeze_should_enforce(
+            Some("F"),
+            Some("X"),
+            "F",
+            false,
+            false,
+            &[],
+            "M",
+            Some("F")
+        ));
         // Autocomplete filter (mirrors commandlimit.ts: includes ||
         // startsWith, first 25).
         let paths = vec![
