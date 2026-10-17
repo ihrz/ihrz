@@ -133,7 +133,11 @@ async fn apply_language(
 ) -> Result<(), anyhow::Error> {
     save_guild_lang(&ctx.data().pool, &guild_id.get().to_string(), code).await?;
     if let Some(tpl) = crate::lang::get(code, "bot_server_bio") {
-        let count = crate::commands::all().len();
+        // TS `client.content.length`: every message-capable leaf (one
+        // entry per MessageCommands file + one per hybrid subcommand
+        // leaf), NOT the top-level command count (`all().len()` wrote a
+        // stale-looking `+53` here).
+        let count = crate::commands::content_leaf_count(&crate::commands::all());
         let http = &ctx.serenity_context().http;
         let wink = crate::emojis::app_emoji_markup(http, "Wink")
             .await
