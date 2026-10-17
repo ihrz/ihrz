@@ -1721,6 +1721,17 @@ pub fn voice_log_kind(
     None
 }
 
+/// Setup-embed gate. Mirrors logs/ihorizon_logs.ts:31
+/// (`!channel.name.includes("ihorizon-logs") → return`): the welcome
+/// embed posts only into channels whose name contains the marker,
+/// case-sensitively. Rust `str::contains` is the same substring
+/// predicate as JS `includes` on well-formed Unicode (Discord channel
+/// names are valid Unicode; lone surrogates cannot occur in `&str`).
+/// Pure, unit-tested below.
+pub fn ihorizon_logs_setup_applies(channel_name: &str) -> bool {
+    channel_name.contains("ihorizon-logs")
+}
+
 /// Delete-log send shape. Mirrors logs/messageDeleteLogs.ts:68-150
 /// (`attachments.size >= 1` + `!attachment.contentType → return` +
 /// `size >= 2` multi leg + single `image/` leg + single-file leg +
@@ -10152,7 +10163,7 @@ impl serenity::EventHandler for Handler {
         }
         // Setup embed for freshly created "ihorizon-logs" channels
         // (mirrors logs/ihorizon_logs.ts).
-        if channel.name.contains("ihorizon-logs") {
+        if ihorizon_logs_setup_applies(&channel.name) {
             let lang_code = crate::db::guild_lang(&self.pool, Some(channel.guild_id.get())).await;
             let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
             let embed = serenity::CreateEmbed::default()
@@ -14006,6 +14017,39 @@ mod component_registry_tests {
         // DELTA (doc-noted, pathological: both channelIds null on a
         // live update never occurs): TS renders the leave text with
         // the literal "undefined" (`OchannelID?.toString()`), here "".
+    }
+
+    #[test]
+    fn ihorizon_logs_gate_matches_ts_battery() {
+        // Mirrors scratch slice-w7s49-ihorizonlogs.cjs
+        // (ihorizon_logs.ts `includes("ihorizon-logs")` gate, verbatim)
+        // -- green 18/18. Verdict: mirror CONVERGENT, pure-fn rewire +
+        // pin only, zero live-code change. `str::contains` is the same
+        // case-sensitive substring predicate as JS `includes` on
+        // well-formed Unicode (lone surrogates cannot occur in `&str`;
+        // Discord channel names are valid Unicode, lowercase-only live).
+        for (name, want) in [
+            ("ihorizon-logs", true),
+            ("x-ihorizon-logs", true),
+            ("ihorizon-logs-y", true),
+            ("x-ihorizon-logs-y", true),
+            ("IHORIZON-LOGS", false),
+            ("Ihorizon-Logs", false),
+            ("ihorizon-LOGS", false),
+            ("ihorizon-log", false),
+            ("ihorizon-logss", true),
+            ("", false),
+            ("ihorizonlogs", false),
+            ("ihorizon--logs", false),
+            ("ihorizon logs", false),
+            ("ｉhorizon-logs", false),
+            ("ihorizon-logs\ni", true),
+            (" ihorizon-logs ", true),
+            ("ihorizon-logsihorizon-logs", true),
+            ("İhorizon-logs", false),
+        ] {
+            assert_eq!(ihorizon_logs_setup_applies(name), want, "gate {name:?}");
+        }
     }
 
     #[test]
