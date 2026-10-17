@@ -492,6 +492,44 @@ pub fn pic_only_recent_warns(warns: &[i64], now_ms: i64) -> Vec<i64> {
         .collect()
 }
 
+/// Pic-only warn-DM threshold. Mirrors `picOnlyConfig.threshold || 3`
+/// (JS `||`: 0/NaN/missing fold to 3, negatives kept verbatim -- the
+/// writer stores raw parseInt rows, so a "-5" modal input persists and the
+/// TS warn DM renders "Warning 1/-5"; the strike trigger stays a hardcoded
+/// 3 either way). Non-number JSON rows (unreachable from the writer) fall
+/// back to 3 here while TS would render them verbatim.
+pub fn piconly_threshold_or_default(v: Option<i64>) -> i64 {
+    v.filter(|t| *t != 0)
+        .unwrap_or(crate::commands::utils::channels::media_only::PICONLY_DEFAULT_THRESHOLD)
+}
+
+/// Pic-only timeout duration. Mirrors `picOnlyConfig.muteTime || 600000`
+/// (JS `||`: 0/missing fold to the default, negatives kept).
+/// DELTA (doc, writer-reachable): a stored negative (the modal accepts
+/// "-5m" -- to_ms parses the sign and the 1296000000 cap only clamps large
+/// positives) is kept here like TS, but TS `member.timeout(neg)` then
+/// rejects inside the surrounding try, skipping the warn record + punish
+/// DM, while the live site swallows the API error best-effort (`let _`)
+/// and proceeds with the warn + DM.
+pub fn piconly_mute_ms_or_default(v: Option<i64>) -> i64 {
+    v.filter(|m| *m != 0)
+        .unwrap_or(crate::commands::utils::channels::media_only::PICONLY_DEFAULT_MUTE_MS)
+}
+
+/// Pic-only thread author name. Mirrors
+/// `String(member?.displayName || member?.nickname)`: discord.js
+/// displayName is nick ?? globalName ?? username, and the `|| nickname`
+/// tail is dead (displayName is never falsy for a real member).
+/// DELTA (doc): member-None renders "undefined" in TS but falls back to
+/// the username here (unreachable: guild messages always carry a member).
+pub fn piconly_thread_name(
+    nick: Option<&str>,
+    global_name: Option<&str>,
+    username: &str,
+) -> String {
+    nick.or(global_name).unwrap_or(username).to_string()
+}
+
 /// Role-limit counter name. Mirrors the roleLimit.ts rename leg:
 /// strip a trailing ` [n/m]` counter (TS `/\s*\[\d+\/\d+\]\s*$/`)
 /// then append the fresh `[members/limit]`.
@@ -7298,13 +7336,9 @@ impl serenity::EventHandler for Handler {
                                 .lock()
                                 .await
                                 .remove(&msg.author.id.get().to_string());
-                            let mute_ms = cfg
-                                .get("muteTime")
-                                .and_then(|m| m.as_i64())
-                                .filter(|m| *m > 0)
-                                .unwrap_or(
-                                    crate::commands::utils::channels::media_only::PICONLY_DEFAULT_MUTE_MS,
-                                );
+                            let mute_ms = piconly_mute_ms_or_default(
+                                cfg.get("muteTime").and_then(|m| m.as_i64()),
+                            );
                             if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
                                 let mut member = member;
                                 let until_secs = now_ms / 1000 + mute_ms / 1000;
@@ -7368,13 +7402,9 @@ impl serenity::EventHandler for Handler {
                                 )
                                 .await;
                         } else {
-                            let threshold = cfg
-                                .get("threshold")
-                                .and_then(|t| t.as_i64())
-                                .filter(|t| *t > 0)
-                                .unwrap_or(
-                                    crate::commands::utils::channels::media_only::PICONLY_DEFAULT_THRESHOLD,
-                                );
+                            let threshold = piconly_threshold_or_default(
+                                cfg.get("threshold").and_then(|t| t.as_i64()),
+                            );
                             let warn = text("piconly_module_warn_msg")
                                 .replace("${message.author}", &msg.author.mention().to_string())
                                 .replace("${userWarnings.length}", &strikes.to_string())
@@ -7400,7 +7430,13 @@ impl serenity::EventHandler for Handler {
                                 "{name}",
                                 &msg.member
                                     .as_ref()
-                                    .and_then(|m| m.nick.clone())
+                                    .map(|m| {
+                                        piconly_thread_name(
+                                            m.nick.as_deref(),
+                                            m.user.as_ref().and_then(|u| u.global_name.as_deref()),
+                                            &msg.author.name,
+                                        )
+                                    })
                                     .unwrap_or_else(|| msg.author.name.clone()),
                             );
                         if let Ok(thread) = _ctx
@@ -11612,6 +11648,22 @@ mod restore_tests {
         assert!(!pic_only_has_media(&[None]));
         assert!(!pic_only_has_media(&[]));
         assert!(!pic_only_has_media(&[Some(String::new())]));
+        // U-ETERNAL-391 battery (slice-w7s26-piconly.js): full Unicode
+        // toLowerCase allowlist (Kelvin hit), exact-match misses (padded,
+        // params suffix, image/jpg not listed), falsy content types miss.
+        assert!(pic_only_has_media(&[Some(
+            "video/x-matros\u{212a}a".to_string()
+        )]));
+        assert!(!pic_only_has_media(&[Some(" image/png".to_string())]));
+        assert!(!pic_only_has_media(&[Some("image/png ".to_string())]));
+        assert!(!pic_only_has_media(&[Some(
+            "image/png; charset=utf-8".to_string()
+        )]));
+        assert!(!pic_only_has_media(&[Some("image/jpg".to_string())]));
+        assert!(pic_only_has_media(&[
+            Some("text/plain".to_string()),
+            Some("IMAGE/GIF".to_string())
+        ]));
         // Pic-only warn window (mirrors cleanOldWarnings, 10 minutes).
         assert_eq!(pic_only_recent_warns(&[1000, 2000], 2000).len(), 2);
         assert_eq!(
@@ -11622,6 +11674,25 @@ mod restore_tests {
             pic_only_recent_warns(&[PICONLY_WARN_WINDOW_MS - 1, 0], PICONLY_WARN_WINDOW_MS),
             vec![PICONLY_WARN_WINDOW_MS - 1]
         );
+        // U-ETERNAL-391 battery (slice-w7s26-piconly.js): future stamps are
+        // kept both sides; the strike trigger is a hardcoded 3 (the
+        // configured threshold only feeds the warn-DM text).
+        assert_eq!(pic_only_recent_warns(&[2001], 2000), vec![2001]);
+        assert_eq!(PICONLY_STRIKE_LIMIT, 3);
+        // JS `||` folds: 0/missing -> default, negatives kept verbatim
+        // (writer-reachable: parseInt("-5") threshold, "-5m" muteTime).
+        assert_eq!(piconly_threshold_or_default(Some(0)), 3);
+        assert_eq!(piconly_threshold_or_default(Some(-5)), -5);
+        assert_eq!(piconly_threshold_or_default(Some(10)), 10);
+        assert_eq!(piconly_threshold_or_default(None), 3);
+        assert_eq!(piconly_mute_ms_or_default(Some(0)), 600_000);
+        assert_eq!(piconly_mute_ms_or_default(Some(-1000)), -1000);
+        assert_eq!(piconly_mute_ms_or_default(Some(5000)), 5000);
+        assert_eq!(piconly_mute_ms_or_default(None), 600_000);
+        // displayName chain: nick ?? globalName ?? username.
+        assert_eq!(piconly_thread_name(Some("N"), Some("G"), "U"), "N");
+        assert_eq!(piconly_thread_name(None, Some("G"), "U"), "G");
+        assert_eq!(piconly_thread_name(None, None, "U"), "U");
         // Role-limit counter rename (mirrors `/\s*\[\d+\/\d+\]\s*$/`).
         assert_eq!(role_limit_counter_name("VIP", 3, 10), "VIP [3/10]");
         assert_eq!(role_limit_counter_name("VIP [1/10]", 3, 10), "VIP [3/10]");
