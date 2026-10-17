@@ -28,18 +28,13 @@ pub async fn pfps_channel(
             .as_deref(),
         Some("1") | Some("true")
     );
+    // Operator decision (diverges from TS `!channel.ts:92-99`, which
+    // errors when the module is disabled): setting a channel
+    // auto-enables the module instead of forcing a prior
+    // `/pfps config` round-trip. Clear the flag, then fall through
+    // to the normal write below.
     if disabled {
-        // Mirrors the TS else branch (`!fetch || !channel`): with the
-        // channel now required (TS `required: true`), only the disabled
-        // module reaches this content error; a missing arg is rejected
-        // earlier by the prefix usage-embed validation, exactly like prod.
-        ctx.say(
-            crate::lang::get(&code, "pfps_channel_command_error")
-                .map(|s| s.replace("${interaction.user}", &user))
-                .unwrap_or_else(|| "Invalid channel.".to_string()),
-        )
-        .await?;
-        return Ok(());
+        save_pfps_string(&ctx.data().pool, &gid, "PFPS.disable", "0").await?;
     }
     save_pfps_string(
         &ctx.data().pool,
