@@ -1768,6 +1768,39 @@ pub fn delete_log_route(
     DeleteLogRoute::Text
 }
 
+/// Boost-log verdict. Mirrors logs/boostLogs.ts:45-103: the strict-`===`
+/// equality gate, the 10-minute recency window on fresh boosts, and the
+/// add (`!old && new && recent`) / sub (`old && !new`) branch pick.
+/// `old_ms`/`new_ms` are `premiumSince` epoch millis (`None` stands in
+/// for the TS `null`; the role + channel gates live at the call site).
+/// Pure, unit-tested below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BoostLogKind {
+    Add,
+    Sub,
+}
+
+pub fn boost_log_kind(
+    old_ms: Option<i64>,
+    new_ms: Option<i64>,
+    now_ms: i64,
+) -> Option<BoostLogKind> {
+    const MAX_RECENT_BOOST_DELAY_MS: i64 = 10 * 60 * 1000;
+    if old_ms == new_ms {
+        return None;
+    }
+    let recent = new_ms
+        .map(|t| now_ms - t <= MAX_RECENT_BOOST_DELAY_MS)
+        .unwrap_or(false);
+    if old_ms.is_none() && new_ms.is_some() && recent {
+        Some(BoostLogKind::Add)
+    } else if old_ms.is_some() && new_ms.is_none() {
+        Some(BoostLogKind::Sub)
+    } else {
+        None
+    }
+}
+
 /// Prefix segment of a component custom id. Mirrors
 /// buttonHandler.ts:38 / selectMenuHandler.ts:35 (`split("%")[0]`,
 /// the client.buttons / client.selectmenu registry key). Pure,
@@ -10823,62 +10856,80 @@ impl serenity::EventHandler for Handler {
         }
         // Boost detection (mirrors logs/boostLogs.ts): #a27cec
         // embed with author avatar, add + sub cases, 10-minute
-        // recency guard on fresh boosts.
-        let (old_premium, new_premium) = (old.premium_since, new.premium_since);
-        if old_premium != new_premium {
-            let gid = new.guild_id.get().to_string();
-            let logs_ch: Option<u64> =
-                crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
-                    &self.pool, &gid, "boosts",
-                )
-                .await
-                .and_then(|s| s.parse().ok());
-            if let Some(logs_ch) = logs_ch {
-                let now_ms = crate::commands::context::now_ms();
-                let recent = new_premium
-                    .map(|t| now_ms - t.unix_timestamp() * 1000 <= 10 * 60 * 1000)
-                    .unwrap_or(false);
-                let lang_code = crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
-                let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-                let boost_count = new
+        // recency guard on fresh boosts. The `premiumSubscriberRole`
+        // gate (:53) is the cache-first `has_booster_role` scan below
+        // (HTTP fallback when the guild is uncached); without a booster
+        // role TS returns before the channel read, e.g. a last-unboost
+        // race or a manually deleted booster role.
+        let old_ms = old.premium_since.map(|t| t.unix_timestamp() * 1000);
+        let new_ms = new.premium_since.map(|t| t.unix_timestamp() * 1000);
+        let now_ms = crate::commands::context::now_ms();
+        // DELTAS (doc-noted, unreachable live): a 0-ms `premiumSince`
+        // reads as missing in TS (`!oldPremiumSince`) but present here;
+        // Discord never emits epoch-0. `unix_timestamp()` truncates
+        // sub-second precision, shifting the recency edge <1s vs TS
+        // `getTime()` millis (same pre-noted class as slice-40 audit
+        // recency). A partial guild omitting `premiumSubscriptionCount`
+        // renders "undefined" in TS (`?.toString()!`) but "0" here.
+        // `displayAvatarURL` (guild-avatar aware) vs `avatar_url`
+        // (global only) on the embed author icon.
+        if let Some(kind) = boost_log_kind(old_ms, new_ms, now_ms) {
+            let has_booster_role = ctx
+                .cache
+                .guild(new.guild_id)
+                .map(|g| g.roles.values().any(|r| r.tags.premium_subscriber))
+                .unwrap_or(false)
+                || new
                     .guild_id
-                    .to_partial_guild(&ctx.http)
+                    .roles(&ctx.http)
                     .await
-                    .map(|g| g.premium_subscription_count.unwrap_or(0).to_string())
-                    .unwrap_or_default();
-                let desc = if old_premium.is_none() && new_premium.is_some() && recent {
-                    Some(
-                        text("event_boostlog_add")
-                            .replace("${newMember.user.id}", &new.user.id.get().to_string())
-                            .replace("${newMember.guild.premiumSubscriptionCount}", &boost_count),
+                    .map(|rs| rs.values().any(|r| r.tags.premium_subscriber))
+                    .unwrap_or(false);
+            if !has_booster_role {
+                // TS :53 return: no booster role, no log on any leg.
+            } else {
+                let gid = new.guild_id.get().to_string();
+                let logs_ch: Option<u64> =
+                    crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                        &self.pool, &gid, "boosts",
                     )
-                } else if old_premium.is_some() && new_premium.is_none() {
-                    Some(
-                        text("event_boostlog_sub")
-                            .replace("${newMember.user.id}", &new.user.id.get().to_string())
-                            .replace("${newMember.guild.premiumSubscriptionCount}", &boost_count),
-                    )
-                } else {
-                    None
-                };
-                if let Some(desc) = desc {
-                    let mut avatar = new.user.avatar_url().unwrap_or_default();
-                    if avatar.is_empty() {
-                        if let Ok(full) = new.user.id.to_user(&ctx.http).await {
-                            avatar = full.avatar_url().unwrap_or_default();
-                        }
+                    .await
+                    .and_then(|s| s.parse().ok());
+                if let Some(logs_ch) = logs_ch {
+                    let lang_code =
+                        crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
+                    let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                    let boost_count = new
+                        .guild_id
+                        .to_partial_guild(&ctx.http)
+                        .await
+                        .map(|g| g.premium_subscription_count.unwrap_or(0).to_string())
+                        .unwrap_or_default();
+                    let desc = match kind {
+                        BoostLogKind::Add => text("event_boostlog_add"),
+                        BoostLogKind::Sub => text("event_boostlog_sub"),
                     }
-                    let embed = serenity::CreateEmbed::default()
-                        .colour(0xA27CEC_u32)
-                        .author(
-                            serenity::CreateEmbedAuthor::new(new.user.name.clone())
-                                .icon_url(avatar),
-                        )
-                        .description(desc)
-                        .timestamp(serenity::Timestamp::now());
-                    let _ = serenity::ChannelId::new(logs_ch)
-                        .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
-                        .await;
+                    .replace("${newMember.user.id}", &new.user.id.get().to_string())
+                    .replace("${newMember.guild.premiumSubscriptionCount}", &boost_count);
+                    {
+                        let mut avatar = new.user.avatar_url().unwrap_or_default();
+                        if avatar.is_empty() {
+                            if let Ok(full) = new.user.id.to_user(&ctx.http).await {
+                                avatar = full.avatar_url().unwrap_or_default();
+                            }
+                        }
+                        let embed = serenity::CreateEmbed::default()
+                            .colour(0xA27CEC_u32)
+                            .author(
+                                serenity::CreateEmbedAuthor::new(new.user.name.clone())
+                                    .icon_url(avatar),
+                            )
+                            .description(desc)
+                            .timestamp(serenity::Timestamp::now());
+                        let _ = serenity::ChannelId::new(logs_ch)
+                            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                            .await;
+                    }
                 }
             }
         }
@@ -13979,6 +14030,37 @@ mod component_registry_tests {
         assert_eq!(delete_log_route(2, Some("image/png")), Multi);
         assert_eq!(delete_log_route(3, Some("video/mp4")), Multi);
         assert_eq!(delete_log_route(10, Some("image/jpeg")), Multi);
+    }
+
+    #[test]
+    fn boost_log_kind_matches_ts_boostlogs_battery() {
+        // Mirrors scratch slice-w7s47-boost.cjs (boostLogs.ts equality
+        // + recency + add/sub legs, verbatim). The :53
+        // `premiumSubscriberRole` gate lives at the call site (cache +
+        // HTTP role scan), the channel gate in the routed reader.
+        // Args: (old_ms, new_ms); now = 1_700_000_000_000.
+        use BoostLogKind::*;
+        const NOW: i64 = 1_700_000_000_000;
+        const MAX: i64 = 10 * 60 * 1000;
+        // Equal legs stay silent (:49 strict ===).
+        assert_eq!(boost_log_kind(None, None, NOW), None);
+        assert_eq!(boost_log_kind(Some(1000), Some(1000), NOW), None);
+        // Fresh boost -> Add (:74); boundary is inclusive (<=).
+        assert_eq!(boost_log_kind(None, Some(NOW), NOW), Some(Add));
+        assert_eq!(boost_log_kind(None, Some(NOW - MAX), NOW), Some(Add));
+        assert_eq!(boost_log_kind(None, Some(NOW - 1), NOW), Some(Add));
+        assert_eq!(boost_log_kind(None, Some(NOW + 5000), NOW), Some(Add));
+        // Stale boost: changed, but neither leg fires -> silent.
+        assert_eq!(boost_log_kind(None, Some(NOW - MAX - 1), NOW), None);
+        // Unboost -> Sub (:89, no recency leg).
+        assert_eq!(boost_log_kind(Some(5000), None, NOW), Some(Sub));
+        assert_eq!(boost_log_kind(Some(NOW - 100), None, NOW), Some(Sub));
+        // Re-boost refresh (both set, different) -> silent.
+        assert_eq!(boost_log_kind(Some(5000), Some(6000), NOW), None);
+        // DELTA (doc-noted, unreachable: Discord never emits epoch-0):
+        // a 0-ms premiumSince is falsy in TS (`!oldPremiumSince`, Add
+        // leg) but present here (re-boost-refresh silent).
+        assert_eq!(boost_log_kind(Some(0), Some(NOW), NOW), None);
     }
 
     #[test]
