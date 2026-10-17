@@ -17,16 +17,15 @@ pub fn resolve_cat_image(body: &str) -> String {
     }
 }
 
-/// Down-API reply. Mirrors the `fun_var_down_api` deny shared with the
-/// other animal picture commands (`animal_pic`).
-async fn cat_down(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "fun_var_down_api")
-            .unwrap_or_else(|| "Error: Seems like the API is down!".to_string()),
-    )
-    .await?;
-    Ok(())
+/// Decide the embed image for a fetch outcome. `Some(url)` renders the
+/// embed; `None` (fetch or body failure) stays silent — TS `!cat.ts` has
+/// no `.catch` on the axios call, and prod confirms silence when
+/// edgecats.net is down (no reply to `+cat`, verified live).
+pub fn cat_embed_image(fetch_ok: bool, body: Option<&str>) -> Option<String> {
+    if !fetch_ok {
+        return None;
+    }
+    Some(resolve_cat_image(body.unwrap_or("")))
 }
 
 /// Get a picture of cat!
@@ -48,26 +47,25 @@ pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
     }
-    // TS has no catch here (fetch failure stays silent); a dead API should
-    // not render a broken embed, so deny loudly like the other animal
-    // picture commands (`fun_var_down_api`).
-    let text = match http_client().get(cat_api_url()).send().await {
-        Ok(r) if r.status().is_success() => match r.text().await {
-            Ok(t) => t,
-            Err(_) => {
-                return cat_down(&ctx).await;
-            }
-        },
-        // Non-2xx (e.g. edgecats.net 404 with an HTML body): reqwest
-        // reports Ok, but there is no image — deny like a dead API
-        // instead of embedding the dead endpoint URL.
-        _ => {
-            return cat_down(&ctx).await;
+    // TS !cat.ts has no .catch: a dead API stays silent (prod confirms).
+    // Never render a broken embed or a loud deny here.
+    let outcome = match http_client().get(cat_api_url()).send().await {
+        Ok(r) if r.status().is_success() => (true, r.text().await.ok()),
+        Ok(r) => {
+            tracing::error!("cat image non-2xx: {}", r.status());
+            (false, None)
         }
+        Err(error) => {
+            tracing::error!("cat image fetch failed: {error}");
+            (false, None)
+        }
+    };
+    let Some(image) = cat_embed_image(outcome.0, outcome.1.as_deref()) else {
+        return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .image(resolve_cat_image(&text))
+        .image(image)
         .title(
             crate::lang::get(&code, "cats_embed_title").unwrap_or_else(|| "Meow :cat:".to_string()),
         )
@@ -97,5 +95,20 @@ mod cat_tests {
         );
         assert_eq!(resolve_cat_image(""), cat_api_url());
         assert_eq!(resolve_cat_image("<binary>"), cat_api_url());
+    }
+
+    #[test]
+    fn fetch_failure_means_silent_none() {
+        // TS !cat.ts has no .catch: any failure stays silent (None).
+        assert_eq!(cat_embed_image(false, None), None);
+        assert_eq!(
+            cat_embed_image(false, Some("https://edgecats.net/x.png")),
+            None
+        );
+        assert_eq!(
+            cat_embed_image(true, Some("https://edgecats.net/x.png\n")),
+            Some("https://edgecats.net/x.png".to_string())
+        );
+        assert_eq!(cat_embed_image(true, None), Some(cat_api_url().to_string()));
     }
 }
