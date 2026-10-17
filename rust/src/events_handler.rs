@@ -1342,6 +1342,36 @@ pub fn channel_logs_both_bot(e1_is_bot: Option<bool>, e2_is_bot: Option<bool>) -
     e1_is_bot.unwrap_or(false) && e2_is_bot.unwrap_or(false)
 }
 
+/// Mod-log embed description renderer backing mod_audit_log.
+/// Mirrors the per-file token chains in Events/logs/addBanLogs.ts
+/// (`${firstEntry.executor.id}` + `${firstEntry.target.id}`),
+/// removeBanLogs.ts (executor.id + `${firstEntry.target.username}`),
+/// kickLogs.ts (executor.id + target.id): the unified triple chain is
+/// a no-op on absent tokens, so one fn serves all three legs.
+/// Pure, unit-tested below (battery slice W7-50).
+pub fn mod_log_description(
+    template: &str,
+    executor_id: u64,
+    target_id: u64,
+    target_name: Option<&str>,
+) -> String {
+    template
+        .replace("${firstEntry.executor.id}", &executor_id.to_string())
+        .replace("${firstEntry.target.id}", &target_id.to_string())
+        .replace("${firstEntry.target.username}", target_name.unwrap_or(""))
+}
+
+/// Mod-log reason display backing mod_audit_log. Mirrors
+/// `relevantLog?.reason || data.blacklist_var_no_reason` (all three
+/// legs): falsy None AND empty string fall back; whitespace-only is
+/// truthy and kept. Pure, unit-tested below (battery slice W7-50).
+pub fn mod_log_reason(reason: Option<&str>, fallback: &str) -> String {
+    match reason {
+        Some(r) if !r.is_empty() => r.to_string(),
+        _ => fallback.to_string(),
+    }
+}
+
 /// Role-set equality backing the avoidMemberUpdate.ts gate. Mirrors
 /// `oldMember.roles.cache.equals(newMember.roles.cache)`: discord.js
 /// `Collection.equals` compares the key sets (values are the shared guild
@@ -3306,17 +3336,9 @@ impl Handler {
         };
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-        let desc = text(desc_key)
-            .replace(
-                "${firstEntry.executor.id}",
-                &entry.user_id.get().to_string(),
-            )
-            .replace("${firstEntry.target.id}", &target_id.to_string())
-            .replace("${firstEntry.target.username}", target_name.unwrap_or(""));
-        let reason = entry
-            .reason
-            .clone()
-            .unwrap_or_else(|| text("blacklist_var_no_reason"));
+        let desc =
+            mod_log_description(&text(desc_key), entry.user_id.get(), target_id, target_name);
+        let reason = mod_log_reason(entry.reason.as_deref(), &text("blacklist_var_no_reason"));
         let embed = serenity::CreateEmbed::default()
             .colour(0x010101_u32)
             .description(desc)
@@ -13151,6 +13173,42 @@ mod restore_tests {
         assert!(channel_logs_both_bot(Some(true), Some(true)));
         assert!(!channel_logs_both_bot(Some(true), None));
         assert!(!channel_logs_both_bot(Some(true), Some(false)));
+    }
+
+    #[test]
+    fn mod_log_embed_matches_ts_ban_kick_battery() {
+        // Mirrors scratch/slice-w7s50-modlog-embed.cjs 1:1 (U-ETERNAL-415):
+        // per-file token chains (addBan id+id, removeBan id+username,
+        // kick id+id) vs the unified triple chain; reason `||` fold
+        // (None AND "" fall back, whitespace kept); all three legs share
+        // the banAdd field keys (TS quirk, preserved in the caller).
+        const BAN_ADD: &str = "<@${firstEntry.executor.id}> **banned** <@${firstEntry.target.id}>";
+        const BAN_REMOVE: &str =
+            "<@${firstEntry.executor.id}> **revoked the ban** on ${firstEntry.target.username}";
+        const KICK: &str = "<@${firstEntry.executor.id}> **kicked** <@${firstEntry.target.id}>";
+        const FB: &str = "No reason found";
+        assert_eq!(
+            mod_log_description(BAN_ADD, 111, 222, None),
+            "<@111> **banned** <@222>"
+        );
+        assert_eq!(
+            mod_log_description(BAN_REMOVE, 111, 222, Some("SomeUser")),
+            "<@111> **revoked the ban** on SomeUser"
+        );
+        assert_eq!(
+            mod_log_description(KICK, 111, 222, None),
+            "<@111> **kicked** <@222>"
+        );
+        // Absent-token legs are no-ops: no cross-token pollution.
+        assert!(!mod_log_description(BAN_ADD, 111, 222, Some("SomeUser")).contains("SomeUser"));
+        assert!(!mod_log_description(BAN_REMOVE, 111, 222, Some("U")).contains("222"));
+        // Field template shape (shared banAdd keys on all three legs).
+        assert_eq!("```{reason}```".replace("{reason}", "x"), "```x```");
+        // Reason fold: value kept, None/"" fall back, whitespace kept.
+        assert_eq!(mod_log_reason(Some("spam"), FB), "spam");
+        assert_eq!(mod_log_reason(None, FB), FB);
+        assert_eq!(mod_log_reason(Some(""), FB), FB);
+        assert_eq!(mod_log_reason(Some(" "), FB), " ");
     }
 
     #[test]
