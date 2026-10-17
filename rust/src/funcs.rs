@@ -1341,6 +1341,46 @@ pub fn is_in_voice_channel(channel: Option<u64>) -> bool {
     channel.is_some()
 }
 
+/// Mirror of the `rateLimited` REST-event message in
+/// src/Events/client/onRateLimit.ts (plain `+` concatenation, logged via
+/// `logger.err`; the commented-out email leg never ran and has no mirror).
+/// `major_parameter`/`sublimit_timeout` are `Option` because discord.js
+/// types them as possibly-absent: `None` renders `"undefined"` exactly
+/// like the TS `+ undefined` leg (node ground truth: tail
+/// `"Sublimit Timeout: undefinedms"`).
+pub struct RateLimitInfo<'a> {
+    pub route: &'a str,
+    pub url: &'a str,
+    pub method: &'a str,
+    pub scope: &'a str,
+    pub global: bool,
+    pub limit: u64,
+    pub retry_after: u64,
+    pub time_to_reset: u64,
+    pub hash: &'a str,
+    pub major_parameter: Option<&'a str>,
+    pub sublimit_timeout: Option<u64>,
+}
+
+pub fn format_rate_limit_message(info: &RateLimitInfo) -> String {
+    format!(
+        "\u{26a0}\u{fe0f} Rate limit detected\nRoute: {}\nURL: {}\nMethod: {}\nScope: {}\nGlobal: {}\nLimit: {}\nRetry After: {}ms\nTime To Reset: {}ms\nHash: {}\nMajor Param: {}\nSublimit Timeout: {}ms",
+        info.route,
+        info.url,
+        info.method,
+        info.scope,
+        info.global,
+        info.limit,
+        info.retry_after,
+        info.time_to_reset,
+        info.hash,
+        info.major_parameter.unwrap_or("undefined"),
+        info.sublimit_timeout
+            .map(|t| t.to_string())
+            .unwrap_or_else(|| "undefined".to_string()),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -5646,6 +5686,40 @@ mod content_type_image_tests {
         assert!(is_in_voice_channel(Some(0)));
         assert!(is_in_voice_channel(Some(1)));
         assert!(is_in_voice_channel(Some(u64::MAX)));
+    }
+
+    #[test]
+    fn rate_limit_message_matches_ts_onratelimit() {
+        // Node ground truth (W7 slice 53): verbatim `+` chain from
+        // src/Events/client/onRateLimit.ts, byte-exact incl. the
+        // U+26A0 U+FE0F leader and the `undefinedms` tail leg.
+        let full = RateLimitInfo {
+            route: "/channels/123",
+            url: "https://discord.com/api/v10/channels/123",
+            method: "POST",
+            scope: "user",
+            global: false,
+            limit: 5,
+            retry_after: 1200,
+            time_to_reset: 1200,
+            hash: "abc",
+            major_parameter: Some("123"),
+            sublimit_timeout: None,
+        };
+        assert_eq!(
+            format_rate_limit_message(&full),
+            "⚠️ Rate limit detected\nRoute: /channels/123\nURL: https://discord.com/api/v10/channels/123\nMethod: POST\nScope: user\nGlobal: false\nLimit: 5\nRetry After: 1200ms\nTime To Reset: 1200ms\nHash: abc\nMajor Param: 123\nSublimit Timeout: undefinedms"
+        );
+        let global_sub = RateLimitInfo {
+            global: true,
+            major_parameter: None,
+            sublimit_timeout: Some(0),
+            ..full
+        };
+        let msg = format_rate_limit_message(&global_sub);
+        assert!(msg.contains("\nGlobal: true\n"));
+        assert!(msg.contains("\nMajor Param: undefined\n"));
+        assert!(msg.ends_with("\nSublimit Timeout: 0ms"));
     }
 
     #[test]
