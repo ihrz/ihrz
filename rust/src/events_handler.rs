@@ -5749,10 +5749,9 @@ impl serenity::EventHandler for Handler {
         // reason).
         if let Some(raw) = nick_kicker_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
-                let enabled = cfg
-                    .get("enabled")
-                    .and_then(|e| e.as_bool())
-                    .unwrap_or(false);
+                // TS `baseData?.enabled` truthiness (not strict-bool:
+                // manual-DB `"false"`/`1` rows still enforce in TS).
+                let enabled = crate::commands::utils::nick_kicker_enabled(&cfg);
                 let words: Vec<String> = cfg
                     .get("words")
                     .and_then(|w| serde_json::from_value(w.clone()).ok())
