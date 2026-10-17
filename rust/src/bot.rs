@@ -930,7 +930,7 @@ pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
     // Attachment->"attachment", else "unknown"), and the channel
     // allowlist mirrors ArgumentBrief.channelType so the prefix gate sees
     // the same isValidArgument inputs as TS.
-    let specs: Vec<prefix_args::ArgSpec> = ctx
+    let mut specs: Vec<prefix_args::ArgSpec> = ctx
         .command()
         .parameters
         .iter()
@@ -949,6 +949,18 @@ pub(crate) async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
             spec
         })
         .collect();
+    // Poise 0.6 sorts optional params last in `parameters` (Discord
+    // requires required-first on slash), but TS renders usage in
+    // declaration order — restore it where pinned (ts_param_order),
+    // so the caret indexes the same token prod flags.
+    if let Some(order) = prefix_args::ts_param_order(&ctx.command().qualified_name) {
+        specs.sort_by_key(|s| {
+            order
+                .iter()
+                .position(|n| *n == s.name)
+                .unwrap_or(usize::MAX)
+        });
+    }
     if specs.is_empty() {
         return;
     }

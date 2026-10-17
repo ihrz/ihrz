@@ -486,12 +486,13 @@ pub fn usage_error_description(
         .replacen("${wrongArgumentName}", &wrong_name, 1)
 }
 
-/// TS-exact usage token for a choice param whose TS `value`s differ
-/// from the slash display names. Poise 0.6 erases values (only `name`
-/// survives in the registry), but `getArgumentOptionTypeWithOptions`
-/// (method.ts:294-299) renders choice VALUES, and `required` mirrors
-/// the TS decl — not the poise Option-ness. Returns
-/// `(type_label, required)`; `None` keeps the generic rendering.
+/// TS-exact usage token for a param whose TS decl `required`/rendering
+/// differs from the poise `Option`-ness. Poise 0.6 erases values (only
+/// `name` survives in the registry), but
+/// `getArgumentOptionTypeWithOptions` (method.ts:294-299) renders
+/// choice VALUES, and `required` mirrors the TS decl — not the poise
+/// Option-ness. Returns `(type_label, required)`; `None` keeps the
+/// generic rendering.
 pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static str, bool)> {
     match (qualified, param) {
         // backup.ts create/save-message: values `yes`/`no` (names
@@ -507,6 +508,27 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // poise 0.6 erases required-ness on Option params, so the
         // generic render would emit `<off/on>`.
         ("ticket config", "action") => Some(("off/on", true)),
+        // fun.ts tweet/user: required:true User option (prod WAVE-HD
+        // answers `.fun image tweet parity check` with
+        // `+tweet [user] [string]`, caret on `[user]`), but the poise
+        // param is Option (prefix falls back to the invoker), so the
+        // generic render would emit `<user>`.
+        ("fun image tweet", "user") => Some(("user", true)),
+        _ => None,
+    }
+}
+
+/// TS declaration order for a command whose poise `parameters` vec no
+/// longer matches it. Poise 0.6 sorts optional params last (Discord
+/// requires required-first on slash), while prefix parsing AND the TS
+/// `command.options` order (which `sendErrorMessage` renders) keep
+/// declaration order. Without the remap the usage line would list the
+/// required tail first. `None` keeps registry order.
+pub fn ts_param_order(qualified: &str) -> Option<&'static [&'static str]> {
+    match qualified {
+        // fun.ts tweet options: user, comment (poise registry holds
+        // [comment, user]; prod WAVE-HD renders `[user] [string]`).
+        "fun image tweet" => Some(&["user", "comment"]),
         _ => None,
     }
 }
@@ -1032,5 +1054,13 @@ mod tests {
             Some(("off/on", true))
         );
         assert_eq!(choice_token_override("ticket config", "other"), None);
+        // fun image tweet/user: TS decl required:true renders `[user]`
+        // (prod WAVE-HD: `+tweet [user] [string]`, caret on `[user]`) —
+        // never the poise-erased `<user>`.
+        assert_eq!(
+            choice_token_override("fun image tweet", "user"),
+            Some(("user", true))
+        );
+        assert_eq!(choice_token_override("fun image tweet", "other"), None);
     }
 }
