@@ -7625,7 +7625,7 @@ impl serenity::EventHandler for Handler {
             // warnMember `[Anti-Exe]` warn. No early return — like the
             // TS listener, processing falls through to reacts below.
             let raw = antiexe_routed(&self.pool, &gid).await;
-            if crate::commands::legacy::flag_on(raw) {
+            if crate::commands::legacy::antiexe_enforces(raw) {
                 let staff = msg
                     .member
                     .as_ref()

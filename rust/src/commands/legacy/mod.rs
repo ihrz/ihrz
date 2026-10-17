@@ -311,6 +311,20 @@ pub fn flag_on(raw: Option<String>) -> bool {
     )
 }
 
+/// antiExe config gate. Mirrors `if (!config && config !== "on") return;`
+/// in antiExe.ts EXACTLY: the gate proceeds on ANY truthy stored value, so
+/// a writer-stored `"off"` row still enforces (the prefix toggle reply says
+/// "Disabled" while enforcement continues -- TS bug, preserved). The writer
+/// (`@antiexe.ts`) stores only `"on"`/`"off"` strings and `antiexe_routed`
+/// passes them through verbatim, so on the reachable `Option<String>`
+/// domain this is `Some(non-empty)` == proceed, `None`/`Some("")` == skip.
+/// (Non-string JSON shapes -- numbers, bools, objects -- cannot flow
+/// through the `Option<String>` read; every one of them is truthy in TS
+/// except `0`/`false`, which would skip there. Unreachable, doc-noted.)
+pub fn antiexe_enforces(raw: Option<String>) -> bool {
+    matches!(raw.as_deref(), Some(s) if !s.is_empty())
+}
+
 /// Partner ad copy. fr-gated content like the autofeur joke table:
 /// shown as-is only on fr-locale guilds, so it lives here, not in YAML.
 pub const FEXINI_AD: &str = ":pushpin:  **Regardez des films, séries et animés gratuitement, sans pub, en streaming. Catalogue mis à jour quotidiennement.**\n:point_right: https://fexini.tv/";
@@ -2025,6 +2039,27 @@ mod tests {
         assert!(flag_on(Some("true".to_string())));
         assert!(!flag_on(Some("0".to_string())));
         assert!(!flag_on(None));
+    }
+
+    #[test]
+    fn antiexe_gate_matches_ts_battery() {
+        // Battery (scratch slice-w7s25-antiexe.js): TS proceeds on ANY
+        // truthy config, so writer-stored "off" still enforces.
+        assert!(antiexe_enforces(Some("on".to_string())));
+        assert!(antiexe_enforces(Some("off".to_string())));
+        assert!(antiexe_enforces(Some("0".to_string())));
+        assert!(antiexe_enforces(Some("ON".to_string())));
+        assert!(antiexe_enforces(Some(" on ".to_string())));
+        assert!(!antiexe_enforces(Some(String::new())));
+        assert!(!antiexe_enforces(None));
+        // ilegalFile substring legs: embedded ".exe" trips, dotless
+        // "myexe" passes, bare ".exe" trips.
+        assert!(has_blocked_exe(&["file.exe.txt".to_string()]));
+        assert!(has_blocked_exe(&[".exe".to_string()]));
+        assert!(!has_blocked_exe(&["myexe".to_string()]));
+        assert!(!has_blocked_exe(&["trailing.".to_string()]));
+        assert!(!has_blocked_exe(&["x.VBS".to_string()]));
+        assert!(has_blocked_exe(&["EVIL.EXE.exe".to_string()]));
     }
 
     #[test]
