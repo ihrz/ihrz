@@ -53,6 +53,159 @@ pub async fn save_pfps_string(
     guild_backend(pool).table(guild_id).set(key, value).await
 }
 
+/// PFPS poster tick (mirrors `PfpsManager_Init` + 45s `Refresh` in
+/// src/core/modules/pfpsManager.ts, wired from ready.ts): for every
+/// cached guild with a PFPS row that is neither disabled nor
+/// channel-less, post a random non-bot member's guild + user avatars
+/// into the PFPS channel. Anti-repeat: never the same member twice
+/// in a row per guild (TS `usr` map). Failures are silent per guild.
+pub async fn pfps_refresh_tick(
+    pool: &crate::db::Pool,
+    http: &poise::serenity_prelude::Http,
+    cache: std::sync::Arc<poise::serenity_prelude::Cache>,
+) {
+    use rand::seq::SliceRandom as _;
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+    static LAST: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
+    let last = LAST.get_or_init(|| Mutex::new(HashMap::new()));
+
+    let gids: Vec<poise::serenity_prelude::GuildId> = cache.guilds();
+    for gid in gids {
+        let gs = gid.get().to_string();
+        let disabled = matches!(
+            load_pfps_string(pool, &gs, "PFPS.disable").await.as_deref(),
+            Some("1") | Some("true")
+        );
+        if disabled {
+            continue;
+        }
+        let Some(chan) = load_pfps_string(pool, &gs, "PFPS.channel")
+            .await
+            .and_then(|c| c.parse::<u64>().ok())
+            .filter(|c| *c != 0)
+        else {
+            continue;
+        };
+        let channel_id = poise::serenity_prelude::ChannelId::new(chan);
+        // Members: cache first, one HTTP page fallback (TS fetches when
+        // the cache looks uninitialized).
+        let mut members: Vec<poise::serenity_prelude::Member> = cache
+            .guild(gid)
+            .map(|g| {
+                g.members
+                    .values()
+                    .filter(|m| !m.user.bot)
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default();
+        if members.is_empty() {
+            if let Ok(fetched) = gid.members(http, Some(1000), None).await {
+                members = fetched.into_iter().filter(|m| !m.user.bot).collect();
+            }
+        }
+        if members.is_empty() {
+            continue;
+        }
+        // Random pick avoiding the last-posted member (TS re-rolls once
+        // on repeat, then posts whatever comes out). Rng stays inside
+        // this scope: ThreadRng is !Send and must not cross awaits.
+        let pick = {
+            let mut rng = rand::thread_rng();
+            let mut pick = match members.choose(&mut rng) {
+                Some(m) => m.clone(),
+                None => continue,
+            };
+            let prev = last.lock().ok().and_then(|m| m.get(&gs).copied());
+            if Some(pick.user.id.get()) == prev && members.len() > 1 {
+                if let Some(other) = members
+                    .choose(&mut rng)
+                    .filter(|m| Some(m.user.id.get()) != prev)
+                {
+                    pick = other.clone();
+                }
+            }
+            pick
+        };
+        if let Ok(mut m) = last.lock() {
+            m.insert(gs.clone(), pick.user.id.get());
+        }
+        let code = crate::db::guild_lang(pool, Some(gid.get())).await;
+        let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+        let username = pick
+            .user
+            .global_name
+            .clone()
+            .unwrap_or_else(|| pick.user.name.clone());
+        let mut embeds: Vec<poise::serenity_prelude::CreateEmbed> = Vec::new();
+        let mut buttons: Vec<poise::serenity_prelude::CreateButton> = Vec::new();
+        // Guild avatar leg (TS posts it only when the member HAS one).
+        if let Some(ahash) = pick.avatar.as_ref().map(|h| h.to_string()) {
+            let gext = if ahash.starts_with("a_") {
+                "gif"
+            } else {
+                "png"
+            };
+            let full = format!(
+                "https://cdn.discordapp.com/guilds/{}/users/{}/avatars/{ahash}.{gext}?size=4096",
+                gid.get(),
+                pick.user.id.get()
+            );
+            buttons.push(
+                poise::serenity_prelude::CreateButton::new_link(full.clone())
+                    .label(t("pfps_download_guild_button", "Download Guild Avatar")),
+            );
+            embeds.push(
+                poise::serenity_prelude::CreateEmbed::new()
+                    .color(0xa2add0_u32)
+                    .title(
+                        t("pfps_embed_guild_title", "{username}'s **Guild** avatar")
+                            .replace("{username}", &username),
+                    )
+                    .image(full),
+            );
+        }
+        // User avatar leg (always posted).
+        let animated = pick.user.avatar.map(|h| h.is_animated()).unwrap_or(false);
+        let ext = if animated { "gif" } else { "png" };
+        let uface = pick.user.face().replace(".webp", &format!(".{ext}"));
+        let ufull = format!("{uface}?size=4096");
+        buttons.push(
+            poise::serenity_prelude::CreateButton::new_link(ufull.clone())
+                .label(t("pfps_download_user_button", "Download User Avatar")),
+        );
+        let (footer_name, footer_icon) =
+            crate::commands::shared::footer_parts_pool(pool, &gs).await;
+        let user_embed = crate::commands::shared::embed_with_footer(
+            poise::serenity_prelude::CreateEmbed::new()
+                .color(0xa2add0_u32)
+                .title(
+                    t("pfps_embed_user_title", "{username}'s **User** avatar")
+                        .replace("{username}", &username),
+                )
+                .image(ufull)
+                .timestamp(poise::serenity_prelude::Timestamp::now()),
+            &footer_name,
+            footer_icon.is_some(),
+        );
+        embeds.push(user_embed);
+        let mut msg = poise::serenity_prelude::CreateMessage::new()
+            .embeds(embeds)
+            .button(buttons.remove(0));
+        for b in buttons {
+            msg = msg.button(b);
+        }
+        if let Some(bytes) = footer_icon {
+            msg = msg.add_file(poise::serenity_prelude::CreateAttachment::bytes(
+                bytes,
+                "footer_icon.png",
+            ));
+        }
+        let _ = channel_id.send_message(http, msg).await;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

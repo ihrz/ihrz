@@ -4419,6 +4419,22 @@ impl serenity::EventHandler for Handler {
                 .register_announce(ctx.http.clone())
                 .await;
         }
+        // PFPS poster loop (mirrors PfpsManager_Init 45s Refresh in
+        // pfpsManager.ts, wired from ready.ts:426). Once per process:
+        // ready fires per shard.
+        static PFPS_ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        if PFPS_ONCE.set(()).is_ok() {
+            let pool = self.pool.clone();
+            let http = ctx.http.clone();
+            let cache = ctx.cache.clone();
+            tokio::spawn(async move {
+                crate::commands::pfps::pfps_refresh_tick(&pool, &http, cache.clone()).await;
+                loop {
+                    tokio::time::sleep(std::time::Duration::from_secs(45)).await;
+                    crate::commands::pfps::pfps_refresh_tick(&pool, &http, cache.clone()).await;
+                }
+            });
+        }
         // Flowery voice prefetch (mirrors prefetchFloweryVoices() in
         // ready.ts). Once per process; silent on failure, speakTTS
         // falls back to the default voice.
