@@ -161,6 +161,10 @@ pub async fn pfps_refresh_tick(
                     .color(0xa2add0_u32)
                     .title(
                         t("pfps_embed_guild_title", "{username}'s **Guild** avatar")
+                            // TS replaces only `{username}` inside
+                            // `${username}`, leaving a stray `$` (visible
+                            // live as `$name's …`). Replace the full token.
+                            .replace("${username}", &username)
                             .replace("{username}", &username),
                     )
                     .image(full),
@@ -182,6 +186,7 @@ pub async fn pfps_refresh_tick(
                 .color(0xa2add0_u32)
                 .title(
                     t("pfps_embed_user_title", "{username}'s **User** avatar")
+                        .replace("${username}", &username)
                         .replace("{username}", &username),
                 )
                 .image(ufull)
