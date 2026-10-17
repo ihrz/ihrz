@@ -2690,6 +2690,78 @@ mod tests {
         assert!(d.contains("-    ✅ ViewChannel\n"));
     }
 
+    /// W7 slice 52 battery: `channel_perm_diff` must match getDiff in
+    /// Events/logs/channelUpdateLogs.ts verbatim on the legs the thin
+    /// pin above does not cover, plus the `> 1024` truncation rule.
+    /// Vectors from node script at scratch
+    /// `slice-w7s52-channelupdate.cjs` (green 28/28).
+    #[test]
+    fn channel_perm_diff_matches_ts_battery() {
+        let text = |k: &str| match k {
+            "event_srvLogs_channelUpdate_field_name" => "NAME:${newChannel.name}|".to_string(),
+            "event_srvLogs_channelUpdate_disabled_for" => "DIS ${perm} ${target}|".to_string(),
+            "event_srvLogs_channelUpdate_enabled_for" => "EN ${perm} ${target}|".to_string(),
+            "event_srvLogs_channelUpdate_allowed_for" => "AL ${perm} ${target}|".to_string(),
+            "event_srvLogs_channelUpdate_unallowed_for" => "UN ${perm} ${target}|".to_string(),
+            "event_srvLogs_channelUpdate_perm_added" => "ADD ${target}|".to_string(),
+            _ => k.to_string(),
+        };
+        let mk = |id: u64, is_role: bool, allow: &[&str], deny: &[&str]| PermOverwriteDiff {
+            id,
+            is_role,
+            allow: allow.iter().map(|s| s.to_string()).collect(),
+            deny: deny.iter().map(|s| s.to_string()).collect(),
+        };
+        // deleted overwrite id: no leg covers it, TS stays silent.
+        assert_eq!(
+            channel_perm_diff("a", "a", &[mk(9, true, &["ViewChannel"], &[])], &[], &text),
+            ""
+        );
+        // mention comes from the NEW row: a type flip re-mentions.
+        assert_eq!(
+            channel_perm_diff(
+                "a",
+                "a",
+                &[mk(1, true, &[], &[])],
+                &[mk(1, false, &["ViewChannel"], &[])],
+                &text
+            ),
+            "EN ViewChannel <@1>|"
+        );
+        // allow-to-deny move emits disabled then unallowed, in order.
+        assert_eq!(
+            channel_perm_diff(
+                "a",
+                "a",
+                &[mk(1, true, &["SendMessages"], &[])],
+                &[mk(1, true, &[], &["SendMessages"])],
+                &text
+            ),
+            "DIS SendMessages <@&1>|UN SendMessages <@&1>|"
+        );
+        // new-overwrite block: perm_added + allow ✅ then deny ❌ lines.
+        assert_eq!(
+            channel_perm_diff(
+                "a",
+                "a",
+                &[],
+                &[mk(5, true, &["ViewChannel"], &["SendMessages"])],
+                &text
+            ),
+            "ADD <@&5>|-    ✅ ViewChannel\n-    ❌ SendMessages\n"
+        );
+        // truncation rule (`length > 1024`, UTF-16 units): 1024 passes
+        // through, 1025 cuts to 1021 units + "...".
+        let fits = "x".repeat(1024);
+        assert_eq!(fits.encode_utf16().count(), 1024);
+        let long = "x".repeat(1025);
+        assert!(long.encode_utf16().count() > 1024);
+        let cut = format!("{}...", &long[..1021]);
+        assert_eq!(cut.encode_utf16().count(), 1024);
+        // astral chars count 2 units in the length/substring domain.
+        assert_eq!("😀".repeat(600).encode_utf16().count(), 1200);
+    }
+
     #[test]
     fn message_diff_matches_ts() {
         let d = message_diff("hello world", "hello there");

@@ -10347,6 +10347,11 @@ impl serenity::EventHandler for Handler {
         // when no audit entry, both executors are the bot, or the diff
         // is empty, like TS.
         //
+        // TS returns before every leg above when the bot lacks
+        // Administrator (`!members.me?.permissions.has([Administrator])`);
+        // without the gate a ViewAuditLog-capable non-admin bot would
+        // fetch entries and post embeds TS never sends.
+        //
         // Attribution mirrors getLogs in Events/protection/ready.ts
         // (battery slice W7-40): each action scans the last 40 entries
         // for a target-id match (recent, non-bot executor) and the leg
@@ -10359,6 +10364,9 @@ impl serenity::EventHandler for Handler {
         let Some(old) = old else {
             return;
         };
+        if !self.bot_is_admin(&ctx, new.guild_id).await {
+            return;
+        }
         let gid = new.guild_id.get().to_string();
         let logs_ch: Option<u64> =
             crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
@@ -10483,20 +10491,25 @@ impl serenity::EventHandler for Handler {
         }
         // TS author is `relevantLog?.executor` (the ChannelUpdate leg,
         // possibly undefined -> var_unknown), never the overwrite leg.
-        let executor_name = match e1 {
-            Some(e) => e
-                .user_id
-                .to_user(&ctx.http)
-                .await
-                .map(|u| u.name.clone())
-                .unwrap_or_else(|_| text("var_unknown")),
-            None => text("var_unknown"),
+        // `iconURL` is the executor avatar (`displayAvatarURL()` falls
+        // back to the default-avatar CDN, like serenity `face()`; a
+        // missing leg carries no icon on either side).
+        let (executor_name, executor_icon): (String, Option<String>) = match e1 {
+            Some(e) => match e.user_id.to_user(&ctx.http).await {
+                Ok(u) => (u.name.clone(), Some(u.face())),
+                Err(_) => (text("var_unknown"), None),
+            },
+            None => (text("var_unknown"), None),
         };
         let desc = text("event_srvLogs_channelUpdate_embed_desc")
             .replace("${newChannel.toString()}", &format!("<#{}>", new.id.get()));
+        let mut author = serenity::CreateEmbedAuthor::new(executor_name);
+        if let Some(icon) = executor_icon {
+            author = author.icon_url(icon);
+        }
         let embed = serenity::CreateEmbed::default()
             .colour(0x010101_u32)
-            .author(serenity::CreateEmbedAuthor::new(executor_name))
+            .author(author)
             .description(desc)
             .field(text("event_srvLogs_messageUpdate_footer_2"), changes, false)
             .timestamp(serenity::Timestamp::now());
