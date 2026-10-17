@@ -277,7 +277,10 @@ pub async fn command_rate_limit_check(
 
 /// Owner bypass for per-command rate limits, shared by the check leg
 /// (global_check) and the record leg (record_execution_gates).
-/// Mirrors checkCommandRateLimit: guild owner + GUILD.OWNER rows skip.
+/// Mirrors checkCommandRateLimit (`isGuildOwner` skip): the Discord
+/// owner or a stored `OWNER.{uid} = {owner: true}` row skips. The
+/// legacy `GUILD.OWNER.*` shape is NOT consulted (TS never writes it;
+/// owner_exempt_routed keeps it as read-only fallback elsewhere).
 async fn rate_limit_bypassed(
     pool: &Pool,
     http: &serenity::Http,
@@ -290,14 +293,12 @@ async fn rate_limit_bypassed(
         .map(|g| g.owner_id)
         .unwrap_or(user_id);
     owner == user_id
-        || crate::commands::owner::main::routed_get(
+        || crate::funcs_perms::is_owner(
             pool,
             &guild_id.get().to_string(),
-            &guild_id.get().to_string(),
-            &format!("GUILD.OWNER.{}", user_id.get()),
+            &user_id.get().to_string(),
         )
         .await
-        .is_some()
 }
 
 /// Pure leg of the prefix channel gate (unit-tested). Mirrors
@@ -3448,31 +3449,32 @@ mod tests {
 
     #[tokio::test]
     async fn global_check_owner_bypass_read_is_routed() {
-        // global_check bypasses rate limits on GUILD.OWNER.<uid> via
-        // routed_get existence (helpall.rs precedent): legacy-only rows
-        // exempt, missing rows do not.
+        // global_check bypasses rate limits for stored guild owners
+        // (checkCommandRateLimit `isGuildOwner` skip): the exact row
+        // the owner seal writes (`OWNER.{uid} = {owner: true}`,
+        // dual-store) exempts via is_owner, missing rows do not. The
+        // legacy GUILD.OWNER.* shape is NOT consulted (TS never
+        // writes it).
         let pool = temp_pool().await;
-        crate::db::kv_set(&pool, "g1", "GUILD.OWNER.42", "1")
-            .await
-            .unwrap();
         assert!(
-            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.OWNER.42")
-                .await
-                .is_some()
+            !crate::funcs_perms::is_owner(&pool, "g1", "42").await,
+            "missing row does not bypass"
+        );
+        crate::db::tbl_set_json(
+            &pool,
+            "g1",
+            &crate::db::owner_key(42),
+            &serde_json::json!({ "owner": true }),
+        )
+        .await
+        .unwrap();
+        assert!(
+            crate::funcs_perms::is_owner(&pool, "g1", "42").await,
+            "seal-shape row bypasses"
         );
         assert!(
-            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.OWNER.43")
-                .await
-                .is_none()
-        );
-        // Table row alone also exempts (pre-migration dual state).
-        crate::db::tbl_set(&pool, "g2", "GUILD.OWNER.44", "1")
-            .await
-            .unwrap();
-        assert!(
-            crate::commands::owner::main::routed_get(&pool, "g2", "g2", "GUILD.OWNER.44")
-                .await
-                .is_some()
+            !crate::funcs_perms::is_owner(&pool, "g1", "43").await,
+            "other uid does not bypass"
         );
     }
 

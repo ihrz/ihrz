@@ -4702,12 +4702,15 @@ impl serenity::EventHandler for Handler {
         }
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild.id.get())).await;
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-        // Seed the guild owner (ownerHelper.addGuildOwner).
-        let _ = crate::db::tbl_set(
+        // Seed the guild owner (ownerHelper.addGuildOwner): top-level
+        // `OWNER.{uid} = {owner: true}`, dual-stored so is_owner /
+        // owner_exempt_routed / stored_guild_owners all see it (the
+        // legacy GUILD.OWNER.* shape is read-only fallback now).
+        let _ = crate::db::tbl_set_json(
             &self.pool,
             &gid,
-            &format!("GUILD.OWNER.{}", guild.owner_id.get()),
-            "1",
+            &crate::db::owner_key(guild.owner_id.get()),
+            &serde_json::json!({ "owner": true }),
         )
         .await;
         // Blacklist leave: blacklisted owner -> farewell embed, then leave.
@@ -6523,26 +6526,39 @@ impl serenity::EventHandler for Handler {
         if msg.author.bot {
             return;
         }
-        // Guild owner safety seal (once per guild per boot).
+        // Guild owner safety seal (once per guild per boot; mirrors
+        // Events/utils/guildOwnerSafetySetWhenMessage.ts): the first
+        // guild message seals `OWNER.{ownerId} = {owner: true}`
+        // (ownerHelper.addGuildOwner). Dual-store (tbl_set_json) so
+        // every reader sees it: is_owner (table walk
+        // `OWNER.{uid}.owner`), owner_exempt_routed (primary),
+        // stored_guild_owners (kv `OWNER.` prefix scan). Visited is
+        // marked only after the write resolves (TS `.then(add)`) so
+        // a failed write retries on the next message.
         if let Some(guild_id) = msg.guild_id {
             let gid = guild_id.get().to_string();
             let fresh = {
-                let mut sealed = self.sealed.lock().await;
-                sealed.insert(gid.clone())
+                let sealed = self.sealed.lock().await;
+                !sealed.contains(&gid)
             };
             if fresh {
                 if let Ok(owner_id) = guild_id
                     .to_partial_guild(&_ctx.http)
                     .await
-                    .map(|g| g.owner_id.get().to_string())
+                    .map(|g| g.owner_id.get())
                 {
-                    let _ = crate::db::tbl_set(
+                    if crate::db::tbl_set_json(
                         &self.pool,
                         &gid,
-                        &format!("GUILD.OWNER.{owner_id}"),
-                        "1",
+                        &crate::db::owner_key(owner_id),
+                        &serde_json::json!({ "owner": true }),
                     )
-                    .await;
+                    .await
+                    .is_ok()
+                    {
+                        let mut sealed = self.sealed.lock().await;
+                        sealed.insert(gid.clone());
+                    }
                 }
             }
         }
@@ -11337,6 +11353,35 @@ mod restore_tests {
             Some("1")
         );
         assert!(owner_entry_routed(&pool, "g1", 9).await.is_none());
+        // W7 slice 22 (U-ETERNAL-387): the owner seal writes top-level
+        // `OWNER.{uid} = {owner: true}` (dual-store), so every reader
+        // sees it — unlike the old `GUILD.OWNER.{uid} = "1"` row, which
+        // only the legacy fallback leg could see.
+        crate::db::tbl_set_json(
+            &pool,
+            "g7",
+            &crate::db::owner_key(8),
+            &serde_json::json!({ "owner": true }),
+        )
+        .await
+        .unwrap();
+        assert!(
+            crate::funcs_perms::is_owner(&pool, "g7", "8").await,
+            "seal row satisfies the perm-gate read"
+        );
+        assert!(
+            owner_exempt_routed(&pool, "g7", 8).await,
+            "seal row satisfies the protection-exempt read"
+        );
+        assert_eq!(
+            crate::db::stored_guild_owners(&pool, "g7").await,
+            vec!["8".to_string()],
+            "seal row is listed by the owner scan"
+        );
+        assert!(
+            !crate::funcs_perms::is_owner(&pool, "g7", "9").await,
+            "unsealed uid stays non-owner"
+        );
         crate::db::tbl_set(&pool, "g1", "ALLOWLIST.list.8", "{\"allowed\":true}")
             .await
             .unwrap();
