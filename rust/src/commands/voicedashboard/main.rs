@@ -819,13 +819,33 @@ pub fn owner_voice_allow() -> serenity::Permissions {
 /// Temp-channel rename from the `VOICE_INTERFACE.voice_channel_name`
 /// template. `{Username}` is replaced, otherwise the name is
 /// appended (`template + " " + username`). Mirrors the spawn /
-/// claim / transfer renames in TS.
+/// claim / transfer renames in TS. NOTE: TS `String.replace` with a
+/// string pattern replaces the FIRST marker only — `replacen(..., 1)`
+/// keeps multi-marker templates exact (battery slice-w7s41).
 pub fn render_temp_name(template: &str, username: &str) -> String {
     if template.contains("{Username}") {
-        template.replace("{Username}", username)
+        template.replacen("{Username}", username, 1)
     } else {
         format!("{template} {username}")
     }
+}
+
+/// Hub-join default title from the `temporary_voice_channel_name`
+/// lang template. Same first-only `{nickname}` shape as TS
+/// `lang.temporary_voice_channel_name.replace("{nickname}", ...)`
+/// (battery slice-w7s41); all shipped langs carry a single marker.
+pub fn render_hub_title(template: &str, masked: &str) -> String {
+    template.replacen("{nickname}", masked, 1)
+}
+
+/// Whether the temp-voice sweep runs. Mirrors the
+/// `if (!baseData || !baseData.voice_channel) return;` gate in
+/// voiceState.ts: every cleanup leg below it (own-row, redirect,
+/// sweep, create) is skipped while the interface is unconfigured —
+/// orphan CUSTOM_VOICE rows are left alone like TS (battery
+/// slice-w7s41).
+pub fn temp_sweep_applies(lobby_present: bool) -> bool {
+    lobby_present
 }
 
 /// Parse a voice user limit. Mirrors `parseInt` + the
@@ -2206,6 +2226,36 @@ mod tests {
         assert_eq!(render_temp_name("{Username}'s room", "Ada"), "Ada's room");
         assert_eq!(render_temp_name("Lounge", "Ada"), "Lounge Ada");
         assert_eq!(render_temp_name("{user}", "Ada"), "{user} Ada");
+        // TS string-pattern replace is first-only (battery slice-w7s41).
+        assert_eq!(
+            render_temp_name("{Username} & {Username}", "Ada"),
+            "Ada & {Username}"
+        );
+        assert_eq!(
+            render_temp_name("{Username}{Username}", "Bo"),
+            "Bo{Username}"
+        );
+    }
+
+    #[test]
+    fn hub_title_and_sweep_gate_match_ts_voicedashboard_battery() {
+        // temporary_voice_channel_name.replace("{nickname}", ...) is
+        // first-only; maskLink output is passed through verbatim.
+        assert_eq!(
+            render_hub_title("{nickname}'s Channel", "Ada"),
+            "Ada's Channel"
+        );
+        assert_eq!(
+            render_hub_title("{nickname} {nickname}", "Ada"),
+            "Ada {nickname}"
+        );
+        assert_eq!(
+            render_hub_title("{nickname}'s Channel", "Hidden Link"),
+            "Hidden Link's Channel"
+        );
+        // `!baseData || !baseData.voice_channel → return` skips the sweep.
+        assert!(temp_sweep_applies(true));
+        assert!(!temp_sweep_applies(false));
     }
 
     #[test]

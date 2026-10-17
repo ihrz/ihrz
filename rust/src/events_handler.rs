@@ -8746,7 +8746,8 @@ impl serenity::EventHandler for Handler {
                         // Default title from the lang template (`{nickname}`
                         // slot, full masked display name like TS
                         // `maskLink(username)` — no truncation), with links
-                        // masked like TS maskLink.
+                        // masked like TS maskLink. First-marker-only like
+                        // TS string-pattern replace (render_hub_title).
                         let lang_code =
                             crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
                         let masked = crate::funcs::mask_link(&raw_display);
@@ -8754,7 +8755,9 @@ impl serenity::EventHandler for Handler {
                             match crate::lang::get(&lang_code, "temporary_voice_channel_name")
                                 .as_deref()
                             {
-                                Some(t) => t.replace("{nickname}", &masked),
+                                Some(t) => crate::commands::voicedashboard::main::render_hub_title(
+                                    t, &masked,
+                                ),
                                 None => crate::events::temp_channel_name(&masked),
                             };
                         // The lobby channel must still exist (mirrors `&&
@@ -9280,32 +9283,51 @@ impl serenity::EventHandler for Handler {
         // so the temp-voice sweep below does not apply.
         if old.as_ref().and_then(|o| o.channel_id) != new.channel_id {
             if let Some(old_ch) = old.as_ref().and_then(|o| o.channel_id) {
-                // Event-tied sweep (mirrors the cleanup legs of
-                // voicedashboard/voiceState.ts): only rows pointing at
-                // the abandoned channel are examined — the mover's own
-                // row (`oldState.channelId === channelDb`) and any
-                // other owner's row matching it. The channel is fetched
-                // from the API (mirrors guild.channels.fetch, not the
-                // cache): a gone channel drops its rows (mirrors
-                // `!channel`), an emptied one is deleted then dropped
-                // (mirrors isMemberlessChannel, whose fetch failure
-                // counts as empty).
-                let old_s = old_ch.get().to_string();
-                let tied: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid)
-                    .await
-                    .into_iter()
-                    .filter(|(_, c)| c.trim() == old_s)
-                    .collect();
-                if !tied.is_empty() {
-                    use crate::commands::voicedashboard::main as vd;
-                    if vd::fetch_voice_channel(&ctx.http, old_ch).await.is_none() {
-                        for (key, _) in &tied {
-                            let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
-                        }
-                    } else if vd::voice_occupants(&ctx, guild_id, old_ch) == 0 {
-                        let _ = old_ch.delete(&ctx.http).await;
-                        for (key, _) in &tied {
-                            let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
+                // TS `!baseData || !baseData.voice_channel → return` gate:
+                // the sweep (like every cleanup leg in voiceState.ts) is
+                // skipped while the interface is unconfigured — orphan
+                // rows stay like TS. Scoped to the sweep only: the
+                // TTS/freeze/talk legs below are separate TS handlers.
+                if crate::commands::voicedashboard::main::temp_sweep_applies(
+                    voice_lobby_routed(&self.pool, &gid).await.is_some(),
+                ) {
+                    // Event-tied sweep (mirrors the cleanup legs of
+                    // voicedashboard/voiceState.ts): only rows pointing at
+                    // the abandoned channel are examined — the mover's own
+                    // row (`oldState.channelId === channelDb`) and any
+                    // other owner's row matching it. The channel is fetched
+                    // from the API (mirrors guild.channels.fetch, not the
+                    // cache): a gone channel drops its rows (mirrors
+                    // `!channel`), an emptied one is deleted then dropped
+                    // (mirrors isMemberlessChannel, whose fetch failure
+                    // counts as empty).
+                    //
+                    // Documented deltas vs voiceState.ts (all need corrupt or
+                    // hand-edited rows — writers map one owner row per
+                    // created channel): the tied set folds the mover's own
+                    // row in (TS handles it in the earlier own-leg, then
+                    // `continue`s past it here) and drops every row tied to
+                    // the channel (TS `break`s after the first delete);
+                    // a null cached old channel keeps the row in TS
+                    // (`isMemberlessChannel` false) while the API fetch
+                    // here may still delete.
+                    let old_s = old_ch.get().to_string();
+                    let tied: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid)
+                        .await
+                        .into_iter()
+                        .filter(|(_, c)| c.trim() == old_s)
+                        .collect();
+                    if !tied.is_empty() {
+                        use crate::commands::voicedashboard::main as vd;
+                        if vd::fetch_voice_channel(&ctx.http, old_ch).await.is_none() {
+                            for (key, _) in &tied {
+                                let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
+                            }
+                        } else if vd::voice_occupants(&ctx, guild_id, old_ch) == 0 {
+                            let _ = old_ch.delete(&ctx.http).await;
+                            for (key, _) in &tied {
+                                let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
+                            }
                         }
                     }
                 }
