@@ -2213,7 +2213,11 @@ impl Handler {
     /// (bot + non-guild skipped; option values redacted by
     /// sanitizeInteractionOptionValue).
     async fn log_slash_command(&self, ctx: &serenity::Context, cmd: &serenity::CommandInteraction) {
-        if cmd.user.bot {
+        // Guard mirrors slashCommandLogger.ts interactionCreate
+        // (`!isCommand() || !guild?.channels || bot` → return;
+        // is_command is always true here: only Interaction::Command
+        // routes to this fn, and autocomplete returns earlier).
+        if !crate::slashlog::slash_log_event_proceeds(true, cmd.guild_id.is_some(), cmd.user.bot) {
             return;
         }
         let Some(guild_id) = cmd.guild_id else {

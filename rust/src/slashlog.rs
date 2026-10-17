@@ -55,6 +55,22 @@ pub fn sanitize_interaction_option_value(option_name: &str, option_value: &str) 
     option_value.to_string()
 }
 
+/// Mirrors the slashCommandLogger.ts interactionCreate guard
+/// (`!interaction.isCommand() || !interaction.guild?.channels ||
+/// interaction.user.bot` → return): only real (non-bot) guild slash
+/// commands are logged. `guild_channels_present` stands in for
+/// `!!interaction.guild?.channels` (a cached guild always carries its
+/// channel manager, so presence is the whole check).
+///
+/// Deltas vs TS (cold-cache only, cache warm on live paths): an
+/// uncached guild (`guild_id` set, guild not in cache) skips in TS
+/// (`interaction.guild` is null) but logs here with the guild id as
+/// the name; an uncached channel throws in TS (no log) but falls
+/// back to "unknown" here.
+pub fn slash_log_event_proceeds(is_command: bool, guild_channels_present: bool, bot: bool) -> bool {
+    is_command && guild_channels_present && !bot
+}
+
 /// One saved command row. Mirrors ParsedSavedCommand (camelCase keys).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -829,6 +845,59 @@ mod tests {
             format_logged_command("g kick", &[("reason".to_string(), "spam".to_string())]),
             "/g kick reason:\"spam\""
         );
+    }
+
+    #[test]
+    fn slash_event_gate_matches_ts_battery() {
+        // W7 slice 48 node battery (verbatim guard + template +
+        // sanitize + writer-cap legs, script at scratch
+        // `slice-w7s48-slashlogger.cjs`) -- green 36/36. Verdict:
+        // gate + writer CONVERGENT, pin only, zero live-code change
+        // beyond routing the two inline checks through the pure fn.
+        // (is_command, guild_channels_present, bot) -> proceeds.
+        for ((is_command, guild, bot), want) in [
+            ((true, true, false), true),
+            ((true, true, true), false),
+            ((true, false, false), false),
+            ((true, false, true), false),
+            ((false, true, false), false),
+            ((false, true, true), false),
+            ((false, false, false), false),
+            ((false, false, true), false),
+        ] {
+            assert_eq!(
+                slash_log_event_proceeds(is_command, guild, bot),
+                want,
+                "gate ({is_command}, {guild}, {bot})"
+            );
+        }
+        // Template no-sub legs (TS `subCmd` drops the base command
+        // name -- the deliberate base-name deviation is pre-doc-noted
+        // on split_command_options; the template itself is
+        // byte-identical given the same sub string).
+        assert_eq!(
+            format_logged_command("", &[("a".to_string(), "1".to_string())]),
+            "/ a:\"1\""
+        );
+        assert_eq!(
+            format_logged_command(
+                "user ban",
+                &[
+                    ("a".to_string(), "1".to_string()),
+                    ("b".to_string(), "2".to_string()),
+                ]
+            ),
+            "/user ban a:\"1\" b:\"2\""
+        );
+        // Sanitize fold/miss legs from the battery (full sensitive-set
+        // + unicode coverage lives in sanitize_redacts_sensitive_names
+        // since W6 slice 119).
+        assert_eq!(
+            sanitize_interaction_option_value("Pass-Word", "hunter2"),
+            "[REDACTED]"
+        );
+        assert_eq!(sanitize_interaction_option_value("PÄSSWORD", "v"), "v");
+        assert_eq!(sanitize_interaction_option_value("token2", "v"), "v");
     }
 
     fn command_data_from_json(value: serde_json::Value) -> serenity::CommandData {
