@@ -499,17 +499,49 @@ pub fn is_valid_image_type(content_type: Option<&str>) -> bool {
 /// Music URL allowlist. Mirrors isAllowedLinks.ts (default true, false
 /// only when the hostname parses and is unlisted). Hostname extraction
 /// mirrors legacy `url.parse` quirks pinned by a node ground-truth
-/// battery: backslash counts as `/`, `\t\n\r` are stripped, the
-/// authority ends at the first `/`, `?` or `#` (so `#`/`?` `@`-tricks
-/// stay on the evil host), userinfo is cut at the last `@`, the port at
-/// `:`, the host is lowercased, and an empty authority yields hostname
-/// `""` (not null) so `includes("")` is false. A bare `scheme:...`
-/// value carrying userinfo (`mailto:foo@host`) parses its rest the same
-/// way; anything without a hostname is allowed (true). The TS table
-/// repeats its last 5 domains verbatim; the single copy here gives the
-/// same `includes` outcomes. Known residual delta: `tel:+1234`-style
-/// scheme values without `@` parse a garbage hostname in TS (false)
-/// but stay allowed here (true) — never a music URL in practice.
+/// battery of 600+ vectors (see `allowed_links_matches_url_parse_quirks`):
+/// backslash counts as `/`; `\t\n\r` are stripped; ends are trimmed of
+/// exactly `[\t-\r ]`, NBSP and BOM (U+1680, U+2000+, U+3000, ... are
+/// kept and fail hostname validation later); the protocol must match
+/// `^[A-Za-z0-9+.-]+:` (else hostname null); `javascript:` (any case) is
+/// always hostless; only `//` right after the colon starts an authority,
+/// and the lowercase-only slashed protocols (`http`, `https`, `ftp`,
+/// `gopher`, `file`, `ws`, `wss`) need it for a hostname (`HTTP:host`
+/// still parses one); the authority ends at the first `/`, `?` or `#`;
+/// userinfo is cut at the last `@` (bad `%` escapes there throw in TS,
+/// mapped to false); `[bracketed]` hosts lose the brackets (unclosed
+/// `[` throws, false); IDNA-ignored chars are dropped and fullwidth
+/// ASCII alphanumerics + ideographic stops folded (UTS46); the host then
+/// ends at the first space, a NUL races the port `:` (garbage after NUL
+/// throws, false), `%` cuts, and a full (Kelvin-aware) lowercase feeds
+/// `includes`. The TS table repeats 5 domains verbatim; the single copy
+/// here gives the same outcomes.
+///
+/// TS-throw inputs can never be true, so every throw maps to false.
+/// Percent-escape validation mirroring url.parse's userinfo decoding:
+/// every `%` needs two hex digits and the decoded bytes must form valid
+/// UTF-8, otherwise url.parse throws (mapped to false by the caller).
+fn pct_userinfo_valid(s: &str) -> bool {
+    let b = s.as_bytes();
+    let mut i = 0;
+    let mut out: Vec<u8> = Vec::with_capacity(b.len());
+    while i < b.len() {
+        if b[i] == b'%' {
+            if i + 2 >= b.len() || !b[i + 1].is_ascii_hexdigit() || !b[i + 2].is_ascii_hexdigit()
+            {
+                return false;
+            }
+            let v = (b[i + 1] as char).to_digit(16).unwrap() * 16
+                + (b[i + 2] as char).to_digit(16).unwrap();
+            out.push(v as u8);
+            i += 3;
+        } else {
+            out.push(b[i]);
+            i += 1;
+        }
+    }
+    std::str::from_utf8(&out).is_ok()
+}
 pub fn is_allowed_links(link: &str) -> bool {
     const DOMAINS: &[&str] = &[
         "open.spotify.com",
@@ -557,38 +589,131 @@ pub fn is_allowed_links(link: &str) -> bool {
         "tdl.lnk.to",
     ];
     // Mirrors url.parse(link).hostname: no hostname -> null -> allowed (true).
+    // Anything url.parse throws on maps to false: TS never returns true
+    // for those inputs, and Rust has no throw to propagate.
     let scrubbed: String = link
         .chars()
         .filter(|c| !matches!(c, '\t' | '\n' | '\r'))
         .collect();
+    // Legacy url.parse turns every backslash into a slash, then trims
+    // exactly [\t-\r ], NBSP and BOM (U+1680, U+2000+, U+3000, ... are
+    // kept and fail hostname validation later).
     let scrubbed = scrubbed.replace('\\', "/");
-    let scrubbed = scrubbed.trim();
-    let authority = if let Some(idx) = scrubbed.find("://") {
-        if idx == 0 {
+    let scrubbed = scrubbed.trim_matches(|c: char| {
+        matches!(
+            c,
+            '\t' | '\n' | '\u{0b}' | '\u{0c}' | '\r' | ' ' | '\u{a0}' | '\u{feff}'
+        )
+    });
+    // The protocol must match `^[A-Za-z0-9+.-]+:`; anything else has no
+    // hostname (allowed). Matched against the raw text like url.parse.
+    let colon = match scrubbed.find(':') {
+        Some(i) => i,
+        None => return true,
+    };
+    let scheme = &scrubbed[..colon];
+    if scheme.is_empty()
+        || !scheme
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'+' | b'-' | b'.'))
+    {
+        return true;
+    }
+    // `javascript:` never yields a hostname, even with `//` (any casing).
+    if scheme.eq_ignore_ascii_case("javascript") {
+        return true;
+    }
+    let rest = &scrubbed[colon + 1..];
+    // Only `//` right after the colon starts an authority; the slashed
+    // protocols (exact lowercase only — `HTTP:host` still parses a
+    // hostname in url.parse) need it to produce a hostname at all.
+    let seg = if let Some(after) = rest.strip_prefix("//") {
+        after
+    } else {
+        if matches!(
+            scheme,
+            "http" | "https" | "ftp" | "gopher" | "file" | "ws" | "wss"
+        ) {
             return true;
         }
-        &scrubbed[idx + 3..]
-    } else if let Some(colon) = scrubbed.find(':') {
-        let rest = &scrubbed[colon + 1..];
-        if rest.contains('@') {
-            rest
-        } else {
-            return true;
+        rest
+    };
+    // The authority ends at the first `/`, `?` or `#`, so `@` tricks in
+    // the path/query/fragment stay on the real host.
+    let seg = seg.split(['/', '?', '#']).next().unwrap_or("");
+    // Userinfo is cut at the last `@`; bad `%` escapes there throw.
+    let (userinfo, host) = match seg.rfind('@') {
+        Some(i) => (&seg[..i], &seg[i + 1..]),
+        None => ("", seg),
+    };
+    if !pct_userinfo_valid(userinfo) {
+        return false;
+    }
+    // Bracketed hosts (`[::1]`, `[youtube.com]`) lose the brackets; an
+    // unclosed `[` throws.
+    let host = if let Some(inner) = host.strip_prefix('[') {
+        match inner.find(']') {
+            Some(i) => &inner[..i],
+            None => return false,
         }
     } else {
-        return true;
+        host
     };
-    let host = authority
-        .split(['/', '?', '#'])
-        .next()
-        .unwrap_or("")
-        .split('@')
-        .next_back()
-        .unwrap_or("")
-        .split(':')
-        .next()
-        .unwrap_or("")
-        .to_ascii_lowercase();
+    // url.parse drops IDNA-ignored code points from the host and folds
+    // fullwidth ASCII alphanumerics + ideographic stops (UTS46); other
+    // fullwidth punctuation stays literal and misses the allowlist.
+    let mut folded = String::new();
+    let host: &str = if host.chars().any(|c| {
+        matches!(
+            c,
+            '\u{200b}'
+                | '\u{feff}'
+                | '\u{ad}'
+                | '\u{34f}'
+                | '\u{180e}'
+                | '\u{2060}'
+                | '\u{ff10}'..='\u{ff19}'
+                | '\u{ff21}'..='\u{ff3a}'
+                | '\u{ff41}'..='\u{ff5a}'
+                | '\u{ff0e}'
+                | '\u{ff61}'
+                | '\u{3002}'
+        )
+    }) {
+        for c in host.chars() {
+            match c {
+                '\u{200b}' | '\u{feff}' | '\u{ad}' | '\u{34f}' | '\u{180e}' | '\u{2060}' => {}
+                '\u{ff10}'..='\u{ff19}' | '\u{ff21}'..='\u{ff3a}' | '\u{ff41}'..='\u{ff5a}' => {
+                    folded.push((c as u32 - 0xfee0) as u8 as char)
+                }
+                '\u{ff0e}' | '\u{ff61}' | '\u{3002}' => folded.push('.'),
+                _ => folded.push(c),
+            }
+        }
+        &folded
+    } else {
+        host
+    };
+    // Spaces terminate the host (`foo:a@you tube.com` -> `you`).
+    let host = host.split(' ').next().unwrap_or("");
+    // A NUL before any `:` throws unless only spaces/NULs follow it; a
+    // `:` first drops the port (and any NUL with it); a trailing NUL is
+    // cut. Throws map to false.
+    let host = match host.find('\0') {
+        Some(n) if host[..n].contains(':') => host.split(':').next().unwrap_or(""),
+        Some(n) => {
+            let tail = &host[n + 1..];
+            if !tail.bytes().all(|b| b == b' ' || b == 0) {
+                return false;
+            }
+            &host[..n]
+        }
+        None => host.split(':').next().unwrap_or(""),
+    };
+    // A `%` with no userinfo before it ends the host (`foo:a%40b` stays
+    // `a`); then full-Unicode lowercase like url.parse (Kelvin -> `k`).
+    let host = host.split('%').next().unwrap_or("");
+    let host = host.to_lowercase();
     DOMAINS.contains(&host.as_str())
 }
 
@@ -1820,6 +1945,80 @@ mod tests {
         assert!(is_allowed_links("https://tidal.com:443/x"));
         assert!(!is_allowed_links("https://eviltidal.com/x"));
         assert!(!is_allowed_links("https://tidal.com.evil.com/x"));
+        // Bare-scheme hosts: url.parse takes them, so they are checked.
+        assert!(!is_allowed_links("tel:+1234"));
+        assert!(!is_allowed_links("data:text/plain,hi"));
+        assert!(!is_allowed_links("spotify:track:abc"));
+        assert!(!is_allowed_links("custom:host/path"));
+        assert!(!is_allowed_links("custom:/path"));
+        assert!(!is_allowed_links("foo:"));
+        assert!(is_allowed_links("spotify:youtube.com"));
+        assert!(is_allowed_links("mailto:foo@youtube.com"));
+        assert!(is_allowed_links("foo:open.spotify.com"));
+        assert!(!is_allowed_links("open.spotify.com:443/x"));
+        assert!(!is_allowed_links("v10:https://youtube.com"));
+        assert!(!is_allowed_links("foo:a:b:c"));
+        // Lowercase slashed protocols need `//`; other casings parse.
+        assert!(is_allowed_links("http:foo@bar"));
+        assert!(is_allowed_links("http:youtube.com"));
+        assert!(is_allowed_links("https:open.spotify.com"));
+        assert!(!is_allowed_links("HTTP:foo@bar"));
+        assert!(is_allowed_links("HTTP:youtube.com"));
+        assert!(is_allowed_links("HTTPS:youtube.com/path"));
+        assert!(is_allowed_links("HtTp:youtube.com"));
+        // `javascript:` is always hostless.
+        assert!(is_allowed_links("javascript:alert(1)"));
+        assert!(is_allowed_links("javascript://evil.com/"));
+        assert!(is_allowed_links("JAVASCRIPT:youtube.com"));
+        // Invalid protocols have no hostname.
+        assert!(is_allowed_links("a b://evil.com"));
+        assert!(is_allowed_links("/://evil.com"));
+        assert!(is_allowed_links("foo bar:youtube.com"));
+        assert!(is_allowed_links(":foo"));
+        // `://` is not special: the host starts after the first colon.
+        assert!(!is_allowed_links("foo:bar://youtube.com"));
+        assert!(is_allowed_links("foo://youtube.com"));
+        assert!(!is_allowed_links("foo:///x"));
+        assert!(!is_allowed_links("foo:////youtube.com"));
+        // `@` tricks in the path/query/fragment stay on the real host.
+        assert!(is_allowed_links("https://evil.com @youtube.com/"));
+        assert!(!is_allowed_links("http://youtube.com@evil.com/"));
+        assert!(!is_allowed_links("foo:youtube.com@evil.com"));
+        assert!(is_allowed_links("http://youtube.com?x=@evil.com"));
+        assert!(!is_allowed_links("http://evil.com?@youtube.com"));
+        assert!(is_allowed_links("foo:a:b @youtube.com"));
+        assert!(!is_allowed_links("foo:youtube.com:80 @evil.com/"));
+        assert!(is_allowed_links("https://user:p%40ss@youtube.com/x"));
+        // `%`: ends the host without userinfo, validated inside it.
+        assert!(is_allowed_links("foo:youtube.com%40evil.com"));
+        assert!(is_allowed_links("foo:youtube.com%41"));
+        assert!(!is_allowed_links("foo:ab%xy@youtube.com"));
+        assert!(!is_allowed_links("foo:ab%cd@youtube.com"));
+        assert!(!is_allowed_links("foo:%41@evil.com"));
+        // Brackets and NUL races (throws map to false).
+        assert!(!is_allowed_links("http://[::1]/"));
+        assert!(is_allowed_links("foo:[youtube.com]/x"));
+        assert!(!is_allowed_links("foo:[::1"));
+        assert!(is_allowed_links("foo:youtube.com "));
+        assert!(!is_allowed_links("foo:youtube.com evil"));
+        assert!(is_allowed_links("foo:youtube.com:80 "));
+        // Spaces end the host; only [\t-\r ], NBSP and BOM trim.
+        assert!(!is_allowed_links("foo:a@you tube.com"));
+        assert!(is_allowed_links("\u{a0}foo:youtube.com"));
+        assert!(is_allowed_links("\u{3000}https://evil.com/"));
+        assert!(!is_allowed_links("\u{feff}https://evil.com/"));
+        assert!(!is_allowed_links("foo:youtube.com\u{2000}"));
+        // Full-Unicode lowercase (Kelvin) and UTS46 host mappings.
+        assert!(is_allowed_links("https://LIN\u{212a}.DEezer.com/"));
+        assert!(is_allowed_links("foo:you\u{200b}tube.com"));
+        assert!(is_allowed_links("foo:you\u{feff}tube.com"));
+        assert!(is_allowed_links("foo:youtube.com\u{ad}"));
+        assert!(is_allowed_links("foo:\u{2060}youtube.com"));
+        assert!(is_allowed_links("https://\u{ff39}OUTUBE.COM/"));
+        assert!(is_allowed_links("https://youtube\u{3002}com/"));
+        assert!(is_allowed_links("foo:youtube\u{ff0e}com"));
+        assert!(!is_allowed_links("foo:youtube.com\u{ff1a}"));
+        assert!(!is_allowed_links("foo:youtube.com\u{200c}"));
     }
 
     #[test]
@@ -2007,6 +2206,20 @@ mod tests {
         let meta2 = resize_image_file(&png, &out2, None).expect("copy");
         assert_eq!(meta2, (1920, 960));
         assert_eq!(std::fs::read(&out2).expect("read"), png);
+
+        // TS `if (width && height)` falsy gate: a 0 side takes the copy leg
+        // (byte-identical write + original metadata), never a canvas.
+        let out3 = dir.join("zero.png");
+        let meta3 = resize_image_file(&png, &out3, Some((1920, 0))).expect("zero-h copy");
+        assert_eq!(meta3, (1920, 960));
+        assert_eq!(std::fs::read(&out3).expect("read"), png);
+        let out4 = dir.join("zero2.png");
+        let meta4 = resize_image_file(&png, &out4, Some((0, 1080))).expect("zero-w copy");
+        assert_eq!(meta4, (1920, 960));
+        assert_eq!(std::fs::read(&out4).expect("read"), png);
+
+        // convertToPng ensures the media temp dir exists (TS mkdir leg).
+        assert!(media_temp_dir().is_dir());
 
         // Unsupported bytes fail like the TS throw path.
         assert!(convert_to_png(b"not an image").is_err());
@@ -2657,9 +2870,9 @@ pub fn gateway_internal_url(
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum GatewayRenderError {
     Transport(String),
-    /// Non-200 with the response body attached (TS includes
+    /// Non-200 with the endpoint and response body attached (TS includes
     /// `HTTP <status> on <endpoint>: <message>`).
-    Status(u16, String),
+    Status(u16, String, String),
     UnexpectedContentType(String),
     EmptyImage,
 }
@@ -2668,8 +2881,11 @@ impl std::fmt::Display for GatewayRenderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Transport(e) => write!(f, "gateway request failed: {e}"),
-            Self::Status(s, m) => {
-                write!(f, "HorizonGateway image generation failed (HTTP {s}): {m}")
+            Self::Status(s, endpoint, m) => {
+                write!(
+                    f,
+                    "HorizonGateway image generation failed (HTTP {s} on {endpoint}): {m}"
+                )
             }
             Self::UnexpectedContentType(ct) => write!(
                 f,
@@ -2775,7 +2991,7 @@ pub async fn gateway_render_html(
         .map_err(|e| GatewayRenderError::Transport(e.to_string()))?;
     if status != 200 {
         let message = String::from_utf8_lossy(&bytes).into_owned();
-        return Err(GatewayRenderError::Status(status, message));
+        return Err(GatewayRenderError::Status(status, endpoint, message));
     }
     if !content_type.is_empty() && !content_type.contains("image/png") {
         return Err(GatewayRenderError::UnexpectedContentType(content_type));
@@ -2868,7 +3084,9 @@ pub fn guild_owner_ids(owner_id: u64, stored: &[String]) -> Vec<String> {
     ids
 }
 
-/// Bot owner check against config list. Mirrors isBotOwner/isBotDev.
+/// Bot owner check against the config list. Mirrors isBotDev (and the
+/// config-only getBotDev list); the merged isBotOwner/getBotOwner check
+/// (config + persisted owner table) lives in db::bot_owner_ids.
 pub fn is_bot_owner(user_id: u64, config_owners: &[String]) -> bool {
     config_owners.iter().any(|o| o == &user_id.to_string())
 }
@@ -3214,18 +3432,94 @@ pub fn decrypt_text(password: &str, data: &str) -> Option<String> {
 // ---- os_utils.niceBytes ----
 
 /// JS `Number.prototype.toFixed(0)` for finite non-negative `v`:
-/// round-half-up (Rust `round` is half-away-from-zero, identical for
-/// `v >= 0`), rendered with no decimal point. Rust `{:.0}` would use
-/// banker's rounding (`10.5` -> `"10"`); TS gives `"11"`.
+/// round-half-up on the exact binary value (`round` is half-away-from-zero,
+/// identical for `v >= 0`), rendered with no decimal point. Rust `{:.0}`
+/// would use banker's rounding (`10.5` -> `"10"`); TS gives `"11"`.
+/// At `v >= 1e21` `toFixed` returns `String(v)` (exponential), while Rust
+/// would print full digits — the local exponential leg mirrors that
+/// (node ground truth: `1e300 KB` -> `"8.470329472543004e+278 YB"`).
 fn js_to_fixed_0(v: f64) -> String {
+    if v >= 1e21 {
+        return js_number_string_nonneg(v);
+    }
     format!("{}", v.round())
 }
 
-/// JS `toFixed(2)` for finite non-negative `v`: scale, half-up round,
-/// then render two digits. Scaling first reproduces the TS quirk where
-/// binary-near-halves stay down (`2.675` -> `"2.67"`, like TS).
+/// JS `String(number)` for a finite `v >= 1e21` (non-negative in practice):
+/// shortest-round-trip mantissa with `e+N` (Rust `{}` prints full digits).
+/// Same digit-folding as the slashlog helper, kept local so this mirror
+/// stays dependency-free.
+fn js_number_string_nonneg(v: f64) -> String {
+    debug_assert!(v.is_finite() && v >= 1e21);
+    let plain = format!("{v}");
+    let digits = plain.trim_start_matches('-');
+    let int_digits = match digits.find('.') {
+        Some(i) => {
+            let exp_adj = digits.len() - i - 1;
+            let compact = format!("{}{}", &digits[..i], &digits[i + 1..]);
+            let exp = (compact.len() as isize) - (exp_adj as isize) - 1;
+            let trimmed = compact.trim_end_matches('0');
+            return js_exp_form(v < 0.0, trimmed, exp);
+        }
+        None => digits,
+    };
+    let exp = int_digits.len() as isize - 1;
+    let trimmed = int_digits.trim_end_matches('0');
+    js_exp_form(v < 0.0, trimmed, exp)
+}
+
+/// `[-]d[.rest]e+N` assembly for [`js_number_string_nonneg`].
+fn js_exp_form(neg: bool, trimmed: &str, exp: isize) -> String {
+    let mut mantissa = trimmed[..1].to_string();
+    if trimmed.len() > 1 {
+        mantissa.push('.');
+        mantissa.push_str(&trimmed[1..]);
+    }
+    format!("{}{}e+{exp}", if neg { "-" } else { "" }, mantissa)
+}
+
+/// JS `toFixed(2)` for finite non-negative `v`: correctly-rounded 2-decimal
+/// form of the exact binary value, ties up (spec "larger n"). Implemented by
+/// digit surgery on the exact expansion (`{:.20}`), like [`to_fixed_1`]:
+/// the old scale-first `round()` double-rounded exact halves up
+/// (`2.675` -> `"2.68"`, `5.555` -> `"5.56"`); TS gives `"2.67"`/`"5.55"`.
+/// Caller domain is `bytes` in `[1, 10)`, where f64 spacing (`>= 2^-49`)
+/// dwarfs the `1e-20` window, so digit 3 decides exactly.
 fn js_to_fixed_2(v: f64) -> String {
-    format!("{:.2}", (v * 100.0).round() / 100.0)
+    let s = format!("{v:.20}");
+    let (int, frac) = match s.find('.') {
+        Some(i) => (&s[..i], &s[i + 1..]),
+        None => (s.as_str(), ""),
+    };
+    let f: Vec<char> = frac.chars().collect();
+    let d1 = f.first().copied().unwrap_or('0');
+    let d2 = f.get(1).copied().unwrap_or('0');
+    let up = matches!(f.get(2), Some(&c) if c >= '5');
+    let mut digits: Vec<char> = int.chars().collect();
+    if digits.is_empty() {
+        digits.push('0');
+    }
+    digits.push(d1);
+    digits.push(d2);
+    if up {
+        let mut i = digits.len();
+        loop {
+            if i == 0 {
+                digits.insert(0, '1');
+                break;
+            }
+            i -= 1;
+            if digits[i] == '9' {
+                digits[i] = '0';
+            } else {
+                digits[i] = ((digits[i] as u8) + 1) as char;
+                break;
+            }
+        }
+    }
+    let d2r = digits.pop().unwrap_or('0');
+    let d1r = digits.pop().unwrap_or('0');
+    format!("{}.{d1r}{d2r}", digits.iter().collect::<String>())
 }
 
 pub fn nice_bytes(kb: f64) -> String {
@@ -4225,6 +4519,34 @@ pub fn missing_intents(current_flags: u64) -> u64 {
     REQUIRED_INTENTS & !current_flags
 }
 
+/// JSON `flags` number as u64. Mirrors the JS values `===` equates with a
+/// numeric current: u64 ints, non-negative i64 ints, and integral finite
+/// f64s in u64 range all compare numerically equal in TS (node: JSON
+/// `565248.0` parses as number `=== 565248`), so they fold to Some like
+/// `as_u64`. Every other shape (strings, bools, null, objects,
+/// fractional/negative/out-of-range floats — all `!==` any number, and
+/// unrepresentable `f64` NaN/Infinity) folds to None. Non-number `current`
+/// shapes stay a documented delta: TS `??` keeps them and the bitwise ops
+/// ToInt32-coerce them, while the mirror folds them to 0 — the API only
+/// ever sends small non-negative ints.
+fn json_flags_u64(v: &serde_json::Value) -> Option<u64> {
+    match v {
+        serde_json::Value::Number(n) => n
+            .as_u64()
+            .or_else(|| n.as_i64().and_then(|i| u64::try_from(i).ok()))
+            .or_else(|| {
+                n.as_f64().and_then(|f| {
+                    if f.is_finite() && f.fract() == 0.0 && f >= 0.0 && f <= u64::MAX as f64 {
+                        Some(f as u64)
+                    } else {
+                        None
+                    }
+                })
+            }),
+        _ => None,
+    }
+}
+
 /// PATCH verdict leg. Mirrors `patched.flags === current -> warn + false`:
 /// only an EXACTLY-unchanged numeric flags value means the API rejected
 /// the update. A missing/non-numeric flags key (`undefined`/`null`/string/
@@ -4232,16 +4554,18 @@ pub fn missing_intents(current_flags: u64) -> u64 {
 /// (node ground truth: `0 vs undefined/null` -> true, `565248 vs "565248"`
 /// -> true, `0 vs NaN/{}` -> true, `565248 vs 565248.0` -> false); the
 /// `as_u64` fold at the call site maps exactly those shapes to None, and
-/// integral floats through `Some` like `===`.
+/// plain ints plus integral finite floats through `Some` like `===`.
 pub fn patch_verdict(current: u64, patched_flags: Option<u64>) -> bool {
     !matches!(patched_flags, Some(f) if f == current)
 }
 
 /// Enable privileged intents on the application. Mirrors enableRequiredIntents
 /// (GET then PATCH /applications/@me). Returns true when all set.
-/// Deltas (doc-noted): `data.flags ?? 0` keeps hostile non-null shapes
+/// Deltas (doc-noted): `data.flags ?? 0` keeps hostile non-number shapes
 /// (TS coerces them via ToInt32 in the `&`/`|` ops) while the mirror
-/// folds non-u64 to 0; `updated = current | REQUIRED` uses u64 OR while
+/// folds non-numeric shapes to 0/None (`json_flags_u64` keeps plain ints
+/// and integral finite floats, like `===`); `updated = current | REQUIRED`
+/// uses u64 OR while
 /// TS ToInt32-wraps past 2^31 (`1<<31 | R` -> negative, `2^32 | R` -> R)
 /// — unreachable, real Discord flag words are small ints; negative or
 /// fractional `current` is unrepresentable past the `u64` signature.
@@ -4266,7 +4590,7 @@ pub async fn enable_required_intents(token: &str) -> bool {
         Ok(v) => v,
         Err(_) => return false,
     };
-    let current = info.get("flags").and_then(|f| f.as_u64()).unwrap_or(0);
+    let current = info.get("flags").and_then(json_flags_u64).unwrap_or(0);
     if missing_intents(current) == 0 {
         return true;
     }
@@ -4288,7 +4612,7 @@ pub async fn enable_required_intents(token: &str) -> bool {
         Ok(v) => v,
         Err(_) => return false,
     };
-    patch_verdict(current, patched.get("flags").and_then(|f| f.as_u64()))
+    patch_verdict(current, patched.get("flags").and_then(json_flags_u64))
 }
 
 // ---- helper.ts ----
