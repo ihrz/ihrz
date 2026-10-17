@@ -530,27 +530,83 @@ pub fn piconly_thread_name(
     nick.or(global_name).unwrap_or(username).to_string()
 }
 
-/// Role-limit counter name. Mirrors the roleLimit.ts rename leg:
-/// strip a trailing ` [n/m]` counter (TS `/\s*\[\d+\/\d+\]\s*$/`)
-/// then append the fresh `[members/limit]`.
-pub fn role_limit_counter_name(current: &str, members: usize, limit: usize) -> String {
-    let mut base = current.trim_end().to_string();
-    if let Some(open) = base.rfind('[') {
-        if base.ends_with(']') {
-            let inner = &base[open + 1..base.len() - 1];
-            let mut parts = inner.split('/');
-            let counter_like = match (parts.next(), parts.next(), parts.next()) {
-                (Some(a), Some(b), None) => {
-                    a.trim().parse::<u64>().is_ok() && b.trim().parse::<u64>().is_ok()
-                }
-                _ => false,
-            };
-            if counter_like {
-                base = base[..open].trim_end().to_string();
-            }
-        }
+/// JS `\s` (no-`u`-flag regex) whitespace set: ASCII blank/controls +
+/// the BMP spaces JS recognises. `char::is_whitespace` is a superset
+/// on exotic controls, so the counter legs below match on this exact
+/// set instead (battery slice 29).
+fn is_js_space(c: char) -> bool {
+    matches!(
+        c,
+        '\t' | '\n' | '\u{0B}' | '\u{0C}' | '\r' | ' ' | '\u{00A0}' | '\u{1680}' | '\u{2000}'
+            ..='\u{200A}'
+                | '\u{2028}'
+                | '\u{2029}'
+                | '\u{202F}'
+                | '\u{205F}'
+                | '\u{3000}'
+                | '\u{FEFF}'
+    )
+}
+
+/// Strip a trailing ` [n/m]` counter, exactly like
+/// `/\s*\[\d+\/\d+\]\s*$/` + `.trim()`: ASCII digits only (so `[1 / 2]`,
+/// `[+1/2]`, `[-1/2]`, non-ASCII digits never strip), the match must
+/// reach end-of-string through JS whitespace only, and the `.trim()`
+/// applies solely on a match (a counter-less `"VIP   "` keeps its
+/// trailing spaces). Returns the trimmed base on a match.
+fn strip_role_counter(current: &str) -> Option<String> {
+    let mut rest = current.trim_end_matches(is_js_space);
+    if !rest.ends_with(']') {
+        return None;
     }
-    format!("{base} [{members}/{limit}]")
+    rest = &rest[..rest.len() - 1];
+    let open = rest.rfind('[')?;
+    let inner = &rest[open + 1..];
+    let mut parts = inner.split('/');
+    let ok = match (parts.next(), parts.next(), parts.next()) {
+        (Some(a), Some(b), None) => {
+            !a.is_empty()
+                && !b.is_empty()
+                && a.bytes().all(|x| x.is_ascii_digit())
+                && b.bytes().all(|x| x.is_ascii_digit())
+        }
+        _ => false,
+    };
+    if !ok {
+        return None;
+    }
+    Some(rest[..open].trim_matches(is_js_space).to_string())
+}
+
+/// Render a role-limit the way TS `${limit}` does: integral values
+/// print bare (`3`, `-5`), fractions keep their point (`2.5`).
+/// Limits are writer-stored numbers (no min/integer validation in
+/// `!rolelimit.ts`), so negatives/fractions enforce verbatim.
+pub fn render_role_limit(limit: f64) -> String {
+    if limit.fract() == 0.0 && limit.abs() < 1e15 {
+        format!("{}", limit as i64)
+    } else {
+        format!("{limit}")
+    }
+}
+
+/// Role-limit enforcement gate. Mirrors `if (!limit) return/continue`:
+/// only a zero limit skips (NaN is unrepresentable in stored JSON).
+pub fn role_limit_enforces(limit: f64) -> bool {
+    limit != 0.0
+}
+
+/// Role-limit removal leg. Mirrors `membersWithRole > limit` (strict).
+pub fn role_limit_exceeded(count: usize, limit: f64) -> bool {
+    (count as f64) > limit
+}
+
+/// Role-limit counter name. Mirrors the roleLimit.ts rename leg:
+/// strip a trailing counter (regex-exact, see `strip_role_counter`)
+/// then append the fresh `[members/limit]`.
+pub fn role_limit_counter_name(current: &str, members: usize, limit: f64) -> String {
+    let base = strip_role_counter(current).unwrap_or_else(|| current.to_string());
+    format!("{base} [{members}/{}]", render_role_limit(limit))
 }
 
 /// UTILS.autoFeur leaf.
@@ -786,11 +842,17 @@ async fn prevnames_routed(pool: &crate::db::Pool, user_id: u64) -> Vec<String> {
         .unwrap_or_default()
 }
 
-/// GUILD.UTILS.ROLE_LIMIT.<role> leaf, parsed.
-async fn role_limit_routed(pool: &crate::db::Pool, gid: &str, role_id: u64) -> Option<usize> {
+/// GUILD.UTILS.ROLE_LIMIT.<role> leaf, parsed as a JS number.
+/// The writer stores raw numbers with no min/integer validation
+/// (`!rolelimit.ts`: `getNumber` without `min_value`), so negatives
+/// and fractions (`-5`, `2.5`) enforce verbatim in TS (`!limit` only
+/// skips zero); f64 keeps every stored shape. A zero row skips at the
+/// call sites via `role_limit_enforces` (writer rejects 0, so zero
+/// rows are manual-DB-only, same outcome as TS `!limit`).
+async fn role_limit_routed(pool: &crate::db::Pool, gid: &str, role_id: u64) -> Option<f64> {
     leaf_routed(pool, gid, &format!("GUILD.UTILS.ROLE_LIMIT.{role_id}"))
         .await
-        .and_then(|s| s.parse::<usize>().ok())
+        .and_then(|s| s.parse::<f64>().ok())
 }
 
 /// GUILD.SUPPORT leaf (raw JSON blob string).
@@ -6820,16 +6882,22 @@ impl serenity::EventHandler for Handler {
             if bot_chan_ok {
                 if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
                     let roles_raw = rank_role_single_routed(&self.pool, &gid).await;
-                    let role_num = roles_raw
-                        .as_deref()
+                    // TS `!dbGet || !dbGet.roles` (row missing/empty) takes
+                    // the info leg; a present-but-unresolvable row (role
+                    // deleted after config, garbage id) falls through
+                    // silently like the `roles.cache.find` miss (battery
+                    // slice 29) — the guild-presence filter below must not
+                    // route that case into the info leg.
+                    let roles_row = roles_raw.as_deref().filter(|s| !s.is_empty());
+                    let role_num = roles_row
                         .and_then(crate::commands::h247::grant::parse_role_id)
                         .filter(|n| {
                             _ctx.cache
                                 .guild(guild_id)
                                 .is_some_and(|g| g.roles.contains_key(&serenity::RoleId::new(*n)))
                         });
-                    match role_num {
-                        Some(role_num) => {
+                    match (roles_row, role_num) {
+                        (Some(_), Some(role_num)) => {
                             let needles = rank_nicknames_routed(&self.pool, &gid)
                                 .await
                                 .map(|raw| crate::commands::h247::grant::rank_needles(&raw))
@@ -6896,7 +6964,12 @@ impl serenity::EventHandler for Handler {
                                 }
                             }
                         }
-                        None => {
+                        (Some(_), None) => {
+                            // Present-but-unresolvable row (role deleted
+                            // after config, unparsable id): TS
+                            // `roles.cache.find` miss, silent no-op.
+                        }
+                        (None, _) => {
                             // Info leg (mirrors the `!dbGet || !dbGet.roles`
                             // branch): prefix + mention + badge text, 1/8
                             // prefix-change upsell, 7s per-user cooldown,
@@ -9472,6 +9545,14 @@ impl serenity::EventHandler for Handler {
             let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) else {
                 continue;
             };
+            // TS `guildData?.roles && guildData?.nicknames` needs both
+            // truthy: an empty nicknames row skips the guild entirely
+            // (battery slice 29; writer never stores `""`, so this is
+            // manual-DB-only). An empty roles row converges without a
+            // guard (`parse_role_id` returns None below, same skip).
+            if nick_raw.is_empty() {
+                continue;
+            }
             let Some(role_num) = crate::commands::h247::grant::parse_role_id(&roles_raw) else {
                 continue;
             };
@@ -10034,9 +10115,12 @@ impl serenity::EventHandler for Handler {
                     };
                     for rid in &affected {
                         if let Some(limit) = role_limit_routed(&self.pool, &gid, *rid).await {
+                            if !role_limit_enforces(limit) {
+                                continue;
+                            }
                             if let Some(mut role) = role_of(*rid) {
                                 let count = holders(&role.id);
-                                let next = role_limit_counter_name(&role.name, count, limit.max(1));
+                                let next = role_limit_counter_name(&role.name, count, limit);
                                 if next != role.name {
                                     let _ = role
                                         .edit(
@@ -10056,7 +10140,9 @@ impl serenity::EventHandler for Handler {
                     for rid in &added {
                         if let Some(limit) = role_limit_routed(&self.pool, &gid, *rid).await {
                             let role_id = serenity::RoleId::new(*rid);
-                            if holders(&role_id) > limit.max(1) {
+                            if role_limit_enforces(limit)
+                                && role_limit_exceeded(holders(&role_id), limit)
+                            {
                                 let _ = ctx
                                     .http
                                     .remove_member_role(
@@ -11699,7 +11785,7 @@ mod restore_tests {
         crate::db::tbl_set(&pool, "g1", "GUILD.UTILS.ROLE_LIMIT.6", "3")
             .await
             .unwrap();
-        assert_eq!(role_limit_routed(&pool, "g1", 6).await, Some(3));
+        assert_eq!(role_limit_routed(&pool, "g1", 6).await, Some(3.0));
         assert!(role_limit_routed(&pool, "g1", 7).await.is_none());
         crate::db::tbl_set(&pool, "g1", "GUILD.SUPPORT", "{\"rolesId\":\"5\"}")
             .await
@@ -11786,14 +11872,71 @@ mod restore_tests {
         assert_eq!(piconly_thread_name(Some("N"), Some("G"), "U"), "N");
         assert_eq!(piconly_thread_name(None, Some("G"), "U"), "G");
         assert_eq!(piconly_thread_name(None, None, "U"), "U");
-        // Role-limit counter rename (mirrors `/\s*\[\d+\/\d+\]\s*$/`).
-        assert_eq!(role_limit_counter_name("VIP", 3, 10), "VIP [3/10]");
-        assert_eq!(role_limit_counter_name("VIP [1/10]", 3, 10), "VIP [3/10]");
-        assert_eq!(role_limit_counter_name("VIP  [12/5]  ", 2, 5), "VIP [2/5]");
+        // Role-limit counter rename (battery slice 29,
+        // scratch `slice-w7s29-rankrole-rolelimit.js`: regex-exact strip,
+        // verbatim limit render, `!limit` gate, strict `>` removal).
+        assert_eq!(role_limit_counter_name("VIP", 3, 10.0), "VIP [3/10]");
+        assert_eq!(role_limit_counter_name("VIP [1/10]", 3, 10.0), "VIP [3/10]");
         assert_eq!(
-            role_limit_counter_name("Best [EST] Team", 4, 9),
+            role_limit_counter_name("VIP  [12/5]  ", 2, 5.0),
+            "VIP [2/5]"
+        );
+        assert_eq!(
+            role_limit_counter_name("Best [EST] Team", 4, 9.0),
             "Best [EST] Team [4/9]"
         );
+        // Inner-space / plus / negative / non-ASCII legs never strip.
+        assert_eq!(
+            role_limit_counter_name("VIP [1 / 2]", 3, 10.0),
+            "VIP [1 / 2] [3/10]"
+        );
+        assert_eq!(
+            role_limit_counter_name("VIP [+1/2]", 3, 10.0),
+            "VIP [+1/2] [3/10]"
+        );
+        assert_eq!(
+            role_limit_counter_name("VIP [-1/2]", 3, 10.0),
+            "VIP [-1/2] [3/10]"
+        );
+        assert_eq!(
+            role_limit_counter_name("VIP [١/٢]", 3, 10.0),
+            "VIP [١/٢] [3/10]"
+        );
+        assert_eq!(
+            role_limit_counter_name("a [[1/2]]", 3, 10.0),
+            "a [[1/2]] [3/10]"
+        );
+        assert_eq!(
+            role_limit_counter_name("VIP [1/2][3/4]", 3, 10.0),
+            "VIP [1/2] [3/10]"
+        );
+        // Overflow digits still strip (`\d+` unbounded); the trim runs
+        // only on a match (trailing spaces kept) and trims both ends.
+        assert_eq!(
+            role_limit_counter_name("VIP [99999999999999999999999/1]", 3, 10.0),
+            "VIP [3/10]"
+        );
+        assert_eq!(role_limit_counter_name("VIP   ", 3, 10.0), "VIP    [3/10]");
+        assert_eq!(
+            role_limit_counter_name("  VIP [1/2]", 3, 10.0),
+            "VIP [3/10]"
+        );
+        assert_eq!(role_limit_counter_name("[1/2]", 3, 10.0), " [3/10]");
+        // Writer-reachable non-integer limits render verbatim.
+        assert_eq!(role_limit_counter_name("VIP", 3, 2.5), "VIP [3/2.5]");
+        assert_eq!(role_limit_counter_name("VIP", 3, -5.0), "VIP [3/-5]");
+        assert_eq!(render_role_limit(3.0), "3");
+        assert_eq!(render_role_limit(2.5), "2.5");
+        // `!limit` gate: only zero skips; strict `>` removal.
+        assert!(role_limit_enforces(3.0));
+        assert!(role_limit_enforces(-5.0));
+        assert!(role_limit_enforces(2.5));
+        assert!(!role_limit_enforces(0.0));
+        assert!(role_limit_exceeded(4, 3.0));
+        assert!(!role_limit_exceeded(3, 3.0));
+        assert!(role_limit_exceeded(1, -5.0));
+        assert!(role_limit_exceeded(3, 2.5));
+        assert!(!role_limit_exceeded(2, 2.5));
         // Voice talk/freeze bypass (bot/Admin/ManageChannels).
         assert!(voice_talk_bypass(true, false, false));
         assert!(voice_talk_bypass(false, true, false));

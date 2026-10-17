@@ -88,10 +88,17 @@ pub fn parse_role_id(raw: &str) -> Option<u64> {
 /// Needles from a GUILD.RANK_ROLES.nicknames row: the TS single
 /// substring shape, or the map shape (part -> role id) where the
 /// keys are the substrings (mirrors the guild_member_update arm).
+/// A whitespace-only row stays a verbatim single needle: TS gates on
+/// the truthy raw string and runs `includes()` untrimmed, so `" "`
+/// only matches spaced names (battery slice 29). An empty row yields
+/// no needles (TS falsy gate).
 pub fn rank_needles(raw: &str) -> Vec<String> {
+    if raw.is_empty() {
+        return Vec::new();
+    }
     let t = raw.trim();
     if t.is_empty() {
-        return Vec::new();
+        return vec![raw.to_string()];
     }
     if let Ok(map) = serde_json::from_str::<HashMap<String, String>>(t) {
         return map.into_keys().filter(|k| !k.is_empty()).collect();
@@ -233,5 +240,11 @@ mod tests {
         needles.sort();
         assert_eq!(needles, vec!["ihrz".to_string()]);
         assert!(rank_needles("").is_empty());
+        // Battery slice 29 (rankRoleModule.ts `if (dbGet.nicknames)` +
+        // `includes()` verbatim): a whitespace-only row is truthy in TS
+        // and matches only spaced names — kept as a verbatim needle.
+        assert_eq!(rank_needles(" "), vec![" ".to_string()]);
+        assert!(username_matches("Has Space", None, " "));
+        assert!(!username_matches("NoSpaces", None, " "));
     }
 }
