@@ -1664,6 +1664,63 @@ pub fn select_event_proceeds(is_bot: bool, has_guild_channels: bool) -> bool {
     !is_bot && has_guild_channels
 }
 
+/// Voice-log embed kind. Mirrors logs/voiceLogs.ts:73-145
+/// (leave / join / self-deafen / self-undeafen / self-mute /
+/// self-unmute, in that priority order; deaf legs precede mute
+/// legs). Pure, unit-tested below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VoiceLogKind {
+    Leave,
+    Join,
+    DeafOn,
+    DeafOff,
+    MuteOn,
+    MuteOff,
+}
+
+/// Voice-log verdict. Mirrors logs/voiceLogs.ts:36 + :73-145:
+/// missing `old` (serenity cache miss) or missing old guild drops
+/// the log (`!oldState || !oldState.guild → return`); `user` /
+/// `Ouser` are always truthy snowflakes so the leave leg is
+/// exactly `new_ch.is_none()` and the join leg exactly
+/// `old_ch.is_none()`. Eight args mirror the TS chain 1:1
+/// (file's `too_many_arguments` allow precedent). Pure,
+/// unit-tested below.
+#[allow(clippy::too_many_arguments)]
+pub fn voice_log_kind(
+    old_present: bool,
+    old_guild_present: bool,
+    old_ch: Option<u64>,
+    new_ch: Option<u64>,
+    old_deaf: bool,
+    old_mute: bool,
+    new_deaf: bool,
+    new_mute: bool,
+) -> Option<VoiceLogKind> {
+    if !old_present || !old_guild_present {
+        return None;
+    }
+    if new_ch.is_none() {
+        return Some(VoiceLogKind::Leave);
+    }
+    if old_ch.is_none() {
+        return Some(VoiceLogKind::Join);
+    }
+    if !old_deaf && new_deaf {
+        return Some(VoiceLogKind::DeafOn);
+    }
+    if old_deaf && !new_deaf {
+        return Some(VoiceLogKind::DeafOff);
+    }
+    if !old_mute && new_mute {
+        return Some(VoiceLogKind::MuteOn);
+    }
+    if old_mute && !new_mute {
+        return Some(VoiceLogKind::MuteOff);
+    }
+    None
+}
+
 /// Prefix segment of a component custom id. Mirrors
 /// buttonHandler.ts:38 / selectMenuHandler.ts:35 (`split("%")[0]`,
 /// the client.buttons / client.selectmenu registry key). Pure,
@@ -3915,48 +3972,55 @@ impl Handler {
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
         let uid = new.user_id.get().to_string();
         let old_ch = old.and_then(|o| o.channel_id);
-        let desc = if new.channel_id.is_none() {
-            text("event_srvLogs_voiceStateUpdate_description")
+        let new_ch = new.channel_id;
+        let kind = voice_log_kind(
+            old.is_some(),
+            old.and_then(|o| o.guild_id).is_some(),
+            old_ch.map(|c| c.get()),
+            new_ch.map(|c| c.get()),
+            old.map(|o| o.self_deaf).unwrap_or(false),
+            old.map(|o| o.self_mute).unwrap_or(false),
+            new.self_deaf,
+            new.self_mute,
+        );
+        let desc = match kind {
+            None => return,
+            Some(VoiceLogKind::Leave) => text("event_srvLogs_voiceStateUpdate_description")
                 .replace("${targetUser.id}", &uid)
                 .replace(
                     "${OchannelID}",
                     &old_ch.map(|c| c.get().to_string()).unwrap_or_default(),
-                )
-        } else if old_ch.is_none() {
-            text("event_srvLogs_voiceStateUpdate_2_description")
+                ),
+            Some(VoiceLogKind::Join) => text("event_srvLogs_voiceStateUpdate_2_description")
                 .replace("${targetUser.id}", &uid)
                 .replace(
                     "${channelID}",
-                    &new.channel_id
-                        .map(|c| c.get().to_string())
-                        .unwrap_or_default(),
-                )
-        } else {
-            let ch = new
-                .channel_id
-                .map(|c| c.get().to_string())
-                .unwrap_or_default();
-            let old_deaf = old.map(|o| o.self_deaf).unwrap_or(false);
-            let old_mute = old.map(|o| o.self_mute).unwrap_or(false);
-            if !old_deaf && new.self_deaf {
-                text("event_srvLogs_voiceStateUpdate_3_description")
-                    .replace("${targetUser.id}", &uid)
-                    .replace("${channelID}", &ch)
-            } else if old_deaf && !new.self_deaf {
-                text("event_srvLogs_voiceStateUpdate_4_description")
-                    .replace("${targetUser.id}", &uid)
-                    .replace("${channelID}", &ch)
-            } else if !old_mute && new.self_mute {
-                text("event_srvLogs_voiceStateUpdate_5_description")
-                    .replace("${targetUser.id}", &uid)
-                    .replace("${channelID}", &ch)
-            } else if old_mute && !new.self_mute {
-                text("event_srvLogs_voiceStateUpdate_6_description")
-                    .replace("${targetUser.id}", &uid)
-                    .replace("${channelID}", &ch)
-            } else {
-                return;
-            }
+                    &new_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                ),
+            Some(VoiceLogKind::DeafOn) => text("event_srvLogs_voiceStateUpdate_3_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${channelID}",
+                    &new_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                ),
+            Some(VoiceLogKind::DeafOff) => text("event_srvLogs_voiceStateUpdate_4_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${channelID}",
+                    &new_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                ),
+            Some(VoiceLogKind::MuteOn) => text("event_srvLogs_voiceStateUpdate_5_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${channelID}",
+                    &new_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                ),
+            Some(VoiceLogKind::MuteOff) => text("event_srvLogs_voiceStateUpdate_6_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${channelID}",
+                    &new_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                ),
         };
         let (name, avatar) = new
             .user_id
@@ -13701,6 +13765,85 @@ mod component_registry_tests {
         let id = strip_dm_suffix("newsletter-toggle%123?dm");
         assert!(id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX));
         assert_eq!(component_prefix(id), "newsletter-toggle");
+    }
+
+    #[test]
+    fn voice_log_kind_matches_ts_voicelogs_battery() {
+        // Mirrors scratch slice-w7s45-voicelogs.cjs (voiceLogs.ts
+        // gates + six legs, verbatim). Args: (old_present,
+        // old_guild_present, old_ch, new_ch, old_deaf, old_mute,
+        // new_deaf, new_mute).
+        use VoiceLogKind::*;
+        // Old-missing legs: TS `!oldState || !oldState.guild` drops
+        // the log (the slice-45 fix; old code logged Join here).
+        assert_eq!(
+            voice_log_kind(false, true, None, Some(1), false, false, false, false),
+            None
+        );
+        assert_eq!(
+            voice_log_kind(false, false, None, None, false, false, false, false),
+            None
+        );
+        assert_eq!(
+            voice_log_kind(true, false, Some(1), Some(1), false, false, false, false),
+            None
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), None, false, false, false, false),
+            Some(Leave)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, None, None, false, false, false, false),
+            Some(Leave)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, None, Some(1), false, false, false, false),
+            Some(Join)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, None, Some(1), false, false, false, true),
+            Some(Join)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), None, false, false, true, false),
+            Some(Leave)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(2), false, false, false, false),
+            None
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(2), false, false, false, true),
+            Some(MuteOn)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), false, false, true, false),
+            Some(DeafOn)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), true, false, false, false),
+            Some(DeafOff)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), false, false, false, true),
+            Some(MuteOn)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), false, true, false, false),
+            Some(MuteOff)
+        );
+        // Deaf legs precede mute legs (TS if-chain order).
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), false, false, true, true),
+            Some(DeafOn)
+        );
+        assert_eq!(
+            voice_log_kind(true, true, Some(1), Some(1), false, false, false, false),
+            None
+        );
+        // DELTA (doc-noted, pathological: both channelIds null on a
+        // live update never occurs): TS renders the leave text with
+        // the literal "undefined" (`OchannelID?.toString()`), here "".
     }
 
     #[test]
