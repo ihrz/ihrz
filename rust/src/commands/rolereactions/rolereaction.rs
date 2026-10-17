@@ -62,6 +62,15 @@ pub fn reaction_type_for(stored: &str) -> serenity::ReactionType {
 
 /// Lookup keys for a reaction press: emoji name then emoji id, like
 /// the two legs in onReactAdd.ts (name, then nitro id).
+/// DELTAS (all unreachable on writer-produced rows — the writer only
+/// `db.set`s after a successful `msg.react`, and rejects `<`, `>`, `:`
+/// in the reaction string, so keys are unicode emoji or plain names
+/// with numeric `rolesID` rows): a unicode press consults a second
+/// `"null"` key in TS (`${emoji.id}` with null id) that we skip; a
+/// present-but-unparsable leg-1 row throws TS out of `run()` (nitro leg
+/// never consulted) while `lookup_reaction_role` falls through to the
+/// next key; the remove side (`onReactRemove.ts:33` + `:54`) reads the
+/// SAME name key twice (double remove, idempotent) while we read once.
 pub fn reaction_role_keys(emoji: &serenity::ReactionType) -> Vec<String> {
     match emoji {
         serenity::ReactionType::Unicode(u) => vec![u.clone()],
@@ -75,6 +84,19 @@ pub fn reaction_role_keys(emoji: &serenity::ReactionType) -> Vec<String> {
         }
         _ => vec![],
     }
+}
+
+/// Add-side toggle verdict. Mirrors `onReactAdd.ts:47-52` exactly:
+/// `member?.roles.cache.has(role.id) || (await member.fetch()...)?.roles.cache.has(role.id)`
+/// removes, otherwise adds. The live call site feeds the freshly
+/// HTTP-fetched member as the fresh leg (cache leg subsumed: the TS
+/// second leg refreshes the cache, so a hot cache agrees; a stale
+/// cache-has + fresh-miss removes in TS but adds here — negligible,
+/// gateway keeps member roles hot). A failed member fetch throws TS
+/// into the outer catch (no action); here the caller skips on `Err`.
+/// Pure, unit-tested below.
+pub fn reaction_add_should_remove(cached_has: bool, fresh_has: bool) -> bool {
+    cached_has || fresh_has
 }
 
 fn reaction_row_key(message_id: u64, emoji_key: &str) -> String {
@@ -2211,6 +2233,39 @@ mod tests {
             reaction_role_keys(&reaction_type_for("12345")),
             vec!["12345".to_string()]
         );
+    }
+
+    #[test]
+    fn reactionrole_add_remove_match_ts_battery() {
+        // onReactAdd.ts:32/:66 key legs (name, then id); the unicode
+        // second-leg "null" key is the documented skip (battery add-unicode-keys).
+        assert_eq!(
+            reaction_role_keys(&serenity::ReactionType::Unicode("👍".to_string())),
+            vec!["👍".to_string()]
+        );
+        assert_eq!(
+            reaction_role_keys(&serenity::ReactionType::Custom {
+                animated: false,
+                id: serenity::EmojiId::new(123456789012345678),
+                name: Some("party".to_string()),
+            }),
+            vec!["party".to_string(), "123456789012345678".to_string()]
+        );
+        // Nameless custom: TS leg-1 reads the literal "null" key; we go
+        // straight to the id (battery add-nameless-keys).
+        assert_eq!(
+            reaction_role_keys(&serenity::ReactionType::Custom {
+                animated: false,
+                id: serenity::EmojiId::new(123456789012345678),
+                name: None,
+            }),
+            vec!["123456789012345678".to_string()]
+        );
+        // onReactAdd.ts:47-52 toggle truth table (battery toggle-*).
+        assert!(!reaction_add_should_remove(false, false));
+        assert!(reaction_add_should_remove(true, false));
+        assert!(reaction_add_should_remove(false, true));
+        assert!(reaction_add_should_remove(true, true));
     }
 
     #[test]
