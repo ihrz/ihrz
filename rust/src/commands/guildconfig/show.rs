@@ -231,14 +231,9 @@ pub async fn gc_show(
                 || k.starts_with("VOICE")
         })
         .collect();
-    if rows.is_empty() {
-        ctx.say(
-            crate::lang::get(&code, "msg_guildconfig_show_empty")
-                .unwrap_or_else(|| "No config stored.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
+    // TS-exact (!show.ts): no empty-store early leg — optional chaining
+    // renders the full embed with per-field "Not set!" values even when
+    // the guild has zero stored rows.
     let mut doc = serde_json::Map::new();
     for (k, v) in rows {
         let value: serde_json::Value =
@@ -323,6 +318,25 @@ mod tests {
             show_format_value("GUILD.GUILD_CONFIG.join", None, "xx-YY"),
             "Not set!"
         );
+    }
+
+    #[test]
+    fn empty_store_renders_not_set_embed_not_early_text() {
+        // TS-exact (!show.ts): optional chaining means an empty store
+        // renders page 1 of the embed with per-field not-set values —
+        // never a "No config stored." content reply (removed early leg).
+        let doc = serde_json::Map::new();
+        let fields = show_page_fields(1, &doc, "en");
+        assert_eq!(fields.len(), 6);
+        for (_, value, _) in &fields {
+            assert!(
+                !value.contains("No config stored"),
+                "empty store leaked early-leg text: {value}"
+            );
+            assert!(!value.is_empty());
+        }
+        let join = fields.iter().find(|(n, _, _)| n == "Channel Join").unwrap();
+        assert_eq!(join.1, "Not set!");
     }
 
     #[test]
