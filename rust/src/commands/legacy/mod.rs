@@ -135,6 +135,13 @@ pub fn is_quoi_bait(text: &str) -> bool {
 
 /// Full fr-ME joke table. Mirrors auto_respond in autoFeur.ts.
 pub const AUTOFEUR_TABLE: &[(&str, &str)] = &[
+    ("feur", "tgl"),
+    ("quoi", "feur"),
+    ("salut", "tgl"),
+    ("tgl", "toi même fdp"),
+    ("wesh", "wesh canne à pêche"),
+    ("pd", "parle mieux fils"),
+    ("tcon", "tu t'es vu toi? mdrr"),
     ("aïe", "aïe aïe aïe"),
     ("ah", "b"),
     ("hein", "deux"),
@@ -1939,6 +1946,39 @@ mod tests {
         );
         assert_eq!(autofeur_match("hello world"), None);
         assert_eq!(autofeur_match("oklm"), None);
+    }
+
+    #[test]
+    fn autofeur_match_matches_ts_battery() {
+        // W7 slice 9: node battery replicating the autoFeur.ts loop verbatim
+        // (script at scratch `slice-w7s9-autofeur.js`). The table was missing
+        // the first 7 TS keys (feur/quoi/salut/tgl/wesh/pd/tcon), so bare
+        // "quoi" (any fr-ME guild) stayed silent here while TS replies "feur".
+        // Restored in TS insertion order (first-hit-wins).
+        assert_eq!(autofeur_match("quoi"), Some("feur"));
+        assert_eq!(autofeur_match("QUOI"), Some("feur"));
+        assert_eq!(autofeur_match("  Quoi  "), Some("feur"));
+        assert_eq!(autofeur_match("c quoi"), Some("feur"));
+        assert_eq!(autofeur_match("tu sais quoi ?"), Some("feur"));
+        assert_eq!(autofeur_match("feur"), Some("tgl"));
+        assert_eq!(autofeur_match("FEUR"), Some("tgl"));
+        assert_eq!(autofeur_match("feur ?"), Some("tgl"));
+        assert_eq!(autofeur_match("salut"), Some("tgl"));
+        assert_eq!(autofeur_match("Salut !"), Some("tgl"));
+        assert_eq!(autofeur_match("tgl"), Some("toi même fdp"));
+        assert_eq!(autofeur_match("un tgl"), Some("toi même fdp"));
+        assert_eq!(autofeur_match("wesh"), Some("wesh canne à pêche"));
+        assert_eq!(autofeur_match("wesh canne"), None);
+        assert_eq!(autofeur_match("pd"), Some("parle mieux fils"));
+        assert_eq!(autofeur_match("tcon"), Some("tu t'es vu toi? mdrr"));
+        // Order/edge legs: earlier-table quoi misses mid-message, lol wins.
+        assert_eq!(autofeur_match("quoi lol"), Some("t'as 40 ans ?"));
+        assert_eq!(autofeur_match("oui, non"), Some("si"));
+        assert_eq!(autofeur_match(";ntm"), None);
+        assert_eq!(autofeur_match("x\ttg"), Some("tgl"));
+        assert_eq!(autofeur_match("suce moi stp"), None);
+        assert_eq!(autofeur_match("quel trans"), Some("euh ouais par contre parle mieux stp, on as pas élever les cochons ensemble la conne de ta soeur"));
+        assert_eq!(autofeur_match(""), None);
     }
 
     #[test]
