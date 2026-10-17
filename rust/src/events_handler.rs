@@ -1721,6 +1721,53 @@ pub fn voice_log_kind(
     None
 }
 
+/// Delete-log send shape. Mirrors logs/messageDeleteLogs.ts:68-150
+/// (`attachments.size >= 1` + `!attachment.contentType → return` +
+/// `size >= 2` multi leg + single `image/` leg + single-file leg +
+/// no-attachment embeds-copy leg). Pure, unit-tested below.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DeleteLogRoute {
+    /// `!attachment || !attachment.contentType` (:71): the whole run
+    /// returns, nothing is sent — not even the text embed.
+    Drop,
+    /// `size >= 2` (:73): the text embed plus EVERY attachment
+    /// re-uploaded under its own name (no `.take(5)` cap, no embeds
+    /// copies — `saves_emb` stays empty on this leg).
+    Multi,
+    /// Single `image/*` attachment (:98): re-uploaded as
+    /// `sniped-image-by-ihorizon.png` + `setImage`, no embeds copies.
+    SingleImage,
+    /// Single non-image attachment (:122): re-uploaded under its own
+    /// name, no embeds copies.
+    SingleFile,
+    /// No attachments (:141): `[logsEmbed, ...saves_emb]` (`message.embeds`
+    /// is always truthy, even empty, so the copies always append here).
+    Text,
+}
+
+/// Delete-log route verdict. Mirrors logs/messageDeleteLogs.ts:68-150:
+/// `first_content_type` is `None` when discord.js reports a null
+/// contentType (falsy → Drop, like TS `!attachment.contentType`).
+/// Pure, unit-tested below.
+pub fn delete_log_route(
+    attachment_count: usize,
+    first_content_type: Option<&str>,
+) -> DeleteLogRoute {
+    if attachment_count >= 1 {
+        let Some(ct) = first_content_type.filter(|s| !s.is_empty()) else {
+            return DeleteLogRoute::Drop;
+        };
+        if attachment_count >= 2 {
+            return DeleteLogRoute::Multi;
+        }
+        if ct.starts_with("image/") {
+            return DeleteLogRoute::SingleImage;
+        }
+        return DeleteLogRoute::SingleFile;
+    }
+    DeleteLogRoute::Text
+}
+
 /// Prefix segment of a component custom id. Mirrors
 /// buttonHandler.ts:38 / selectMenuHandler.ts:35 (`split("%")[0]`,
 /// the client.buttons / client.selectmenu registry key). Pure,
@@ -8399,7 +8446,14 @@ impl serenity::EventHandler for Handler {
             // The bot's own messages are skipped, like TS.
             // Owned snapshot first: the cache guard is not Send and
             // must drop before any await.
-            let snap: Option<(u64, String, String, String, Vec<(String, String, String)>)> = ctx
+            let snap: Option<(
+                u64,
+                String,
+                String,
+                String,
+                Vec<(String, String, String)>,
+                Vec<serenity::model::channel::Embed>,
+            )> = ctx
                 .cache
                 .message(channel_id, deleted_message_id)
                 .map(|cached| {
@@ -8408,10 +8462,10 @@ impl serenity::EventHandler for Handler {
                         cached.author.name.clone(),
                         cached.author.avatar_url().unwrap_or_default(),
                         cached.content.clone(),
+                        // TS maps EVERY attachment (:88-92, no cap).
                         cached
                             .attachments
                             .iter()
-                            .take(5)
                             .map(|a| {
                                 (
                                     a.url.clone(),
@@ -8420,10 +8474,27 @@ impl serenity::EventHandler for Handler {
                                 )
                             })
                             .collect(),
+                        // TS re-sends EmbedBuilder.from copies of the
+                        // deleted message's embeds on the text leg
+                        // (:141-145).
+                        cached.embeds.clone(),
                     )
                 });
-            if let Some((author_id, author_name, avatar, content, attachments)) = snap {
+            if let Some((author_id, author_name, avatar, content, attachments, copied_embeds)) =
+                snap
+            {
                 if author_id != ctx.cache.current_user().id.get() {
+                    // TS :68-71: a present-but-typeless first attachment
+                    // drops the WHOLE run (no send at all). The db read
+                    // below has no observable side effect, so the gate
+                    // runs first.
+                    let route = delete_log_route(
+                        attachments.len(),
+                        attachments.first().map(|(_, _, ct)| ct.as_str()),
+                    );
+                    if route == DeleteLogRoute::Drop {
+                        return;
+                    }
                     let logs_ch: Option<u64> =
                         crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
                             &self.pool, &gid, "message",
@@ -8437,40 +8508,76 @@ impl serenity::EventHandler for Handler {
                         let desc = text("event_srvLogs_messageDelete_description")
                             .replace("${message.channel.id}", &channel_id.get().to_string())
                             .replace("${message.content}", &format!(" {content}"));
-                        let mut embed = serenity::CreateEmbed::default()
+                        let logs_embed = serenity::CreateEmbed::default()
                             .colour(0x010101_u32)
                             .author(serenity::CreateEmbedAuthor::new(author_name).icon_url(avatar))
                             .description(desc)
                             .timestamp(serenity::Timestamp::now());
-                        let mut files = vec![];
-                        if attachments.len() == 1 && attachments[0].2.starts_with("image/") {
-                            if let Some(bytes) =
-                                crate::commands::botcat::download_bytes(&attachments[0].0).await
-                            {
-                                files.push(serenity::CreateAttachment::bytes(
-                                    bytes,
-                                    "sniped-image-by-ihorizon.png",
-                                ));
-                                embed = embed.image("attachment://sniped-image-by-ihorizon.png");
+                        // Attachment legs send ONLY [logsEmbed] + files
+                        // (saves_emb stays empty there, :94/:119/:137);
+                        // the embeds copies append only on the text leg
+                        // (:141-148). A failed re-upload sends nothing on
+                        // every leg: the multi leg throws out of
+                        // Promise.all, the single legs fail the validated
+                        // send (swallowed by .catch) — so any miss drops
+                        // the send here too.
+                        let payload: Option<(
+                            Vec<serenity::CreateEmbed>,
+                            Vec<serenity::CreateAttachment>,
+                        )> = match route {
+                            DeleteLogRoute::Drop => None, // gated above
+                            DeleteLogRoute::SingleImage => {
+                                let (url, _, _) = &attachments[0];
+                                crate::commands::botcat::download_bytes(url)
+                                    .await
+                                    .map(|bytes| {
+                                        (
+                                            vec![logs_embed.image(
+                                                "attachment://sniped-image-by-ihorizon.png",
+                                            )],
+                                            vec![serenity::CreateAttachment::bytes(
+                                                bytes,
+                                                "sniped-image-by-ihorizon.png",
+                                            )],
+                                        )
+                                    })
                             }
-                        } else {
-                            for (url, filename, _) in &attachments {
-                                if let Some(bytes) =
-                                    crate::commands::botcat::download_bytes(url).await
-                                {
-                                    files.push(serenity::CreateAttachment::bytes(
-                                        bytes,
-                                        filename.clone(),
-                                    ));
+                            DeleteLogRoute::Multi | DeleteLogRoute::SingleFile => {
+                                let mut files = Vec::with_capacity(attachments.len());
+                                let mut ok = true;
+                                for (url, filename, _) in &attachments {
+                                    match crate::commands::botcat::download_bytes(url).await {
+                                        Some(bytes) => {
+                                            files.push(serenity::CreateAttachment::bytes(
+                                                bytes,
+                                                filename.clone(),
+                                            ))
+                                        }
+                                        None => {
+                                            ok = false;
+                                            break;
+                                        }
+                                    }
                                 }
+                                ok.then(|| (vec![logs_embed], files))
                             }
+                            DeleteLogRoute::Text => {
+                                let mut out = Vec::with_capacity(copied_embeds.len() + 1);
+                                out.push(logs_embed);
+                                out.extend(
+                                    copied_embeds.into_iter().map(serenity::CreateEmbed::from),
+                                );
+                                Some((out, vec![]))
+                            }
+                        };
+                        if let Some((embeds, files)) = payload {
+                            let _ = serenity::ChannelId::new(logs_ch)
+                                .send_message(
+                                    &ctx.http,
+                                    serenity::CreateMessage::new().embeds(embeds).files(files),
+                                )
+                                .await;
                         }
-                        let _ = serenity::ChannelId::new(logs_ch)
-                            .send_message(
-                                &ctx.http,
-                                serenity::CreateMessage::new().embed(embed).files(files),
-                            )
-                            .await;
                     }
                 }
             }
@@ -13844,6 +13951,34 @@ mod component_registry_tests {
         // DELTA (doc-noted, pathological: both channelIds null on a
         // live update never occurs): TS renders the leave text with
         // the literal "undefined" (`OchannelID?.toString()`), here "".
+    }
+
+    #[test]
+    fn delete_log_route_matches_ts_msgdelete_battery() {
+        // Mirrors scratch slice-w7s46-msgdelete.cjs
+        // (messageDeleteLogs.ts attachment/embeds legs, verbatim).
+        // Args: (attachment_count, first_content_type).
+        use DeleteLogRoute::*;
+        // No attachments -> [logsEmbed, ...copies] (:141).
+        assert_eq!(delete_log_route(0, None), Text);
+        // Typeless first attachment drops the whole run (:71) — before
+        // the multi leg, before any send (the slice-46 fix; old code
+        // sent the text embed here).
+        assert_eq!(delete_log_route(1, None), Drop);
+        assert_eq!(delete_log_route(1, Some("")), Drop);
+        assert_eq!(delete_log_route(2, None), Drop);
+        // Single image/* leg (:98, startsWith, case-sensitive).
+        assert_eq!(delete_log_route(1, Some("image/png")), SingleImage);
+        assert_eq!(delete_log_route(1, Some("image/")), SingleImage);
+        assert_eq!(delete_log_route(1, Some("image/gif")), SingleImage);
+        // Single non-image leg (:122).
+        assert_eq!(delete_log_route(1, Some("video/mp4")), SingleFile);
+        assert_eq!(delete_log_route(1, Some("application/pdf")), SingleFile);
+        assert_eq!(delete_log_route(1, Some("IMAGE/PNG")), SingleFile);
+        // Multi leg (:73): every attachment, no embeds copies.
+        assert_eq!(delete_log_route(2, Some("image/png")), Multi);
+        assert_eq!(delete_log_route(3, Some("video/mp4")), Multi);
+        assert_eq!(delete_log_route(10, Some("image/jpeg")), Multi);
     }
 
     #[test]
