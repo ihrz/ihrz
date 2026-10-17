@@ -423,11 +423,22 @@ pub fn next_trigger_count(prev: Option<u64>) -> u64 {
 /// checked BEFORE schedule_trap spawns anything (audit P8), not after
 /// the 1500ms debounce like the in-pipeline re-check in
 /// run_trap_pipeline.
+/// MessageCreate event gate. Mirrors the
+/// `!config?.enabled || !config.channelId || message.channelId !== config.channelId`
+/// early return in src/Events/honeypot/honeypot.ts verbatim: strict string
+/// equality, NO trim (a padded `" 123 "` row mismatches channel `123` in TS).
+/// DELTAS (manual-DB-only -- writers store booleans + bare snowflakes):
+/// a truthy non-bool `enabled` (e.g. `"false"`) proceeds in TS but folds to
+/// `false` in `parse_trap_config` (`as_bool`); a numeric `channelId` skips in
+/// TS via strict `!==` and folds to `""` here (convergent skip).
+pub fn honeypot_event_gate_passes(enabled: bool, channel_id: &str, msg_channel_id: u64) -> bool {
+    enabled && !channel_id.is_empty() && channel_id == msg_channel_id.to_string()
+}
+
+/// Pre-spawn async wrapper: loads the row, parses it, applies the gate.
 pub async fn trap_spawn_allowed(pool: &crate::db::Pool, guild_id: &str, channel_id: u64) -> bool {
     let trap = parse_trap_config(load_honeypot_raw(pool, guild_id).await);
-    trap.enabled
-        && !trap.channel_id.trim().is_empty()
-        && trap.channel_id.trim() == channel_id.to_string()
+    honeypot_event_gate_passes(trap.enabled, &trap.channel_id, channel_id)
 }
 
 /// Debounced trap entry: at most one pipeline per
@@ -924,6 +935,23 @@ mod tests {
         assert!(staff_exempt(Permissions::KICK_MEMBERS));
         assert!(!staff_exempt(Permissions::empty()));
         assert!(!staff_exempt(Permissions::SEND_MESSAGES));
+    }
+
+    #[test]
+    fn honeypot_event_gate_matches_ts_battery() {
+        // Mirrors scratch/slice-w7s20-honeypot.js (21/21 green): the
+        // `!config?.enabled || !config.channelId || !==` chain verbatim.
+        assert!(honeypot_event_gate_passes(true, "123", 123));
+        assert!(!honeypot_event_gate_passes(false, "123", 123));
+        assert!(!honeypot_event_gate_passes(true, "", 123));
+        assert!(!honeypot_event_gate_passes(true, "999", 123));
+        // Strict `!==`: no trim -- a padded row mismatches in TS, and the
+        // old `.trim()` outer gate wrongly spawned the pipeline here.
+        assert!(!honeypot_event_gate_passes(true, " 123 ", 123));
+        assert!(!honeypot_event_gate_passes(true, " ", 123));
+        assert!(!honeypot_event_gate_passes(true, "123 ", 123));
+        // Channel id 0 renders as "0", never equal to a real row.
+        assert!(!honeypot_event_gate_passes(true, "123", 0));
     }
 
     #[test]
