@@ -1309,6 +1309,11 @@ pub fn xp_skip_for_command(command_handled: bool) -> bool {
 /// permission stays silent): true means no level-up message. XP was still
 /// gained (the full-disable case is caught by xp_gain_blocked first).
 /// Bare and quoted stored forms both match (see `xp_gain_blocked`).
+/// DELTAS (manual-DB-only): the writer stores real booleans (`!config.ts`
+/// writes `false`/`true`/`"disable"`), which TS `db.get` JSON-parses back
+/// to booleans so strict `===` applies; a hand-written string `"false"`
+/// leaf reads suppressed here while TS `"false" === false` proceeds, and
+/// other truthy leaves (`"0"`, `0`, `"off"`) proceed on both sides.
 pub fn xp_announce_suppressed(disable_raw: Option<&str>, can_send: bool) -> bool {
     if !can_send {
         return true;
@@ -1322,6 +1327,11 @@ pub fn xp_announce_suppressed(disable_raw: Option<&str>, can_send: bool) -> bool
 /// Level-up announce routing. Mirrors onNewMessage.ts: no `xpchannels`
 /// set -> reply in place (`channelSend`); set with a resolvable channel
 /// -> send there; set but unresolvable -> stay silent.
+/// DELTA (manual-DB-only): the leaf is trimmed here while TS tests the raw
+/// `!xpChan` truthiness, so a whitespace-only leaf replies in place here
+/// (TS: truthy -> cache lookup -> silent) and a padded id sends here (TS:
+/// lookup misses -> silent). The writer stores a bare snowflake id or
+/// deletes the key (`!channel.ts`), never whitespace.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum XpAnnounceTarget {
     ReplyInPlace,
@@ -2155,6 +2165,46 @@ mod tests {
         assert_eq!(parse_xp_channel(r#"["a","b"]"#), Some("a".to_string()));
         assert_eq!(parse_xp_channel(""), None);
         assert_eq!(parse_xp_channel("   "), None);
+    }
+
+    #[test]
+    fn xp_ranks_event_gates_match_ts_battery() {
+        // Gain gate (ranks/onNewMessage.ts:63-67): only the exact string
+        // "disable" blocks; the writer's `false`/`true`/missing all earn.
+        assert!(xp_gain_blocked(Some("disable"), &[], "c1"));
+        assert!(xp_gain_blocked(Some("\"disable\""), &[], "c1"));
+        assert!(!xp_gain_blocked(Some("false"), &[], "c1"));
+        assert!(!xp_gain_blocked(Some("true"), &[], "c1"));
+        assert!(!xp_gain_blocked(None, &[], "c1"));
+        assert!(!xp_gain_blocked(Some("Disable"), &[], "c1"));
+        assert!(xp_gain_blocked(None, &["c1".to_string()], "c1"));
+        assert!(!xp_gain_blocked(None, &["c9".to_string()], "c1"));
+        // Announce gate (:161-167): boolean-false silences (XP kept); the
+        // full-disable string is already caught upstream so it proceeds.
+        assert!(xp_announce_suppressed(Some("false"), true));
+        assert!(!xp_announce_suppressed(Some("true"), true));
+        assert!(!xp_announce_suppressed(None, true));
+        assert!(!xp_announce_suppressed(Some("disable"), true));
+        assert!(xp_announce_suppressed(Some("false"), false));
+        assert!(xp_announce_suppressed(None, false));
+        // Routing (:186,206): missing/empty replies in place, a set id
+        // needs a resolvable channel.
+        assert_eq!(
+            xp_announce_target(None, false),
+            XpAnnounceTarget::ReplyInPlace
+        );
+        assert_eq!(
+            xp_announce_target(Some(""), false),
+            XpAnnounceTarget::ReplyInPlace
+        );
+        assert_eq!(
+            xp_announce_target(Some("123"), true),
+            XpAnnounceTarget::SendToChannel("123".into())
+        );
+        assert_eq!(
+            xp_announce_target(Some("123"), false),
+            XpAnnounceTarget::Suppressed
+        );
     }
 
     #[tokio::test]

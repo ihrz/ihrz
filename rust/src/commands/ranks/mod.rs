@@ -199,6 +199,14 @@ pub fn rank_roles_to_map(roles: &[RankRole]) -> serde_json::Map<String, serde_js
 }
 
 /// TS map form -> vec form. Unknown levels are skipped; numbers coerce.
+/// DELTA (manual-DB-only): the event pick (`ranks/onNewMessage.ts:105-112`)
+/// reads raw keys through `parseInt`, which admits `"2abc"`->2,
+/// `"0x10"`->16, `" 3"`->3, `"3.9"`->3, while this map drops every
+/// non-canonical key (and the removal set narrows to parsed roles, where
+/// TS sweeps `Object.values` incl. junk-keyed ids). The writer stores
+/// canonical `level.toString()` keys (`!roles.ts:306,338`: `parseInt` +
+/// NaN/`<= 0` reject, key built from the parsed int), so live guilds never
+/// carry such keys.
 pub fn rank_roles_from_map(map: &serde_json::Map<String, serde_json::Value>) -> Vec<RankRole> {
     let mut out = Vec::new();
     for (level, role) in map {
@@ -551,6 +559,23 @@ mod tests {
             vec![RankRole {
                 role_id: "7".to_string(),
                 level: 5
+            }]
+        );
+    }
+
+    #[test]
+    fn rank_roles_from_map_drops_noncanonical_keys_ts_parseint_admits() {
+        // Battery slice-w7s13 legs: TS parseInt admits these keys at the
+        // event pick, but the writer only stores canonical decimal keys,
+        // so they are manual-DB-only. The map narrows to canonical u64.
+        let v =
+            serde_json::json!({"2": "low", "2abc": "junk", "0x10": "hex", " 3": "sp", "": "empty"});
+        let map = v.as_object().unwrap();
+        assert_eq!(
+            rank_roles_from_map(map),
+            vec![RankRole {
+                role_id: "low".to_string(),
+                level: 2
             }]
         );
     }
