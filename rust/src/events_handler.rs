@@ -1342,6 +1342,68 @@ pub fn channel_logs_both_bot(e1_is_bot: Option<bool>, e2_is_bot: Option<bool>) -
     e1_is_bot.unwrap_or(false) && e2_is_bot.unwrap_or(false)
 }
 
+/// ViewAuditLog + ManageGuild AND-gate for the rich roles log. Mirrors
+/// the `members.me?.permissions.has([ViewAuditLog, ManageGuild])`
+/// early return in Events/logs/rolesLogs.ts (`has` with an array
+/// requires BOTH bits): with ViewAuditLog alone the audit fetch would
+/// succeed, but TS stays silent. Pure, unit-tested below (battery
+/// slice W7-51).
+pub fn roles_log_proceeds(has_view_audit_log: bool, has_manage_guild: bool) -> bool {
+    has_view_audit_log && has_manage_guild
+}
+
+/// Description renderer for the rich roles log. Mirrors rolesLogs.ts
+/// (`" "` base, remove leg plus a trailing `\n`, role mentions
+/// comma-joined via Array-toString with no spaces). Token replace is
+/// first-only (`replacen(..., 1)`), exactly like JS
+/// `String.replace(string, ...)`; the live templates carry each token
+/// once, so both agree there too. TWO DELTAS (doc-noted): TS
+/// `firstEntry.changes.forEach` throws on an undefined `changes`
+/// (no send) while the call site folds missing changes to empty and
+/// skips the send (same outcome); TS still sends a `" "` embed when
+/// both lists are empty while the call site skips (Discord never
+/// emits a MemberRoleUpdate entry with empty changes, unreachable
+/// live). Pure, unit-tested below (battery slice W7-51).
+pub fn roles_log_description(
+    added: &[u64],
+    removed: &[u64],
+    executor_id: u64,
+    username: &str,
+    text: &dyn Fn(&str) -> String,
+) -> String {
+    let mut desc = " ".to_string();
+    if !removed.is_empty() {
+        desc += &(text("event_srvLogs_guildMemberUpdate_description")
+            .replacen("${firstEntry.executor.id}", &executor_id.to_string(), 1)
+            .replacen(
+                "${removedRoles}",
+                &removed
+                    .iter()
+                    .map(|id| format!("<@&{id}>"))
+                    .collect::<Vec<_>>()
+                    .join(","),
+                1,
+            )
+            .replacen("${oldMember.user.username}", username, 1)
+            + "\n");
+    }
+    if !added.is_empty() {
+        desc += &text("event_srvLogs_guildMemberUpdate_2_description")
+            .replacen("${firstEntry.executor.id}", &executor_id.to_string(), 1)
+            .replacen(
+                "${addedRoles}",
+                &added
+                    .iter()
+                    .map(|id| format!("<@&{id}>"))
+                    .collect::<Vec<_>>()
+                    .join(","),
+                1,
+            )
+            .replacen("${oldMember.user.username}", username, 1);
+    }
+    desc
+}
+
 /// Mod-log embed description renderer backing mod_audit_log.
 /// Mirrors the per-file token chains in Events/logs/addBanLogs.ts
 /// (`${firstEntry.executor.id}` + `${firstEntry.target.id}`),
@@ -3621,7 +3683,7 @@ impl Handler {
     /// ManageGuild])` requires both bits).
     async fn bot_can_audit(&self, ctx: &serenity::Context, guild_id: serenity::GuildId) -> bool {
         let perms = self.bot_effective_perms(ctx, guild_id).await;
-        perms.view_audit_log() && perms.manage_guild()
+        roles_log_proceeds(perms.view_audit_log(), perms.manage_guild())
     }
 
     /// ManageRoles gate. Mirrors the `members.me` ManageRoles early
@@ -10773,8 +10835,11 @@ impl serenity::EventHandler for Handler {
         // MemberRoleUpdate audit entry for the target -> #010101
         // embed with removed/added role mentions. Silent when roles
         // are unchanged, no log channel, no audit entry, the
-        // executor is the bot, or the entry targets someone else.
-        if old.roles != new.roles {
+        // executor is the bot, the entry targets someone else, or
+        // the bot lacks ViewAuditLog + ManageGuild (rolesLogs.ts
+        // :49-55 AND-gate: with ViewAuditLog alone the audit fetch
+        // would succeed, but TS stays silent).
+        if old.roles != new.roles && self.bot_can_audit(&ctx, new.guild_id).await {
             let gid = new.guild_id.get().to_string();
             let logs_ch: Option<u64> =
                 crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
@@ -10841,40 +10906,13 @@ impl serenity::EventHandler for Handler {
                                 .map(|u| u.name.clone())
                                 .unwrap_or_else(|_| new.user.name.clone());
                             let avatar = new.user.avatar_url().unwrap_or_default();
-                            let mut desc = " ".to_string();
-                            if !removed.is_empty() {
-                                desc += &(text("event_srvLogs_guildMemberUpdate_description")
-                                    .replace(
-                                        "${firstEntry.executor.id}",
-                                        &entry.user_id.get().to_string(),
-                                    )
-                                    .replace(
-                                        "${removedRoles}",
-                                        &removed
-                                            .iter()
-                                            .map(|id| format!("<@&{id}>"))
-                                            .collect::<Vec<_>>()
-                                            .join(","),
-                                    )
-                                    .replace("${oldMember.user.username}", &username)
-                                    + "\n");
-                            }
-                            if !added.is_empty() {
-                                desc += &text("event_srvLogs_guildMemberUpdate_2_description")
-                                    .replace(
-                                        "${firstEntry.executor.id}",
-                                        &entry.user_id.get().to_string(),
-                                    )
-                                    .replace(
-                                        "${addedRoles}",
-                                        &added
-                                            .iter()
-                                            .map(|id| format!("<@&{id}>"))
-                                            .collect::<Vec<_>>()
-                                            .join(","),
-                                    )
-                                    .replace("${oldMember.user.username}", &username);
-                            }
+                            let desc = roles_log_description(
+                                &added,
+                                &removed,
+                                entry.user_id.get(),
+                                &username,
+                                &text,
+                            );
                             let embed = serenity::CreateEmbed::default()
                                 .colour(0x010101_u32)
                                 .author(serenity::CreateEmbedAuthor::new(username).icon_url(avatar))
@@ -13209,6 +13247,48 @@ mod restore_tests {
         assert_eq!(mod_log_reason(None, FB), FB);
         assert_eq!(mod_log_reason(Some(""), FB), FB);
         assert_eq!(mod_log_reason(Some(" "), FB), " ");
+    }
+
+    #[test]
+    fn roles_log_gates_match_ts_battery() {
+        // Battery slice W7-51 (scratch slice-w7s51-roles.cjs, 22/22):
+        // rolesLogs.ts perm AND-gate + desc render legs.
+        // Gate truth table: `has([ViewAuditLog, ManageGuild])`
+        // requires BOTH bits (ViewAuditLog alone still drops).
+        assert!(roles_log_proceeds(true, true));
+        assert!(!roles_log_proceeds(true, false));
+        assert!(!roles_log_proceeds(false, true));
+        assert!(!roles_log_proceeds(false, false));
+        // Desc render with single-token templates (live shape).
+        let text = |k: &str| {
+            match k {
+            "event_srvLogs_guildMemberUpdate_description" => {
+                "\u{1f4e4} <@${firstEntry.executor.id}> removed the ${removedRoles} role from ${oldMember.user.username}".to_string()
+            }
+            _ => {
+                "\u{1f4e5} <@${firstEntry.executor.id}> added the ${addedRoles} role to ${oldMember.user.username}".to_string()
+            }
+        }
+        };
+        assert_eq!(
+            roles_log_description(&[1], &[], 9, "u", &text),
+            " \u{1f4e5} <@9> added the <@&1> role to u"
+        );
+        assert_eq!(
+            roles_log_description(&[], &[7, 8], 9, "u", &text),
+            " \u{1f4e4} <@9> removed the <@&7>,<@&8> role from u\n"
+        );
+        let both = roles_log_description(&[1], &[7], 9, "u", &text);
+        assert!(both.contains('\n'));
+        assert!(both.starts_with(' '));
+        // Comma join has no spaces (JS Array-toString); first-only
+        // replace keeps a doubled token intact (JS semantics).
+        assert!(!both.contains(", "));
+        let text2 = |_: &str| "a${addedRoles}b${addedRoles}".to_string();
+        assert_eq!(
+            roles_log_description(&[1], &[], 9, "u", &text2),
+            " a<@&1>b${addedRoles}"
+        );
     }
 
     #[test]
