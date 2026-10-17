@@ -750,6 +750,29 @@ async fn support_cfg_routed(pool: &crate::db::Pool, gid: &str) -> Option<String>
     leaf_routed(pool, gid, "GUILD.SUPPORT").await
 }
 
+/// Support bio early-remove gate. Mirrors
+/// `someinfo?.type === "bio" && !bio.state` where
+/// `bio = activities[0] || "null"`: a missing activity, a missing state,
+/// AND an empty-string state all take the early remove/no-op path
+/// (`!""` is true in JS). Pure, unit-tested below.
+pub fn support_bio_state_missing(kind: &str, state: Option<&str>) -> bool {
+    kind == "bio" && state.is_none_or(str::is_empty)
+}
+
+/// Support bio match core. Mirrors the cleanBio / cleanInput /
+/// cleanVanity `includes` chain in supportModule.ts exactly: a missing
+/// vanity code falls back to the literal `"null"`
+/// (`guild.vanityURLCode || "null"`), so a "null"-bearing bio matches on
+/// vanity-less guilds; empty input matches everything (`includes("")`),
+/// like TS. The writer stores strings (or null input for tag), so
+/// non-string leaves are manual-DB-only. Pure, unit-tested below.
+pub fn support_bio_matched(state: &str, input: Option<&str>, vanity: Option<&str>) -> bool {
+    let clean_bio = state.to_lowercase();
+    let clean_input = input.unwrap_or_default().to_lowercase();
+    let clean_vanity = vanity.unwrap_or("null").to_lowercase();
+    clean_bio.contains(&clean_input) || clean_bio.contains(&clean_vanity)
+}
+
 /// BOT.botName leaf.
 async fn bot_name_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, crate::commands::botcat::BOT_NAME_KEY).await
@@ -10321,13 +10344,8 @@ impl serenity::EventHandler for Handler {
         let kind = cfg.get("type").and_then(|t| t.as_str()).unwrap_or("");
         let has = member.roles.contains(&role_id);
         // Early-out removals mirroring the TS guards.
-        if kind == "bio"
-            && new_data
-                .activities
-                .first()
-                .and_then(|a| a.state.as_ref())
-                .is_none()
-        {
+        let first_state = new_data.activities.first().and_then(|a| a.state.as_deref());
+        if support_bio_state_missing(kind, first_state) {
             if has {
                 // TS `supportModule.ts:74-77` passes "[Support] Module"
                 // (Member::*_role carries no reason, so go through Http).
@@ -10370,25 +10388,14 @@ impl serenity::EventHandler for Handler {
             }
         }
         let matched = if kind == "bio" {
-            let state = new_data
-                .activities
-                .first()
-                .and_then(|a| a.state.as_ref())
-                .map(|s| s.to_lowercase())
-                .unwrap_or_default();
-            let input = cfg
-                .get("input")
-                .and_then(|i| i.as_str())
-                .unwrap_or_default()
-                .to_lowercase();
+            let state = first_state.unwrap_or_default();
+            let input = cfg.get("input").and_then(|i| i.as_str());
             let vanity = guild_id
                 .to_partial_guild(&ctx.http)
                 .await
                 .ok()
-                .and_then(|g| g.vanity_url_code)
-                .unwrap_or_default()
-                .to_lowercase();
-            state.contains(&input) || (!vanity.is_empty() && state.contains(&vanity))
+                .and_then(|g| g.vanity_url_code);
+            support_bio_matched(state, input, vanity.as_deref())
         } else if kind == "tag" {
             new_data
                 .user
@@ -11966,6 +11973,35 @@ mod protection_audit_tests {
         assert!(punishpub_links_exempt(true, true, true));
         assert!(!punishpub_links_exempt(true, false, false));
         assert!(!punishpub_links_exempt(false, true, true));
+    }
+
+    #[test]
+    fn support_bio_gates_match_ts_supportmodule_battery() {
+        use super::{support_bio_matched, support_bio_state_missing};
+        // Early leg: missing activity, missing state, AND empty-string
+        // state all exit early (`!bio.state`; battery legs 11-13 + #10).
+        assert!(support_bio_state_missing("bio", None));
+        assert!(support_bio_state_missing("bio", Some("")));
+        assert!(!support_bio_state_missing("bio", Some("hi")));
+        assert!(!support_bio_state_missing("tag", None));
+        assert!(!support_bio_state_missing("", None));
+        // Vanity fallback: no vanity code -> literal "null", so a
+        // "null"-bearing bio matches on vanity-less guilds (legs #0-2).
+        assert!(support_bio_matched("i love null", Some("xyz"), None));
+        assert!(support_bio_matched("annulled plans", Some("xyz"), None));
+        assert!(support_bio_matched("NULL enjoyer", Some("xyz"), None));
+        assert!(!support_bio_matched("hello world", Some("xyz"), None));
+        // Normal vanity + input hits, case-folded (legs #5-9).
+        assert!(support_bio_matched(
+            "join my.server.gg/x",
+            Some("xyz"),
+            Some("my.server.gg/x")
+        ));
+        assert!(!support_bio_matched("nothing", Some("gg"), Some("other")));
+        assert!(support_bio_matched("hello", Some("hell"), Some("v")));
+        assert!(support_bio_matched("HeLLo", Some("hell"), Some("v")));
+        // Missing input matches everything (`includes("")`), like TS.
+        assert!(support_bio_matched("hello", None, Some("v")));
     }
 
     #[test]
