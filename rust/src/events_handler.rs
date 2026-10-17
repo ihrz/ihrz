@@ -8523,14 +8523,17 @@ impl serenity::EventHandler for Handler {
         }
         // H247 24/7 rejoin guard (mirrors Events/h247/voiceState.ts +
         // handleH247VoiceStateChange -> ensureH247VoicePresence): only
-        // the bot's own channel change can break the presence. The
+        // the bot's own channel change can break the presence, and a
+        // missing old guild snapshot short-circuits first (TS
+        // `!oldState?.guild`, e.g. cache-miss `old: None`). The
         // voluntary /h247 leave deletes GUILD.H247 first, so this
         // resolves to a no-op then. Rejoin goes out as a gateway OP4
         // voice-state update (send_voice_state), like sendH247VoiceStateUpdate.
         // Rejoin cooldown (mirrors h247EventRejoinCooldowns): a burst
         // of gateway updates cannot loop the rejoin. Stamps only when
         // the presence actually broke (short-circuit order matters).
-        let h247_broken = crate::commands::h247::grant::h247_voice_broken(
+        let h247_broken = crate::commands::h247::grant::h247_event_proceeds(
+            old.as_ref().and_then(|o| o.guild_id).map(|g| g.get()),
             new.user_id == ctx.cache.current_user().id,
             old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
             new.channel_id.map(|c| c.get()),

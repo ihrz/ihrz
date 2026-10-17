@@ -41,6 +41,29 @@ pub fn h247_voice_broken(
     is_self && old_channel != new_channel
 }
 
+/// Full event gate. Mirrors Events/h247/voiceState.ts end to end:
+/// `!oldState?.guild` returns before the channel/bot checks, so a
+/// missing old guild snapshot (serenity cache-miss `old: None`, or a
+/// guild-less snapshot) never reaches the rejoin decision, even for
+/// the bot's own channel change. `is_self` folds the
+/// `newState.member?.id ?? oldState.member?.id` chain: the gateway
+/// always carries the packet user id, so whenever either snapshot
+/// has a member it resolves to the same value.
+///
+/// Deltas (unreachable on live gateway shapes, doc-noted): both
+/// members null while the packet user is the bot proceeds here but
+/// TS skips (member-gated); `client.user` null (never while
+/// receiving events) skips in TS; `undefined`-vs-`null` channelId
+/// proceeds in TS via strict `===` (discord.js always sets null).
+pub fn h247_event_proceeds(
+    old_guild: Option<u64>,
+    is_self: bool,
+    old_channel: Option<u64>,
+    new_channel: Option<u64>,
+) -> bool {
+    old_guild.is_some() && h247_voice_broken(is_self, old_channel, new_channel)
+}
+
 /// Rejoin target. Mirrors ensureH247VoicePresence: when H24/7 is
 /// enabled and the bot is not (or no longer) in the expected channel,
 /// rejoin it via a gateway OP4 voice-state update. The voluntary
@@ -157,6 +180,26 @@ mod tests {
         assert!(h247_voice_broken(true, Some(1), None));
         assert!(h247_voice_broken(true, None, Some(2)));
         assert!(h247_voice_broken(true, Some(1), Some(2)));
+    }
+
+    #[test]
+    fn h247_event_gate_matches_ts_voicestate_battery() {
+        // Slice-42 pin: mirrors Events/h247/voiceState.ts gate chain
+        // (battery: scratch/slice-w7s42-h247voicestate.cjs, 24/24).
+        // Move / join / leave by the bot proceed with the old guild.
+        assert!(h247_event_proceeds(Some(9), true, Some(1), Some(2)));
+        assert!(h247_event_proceeds(Some(9), true, None, Some(2)));
+        assert!(h247_event_proceeds(Some(9), true, Some(1), None));
+        // Mute/deafen-only (same channel, incl. both-null) never proceeds.
+        assert!(!h247_event_proceeds(Some(9), true, Some(5), Some(5)));
+        assert!(!h247_event_proceeds(Some(9), true, None, None));
+        // Other members never proceed.
+        assert!(!h247_event_proceeds(Some(9), false, Some(1), Some(2)));
+        // Missing old guild snapshot short-circuits before every check,
+        // even the bot's own channel change (TS `!oldState?.guild`).
+        assert!(!h247_event_proceeds(None, true, Some(1), Some(2)));
+        assert!(!h247_event_proceeds(None, true, None, Some(2)));
+        assert!(!h247_event_proceeds(None, false, Some(1), Some(2)));
     }
 
     #[test]
