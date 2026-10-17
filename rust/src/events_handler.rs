@@ -3977,11 +3977,10 @@ pub async fn render_board_message(
             embed = embed.author(serenity::CreateEmbedAuthor::new(message.author.tag()));
         }
     }
-    if let Some(first) = message.attachments.iter().find(|a| {
-        a.content_type
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("image/")
+    // TS consults ONLY the first attachment (`attachments.first()`); a
+    // later image behind a non-image first attachment is ignored.
+    if let Some(first) = message.attachments.first().filter(|a| {
+        crate::commands::starboard::board_first_attachment_is_image(a.content_type.as_deref())
     }) {
         embed = embed.image(&first.url);
     }
@@ -4063,7 +4062,8 @@ pub async fn board_reaction_add(
         if cfg.enabled == "no" || cfg.channel.is_empty() {
             continue;
         }
-        if count < cfg.threshold {
+        // TS `!reaction.count || reaction.count < threshold` falsy leg.
+        if !crate::commands::starboard::board_add_threshold_reached(Some(count), cfg.threshold) {
             continue;
         }
         let Ok(board_channel_id) = cfg.channel.parse::<u64>() else {
@@ -4190,7 +4190,7 @@ pub async fn board_reaction_remove(
             // TS returns here without touching DATA.
             continue;
         };
-        if count < cfg.threshold {
+        if crate::commands::starboard::board_remove_deletes(Some(count), cfg.threshold) {
             if board_channel
                 .delete_message(&ctx.http, board_msg.id)
                 .await

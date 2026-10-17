@@ -164,6 +164,67 @@ pub fn board_emoji(board: &str) -> &'static str {
     }
 }
 
+/// Exact mirror of the config gate shared by all four board event files:
+/// `if (!baseData || baseData.enabled === "no" || !baseData.channel) return;`
+/// `None` is the missing row (TS null). `enabled` is a strict `=== "no"`
+/// compare, so a missing/non-string `enabled` PROCEEDS (unlike the typed
+/// `load_board` default `"no"`); `channel` is a JS-truthiness leg, so only
+/// a non-empty string proceeds. Writers (`!channel/!config/!create-thread/`
+/// `!threshold.ts`) always persist full `{channel, createThread, enabled,`
+/// `threshold}` rows, so the missing-`enabled` proceed leg is
+/// manual-DB-only here: the live call sites keep the typed
+/// `load_board` gate (convergent on every writer-produced value).
+pub fn board_config_gate_passes(raw: Option<&serde_json::Value>) -> bool {
+    let Some(v) = raw else { return false };
+    if v.get("enabled").and_then(|e| e.as_str()) == Some("no") {
+        return false;
+    }
+    v.get("channel")
+        .and_then(|c| c.as_str())
+        .map(|s| !s.is_empty())
+        .unwrap_or(false)
+}
+
+/// Exact mirror of the onNewReact threshold gate:
+/// `if (!reaction.count || reaction.count < threshold) return;`
+/// `None` is the null-count leg (TS skips). The falsy leg matters past
+/// the writer clamp: a manual-DB `threshold <= 0` row posts a zero-count
+/// message in a naive `count < threshold` mirror but TS skips it.
+pub fn board_add_threshold_reached(count: Option<i64>, threshold: i64) -> bool {
+    matches!(count, Some(c) if c != 0 && c >= threshold)
+}
+
+/// Exact mirror of the onDeletedReact remove branch:
+/// `const reactionCount = reaction.count || 0;`
+/// `reactionCount < threshold ? delete : re-render`.
+pub fn board_remove_deletes(count: Option<i64>, threshold: i64) -> bool {
+    count.unwrap_or(0) < threshold
+}
+
+/// JS truthiness of the stored `createThread` leaf, mirroring
+/// `if (baseData.createThread)` on the new-post leg. Writers store real
+/// booleans (convergent with the typed `bool` field); truthy strings
+/// (`"false"`), nonzero numbers, and arrays/objects are manual-DB-only.
+pub fn board_thread_truthy(v: &serde_json::Value) -> bool {
+    match v {
+        serde_json::Value::Null => false,
+        serde_json::Value::Bool(b) => *b,
+        serde_json::Value::Number(n) => n.as_f64().map(|f| f != 0.0).unwrap_or(false),
+        serde_json::Value::String(s) => !s.is_empty(),
+        serde_json::Value::Array(_) | serde_json::Value::Object(_) => true,
+    }
+}
+
+/// Exact mirror of the first-attachment image leg shared by all four
+/// board event files: ONLY `attachments.first()` is consulted
+/// (`attachment.contentType?.startsWith("image/")`); a later image
+/// behind a non-image first attachment is ignored.
+pub fn board_first_attachment_is_image(first_content_type: Option<&str>) -> bool {
+    first_content_type
+        .map(|ct| ct.starts_with("image/"))
+        .unwrap_or(false)
+}
+
 /// App-emoji Yes markup with a static fallback. Mirrors the
 /// `${client.iHorizon_Emojis.Yes}` interpolation in board replies.
 pub async fn yes_markup(http: &serenity::Http) -> String {
@@ -254,6 +315,89 @@ mod tests {
         assert!(json.contains("\"channelId\":\"10\""));
         assert!(json.contains("\"messageId\":\"20\""));
         assert!(json.contains("\"number\":\"30\""));
+    }
+
+    #[test]
+    fn starboard_event_gates_match_ts_battery() {
+        // Mirrors scratch/slice-w7s19-starboard.js (55/55 green): the
+        // config gate, add falsy-gate, remove ||0 branch, createThread
+        // truthiness, and first-attachment legs of all four board files.
+        use serde_json::json;
+        // Config gate: !baseData || enabled === "no" || !channel -> skip.
+        assert!(!board_config_gate_passes(None));
+        assert!(!board_config_gate_passes(Some(&json!({}))));
+        assert!(board_config_gate_passes(Some(&json!({"channel": "1"}))));
+        assert!(board_config_gate_passes(Some(
+            &json!({"enabled": "yes", "channel": "1"})
+        )));
+        assert!(!board_config_gate_passes(Some(
+            &json!({"enabled": "no", "channel": "1"})
+        )));
+        assert!(board_config_gate_passes(Some(
+            &json!({"enabled": "No", "channel": "1"})
+        )));
+        assert!(board_config_gate_passes(Some(
+            &json!({"enabled": "", "channel": "1"})
+        )));
+        assert!(board_config_gate_passes(Some(
+            &json!({"enabled": false, "channel": "1"})
+        )));
+        assert!(!board_config_gate_passes(Some(
+            &json!({"enabled": "yes", "channel": ""})
+        )));
+        assert!(!board_config_gate_passes(Some(&json!({"enabled": "yes"}))));
+        assert!(board_config_gate_passes(Some(
+            &json!({"enabled": "yes", "channel": "0"})
+        )));
+        // Add gate: !count || count < threshold -> skip.
+        assert!(!board_add_threshold_reached(None, 2));
+        assert!(!board_add_threshold_reached(Some(0), 2));
+        assert!(!board_add_threshold_reached(Some(0), 0));
+        assert!(!board_add_threshold_reached(Some(0), -1));
+        assert!(!board_add_threshold_reached(Some(1), 2));
+        assert!(board_add_threshold_reached(Some(2), 2));
+        assert!(board_add_threshold_reached(Some(3), 2));
+        assert!(board_add_threshold_reached(Some(1), 0));
+        // Remove branch: (count || 0) < threshold -> delete.
+        assert!(board_remove_deletes(None, 2));
+        assert!(board_remove_deletes(Some(0), 2));
+        assert!(board_remove_deletes(Some(1), 2));
+        assert!(!board_remove_deletes(Some(2), 2));
+        assert!(!board_remove_deletes(Some(5), 3));
+        assert!(!board_remove_deletes(Some(0), 0));
+        assert!(!board_remove_deletes(None, 0));
+        // createThread truthiness on the new-post leg.
+        assert!(board_thread_truthy(&json!(true)));
+        assert!(!board_thread_truthy(&json!(false)));
+        assert!(board_thread_truthy(&json!("false")));
+        assert!(!board_thread_truthy(&json!("")));
+        assert!(!board_thread_truthy(&json!(0)));
+        assert!(board_thread_truthy(&json!(1)));
+        assert!(!board_thread_truthy(&json!(null)));
+        // First-attachment image leg: later images are ignored.
+        assert!(!board_first_attachment_is_image(None));
+        assert!(board_first_attachment_is_image(Some("image/png")));
+        assert!(!board_first_attachment_is_image(Some("application/pdf")));
+        assert!(!board_first_attachment_is_image(Some("IMAGE/PNG")));
+        assert!(!board_first_attachment_is_image(Some("")));
+        // Entry find: channel+message pair, first-hit-wins.
+        let entries = vec![
+            BoardEntry {
+                channel_id: "10".to_string(),
+                message_id: "20".to_string(),
+                number: "30".to_string(),
+                author: "40".to_string(),
+            },
+            BoardEntry {
+                channel_id: "11".to_string(),
+                message_id: "20".to_string(),
+                number: "31".to_string(),
+                author: "41".to_string(),
+            },
+        ];
+        assert_eq!(find_entry(&entries, "10", "20").unwrap().number, "30");
+        assert_eq!(find_entry(&entries, "11", "20").unwrap().number, "31");
+        assert!(find_entry(&entries, "10", "99").is_none());
     }
 
     #[test]
