@@ -6004,16 +6004,24 @@ impl serenity::EventHandler for Handler {
         for ch in crate::commands::guildconfig::load_ghost(&self.pool, &gid).await {
             if let Ok(ch_id) = ch.parse::<u64>() {
                 let bot_id = ctx.cache.current_user().id;
-                let allowed = ctx
-                    .cache
-                    .guild(new_member.guild_id)
-                    .and_then(|gd| {
-                        let gch = gd.channels.get(&serenity::ChannelId::new(ch_id))?;
-                        let bot_member = gd.members.get(&bot_id)?;
-                        Some(gd.user_permissions_in(gch, bot_member).administrator())
-                    })
-                    .unwrap_or(false);
-                if !allowed {
+                let (found, allowed): (bool, bool) = {
+                    // Scoped: the cache guard is not Send and must drop
+                    // before the send/delete awaits below.
+                    let gd = ctx.cache.guild(new_member.guild_id);
+                    let found = gd
+                        .as_ref()
+                        .and_then(|gd| gd.channels.get(&serenity::ChannelId::new(ch_id)))
+                        .is_some();
+                    let allowed = gd
+                        .and_then(|gd| {
+                            let gch = gd.channels.get(&serenity::ChannelId::new(ch_id))?;
+                            let bot_member = gd.members.get(&bot_id)?;
+                            Some(gd.user_permissions_in(gch, bot_member).administrator())
+                        })
+                        .unwrap_or(false);
+                    (found, allowed)
+                };
+                if !crate::commands::guildconfig::ghost::ghost_prime_sends(found, allowed) {
                     continue;
                 }
                 // Nonce mirrors ghostPingModule.ts `enforceNonce: true,

@@ -28,6 +28,20 @@ pub enum GhostAddOutcome {
     Added(Vec<String>),
 }
 
+/// Ghost-ping prime verdict. Mirrors the per-channel skip in
+/// `src/Events/guildconfig/ghostPingModule.ts`: `!channel ||
+/// !channel.guild.members.me?.permissions.has(Administrator) ->
+/// continue`, else send-then-delete. Pure for testability; the
+/// guildMemberAdd site in events_handler.rs is rewired onto it.
+/// Deltas (manual-DB-only, writers store JSON arrays): a truthy
+/// non-iterable stored row (number/object/bool) throws out of the TS
+/// run() while the typed read folds it to an empty vec (same outcome:
+/// no sends); a stored string iterates chars in TS (each a cache miss
+/// -> skip) vs typed-drop here (same outcome: no sends).
+pub fn ghost_prime_sends(channel_found: bool, bot_admin: bool) -> bool {
+    channel_found && bot_admin
+}
+
 /// Add-apply over the pruned list. Pure for testability.
 pub fn ghost_add_apply(pruned: &[String], channel_id: &str) -> GhostAddOutcome {
     if pruned.iter().any(|c| c == channel_id) {
@@ -369,6 +383,24 @@ mod tests {
             "<#1>\n<#2>"
         );
         assert_eq!(GHOST_COLOR, 0x475387);
+    }
+
+    #[test]
+    fn ghost_prime_gates_match_ts_battery() {
+        // Battery legs 1-2 (scratch/slice-w7s17-ghostping.js): the
+        // `!all_channels` gate proceeds only on truthy rows; every
+        // writer-produced value converges (missing/unparseable fold to
+        // an empty vec, `[]` loops zero times).
+        // Battery leg 3: per-channel `!channel || !admin -> skip`.
+        assert!(!ghost_prime_sends(false, false));
+        assert!(!ghost_prime_sends(false, true));
+        assert!(!ghost_prime_sends(true, false));
+        assert!(ghost_prime_sends(true, true));
+        // Battery leg 4: `member.user.toString()` mention shape.
+        assert_eq!(
+            format!("<@{}>", 324942190222770176u64),
+            "<@324942190222770176>"
+        );
     }
 
     #[test]
