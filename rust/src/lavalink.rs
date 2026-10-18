@@ -8151,6 +8151,86 @@ mod tests {
         assert!(!lastfm_track_end_finalizes(&TrackEndReason::LoadFailed));
     }
 
+    #[tokio::test]
+    async fn detach_drops_and_finalizes_like_ts_battery() {
+        // `detachMemberFromSession` + the `tryScrobbleListener(...,
+        // finalize = true)` leg: a miss is a noop, every present
+        // listener is dropped, and the POST fires iff the finalize
+        // gate (`lastfm_finalize_posts`, s64) passes — finalize skips
+        // the stale-generation + presence gates, so detach never
+        // re-arms. Battery: scratch/slice-w4s80-detach.cjs (node,
+        // 8/8). No live ctx registered, so no POST fires here — only
+        // the drop + gate verdicts.
+        async fn seed(
+            m: &LavalinkManager,
+            gid: u64,
+            duration_ms: u64,
+            scrobbled: bool,
+            started_ms: i64,
+        ) {
+            m.lastfm_sessions.lock().await.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: Some(5),
+                    track_key: "k".into(),
+                    listeners: HashMap::from([(
+                        100u64,
+                        LastfmListener {
+                            session_key: "k".into(),
+                            username: "u".into(),
+                            started_ms,
+                            threshold_ms: 100_000,
+                            scrobbled,
+                            pause_base_ms: 0,
+                        },
+                    )]),
+                },
+            );
+        }
+        async fn dropped(m: &LavalinkManager, gid: u64) -> bool {
+            m.lastfm_sessions
+                .lock()
+                .await
+                .get(&gid)
+                .is_none_or(|s| !s.listeners.contains_key(&100))
+        }
+        let m = LavalinkManager::new();
+        // Due listen: gate passes, listener dropped (POST would fire
+        // live; no live ctx here).
+        seed(&m, 51, 200_000, false, 0).await;
+        m.lastfm_member_leave(51, 100).await;
+        assert!(dropped(&m, 51).await);
+        // Not-due listen: no credit, still dropped.
+        seed(&m, 52, 200_000, false, now_ms_wall() - 10_000).await;
+        m.lastfm_member_leave(52, 100).await;
+        assert!(dropped(&m, 52).await);
+        // Already-scrobbled + short track: no credit, still dropped.
+        seed(&m, 53, 200_000, true, 0).await;
+        m.lastfm_member_leave(53, 100).await;
+        assert!(dropped(&m, 53).await);
+        seed(&m, 54, 10_000, false, 0).await;
+        m.lastfm_member_leave(54, 100).await;
+        assert!(dropped(&m, 54).await);
+        // Miss on both axes: total noop.
+        m.lastfm_member_leave(55, 100).await;
+        seed(&m, 56, 200_000, false, 0).await;
+        m.lastfm_member_leave(56, 999).await;
+        assert!(!dropped(&m, 56).await);
+        // Gate composition (the finalize-credit verdict detach runs).
+        assert!(lastfm_finalize_posts(200_000, false, 150_000, 100_000));
+        assert!(lastfm_finalize_posts(200_000, false, 100_000, 100_000));
+        assert!(!lastfm_finalize_posts(200_000, false, 99_999, 100_000));
+        assert!(!lastfm_finalize_posts(200_000, true, 150_000, 100_000));
+        assert!(!lastfm_finalize_posts(10_000, false, 150_000, 100_000));
+    }
+
     #[test]
     fn lastfm_elapsed_math_matches_ts() {
         // No pause: wall minus start.
