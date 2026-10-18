@@ -1203,6 +1203,37 @@ pub fn welcome_channel(guild: &serenity::Guild) -> Option<serenity::ChannelId> {
         .map(|c| c.id)
 }
 
+/// Invite link + owner name for the guild join log embed and the owner
+/// mail. Mirrors createInvite (`discord.gg/<code>`, "None" on any
+/// failure) + the owner resolve
+/// (`members.cache.get(ownerId) || fetchOwner().catch(null)`) in
+/// guildCreate.ts ownerLogs: TS builds both once and reuses them in the
+/// embed and the mail body, so both call sites share this helper rather
+/// than creating a second invite.
+pub async fn join_log_context(
+    ctx: &serenity::Context,
+    guild: &serenity::Guild,
+) -> (String, String) {
+    let invite_link = match welcome_channel(guild) {
+        Some(ch) => ch
+            .create_invite(&ctx.http, serenity::CreateInvite::new().max_age(0))
+            .await
+            .map(|i| format!("discord.gg/{}", i.code))
+            .unwrap_or_else(|_| "None".to_string()),
+        None => "None".to_string(),
+    };
+    let owner_name = match guild.members.get(&guild.owner_id) {
+        Some(m) => m.user.name.clone(),
+        None => guild
+            .owner_id
+            .to_user(&ctx.http)
+            .await
+            .map(|u| u.name)
+            .unwrap_or_else(|_| "Unknown".to_string()),
+    };
+    (invite_link, owner_name)
+}
+
 /// Snapshot entry for a deleted channel id: top-level first, then
 /// nested inside categories. None when the channel was never
 /// snapshotted (created after the last backup). Pure, unit-tested.
@@ -1713,6 +1744,32 @@ pub fn leave_embed_vanity(vanity_code: Option<&str>) -> String {
     match vanity_code {
         Some(code) if !code.is_empty() => format!("discord.gg/{code}"),
         _ => "None".to_string(),
+    }
+}
+
+/// Leave-log member count. Mirrors
+/// `` `${guild.memberCount || guild.members.cache.size || "idk"}` `` in
+/// removeGuildLog.ts: the JS `||` chain folds 0, so a zero memberCount
+/// falls through to the cache size, then to "idk". Pure, unit-tested
+/// below. (The join leg in guildCreate.ts renders raw `${memberCount}`
+/// with no fold, so this helper serves the leave site only.)
+pub fn leave_member_count(member_count: u64, cache_size: u64) -> String {
+    if member_count != 0 {
+        member_count.to_string()
+    } else if cache_size != 0 {
+        cache_size.to_string()
+    } else {
+        "idk".to_string()
+    }
+}
+
+/// Owner display for the join log + mail. Mirrors
+/// `` `(${guild.ownerId}) ${owner?.user.username || "Unknown"}` `` in
+/// guildCreate.ts ownerLogs. Pure, unit-tested below.
+pub fn guild_owner_display(owner_id: u64, username: Option<&str>) -> String {
+    match username {
+        Some(name) if !name.is_empty() => format!("({owner_id}) {name}"),
+        _ => format!("({owner_id}) Unknown"),
     }
 }
 
@@ -5248,18 +5305,46 @@ impl serenity::EventHandler for Handler {
         // Owner "New Guild" mail (mirrors guildCreate.ts:441). Serenity
         // replays guild_create for cached guilds at boot, so only a real
         // join (`is_new`) notifies. Blocking SMTP via spawn_blocking.
+        // Invite link + owner display, resolved once and shared by the
+        // owner mail (real joins only) and the log embed below (single
+        // createInvite like TS ownerLogs). Unconditional like the
+        // previous log-site computation, so boot replays cost the same
+        // two best-effort calls as before; a blacklisted join creates
+        // one invite where TS creates none (pre-gate position).
+        let (invite_link, owner_name) = join_log_context(&ctx, &guild).await;
+        let owner = guild_owner_display(guild.owner_id.get(), Some(owner_name.as_str()));
         if matches!(_is_new, Some(true)) {
             let mailer = self.mailer.clone();
             let name = guild.name.clone();
             let id = guild.id.get();
-            let joined_at = guild.joined_at.format("%Y-%m-%d %H:%M:%S").to_string();
-            let shard = format!("shard {}", ctx.shard_id.get());
+            // TS mails `since ${guild.joinedTimestamp}` (raw ms epoch).
+            let joined_at = (guild.joined_at.unix_timestamp() * 1000).to_string();
+            // The mail template already carries "on shard #", so this is
+            // the raw id (`#${client.shard?.ids[0]}` in guildCreate.ts),
+            // not an embed label.
+            let shard = ctx.shard_id.get().to_string();
             let members = guild.member_count;
-            let vanity = guild.vanity_url_code.clone().unwrap_or_default();
-            let owner = guild.owner_id.get().to_string();
+            let vanity = leave_embed_vanity(guild.vanity_url_code.as_deref());
+            let region = guild.preferred_locale.clone();
+            // Invite + owner are resolved once and shared with the log
+            // embed below (single createInvite like TS ownerLogs). The
+            // mail closure takes clones so the originals survive for the
+            // embed further down. This runs before the blacklist gate, so
+            // a blacklisted join creates one best-effort invite where TS
+            // creates none; the pre-gate mail ordering itself is
+            // pre-existing (ordering owned by blacklistFetcher).
+            let (mail_invite, mail_owner) = (invite_link.clone(), owner.clone());
             tokio::task::spawn_blocking(move || {
                 mailer.send_join(
-                    &name, id, &joined_at, &shard, members, "", &vanity, "", &owner,
+                    &name,
+                    id,
+                    &joined_at,
+                    &shard,
+                    members,
+                    &mail_invite,
+                    &vanity,
+                    &region,
+                    &mail_owner,
                 );
             });
         }
@@ -5526,23 +5611,8 @@ impl serenity::EventHandler for Handler {
             // O11: TS ownerLogs creates a join invite, resolves the owner
             // name and appends shard-wide totals (getShardStats); the totals
             // here are this process's cache (single-process autoshard).
-            let invite_link = match welcome_channel(&guild) {
-                Some(ch) => ch
-                    .create_invite(&ctx.http, serenity::CreateInvite::new().max_age(0))
-                    .await
-                    .map(|i| format!("discord.gg/{}", i.code))
-                    .unwrap_or_else(|_| "None".to_string()),
-                None => "None".to_string(),
-            };
-            let owner_name = match guild.members.get(&guild.owner_id) {
-                Some(m) => m.user.name.clone(),
-                None => guild
-                    .owner_id
-                    .to_user(&ctx.http)
-                    .await
-                    .map(|u| u.name)
-                    .unwrap_or_else(|_| "Unknown".to_string()),
-            };
+            // invite_link + owner come from the hoisted join_log_context
+            // above (shared with the owner mail, single createInvite).
             let mut total_members = 0u64;
             for cached_id in ctx.cache.guilds() {
                 if let Some(cached) = ctx.cache.guild(cached_id) {
@@ -5557,28 +5627,32 @@ impl serenity::EventHandler for Handler {
             let mut log_embed = serenity::CreateEmbed::default()
                 .colour(0x00FF00_u32)
                 .description("**A new guild added iHorizon !**")
-                .field("Server Name", format!("`{}`", guild.name), true)
-                .field("Server ID", format!("`{}`", guild.id.get()), true)
+                .field("🏷️・Server Name", format!("`{}`", guild.name), true)
+                .field("🆔・Server ID", format!("`{}`", guild.id.get()), true)
                 .field(
-                    "Server Region",
+                    "🌐・Server Region",
                     format!("`{}`", guild.preferred_locale),
                     true,
                 )
                 .field(
-                    "Member Count",
+                    "👤・Member Count",
                     format!("`{}` members", guild.member_count),
                     true,
                 )
-                .field("Invite Link", format!("`{invite_link}`"), true)
+                .field("🔗・Invite Link", format!("`{invite_link}`"), true)
+                .field("👑・Server Owner", owner.clone(), true)
+                .field("🪝・Vanity URL", format!("`{vanity}`"), true)
                 .field(
-                    "Server Owner",
-                    format!("({}) {owner_name}", guild.owner_id.get()),
+                    "🍻・New guilds total",
+                    ctx.cache.guild_count().to_string(),
                     true,
                 )
-                .field("Vanity URL", format!("`{vanity}`"), true)
-                .field("Guilds total", ctx.cache.guild_count().to_string(), true)
-                .field("Members total", format!("{total_members} members"), true)
-                .field("Shard", format!("#{}", ctx.shard_id.get()), true)
+                .field(
+                    "🥛・New members total",
+                    format!("{total_members} members"),
+                    true,
+                )
+                .field("💠・Shard", format!("#{}", ctx.shard_id.get()), true)
                 .timestamp(guild.joined_at);
             if let Some(icon) = guild.icon_url() {
                 log_embed = log_embed.thumbnail(icon);
@@ -5804,11 +5878,17 @@ impl serenity::EventHandler for Handler {
             let name = g.name.clone();
             let id = g.id.get();
             let date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
-            let shard = format!("shard {}", ctx.shard_id.get());
+            // Raw shard id: the mail template already carries "on shard
+            // #", so "shard N" here would render "on shard #shard N"
+            // where TS mails `on shard #${ids[0]}`.
+            let shard = ctx.shard_id.get().to_string();
             let members = g.member_count;
-            let vanity = g.vanity_url_code.clone().unwrap_or_default();
+            // TS mails `${i || "None"}` for the vanity and the live
+            // preferredLocale for the region (both were "" here).
+            let vanity = leave_embed_vanity(g.vanity_url_code.as_deref());
+            let region = g.preferred_locale.clone();
             tokio::task::spawn_blocking(move || {
-                mailer.send_leave(&name, id, &date, &shard, members, &vanity, "");
+                mailer.send_leave(&name, id, &date, &shard, members, &vanity, &region);
             });
         }
         // Drop the legacy immediate flag (migration from the old design).
@@ -5835,10 +5915,17 @@ impl serenity::EventHandler for Handler {
             let (gname, locale, members, icon) = full
                 .as_ref()
                 .map(|g| {
+                    // TS `||` chain folds a zero memberCount into the
+                    // member cache size, then "idk" (battery slice-w7s54).
+                    let cache_size = ctx
+                        .cache
+                        .guild(g.id)
+                        .map(|cached| cached.member_count)
+                        .unwrap_or(0);
                     (
                         g.name.clone(),
                         g.preferred_locale.clone(),
-                        g.member_count.to_string(),
+                        leave_member_count(g.member_count, cache_size),
                         g.icon_url(),
                     )
                 })
@@ -5867,22 +5954,22 @@ impl serenity::EventHandler for Handler {
             let mut leave_embed = serenity::CreateEmbed::default()
                 .colour(0xFF0505_u32)
                 .description("**A guild removed iHorizon !**")
-                .field("Server Name", format!("`{gname}`"), true)
-                .field("Server ID", format!("`{gid}`"), true)
-                .field("Server Region", format!("`{locale}`"), true)
-                .field("Member Count", format!("`{members}` members"), true)
-                .field("Vanity URL", format!("`{vanity}`"), true)
+                .field("🏷️・Server Name", format!("`{gname}`"), true)
+                .field("🆔・Server ID", format!("`{gid}`"), true)
+                .field("🌐・Server Region", format!("`{locale}`"), true)
+                .field("👤・Member Count", format!("`{members}` members"), true)
+                .field("🪝・Vanity URL", format!("`{vanity}`"), true)
                 .field(
-                    "New guilds total",
+                    "🍻・New guilds total",
                     ctx.cache.guild_count().to_string(),
                     true,
                 )
                 .field(
-                    "New members total",
+                    "🥛・New members total",
                     format!("{total_members} members"),
                     true,
                 )
-                .field("Shard", shard_label(ctx.shard_id.get()), true);
+                .field("💠・Shard", shard_label(ctx.shard_id.get()), true);
             // Joined-at timestamp (mirrors
             // `.setTimestamp(guild.joinedTimestamp)` in removeGuildLog.ts).
             if let Some(g) = full.as_ref() {
@@ -14341,6 +14428,50 @@ mod component_registry_tests {
     fn shard_label_matches_ts_shard_tag() {
         assert_eq!(shard_label(0), "#0");
         assert_eq!(shard_label(7), "#7");
+    }
+
+    #[test]
+    fn guild_log_renders_match_ts_battery() {
+        // Battery scratch/slice-w7s54-guildlogs.cjs (29/29 green):
+        // removeGuildLog.ts + guildCreate.ts ownerLogs() token chains.
+        // Vanity `i` composition + `|| "None"` fold.
+        assert_eq!(leave_embed_vanity(Some("abc123")), "discord.gg/abc123");
+        assert_eq!(leave_embed_vanity(None), "None");
+        assert_eq!(leave_embed_vanity(Some("")), "None");
+        // Leave `memberCount || cache.size || "idk"`: JS `||` folds 0,
+        // so a zero count falls through to the cache, then "idk".
+        assert_eq!(leave_member_count(42, 10), "42");
+        assert_eq!(leave_member_count(0, 10), "10");
+        assert_eq!(leave_member_count(0, 0), "idk");
+        // Join renders raw `${memberCount}` with no fold: 0 stays "0".
+        assert_eq!(0u64.to_string(), "0");
+        assert_eq!(42u64.to_string(), "42");
+        // Owner `(${ownerId}) ${username || "Unknown"}`.
+        assert_eq!(guild_owner_display(1, Some("bob")), "(1) bob");
+        assert_eq!(guild_owner_display(1, None), "(1) Unknown");
+        assert_eq!(guild_owner_display(1, Some("")), "(1) Unknown");
+        // Join mail `since` is the raw ms epoch, not a date string.
+        assert_eq!((1_760_745_600i64 * 1000).to_string(), "1760745600000");
+        // Field-name sets byte-exact (copied from the TS sources; the
+        // live sites above must carry these exact names).
+        assert_eq!(
+            [
+                "🏷️・Server Name",
+                "🆔・Server ID",
+                "🌐・Server Region",
+                "👤・Member Count",
+                "🪝・Vanity URL",
+                "🍻・New guilds total",
+                "🥛・New members total",
+                "💠・Shard",
+            ]
+            .join("|"),
+            "🏷️・Server Name|🆔・Server ID|🌐・Server Region|👤・Member Count|🪝・Vanity URL|🍻・New guilds total|🥛・New members total|💠・Shard"
+        );
+        assert_eq!(
+            ["🔗・Invite Link", "👑・Server Owner"].join("|"),
+            "🔗・Invite Link|👑・Server Owner"
+        );
     }
 
     #[test]
