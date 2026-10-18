@@ -8083,6 +8083,74 @@ mod tests {
         assert!(!lastfm_track_end_finalizes(&TrackEndReason::LoadFailed));
     }
 
+    #[tokio::test]
+    async fn track_end_routing_matches_ts_battery() {
+        // `handleTrackEnd` / `handleQueueEnd` end-routing (TS strict
+        // `reason !== "loadFailed"` loop + `clearGuildSession` drop):
+        // every end drops the session, only non-loadFailed ends run
+        // the finalize leg, missing sessions are a noop on both.
+        // Battery: scratch/slice-w4s79-trackend.cjs (node, 13/13).
+        // DELTA (doc-noted, unreachable): a lastfm session with no
+        // player row skips the leg here (the `None` outcome arm) while
+        // TS runs it off `guildSessions` alone — sessions are born
+        // from a live player row and `on_voice_disconnect` drops both
+        // together, so no live source can strand one.
+        async fn seed(m: &LavalinkManager, gid: u64) {
+            m.lastfm_sessions.lock().await.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms: 200_000,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: Some(5),
+                    track_key: "k".into(),
+                    listeners: HashMap::from([(
+                        100u64,
+                        LastfmListener {
+                            session_key: "k".into(),
+                            username: "u".into(),
+                            started_ms: 0,
+                            threshold_ms: 100_000,
+                            scrobbled: false,
+                            pause_base_ms: 0,
+                        },
+                    )]),
+                },
+            );
+        }
+        // Finalize+drop leg (every reason but loadFailed): a due
+        // listen credits while the session is dropped. No live ctx
+        // registered, so no POST fires — only the drop + due verdict.
+        let m = LavalinkManager::new();
+        seed(&m, 41).await;
+        let due = m.lastfm_track_end_due(41, 150_000).await;
+        assert!(due.is_some());
+        assert!(m.lastfm_sessions.lock().await.get(&41).is_none());
+        // Drop-only leg (`handleQueueEnd` / loadFailed end): the due
+        // listen is NOT credited, the session is still dropped.
+        seed(&m, 42).await;
+        m.lastfm_queue_end(42).await;
+        assert!(m.lastfm_sessions.lock().await.get(&42).is_none());
+        // No-session noop on both legs.
+        assert!(m.lastfm_track_end_due(43, 150_000).await.is_none());
+        m.lastfm_queue_end(43).await;
+        // Routing composition: the gate picks finalize+drop vs
+        // drop-only for every end reason (s62 pins the gate itself).
+        for reason in [
+            TrackEndReason::Finished,
+            TrackEndReason::Stopped,
+            TrackEndReason::Replaced,
+            TrackEndReason::Cleanup,
+        ] {
+            assert!(lastfm_track_end_finalizes(&reason));
+        }
+        assert!(!lastfm_track_end_finalizes(&TrackEndReason::LoadFailed));
+    }
+
     #[test]
     fn lastfm_elapsed_math_matches_ts() {
         // No pause: wall minus start.
