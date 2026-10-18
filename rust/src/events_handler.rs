@@ -2111,6 +2111,20 @@ pub fn wipe_queue_due(
         .collect()
 }
 
+/// Another-guild gate for the owner leave-notice DM. Mirrors
+/// `client.guilds.cache.find((g) => g.id !== guild.id &&
+/// g.ownerId === guild.ownerId)` in notifyOwnerFromAnotherGuild
+/// (deleteDatabaseDataOnGuildLeave.ts:123-126). Pure, unit-tested below.
+pub fn leave_notice_owner_shared(
+    guild_id: u64,
+    owner_id: u64,
+    cached_guilds: &[(u64, u64)],
+) -> bool {
+    cached_guilds
+        .iter()
+        .any(|(id, owner)| *id != guild_id && *owner == owner_id)
+}
+
 /// Owner leave-notice DM. Mirrors notifyOwnerFromAnotherGuild in
 /// Events/client/deleteDatabaseDataOnGuildLeave.ts:118-159 (best
 /// effort, failures only traced). Sends only when the owner still
@@ -2123,10 +2137,13 @@ pub async fn send_leave_notice_dm(
     delete_at_ms: i64,
 ) {
     let owner_id = guild.owner_id;
-    let still_shared =
-        ctx.cache.guilds().iter().any(|id| {
-            *id != guild.id && ctx.cache.guild(*id).is_some_and(|g| g.owner_id == owner_id)
-        });
+    let cached: Vec<(u64, u64)> = ctx
+        .cache
+        .guilds()
+        .iter()
+        .filter_map(|id| ctx.cache.guild(*id).map(|g| (id.get(), g.owner_id.get())))
+        .collect();
+    let still_shared = leave_notice_owner_shared(guild.id.get(), owner_id.get(), &cached);
     if !still_shared {
         return;
     }
@@ -12039,6 +12056,61 @@ mod restore_tests {
         let present: HashSet<String> =
             HashSet::from(["back".to_string(), "fresh".to_string(), "gone".to_string()]);
         assert!(wipe_queue_due(&q, deadline, &present).is_empty());
+    }
+
+    #[test]
+    fn guild_wipe_queue_matches_ts_delete_db_battery() {
+        // Battery: scratch/slice-w7s56-guildwipe.cjs (28/28 green).
+        // Enqueue shape: camelCase wire keys, 10h deadline, overwrite refresh.
+        let mut q = HashMap::new();
+        let delete_at = wipe_queue_enqueue(&mut q, "G1", "Test Guild", "O1", 1_000_000);
+        assert_eq!(delete_at, 1_000_000 + GUILD_WIPE_DELAY_MS);
+        assert_eq!(GUILD_WIPE_DELAY_MS, 10 * 60 * 60 * 1000);
+        let raw = serde_json::to_string(&q).unwrap();
+        assert!(raw.contains("\"guildId\":\"G1\""));
+        assert!(raw.contains("\"guildName\":\"Test Guild\""));
+        assert!(raw.contains("\"ownerId\":\"O1\""));
+        assert!(raw.contains("\"deleteAt\":"));
+        // Cancel legs: absent -> false, present -> true + entry dropped.
+        assert!(!wipe_queue_cancel(&mut q, "GX"));
+        assert!(wipe_queue_cancel(&mut q, "G1"));
+        assert!(!q.contains_key("G1"));
+        // Fire boundary: remaining <= 0 fires (exact-deadline due).
+        wipe_queue_enqueue(&mut q, "G2", "Gtwo", "O2", 0);
+        let empty = HashSet::new();
+        assert!(wipe_queue_due(&q, GUILD_WIPE_DELAY_MS - 1, &empty).is_empty());
+        assert_eq!(
+            wipe_queue_due(&q, GUILD_WIPE_DELAY_MS, &empty),
+            vec!["G2".to_string()]
+        );
+        assert_eq!(
+            wipe_queue_due(&q, GUILD_WIPE_DELAY_MS + 1, &empty),
+            vec!["G2".to_string()]
+        );
+        // Cache-present entries are spared AND kept queued (TS
+        // clearGuildData returns before the queue removal).
+        let present: HashSet<String> = HashSet::from(["G2".to_string()]);
+        assert!(wipe_queue_due(&q, GUILD_WIPE_DELAY_MS + 1, &present).is_empty());
+        assert!(q.contains_key("G2"));
+        // Another-guild gate: same owner on another guild only.
+        assert!(leave_notice_owner_shared(7, 9, &[(8, 9)]));
+        assert!(!leave_notice_owner_shared(7, 9, &[(7, 9)]));
+        assert!(!leave_notice_owner_shared(7, 9, &[(8, 10)]));
+        assert!(!leave_notice_owner_shared(7, 9, &[]));
+        assert!(!leave_notice_owner_shared(7, 9, &[(7, 9), (8, 10)]));
+        // Math.floor(deleteAt/1000) == div_euclid on live (non-negative) stamps.
+        assert_eq!((1_759_999_999_999_i64).div_euclid(1000), 1_759_999_999);
+        assert_eq!(discord_timestamp(1_759_999_999, 'F'), "<t:1759999999:F>");
+        assert_eq!(discord_timestamp(1_759_999_999, 'R'), "<t:1759999999:R>");
+        // First-only vs replace-all: shipped templates carry each token
+        // exactly once, so the legs converge (verified grep en-US).
+        let title = "iHorizon has left ${guild.name}";
+        assert_eq!(title.matches("${guild.name}").count(), 1);
+        let evil = "x ${guild.name} y";
+        assert_eq!(
+            render_guild_name_text(title, evil),
+            "iHorizon has left x ${guild.name} y"
+        );
     }
 
     #[test]
