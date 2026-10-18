@@ -167,13 +167,9 @@ pub async fn lastfm_config(
 
     // `setEnabled` mirror: enabling needs a stored session
     // (`sessionKey` + `username`, i.e. a past `/lastfm login`); without
-    // one TS answers `lastfm_config_login_required`.
-    if enabled
-        && !settings
-            .as_ref()
-            .map(super::lastfm_has_session)
-            .unwrap_or(false)
-    {
+    // one TS answers `lastfm_config_login_required`. The gate + merge
+    // run through the pure `lastfm_set_enabled_row` below.
+    let Some(obj) = lastfm_set_enabled_row(settings.as_ref(), enabled) else {
         let msg = msg_for!(
             "lastfm_config_login_required",
             "Login with /lastfm login first.",
@@ -181,21 +177,13 @@ pub async fn lastfm_config(
         ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
             .await?;
         return Ok(());
-    }
-
-    // Merge `{enabled}` over the stored row, preserving username /
-    // sessionKey / connectedAt (TS `{...(settings || {}), enabled}`).
+    };
+    super::save_lastfm_settings(pool, uid, &obj).await?;
     // Disabling keeps the row intact (only `enabled` flips — unlike
     // `invalidate`, the sessionKey survives) but still drops the user
     // from every live session (TS `setEnabled` runs
     // `removeUserFromActiveSessions` on the `!enabled` leg, never a
     // finalize POST).
-    let mut obj = settings.unwrap_or(serde_json::json!({}));
-    if !obj.is_object() {
-        obj = serde_json::json!({});
-    }
-    obj["enabled"] = serde_json::json!(enabled);
-    super::save_lastfm_settings(pool, uid, &obj).await?;
     if !enabled {
         crate::lavalink::manager().lastfm_user_disabled(uid).await;
     }
@@ -224,6 +212,36 @@ pub async fn lastfm_config(
     Ok(())
 }
 
+/// Pure `setEnabled` gate + merge-write mirror: enabling needs a stored
+/// session (`sessionKey` + `username` per `lastfm_has_session`); without
+/// one the caller answers `lastfm_config_login_required` (`None`).
+/// Otherwise the stored row is merged with `{enabled}` over
+/// `(settings || {})`, preserving username / sessionKey / connectedAt /
+/// extras — disabling flips only `enabled` (sessionKey survives, unlike
+/// `invalidate`); the caller still drops the user from every live
+/// session on the `!enabled` leg, never a finalize POST.
+/// Battery: scratch `slice-w4s98-setenabled.cjs`, green 14/14.
+/// DELTAS (doc-noted, both unreachable: no writer stores non-object or
+/// non-string rows — all three TS manager writes + `save_lastfm_settings`
+/// store objects with string fields): a bare-string row spreads its chars
+/// in TS (`{..."dj"}` -> `{0:'d',1:'j',enabled}`) but folds to `{enabled}`
+/// here; a truthy non-string sessionKey/username passes the TS gate but
+/// `lastfm_has_session` reads strings only.
+fn lastfm_set_enabled_row(
+    settings: Option<&serde_json::Value>,
+    enabled: bool,
+) -> Option<serde_json::Value> {
+    if enabled && !settings.map(super::lastfm_has_session).unwrap_or(false) {
+        return None;
+    }
+    let mut obj = settings.cloned().unwrap_or(serde_json::json!({}));
+    if !obj.is_object() {
+        obj = serde_json::json!({});
+    }
+    obj["enabled"] = serde_json::json!(enabled);
+    Some(obj)
+}
+
 /// Pure `!config.ts` gate mirror (`enabled && !isConfigured()`): the
 /// missing-config reply fires only when enabling while unconfigured.
 /// Power-off always proceeds to the `setEnabled` write + live drop
@@ -244,6 +262,62 @@ mod tests {
         assert!(!lastfm_config_missing_gate_fires(true, true));
         assert!(!lastfm_config_missing_gate_fires(false, true));
         assert!(!lastfm_config_missing_gate_fires(false, false));
+    }
+
+    #[test]
+    fn set_enabled_row_matches_ts_set_enabled_battery() {
+        use serde_json::json;
+        // W4 slice-98 battery (scratch `slice-w4s98-setenabled.cjs`,
+        // green 14/14): enable-gate denies + merge-write preserves.
+        let full =
+            json!({"sessionKey": "k", "username": "u", "connectedAt": 123, "enabled": false});
+        assert_eq!(lastfm_set_enabled_row(None, true), None);
+        assert_eq!(lastfm_set_enabled_row(Some(&json!({})), true), None);
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&json!({"sessionKey": "k"})), true),
+            None
+        );
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&json!({"username": "u"})), true),
+            None
+        );
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&json!({"sessionKey": "", "username": "u"})), true),
+            None
+        );
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&json!({"sessionKey": "k", "username": ""})), true),
+            None
+        );
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&json!({"sessionKey": 0, "username": "u"})), true),
+            None
+        );
+        // Enable merges over the stored row, extras preserved.
+        assert_eq!(
+            lastfm_set_enabled_row(Some(&full), true),
+            Some(json!({"sessionKey": "k", "username": "u", "connectedAt": 123, "enabled": true}))
+        );
+        // Whitespace key is truthy both sides (same class as the
+        // slice-82 secret delta).
+        assert!(
+            lastfm_set_enabled_row(Some(&json!({"sessionKey": " ", "username": "u"})), true)
+                .is_some()
+        );
+        // Disable always writes, keeps the sessionKey (unlike invalidate).
+        assert_eq!(
+            lastfm_set_enabled_row(None, false),
+            Some(json!({"enabled": false}))
+        );
+        assert_eq!(
+            lastfm_set_enabled_row(
+                Some(
+                    &json!({"sessionKey": "k", "username": "u", "connectedAt": 7, "enabled": true})
+                ),
+                false
+            ),
+            Some(json!({"sessionKey": "k", "username": "u", "connectedAt": 7, "enabled": false}))
+        );
     }
 
     #[test]
