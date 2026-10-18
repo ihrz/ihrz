@@ -23,11 +23,23 @@ pub struct LastFmError {
 /// NOTE: the TS is a case-insensitive SUBSTRING test
 /// (`/session/i`), so plurals ("Sessions expired") and embeddings
 /// ("obsession") count — this is `contains`, not a word match.
+/// FOLD (battery scratch `slice-w4s91-invalidsession.cjs`, green
+/// 28/28): the fold is ASCII-only by design. The old
+/// `to_lowercase()` used full Unicode mapping, which lowercases
+/// U+1E9E to "ss" — so a message with U+1E9E in s-position read
+/// as an invalid session here while the V8 `i` flag does NOT
+/// fold it (node ground truth: false). The battery also proves
+/// V8 folds NONE of the exotic variants (U+017F, U+0130,
+/// U+0131, U+FF53, U+FF33, U+00DF, U+0435 — all false), so
+/// ASCII folding agrees with the TS on every probed leg. DELTA (unreachable: the
+/// s86 envelope always yields number|undefined codes): a
+/// string code `"9"` is `!== 9` in TS but unrepresentable past
+/// the `Option<i64>` signature.
 pub fn is_invalid_session_error(code: Option<i64>, message: &str) -> bool {
     if code == Some(9) {
         return true;
     }
-    message.to_lowercase().contains("session")
+    message.to_ascii_lowercase().contains("session")
 }
 
 /// `isConfigured` mirror: `Boolean(apiKey && sharedSecret)` — truthy
@@ -673,15 +685,43 @@ mod tests {
 
     #[test]
     fn invalid_session_matches_ts_detector() {
-        assert!(is_invalid_session_error(Some(9), "whatever"));
-        assert!(is_invalid_session_error(None, "Invalid session key"));
-        // TS `/session/i` is a SUBSTRING test: plurals + embeddings count.
-        assert!(is_invalid_session_error(None, "Sessions expired, re-auth"));
-        assert!(is_invalid_session_error(None, "SESSION EXPIRED"));
-        assert!(is_invalid_session_error(None, "obsession detected"));
-        assert!(!is_invalid_session_error(Some(4), "Authentication Failed"));
-        assert!(!is_invalid_session_error(None, "ok"));
-        assert!(!is_invalid_session_error(None, ""));
+        // Battery legs: scratch `slice-w4s91-invalidsession.cjs`,
+        // green 28/28 (I-prefix ids below).
+        assert!(is_invalid_session_error(Some(9), "whatever")); // I1
+        assert!(is_invalid_session_error(Some(9), "")); // I2/I3/I4 (nullish msg folds to "" via `||`)
+        assert!(is_invalid_session_error(None, "Invalid session key")); // I5
+        assert!(is_invalid_session_error(None, "SESSION EXPIRED")); // I6
+                                                                    // TS `/session/i` is a SUBSTRING test: plurals + embeddings count.
+        assert!(is_invalid_session_error(None, "Sessions expired, re-auth")); // I7
+        assert!(is_invalid_session_error(None, "obsession detected")); // I8
+        assert!(is_invalid_session_error(None, "SeSsIoN timeout")); // I9
+        assert!(!is_invalid_session_error(Some(4), "Authentication Failed")); // I10
+        assert!(!is_invalid_session_error(None, "ok")); // I11/I17 (code 0 same leg)
+        assert!(!is_invalid_session_error(None, "")); // I12/I13/I14
+        assert!(is_invalid_session_error(Some(10), "Invalid session key")); // I16 (message leg wins)
+        assert!(is_invalid_session_error(None, "No session")); // I18
+        assert!(is_invalid_session_error(None, "Session\nkey invalid")); // I19
+        assert!(is_invalid_session_error(None, "SESSIONS")); // I24
+                                                             // V8 `i` folds NO exotic variant: ASCII fold agrees everywhere
+                                                             // (codepoints via from_u32: no raw non-ASCII in source).
+                                                             // I20 long-s U+017F, I21 dotted capital I U+0130,
+                                                             // I22 dotless i U+0131, I23 fullwidth s U+FF53,
+                                                             // I25 capital sharp s U+1E9E (the fixed divergence),
+                                                             // I26 U+00DF, I27 fullwidth upper U+FF33,
+                                                             // I28 cyrillic ie U+0435.
+        for cp in [0x17Fu32, 0x130, 0x131, 0xFF53, 0x1E9E, 0xDF, 0xFF33, 0x435] {
+            let ch = char::from_u32(cp).unwrap().to_string();
+            assert!(
+                !is_invalid_session_error(None, &(ch.clone() + "ession")),
+                "U+{:X} must not fold to s",
+                cp
+            );
+            assert!(
+                !is_invalid_session_error(None, &("se".to_owned() + &ch + "ion")),
+                "U+{:X} must not fold into session",
+                cp
+            );
+        }
     }
 
     #[test]
