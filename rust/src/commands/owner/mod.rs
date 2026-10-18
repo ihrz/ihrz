@@ -15,4 +15,15 @@
 // FLATTEN-B2: blacklist, unblacklist, blinfo, bledit and eval are
 // top-level slash commands (exact TS names, in `main.rs`).
 
+pub mod blacklist;
+pub mod bledit;
+pub mod blinfo;
+pub mod entry;
+pub mod eval;
+pub mod helpers;
 pub mod main;
+pub mod owner;
+pub mod scope;
+pub mod store;
+pub mod unblacklist;
+pub mod unowner;
