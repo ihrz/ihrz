@@ -140,20 +140,27 @@ pub async fn lastfm_config(
         };
     }
 
-    // `isConfigured()` mirror: without the API key + shared secret
-    // (env wins, file fallback — see config.rs) every leg answers
-    // `lastfm_module_not_configured`, like TS.
-    if ctx.data().config.lastfm_api_key.is_empty()
-        || ctx.data().config.lastfm_shared_secret.is_empty()
-    {
+    let uid = ctx.author().id.get();
+    let enabled = matches!(action, LastfmPower::On);
+
+    // `!config.ts` guard order (`enabled && !isConfigured()`): the
+    // missing-config reply fires ONLY on the enable leg. Power-off always
+    // reaches `setEnabled` (row write + live drop), even while the bot is
+    // unconfigured — the old unconditional gate answered
+    // `lastfm_module_not_configured` on power-off too, so an active session
+    // could never be disabled after a key rotation/removal.
+    // Battery: scratch `slice-w4s85-configgate.cjs`, green 10/10.
+    if lastfm_config_missing_gate_fires(
+        enabled,
+        !ctx.data().config.lastfm_api_key.is_empty()
+            && !ctx.data().config.lastfm_shared_secret.is_empty(),
+    ) {
         let msg = msg_for!("lastfm_module_not_configured", "Last.fm is not configured.");
         ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
             .await?;
         return Ok(());
     }
 
-    let uid = ctx.author().id.get();
-    let enabled = matches!(action, LastfmPower::On);
     let settings = super::lastfm_settings(pool, uid).await;
 
     // `setEnabled` mirror: enabling needs a stored session
@@ -215,9 +222,27 @@ pub async fn lastfm_config(
     Ok(())
 }
 
+/// Pure `!config.ts` gate mirror (`enabled && !isConfigured()`): the
+/// missing-config reply fires only when enabling while unconfigured.
+/// Power-off always proceeds to the `setEnabled` write + live drop
+/// (battery cases off+nocfg), and enabling while configured never
+/// trips the gate (the login leg below answers instead).
+/// Battery: scratch `slice-w4s85-configgate.cjs`, green 10/10.
+fn lastfm_config_missing_gate_fires(enabled: bool, configured: bool) -> bool {
+    enabled && !configured
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn config_missing_gate_matches_ts_enabled_and_guard() {
+        assert!(lastfm_config_missing_gate_fires(true, false));
+        assert!(!lastfm_config_missing_gate_fires(true, true));
+        assert!(!lastfm_config_missing_gate_fires(false, true));
+        assert!(!lastfm_config_missing_gate_fires(false, false));
+    }
 
     #[test]
     fn lastfm_power_choices_mirror_ts_names_values_and_locales() {
