@@ -1945,6 +1945,82 @@ impl LavalinkManager {
         }
     }
 
+    /// Channel switch with member re-sync (mirrors `handlePlayerMove`:
+    /// the session follows the player AND `syncMembersWithVoiceChannel`
+    /// detaches leavers with a finalize credit before attaching
+    /// joiners). Without this a bot move orphaned both sides: members
+    /// left in the old channel kept earning until track end (TS drops
+    /// them at the move, crediting only a due listen), and members
+    /// already sitting in the new channel never attached (no per-member
+    /// VSU fires on a bot move). The reconcile runs as a spawned task
+    /// guarded by the generation key, like the track-start drive.
+    pub async fn lastfm_player_moved(&self, guild_id: u64, new_voice_channel: u64) {
+        let track_key = {
+            let mut sessions = self.lastfm_sessions.lock().await;
+            match sessions.get_mut(&guild_id) {
+                Some(s) => {
+                    s.voice_channel_id = Some(new_voice_channel);
+                    s.track_key.clone()
+                }
+                None => return,
+            }
+        };
+        tokio::spawn(async move {
+            manager()
+                .drive_lastfm_move(guild_id, new_voice_channel, track_key)
+                .await;
+        });
+    }
+
+    /// Move reconciler body (mirrors `syncMembersWithVoiceChannel`:
+    /// detach loop first, then attach loop). Cache gates mirror the TS
+    /// early returns: an uncached guild aborts (TS `guild.fetch`
+    /// catch-null keeps every listener), an uncached or non-voice
+    /// channel skips the sync (TS `voiceChannel` fetch-null/type
+    /// gate) while the channel id update above still stands. A
+    /// replaced track aborts via the generation key (the TS closure
+    /// holds its own session object, so a racing track start can never
+    /// detach the new track's listeners there).
+    async fn drive_lastfm_move(&self, guild_id: u64, new_voice_channel: u64, track_key: String) {
+        let Some(live) = self.lastfm_live.lock().await.clone() else {
+            return;
+        };
+        if live.api_key.is_empty() || live.shared_secret.is_empty() {
+            return;
+        }
+        let voice_ok = live
+            .cache
+            .guild(serenity::GuildId::new(guild_id))
+            .and_then(|g| {
+                g.channels
+                    .get(&serenity::ChannelId::new(new_voice_channel))
+                    .map(|c| c.kind == serenity::ChannelType::Voice)
+            })
+            .unwrap_or(false);
+        if !voice_ok {
+            return;
+        }
+        let members = lastfm_voice_members(&live.cache, guild_id, new_voice_channel);
+        let (detach, attach) = {
+            let sessions = self.lastfm_sessions.lock().await;
+            let Some(s) = sessions.get(&guild_id) else {
+                return;
+            };
+            if s.track_key != track_key {
+                return;
+            }
+            let listeners: Vec<u64> = s.listeners.keys().copied().collect();
+            lastfm_move_reconcile(&listeners, &members)
+        };
+        // TS detach loop runs before the attach loop.
+        for uid in detach {
+            self.lastfm_member_leave(guild_id, uid).await;
+        }
+        for uid in attach {
+            self.lastfm_member_join(guild_id, uid).await;
+        }
+    }
+
     /// Close the session at track end, returning the scrobble payload
     /// when the listen counts (mirrors `handleTrackEnd` +
     /// `tryScrobbleListener`; load-failed tracks are dropped by the
@@ -2063,6 +2139,25 @@ fn lastfm_track_key(artist: &str, title: &str, started_ms: i64) -> String {
 /// inside the finalize leg already guards the unplayed case).
 fn lastfm_track_end_finalizes(reason: &TrackEndReason) -> bool {
     !matches!(reason, TrackEndReason::LoadFailed)
+}
+
+/// Split a channel switch into leavers (detach + finalize, TS
+/// `detachMemberFromSession`) and joiners (attach, TS
+/// `attachMemberToSession`), preserving both TS loop orders
+/// (listener insertion order for detaches, channel order for
+/// attaches — POST order only). Pure so the battery pins it.
+fn lastfm_move_reconcile(listeners: &[u64], members: &[u64]) -> (Vec<u64>, Vec<u64>) {
+    let detach = listeners
+        .iter()
+        .copied()
+        .filter(|id| !members.contains(id))
+        .collect();
+    let attach = members
+        .iter()
+        .copied()
+        .filter(|id| !listeners.contains(id))
+        .collect();
+    (detach, attach)
 }
 
 /// Non-bot member ids of a voice channel. Mirrors the
@@ -3115,19 +3210,33 @@ impl LavalinkManager {
         entry.discord_session_id = Some(discord_session_id);
         let combined = entry.combined();
         drop(pending);
-        // Player voice resync (mirrors `handlePlayerMove`: the session
-        // follows the player to the new channel). This hook only ever
-        // sees the bot's own updates (events_handler filters on the
-        // bot user id), so the channel is authoritative for the
-        // player. No entry is created for guilds without one.
-        {
+        // Player voice resync. lavalink-client emits `playerMove` on
+        // `player.voiceChannelId !== update.channel_id` (join AND
+        // switch alike), and `handlePlayerMove` re-syncs members there;
+        // an unchanged channel only refreshes the stored id.
+        // This hook only ever sees the bot's own updates
+        // (events_handler filters on the bot user id), so the channel
+        // is authoritative for the player. No entry is created for
+        // guilds without one.
+        let prev_channel = {
             let mut players = self.players.lock().await;
-            if let Some(p) = players.get_mut(&guild_id) {
-                p.voice_channel = channel_id;
+            match players.get_mut(&guild_id) {
+                Some(p) => {
+                    let prev = p.voice_channel;
+                    p.voice_channel = channel_id;
+                    prev
+                }
+                None => None,
             }
-        }
-        if let Some(ch) = channel_id {
-            self.lastfm_player_move(guild_id, ch).await;
+        };
+        match channel_id {
+            Some(ch) if Some(ch) != prev_channel => {
+                self.lastfm_player_moved(guild_id, ch).await;
+            }
+            Some(ch) => {
+                self.lastfm_player_move(guild_id, ch).await;
+            }
+            None => {}
         }
         combined
     }
@@ -7811,6 +7920,34 @@ mod tests {
         m.lastfm_player_move(32, 9).await;
         let session = m.lastfm_sessions.lock().await;
         assert_eq!(session.get(&32).and_then(|s| s.voice_channel_id), Some(9));
+    }
+
+    #[test]
+    fn lastfm_move_reconcile_matches_ts_sync_members_battery() {
+        // Battery: scratch/slice-w4s70-playermove.cjs (8/8) replicating
+        // syncMembersWithVoiceChannel verbatim: detach loop over
+        // listener insertion order first, then attach loop over channel
+        // order skipping bots + existing listeners.
+        // All stay + newcomer + bot ignored + no re-attach.
+        assert_eq!(
+            lastfm_move_reconcile(&[1, 2], &[1, 2, 3]),
+            (vec![], vec![3])
+        );
+        // Total move: detach-all (finalize) in insertion order, then attach.
+        assert_eq!(lastfm_move_reconcile(&[1, 2], &[9]), (vec![1, 2], vec![9]));
+        // Detach preserves listener insertion order, not sorted order.
+        assert_eq!(
+            lastfm_move_reconcile(&[3, 1, 2], &[]),
+            (vec![3, 1, 2], vec![])
+        );
+        // Empty channel: detach all, attach none.
+        assert_eq!(lastfm_move_reconcile(&[1], &[]), (vec![1], vec![]));
+        // Identical membership: no calls, channel write still applies.
+        assert_eq!(lastfm_move_reconcile(&[1], &[1]), (vec![], vec![]));
+        // Leaver dropped + joiner attached in one pass.
+        assert_eq!(lastfm_move_reconcile(&[1, 7], &[1, 8]), (vec![7], vec![8]));
+        // No listeners, only joiners.
+        assert_eq!(lastfm_move_reconcile(&[], &[5, 6]), (vec![], vec![5, 6]));
     }
 
     #[test]
