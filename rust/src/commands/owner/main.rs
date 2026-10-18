@@ -720,15 +720,10 @@ pub async fn owner(
 
 async fn owner_remove_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
-    // Neither bot nor guild owner: answer the TS `unowner_not_owner`
-    // denial instead of going silent.
+    // Neither bot nor guild owner: TS `unowner.ts` top-level `run` returns
+    // silently (if/else-if with no else). Verified live HZ66: prod silent
+    // on `+unblacklist`, same TS shape here, so test must match.
     let Some(scope) = owner_scope(&ctx).await else {
-        ctx.say(lt(
-            &code,
-            "unowner_not_owner",
-            "You are not an owner of the iHorizon Project. You can't use this command.",
-        ))
-        .await?;
         return Ok(());
     };
     let done = lt(
@@ -1017,15 +1012,10 @@ async fn blacklist_inner(
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
-    // Neither bot nor guild owner: answer the TS `blacklist_not_owner`
-    // denial instead of going silent.
+    // Neither bot nor guild owner: TS `blacklist.ts` top-level `run`
+    // returns silently (if/else-if with no else). Same TS shape as the
+    // HZ66 `+unblacklist` live proof, so test must match.
     let Some(scope) = owner_scope(&ctx).await else {
-        ctx.say(lt(
-            &code,
-            "blacklist_not_owner",
-            "You are not an owner of the iHorizon Project. You can't use this command.",
-        ))
-        .await?;
         return Ok(());
     };
     let no = no_emoji(&ctx).await;
@@ -1317,15 +1307,10 @@ pub async fn unblacklist(
 
 async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
-    // Neither bot nor guild owner: answer the TS `unblacklist_not_owner`
-    // denial instead of going silent.
+    // Neither bot nor guild owner: TS `unblacklist.ts` top-level `run`
+    // returns silently (if/else-if with no else). Verified live HZ66:
+    // prod `+unblacklist <@member>` silent, test must match.
     let Some(scope) = owner_scope(&ctx).await else {
-        ctx.say(lt(
-            &code,
-            "unblacklist_not_owner",
-            "You are not an owner of the iHorizon Project. You can't use this command.",
-        ))
-        .await?;
         return Ok(());
     };
     let no = no_emoji(&ctx).await;
