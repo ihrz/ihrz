@@ -2122,6 +2122,51 @@ fn lastfm_finalize_posts(
     !scrobbled && lf::should_scrobble(duration_ms) && elapsed_ms >= threshold_ms
 }
 
+/// `scheduleScrobble` arm decision mirror: no timer for credited or
+/// sub-30s tracks; `remaining <= 0` finalizes immediately (TS calls
+/// `tryScrobbleListener(..., true)` inline); otherwise the timer arms
+/// for the remaining wait and the fire re-checks (stale generation /
+/// voice absence kills it, below-threshold elapsed re-arms).
+#[derive(Debug, PartialEq, Eq)]
+enum LastfmSchedule {
+    Skip,
+    Immediate,
+    Arm(u64),
+}
+
+fn lastfm_schedule_decision(
+    duration_ms: u64,
+    scrobbled: bool,
+    elapsed_ms: u64,
+    threshold_ms: u64,
+) -> LastfmSchedule {
+    use crate::commands::lastfm::scrobbler as lf;
+    if scrobbled || !lf::should_scrobble(duration_ms) {
+        return LastfmSchedule::Skip;
+    }
+    if elapsed_ms >= threshold_ms {
+        return LastfmSchedule::Immediate;
+    }
+    LastfmSchedule::Arm(threshold_ms - elapsed_ms)
+}
+
+/// Spawn a generation-checked threshold pass (mirrors one
+/// `setTimeout(remaining)` arm: stale generations and leavers are
+/// dropped inside `lastfm_finalize_due`, exactly like the TS timer
+/// leg returning false with no re-arm).
+fn spawn_lastfm_finalize_after(guild_id: u64, track_key: String, delay_ms: u64) {
+    tokio::spawn(async move {
+        if delay_ms > 0 {
+            tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
+        }
+        if let Some(live) = manager().lastfm_live.lock().await.clone() {
+            manager()
+                .lastfm_finalize_due(&live, guild_id, &track_key)
+                .await;
+        }
+    });
+}
+
 impl LavalinkManager {
     /// Live drive for one track generation (mirrors
     /// `syncMembersWithVoiceChannel` + `scheduleScrobble`): attach
@@ -2356,6 +2401,51 @@ impl LavalinkManager {
                 }
             }
         }
+        // `scheduleScrobble` re-arm mirror (the `elapsed < threshold ->
+        // scheduleScrobble` timer leg): listeners still below threshold
+        // — pause ate the clock mid-sleep, or they joined late — get a
+        // follow-up pass after the smallest remaining wait instead of
+        // being dropped. Stale generations and leavers are excluded,
+        // exactly like the TS timer leg dying with no re-arm; a
+        // transient POST failure is not re-armed either (TS returns
+        // false past the POST with no schedule).
+        let rearm_ms = {
+            let now = now_ms_wall();
+            let sessions = self.lastfm_sessions.lock().await;
+            let Some(s) = sessions.get(&guild_id) else {
+                return;
+            };
+            if s.track_key != track_key {
+                return;
+            }
+            let paused = lastfm_paused_total(s.paused_ms, s.pause_started_ms, now);
+            s.listeners
+                .iter()
+                .filter(|(uid, _)| present.contains(uid))
+                .filter_map(|(_, l)| {
+                    if l.scrobbled || !lf::should_scrobble(s.duration_ms) {
+                        return None;
+                    }
+                    let elapsed = lastfm_listener_elapsed(
+                        l.started_ms,
+                        lastfm_listener_paused_share(paused, l.pause_base_ms),
+                        now,
+                    );
+                    match lastfm_schedule_decision(
+                        s.duration_ms,
+                        l.scrobbled,
+                        elapsed,
+                        l.threshold_ms,
+                    ) {
+                        LastfmSchedule::Arm(remaining) => Some(remaining),
+                        LastfmSchedule::Skip | LastfmSchedule::Immediate => None,
+                    }
+                })
+                .min()
+        };
+        if let Some(delay) = rearm_ms {
+            spawn_lastfm_finalize_after(guild_id, track_key.to_owned(), delay);
+        }
     }
 
     /// Voice join on the tracked channel (mirrors the attach leg of
@@ -2376,6 +2466,38 @@ impl LavalinkManager {
         if let Some(key) = key {
             self.lastfm_attach_member(&live, guild_id, &key, user_id, now_ms_wall())
                 .await;
+            // `attachMemberToSession` ends with `scheduleScrobble`: a
+            // mid-track joiner gets its own threshold arm instead of
+            // depending on a drive sleep that may already have fired.
+            // Duplicate passes with the drive chain are idempotent
+            // (generation + `scrobbled` checks inside).
+            let decision = {
+                let now = now_ms_wall();
+                let sessions = self.lastfm_sessions.lock().await;
+                match sessions.get(&guild_id).and_then(|s| {
+                    s.listeners.get(&user_id).map(|l| {
+                        let paused = lastfm_paused_total(s.paused_ms, s.pause_started_ms, now);
+                        let elapsed = lastfm_listener_elapsed(
+                            l.started_ms,
+                            lastfm_listener_paused_share(paused, l.pause_base_ms),
+                            now,
+                        );
+                        (s.duration_ms, l.scrobbled, elapsed, l.threshold_ms)
+                    })
+                }) {
+                    Some((duration_ms, scrobbled, elapsed, threshold_ms)) => {
+                        lastfm_schedule_decision(duration_ms, scrobbled, elapsed, threshold_ms)
+                    }
+                    None => LastfmSchedule::Skip,
+                }
+            };
+            match decision {
+                LastfmSchedule::Skip => {}
+                LastfmSchedule::Immediate => spawn_lastfm_finalize_after(guild_id, key, 0),
+                LastfmSchedule::Arm(remaining) => {
+                    spawn_lastfm_finalize_after(guild_id, key, remaining)
+                }
+            }
         }
     }
 
@@ -7795,6 +7917,65 @@ mod tests {
             29_999,
             lf::scrobble_threshold_ms(29_999)
         ));
+    }
+
+    #[test]
+    fn lastfm_schedule_decision_matches_ts_battery() {
+        // Battery: `scheduleScrobble` arm legs (script at scratch
+        // `slice-w4s67-schedule.cjs`, green 18/18). The timer-fire
+        // legs (stale generation / voice absence kill the timer with
+        // no re-arm, below-threshold elapsed re-arms) are structural
+        // in `lastfm_finalize_due` + `drive_lastfm_guild`.
+        // Credited listener: no arm.
+        assert_eq!(
+            lastfm_schedule_decision(200_000, true, 5_000, 100_000),
+            LastfmSchedule::Skip
+        );
+        // Sub-30s track: no arm.
+        assert_eq!(
+            lastfm_schedule_decision(20_000, false, 5_000, 10_000),
+            LastfmSchedule::Skip
+        );
+        // Stream (duration 0): no arm.
+        assert_eq!(
+            lastfm_schedule_decision(0, false, 5_000, 0),
+            LastfmSchedule::Skip
+        );
+        // remaining == 0 / < 0: immediate finalize (TS calls
+        // tryScrobbleListener(..., true) inline).
+        assert_eq!(
+            lastfm_schedule_decision(200_000, false, 100_000, 100_000),
+            LastfmSchedule::Immediate
+        );
+        assert_eq!(
+            lastfm_schedule_decision(200_000, false, 150_000, 100_000),
+            LastfmSchedule::Immediate
+        );
+        // remaining > 0: arm the exact wait.
+        assert_eq!(
+            lastfm_schedule_decision(200_000, false, 30_000, 100_000),
+            LastfmSchedule::Arm(70_000)
+        );
+        // Banked pause shrinks elapsed, so the arm grows (elapsed
+        // 10_000 of a 100_000 threshold).
+        assert_eq!(
+            lastfm_schedule_decision(200_000, false, 10_000, 100_000),
+            LastfmSchedule::Arm(90_000)
+        );
+        // Ongoing pause excluded from elapsed (elapsed 40_000).
+        assert_eq!(
+            lastfm_schedule_decision(200_000, false, 40_000, 100_000),
+            LastfmSchedule::Arm(60_000)
+        );
+        // Pause-eats-clock case: threshold earned on wall clock but
+        // not on listening clock -> Arm, never a drop (the re-arm
+        // chain in `lastfm_finalize_due` replays this).
+        // DELTA (doc-noted): TS thresholds keep float halves
+        // (29999/2 = 14999.5) while Rust floors to u64 — sub-ms arm
+        // edge only. TS also cancels armed timers on pause while
+        // Rust lets the sleep fire once then re-arms (same credit
+        // verdict, one extra wakeup); a POST landing mid-pause vs at
+        // resume is timing-only.
     }
 
     #[tokio::test]
