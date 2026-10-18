@@ -1832,7 +1832,29 @@ impl LavalinkManager {
     /// `voice_channel` seeds the tracked channel (mirrors
     /// `session.voiceChannelId`); pause accumulators start empty
     /// (mirrors a fresh listener map).
+    /// Battery: scratch `slice-w4s77-trackstart.cjs`, green 14/14.
+    /// `handleTrackStart` gate mirrors: a missing voice channel is the
+    /// TS `guild.channels.fetch(player.voiceChannelId || "")` fail leg
+    /// (fetch of `""` rejects, so the old session is cleared and none
+    /// opens) — here the stale row is removed and no session opens, so
+    /// the track-end `remove(&gid)?` miss matches the TS no-session
+    /// early return exactly. A null track returns before the TS clear,
+    /// but `TrackStartEvent.track` is non-optional here (the node always
+    /// sends it), so that leg is unreachable on both sides.
+    /// DELTAS (doc-noted, no change): a failed TS guild fetch clears the
+    /// old session and drops the track, while a warm cache still drives
+    /// here (the drive's member scan only silences truly uncached
+    /// guilds) — the TS side loses a legitimate scrobble on a transient
+    /// API blip, so the live side is strictly livelier; `paused` seeds
+    /// unpaused on both sides (`p.paused = false` runs just above the
+    /// call, like the client's trackStart reset) except an internal
+    /// node-changing handover where the TS row could seed paused.
     pub async fn lastfm_track_start(&self, start: LastfmTrackStart) {
+        let Some(voice_channel) = start.voice_channel else {
+            // TS fetch-"" fail leg: clear the old session, open none.
+            self.lastfm_sessions.lock().await.remove(&start.guild_id);
+            return;
+        };
         let track_key = lastfm_track_key(&start.artist, &start.title, start.now_ms);
         // `normalizeTrack`: streams store duration 0, so every
         // downstream gate (drive attach/scrobble, track-end due,
@@ -1851,7 +1873,7 @@ impl LavalinkManager {
                 started_ms: start.now_ms,
                 paused_ms: 0,
                 pause_started_ms: None,
-                voice_channel_id: start.voice_channel,
+                voice_channel_id: Some(voice_channel),
                 track_key: track_key.clone(),
                 listeners: HashMap::new(),
             },
@@ -2194,6 +2216,17 @@ fn lastfm_voice_members(cache: &serenity::Cache, guild_id: u64, channel_id: u64)
         .collect()
 }
 
+/// Track-start channel gate (mirrors `handleTrackStart`'s
+/// `voiceChannel.type !== ChannelType.GuildVoice -> return`): only a
+/// cached Voice channel drives attaches. `None` (cache miss) aborts,
+/// like the move drive — an uncached channel never survives the member
+/// scan anyway, while the TS API fetch would succeed there; the window
+/// needs a guild-cached/channel-missing cache, unreachable live.
+/// Battery: scratch `slice-w4s77-trackstart.cjs`, green 14/14.
+fn lastfm_start_channel_is_voice(kind: Option<serenity::ChannelType>) -> bool {
+    matches!(kind, Some(serenity::ChannelType::Voice))
+}
+
 /// Total paused time at `now` (banked + ongoing leg). Mirrors the
 /// pause half of `getElapsedListeningMs`.
 fn lastfm_paused_total(paused_ms: u64, pause_started_ms: Option<i64>, now_ms: i64) -> u64 {
@@ -2321,6 +2354,25 @@ impl LavalinkManager {
         let Some(channel_id) = snapshot.0 else {
             return;
         };
+        // `handleTrackStart` GuildVoice gate (mirrors
+        // `voiceChannel.type !== ChannelType.GuildVoice -> return`): a
+        // stage/text channel opens no listeners here, exactly like the TS
+        // no-session leg (the session row still stands, but nothing ever
+        // attaches and track/queue end drops it). Same cache pattern as
+        // the move drive; a cache miss aborts (an uncached channel never
+        // survives the member scan below anyway).
+        // Battery: scratch `slice-w4s77-trackstart.cjs`, green 14/14.
+        if !lastfm_start_channel_is_voice(
+            live.cache
+                .guild(serenity::GuildId::new(guild_id))
+                .and_then(|g| {
+                    g.channels
+                        .get(&serenity::ChannelId::new(channel_id))
+                        .map(|c| c.kind)
+                }),
+        ) {
+            return;
+        }
         let members = lastfm_voice_members(&live.cache, guild_id, channel_id);
         let now = now_ms_wall();
         let threshold = lf::scrobble_threshold_ms(snapshot.1);
@@ -8330,6 +8382,54 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn track_start_gate_matches_ts_battery() {
+        // W4 slice 77 pin: battery scratch
+        // `slice-w4s77-trackstart.cjs`, green 14/14. TS
+        // `handleTrackStart` clears the old session before every fetch
+        // gate and opens none when the channel fetch fails (a missing
+        // voice id fetches `""`, which rejects) or the type is not
+        // GuildVoice.
+        let m = LavalinkManager::new();
+        let start = |gid: u64, vc: Option<u64>| LastfmTrackStart {
+            guild_id: gid,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            is_stream: false,
+            requester: 7,
+            now_ms: 1_000,
+            voice_channel: vc,
+        };
+        // Voiced start opens a session (clears any stale row by replace).
+        m.lastfm_track_start(start(60, Some(5))).await;
+        assert!(m.lastfm_sessions.lock().await.contains_key(&60));
+        // Voiceless start clears the old row and opens none (TS
+        // fetch-"" fail leg).
+        m.lastfm_track_start(start(60, None)).await;
+        assert!(!m.lastfm_sessions.lock().await.contains_key(&60));
+        // Voiceless start with no prior row is a plain no-op.
+        m.lastfm_track_start(start(61, None)).await;
+        assert!(!m.lastfm_sessions.lock().await.contains_key(&61));
+    }
+
+    #[test]
+    fn start_channel_gate_matches_ts_voice_leg() {
+        // TS `voiceChannel.type !== ChannelType.GuildVoice -> return`:
+        // only Voice drives attaches (stage/text stay silent); a cache
+        // miss aborts like the move drive (doc-noted delta on the fn).
+        assert!(lastfm_start_channel_is_voice(Some(
+            serenity::ChannelType::Voice
+        )));
+        assert!(!lastfm_start_channel_is_voice(Some(
+            serenity::ChannelType::Stage
+        )));
+        assert!(!lastfm_start_channel_is_voice(Some(
+            serenity::ChannelType::Text
+        )));
+        assert!(!lastfm_start_channel_is_voice(None));
+    }
+
+    #[tokio::test]
     async fn register_lastfm_live_roundtrip() {
         // Registration stores Http-independent creds + the derived
         // row secret (api_token wins, like login.rs).
@@ -8398,6 +8498,10 @@ mod tests {
             let mut t = sample_track("hello");
             t.requester = 42;
             p.current = Some(t);
+            // A live track start always carries a voice channel (W4
+            // slice 77: voiceless starts clear + open no LastFM session,
+            // like the TS channel-fetch fail leg).
+            p.voice_channel = Some(9);
         })
         .await;
         let out = m
