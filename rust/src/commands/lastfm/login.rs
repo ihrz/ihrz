@@ -173,6 +173,30 @@ pub fn lastfm_signed_fields(
     out
 }
 
+/// Pure `auth.getMobileSession` ok-payload parser (mirrors the
+/// `response.data?.session?.name/key` read + `!fetchedUsername ||
+/// !sessionKey` gate in `LastFMScrobblerManager.login`; `data` is the
+/// whole payload on the ok leg). `None` on either side answers
+/// `lastfm_login_invalid_session` at the caller.
+/// Battery: scratch `slice-w4s75-login.cjs`, green 14/14.
+/// DELTA (doc-noted, unreachable: the Last.fm contract always returns
+/// string name/key): a truthy non-string (`12345`, `true`) passes the
+/// TS `!` gate and would be stored, while `as_str` folds it to `None`
+/// here — strictly safer, same verdict on every contract payload.
+pub fn parse_mobile_session(payload: &serde_json::Value) -> (Option<String>, Option<String>) {
+    let name = payload
+        .pointer("/session/name")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string);
+    let key = payload
+        .pointer("/session/key")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string);
+    (name, key)
+}
+
 /// `auth.getMobileSession` mirror. Ok carries
 /// `(session.name, session.key)` (either may be absent on a malformed
 /// payload — the caller answers `lastfm_login_invalid_session`).
@@ -216,16 +240,7 @@ pub async fn lastfm_mobile_session(
             .to_string();
         return Err((code, msg));
     }
-    let name = payload
-        .pointer("/session/name")
-        .and_then(|v| v.as_str())
-        .filter(|s| !s.is_empty())
-        .map(str::to_string);
-    let key = payload
-        .pointer("/session/key")
-        .and_then(|v| v.as_str())
-        .filter(|s| !s.is_empty())
-        .map(str::to_string);
+    let (name, key) = parse_mobile_session(&payload);
     Ok((name, key))
 }
 
@@ -280,7 +295,45 @@ pub fn lastfm_user_embed(
 
 #[cfg(test)]
 mod tests {
-    use super::{lastfm_api_sig, lastfm_signed_fields, lastfm_user_embed};
+    use super::{lastfm_api_sig, lastfm_signed_fields, lastfm_user_embed, parse_mobile_session};
+
+    #[test]
+    fn mobile_session_parse_matches_ts_login_legs() {
+        // Battery scratch `slice-w4s75-login.cjs`, green 14/14.
+        // `Some` on both sides == TS passes the `!fetchedUsername ||
+        // !sessionKey` gate; any `None` == `invalid_session`.
+        use serde_json::json;
+        let (n, k) = parse_mobile_session(&json!({"session": {"name": "kisa_fm", "key": "SK123"}}));
+        assert_eq!(
+            (n.as_deref(), k.as_deref()),
+            (Some("kisa_fm"), Some("SK123"))
+        );
+        for payload in [
+            json!({}),
+            json!({"session": null}),
+            json!({"session": {"name": "u"}}),
+            json!({"session": {"key": "k"}}),
+            json!({"session": {"name": "", "key": "k"}}),
+            json!({"session": {"name": "u", "key": ""}}),
+            json!({"session": {"name": "u", "key": 0}}),
+            json!({"session": "x"}),
+            json!({"session": {"name": null, "key": "k"}}),
+        ] {
+            let (n, k) = parse_mobile_session(&payload);
+            assert!(n.is_none() || k.is_none(), "payload={payload}");
+        }
+        // Whitespace-only names stay verbatim (truthy in TS,
+        // non-empty here); extra members ignored.
+        let (n, k) =
+            parse_mobile_session(&json!({"session": {"name": " ", "key": "k"}, "extra": 1}));
+        assert_eq!((n.as_deref(), k.as_deref()), (Some(" "), Some("k")));
+        // DELTA (doc-noted on the fn, unreachable: the Last.fm
+        // contract always returns strings): truthy non-strings pass
+        // the TS `!` gate (`12345`/`true` stored) but fold to `None`
+        // here via `as_str`.
+        let (n, _) = parse_mobile_session(&json!({"session": {"name": 12345, "key": "k"}}));
+        assert!(n.is_none());
+    }
 
     #[test]
     fn api_sig_matches_ts_create_api_signature_vectors() {
