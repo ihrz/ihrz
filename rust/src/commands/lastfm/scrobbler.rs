@@ -967,6 +967,32 @@ mod tests {
         assert_eq!(next["username"], serde_json::json!("dj"));
         assert_eq!(next["connectedAt"], serde_json::json!(123));
         assert!(next.get("sessionKey").is_none());
+        // Battery scratch/slice-w4s93-invalidate.cjs (I1-I7): extra keys
+        // dropped, missing connectedAt/username stay absent (TS `undefined`
+        // serializes away), connectedAt 0 is COPIED (no truthiness gate
+        // on the write leg — the gate lives in `generateUserEmbed` only).
+        let extra = serde_json::json!({
+            "connectedAt": 5, "enabled": true, "sessionKey": "e",
+            "username": "u", "a": 1, "b": "x", "c": null,
+        });
+        let nx = invalidated_settings_json(&extra);
+        assert_eq!(
+            nx,
+            serde_json::json!({ "connectedAt": 5, "enabled": false, "username": "u" })
+        );
+        let no_ts = serde_json::json!({ "enabled": true, "sessionKey": "e", "username": "dj" });
+        assert!(invalidated_settings_json(&no_ts)
+            .get("connectedAt")
+            .is_none());
+        let zero_ts = serde_json::json!({ "connectedAt": 0, "enabled": true, "sessionKey": "e", "username": "u" });
+        assert_eq!(
+            invalidated_settings_json(&zero_ts)["connectedAt"],
+            serde_json::json!(0)
+        );
+        let no_user = serde_json::json!({ "connectedAt": 9, "enabled": true, "sessionKey": "e" });
+        assert!(invalidated_settings_json(&no_user)
+            .get("username")
+            .is_none());
     }
 
     #[tokio::test]

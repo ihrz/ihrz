@@ -2144,12 +2144,23 @@ impl LavalinkManager {
 
     /// Full `invalidateUserSession` mirror: disable the DB row AND
     /// drop the user from every live session (mirrors
-    /// `removeUserFromActiveSessions`). Every dead-key site funnels
-    /// here so no call site can forget the live drop.
+    /// `removeUserFromActiveSessions`), but ONLY when the row exists —
+    /// a missing row returns early in TS with no write and no drop.
+    /// Every dead-key site funnels here so no call site can forget
+    /// the live drop.
     async fn lastfm_invalidate_user(&self, pool: &crate::db::Pool, user_id: u64) {
         use crate::commands::lastfm::scrobbler as lf;
-        let _ = lf::invalidate_user_session(pool, user_id).await;
-        lastfm_drop_user_from(&mut *self.lastfm_sessions.lock().await, user_id);
+        // `invalidateUserSession` returns before `removeUserFromActiveSessions`
+        // when the row is gone: a missing row writes nothing AND drops
+        // nothing (battery scratch/slice-w4s93-invalidate.cjs, I3). A write
+        // failure likewise skips the drop (TS `table.set` throw propagates
+        // past the remove call).
+        if lf::invalidate_user_session(pool, user_id)
+            .await
+            .unwrap_or(false)
+        {
+            lastfm_drop_user_from(&mut *self.lastfm_sessions.lock().await, user_id);
+        }
     }
 
     /// `setEnabled(userId, false)` live-drop mirror: disabling keeps the
@@ -8744,6 +8755,78 @@ mod tests {
         bare.lastfm_member_join(44, 100).await;
         bare.lastfm_member_leave(44, 100).await;
         assert!(bare.lastfm_sessions.lock().await.get(&44).is_none());
+    }
+
+    #[tokio::test]
+    async fn invalidate_missing_row_writes_and_drops_nothing() {
+        // Mirrors scratch/slice-w4s93-invalidate.cjs I1/I3
+        // (U-ETERNAL-458): TS `invalidateUserSession` returns before
+        // `removeUserFromActiveSessions` when the row is gone — no write
+        // AND no live drop. A present row writes the 3-key shape and
+        // drops the listener from every live session (no finalize POST).
+        let m = LavalinkManager::new();
+        m.register_lastfm_live(
+            std::sync::Arc::new(serenity::Cache::default()),
+            crate::db::memory_pool().await,
+            "key".into(),
+            "secret".into(),
+            "api-token".into(),
+        )
+        .await;
+        let pool = m.lastfm_live.lock().await.clone().unwrap().pool.clone();
+        let seed = async |gid: u64| {
+            m.lastfm_sessions.lock().await.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms: 200_000,
+                    album: None,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: Some(5),
+                    track_key: "k".into(),
+                    listeners: HashMap::from([(
+                        100u64,
+                        LastfmListener {
+                            session_key: "k".into(),
+                            username: "u".into(),
+                            started_ms: 0,
+                            threshold_ms: 100_000,
+                            scrobbled: false,
+                            pause_base_ms: 0,
+                        },
+                    )]),
+                },
+            );
+        };
+        // I3: no row -> listener survives the invalidate call.
+        seed(41).await;
+        m.lastfm_invalidate_user(&pool, 100).await;
+        assert!(m.lastfm_sessions.lock().await[&41]
+            .listeners
+            .contains_key(&100));
+        // I1: row present -> 3-key write (key dropped) + live drop.
+        crate::commands::lastfm::save_lastfm_settings(
+            &pool,
+            100,
+            &serde_json::json!({ "connectedAt": 7, "enabled": true, "sessionKey": "e", "username": "u" }),
+        )
+        .await
+        .unwrap();
+        m.lastfm_invalidate_user(&pool, 100).await;
+        assert!(!m.lastfm_sessions.lock().await[&41]
+            .listeners
+            .contains_key(&100));
+        let after = crate::commands::lastfm::lastfm_settings(&pool, 100)
+            .await
+            .unwrap();
+        assert_eq!(
+            after,
+            serde_json::json!({ "connectedAt": 7, "enabled": false, "username": "u" })
+        );
     }
 
     #[test]
