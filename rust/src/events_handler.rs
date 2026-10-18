@@ -74,6 +74,75 @@ pub fn invite_seed_allowed(is_owner: bool, view_audit_log: bool, manage_guild: b
     is_owner || (view_audit_log && manage_guild)
 }
 
+/// Guild-join invite-seed gate. Mirrors getInvites in
+/// client/guildCreate.ts (`!members.me?.permissions.has(ViewAuditLog)`
+/// returns; ViewAuditLog alone proceeds — there is NO ManageGuild leg
+/// on the join path, unlike the ready burst above). The call site feeds
+/// the owner bypass (a guild-owner me carries every bit in discord.js,
+/// so the bypass is convergent) and fail-closes to fetch on a missing
+/// member row (mirroring the TS unguarded `?.` path: no me -> the
+/// `!undefined` check passes and the fetch runs, 403s ignored). Pure,
+/// unit-tested below.
+pub fn guild_join_invite_seed_allowed(is_owner: bool, view_audit_log: bool) -> bool {
+    is_owner || view_audit_log
+}
+
+/// Blacklist farewell channel pick. Mirrors blacklistLeave in
+/// client/guildCreate.ts (`channels.cache.get(systemChannelId) ||
+/// channels.cache.random()`): a cached system channel wins, otherwise a
+/// uniform pick over EVERY cached channel (any type — a voice pick fails
+/// the send on both sides, swallowed by `.catch(() => {})` / `let _`).
+/// `cached_ids` must be sorted for determinism (TS iterates in gateway
+/// insertion order, unmirrorable from the cache snapshot); the exact
+/// index differs, the pick SET is identical. `rand01` mirrors
+/// `Math.random()` ([0,1)); empty cache yields None (TS sends on
+/// `undefined`, throwing into the same catch). Pure, unit-tested below.
+pub fn blacklist_leave_channel_id(
+    system_channel_id: Option<u64>,
+    cached_ids: &[u64],
+    rand01: f64,
+) -> Option<u64> {
+    if let Some(sys) = system_channel_id {
+        if cached_ids.contains(&sys) {
+            return Some(sys);
+        }
+    }
+    if cached_ids.is_empty() {
+        return None;
+    }
+    let idx = (rand01 * cached_ids.len() as f64).floor() as usize;
+    cached_ids.get(idx.min(cached_ids.len() - 1)).copied()
+}
+
+/// Welcome-title pick. Mirrors messageToServer in client/guildCreate.ts
+/// (`welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]`):
+/// uniform index over the list; an empty list yields None (TS reads
+/// `undefined`, which the desc `.replace` coerces to the literal
+/// `"undefined"` — the call site renders that fallback verbatim).
+/// `rand01` mirrors `Math.random()` ([0,1)). Pure, unit-tested below.
+pub fn welcome_pick(titles: &[String], rand01: f64) -> Option<&str> {
+    if titles.is_empty() {
+        return None;
+    }
+    let idx = (rand01 * titles.len() as f64).floor() as usize;
+    titles.get(idx.min(titles.len() - 1)).map(|s| s.as_str())
+}
+
+/// Per-guild bot bio for the join language. Mirrors setBotBioByLang in
+/// client/guildCreate.ts: a missing/empty template returns (no bio
+/// write); otherwise `{count}` / `{wink_emoji}` / `{home_emoji}` are
+/// replaced FIRST-OCCURRENCE each (JS `String.replace` with a string
+/// pattern), then the 190-unit `sanitize_bio` cut applies. Pure,
+/// unit-tested below.
+pub fn guild_join_bio(tpl: Option<&str>, count: usize, wink: &str, home: &str) -> Option<String> {
+    let tpl = tpl.filter(|t| !t.is_empty())?;
+    Some(crate::commands::botcat::sanitize_bio(
+        &tpl.replacen("{count}", &count.to_string(), 1)
+            .replacen("{wink_emoji}", wink, 1)
+            .replacen("{home_emoji}", home, 1),
+    ))
+}
+
 /// Invite-create gate. Mirrors the `!invite.guild || !members.me?.permissions.has(ViewAuditLog)`
 /// early return in invitemanager/onInviteCreate.ts: without the guild or the bit neither the cache
 /// write nor the zero-row seed runs. Note the single-bit gate here (unlike `invite_seed_allowed`
@@ -895,6 +964,30 @@ async fn bot_name_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
 /// BOT.botPFP leaf.
 async fn bot_pfp_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await
+}
+
+/// Shared join-message chrome: footer text via displayBotName.footerBuilder
+/// (stored name, else "iHorizon") + footer_icon.png bytes (stored bot pfp,
+/// else a snapshot of the live avatar — never a remote URL). Used by the
+/// guildCreate blacklist farewell, the join log embed, the server welcome
+/// and the owner DM so all four carry the same footer + attachment.
+async fn join_footer_chrome(
+    ctx: &serenity::Context,
+    pool: &crate::db::Pool,
+    gid: &str,
+) -> (String, Option<Vec<u8>>) {
+    let name =
+        crate::commands::botcat::bot_footer_name(bot_name_routed(pool, gid).await.as_deref());
+    let icon: Option<Vec<u8>> = match crate::commands::botcat::footer_icon_bytes(
+        bot_pfp_routed(pool, gid).await.as_deref(),
+    ) {
+        Some(bytes) => Some(bytes),
+        None => {
+            let face = ctx.cache.current_user().face();
+            crate::commands::shared::download_bytes(&face).await
+        }
+    };
+    (name, icon)
 }
 
 /// blacklistFetcher.ts BanMembers gate. Mirrors
@@ -5413,15 +5506,15 @@ impl serenity::EventHandler for Handler {
         }
         // Drop the legacy immediate flag (migration from the old design).
         let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
-        // Auto-locale default (setLangByRegion, O14/O17). Verdict: set only
-        // when absent — TS overwrites unconditionally on every join, but
-        // serenity replays guild_create for cached guilds at boot (discord.js
-        // does not), so an overwrite here would clobber an operator-set
-        // language on every restart. Intentional divergence, recorded.
+        // Auto-locale default (setLangByRegion, O14/O17). TS overwrites
+        // unconditionally on every join; serenity additionally replays
+        // guild_create for cached guilds at boot (discord.js does not),
+        // so the overwrite runs on real joins only (`is_new`) while boot
+        // replays keep an operator-set language (set-if-absent there).
         // Mapping verified 1:1 vs the guildCreate.ts switch (fr->fr-FR,
         // en-US/en-GB->en-US, es-ES, de->de-DE, it->it-IT, ja->jp-JP,
         // pt-BR->pt-PT, ru->ru-RU, default en-US) in locale_lang_code.
-        if guild_lang_routed(&self.pool, &gid).await.is_none() {
+        if matches!(_is_new, Some(true)) || guild_lang_routed(&self.pool, &gid).await.is_none() {
             let _ = crate::db::tbl_set(
                 &self.pool,
                 &gid,
@@ -5444,25 +5537,55 @@ impl serenity::EventHandler for Handler {
         )
         .await;
         // Blacklist leave: blacklisted owner -> farewell embed, then leave.
-        // Key parity (O15, guildCreate.ts `blacklist.<ownerId>.blacklisted`):
-        // intra-Rust reads/writes share bl_get/bl_set (`BLACKLIST.<uid>`
-        // under the `blacklist` table + legacy kv fallback), so the gate is
-        // self-consistent; TS bare-id row layout is not re-read here — the
-        // sibling owner module owns any cross-impl migration.
-        if blacklist_reason_routed(&self.pool, guild.owner_id.get())
+        // Gate parity (guildCreate.ts `blacklistLeave`): TS reads the
+        // `.blacklisted` LEAF (`blacklistTable.get(`${ownerId}.blacklisted`)
+        // || false), so only a literal-true flag proceeds — a kept row
+        // with `blacklisted: false`, a legacy plain-string row and a
+        // missing row all skip. `blacklist_row_reason` (slice-55 pure)
+        // encodes exactly that; `is_some()` is the gate (the reason
+        // itself is unused on this leg).
+        let bl_fires = crate::commands::owner::main::bl_raw(&self.pool, guild.owner_id.get())
             .await
-            .is_some()
-        {
-            let embed = serenity::CreateEmbed::default()
+            .and_then(|raw| blacklist_row_reason(&raw))
+            .is_some();
+        if bl_fires {
+            // Farewell chrome mirrors the TS embed verbatim: #FF0000 +
+            // description + timestamp + footerBuilder footer + Sob
+            // thumbnail + footerAttachmentBuilder file. Channel pick is
+            // `blacklist_leave_channel_id` (cached system channel, else a
+            // uniform pick over every cached channel); the send is
+            // best-effort like the TS `.catch(() => {})`.
+            let (bl_footer, bl_icon) = join_footer_chrome(&ctx, &self.pool, &gid).await;
+            let mut bl_embed = serenity::CreateEmbed::default()
                 .colour(0xFF0000_u32)
                 .description(format!(
                     "Dear <@{}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding",
                     guild.owner_id.get()
                 ))
+                .thumbnail(EXPRESSION_SOB_THUMB)
                 .timestamp(serenity::Timestamp::now());
-            if let Some(ch) = welcome_channel(&guild) {
-                let _ = ch
-                    .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+            if bl_icon.is_some() {
+                bl_embed = bl_embed.footer(
+                    serenity::CreateEmbedFooter::new(bl_footer)
+                        .icon_url("attachment://footer_icon.png"),
+                );
+            } else {
+                bl_embed = bl_embed.footer(serenity::CreateEmbedFooter::new(bl_footer));
+            }
+            let mut bl_ids: Vec<u64> = guild.channels.keys().map(|c| c.get()).collect();
+            bl_ids.sort_unstable();
+            if let Some(ch_id) = blacklist_leave_channel_id(
+                guild.system_channel_id.map(|c| c.get()),
+                &bl_ids,
+                rand::random::<f64>(),
+            ) {
+                let mut bl_msg = serenity::CreateMessage::new().embed(bl_embed);
+                if let Some(bytes) = bl_icon {
+                    bl_msg = bl_msg
+                        .add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                }
+                let _ = serenity::ChannelId::new(ch_id)
+                    .send_message(&ctx.http, bl_msg)
                     .await;
             }
             let _ = guild.id.leave(&ctx.http).await;
@@ -5472,21 +5595,23 @@ impl serenity::EventHandler for Handler {
         // runs on the boot replay too (serenity replays guild_create per
         // cached guild; discord.js seeds the same table from the ready
         // burst fetchInvites), so join attribution has a baseline from
-        // the first minute. The fetch gate is invite_seed_allowed below.
-        // guild_create streams per guild (no batch-5 sweep like the ready
-        // burst), so only the perm gate applies here.
+        // the first minute. The fetch gate is the JOIN single-bit gate
+        // (`guild_join_invite_seed_allowed`, ViewAuditLog only — the AND
+        // pair in `invite_seed_allowed` belongs to the ready burst, whose
+        // TS gate checks both bits). guild_create streams per guild (no
+        // batch-5 sweep like the ready burst), so only the perm gate
+        // applies here.
         let bot_id = ctx.cache.current_user().id;
-        let (is_owner, view_audit, manage_guild) = if guild.owner_id == bot_id {
-            (true, true, true)
+        let (is_owner, view_audit) = if guild.owner_id == bot_id {
+            (true, true)
         } else if let Some(me) = guild.members.get(&bot_id) {
-            let perms = guild.member_permissions(me);
-            (false, perms.view_audit_log(), perms.manage_guild())
+            (false, guild.member_permissions(me).view_audit_log())
         } else {
             // Payload without our member row: best-effort fetch below
             // (403s are ignored), mirroring the TS unguarded path.
-            (true, true, true)
+            (true, true)
         };
-        if invite_seed_allowed(is_owner, view_audit, manage_guild) {
+        if guild_join_invite_seed_allowed(is_owner, view_audit) {
             if let Ok(live) = guild.id.invites(&ctx.http).await {
                 let mut cache = self.invites.lock().await;
                 let entry = cache.entry(gid.clone()).or_default();
@@ -5635,18 +5760,7 @@ impl serenity::EventHandler for Handler {
         }
         const WINK_THUMB: &str =
             "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_wink.png";
-        let footer_name = crate::commands::botcat::bot_footer_name(
-            bot_name_routed(&self.pool, &gid).await.as_deref(),
-        );
-        let footer_icon: Option<Vec<u8>> = match crate::commands::botcat::footer_icon_bytes(
-            bot_pfp_routed(&self.pool, &gid).await.as_deref(),
-        ) {
-            Some(bytes) => Some(bytes),
-            None => {
-                let face = ctx.cache.current_user().face();
-                crate::commands::shared::download_bytes(&face).await
-            }
-        };
+        let (footer_name, footer_icon) = join_footer_chrome(&ctx, &self.pool, &gid).await;
         let emoji_crown = join_button_emoji(&ctx.http, "Crown").await;
         let emoji_sparkles = join_button_emoji(&ctx.http, "Sparkles").await;
         let emoji_search = join_button_emoji(&ctx.http, "Search").await;
@@ -5730,14 +5844,15 @@ impl serenity::EventHandler for Handler {
         // image stays pending on html2png parity).
         if let Some(ch) = welcome_channel(&guild) {
             let titles = crate::lang::get_list(&lang_code, "new_guild_embed_title");
-            let pick = titles
-                .get((crate::commands::context::now_ms() as usize) % titles.len().max(1))
-                .cloned()
-                .unwrap_or_default();
+            // Uniform pick like TS `Math.floor(Math.random() * len)`; an
+            // empty list renders the literal "undefined" exactly like the
+            // TS `.replace(token, undefined)` leg (unreachable: the YAML
+            // list ships 6 titles in every locale).
+            let pick = welcome_pick(&titles, rand::random::<f64>()).unwrap_or("undefined");
             let app_id = ctx.cache.current_user().id.get();
             let mut embed = serenity::CreateEmbed::default()
                 .colour(0x2134FF_u32)
-                .description(text("new_guild_embed_desc").replace("${randomMessage}", &pick))
+                .description(text("new_guild_embed_desc").replace("${randomMessage}", pick))
                 .thumbnail(WINK_THUMB);
             if footer_icon.is_some() {
                 embed = embed.footer(
@@ -5878,11 +5993,22 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Per-guild bot bio in the join language (setBotBioByLang).
-        if let Some(bio_tpl) = crate::lang::get(&lang_code, "bot_server_bio") {
-            let command_count = crate::commands::content_leaf_count(&crate::commands::all());
-            let bio = crate::commands::botcat::sanitize_bio(
-                &bio_tpl.replace("{count}", &command_count.to_string()),
-            );
+        // `guild_join_bio` mirrors the TS chain exactly: missing/empty
+        // template returns, `{count}`/`{wink_emoji}`/`{home_emoji}` fill
+        // first-occurrence each (same markup source as the
+        // setserverlang.rs bio leg), then the 190-unit sanitize cut.
+        let wink = crate::emojis::app_emoji_markup(&ctx.http, "Wink")
+            .await
+            .unwrap_or_default();
+        let home = crate::emojis::app_emoji_markup(&ctx.http, "Home")
+            .await
+            .unwrap_or_default();
+        if let Some(bio) = guild_join_bio(
+            crate::lang::get(&lang_code, "bot_server_bio").as_deref(),
+            crate::commands::content_leaf_count(&crate::commands::all()),
+            &wink,
+            &home,
+        ) {
             if let Some(token) = crate::config::bot_token() {
                 let _ = crate::commands::botcat::patch_guild_me(
                     &token,
@@ -12110,6 +12236,71 @@ mod restore_tests {
         assert_eq!(
             render_guild_name_text(title, evil),
             "iHorizon has left x ${guild.name} y"
+        );
+    }
+
+    #[test]
+    fn guild_create_rich_matches_ts_guildcreate_battery() {
+        // Battery: scratch/slice-w7s57-guildcreate.cjs (51/51 green).
+        // Join invite-seed gate: ViewAuditLog alone proceeds (TS
+        // getInvites has no ManageGuild leg); owner bypass converges via
+        // discord.js owner-implicit bits.
+        assert!(guild_join_invite_seed_allowed(true, false));
+        assert!(guild_join_invite_seed_allowed(false, true));
+        assert!(!guild_join_invite_seed_allowed(false, false));
+        // Full bool cube vs the ready AND gate: the view-only/manage-only
+        // row is where the join leg diverges from the burst.
+        assert!(invite_seed_allowed(false, true, true));
+        assert!(!invite_seed_allowed(false, true, false));
+        // Farewell channel pick: cached system wins; uncached system and
+        // missing system fall to the uniform any-type pick; empty cache
+        // yields None (TS sends on undefined into the same catch).
+        assert_eq!(
+            blacklist_leave_channel_id(Some(2), &[1, 2, 3], 0.0),
+            Some(2)
+        );
+        assert_eq!(
+            blacklist_leave_channel_id(Some(9), &[1, 2, 3], 0.0),
+            Some(1)
+        );
+        assert_eq!(
+            blacklist_leave_channel_id(Some(9), &[1, 2, 3], 0.999),
+            Some(3)
+        );
+        assert_eq!(blacklist_leave_channel_id(None, &[1, 2, 3], 0.5), Some(2));
+        assert_eq!(blacklist_leave_channel_id(Some(9), &[], 0.0), None);
+        // Strict-flag gate on this leg reuses `blacklist_row_reason`
+        // (slice-55 semantics): only a literal-true flag fires.
+        assert!(blacklist_row_reason(r#"{"blacklisted":true,"reason":"x"}"#).is_some());
+        assert!(blacklist_row_reason(r#"{"blacklisted":false,"reason":"x"}"#).is_none());
+        assert!(blacklist_row_reason(r#"{"blacklisted":1}"#).is_none());
+        assert!(blacklist_row_reason("plain legacy string").is_none());
+        // Welcome pick: uniform index; empty list is None (call site
+        // renders the TS-verbatim "undefined" fallback).
+        let titles = vec!["a".to_string(), "b".to_string(), "c".to_string()];
+        assert_eq!(welcome_pick(&titles, 0.0), Some("a"));
+        assert_eq!(welcome_pick(&titles, 0.999), Some("c"));
+        assert_eq!(welcome_pick(&[], 0.0), None);
+        // Bio chain: missing/empty template returns; tokens fill
+        // first-occurrence each (JS String.replace semantics).
+        assert_eq!(guild_join_bio(None, 42, "W", "H"), None);
+        assert_eq!(guild_join_bio(Some(""), 42, "W", "H"), None);
+        assert_eq!(
+            guild_join_bio(
+                Some("{wink_emoji} **Bot** `+{count} cmds`"),
+                42,
+                "<:W:1>",
+                "<:H:2>"
+            ),
+            Some("<:W:1> **Bot** `+42 cmds`".to_string())
+        );
+        assert_eq!(
+            guild_join_bio(Some("{count} {count}"), 7, "W", "H"),
+            Some("7 {count}".to_string())
+        );
+        assert_eq!(
+            guild_join_bio(Some("no tokens"), 7, "W", "H"),
+            Some("no tokens".to_string())
         );
     }
 
