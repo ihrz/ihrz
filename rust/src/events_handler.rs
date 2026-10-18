@@ -885,6 +885,23 @@ fn lastfm_tracked_change(old_ch: Option<u64>, new_ch: Option<u64>, tracked: u64)
     }
 }
 
+/// LastFM voice-state gate (mirrors the early returns in
+/// lastFMScrobblerManager.ts `handleVoiceStateUpdate`: `!member`
+/// (neither state carries one), bot author, no guild session).
+/// Pure; battery: scratch/slice-w7s59-lavalinkclient.cjs (A legs).
+/// DELTA (doc-noted): the TS session is the lastFM guildSessions
+/// entry (born on track-start, dropped on track-end/leave) while the
+/// live caller resolves it to the tracked player voice channel — a
+/// voiceless player row (bot disconnected, stale voice state) skips
+/// here where TS would still detach a member leaving the stored
+/// channel. Live-narrow (session ends on track-end anyway); the
+/// attach/detach verdict itself is byte-exact via
+/// `lastfm_tracked_change` (strict-`===` on id-or-null == Option
+/// equality on the snowflake domain).
+fn lastfm_vsu_proceeds(has_member: bool, is_bot: bool, has_session: bool) -> bool {
+    has_member && !is_bot && has_session
+}
+
 /// GUILD.TTS leaf (raw JSON blob string).
 async fn tts_raw_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, "GUILD.TTS").await
@@ -9735,28 +9752,34 @@ impl serenity::EventHandler for Handler {
                 .member
                 .clone()
                 .or_else(|| old.as_ref().and_then(|o| o.member.clone()));
-            if let Some(member) = member {
-                if !member.user.bot {
-                    if let Some(tracked) = crate::lavalink::manager()
-                        .snapshot(guild_id.get())
-                        .await
-                        .and_then(|s| s.voice_channel)
-                    {
-                        let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
-                        let new_ch = new.channel_id.map(|c| c.get());
-                        match lastfm_tracked_change(old_ch, new_ch, tracked) {
-                            Some(true) => {
-                                crate::lavalink::manager()
-                                    .lastfm_member_join(guild_id.get(), member.user.id.get())
-                                    .await;
-                            }
-                            Some(false) => {
-                                crate::lavalink::manager()
-                                    .lastfm_member_leave(guild_id.get(), member.user.id.get())
-                                    .await;
-                            }
-                            None => {}
+            // Full VSU gate (mirrors the TS early returns: no member,
+            // bot author, no session). The player snapshot read is
+            // side-effect-free, so it is hoisted ahead of the
+            // member/bot checks; the verdict runs through the pure.
+            let tracked = crate::lavalink::manager()
+                .snapshot(guild_id.get())
+                .await
+                .and_then(|s| s.voice_channel);
+            if lastfm_vsu_proceeds(
+                member.is_some(),
+                member.as_ref().is_some_and(|m| m.user.bot),
+                tracked.is_some(),
+            ) {
+                if let (Some(member), Some(tracked)) = (member, tracked) {
+                    let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
+                    let new_ch = new.channel_id.map(|c| c.get());
+                    match lastfm_tracked_change(old_ch, new_ch, tracked) {
+                        Some(true) => {
+                            crate::lavalink::manager()
+                                .lastfm_member_join(guild_id.get(), member.user.id.get())
+                                .await;
                         }
+                        Some(false) => {
+                            crate::lavalink::manager()
+                                .lastfm_member_leave(guild_id.get(), member.user.id.get())
+                                .await;
+                        }
+                        None => {}
                     }
                 }
             }
@@ -13212,11 +13235,31 @@ mod restore_tests {
         let many: Vec<String> = (0..40).map(|i| format!("cmd{i}")).collect();
         assert_eq!(autocomplete_command_choices(&many, "cmd").len(), 25);
         // LastFM tracked-channel classification (attach/detach/no-op).
+        // Full 3x3 battery: scratch/slice-w7s59-lavalinkclient.cjs (A).
+        assert_eq!(lastfm_tracked_change(None, Some(7), 7), Some(true));
         assert_eq!(lastfm_tracked_change(Some(1), Some(7), 7), Some(true));
+        assert_eq!(lastfm_tracked_change(Some(2), Some(7), 7), Some(true));
+        assert_eq!(lastfm_tracked_change(Some(7), None, 7), Some(false));
         assert_eq!(lastfm_tracked_change(Some(7), Some(1), 7), Some(false));
         assert_eq!(lastfm_tracked_change(Some(7), Some(7), 7), None);
         assert_eq!(lastfm_tracked_change(None, None, 7), None);
         assert_eq!(lastfm_tracked_change(Some(1), Some(2), 7), None);
+        assert_eq!(lastfm_tracked_change(None, Some(2), 7), None);
+    }
+
+    #[test]
+    fn lastfm_vsu_gate_matches_ts_battery() {
+        // Mirrors scratch/slice-w7s59-lavalinkclient.cjs (A gate legs)
+        // 1:1: member fallback resolved by the caller, bot and
+        // no-session legs return before the attach/detach branch.
+        assert!(!lastfm_vsu_proceeds(false, false, true)); // no member
+        assert!(!lastfm_vsu_proceeds(true, true, true)); // bot author
+        assert!(!lastfm_vsu_proceeds(true, false, false)); // no session
+        assert!(!lastfm_vsu_proceeds(false, true, false)); // all shut
+        assert!(!lastfm_vsu_proceeds(false, false, false)); // all shut
+        assert!(!lastfm_vsu_proceeds(false, true, true)); // no member + bot
+        assert!(!lastfm_vsu_proceeds(true, true, false)); // bot + no session
+        assert!(lastfm_vsu_proceeds(true, false, true)); // human + session
     }
 
     #[test]

@@ -3238,6 +3238,16 @@ impl LavalinkManager {
     /// bot alone in its voice channel -> stop + leave). `occupants`
     /// counts every cached voice state in the bot channel, bot
     /// included, so `<= 1` means alone.
+    /// Battery: scratch/slice-w7s59-lavalinkclient.cjs (C) replicates
+    /// the commented TS body verbatim. TWO DEAD-CODE DELTAS (both
+    /// sides never run: the TS body is commented out, this arm sits
+    /// behind `MUSIC_EMPTY_STOP_ENABLED = false`): TS fires on
+    /// `members.size === 1` exactly (a 0-occupant stale row stays
+    /// silent) while `<= 1` also stops on 0; TS only needs the player
+    /// to exist while this also needs `current` (an idle player stays
+    /// silent here, TS would stopPlaying + notify). Kept as-is: the
+    /// disabled mirror stays one flag away, and `<= 1` + current is
+    /// the safer re-enable shape.
     pub fn should_leave_when_alone(player: &GuildPlayer, occupants: usize) -> bool {
         player.current.is_some() && occupants <= 1
     }
@@ -7714,6 +7724,41 @@ mod tests {
         m.note_voice_state(4499, Some(9), "sess-x".to_string())
             .await;
         assert!(m.snapshot(4499).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn voice_handshake_push_gate_matches_ts_raw_legs() {
+        // Mirrors the raw.ts forward + h247Manager null-endpoint
+        // invalidation (battery: scratch/slice-w7s59-lavalinkclient.cjs
+        // B): the state half alone never completes the push gate, the
+        // server half completes it once all three legs are fresh, and
+        // a null-endpoint drop clears stale creds (no push after).
+        // Packet-shape / guild-id / user-id filter legs are structural
+        // here (serenity-typed voice_state_update / voice_server_update
+        // arms): malformed packets never reach the handlers.
+        let m = LavalinkManager::new();
+        // VSTU leg only: pending noted, gate closed.
+        assert!(m
+            .note_voice_state(7, Some(9), "sess".to_string())
+            .await
+            .is_none());
+        assert!(m.take_pending_voice(7).await.is_none());
+        // VSU leg: token + endpoint fresh -> pushable.
+        assert!(m
+            .note_voice_server(7, "tok".to_string(), "ep".to_string())
+            .await
+            .is_some());
+        assert!(m.take_pending_voice(7).await.is_some());
+        // Null-endpoint packet (TS nulls token/endpoint in the h247
+        // session): drop -> gate closed, stale creds never push.
+        m.drop_pending_voice(7).await;
+        assert!(m.take_pending_voice(7).await.is_none());
+        // Leave (channel None, TS null channel_id): noted, gate closed.
+        assert!(m
+            .note_voice_state(7, None, "sess".to_string())
+            .await
+            .is_none());
+        assert!(m.take_pending_voice(7).await.is_none());
     }
 
     #[tokio::test]
