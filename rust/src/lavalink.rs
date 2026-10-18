@@ -2028,16 +2028,18 @@ impl LavalinkManager {
         if live.api_key.is_empty() || live.shared_secret.is_empty() {
             return;
         }
-        let voice_ok = live
-            .cache
-            .guild(serenity::GuildId::new(guild_id))
-            .and_then(|g| {
-                g.channels
-                    .get(&serenity::ChannelId::new(new_voice_channel))
-                    .map(|c| c.kind == serenity::ChannelType::Voice)
-            })
-            .unwrap_or(false);
-        if !voice_ok {
+        let (guild_present, kind) = {
+            let cached = live.cache.guild(serenity::GuildId::new(guild_id));
+            (
+                cached.is_some(),
+                cached.as_ref().and_then(|g| {
+                    g.channels
+                        .get(&serenity::ChannelId::new(new_voice_channel))
+                        .map(|c| c.kind)
+                }),
+            )
+        };
+        if !lastfm_sync_proceeds(guild_present, kind) {
             return;
         }
         let members = lastfm_voice_members(&live.cache, guild_id, new_voice_channel);
@@ -2265,6 +2267,20 @@ fn lastfm_voice_members(cache: &serenity::Cache, guild_id: u64, channel_id: u64)
 /// Battery: scratch `slice-w4s77-trackstart.cjs`, green 14/14.
 fn lastfm_start_channel_is_voice(kind: Option<serenity::ChannelType>) -> bool {
     matches!(kind, Some(serenity::ChannelType::Voice))
+}
+
+/// Sync gate for `syncMembersWithVoiceChannel` (mirrors the three
+/// early returns before the detach/attach loops: guild fetch miss,
+/// channel fetch miss, and `type !== GuildVoice` all return with the
+/// listeners KEPT — no detach, no attach, no finalize POST). Pure so
+/// the battery pins it.
+/// Battery: scratch `slice-w4s96-syncmembers.cjs`, green 14/14.
+/// DELTA (doc-noted, cache-race-only): TS resolves via API `fetch`
+/// (succeeds on a cold cache) while the caller feeds the serenity
+/// cache here, so a cache-cold guild/channel aborts the sync where TS
+/// would proceed; the tracked channel is gateway-warm live.
+fn lastfm_sync_proceeds(guild_present: bool, kind: Option<serenity::ChannelType>) -> bool {
+    guild_present && matches!(kind, Some(serenity::ChannelType::Voice))
 }
 
 /// Total paused time at `now` (banked + ongoing leg). Mirrors the
@@ -8116,6 +8132,41 @@ mod tests {
         assert_eq!(lastfm_move_reconcile(&[1, 7], &[1, 8]), (vec![7], vec![8]));
         // No listeners, only joiners.
         assert_eq!(lastfm_move_reconcile(&[], &[5, 6]), (vec![], vec![5, 6]));
+    }
+
+    #[test]
+    fn lastfm_sync_gate_matches_ts_fetch_legs() {
+        // Battery: scratch/slice-w4s96-syncmembers.cjs (14/14) replicating
+        // syncMembersWithVoiceChannel verbatim. Gate triple: every
+        // fetch/type miss returns with listeners KEPT (no detach, no
+        // attach) — the early return sits before any mutation in both
+        // the TS loops and drive_lastfm_move. The attach/detach SETS
+        // themselves ride lastfm_move_reconcile (pinned above); the bot
+        // filter rides lastfm_voice_members (slice-84 pin), so the gate
+        // composes them exactly.
+        use super::serenity::ChannelType::*;
+        // G1/G13: guild fetch miss -> keep (leavers pending or not).
+        assert!(!lastfm_sync_proceeds(false, Some(Voice)));
+        assert!(!lastfm_sync_proceeds(false, None));
+        // G2/G14: channel fetch miss -> keep.
+        assert!(!lastfm_sync_proceeds(true, None));
+        // G3/G4: stage/text channel -> keep.
+        assert!(!lastfm_sync_proceeds(true, Some(Stage)));
+        assert!(!lastfm_sync_proceeds(true, Some(Text)));
+        // G5/G9/G10: voice channel -> proceed (empty ops handled downstream).
+        assert!(lastfm_sync_proceeds(true, Some(Voice)));
+        // G6/G7/G11/G12 routing composition over battery vectors
+        // (members pre-filtered of bots, as lastfm_voice_members yields).
+        assert_eq!(
+            lastfm_move_reconcile(&[1, 2], &[1, 3, 2]),
+            (vec![], vec![3])
+        );
+        assert_eq!(
+            lastfm_move_reconcile(&[3, 1, 2], &[9]),
+            (vec![3, 1, 2], vec![9])
+        );
+        assert_eq!(lastfm_move_reconcile(&[5, 6], &[]), (vec![5, 6], vec![]));
+        assert_eq!(lastfm_move_reconcile(&[1, 2], &[2, 4]), (vec![1], vec![4]));
     }
 
     #[test]
