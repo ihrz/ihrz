@@ -502,4 +502,47 @@ mod tests {
         // ms from `Date.now()`): a fractional `connectedAt` renders
         // `Math.floor` in TS but has no `as_i64` counterpart here.
     }
+
+    #[test]
+    fn login_success_embed_matches_written_row() {
+        // Battery scratch `slice-w4s100-reply.cjs`, green 15/15.
+        // `!login.ts` attaches the embed ONLY on the ok leg, built
+        // from the just-written row (`generateUserEmbed` re-reads
+        // `{connectedAt, enabled: true, username: fetched}`). The
+        // Rust live site builds it from the same values in memory
+        // instead of re-reading: pin the write -> embed contract so
+        // a future write-shape change cannot silently desync them.
+        let fetched = "dj_kisa";
+        let connected_at: i64 = 1_760_000_000_123;
+        // Exact live-site write object (`table.set` payload).
+        let row = serde_json::json!({
+            "connectedAt": connected_at,
+            "enabled": true,
+            "sessionKey": "ENC",
+            "username": fetched,
+        });
+        // Row-pick legs (same as the config.rs embed reader).
+        let enabled = row
+            .get("enabled")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        let username = row.get("username").and_then(|v| v.as_str());
+        let stamp = row.get("connectedAt").and_then(|v| v.as_i64());
+        assert!(enabled);
+        assert_eq!(username, Some(fetched));
+        assert_eq!(stamp, Some(connected_at));
+        let from_row = format!(
+            "{:?}",
+            lastfm_user_embed("en-US", "Kisa", enabled, username, stamp)
+        );
+        let from_live_site = format!(
+            "{:?}",
+            lastfm_user_embed("en-US", "Kisa", true, Some(fetched), Some(connected_at))
+        );
+        assert_eq!(from_row, from_live_site);
+        assert!(from_row.contains("<t:1760000000:F>"));
+        // DELTA (doc-noted, unreachable: poise always has an
+        // author): the TS `if (!interaction.user) return` no-reply
+        // leg has no Rust counterpart by construction.
+    }
 }
