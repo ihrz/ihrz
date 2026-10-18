@@ -2278,6 +2278,30 @@ fn lastfm_finalize_posts(
     !scrobbled && lf::should_scrobble(duration_ms) && elapsed_ms >= threshold_ms
 }
 
+/// `tryScrobbleListener` timer-leg gate mirror (stale generation ->
+/// voice presence): with `finalize = false` a fired pass dies when the
+/// live session is gone or mismatched (`activeSession.trackKey !==
+/// session.trackKey`) or the member left the tracked channel
+/// (`isMemberInVoiceChannel`: fetch miss folds to `undefined === id`,
+/// false); the finalize path (track-end, detach) skips both gates and
+/// goes straight to the elapsed check.
+/// Battery: scratch `slice-w4s78-timerleg.cjs`, green 17/17.
+fn lastfm_timer_leg_proceeds(
+    session_matches: bool,
+    still_in_channel: bool,
+    finalize: bool,
+) -> bool {
+    if !finalize {
+        if !session_matches {
+            return false;
+        }
+        if !still_in_channel {
+            return false;
+        }
+    }
+    true
+}
+
 /// `scheduleScrobble` arm decision mirror: no timer for credited or
 /// sub-30s tracks; `remaining <= 0` finalizes immediately (TS calls
 /// `tryScrobbleListener(..., true)` inline); otherwise the timer arms
@@ -2503,7 +2527,9 @@ impl LavalinkManager {
             let Some(s) = sessions.get(&guild_id) else {
                 return;
             };
-            if s.track_key != track_key {
+            // Timer-leg stale-generation gate (mirrors the
+            // `activeSession.trackKey !== session.trackKey` return).
+            if !lastfm_timer_leg_proceeds(s.track_key == track_key, true, false) {
                 return;
             }
             let paused = lastfm_paused_total(s.paused_ms, s.pause_started_ms, now);
@@ -2549,7 +2575,9 @@ impl LavalinkManager {
             None => Vec::new(),
         };
         for (uid, track) in work {
-            if !present.contains(&uid) {
+            // Timer-leg presence gate (mirrors `isMemberInVoiceChannel`:
+            // a fetch miss or a move away folds to absent, no POST).
+            if !lastfm_timer_leg_proceeds(true, present.contains(&uid), false) {
                 continue;
             }
             let key = self
@@ -8209,6 +8237,27 @@ mod tests {
         // Rust lets the sleep fire once then re-arms (same credit
         // verdict, one extra wakeup); a POST landing mid-pause vs at
         // resume is timing-only.
+    }
+
+    #[test]
+    fn lastfm_timer_leg_gates_match_ts_battery() {
+        // Battery: `tryScrobbleListener` timer-leg gates (script at
+        // scratch `slice-w4s78-timerleg.cjs`, green 17/17). The stale
+        // guard + presence gate run on the timer leg only; the
+        // finalize path (track-end, detach) skips both and goes
+        // straight to the elapsed check.
+        // Timer leg: same generation + present proceeds.
+        assert!(lastfm_timer_leg_proceeds(true, true, false));
+        // Timer leg: stale generation dies (incl. gone session).
+        assert!(!lastfm_timer_leg_proceeds(false, true, false));
+        assert!(!lastfm_timer_leg_proceeds(false, false, false));
+        // Timer leg: leaver dies (fetch miss folds to absent).
+        assert!(!lastfm_timer_leg_proceeds(true, false, false));
+        // Finalize leg: both gates skipped, stale or gone alike.
+        assert!(lastfm_timer_leg_proceeds(true, true, true));
+        assert!(lastfm_timer_leg_proceeds(false, true, true));
+        assert!(lastfm_timer_leg_proceeds(false, false, true));
+        assert!(lastfm_timer_leg_proceeds(true, false, true));
     }
 
     #[tokio::test]
