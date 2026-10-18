@@ -31,8 +31,18 @@ pub fn is_invalid_session_error(code: Option<i64>, message: &str) -> bool {
 }
 
 /// `getThresholdMs` mirror: half the track, capped at 4 minutes.
+/// NOTE: the TS computes `durationMs / 2` in float, so odd durations
+/// keep a `.5` half (e.g. 30001 -> 15000.5) while both sides compare
+/// against an integer `elapsed` (`Date.now()` deltas). `elapsed >=
+/// half` on integers is exactly `elapsed >= div_ceil`, hence the
+/// ceiling here -- a plain `/ 2` floor would credit an elapsed
+/// sitting exactly on `floor(half)` that TS still rejects.
+/// Battery: scratch `slice-w4s81-threshold.cjs` (node, DIVERGES: 7
+/// on the floor; slice 89 applies the slice-81 fix to this copy --
+/// the live `lf::scrobble_threshold_ms` call sites in lavalink.rs
+/// resolve here, not to the lavalink.rs duplicate).
 pub fn scrobble_threshold_ms(duration_ms: u64) -> u64 {
-    (duration_ms / 2).min(240_000)
+    (duration_ms.div_ceil(2)).min(240_000)
 }
 
 /// `shouldScrobble` mirror: tracks under 30s never count (streams
@@ -46,8 +56,9 @@ pub fn should_scrobble(duration_ms: u64) -> bool {
 /// now-playing/scrobble `duration` field is dropped by the signer —
 /// exactly like the TS `track.info.isStream ? 0 : track.info.duration`.
 /// NOTE: the TS `getThresholdMs` keeps float halves on odd durations
-/// (`29999/2 = 14999.5`); this port halves in integers (14999), a
-/// sub-millisecond verdict edge that only narrows the wait by <1ms.
+/// (`30001/2 = 15000.5`); `scrobble_threshold_ms` above uses
+/// `div_ceil` so integer `elapsed >= half` matches TS exactly
+/// (slice-81 battery, slice-89 fix on this copy).
 pub fn normalize_lastfm_duration_ms(is_stream: bool, length_ms: u64) -> u64 {
     if is_stream {
         0
@@ -557,6 +568,12 @@ mod tests {
         assert_eq!(scrobble_threshold_ms(200_000), 100_000);
         assert_eq!(scrobble_threshold_ms(600_000), 240_000);
         assert_eq!(scrobble_threshold_ms(480_000), 240_000);
+        // Slice-89 battery (slice-w4s81-threshold.cjs): TS keeps float
+        // halves, so odd durations need the ceiling -- elapsed sitting
+        // exactly on floor(half) must still miss like TS.
+        assert_eq!(scrobble_threshold_ms(30_001), 15_001);
+        assert_eq!(scrobble_threshold_ms(59_999), 30_000);
+        assert_eq!(scrobble_threshold_ms(480_001), 240_000);
     }
 
     #[test]
