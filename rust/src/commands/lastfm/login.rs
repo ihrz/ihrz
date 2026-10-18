@@ -211,6 +211,7 @@ pub async fn lastfm_mobile_session(
         let msg = payload
             .get("message")
             .and_then(|m| m.as_str())
+            .filter(|s| !s.is_empty())
             .unwrap_or_else(|| status.canonical_reason().unwrap_or(""))
             .to_string();
         return Err((code, msg));
@@ -276,6 +277,60 @@ pub fn lastfm_user_embed(
 #[cfg(test)]
 mod tests {
     use super::{lastfm_api_sig, lastfm_signed_fields, lastfm_user_embed};
+
+    #[test]
+    fn api_sig_matches_ts_create_api_signature_vectors() {
+        // Vectors computed by the real TS `createApiSignature`
+        // (localeCompare sort + md5 hex, utf8) — battery script at
+        // scratch `slice-w4s68-sig.cjs`, green 15/15. The byte sort
+        // here orders every live key set identically (only camelCase
+        // key is `chosenByUser`, and it never collides with a
+        // case/punctuation-only neighbour), so these vectors lock the
+        // wire signature, not just self-consistency.
+        assert_eq!(
+            lastfm_api_sig(
+                &[
+                    ("album", "Alb"),
+                    ("api_key", "K"),
+                    ("artist", "Art"),
+                    ("chosenByUser", "1"),
+                    ("duration", "200"),
+                    ("method", "track.scrobble"),
+                    ("sk", "SK"),
+                    ("timestamp", "1700000000"),
+                    ("track", "Title"),
+                ],
+                "SECRET"
+            ),
+            "301d4a37a649b474c12d9ed3dc4a14ba"
+        );
+        assert_eq!(
+            lastfm_api_sig(
+                &[
+                    ("api_key", "K"),
+                    ("method", "auth.getMobileSession"),
+                    ("password", "p"),
+                    ("username", "u"),
+                ],
+                "SECRET"
+            ),
+            "07732235c0d8bb9e7150035cdfadf11b"
+        );
+        // Non-ASCII values hash as utf8, like the TS update call.
+        assert_eq!(
+            lastfm_api_sig(
+                &[("api_key", "K"), ("method", "m"), ("track", "héllo→")],
+                "S"
+            ),
+            "a08ccb870c2bf63435aaa20d6f7ddcaf"
+        );
+        // DELTAS (doc-noted, unreachable on live payloads): TS
+        // `payload.error ? Number(...) : status` also coerces string
+        // codes and folds `error: 0`/falsy to success, while the Rust
+        // `post_signed`/`lastfm_mobile_session` mapping only reads
+        // numeric codes and treats any present `error` member as
+        // failure — Last.fm always sends numeric non-zero codes.
+    }
 
     #[test]
     fn api_sig_sorts_params_and_appends_secret() {

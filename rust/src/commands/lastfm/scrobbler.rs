@@ -191,6 +191,7 @@ async fn post_signed(
         let message = payload
             .get("message")
             .and_then(|m| m.as_str())
+            .filter(|s| !s.is_empty())
             .unwrap_or_else(|| status.canonical_reason().unwrap_or(method))
             .to_string();
         return Err(LastFmError { code, message });
