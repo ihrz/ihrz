@@ -311,26 +311,48 @@ pub fn encryption_secret(api_token: &str, shared_secret: &str) -> String {
     }
 }
 
+/// `getDecryptedUserSession` outcome. `Missing` covers no row, a
+/// missing/empty `sessionKey`/`username`, and rows whose `enabled`
+/// is not literally `true` (TS checks `!auth.enabled` at the attach
+/// site, so a missing flag skips the attach exactly like `false`).
+/// `DecryptFailed` covers an undecryptable key AND an empty
+/// plaintext (TS `!decryptedSessionKey` is falsy for both) — the
+/// caller must invalidate the row, exactly like the TS getter.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DecryptedSession {
+    Missing,
+    DecryptFailed,
+    Ok((String, String)),
+}
+
 /// Decrypted per-user session for the attach leg (mirrors
-/// `getDecryptedUserSession`): needs a stored `sessionKey` +
-/// `username` and an `enabled` flag that is not false; undecryptable
-/// keys resolve to `None` and the caller invalidates the row.
+/// `getDecryptedUserSession` + the `!auth.enabled` attach gate).
 pub async fn decrypted_user_session(
     pool: &crate::db::Pool,
     user_id: u64,
     secret: &str,
-) -> Option<(String, String)> {
-    let settings = super::lastfm_settings(pool, user_id).await?;
-    if settings.get("enabled").and_then(|v| v.as_bool()) == Some(false) {
-        return None;
+) -> DecryptedSession {
+    let Some(settings) = super::lastfm_settings(pool, user_id).await else {
+        return DecryptedSession::Missing;
+    };
+    if settings.get("enabled").and_then(|v| v.as_bool()) != Some(true) {
+        return DecryptedSession::Missing;
     }
-    let enc = settings.get("sessionKey")?.as_str()?;
-    let username = settings.get("username")?.as_str()?;
+    let enc = settings
+        .get("sessionKey")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    let username = settings
+        .get("username")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
     if enc.is_empty() || username.is_empty() {
-        return None;
+        return DecryptedSession::Missing;
     }
-    let session_key = crate::funcs::decrypt_text(secret, enc)?;
-    Some((session_key, username.to_string()))
+    match crate::funcs::decrypt_text(secret, enc) {
+        Some(key) if !key.is_empty() => DecryptedSession::Ok((key, username.to_string())),
+        _ => DecryptedSession::DecryptFailed,
+    }
 }
 
 /// Invalidated settings row (mirrors `invalidateUserSession`: the
@@ -623,16 +645,25 @@ mod tests {
             .await
             .unwrap();
         // Attach leg resolves the cleartext key + username.
-        let got = decrypted_user_session(&pool, 77, secret).await.unwrap();
-        assert_eq!(got, ("sk-live".to_string(), "dj".to_string()));
-        // Wrong secret: undecryptable -> None (caller invalidates).
-        assert!(decrypted_user_session(&pool, 77, "wrong").await.is_none());
-        // Disabled rows never attach.
+        let got = decrypted_user_session(&pool, 77, secret).await;
+        assert_eq!(
+            got,
+            DecryptedSession::Ok(("sk-live".to_string(), "dj".to_string()))
+        );
+        // Wrong secret: undecryptable -> DecryptFailed (caller invalidates).
+        assert_eq!(
+            decrypted_user_session(&pool, 77, "wrong").await,
+            DecryptedSession::DecryptFailed
+        );
+        // Disabled rows never attach (no invalidate side effect).
         let off = serde_json::json!({ "enabled": false, "sessionKey": enc, "username": "dj" });
         super::super::save_lastfm_settings(&pool, 78, &off)
             .await
             .unwrap();
-        assert!(decrypted_user_session(&pool, 78, secret).await.is_none());
+        assert_eq!(
+            decrypted_user_session(&pool, 78, secret).await,
+            DecryptedSession::Missing
+        );
         // Invalidation persists the TS shape (key dropped, off).
         assert!(invalidate_user_session(&pool, 77).await.unwrap());
         let after = super::super::lastfm_settings(&pool, 77).await.unwrap();
@@ -641,6 +672,69 @@ mod tests {
         assert_eq!(after["username"], serde_json::json!("dj"));
         // Unknown user: nothing to invalidate.
         assert!(!invalidate_user_session(&pool, 999_999).await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn decrypt_getter_matches_ts_battery() {
+        // Slice-65 pin: battery cases D/E/G from
+        // scratch/slice-w4s65-decrypt.cjs (TS getDecryptedUserSession +
+        // `!auth.enabled` attach gate). Missing/empty key or user and a
+        // missing enabled flag resolve to Missing (attach skips, no row
+        // write); undecryptable keys resolve to DecryptFailed.
+        let pool = crate::db::memory_pool().await;
+        let secret = "w4s65-secret";
+        let enc = crate::funcs::encrypt_text(secret, "sk-65");
+        let put = |uid: u64, row: serde_json::Value| {
+            let pool = &pool;
+            async move {
+                super::super::save_lastfm_settings(pool, uid, &row)
+                    .await
+                    .unwrap()
+            }
+        };
+        put(
+            1,
+            serde_json::json!({ "enabled": true, "sessionKey": enc, "username": "dj" }),
+        )
+        .await;
+        put(
+            2,
+            serde_json::json!({ "enabled": true, "sessionKey": "not-encrypted", "username": "dj" }),
+        )
+        .await;
+        put(
+            3,
+            serde_json::json!({ "sessionKey": enc, "username": "dj" }),
+        )
+        .await;
+        put(4, serde_json::json!({ "enabled": true, "username": "dj" })).await;
+        put(5, serde_json::json!({ "enabled": true, "sessionKey": enc })).await;
+        // Empty plaintext decrypts to "" (falsy in TS) -> DecryptFailed.
+        let enc_empty = crate::funcs::encrypt_text(secret, "");
+        put(
+            6,
+            serde_json::json!({ "enabled": true, "sessionKey": enc_empty, "username": "dj" }),
+        )
+        .await;
+        assert_eq!(
+            decrypted_user_session(&pool, 1, secret).await,
+            DecryptedSession::Ok(("sk-65".to_string(), "dj".to_string()))
+        );
+        assert_eq!(
+            decrypted_user_session(&pool, 2, secret).await,
+            DecryptedSession::DecryptFailed
+        );
+        assert_eq!(
+            decrypted_user_session(&pool, 6, secret).await,
+            DecryptedSession::DecryptFailed
+        );
+        for uid in [3u64, 4, 5, 999_999] {
+            assert_eq!(
+                decrypted_user_session(&pool, uid, secret).await,
+                DecryptedSession::Missing,
+                "uid {uid}"
+            );
+        }
     }
 
     #[test]

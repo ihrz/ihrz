@@ -2186,7 +2186,18 @@ impl LavalinkManager {
             )
         };
         let Some((session_key, _username)) =
-            lf::decrypted_user_session(&live.pool, user_id, &live.secret).await
+            (match lf::decrypted_user_session(&live.pool, user_id, &live.secret).await {
+                // TS `getDecryptedUserSession` invalidates the row when the
+                // stored key no longer decrypts (wrong secret or empty
+                // plaintext are both falsy there); missing/disabled rows
+                // just skip the attach with no side effect.
+                lf::DecryptedSession::Ok(t) => Some(t),
+                lf::DecryptedSession::DecryptFailed => {
+                    let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                    return false;
+                }
+                lf::DecryptedSession::Missing => None,
+            })
         else {
             return false;
         };
