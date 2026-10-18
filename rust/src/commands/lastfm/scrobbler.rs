@@ -56,6 +56,23 @@ pub fn normalize_lastfm_duration_ms(is_stream: bool, length_ms: u64) -> u64 {
     }
 }
 
+/// `normalizeTrack` album leg mirror: `pluginInfo?.albumName` passes
+/// the album through untouched (missing/nullish pluginInfo, non-object
+/// pluginInfo, and a missing key all fold to `None`; empty-string stays
+/// `Some("")` and is dropped downstream by the signer, exactly like the
+/// TS `value !== ""` filter).
+/// Battery: scratch `slice-w4s88-album.cjs` (node, 17/17).
+/// DELTA (doc-noted, unreachable: Lavalink `pluginInfo` is JSON so
+/// `albumName` is always a string when present): a truthy non-string
+/// (`0`, `123`) is wired by the TS signer (URLSearchParams coerces)
+/// but folds to `None` here — strictly less garbage POSTed.
+pub fn lastfm_track_album(plugin_info: Option<&serde_json::Value>) -> Option<String> {
+    plugin_info
+        .and_then(|v| v.get("albumName"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+}
+
 /// `getElapsedListeningMs` mirror: wall time minus the start minus
 /// banked pauses minus any still-open pause.
 pub fn elapsed_listening_ms(
@@ -565,6 +582,42 @@ mod tests {
         assert_eq!(
             scrobble_threshold_ms(normalize_lastfm_duration_ms(true, 3_600_000)),
             0
+        );
+    }
+
+    #[test]
+    fn track_album_matches_ts_normalize_legs() {
+        // `normalizeTrack` album leg (`pluginInfo?.albumName`):
+        // battery scratch/slice-w4s88-album.cjs (node, 17/17).
+        use serde_json::json;
+        // Missing/nullish pluginInfo folds to None (the common
+        // YouTube case: no album POSTed, signer drops the param).
+        assert_eq!(lastfm_track_album(None), None);
+        // Non-object pluginInfo never throws under `?.` — folds None.
+        for v in [json!(5), json!("x"), json!(true), json!([]), json!(null)] {
+            assert_eq!(lastfm_track_album(Some(&v)), None);
+        }
+        // Object without the key, or an explicit null, folds None
+        // (TS null is dropped by the signer's `!== ""` filter too).
+        assert_eq!(lastfm_track_album(Some(&json!({}))), None);
+        assert_eq!(
+            lastfm_track_album(Some(&json!({ "albumName": null }))),
+            None
+        );
+        // Empty string passes through and is dropped downstream by
+        // the signer on both sides — never normalized early here.
+        assert_eq!(
+            lastfm_track_album(Some(&json!({ "albumName": "" }))),
+            Some(String::new())
+        );
+        // Whitespace + real albums wire verbatim into both POSTs.
+        assert_eq!(
+            lastfm_track_album(Some(&json!({ "albumName": "  " }))),
+            Some("  ".to_string())
+        );
+        assert_eq!(
+            lastfm_track_album(Some(&json!({ "albumName": "Alb" }))),
+            Some("Alb".to_string())
         );
     }
 

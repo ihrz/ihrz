@@ -1646,6 +1646,10 @@ pub struct LastfmTrackStart {
     pub duration_ms: u64,
     /// Lavalink `isStream` leg of `normalizeTrack`.
     pub is_stream: bool,
+    /// `normalizeTrack` album leg (`pluginInfo?.albumName`): `None`
+    /// when the node sends no plugin album (the common YouTube case),
+    /// wired into now-playing + scrobble payloads otherwise.
+    pub album: Option<String>,
     pub requester: u64,
     pub now_ms: i64,
     pub voice_channel: Option<u64>,
@@ -1818,6 +1822,9 @@ impl LavalinkManager {
                 title: ev.track.info.title.clone(),
                 duration_ms: ev.track.info.length,
                 is_stream: ev.track.info.is_stream,
+                album: crate::commands::lastfm::scrobbler::lastfm_track_album(
+                    ev.track.plugin_info.as_ref(),
+                ),
                 requester,
                 now_ms: now_ms_wall(),
                 voice_channel,
@@ -1869,6 +1876,7 @@ impl LavalinkManager {
                 artist: start.artist.clone(),
                 title: start.title.clone(),
                 duration_ms,
+                album: start.album.clone(),
                 requester: start.requester,
                 started_ms: start.now_ms,
                 paused_ms: 0,
@@ -2084,7 +2092,7 @@ impl LavalinkManager {
                     let track = lf::ScrobbleTrack {
                         artist: session.artist.clone(),
                         title: session.title.clone(),
-                        album: None,
+                        album: session.album.clone(),
                         duration_ms: session.duration_ms,
                         started_sec: l.started_ms / 1000,
                     };
@@ -2467,6 +2475,7 @@ impl LavalinkManager {
                 s.title.clone(),
                 s.duration_ms,
                 lf::scrobble_threshold_ms(s.duration_ms),
+                s.album.clone(),
             )
         };
         let Some((session_key, _username)) =
@@ -2488,7 +2497,7 @@ impl LavalinkManager {
         let track = lf::ScrobbleTrack {
             artist: snapshot.0,
             title: snapshot.1,
-            album: None,
+            album: snapshot.4,
             duration_ms: snapshot.2,
             started_sec: now_ms / 1000,
         };
@@ -2570,7 +2579,7 @@ impl LavalinkManager {
                         lf::ScrobbleTrack {
                             artist: s.artist.clone(),
                             title: s.title.clone(),
-                            album: None,
+                            album: s.album.clone(),
                             duration_ms: s.duration_ms,
                             started_sec: l.started_ms / 1000,
                         },
@@ -2750,7 +2759,7 @@ impl LavalinkManager {
         let track = crate::commands::lastfm::scrobbler::ScrobbleTrack {
             artist: s.artist.clone(),
             title: s.title.clone(),
-            album: None,
+            album: s.album.clone(),
             duration_ms: s.duration_ms,
             started_sec: l.started_ms / 1000,
         };
@@ -5105,6 +5114,10 @@ pub struct LastFmSession {
     /// Tracked voice channel (mirrors `session.voiceChannelId`,
     /// re-synced on `playerMove` via `lastfm_player_move`).
     pub voice_channel_id: Option<u64>,
+    /// Track album from `normalizeTrack` (`pluginInfo?.albumName`;
+    /// `None` folds to a dropped param in both POSTs, exactly like
+    /// the TS signer dropping `undefined`/`""`).
+    pub album: Option<String>,
     /// Track identity for staleness checks (mirrors `trackKey`:
     /// a new trackStart replaces the session, orphaning in-flight
     /// drive tasks which must not POST for the old track).
@@ -7996,6 +8009,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8011,6 +8025,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8024,6 +8039,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8042,6 +8058,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8138,6 +8155,7 @@ mod tests {
                     artist: "a".into(),
                     title: "t".into(),
                     duration_ms: 200_000,
+                    album: None,
                     requester: 7,
                     started_ms: 0,
                     paused_ms: 0,
@@ -8210,6 +8228,7 @@ mod tests {
                     artist: "a".into(),
                     title: "t".into(),
                     duration_ms,
+                    album: None,
                     requester: 7,
                     started_ms: 0,
                     paused_ms: 0,
@@ -8456,6 +8475,7 @@ mod tests {
             title: "radio".into(),
             duration_ms: 3_600_000,
             is_stream: true,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8482,6 +8502,7 @@ mod tests {
                     artist: "a".into(),
                     title: "t".into(),
                     duration_ms: 200_000,
+                    album: None,
                     requester: 7,
                     started_ms: 0,
                     paused_ms: 0,
@@ -8541,6 +8562,7 @@ mod tests {
                     artist: "a".into(),
                     title: "t".into(),
                     duration_ms: 200_000,
+                    album: None,
                     requester: 7,
                     started_ms: 0,
                     paused_ms: 0,
@@ -8603,6 +8625,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 1_000,
             voice_channel: Some(5),
@@ -8629,6 +8652,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 1_000,
             voice_channel: vc,
@@ -8828,6 +8852,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(1),
@@ -8894,6 +8919,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8931,6 +8957,7 @@ mod tests {
             title: "t".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -8981,6 +9008,7 @@ mod tests {
             title: "a".into(),
             duration_ms: 200_000,
             is_stream: false,
+            album: None,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
