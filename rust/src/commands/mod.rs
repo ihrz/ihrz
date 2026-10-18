@@ -1173,7 +1173,9 @@ mod tests {
             ("clear", &["number", "member"]),
             // TS economy group `role`: leaf `add` (was flat `role-add`).
             ("add", &["role", "amount"]),
-            ("autorenew", &["channel", "time"]),
+            // autorenew: decl `channel` is Option for the prefix null-flow
+            // (283f213ae); poise emits required-first, hence time-first.
+            ("autorenew", &["time", "channel"]),
             ("dm", &["private", "member", "message"]),
             ("vkick", &["member"]),
             ("wakeup", &["member"]),

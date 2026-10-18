@@ -193,7 +193,12 @@ mod tests {
                     ("part-of-nickname", false),
                 ],
             ),
-            ("autorenew", &[("channel", true), ("time", true)]),
+            // autorenew: `channel` is Option in the decl (283f213ae prefix
+            // null-flow: TS method.channel null must reach the body for
+            // the counts-first gate, never poise ArgumentParse). Poise
+            // emits required-before-optional, hence time-first here;
+            // slash names/kinds unchanged (rolelimit/massmove precedent).
+            ("autorenew", &[("time", true), ("channel", false)]),
             // massmove `channel` stays optional in code (TS slash says
             // required, but the prefix null path is a silent return like
             // `if (toChannel === null) return`).
