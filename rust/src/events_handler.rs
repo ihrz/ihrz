@@ -153,6 +153,29 @@ pub fn invite_create_proceeds(has_guild: bool, view_audit_log: bool) -> bool {
     has_guild && view_audit_log
 }
 
+/// Invite-delete purge. Mirrors invitemanager/onInviteDelete.ts
+/// `client.invites.get(invite.guild?.id!)?.delete(invite.code)`: a
+/// missing guild (absent row, or no guild on the payload so the lookup
+/// key is undefined) is a silent no-op via `?.`; a present row drops
+/// only the code while the emptied row itself is kept (D5). Returns
+/// whether a code entry was removed (the TS boolean is discarded).
+pub fn invite_delete_code(cache: &mut InviteCache, guild_id: Option<&str>, code: &str) -> bool {
+    let Some(gid) = guild_id else {
+        return false;
+    };
+    cache
+        .get_mut(gid)
+        .map(|row| row.remove(code).is_some())
+        .unwrap_or(false)
+}
+
+/// Guild-leave invite-cache drop. Mirrors invitemanager/onGuildLeave.ts
+/// `client.invites.delete(guild.id)`: unconditional, a miss is a silent
+/// no-op. Returns whether a guild row was dropped.
+pub fn invite_leave_guild(cache: &mut InviteCache, guild_id: &str) -> bool {
+    cache.remove(guild_id).is_some()
+}
+
 // tbl_* routing lives in crate::db (single home, C5); the forks that
 // lived here are deleted and call sites below use `crate::db::tbl_*`.
 
@@ -6096,7 +6119,7 @@ impl serenity::EventHandler for Handler {
         // Drop the legacy immediate flag (migration from the old design).
         let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
-        self.invites.lock().await.remove(&gid);
+        invite_leave_guild(&mut *self.invites.lock().await, &gid);
         // Drop the H247 in-memory session + serving-shard mirror (the
         // persisted GUILD.H247 row itself is wiped with everything else
         // by the deferred queue above).
@@ -11488,13 +11511,9 @@ impl serenity::EventHandler for Handler {
 
     async fn invite_delete(&self, _ctx: serenity::Context, deletion: serenity::InviteDeleteEvent) {
         // Mirrors invitemanager/onInviteDelete.ts: purge cache entry.
-        let Some(guild_id) = deletion.guild_id else {
-            return;
-        };
         let mut cache = self.invites.lock().await;
-        if let Some(guild) = cache.get_mut(&guild_id.get().to_string()) {
-            guild.remove(&deletion.code);
-        }
+        let gid = deletion.guild_id.map(|g| g.get().to_string());
+        invite_delete_code(&mut *cache, gid.as_deref(), &deletion.code);
     }
 
     /// Support role sync (mirrors utils/supportModule.ts): grant or
@@ -14925,6 +14944,49 @@ mod component_registry_tests {
         assert!(!invite_create_proceeds(false, false));
         assert!(!invite_create_proceeds(true, false));
         assert!(invite_create_proceeds(true, true));
+    }
+
+    #[test]
+    fn invite_delete_leave_match_ts_invite_delete_battery() {
+        // Battery scratch/slice-w7s61-invitedelete.cjs (green 7/7)
+        // replicating onInviteDelete.ts `get(id)?.delete(code)` + the
+        // onGuildLeave.ts unconditional `delete(guild.id)` verbatim.
+        let mut cache: InviteCache = [(
+            "g1".to_string(),
+            [
+                ("abc".to_string(), (3u64, 0u64)),
+                ("def".to_string(), (1u64, 0u64)),
+            ]
+            .into_iter()
+            .collect(),
+        )]
+        .into_iter()
+        .collect();
+        // D1: present code removed, sibling kept.
+        assert!(invite_delete_code(&mut cache, Some("g1"), "abc"));
+        assert_eq!(cache["g1"].len(), 1);
+        assert!(cache["g1"].contains_key("def"));
+        // D2: absent code is a no-op.
+        assert!(!invite_delete_code(&mut cache, Some("g1"), "zzz"));
+        assert_eq!(cache["g1"].len(), 1);
+        // D3: guild absent from the map is a no-op (the `?.` leg).
+        assert!(!invite_delete_code(&mut cache, Some("g9"), "abc"));
+        assert_eq!(cache.len(), 1);
+        // D4: no guild on the payload (undefined lookup key) is a no-op.
+        assert!(!invite_delete_code(&mut cache, None, "abc"));
+        assert_eq!(cache.len(), 1);
+        // D5: last code removed, the emptied guild row is kept.
+        assert!(invite_delete_code(&mut cache, Some("g1"), "def"));
+        assert!(cache.contains_key("g1") && cache["g1"].is_empty());
+        // L1/L2: leave drops the whole row; a miss is a silent no-op.
+        cache.insert(
+            "g2".to_string(),
+            [("b".to_string(), (2u64, 0u64))].into_iter().collect(),
+        );
+        assert!(invite_leave_guild(&mut cache, "g2"));
+        assert!(!cache.contains_key("g2"));
+        assert!(!invite_leave_guild(&mut cache, "g9"));
+        assert_eq!(cache.len(), 1);
     }
 }
 
