@@ -253,6 +253,37 @@ mod tests {
         assert!(!lastfm_has_session(&serde_json::json!({})));
     }
 
+    /// W4 slice-76 battery (`hasUserSession` +
+    /// `setEnabled` enable-gate, script at
+    /// scratch `slice-w4s76-hassession.cjs`, 14/14 green):
+    /// the gate `enabled && (!settings?.sessionKey ||
+    /// !settings.username)` reduces to `!hasUserSession` on every
+    /// leg (the bare `.username` read is saved by `||`
+    /// short-circuit on nullish rows), so the single
+    /// `lastfm_has_session` check serves both call sites.
+    /// DELTA (unreachable: writers store strings): truthy
+    /// non-strings (`12345`, `true`) pass the TS `Boolean`
+    /// gate but fold to `false` here -- strictly safer.
+    #[test]
+    fn has_session_matches_ts_battery() {
+        // Empty user folds like the empty key (TS `&&` falsy).
+        assert!(!lastfm_has_session(
+            &serde_json::json!({ "username": "", "sessionKey": "k" })
+        ));
+        // Whitespace is truthy on both sides.
+        assert!(lastfm_has_session(
+            &serde_json::json!({ "username": "dj", "sessionKey": " " })
+        ));
+        // Falsy scalars block on both sides.
+        assert!(!lastfm_has_session(
+            &serde_json::json!({ "username": "dj", "sessionKey": 0 })
+        ));
+        assert!(!lastfm_has_session(
+            &serde_json::json!({ "username": "dj", "sessionKey": null })
+        ));
+        assert!(!lastfm_has_session(&serde_json::json!(null)));
+    }
+
     #[test]
     fn guild_switch_parses() {
         assert!(guild_lastfm_enabled(Some("1")));
