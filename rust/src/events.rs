@@ -414,9 +414,9 @@ async fn close_voice_session(
         let _ = crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
             .await;
     }
-    let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     // TS-shape voice history (`voices[]` records) for the
-    // dashboard/gateway; aggregate write below stays for old readers.
+    // dashboard/gateway. No aggregate row: TS stores histories only
+    // (loaders merge both shapes for old rows).
     crate::commands::stats::main::push_ts_stats_voice(
         pool,
         guild_id,
@@ -424,24 +424,6 @@ async fn close_voice_session(
         close.channel_id,
         close.start,
         close.now_ms,
-    )
-    .await;
-    // Exact elapsed ms (TS stores exact start/end timestamps; the old
-    // whole-minutes truncation lost up to ~59.9s per session).
-    stats.voice_ms += elapsed_ms;
-    stats.voice_log = crate::commands::stats::main::push_voice_log(
-        stats.voice_log,
-        crate::commands::stats::main::StatsVoice {
-            start_ts: close.start,
-            end_ts: close.now_ms,
-            channel_id: close.channel_id,
-        },
-    );
-    let _ = crate::db::tbl_set_json(
-        pool,
-        guild_id,
-        &crate::commands::stats::main::stats_key(user_id),
-        &stats,
     )
     .await;
     (minutes, coins)
@@ -1241,8 +1223,9 @@ pub async fn record_message_activity_full(
     // STATS always (mirrors Events/stats/onNewMessage.ts: per-user rows
     // only — TS has no per-channel counter writer; channel-stats
     // aggregates from USER msg_log/voice_log instead). TS-shape push
-    // (`messages[]` records) so the dashboard/gateway sees activity;
-    // the aggregate row write below stays for old readers.
+    // (`messages[]` records) so the dashboard/gateway sees activity.
+    // No aggregate row: TS stores histories only, totals derive from
+    // array lengths (loaders merge both shapes for old rows).
     crate::commands::stats::main::push_ts_stats_message(
         pool,
         guild_id,
@@ -1252,24 +1235,6 @@ pub async fn record_message_activity_full(
         now_ms,
     )
     .await;
-    let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
-    stats.messages += 1;
-    stats.msg_log = crate::commands::stats::main::push_msg_log(
-        stats.msg_log,
-        crate::commands::stats::main::StatsMessage {
-            sent_ts: now_ms,
-            content_len,
-            channel_id,
-        },
-    );
-    let _ = crate::db::tbl_set_json(
-        pool,
-        guild_id,
-        &crate::commands::stats::main::stats_key(user_id),
-        &stats,
-    )
-    .await;
-
     let entry = crate::commands::ranks::main::load_rank(pool, guild_id, user_id).await;
     let no_xp = |level: u64| XpMessageOutcome {
         level,
