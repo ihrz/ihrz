@@ -8829,6 +8829,70 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn clear_guild_session_orphans_die_quietly() {
+        // Mirrors scratch/slice-w4s94-clear.cjs (U-ETERNAL-459): TS
+        // `clearGuildSession` clears every listener timeout (the
+        // callback never fires) then deletes the guild row, and
+        // `handleTrackEnd`/`handleQueueEnd` both funnel through it
+        // (track-end finalizes first unless `loadFailed`). Rust holds
+        // no per-listener timer — the drive task is detached — so the
+        // orphaned pass fires but must die silently: a missing
+        // session returns before any POST, and a stale generation
+        // key returns without touching the live session.
+        let m = LavalinkManager::new();
+        m.register_lastfm_live(
+            std::sync::Arc::new(serenity::Cache::default()),
+            crate::db::memory_pool().await,
+            "key".into(),
+            "secret".into(),
+            "api-token".into(),
+        )
+        .await;
+        let live = m.lastfm_live.lock().await.clone().unwrap();
+        let seed = async |gid: u64, key: &str| {
+            m.lastfm_sessions.lock().await.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms: 200_000,
+                    album: None,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: None,
+                    track_key: key.into(),
+                    listeners: HashMap::from([(
+                        100u64,
+                        LastfmListener {
+                            session_key: "k".into(),
+                            username: "u".into(),
+                            started_ms: 0,
+                            threshold_ms: 100_000,
+                            scrobbled: false,
+                            pause_base_ms: 0,
+                        },
+                    )]),
+                },
+            );
+        };
+        // Queue-end drops the row; the orphaned drive with the old
+        // key is a total noop (no POST, nothing re-armed).
+        seed(51, "k1").await;
+        m.lastfm_queue_end(51).await;
+        m.lastfm_finalize_due(&live, 51, "k1").await;
+        assert!(m.lastfm_sessions.lock().await.get(&51).is_none());
+        // Stale generation: live session keeps its listener uncredited.
+        seed(52, "k2").await;
+        m.lastfm_finalize_due(&live, 52, "k1").await;
+        let s = m.lastfm_sessions.lock().await;
+        let live52 = s.get(&52).expect("live session survives a stale pass");
+        assert_eq!(live52.track_key, "k2");
+        assert!(!live52.listeners[&100].scrobbled);
+    }
+
     #[test]
     fn lastfm_presence_miss_folds_to_absent() {
         // Mirrors scratch/slice-w4s84-presence.cjs guild-miss leg
