@@ -1962,7 +1962,11 @@ impl LavalinkManager {
                 use crate::commands::lastfm::scrobbler as lf;
                 for (uid, l) in session.listeners.iter() {
                     if l.scrobbled
-                        || lastfm_listener_elapsed(l.started_ms, paused, now_ms) < l.threshold_ms
+                        || lastfm_listener_elapsed(
+                            l.started_ms,
+                            lastfm_listener_paused_share(paused, l.pause_base_ms),
+                            now_ms,
+                        ) < l.threshold_ms
                     {
                         continue;
                     }
@@ -2057,6 +2061,15 @@ fn lastfm_paused_total(paused_ms: u64, pause_started_ms: Option<i64>, now_ms: i6
         + pause_started_ms
             .map(|s| (now_ms - s).max(0) as u64)
             .unwrap_or(0)
+}
+
+/// Listener pause share at `now`: the session paused total minus
+/// what was already banked when this listener attached (mirrors TS
+/// per-listener `pausedDurationMs` + ongoing `pausedStartedAt`, both
+/// starting at attach). Saturates: a total read older than the base
+/// (clock skew across lock re-takes) charges zero, never wraps.
+fn lastfm_listener_paused_share(paused_total_now_ms: u64, pause_base_ms: u64) -> u64 {
+    paused_total_now_ms.saturating_sub(pause_base_ms)
 }
 
 /// Listener elapsed listening ms (mirrors `getElapsedListeningMs`).
@@ -2178,6 +2191,11 @@ impl LavalinkManager {
                 started_ms: now_ms,
                 threshold_ms: snapshot.3,
                 scrobbled: false,
+                // Per-listener pause banking starts at attach (TS
+                // `pausedDurationMs: 0` + `pausedStartedAt:
+                // session.paused ? now : undefined`): snapshot the
+                // session total so pre-attach pause never charges.
+                pause_base_ms: lastfm_paused_total(s.paused_ms, s.pause_started_ms, now_ms_wall()),
             },
         );
         true
@@ -2205,7 +2223,11 @@ impl LavalinkManager {
                 .iter()
                 .filter(|(_, l)| {
                     !l.scrobbled
-                        && lastfm_listener_elapsed(l.started_ms, paused, now) >= l.threshold_ms
+                        && lastfm_listener_elapsed(
+                            l.started_ms,
+                            lastfm_listener_paused_share(paused, l.pause_base_ms),
+                            now,
+                        ) >= l.threshold_ms
                 })
                 .map(|(uid, l)| {
                     (
@@ -2301,7 +2323,10 @@ impl LavalinkManager {
         let due = !l.scrobbled
             && lastfm_listener_elapsed(
                 l.started_ms,
-                lastfm_paused_total(s.paused_ms, s.pause_started_ms, now),
+                lastfm_listener_paused_share(
+                    lastfm_paused_total(s.paused_ms, s.pause_started_ms, now),
+                    l.pause_base_ms,
+                ),
                 now,
             ) >= l.threshold_ms;
         let track = crate::commands::lastfm::scrobbler::ScrobbleTrack {
@@ -4665,6 +4690,13 @@ pub struct LastfmListener {
     pub started_ms: i64,
     pub threshold_ms: u64,
     pub scrobbled: bool,
+    /// Session paused total already banked when this listener
+    /// attached. TS banks pause per listener (`pausedDurationMs` /
+    /// `pausedStartedAt` start at attach: `pausedStartedAt:
+    /// session.paused ? Date.now() : undefined`), so a member joining
+    /// mid-pause (or after a pause cycle) is only charged for pause
+    /// time from its own attach — never for pause that predates it.
+    pub pause_base_ms: u64,
 }
 
 /// Live driver credentials (mirrors the client + config the TS
@@ -7606,6 +7638,34 @@ mod tests {
         );
         // Pause longer than the listen clamps at zero, never wraps.
         assert_eq!(lastfm_listener_elapsed(59_000, 5_000, 60_000), 0);
+    }
+
+    #[test]
+    fn lastfm_late_joiner_pause_matches_ts_battery() {
+        // Battery: pause 1000..3000, end at 5000 (script at scratch
+        // `slice-w4s63-pause.cjs`). TS banks pause per listener from
+        // ITS attach; the share helper replays that exactly.
+        // A (attached 0, pre-pause): full 2000 banked -> 3000.
+        assert_eq!(lastfm_listener_paused_share(2000, 0), 2000);
+        assert_eq!(
+            lastfm_listener_elapsed(0, lastfm_listener_paused_share(2000, 0), 5000),
+            3000
+        );
+        // B (joined mid-pause at 2000, base 1000 = ongoing leg at
+        // attach): banks 1000 -> 2000 elapsed, clears a 1500 threshold.
+        assert_eq!(lastfm_listener_paused_share(2000, 1000), 1000);
+        assert_eq!(
+            lastfm_listener_elapsed(2000, lastfm_listener_paused_share(2000, 1000), 5000),
+            2000
+        );
+        // C (joined at 4000 after the cycle, base 2000): banks 0.
+        assert_eq!(lastfm_listener_paused_share(2000, 2000), 0);
+        assert_eq!(
+            lastfm_listener_elapsed(4000, lastfm_listener_paused_share(2000, 2000), 5000),
+            1000
+        );
+        // Stale total older than the base saturates to zero credit.
+        assert_eq!(lastfm_listener_paused_share(500, 2000), 0);
     }
 
     #[tokio::test]
