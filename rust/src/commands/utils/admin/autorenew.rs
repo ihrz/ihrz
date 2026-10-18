@@ -5,6 +5,7 @@ use super::*;
 #[poise::command(
     slash_command,
     prefix_command,
+    discard_spare_arguments,
     category = "utils",
     rename = "autorenew",
     default_member_permissions = "ADMINISTRATOR",
@@ -20,8 +21,18 @@ pub async fn autorenew(
     #[description_localized("ru", "Канал для обновления каждые X раз")]
     #[description_localized("es-ES", "El canal a renovar cada X veces")]
     #[description = "The channel to renew every x times"]
+    // Prefix null-flow (massiverole.rs precedent): TS
+    // `method.channel(interaction, args, 0)` can return null on the
+    // prefix path, and checkCommandArgs only gates COUNTS before run
+    // (entity validation happens inside run via method.channel, never
+    // as a framework parse error). `Option` + `discard_spare_arguments`
+    // keeps poise from hard-erroring as ArgumentParse before the body,
+    // so the counts-first gate below answers short input the TS way
+    // (missingIndex=args.length flags `time`, never the present token).
+    // Slash surface keeps the same `channel` / `time` names and option
+    // kinds; only requiredness relaxes.
     #[channel_types("Text")]
-    channel: poise::serenity_prelude::GuildChannel,
+    channel: Option<poise::serenity_prelude::GuildChannel>,
     #[description_localized("fr", "Le temps x")]
     #[description_localized("ja", "X回")]
     #[description_localized("ru", "X раз")]
@@ -43,7 +54,23 @@ pub async fn autorenew(
             crate::bot::prefix_usage_denial(ctx, None).await;
             return Ok(());
         }
+        // Complete args but the channel token resolved to nothing (TS
+        // method.channel null): flag the present token like TS
+        // isValidArgument case "channel" (prod HZ89 `+util autorenew
+        // #general 10m`-class input flags index 0 `channel`).
+        if channel.is_none() {
+            let first = crate::bot::prefix_args::split_caret_args(pctx.args)
+                .into_iter()
+                .next();
+            crate::bot::prefix_usage_denial(ctx, first).await;
+            return Ok(());
+        }
     }
+    // Slash-side None is unreachable (Discord enforces the required
+    // channel option); the prefix null leg above already returned.
+    let Some(channel) = channel else {
+        return Ok(());
+    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

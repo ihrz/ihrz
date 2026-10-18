@@ -527,6 +527,12 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // the poise param is Option (prefix null-flow), so the generic
         // render would emit `<roles>`.
         ("util addrolereact", "role") => Some(("roles", true)),
+        // util.ts autorenew/channel: required:true Channel option
+        // (prod HZ89 answers `.util autorenew #general` with
+        // `.autorenew [channel] [string]`, caret on `[string]`), but
+        // the poise param is Option (prefix null-flow, gated
+        // in-handler), so the generic render would emit `<channel>`.
+        ("util autorenew", "channel") => Some(("channel", true)),
         // gw.ts create options: winner/time/requirement/prize are
         // required:true (prod HZ57 answers `.gw create 3` with
         // `+gw-create [number] [string] [none/invites/messages/roles]
@@ -567,6 +573,11 @@ pub fn ts_param_order(qualified: &str) -> Option<&'static [&'static str]> {
             "requirement-value",
             "image",
         ]),
+        // util.ts autorenew options: channel, time (the poise channel
+        // param is Option for the prefix null-flow, so poise 0.6 sorts
+        // it after the required `time`; prod HZ89 renders declaration
+        // order `.autorenew [channel] [string]`).
+        "util autorenew" => Some(&["channel", "time"]),
         _ => None,
     }
 }
@@ -1127,6 +1138,15 @@ mod tests {
             Some(("roles", true))
         );
         assert_eq!(choice_token_override("util addrolereact", "other"), None);
+        // util autorenew/channel: TS decl required:true renders
+        // `[channel]` (prod HZ89: `.autorenew [channel] [string]`,
+        // caret on `[string]` for short input) — never the
+        // poise-erased `<channel>`.
+        assert_eq!(
+            choice_token_override("util autorenew", "channel"),
+            Some(("channel", true))
+        );
+        assert_eq!(choice_token_override("util autorenew", "other"), None);
         // gw create keeps TS declaration order (poise 0.6 sorts the
         // required `time` first; prod HZ57 renders winner first).
         assert_eq!(
@@ -1143,5 +1163,12 @@ mod tests {
             )
         );
         assert_eq!(ts_param_order("gw end"), None);
+        // util autorenew keeps TS declaration order (poise 0.6 sorts
+        // the Option `channel` after the required `time`; prod HZ89
+        // renders `.autorenew [channel] [string]`).
+        assert_eq!(
+            ts_param_order("util autorenew"),
+            Some(&["channel", "time"][..])
+        );
     }
 }
