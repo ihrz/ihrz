@@ -31,6 +31,19 @@ pub async fn autorenew(
     #[rename = "time"]
     every: String,
 ) -> Result<(), anyhow::Error> {
+    // Prefix counts-first gate (TS util.ts autorenew decl: `channel` +
+    // `time` both required, executor checkCommandArgs runs before run
+    // and flags missingIndex=args.length): 1 token renders the caret
+    // usage embed flagging index 1 (`[string]`), never a resolution
+    // failure on the present token (prod HZ86 `+util autorenew
+    // #general` flags "string"; addrolereact_prefix_complete
+    // precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if !autorenew_prefix_complete(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -130,6 +143,15 @@ pub fn classify_autorenew(ms: Option<i64>) -> AutorenewDecision {
     }
 }
 
+/// Prefix completeness gate: channel + time (2 whitespace-separated
+/// tokens minimum). Below that a required arg is missing, so the caller
+/// renders the caret usage embed flagging the missing index (TS
+/// checkCommandArgs missingIndex=args.length) instead of letting poise
+/// fail entity resolution on the present token (addrolereact precedent).
+pub fn autorenew_prefix_complete(args: &str) -> bool {
+    args.split_whitespace().count() >= 2
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,5 +175,14 @@ mod tests {
             classify_autorenew(Some(2_629_800_001)),
             AutorenewDecision::TooLong
         );
+    }
+
+    #[test]
+    fn prefix_gate_needs_both_required_args() {
+        // Live HZ86 leg: a lone channel token must take the usage leg
+        // (caret flags the missing `time`), never channel resolution.
+        assert!(!autorenew_prefix_complete(""));
+        assert!(!autorenew_prefix_complete("#general"));
+        assert!(autorenew_prefix_complete("#general 10m"));
     }
 }

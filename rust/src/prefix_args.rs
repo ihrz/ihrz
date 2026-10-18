@@ -521,6 +521,12 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // falls back to the invoker), so the generic render would emit
         // `<user>`.
         ("fun image youtube", "user") => Some(("user", true)),
+        // util.ts addrolereact/role: required:true Role option (prod
+        // HZ86 answers `.util addrolereact <id>` with
+        // `+addrolereact [string] [roles]`, caret on `[roles]`), but
+        // the poise param is Option (prefix null-flow), so the generic
+        // render would emit `<roles>`.
+        ("util addrolereact", "role") => Some(("roles", true)),
         // gw.ts create options: winner/time/requirement/prize are
         // required:true (prod HZ57 answers `.gw create 3` with
         // `+gw-create [number] [string] [none/invites/messages/roles]
@@ -1113,6 +1119,14 @@ mod tests {
         );
         assert_eq!(choice_token_override("gw create", "time"), None);
         assert_eq!(choice_token_override("gw create", "other"), None);
+        // util addrolereact/role: TS decl required:true renders
+        // `[roles]` (prod HZ86: `+addrolereact [string] [roles]`,
+        // caret on `[roles]`) — never the poise-erased `<roles>`.
+        assert_eq!(
+            choice_token_override("util addrolereact", "role"),
+            Some(("roles", true))
+        );
+        assert_eq!(choice_token_override("util addrolereact", "other"), None);
         // gw create keeps TS declaration order (poise 0.6 sorts the
         // required `time` first; prod HZ57 renders winner first).
         assert_eq!(
