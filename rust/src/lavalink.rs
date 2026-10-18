@@ -2199,10 +2199,27 @@ fn lastfm_move_reconcile(listeners: &[u64], members: &[u64]) -> (Vec<u64>, Vec<u
 /// Non-bot member ids of a voice channel. Mirrors the
 /// `voiceChannel.members` scan in `syncMembersWithVoiceChannel` (TS
 /// reads the cached guild voice states; same source here — there is
-/// no list-voice-members REST endpoint).
+/// no list-voice-members REST endpoint) and the verdict of
+/// `isMemberInVoiceChannel` on the timer leg (member's channel `===`
+/// tracked id). Battery: scratch `slice-w4s84-presence.cjs`, green
+/// 12/12 (guild-miss, cache-hit same/other/voiceless, cache-miss +
+/// fetch-hit same/other/voiceless, fetch-miss, cache short-circuit).
 /// Members without a resolved `member` are kept: they carry no row
 /// downstream (`decrypted_user_session` finds nothing), so the
 /// fail-open cannot POST.
+/// (DELTA, doc-noted, no code change: TS resolves a cache-missed
+/// member via REST `members.fetch`, so a member in-channel but absent
+/// from the local voice-state cache reads present there and absent
+/// here (timer skips a scrobble TS would POST), while a transient
+/// fetch failure reads absent there and present here. Both windows
+/// need a cache/gateway race at the exact timer fire; the tracked
+/// channel's voice states are gateway-warm live, so they are
+/// unreachable in steady state — and a per-listener REST fetch on
+/// every finalize would trade one race for latency, not parity.
+/// Bot filtering is outcome-equivalent: TS has no bot check on this
+/// leg, but no listener is ever a bot — every attach path (track
+/// start, move, VSU join) resolves through this bot-filtered scan or
+/// the bot-checked VSU gate.)
 fn lastfm_voice_members(cache: &serenity::Cache, guild_id: u64, channel_id: u64) -> Vec<u64> {
     let Some(guild) = cache.guild(serenity::GuildId::new(guild_id)) else {
         return Vec::new();
@@ -8690,6 +8707,20 @@ mod tests {
         bare.lastfm_member_join(44, 100).await;
         bare.lastfm_member_leave(44, 100).await;
         assert!(bare.lastfm_sessions.lock().await.get(&44).is_none());
+    }
+
+    #[test]
+    fn lastfm_presence_miss_folds_to_absent() {
+        // Mirrors scratch/slice-w4s84-presence.cjs guild-miss leg
+        // (U-ETERNAL-449): TS `isMemberInVoiceChannel` returns false
+        // when the guild fetch rejects, and the remaining legs reduce
+        // to `member?.voice.channelId === voiceChannelId` (miss /
+        // voiceless folds to absent — same `===` shape as the slice-83
+        // VSU legs). The live scan reads the same cached voice states
+        // TS `syncMembersWithVoiceChannel` iterates, so an uncached
+        // guild resolves to an empty presence set here.
+        let cache = serenity::Cache::default();
+        assert!(lastfm_voice_members(&cache, 44, 7).is_empty());
     }
 
     #[test]
