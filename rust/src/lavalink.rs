@@ -1961,13 +1961,20 @@ impl LavalinkManager {
             if !live.api_key.is_empty() && !live.shared_secret.is_empty() {
                 use crate::commands::lastfm::scrobbler as lf;
                 for (uid, l) in session.listeners.iter() {
-                    if l.scrobbled
-                        || lastfm_listener_elapsed(
-                            l.started_ms,
-                            lastfm_listener_paused_share(paused, l.pause_base_ms),
-                            now_ms,
-                        ) < l.threshold_ms
-                    {
+                    // `tryScrobbleListener` gate order (scrobbled ->
+                    // shouldScrobble -> threshold): sub-30s tracks attached
+                    // for now-playing never POST a scrobble.
+                    let elapsed_ms = lastfm_listener_elapsed(
+                        l.started_ms,
+                        lastfm_listener_paused_share(paused, l.pause_base_ms),
+                        now_ms,
+                    );
+                    if !lastfm_finalize_posts(
+                        session.duration_ms,
+                        l.scrobbled,
+                        elapsed_ms,
+                        l.threshold_ms,
+                    ) {
                         continue;
                     }
                     let track = lf::ScrobbleTrack {
@@ -2077,6 +2084,21 @@ fn lastfm_listener_elapsed(started_ms: i64, paused_total_ms: u64, now_ms: i64) -
     (now_ms - started_ms).max(0) as u64 - paused_total_ms.min((now_ms - started_ms).max(0) as u64)
 }
 
+/// `tryScrobbleListener` credit-gate mirror (scrobbled ->
+/// `shouldScrobble` duration floor -> threshold): the single predicate
+/// every finalize site (track-end, timer, detach) checks. The duration
+/// floor lives HERE, not at attach, so sub-30s tracks still announce
+/// now-playing exactly like TS `attachMemberToSession`.
+fn lastfm_finalize_posts(
+    duration_ms: u64,
+    scrobbled: bool,
+    elapsed_ms: u64,
+    threshold_ms: u64,
+) -> bool {
+    use crate::commands::lastfm::scrobbler as lf;
+    !scrobbled && lf::should_scrobble(duration_ms) && elapsed_ms >= threshold_ms
+}
+
 impl LavalinkManager {
     /// Live drive for one track generation (mirrors
     /// `syncMembersWithVoiceChannel` + `scheduleScrobble`): attach
@@ -2100,7 +2122,7 @@ impl LavalinkManager {
             let Some(s) = sessions.get(&guild_id) else {
                 return;
             };
-            if s.track_key != track_key || !lf::should_scrobble(s.duration_ms) {
+            if s.track_key != track_key {
                 return;
             }
             (s.voice_channel_id, s.duration_ms)
@@ -2115,6 +2137,12 @@ impl LavalinkManager {
             self.lastfm_attach_member(&live, guild_id, &track_key, uid, now)
                 .await;
         }
+        // `scheduleScrobble` gate: sub-30s tracks still get the
+        // now-playing attach above, but no threshold timer (TS
+        // `!shouldScrobble(track) -> return` before arming).
+        if !lf::should_scrobble(snapshot.1) {
+            return;
+        }
         let elapsed = (now_ms_wall() - now).max(0) as u64;
         if threshold > elapsed {
             tokio::time::sleep(std::time::Duration::from_millis(threshold - elapsed)).await;
@@ -2123,9 +2151,13 @@ impl LavalinkManager {
     }
 
     /// Attach one member as a listener (mirrors `attachMemberToSession`:
-    /// enabled row -> now-playing POST -> insert + schedule). Returns
-    /// false when there is nothing to schedule (no row, invalid
-    /// session, or stale generation).
+    /// enabled row -> now-playing POST (no duration gate: sub-30s tracks
+    /// still announce, exactly like TS `updateNowPlaying`) -> insert +
+    /// schedule. Only an invalid session aborts the attach (TS returns
+    /// early solely on `isInvalidSessionError`); a transient now-playing
+    /// failure still attaches, so the threshold scrobble survives a
+    /// network blip. Returns false when there is nothing to schedule
+    /// (no row, invalid session, or stale generation).
     async fn lastfm_attach_member(
         &self,
         live: &LastfmLiveCtx,
@@ -2140,7 +2172,7 @@ impl LavalinkManager {
             let Some(s) = sessions.get(&guild_id) else {
                 return false;
             };
-            if s.track_key != track_key || !lf::should_scrobble(s.duration_ms) {
+            if s.track_key != track_key {
                 return false;
             }
             if s.listeners.contains_key(&user_id) {
@@ -2170,10 +2202,12 @@ impl LavalinkManager {
             Err(e) => {
                 if lf::is_invalid_session_error(e.code, &e.message) {
                     let _ = lf::invalidate_user_session(&live.pool, user_id).await;
-                } else {
-                    tracing::warn!("lastfm now-playing failed for {user_id}: {}", e.message);
+                    return false;
                 }
-                return false;
+                // Transient failure (network, HTTP 5xx, other API error):
+                // TS falls through to set + schedule, so the listener
+                // still earns its threshold scrobble.
+                tracing::warn!("lastfm now-playing failed for {user_id}: {}", e.message);
             }
         }
         let mut sessions = self.lastfm_sessions.lock().await;
@@ -2222,12 +2256,16 @@ impl LavalinkManager {
             s.listeners
                 .iter()
                 .filter(|(_, l)| {
-                    !l.scrobbled
-                        && lastfm_listener_elapsed(
+                    lastfm_finalize_posts(
+                        s.duration_ms,
+                        l.scrobbled,
+                        lastfm_listener_elapsed(
                             l.started_ms,
                             lastfm_listener_paused_share(paused, l.pause_base_ms),
                             now,
-                        ) >= l.threshold_ms
+                        ),
+                        l.threshold_ms,
+                    )
                 })
                 .map(|(uid, l)| {
                     (
@@ -2320,15 +2358,19 @@ impl LavalinkManager {
         let Some(l) = s.listeners.remove(&user_id) else {
             return;
         };
-        let due = !l.scrobbled
-            && lastfm_listener_elapsed(
+        let due = lastfm_finalize_posts(
+            s.duration_ms,
+            l.scrobbled,
+            lastfm_listener_elapsed(
                 l.started_ms,
                 lastfm_listener_paused_share(
                     lastfm_paused_total(s.paused_ms, s.pause_started_ms, now),
                     l.pause_base_ms,
                 ),
                 now,
-            ) >= l.threshold_ms;
+            ),
+            l.threshold_ms,
+        );
         let track = crate::commands::lastfm::scrobbler::ScrobbleTrack {
             artist: s.artist.clone(),
             title: s.title.clone(),
@@ -7666,6 +7708,59 @@ mod tests {
         );
         // Stale total older than the base saturates to zero credit.
         assert_eq!(lastfm_listener_paused_share(500, 2000), 0);
+    }
+
+    #[test]
+    fn lastfm_attach_and_finalize_gates_match_ts_battery() {
+        // Battery: attachMemberToSession + scheduleScrobble +
+        // tryScrobbleListener gate order (script at scratch
+        // `slice-w4s64-attach.cjs`, green 11/11). D1 (transient
+        // now-playing failure still attaches — only an invalid session
+        // aborts) is structural in `lastfm_attach_member`; D2 (sub-30s
+        // tracks attach for now-playing but never scrobble) pins here
+        // via the shared finalize predicate every credit site checks.
+        use crate::commands::lastfm::scrobbler as lf;
+        // H: long track past threshold posts.
+        assert!(lastfm_finalize_posts(
+            200_000,
+            false,
+            150_000,
+            lf::scrobble_threshold_ms(200_000)
+        ));
+        // I: short track fully played never posts.
+        assert!(!lastfm_finalize_posts(
+            20_000,
+            false,
+            20_000,
+            lf::scrobble_threshold_ms(20_000)
+        ));
+        // J: long track under threshold never posts.
+        assert!(!lastfm_finalize_posts(
+            200_000,
+            false,
+            50_000,
+            lf::scrobble_threshold_ms(200_000)
+        ));
+        // K: already-credited listener never re-posts.
+        assert!(!lastfm_finalize_posts(
+            200_000,
+            true,
+            150_000,
+            lf::scrobble_threshold_ms(200_000)
+        ));
+        // Floor edge: exactly 30s counts, 29999ms does not.
+        assert!(lastfm_finalize_posts(
+            30_000,
+            false,
+            15_000,
+            lf::scrobble_threshold_ms(30_000)
+        ));
+        assert!(!lastfm_finalize_posts(
+            29_999,
+            false,
+            29_999,
+            lf::scrobble_threshold_ms(29_999)
+        ));
     }
 
     #[tokio::test]
