@@ -2038,9 +2038,23 @@ mod tests {
         assert!(!is_allowed_links("http://[::1]/"));
         assert!(is_allowed_links("foo:[youtube.com]/x"));
         assert!(!is_allowed_links("foo:[::1"));
-        assert!(is_allowed_links("foo:youtube.com "));
-        assert!(!is_allowed_links("foo:youtube.com evil"));
-        assert!(is_allowed_links("foo:youtube.com:80 "));
+        assert!(is_allowed_links("foo:youtube.com\x00"));
+        assert!(!is_allowed_links("foo:youtube.com\x00evil"));
+        assert!(is_allowed_links("foo:youtube.com:80\x00"));
+        // W6 slice 184: further NUL/control legs from the node battery
+        // (scratch/slice-w6s184-nul.cjs). THROW legs map to false
+        // (isAllowedLinks has no try/catch; Rust has no throw).
+        assert!(is_allowed_links("https://open.spotify.com/\x00"));
+        assert!(!is_allowed_links("https://open.spotify.com\x00.evil.com/"));
+        assert!(is_allowed_links("https://open.spotify.com:443\x00/"));
+        assert!(is_allowed_links("\x00https://open.spotify.com/"));
+        assert!(!is_allowed_links("https://\x00open.spotify.com/"));
+        assert!(!is_allowed_links("https://open.spotify.com\x7f/"));
+        assert!(!is_allowed_links("https://open.spotify.com\x01/"));
+        assert!(!is_allowed_links("foo:bar\x00:80/x"));
+        assert!(is_allowed_links("foo:youtube.com\x00 "));
+        assert!(is_allowed_links("foo:youtube.com\x00\x00"));
+        assert!(is_allowed_links("foo:youtube.com \x00"));
         // Spaces end the host; only [\t-\r ], NBSP and BOM trim.
         assert!(!is_allowed_links("foo:a@you tube.com"));
         assert!(is_allowed_links("\u{a0}foo:youtube.com"));
