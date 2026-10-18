@@ -1920,6 +1920,12 @@ impl LavalinkManager {
     /// freezes every listener's elapsed clock, resuming banks the
     /// paused span and reschedules). No session yet means nothing to
     /// account (e.g. pause raced a queue drain).
+    /// Battery: scratch/slice-w4s74-paused.cjs (22/22).
+    /// DELTA (unreachable live): a duplicate pause event re-runs the
+    /// TS arm and overwrites the stamp, while the `is_none` guard
+    /// keeps the first stamp here. Node playerUpdate frames carry no
+    /// paused flag and command repeats die in the stored-state guard,
+    /// so no live source can deliver a duplicate arm.
     pub async fn lastfm_note_paused(&self, guild_id: u64, paused: bool, now_ms: i64) {
         let mut sessions = self.lastfm_sessions.lock().await;
         let Some(session) = sessions.get_mut(&guild_id) else {
@@ -8522,6 +8528,63 @@ mod tests {
         assert!(m.lastfm_track_end_due(44, 120_000).await.is_none());
         // Unknown guild: no panic, nothing accounted.
         m.handle_player_update(4498, true, 0).await;
+    }
+
+    #[tokio::test]
+    async fn lastfm_player_update_arms_match_ts_battery() {
+        // Battery: scratch/slice-w4s74-paused.cjs (22/22) replicating
+        // lastFMScrobblerManager.ts handlePlayerUpdate (302-327) verbatim:
+        // no-session + unchanged-pair no-ops (A/B), pause overwrite +
+        // timeout clear + session flag (C), duplicate-pause re-arm (D),
+        // resume bank + schedule-all + flag flip (E), falsy-0 stamp (F),
+        // open-pause elapsed (G), full-cycle bank (H).
+        // Verdict: CONVERGENT, no live-code change. The resume bank,
+        // open-pause elapsed, and full-cycle legs ride the session
+        // bank + per-listener share pinned by slices 63/67.
+        let m = LavalinkManager::new();
+        m.with_player(46, |p| {
+            p.enqueue(sample_track("a"), 0);
+        })
+        .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 46,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            is_stream: false,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
+        // Pause arm stamps the session clock (TS: per-listener
+        // pausedStartedAt overwrite, battery C2/C3).
+        m.lastfm_note_paused(46, true, 60_000).await;
+        {
+            let s = m.lastfm_sessions.lock().await;
+            assert_eq!(s.get(&46).and_then(|x| x.pause_started_ms), Some(60_000));
+        }
+        // DELTA (doc-noted, unreachable live): a duplicate pause event
+        // re-runs the TS arm and OVERWRITES the stamp (battery D2:
+        // 2000 -> 3000), while the duplicate pause keeps the FIRST
+        // stamp here. No live source can deliver one: node
+        // playerUpdate frames carry no paused flag, and command
+        // repeats die in the stored-state guard above. Same credit
+        // verdict on every reachable shape.
+        m.lastfm_note_paused(46, true, 70_000).await;
+        {
+            let s = m.lastfm_sessions.lock().await;
+            assert_eq!(s.get(&46).and_then(|x| x.pause_started_ms), Some(60_000));
+        }
+        // Resume arm banks the span (TS: per-listener truthy bank,
+        // battery E2) and clears the open leg (E3).
+        m.lastfm_note_paused(46, false, 90_000).await;
+        {
+            let s = m.lastfm_sessions.lock().await;
+            let sess = s.get(&46).unwrap();
+            assert_eq!(sess.paused_ms, 30_000);
+            assert_eq!(sess.pause_started_ms, None);
+        }
     }
 
     #[tokio::test]
