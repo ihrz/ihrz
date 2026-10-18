@@ -10,7 +10,7 @@ pub async fn user_lookup(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    crate::commands::utils::info::run_userinfo(ctx, Some(user)).await
+    crate::commands::utils::info::run_userinfo(ctx, Some(crate::reply_user::ReplyUser(user))).await
 }
 
 /// User love.

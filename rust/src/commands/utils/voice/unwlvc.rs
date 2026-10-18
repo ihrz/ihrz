@@ -27,7 +27,7 @@ pub async fn unwlvc(
     #[description_localized("ru", "Участник для удаления")]
     #[description_localized("es-ES", "El miembro que quieres eliminar")]
     #[description = "The member you want to remove"]
-    member: Option<poise::serenity_prelude::User>,
+    member: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

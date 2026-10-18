@@ -21,7 +21,7 @@ pub async fn derank(
     #[description = "The user"]
     // TS HybridCommands/utils/!derank.ts reads getMember("member").
     #[rename = "member"]
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -21,7 +21,7 @@ pub async fn wlvc(
     #[description_localized("ru", "Участник, которого вы хотите разрешить")]
     #[description_localized("es-ES", "El miembro que quieres permitir")]
     #[description = "The member you want to allow"]
-    member: Option<poise::serenity_prelude::User>,
+    member: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

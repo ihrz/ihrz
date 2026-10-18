@@ -5,7 +5,7 @@ use ::serenity::model::user::OnlineStatus;
 // Mirrors utils !userinfo.ts (best-effort).
 pub async fn run_userinfo(
     ctx: Ctx<'_>,
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     // Prefix username fallback: mirrors the last branch of `method.user`
@@ -18,9 +18,9 @@ pub async fn run_userinfo(
         None
     };
     let u = user
-        .as_ref()
-        .or(fuzzy.as_ref())
-        .unwrap_or_else(|| ctx.author());
+        .map(|u| u.0)
+        .or(fuzzy)
+        .unwrap_or_else(|| ctx.author().clone());
     // Loading ack first, mirroring the `Discord_Loading` send before
     // the slow lookups in !userinfo.ts:266 (donor APIs, banner REST and
     // avatar downloads below can outlast the 3s interaction window, so
@@ -338,7 +338,7 @@ pub async fn userinfo(
     #[description_localized("ru", "пользователь для поиска")]
     #[description_localized("es-ES", "usuario que quieres buscar")]
     #[description = "user you want to lookup"]
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     run_userinfo(ctx, user).await
 }

@@ -34,9 +34,9 @@ pub async fn prevnames(
     #[description_localized("ru", "Пользователь, которого вы хотите найти")]
     #[description_localized("es-ES", "El usuario que quieres buscar")]
     #[description = "L'utilisateur que vous voulez rechercher"]
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
-    let target = user.unwrap_or_else(|| ctx.author().clone());
+    let target = user.map(|u| u.0).unwrap_or_else(|| ctx.author().clone());
     // Named `prevnames` table first, legacy kv fallback (the writer in
     // events.rs still targets kv): scope "0", `PREVNAMES.<uid>` keys
     // unchanged, fallback hits promoted lazily.

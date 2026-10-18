@@ -24,9 +24,9 @@ pub async fn banner_user(
     #[description_localized("ru", "Какой пользователь?")]
     #[description_localized("es-ES", "Cual es el usuario entonces?")]
     #[description = "What the user then?"]
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
-    let u = user.as_ref().unwrap_or_else(|| ctx.author());
+    let u = user.map(|u| u.0).unwrap_or_else(|| ctx.author().clone());
     let token = crate::config::bot_token().unwrap_or_default();
     let hash = fetch_user_banner_hash(&token, u.id.get()).await;
     let Some(hash) = hash else {

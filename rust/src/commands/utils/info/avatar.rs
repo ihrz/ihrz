@@ -20,9 +20,9 @@ pub async fn avatar(
     #[description_localized("ru", "Пользователь")]
     #[description_localized("es-ES", "El usuario")]
     #[description = "The user"]
-    user: Option<poise::serenity_prelude::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
-    let u = user.as_ref().unwrap_or_else(|| ctx.author());
+    let u = user.map(|u| u.0).unwrap_or_else(|| ctx.author().clone());
     let url = match &u.avatar {
         Some(hash) => format!(
             "https://cdn.discordapp.com/avatars/{}/{}.png?size=512",
