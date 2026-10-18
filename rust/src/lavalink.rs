@@ -8664,6 +8664,34 @@ mod tests {
         assert_eq!(live.secret, "api-token");
     }
 
+    #[tokio::test]
+    async fn lastfm_vsu_without_session_converges_to_ts_early_return() {
+        // Mirrors scratch/slice-w4s83-vsu.cjs no-session legs
+        // (U-ETERNAL-448): TS `handleVoiceStateUpdate` returns before
+        // attach/detach when no guild session exists, while the Rust
+        // caller gates on the tracked player voice channel — so a
+        // channel-present/session-absent VSU reaches join/leave, which
+        // must stay strict no-ops (join skips on missing track key,
+        // leave on missing session row): same silence as TS.
+        let m = LavalinkManager::new();
+        m.register_lastfm_live(
+            std::sync::Arc::new(serenity::Cache::default()),
+            crate::db::memory_pool().await,
+            "key".into(),
+            "secret".into(),
+            "api-token".into(),
+        )
+        .await;
+        m.lastfm_member_join(44, 100).await;
+        m.lastfm_member_leave(44, 100).await;
+        assert!(m.lastfm_sessions.lock().await.get(&44).is_none());
+        // Unconfigured manager (no live ctx) is silent too.
+        let bare = LavalinkManager::new();
+        bare.lastfm_member_join(44, 100).await;
+        bare.lastfm_member_leave(44, 100).await;
+        assert!(bare.lastfm_sessions.lock().await.get(&44).is_none());
+    }
+
     #[test]
     fn disconnect_gate_and_report_stats() {
         assert!(LavalinkManager::should_destroy_on_disconnect(None));

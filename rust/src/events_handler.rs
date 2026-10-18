@@ -898,6 +898,14 @@ fn lastfm_tracked_change(old_ch: Option<u64>, new_ch: Option<u64>, tracked: u64)
 /// attach/detach verdict itself is byte-exact via
 /// `lastfm_tracked_change` (strict-`===` on id-or-null == Option
 /// equality on the snowflake domain).
+/// REVERSE DIRECTION (convergent, pinned by
+/// `lastfm_vsu_without_session_converges_to_ts_early_return`): a
+/// tracked player channel with NO lastfm session (idle bot, member
+/// joins the bot's channel) proceeds past this gate where TS
+/// returns early — but `lastfm_member_join`/`lastfm_member_leave`
+/// are strict no-ops without a session row (join skips on missing
+/// track key, leave on missing session), so the outcome is the
+/// same silence TS produces.
 fn lastfm_vsu_proceeds(has_member: bool, is_bot: bool, has_session: bool) -> bool {
     has_member && !is_bot && has_session
 }
