@@ -264,10 +264,14 @@ pub fn lastfm_user_embed(
                 .unwrap_or_else(|| t("var_none", "None")),
             true,
         );
-    if let Some(ms) = connected_at_ms {
+    // TS `if (settings?.connectedAt)` omits falsy stamps (0/missing)
+    // and renders `Math.floor(ms / 1000)` (floor: -500 -> -1), so
+    // `Some(0)` is skipped and the division is `div_euclid` (battery
+    // scratch `slice-w4s73-embed.cjs`, green 22/22).
+    if let Some(ms) = connected_at_ms.filter(|ms| *ms != 0) {
         embed = embed.field(
             t("lastfm_embed_field_connected_at", "Connected on"),
-            format!("<t:{}:F>", ms / 1000),
+            format!("<t:{}:F>", ms.div_euclid(1000)),
             true,
         );
     }
@@ -374,5 +378,57 @@ mod tests {
         assert!(dbg.contains("Last.fm configuration for Kisa"));
         assert!(dbg.contains("kisa_fm"));
         assert!(dbg.contains("<t:1700000000:F>"));
+    }
+
+    #[test]
+    fn user_embed_matches_ts_generate_user_embed_legs() {
+        // Battery scratch `slice-w4s73-embed.cjs`, green 22/22.
+        // Falsy `connectedAt` (0) omits the field like the TS
+        // `if (settings?.connectedAt)` gate (old code rendered
+        // `<t:0:F>`); negatives render the `Math.floor` stamp
+        // (-500 -> -1, old code omitted them via `as_u64`, and `/`
+        // would truncate to 0).
+        let dbg_zero = format!(
+            "{:?}",
+            lastfm_user_embed("en-US", "K", false, None, Some(0))
+        );
+        assert!(!dbg_zero.contains("<t:0:F>"));
+        assert!(!dbg_zero.contains("Connected on"));
+        // `username || var_none`: missing AND empty both fall back,
+        // whitespace stays verbatim.
+        assert!(dbg_zero.contains("None"));
+        assert!(dbg_zero.contains("Disabled"));
+        let dbg_empty_name = format!(
+            "{:?}",
+            lastfm_user_embed("en-US", "K", true, Some(""), Some(999))
+        );
+        assert!(dbg_empty_name.contains("None"));
+        assert!(dbg_empty_name.contains("<t:0:F>"));
+        let dbg_space_name = format!(
+            "{:?}",
+            lastfm_user_embed("en-US", "K", true, Some(" "), None)
+        );
+        // Whitespace-only usernames stay verbatim (no `None`
+        // fallback — TS `||` only folds falsy). Serenity renders the
+        // account field as `value: " "` in Debug (a bare
+        // `contains("None")` check is useless: `Option::None`
+        // debug-renders as `None` all over the embed).
+        assert!(dbg_space_name.contains("value: \" \""));
+        assert!(!dbg_space_name.contains("Connected on"));
+        for (ms, want) in [
+            (1_699_999_999_999, "<t:1699999999:F>"),
+            (-500, "<t:-1:F>"),
+            (-1000, "<t:-1:F>"),
+            (-1500, "<t:-2:F>"),
+        ] {
+            let dbg = format!(
+                "{:?}",
+                lastfm_user_embed("en-US", "K", true, Some("u"), Some(ms))
+            );
+            assert!(dbg.contains(want), "ms={ms} want={want}");
+        }
+        // DELTA (doc-noted, unreachable: the writer stores integer
+        // ms from `Date.now()`): a fractional `connectedAt` renders
+        // `Math.floor` in TS but has no `as_i64` counterpart here.
     }
 }

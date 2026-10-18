@@ -77,10 +77,20 @@ pub async fn lastfm_user_embed(
             account,
             true,
         );
-    if let Some(ms) = settings.get("connectedAt").and_then(|v| v.as_u64()) {
+    // `if (settings?.connectedAt)` is a truthiness gate (0/missing
+    // omit the field) and the stamp is `Math.floor(ms / 1000)`
+    // (floor, so -500 -> -1): `as_i64` keeps negative rows visible
+    // like the TS, `!= 0` mirrors the falsy-0 omit, `div_euclid` is
+    // the exact floor-division mirror (battery scratch
+    // `slice-w4s73-embed.cjs`, green 22/22).
+    if let Some(ms) = settings
+        .get("connectedAt")
+        .and_then(|v| v.as_i64())
+        .filter(|ms| *ms != 0)
+    {
         embed = embed.field(
             t!("lastfm_embed_field_connected_at", "Connected on"),
-            format!("<t:{}:F>", ms / 1000),
+            format!("<t:{}:F>", ms.div_euclid(1000)),
             true,
         );
     }
