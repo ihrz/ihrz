@@ -25,6 +25,55 @@ pub fn h247_joinable_channel(kind: &serenity::ChannelType) -> bool {
     *kind == serenity::ChannelType::Voice
 }
 
+/// Parse a raw prefix channel token (`<#id>` mention or bare id) into
+/// a channel id. Returns None for anything else (names, garbage).
+/// Shared with the voicedashboard lobby prefix head, which enforces
+/// the same TS-decl channel type on prefix.
+pub fn prefix_channel_token_id(token: &str) -> Option<u64> {
+    let stripped: String = token
+        .chars()
+        .filter(|c| !matches!(c, '<' | '>' | '#'))
+        .collect();
+    if stripped.is_empty() || !stripped.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    stripped.parse::<u64>().ok()
+}
+
+/// Verdict of the prefix channel gate for `h247 join`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum H247PrefixGate {
+    /// No token at all: caret usage embed (prod: bare `+h247 join`).
+    Missing,
+    /// Token resolves to a cached non-voice channel: caret usage embed
+    /// flagging the offending token (prod: `+h247 join <#text>`).
+    WrongType(String),
+    /// Token is not a resolvable channel id: fall through to the
+    /// handler invalid-channel content leg (precedented match).
+    Fallthrough,
+    /// Token resolves to a cached voice channel: run the handler.
+    Proceed,
+}
+
+/// Classify the first raw prefix token against the cached guild
+/// channels `(id, is_voice)`. Mirrors the TS framework gate prod
+/// enforces on `+h247 join` (h247.ts: `channel` required GuildVoice):
+/// HZ93 live shows bare AND text-channel-mention inputs both answer
+/// `+join [channel]` caret usage, never the handler content leg.
+pub fn h247_prefix_gate(token: Option<&str>, channels: &[(u64, bool)]) -> H247PrefixGate {
+    let Some(token) = token else {
+        return H247PrefixGate::Missing;
+    };
+    let Some(id) = prefix_channel_token_id(token) else {
+        return H247PrefixGate::Fallthrough;
+    };
+    match channels.iter().find(|(cid, _)| *cid == id) {
+        Some((_, true)) => H247PrefixGate::Proceed,
+        Some((_, false)) => H247PrefixGate::WrongType(token.to_string()),
+        None => H247PrefixGate::Fallthrough,
+    }
+}
+
 /// Inputs for the join guard chain. `tts` is (enabled, voice_channel_id).
 pub struct H247JoinState {
     pub channel_is_voice: bool,
@@ -151,10 +200,13 @@ async fn load_tts_presence(pool: &crate::db::Pool, guild_id: &str) -> Option<(bo
 )]
 pub async fn h247_join(
     ctx: Ctx<'_>,
-    // Optional so the prefix leg can miss the channel, like TS `!join.ts`
-    // (`voiceChannel(interaction, args!, 0)` may resolve null). A missing
-    // or non-voice channel replies `h247_join_invalid_channel`; slash
-    // callers must still pass it (TS declares the option `required: true`).
+    // Optional so the prefix leg can receive no channel or garbage like
+    // TS `!join.ts` (`voiceChannel(interaction, args!, 0)` may resolve
+    // null). The prefix head above diverts the missing and
+    // resolvable-but-non-voice cases to the caret usage embed (prod);
+    // only unresolvable input reaches the `h247_join_invalid_channel`
+    // content leg below. Slash callers must still pass the channel
+    // (TS declares the option `required: true`).
     // PREFIX NARROWING: TS `voiceChannel` also fuzzy-matches the raw arg
     // against voice-channel names (`similarity(arg, name) >= 0.6` over
     // GuildVoice + Stage). Poise parses this `GuildChannel` arg from a
@@ -191,6 +243,36 @@ pub async fn h247_join(
         return Ok(());
     };
     let gid = guild_id.get().to_string();
+    // Prefix checkCommandArgs head (see h247_prefix_gate): the TS
+    // framework validates the required GuildVoice option before the
+    // handler runs. Missing and resolvable-but-non-voice inputs answer
+    // the caret usage embed like prod; only unresolvable garbage falls
+    // through to the handler invalid-channel content leg.
+    if let poise::Context::Prefix(pctx) = ctx {
+        let tokens = crate::bot::prefix_args::split_caret_args(pctx.args);
+        let snapshot: Vec<(u64, bool)> = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.channels
+                    .iter()
+                    .map(|(id, c)| (id.get(), h247_joinable_channel(&c.kind)))
+                    .collect()
+            })
+            .unwrap_or_default();
+        match h247_prefix_gate(tokens.first().map(String::as_str), &snapshot) {
+            H247PrefixGate::Proceed | H247PrefixGate::Fallthrough => {}
+            H247PrefixGate::Missing => {
+                crate::bot::prefix_usage_denial(ctx, None).await;
+                return Ok(());
+            }
+            H247PrefixGate::WrongType(tok) => {
+                crate::bot::prefix_usage_denial(ctx, Some(tok)).await;
+                return Ok(());
+            }
+        }
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
         .await
@@ -482,5 +564,42 @@ mod tests {
         assert!(!h247_bot_may_join(P::CONNECT));
         assert!(!h247_bot_may_join(P::SPEAK));
         assert!(!h247_bot_may_join(P::empty()));
+    }
+
+    #[test]
+    fn prefix_token_id_parses_mention_and_bare_id() {
+        assert_eq!(prefix_channel_token_id("<#123>"), Some(123));
+        assert_eq!(prefix_channel_token_id("123"), Some(123));
+        assert_eq!(prefix_channel_token_id("cmd-1"), None);
+        assert_eq!(prefix_channel_token_id(""), None);
+        assert_eq!(prefix_channel_token_id("<@123>"), None);
+    }
+
+    #[test]
+    fn prefix_gate_matrix_matches_prod() {
+        // (id, is_voice) snapshot: 7 = voice, 9 = text.
+        let snap = [(7u64, true), (9u64, false)];
+        // Bare input: caret usage (prod `+h247 join`).
+        assert_eq!(h247_prefix_gate(None, &snap), H247PrefixGate::Missing);
+        // Resolvable non-voice mention: caret usage on the token
+        // (prod `+h247 join <#text>`).
+        assert_eq!(
+            h247_prefix_gate(Some("<#9>"), &snap),
+            H247PrefixGate::WrongType("<#9>".to_string())
+        );
+        // Voice mention: handler runs.
+        assert_eq!(
+            h247_prefix_gate(Some("<#7>"), &snap),
+            H247PrefixGate::Proceed
+        );
+        // Unresolvable garbage or unknown id: handler content leg.
+        assert_eq!(
+            h247_prefix_gate(Some("nope"), &snap),
+            H247PrefixGate::Fallthrough
+        );
+        assert_eq!(
+            h247_prefix_gate(Some("<#555>"), &snap),
+            H247PrefixGate::Fallthrough
+        );
     }
 }

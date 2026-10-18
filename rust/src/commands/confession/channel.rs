@@ -23,6 +23,18 @@ pub fn panel_button_label(input: Option<&str>) -> String {
         .unwrap_or_else(|| "+".to_string())
 }
 
+/// Prefix arg-count gate. Mirrors the TS framework `checkCommandArgs`
+/// counts-first behavior prod enforces on `+confess-channel` (HZ93
+/// live: bare AND single-token inputs both answer the caret usage
+/// embed, caret on `channel` / `button-title` respectively). Without
+/// it, poise `Option<GuildChannel>` backtracking feeds a lone channel
+/// mention into `button_title` while `channel` falls back to the
+/// invoking channel — posting a mislabeled panel in the wrong channel
+/// (HZ93: button label `<#id>`, target = wave channel).
+pub fn confession_prefix_complete(tokens: &[String]) -> bool {
+    tokens.len() >= 2
+}
+
 /// Panel store payload. Mirrors
 /// `client.db.set(`${guildId}.GUILD.CONFESSION.panel`, {channelId, messageId})`.
 pub fn panel_store_json(channel_id: u64, message_id: u64) -> String {
@@ -108,6 +120,17 @@ pub async fn confession_channel(
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
+    // Prefix checkCommandArgs head (see confession_prefix_complete):
+    // fewer than 2 raw tokens answers the caret usage embed like prod,
+    // before poise Option backtracking can misroute the mention into
+    // `button_title` and post into the invoking channel.
+    if let poise::Context::Prefix(pctx) = ctx {
+        let tokens = crate::bot::prefix_args::split_caret_args(pctx.args);
+        if !confession_prefix_complete(&tokens) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     let pool = &ctx.data().pool;
     // TS `interaction.options.getChannel("channel")` (slash, required)
     // vs parsed-or-current channel (prefix). No new YAML: the slash
@@ -256,5 +279,18 @@ mod tests {
         // Sequence bits: back-to-back calls still differ.
         assert_ne!(a, snowflake_nonce());
         assert_ne!(a, snowflake_nonce());
+    }
+
+    #[test]
+    fn prefix_gate_needs_both_args() {
+        // HZ93: a lone channel mention must NOT run the handler (poise
+        // backtracks it into `button_title` and posts into the invoking
+        // channel) — prod answers the caret usage embed instead.
+        assert!(!confession_prefix_complete(&[]));
+        assert!(!confession_prefix_complete(&["<#11>".to_string()]));
+        assert!(confession_prefix_complete(&[
+            "<#11>".to_string(),
+            "title".to_string()
+        ]));
     }
 }
