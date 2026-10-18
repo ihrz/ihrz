@@ -20,14 +20,14 @@ pub struct LastFmError {
 /// `isInvalidSessionError` mirror: error 9 or a session-flavoured
 /// message means the stored session key is dead (caller invalidates
 /// the user row, exactly like the TS attach/scrobble legs).
+/// NOTE: the TS is a case-insensitive SUBSTRING test
+/// (`/session/i`), so plurals ("Sessions expired") and embeddings
+/// ("obsession") count — this is `contains`, not a word match.
 pub fn is_invalid_session_error(code: Option<i64>, message: &str) -> bool {
     if code == Some(9) {
         return true;
     }
-    message
-        .to_lowercase()
-        .split(|c: char| !c.is_alphanumeric())
-        .any(|w| w == "session")
+    message.to_lowercase().contains("session")
 }
 
 /// `getThresholdMs` mirror: half the track, capped at 4 minutes.
@@ -462,8 +462,13 @@ mod tests {
     fn invalid_session_matches_ts_detector() {
         assert!(is_invalid_session_error(Some(9), "whatever"));
         assert!(is_invalid_session_error(None, "Invalid session key"));
+        // TS `/session/i` is a SUBSTRING test: plurals + embeddings count.
+        assert!(is_invalid_session_error(None, "Sessions expired, re-auth"));
+        assert!(is_invalid_session_error(None, "SESSION EXPIRED"));
+        assert!(is_invalid_session_error(None, "obsession detected"));
         assert!(!is_invalid_session_error(Some(4), "Authentication Failed"));
         assert!(!is_invalid_session_error(None, "ok"));
+        assert!(!is_invalid_session_error(None, ""));
     }
 
     #[test]
