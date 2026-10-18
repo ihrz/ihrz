@@ -554,6 +554,35 @@ mod tests {
         let g = now_playing_fields("k", "s", "sk1", &stream);
         assert!(!g.iter().any(|(k, _)| k == "duration"));
         assert!(g.iter().any(|(k, v)| k == "album" && v == "alb"));
+        // W4 slice 71 battery (scratch `slice-w4s71-fields.cjs` 12/12):
+        // sub-second remainders floor, never round (29999 -> "29",
+        // TS `Math.floor(ms / 1000)` == u64 `/ 1000` on >= 0 inputs).
+        let floor = now_playing_fields(
+            "k",
+            "s",
+            "sk1",
+            &ScrobbleTrack {
+                duration_ms: 29_999,
+                ..base.clone()
+            },
+        );
+        assert!(floor.iter().any(|(k, v)| k == "duration" && v == "29"));
+        // 999ms -> "0", and "0" survives the signer (only "" drops --
+        // TS `value !== ""`, Rust `!v.is_empty()`).
+        let zero = now_playing_fields(
+            "k",
+            "s",
+            "sk1",
+            &ScrobbleTrack {
+                duration_ms: 999,
+                ..base.clone()
+            },
+        );
+        assert!(zero.iter().any(|(k, v)| k == "duration" && v == "0"));
+        // Now-playing carries no timestamp / chosenByUser (scrobble-only
+        // legs in TS).
+        assert!(!f.iter().any(|(k, _)| k == "timestamp"));
+        assert!(!f.iter().any(|(k, _)| k == "chosenByUser"));
     }
 
     #[test]
@@ -572,6 +601,24 @@ mod tests {
             .iter()
             .any(|(k, v)| k == "method" && v == "track.scrobble"));
         assert!(f.iter().any(|(k, _)| k == "api_sig"));
+    }
+
+    #[test]
+    fn scrobble_stream_drops_duration_keeps_epoch_zero() {
+        // W4 slice 71 battery: a zero-length scrobble drops duration
+        // but keeps the per-listener timestamp, even at epoch 0
+        // ("0" is not "" on either side of the signer).
+        let track = ScrobbleTrack {
+            artist: "artist".to_string(),
+            title: "title".to_string(),
+            album: None,
+            duration_ms: 0,
+            started_sec: 0,
+        };
+        let f = scrobble_fields("k", "s", "sk1", &track);
+        assert!(!f.iter().any(|(k, _)| k == "duration"));
+        assert!(f.iter().any(|(k, v)| k == "timestamp" && v == "0"));
+        assert!(f.iter().any(|(k, v)| k == "chosenByUser" && v == "1"));
     }
 
     #[test]
