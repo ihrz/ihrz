@@ -735,6 +735,14 @@ pub fn top_period_timeout_ms(period: &str) -> i64 {
     }
 }
 
+/// No-data gate for the top-* boards. Mirrors TS `!res || !res.USER`
+/// (`!top-messages.ts:75`, `!top-voice.ts:74`): the `stats_no_data` leg
+/// fires only when the STATS row carries no users — never when users
+/// exist but score zero in-window (TS still renders the card).
+pub fn top_board_missing(row_count: usize) -> bool {
+    row_count == 0
+}
+
 /// Message count inside a leaderboard window. Same predicate as the TS
 /// `nowTimestamp - message.sentTimestamp <= timeout` loop.
 pub fn msg_window_count(messages: &[StatsMessage], now_ms: i64, timeout_ms: i64) -> u64 {
@@ -807,8 +815,21 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let rows = load_all_user_stats(&ctx.data().pool, &gid).await;
+    // TS `!top-messages.ts:75` / `!top-voice.ts:74-78`: the no-data leg
+    // fires only when the STATS row (USER map) is missing — users with
+    // zero in-window activity still get the (possibly empty) card, so a
+    // present-but-idle store must NOT answer `stats_no_data`.
+    if top_board_missing(rows.len()) {
+        ctx.say(
+            crate::lang::get(&code, "stats_no_data")
+                .unwrap_or_else(|| "No statistics data available for this server.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let mut parsed: Vec<(u64, u64, String)> = Vec::new();
-    for (id, s) in load_all_user_stats(&ctx.data().pool, &gid).await {
+    for (id, s) in &rows {
         let (n, label) = if kind == "voice" {
             let total = voice_window_total(&s.voice_log, now_ms, timeout);
             (total, beautiful_voice_ms(total, &code))
@@ -817,7 +838,7 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
             (n, n.to_string())
         };
         if n > 0 {
-            parsed.push((id, n, label));
+            parsed.push((*id, n, label));
         }
     }
     // TS drops zero-activity users, sorts by count desc only
@@ -874,8 +895,10 @@ async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(
     };
     // Card leg (`!top-messages.ts:123-195`, `!top-voice.ts:123-201`):
     // the same ranking as HTML via HorizonGateway (`top-messages.png`
-    // / `top-voice.png`). Gateway unset/fail keeps the text reply.
-    if !ordered_ids.is_empty() {
+    // / `top-voice.png`), attempted whenever the store row exists — even
+    // with zero in-window activity (TS renders the empty card).
+    // Gateway unset/fail keeps the text reply.
+    {
         if let Some((base, token)) = card_gateway(ctx) {
             let word =
                 |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
@@ -1350,6 +1373,15 @@ mod tests {
             top_voice_channels(&voices, 5),
             vec![(5, 100_001_000), (6, 100_000_000)]
         );
+    }
+
+    #[test]
+    fn top_board_missing_only_on_empty_store() {
+        // TS `!res || !res.USER`: no-data fires on a missing store row,
+        // never on present-but-idle users (card still renders).
+        assert!(top_board_missing(0));
+        assert!(!top_board_missing(1));
+        assert!(!top_board_missing(2));
     }
 
     #[test]
