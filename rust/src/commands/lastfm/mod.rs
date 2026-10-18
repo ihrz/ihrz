@@ -135,6 +135,16 @@ pub async fn lastfm_settings(pool: &crate::db::Pool, user_id: u64) -> Option<ser
 
 /// Normalize a stored row to a settings object. None when the row
 /// carries nothing usable (empty string, non-string scalars).
+/// DELTA (doc-noted, unreachable: no writer on either side stores a
+/// bare string under the settings key -- all three TS manager writes
+/// and `save_lastfm_settings` store objects, and Rust's only
+/// bare-string writer `save_lastfm_username` has no live callers):
+/// a bare-string row normalizes to `{"username": s}`, so the Rust
+/// embed account field would show the name while TS
+/// `settings?.username` reads `undefined` and falls back to
+/// `var_none` (battery scratch `slice-w4s97-usersettings.cjs`,
+/// bare-string leg). Session/enable gates still converge (both
+/// deny: no `sessionKey` either way).
 pub fn normalize_lastfm_settings(raw: &serde_json::Value) -> Option<serde_json::Value> {
     match raw {
         serde_json::Value::Object(_) => Some(raw.clone()),
@@ -327,6 +337,52 @@ mod tests {
                 .await
                 .as_deref(),
             Some("legacy-dj")
+        );
+    }
+
+    #[tokio::test]
+    async fn settings_read_path_matches_ts_get_user_settings() {
+        // W4 slice-97 pin: battery scratch
+        // `slice-w4s97-usersettings.cjs`, green 50/50 (10 rows x 5
+        // legs: hasSession + enable-gate + embed status/account/
+        // stamp). TS `getUserSettings` returns the raw
+        // `${userId}.lastfm` row (null when missing, no
+        // normalization); this pins the Rust read path composition.
+        let pool = mem_pool().await;
+        // Missing row -> None (TS null; every downstream gate falsy).
+        assert_eq!(lastfm_settings(&pool, 9001).await, None);
+        // Object row round-trips verbatim (TS passthrough).
+        let obj = serde_json::json!({
+            "connectedAt": 1700000000000i64,
+            "enabled": true,
+            "sessionKey": "k",
+            "username": "dj",
+        });
+        save_lastfm_settings(&pool, 9002, &obj).await.unwrap();
+        assert_eq!(lastfm_settings(&pool, 9002).await, Some(obj));
+        // Bare-string row normalizes to {"username"} (no writer on
+        // either side produces this under the settings key; DELTA
+        // doc-noted on normalize_lastfm_settings).
+        tbl_set_text(&pool, LASTFM_SCOPE, &lastfm_key(9003), "dj")
+            .await
+            .unwrap();
+        let norm = lastfm_settings(&pool, 9003).await.unwrap();
+        assert_eq!(norm, serde_json::json!({ "username": "dj" }));
+        // The normalized row fails the session gate exactly like the
+        // TS bare-string legs (hasSession false, enable denied).
+        assert!(!lastfm_has_session(&norm));
+        // Legacy kv-only row promotes through the same path.
+        crate::db::kv_set(
+            &pool,
+            LASTFM_SCOPE,
+            &lastfm_key(9004),
+            "{\"username\":\"kv-dj\"}",
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            lastfm_settings(&pool, 9004).await,
+            Some(serde_json::json!({ "username": "kv-dj" }))
         );
     }
 
