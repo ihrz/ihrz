@@ -897,15 +897,49 @@ async fn bot_pfp_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await
 }
 
-/// Global BLACKLIST.<uid> reason leaf, routed via the named blacklist
-/// table (legacy scope "0", keys unchanged).
-async fn blacklist_reason_routed(pool: &crate::db::Pool, user_id: u64) -> Option<String> {
-    crate::commands::owner::main::bl_get(pool, user_id).await
+/// blacklistFetcher.ts BanMembers gate. Mirrors
+/// `member.guild.members.me?.permissions.has(BanMembers)`: the whole
+/// body is skipped without the bit. The call site feeds
+/// `bot_effective_perms` (fail-closed empty when our member row is
+/// unresolvable, matching the TS `?.` miss leg; on a cache miss it may
+/// still resolve via HTTP where TS would skip — cache warm on live
+/// memberAdd). Pure, unit-tested below.
+pub fn blacklist_fetcher_proceeds(ban_members: bool) -> bool {
+    ban_members
 }
 
-/// Per-guild BLACKLIST.<uid> marker leaf (keys unchanged).
-async fn guild_blacklist_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
-    leaf_routed(pool, gid, &format!("BLACKLIST.{user_id}")).await
+/// Strict blacklist-row reason. Mirrors `data?.blacklisted === true`
+/// in Events/client/blacklistFetcher.ts (both the global
+/// `blacklistTable.get` leg and the guild `client.db.get` leg): only a
+/// JSON-object row carrying a literal-true `blacklisted` flag proceeds.
+/// Plain-string/legacy rows, `false`/`1`/`"true"` flags and missing rows
+/// all skip. The reason coerces like the TS template slot (missing
+/// renders `"undefined"`, explicit null renders `"null"`,
+/// numbers/bools stringify, nested values render `"[object Object]"`;
+/// the array-join edge is folded into the same fallback). Pure,
+/// unit-tested below.
+pub fn blacklist_row_reason(raw: &str) -> Option<String> {
+    let obj = serde_json::from_str::<serde_json::Value>(raw).ok()?;
+    let obj = obj.as_object()?;
+    if obj.get("blacklisted").and_then(|v| v.as_bool()) != Some(true) {
+        return None;
+    }
+    Some(match obj.get("reason") {
+        Some(serde_json::Value::String(s)) => s.clone(),
+        Some(serde_json::Value::Number(n)) => n.to_string(),
+        Some(serde_json::Value::Bool(b)) => b.to_string(),
+        Some(serde_json::Value::Null) => "null".to_string(),
+        Some(_) => "[object Object]".to_string(),
+        None => "undefined".to_string(),
+    })
+}
+
+/// Global BLACKLIST.<uid> reason leaf, routed via the named blacklist
+/// table (legacy scope "0", keys unchanged). Kept for the guildCreate
+/// blacklist-leave leg (its strict-flag battery belongs to the
+/// guildCreate-rich slice, not this one).
+async fn blacklist_reason_routed(pool: &crate::db::Pool, user_id: u64) -> Option<String> {
+    crate::commands::owner::main::bl_get(pool, user_id).await
 }
 
 /// EMBED_AWAIT.<uid> builder-input marker leaf (keys unchanged).
@@ -6322,36 +6356,61 @@ impl serenity::EventHandler for Handler {
                 }
             });
         }
-        // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
-        // BLACKLIST.<uid> table carries a reason; DM it, then ban.
-        if let Some(reason) = blacklist_reason_routed(&self.pool, new_member.user.id.get()).await {
+        // Guild blacklist gate (mirrors blacklistFetcher.ts: the whole
+        // body runs only when the bot holds BanMembers; the global
+        // BLACKLIST.<uid> row DMs its reason then bans, and execution
+        // FALLS THROUGH to the guild BLACKLIST.<uid> row (no early
+        // return on either leg, unlike the old code), which DMs the
+        // server message then bans with the server reason. Both rows
+        // need a literal-true `blacklisted` flag (`blacklist_row_reason`).
+        if blacklist_fetcher_proceeds(
+            self.bot_effective_perms(&ctx, new_member.guild_id)
+                .await
+                .ban_members(),
+        ) {
             let lang_code =
                 crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
-            let dm = crate::lang::get(&lang_code, "global_blacklist_msg_to_send")
-                .unwrap_or_default()
-                .replace("${data.reason}", &reason);
-            let _ = new_member
-                .user
-                .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
-                .await;
-            let ban_reason = crate::lang::get(&lang_code, "global_blacklist_reason")
-                .unwrap_or_default()
-                .replace("${data.reason}", &reason);
-            let _ = new_member
-                .guild_id
-                .ban_with_reason(&ctx.http, new_member.user.id, 0, &ban_reason)
-                .await;
-            return;
-        }
-        if guild_blacklist_routed(&self.pool, &gid, new_member.user.id.get())
-            .await
-            .is_some()
-        {
-            let _ = new_member
-                .guild_id
-                .ban(&ctx.http, new_member.user.id, 0)
-                .await;
-            return;
+            if let Some(raw) =
+                crate::commands::owner::main::bl_raw(&self.pool, new_member.user.id.get()).await
+            {
+                if let Some(reason) = blacklist_row_reason(&raw) {
+                    let dm = crate::lang::get(&lang_code, "global_blacklist_msg_to_send")
+                        .unwrap_or_default()
+                        .replacen("${data.reason}", &reason, 1);
+                    let _ = new_member
+                        .user
+                        .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
+                        .await;
+                    let ban_reason = crate::lang::get(&lang_code, "global_blacklist_reason")
+                        .unwrap_or_default()
+                        .replacen("${data.reason}", &reason, 1);
+                    let _ = new_member
+                        .guild_id
+                        .ban_with_reason(&ctx.http, new_member.user.id, 0, &ban_reason)
+                        .await;
+                }
+            }
+            if let Some(raw) =
+                crate::commands::owner::main::gbl_raw(&self.pool, &gid, new_member.user.id.get())
+                    .await
+            {
+                if let Some(reason) = blacklist_row_reason(&raw) {
+                    let dm = crate::lang::get(&lang_code, "server_blacklist_msg_to_send")
+                        .unwrap_or_default()
+                        .replacen("${data2.reason}", &reason, 1);
+                    let _ = new_member
+                        .user
+                        .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
+                        .await;
+                    let ban_reason = crate::lang::get(&lang_code, "server_blacklist_reason")
+                        .unwrap_or_default()
+                        .replacen("${data2.reason}", &reason, 1);
+                    let _ = new_member
+                        .guild_id
+                        .ban_with_reason(&ctx.http, new_member.user.id, 0, &ban_reason)
+                        .await;
+                }
+            }
         }
         // Nickname kicker (mirrors nickKicker.ts: the user-level
         // username, displayName (globalName ?? username in discord.js)
@@ -13475,10 +13534,14 @@ mod restore_tests {
             .await
             .unwrap();
         assert_eq!(
-            guild_blacklist_routed(&pool, "g1", 8).await.as_deref(),
+            crate::commands::owner::main::gbl_raw(&pool, "g1", 8)
+                .await
+                .as_deref(),
             Some("1")
         );
-        assert!(guild_blacklist_routed(&pool, "g1", 9).await.is_none());
+        assert!(crate::commands::owner::main::gbl_raw(&pool, "g1", 9)
+            .await
+            .is_none());
         // Embed-builder await marker leaf (same key helper as the emitter).
         crate::commands::owner::main::routed_set(
             &pool,
@@ -14471,6 +14534,53 @@ mod component_registry_tests {
         assert_eq!(
             ["🔗・Invite Link", "👑・Server Owner"].join("|"),
             "🔗・Invite Link|👑・Server Owner"
+        );
+    }
+
+    #[test]
+    fn blacklist_fetcher_gates_match_ts_battery() {
+        // Battery scratch/slice-w7s55-blacklist.cjs (17/17 green):
+        // Events/client/blacklistFetcher.ts gate + strict-flag + render legs.
+        // Whole body gated on BanMembers (`me?.permissions.has`).
+        assert!(blacklist_fetcher_proceeds(true));
+        assert!(!blacklist_fetcher_proceeds(false));
+        // Strict `?.blacklisted === true`: only literal-true objects act.
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":true,"reason":"r"}"#),
+            Some("r".to_string())
+        );
+        assert_eq!(blacklist_row_reason("null"), None);
+        assert_eq!(blacklist_row_reason("\"spam\""), None);
+        assert_eq!(blacklist_row_reason("not-json{"), None);
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":false,"reason":"r"}"#),
+            None
+        );
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":1,"reason":"r"}"#),
+            None
+        );
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":"true","reason":"r"}"#),
+            None
+        );
+        // Missing reason coerces to "undefined" (TS replace slot).
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":true}"#),
+            Some("undefined".to_string())
+        );
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":true,"reason":null}"#),
+            Some("null".to_string())
+        );
+        assert_eq!(
+            blacklist_row_reason(r#"{"blacklisted":true,"reason":5}"#),
+            Some("5".to_string())
+        );
+        // Template fill is first-only (JS string-pattern `replace`).
+        assert_eq!(
+            "G[${data.reason}]|[${data.reason}]".replacen("${data.reason}", "r", 1),
+            "G[r]|[${data.reason}]"
         );
     }
 
