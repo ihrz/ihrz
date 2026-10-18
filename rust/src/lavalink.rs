@@ -5143,8 +5143,15 @@ pub struct ScrobbleDue {
 /// Scrobble threshold: half the track or 4 minutes, whichever is
 /// shorter (Last.fm "played half / 4min" rule, mirrors the TS
 /// thresholdMs computation).
+///
+/// NOTE (slice-81 battery): TS computes `durationMs / 2` in float, so
+/// odd durations keep a `.5` half (e.g. 30001 -> 15000.5) while both
+/// sides compare against an integer `elapsed` (`Date.now()` deltas).
+/// `elapsed >= half` on integers is exactly `elapsed >= div_ceil`,
+/// hence the ceiling here -- a plain `/ 2` floor would credit an
+/// elapsed sitting exactly on `floor(half)` that TS still rejects.
 pub fn scrobble_threshold_ms(duration_ms: u64) -> u64 {
-    (duration_ms / 2).min(4 * 60 * 1000)
+    (duration_ms.div_ceil(2)).min(4 * 60 * 1000)
 }
 
 /// True when a finished listen counts (played past the threshold and
@@ -7839,6 +7846,18 @@ mod tests {
         assert!(!should_scrobble(200_000, 99_999));
         assert!(!should_scrobble(20_000, 20_000));
         assert!(!should_scrobble(0, 0));
+        // Slice-81 battery (slice-w4s81-threshold.cjs): TS keeps float
+        // halves, so odd durations need the ceiling -- elapsed sitting
+        // exactly on floor(half) must NOT credit.
+        assert_eq!(scrobble_threshold_ms(30_001), 15_001);
+        assert_eq!(scrobble_threshold_ms(59_999), 30_000);
+        assert_eq!(scrobble_threshold_ms(480_001), 240_000);
+        assert!(!should_scrobble(30_001, 15_000));
+        assert!(should_scrobble(30_001, 15_001));
+        assert!(!should_scrobble(59_999, 29_999));
+        assert!(!should_scrobble(29_999, 29_999));
+        assert!(!should_scrobble(30_000, 14_999));
+        assert!(should_scrobble(30_000, 15_000));
     }
 
     #[test]
