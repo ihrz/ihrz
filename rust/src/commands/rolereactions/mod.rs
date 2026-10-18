@@ -4,4 +4,7 @@
 // rolebutton, roleselect). Runtime toggling lives in events_handler.rs
 // (reaction_add/remove); roleselect builder UI flattened to kv config.
 
+pub mod common;
+pub mod rolebutton;
 pub mod rolereaction;
+pub mod roleselect;
