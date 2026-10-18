@@ -160,6 +160,93 @@ pub fn scrobble_fields(
     lastfm_signed_fields(api_key, shared_secret, "track.scrobble", &params)
 }
 
+/// JS truthiness of a parsed `error` member (mirrors the
+/// `payload.error` test in `callLastFM`: `0`/`""`/`false`/`null`
+/// are falsy — a 2xx carrying `error: 0` is a SUCCESS there —
+/// while objects/arrays (even `{}`/`[]`) are truthy).
+fn js_truthy(v: &serde_json::Value) -> bool {
+    match v {
+        serde_json::Value::Null => false,
+        serde_json::Value::Bool(b) => *b,
+        serde_json::Value::Number(n) => n.as_f64().map(|f| f != 0.0).unwrap_or(true),
+        serde_json::Value::String(s) => !s.is_empty(),
+        _ => true,
+    }
+}
+
+/// JS `Number()` coercion of a truthy `error` member (mirrors
+/// `Number(payload.error)` in `callLastFM`: numeric strings like
+/// `"9"` yield their value). Non-numeric members (`"abc"`,
+/// objects, booleans — `NaN`/`1`/`0` in JS, unrepresentable or
+/// meaningless as `errorCode`) fold to `None`.
+/// Battery: scratch `slice-w4s86-envelope.cjs`, green 12/12.
+fn js_error_code(v: &serde_json::Value) -> Option<i64> {
+    match v {
+        serde_json::Value::Number(n) => n.as_i64().or_else(|| n.as_f64().map(|f| f as i64)),
+        serde_json::Value::String(s) => s.parse::<f64>().ok().map(|f| f as i64),
+        // `false`/`null` are falsy (unreachable here); `true` coerces to 1.
+        serde_json::Value::Bool(true) => Some(1),
+        _ => None,
+    }
+}
+
+/// Pure `callLastFM` response-envelope classifier (mirrors
+/// `LastFMScrobblerManager.callLastFM` below the `isConfigured`
+/// guard — every caller gates configuration first: `login` via
+/// `isConfigured()`, the attach/scrobble legs outcome-equivalently
+/// since `{errorCode: -1, ok: false}` is never session-shaped, so
+/// both sides take the transient-failure path).
+/// `status` is the HTTP status code, `reason` its reason phrase
+/// (the `response.statusText` fallback), `raw_body` the raw text.
+/// Legs: empty body parses as `{}`; an UNPARSEABLE non-empty body
+/// throws inside the TS `try` and answers failure with NO code
+/// (even on a non-2xx status — the catch swallows it) and the
+/// parse message; failure iff non-2xx OR a truthy `error` member;
+/// code is `Number(error)` when truthy else the status; message is
+/// `payload.message || statusText` (empty messages fall back).
+/// Battery: scratch `slice-w4s86-envelope.cjs`, green 12/12.
+/// DELTA (doc-noted, unreachable: Last.fm always sends integer
+/// `error` codes): a non-numeric truthy `error` (`"abc"`, `{}`)
+/// yields `NaN` in TS but `None` here — same failure verdict,
+/// and `is_invalid_session_error` reads `None` as non-9 both sides
+/// would only differ from a `NaN` the same way (`NaN === 9` false).
+pub fn classify_lastfm_response(
+    status: u16,
+    reason: &str,
+    raw_body: &str,
+) -> Result<serde_json::Value, LastFmError> {
+    let payload: serde_json::Value = if raw_body.is_empty() {
+        serde_json::Value::Object(Default::default())
+    } else {
+        match serde_json::from_str(raw_body) {
+            Ok(v) => v,
+            Err(e) => {
+                return Err(LastFmError {
+                    code: None,
+                    message: e.to_string(),
+                })
+            }
+        }
+    };
+    let ok_status = (200..300).contains(&status);
+    let err_member = payload.get("error").filter(|e| js_truthy(e));
+    if !ok_status || err_member.is_some() {
+        let code = err_member.and_then(js_error_code).or(if ok_status {
+            None
+        } else {
+            Some(status as i64)
+        });
+        let message = payload
+            .get("message")
+            .and_then(|m| m.as_str())
+            .filter(|s| !s.is_empty())
+            .unwrap_or(reason)
+            .to_string();
+        return Err(LastFmError { code, message });
+    }
+    Ok(payload)
+}
+
 /// POST a signed field set, mapping the wire shape back to the
 /// `LastFMApiResponse` contract (non-2xx or an `error` member =
 /// failure with code + message, like `callLastFM`).
@@ -178,25 +265,11 @@ async fn post_signed(
         })?;
     let status = res.status();
     let body = res.text().await.unwrap_or_default();
-    let payload: serde_json::Value = serde_json::from_str(&body).unwrap_or_default();
-    if !status.is_success() || payload.get("error").is_some() {
-        let code = payload
-            .get("error")
-            .and_then(|e| e.as_i64())
-            .or(if status.is_success() {
-                None
-            } else {
-                Some(status.as_u16() as i64)
-            });
-        let message = payload
-            .get("message")
-            .and_then(|m| m.as_str())
-            .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| status.canonical_reason().unwrap_or(method))
-            .to_string();
-        return Err(LastFmError { code, message });
-    }
-    Ok(payload)
+    super::scrobbler::classify_lastfm_response(
+        status.as_u16(),
+        status.canonical_reason().unwrap_or(method),
+        &body,
+    )
 }
 
 /// Live `track.updateNowPlaying` (mirrors the TS attach leg: the
@@ -530,6 +603,56 @@ mod tests {
         assert!(!is_invalid_session_error(Some(4), "Authentication Failed"));
         assert!(!is_invalid_session_error(None, "ok"));
         assert!(!is_invalid_session_error(None, ""));
+    }
+
+    #[test]
+    fn call_lastfm_envelope_matches_ts_battery() {
+        // Battery legs: scratch `slice-w4s86-envelope.cjs`, green 12/12.
+        let ok = classify_lastfm_response(200, "OK", r#"{"a":1}"#).unwrap();
+        assert_eq!(ok.get("a").and_then(|v| v.as_i64()), Some(1));
+        let empty = classify_lastfm_response(200, "OK", "").unwrap();
+        assert_eq!(empty, serde_json::Value::Object(Default::default()));
+        // Unparseable body throws inside the TS try: failure, NO code.
+        let bad = classify_lastfm_response(200, "OK", "{oops").unwrap_err();
+        assert_eq!(bad.code, None);
+        assert!(!bad.message.is_empty());
+        let e9 =
+            classify_lastfm_response(200, "OK", r#"{"error":9,"message":"Invalid session key"}"#)
+                .unwrap_err();
+        assert_eq!(
+            (e9.code, e9.message.as_str()),
+            (Some(9), "Invalid session key")
+        );
+        // JS Number("9") coerces numeric strings.
+        let es = classify_lastfm_response(200, "OK", r#"{"error":"9","message":"bad key"}"#)
+            .unwrap_err();
+        assert_eq!((es.code, es.message.as_str()), (Some(9), "bad key"));
+        // Falsy error:0 is a SUCCESS in TS (`payload.error` test).
+        let zero = classify_lastfm_response(200, "OK", r#"{"error":0,"x":1}"#).unwrap();
+        assert_eq!(zero.get("error").and_then(|v| v.as_i64()), Some(0));
+        // Missing message falls back to statusText.
+        let nomsg = classify_lastfm_response(200, "OK", r#"{"error":9}"#).unwrap_err();
+        assert_eq!((nomsg.code, nomsg.message.as_str()), (Some(9), "OK"));
+        let f403 =
+            classify_lastfm_response(403, "Forbidden", r#"{"error":4,"message":"Unauthorized"}"#)
+                .unwrap_err();
+        assert_eq!(
+            (f403.code, f403.message.as_str()),
+            (Some(4), "Unauthorized")
+        );
+        let e500 = classify_lastfm_response(500, "Internal Server Error", "").unwrap_err();
+        assert_eq!(
+            (e500.code, e500.message.as_str()),
+            (Some(500), "Internal Server Error")
+        );
+        // Garbage body on a non-2xx: the TS catch swallows the status too.
+        let g500 =
+            classify_lastfm_response(500, "Internal Server Error", "<html>oops").unwrap_err();
+        assert_eq!(g500.code, None);
+        assert!(!g500.message.is_empty());
+        // Session-shaped codes still route to invalidate downstream.
+        assert!(is_invalid_session_error(e9.code, &e9.message));
+        assert!(!is_invalid_session_error(e500.code, &e500.message));
     }
 
     #[test]

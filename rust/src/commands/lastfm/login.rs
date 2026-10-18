@@ -220,26 +220,13 @@ pub async fn lastfm_mobile_session(
         .map_err(|e| (None, e.to_string()))?;
     let status = res.status();
     let body = res.text().await.unwrap_or_default();
-    let payload: serde_json::Value = serde_json::from_str(&body).unwrap_or_default();
-    if !status.is_success() || payload.get("error").is_some() {
-        let code = payload
-            .get("error")
-            .and_then(|e| e.as_i64())
-            .or(if status.is_success() {
-                None
-            } else {
-                Some(status.as_u16() as i64)
-            });
-        let msg = payload
-            .get("message")
-            .and_then(|m| m.as_str())
-            .filter(|s| !s.is_empty())
-            .unwrap_or_else(|| status.canonical_reason().unwrap_or(""))
-            .to_string();
-        return Err((code, msg));
-    }
-    let (name, key) = parse_mobile_session(&payload);
-    Ok((name, key))
+    super::scrobbler::classify_lastfm_response(
+        status.as_u16(),
+        status.canonical_reason().unwrap_or(""),
+        &body,
+    )
+    .map_err(|e| (e.code, e.message))
+    .map(|payload| parse_mobile_session(&payload))
 }
 
 /// `generateUserEmbed` mirror (status / account / connected-at fields).
