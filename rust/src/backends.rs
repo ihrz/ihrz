@@ -931,29 +931,81 @@ impl HorizonDbBackend {
     }
 
     /// Compose first, then view: keeps the borrow simple for callers.
+    /// Guild scopes (numeric table = guild id) compose `"{gid}.{key}"`
+    /// on the shared `json` horizon table — the exact wire shape TS uses.
+    /// Named tables (`metas`, `owner`, … — the TS `tables` list) address
+    /// their NATIVE horizon table with the bare key, exactly like TS
+    /// `db.table(name)` views (verified against
+    /// `src/core/database/index.ts` + `ready.ts:97`). Folding named
+    /// tables into `json` (the old behavior here) misses every row the
+    /// TS side / gateway writes, in both directions.
     fn live_key(&self, table: &str, key: &str) -> Option<(crate::horizon::HorizonDb, String)> {
         let client = self.client.as_ref()?;
+        if table.parse::<u64>().is_ok() {
+            let view = client.table("json").ok()?;
+            return Some((view, format!("{table}.{key}")));
+        }
+        let view = client.table(table).ok()?;
+        Some((view, key.to_string()))
+    }
+
+    /// Folded fallback for named tables: rows written while this backend
+    /// folded everything into `json."<table>.<key>"` stay readable after
+    /// the native-table fix above (native wins; writes always go native).
+    fn live_key_folded(
+        &self,
+        table: &str,
+        key: &str,
+    ) -> Option<(crate::horizon::HorizonDb, String)> {
+        let client = self.client.as_ref()?;
+        if table.parse::<u64>().is_ok() {
+            return None;
+        }
         let view = client.table("json").ok()?;
         Some((view, format!("{table}.{key}")))
     }
 
     async fn all(&self, table: &str) -> Vec<Row> {
         if let Some(client) = self.client.as_ref() {
-            let prefix = format!("{table}.");
-            let Ok(view) = client.table("json") else {
-                return Vec::new();
-            };
-            return view
-                .all()
-                .await
-                .unwrap_or_default()
-                .into_iter()
-                .filter_map(|e| {
-                    e.id.strip_prefix(&prefix).map(|id| Row {
-                        id: id.to_string(),
-                        value: e.value,
+            // Named tables read their native view; guild scopes read the
+            // `{gid}.` prefix on `json`. Folded rows (named tables only)
+            // merge in with native winning.
+            if table.parse::<u64>().is_ok() {
+                let prefix = format!("{table}.");
+                let Ok(view) = client.table("json") else {
+                    return Vec::new();
+                };
+                return view
+                    .all()
+                    .await
+                    .unwrap_or_default()
+                    .into_iter()
+                    .filter_map(|e| {
+                        e.id.strip_prefix(&prefix).map(|id| Row {
+                            id: id.to_string(),
+                            value: e.value,
+                        })
                     })
-                })
+                    .collect();
+            }
+            let mut merged: std::collections::HashMap<String, Value> =
+                std::collections::HashMap::new();
+            if let Ok(fview) = client.table("json") {
+                let prefix = format!("{table}.");
+                for e in fview.all().await.unwrap_or_default() {
+                    if let Some(id) = e.id.strip_prefix(&prefix) {
+                        merged.insert(id.to_string(), e.value);
+                    }
+                }
+            }
+            if let Ok(view) = client.table(table) {
+                for e in view.all().await.unwrap_or_default() {
+                    merged.insert(e.id, e.value);
+                }
+            }
+            return merged
+                .into_iter()
+                .map(|(id, value)| Row { id, value })
                 .collect();
         }
         self.inner.all(table).await
@@ -961,7 +1013,17 @@ impl HorizonDbBackend {
 
     async fn get(&self, table: &str, key: &str) -> Option<Value> {
         if let Some((view, hkey)) = self.live_key(table, key) {
-            return view.get(&hkey).await.ok().flatten();
+            if let Some(v) = view.get(&hkey).await.ok().flatten() {
+                return Some(v);
+            }
+            // Folded-row fallback (named tables only; live_key_folded
+            // is None for guild scopes).
+            if let Some((fview, fhkey)) = self.live_key_folded(table, key) {
+                if let Some(v) = fview.get(&fhkey).await.ok().flatten() {
+                    return Some(v);
+                }
+            }
+            return None;
         }
         self.inner.get(table, key).await
     }
@@ -988,7 +1050,13 @@ impl HorizonDbBackend {
 
     async fn has(&self, table: &str, key: &str) -> bool {
         if let Some((view, hkey)) = self.live_key(table, key) {
-            return view.has(&hkey).await.unwrap_or(false);
+            if view.has(&hkey).await.unwrap_or(false) {
+                return true;
+            }
+            if let Some((fview, fhkey)) = self.live_key_folded(table, key) {
+                return fview.has(&fhkey).await.unwrap_or(false);
+            }
+            return false;
         }
         self.inner.has(table, key).await
     }
@@ -1002,15 +1070,28 @@ impl HorizonDbBackend {
 
     async fn delete_all(&self, table: &str) -> u64 {
         if self.client.is_some() {
-            let prefix = format!("{table}.");
             let rows = self.all(table).await;
             let mut n = 0u64;
             for row in rows {
-                // `all` already stripped the prefix; re-compose per row.
-                let hkey = format!("{prefix}{}", row.id);
-                if let Some(client) = self.client.as_ref() {
-                    if let Ok(view) = client.table("json") {
-                        n += view.delete(&hkey).await.unwrap_or(0);
+                // `all` returns stripped ids; re-compose per scope kind:
+                // guild scopes live folded on `json`, named tables native
+                // (+ their folded legacy rows).
+                if table.parse::<u64>().is_ok() {
+                    let hkey = format!("{table}.{}", row.id);
+                    if let Some(client) = self.client.as_ref() {
+                        if let Ok(view) = client.table("json") {
+                            n += view.delete(&hkey).await.unwrap_or(0);
+                        }
+                    }
+                } else if let Some(client) = self.client.as_ref() {
+                    if let Ok(view) = client.table(table) {
+                        n += view.delete(&row.id).await.unwrap_or(0);
+                    }
+                    if let Ok(fview) = client.table("json") {
+                        n += fview
+                            .delete(&format!("{table}.{}", row.id))
+                            .await
+                            .unwrap_or(0);
                     }
                 }
             }

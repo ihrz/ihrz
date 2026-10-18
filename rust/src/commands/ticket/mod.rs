@@ -140,12 +140,25 @@ pub(crate) async fn ticket_get_routed(
 /// Table-first `EMBED.<id>` -> `embedSource` lookup with legacy kv
 /// fallback (keys unchanged). Returns the `embedSource` doc, not the
 /// whole row.
+///
+/// Scope parity with the gateway/TS (`metasTable`, global `metas`
+/// table — see `ready.ts:97`): the global `metas` row wins. The guild
+/// row stays as fallback for rows seeded guild-side.
 pub(crate) async fn embed_source_routed(
     pool: &crate::db::Pool,
     gid: &str,
     embed_id: &str,
 ) -> Option<serde_json::Value> {
-    ticket_get_routed(pool, gid, &format!("EMBED.{}", embed_id.trim()))
+    let key = format!("EMBED.{}", embed_id.trim());
+    if let Some(s) = crate::commands::owner::store::tbl_get(pool, "metas", &key).await {
+        if let Some(v) = serde_json::from_str::<serde_json::Value>(&s)
+            .ok()
+            .and_then(|v| v.get("embedSource").cloned())
+        {
+            return Some(v);
+        }
+    }
+    ticket_get_routed(pool, gid, &key)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .and_then(|v: serde_json::Value| v.get("embedSource").cloned())
