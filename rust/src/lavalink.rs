@@ -1995,7 +1995,7 @@ impl LavalinkManager {
                         Ok(()) => {}
                         Err(e) => {
                             if lf::is_invalid_session_error(e.code, &e.message) {
-                                let _ = lf::invalidate_user_session(&live.pool, *uid).await;
+                                self.lastfm_invalidate_user(&live.pool, *uid).await;
                             } else {
                                 tracing::warn!(
                                     "lastfm end-scrobble failed for {uid}: {}",
@@ -2024,6 +2024,16 @@ impl LavalinkManager {
     /// clearGuildSession).
     pub async fn lastfm_queue_end(&self, guild_id: u64) {
         self.lastfm_sessions.lock().await.remove(&guild_id);
+    }
+
+    /// Full `invalidateUserSession` mirror: disable the DB row AND
+    /// drop the user from every live session (mirrors
+    /// `removeUserFromActiveSessions`). Every dead-key site funnels
+    /// here so no call site can forget the live drop.
+    async fn lastfm_invalidate_user(&self, pool: &crate::db::Pool, user_id: u64) {
+        use crate::commands::lastfm::scrobbler as lf;
+        let _ = lf::invalidate_user_session(pool, user_id).await;
+        lastfm_drop_user_from(&mut *self.lastfm_sessions.lock().await, user_id);
     }
 }
 
@@ -2077,6 +2087,19 @@ fn lastfm_paused_total(paused_ms: u64, pause_started_ms: Option<i64>, now_ms: i6
 /// (clock skew across lock re-takes) charges zero, never wraps.
 fn lastfm_listener_paused_share(paused_total_now_ms: u64, pause_base_ms: u64) -> u64 {
     paused_total_now_ms.saturating_sub(pause_base_ms)
+}
+
+/// `removeUserFromActiveSessions` mirror: `invalidateUserSession`
+/// drops the user from EVERY guild session (clear timeout + delete,
+/// never a finalize POST). Rust holds no per-listener timer (the
+/// generation drive owns the wait and re-checks membership), so the
+/// delete is the whole mirror. Without it a dead listener keeps its
+/// stale in-memory key, retries every finalize, and blocks re-attach
+/// with a fresh key (`contains_key` early-return).
+fn lastfm_drop_user_from(sessions: &mut HashMap<u64, LastFmSession>, user_id: u64) {
+    for s in sessions.values_mut() {
+        s.listeners.remove(&user_id);
+    }
 }
 
 /// Listener elapsed listening ms (mirrors `getElapsedListeningMs`).
@@ -2193,7 +2216,7 @@ impl LavalinkManager {
                 // just skip the attach with no side effect.
                 lf::DecryptedSession::Ok(t) => Some(t),
                 lf::DecryptedSession::DecryptFailed => {
-                    let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                    self.lastfm_invalidate_user(&live.pool, user_id).await;
                     return false;
                 }
                 lf::DecryptedSession::Missing => None,
@@ -2212,7 +2235,7 @@ impl LavalinkManager {
             Ok(()) => {}
             Err(e) => {
                 if lf::is_invalid_session_error(e.code, &e.message) {
-                    let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                    self.lastfm_invalidate_user(&live.pool, user_id).await;
                     return false;
                 }
                 // Transient failure (network, HTTP 5xx, other API error):
@@ -2326,7 +2349,7 @@ impl LavalinkManager {
                 }
                 Err(e) => {
                     if lf::is_invalid_session_error(e.code, &e.message) {
-                        let _ = lf::invalidate_user_session(&live.pool, uid).await;
+                        self.lastfm_invalidate_user(&live.pool, uid).await;
                     } else {
                         tracing::warn!("lastfm scrobble failed for {uid}: {}", e.message);
                     }
@@ -2405,7 +2428,7 @@ impl LavalinkManager {
                         Ok(()) => {}
                         Err(e) => {
                             if lf::is_invalid_session_error(e.code, &e.message) {
-                                let _ = lf::invalidate_user_session(&live.pool, user_id).await;
+                                self.lastfm_invalidate_user(&live.pool, user_id).await;
                             } else {
                                 tracing::warn!(
                                     "lastfm leave-scrobble failed for {user_id}: {}",
@@ -7795,6 +7818,65 @@ mod tests {
         assert_eq!(sessions.get(&47).map(|s| s.duration_ms), Some(0));
         drop(sessions);
         assert!(m.lastfm_track_end_due(47, 3_600_000).await.is_none());
+    }
+
+    #[test]
+    fn lastfm_invalidate_drops_user_from_every_session() {
+        // `invalidateUserSession` -> `removeUserFromActiveSessions`:
+        // the dead user is deleted from ALL guild sessions (never a
+        // finalize POST), while other listeners are untouched. A kept
+        // stale entry would retry the dead key every finalize and
+        // block re-attach with a fresh key.
+        let mut sessions: HashMap<u64, LastFmSession> = HashMap::new();
+        for gid in [11u64, 22u64] {
+            sessions.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms: 200_000,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: Some(5),
+                    track_key: "k".into(),
+                    listeners: HashMap::from([
+                        (
+                            100u64,
+                            LastfmListener {
+                                session_key: "dead".into(),
+                                username: "u".into(),
+                                started_ms: 0,
+                                threshold_ms: 100_000,
+                                scrobbled: false,
+                                pause_base_ms: 0,
+                            },
+                        ),
+                        (
+                            200u64,
+                            LastfmListener {
+                                session_key: "live".into(),
+                                username: "v".into(),
+                                started_ms: 0,
+                                threshold_ms: 100_000,
+                                scrobbled: false,
+                                pause_base_ms: 0,
+                            },
+                        ),
+                    ]),
+                },
+            );
+        }
+        lastfm_drop_user_from(&mut sessions, 100);
+        for gid in [11u64, 22u64] {
+            let s = sessions.get(&gid).unwrap();
+            assert!(!s.listeners.contains_key(&100));
+            assert!(s.listeners.contains_key(&200));
+        }
+        // Unknown user is a no-op (TS `get` miss -> `continue`).
+        lastfm_drop_user_from(&mut sessions, 999);
+        assert_eq!(sessions.get(&11).unwrap().listeners.len(), 1);
     }
 
     #[tokio::test]
