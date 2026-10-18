@@ -2021,6 +2021,15 @@ fn lastfm_track_key(artist: &str, title: &str, started_ms: i64) -> String {
     format!("{artist}\0{title}\0{started_ms}")
 }
 
+/// `handleTrackEnd` finalize gate mirror: every end reason EXCEPT
+/// `loadFailed` still runs the finalize scrobble leg (TS
+/// `reason !== "loadFailed"` — a strict string compare, so stopped /
+/// replaced / cleanup ends credit a due listen; the threshold check
+/// inside the finalize leg already guards the unplayed case).
+fn lastfm_track_end_finalizes(reason: &TrackEndReason) -> bool {
+    !matches!(reason, TrackEndReason::LoadFailed)
+}
+
 /// Non-bot member ids of a voice channel. Mirrors the
 /// `voiceChannel.members` scan in `syncMembersWithVoiceChannel` (TS
 /// reads the cached guild voice states; same source here — there is
@@ -2384,25 +2393,22 @@ impl LavalinkManager {
         }
         // LastFM scrobble hooks (mirrors playerManager.ts trackEnd ->
         // lastFMScrobbler.handleTrackEnd, and the Idle drain -> queueEnd
-        // -> handleQueueEnd leg). Load-failed tracks never scrobble.
-        // Replaced ends the old listen without credit too: the node
-        // swapped the track externally, so the previous track never
-        // completed (the TS handleTrackEnd only exempts loadFailed, but
-        // scrobbling a replaced-away track would credit an unplayed
-        // listen; the new track opens a fresh session on trackStart).
+        // -> handleQueueEnd leg). Only load-failed tracks skip the
+        // finalize credit: the TS gate is `reason !== "loadFailed"`, so
+        // stopped / replaced / cleanup ends still finalize when the
+        // listen is due (a past-threshold listen counts even when a skip
+        // replaces the track — the threshold check already guards the
+        // unplayed case).
         if let Ok(gid) = ev.guild_id.parse::<u64>() {
             match outcome {
                 Some(AdvanceOutcome::Idle) => {
                     self.lastfm_queue_end(gid).await;
                 }
                 Some(_) => {
-                    if matches!(
-                        ev.reason,
-                        TrackEndReason::LoadFailed | TrackEndReason::Replaced
-                    ) {
-                        self.lastfm_queue_end(gid).await;
-                    } else {
+                    if lastfm_track_end_finalizes(&ev.reason) {
                         self.lastfm_track_end_due(gid, now_ms).await;
+                    } else {
+                        self.lastfm_queue_end(gid).await;
                     }
                 }
                 None => {}
@@ -7571,6 +7577,19 @@ mod tests {
         assert_eq!(a, lastfm_track_key("a", "t", 1_000));
         assert_ne!(a, lastfm_track_key("a", "t", 2_000));
         assert_ne!(a, lastfm_track_key("a", "t2", 1_000));
+    }
+
+    #[test]
+    fn lastfm_end_finalizes_on_every_reason_but_load_failed() {
+        // `handleTrackEnd` gate (`reason !== "loadFailed"`): stopped,
+        // replaced and cleanup ends still finalize a due listen — the
+        // finalize leg's own threshold check guards the unplayed case.
+        // Battery: scratch/slice-w4s62-trackend.cjs (node, 8/8).
+        assert!(lastfm_track_end_finalizes(&TrackEndReason::Finished));
+        assert!(lastfm_track_end_finalizes(&TrackEndReason::Stopped));
+        assert!(lastfm_track_end_finalizes(&TrackEndReason::Replaced));
+        assert!(lastfm_track_end_finalizes(&TrackEndReason::Cleanup));
+        assert!(!lastfm_track_end_finalizes(&TrackEndReason::LoadFailed));
     }
 
     #[test]
