@@ -25,7 +25,7 @@ pub async fn ticket_remove(
     #[description_localized("ja", "チケットから削除したいユーザー")]
     #[description_localized("ru", "Пользователь, которого вы хотите удалить из тикета")]
     #[description_localized("es-ES", "El usuario que quieres eliminar de tu ticket")]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -83,13 +83,13 @@ pub async fn ranks_show(
         "El usuario que quieres buscar, déjalo en blanco si quieres mostrar tus estadísticas"
     )]
     #[description = "Member"]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: rank load + member fetch + lang + avatar/color
     // HTTP + footer reads run before the first reply, past the 3s slash
     // window (ranks.ts `show` thinking: true; no defer_policy entry).
     ctx.defer().await?;
-    let member = user.as_ref().unwrap_or_else(|| ctx.author());
+    let member = user.map(|u| u.0).unwrap_or_else(|| ctx.author().clone());
     let uid = member.id.get();
     let gid = ctx
         .guild_id()
@@ -109,7 +109,7 @@ pub async fn ranks_show(
     // TS display name (`!show.ts:82,105-108`): the guild member's
     // display name (server nickname first), with the global name /
     // username as fallback.
-    let display = rank_display_name(&ctx, member).await;
+    let display = rank_display_name(&ctx, &member).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Snapshot the avatar via the shared image64 helper so the card and
     // the thumbnail survive avatar changes (never a raw CDN URL).

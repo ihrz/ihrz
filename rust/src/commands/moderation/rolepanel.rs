@@ -145,7 +145,7 @@ pub async fn mod_rolepanel(
     #[description_localized("ru", "Участник, который получит роли")]
     #[description_localized("es-ES", "El miembro que recibirá los roles")]
     #[description = "The member who will receive the roles"]
-    member: Option<serenity::User>,
+    member: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
     // reply before running; defer here for the same 3s window.

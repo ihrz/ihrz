@@ -24,7 +24,7 @@ pub async fn blacklist(
     #[description_localized("ja", "ブラックリストに入れたいユーザー...")]
     #[description_localized("ru", "Пользователь, которого вы хотите добавить в черный список...")]
     #[description_localized("es-ES", "El usuario que quieres poner en lista negra...")]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
     // Rest-of-line like TS `longString(args, 1)`: multi-word reasons
     // survive prefix parsing (same `#[rest]` pattern as fun/catsay).
     // Slash use is unaffected (`#[rest]` is prefix-only).
@@ -47,7 +47,7 @@ pub async fn blacklist(
 
 async fn blacklist_inner(
     ctx: Ctx<'_>,
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;

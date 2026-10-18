@@ -23,7 +23,7 @@ pub async fn mod_ban(
     #[description_localized("ru", "участник для бана")]
     #[description_localized("es-ES", "el miembro que quieres banear")]
     #[description = "the member you want to ban"]
-    member: Option<serenity::User>,
+    member: Option<crate::reply_user::ReplyUser>,
     #[description_localized("fr", "la raison du ban")]
     #[description_localized("ja", "バンの理由")]
     #[description_localized("ru", "причина бана")]

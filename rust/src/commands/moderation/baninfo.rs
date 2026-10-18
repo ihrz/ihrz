@@ -44,7 +44,7 @@ pub async fn mod_baninfo(
     #[description_localized("ru", "участник для проверки")]
     #[description_localized("es-ES", "el miembro que quieres comprobar")]
     #[description = "the member you want to check"]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     // TS checkCommandArgs counts first (`user` required:true in
     // HybridCommands/moderation/mod.ts): a bare `.mod baninfo` renders

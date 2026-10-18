@@ -42,7 +42,7 @@ pub async fn owner(
     )]
     // TS HybridCommands/owner/owner.ts registers "member".
     #[rename = "member"]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     // Neither bot nor guild owner: TS `run` returns silently (no reply).

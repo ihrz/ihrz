@@ -22,7 +22,7 @@ pub async fn mod_warn(
     #[description_localized("ru", "Участник для предупреждения")]
     #[description_localized("es-ES", "El miembro al que quieres advertir")]
     #[description = "The member you want to warn"]
-    member: Option<serenity::User>,
+    member: Option<crate::reply_user::ReplyUser>,
     #[description_localized("fr", "La raison du warn")]
     #[description_localized("ja", "このメンバーを警告する理由")]
     #[description_localized("ru", "Причина предупреждения этого участника")]

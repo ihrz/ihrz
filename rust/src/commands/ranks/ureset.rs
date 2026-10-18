@@ -25,7 +25,7 @@ pub async fn ranks_ureset(
     #[description_localized("ru", "Пользователь, чьи данные рангов нужно сбросить")]
     #[description_localized("es-ES", "El usuario al que quieres restablecer los datos de rango")]
     #[description = "Member to reset (defaults to self on prefix)"]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let target_id = match user {

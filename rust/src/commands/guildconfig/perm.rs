@@ -299,7 +299,7 @@ pub async fn gc_perm_command(
     custom_role: Option<serenity::Role>,
     #[description = "The custom user you want to set for the command"]
     #[rename = "custom-user"]
-    custom_user: Option<serenity::User>,
+    custom_user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: every action arm does lang + row reads/writes
     // before the first reply (perm.ts:409 `thinking: true`).
@@ -360,7 +360,7 @@ pub async fn run_perm_change(
     command: Option<String>,
     permission: Option<i64>,
     custom_role: Option<serenity::Role>,
-    custom_user: Option<serenity::User>,
+    custom_user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -523,7 +523,7 @@ pub async fn run_perm_delete_all(
     ctx: Ctx<'_>,
     permission: Option<i64>,
     custom_role: Option<serenity::Role>,
-    custom_user: Option<serenity::User>,
+    custom_user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

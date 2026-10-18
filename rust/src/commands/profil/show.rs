@@ -77,9 +77,9 @@ pub async fn profil_show(
     #[description_localized("ja", "検索したいユーザー")]
     #[description_localized("ru", "Пользователь для поиска")]
     #[description_localized("es-ES", "El usuario que quieres buscar")]
-    user: Option<serenity::User>,
+    user: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
-    let target = user.as_ref().unwrap_or_else(|| ctx.author());
+    let target = user.map(|u| u.0).unwrap_or_else(|| ctx.author().clone());
     let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let p = super::profil::load_profil_routed(&ctx.data().pool, target.id.get()).await;
     let gid = ctx

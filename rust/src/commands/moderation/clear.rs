@@ -45,7 +45,7 @@ pub async fn mod_clear(
     #[description_localized("ru", "Участник, чьи сообщения удалить")]
     #[description_localized("es-ES", "El miembro del que quieres eliminar el mensaje")]
     #[description = "The member you want to delete the message"]
-    member: Option<serenity::User>,
+    member: Option<crate::reply_user::ReplyUser>,
 ) -> Result<(), anyhow::Error> {
     // Ack first: mod.ts sets `thinking: true`, so TS defers the slash
     // reply before running; defer here for the same 3s window.

@@ -42,6 +42,7 @@ mod modal_helper;
 mod monitor;
 #[cfg(test)]
 mod qa_load;
+mod reply_user;
 mod scheduler;
 mod slashlog;
 mod stats_calc;
