@@ -2127,7 +2127,15 @@ impl LavalinkManager {
     }
 }
 
-/// Track identity for staleness checks (mirrors `trackKey`).
+/// Track identity for staleness checks (mirrors `trackKey`, DELIBERATE
+/// shape improvement, battery: scratch/slice-w4s72-trackkey.cjs 11/11).
+/// TS joins [encoded, identifier, uri, title, author].filter(Boolean)
+/// with ":" — content-only, so a same-track replay yields the IDENTICAL
+/// key and a stale timer closure's `trackKey !==` guard passes (old
+/// session could POST once more). The generation key adds `started_ms`
+/// (replay-safe: stale drives die on mismatch) and NUL separators (no
+/// colon-ambiguity when a field itself contains ":"). Equality-only
+/// use both sides, so same inputs still compare equal.
 fn lastfm_track_key(artist: &str, title: &str, started_ms: i64) -> String {
     format!("{artist}\0{title}\0{started_ms}")
 }
@@ -7954,10 +7962,26 @@ mod tests {
     fn lastfm_track_key_unique_per_generation() {
         // Same track restarted later is a new generation (orphans the
         // old drive task); different titles never collide.
+        // Battery: scratch/slice-w4s72-trackkey.cjs (node, 11/11) pins
+        // the TS filter(Boolean)+join(":") legs: falsy parts dropped,
+        // "0" kept, replay yields the IDENTICAL TS key (the stale-timer
+        // hole this generation key closes deliberately).
         let a = lastfm_track_key("a", "t", 1_000);
         assert_eq!(a, lastfm_track_key("a", "t", 1_000));
         assert_ne!(a, lastfm_track_key("a", "t", 2_000));
         assert_ne!(a, lastfm_track_key("a", "t2", 1_000));
+        // NUL separators: a colon inside a field cannot forge a
+        // different split the way the TS ":" join can (battery
+        // colon-in-field case "a:b:c:u:T:A").
+        assert_ne!(
+            lastfm_track_key("a:b", "t", 1_000),
+            lastfm_track_key("a", "b\0t", 1_000)
+        );
+        // Empty artist/title still keyed apart by generation.
+        assert_ne!(
+            lastfm_track_key("", "", 1_000),
+            lastfm_track_key("", "", 2_000)
+        );
     }
 
     #[test]
