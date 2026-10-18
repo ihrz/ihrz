@@ -91,13 +91,11 @@ pub async fn lastfm_login(
                     .await?;
                 return Ok(());
             };
-            // TS `getEncryptionSecret()`: `apiToken || sharedSecret`.
+            // TS `getEncryptionSecret()`: `apiToken || sharedSecret`
+            // (exact JS falsiness — no trim; see `encryption_secret`).
             let token = crate::config::api_token().unwrap_or_default();
-            let secret = if token.trim().is_empty() {
-                shared_secret.clone()
-            } else {
-                token
-            };
+            let secret =
+                crate::commands::lastfm::scrobbler::encryption_secret(&token, &shared_secret);
             let connected_at = chrono::Utc::now().timestamp_millis();
             let settings = serde_json::json!({
                 "connectedAt": connected_at,

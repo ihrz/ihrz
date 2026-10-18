@@ -302,10 +302,14 @@ pub fn sync_listener_sets(channel_members: &[u64], listener_ids: &[u64]) -> (Vec
     (to_attach, to_detach)
 }
 
-/// `getEncryptionSecret` mirror: the API token wins, else the Last.fm
-/// shared secret (same precedence as login.rs).
+/// `getEncryptionSecret` mirror: exact JS `||` on the token string —
+/// only the empty string falls through to the shared secret. A
+/// whitespace-only token is truthy in JS and wins there, so no
+/// trimming here (a trim would encrypt with a different key than the
+/// TS side and corrupt cross-reads).
+/// Battery: scratch `slice-w4s82-secret.cjs`, green 9/9.
 pub fn encryption_secret(api_token: &str, shared_secret: &str) -> String {
-    if api_token.trim().is_empty() {
+    if api_token.is_empty() {
         shared_secret.to_string()
     } else {
         api_token.to_string()
@@ -663,7 +667,10 @@ mod tests {
     #[test]
     fn secret_prefers_api_token() {
         assert_eq!(encryption_secret("tok", "sh"), "tok");
-        assert_eq!(encryption_secret("  ", "sh"), "sh");
+        // JS `||`: whitespace is truthy, so the token wins (battery
+        // slice-w4s82-secret.cjs legs 3-5).
+        assert_eq!(encryption_secret("  ", "sh"), "  ");
+        assert_eq!(encryption_secret("\t", "sh"), "\t");
         assert_eq!(encryption_secret("", "sh"), "sh");
     }
 
