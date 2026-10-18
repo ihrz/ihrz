@@ -41,6 +41,21 @@ pub fn should_scrobble(duration_ms: u64) -> bool {
     duration_ms >= 30_000
 }
 
+/// `normalizeTrack` duration leg mirror: streams (`isStream`) count
+/// as zero-length, so `should_scrobble` rejects them and the
+/// now-playing/scrobble `duration` field is dropped by the signer —
+/// exactly like the TS `track.info.isStream ? 0 : track.info.duration`.
+/// NOTE: the TS `getThresholdMs` keeps float halves on odd durations
+/// (`29999/2 = 14999.5`); this port halves in integers (14999), a
+/// sub-millisecond verdict edge that only narrows the wait by <1ms.
+pub fn normalize_lastfm_duration_ms(is_stream: bool, length_ms: u64) -> u64 {
+    if is_stream {
+        0
+    } else {
+        length_ms
+    }
+}
+
 /// `getElapsedListeningMs` mirror: wall time minus the start minus
 /// banked pauses minus any still-open pause.
 pub fn elapsed_listening_ms(
@@ -432,6 +447,25 @@ mod tests {
         assert!(!should_scrobble(29_999));
         assert!(should_scrobble(30_000));
         assert!(!should_scrobble(0));
+    }
+
+    #[test]
+    fn normalize_stream_counts_as_zero_length() {
+        // Mirrors the slice-w4s61 node battery (`normalizeTrack` +
+        // `shouldScrobble` + threshold + duration-field legs).
+        assert_eq!(normalize_lastfm_duration_ms(false, 200_000), 200_000);
+        assert_eq!(normalize_lastfm_duration_ms(false, 29_999), 29_999);
+        // Streams fold to 0 no matter the reported length, so the
+        // gate rejects them and the signer drops `duration`.
+        assert_eq!(normalize_lastfm_duration_ms(true, 3_600_000), 0);
+        assert_eq!(normalize_lastfm_duration_ms(true, 0), 0);
+        assert!(!should_scrobble(normalize_lastfm_duration_ms(
+            true, 3_600_000
+        )));
+        assert_eq!(
+            scrobble_threshold_ms(normalize_lastfm_duration_ms(true, 3_600_000)),
+            0
+        );
     }
 
     #[test]

@@ -1640,7 +1640,12 @@ pub struct LastfmTrackStart {
     pub guild_id: u64,
     pub artist: String,
     pub title: String,
+    /// Raw Lavalink `length`; normalized via
+    /// `normalize_lastfm_duration_ms` (streams count as 0, mirroring
+    /// `normalizeTrack`) before the session stores it.
     pub duration_ms: u64,
+    /// Lavalink `isStream` leg of `normalizeTrack`.
+    pub is_stream: bool,
     pub requester: u64,
     pub now_ms: i64,
     pub voice_channel: Option<u64>,
@@ -1812,6 +1817,7 @@ impl LavalinkManager {
                 artist: ev.track.info.author.clone(),
                 title: ev.track.info.title.clone(),
                 duration_ms: ev.track.info.length,
+                is_stream: ev.track.info.is_stream,
                 requester,
                 now_ms: now_ms_wall(),
                 voice_channel,
@@ -1828,12 +1834,19 @@ impl LavalinkManager {
     /// (mirrors a fresh listener map).
     pub async fn lastfm_track_start(&self, start: LastfmTrackStart) {
         let track_key = lastfm_track_key(&start.artist, &start.title, start.now_ms);
+        // `normalizeTrack`: streams store duration 0, so every
+        // downstream gate (drive attach/scrobble, track-end due,
+        // now-playing duration field) rejects them like the TS.
+        let duration_ms = crate::commands::lastfm::scrobbler::normalize_lastfm_duration_ms(
+            start.is_stream,
+            start.duration_ms,
+        );
         self.lastfm_sessions.lock().await.insert(
             start.guild_id,
             LastFmSession {
                 artist: start.artist.clone(),
                 title: start.title.clone(),
-                duration_ms: start.duration_ms,
+                duration_ms,
                 requester: start.requester,
                 started_ms: start.now_ms,
                 paused_ms: 0,
@@ -7493,6 +7506,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -7507,6 +7521,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -7519,6 +7534,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -7536,6 +7552,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -7573,6 +7590,29 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn lastfm_stream_start_stores_zero_duration() {
+        // `normalizeTrack`: a stream with a huge reported length folds
+        // to 0, so no scrobble is ever due for it (TS `shouldScrobble`
+        // rejects 0, and the signer drops the duration field).
+        let m = LavalinkManager::new();
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 47,
+            artist: "a".into(),
+            title: "radio".into(),
+            duration_ms: 3_600_000,
+            is_stream: true,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
+        let sessions = m.lastfm_sessions.lock().await;
+        assert_eq!(sessions.get(&47).map(|s| s.duration_ms), Some(0));
+        drop(sessions);
+        assert!(m.lastfm_track_end_due(47, 3_600_000).await.is_none());
+    }
+
+    #[tokio::test]
     async fn lastfm_track_start_opens_empty_listeners() {
         let m = LavalinkManager::new();
         m.lastfm_track_start(LastfmTrackStart {
@@ -7580,6 +7620,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 1_000,
             voice_channel: Some(5),
@@ -7710,6 +7751,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(1),
@@ -7775,6 +7817,7 @@ mod tests {
             artist: "a".into(),
             title: "t".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
@@ -7804,6 +7847,7 @@ mod tests {
             artist: "artist".into(),
             title: "a".into(),
             duration_ms: 200_000,
+            is_stream: false,
             requester: 7,
             now_ms: 0,
             voice_channel: Some(5),
