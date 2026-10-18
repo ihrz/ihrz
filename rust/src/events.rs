@@ -415,6 +415,17 @@ async fn close_voice_session(
             .await;
     }
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
+    // TS-shape voice history (`voices[]` records) for the
+    // dashboard/gateway; aggregate write below stays for old readers.
+    crate::commands::stats::main::push_ts_stats_voice(
+        pool,
+        guild_id,
+        user_id,
+        close.channel_id,
+        close.start,
+        close.now_ms,
+    )
+    .await;
     // Exact elapsed ms (TS stores exact start/end timestamps; the old
     // whole-minutes truncation lost up to ~59.9s per session).
     stats.voice_ms += elapsed_ms;
@@ -1229,7 +1240,18 @@ pub async fn record_message_activity_full(
 ) -> XpMessageOutcome {
     // STATS always (mirrors Events/stats/onNewMessage.ts: per-user rows
     // only — TS has no per-channel counter writer; channel-stats
-    // aggregates from USER msg_log/voice_log instead).
+    // aggregates from USER msg_log/voice_log instead). TS-shape push
+    // (`messages[]` records) so the dashboard/gateway sees activity;
+    // the aggregate row write below stays for old readers.
+    crate::commands::stats::main::push_ts_stats_message(
+        pool,
+        guild_id,
+        user_id,
+        channel_id,
+        content_len,
+        now_ms,
+    )
+    .await;
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     stats.messages += 1;
     stats.msg_log = crate::commands::stats::main::push_msg_log(

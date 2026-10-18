@@ -328,6 +328,75 @@ pub async fn stats_row_exists(pool: &crate::db::Pool, guild_id: &str, user_id: u
         .is_some()
 }
 
+/// Append one message record in the exact TS shape
+/// (`Events/stats/onNewMessage.ts`: `db.push` of
+/// `{channelId: string, contentLength, sentTimestamp}` into
+/// `STATS.USER.<uid>.messages[]`). The dashboard/gateway reads these
+/// arrays; the old Rust aggregate row (`{messages: u64, msg_log[]}`)
+/// is invisible to it, so writers must use this leg. Unbounded like
+/// TS (no cap). Existing aggregate fields on the row are preserved
+/// untouched for old readers (loaders merge both shapes).
+pub async fn push_ts_stats_message(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+    channel_id: u64,
+    content_len: u64,
+    sent_ts: i64,
+) {
+    let mut doc = table_value_or_legacy(pool, guild_id, &stats_key(user_id))
+        .await
+        .filter(|v| v.is_object())
+        .unwrap_or_else(|| serde_json::json!({}));
+    let arr = doc
+        .as_object_mut()
+        .expect("filtered object")
+        .entry("messages".to_string())
+        .or_insert_with(|| serde_json::json!([]));
+    if !arr.is_array() {
+        *arr = serde_json::json!([]);
+    }
+    arr.as_array_mut().expect("array").push(serde_json::json!({
+        "channelId": channel_id.to_string(),
+        "contentLength": content_len,
+        "sentTimestamp": sent_ts,
+    }));
+    let _ = crate::db::tbl_set_json(pool, guild_id, &stats_key(user_id), &doc).await;
+}
+
+/// Append one closed voice session in the exact TS shape
+/// (`processSessionEnd` in `Events/stats/onVoiceUpdate.ts`: `db.push`
+/// of `{startTimestamp, endTimestamp, channelId: string}` into
+/// `STATS.USER.<uid>.voices[]`). Same dashboard-visibility rationale
+/// as [`push_ts_stats_message`]; unbounded like TS.
+pub async fn push_ts_stats_voice(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+    channel_id: u64,
+    start_ts: i64,
+    end_ts: i64,
+) {
+    let mut doc = table_value_or_legacy(pool, guild_id, &stats_key(user_id))
+        .await
+        .filter(|v| v.is_object())
+        .unwrap_or_else(|| serde_json::json!({}));
+    let arr = doc
+        .as_object_mut()
+        .expect("filtered object")
+        .entry("voices".to_string())
+        .or_insert_with(|| serde_json::json!([]));
+    if !arr.is_array() {
+        *arr = serde_json::json!([]);
+    }
+    arr.as_array_mut().expect("array").push(serde_json::json!({
+        "startTimestamp": start_ts,
+        "endTimestamp": end_ts,
+        "channelId": channel_id.to_string(),
+    }));
+    let _ = crate::db::tbl_set_json(pool, guild_id, &stats_key(user_id), &doc).await;
+}
+
 /// Table-routed write for one user row (keys unchanged).
 pub async fn save_stats(
     pool: &crate::db::Pool,
@@ -1386,6 +1455,30 @@ mod tests {
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn ts_shape_pushes_match_dashboard_keys() {
+        // Dashboard/gateway parity: message + voice writers must append
+        // TS-camelCase records into `messages[]` / `voices[]` arrays
+        // (string channel ids), exactly like db.push in the TS events.
+        let pool = memory_pool().await;
+        push_ts_stats_message(&pool, "g1", 7, 42, 5, 1000).await;
+        push_ts_stats_message(&pool, "g1", 7, 43, 6, 2000).await;
+        push_ts_stats_voice(&pool, "g1", 7, 44, 3000, 4000).await;
+        let raw = table_value_or_legacy(&pool, "g1", &stats_key(7))
+            .await
+            .expect("row");
+        assert_eq!(raw["messages"][0]["channelId"], "42");
+        assert_eq!(raw["messages"][0]["contentLength"], 5);
+        assert_eq!(raw["messages"][0]["sentTimestamp"], 1000);
+        assert_eq!(raw["messages"].as_array().unwrap().len(), 2);
+        assert_eq!(raw["voices"][0]["channelId"], "44");
+        assert_eq!(raw["voices"][0]["startTimestamp"], 3000);
+        assert_eq!(raw["voices"][0]["endTimestamp"], 4000);
+        // Rust readers still decode the TS-shaped row.
+        let loaded = load_stats(&pool, "g1", 7).await;
+        assert_eq!(loaded.messages, 2);
     }
 
     #[tokio::test]
