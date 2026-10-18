@@ -107,6 +107,17 @@ pub fn lastfm_track_album(plugin_info: Option<&serde_json::Value>) -> Option<Str
 
 /// `getElapsedListeningMs` mirror: wall time minus the start minus
 /// banked pauses minus any still-open pause.
+/// Battery: scratch `slice-w4s92-elapsedskew.cjs`, green 10/10.
+/// DELTA (doc-noted, unreachable without a backwards clock step
+/// mid-listen: `Date.now()` never goes backwards in steady state):
+/// the TS arithmetic goes negative when `now` predates the start
+/// (S1), when the bank exceeds the wall (S2), or when an open pause
+/// started "in the future" (S3, inflating elapsed) — and the resume
+/// leg banks a negative step (R2). The `u64` plumbing saturates all
+/// of these at zero instead (a longer/shorter re-arm, same NotYetDue
+/// verdict). A `Some(0)` open-pause start also reads absent in TS
+/// (`if (pausedStartedAt)` / the ternary treat 0 as falsy, R3) but
+/// counts as open here — `Date.now()` is never 0 live.
 pub fn elapsed_listening_ms(
     started_ms: i64,
     paused_ms: u64,
@@ -668,6 +679,20 @@ mod tests {
             elapsed_listening_ms(0, 20_000, Some(90_000), 100_000),
             70_000
         );
+        // Slice-92 battery (scratch/slice-w4s92-elapsedskew.cjs, 10/10):
+        // steady-clock legs agree exactly (N1/N2/N3); skew legs
+        // saturate where the TS arithmetic goes negative (S1/S2) or
+        // inflates (S3) — DELTA doc-noted on the fn.
+        assert_eq!(elapsed_listening_ms(0, 0, None, 100_000), 100_000); // N1
+        assert_eq!(elapsed_listening_ms(0, 20_000, None, 100_000), 80_000); // N2
+        assert_eq!(
+            elapsed_listening_ms(5_000, 0, Some(90_000), 100_000),
+            85_000
+        ); // N4
+        assert_eq!(elapsed_listening_ms(100_000, 0, None, 90_000), 0); // S1
+        assert_eq!(elapsed_listening_ms(0, 20_000, None, 10_000), 0); // S2
+        assert_eq!(elapsed_listening_ms(0, 0, Some(110_000), 100_000), 100_000);
+        // S3
     }
 
     #[test]

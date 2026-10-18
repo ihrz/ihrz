@@ -2288,6 +2288,10 @@ fn lastfm_drop_user_from(sessions: &mut HashMap<u64, LastFmSession>, user_id: u6
 }
 
 /// Listener elapsed listening ms (mirrors `getElapsedListeningMs`).
+/// Slice-92 DELTA (battery scratch/slice-w4s92-elapsedskew.cjs):
+/// saturates at zero where the TS arithmetic goes negative under a
+/// backwards clock step (S1/S2) — same NotYetDue verdict, only the
+/// re-arm length differs; unreachable in steady state.
 fn lastfm_listener_elapsed(started_ms: i64, paused_total_ms: u64, now_ms: i64) -> u64 {
     (now_ms - started_ms).max(0) as u64 - paused_total_ms.min((now_ms - started_ms).max(0) as u64)
 }
@@ -8304,6 +8308,11 @@ mod tests {
         );
         // Pause longer than the listen clamps at zero, never wraps.
         assert_eq!(lastfm_listener_elapsed(59_000, 5_000, 60_000), 0);
+        // Slice-92 skew legs (battery scratch/slice-w4s92-elapsedskew.cjs):
+        // backwards clock steps saturate where TS goes negative (S1/S2).
+        assert_eq!(lastfm_listener_elapsed(100_000, 0, 90_000), 0);
+        assert_eq!(lastfm_listener_elapsed(0, 20_000, 10_000), 0);
+        assert_eq!(lastfm_paused_total(0, Some(110_000), 100_000), 0);
     }
 
     #[test]
