@@ -29,10 +29,14 @@ use super::{
 // form stays unavailable on both paths, exactly like TS. The direct
 // `!dice` leaf shortcut has no poise equivalent while leaves live
 // nested (accepted U-SLASHGROUPS tradeoff, same as every parent).
-// No `subcommand_required` on the groups: a group node can never be
-// invoked over slash (Discord forces a leaf), and on prefix a bare
-// `!fun animals` falls into the no-run help fallback in bot.rs like
-// any other run-less node.
+// No `subcommand_required` exemption on the groups: a bare prefix
+// `!fun animals` raises SubcommandRequired, which bot.rs maps to the
+// operator-directed no-run path (invoking message deleted, no reply).
+// Without the flag poise ran the run-less Ok(()) body and stayed
+// silent, leaving the message behind — unlike every other parent and
+// unlike prod, which answers the bare group with the help embed
+// ("Fun Menu d'aide": the redundant-help reply stays dropped per
+// operator direction, but the delete+silence cleanup must still run).
 
 /// Fun commands related to animals
 #[poise::command(
@@ -40,6 +44,7 @@ use super::{
     prefix_command,
     category = "fun",
     rename = "animals",
+    subcommand_required,
     subcommands("cat", "dog", "duck", "panda", "fox", "dolphin", "frog", "squirrel"),
     name_localized("fr", "animaux"),
     name_localized("ja", "animals"),
@@ -60,6 +65,7 @@ pub async fn fun_animals(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "image",
+    subcommand_required,
     subcommands(
         "catsay",
         "togif",
@@ -84,6 +90,7 @@ pub async fn fun_image(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "interaction",
+    subcommand_required,
     subcommands("sixseven", "hack", "kiss", "love", "poll", "question", "slap", "hug"),
     description_localized("fr", "Interaction entre utilisateurs"),
     description_localized("ja", "ユーザー間の交流"),
@@ -100,6 +107,7 @@ pub async fn fun_interaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "style",
+    subcommand_required,
     subcommands("caracteres", "morse"),
     description_localized("fr", "Commandes fun à propos de la stylisation du texte"),
     description_localized("ja", "テキストスタイル関連のFunコマンド"),
@@ -116,6 +124,7 @@ pub async fn fun_style(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "random",
+    subcommand_required,
     subcommands("dice", "coinflip", "number", "gay", "rate", "trans", "stench"),
     name_localized("fr", "hasard"),
     name_localized("ja", "random"),
@@ -128,4 +137,33 @@ pub async fn fun_style(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn fun_random(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
+}
+
+#[cfg(test)]
+mod group_no_run_tests {
+    use super::{fun_animals, fun_image, fun_interaction, fun_random, fun_style};
+
+    /// Every run-less fun group must raise SubcommandRequired on a bare
+    /// prefix invocation so bot.rs runs the operator-directed no-run
+    /// cleanup (invoking message deleted, no reply). Without the flag
+    /// poise silently ran the empty body and left the message behind
+    /// (live: bare `.fun random` / `.fun style` silent + kept; prod
+    /// answers the bare group with the "Fun Menu d'aide" embed, whose
+    /// redundant-help reply stays dropped per operator direction).
+    #[test]
+    fn all_fun_groups_require_a_subcommand() {
+        for (name, cmd) in [
+            ("animals", fun_animals()),
+            ("image", fun_image()),
+            ("interaction", fun_interaction()),
+            ("style", fun_style()),
+            ("random", fun_random()),
+        ] {
+            assert!(!cmd.subcommands.is_empty(), "{name} must keep its leaves");
+            assert!(
+                cmd.subcommand_required,
+                "{name} bare prefix must hit the no-run cleanup, not Ok(()) silence"
+            );
+        }
+    }
 }
