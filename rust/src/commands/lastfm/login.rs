@@ -63,12 +63,15 @@ pub async fn lastfm_login(
     let user_label = ctx.author().name.clone();
     match lastfm_mobile_session(&api_key, &shared_secret, &username, &password).await {
         Err((_, api_msg)) => {
-            // TS `formatApiError(response, lang, "login")`.
-            let err_text = if api_msg.trim().is_empty() {
-                t("lastfm_api_error_unknown", "unknown error")
-            } else {
-                api_msg
-            };
+            // TS `formatApiError(response, lang, "login")`:
+            // `${error}` fills `response.message || unknown` — a bare
+            // JS `||`, so only the empty string (and nullish) falls
+            // back; a whitespace-only message is TRUTHY and renders
+            // verbatim (battery scratch `slice-w4s87-loginmsg.cjs`,
+            // E4/E5 — the old `trim().is_empty()` folded those to
+            // unknown, same whitespace class as slice-82).
+            let err_text =
+                login_error_text(&api_msg, &t("lastfm_api_error_unknown", "unknown error"));
             let msg = t(
                 "lastfm_api_error_login",
                 "${client.iHorizon_Emojis.No} | Unable to connect to Last.fm: ${error}",
@@ -127,6 +130,19 @@ pub async fn lastfm_login(
             .await?;
             Ok(())
         }
+    }
+}
+
+/// Pure `formatApiError` `${error}` fill mirror (`message || unknown`):
+/// exact on the full `&str` domain — no trim, so whitespace-only
+/// messages render verbatim like the TS (nullish legs live in the
+/// caller, which always passes a `String`).
+/// Battery: scratch `slice-w4s87-loginmsg.cjs`, green 13/13.
+pub fn login_error_text(api_msg: &str, unknown: &str) -> String {
+    if api_msg.is_empty() {
+        unknown.to_string()
+    } else {
+        api_msg.to_string()
     }
 }
 
@@ -280,7 +296,10 @@ pub fn lastfm_user_embed(
 
 #[cfg(test)]
 mod tests {
-    use super::{lastfm_api_sig, lastfm_signed_fields, lastfm_user_embed, parse_mobile_session};
+    use super::{
+        lastfm_api_sig, lastfm_signed_fields, lastfm_user_embed, login_error_text,
+        parse_mobile_session,
+    };
 
     #[test]
     fn mobile_session_parse_matches_ts_login_legs() {
@@ -318,6 +337,20 @@ mod tests {
         // here via `as_str`.
         let (n, _) = parse_mobile_session(&json!({"session": {"name": 12345, "key": "k"}}));
         assert!(n.is_none());
+    }
+
+    #[test]
+    fn login_error_fill_matches_ts_format_api_error_legs() {
+        // Battery scratch `slice-w4s87-loginmsg.cjs`, green 13/13
+        // (E1-E7 legs mirrored 1:1). TS fills `${error}` with
+        // `response.message || unknown`: only the empty string falls
+        // back — whitespace-only messages are truthy and render
+        // verbatim (the old `trim().is_empty()` folded them).
+        assert_eq!(login_error_text("bad auth", "unknown error"), "bad auth");
+        assert_eq!(login_error_text("", "unknown error"), "unknown error");
+        assert_eq!(login_error_text("   ", "unknown error"), "   ");
+        assert_eq!(login_error_text("\t", "unknown error"), "\t");
+        assert_eq!(login_error_text("0", "unknown error"), "0");
     }
 
     #[test]
