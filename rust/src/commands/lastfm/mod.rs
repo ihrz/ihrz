@@ -435,6 +435,80 @@ mod tests {
         // Unset guild reads as missing (off).
         assert_eq!(guild_lastfm(&pool, "g3").await, None);
     }
+
+    #[test]
+    fn lastfm_surface_matches_ts_registration() {
+        // W4 slice 99 battery (scratch `slice-w4s99-surface.cjs`, green
+        // 21/21): `/lastfm` slash surface verbatim from
+        // `src/Interaction/SlashCommands/lastfm/lastfm.ts` — subcommand
+        // names/order, option names/order/required/choices, choice
+        // values + localized labels. Ephemeral + descriptions are
+        // handler/attribute-level (config.rs/login.rs `msg_for!` +
+        // `.ephemeral(true)`), pinned by their own batteries.
+        fn flatten<'a>(
+            cmds: &'a [poise::Command<crate::commands::Data, crate::commands::Error>],
+            out: &mut Vec<&'a poise::Command<crate::commands::Data, crate::commands::Error>>,
+        ) {
+            for c in cmds {
+                out.push(c);
+                flatten(&c.subcommands, out);
+            }
+        }
+        let cmds = crate::commands::all();
+        let mut flat = vec![];
+        flatten(&cmds, &mut flat);
+        // Parent carries exactly [config, login] in TS declaration order.
+        // Leaf lookups stay scoped to this parent: bare `config` /
+        // `login` names repeat elsewhere in the tree (any-carrier).
+        let parent = flat
+            .iter()
+            .find(|c| c.name == "lastfm")
+            .expect("missing /lastfm parent");
+        let subs: Vec<&str> = parent.subcommands.iter().map(|c| c.name.as_str()).collect();
+        assert_eq!(subs, vec!["config", "login"]);
+        let by_name = |n: &str| {
+            parent
+                .subcommands
+                .iter()
+                .find(|c| c.name == n)
+                .unwrap_or_else(|| panic!("missing /lastfm subcommand {n}"))
+        };
+        // `/lastfm login`: exactly (username, password), both required
+        // strings, no choices (TS `getString(..., true)` x2).
+        let login = by_name("login");
+        let params: Vec<(&str, bool)> = login
+            .parameters
+            .iter()
+            .map(|p| (p.name.as_str(), p.required))
+            .collect();
+        assert_eq!(params, vec![("username", true), ("password", true)]);
+        assert!(login.parameters.iter().all(|p| p.choices.is_empty()));
+        // `/lastfm config`: exactly (power), required, choices on/off
+        // with the TS localized labels.
+        let config = by_name("config");
+        assert_eq!(config.parameters.len(), 1);
+        let power = &config.parameters[0];
+        assert_eq!(power.name, "power");
+        assert!(power.required);
+        let choices: Vec<(&str, Option<&str>, Option<&str>)> = power
+            .choices
+            .iter()
+            .map(|c| {
+                (
+                    c.name.as_str(),
+                    c.localizations.get("en-US").map(String::as_str),
+                    c.localizations.get("fr").map(String::as_str),
+                )
+            })
+            .collect();
+        assert_eq!(
+            choices,
+            vec![
+                ("on", Some("Power On"), Some("Activer")),
+                ("off", Some("Power Off"), Some("Désactiver")),
+            ]
+        );
+    }
 }
 
 pub mod config;
