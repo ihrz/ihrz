@@ -2035,6 +2035,20 @@ impl LavalinkManager {
         let _ = lf::invalidate_user_session(pool, user_id).await;
         lastfm_drop_user_from(&mut *self.lastfm_sessions.lock().await, user_id);
     }
+
+    /// `setEnabled(userId, false)` live-drop mirror: disabling keeps the
+    /// DB row intact (only `enabled` flips — unlike `invalidate`, the
+    /// sessionKey survives) but still runs `removeUserFromActiveSessions`
+    /// (drop from every live session, never a finalize POST). Without
+    /// this a user who runs `/lastfm config power off` mid-track keeps
+    /// earning and gets scrobbled at track end while TS stays silent.
+    /// (DELTA, shared with the invalidate leg: Rust holds no
+    /// per-listener timer so the delete is the whole timeout-clear +
+    /// delete mirror; the next finalize pass re-locks sessions and
+    /// skips the dropped listener, even mid-drive.)
+    pub async fn lastfm_user_disabled(&self, user_id: u64) {
+        lastfm_drop_user_from(&mut *self.lastfm_sessions.lock().await, user_id);
+    }
 }
 
 /// Track identity for staleness checks (mirrors `trackKey`).
@@ -8058,6 +8072,74 @@ mod tests {
         // Unknown user is a no-op (TS `get` miss -> `continue`).
         lastfm_drop_user_from(&mut sessions, 999);
         assert_eq!(sessions.get(&11).unwrap().listeners.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn lastfm_user_disabled_drops_listener_from_every_session() {
+        // `setEnabled(userId, false)` -> `removeUserFromActiveSessions`:
+        // the disabler is deleted from ALL guild sessions (never a
+        // finalize POST — the drop path never calls the scrobble POST),
+        // other listeners are untouched, unknown user is a no-op.
+        // Battery: scratch/slice-w4s69-setenabled.cjs (16/16).
+        let m = LavalinkManager::new();
+        for gid in [51u64, 52u64] {
+            m.lastfm_sessions.lock().await.insert(
+                gid,
+                LastFmSession {
+                    artist: "a".into(),
+                    title: "t".into(),
+                    duration_ms: 200_000,
+                    requester: 7,
+                    started_ms: 0,
+                    paused_ms: 0,
+                    pause_started_ms: None,
+                    voice_channel_id: Some(5),
+                    track_key: "k".into(),
+                    listeners: HashMap::from([
+                        (
+                            100u64,
+                            LastfmListener {
+                                session_key: "key".into(),
+                                username: "u".into(),
+                                started_ms: 0,
+                                threshold_ms: 100_000,
+                                scrobbled: false,
+                                pause_base_ms: 0,
+                            },
+                        ),
+                        (
+                            200u64,
+                            LastfmListener {
+                                session_key: "live".into(),
+                                username: "v".into(),
+                                started_ms: 0,
+                                threshold_ms: 100_000,
+                                scrobbled: false,
+                                pause_base_ms: 0,
+                            },
+                        ),
+                    ]),
+                },
+            );
+        }
+        m.lastfm_user_disabled(100).await;
+        for gid in [51u64, 52u64] {
+            let sessions = m.lastfm_sessions.lock().await;
+            let s = sessions.get(&gid).unwrap();
+            assert!(!s.listeners.contains_key(&100));
+            assert!(s.listeners.contains_key(&200));
+        }
+        m.lastfm_user_disabled(999).await;
+        assert_eq!(
+            m.lastfm_sessions
+                .lock()
+                .await
+                .get(&51)
+                .unwrap()
+                .listeners
+                .len(),
+            1
+        );
     }
 
     #[tokio::test]

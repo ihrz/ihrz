@@ -166,15 +166,20 @@ pub async fn lastfm_config(
 
     // Merge `{enabled}` over the stored row, preserving username /
     // sessionKey / connectedAt (TS `{...(settings || {}), enabled}`).
-    // Disabling drops nothing else: TS `removeUserFromActiveSessions`
-    // has no Rust counterpart (guild `LastFmSession` rows carry no
-    // per-user listener map).
+    // Disabling keeps the row intact (only `enabled` flips — unlike
+    // `invalidate`, the sessionKey survives) but still drops the user
+    // from every live session (TS `setEnabled` runs
+    // `removeUserFromActiveSessions` on the `!enabled` leg, never a
+    // finalize POST).
     let mut obj = settings.unwrap_or(serde_json::json!({}));
     if !obj.is_object() {
         obj = serde_json::json!({});
     }
     obj["enabled"] = serde_json::json!(enabled);
     super::save_lastfm_settings(pool, uid, &obj).await?;
+    if !enabled {
+        crate::lavalink::manager().lastfm_user_disabled(uid).await;
+    }
 
     let content = msg_for!(
         if enabled {
