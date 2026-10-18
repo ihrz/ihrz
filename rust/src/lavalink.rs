@@ -1635,6 +1635,10 @@ pub struct LavalinkManager {
 }
 
 /// Bundled start-of-track params for [`LavalinkManager::lastfm_track_start`].
+/// `artist`/`title` are the verbatim `normalizeTrack` identity legs
+/// (`info.author`/`info.title`); the TS `url` (`info.uri`) leg is
+/// write-only there (never sent by either POST) so it has no field
+/// here. Battery: scratch `slice-w4s90-normalize.cjs` (node, 17/17).
 #[derive(Debug, Clone)]
 pub struct LastfmTrackStart {
     pub guild_id: u64,

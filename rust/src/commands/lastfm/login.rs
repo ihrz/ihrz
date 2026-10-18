@@ -52,7 +52,7 @@ pub async fn lastfm_login(
     // `lastfm_module_not_configured` before touching the API).
     let api_key = ctx.data().config.lastfm_api_key.clone();
     let shared_secret = ctx.data().config.lastfm_shared_secret.clone();
-    if api_key.is_empty() || shared_secret.is_empty() {
+    if !super::scrobbler::lastfm_configured(&api_key, &shared_secret) {
         let msg = t("lastfm_module_not_configured", "Last.fm is not configured.")
             .replace("${client.iHorizon_Emojis.No}", &no);
         ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))

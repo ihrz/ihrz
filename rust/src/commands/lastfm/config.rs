@@ -152,8 +152,10 @@ pub async fn lastfm_config(
     // Battery: scratch `slice-w4s85-configgate.cjs`, green 10/10.
     if lastfm_config_missing_gate_fires(
         enabled,
-        !ctx.data().config.lastfm_api_key.is_empty()
-            && !ctx.data().config.lastfm_shared_secret.is_empty(),
+        super::scrobbler::lastfm_configured(
+            &ctx.data().config.lastfm_api_key,
+            &ctx.data().config.lastfm_shared_secret,
+        ),
     ) {
         let msg = msg_for!("lastfm_module_not_configured", "Last.fm is not configured.");
         ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))

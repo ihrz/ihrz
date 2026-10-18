@@ -30,6 +30,15 @@ pub fn is_invalid_session_error(code: Option<i64>, message: &str) -> bool {
     message.to_lowercase().contains("session")
 }
 
+/// `isConfigured` mirror: `Boolean(apiKey && sharedSecret)` — truthy
+/// iff both are non-empty (bare JS `&&`, so whitespace-only counts
+/// as configured, exactly like `!is_empty()` here; env-vs-file
+/// precedence lives in config.rs, already pinned there).
+/// Battery: scratch `slice-w4s90-normalize.cjs` (node, 17/17).
+pub fn lastfm_configured(api_key: &str, shared_secret: &str) -> bool {
+    !api_key.is_empty() && !shared_secret.is_empty()
+}
+
 /// `getThresholdMs` mirror: half the track, capped at 4 minutes.
 /// NOTE: the TS computes `durationMs / 2` in float, so odd durations
 /// keep a `.5` half (e.g. 30001 -> 15000.5) while both sides compare
@@ -865,6 +874,21 @@ mod tests {
         assert_eq!(encryption_secret("  ", "sh"), "  ");
         assert_eq!(encryption_secret("\t", "sh"), "\t");
         assert_eq!(encryption_secret("", "sh"), "sh");
+    }
+
+    #[test]
+    fn configured_gate_matches_ts_is_configured_legs() {
+        // Battery: scratch `slice-w4s90-normalize.cjs` (node, 17/17):
+        // `Boolean(apiKey && sharedSecret)` — bare `&&`, so only the
+        // empty string (and nullish, unrepresentable here) fails.
+        assert!(lastfm_configured("k", "s"));
+        assert!(!lastfm_configured("", "s"));
+        assert!(!lastfm_configured("k", ""));
+        assert!(!lastfm_configured("", ""));
+        // Whitespace is truthy in JS: counts as configured (same
+        // whitespace class as the slice-82 secret delta).
+        assert!(lastfm_configured(" ", " "));
+        assert!(lastfm_configured("\t", "s"));
     }
 
     #[test]
