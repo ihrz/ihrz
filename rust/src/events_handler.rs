@@ -6431,9 +6431,11 @@ impl serenity::EventHandler for Handler {
         // gate below skips role assignment only and the pipeline continues.
         // OWNER VERDICT: joinRole.ts carries no owner exemption (unlike
         // blockBot.ts `executorId !== ownerId`), so none is added here.
-        // JOINROLES-EMPTY VERDICT: `if (!roleid) return` in joinRole.ts —
-        // an empty/missing joinroles row assigns nothing, mirrored by the
-        // is_empty/first() guards below.
+        // JOINROLES-EMPTY VERDICT (W7s60 battery `row-empty-array`): `[]`
+        // is truthy in JS so TS runs `roles.set([], "[AutoRole]...")`
+        // and strips every role — mirrored below by routing every array
+        // row (even empty) through the shared `join_role_action` set
+        // path. The old `!is_empty` guard that no-op'd it was wrong.
         // JOIN-REASONS VERDICT: TS passes "[AutoRole] Assign role for new
         // member" (set path) / "[JoinRole]" (add path). Serenity 0.12
         // Member::add_role carries no reason slot, so the add path stays
@@ -6446,23 +6448,27 @@ impl serenity::EventHandler for Handler {
                 .get("joinroles")
                 .map(|v| v.is_array())
                 .unwrap_or(false);
-            if join_is_array && !join_roles.is_empty() {
-                let want: Vec<serenity::RoleId> = join_roles
-                    .iter()
-                    .map(|rid| serenity::RoleId::new(*rid))
-                    .collect();
-                let _ = new_member
-                    .edit(
-                        &ctx.http,
-                        serenity::EditMember::new()
-                            .roles(want)
-                            .audit_log_reason("[AutoRole] Assign role for new member"),
-                    )
-                    .await;
-            } else if let Some(rid) = join_roles.first() {
-                let _ = new_member
-                    .add_role(&ctx.http, serenity::RoleId::new(*rid))
-                    .await;
+            match crate::events::join_role_action(join_is_array, &join_roles) {
+                crate::events::JoinRoleAction::SetAll(want_ids) => {
+                    let want: Vec<serenity::RoleId> = want_ids
+                        .iter()
+                        .map(|rid| serenity::RoleId::new(*rid))
+                        .collect();
+                    let _ = new_member
+                        .edit(
+                            &ctx.http,
+                            serenity::EditMember::new()
+                                .roles(want)
+                                .audit_log_reason("[AutoRole] Assign role for new member"),
+                        )
+                        .await;
+                }
+                crate::events::JoinRoleAction::AddOne(rid) => {
+                    let _ = new_member
+                        .add_role(&ctx.http, serenity::RoleId::new(rid))
+                        .await;
+                }
+                crate::events::JoinRoleAction::None => {}
             }
         }
         // Invite attribution (mirrors joinMessage invite tracker):

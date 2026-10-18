@@ -940,6 +940,35 @@ pub async fn join_role_ids(pool: &crate::db::Pool, gid: &str) -> Vec<u64> {
         .collect()
 }
 
+/// Join-role dispatch verdict. Mirrors joinRole.ts exactly: `if (!roleid)
+/// return` only rejects falsy rows, and an array row — even EMPTY (`[]`
+/// is truthy in JS) — takes the `roles.set` path with the `[AutoRole]`
+/// reason, while a bare string takes the `roles.add` path. The empty
+/// array therefore strips every role in TS (W7s60 battery case
+/// `row-empty-array`), it is NOT a no-op.
+/// DELTAS (config-shape edges only, doc-noted): a mixed array with
+/// unparseable entries fails the whole TS `set()` call (silent no-change)
+/// while the `SetAll` ids here are pre-filtered to parseable u64s; a
+/// numeric blob row misses the TS role cache (silent) while
+/// `join_role_ids` falls through to the legacy GUILD.JOIN_ROLE row.
+#[derive(Debug, PartialEq, Eq)]
+pub enum JoinRoleAction {
+    SetAll(Vec<u64>),
+    AddOne(u64),
+    None,
+}
+
+pub fn join_role_action(is_array: bool, ids: &[u64]) -> JoinRoleAction {
+    if is_array {
+        JoinRoleAction::SetAll(ids.to_vec())
+    } else {
+        match ids.first() {
+            Some(rid) => JoinRoleAction::AddOne(*rid),
+            None => JoinRoleAction::None,
+        }
+    }
+}
+
 /// Join-DM template from the welcomer blob. Mirrors joinDm.ts
 /// (GUILD.GUILD_CONFIG.joindm; "off" disables), falling back to the
 /// legacy GUILD.JOIN_DM row. Returns None when unset, "" (TS `!msg_dm`
@@ -2275,6 +2304,22 @@ mod tests {
             .await
             .unwrap();
         assert!(join_dm_template(&pool, "g").await.is_none());
+    }
+
+    #[test]
+    fn join_role_action_matches_ts_joinrole_battery() {
+        // Mirrors scratch/slice-w7s60-joinrole.cjs 1:1 (returns + calls).
+        // Array rows — even EMPTY (`[]` is truthy in JS) — take the
+        // roles.set path; bare values take the add path; nothing else
+        // dispatches (`!roleid` falsy rows return before dispatch, so
+        // they never reach this fn).
+        assert_eq!(join_role_action(true, &[]), JoinRoleAction::SetAll(vec![]));
+        assert_eq!(
+            join_role_action(true, &[1, 2]),
+            JoinRoleAction::SetAll(vec![1, 2])
+        );
+        assert_eq!(join_role_action(false, &[123]), JoinRoleAction::AddOne(123));
+        assert_eq!(join_role_action(false, &[]), JoinRoleAction::None);
     }
 
     #[test]
