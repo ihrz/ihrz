@@ -164,6 +164,18 @@ pub struct ScrobbleTrack {
     pub duration_ms: u64,
     pub started_sec: i64,
 }
+/// Listen-start stamp shared by the scrobble call: unix seconds,
+/// i.e. TS `Math.floor(startedAt / 1000)`. Trunc-div (`/ 1000`)
+/// agrees on every non-negative input but rounds the wrong way on
+/// negative ones (`Math.floor(-500 / 1000)` is `-1`, trunc is `0`);
+/// `div_euclid` is the exact floor-division mirror on the whole
+/// `i64` domain (same pattern as the `connectedAt` embed stamp).
+/// Battery: scratch `slice-w4s95-startedsec.cjs`, green 15/15.
+/// DELTA (doc-noted, unreachable: `startedAt`/`now` come from
+/// `Date.now()`): negative inputs only exist pre-1970.
+pub fn started_sec(ms: i64) -> i64 {
+    ms.div_euclid(1000)
+}
 /// Duration leg shared by both calls: whole seconds, dropped when
 /// the track has no known length (TS passes `undefined`, the signer
 /// drops empty values).
@@ -872,6 +884,26 @@ mod tests {
             .iter()
             .any(|(k, v)| k == "method" && v == "track.scrobble"));
         assert!(f.iter().any(|(k, _)| k == "api_sig"));
+    }
+
+    #[test]
+    fn started_sec_floors_like_ts_math_floor() {
+        // Battery scratch `slice-w4s95-startedsec.cjs`, green 15/15:
+        // TS `Math.floor(ms / 1000)` == trunc-div on every ms >= 0,
+        // but rounds the other way on negatives (-500 -> -1, not 0).
+        // `div_euclid` is exact on the whole domain (live inputs are
+        // always `Date.now()` >= 0, so the negative legs are
+        // unreachable hardening, same class as the connectedAt stamp).
+        assert_eq!(started_sec(0), 0);
+        assert_eq!(started_sec(999), 0);
+        assert_eq!(started_sec(1000), 1);
+        assert_eq!(started_sec(1_700_000_000_000), 1_700_000_000);
+        assert_eq!(started_sec(1_699_999_999_999), 1_699_999_999);
+        assert_eq!(started_sec(-1), -1);
+        assert_eq!(started_sec(-500), -1);
+        assert_eq!(started_sec(-999), -1);
+        assert_eq!(started_sec(-1000), -1);
+        assert_eq!(started_sec(-1001), -2);
     }
 
     #[test]

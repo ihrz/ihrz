@@ -2098,7 +2098,7 @@ impl LavalinkManager {
                         title: session.title.clone(),
                         album: session.album.clone(),
                         duration_ms: session.duration_ms,
-                        started_sec: l.started_ms / 1000,
+                        started_sec: crate::commands::lastfm::scrobbler::started_sec(l.started_ms),
                     };
                     match lf::post_scrobble(
                         &live.api_key,
@@ -2518,7 +2518,7 @@ impl LavalinkManager {
             title: snapshot.1,
             album: snapshot.4,
             duration_ms: snapshot.2,
-            started_sec: now_ms / 1000,
+            started_sec: crate::commands::lastfm::scrobbler::started_sec(now_ms),
         };
         match lf::post_now_playing(&live.api_key, &live.shared_secret, &session_key, &track).await {
             Ok(()) => {}
@@ -2600,7 +2600,9 @@ impl LavalinkManager {
                             title: s.title.clone(),
                             album: s.album.clone(),
                             duration_ms: s.duration_ms,
-                            started_sec: l.started_ms / 1000,
+                            started_sec: crate::commands::lastfm::scrobbler::started_sec(
+                                l.started_ms,
+                            ),
                         },
                     )
                 })
@@ -2780,7 +2782,7 @@ impl LavalinkManager {
             title: s.title.clone(),
             album: s.album.clone(),
             duration_ms: s.duration_ms,
-            started_sec: l.started_ms / 1000,
+            started_sec: crate::commands::lastfm::scrobbler::started_sec(l.started_ms),
         };
         drop(sessions);
         if due {
