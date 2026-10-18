@@ -1448,8 +1448,7 @@ pub async fn sweep_nightmode(
             .map(|r| r.permissions.administrator())
             .unwrap_or(false);
         if !im_self_admin || !im_on_top || !is_admin {
-            warn_nightmode_owner(http, guild_id, &lang_code, night, im_on_top, im_self_admin)
-                .await;
+            warn_nightmode_owner(http, guild_id, &lang_code, night, im_on_top, im_self_admin).await;
             done += 1;
             continue;
         }
@@ -3772,6 +3771,22 @@ mod tests {
         // Empty logs never report a change.
         let mut empty = UserStats::default();
         assert!(!trim_user_stats(&mut empty, now));
+        // Future stamps (negative age) are kept, like the TS `<=` legs.
+        let mut fut = UserStats {
+            messages: 0,
+            voice_ms: 0,
+            msg_log: vec![StatsMessage {
+                sent_ts: now + 999,
+                content_len: 1,
+                channel_id: 1,
+            }],
+            voice_log: vec![StatsVoice {
+                start_ts: now,
+                end_ts: now + 999,
+                channel_id: 1,
+            }],
+        };
+        assert!(!trim_user_stats(&mut fut, now));
     }
 
     #[tokio::test]
