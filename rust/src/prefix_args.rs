@@ -521,6 +521,17 @@ pub fn choice_token_override(qualified: &str, param: &str) -> Option<(&'static s
         // falls back to the invoker), so the generic render would emit
         // `<user>`.
         ("fun image youtube", "user") => Some(("user", true)),
+        // gw.ts create options: winner/time/requirement/prize are
+        // required:true (prod HZ57 answers `.gw create 3` with
+        // `+gw-create [number] [string] [none/invites/messages/roles]
+        // [string] <string> <string>`, caret on the second token), but
+        // the poise params are Option (slash-validated, prefix gated
+        // in-handler), so the generic render would emit `<...>` for
+        // all three. The requirement label reuses the TS choice values
+        // like the generic choice join.
+        ("gw create", "winner") => Some(("number", true)),
+        ("gw create", "requirement") => Some(("none/invites/messages/roles", true)),
+        ("gw create", "prize") => Some(("string", true)),
         _ => None,
     }
 }
@@ -539,6 +550,17 @@ pub fn ts_param_order(qualified: &str) -> Option<&'static [&'static str]> {
         // fun.ts youtube options: user, comment (poise registry holds
         // [comment, user]; prod WAVE-HI renders `[user] [string]`).
         "fun image youtube" => Some(&["user", "comment"]),
+        // gw.ts create options: winner, time, requirement, prize,
+        // requirement-value, image (poise 0.6 sorts the required
+        // `time` first; prod HZ57 renders declaration order).
+        "gw create" => Some(&[
+            "winner",
+            "time",
+            "requirement",
+            "prize",
+            "requirement-value",
+            "image",
+        ]),
         _ => None,
     }
 }
@@ -1072,5 +1094,40 @@ mod tests {
             Some(("user", true))
         );
         assert_eq!(choice_token_override("fun image tweet", "other"), None);
+        // gw create/winner+requirement+prize: TS decl required:true
+        // renders `[number]`, `[none/invites/messages/roles]`,
+        // `[string]` (prod HZ57: `+gw-create [number] [string] ...`,
+        // caret on the second token) — never the poise-erased
+        // `<number>`/`<...>` from the Option params.
+        assert_eq!(
+            choice_token_override("gw create", "winner"),
+            Some(("number", true))
+        );
+        assert_eq!(
+            choice_token_override("gw create", "requirement"),
+            Some(("none/invites/messages/roles", true))
+        );
+        assert_eq!(
+            choice_token_override("gw create", "prize"),
+            Some(("string", true))
+        );
+        assert_eq!(choice_token_override("gw create", "time"), None);
+        assert_eq!(choice_token_override("gw create", "other"), None);
+        // gw create keeps TS declaration order (poise 0.6 sorts the
+        // required `time` first; prod HZ57 renders winner first).
+        assert_eq!(
+            ts_param_order("gw create"),
+            Some(
+                &[
+                    "winner",
+                    "time",
+                    "requirement",
+                    "prize",
+                    "requirement-value",
+                    "image"
+                ][..]
+            )
+        );
+        assert_eq!(ts_param_order("gw end"), None);
     }
 }

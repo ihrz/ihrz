@@ -251,6 +251,20 @@ pub async fn gw_create(
     #[description = "Image showed on the giveaway's embed"]
     image: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Prefix checkCommandArgs head (method.ts:493-514): gw-create
+    // declares winner/time/requirement/prize required (gw.ts), so a
+    // short count answers the caret usage embed before any guard runs
+    // (prod HZ57: `.gw create 3` -> `+gw-create [number] [string] ...`
+    // caret on the second token). Without it, poise `Option`
+    // backtracking folds the words into winners=None/time=<token> and
+    // the handler answers `start_is_not_valid` instead. Gate runs
+    // before defer, like the executor (gw end.rs precedent).
+    if let poise::Context::Prefix(pctx) = ctx {
+        if gw_create_prefix_missing(pctx.args) {
+            crate::bot::prefix_usage_denial(ctx, None).await;
+            return Ok(());
+        }
+    }
     // Ack-first like the TS `thinking: true` on `gw` (gw.ts:419): the
     // handler below does store + HTTP work (guild icon snapshot,
     // role resolution, image probe) before answering, so defer up
@@ -420,6 +434,16 @@ pub async fn gw_create(
     Ok(())
 }
 
+/// Prefix count-check predicate. Mirrors the checkCommandArgs minimum
+/// (method.ts:493-514) for gw-create: winner/time/requirement/prize
+/// are required in gw.ts, so fewer than 4 words (or a bare call, which
+/// TS sees as `[""]`) render the caret usage embed, never the
+/// in-handler guards.
+pub fn gw_create_prefix_missing(args: &str) -> bool {
+    let words: Vec<&str> = args.split(' ').filter(|w| !w.is_empty()).collect();
+    words.len() < 4
+}
+
 /// Render the create confirmation (`start_confirmation_command`).
 pub fn render_start_confirmation(template: &str, channel_mention: &str) -> String {
     template.replace("${giveawayChannel}", channel_mention)
@@ -460,6 +484,21 @@ pub async fn post_gw_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn create_prefix_count_gate_pins_ts_minimum() {
+        // Pins the TS checkCommandArgs minimum for gw-create (gw.ts:
+        // winner/time/requirement/prize required): fewer than 4 words
+        // render the caret usage embed (prod HZ57: `.gw create 3`),
+        // never the in-handler guards.
+        assert!(gw_create_prefix_missing(""));
+        assert!(gw_create_prefix_missing("   "));
+        assert!(gw_create_prefix_missing("3"));
+        assert!(gw_create_prefix_missing("3 10m"));
+        assert!(gw_create_prefix_missing("3 10m none"));
+        assert!(!gw_create_prefix_missing("3 10m none prize"));
+        assert!(!gw_create_prefix_missing("3 10m none prize 5"));
+    }
 
     #[test]
     fn start_confirmation_and_log_renders() {
