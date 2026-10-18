@@ -8106,6 +8106,65 @@ mod tests {
         assert_eq!(session.get(&32).and_then(|s| s.voice_channel_id), Some(9));
     }
 
+    #[tokio::test]
+    async fn lastfm_player_moved_matches_ts_move_battery() {
+        // Battery: scratch/slice-w4s101-playermove.cjs (15/15)
+        // replicating `handlePlayerMove` verbatim (U-ETERNAL-466):
+        // missing session -> noop, rebind lands before the sync, and a
+        // sync abort keeps the rebind + the listeners. No live ctx is
+        // registered, so the spawned reconcile returns early exactly
+        // like the TS guild-fetch-miss leg (M3).
+        let m = LavalinkManager::new();
+        // M1: missing session -> neither arm inserts one.
+        m.lastfm_player_moved(33, 9).await;
+        m.lastfm_player_move(33, 9).await;
+        assert!(m.lastfm_sessions.lock().await.get(&33).is_none());
+        // M2/M3: `moved` rebinds synchronously; without a live ctx the
+        // reconcile aborts, so the listener set is untouched.
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 34,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            is_stream: false,
+            album: None,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
+        {
+            let mut sessions = m.lastfm_sessions.lock().await;
+            let s = sessions.get_mut(&34).unwrap();
+            s.listeners.insert(
+                100,
+                LastfmListener {
+                    session_key: "k".into(),
+                    username: "u".into(),
+                    started_ms: 0,
+                    threshold_ms: 100_000,
+                    scrobbled: false,
+                    pause_base_ms: 0,
+                },
+            );
+        }
+        m.lastfm_player_moved(34, 9).await;
+        let sessions = m.lastfm_sessions.lock().await;
+        let s = sessions.get(&34).unwrap();
+        assert_eq!(s.voice_channel_id, Some(9));
+        assert!(s.listeners.contains_key(&100));
+        drop(sessions);
+        // M4/M6 DELTA (doc-only): the live emitter only fires
+        // `playerMove` on a strict `!==` change (battery M4, proven in
+        // lavalink-client source), so the TS handler never sees a
+        // same-channel call; the Rust unchanged arm (`lastfm_player_move`,
+        // rebind-only, no sync) fires on bot mute/deafen VSUs where TS
+        // does literally nothing — no observable change either side.
+        // `moved` spawns its reconcile while TS awaits the sync inline;
+        // terminal state (rebind + detach/attach + finalize credits) is
+        // identical, timing only.
+    }
+
     #[test]
     fn lastfm_move_reconcile_matches_ts_sync_members_battery() {
         // Battery: scratch/slice-w4s70-playermove.cjs (8/8) replicating
