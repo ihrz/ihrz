@@ -70,6 +70,12 @@ pub async fn save_autoreact_map_routed(
 
 /// Table-first read of the TS nested map with legacy fallback. List-shaped
 /// rows are migrated to the map shape and persisted back.
+/// DELTA (deliberate migration superset, W7 slice 70 battery
+/// `slice-w7s70-autoreact.cjs`): a list-shaped node fires here while TS
+/// `db.get("<gid>.GUILD.AUTOREACT.<channel>")` reads a leaf off an array
+/// (lodash index lookup) and gets `undefined` -> skip. List rows are only
+/// ever written by pre-recode Rust code (the TS writer stores the nested
+/// map), so no TS-written state diverges.
 pub async fn load_autoreact_map_routed(pool: &crate::db::Pool, gid: &str) -> AutoreactMap {
     let Some(raw) =
         crate::commands::owner::main::routed_get(pool, gid, gid, "GUILD.AUTOREACT").await
@@ -1277,5 +1283,49 @@ mod tests {
             autoreact_reaction_for("a%20b"),
             Some(serenity::ReactionType::Unicode("a%20b".to_string()))
         );
+    }
+
+    #[test]
+    fn autoreact_event_composition_matches_ts_battery() {
+        // Node battery (`slice-w7s70-autoreact.cjs`): gate cube (8),
+        // `!reactionData` falsy table (12), wrap identity (4), key shape,
+        // per-item try/catch continue (7) — green 33/33.
+        // Gate mapping (structural, no pure): bot drops at the upstream
+        // `Handler::message` early return, guild scoping via `msg.guild_id`
+        // at the emit site, `!message.channel` unevaluatable (serenity
+        // `Message` always carries a `channel_id`).
+        // `!reactionData` falsy legs all fold to an empty map here (no
+        // emit): every falsy-shaped raw parses to nothing.
+        for raw in ["0", "false", "null", "\"\"", "[]", "{}"] {
+            assert!(
+                parse_autoreact_map(raw).is_empty(),
+                "falsy-shaped raw must not emit: {raw}"
+            );
+        }
+        // Scalar wrap leg (`[reactionData]`): single string -> one emit.
+        assert_eq!(
+            parse_autoreact_map(r#"{"1": "a"}"#).get("1").unwrap(),
+            &vec!["a".to_string()]
+        );
+        // Empty-array leg: truthy in TS so the loop runs zero times;
+        // here an empty vec likewise emits nothing.
+        assert!(parse_autoreact_map(r#"{"1": []}"#)
+            .get("1")
+            .unwrap()
+            .is_empty());
+        // Mixed-array leg: TS attempts every element and the per-item
+        // try/catch skips the non-string throws while the strings still
+        // fire; `filter_map(as_str)` keeps exactly the fireable subset
+        // in order.
+        assert_eq!(
+            parse_autoreact_map(r#"{"1": ["a", 5, null, "b"]}"#)
+                .get("1")
+                .unwrap(),
+            &vec!["a".to_string(), "b".to_string()]
+        );
+        // Per-channel miss leg: `undefined` -> skip in TS, absent key
+        // (or whole-node miss) -> empty vec here, same silence.
+        assert!(parse_autoreact_map(r#"{"9": ["a"]}"#).get("1").is_none());
+        assert!(parse_autoreact_map("").is_empty());
     }
 }
