@@ -15374,6 +15374,7 @@ mod dead_leg_tests {
     /// body is ever un-commented, flagging the mirror gap.
     const LOCK_VANITY_TS: &str = include_str!("../../src/Events/guildconfig/lockVanity.ts");
     const LINKED_CHANNEL_TS: &str = include_str!("../../src/Events/linked-channel/onNewMessage.ts");
+    const CLIENT_READY_TS: &str = include_str!("../../src/Events/client/ready.ts");
 
     fn strip_ts_comments(src: &str) -> String {
         let mut out = String::new();
@@ -15431,6 +15432,35 @@ mod dead_leg_tests {
         }
         assert!(LOCK_VANITY_TS.contains("name: \"guildUpdate\""));
         assert!(LINKED_CHANNEL_TS.contains("name: \"messageCreate\""));
+    }
+
+    #[test]
+    fn quotes_presence_stays_dead_return() {
+        // ready.ts `quotesPresence` opens with a bare `return;` (the
+        // setPresence body below it is fully commented out), so the
+        // 120s presence interval is a no-op and the Rust side mirrors
+        // no presence write. Battery E1/E2 in
+        // scratch/slice-w7s73-refresh.cjs. Fails if the body is ever
+        // un-commented.
+        let src = CLIENT_READY_TS;
+        let start = src
+            .find("async function quotesPresence")
+            .expect("quotesPresence fn");
+        let end = src[start..]
+            .find("async function refreshSchedule")
+            .map(|i| start + i)
+            .expect("refreshSchedule fn");
+        let body = strip_ts_comments(&src[start..end]);
+        assert!(
+            body.contains("return;"),
+            "quotesPresence lost its dead return"
+        );
+        for token in ["setPresence", "getShardStats", "await"] {
+            assert!(
+                !body.contains(token),
+                "quotesPresence gained live token {token:?}"
+            );
+        }
     }
 }
 

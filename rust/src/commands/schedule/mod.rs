@@ -246,6 +246,55 @@ mod tests {
         assert_eq!(expiry_ms_of(&serde_json::json!({})), None);
     }
 
+    #[test]
+    fn expired_gate_matches_ts_refresh_battery() {
+        // Battery: scratch/slice-w7s73-refresh.cjs (26/26 green), replicating
+        // ready.ts `array.value[ScheduleId]?.expired <= dateNow` verbatim.
+        // Missing/undefined `expired` never fires (A3/A4): the entry is
+        // skipped, never deleted or DM'd.
+        for raw in [
+            r#"{"title":"t","description":"a description"}"#,
+            r#"{"title":"t","description":"d","expired":null}"#,
+        ] {
+            let v: serde_json::Value = serde_json::from_str(raw).unwrap();
+            assert_eq!(expiry_ms_of(&v), None, "{raw}");
+            assert!(entry_from_value(&v, "C").is_none(), "{raw}");
+        }
+        // DELTAS (doc-noted, manual-DB-only: the TS writer stores integer
+        // `expired: Date.now() + date0`, so these rows are writer-
+        // unreachable): JS numeric coercion fires on numeric strings
+        // (A9), floats (A11) and `true` (A12), and on `null` via the 0
+        // fold (A5) -- all skipped here (`as_i64` rejects non-integers).
+        for raw in [
+            r#"{"title":"t","description":"d","expired":"1699999999999"}"#,
+            r#"{"title":"t","description":"d","expired":5.5}"#,
+            r#"{"title":"t","description":"d","expired":true}"#,
+        ] {
+            let v: serde_json::Value = serde_json::from_str(raw).unwrap();
+            assert_eq!(expiry_ms_of(&v), None, "{raw}");
+        }
+        // Junk strings stay silent both sides (A10: NaN comparison).
+        let junk: serde_json::Value =
+            serde_json::from_str(r#"{"title":"t","description":"d","expired":"abc"}"#).unwrap();
+        assert_eq!(expiry_ms_of(&junk), None);
+        // Gate edges (A6/A7/A8): zero and equal fire, future stays silent.
+        for ms in [0i64, 1_700_000_000_000] {
+            let v: serde_json::Value = serde_json::from_str(&format!(
+                r#"{{"title":"t","description":"d","expired":{ms}}}"#
+            ))
+            .unwrap();
+            let e = entry_from_value(&v, "C").unwrap();
+            assert!(is_expired(&e, 1_700_000_000_000), "{ms}");
+        }
+        let fut: serde_json::Value =
+            serde_json::from_str(r#"{"title":"t","description":"d","expired":1700000000001}"#)
+                .unwrap();
+        assert!(!is_expired(
+            &entry_from_value(&fut, "C").unwrap(),
+            1_700_000_000_000
+        ));
+    }
+
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }
