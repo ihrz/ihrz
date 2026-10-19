@@ -7678,7 +7678,21 @@ impl serenity::EventHandler for Handler {
             .await;
         }
         // Allowlist lazy seed (mirrors createAllowlistOnMessage.ts):
-        // first observed message creates the owner entry.
+        // first observed message seeds the whole ALLOWLIST node
+        // (`{enable:false,list:{<owner>:{allowed:true}}}`, verbatim).
+        // The whole-node overwrite (not a leaf write) is load-bearing:
+        // TS `db.set(ALLOWLIST, ...)` resets a stored `enable:true`
+        // when the list is empty (battery leg S8). The gate fires only
+        // on merged-list emptiness, so no entry is ever lost.
+        // DELTAS (doc-noted, battery legs S1-S14/K1-K4): falsy-scalar
+        // and truthy non-object rows whole-overwrite in TS but converge
+        // here (owner entry created either way; writers store objects);
+        // non-object `list` members (string/array/number) count via
+        // Object.values in TS (non-empty string/array lists skip the
+        // seed) while the merged loader sees no object and seeds
+        // (manual-DB-only, writers store `{<id>:{allowed:bool}}`
+        // objects); owner-fetch failure skips here while TS writes an
+        // `"undefined"` key (discord.js always populates ownerId).
         if !msg.author.bot {
             let seeded: bool = allowlist_seeded_routed(&self.pool, &gid).await;
             if !seeded {
@@ -7690,8 +7704,10 @@ impl serenity::EventHandler for Handler {
                     let _ = crate::db::tbl_set(
                         &self.pool,
                         &gid,
-                        &format!("ALLOWLIST.list.{owner}"),
-                        r#"{"allowed":true}"#,
+                        "ALLOWLIST",
+                        &format!(
+                            "{{\"enable\":false,\"list\":{{\"{owner}\":{{\"allowed\":true}}}}}}"
+                        ),
                     )
                     .await;
                 }

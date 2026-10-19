@@ -257,9 +257,98 @@ pub async fn allowlist_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Lazy-seed decision for the allowlist node. Mirrors the
+/// `createAllowlistOnMessage.ts` gate verbatim:
+/// `!baseData || Object.values(baseData?.list || {}).length === 0`.
+/// Seeds unless the stored node is JS-truthy AND its `list` member
+/// carries at least one value. `Object.values` counts object keys,
+/// array items, and string chars (JS `length` = UTF-16 units, hence
+/// `encode_utf16().count()`); numbers/booleans/null fold to empty.
+/// JSON has no `undefined`/NaN, so falsy is exactly
+/// null/false/0/"". Writers store `{enable,list:{<id>:{allowed}}`
+/// objects, so every writer-reachable row lands on the object legs.
+pub fn allowlist_seed_needed(base: Option<&serde_json::Value>) -> bool {
+    use serde_json::Value;
+    fn js_truthy(v: &Value) -> bool {
+        match v {
+            Value::Null => false,
+            Value::Bool(b) => *b,
+            Value::Number(n) => n.as_f64().is_some_and(|f| f != 0.0),
+            Value::String(s) => !s.is_empty(),
+            Value::Array(_) | Value::Object(_) => true,
+        }
+    }
+    fn values_len(v: &Value) -> usize {
+        match v {
+            Value::Object(map) => map.len(),
+            Value::Array(items) => items.len(),
+            Value::String(s) => s.encode_utf16().count(),
+            _ => 0,
+        }
+    }
+    match base {
+        None => true,
+        Some(v) => {
+            if !js_truthy(v) {
+                return true;
+            }
+            let list = v.get("list").unwrap_or(&Value::Null);
+            values_len(list) == 0
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn allowlist_seed_decision_matches_ts_battery() {
+        // Battery: scratch/slice-w7s66-allowseed.cjs (green) replicating
+        // `!baseData || Object.values(baseData?.list || {}).length===0`.
+        // Seed legs S1-S14.
+        assert!(allowlist_seed_needed(None));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(null))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(false))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(0))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(""))));
+        assert!(allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": {}})
+        )));
+        assert!(allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false})
+        )));
+        assert!(allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": true, "list": {}})
+        )));
+        assert!(allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": null})
+        )));
+        assert!(allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": 5})
+        )));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(true))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!(7))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!("x"))));
+        assert!(allowlist_seed_needed(Some(&serde_json::json!([1, 2]))));
+        // Keep legs K1-K4.
+        assert!(!allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": {"owner9": {"allowed": true}}})
+        )));
+        assert!(!allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": true, "list": {"u1": {"allowed": true}}})
+        )));
+        assert!(!allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": ["a"]})
+        )));
+        assert!(!allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": "ab"})
+        )));
+        // Astral-char string list counts UTF-16 units like JS length.
+        assert!(!allowlist_seed_needed(Some(
+            &serde_json::json!({"enable": false, "list": "\u{1F600}"})
+        )));
+    }
 
     #[test]
     fn allowlist_registers_slash_tree() {
