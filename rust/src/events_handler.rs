@@ -1603,6 +1603,21 @@ pub fn roles_log_proceeds(has_view_audit_log: bool, has_manage_guild: bool) -> b
     has_view_audit_log && has_manage_guild
 }
 
+/// ViewAuditLog + Administrator AND-gate for the rich unban log.
+/// Mirrors the two sequential early returns in
+/// Events/logs/removeBanLogs.ts (`!me || !has(ViewAuditLog)`, then
+/// `!me?.has([Administrator])`): gate 2's `?.` only matters when `me`
+/// is null, which gate 1 already returned on, so both legs collapse
+/// to this AND (discord.js `has` grants every flag to admins, exactly
+/// like serenity guild-level `member_permissions`, so an admin passes
+/// both). The ban-add/kick legs use [`roles_log_proceeds`] instead
+/// (single `[ViewAuditLog, ManageGuild]` array gate; kickLogs.ts
+/// splits it into `!guild` / `!me` / `!has` lines with the identical
+/// outcome). Pure, unit-tested below (battery slice W7-71).
+pub fn unban_log_proceeds(has_view_audit_log: bool, has_administrator: bool) -> bool {
+    has_view_audit_log && has_administrator
+}
+
 /// Description renderer for the rich roles log. Mirrors rolesLogs.ts
 /// (`" "` base, remove leg plus a trailing `\n`, role mentions
 /// comma-joined via Array-toString with no spaces). Token replace is
@@ -3677,6 +3692,11 @@ impl Handler {
     /// GUILD.SERVER_LOGS.moderation. Silent when no log channel or
     /// no audit entry, like TS. Executor comes from the audit entry;
     /// target from the caller.
+    /// The per-file bot permission gates live at the call sites, not
+    /// here (battery slice W7-71): ban-add/kick need
+    /// `[ViewAuditLog, ManageGuild]` (`bot_can_audit`), unban needs
+    /// ViewAuditLog + Administrator (`bot_can_unban_log`) -- without
+    /// them the audit fetch would succeed but TS stays silent.
     ///
     /// Attribution mirrors getLogs in Events/protection/ready.ts
     /// (battery slice W7-40): the last 40 entries are scanned for a
@@ -4030,6 +4050,19 @@ impl Handler {
     async fn bot_can_audit(&self, ctx: &serenity::Context, guild_id: serenity::GuildId) -> bool {
         let perms = self.bot_effective_perms(ctx, guild_id).await;
         roles_log_proceeds(perms.view_audit_log(), perms.manage_guild())
+    }
+
+    /// ViewAuditLog + Administrator gate for the rich unban log.
+    /// Mirrors the double early return in Events/logs/removeBanLogs.ts
+    /// (ViewAuditLog first, Administrator second): without both, TS
+    /// stays silent even though the audit fetch would succeed.
+    async fn bot_can_unban_log(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+    ) -> bool {
+        let perms = self.bot_effective_perms(ctx, guild_id).await;
+        unban_log_proceeds(perms.view_audit_log(), perms.administrator())
     }
 
     /// ManageRoles gate. Mirrors the `members.me` ManageRoles early
@@ -7281,16 +7314,20 @@ impl serenity::EventHandler for Handler {
                     Some(user.id.get()),
                 )
                 .await;
-            // Rich audit embed (mirrors logs/kickLogs.ts).
-            self.mod_audit_log(
-                &ctx,
-                guild_id,
-                Action::Member(MemberAction::Kick),
-                "event_srvLogs_guildMemberRemove_description",
-                user.id.get(),
-                None,
-            )
-            .await;
+            // Rich audit embed (mirrors logs/kickLogs.ts): gated on the
+            // bot [ViewAuditLog, ManageGuild] pair like TS (without it
+            // the audit fetch would succeed but TS stays silent).
+            if self.bot_can_audit(&ctx, guild_id).await {
+                self.mod_audit_log(
+                    &ctx,
+                    guild_id,
+                    Action::Member(MemberAction::Kick),
+                    "event_srvLogs_guildMemberRemove_description",
+                    user.id.get(),
+                    None,
+                )
+                .await;
+            }
         }
         // Leave channel gate (mirrors leaveMessage.ts: without a
         // configured leave channel present in the channel cache the
@@ -11047,16 +11084,20 @@ impl serenity::EventHandler for Handler {
         // Unauthorized-ban reversal (mirrors avoidBanMember.ts) runs
         // inside the guard: the victim's ban is lifted BEFORE the
         // executor is punished (unban-first-then-punish).
-        // Rich audit embed (mirrors logs/addBanLogs.ts).
-        self.mod_audit_log(
-            &ctx,
-            guild_id,
-            Action::Member(MemberAction::BanAdd),
-            "event_srvLogs_banAdd_description",
-            banned_user.id.get(),
-            None,
-        )
-        .await;
+        // Rich audit embed (mirrors logs/addBanLogs.ts): gated on the
+        // bot [ViewAuditLog, ManageGuild] pair like TS (without it the
+        // audit fetch would succeed but TS stays silent).
+        if self.bot_can_audit(&ctx, guild_id).await {
+            self.mod_audit_log(
+                &ctx,
+                guild_id,
+                Action::Member(MemberAction::BanAdd),
+                "event_srvLogs_banAdd_description",
+                banned_user.id.get(),
+                None,
+            )
+            .await;
+        }
     }
 
     async fn guild_ban_removal(
@@ -11080,16 +11121,21 @@ impl serenity::EventHandler for Handler {
         if hit.is_some() {
             let _ = guild_id.ban(&ctx.http, unbanned_user.id, 0).await;
         }
-        // Rich audit embed (mirrors logs/removeBanLogs.ts).
-        self.mod_audit_log(
-            &ctx,
-            guild_id,
-            Action::Member(MemberAction::BanRemove),
-            "event_srvLogs_banRemove_description",
-            unbanned_user.id.get(),
-            Some(&unbanned_user.name),
-        )
-        .await;
+        // Rich audit embed (mirrors logs/removeBanLogs.ts): gated on
+        // ViewAuditLog + Administrator like the TS double early return
+        // (without both the audit fetch would succeed but TS stays
+        // silent).
+        if self.bot_can_unban_log(&ctx, guild_id).await {
+            self.mod_audit_log(
+                &ctx,
+                guild_id,
+                Action::Member(MemberAction::BanRemove),
+                "event_srvLogs_banRemove_description",
+                unbanned_user.id.get(),
+                Some(&unbanned_user.name),
+            )
+            .await;
+        }
     }
 
     async fn guild_update(
@@ -13910,6 +13956,36 @@ mod restore_tests {
         assert_eq!(mod_log_reason(None, FB), FB);
         assert_eq!(mod_log_reason(Some(""), FB), FB);
         assert_eq!(mod_log_reason(Some(" "), FB), " ");
+    }
+
+    #[test]
+    fn ban_kick_log_gates_match_ts_battery() {
+        // Battery slice W7-71 (scratch/slice-w7s71-banlog-gates.cjs,
+        // 46/46): addBanLogs.ts combined `!me || !has([VAL, MG])`,
+        // kickLogs.ts split `!guild` / `!me` / `!has([VAL, MG])`, and
+        // removeBanLogs.ts double `!me || !has(VAL)` + `!me?.has([ADM])`
+        // gates, plus the shared `!someinfo` / `!Msgchannel` /
+        // `!relevantLog` tail and per-leg token selection.
+        use super::{roles_log_proceeds, unban_log_proceeds};
+        // Add/kick perm table: `has` with an array needs BOTH bits
+        // (battery A-legs); the kick split shape agrees on every row
+        // (battery B-legs), so one pure serves both call sites.
+        assert!(!roles_log_proceeds(false, false));
+        assert!(!roles_log_proceeds(true, false));
+        assert!(!roles_log_proceeds(false, true));
+        assert!(roles_log_proceeds(true, true));
+        // Unban double gate collapses to VAL && Admin (battery C-legs:
+        // gate 2's `?.` only matters when `me` is null, which gate 1
+        // already returned on; discord.js `has` grants every flag to
+        // admins, like serenity guild-level `member_permissions`, so an
+        // admin passes both).
+        assert!(!unban_log_proceeds(false, false));
+        assert!(!unban_log_proceeds(true, false));
+        assert!(unban_log_proceeds(true, true));
+        // `!me` maps to the fail-closed `bot_effective_perms` empty set
+        // (both gates deny), same observable silence as the TS return.
+        assert!(!roles_log_proceeds(false, false));
+        assert!(!unban_log_proceeds(false, false));
     }
 
     #[test]
