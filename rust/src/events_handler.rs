@@ -1536,6 +1536,51 @@ pub fn audit_entry_relevant(
         && now_ms.saturating_sub(entry_created_ms) < AUDIT_LOG_WINDOW_MS
 }
 
+/// Which handled-set a getLogs call consults. Mirrors the LOG_SETS
+/// table in Events/protection/ready.ts: PROTECTION and LOGS dedup in
+/// separate per-kind sets (same entry id claimed under one kind stays
+/// visible under the other), NONE consults no set and never dedups.
+/// DELTAS (doc-noted, no live change): the Handler carries a single
+/// `handled_audit` set consulted by protection_guard only. The LOGS-kind
+/// log sites (ban/removeBan/channelUpdate/roles) never re-fetch the same
+/// entry twice — channelUpdate's double fetch uses two different action
+/// types — so the missing LOGS set is convergent. kickLogs.ts claims the
+/// PROTECTION set while the shared mod_audit_log claims nothing, so a
+/// kick entry consumed by the log stays sanctionable here where TS (log
+/// first) would skip; claim order is loader-dependent, left as-is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AuditDedupSet {
+    Protection,
+    Logs,
+}
+
+/// Which handled-set a getLogs call consults (`None` = NONE, no set).
+pub fn audit_dedup_scope(call_type: &str) -> Option<AuditDedupSet> {
+    match call_type {
+        "PROTECTION" => Some(AuditDedupSet::Protection),
+        "LOGS" => Some(AuditDedupSet::Logs),
+        _ => None,
+    }
+}
+
+/// Pass model for the 60s protection-snapshot sweep. Mirrors
+/// backupGuildStructure in Events/protection/ready.ts: a raiding guild
+/// `return`s out of the whole pass, so guilds ordered after it are NOT
+/// snapshotted that tick (the next 60s tick retries).
+/// DELTA (doc-noted): nothing in TS ever sets `isRaiding`, so the gate
+/// is dead there; here it reads the live restore set (a deliberate guard
+/// so a sweep never clobbers restore inputs mid-restore).
+pub fn sweep_snapshot_ids<'a>(ordered_ids: &[&'a str], raiding: &HashSet<String>) -> Vec<&'a str> {
+    let mut out = Vec::new();
+    for id in ordered_ids {
+        if raiding.contains(*id) {
+            break;
+        }
+        out.push(*id);
+    }
+    out
+}
+
 /// Channel-log both-bot gate backing the logs/channelUpdateLogs.ts
 /// early return. Mirrors `relevantLog?.executor?.id === botId &&
 /// relevantLog_2?.executor?.id === botId`: a missing entry reads as
@@ -5357,8 +5402,11 @@ impl serenity::EventHandler for Handler {
                         .filter_map(|id| cache.guild(id).map(|g| g.clone()))
                         .collect();
                     for guild in &guilds {
+                        // TS backupGuildStructure `return`s on a raiding
+                        // guild, aborting the rest of the pass (break, not
+                        // continue); the next 60s tick retries.
                         if restoring.lock().await.contains(&guild.id.get().to_string()) {
-                            continue;
+                            break;
                         }
                         seed_protection_snapshot(&pool, guild).await;
                     }
@@ -14227,6 +14275,47 @@ mod protection_audit_tests {
             1_000 + AUDIT_LOG_WINDOW_MS,
             Some(10)
         ));
+    }
+
+    #[test]
+    fn sweep_snapshot_ids_matches_ts_return_abort_battery() {
+        // Battery: scratch/slice-w7s67-ready.cjs (loop legs green).
+        let raiding: HashSet<String> = ["B".to_string()].into_iter().collect();
+        assert_eq!(sweep_snapshot_ids(&["A", "B", "C"], &raiding), vec!["A"]);
+        let first: HashSet<String> = ["A".to_string()].into_iter().collect();
+        assert!(sweep_snapshot_ids(&["A", "B", "C"], &first).is_empty());
+        let last: HashSet<String> = ["C".to_string()].into_iter().collect();
+        assert_eq!(sweep_snapshot_ids(&["A", "B", "C"], &last), vec!["A", "B"]);
+        let none: HashSet<String> = HashSet::new();
+        assert_eq!(
+            sweep_snapshot_ids(&["A", "B", "C"], &none),
+            vec!["A", "B", "C"]
+        );
+    }
+
+    #[test]
+    fn audit_dedup_scope_matches_ts_log_sets_battery() {
+        // Battery: scratch/slice-w7s67-ready.cjs (dedup cube green).
+        // Separate PROTECTION / LOGS sets: model the claim routing and
+        // prove cross-kind visibility with two live sets.
+        assert_eq!(
+            audit_dedup_scope("PROTECTION"),
+            Some(AuditDedupSet::Protection)
+        );
+        assert_eq!(audit_dedup_scope("LOGS"), Some(AuditDedupSet::Logs));
+        assert_eq!(audit_dedup_scope("NONE"), None);
+        assert_eq!(audit_dedup_scope("anything-else"), None);
+        let mut prot: HashSet<String> = HashSet::new();
+        let mut logs: HashSet<String> = HashSet::new();
+        let claim = |set: &mut HashSet<String>, id: &str| set.insert(id.to_string());
+        assert!(claim(&mut prot, "e1"));
+        assert!(!claim(&mut prot, "e1"));
+        assert!(claim(&mut logs, "e2"));
+        assert!(!claim(&mut logs, "e2"));
+        assert!(claim(&mut prot, "e3"));
+        assert!(claim(&mut logs, "e3"));
+        assert!(claim(&mut logs, "e4"));
+        assert!(claim(&mut prot, "e4"));
     }
 }
 
