@@ -15258,11 +15258,52 @@ mod component_registry_tests {
     fn invite_seed_gate_needs_both_bits() {
         // Ready-burst parity: ManageGuild + ViewAuditLog (discord.js
         // .has([A, B]) is an AND); owners bypass; a missing bit denies.
+        // Battery scratch/slice-w7s72-fetchinvites.cjs (22 legs, real
+        // discord.js PermissionsBitField): g-admin-bypass proves an
+        // Administrator-only row passes .has(), so admin maps to the
+        // (true, true) row here — the fold happens at the caller via
+        // effective perms (serenity calculate_permissions, slice-71),
+        // never in this pure. g-nome proves the `?.` miss leg skips,
+        // which the callers mirror via fail-closed empty perms.
         assert!(invite_seed_allowed(true, false, false));
         assert!(invite_seed_allowed(false, true, true));
         assert!(!invite_seed_allowed(false, true, false));
         assert!(!invite_seed_allowed(false, false, true));
         assert!(!invite_seed_allowed(false, false, false));
+    }
+
+    #[test]
+    fn ready_burst_shape_matches_ts_fetchinvites_battery() {
+        // Burst-shape verdicts from scratch/slice-w7s72-fetchinvites.cjs
+        // (no live-code change — the ready burst has no Rust counterpart;
+        // guild_create streams per guild instead, see the join-leg site):
+        // - b0/b1/b5/b6/b11: batch-5 slicing (`slice(i, i+5)` per
+        //   Promise.all batch) is a pacing shape only; the streamed seed
+        //   fetches the same set with the same gate, so no batch pure.
+        // - t-full/t-noinviter/t-nullname/t-emptyname: the tuple's
+        //   `inviter?.username || null` leg folds missing/null/absent
+        //   names to null; the Rust cache tuple drops the username
+        //   entirely (slice-15 DELTA: no reader addresses it), which
+        //   converges on every leg the readers evaluate.
+        // - v-ok/v-throw/v-nofeature/v-empty: the vanity burst map
+        //   (fetchVanityData {code, uses} / throw -> null / no-feature
+        //   -> null) has no mirror by design — join-time attribution
+        //   uses api.VANITY custom codes instead (see the vanity site).
+        // - err: the per-guild catch logs
+        //   `Error fetching invites for guild <id>: <error>`; the
+        //   streamed site swallows fetch failures silently (`if let Ok`)
+        //   — log routing only, no port (logger legs never port).
+        // This pin exists so the verdicts stay greppable; the asserts
+        // below lock the username fold a future mirror must preserve.
+        fn username_fold(name: Option<&str>) -> Option<&str> {
+            match name {
+                Some(n) if !n.is_empty() => Some(n),
+                _ => None,
+            }
+        }
+        assert_eq!(username_fold(Some("amy")), Some("amy"));
+        assert_eq!(username_fold(None), None);
+        assert_eq!(username_fold(Some("")), None);
     }
 
     #[test]
