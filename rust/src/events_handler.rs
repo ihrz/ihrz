@@ -6989,8 +6989,8 @@ impl serenity::EventHandler for Handler {
                 // TS `if (!array || array.length === 0) return` only skips
                 // the restore itself: scoped here (no early return) so an
                 // empty snapshot neither wipes roles nor aborts the rest
-                // of the join pipeline below.
-                if !roles.is_empty() {
+                // of the join pipeline below (and the row is kept).
+                if crate::commands::newfeatures::rolesaver_restore_proceeds(Some(&roles)) {
                     let want: Vec<serenity::RoleId> = roles
                         .iter()
                         .filter_map(|s| s.parse::<u64>().ok())

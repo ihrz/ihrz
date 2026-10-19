@@ -1746,6 +1746,45 @@ mod tests {
     }
 
     #[test]
+    fn rolesaver_leave_snapshot_matches_ts_battery() {
+        // slice-w7s64-rolesaver.cjs: `.each` callback return skips ONE role
+        // (never aborts); @everyone skipped by id; admin roles skipped only
+        // under opt-out; TS still writes the (possibly empty) array.
+        use crate::commands::newfeatures::rolesaver_skip_admin;
+        // (roles, everyone_id, admin flag) -> snapshot; role tuples are
+        // (id, carries_admin_perm).
+        let snap = |roles: &[(u64, bool)], eid: u64, admin: Option<&str>| {
+            super::snapshot_roles(roles, eid, rolesaver_skip_admin(admin))
+        };
+        let roles = [(100u64, false), (10, false), (20, true), (30, false)];
+        assert_eq!(
+            snap(&roles, 100, Some("no")),
+            vec!["10".to_string(), "30".to_string()]
+        );
+        for admin in [Some("yes"), Some("None"), Some("No"), Some(""), None] {
+            assert_eq!(
+                snap(&roles, 100, admin),
+                vec!["10".to_string(), "20".to_string(), "30".to_string()],
+                "admin flag {:?} keeps admin roles",
+                admin
+            );
+        }
+        // @everyone interleaved mid-list skips only itself.
+        assert_eq!(
+            snap(
+                &[(10, false), (100, false), (20, true), (100, true)],
+                100,
+                Some("no")
+            ),
+            vec!["10".to_string()]
+        );
+        // Empty member roles -> empty snapshot (TS still writes []).
+        assert!(snap(&[], 100, Some("no")).is_empty());
+        // All-admin + opt-out -> empty snapshot (still written).
+        assert!(snap(&[(20, true)], 100, Some("no")).is_empty());
+    }
+
+    #[test]
     fn temp_voice_helpers() {
         assert_eq!(temp_voice_key(1, 2), "CUSTOM_VOICE.1.2");
         assert_eq!(temp_channel_name("bob"), "bob's channel");

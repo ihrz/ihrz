@@ -286,6 +286,21 @@ pub fn rolesaver_skip_admin(admin: Option<&str>) -> bool {
     admin == Some("no")
 }
 
+/// Join-restore gate for rolesaver/onMemberJoin.ts
+/// `if (!array || array.length === 0) return`: a missing row (None) or an
+/// empty snapshot restores nothing AND deletes nothing (the row is kept).
+/// DELTAS (unreachable: both sides only ever write JSON id arrays):
+/// a corrupt non-array row (`"abc"`, `{}`) has a non-zero/undefined
+/// `.length` in TS so the set is attempted (and rejects) and the row is
+/// still deleted, while here the parse fails to an empty vec so the row is
+/// kept; a mixed valid+junk array rejects the whole TS `roles.set` (valid
+/// roles NOT restored) while the live site restores the parseable subset
+/// per-role (numeric-but-deleted ids fail silently per role instead of
+/// failing the batch — deliberate per-role best-effort superset).
+pub fn rolesaver_restore_proceeds(row: Option<&[String]>) -> bool {
+    row.map(|r| !r.is_empty()).unwrap_or(false)
+}
+
 pub async fn load_rolesaver_cfg(pool: &crate::db::Pool, guild_id: &str) -> RolesaverCfg {
     if let Some(raw) = crate::db::tbl_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver").await {
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
@@ -565,6 +580,19 @@ mod tests {
         assert!(!rolesaver_skip_admin(Some("No")));
         assert!(!rolesaver_skip_admin(Some("")));
         assert!(!rolesaver_skip_admin(None));
+    }
+
+    #[test]
+    fn rolesaver_restore_gate_matches_ts_join_legs() {
+        // slice-w7s64-rolesaver.cjs: `!array || array.length === 0` skips
+        // restore AND delete (row kept); anything else restores + deletes.
+        assert!(!rolesaver_restore_proceeds(None));
+        assert!(!rolesaver_restore_proceeds(Some(&[])));
+        assert!(rolesaver_restore_proceeds(Some(&["10".to_string()])));
+        assert!(rolesaver_restore_proceeds(Some(&[
+            "10".to_string(),
+            "30".to_string()
+        ])));
     }
 }
 
