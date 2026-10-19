@@ -183,6 +183,43 @@ pub fn leave_invites_update(raw: Option<&serde_json::Value>) -> (Option<InviteSt
     (Some(stats), amount)
 }
 
+/// Join-accounting core. Mirrors `recordInviterStats` in
+/// `Events/guildconfig/joinMessage.ts` exactly:
+/// - a missing/falsy row (`None` here, TS `if (!check)`) is zero-filled,
+///   then `regular` and `invites` each `+1` (`db.add` over `addSubtract`:
+///   a missing leaf reads `null` → `0` → `1`; `bonus`/`leaves` are
+///   untouched);
+/// - the caller (`recordStatsOnce`) never invokes this without an
+///   `inviterId` (`if (statsRecorded || !resolved?.inviterId) return`),
+///   matching the live `inviter_id != 0` gate (unchanged);
+/// - the `USER.<member>.INVITES.BY` write keeps the TS object shape
+///   `{inviter, invite}` (live site, unchanged).
+///
+/// Manual-DB-only deltas (all writers store integer 4-key objects):
+/// numeric-string sub-keys (`"5"`) parse via `parseFloat` in TS (`6`)
+/// but fold the whole row to zeros here (`1`) — same class as the
+/// `leave_invites_update` non-integer delta; extra keys on an existing
+/// row are preserved by the TS `add` but dropped by the 4-key
+/// `save_invites`.
+pub fn join_invites_update(raw: Option<&serde_json::Value>) -> InviteStats {
+    let mut stats: InviteStats = raw
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default();
+    stats.regular += 1;
+    stats.invites += 1;
+    stats
+}
+
+/// Raw-row read for the join-accounting leg (same routing as
+/// `load_invites`, without the default fold).
+pub async fn load_invites_raw(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+) -> Option<serde_json::Value> {
+    table_value_or_legacy(pool, guild_id, &invites_key(user_id)).await
+}
+
 /// Leave-accounting delivery: raw-row read, pure update, conditional save.
 /// Returns the `{invitesCount}` value (`None` renders `"1337"`).
 pub async fn apply_leave_accounting(
@@ -444,6 +481,81 @@ mod tests {
             })
         );
         assert_eq!(amount, None);
+    }
+
+    #[test]
+    fn join_accounting_matches_ts_battery() {
+        // Verbatim pins from scratch/slice-w7s65-joinstats.cjs (27/27
+        // node legs): joinMessage.ts `recordInviterStats` + the
+        // `recordStatsOnce`/`find` guard legs.
+        let row = |v: serde_json::Value| join_invites_update(Some(&v));
+        // Missing row: TS `if (!check)` zero-fills, then +1/+1.
+        assert_eq!(
+            join_invites_update(None),
+            InviteStats {
+                invites: 1,
+                regular: 1,
+                bonus: 0,
+                leaves: 0
+            }
+        );
+        // Full row: regular +1, invites +1, bonus/leaves untouched.
+        assert_eq!(
+            row(serde_json::json!({"invites": 4, "regular": 4, "bonus": 2, "leaves": 1})),
+            InviteStats {
+                invites: 5,
+                regular: 5,
+                bonus: 2,
+                leaves: 1
+            }
+        );
+        // Empty object (truthy, no fill): adds still create both subs.
+        assert_eq!(
+            row(serde_json::json!({})),
+            InviteStats {
+                invites: 1,
+                regular: 1,
+                bonus: 0,
+                leaves: 0
+            }
+        );
+        // Falsy stored rows (0/""/false): TS zero-fills like missing.
+        for falsy in [
+            serde_json::json!(0),
+            serde_json::json!(""),
+            serde_json::json!(false),
+        ] {
+            assert_eq!(
+                join_invites_update(Some(&falsy)),
+                InviteStats {
+                    invites: 1,
+                    regular: 1,
+                    bonus: 0,
+                    leaves: 0
+                }
+            );
+        }
+        // Null sub-keys: `db.add` null->0->1, same as the default fold.
+        assert_eq!(
+            row(serde_json::json!({"invites": null, "regular": null, "bonus": 0, "leaves": 0})),
+            InviteStats {
+                invites: 1,
+                regular: 1,
+                bonus: 0,
+                leaves: 0
+            }
+        );
+        // Numeric-string subs are a doc-noted manual-DB-only delta (TS
+        // `parseFloat` gives 6, the whole-row fold gives 1 here).
+        assert_eq!(
+            row(serde_json::json!({"invites": "5", "regular": "5", "bonus": 0, "leaves": 0})),
+            InviteStats {
+                invites: 1,
+                regular: 1,
+                bonus: 0,
+                leaves: 0
+            }
+        );
     }
 
     #[test]

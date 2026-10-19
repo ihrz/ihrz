@@ -5238,16 +5238,13 @@ impl Handler {
                     // TS object form, so either side's leave leg reads
                     // the inviter and the code. Legacy raw-id rows still
                     // parse via parse_inviter_by_str.
-                    let stats = crate::commands::invitesmanager::inv::load_invites(
+                    let stats_raw = crate::commands::invitesmanager::inv::load_invites_raw(
                         &self.pool, gid, inviter_id,
                     )
                     .await;
-                    let next = crate::commands::invitesmanager::inv::InviteStats {
-                        invites: stats.invites + 1,
-                        regular: stats.regular + 1,
-                        bonus: stats.bonus,
-                        leaves: stats.leaves,
-                    };
+                    let next = crate::commands::invitesmanager::inv::join_invites_update(
+                        stats_raw.as_ref(),
+                    );
                     let _ = crate::commands::invitesmanager::inv::save_invites(
                         &self.pool, gid, inviter_id, &next,
                     )
