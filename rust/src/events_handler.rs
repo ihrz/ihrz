@@ -1988,6 +1988,58 @@ pub fn select_event_proceeds(is_bot: bool, has_guild_channels: bool) -> bool {
     !is_bot && has_guild_channels
 }
 
+/// Gate for context-menu presses. Mirrors contextCommandHandler.ts:28-33
+/// (`!isContextMenuCommand() || user.bot` drop; the `!guild?.channels`
+/// leg is commented out, so DM presses proceed). Poise owns the live
+/// dispatch; the pure pins the verdict table. Pure, unit-tested below.
+pub fn context_event_proceeds(is_context_menu: bool, user_bot: bool) -> bool {
+    is_context_menu && !user_bot
+}
+
+/// Gate for slash dispatch. Mirrors slashCommandHandler.ts:72
+/// (`!isChatInputCommand() || user.bot` drop; autocomplete returns on
+/// its own arm, same as the TS early return at :66-70). Poise owns the
+/// live dispatch; the pure pins the verdict table. Pure, unit-tested
+/// below.
+pub fn slash_chat_proceeds(is_chat_input: bool, user_bot: bool) -> bool {
+    is_chat_input && !user_bot
+}
+
+/// Command-path composition. Mirrors resolveTarget in
+/// slashCommandHandler.ts:42-61 (`cmd group sub` when both are set,
+/// `cmd sub` when only the subcommand is set, bare `cmd` otherwise —
+/// including the group-without-sub corner, which skips the first arm
+/// and misses the `else if (subCommand)`). The registry lookup +
+/// `subCmd?.run` fallback live in poise's structural dispatch here.
+/// Pure, unit-tested below.
+pub fn resolve_command_path(cmd: &str, group: Option<&str>, sub: Option<&str>) -> String {
+    match (group, sub) {
+        (Some(g), Some(s)) => format!("{cmd} {g} {s}"),
+        (_, Some(s)) => format!("{cmd} {s}"),
+        _ => cmd.to_string(),
+    }
+}
+
+/// DM-install gate. Mirrors slashCommandHandler.ts:79-82 (DM channel +
+/// `!integration_types?.includes(1)` answers the DM-only embed).
+/// DELTA (no live caller): registration pins guild-install /
+/// guild-context on every entry (register_globally_guild_default), so
+/// Discord never delivers a DM invocation — the gate outcome (no DM
+/// execution) holds by construction. Pure, unit-tested below.
+pub fn dm_command_blocked(is_dm: bool, user_install: bool) -> bool {
+    is_dm && !user_install
+}
+
+/// Gate for prefix dispatch. Mirrors messageCommandHandler.ts:157
+/// (`!message.guild || message.author.bot || !message.channel` drop).
+/// DELTA (no live caller, deliberate): the poise prefix path has no
+/// guild gate — DM prefix invocations run here (prefix_member_may_use_commands
+/// returns true without a guild) while TS drops them. Pure,
+/// unit-tested below.
+pub fn message_create_proceeds(has_guild: bool, author_bot: bool, has_channel: bool) -> bool {
+    has_guild && !author_bot && has_channel
+}
+
 /// Voice-log embed kind. Mirrors logs/voiceLogs.ts:73-145
 /// (leave / join / self-deafen / self-undeafen / self-mute /
 /// self-unmute, in that priority order; deaf legs precede mute
@@ -14782,6 +14834,33 @@ mod component_registry_tests {
         // split("%")[0] of the RAW id (no ?dm strip), so a `foo?dm`
         // select would look up `foo?dm` in TS but `foo` here.
         assert_eq!(component_prefix("foo?dm"), "foo?dm");
+    }
+
+    #[test]
+    fn interaction_handler_guards_match_ts_battery() {
+        // Mirrors scratch slice-w7s62-interaction.cjs legs A/B/D
+        // (contextCommandHandler.ts + slashCommandHandler.ts guards +
+        // resolveTarget paths + DM gate, verbatim).
+        assert!(!context_event_proceeds(false, false));
+        assert!(!context_event_proceeds(true, true));
+        assert!(context_event_proceeds(true, false));
+        assert!(!slash_chat_proceeds(false, false));
+        assert!(!slash_chat_proceeds(true, true));
+        assert!(slash_chat_proceeds(true, false));
+        assert_eq!(
+            resolve_command_path("mod", Some("user"), Some("timeout")),
+            "mod user timeout"
+        );
+        assert_eq!(resolve_command_path("mod", None, Some("ban")), "mod ban");
+        assert_eq!(resolve_command_path("mod", None, None), "mod");
+        assert_eq!(resolve_command_path("mod", Some("user"), None), "mod");
+        assert!(dm_command_blocked(true, false));
+        assert!(!dm_command_blocked(true, true));
+        assert!(!dm_command_blocked(false, false));
+        assert!(!message_create_proceeds(false, false, true));
+        assert!(!message_create_proceeds(true, true, true));
+        assert!(!message_create_proceeds(true, false, false));
+        assert!(message_create_proceeds(true, false, true));
     }
 
     #[test]

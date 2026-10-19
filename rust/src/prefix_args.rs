@@ -582,6 +582,46 @@ pub fn ts_param_order(qualified: &str) -> Option<&'static [&'static str]> {
     }
 }
 
+/// discord.js numeric option kinds used by parseMessageCommand
+/// (ApplicationCommandOptionType: Subcommand=1, SubcommandGroup=2,
+/// User=6). Kept local: funcs_send.rs owns the same values for the
+/// send legs; this file owns the parse legs.
+pub const MSG_OPT_SUBCOMMAND: u8 = 1;
+pub const MSG_OPT_SUBCOMMAND_GROUP: u8 = 2;
+pub const MSG_OPT_USER: u8 = 6;
+
+/// Subcommand match for reply-reference injection. Mirrors the
+/// `mainCommand.options.find((name === || aliases?.includes()) &&
+/// (type === 1 || type === 2))` leg in parseMessageCommand
+/// (messageCommandHandler.ts:72-77): name-or-alias hit on a
+/// subcommand/group option only; other kinds never match. `want` is
+/// already lowercased by the caller (`args[0]?.toLowerCase()`).
+/// Pure, unit-tested below.
+pub fn reply_subcommand_index(options: &[(&str, &[&str], u8)], want: &str) -> Option<usize> {
+    options.iter().position(|(name, aliases, kind)| {
+        (*kind == MSG_OPT_SUBCOMMAND || *kind == MSG_OPT_SUBCOMMAND_GROUP)
+            && (*name == want || aliases.contains(&want))
+    })
+}
+
+/// First User-type option index. Mirrors both `findIndex(opt.type ===
+/// ApplicationCommandOptionType.User)` legs in parseMessageCommand
+/// (subcommand options at :84-86, main-command options at :92-94).
+/// Pure, unit-tested below.
+pub fn first_user_option_index(kinds: &[u8]) -> Option<usize> {
+    kinds.iter().position(|&k| k == MSG_OPT_USER)
+}
+
+/// Splice the referenced author's id into the args. Mirrors
+/// `args.splice(userOptionIndex, 0, referencedMessage.author.id)`
+/// (messageCommandHandler.ts:88/:97-101): an over-long index clamps
+/// to the end (native splice semantics, pinned by the battery), never
+/// drops. Pure, unit-tested below.
+pub fn splice_reply_user(args: &mut Vec<String>, index: usize, author_id: &str) {
+    let at = index.min(args.len());
+    args.insert(at, author_id.to_string());
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1170,5 +1210,41 @@ mod tests {
             ts_param_order("util autorenew"),
             Some(&["channel", "time"][..])
         );
+    }
+
+    #[test]
+    fn reply_reference_injection_matches_ts_parse_battery() {
+        // Mirrors scratch slice-w7s62-interaction.cjs legs C3/C5/E
+        // (parseMessageCommand reply-reference injection + subcommand
+        // alias/type gate + splice clamp, verbatim). DELTA (doc-noted,
+        // no live caller): the poise prefix path never fetches the
+        // referenced message, so reply-invoked prefix commands never
+        // get the injection TS performs — a TS-only feature, pinned
+        // here for parity.
+        let opts: Vec<(&str, &[&str], u8)> = vec![
+            ("ban", &["b"], MSG_OPT_SUBCOMMAND),
+            ("list", &[], MSG_OPT_SUBCOMMAND),
+            ("note", &[], 3),
+        ];
+        assert_eq!(reply_subcommand_index(&opts, "ban"), Some(0));
+        assert_eq!(reply_subcommand_index(&opts, "b"), Some(0));
+        assert_eq!(reply_subcommand_index(&opts, "list"), Some(1));
+        assert_eq!(reply_subcommand_index(&opts, "note"), None);
+        assert_eq!(reply_subcommand_index(&opts, "missing"), None);
+        let group_opts: Vec<(&str, &[&str], u8)> = vec![("user", &[], MSG_OPT_SUBCOMMAND_GROUP)];
+        assert_eq!(reply_subcommand_index(&group_opts, "user"), Some(0));
+        assert_eq!(first_user_option_index(&[6, 3]), Some(0));
+        assert_eq!(first_user_option_index(&[3, 6]), Some(1));
+        assert_eq!(first_user_option_index(&[3, 4]), None);
+        assert_eq!(first_user_option_index(&[]), None);
+        let mut args = vec!["@x".to_string()];
+        splice_reply_user(&mut args, 0, "REF");
+        assert_eq!(args, vec!["REF", "@x"]);
+        let mut empty: Vec<String> = vec![];
+        splice_reply_user(&mut empty, 1, "REF");
+        assert_eq!(empty, vec!["REF"]);
+        let mut tail = vec!["a".to_string(), "b".to_string()];
+        splice_reply_user(&mut tail, 5, "REF");
+        assert_eq!(tail, vec!["a", "b", "REF"]);
     }
 }
