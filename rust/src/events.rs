@@ -2345,6 +2345,43 @@ mod tests {
         assert!(join_dm_template(&pool, "g").await.is_none());
     }
 
+    #[tokio::test]
+    async fn join_dm_gate_matches_ts_joindm_battery() {
+        // Mirrors scratch/slice-w7s68-joindm.cjs gate table 1:1
+        // (joinDm.ts:43 `!msg_dm || msg_dm === "off"`): strict "off"
+        // only — "OFF" / " off" / "0" all proceed to the send.
+        // DELTA (doc-noted, serenity 0.12): TS sends enforceNonce +
+        // a SnowflakeUtil nonce (double-emit guard, see the TS comment);
+        // serenity exposes no nonce field, so the DM goes out without
+        // one (single call site). Button shape (disabled Secondary
+        // "join-dm-from-server" labelled "Message from <guild id>") and
+        // the send-failure swallow (`let _ =`) are verbatim at the live
+        // site; truthy non-string blob rows fall to the legacy row here
+        // while TS throws inside the preview (outer catch) — same
+        // observable outcome (no DM) unless a legacy row exists
+        // (deliberate 2026-10-09 superset).
+        let pool = crate::db::memory_pool().await;
+        for (blob, want) in [
+            (r#"{"joindm":"off"}"#, None),
+            (r#"{"joindm":""}"#, None),
+            (r#"{"joindm":"OFF"}"#, Some("OFF")),
+            (r#"{"joindm":" off"}"#, Some(" off")),
+            (r#"{"joindm":"0"}"#, Some("0")),
+            (r#"{"joindm":"hello"}"#, Some("hello")),
+            (r#"{"joindm":42}"#, None),
+            (r#"{"other":1}"#, None),
+        ] {
+            crate::db::kv_set(&pool, "g", "GUILD.GUILD_CONFIG", blob)
+                .await
+                .unwrap();
+            assert_eq!(
+                join_dm_template(&pool, "g").await.as_deref(),
+                want,
+                "blob {blob}"
+            );
+        }
+    }
+
     #[test]
     fn join_role_action_matches_ts_joinrole_battery() {
         // Mirrors scratch/slice-w7s60-joinrole.cjs 1:1 (returns + calls).
