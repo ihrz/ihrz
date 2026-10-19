@@ -7502,6 +7502,10 @@ impl serenity::EventHandler for Handler {
     }
 
     async fn message(&self, _ctx: serenity::Context, msg: serenity::Message) {
+        // No linked-channel relay by design (W7 slice 63):
+        // Events/linked-channel/onNewMessage.ts carries a fully
+        // commented-out run body, so the TS handler is a no-op and
+        // this handler carries no webhook relay.
         // Mirrors Events/antispam/onNewMessage.ts (its own TS
         // listener): evaluated before the bot gate so `ignoreBots:
         // false` configs still scan bot messages; the leg applies
@@ -10989,6 +10993,10 @@ impl serenity::EventHandler for Handler {
         old_data_if_available: Option<serenity::Guild>,
         new_data: serenity::PartialGuild,
     ) {
+        // No lockVanity leg by design (W7 slice 63):
+        // Events/guildconfig/lockVanity.ts carries a fully
+        // commented-out run body, so the TS handler is a no-op and
+        // this arm stays the avoidGuildEdit protection guard only.
         use serenity::model::guild::audit_log::Action;
         let hit = self
             .protection_guard(
@@ -15066,6 +15074,78 @@ mod component_registry_tests {
         assert!(!cache.contains_key("g2"));
         assert!(!invite_leave_guild(&mut cache, "g9"));
         assert_eq!(cache.len(), 1);
+    }
+}
+
+#[cfg(test)]
+mod dead_leg_tests {
+    /// W7 slice 63 (battery: scratch/slice-w7s63-deadlegs.cjs 19/19):
+    /// `Events/guildconfig/lockVanity.ts` (guildUpdate) and
+    /// `Events/linked-channel/onNewMessage.ts` (messageCreate) carry
+    /// fully commented-out run bodies, so both TS handlers are no-ops
+    /// and the Rust side intentionally mirrors nothing (guild_update
+    /// is the avoidGuildEdit protection guard only; the message
+    /// handler carries no webhook relay). This pin fails if either
+    /// body is ever un-commented, flagging the mirror gap.
+    const LOCK_VANITY_TS: &str = include_str!("../../src/Events/guildconfig/lockVanity.ts");
+    const LINKED_CHANNEL_TS: &str = include_str!("../../src/Events/linked-channel/onNewMessage.ts");
+
+    fn strip_ts_comments(src: &str) -> String {
+        let mut out = String::new();
+        let mut rest = src;
+        while let Some(start) = rest.find("/*") {
+            out.push_str(&rest[..start]);
+            match rest[start..].find("*/") {
+                Some(end) => rest = &rest[start + end + 2..],
+                None => {
+                    rest = "";
+                    break;
+                }
+            }
+        }
+        out.push_str(rest);
+        out.lines()
+            .map(|line| match line.find("//") {
+                Some(i) => &line[..i],
+                None => line,
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    fn run_body_live_tokens(src: &str) -> String {
+        let stripped = strip_ts_comments(src);
+        stripped[stripped.find("run:").unwrap_or(0)..].to_string()
+    }
+
+    #[test]
+    fn dead_event_bodies_stay_comment_only() {
+        for (name, src) in [
+            ("lockVanity", LOCK_VANITY_TS),
+            ("linked-channel", LINKED_CHANNEL_TS),
+        ] {
+            let body = run_body_live_tokens(src);
+            for token in [
+                "await",
+                "fetch",
+                ".ban(",
+                "createWebhook",
+                "fetchWebhooks",
+                ".send(",
+                "db.get",
+                "db.set",
+                "fetchAuditLogs",
+                "AuditLog",
+                "executor",
+            ] {
+                assert!(
+                    !body.contains(token),
+                    "{name} run body gained live token {token:?}"
+                );
+            }
+        }
+        assert!(LOCK_VANITY_TS.contains("name: \"guildUpdate\""));
+        assert!(LINKED_CHANNEL_TS.contains("name: \"messageCreate\""));
     }
 }
 
