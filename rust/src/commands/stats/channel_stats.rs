@@ -79,6 +79,16 @@ pub fn channel_stats_card_html(d: &ChannelStatsCardData) -> String {
         .replace("{active_users_title}", &d.active_users_title)
 }
 
+/// Maps a resolved channel kind to the TS `instanceof` section flags
+/// (`!channel-stats.ts:192,309-315`): text shows the messages block,
+/// voice the voice block, anything else (or unknown) hides both.
+pub fn channel_section_flags(kind: Option<poise::serenity_prelude::ChannelType>) -> (bool, bool) {
+    use poise::serenity_prelude::ChannelType;
+    (
+        matches!(kind, Some(ChannelType::Text)),
+        matches!(kind, Some(ChannelType::Voice)),
+    )
+}
 /// See statistics for a specific channel
 //
 // Channel stats aggregated from `STATS.USER` rows, rendered through
@@ -194,10 +204,20 @@ pub async fn stats_channel(
     // HTML via HorizonGateway, attached as `channel-stats.png`.
     // Gateway unset/fail keeps the text reply above.
     use poise::serenity_prelude::ChannelType;
-    let kind = channel.as_ref().map(|c| c.kind);
+    // TS `!channel-stats.ts:52-68,192`: the kind/name checks run on
+    // `targetChannel` (explicit option, else the INVOKING channel) —
+    // never on the option alone. Without the option, resolve the
+    // invoking channel so a text-channel call keeps its messages
+    // section (`instanceof TextChannel`) instead of hiding both.
+    let (kind, resolved_name): (Option<ChannelType>, Option<String>) = match channel.as_ref() {
+        Some(c) => (Some(c.kind), Some(c.name.clone())),
+        None => match ctx.http().get_channel(ctx.channel_id()).await {
+            Ok(poise::serenity_prelude::Channel::Guild(g)) => (Some(g.kind), Some(g.name)),
+            _ => (None, None),
+        },
+    };
     // Mirrors `targetChannel instanceof TextChannel / VoiceChannel`.
-    let is_text = matches!(kind, Some(ChannelType::Text));
-    let is_voice = matches!(kind, Some(ChannelType::Voice));
+    let (is_text, is_voice) = channel_section_flags(kind);
     let word = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let msg_word = word("messages_word", "Messages");
     let unknown = word("var_unknown", "Unknown");
@@ -248,10 +268,7 @@ pub async fn stats_channel(
             guild_icon
         },
         author_username: guild_name,
-        channel_name: channel
-            .as_ref()
-            .map(|c| c.name.clone())
-            .unwrap_or_else(|| format!("{target_id}")),
+        channel_name: resolved_name.unwrap_or_else(|| format!("{target_id}")),
         current_date: format_current_date(now_ms),
         daily_messages: agg.daily_messages.to_string(),
         weekly_messages: agg.weekly_messages.to_string(),
@@ -300,6 +317,26 @@ pub async fn stats_channel(
 #[cfg(test)]
 mod channel_stats_card_tests {
     use super::*;
+
+    #[test]
+    fn section_flags_mirror_ts_instanceof() {
+        use poise::serenity_prelude::ChannelType;
+        // TS `targetChannel instanceof TextChannel / VoiceChannel`
+        // (`!channel-stats.ts:192,309-315`).
+        assert_eq!(
+            channel_section_flags(Some(ChannelType::Text)),
+            (true, false)
+        );
+        assert_eq!(
+            channel_section_flags(Some(ChannelType::Voice)),
+            (false, true)
+        );
+        assert_eq!(
+            channel_section_flags(Some(ChannelType::News)),
+            (false, false)
+        );
+        assert_eq!(channel_section_flags(None), (false, false));
+    }
 
     #[test]
     fn fill_replaces_every_placeholder() {
