@@ -2057,6 +2057,17 @@ pub async fn fetch_app_bio(http: &serenity::Http) -> Option<String> {
 /// logs and returns after the final attempt, never panics.
 /// Table-first dual-write (`tbl_set`): the table row is primary, the
 /// legacy kv row keeps unmigrated kv readers fresh.
+/// RETRY DELTA (deliberate, documented): TS retries only
+/// ShardingInProcess-class broadcastEval failures
+/// (`error?.name?.includes("ShardingInProcess") ||
+/// String(error?.message ?? error).includes("still being spawned")`,
+/// ready.ts:294-298, battery slice-w7s74-botdata.cjs legs A1-A10) and
+/// returns immediately on any other error (B5-B6: 1 attempt, 0 sleeps).
+/// The Rust push has no broadcastEval equivalent -- its only failing op
+/// is the kv write, where every failure mode is transient-ish
+/// (sqlite-busy/locked at boot), so it spends the whole budget on any
+/// error instead of returning early. Same 13-attempt/12-sleep budget
+/// (B1-B2), same cadence cost, strictly safer row.
 /// CROSS-SHARD CAVEAT: TS aggregates every shard via broadcastEval
 /// (getShardStats); this port sums the local gateway cache only. The
 /// members/servers totals are exact for the single-process autoshard
@@ -2064,11 +2075,15 @@ pub async fn fetch_app_bio(http: &serenity::Http) -> Option<String> {
 /// and its row covers that process's guilds alone.
 pub async fn push_bot_metas(pool: &Pool, row: &serde_json::Value, shard_id: u64) {
     let text = row.to_string();
-    for attempt in 1..=BOT_METAS_MAX_RETRIES.max(1) {
+    // Mirrors `for (attempt = 1; ; attempt++) ... if (!retry || attempt >
+    // MAX_RETRIES) return; sleep(RETRY_MS)` (ready.ts:257-309): failures
+    // on attempts 1..=12 sleep and retry, the attempt-13 failure returns,
+    // so 13 set attempts / 12 sleeps max (battery B1-B2).
+    for attempt in 1u32.. {
         match crate::db::tbl_set(pool, crate::core::release::META_SCOPE, "BOT", &text).await {
             Ok(()) => return,
             Err(e) => {
-                if attempt >= BOT_METAS_MAX_RETRIES.max(1) {
+                if attempt > BOT_METAS_MAX_RETRIES {
                     tracing::warn!("refreshBotData failed (shard #{shard_id}): {e}");
                     return;
                 }
@@ -3818,6 +3833,58 @@ mod tests {
         // toISOString shape: UTC, millis, `Z` (not `+00:00`).
         assert_eq!(row["lastPushAtISO"], "2023-11-14T22:13:20.000Z");
         assert_eq!(row["writerShard"], 0);
+    }
+
+    #[test]
+    fn bot_push_budget_matches_ts_refresh_battery() {
+        // Mirrors refreshBotData in ready.ts:252-310, ground truth in
+        // scratch/slice-w7s74-botdata.cjs (25/25 green).
+        // Budget literals: MAX_RETRIES = 12, RETRY_MS = 5_000, 45s tick.
+        assert_eq!(BOT_METAS_MAX_RETRIES, 12);
+        assert_eq!(BOT_METAS_RETRY_MS, 5_000);
+        assert_eq!(BOT_METAS_PUSH_SECS, 45);
+        // Attempt policy lives in push_bot_metas (`attempt >
+        // MAX_RETRIES` return): battery B1-B2 prove TS spends 13 set
+        // attempts / 12 sleeps on an always-failing push, B3-B4 the
+        // mid-budget success, B5-B6 the immediate return on
+        // non-ShardingInProcess errors (the early-return half is the
+        // documented RETRY DELTA on push_bot_metas: the kv write has no
+        // broadcastEval equivalent, so the budget covers every error).
+        let input = BotMetasInput {
+            members: 0,
+            servers: 0,
+            shards: 4,
+            ping_ms: 0,
+            commands: 109,
+            categories: 10,
+            langs: vec!["en-US".to_string()],
+            username: "bot".to_string(),
+            tag: "bot".to_string(),
+            user_id: 123456789012345678,
+            discriminator: None,
+            avatar: "a".to_string(),
+            bio: "b".to_string(),
+            // `client.shard?.ids[0] ?? 0`: unsharded ready maps missing
+            // shard info to 0 (battery C6-C7).
+            shard_id: 0,
+        };
+        let row = bot_metas_row(&input, 1700000000123);
+        // toISOString legs (battery C2-C5): millis preserved, `Z`, no
+        // `+00:00`.
+        assert_eq!(row["lastPushAtISO"], "2023-11-14T22:13:20.123Z");
+        assert_eq!(
+            bot_metas_row(&input, 0)["lastPushAtISO"],
+            "1970-01-01T00:00:00.000Z"
+        );
+        assert_eq!(
+            bot_metas_row(&input, 2147483647000)["lastPushAtISO"],
+            "2038-01-19T03:14:07.000Z"
+        );
+        // Snowflake id stays a JSON string (battery C9); writerShard 0
+        // unsharded (battery C6).
+        assert_eq!(row["user"]["id"], "123456789012345678");
+        assert_eq!(row["writerShard"], 0);
+        assert_eq!(row["content"]["commands"], 109);
     }
 
     #[test]
