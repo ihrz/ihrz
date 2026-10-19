@@ -4775,6 +4775,18 @@ pub fn welcomer_text_enabled(stored: Option<&serde_json::Value>) -> bool {
     !matches!(stored, Some(serde_json::Value::Bool(false)))
 }
 
+/// Leave-message primary-render survival. Mirrors the eager
+/// `input.inviter?.invitesAmount.toString()` in
+/// generateCustomMessagePreview (method.ts): the argument evaluates even
+/// for templates without the `{invitesCount}` slot, so an inviter whose
+/// post-leg amount is missing (no INVITES row, no `invites` sub-key,
+/// null) throws into the TS outer catch, which sends the default
+/// template with inviter-free vars. Battery
+/// scratch/slice-w7s69-leavefallback.cjs (green 38/38).
+pub fn leave_inviter_live(has_inviter: bool, amount: Option<i64>) -> bool {
+    has_inviter && amount.is_some()
+}
+
 /// Join-message sender. Mirrors joinMessage.ts sendWelcome ->
 /// welcomerMessage.ts: `message` is None when joinTextEnabled is false,
 /// `stored` is the resolveWelcomerEmbed result (None when no
@@ -7304,8 +7316,10 @@ impl serenity::EventHandler for Handler {
                 .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
             {
                 // Post-leg total rides along for the {invitesCount} slot
-                // below (TS reads it after the sub/add; absent renders
-                // "1337" like TS `?.toString() || "1337"`).
+                // below (TS reads it after the sub/add; a missing amount
+                // throws in the eager `.toString()` leg, routing the send
+                // through the inviter-free fallback shape via
+                // `inviter_live`, never a "1337" inviter render).
                 leave_invites =
                     crate::commands::invitesmanager::apply_leave_accounting(&self.pool, &gid, by)
                         .await;
@@ -7314,8 +7328,12 @@ impl serenity::EventHandler for Handler {
         // Leave message (mirrors leaveMessage.ts sendGoodbye ->
         // welcomerMessage.ts: leaveEmbedId/text/components variant with
         // welcomerEmbed resolve, inviter slots, default-template
-        // fallback on send failure).
-        {
+        // fallback on send failure). Gated on `leave_open` exactly like
+        // the TS `if (!lChan || !cache.get(lChan)) return` early return:
+        // the send site below only parsed the id, so an
+        // uncached-but-parseable channel would send where TS stays
+        // silent (battery scratch/slice-w7s69-leavefallback.cjs).
+        if leave_open {
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
             let text_enabled = welcomer_text_enabled(cfg.get("leaveTextEnabled"));
@@ -7346,20 +7364,41 @@ impl serenity::EventHandler for Handler {
                                     .map(|u| u.name.clone())
                             });
                         // Cache miss: fetch the user like
-                        // `client.users.fetch` in leaveMessage.ts.
+                        // `client.users.fetch` in leaveMessage.ts (a fetch
+                        // throw there lands in the outer catch, so the
+                        // fallback renders inviter-free: strip here too).
                         let name = match cached {
-                            Some(name) => name,
+                            Some(name) => Some(name),
                             None => serenity::UserId::new(inviter_id)
                                 .to_user(&ctx.http)
                                 .await
                                 .map(|u| u.name)
-                                .unwrap_or_else(|_| "unknow_user".to_string()),
+                                .ok(),
                         };
-                        let mention = format!("<@{inviter_id}>");
-                        (name, mention, true)
+                        match name {
+                            Some(name) => {
+                                let mention = format!("<@{inviter_id}>");
+                                (name, mention, true)
+                            }
+                            None => ("unknow_user".to_string(), "@unknow_user".to_string(), false),
+                        }
                     }
                     None => ("unknow_user".to_string(), "@unknow_user".to_string(), false),
                 };
+            // Primary-render survival (mirrors the eager
+            // `inviter?.invitesAmount.toString()` in
+            // generateCustomMessagePreview: the argument evaluates even
+            // for templates without the slot, so an inviter whose
+            // post-leg amount is missing (no INVITES row / no `invites`
+            // sub-key / null) throws -> TS outer catch -> default
+            // template with inviter-free vars; battery
+            // scratch/slice-w7s69-leavefallback.cjs, green 38/38).
+            let inviter_live = leave_inviter_live(has_inviter, leave_invites);
+            let (inv_name, inv_mention) = if inviter_live {
+                (inv_name, inv_mention)
+            } else {
+                ("unknow_user".to_string(), "@unknow_user".to_string())
+            };
             // Snapshot owned values out of the cache without holding
             // the !Send guard across an await below.
             let (leave_count, leave_guild) = match ctx.cache.guild(guild_id) {
@@ -7382,7 +7421,7 @@ impl serenity::EventHandler for Handler {
                     leave_invites,
                 )
             };
-            let default_key = if has_inviter {
+            let default_key = if inviter_live {
                 "event_goodbye_inviter"
             } else {
                 "event_goodbye_default"
@@ -7424,8 +7463,13 @@ impl serenity::EventHandler for Handler {
                         .await
                         .is_err()
                     {
-                        // Fallback leg (mirrors the TS catch: default
-                        // template, inviter-free variables).
+                        // Fallback leg (default template, inviter-free
+                        // variables, no stored embed — the TS catch shape).
+                        // DELTA (deliberate robustness superset): TS only
+                        // reaches its catch on pre-send throws (the inner
+                        // `.catch(() => null)` swallows send failures, so a
+                        // failed send is never retried); here the same
+                        // content is retried once on transport error.
                         let fallback = render_join_leave_text(
                             &text("event_goodbye_default"),
                             &user.name,
@@ -14377,6 +14421,28 @@ mod welcomer_tests {
         assert!(enabled(Some(json!("off"))));
         assert!(enabled(Some(json!({}))));
         assert!(enabled(Some(json!([]))));
+    }
+
+    #[test]
+    fn leave_inviter_live_matches_ts_eager_tostring_battery() {
+        // Battery scratch/slice-w7s69-leavefallback.cjs (green 38/38)
+        // replicating leaveMessage.ts:87-158 + method.ts:1103-1113
+        // verbatim: `inviter?.invitesAmount.toString()` evaluates eagerly
+        // (even slotless templates throw), so only a present inviter
+        // WITH a post-leg amount survives the primary render; every
+        // other shape falls into the default-template, inviter-free
+        // fallback (unknown-user slots, textEnabled-respecting, no
+        // stored embed). The live site strips to the same shape.
+        // D1: inviter + amount -> primary inviter render survives.
+        assert!(leave_inviter_live(true, Some(4)));
+        assert!(leave_inviter_live(true, Some(0)));
+        // D2: inviter, amount missing/null (None) -> TS throws ->
+        // fallback; string amounts are a documented delta (TS renders
+        // them, here they fold to None -> fallback).
+        assert!(!leave_inviter_live(true, None));
+        // D3: no inviter -> default template either way.
+        assert!(!leave_inviter_live(false, Some(4)));
+        assert!(!leave_inviter_live(false, None));
     }
 
     #[test]
