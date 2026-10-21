@@ -492,7 +492,26 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 
 		if (takeover) hydrateH247Takeover(guild, data, takeover);
 
-		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
+		// Force the join: the freshly restored cache can report the bot
+		// as connected while nobody actually holds the session (pre-restart
+		// zombie). The idempotent same-channel update re-adopts it and lets
+		// djs-voice resume the keepalives instead of letting it time out.
+		const joined = await joinH247VoiceChannel(
+			guild,
+			data.voiceChannelId,
+			false,
+			true
+		);
+
+		if (!joined) {
+			logger.debug(
+				`H24/7 recovery join failed for guild ${guild.id} (channel ${data.voiceChannelId})`
+			);
+		} else {
+			logger.debug(
+				`H24/7 recovery re-adopted the session of guild ${guild.id}`
+			);
+		}
 	}
 }
 
@@ -589,7 +608,12 @@ export async function ensureH247VoicePresence(
 	h247Sessions.set(guildId, data.voiceChannelId);
 	ensureH247VoiceSession(guildId, data.voiceChannelId);
 
-	if (guild.members.me?.voice.channelId === data.voiceChannelId) return true;
+	if (
+		guild.members.me?.voice.channelId === data.voiceChannelId &&
+		getVoiceConnection(guildId)
+	) {
+		return true;
+	}
 
 	const joined = await joinH247VoiceChannel(guild, data.voiceChannelId);
 
