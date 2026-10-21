@@ -66,13 +66,8 @@ import { LastFMScrobblerManager } from "./modules/lastFMScrobblerManager.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const backups_folder = `${process.cwd()}/src/files/backups`;
 const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
-
-if (!fs.existsSync(backups_folder)) {
-	await mkdir(backups_folder, { recursive: true });
-}
 
 if (fs.existsSync(old_slash_logs_file)) {
 	let _ = new DiscordSlashLogParser().parse(
