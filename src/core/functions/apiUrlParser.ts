@@ -35,7 +35,13 @@ export enum GatewayMethod {
 }
 
 export function assetsFinder(body: Assets, type: string): string {
-	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}.gif?ref_type=heads`;
+	const asset = body[type];
+	const paths = asset?.paths;
+
+	if (!paths || paths.length === 0)
+		throw `Error: no ${type} assets in repositories.json`;
+
+	return paths[Math.floor(Math.random() * paths.length)];
 }
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {

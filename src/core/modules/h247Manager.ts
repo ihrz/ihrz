@@ -23,10 +23,11 @@ import {
 	BaseGuildVoiceChannel,
 	ChannelType,
 	Client,
-	GatewayOpcodes,
 	Guild,
 	PermissionFlagsBits
 } from "discord.js";
+
+import { getVoiceConnection, joinVoiceChannel } from "@discordjs/voice";
 
 import type { Player, VoicePacket, VoiceState } from "lavalink-client";
 
@@ -341,27 +342,6 @@ async function fetchH247VoiceChannel(
 	return channel as BaseGuildVoiceChannel;
 }
 
-function sendH247VoiceStateUpdate(
-	guild: Guild,
-	channelId: string | null
-): boolean {
-	const shard = guild.shard;
-
-	if (!shard) return false;
-
-	shard.send({
-		op: GatewayOpcodes.VoiceStateUpdate,
-		d: {
-			guild_id: guild.id,
-			channel_id: channelId,
-			self_deaf: true,
-			self_mute: false
-		}
-	});
-
-	return true;
-}
-
 async function waitForH247VoiceConnection(
 	guild: Guild,
 	voiceChannelId: string
@@ -392,6 +372,10 @@ async function waitForH247VoiceDisconnection(
 	return false;
 }
 
+// djs-voice owns the H24/7 voice session: messaging the same channel back
+// re-adopts an orphaned pre-restart session without any observable
+// rotation, and the gateway + UDP keepalives it holds afterwards prevent
+// Discord from reclaiming the session after the idle timeout.
 export async function joinH247VoiceChannel(
 	guild: Guild,
 	voiceChannelId: string,
@@ -421,9 +405,13 @@ export async function joinH247VoiceChannel(
 
 	ensureH247VoiceSession(guild.id, channel.id);
 
-	const sent = sendH247VoiceStateUpdate(guild, channel.id);
-
-	if (!sent) return false;
+	joinVoiceChannel({
+		guildId: guild.id,
+		channelId: channel.id,
+		adapterCreator: guild.voiceAdapterCreator,
+		selfDeaf: true,
+		selfMute: false
+	});
 
 	if (!confirmConnection) return true;
 
@@ -446,7 +434,9 @@ export async function leaveCurrentVoiceConnection(guild: Guild): Promise<void> {
 		.delete(`${guild.id}.GUILD.H247_TAKEOVER`)
 		.catch(() => {});
 
-	sendH247VoiceStateUpdate(guild, null);
+	// djs-voice emits the leave on the voice gateway itself, cleanly both
+	// sides of the session.
+	getVoiceConnection(guild.id)?.destroy();
 }
 
 // Prepares the takeover of a voice session Discord still holds after a
@@ -493,14 +483,14 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 		ensureH247VoiceSession(guild.id, data.voiceChannelId);
 
 		// Fast-restart path: Discord still holds the pre-restart session,
-		// replay the persisted credentials instead of re-joining. A fresh
-		// voice state update would rotate the session and be observed by
-		// every member as a leave/join, breaking the channel's live streak.
+		// the djs-voice join below re-adopts it by messaging the same
+		// channel back instead of rotating it into a fresh one — an
+		// observable leave/join would break the channel's live streak.
 		const takeover = await client.db.get<
 			DatabaseStructure.DbGuildObject["H247_TAKEOVER"]
 		>(`${guild.id}.GUILD.H247_TAKEOVER`);
 
-		if (takeover && hydrateH247Takeover(guild, data, takeover)) continue;
+		if (takeover) hydrateH247Takeover(guild, data, takeover);
 
 		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
 	}
@@ -545,6 +535,16 @@ export async function handleH247PlayerDestroyed(
 		await wait(attempt === 0 ? H247_REJOIN_DELAY_MS : H247_REJOIN_RETRY_MS);
 
 		if (client.player.getPlayer(guildId)) return;
+
+		// djs-voice still holds the session: the player is simply gone and
+		// the next play re-attaches it from the cached handshake. The voice
+		// state stays put, no repair and no observable rotation.
+		if (
+			guild.members.me?.voice.channelId === data.voiceChannelId &&
+			getVoiceConnection(guildId)
+		) {
+			return;
+		}
 
 		// The player always disconnects before "playerDestroy" is emitted,
 		// but Discord may still report a stale voice state. Wait for the
