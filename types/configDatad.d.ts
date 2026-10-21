@@ -159,7 +159,7 @@ export interface ConfigData {
 		mySQL?: MySQL;
 
 		/**
-		 * @description private technology for iHorizon production
+		 * @description Public iHorizon technology - https://gitlab.com/ihrz/db.git
 		 */
 		horizon_db?: {
 			host: string;
