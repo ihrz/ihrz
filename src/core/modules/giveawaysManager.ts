@@ -41,6 +41,7 @@ import {
 	GiveawaysManagerOptions
 } from "../../../types/giveaways.js";
 import getLanguageData from "../functions/getLanguageData.js";
+import { secureRandomInt } from "../functions/random.js";
 import db from "./giveawaysDatabaseManager.js";
 
 export enum GiveawayEndedStatus {
@@ -506,9 +507,7 @@ class GiveawayManager {
 		for (let i = 0; i < number; i++) {
 			if (availableMembers.length === 0) break;
 
-			const randomIndex = Math.floor(
-				Math.random() * availableMembers.length
-			);
+			const randomIndex = secureRandomInt(0, availableMembers.length - 1);
 			winners.push(availableMembers.splice(randomIndex, 1)[0]);
 		}
 

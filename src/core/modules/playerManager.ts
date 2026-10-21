@@ -30,6 +30,7 @@ import { LavalinkManager } from "lavalink-client";
 
 import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
+import { secureRandomFloat } from "../functions/random.js";
 import { profilTable } from "../../Events/client/ready.js";
 import { getTTSData } from "./ttsManager.js";
 import {
@@ -163,7 +164,7 @@ export default async (client: Client) => {
 		);
 
 		// Added a last.fm explore category
-		if (Math.random() < 1 / 3 && !isLastFmConfig) {
+		if (secureRandomFloat() < 1 / 3 && !isLastFmConfig) {
 			embeds.push(
 				new EmbedBuilder()
 					.setColor("#ba0000")

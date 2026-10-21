@@ -291,7 +291,7 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 	}
 	isRunning = true;
 
-	const processId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+	const processId = `${Date.now()}-${crypto.randomUUID()}`;
 	let heartbeat: ReturnType<typeof setInterval> | null = null;
 	const progress = { sent: 0, failed: 0, skipped: 0, transient: 0 };
 

@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		// Nombre entre 0 et 10
-		const random = Math.floor(Math.random() * 10);
+		const random = client.func.random.secureRandomInt(0, 9);
 
 		const string =
 			interaction instanceof ChatInputCommandInteraction

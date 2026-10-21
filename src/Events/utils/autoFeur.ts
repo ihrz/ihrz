@@ -128,7 +128,7 @@ export const event: BotEvent = {
 					!(await client.db.has(
 						`${message.guildId}.UTILS.autoFeur`
 					)) &&
-					Math.floor(Math.random() * 8) === 0
+					client.func.random.secureRandomInt(0, 7) === 0
 				) {
 					msg += `\n-# ${client.iHorizon_Emojis.VC_OpenChat} Jte pète les couilles ? fait \`${(await guildPrefix(client, message.guildId!)).string}autorespond\` pour me faire fermer ma gueule pétasse!`;
 				}

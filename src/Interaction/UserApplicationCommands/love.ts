@@ -64,7 +64,7 @@ export const command: AnotherCommand = {
 			if (found) {
 				randomNumber = 100;
 			} else {
-				randomNumber = Math.floor(Math.random() * 101);
+				randomNumber = client.func.random.secureRandomInt(0, 100);
 			}
 
 			const embed = new EmbedBuilder()

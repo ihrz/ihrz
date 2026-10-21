@@ -20,6 +20,7 @@
 */
 
 import { Assets } from "../../../types/assets.js";
+import { secureRandomFloat } from "./random.js";
 
 export enum GatewayMethod {
 	GenerateOauthLink = 0,
@@ -41,7 +42,7 @@ export function assetsFinder(body: Assets, type: string): string {
 	if (!paths || paths.length === 0)
 		throw `Error: no ${type} assets in repositories.json`;
 
-	return paths[Math.floor(Math.random() * paths.length)];
+	return paths[Math.floor(secureRandomFloat() * paths.length)];
 }
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {

@@ -119,7 +119,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const random = Math.floor(Math.random() * 200) + 1;
+		const random = client.func.random.secureRandomInt(1, 200);
 
 		const embed = new EmbedBuilder()
 			.setDescription(

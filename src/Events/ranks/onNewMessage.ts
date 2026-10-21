@@ -67,7 +67,7 @@ export const event: BotEvent = {
 			return;
 
 		const level = baseData?.level || 1;
-		const randomNumber = Math.floor(Math.random() * 3) + 35;
+		const randomNumber = client.func.random.secureRandomInt(35, 37);
 
 		await client.db.add(
 			`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`,
@@ -190,7 +190,10 @@ export const event: BotEvent = {
 				// and how the ranks module is disableable
 				// do it only 1/2 times
 
-				if (newLevel === 1 && Math.random() < 0.5) {
+				if (
+					newLevel === 1 &&
+					client.func.random.secureRandomFloat() < 0.5
+				) {
 					msg += lang.event_xp_level_additional_info.replace(
 						"${client.iHorizon_Emojis.VC_OpenChat}",
 						client.iHorizon_Emojis.VC_OpenChat

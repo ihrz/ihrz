@@ -68,7 +68,7 @@ export const event: BotEvent = {
 				client.iHorizon_Emojis.Slash_Bot_Badge
 			);
 		// 1 chance sur 8
-		if (Math.floor(Math.random() * 8) === 0) {
+		if (client.func.random.secureRandomInt(0, 7) === 0) {
 			text += lang.ping_bot_show_info_msg_about_change_prefix.replace(
 				"${client.iHorizon_Emojis.VC_OpenChat}",
 				client.iHorizon_Emojis.VC_OpenChat

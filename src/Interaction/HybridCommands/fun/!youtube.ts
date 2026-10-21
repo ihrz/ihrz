@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 			username = username.substring(0, 15);
 		}
 
-		const random = Math.floor(Math.random() * (90_000 - 1 + 1)) + 1;
+		const random = client.func.random.secureRandomInt(1, 90_000);
 
 		let code = client.htmlfiles["youtubeCommentCard"]
 			.replace("{comment}", sanitizing(messageArgs.join(" ")))
