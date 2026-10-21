@@ -415,32 +415,6 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 		if (!(await checkNativePermission(ctx, allowed))) return;
 
 		if (!(ctx.target as Command)?.run) {
-			if (!isInteractionSource(ctx.source)) {
-				const msg = await ctx.client.func.method.interactionSend(
-					ctx.source,
-					{
-						embeds: [
-							await ctx.client.func.method.createAwesomeEmbed(
-								ctx.lang,
-								ctx.command,
-								ctx.client,
-								ctx.source
-							)
-						],
-						files: [
-							await ctx.client.func.displayBotName.footerAttachmentBuilder(
-								ctx.source
-							)
-						]
-					}
-				);
-				setTimeout(() => {
-					msg.delete();
-					if ((ctx.source as Message).deletable) {
-						(ctx.source as Message).delete();
-					}
-				}, 60_000);
-			}
 			return;
 		}
 
