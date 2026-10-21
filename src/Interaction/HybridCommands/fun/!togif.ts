@@ -195,7 +195,7 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var image = interaction.options.getAttachment("image", true);
 		} else {
-			var image = interaction.attachments.first();
+			var image = interaction.attachments.first()!;
 		}
 
 		if (!image?.url || !client.func.validImageType(image.contentType)) {

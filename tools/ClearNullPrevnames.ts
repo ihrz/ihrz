@@ -41,8 +41,7 @@ const normalizePrevnames = (value: PrevnameValue): string[] => {
 };
 
 const run = async () => {
-	const { x, y, og } = await initializeDatabase(config.database);
-	const database = y ?? og ?? x;
+	const database = await initializeDatabase(config.database);
 	const prevnamesTable = await database.table("prevnames");
 	const rows = await prevnamesTable.all();
 

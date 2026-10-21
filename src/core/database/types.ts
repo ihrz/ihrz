@@ -38,8 +38,6 @@ export type Table = Map<string, any>;
 export type DB =
 	Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | HorizonDB<any>;
 
-export type MultiDB = { og?: Postgres; x: DB; y?: Postgres };
-
 export type PostgresOptions = {
 	table?: string;
 	connectionString?: string;

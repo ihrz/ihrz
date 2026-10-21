@@ -85,7 +85,7 @@ const config: ConfigData = {
 	command: {
 		always100: ["USER_ID_ONExUSER_ID_TWO"]
 		/*
-		On the love command, for a specific couple of users, 
+		On the love command, for a specific couple of users,
 		this setting will always show 100% for their love.
 		Format: {USER_ID_ONE}x{USER_ID_TWO}
 		*/
@@ -95,7 +95,7 @@ const config: ConfigData = {
 		users: ["User ID", "User ID"]
 		/*
 		This owners have different permissions than others in the database,
-	    
+
 		* They can't be unowner by an owner who is in the Database.
 		* They can't be blacklisted by an owner who is in the Database.
 		* They can't be banned by an owner who is in the Database.
@@ -136,15 +136,13 @@ const config: ConfigData = {
 		method: "sqlite",
 		// The method you want for the database, sqlite is used by default.
 
-		mySQL: [
-			{
-				host: "",
-				password: "",
-				database: "",
-				user: "",
-				port: 3306
-			}
-		]
+		mySQL: {
+			host: "",
+			password: "",
+			database: "",
+			user: "",
+			port: 3306
+		}
 		// The MySQL connection configuration if you want to use MySQL. MySQL is not the default, meaning you need to set it up yourself.
 	}
 };

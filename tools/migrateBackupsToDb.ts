@@ -28,8 +28,7 @@ import type { BackupData } from "../src/core/backup/src/types/index.js";
 const sourceDir = path.join(process.cwd(), "src", "files", "backups");
 
 const run = async () => {
-	const { x, y, og } = await initializeDatabase(config.database);
-	const database = y ?? og ?? x;
+	const database = await initializeDatabase(config.database);
 	const backupsTable = await database.table("backups");
 
 	const files = await readdir(sourceDir);
