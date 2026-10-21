@@ -127,7 +127,8 @@ export const command: Command = {
 						fr: "Le texte optionnel envoyé avec l'embed",
 						ja: "埋め込みと共に送信するオプションのテキスト",
 						ru: "Дополнительный текст с эмбедом",
-						"es-ES": "Contenido de texto opcional enviado con el embed"
+						"es-ES":
+							"Contenido de texto opcional enviado con el embed"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,

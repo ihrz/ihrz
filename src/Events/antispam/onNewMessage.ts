@@ -213,8 +213,7 @@ async function clearSpamMessages(
 			channelEntries,
 			async ([channelId, messageIds]): Promise<boolean> => {
 				const channel = message.guild?.channels.cache.get(channelId) as
-					| BaseGuildTextChannel
-					| undefined;
+					BaseGuildTextChannel | undefined;
 				if (channel && messageIds.size > 0) {
 					const messageIdsArray = Array.from(messageIds.values());
 					for (

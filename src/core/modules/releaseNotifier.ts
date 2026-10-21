@@ -78,7 +78,8 @@ function formatEta(ms: number): string {
 	const h = Math.floor(totalSec / 3600);
 	const m = Math.floor((totalSec % 3600) / 60);
 	const s = totalSec % 60;
-	if (h > 0) return `${h}h${String(m).padStart(2, "0")}m${String(s).padStart(2, "0")}s`;
+	if (h > 0)
+		return `${h}h${String(m).padStart(2, "0")}m${String(s).padStart(2, "0")}s`;
 	if (m > 0) return `${m}m${String(s).padStart(2, "0")}s`;
 	return `${s}s`;
 }
@@ -259,9 +260,7 @@ async function getAllGuildOwnerData(
 		} catch (err: any) {
 			const isShardingInProcess =
 				err?.name?.includes("ShardingInProcess") ||
-				String(err?.message ?? err).includes(
-					"still being spawned"
-				);
+				String(err?.message ?? err).includes("still being spawned");
 			if (!isShardingInProcess || attempt > SHARD_READY_MAX_RETRIES) {
 				throw err;
 			}

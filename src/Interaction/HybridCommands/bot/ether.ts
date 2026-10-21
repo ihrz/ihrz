@@ -32,12 +32,14 @@ import { LanguageData } from "../../../../types/languageData.js";
 export const command: Command = {
 	name: "ether",
 
-	description: "Get unnecessary information about my former contributor Ether",
+	description:
+		"Get unnecessary information about my former contributor Ether",
 	description_localizations: {
 		fr: "Obtenir des informations non nécessaires sur mon ancien contributeur Ether!",
 		ja: "元貢献者Etherの不要な情報を取得",
 		ru: "Получить ненужную информацию о бывшем участнике Ether",
-		"es-ES": "Obtener información innecesaria sobre mi antiguo contribuidor Ether"
+		"es-ES":
+			"Obtener información innecesaria sobre mi antiguo contribuidor Ether"
 	},
 
 	category: "bot",

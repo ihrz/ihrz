@@ -177,7 +177,8 @@ export const command: Command = {
 						fr: "Le membre dont vous souhaitez supprimer les messages",
 						ja: "メッセージを削除したいメンバー",
 						ru: "Участник, чьи сообщения удалить",
-						"es-ES": "El miembro del que quieres eliminar el mensaje"
+						"es-ES":
+							"El miembro del que quieres eliminar el mensaje"
 					},
 
 					required: false,
@@ -265,7 +266,8 @@ export const command: Command = {
 				fr: "Supprimer la possibilité de parler de tous les utilisateurs de ce channel",
 				ja: "このテキストチャンネルで全ユーザーの発言権限を削除！",
 				ru: "Убрать возможность говорить у всех в этом текстовом канале!",
-				"es-ES": "Quitar la capacidad de hablar a todos los usuarios en este canal de texto!"
+				"es-ES":
+					"Quitar la capacidad de hablar a todos los usuarios en este canal de texto!"
 			},
 
 			options: [
@@ -299,7 +301,8 @@ export const command: Command = {
 				fr: "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel",
 				ja: "全チャンネルで全ユーザーの発言権限を削除！",
 				ru: "Убрать возможность говорить у всех во всех каналах!",
-				"es-ES": "Quitar la capacidad de hablar a todos los usuarios en todos los canales!"
+				"es-ES":
+					"Quitar la capacidad de hablar a todos los usuarios en todos los canales!"
 			},
 
 			options: [
@@ -329,13 +332,13 @@ export const command: Command = {
 		{
 			name: "unlock-all",
 
-			description:
-				"Give ability to speak of all users in all channels!",
+			description: "Give ability to speak of all users in all channels!",
 			description_localizations: {
 				fr: "Donner la possibilité de parler de tous les utilisateurs sur tous les channels",
 				ja: "全チャンネルで全ユーザーに発言権限を付与！",
 				ru: "Дать возможность говорить всем во всех каналах!",
-				"es-ES": "Dar capacidad de hablar a todos los usuarios en todos los canales!"
+				"es-ES":
+					"Dar capacidad de hablar a todos los usuarios en todos los canales!"
 			},
 
 			options: [
@@ -488,7 +491,8 @@ export const command: Command = {
 				fr: "Donner la possibilité de parler de tous les utilisateurs dans ce texte",
 				ja: "このテキスト内の全ユーザーに発言権限を付与！",
 				ru: "Дать возможность говорить всем в этом текстовом канале!",
-				"es-ES": "Dar capacidad de hablar a todos los usuarios en este texto!"
+				"es-ES":
+					"Dar capacidad de hablar a todos los usuarios en este texto!"
 			},
 
 			options: [
@@ -560,7 +564,12 @@ export const command: Command = {
 				"es-ES": "Desilenciar a todos los miembros silenciados!"
 			},
 
-			aliases: ["unmute-all", "untimeoutall", "untimeout-all", "demuteall"],
+			aliases: [
+				"unmute-all",
+				"untimeoutall",
+				"untimeout-all",
+				"demuteall"
+			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.ModerateMembers
@@ -601,7 +610,8 @@ export const command: Command = {
 						fr: "La raison du warn",
 						ja: "このメンバーを警告する理由",
 						ru: "Причина предупреждения этого участника",
-						"es-ES": "La razón por la que quieres advertir a este miembro"
+						"es-ES":
+							"La razón por la que quieres advertir a este miembro"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -634,7 +644,8 @@ export const command: Command = {
 						fr: "le membre que vous voulez enlever sont signalement",
 						ja: "警告を解除したいメンバー",
 						ru: "Участник для снятия предупреждения",
-						"es-ES": "El miembro al que quieres quitar la advertencia"
+						"es-ES":
+							"El miembro al que quieres quitar la advertencia"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -754,7 +765,8 @@ export const command: Command = {
 				fr: "effacer tout les avertissement de tous les utilisateurs du serveur",
 				ja: "サーバー全体の全ユーザーの警告をクリア",
 				ru: "очистить все предупреждения всех пользователей",
-				"es-ES": "limpiar todas las advertencias de todos los usuarios del servidor"
+				"es-ES":
+					"limpiar todas las advertencias de todos los usuarios del servidor"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -853,7 +865,8 @@ export const command: Command = {
 				fr: "Donner des rôles sélectionnés à un membre via un panel",
 				ja: "パネルを通じて選択したロールをメンバーに付与",
 				ru: "Выдать выбранные роли участнику через панель",
-				"es-ES": "Dar roles seleccionados a un miembro a través de un panel"
+				"es-ES":
+					"Dar roles seleccionados a un miembro a través de un panel"
 			},
 			options: [
 				{

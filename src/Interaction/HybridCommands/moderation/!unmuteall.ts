@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 			await member
 				.timeout(null, lang.unmuteall_audit_reason)
 				.then(() => unmuted++)
-				.catch(() => { });
+				.catch(() => {});
 		}
 
 		await client.func.method.interactionSend(interaction, {

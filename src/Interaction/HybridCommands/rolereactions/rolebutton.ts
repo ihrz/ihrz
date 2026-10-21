@@ -45,7 +45,8 @@ export const command: Command = {
 		fr: "Définir des rôles lorsque l'utilisateur réagit à un message avec un boutton spécifique",
 		ja: "特定の絵文字でボタンにリアクションした時にロールを設定",
 		ru: "Установить роли при реакции на кнопку с эмодзи",
-		"es-ES": "Establecer roles cuando el usuario reacciona a un botón con emoji específico"
+		"es-ES":
+			"Establecer roles cuando el usuario reacciona a un botón con emoji específico"
 	},
 
 	aliases: ["btnreact"],
@@ -116,7 +117,8 @@ export const command: Command = {
 				fr: "Veuillez copier l'identifiant du message que vous souhaitez configurer",
 				ja: "設定したいメッセージの識別子をコピーしてください",
 				ru: "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить",
-				"es-ES": "Por favor, copia el identificador del mensaje que quieres configurar"
+				"es-ES":
+					"Por favor, copia el identificador del mensaje que quieres configurar"
 			},
 
 			required: true,

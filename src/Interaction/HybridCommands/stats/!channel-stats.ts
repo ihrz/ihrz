@@ -51,8 +51,7 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			const channelOption = interaction.options.getChannel("channel");
 			targetChannel = (channelOption || interaction.channel) as
-				| TextChannel
-				| VoiceChannel;
+				TextChannel | VoiceChannel;
 		} else {
 			if (args && args.length > 0) {
 				const channel = await client.func.method.channel(
@@ -63,8 +62,7 @@ export const subCommand: SubCommand = {
 				targetChannel = channel as TextChannel | VoiceChannel;
 			} else {
 				targetChannel = interaction.channel as
-					| TextChannel
-					| VoiceChannel;
+					TextChannel | VoiceChannel;
 			}
 		}
 

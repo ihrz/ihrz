@@ -131,7 +131,8 @@ export const command: Command = {
 				fr: "Rappelez au propriétaire du ticket qu'il n'a pas répondu depuis un certain temps !",
 				ja: "チケット所有者がしばらく応答していないことを通知！",
 				ru: "Напомнить владельцу тикета, что он давно не отвечал!",
-				"es-ES": "Recordar al propietario del ticket que no ha respondido desde hace tiempo!"
+				"es-ES":
+					"Recordar al propietario del ticket que no ha respondido desde hace tiempo!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -220,7 +221,8 @@ export const command: Command = {
 				fr: "Définir un canal sur lequel iHorizon a envoyé des journaux sur les tickets",
 				ja: "iHorizonがチケットに関するログを送信するチャンネルを設定！",
 				ru: "Установить канал для логов iHorizon о тикетах!",
-				"es-ES": "Establecer un canal donde iHorizon envíe registros sobre tickets!"
+				"es-ES":
+					"Establecer un canal donde iHorizon envíe registros sobre tickets!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -303,7 +305,8 @@ export const command: Command = {
 				fr: "Créer un embed pour permettre à l'utilisateur de créer un ticket",
 				ja: "ユーザーがチケットを作成できるようにする埋め込みを作成！",
 				ru: "Создать эмбед для возможности создания тикетов!",
-				"es-ES": "Crear un embed para permitir al usuario crear un ticket!"
+				"es-ES":
+					"Crear un embed para permitir al usuario crear un ticket!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -370,7 +373,8 @@ export const command: Command = {
 				fr: "Créer un panel pour customiser le système de ticket",
 				ja: "カスタムチケット設定用パネルを作成",
 				ru: "Создание панели для настройки тикетов",
-				"es-ES": "Crear un panel para configuración de tickets personalizada"
+				"es-ES":
+					"Crear un panel para configuración de tickets personalizada"
 			},
 
 			options: [

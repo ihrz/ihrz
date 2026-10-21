@@ -45,6 +45,8 @@ const H247_DISCONNECT_OBSERVE_ATTEMPTS = 10;
 const H247_EVENT_REJOIN_COOLDOWN_MS = 5_000;
 const H247_WATCHDOG_WARN_INTERVAL_MS = 30 * 60_000;
 const H247_NEGATIVE_CACHE_TTL_MS = 30 * 60_000;
+const H247_TAKEOVER_VERIFY_INTERVAL_MS = 1_000;
+const H247_TAKEOVER_VERIFY_ATTEMPTS = 10;
 
 // In-memory mirror of the enabled H24/7 sessions, required to keep the
 // "playerQueueEmptyEnd" handling synchronous against the internal destroy.
@@ -67,6 +69,9 @@ interface H247VoiceSession {
 	sessionId: string | null;
 	token: string | null;
 	endpoint: string | null;
+	// True while the credentials belong to a pre-restart session replayed
+	// from the database instead of a handshake observed since this boot.
+	takeover: boolean;
 }
 
 // Voice handshake data of parked guilds. Discord only dispatches the voice
@@ -87,7 +92,40 @@ function ensureH247VoiceSession(guildId: string, channelId: string): void {
 		channelId,
 		sessionId: null,
 		token: null,
-		endpoint: null
+		endpoint: null,
+		takeover: false
+	});
+}
+
+// Strong credentials become the replayable takeover payload. The raw
+// packet stream also covers TTS-only guilds, so only an enabled H24/7
+// guild is persisted. Fired and forgotten: a failed write only costs
+// the escalation into the slower rejoin path on the next boot.
+function persistH247Takeover(
+	client: Client,
+	guildId: string,
+	session: H247VoiceSession
+): void {
+	if (!h247Sessions.has(guildId)) return;
+
+	// Local copies: TypeScript does not carry the narrowing of guarded
+	// properties when the interface declares them as nullable.
+	const { sessionId, token, endpoint } = session;
+
+	if (!sessionId || !token || !endpoint) return;
+
+	const takeover: DatabaseStructure.H247TakeoverSchema = {
+		sessionId,
+		token,
+		endpoint,
+		updatedAt: Date.now()
+	};
+
+	client.db.set(`${guildId}.GUILD.H247_TAKEOVER`, takeover).catch((error) => {
+		logger.err(
+			`Failed to persist the H24/7 takeover credentials of guild ${guildId}:`,
+			error
+		);
 	});
 }
 
@@ -108,10 +146,19 @@ export function handleH247RawVoicePacket(client: Client, data: unknown): void {
 
 		if (!session) return;
 
+		const previousToken = session.token;
+
 		session.token =
 			typeof payload.token === "string" ? payload.token : null;
 		session.endpoint =
 			typeof payload.endpoint === "string" ? payload.endpoint : null;
+
+		if (session.token && session.token !== previousToken) {
+			session.takeover = false;
+
+			persistH247Takeover(client, guildId, session);
+		}
+
 		return;
 	}
 
@@ -122,6 +169,8 @@ export function handleH247RawVoicePacket(client: Client, data: unknown): void {
 
 		if (!session) return;
 
+		const previousSessionId = session.sessionId;
+
 		if (typeof payload.session_id === "string") {
 			session.sessionId = payload.session_id;
 		}
@@ -129,16 +178,27 @@ export function handleH247RawVoicePacket(client: Client, data: unknown): void {
 		if (typeof payload.channel_id === "string") {
 			session.channelId = payload.channel_id;
 		}
+
+		if (session.sessionId && session.sessionId !== previousSessionId) {
+			// A new session generation rotated in, the credentials held for
+			// takeover were issued for the previous one.
+			session.takeover = false;
+
+			persistH247Takeover(client, guildId, session);
+		}
 	}
 }
 
-export async function handleH247PlayerCreated(
+// Feeds a freshly created player with the currently cached handshake so
+// it connects node-side without the bot ever re-emitting a voice state.
+function sendH247VoiceCredentials(
 	client: Client,
-	guildId: string
-): Promise<void> {
-	const session = h247VoiceSessions.get(guildId);
+	guildId: string,
+	session: H247VoiceSession
+): void {
+	const { sessionId, token, endpoint } = session;
 
-	if (!session?.token || !session.endpoint || !session.sessionId) return;
+	if (!sessionId || !token || !endpoint) return;
 
 	const statePacket: VoicePacket = {
 		t: "VOICE_STATE_UPDATE",
@@ -147,12 +207,12 @@ export async function handleH247PlayerCreated(
 			guildId,
 			guild_id: guildId,
 			user_id: client.user!.id,
-			session_id: session.sessionId,
+			session_id: sessionId,
 			channel_id: session.channelId,
 			event: {
-				token: session.token,
+				token,
 				guild_id: guildId,
-				endpoint: session.endpoint
+				endpoint
 			},
 			deaf: true,
 			mute: false,
@@ -170,13 +230,63 @@ export async function handleH247PlayerCreated(
 	const serverPacket: VoicePacket = {
 		t: "VOICE_SERVER_UPDATE",
 		d: {
-			token: session.token,
+			token,
 			guild_id: guildId,
-			endpoint: session.endpoint
+			endpoint
 		}
 	};
 
 	client.player.sendRawData(serverPacket);
+}
+
+export async function handleH247PlayerCreated(
+	client: Client,
+	guildId: string
+): Promise<void> {
+	const session = h247VoiceSessions.get(guildId);
+
+	if (!session?.token || !session.endpoint || !session.sessionId) return;
+
+	sendH247VoiceCredentials(client, guildId, session);
+
+	// Replayed credentials were issued before the crash: when Discord
+	// reclaimed the session in between, the node never connects and
+	// playback stays silent. Poll the player state, then rotate once by
+	// re-issuing the voice state update (idempotent on Discord's side).
+	if (!session.takeover) return;
+
+	for (let attempt = 0; attempt < H247_TAKEOVER_VERIFY_ATTEMPTS; attempt++) {
+		await wait(H247_TAKEOVER_VERIFY_INTERVAL_MS);
+
+		if (client.player.getPlayer(guildId)?.connected) return;
+	}
+
+	const voiceChannelId = h247Sessions.get(guildId);
+	const guild = client.guilds.cache.get(guildId);
+
+	if (!voiceChannelId || !guild) return;
+
+	logger.warn(
+		`H24/7 takeover credentials of guild ${guildId} were rejected, rotating the voice session`
+	);
+
+	h247VoiceSessions.delete(guildId);
+
+	if (!(await joinH247VoiceChannel(guild, voiceChannelId, true, true))) {
+		return;
+	}
+
+	// Wait for the fresh generation dispatched after the forced rejoin.
+	for (let attempt = 0; attempt < H247_TAKEOVER_VERIFY_ATTEMPTS; attempt++) {
+		const fresh = h247VoiceSessions.get(guildId);
+
+		if (fresh?.token && fresh.sessionId) {
+			sendH247VoiceCredentials(client, guildId, fresh);
+			return;
+		}
+
+		await wait(H247_TAKEOVER_VERIFY_INTERVAL_MS);
+	}
 }
 
 export async function getH247Data(
@@ -209,6 +319,7 @@ export async function deleteH247Data(
 	guildId: string
 ): Promise<void> {
 	await client.db.delete(`${guildId}.GUILD.H247`);
+	await client.db.delete(`${guildId}.GUILD.H247_TAKEOVER`);
 
 	h247Sessions.delete(guildId);
 	h247VoiceSessions.delete(guildId);
@@ -330,7 +441,42 @@ export async function joinH247VoiceChannel(
 export async function leaveCurrentVoiceConnection(guild: Guild): Promise<void> {
 	h247VoiceSessions.delete(guild.id);
 
+	// The takeover credentials belong to the session we are leaving.
+	await guild.client.db
+		.delete(`${guild.id}.GUILD.H247_TAKEOVER`)
+		.catch(() => {});
+
 	sendH247VoiceStateUpdate(guild, null);
+}
+
+// Prepares the takeover of a voice session Discord still holds after a
+// fast restart. Valid only when the restored cache reports the bot
+// inside the H24/7 channel with the exact session generation the token
+// was issued for, otherwise the credentials are stale and the slow
+// rejoin path must rotate them.
+function hydrateH247Takeover(
+	guild: Guild,
+	data: DatabaseStructure.H247Schema,
+	takeover: DatabaseStructure.H247TakeoverSchema
+): boolean {
+	const me = guild.members.me;
+
+	if (!me) return false;
+
+	if (me.voice.channelId !== data.voiceChannelId) return false;
+
+	if (me.voice.sessionId !== takeover.sessionId) return false;
+
+	const session = h247VoiceSessions.get(guild.id);
+
+	if (!session) return false;
+
+	session.sessionId = takeover.sessionId;
+	session.token = takeover.token;
+	session.endpoint = takeover.endpoint;
+	session.takeover = true;
+
+	return true;
 }
 
 export async function recoverH247Sessions(client: Client): Promise<void> {
@@ -345,6 +491,16 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 		h247Sessions.set(guild.id, data.voiceChannelId);
 
 		ensureH247VoiceSession(guild.id, data.voiceChannelId);
+
+		// Fast-restart path: Discord still holds the pre-restart session,
+		// replay the persisted credentials instead of re-joining. A fresh
+		// voice state update would rotate the session and be observed by
+		// every member as a leave/join, breaking the channel's live streak.
+		const takeover = await client.db.get<
+			DatabaseStructure.DbGuildObject["H247_TAKEOVER"]
+		>(`${guild.id}.GUILD.H247_TAKEOVER`);
+
+		if (takeover && hydrateH247Takeover(guild, data, takeover)) continue;
 
 		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
 	}

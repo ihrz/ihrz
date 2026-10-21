@@ -114,7 +114,8 @@ export const command: Command = {
 				fr: "Changer le salon où sont envoyer les messages avec le plus de crâne.",
 				ja: "最も多くの skulled メッセージが送信されるチャンネルを変更",
 				ru: "Изменить канал для сообщений с черепами",
-				"es-ES": "Cambiar el canal donde se envían los mensajes más skulled"
+				"es-ES":
+					"Cambiar el canal donde se envían los mensajes más skulled"
 			},
 
 			options: [
@@ -159,7 +160,8 @@ export const command: Command = {
 				fr: "Définissez le seuil de crâne nécessaire pour être référencé dans le canal.",
 				ja: "チャンネルで参照されるために必要な skull のしきい値を設定",
 				ru: "Установить порог черепов для попадания в канал",
-				"es-ES": "Establecer el umbral de skulls necesario para ser referenciado en el canal"
+				"es-ES":
+					"Establecer el umbral de skulls necesario para ser referenciado en el canal"
 			},
 
 			options: [
@@ -193,7 +195,8 @@ export const command: Command = {
 				fr: "Créer un fil de discussion en dessous du message dans le canal ?",
 				ja: "skullチャンネルのメッセージの下にスレッドを作成しますか？",
 				ru: "Создать ветку под сообщением в канале черепов?",
-				"es-ES": "Crear un hilo debajo del mensaje en el canal de skulls?"
+				"es-ES":
+					"Crear un hilo debajo del mensaje en el canal de skulls?"
 			},
 
 			options: [

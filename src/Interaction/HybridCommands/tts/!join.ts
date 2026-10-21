@@ -108,10 +108,7 @@ export const subCommand: SubCommand = {
 
 		const h247Data = await getH247Data(client, interaction.guild.id);
 
-		if (
-			h247Data?.enabled &&
-			voiceChannel.id !== h247Data.voiceChannelId
-		) {
+		if (h247Data?.enabled && voiceChannel.id !== h247Data.voiceChannelId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_tts_refused.replace(
 					"${client.iHorizon_Emojis.No}",

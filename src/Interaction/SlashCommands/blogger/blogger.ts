@@ -95,7 +95,8 @@ export const command: Command = {
 								fr: "Le salon où les notifications seront envoyées",
 								ja: "通知が送信されるチャンネル",
 								ru: "Канал, куда будут отправляться уведомления",
-								"es-ES": "El canal donde se enviarán las notificaciones"
+								"es-ES":
+									"El canal donde se enviarán las notificaciones"
 							},
 
 							channel_types: [ChannelType.GuildText],
@@ -154,7 +155,8 @@ export const command: Command = {
 						fr: "Afficher tous les flux RSS de blogs configurés",
 						ja: "設定された全ブログRSSフィードを表示",
 						ru: "Показать все настроенные RSS-ленты блогов",
-						"es-ES": "Mostrar todos los feeds RSS de blog configurados"
+						"es-ES":
+							"Mostrar todos los feeds RSS de blog configurados"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,

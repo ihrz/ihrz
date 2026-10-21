@@ -50,7 +50,8 @@ export const command: Command = {
 				fr: "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)",
 				ja: "提案モジュールを無効化（管理者権限が必要）！",
 				ru: "Отключить модуль предложений (требуются права администратора)!",
-				"es-ES": "Deshabilitar el módulo de sugerencias (requiere permiso de administrador)!"
+				"es-ES":
+					"Deshabilitar el módulo de sugerencias (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -107,7 +108,8 @@ export const command: Command = {
 				fr: "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)",
 				ja: "提案モジュール用のチャンネルを設定（管理者権限が必要）！",
 				ru: "Установить канал для модуля предложений (требуются права администратора)!",
-				"es-ES": "Establecer un canal para el módulo de sugerencias (requiere permiso de administrador)!"
+				"es-ES":
+					"Establecer un canal para el módulo de sugerencias (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -122,7 +124,8 @@ export const command: Command = {
 						fr: "Quel est le channel pour le lieu de suggestion ?",
 						ja: "提案を設置するチャンネルは？",
 						ru: "Какой канал для размещения предложений?",
-						"es-ES": "Cual es el canal para colocar las sugerencias?"
+						"es-ES":
+							"Cual es el canal para colocar las sugerencias?"
 					},
 
 					required: true,

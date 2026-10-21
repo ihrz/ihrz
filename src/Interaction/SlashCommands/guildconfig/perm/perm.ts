@@ -107,7 +107,8 @@ export const command: Command = {
 						fr: "La permission que vous souhaiter modifier au membre",
 						ja: "メンバーに設定したい権限",
 						ru: "разрешение для участника",
-						"es-ES": "permiso que quieres establecer para el miembro"
+						"es-ES":
+							"permiso que quieres establecer para el miembro"
 					},
 
 					choices: permissionLevel,
@@ -236,7 +237,8 @@ export const command: Command = {
 						fr: "Le role personnalisé que vous souhaiter définir pour la commande",
 						ja: "コマンドに設定したいカスタムロール",
 						ru: "Пользовательская роль для команды",
-						"es-ES": "El rol personalizado que quieres establecer para el comando"
+						"es-ES":
+							"El rol personalizado que quieres establecer para el comando"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -254,7 +256,8 @@ export const command: Command = {
 						fr: "L'utilisateur personnalisé que vous souhaiter définir pour la commande",
 						ja: "コマンドに設定したいカスタムユーザー",
 						ru: "Пользователь для команды",
-						"es-ES": "El usuario personalizado que quieres establecer para el comando"
+						"es-ES":
+							"El usuario personalizado que quieres establecer para el comando"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -278,7 +281,8 @@ export const command: Command = {
 				fr: "Afficher toute les permission d'utilisateur du serveur",
 				ja: "サーバー内の権限付与ユーザーを全て表示",
 				ru: "показать всех пользователей с правами",
-				"es-ES": "mostrar todos los usuarios con permisos en el servidor"
+				"es-ES":
+					"mostrar todos los usuarios con permisos en el servidor"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

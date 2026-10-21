@@ -39,7 +39,8 @@ export const command: Command = {
 		fr: "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)",
 		ja: "オーナーリストから削除したいメンバー（iHorizonオーナーのみ）！",
 		ru: "Участник для удаления из списка владельцев (Только владелец iHorizon)!",
-		"es-ES": "El miembro que quiere eliminar de la lista de propietarios (Solo propietario de iHorizon)!"
+		"es-ES":
+			"El miembro que quiere eliminar de la lista de propietarios (Solo propietario de iHorizon)!"
 	},
 
 	options: [
@@ -52,7 +53,8 @@ export const command: Command = {
 				fr: "Le membre que vous souhaitez supprimer de la liste des propriétaires",
 				ja: "オーナーリストから削除したいメンバー",
 				ru: "Участник для удаления из списка владельцев",
-				"es-ES": "El miembro que quiere eliminar de la lista de propietarios"
+				"es-ES":
+					"El miembro que quiere eliminar de la lista de propietarios"
 			},
 
 			required: true,

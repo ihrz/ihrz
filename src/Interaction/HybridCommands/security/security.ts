@@ -62,7 +62,8 @@ export const command: Command = {
 				fr: "Canal où se déroule le processus de vérification pour les nouveaux membres",
 				ja: "新規メンバーの認証プロセスが行われるチャンネル！",
 				ru: "Канал для процесса верификации новых участников!",
-				"es-ES": "Canal donde se realiza el proceso de verificación para nuevos miembros!"
+				"es-ES":
+					"Canal donde se realiza el proceso de verificación para nuevos miembros!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -103,7 +104,8 @@ export const command: Command = {
 				fr: "Désactiver ou activer la fonctionnalité du module de sécurité",
 				ja: "セキュリティモジュール機能を無効化または有効化！",
 				ru: "Отключить или включить модуль безопасности!",
-				"es-ES": "Deshabilitar o habilitar la función del módulo de seguridad!"
+				"es-ES":
+					"Deshabilitar o habilitar la función del módulo de seguridad!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -165,7 +167,8 @@ export const command: Command = {
 				fr: "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha",
 				ja: "キャプチャ認証時に新規メンバーに付与されるロール！",
 				ru: "Роль, которая будет выдана новым участникам при прохождении капчи!",
-				"es-ES": "El rol que se dará a los nuevos miembros cuando pasen la verificación Captcha!"
+				"es-ES":
+					"El rol que se dará a los nuevos miembros cuando pasen la verificación Captcha!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -205,7 +208,8 @@ export const command: Command = {
 				fr: "Le rôle qui sera enlevé aux nouveaux membre(s) lors du processus de vérification Captcha",
 				ja: "キャプチャ認証時に新規メンバーから削除されるロール！",
 				ru: "Роль, которая будет снята с новых участников при прохождении капчи!",
-				"es-ES": "El rol que se quitará a los nuevos miembros cuando pasen la verificación Captcha!"
+				"es-ES":
+					"El rol que se quitará a los nuevos miembros cuando pasen la verificación Captcha!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

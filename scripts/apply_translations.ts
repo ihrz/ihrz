@@ -41,7 +41,14 @@ function sanitizeForNameLocalization(text: string): string {
 		.replace(/_+/g, "_")
 		.replace(/^_|_$/g, "")
 		.substring(0, 32);
-	return sanitized || text.toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 32) || "name";
+	return (
+		sanitized ||
+		text
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, "")
+			.substring(0, 32) ||
+		"name"
+	);
 }
 
 function getIndent(line: string): number {
@@ -68,16 +75,29 @@ function findPrecedingField(
 		if (l.match(multiRegex)) {
 			const nextLine = lines[k + 1];
 			if (nextLine) {
-				const strMatch = nextLine.match(/^\s*(?:"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`)/);
-				if (strMatch) { const result = strMatch[1] !== undefined ? strMatch[1] : strMatch[2]; if (result) return result; }
+				const strMatch = nextLine.match(
+					/^\s*(?:"((?:[^"\\]|\\.)*)"|`((?:[^`\\]|\\.)*)`)/
+				);
+				if (strMatch) {
+					const result =
+						strMatch[1] !== undefined ? strMatch[1] : strMatch[2];
+					if (result) return result;
+				}
 			}
 		}
 
 		const singleRegex = new RegExp(
-			"^\\t{" + indent + "}" + fieldName + ':\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|`((?:[^`\\\\]|\\\\.)*)`)'
+			"^\\t{" +
+				indent +
+				"}" +
+				fieldName +
+				':\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|`((?:[^`\\\\]|\\\\.)*)`)'
 		);
 		const sm = l.match(singleRegex);
-		if (sm) { const result = sm[1] !== undefined ? sm[1] : sm[2]; if (result) return result; }
+		if (sm) {
+			const result = sm[1] !== undefined ? sm[1] : sm[2];
+			if (result) return result;
+		}
 	}
 	return null;
 }
@@ -174,7 +194,9 @@ function processFile(filePath: string): number {
 			const isNameBlock = blockType === "name_localizations";
 			for (let li = 0; li < missing.length; li++) {
 				const lang = missing[li];
-				const localizedValue = isNameBlock ? sanitizeForNameLocalization(englishText) : translate(englishText, lang);
+				const localizedValue = isNameBlock
+					? sanitizeForNameLocalization(englishText)
+					: translate(englishText, lang);
 				const keyStr = lang === "es-ES" ? '"es-ES"' : lang;
 				const comma = li < missing.length - 1 ? "," : "";
 				newEntries.push(
@@ -187,22 +209,24 @@ function processFile(filePath: string): number {
 				const openBracePos = line.indexOf("{");
 				const closeBracePos = line.lastIndexOf("}");
 				const beforeBrace = line.substring(0, openBracePos + 1);
-				const braceContent = line.substring(openBracePos + 1, closeBracePos).trim();
+				const braceContent = line
+					.substring(openBracePos + 1, closeBracePos)
+					.trim();
 				const afterBrace = line.substring(closeBracePos).trim();
 				const closeLine = "	".repeat(blockIndent) + afterBrace;
-				
+
 				let preservedEntry = braceContent;
 				if (preservedEntry && !preservedEntry.endsWith(",")) {
 					preservedEntry += ",";
 				}
-				
+
 				const rebuildParts = [beforeBrace];
 				if (preservedEntry) {
 					rebuildParts.push(bodyIndent + preservedEntry);
 				}
 				rebuildParts.push(...newEntries);
 				rebuildParts.push(closeLine);
-				
+
 				lines.splice(i, 1, ...rebuildParts);
 				modifications++;
 				i += rebuildParts.length - 1;

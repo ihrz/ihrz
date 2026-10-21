@@ -95,7 +95,8 @@ export const command: Command = {
 						fr: "Envoyer une interface au canal pour gérer son propre canal vocal",
 						ja: "自分のボイスチャンネルを管理するためのインターフェースをチャンネルに送信",
 						ru: "Отправить интерфейс в канал для управления своим голосовым каналом",
-						"es-ES": "Enviar una interfaz al canal para gestionar su propio canal de voz"
+						"es-ES":
+							"Enviar una interfaz al canal para gestionar su propio canal de voz"
 					},
 
 					options: [
@@ -110,7 +111,8 @@ export const command: Command = {
 								fr: "Le salon où l'interface sera envoyée",
 								ja: "ダッシュボードインターフェースを送信するチャンネル",
 								ru: "Канал для отправки интерфейса панели управления",
-								"es-ES": "El canal donde quieres que se envíe la interfaz del panel"
+								"es-ES":
+									"El canal donde quieres que se envíe la interfaz del panel"
 							},
 
 							required: true,
@@ -130,7 +132,8 @@ export const command: Command = {
 						fr: "Définir un rôle pour contourner l'autorisation des canaux temporaires",
 						ja: "TempChannelの権限をバイパスするロールを設定",
 						ru: "Установить роль для обхода прав TempChannel",
-						"es-ES": "Establecer un rol para omitir los permisos de TempChannel"
+						"es-ES":
+							"Establecer un rol para omitir los permisos de TempChannel"
 					},
 
 					permission: PermissionFlagsBits.Administrator
@@ -145,7 +148,8 @@ export const command: Command = {
 						fr: "Définit la catégorie où le canal perso va être créé",
 						ja: "ボイスチャンネルが作成されるチャンネルを設定！",
 						ru: "Установить канал, где будет создан голосовой канал!",
-						"es-ES": "Establecer el canal donde se creará el canal de voz!"
+						"es-ES":
+							"Establecer el canal donde se creará el canal de voz!"
 					},
 
 					options: [
@@ -179,7 +183,8 @@ export const command: Command = {
 						fr: "Définit la position du salon où le canal perso va être créé dans la catégorie",
 						ja: "ボイスチャンネル作成時のカテゴリ内の位置を設定！",
 						ru: "Установить позицию голосового канала в категории при создании!",
-						"es-ES": "Establecer la posición del canal de voz en la categoría cuando se cree!"
+						"es-ES":
+							"Establecer la posición del canal de voz en la categoría cuando se cree!"
 					},
 
 					options: [
@@ -235,7 +240,8 @@ export const command: Command = {
 						fr: "Définit le nom du salon où le canal va être créé",
 						ja: "ボイスチャンネル作成時の名前を設定！",
 						ru: "Установить имя голосового канала при его создании!",
-						"es-ES": "Establecer el nombre del canal de voz cuando se cree!"
+						"es-ES":
+							"Establecer el nombre del canal de voz cuando se cree!"
 					},
 
 					options: [
@@ -249,7 +255,8 @@ export const command: Command = {
 								fr: "Le nom que tu veux | Variable: {Username}",
 								ja: "希望する名前 | 変数: {Username}",
 								ru: "Желаемое имя | Переменная: {Username}",
-								"es-ES": "El nombre que deseas | Variable: {Username}"
+								"es-ES":
+									"El nombre que deseas | Variable: {Username}"
 							},
 
 							required: true,

@@ -38,7 +38,8 @@ export const command: Command = {
 		fr: "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon",
 		ja: "バグ、エラー、スペルミスをiHorizonの開発者に報告！",
 		ru: "Сообщить об ошибке разработчикам iHorizon!",
-		"es-ES": "Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!"
+		"es-ES":
+			"Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!"
 	},
 
 	options: [
@@ -115,9 +116,12 @@ export const command: Command = {
 					`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`
 				);
 
-			await client.func.method.channelSend(client.config.core.reportChannelID, {
-				embeds: [embed]
-			});
+			await client.func.method.channelSend(
+				client.config.core.reportChannelID,
+				{
+					embeds: [embed]
+				}
+			);
 
 			await client.db.set(
 				`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`,

@@ -130,7 +130,12 @@ export const command: Command = {
 					required: true,
 					choices: Object.entries(rules).map(([key, value]) => ({
 						name: value.placeholder,
-						name_localizations: { fr: value.placeholder, ja: value.placeholder, ru: value.placeholder, "es-ES": value.placeholder },
+						name_localizations: {
+							fr: value.placeholder,
+							ja: value.placeholder,
+							ru: value.placeholder,
+							"es-ES": value.placeholder
+						},
 						value: value.value
 					})),
 
@@ -262,7 +267,8 @@ export const command: Command = {
 				fr: "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation",
 				ja: "保護認証/ルールと許可リストの現在の設定を表示！",
 				ru: "Показать текущую конфигурацию авторизации/правил и белого списка!",
-				"es-ES": "Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"
+				"es-ES":
+					"Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

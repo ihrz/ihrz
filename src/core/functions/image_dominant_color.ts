@@ -195,7 +195,10 @@ export default async function getVibrantAndDarkColors(
 		// Select the best colors
 		const fallbackColor = colors[0]?.rgb || { r: 88, g: 101, b: 242 };
 		const vibrantColor = vibrantColors[0]?.rgb || fallbackColor;
-		const darkColor = darkColors[0]?.rgb || colors[colors.length - 1]?.rgb || fallbackColor;
+		const darkColor =
+			darkColors[0]?.rgb ||
+			colors[colors.length - 1]?.rgb ||
+			fallbackColor;
 
 		return {
 			color1: rgbToHex(vibrantColor),

@@ -78,7 +78,8 @@ export const command: Command = {
 								fr: "La plateforme du Streamer/Youtuber/Twitcher",
 								ja: "ストリーマー/YouTuber/Twitcherのプラットフォーム",
 								ru: "Платформа стримера/YouTube/Twitch",
-								"es-ES": "La plataforma del Streamer/Youtuber/Twitcher"
+								"es-ES":
+									"La plataforma del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -155,7 +156,8 @@ export const command: Command = {
 								fr: "La plateforme du Streamer/Youtuber/Twitcher",
 								ja: "ストリーマー/YouTuber/Twitcherのプラットフォーム",
 								ru: "Платформа стримера/YouTube/Twitch",
-								"es-ES": "La plataforma del Streamer/Youtuber/Twitcher"
+								"es-ES":
+									"La plataforma del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -249,7 +251,8 @@ export const command: Command = {
 						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message dans le canal",
 						ja: "ストリーマー/YouTuber/Twitcherが動画を公開したら、iHorizonがチャンネルにメッセージを送信",
 						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение в канал",
-						"es-ES": "Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje en el canal"
+						"es-ES":
+							"Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje en el canal"
 					},
 
 					options: [
@@ -288,7 +291,8 @@ export const command: Command = {
 						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message",
 						ja: "ストリーマー/YouTuber/Twitcherが動画を公開したら、iHorizonがメッセージを送信",
 						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение",
-						"es-ES": "Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje"
+						"es-ES":
+							"Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,

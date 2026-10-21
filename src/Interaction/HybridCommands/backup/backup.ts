@@ -186,7 +186,8 @@ export const command: Command = {
 						fr: "L'identifiant de la backup que vous voulez supprimer de la liste",
 						ja: "リストから削除したいバックアップのID",
 						ru: "ID резервной копии, которую вы хотите удалить из списка",
-						"es-ES": "El ID de tu copia de seguridad que quieres eliminar de la lista"
+						"es-ES":
+							"El ID de tu copia de seguridad que quieres eliminar de la lista"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -207,7 +208,8 @@ export const command: Command = {
 				fr: "Gérer le système de backup sur le serveur",
 				ja: "このサーバーのバックアップシステムを管理",
 				ru: "Управление системой резервного копирования",
-				"es-ES": "Gestionar el sistema de copias de seguridad en este servidor"
+				"es-ES":
+					"Gestionar el sistema de copias de seguridad en este servidor"
 			},
 
 			permission: null,
@@ -223,7 +225,8 @@ export const command: Command = {
 						fr: "Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord.",
 						ja: "バックアップシステムをサーバーオーナーのみに制限",
 						ru: "Сделать систему резервного копирования доступной только владельцу сервера",
-						"es-ES": "Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor"
+						"es-ES":
+							"Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor"
 					},
 
 					type: ApplicationCommandOptionType.String,

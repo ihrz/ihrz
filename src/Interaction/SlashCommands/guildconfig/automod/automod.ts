@@ -48,7 +48,8 @@ export const command: Command = {
 				fr: "Bloquer/Protéger certains comportements/comportements dans ce serveur",
 				ja: "このサーバー内の何か/行動をブロック/保護！",
 				ru: "Заблокировать/защитить что-либо на этом сервере!",
-				"es-ES": "Bloquear/Proteger algo/comportamientos en este servidor!"
+				"es-ES":
+					"Bloquear/Proteger algo/comportamientos en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -62,7 +63,8 @@ export const command: Command = {
 						fr: "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages",
 						ja: "ユーザーがサーバー招待を送信するのを許可/禁止！",
 						ru: "Разрешить/запретить отправку приглашений сервера!",
-						"es-ES": "Permitir/Denegar al usuario enviar invitaciones de servidor en sus mensajes!"
+						"es-ES":
+							"Permitir/Denegar al usuario enviar invitaciones de servidor en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -113,7 +115,8 @@ export const command: Command = {
 								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
 								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
 								ru: "Канал для логов при нарушении правил!",
-								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+								"es-ES":
+									"El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -135,7 +138,8 @@ export const command: Command = {
 						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages",
 						ja: "ユーザーがTelegramリンクを送信するのを許可/禁止！",
 						ru: "Разрешить/запретить отправку ссылок Telegram!",
-						"es-ES": "Permitir/Denegar al usuario enviar enlaces de Telegram en sus mensajes!"
+						"es-ES":
+							"Permitir/Denegar al usuario enviar enlaces de Telegram en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -186,7 +190,8 @@ export const command: Command = {
 								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
 								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
 								ru: "Канал для логов при нарушении правил!",
-								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+								"es-ES":
+									"El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -208,7 +213,8 @@ export const command: Command = {
 						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages",
 						ja: "ユーザーがリンクを送信するのを許可/禁止！",
 						ru: "Разрешить/запретить отправку ссылок!",
-						"es-ES": "Permitir/Denegar al usuario enviar enlaces en sus mensajes!"
+						"es-ES":
+							"Permitir/Denegar al usuario enviar enlaces en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -259,7 +265,8 @@ export const command: Command = {
 								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
 								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
 								ru: "Канал для логов при нарушении правил!",
-								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+								"es-ES":
+									"El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -280,7 +287,8 @@ export const command: Command = {
 						fr: "Bloquer le message spam sur ce serveur",
 						ja: "このサーバーでのスパムメッセージをブロック！",
 						ru: "Блокировать спам-сообщения на этом сервере!",
-						"es-ES": "Bloquear los mensajes de spam en este servidor!"
+						"es-ES":
+							"Bloquear los mensajes de spam en este servidor!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -331,7 +339,8 @@ export const command: Command = {
 								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
 								ja: "ユーザーがルールを破った時のログを送信するチャンネル",
 								ru: "Канал для логов при нарушении правил",
-								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
+								"es-ES":
+									"El canal donde quieres los registros cuando el usuario rompe las reglas"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -353,7 +362,8 @@ export const command: Command = {
 						fr: "Bloquez les spams mentionnés en masse dans ce message",
 						ja: "大量メンションを含むスパムをブロック！",
 						ru: "Блокировать спам с массовыми упоминаниями!",
-						"es-ES": "Bloquear el spam que tiene menciones masivas en este mensaje!"
+						"es-ES":
+							"Bloquear el spam que tiene menciones masivas en este mensaje!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -405,7 +415,8 @@ export const command: Command = {
 								fr: "Nombre maximum de mentions autorisées dans un seul message",
 								ja: "1つのメッセージで許可される最大メンション数！",
 								ru: "Максимальное количество упоминаний в одном сообщении!",
-								"es-ES": "Cantidad máxima de menciones permitidas en un solo mensaje!"
+								"es-ES":
+									"Cantidad máxima de menciones permitidas en un solo mensaje!"
 							},
 
 							required: false,
@@ -420,7 +431,8 @@ export const command: Command = {
 								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
 								ja: "ユーザーがルールを破った時のログを送信するチャンネル",
 								ru: "Канал для логов при нарушении правил",
-								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
+								"es-ES":
+									"El canal donde quieres los registros cuando el usuario rompe las reglas"
 							},
 
 							type: ApplicationCommandOptionType.Channel,

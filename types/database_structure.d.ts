@@ -648,16 +648,24 @@ export namespace DatabaseStructure {
 		voiceChannelId: string;
 	}
 
+	// Voice handshake of the last H24/7 session. Persisted separately from
+	// the "H247" document (rewritten wholesale on /h247 join), then replayed
+	// after a fast restart to take the still-alive session over without any
+	// visible reconnection.
+	export interface H247TakeoverSchema {
+		sessionId: string;
+		token: string;
+		endpoint: string;
+		updatedAt: number;
+	}
+
 	export interface DbGuildObject {
 		TAGS: GuildTagsStructure;
 		BOT?: DbGuildBotObject;
 		LANG?: LangSchema;
 		TICKET?: {
 			[key: string]:
-				| DbTicketConfigurationObject
-				| string
-				| boolean
-				| undefined;
+				DbTicketConfigurationObject | string | boolean | undefined;
 			logs?: string;
 			disable?: boolean;
 			category?: string;
@@ -688,6 +696,7 @@ export namespace DatabaseStructure {
 		TEMPBAN: TempbanSchema;
 		TTS?: TTSData;
 		H247?: H247Schema;
+		H247_TAKEOVER?: H247TakeoverSchema;
 	}
 
 	export type TempRoleSchema = Record<

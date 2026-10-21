@@ -33,13 +33,19 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { blacklistTable } from "../client/ready.js";
 import logger from "../../core/logger.js";
-import { preExecutionCooldown, runCommand } from "../../core/commandExecutor.js";
+import {
+	preExecutionCooldown,
+	runCommand
+} from "../../core/commandExecutor.js";
 
 /**
  * Résout la cible réelle (commande ou sous-commande) à partir des options
  * de l'interaction, et calcule le commandPath ("utils reload", "config perms edit"...).
  */
-function resolveTarget(client: Client, interaction: ChatInputCommandInteraction<"cached">) {
+function resolveTarget(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached">
+) {
 	const command = client.commands?.get(interaction.commandName);
 	if (!command) return null;
 
@@ -71,9 +77,15 @@ export const event: BotEvent = {
 
 		if (!interaction.isChatInputCommand() || interaction.user.bot) return;
 
-		const resolved = resolveTarget(client, interaction as ChatInputCommandInteraction<"cached">);
+		const resolved = resolveTarget(
+			client,
+			interaction as ChatInputCommandInteraction<"cached">
+		);
 		if (!resolved) {
-			return interaction.reply({ content: "Connection error.", flags: [1 << 6] });
+			return interaction.reply({
+				content: "Connection error.",
+				flags: [1 << 6]
+			});
 		}
 
 		if (
@@ -108,9 +120,19 @@ export const event: BotEvent = {
 			});
 		}
 
-		if (await preExecutionCooldown(client, interaction as ChatInputCommandInteraction<"cached">)) {
-			const data = await client.func.getLanguageData(interaction.guild?.id);
-			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
+		if (
+			await preExecutionCooldown(
+				client,
+				interaction as ChatInputCommandInteraction<"cached">
+			)
+		) {
+			const data = await client.func.getLanguageData(
+				interaction.guild?.id
+			);
+			return await interaction.reply({
+				content: data.Msg_cooldown,
+				flags: [1 << 6]
+			});
 		}
 
 		if (await blacklistTable.get(`${interaction.user.id}.blacklisted`)) {

@@ -171,7 +171,8 @@ export const command: Command = {
 				fr: "Voir toute les musique joué dans un ordre chronologique sur le serveur",
 				ja: "このサーバーで再生された全音楽の履歴を表示！",
 				ru: "Посмотреть историю всей музыки, воспроизведенной на сервере!",
-				"es-ES": "Ver el historial de toda la música reproducida en este servidor!"
+				"es-ES":
+					"Ver el historial de toda la música reproducida en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -255,7 +256,8 @@ export const command: Command = {
 						fr: "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)",
 						ja: "希望するトラックタイトル（URLでも可）",
 						ru: "Название трека (можно указать URL)",
-						"es-ES": "El título de la pista que deseas (puedes poner URL como quieras)"
+						"es-ES":
+							"El título de la pista que deseas (puedes poner URL como quieras)"
 					},
 
 					required: true,
@@ -294,7 +296,12 @@ export const command: Command = {
 					choices: VOLUMES.map((x) => {
 						return {
 							name: x + "%",
-							name_localizations: { fr: x + "%", ja: x + "%", ru: x + "%", "es-ES": x + "%" },
+							name_localizations: {
+								fr: x + "%",
+								ja: x + "%",
+								ru: x + "%",
+								"es-ES": x + "%"
+							},
 							value: x
 						};
 					}),

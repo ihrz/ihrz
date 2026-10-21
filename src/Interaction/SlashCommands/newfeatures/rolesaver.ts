@@ -39,7 +39,8 @@ export const command: Command = {
 		fr: "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur",
 		ja: "ユーザーが再参加した時に以前のロールを再付与！",
 		ru: "Вернуть старые роли при повторном входе!",
-		"es-ES": "Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
+		"es-ES":
+			"Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
 	},
 
 	options: [

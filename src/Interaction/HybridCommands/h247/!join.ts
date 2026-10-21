@@ -53,9 +53,12 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const channel = interaction instanceof ChatInputCommandInteraction
-			? (interaction.options.getChannel("channel") as BaseGuildVoiceChannel | null)
-			: await client.func.method.voiceChannel(interaction, args!, 0);
+		const channel =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getChannel(
+						"channel"
+					) as BaseGuildVoiceChannel | null)
+				: await client.func.method.voiceChannel(interaction, args!, 0);
 
 		if (!channel || channel.type !== ChannelType.GuildVoice) {
 			await client.func.method.interactionSend(interaction, {

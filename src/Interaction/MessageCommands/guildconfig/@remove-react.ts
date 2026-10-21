@@ -37,7 +37,8 @@ export const command: Command = {
 		fr: "Supprimer une réaction d'iHorizon lorsque l'utilisateur envoie un message spécifiqe",
 		ja: "ユーザーがメッセージを送信した時のiHorizonのリアクションを削除",
 		ru: "Удалить реакцию iHorizon при отправке сообщения",
-		"es-ES": "Eliminar reacción de iHorizon cuando el usuario envía un mensaje"
+		"es-ES":
+			"Eliminar reacción de iHorizon cuando el usuario envía un mensaje"
 	},
 
 	thinking: false,

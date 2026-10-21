@@ -156,7 +156,8 @@ export const command: Command = {
 						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)",
 						ja: "表示するユーザー数（デフォルト: 10, 最大: 25）",
 						ru: "Количество пользователей для отображения (по умолчанию: 10, макс: 25)",
-						"es-ES": "Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
+						"es-ES":
+							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
@@ -236,7 +237,8 @@ export const command: Command = {
 						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)",
 						ja: "表示するユーザー数（デフォルト: 10, 最大: 25）",
 						ru: "Количество пользователей для отображения (по умолчанию: 10, макс: 25)",
-						"es-ES": "Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
+						"es-ES":
+							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
