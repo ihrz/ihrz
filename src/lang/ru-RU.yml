@@ -1826,6 +1826,45 @@ gw_getdata_yes: "`Да`"
 gw_getdata_no: "`Нет`"
 gw_doesnt_exit: "Подарки недоступны или не существуют."
 
+
+# /go
+gw_go_panel_title: "Панель розыгрышей"
+gw_go_panel_desc: "Настройте розыгрыш ниже и запустите его. Используйте меню для изменения параметров."
+gw_go_select_placeholder: "Изменить параметр"
+gw_go_opt_prize: "Приз"
+gw_go_opt_duration: "Длительность"
+gw_go_opt_winners: "Победители"
+gw_go_opt_requirement: "Условие участия"
+gw_go_opt_image: "Изображение"
+gw_go_channel_placeholder: "Канал розыгрыша"
+gw_go_launch_buttontitle: "Запустить"
+gw_go_cancel_buttontitle: "Отмена"
+gw_go_req_none: "Нет"
+gw_go_req_invites: "Приглашения"
+gw_go_req_messages: "Сообщения"
+gw_go_req_roles: "Роли"
+gw_go_req_value_dsc: "Требуемое значение: **${value}**"
+gw_go_started: "Розыгрыш запущен в ${channel}!"
+gw_go_cancelled: "Панель закрыта, розыгрыш не был запущен."
+gw_go_expired: "Панель завершила работу до запуска розыгрыша."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать приз!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать действительную длительность!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать действительное число победителей!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | В выбранный канал нельзя отправлять сообщения!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Ссылка на изображение недействительна!"
+gw_go_modal_prize: "Указать приз"
+gw_go_modal_prize_label: "Приз"
+gw_go_modal_duration: "Указать длительность"
+gw_go_modal_duration_label: "Длительность (например: 2d или 12h30)"
+gw_go_modal_winners: "Указать число победителей"
+gw_go_modal_winners_label: "Количество победителей"
+gw_go_modal_req_title: "Условие участия"
+gw_go_modal_req_type_label: "Тип условия"
+gw_go_modal_req_value_label: "Значение условия (ID роли или число)"
+gw_go_modal_image: "Указать изображение"
+gw_go_modal_image_label: "Ссылка на изображение"
+
+
 # Команды модерации
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3303,3 +3342,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} На этом сервере а
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} На этом сервере активен модуль H24/7. Зайдите в голосовой канал H24/7, чтобы включить TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | Минимальная длительность — 3 минуты!"

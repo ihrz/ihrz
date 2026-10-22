@@ -1826,6 +1826,45 @@ gw_getdata_yes: "`Oui`"
 gw_getdata_no: "`Non`"
 gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas."
 
+
+# /go
+gw_go_panel_title: "Panel de Giveaway"
+gw_go_panel_desc: "Prépare ton giveaway ci-dessous, puis lance-le. Utilise les menus pour modifier chaque réglage."
+gw_go_select_placeholder: "Modifier un réglage"
+gw_go_opt_prize: "Prix"
+gw_go_opt_duration: "Durée"
+gw_go_opt_winners: "Gagnants"
+gw_go_opt_requirement: "Prérequis de participation"
+gw_go_opt_image: "Image de prévisualisation"
+gw_go_channel_placeholder: "Salon du giveaway"
+gw_go_launch_buttontitle: "Lancer"
+gw_go_cancel_buttontitle: "Annuler"
+gw_go_req_none: "Aucun"
+gw_go_req_invites: "Invitations"
+gw_go_req_messages: "Messages"
+gw_go_req_roles: "Rôles"
+gw_go_req_value_dsc: "Valeur requise : **${value}**"
+gw_go_started: "Le giveaway a été lancé dans ${channel} !"
+gw_go_cancelled: "Panel fermé, rien n'a été lancé."
+gw_go_expired: "Le panel a expiré avant que le giveaway soit lancé."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Tu dois définir un prix avant de lancer le giveaway !"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Tu dois définir une durée valide avant de lancer le giveaway !"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Tu dois définir un nombre de gagnants valide avant de lancer le giveaway !"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | Le salon sélectionné ne peut pas recevoir de message !"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Ce lien d'image n'est pas valide !"
+gw_go_modal_prize: "Définir le prix"
+gw_go_modal_prize_label: "Prix"
+gw_go_modal_duration: "Définir la durée"
+gw_go_modal_duration_label: "Durée (par exemple : 2d ou 12h30)"
+gw_go_modal_winners: "Définir le nombre de gagnants"
+gw_go_modal_winners_label: "Nombre de gagnants"
+gw_go_modal_req_title: "Prérequis de participation"
+gw_go_modal_req_type_label: "Type de prérequis"
+gw_go_modal_req_value_label: "Valeur du prérequis (ID de rôle ou nombre)"
+gw_go_modal_image: "Définir l'image de prévisualisation"
+gw_go_modal_image_label: "Lien de l'image"
+
+
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3302,3 +3341,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} Le module H24/7 est actif sur c
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} Le module H24/7 est actif sur ce serveur. Rejoignez le salon vocal H24/7 pour activer le TTS !"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | La durée minimum est de 3 minutes !"

@@ -1828,6 +1828,45 @@ gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
 gw_doesnt_exit: "The giveaway is unreachable, or doesn't exist."
 
+
+# /go
+gw_go_panel_title: "Giveaway Panel"
+gw_go_panel_desc: "Prepare your giveaway below, then launch it. Use the menus to edit each setting."
+gw_go_select_placeholder: "Edit a setting"
+gw_go_opt_prize: "Prize"
+gw_go_opt_duration: "Duration"
+gw_go_opt_winners: "Winners"
+gw_go_opt_requirement: "Entry requirement"
+gw_go_opt_image: "Preview image"
+gw_go_channel_placeholder: "Giveaway channel"
+gw_go_launch_buttontitle: "Launch"
+gw_go_cancel_buttontitle: "Cancel"
+gw_go_req_none: "None"
+gw_go_req_invites: "Invites"
+gw_go_req_messages: "Messages"
+gw_go_req_roles: "Roles"
+gw_go_req_value_dsc: "Require value: **${value}**"
+gw_go_started: "The giveaway has been started in ${channel}!"
+gw_go_cancelled: "Panel closed, nothing has been launched."
+gw_go_expired: "The panel expired before the giveaway was launched."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | You must set a prize before launching the giveaway!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | You must set a valid duration before launching the giveaway!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | You must set a valid winners count before launching the giveaway!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | The selected channel is not sendable!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | This image URL is not valid!"
+gw_go_modal_prize: "Set the prize"
+gw_go_modal_prize_label: "Prize"
+gw_go_modal_duration: "Set the duration"
+gw_go_modal_duration_label: "Duration (for example: 2d or 12h30)"
+gw_go_modal_winners: "Set the winners count"
+gw_go_modal_winners_label: "Number of winners"
+gw_go_modal_req_title: "Entry requirement"
+gw_go_modal_req_type_label: "Requirement type"
+gw_go_modal_req_value_label: "Requirement value (role ID or number)"
+gw_go_modal_image: "Set the preview image"
+gw_go_modal_image_label: "Image URL"
+
+
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3305,3 +3344,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} The H24/7 module is active on t
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} The H24/7 module is active on this server. Join the H24/7 voice channel to enable TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | The minimum duration is 3 minutes!"

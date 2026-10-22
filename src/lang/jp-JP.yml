@@ -1826,6 +1826,45 @@ gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
 gw_doesnt_exit: "景品は到達できないか、存在しません。"
 
+
+# /go
+gw_go_panel_title: "ギブアウェイパネル"
+gw_go_panel_desc: "下のメニューで設定を編集して、ギブアウェイを開始してください。"
+gw_go_select_placeholder: "設定を編集する"
+gw_go_opt_prize: "賞品"
+gw_go_opt_duration: "期間"
+gw_go_opt_winners: "当選者数"
+gw_go_opt_requirement: "参加条件"
+gw_go_opt_image: "プレビュー画像"
+gw_go_channel_placeholder: "ギブアウェイのチャンネル"
+gw_go_launch_buttontitle: "開始"
+gw_go_cancel_buttontitle: "キャンセル"
+gw_go_req_none: "なし"
+gw_go_req_invites: "招待数"
+gw_go_req_messages: "メッセージ数"
+gw_go_req_roles: "ロール"
+gw_go_req_value_dsc: "必要な値：**${value}**"
+gw_go_started: "${channel} でギブアウェイが開始されました！"
+gw_go_cancelled: "パネルを閉じました。ギブアウェイは開始されていません。"
+gw_go_expired: "ギブアウェイが開始される前に、パネルが失効しました。"
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に賞品を設定してください！"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に有効な期間を設定してください！"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に有効な当選者数を設定してください！"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | 選択されたチャンネルはメッセージを送信できません！"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | この画像のURLは無効です！"
+gw_go_modal_prize: "賞品を設定"
+gw_go_modal_prize_label: "賞品"
+gw_go_modal_duration: "期間を設定"
+gw_go_modal_duration_label: "期間（例：2d または 12h30）"
+gw_go_modal_winners: "当選者数を設定"
+gw_go_modal_winners_label: "当選者数"
+gw_go_modal_req_title: "参加条件"
+gw_go_modal_req_type_label: "条件の種類"
+gw_go_modal_req_value_label: "条件の値（ロールIDまたは数値）"
+gw_go_modal_image: "プレビュー画像を設定"
+gw_go_modal_image_label: "画像のURL"
+
+
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3303,3 +3342,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7�
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。TTSを有効にするにはH24/7のボイスチャンネルに参加してください！"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | 最短の期間は3分です！"

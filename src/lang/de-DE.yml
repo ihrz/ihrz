@@ -1826,6 +1826,45 @@ gw_getdata_yes: "`Ja`"
 gw_getdata_no: "`Nein`"
 gw_doesnt_exit: "Die Werbegeschenke sind nicht erreichbar oder existieren nicht."
 
+
+# /go
+gw_go_panel_title: "Giveaway-Panel"
+gw_go_panel_desc: "Bereite unten dein Giveaway vor und starte es. Nutze die Menüs, um jede Einstellung zu ändern."
+gw_go_select_placeholder: "Einstellung bearbeiten"
+gw_go_opt_prize: "Preis"
+gw_go_opt_duration: "Dauer"
+gw_go_opt_winners: "Gewinner"
+gw_go_opt_requirement: "Teilnahmevoraussetzung"
+gw_go_opt_image: "Vorschaubild"
+gw_go_channel_placeholder: "Giveaway-Kanal"
+gw_go_launch_buttontitle: "Starten"
+gw_go_cancel_buttontitle: "Abbrechen"
+gw_go_req_none: "Keine"
+gw_go_req_invites: "Einladungen"
+gw_go_req_messages: "Nachrichten"
+gw_go_req_roles: "Rollen"
+gw_go_req_value_dsc: "Erforderlicher Wert: **${value}**"
+gw_go_started: "Das Giveaway wurde in ${channel} gestartet!"
+gw_go_cancelled: "Panel geschlossen, es wurde nichts gestartet."
+gw_go_expired: "Das Panel ist abgelaufen, bevor das Giveaway gestartet wurde."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Du musst einen Preis festlegen, bevor du das Giveaway startest!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Du musst eine gültige Dauer festlegen, bevor du das Giveaway startest!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Du musst eine gültige Gewinneranzahl festlegen, bevor du das Giveaway startest!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | Der ausgewählte Kanal kann keine Nachrichten empfangen!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Diese Bild-URL ist ungültig!"
+gw_go_modal_prize: "Preis festlegen"
+gw_go_modal_prize_label: "Preis"
+gw_go_modal_duration: "Dauer festlegen"
+gw_go_modal_duration_label: "Dauer (zum Beispiel: 2d oder 12h30)"
+gw_go_modal_winners: "Gewinneranzahl festlegen"
+gw_go_modal_winners_label: "Anzahl der Gewinner"
+gw_go_modal_req_title: "Teilnahmevoraussetzung"
+gw_go_modal_req_type_label: "Voraussetzungstyp"
+gw_go_modal_req_value_label: "Voraussetzungswert (Rollen-ID oder Zahl)"
+gw_go_modal_image: "Vorschaubild festlegen"
+gw_go_modal_image_label: "Bild-URL"
+
+
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3304,3 +3343,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf diesem 
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf diesem Server aktiv. Verbinde dich mit dem H24/7-Sprachkanal, um TTS zu aktivieren!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | Die Mindestdauer beträgt 3 Minuten!"

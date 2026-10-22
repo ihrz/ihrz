@@ -1826,6 +1826,45 @@ gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
 gw_doesnt_exit: "Os brindes estão inacessíveis ou não existem."
 
+
+# /go
+gw_go_panel_title: "Painel de Sorteios"
+gw_go_panel_desc: "Prepara o teu sorteio abaixo e depois lança-o. Usa os menus para editar cada definição."
+gw_go_select_placeholder: "Editar uma definição"
+gw_go_opt_prize: "Prémio"
+gw_go_opt_duration: "Duração"
+gw_go_opt_winners: "Vencedores"
+gw_go_opt_requirement: "Requisito para participar"
+gw_go_opt_image: "Imagem de pré-visualização"
+gw_go_channel_placeholder: "Canal do sorteio"
+gw_go_launch_buttontitle: "Lançar"
+gw_go_cancel_buttontitle: "Cancelar"
+gw_go_req_none: "Nenhum"
+gw_go_req_invites: "Convites"
+gw_go_req_messages: "Mensagens"
+gw_go_req_roles: "Cargos"
+gw_go_req_value_dsc: "Valor exigido: **${value}**"
+gw_go_started: "O sorteio começou em ${channel}!"
+gw_go_cancelled: "Painel fechado, nada foi lançado."
+gw_go_expired: "O painel expirou antes de lançar o sorteio."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Tens de definir um prémio antes de lançar o sorteio!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Tens de definir uma duração válida antes de lançar o sorteio!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Tens de definir um número de vencedores válido antes de lançar o sorteio!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | O canal selecionado não pode receber mensagens!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Este URL de imagem não é válido!"
+gw_go_modal_prize: "Definir o prémio"
+gw_go_modal_prize_label: "Prémio"
+gw_go_modal_duration: "Definir a duração"
+gw_go_modal_duration_label: "Duração (por exemplo: 2d ou 12h30)"
+gw_go_modal_winners: "Definir o número de vencedores"
+gw_go_modal_winners_label: "Número de vencedores"
+gw_go_modal_req_title: "Requisito para participar"
+gw_go_modal_req_type_label: "Tipo de requisito"
+gw_go_modal_req_value_label: "Valor do requisito (ID do cargo ou número)"
+gw_go_modal_image: "Definir a imagem de pré-visualização"
+gw_go_modal_image_label: "URL da imagem"
+
+
 # Comandos de moderação
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3303,3 +3342,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo nes
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo neste servidor. Entra no canal de voz H24/7 para ativar o TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | A duração mínima é de 3 minutos!"

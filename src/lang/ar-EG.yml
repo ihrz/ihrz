@@ -1827,6 +1827,45 @@ gw_getdata_yes: "`نعم`"
 gw_getdata_no: "`لا`"
 gw_doesnt_exit: "المسابقة غير قابلة للوصول، أو لا توجد."
 
+
+# /go
+gw_go_panel_title: "لوحة الجوائز"
+gw_go_panel_desc: "جهّز الجائزة أدناه ثم أطلقها. استخدم القوائم لتعديل كل إعداد."
+gw_go_select_placeholder: "تعديل إعداد"
+gw_go_opt_prize: "الجائزة"
+gw_go_opt_duration: "المدة"
+gw_go_opt_winners: "الفائزون"
+gw_go_opt_requirement: "شرط المشاركة"
+gw_go_opt_image: "صورة المعاينة"
+gw_go_channel_placeholder: "قناة الجائزة"
+gw_go_launch_buttontitle: "إطلاق"
+gw_go_cancel_buttontitle: "إلغاء"
+gw_go_req_none: "بدون"
+gw_go_req_invites: "الدعوات"
+gw_go_req_messages: "الرسائل"
+gw_go_req_roles: "الرتب"
+gw_go_req_value_dsc: "القيمة المطلوبة: **${value}**"
+gw_go_started: "تم إطلاق الجوائز في ${channel}!"
+gw_go_cancelled: "تم إغلاق اللوحة، لم يتم إطلاق شيء."
+gw_go_expired: "انتهت صلاحية اللوحة قبل إطلاق الجوائز."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | يجب تحديد جائزة قبل إطلاق الجوائز!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | يجب تحديد مدة صحيحة قبل إطلاق الجوائز!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | يجب تحديد عدد فائزين صحيح قبل إطلاق الجوائز!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | القناة المحددة لا يمكنها استقبال الرسائل!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | رابط الصورة غير صالح!"
+gw_go_modal_prize: "تحديد الجائزة"
+gw_go_modal_prize_label: "الجائزة"
+gw_go_modal_duration: "تحديد المدة"
+gw_go_modal_duration_label: "المدة (مثال: 2d أو 12h30)"
+gw_go_modal_winners: "تحديد عدد الفائزين"
+gw_go_modal_winners_label: "عدد الفائزين"
+gw_go_modal_req_title: "شرط المشاركة"
+gw_go_modal_req_type_label: "نوع الشرط"
+gw_go_modal_req_value_label: "قيمة الشرط (معرف الرتبة أو رقم)"
+gw_go_modal_image: "تحديد صورة المعاينة"
+gw_go_modal_image_label: "رابط الصورة"
+
+
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -3297,3 +3336,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة عل�
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتفعيل TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | المدة الدنيا هي 3 دقائق!"
