@@ -45,11 +45,11 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
 	);
 
-	if (!result) return await interaction.deferUpdate();
+	if (!getChannelId) return await interaction.deferUpdate();
 	if (
-		(result.interface?.channelId !== interaction.channelId &&
-			interaction.channelId !== targetedChannel?.id) ||
-		getChannelId !== targetedChannel?.id
+		getChannelId !== targetedChannel?.id ||
+		(result?.interface?.channelId !== interaction.channelId &&
+			interaction.channelId !== targetedChannel?.id)
 	)
 		return await interaction.deferUpdate();
 
