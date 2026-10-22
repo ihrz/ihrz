@@ -47,7 +47,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 	if (!result) return await interaction.deferUpdate();
 	if (
-		result.interface?.channelId !== interaction.channelId ||
+		(result.interface?.channelId !== interaction.channelId &&
+			interaction.channelId !== targetedChannel?.id) ||
 		getChannelId !== targetedChannel?.id
 	)
 		return await interaction.deferUpdate();

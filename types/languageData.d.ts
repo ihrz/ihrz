@@ -2246,6 +2246,9 @@ export interface LanguageData {
 	temporary_voice_transfer_unblocked_placeholder: string;
 	temporary_voice_transfer_untrust_placeholder: string;
 	temporary_voice_channel_name: string;
+	tempvoice_v2_embed_title: string;
+	tempvoice_v2_embed_desc: string;
+	tempvoice_v2_hint: string;
 	protection_avoid_channel_delete: string;
 	protection_blockbot_embed_title: string;
 	protection_blockbot_embed_desc: string;

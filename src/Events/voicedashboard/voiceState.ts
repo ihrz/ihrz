@@ -20,18 +20,170 @@
 */
 
 import {
+	ActionRowBuilder,
 	BaseGuildVoiceChannel,
+	ButtonBuilder,
+	ButtonStyle,
 	CategoryChannel,
 	ChannelType,
 	Client,
+	ContainerBuilder,
+	MessageFlags,
+	SeparatorBuilder,
+	TextDisplayBuilder,
 	VoiceBasedChannel,
 	VoiceState
 } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { LanguageData } from "../../../types/languageData.js";
 import { tempTable } from "../client/ready.js";
 import maskLink from "../../core/functions/maskLink.js";
+
+/**
+ * Builds the Components V2 control panel sent inside every created temporary
+ * voice channel. Reuses the capability wording of the text interface
+ * (tempvoice_if_text_fields_value_*) so both dashboards stay consistent.
+ */
+const VOICE_PANEL_EMOJI_MAP: Record<string, string> = {
+	"${client.iHorizon_Emojis.VC_Limit}": "VC_Limit",
+	"${client.iHorizon_Emojis.VC_Name}": "VC_Name",
+	"${client.iHorizon_Emojis.VC_Region}": "VC_Region",
+	"${client.iHorizon_Emojis.VC_Trust}": "VC_Trust",
+	"${client.iHorizon_Emojis.VC_Untrust}": "VC_Untrust",
+	"${client.iHorizon_Emojis.VC_Block}": "VC_Block",
+	"${client.iHorizon_Emojis.VC_Unblock}": "VC_Unblock",
+	"${client.iHorizon_Emojis.VC_Claim}": "VC_Claim",
+	"${client.iHorizon_Emojis.VC_Privacy}": "VC_Privacy",
+	"${client.iHorizon_Emojis.VC_Transfer}": "VC_Transfer",
+	"${client.iHorizon_Emojis.VC_Delete}": "VC_Delete"
+};
+
+function buildVoicePanel(
+	lang: LanguageData,
+	channelName: string,
+	ownerId: string
+): ContainerBuilder {
+	const capabilities = [
+		lang.tempvoice_if_text_fields_value_limit,
+		lang.tempvoice_if_text_fields_value_name,
+		lang.tempvoice_if_text_fields_value_region,
+		lang.tempvoice_if_text_fields_value_trust,
+		lang.tempvoice_if_text_fields_value_untrust,
+		lang.tempvoice_if_text_fields_value_block,
+		lang.tempvoice_if_text_fields_value_unblock,
+		lang.tempvoice_if_text_fields_value_claim,
+		lang.tempvoice_if_text_fields_value_privacy,
+		lang.tempvoice_if_text_fields_value_transfer,
+		lang.tempvoice_if_text_fields_value_delete
+	]
+		.join("\n")
+		.replaceAll(
+			/\$\{client\.iHorizon_Emojis\.VC_\w+\}/g,
+			(token) =>
+				(client.iHorizon_Emojis as Record<string, string>)[
+					VOICE_PANEL_EMOJI_MAP[token]
+				]
+		);
+
+	const container = new ContainerBuilder().setAccentColor(0xed8bbe);
+
+	container.addTextDisplayComponents(
+		new TextDisplayBuilder().setContent(
+			`${lang.tempvoice_v2_embed_title
+				.replace(
+					"${client.iHorizon_Emojis.VC_Name}",
+					client.iHorizon_Emojis.VC_Name
+				)
+				.replace(
+					"${channelName}",
+					channelName
+				)}\n${lang.tempvoice_v2_embed_desc.replace(
+				"${owner}",
+				`<@${ownerId}>`
+			)}`
+		)
+	);
+
+	container.addSeparatorComponents(new SeparatorBuilder());
+
+	container.addTextDisplayComponents(
+		new TextDisplayBuilder().setContent(
+			`${capabilities}\n\n${lang.tempvoice_v2_hint}`
+		)
+	);
+
+	container.addSeparatorComponents(new SeparatorBuilder());
+
+	const panelButtons = [
+		[
+			{
+				emoji: client.iHorizon_Emojis.VC_Limit,
+				customId: "temporary_voice_limit_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Name,
+				customId: "temporary_voice_name_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Privacy,
+				customId: "temporary_voice_privacy_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Region,
+				customId: "temporary_voice_region_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Claim,
+				customId: "temporary_voice_claim_button"
+			}
+		],
+		[
+			{
+				emoji: client.iHorizon_Emojis.VC_Trust,
+				customId: "temporary_voice_trust_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Untrust,
+				customId: "temporary_voice_untrust_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Block,
+				customId: "temporary_voice_block_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Unblock,
+				customId: "temporary_voice_unblock_button"
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Transfer,
+				customId: "temporary_voice_transfer_button"
+			}
+		],
+		[
+			{
+				emoji: client.iHorizon_Emojis.VC_Delete,
+				customId: "temporary_voice_delete_button"
+			}
+		]
+	];
+
+	for (const row of panelButtons) {
+		container.addActionRowComponents(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				...row.map((button) =>
+					new ButtonBuilder()
+						.setEmoji(button.emoji)
+						.setCustomId(button.customId)
+						.setStyle(ButtonStyle.Secondary)
+				)
+			)
+		);
+	}
+
+	return container;
+}
 
 /**
  * In-flight custom voice creations, keyed by `${guildId}.${userId}`.
@@ -319,6 +471,21 @@ export const event: BotEvent = {
 										}
 									}
 								}
+
+								// Components V2 control panel inside the voice channel
+								await chann
+									.send({
+										components: [
+											buildVoicePanel(
+												lang,
+												chann.name,
+												newState.member?.user
+													.id as string
+											)
+										],
+										flags: [MessageFlags.IsComponentsV2]
+									})
+									.catch(() => null);
 							})
 							.catch(async () => {
 								await chann.delete().catch(() => {});

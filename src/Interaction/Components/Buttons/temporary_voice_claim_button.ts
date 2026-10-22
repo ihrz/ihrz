@@ -44,7 +44,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	);
 
 	if (!result || !allChannel) return await interaction.deferUpdate();
-	if (result.interface?.channelId !== interaction.channelId)
+	if (
+		result.interface?.channelId !== interaction.channelId &&
+		interaction.channelId !== targetedChannel?.id
+	)
 		return await interaction.deferUpdate();
 
 	let isTemporaryChannel = false;

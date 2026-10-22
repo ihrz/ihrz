@@ -46,7 +46,8 @@ export default async function handleButtonInteraction(
 
 	if (!result) return await interaction.deferUpdate();
 	if (
-		result.channelId !== interaction.channelId ||
+		(result.channelId !== interaction.channelId &&
+			interaction.channelId !== targetedChannel?.id) ||
 		getChannelOwner !== targetedChannel?.id
 	) {
 		return await interaction.deferUpdate();

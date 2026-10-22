@@ -2989,6 +2989,9 @@ temporary_voice_transfer_untrust_placeholder: "Les utilisateurs sélectionnés n
 
 temporary_voice_channel_name: "Salon de {nickname}"
 
+tempvoice_v2_embed_title: "## ${client.iHorizon_Emojis.VC_Name} ${channelName}"
+tempvoice_v2_embed_desc: "Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below."
+tempvoice_v2_hint: "-# Only the channel owner can use these buttons."
 # Module de Protection
 # Message d'événement
 
