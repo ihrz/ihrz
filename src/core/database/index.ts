@@ -20,7 +20,7 @@
 */
 
 import { ConfigData } from "../../../types/configDatad.js";
-import { DB } from "./types.js";
+import { UnifiedDatabase } from "./types.js";
 
 import logger from "../logger.js";
 import path from "path";
@@ -32,7 +32,7 @@ import { Sqlite } from "./driver/sqlite.js";
 import { Json } from "./driver/json.js";
 import { HorizonDB } from "./driver/horizondb.js";
 
-let dbInstance: DB | null = null;
+let dbInstance: UnifiedDatabase | null = null;
 
 export const tables = [
 	"json",
@@ -64,7 +64,7 @@ let isClient: boolean | null = null;
 
 export async function initializeDatabase(
 	database: ConfigData["database"]
-): Promise<DB> {
+): Promise<UnifiedDatabase> {
 	try {
 		client;
 		isClient = true;

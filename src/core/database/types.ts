@@ -35,7 +35,7 @@ export enum ErrorKind {
 export type DataLike<T = any> = { id: string; value: T };
 export type Table = Map<string, any>;
 
-export type DB =
+export type UnifiedDatabase =
 	Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | HorizonDB<any>;
 
 export type PostgresOptions = {
