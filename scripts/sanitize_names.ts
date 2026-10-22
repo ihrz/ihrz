@@ -133,7 +133,9 @@ function processFile(filePath: string): number {
 						'$1"' + sanitized + '"'
 					);
 				} else {
-					const lineEndsWithComma = lines[e.lineIdx].trimEnd().endsWith(",");
+					const lineEndsWithComma = lines[e.lineIdx]
+						.trimEnd()
+						.endsWith(",");
 					lines[e.lineIdx] = lines[e.lineIdx].replace(
 						/"((?:[^"\\]|\\.)*)"(,?)$/,
 						'"' + sanitized + '"' + (lineEndsWithComma ? "," : "")

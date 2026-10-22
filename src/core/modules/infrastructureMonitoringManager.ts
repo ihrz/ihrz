@@ -319,7 +319,9 @@ class InfrastructureMonitoring {
 		const tickEvery = 6;
 		for (let i = 0; i < n; i += tickEvery) {
 			if (i !== 0 && i + tickEvery >= n && i !== n - 1) continue;
-			const label = (timeLabels[i] ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+			const label = (timeLabels[i] ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;");
 			labels += `<text x="${xAt(i).toFixed(1)}" y="${(H - 8).toFixed(1)}" fill="#8B8E98" font-size="9" font-weight="600" text-anchor="middle" font-family="Inter, system-ui, sans-serif">${label}</text>`;
 		}
 

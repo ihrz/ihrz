@@ -114,7 +114,9 @@ export const subCommand: SubCommand = {
 		});
 
 		// Shuffle members randomly
-		const shuffledMembers = membersToMove.sort(() => Math.random() - 0.5);
+		const shuffledMembers = membersToMove.sort(
+			() => client.func.random.secureRandomFloat() - 0.5
+		);
 
 		// Distribute members across voice channels
 		for (let i = 0; i < shuffledMembers.length; i++) {

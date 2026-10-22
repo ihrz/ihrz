@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 
 		const results: number[] = [];
 		for (let i = 0; i < number; i++) {
-			results.push(Math.floor(Math.random() * faces) + 1);
+			results.push(client.func.random.secureRandomInt(1, faces));
 		}
 
 		const total = results.reduce((acc, val) => acc + val, 0);

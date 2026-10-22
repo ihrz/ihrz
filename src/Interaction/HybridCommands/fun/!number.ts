@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 		// security
 		if (min > max) [min, max] = [max, min];
 
-		const random = Math.floor(Math.random() * (max - min + 1)) + min;
+		const random = client.func.random.secureRandomInt(min, max);
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.fun_random_embed_title)

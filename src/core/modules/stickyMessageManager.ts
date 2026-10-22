@@ -34,10 +34,7 @@ import logger from "../logger.js";
 type StickyEmbedRecord = DatabaseStructure.DbEmbedObject[string];
 
 export type StickyRefreshStatus =
-	| "sent"
-	| "missing_config"
-	| "missing_embed"
-	| "missing_permissions";
+	"sent" | "missing_config" | "missing_embed" | "missing_permissions";
 
 export interface StickyRefreshResult {
 	status: StickyRefreshStatus;

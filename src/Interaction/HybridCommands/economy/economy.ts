@@ -172,7 +172,8 @@ export const command: Command = {
 						fr: "Ciblez un utilisateur pour voir son solde actuel",
 						ja: "残高を確認するユーザーを指定（空白で自分）",
 						ru: "Укажите пользователя для просмотра баланса или оставьте пустым для себя",
-						"es-ES": "Selecciona un usuario para ver su saldo actual o déjalo en blanco para ti"
+						"es-ES":
+							"Selecciona un usuario para ver su saldo actual o déjalo en blanco para ti"
 					},
 
 					required: false,
@@ -251,7 +252,8 @@ export const command: Command = {
 				fr: "Obtenez le classement du solde des utilisateurs du serveur",
 				ja: "サーバーのユーザー残高ランキングを取得！",
 				ru: "Получить таблицу лидеров по балансу!",
-				"es-ES": "Obtener la tabla de clasificación de saldos del servidor!"
+				"es-ES":
+					"Obtener la tabla de clasificación de saldos del servidor!"
 			},
 
 			aliases: ["eclb", "eco-lb", "economy-lb"],
@@ -285,7 +287,8 @@ export const command: Command = {
 						fr: "Combien de pièces vous souhaitez déposer dans votre banque",
 						ja: "銀行にいくら預けますか？",
 						ru: "Сколько монет вы хотите положить в банк?",
-						"es-ES": "Cuántas monedas quieres depositar en tu banco?"
+						"es-ES":
+							"Cuántas monedas quieres depositar en tu banco?"
 					},
 
 					required: true,
@@ -497,7 +500,8 @@ export const command: Command = {
 						fr: "Ajouter un rôle pour un certain montant d'argent",
 						ja: "特定の金額でロールを追加！",
 						ru: "Добавить роль за определенную сумму!",
-						"es-ES": "Añadir un rol por una cierta cantidad de dinero!"
+						"es-ES":
+							"Añadir un rol por una cierta cantidad de dinero!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -527,7 +531,8 @@ export const command: Command = {
 								fr: "Le montant d'argent que vous souhaitez ajouter",
 								ja: "追加したい金額",
 								ru: "Сумма денег для добавления",
-								"es-ES": "La cantidad de dinero que quieres añadir"
+								"es-ES":
+									"La cantidad de dinero que quieres añadir"
 							},
 
 							required: true,
@@ -547,7 +552,8 @@ export const command: Command = {
 						fr: "Supprimer un rôle pour un certain montant d'argent",
 						ja: "特定の金額でロールを削除！",
 						ru: "Удалить роль за определенную сумму!",
-						"es-ES": "Eliminar un rol por una cierta cantidad de dinero!"
+						"es-ES":
+							"Eliminar un rol por una cierta cantidad de dinero!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -615,7 +621,8 @@ export const command: Command = {
 						fr: "Le rôle que vous souhaitez modifier le boost",
 						ja: "ブーストを変更したいロール",
 						ru: "Роль, для которой изменить бонус",
-						"es-ES": "El rol para el que quieres modificar el impulso"
+						"es-ES":
+							"El rol para el que quieres modificar el impulso"
 					},
 
 					required: true,
@@ -704,7 +711,8 @@ export const command: Command = {
 				fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement",
 				ja: "デイリー、ウィークリー、マンスリーで獲得できる金額を管理！",
 				ru: "Управлять количеством денег, получаемых ежедневно, еженедельно и ежемесячно!",
-				"es-ES": "Gestionar cuánto dinero puedes obtener de diario, semanal y mensual!"
+				"es-ES":
+					"Gestionar cuánto dinero puedes obtener de diario, semanal y mensual!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -717,7 +725,8 @@ export const command: Command = {
 						fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement",
 						ja: "デイリー、ウィークリー、マンスリーで獲得できる金額を管理！",
 						ru: "Управлять количеством денег, получаемых ежедневно, еженедельно и ежемесячно!",
-						"es-ES": "Gestionar cuánto dinero puedes obtener de diario, semanal y mensual!"
+						"es-ES":
+							"Gestionar cuánto dinero puedes obtener de diario, semanal y mensual!"
 					},
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
@@ -729,7 +738,8 @@ export const command: Command = {
 								fr: "Le type de récompense que vous souhaitez définir",
 								ja: "設定したい報酬の種類",
 								ru: "Тип награды, которую вы хотите установить",
-								"es-ES": "El tipo de recompensa que quieres establecer"
+								"es-ES":
+									"El tipo de recompensa que quieres establecer"
 							},
 							choices: [
 								{
@@ -892,7 +902,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous voulez supprimer du module d'économie.",
 						ja: "経済データをリセットしたいユーザー",
 						ru: "Пользователь, чьи экономические данные нужно сбросить",
-						"es-ES": "El usuario al que quieres restablecer los datos de economía"
+						"es-ES":
+							"El usuario al que quieres restablecer los datos de economía"
 					},
 
 					required: true,
@@ -911,7 +922,8 @@ export const command: Command = {
 				fr: "Supprimer les données économique de tout les utilisateur",
 				ja: "サーバー内の全ユーザーの経済残高をリセット",
 				ru: "Сбросить баланс всех пользователей на сервере",
-				"es-ES": "Restablecer el saldo de economía de todos los usuarios del servidor"
+				"es-ES":
+					"Restablecer el saldo de economía de todos los usuarios del servidor"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

@@ -51,8 +51,7 @@ import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
-import { DB } from "../src/core/database/types.ts";
-import { Postgres } from "../src/core/database/driver/postgres.ts";
+import { UnifiedDatabase } from "../src/core/database/types.ts";
 import * as backup from "../src/core/backup/src/";
 import * as discordTranscripts from "discord-html-transcripts";
 import { BloggerNotifier } from "../src/core/Blogger.ts";
@@ -60,6 +59,7 @@ import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
 import { TempbanManager } from "../src/core/modules/tempbanManager.ts";
 import { Mailer } from "../src/core/Mailer.ts";
 import { LastFMScrobblerManager } from "../src/core/modules/lastFMScrobblerManager.ts";
+import { Team } from "./teams";
 
 declare module "discord.js" {
 	export interface Client {
@@ -71,10 +71,9 @@ declare module "discord.js" {
 		player: LavalinkManager;
 		invites: Collection<string, Collection<string, InviteCacheData>>;
 		vanityInvites: Collection<Snowflake, VanityInviteData | null>;
-		buttons: Collection<string, Function>;
-		selectmenu: Collection<string, Function>;
-		db: DB;
-		db2: Postgres | undefined;
+		buttons: Collection<string, any>;
+		selectmenu: Collection<string, any>;
+		db: UnifiedDatabase;
 		applicationsCommands: Collection<string, AnotherCommand>;
 		iHorizon_Emojis: typeof emojis;
 		giveawaysManager: GiveawayManager;
@@ -85,6 +84,7 @@ declare module "discord.js" {
 		config: ConfigData;
 		isModuled?: boolean;
 		owners: string[];
+		team: Team;
 		notifier: StreamNotifier;
 		kdenlive: KdenLive;
 		htmlfiles: Record<string, string>;

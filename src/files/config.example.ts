@@ -136,15 +136,13 @@ const config: ConfigData = {
 		method: "sqlite",
 		// The method you want for the database, sqlite is used by default.
 
-		mySQL: [
-			{
-				host: "",
-				password: "",
-				database: "",
-				user: "",
-				port: 3306
-			}
-		]
+		mySQL: {
+			host: "",
+			password: "",
+			database: "",
+			user: "",
+			port: 3306
+		}
 		// The MySQL connection configuration if you want to use MySQL. MySQL is not the default, meaning you need to set it up yourself.
 
 		// horizon_db: {

@@ -21,7 +21,7 @@
 
 import { MySQL } from "./sqlLogin";
 
-interface LavalinkNodeOptions {
+export interface LavalinkNodeOptions {
 	retryAmount?: number;
 	retryDelay?: number;
 	id: string;
@@ -76,10 +76,6 @@ export interface ConfigData {
 		 */
 		devMode: boolean;
 		/**
-		 * @deprecated
-		 */
-		bash?: boolean;
-		/**
 		 * @description image url for blacklist
 		 */
 		blacklistPictureInEmbed: string;
@@ -112,43 +108,25 @@ export interface ConfigData {
 		users: string[];
 	};
 
+	/**
+	 * @description Not required for Self-Hosting. You can skip this object.
+	 */
 	api: {
 		/**
 		 * @default "https://gateway.ihorizon.org"
-		 * @description The Horizon's Gateway URL. This thing is only in production phase. btw HorizonGW is private-source.
+		 * @description Not required for Self-Hosting.  The Horizon's Gateway URL. This thing is only in production phase. btw HorizonGW is private-source.
 		 */
 		HorizonGateway?: string;
 		/**
 		 * @default "http://127.0.0.1:31981"
-		 * @description Optional local Horizon Gateway URL, used for bot-to-gateway calls on the same machine. Bypasses reverse proxies (Cloudflare, ...) and their body limits. User-facing links always keep using HorizonGateway.
+		 * @description Not required for Self-Hosting. Optional local Horizon Gateway URL, used for bot-to-gateway calls on the same machine. Bypasses reverse proxies (Cloudflare, ...) and their body limits. User-facing links always keep using HorizonGateway.
 		 */
 		HorizonGatewayLocal?: string;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
-		useHttps?: boolean;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
-		domain?: string;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
-		port?: string;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
-		useProxy?: boolean;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
-		proxyUrl?: string;
 
-		apiToken: string;
 		/**
-		 * @deprecated not used anymore in the codebase
+		 * @description Not required for Self-Hosting. This is a private shared-key between the HorizonGateway and the production bot.
 		 */
-		clientID?: string;
+		apiToken: string;
 	};
 
 	lastfm?: {
@@ -176,18 +154,12 @@ export interface ConfigData {
 		/**
 		 * @description use the good driver for your environnement
 		 */
-		method:
-			| "json"
-			| "sqlite"
-			| "memory"
-			| "postgresql"
-			| "cached_postgres"
-			| "horizondb";
+		method: "json" | "sqlite" | "memory" | "postgresql" | "horizondb";
 
-		mySQL?: MySQL[];
+		mySQL?: MySQL;
 
 		/**
-		 * @description private technology for iHorizon production
+		 * @description Public iHorizon technology - https://gitlab.com/ihrz/db.git
 		 */
 		horizon_db?: {
 			host: string;

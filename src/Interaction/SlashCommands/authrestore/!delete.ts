@@ -57,8 +57,7 @@ export const subCommand: SubCommand = {
 
 		(
 			interaction.guild.channels.cache.get(result?.channelId!) as
-				| GuildTextBasedChannel
-				| undefined
+				GuildTextBasedChannel | undefined
 		)?.messages
 			.fetch(result?.messageId)
 			.then(async (msg) => {

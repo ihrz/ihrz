@@ -397,7 +397,8 @@ export const command: Command = {
 						fr: "Permis d'envoyer un commentaire YouTube personnalisé (réel)",
 						ja: "カスタムYouTubeコメントを送信可能に（実際のコメント）！",
 						ru: "Разрешить отправку пользовательского комментария YouTube (настоящего)!",
-						"es-ES": "Permitir enviar comentario personalizado de YouTube (real)!"
+						"es-ES":
+							"Permitir enviar comentario personalizado de YouTube (real)!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -655,7 +656,8 @@ export const command: Command = {
 						fr: "Montrez votre compatibilité amoureuse avec l'utilisateur",
 						ja: "ユーザーとの恋愛相性を表示！",
 						ru: "Показать совместимость в любви с пользователем!",
-						"es-ES": "Mostrar tu compatibilidad amorosa con el usuario!"
+						"es-ES":
+							"Mostrar tu compatibilidad amorosa con el usuario!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -670,7 +672,8 @@ export const command: Command = {
 								fr: "L'utilisateur avec qui vous souhaitez connaître votre compatibilité amoureuse",
 								ja: "恋愛相性を知りたいユーザー",
 								ru: "Пользователь для проверки совместимости в любви",
-								"es-ES": "El usuario con quien quieres conocer tu compatibilidad amorosa"
+								"es-ES":
+									"El usuario con quien quieres conocer tu compatibilidad amorosa"
 							},
 
 							required: false,
@@ -687,7 +690,8 @@ export const command: Command = {
 								fr: "L'utilisateur avec qui vous voulez connaître la compatibilité amoureuse",
 								ja: "恋愛相性を知りたい相手のユーザー",
 								ru: "Пользователь, с которым вы хотите узнать совместимость в любви",
-								"es-ES": "El usuario con quien quieres saber la compatibilidad amorosa"
+								"es-ES":
+									"El usuario con quien quieres saber la compatibilidad amorosa"
 							},
 
 							required: false,
@@ -931,7 +935,8 @@ export const command: Command = {
 								fr: "Entrez votre entrée pour crypter/décrypter en morse",
 								ja: "モールス信号で暗号化/復号化する入力を入力",
 								ru: "Введите текст для шифрования/дешифрования азбукой Морзе",
-								"es-ES": "Ingresa tu entrada para encriptar/desencriptar en morse"
+								"es-ES":
+									"Ingresa tu entrada para encriptar/desencriptar en morse"
 							},
 
 							required: true,

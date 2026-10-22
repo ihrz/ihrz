@@ -44,7 +44,8 @@ export const command: Command = {
 		fr: "Définir des canaux de journaux pour les journaux d'audit",
 		ja: "監査ログ用のログチャンネルを設定！",
 		ru: "Установить канал для аудита!",
-		"es-ES": "Establecer un canal de registros para los registros de auditoría!"
+		"es-ES":
+			"Establecer un canal de registros para los registros de auditoría!"
 	},
 
 	aliases: ["logs", "setlog"],

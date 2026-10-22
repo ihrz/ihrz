@@ -134,6 +134,11 @@ declare namespace Client_Functions {
 
 	// From random.ts
 	export namespace random {
+		export function secureRandomFloat(): number;
+		export function secureRandomInt(
+			minimum: number,
+			maximum: number
+		): number;
 		export function generatePassword(options: PasswordOptions): string;
 		export function generateMultiplePasswords(
 			amount: number,
@@ -249,6 +254,52 @@ declare namespace Client_Functions {
 				ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			command: string
 		): Promise<{ allowed: boolean; permissionData: command }>;
+		export function isOnTheOwnerList(
+			guildId: string,
+			memberId: string
+		): Promise<boolean>;
+		export function getCmdPermData(
+			command: string,
+			guildPerm: DatabaseStructure.UtilsData
+		): {
+			users: string[];
+			roles: string[];
+			level: DatabaseStructure.PermCommandLevel;
+		};
+		export function checkExplicitUserPermission(
+			userId: string,
+			cmdPermData: {
+				users: string[];
+				roles: string[];
+				level: DatabaseStructure.PermCommandLevel;
+			}
+		): boolean;
+		export function checkRoleHierarchy(
+			member: GuildMember | null | undefined,
+			guildPerm: DatabaseStructure.UtilsData,
+			cmdPermData: {
+				users: string[];
+				roles: string[];
+				level: DatabaseStructure.PermCommandLevel;
+			}
+		): boolean;
+		export function checkExplicitRolePermission(
+			member: GuildMember | null | undefined,
+			cmdPermData: {
+				users: string[];
+				roles: string[];
+				level: DatabaseStructure.PermCommandLevel;
+			}
+		): boolean;
+		export function checkUserPermLevel(
+			userId: string,
+			guildPerm: DatabaseStructure.UtilsData,
+			cmdPermData: {
+				users: string[];
+				roles: string[];
+				level: DatabaseStructure.PermCommandLevel;
+			}
+		): boolean;
 		export function checkUserPermissions(
 			member: GuildMember
 		): Promise<0 | DatabaseStructure.PermLevel>;

@@ -97,7 +97,8 @@ export const command: Command = {
 				fr: "Afficher le classement des invitations du serveur",
 				ja: "サーバー招待ランキングを表示！",
 				ru: "Показать таблицу лидеров по приглашениям!",
-				"es-ES": "Mostrar la tabla de clasificación de invitaciones del servidor!"
+				"es-ES":
+					"Mostrar la tabla de clasificación de invitaciones del servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -128,7 +129,8 @@ export const command: Command = {
 						fr: "le membre où souhaitez voir ces invitations",
 						ja: "招待数を表示したいメンバー",
 						ru: "участник, чьи приглашения показать",
-						"es-ES": "el miembro al que quieres mostrar sus invitaciones"
+						"es-ES":
+							"el miembro al que quieres mostrar sus invitaciones"
 					},
 
 					required: false,
@@ -148,7 +150,8 @@ export const command: Command = {
 				fr: "Supprimer toute les données du module d'InviteManager",
 				ja: "サーバー内のInviteManagerの全データを削除",
 				ru: "Удалить все данные InviteManager на сервере",
-				"es-ES": "Eliminar todos los datos de InviteManager en el servidor"
+				"es-ES":
+					"Eliminar todos los datos de InviteManager en el servidor"
 			},
 
 			aliases: ["inv-delete-all", "invreset"],
@@ -180,7 +183,8 @@ export const command: Command = {
 						fr: "le membre où vous souhaitez supprimer ces invites",
 						ja: "招待を削除したいメンバー",
 						ru: "участник, у которого убрать приглашения",
-						"es-ES": "el miembro del que quieres quitar invitaciones"
+						"es-ES":
+							"el miembro del que quieres quitar invitaciones"
 					},
 
 					required: true,

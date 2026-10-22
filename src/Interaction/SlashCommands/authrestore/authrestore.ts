@@ -37,7 +37,8 @@ export const command: Command = {
 		fr: "Faites la même chose que authrestore avec le bouton de vérification du lien sous le message iHorizon",
 		ja: "iHorizonメッセージの下のリンク確認ボタンでauthrestoreと同じことを行う",
 		ru: "Сделать то же, что и authrestore, с кнопкой проверки ссылки под сообщением iHorizon",
-		"es-ES": "Hacer lo mismo que authrestore con el botón de verificación de enlace bajo el mensaje de iHorizon"
+		"es-ES":
+			"Hacer lo mismo que authrestore con el botón de verificación de enlace bajo el mensaje de iHorizon"
 	},
 
 	aliases: [],
@@ -50,7 +51,8 @@ export const command: Command = {
 				fr: "Définir le message actuel pour le bouton de AuthRestore",
 				ja: "AuthRestoreボタン用の現在のメッセージを設定",
 				ru: "Установить текущее сообщение для кнопки AuthRestore",
-				"es-ES": "Establecer el mensaje actual para el botón AuthRestore"
+				"es-ES":
+					"Establecer el mensaje actual para el botón AuthRestore"
 			},
 
 			options: [
@@ -82,7 +84,8 @@ export const command: Command = {
 						fr: "Veuillez copier l'identifiant du message que vous souhaitez configurer",
 						ja: "設定したいメッセージの識別子をコピーしてください",
 						ru: "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить",
-						"es-ES": "Por favor, copia el identificador del mensaje que quieres configurar"
+						"es-ES":
+							"Por favor, copia el identificador del mensaje que quieres configurar"
 					},
 
 					required: true,
@@ -138,7 +141,8 @@ export const command: Command = {
 				fr: "Obtenez toutes les informations sur le module AuthRestore de votre guilde",
 				ja: "サーバーのAuthRestoreモジュールの全情報を取得",
 				ru: "Получить всю информацию о модуле AuthRestore сервера",
-				"es-ES": "Obtener toda la información sobre el módulo AuthRestore del servidor"
+				"es-ES":
+					"Obtener toda la información sobre el módulo AuthRestore del servidor"
 			},
 
 			options: [
@@ -151,7 +155,8 @@ export const command: Command = {
 						fr: "La clé privée de votre configuration AuthRestore",
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
-						"es-ES": "La clave privada de tu configuración AuthRestore"
+						"es-ES":
+							"La clave privada de tu configuración AuthRestore"
 					},
 
 					required: true,
@@ -172,7 +177,8 @@ export const command: Command = {
 				fr: "Forcer tous les membres de votre module AuthRestore à rejoindre la guilde",
 				ja: "AuthRestoreモジュールの全メンバーをサーバーに強制参加",
 				ru: "Принудительно заставить всех участников AuthRestore присоединиться",
-				"es-ES": "Forzar a todos los miembros de tu módulo AuthRestore a unirse al servidor"
+				"es-ES":
+					"Forzar a todos los miembros de tu módulo AuthRestore a unirse al servidor"
 			},
 
 			options: [
@@ -185,7 +191,8 @@ export const command: Command = {
 						fr: "La clé privée de votre configuration AuthRestore",
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
-						"es-ES": "La clave privada de tu configuración AuthRestore"
+						"es-ES":
+							"La clave privada de tu configuración AuthRestore"
 					},
 
 					required: true,
@@ -218,7 +225,8 @@ export const command: Command = {
 						fr: "La clé privée de votre configuration AuthRestore",
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
-						"es-ES": "La clave privada de tu configuración AuthRestore"
+						"es-ES":
+							"La clave privada de tu configuración AuthRestore"
 					},
 
 					required: true,
@@ -234,7 +242,8 @@ export const command: Command = {
 						fr: "Le nouveau rôle pour votre configuration AuthRestore",
 						ja: "AuthRestore設定の新しいロール",
 						ru: "Новые роли для конфигурации AuthRestore",
-						"es-ES": "Los nuevos roles para tu configuración AuthRestore"
+						"es-ES":
+							"Los nuevos roles para tu configuración AuthRestore"
 					},
 
 					required: true,

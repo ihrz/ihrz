@@ -39,6 +39,10 @@ export const event: BotEvent = {
 
 		// The leave flow deletes the persisted state before disconnecting,
 		// so a voluntary /h247 leave resolves to a no-op inside the handler.
+		logger.debug(
+			`H24/7 voice state changed for guild ${oldState.guild.id} (${oldState.channelId} -> ${newState.channelId})`
+		);
+
 		await handleH247VoiceStateChange(client, oldState.guild.id);
 	}
 };

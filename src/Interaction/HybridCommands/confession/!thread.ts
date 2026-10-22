@@ -42,12 +42,10 @@ export const subCommand: SubCommand = {
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action") as
-				| "yes"
-				| "no";
+				"yes" | "no";
 		} else {
 			var action = (client.func.method.string(args!, 0) || "0s") as
-				| "yes"
-				| "no";
+				"yes" | "no";
 		}
 
 		await client.db.set(

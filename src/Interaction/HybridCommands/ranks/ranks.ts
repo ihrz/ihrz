@@ -49,7 +49,8 @@ export const command: Command = {
 				fr: "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !",
 				ja: "ユーザーがランクレベルを獲得したらロールを付与！",
 				ru: "Когда пользователь получает уровень ранга, выдать роль!",
-				"es-ES": "Cuando el usuario gana un nivel de rango, darle un rol!"
+				"es-ES":
+					"Cuando el usuario gana un nivel de rango, darle un rol!"
 			},
 
 			aliases: ["rroles"],
@@ -69,7 +70,8 @@ export const command: Command = {
 				fr: "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP",
 				ja: "ユーザーが新しいXPレベルを獲得した時のメッセージを設定！",
 				ru: "Настроить сообщение при получении нового уровня XP!",
-				"es-ES": "Configurar el mensaje cuando el usuario gana un nuevo nivel de XP!"
+				"es-ES":
+					"Configurar el mensaje cuando el usuario gana un nuevo nivel de XP!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -159,7 +161,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous souhaitez rechercher.",
 						ja: "検索したいユーザー（空白で自分の統計を表示）",
 						ru: "Пользователь для поиска, оставьте пустым для показа своей статистики",
-						"es-ES": "El usuario que quieres buscar, déjalo en blanco si quieres mostrar tus estadísticas"
+						"es-ES":
+							"El usuario que quieres buscar, déjalo en blanco si quieres mostrar tus estadísticas"
 					},
 
 					required: false,
@@ -194,7 +197,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous voulez supprimer du module de rangs.",
 						ja: "ランクデータをリセットしたいユーザー",
 						ru: "Пользователь, чьи данные рангов нужно сбросить",
-						"es-ES": "El usuario al que quieres restablecer los datos de rango"
+						"es-ES":
+							"El usuario al que quieres restablecer los datos de rango"
 					},
 
 					required: true,
@@ -213,7 +217,8 @@ export const command: Command = {
 				fr: "Supprimer les données de rang de tout les utilisateur",
 				ja: "サーバー内の全ユーザーのランクレベルをリセット",
 				ru: "Сбросить уровень ранга всех пользователей",
-				"es-ES": "Restablecer el nivel de rango de cada usuario en el servidor"
+				"es-ES":
+					"Restablecer el nivel de rango de cada usuario en el servidor"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -237,7 +242,8 @@ export const command: Command = {
 				fr: "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP",
 				ja: "ユーザーが新しいXPレベルメッセージを獲得するチャンネルを設定！",
 				ru: "Установить канал для сообщений о новом уровне XP!",
-				"es-ES": "Establecer el canal donde el usuario recibe el mensaje de nuevo nivel de XP!"
+				"es-ES":
+					"Establecer el canal donde el usuario recibe el mensaje de nuevo nivel de XP!"
 			},
 
 			aliases: ["rchannel"],
@@ -356,7 +362,8 @@ export const command: Command = {
 				fr: "Définir un message personalisé quand un membre gagne un niveaus",
 				ja: "ユーザーがレベルアップした時のカスタムメッセージを設定",
 				ru: "Установить сообщение при повышении уровня",
-				"es-ES": "Establecer un mensaje personalizado cuando el usuario gana nivel"
+				"es-ES":
+					"Establecer un mensaje personalizado cuando el usuario gana nivel"
 			},
 
 			aliases: ["msg"],

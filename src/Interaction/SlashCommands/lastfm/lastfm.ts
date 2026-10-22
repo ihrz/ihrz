@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Connectez votre compte Last.fm et gérez le scrobbling musical.",
 		ja: "Last.fmアカウントを接続してスクロブルを管理。",
 		ru: "Подключите аккаунт Last.fm и управляйте скробблингом.",
-		"es-ES": "Conecta tu cuenta de Last.fm y controla el scrobbling de música."
+		"es-ES":
+			"Conecta tu cuenta de Last.fm y controla el scrobbling de música."
 	},
 
 	options: [
@@ -47,7 +48,8 @@ export const command: Command = {
 				fr: "Activez ou désactivez le scrobbling Last.fm pour votre compte.",
 				ja: "アカウントのLast.fmスクロブルを有効化または無効化。",
 				ru: "Включить или отключить скробблинг Last.fm для вашего аккаунта.",
-				"es-ES": "Habilitar o deshabilitar el scrobbling de Last.fm para tu cuenta."
+				"es-ES":
+					"Habilitar o deshabilitar el scrobbling de Last.fm para tu cuenta."
 			},
 			ephemeral: true,
 			options: [
@@ -98,7 +100,8 @@ export const command: Command = {
 				fr: "Connectez-vous à Last.fm et enregistrez votre session de scrobbling.",
 				ja: "Last.fmにログインしてスクロブルセッションを保存。",
 				ru: "Войти в Last.fm и сохранить сессию скробблинга.",
-				"es-ES": "Iniciar sesión en Last.fm y guardar tu sesión de scrobbling."
+				"es-ES":
+					"Iniciar sesión en Last.fm y guardar tu sesión de scrobbling."
 			},
 			ephemeral: true,
 			options: [
@@ -109,7 +112,8 @@ export const command: Command = {
 						fr: "Votre nom d’utilisateur ou email Last.fm",
 						ja: "Last.fmのユーザー名またはメールアドレス",
 						ru: "Ваше имя пользователя или email Last.fm",
-						"es-ES": "Tu nombre de usuario o dirección de correo de Last.fm"
+						"es-ES":
+							"Tu nombre de usuario o dirección de correo de Last.fm"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,

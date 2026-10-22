@@ -54,7 +54,8 @@ export const command: Command = {
 				fr: "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)",
 				ja: "提案に返信（管理者権限が必要）！",
 				ru: "Ответить на предложение (требуются права администратора)!",
-				"es-ES": "Responder a la sugerencia (requiere permiso de administrador)!"
+				"es-ES":
+					"Responder a la sugerencia (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -111,7 +112,8 @@ export const command: Command = {
 				fr: "Refuser une suggestion (Requière les permission Admin)",
 				ja: "提案を拒否（管理者権限が必要）！",
 				ru: "Отклонить предложение (требуются права администратора)!",
-				"es-ES": "Denegar una sugerencia (requiere permiso de administrador)!"
+				"es-ES":
+					"Denegar una sugerencia (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -175,7 +177,8 @@ export const command: Command = {
 				fr: "Accepter une suggestion (Requiert permissions Admin)",
 				ja: "提案を承認（管理者権限が必要）！",
 				ru: "Принять предложение (требуются права администратора)!",
-				"es-ES": "Aceptar una sugerencia (requiere permiso de administrador)!"
+				"es-ES":
+					"Aceptar una sugerencia (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -238,7 +241,8 @@ export const command: Command = {
 				fr: "Supprimer une suggestion (Requiert permissions Admin)",
 				ja: "提案を削除（管理者権限が必要）！",
 				ru: "Удалить предложение (требуются права администратора)!",
-				"es-ES": "Eliminar una sugerencia (requiere permiso de administrador)!"
+				"es-ES":
+					"Eliminar una sugerencia (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

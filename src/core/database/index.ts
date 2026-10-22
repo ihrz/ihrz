@@ -20,7 +20,7 @@
 */
 
 import { ConfigData } from "../../../types/configDatad.js";
-import { DB, MultiDB } from "./types.js";
+import { UnifiedDatabase } from "./types.js";
 
 import logger from "../logger.js";
 import path from "path";
@@ -32,7 +32,7 @@ import { Sqlite } from "./driver/sqlite.js";
 import { Json } from "./driver/json.js";
 import { HorizonDB } from "./driver/horizondb.js";
 
-let dbInstance: MultiDB | null = null;
+let dbInstance: UnifiedDatabase | null = null;
 
 export const tables = [
 	"json",
@@ -64,7 +64,7 @@ let isClient: boolean | null = null;
 
 export async function initializeDatabase(
 	database: ConfigData["database"]
-): Promise<MultiDB> {
+): Promise<UnifiedDatabase> {
 	try {
 		client;
 		client.inShard("0");
@@ -79,72 +79,16 @@ export async function initializeDatabase(
 	}
 
 	if (database.method === "json") {
-		dbInstance = {
-			x: new Json({
-				filePath: path.join(databasePath, "db.json")
-			})
-		};
+		dbInstance = new Json({
+			filePath: path.join(databasePath, "db.json")
+		});
 	} else if (database.method === "memory") {
-		dbInstance = {
-			x: new Memory()
-		};
+		dbInstance = new Memory();
 	} else if (database.method === "postgresql") {
-		dbInstance = {
-			x: new Postgres({
-				connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
-				table: tables[0]
-			})
-		};
-	} else if (database.method === "cached_postgres") {
-		logger.log(
-			`${isClient && client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`
-				.green
-		);
-
-		dbInstance = {
-			x: new Memory(),
-			og: new Postgres({
-				connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
-				table: tables[0]
-			})
-		};
-
-		if (database.mySQL?.[1]) {
-			dbInstance.y = new Postgres({
-				connectionString: `postgres://${database.mySQL?.[1].user}:${encodeURIComponent(database.mySQL?.[1].password!)}@${database.mySQL?.[1].host}:${database.mySQL?.[1].port}/${database.mySQL?.[1].database}`,
-				table: tables[9] // Chose metas table at default
-			});
-			logger.log(
-				`${isClient && client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`
-			);
-		}
-
-		if (dbInstance.y) {
-			// do bi-separated db stuff
-
-			/** Cache the json table for first database */
-			const postgresTable = await dbInstance.og!.table("json");
-			const memoryTable = await dbInstance.x.table("json");
-			const allData = await postgresTable.all();
-
-			for (const { id, value } of allData) {
-				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
-				if (isClient && client?.inShard(id))
-					await memoryTable.set(id, value);
-			}
-		} else /* Else, only one postgres. Load all tables in memory */ {
-			for (const table of tables) {
-				const postgresTable = await dbInstance.og!.table(table);
-				const memoryTable = await dbInstance.x.table(table);
-				const allData = await postgresTable.all();
-
-				for (const { id, value } of allData) {
-					await memoryTable.set(id, value);
-				}
-			}
-		}
-
-		setInterval(syncToPostgres, 60000 * 5);
+		dbInstance = new Postgres({
+			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(String(database.mySQL?.password))}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
+			table: tables[0]
+		});
 	} else if (database.method === "horizondb") {
 		if (!database.horizon_db) {
 			throw new Error(
@@ -157,21 +101,17 @@ export async function initializeDatabase(
 				.green
 		);
 
-		dbInstance = {
-			x: new HorizonDB({
-				url: `ws://${database.horizon_db.host}:${database.horizon_db.port}`,
-				login: database.horizon_db.login,
-				password: database.horizon_db.password,
-				requestTimeoutMs: database.horizon_db.requestTimeoutMs,
-				table: tables[0]
-			})
-		};
+		dbInstance = new HorizonDB({
+			url: `ws://${database.horizon_db.host}:${database.horizon_db.port}`,
+			login: database.horizon_db.login,
+			password: database.horizon_db.password,
+			requestTimeoutMs: database.horizon_db.requestTimeoutMs,
+			table: tables[0]
+		});
 	} else {
-		dbInstance = {
-			x: new Sqlite({
-				filePath: path.join(databasePath, "db.sqlite")
-			})
-		};
+		dbInstance = new Sqlite({
+			filePath: path.join(databasePath, "db.sqlite")
+		});
 	}
 
 	logger.log(
@@ -180,83 +120,3 @@ export async function initializeDatabase(
 	);
 	return dbInstance;
 }
-
-const syncToPostgres = async () => {
-	if (!dbInstance) process.exit(1);
-	let _tables = dbInstance.y ? ["json"] : tables;
-
-	for (const table of _tables) {
-		const postgresTable = await dbInstance.og!.table(table);
-		const memoryTable = await dbInstance!.x.table(table);
-
-		const postgresData = await postgresTable.all();
-		const memoryData = await memoryTable.all();
-
-		const postgresMap = new Map(
-			postgresData.map((item) => [item.id, item.value])
-		);
-		const memoryMap = new Map(
-			memoryData.map((item) => [item.id, item.value])
-		);
-
-		for (const [id, value] of memoryMap) {
-			const postgresValue = postgresMap.get(id);
-			if (
-				!postgresValue ||
-				JSON.stringify(postgresValue) !== JSON.stringify(value)
-			) {
-				try {
-					if (readOnlyTables.includes(table)) {
-						for (const { id, value } of postgresData) {
-							await memoryTable.set(id, value);
-						}
-					} else {
-						if (table === "json") {
-							if (isClient && client?.inShard(id))
-								await postgresTable.set(id, value);
-						} else {
-							await postgresTable.set(id, value);
-						}
-					}
-				} catch (error) {
-					logger.err(error);
-				}
-			}
-		}
-
-		if (!readOnlyTables.includes(table)) {
-			for (const id of postgresMap.keys()) {
-				if (!memoryMap.has(id)) {
-					try {
-						if (table === "json") {
-							if (isClient && client.inShard(id))
-								await postgresTable.delete(id);
-						} else {
-							await postgresTable.delete(id);
-						}
-					} catch (error) {
-						logger.err(error);
-					}
-				}
-			}
-		}
-
-		if (readOnlyTables.includes(table)) {
-			for (const id of memoryMap.keys()) {
-				if (!postgresMap.has(id)) {
-					try {
-						await memoryTable.delete(id);
-					} catch (error) {
-						logger.err(error);
-					}
-				}
-			}
-		}
-	}
-
-	overwriteLastLine(
-		logger.returnLog(
-			`${isClient && client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`
-		)
-	);
-};

@@ -163,8 +163,7 @@ export class LastFMScrobblerManager {
 		}
 
 		const fetchedUsername = response.data?.session?.name as
-			| string
-			| undefined;
+			string | undefined;
 		const sessionKey = response.data?.session?.key as string | undefined;
 
 		if (!fetchedUsername || !sessionKey) {
@@ -370,8 +369,7 @@ export class LastFMScrobblerManager {
 
 	private normalizeTrack(track: Track): LastFMTrackData {
 		const pluginInfo = (track as any).pluginInfo as
-			| { albumName?: string }
-			| undefined;
+			{ albumName?: string } | undefined;
 
 		return {
 			album: pluginInfo?.albumName,

@@ -145,7 +145,10 @@ export const event: BotEvent = {
 					lang.new_guild_embed_desc.replace(
 						"${randomMessage}",
 						welcomeMessage[
-							Math.floor(Math.random() * welcomeMessage.length)
+							Math.floor(
+								client.func.random.secureRandomFloat() *
+									welcomeMessage.length
+							)
 						]
 					)
 				)

@@ -56,13 +56,13 @@ export const event: BotEvent = {
 		if (baseData.maxJoin && joinCount > baseData.maxJoin) {
 			member
 				.ban({ reason: "[TooNewAccount] User join too much." })
-				.catch(() => { })
-				.then(() => { });
+				.catch(() => {})
+				.then(() => {});
 		} else {
 			member
 				.kick("[TooNewAccount] Account is too new")
-				.catch(() => { })
-				.then(() => { });
+				.catch(() => {})
+				.then(() => {});
 		}
 	}
 };

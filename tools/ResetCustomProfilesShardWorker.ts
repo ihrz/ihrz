@@ -64,9 +64,7 @@ client.isMainShard = function (): boolean {
 	return client.shard?.ids[0] === 0;
 };
 
-const { x, y } = await initializeDatabase(config.database);
-client.db = x;
-if (y) client.db2 = y;
+client.db = await initializeDatabase(config.database);
 
 await client.login(client.config.discord.token);
 await new Promise<void>((resolve) => {

@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		// Nombre entre 0 et 100
-		const random = Math.floor(Math.random() * 100);
+		const random = client.func.random.secureRandomInt(0, 99);
 
 		// Fetch user ou soit même
 		const user =

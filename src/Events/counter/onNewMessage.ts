@@ -36,8 +36,7 @@ export const event: BotEvent = {
 			return;
 
 		let baseData = (await client.db.get(`${message.guild?.id}.COUNTER`)) as
-			| DatabaseStructure.CounterSchema
-			| undefined;
+			DatabaseStructure.CounterSchema | undefined;
 		let lastNumber = ((await client.db.get(
 			`${message.guild.id}.COUNTER_DATA`
 		)) || {

@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 		}
 
 		const amount =
-			(Math.floor(Math.random() * 1024) + 1) *
+			client.func.random.secureRandomInt(1, 1024) *
 			(await client.func.economyHelper.getMemberBoost(
 				interaction.member
 			));

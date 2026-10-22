@@ -28,8 +28,7 @@ import type { Giveaway } from "../types/giveaways.js";
 const sourceDir = path.join(process.cwd(), "src", "files", "giveaways");
 
 const run = async () => {
-	const { x, y, og } = await initializeDatabase(config.database);
-	const database = y ?? og ?? x;
+	const database = await initializeDatabase(config.database);
 	const giveawaysTable = await database.table("giveaways");
 
 	const files = await readdir(sourceDir);

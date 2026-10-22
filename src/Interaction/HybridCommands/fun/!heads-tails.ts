@@ -36,7 +36,7 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		const isHead = Math.random() < 0.5;
+		const isHead = client.func.random.secureRandomFloat() < 0.5;
 
 		const result = isHead
 			? lang.fun_coinflip_result_heads

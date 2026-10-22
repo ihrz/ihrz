@@ -116,9 +116,7 @@ export function getCmdPermData(
 	guildPerm: DatabaseStructure.UtilsData
 ): command {
 	let cmdPermData = guildPerm?.PERMS?.[command] as
-		| command
-		| DatabaseStructure.PermLevel
-		| undefined;
+		command | DatabaseStructure.PermLevel | undefined;
 
 	// If no direct command permission, check category permission
 	if (!cmdPermData && guildPerm?.PERMS?.[command?.split(" ")[0]]) {

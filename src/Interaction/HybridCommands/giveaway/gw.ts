@@ -255,7 +255,8 @@ export const command: Command = {
 						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)",
 						ja: "ギブアウェイID（埋め込みギブアウェイのメッセージID）",
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
-						"es-ES": "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+						"es-ES":
+							"El ID del sorteo (es el ID del mensaje del embed del sorteo)"
 					},
 
 					required: true,
@@ -297,7 +298,8 @@ export const command: Command = {
 						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)",
 						ja: "ギブアウェイID（埋め込みギブアウェイのメッセージID）",
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
-						"es-ES": "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+						"es-ES":
+							"El ID del sorteo (es el ID del mensaje del embed del sorteo)"
 					},
 
 					required: true,
@@ -339,7 +341,8 @@ export const command: Command = {
 						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)",
 						ja: "ギブアウェイID（埋め込みギブアウェイのメッセージID）",
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
-						"es-ES": "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+						"es-ES":
+							"El ID del sorteo (es el ID del mensaje del embed del sorteo)"
 					},
 
 					required: true,
@@ -406,7 +409,8 @@ export const command: Command = {
 				fr: "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)",
 				ja: "サーバー内の全ギブアウェイの情報を取得（JSONデータ）",
 				ru: "Получить информацию о всех розыгрышах на сервере (JSON)",
-				"es-ES": "Obtener información sobre todos los sorteos en un servidor (cuerpo JSON)"
+				"es-ES":
+					"Obtener información sobre todos los sorteos en un servidor (cuerpo JSON)"
 			},
 
 			aliases: ["gall"],

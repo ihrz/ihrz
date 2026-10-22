@@ -30,7 +30,7 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { axios } from "../../core/functions/axios.js";
-import { DB } from "../../core/database/types.js";
+import { UnifiedDatabase } from "../../core/database/types.js";
 import { tempTable } from "../client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
 
@@ -47,7 +47,7 @@ async function applySanction(
 	message: Message,
 	member: GuildMember,
 	LOG: DatabaseStructure.PunishPubSchema,
-	table: DB,
+	table: UnifiedDatabase,
 	lang: LanguageData
 ): Promise<void> {
 	try {

@@ -65,10 +65,7 @@ export const subCommand: SubCommand = {
 			var giveawayNumberWinners = client.func.method.number(args!, 0);
 			var giveawayDuration = client.func.method.string(args!, 1);
 			var giveawayRequirement = client.func.method.string(args!, 2) as
-				| "none"
-				| "invites"
-				| "messages"
-				| "roles";
+				"none" | "invites" | "messages" | "roles";
 			var giveawayPrize = client.func.method.string(args!, 3);
 			var giveawayRequirementValue = client.func.method.string(args!, 4);
 			var imageUrl = "";

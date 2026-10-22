@@ -78,7 +78,10 @@ export const subCommand: SubCommand = {
 
 		// function to generate random color in hex format
 		function randomColor() {
-			return "#" + Math.floor(Math.random() * 16777215).toString(16);
+			return (
+				"#" +
+				client.func.random.secureRandomInt(0, 16777214).toString(16)
+			);
 		}
 
 		const introduction = lang.profil_birthday_embed_introduction

@@ -42,7 +42,7 @@ import { writeFileSync } from "node:fs";
 import { removePermissionProperties } from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
-import { DB } from "../../core/database/types.js";
+import { UnifiedDatabase } from "../../core/database/types.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 import { recoverPendingGuildDataDeletions } from "./deleteDatabaseDataOnGuildLeave.js";
@@ -57,46 +57,46 @@ import {
 	watchdogH247Sessions
 } from "../../core/modules/h247Manager.js";
 import path from "node:path";
+import { Team } from "../../../types/teams.js";
 
 // @ts-ignore
-export let tempTable: DB = null;
+export let tempTable: UnifiedDatabase = null;
 // @ts-ignore
-export let blacklistTable: DB = null;
+export let blacklistTable: UnifiedDatabase = null;
 // @ts-ignore
-export let ownerTable: DB = null;
+export let ownerTable: UnifiedDatabase = null;
 // @ts-ignore
-export let profilTable: DB = null;
+export let profilTable: UnifiedDatabase = null;
 // @ts-ignore
-export let authRestoreTable: DB = null;
+export let authRestoreTable: UnifiedDatabase = null;
 // @ts-ignore
-export let prevnamesTable: DB = null;
+export let prevnamesTable: UnifiedDatabase = null;
 // @ts-ignore
-export let apiTable: DB = null;
+export let apiTable: UnifiedDatabase = null;
 // @ts-ignore
-export let scheduleTable: DB = null;
+export let scheduleTable: UnifiedDatabase = null;
 // @ts-ignore
-export let metasTable: DB = null;
+export let metasTable: UnifiedDatabase = null;
 // @ts-ignore
-export let giveawaysTable: DB = null;
+export let giveawaysTable: UnifiedDatabase = null;
 // @ts-ignore
-export let backupsTable: DB = null;
+export let backupsTable: UnifiedDatabase = null;
 
 export const event: BotEvent = {
 	name: "clientReady",
 	run: async (client: Client) => {
-		let db = client.db2 ? client.db2 : client.db;
-		tempTable = await db.table("temp");
-		blacklistTable = await db.table("blacklist");
-		ownerTable = await db.table("owner");
-		profilTable = await db.table("user_profil");
-		authRestoreTable = await db.table("authrestore");
-		prevnamesTable = await db.table("prevnames");
+		tempTable = await client.db.table("temp");
+		blacklistTable = await client.db.table("blacklist");
+		ownerTable = await client.db.table("owner");
+		profilTable = await client.db.table("user_profil");
+		authRestoreTable = await client.db.table("authrestore");
+		prevnamesTable = await client.db.table("prevnames");
 		await recoverPendingGuildDataDeletions(client);
-		apiTable = await db.table("api");
-		scheduleTable = await db.table("schedule");
-		metasTable = await db.table("metas");
-		giveawaysTable = await db.table("giveaways");
-		backupsTable = await db.table("backups");
+		apiTable = await client.db.table("api");
+		scheduleTable = await client.db.table("schedule");
+		metasTable = await client.db.table("metas");
+		giveawaysTable = await client.db.table("giveaways");
+		backupsTable = await client.db.table("backups");
 
 		await client.emojisManager.startSync();
 
@@ -285,6 +285,7 @@ export const event: BotEvent = {
 							}),
 							bio: client.func.retrieveMyself.retrieveBio()
 						},
+						team: await getTeam(),
 						lastPushAt: pushedAt,
 						lastPushAtISO: new Date(pushedAt).toISOString(),
 						writerShard: client.shard?.ids[0] ?? 0
@@ -307,6 +308,28 @@ export const event: BotEvent = {
 					);
 				}
 			}
+		}
+
+		async function getTeam(): Promise<Team> {
+			const us: (User | null)[] = await Promise.all(
+				client.owners.map(async (x) =>
+					client.users.cache.get(x) ||
+					(await client.users.fetch(x).catch(() => null))
+				)
+			);
+
+			return us
+				.filter((x): x is User => x !== null)
+				.map((x) => ({
+					id: x.id,
+					username: x.username,
+					avatarUrl: x.displayAvatarURL({
+						extension: "png",
+						size: 4096
+					}),
+					bannerUrl: x.bannerURL({ extension: "png" }) ?? null,
+					owner: true
+				}));
 		}
 
 		async function statsRefresher() {

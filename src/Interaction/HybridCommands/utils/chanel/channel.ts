@@ -130,7 +130,8 @@ export const command: Command = {
 						fr: "Le rôle que tu veux démasquer dans tout les salons du serveur",
 						ja: "全サーバーチャンネルで表示したいロール",
 						ru: "роль, которую нужно показать во всех каналах",
-						"es-ES": "el rol que quieres mostrar en todos los canales del servidor"
+						"es-ES":
+							"el rol que quieres mostrar en todos los canales del servidor"
 					},
 
 					permission: null,
@@ -163,7 +164,8 @@ export const command: Command = {
 						fr: "Le rôle que tu veux masquer dans tout les salons du serveur",
 						ja: "全サーバーチャンネルで非表示にしたいロール",
 						ru: "роль, которую нужно скрыть во всех каналах сервера",
-						"es-ES": "el rol que quieres ocultar en todos los canales del servidor"
+						"es-ES":
+							"el rol que quieres ocultar en todos los canales del servidor"
 					},
 
 					permission: null,

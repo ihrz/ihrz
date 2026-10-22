@@ -30,7 +30,10 @@ import { Command } from "../../../types/command.js";
 import { BotEvent } from "../../../types/event.js";
 import { blacklistTable } from "../client/ready.js";
 import { loggerX } from "../logs/slashCommandLogger.js";
-import { preExecutionCooldown, runCommand } from "../../core/commandExecutor.js"
+import {
+	preExecutionCooldown,
+	runCommand
+} from "../../core/commandExecutor.js";
 
 type MessageCommandResponse = {
 	success: boolean;
@@ -84,8 +87,15 @@ export async function parseMessageCommand(
 					const userOptionIndex = subCommand.options?.findIndex(
 						(opt) => opt.type === ApplicationCommandOptionType.User
 					);
-					if (userOptionIndex !== undefined && userOptionIndex !== -1) {
-						args.splice(userOptionIndex, 0, referencedMessage.author.id);
+					if (
+						userOptionIndex !== undefined &&
+						userOptionIndex !== -1
+					) {
+						args.splice(
+							userOptionIndex,
+							0,
+							referencedMessage.author.id
+						);
 					}
 				} else {
 					// No subcommand, search in the main command
@@ -127,7 +137,8 @@ export async function parseMessageCommand(
 					(opt.name === potentialSubCommandName ||
 						opt.aliases?.includes(potentialSubCommandName)) &&
 					(opt.type === ApplicationCommandOptionType.Subcommand ||
-						opt.type === ApplicationCommandOptionType.SubcommandGroup)
+						opt.type ===
+							ApplicationCommandOptionType.SubcommandGroup)
 			);
 			if (subCommand?.commandFullName) {
 				args.shift();
@@ -159,14 +170,19 @@ export const event: BotEvent = {
 
 		const result = await parseMessageCommand(client, message);
 		if (!result.success || !result.command) return;
-		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) return;
+		if (await blacklistTable.get(`${message.author.id}.blacklisted`))
+			return;
 
 		const channel = message.channel as GuildChannel;
 		const member =
 			message.member ??
-			(await message.guild?.members.fetch(message.author.id).catch(() => null));
+			(await message.guild?.members
+				.fetch(message.author.id)
+				.catch(() => null));
 		const canUseCommands = member
-			? channel.permissionsFor(member)?.has(PermissionsBitField.Flags.UseApplicationCommands)
+			? channel
+					.permissionsFor(member)
+					?.has(PermissionsBitField.Flags.UseApplicationCommands)
 			: false;
 		if (!canUseCommands || !member) return;
 

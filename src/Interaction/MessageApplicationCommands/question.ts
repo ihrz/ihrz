@@ -66,7 +66,12 @@ export const command: AnotherCommand = {
 				},
 				{
 					name: lang.question_fields_output_embed,
-					value: reponses[Math.floor(Math.random() * reponses.length)]
+					value: reponses[
+						client.func.random.secureRandomInt(
+							0,
+							reponses.length - 1
+						)
+					]
 				}
 			)
 			.setTimestamp();

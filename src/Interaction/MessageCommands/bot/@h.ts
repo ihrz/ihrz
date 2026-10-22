@@ -399,10 +399,19 @@ export const command: Command = {
 					currentEmbed.addFields({
 						name: fields_name,
 						value: (() => {
-							const langMap: Record<string, string> = {"fr-FR": "fr", "fr-ME": "fr", "jp-JP": "ja", "ru-RU": "ru", "es-ES": "es-ES"};
-							const key = langMap[skidBot.lang] as string | undefined;
-							return key && (cmd.desc_localized as any)[key] ? (cmd.desc_localized as any)[key] : cmd.desc;
-						  })()
+							const langMap: Record<string, string> = {
+								"fr-FR": "fr",
+								"fr-ME": "fr",
+								"jp-JP": "ja",
+								"ru-RU": "ru",
+								"es-ES": "es-ES"
+							};
+							const key = langMap[skidBot.lang] as
+								string | undefined;
+							return key && (cmd.desc_localized as any)[key]
+								? (cmd.desc_localized as any)[key]
+								: cmd.desc;
+						})()
 					});
 					fieldCount++;
 

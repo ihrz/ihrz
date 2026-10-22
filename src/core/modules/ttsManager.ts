@@ -178,7 +178,8 @@ export async function cleanupTTS(
 		// never visibly disconnects from the channel.
 		const h247Data = await getH247Data(client, guildId);
 		const keepVoiceConnection =
-			!!h247Data?.enabled && h247Data.voiceChannelId === data.voiceChannelId;
+			!!h247Data?.enabled &&
+			h247Data.voiceChannelId === data.voiceChannelId;
 
 		player.destroy(undefined, !keepVoiceConnection).catch(() => {});
 	}
@@ -187,8 +188,7 @@ export async function cleanupTTS(
 		const guild = client.guilds.cache.get(guildId);
 		if (guild && data.textChannelId) {
 			const channel = guild.channels.cache.get(data.textChannelId) as
-				| VoiceChannel
-				| undefined;
+				VoiceChannel | undefined;
 			if (channel && data.embedMessageId) {
 				await channel.messages
 					.delete(data.embedMessageId)

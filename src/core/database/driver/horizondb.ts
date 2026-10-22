@@ -255,11 +255,10 @@ export class HorizonDB<D = any> {
 
 		let result: number | undefined;
 		try {
-			result = (
-				sub
-					? await this.sdk.sub(key, amount)
-					: await this.sdk.add(key, amount)
-			) as unknown as number | undefined;
+			result = (sub
+				? await this.sdk.sub(key, amount)
+				: await this.sdk.add(key, amount)) as unknown as
+				number | undefined;
 		} catch (error) {
 			if (error instanceof Error && /non-numeric/i.test(error.message)) {
 				throw this.createError(

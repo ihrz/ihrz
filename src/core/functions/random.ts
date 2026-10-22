@@ -21,6 +21,21 @@
 
 import crypto from "crypto";
 
+// 2^48: the largest power of two below the 53-bit double mantissa, so the
+// division into a float keeps every value exact.
+const FLOAT_SCALE = 281_474_976_710_656;
+
+// Uniform float in [0, 1) sourced from the OS CSPRNG.
+export function secureRandomFloat(): number {
+	return crypto.randomBytes(6).readUIntBE(0, 6) / FLOAT_SCALE;
+}
+
+// Uniform integer in [minimum, maximum], both included. node:crypto
+// rejection-samples internally, no modulo bias.
+export function secureRandomInt(minimum: number, maximum: number): number {
+	return crypto.randomInt(minimum, maximum + 1);
+}
+
 export interface PasswordOptions {
 	length: number;
 	numbers?: boolean;

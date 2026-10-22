@@ -37,7 +37,8 @@ export const command: Command = {
 		fr: "Obtenir des informations non nécessaires sur ma contributrice",
 		ja: "貢献者noaimieの不要な情報を取得",
 		ru: "Получить ненужную информацию об участнице noaimie",
-		"es-ES": "Obtener información innecesaria sobre mi contribuidora noaimie"
+		"es-ES":
+			"Obtener información innecesaria sobre mi contribuidora noaimie"
 	},
 
 	aliases: ["noemie", "noémie"],

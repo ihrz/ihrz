@@ -76,11 +76,10 @@ export const subCommand: SubCommand = {
 			username = username.substring(0, 15);
 		}
 
-		const randomLikes = Math.floor(Math.random() * (90_000 - 1 + 1)) + 1;
-		const randomRetweets = Math.floor(Math.random() * (50_000 - 1 + 1)) + 1;
-		const randomReplies = Math.floor(Math.random() * (10_000 - 1 + 1)) + 1;
-		const randomViews =
-			Math.floor(Math.random() * (500_000 - 1_000 + 1)) + 1_000;
+		const randomLikes = client.func.random.secureRandomInt(1, 90_000);
+		const randomRetweets = client.func.random.secureRandomInt(1, 50_000);
+		const randomReplies = client.func.random.secureRandomInt(1, 10_000);
+		const randomViews = client.func.random.secureRandomInt(1_000, 500_000);
 
 		let code = client.htmlfiles["twitterCommentCard"]
 			.replaceAll("{tweet}", sanitizing(messageArgs.join(" ")))

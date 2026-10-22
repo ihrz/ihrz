@@ -119,8 +119,6 @@ client.isMainShard = function (): boolean {
 client.version = ClientVersion;
 client.config = config;
 
-const { x, y } = await initializeDatabase(config.database);
-client.db = x;
-if (y) client.db2 = y;
+client.db = await initializeDatabase(config.database);
 
 core.main(client);

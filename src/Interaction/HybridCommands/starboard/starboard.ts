@@ -117,7 +117,8 @@ export const command: Command = {
 				fr: "Changer le salon où sont envoyer les messages avec le plus d'étoile.",
 				ja: "最も多くのスター付きメッセージが送信されるチャンネルを変更",
 				ru: "Изменить канал для сообщений со звездами",
-				"es-ES": "Cambiar el canal donde se envían los mensajes más destacados"
+				"es-ES":
+					"Cambiar el canal donde se envían los mensajes más destacados"
 			},
 
 			options: [
@@ -162,7 +163,8 @@ export const command: Command = {
 				fr: "Définissez le seuil d'étoiles nécessaire pour être référencé dans le canal.",
 				ja: "チャンネルで参照されるために必要なスターのしきい値を設定",
 				ru: "Установить порог звезд для попадания в канал",
-				"es-ES": "Establecer el umbral de estrellas necesario para ser referenciado en el canal"
+				"es-ES":
+					"Establecer el umbral de estrellas necesario para ser referenciado en el canal"
 			},
 
 			options: [
@@ -196,7 +198,8 @@ export const command: Command = {
 				fr: "Créer un fil de discussion en dessous du message dans le canal ?",
 				ja: "スターチャンネルのメッセージの下にスレッドを作成しますか？",
 				ru: "Создать ветку под сообщением в звездном канале?",
-				"es-ES": "Crear un hilo debajo del mensaje en el canal de estrellas?"
+				"es-ES":
+					"Crear un hilo debajo del mensaje en el canal de estrellas?"
 			},
 
 			options: [

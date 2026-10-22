@@ -77,7 +77,8 @@ export const command: Command = {
 				fr: "La raison de pourquoi vous voulez le mettre dans la liste-noire",
 				ja: "このメンバーをブラックリストに入れる理由",
 				ru: "Причина добавления в черный список",
-				"es-ES": "La razón por la que quieres poner en lista negra a este miembro"
+				"es-ES":
+					"La razón por la que quieres poner en lista negra a este miembro"
 			},
 
 			required: false,

@@ -48,7 +48,8 @@ export const command: Command = {
 		fr: "Donnez un rôle lorsque les membres de la guilde ont quelque chose sur votre serveur dans leur bio",
 		ja: "サーバーメンバーの自己紹介にサーバーに関する情報がある場合にロールを付与！",
 		ru: "Выдать роли, если у участника в описании есть информация о сервере!",
-		"es-ES": "Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"
+		"es-ES":
+			"Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"
 	},
 
 	aliases: ["soutien"],

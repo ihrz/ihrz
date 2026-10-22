@@ -115,7 +115,8 @@ export const command: Command = {
 				fr: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				ja: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				ru: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
-				"es-ES": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
+				"es-ES":
+					"{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
 			},
 
 			permission: null

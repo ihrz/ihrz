@@ -33,8 +33,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.user) return;
 
 		const power = interaction.options.getString("power", true) as
-			| "on"
-			| "off";
+			"on" | "off";
 		const enabled = power === "on";
 
 		if (enabled && !client.lastFMScrobbler.isConfigured()) {

@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { secureRandomFloat } from "./random.js";
+
 let baseUrl = "https://www.ihorizon.org";
 
 export const Expressions = Object.freeze({
@@ -37,5 +39,7 @@ export const Expressions = Object.freeze({
 export const botExpressions = Object.values(Expressions);
 
 export default function randomExpression(): string {
-	return botExpressions[Math.floor(Math.random() * botExpressions.length)];
+	return botExpressions[
+		Math.floor(secureRandomFloat() * botExpressions.length)
+	];
 }

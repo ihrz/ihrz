@@ -56,7 +56,11 @@ export const subCommand: SubCommand = {
 			return;
 
 		const author = interaction.member as GuildMember;
-		const targetMember = await resolveTargetMember(client, interaction, args);
+		const targetMember = await resolveTargetMember(
+			client,
+			interaction,
+			args
+		);
 		let selectedRoles: Role[] = [];
 		let refusedRoles: string[] = [];
 
@@ -109,17 +113,19 @@ export const subCommand: SubCommand = {
 			}
 		);
 
-		const selectCollector = originalResponse.createMessageComponentCollector({
-			componentType: ComponentType.RoleSelect,
-			time: 240_000,
-			filter: (i) => i.user.id === author.id
-		});
+		const selectCollector =
+			originalResponse.createMessageComponentCollector({
+				componentType: ComponentType.RoleSelect,
+				time: 240_000,
+				filter: (i) => i.user.id === author.id
+			});
 
-		const buttonCollector = originalResponse.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 240_000,
-			filter: (i) => i.user.id === author.id
-		});
+		const buttonCollector =
+			originalResponse.createMessageComponentCollector({
+				componentType: ComponentType.Button,
+				time: 240_000,
+				filter: (i) => i.user.id === author.id
+			});
 
 		selectCollector.on(
 			"collect",
@@ -158,7 +164,13 @@ export const subCommand: SubCommand = {
 
 				selectedRoles = validRoles;
 				refusedRoles = refused;
-				updateEmbed(embed, selectedRoles, refusedRoles, targetMember, lang);
+				updateEmbed(
+					embed,
+					selectedRoles,
+					refusedRoles,
+					targetMember,
+					lang
+				);
 				await originalResponse.edit({ embeds: [embed] });
 			}
 		);
@@ -181,10 +193,16 @@ export const subCommand: SubCommand = {
 				const refusedOnApply: string[] = [];
 
 				for (const role of selectedRoles) {
-					const refusedReason = getRefusedRoleReason(role, author, lang);
+					const refusedReason = getRefusedRoleReason(
+						role,
+						author,
+						lang
+					);
 
 					if (refusedReason) {
-						refusedOnApply.push(`${role.toString()}: ${refusedReason}`);
+						refusedOnApply.push(
+							`${role.toString()}: ${refusedReason}`
+						);
 						continue;
 					}
 
@@ -238,8 +256,12 @@ export const subCommand: SubCommand = {
 		);
 
 		selectCollector.on("end", async () => {
-			selectRow.components.forEach((component) => component.setDisabled(true));
-			buttonRow.components.forEach((component) => component.setDisabled(true));
+			selectRow.components.forEach((component) =>
+				component.setDisabled(true)
+			);
+			buttonRow.components.forEach((component) =>
+				component.setDisabled(true)
+			);
 			await originalResponse.edit({ components: [selectRow, buttonRow] });
 		});
 	}
@@ -263,7 +285,8 @@ async function resolveTargetMember(
 	}
 
 	return (
-		(client.func.method.member(interaction, args!, 0) as GuildMember) || null
+		(client.func.method.member(interaction, args!, 0) as GuildMember) ||
+		null
 	);
 }
 
@@ -275,7 +298,10 @@ function updateEmbed(
 	lang: LanguageData
 ) {
 	embed.setDescription(
-		lang.rolepanel_setup_embed_desc.replaceAll("${member}", member.toString())
+		lang.rolepanel_setup_embed_desc.replaceAll(
+			"${member}",
+			member.toString()
+		)
 	);
 	embed.setFields({
 		name: lang.rolepanel_setup_embed_roles_field,
@@ -303,17 +329,26 @@ function buildApplyMessage(
 
 	if (addedRoles.length > 0) {
 		lines.push(
-			lang.rolepanel_apply_added.replace("${roles}", addedRoles.join(", "))
+			lang.rolepanel_apply_added.replace(
+				"${roles}",
+				addedRoles.join(", ")
+			)
 		);
 	}
 	if (removedRoles.length > 0) {
 		lines.push(
-			lang.rolepanel_apply_removed.replace("${roles}", removedRoles.join(", "))
+			lang.rolepanel_apply_removed.replace(
+				"${roles}",
+				removedRoles.join(", ")
+			)
 		);
 	}
 	if (refusedRoles.length > 0) {
 		lines.push(
-			lang.rolepanel_apply_refused.replace("${roles}", refusedRoles.join(", "))
+			lang.rolepanel_apply_refused.replace(
+				"${roles}",
+				refusedRoles.join(", ")
+			)
 		);
 	}
 
@@ -353,7 +388,9 @@ function getRefusedRoleReason(
 		if (missingPermissions.length > 0) {
 			return lang.rolepanel_role_missing_permissions.replace(
 				"${permissions}",
-				missingPermissions.map((permission) => `\`${permission}\``).join(", ")
+				missingPermissions
+					.map((permission) => `\`${permission}\``)
+					.join(", ")
 			);
 		}
 	}

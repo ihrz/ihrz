@@ -39,6 +39,7 @@
 	},
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
+		"@discordjs/voice": "^0.19.2",
 		"discord-html-transcripts": "3.2.0",
 		"discord.js": "^14.27.0",
 		"gifwrap": "^0.10.1",
