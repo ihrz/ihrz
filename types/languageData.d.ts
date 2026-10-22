@@ -2249,6 +2249,7 @@ export interface LanguageData {
 	tempvoice_v2_embed_title: string;
 	tempvoice_v2_embed_desc: string;
 	tempvoice_v2_hint: string;
+	tempvoice_v2_select_placeholder: string;
 	tempvoice_cfg_panel_title: string;
 	tempvoice_cfg_panel_desc: string;
 	tempvoice_cfg_hub: string;

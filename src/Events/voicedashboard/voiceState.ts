@@ -22,14 +22,14 @@
 import {
 	ActionRowBuilder,
 	BaseGuildVoiceChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	CategoryChannel,
 	ChannelType,
 	Client,
 	ContainerBuilder,
 	MessageFlags,
 	SeparatorBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
 	TextDisplayBuilder,
 	VoiceBasedChannel,
 	VoiceState
@@ -116,71 +116,98 @@ function buildVoicePanel(
 
 	container.addSeparatorComponents(new SeparatorBuilder());
 
-	const panelButtons = [
-		[
-			{
-				emoji: client.iHorizon_Emojis.VC_Limit,
-				customId: "temporary_voice_limit_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Name,
-				customId: "temporary_voice_name_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Privacy,
-				customId: "temporary_voice_privacy_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Region,
-				customId: "temporary_voice_region_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Claim,
-				customId: "temporary_voice_claim_button"
-			}
-		],
-		[
-			{
-				emoji: client.iHorizon_Emojis.VC_Trust,
-				customId: "temporary_voice_trust_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Untrust,
-				customId: "temporary_voice_untrust_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Block,
-				customId: "temporary_voice_block_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Unblock,
-				customId: "temporary_voice_unblock_button"
-			},
-			{
-				emoji: client.iHorizon_Emojis.VC_Transfer,
-				customId: "temporary_voice_transfer_button"
-			}
-		],
-		[
-			{
-				emoji: client.iHorizon_Emojis.VC_Delete,
-				customId: "temporary_voice_delete_button"
-			}
-		]
+	const actions: Array<{
+		text: string;
+		emojiName: string;
+		value: string;
+	}> = [
+		{
+			text: lang.tempvoice_if_text_fields_value_limit,
+			emojiName: "VC_Limit",
+			value: "temporary_voice_limit_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_name,
+			emojiName: "VC_Name",
+			value: "temporary_voice_name_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_region,
+			emojiName: "VC_Region",
+			value: "temporary_voice_region_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_trust,
+			emojiName: "VC_Trust",
+			value: "temporary_voice_trust_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_untrust,
+			emojiName: "VC_Untrust",
+			value: "temporary_voice_untrust_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_block,
+			emojiName: "VC_Block",
+			value: "temporary_voice_block_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_unblock,
+			emojiName: "VC_Unblock",
+			value: "temporary_voice_unblock_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_claim,
+			emojiName: "VC_Claim",
+			value: "temporary_voice_claim_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_privacy,
+			emojiName: "VC_Privacy",
+			value: "temporary_voice_privacy_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_transfer,
+			emojiName: "VC_Transfer",
+			value: "temporary_voice_transfer_button"
+		},
+		{
+			text: lang.tempvoice_if_text_fields_value_delete,
+			emojiName: "VC_Delete",
+			value: "temporary_voice_delete_button"
+		}
 	];
 
-	for (const row of panelButtons) {
-		container.addActionRowComponents(
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				...row.map((button) =>
-					new ButtonBuilder()
-						.setEmoji(button.emoji)
-						.setCustomId(button.customId)
-						.setStyle(ButtonStyle.Secondary)
+	container.addActionRowComponents(
+		new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			new StringSelectMenuBuilder()
+				.setCustomId("temporary_voice_actions_menu")
+				.setPlaceholder(lang.tempvoice_v2_select_placeholder)
+				.addOptions(
+					actions.map((action) =>
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								action.text
+									.replace(
+										/\$\{client\.iHorizon_Emojis\.VC_\w+\}/g,
+										""
+									)
+									.replaceAll("**", "")
+									.trim()
+							)
+							.setValue(action.value)
+							.setEmoji(
+								(
+									client.iHorizon_Emojis as Record<
+										string,
+										string
+									>
+								)[action.emojiName]
+							)
+					)
 				)
-			)
-		);
-	}
+		)
+	);
 
 	return container;
 }

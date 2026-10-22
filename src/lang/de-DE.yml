@@ -2993,7 +2993,8 @@ temporary_voice_channel_name: "{nickname}s Kanal"
 
 tempvoice_v2_embed_title: "## ${client.iHorizon_Emojis.VC_Name} ${channelName}"
 tempvoice_v2_embed_desc: "Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below."
-tempvoice_v2_hint: "-# Only the channel owner can use these buttons."
+tempvoice_v2_hint: "-# Only the channel owner can use this menu."
+tempvoice_v2_select_placeholder: "Manage your voice channel..."
 
 tempvoice_cfg_panel_title: "TempVoice configuration"
 tempvoice_cfg_panel_desc: "Configure the TempVoice module below. Every change applies immediately, and each created voice channel gets its own control panel."
