@@ -129,6 +129,21 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageNicknames
 		},
 		{
+			name: "locknamelist",
+
+			description: "Show the list of locked nicknames!",
+			description_localizations: {
+				fr: "Afficher la liste des pseudos verrouillés !",
+				ja: "ロックされたニックネームのリストを表示！",
+				ru: "Показать список заблокированных ников!",
+				"es-ES": "Mostrar la lista de apodos bloqueados!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageNicknames
+		},
+		{
 			name: "renewvc",
 
 			description:

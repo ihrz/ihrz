@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "ニックネームロックのログ"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームをロックしました"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームのロックを解除しました"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | このサーバーにはロックされたニックネームがありません！ `/utilss lockname` で作成できます。"
+util_locknamelist_embed_title: "ロックされたニックネーム"
+util_locknamelist_embed_count: "**${count}** 件のニックネームがロック中："
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • ロック：${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"

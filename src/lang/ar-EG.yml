@@ -1206,6 +1206,12 @@ util_lockname_logs_embed_title: "سجلات قفل الألقاب"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> قفل لقب <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> فتح قفل لقب <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | لا يوجد لقب مقفل في هذا السيرفر! `/utilss lockname` لإنشاء واحد."
+util_locknamelist_embed_title: "الألقاب المقفلة"
+util_locknamelist_embed_count: "**${count}** لقب مقفل:"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • بواسطة ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"

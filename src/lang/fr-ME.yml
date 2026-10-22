@@ -1208,6 +1208,12 @@ util_lockname_logs_embed_title: "Logs de verrouillage de pseudo"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> a verrouillé le pseudo de <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> a déverrouillé le pseudo de <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | Aucun pseudo verrouillé sur ce serveur ! `/utilss lockname` pour en créer un."
+util_locknamelist_embed_title: "Pseudos verrouillés"
+util_locknamelist_embed_count: "**${count}** pseudo(s) verrouillé(s) :"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • par ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"

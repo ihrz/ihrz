@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Nickname-Sperr-Logs"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> hat den Nicknamen von <@${member.id}> gesperrt"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> hat den Nicknamen von <@${member.id}> entsperrt"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | Kein gesperrter Nickname auf diesem Server! `/utilss lockname` zum Erstellen."
+util_locknamelist_embed_title: "Gesperrte Nicknames"
+util_locknamelist_embed_count: "**${count}** gesperrte(r) Nickname(s):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • von ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"

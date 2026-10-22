@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Logs de bloqueio de alcunha"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> bloqueou a alcunha de <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> desbloqueou a alcunha de <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | Nenhuma alcunha bloqueada neste servidor! `/utilss lockname` para criar uma."
+util_locknamelist_embed_title: "Alcunhas bloqueadas"
+util_locknamelist_embed_count: "**${count}** alcunha(s) bloqueada(s):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • por ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"

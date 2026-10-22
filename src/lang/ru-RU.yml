@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Логи блокировки ников"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> заблокировал ник <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> разблокировал ник <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | На этом сервере нет заблокированных ников! `/utilss lockname`, чтобы создать."
+util_locknamelist_embed_title: "Заблокированные ники"
+util_locknamelist_embed_count: "**${count}** заблокир. ник(ов):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • заблокировал ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"

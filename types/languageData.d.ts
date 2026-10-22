@@ -916,6 +916,11 @@ export interface LanguageData {
 	util_lockname_logs_embed_title: string;
 	util_lockname_logs_embed_description: string;
 	util_unlockname_logs_embed_description: string;
+	util_locknamelist_empty: string;
+	util_locknamelist_embed_title: string;
+	util_locknamelist_embed_count: string;
+	util_locknamelist_embed_line: string;
+	util_locknamelist_embed_line_short: string;
 	util_autorenew_time_too_short: string;
 	util_autorenew_time_too_long: string;
 	util_autorenew_command_ok: string;

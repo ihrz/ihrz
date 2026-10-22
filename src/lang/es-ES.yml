@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Logs de bloqueo de apodo"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> bloqueó el apodo de <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> desbloqueó el apodo de <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | ¡Ningún apodo bloqueado en este servidor! `/utilss lockname` para crear uno."
+util_locknamelist_embed_title: "Apodos bloqueados"
+util_locknamelist_embed_count: "**${count}** apodo(s) bloqueado(s):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • por ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"

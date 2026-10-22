@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Nickname Lock Logs"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> locked the nickname of <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> unlocked the nickname of <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | No locked nickname on this guild! `/utilss lockname` to create one."
+util_locknamelist_embed_title: "Locked nicknames"
+util_locknamelist_embed_count: "**${count}** locked nickname(s):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • by ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "The time between channel renewals must be more than 1 minute"

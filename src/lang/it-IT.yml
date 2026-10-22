@@ -1205,6 +1205,12 @@ util_lockname_logs_embed_title: "Log blocco soprannomi"
 util_lockname_logs_embed_description: "<@${interaction.user.id}> ha bloccato il soprannome di <@${member.id}>"
 util_unlockname_logs_embed_description: "<@${interaction.user.id}> ha sbloccato il soprannome di <@${member.id}>"
 
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | Nessun soprannome bloccato su questo server! `/utilss lockname` per crearne uno."
+util_locknamelist_embed_title: "Soprannomi bloccati"
+util_locknamelist_embed_count: "**${count}** soprannome(i) bloccato(i):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • da ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
 
 # /util autorenew
 util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"

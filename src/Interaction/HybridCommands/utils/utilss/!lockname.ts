@@ -116,7 +116,11 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(
 			`${interaction.guildId}.LOCKNAME.${targetMember.id}`,
-			{ nick: lockedNick }
+			{
+				nick: lockedNick,
+				lockedBy: interaction.member.user.id,
+				lockedAt: Date.now()
+			}
 		);
 
 		await client.func.ihorizon_logs(interaction, {

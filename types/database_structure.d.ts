@@ -435,6 +435,8 @@ export namespace DatabaseStructure {
 
 	export interface LockNameData {
 		nick: string | null;
+		lockedBy?: string;
+		lockedAt?: number;
 	}
 
 	type renewChannelStructure = {
