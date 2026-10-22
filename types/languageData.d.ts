@@ -906,6 +906,16 @@ export interface LanguageData {
 	util_leash_confirmed_leash: string;
 	util_unleash_not_in_leash: string;
 	util_unleash_command_ok: string;
+	util_lockname_not_in_guild: string;
+	util_lockname_not_manageable: string;
+	util_lockname_already_locked: string;
+	util_lockname_success: string;
+	util_lockname_success_reset: string;
+	util_unlockname_not_locked: string;
+	util_unlockname_success: string;
+	util_lockname_logs_embed_title: string;
+	util_lockname_logs_embed_description: string;
+	util_unlockname_logs_embed_description: string;
 	util_autorenew_time_too_short: string;
 	util_autorenew_time_too_long: string;
 	util_autorenew_command_ok: string;

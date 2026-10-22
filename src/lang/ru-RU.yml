@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Этого участника нет на сервере!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | У меня нет разрешения управлять ником этого участника!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | Ник этого участника уже заблокирован!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} теперь заблокирован на **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} теперь заблокирован!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | Ник этого участника не заблокирован!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} был разблокирован!"
+util_lockname_logs_embed_title: "Логи блокировки ников"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> заблокировал ник <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> разблокировал ник <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
 util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 30 дней"

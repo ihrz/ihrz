@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Você colocou a tre
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Este usuário não está sob seu controle!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Você libertou o usuário com sucesso neste servidor :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Este membro não está no servidor!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Não tenho autorização para gerir a alcunha deste membro!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | A alcunha deste membro já está bloqueada!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | A alcunha de ${member.toString()} está agora bloqueada em **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | A alcunha de ${member.toString()} está agora bloqueada!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | A alcunha deste membro não está bloqueada!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | A alcunha de ${member.toString()} foi desbloqueada!"
+util_lockname_logs_embed_title: "Logs de bloqueio de alcunha"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> bloqueou a alcunha de <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> desbloqueou a alcunha de <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
 util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 30 dias"

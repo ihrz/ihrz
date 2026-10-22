@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en la
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Cet utilisateur n'est pas sous votre contrôle !"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Vous avez libéré cet utilisateur avec succès dans ce serveur :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Ce membre n'est pas dans le serveur !"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission de gérer le pseudo de ce membre !"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | Le pseudo de ce membre est déjà verrouillé !"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | Le pseudo de ${member.toString()} est maintenant verrouillé sur **${nick}** !"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | Le pseudo de ${member.toString()} est maintenant verrouillé !"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | Le pseudo de ce membre n'est pas verrouillé !"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | Le pseudo de ${member.toString()} a été déverrouillé !"
+util_lockname_logs_embed_title: "Logs de verrouillage de pseudo"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> a verrouillé le pseudo de <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> a déverrouillé le pseudo de <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
 util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 30 jours"

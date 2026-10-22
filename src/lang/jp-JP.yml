@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバー�
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | このユーザーはあなたの制御下にありません！"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーを無事に解放しました :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | このメンバーはサーバーにいません！"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | このメンバーのニックネームを管理する権限がありません！"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | このメンバーのニックネームはすでにロックされています！"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームは **${nick}** にロックされました！"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームはロックされました！"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | このメンバーのニックネームはロックされていません！"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームのロックが解除されました！"
+util_lockname_logs_embed_title: "ニックネームロックのログ"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームをロックしました"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームのロックを解除しました"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
 util_autorenew_time_too_long: "サロンの更新間隔は30日以内でなければならない"

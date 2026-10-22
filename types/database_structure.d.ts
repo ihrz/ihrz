@@ -400,6 +400,7 @@ export namespace DatabaseStructure {
 		COUNTER_DATA?: CounterData;
 		STICKY?: StickySchema;
 		HONEYPOT?: HoneypotSchema;
+		LOCKNAME?: Record<string, LockNameData>;
 	}
 
 	export interface UtilsRoleData {
@@ -430,6 +431,10 @@ export namespace DatabaseStructure {
 	export interface NickKickerData {
 		enabled: boolean;
 		words: string[];
+	}
+
+	export interface LockNameData {
+		nick: string | null;
 	}
 
 	type renewChannelStructure = {

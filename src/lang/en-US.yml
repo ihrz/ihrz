@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have successful
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | This user is not on your leash!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | This member is not in the guild!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | I don't have permission to manage this member's nickname!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | This member's nickname is already locked!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | The nickname of ${member.toString()} is now locked to **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | The nickname of ${member.toString()} is now locked!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | This member's nickname is not locked!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | The nickname of ${member.toString()} has been unlocked!"
+util_lockname_logs_embed_title: "Nickname Lock Logs"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> locked the nickname of <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> unlocked the nickname of <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "The time between channel renewals must be more than 1 minute"
 util_autorenew_time_too_long: "The time between channel renewals must be less than 30 days"

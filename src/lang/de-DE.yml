@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Sie haben den Benut
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Dieser Benutzer ist nicht an deiner Leine!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Du hast den Benutzer in diesem Server erfolgreich losgelassen :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Dieses Mitglied ist nicht auf dem Server!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung, den Nicknamen dieses Mitglieds zu verwalten!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | Der Nickname dieses Mitglieds ist bereits gesperrt!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | Der Nickname von ${member.toString()} ist nun auf **${nick}** gesperrt!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | Der Nickname von ${member.toString()} ist nun gesperrt!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | Der Nickname dieses Mitglieds ist nicht gesperrt!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | Der Nickname von ${member.toString()} wurde entsperrt!"
+util_lockname_logs_embed_title: "Nickname-Sperr-Logs"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> hat den Nicknamen von <@${member.id}> gesperrt"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> hat den Nicknamen von <@${member.id}> entsperrt"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
 util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 30 Tage betragen"

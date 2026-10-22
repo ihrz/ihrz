@@ -1194,6 +1194,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت ف�
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | هذا المستخدم ليس مربوطاً لديك!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | لقد قمت بتحرير هذا المستخدم بنجاح في هذا السيرفر :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | هذا العضو ليس في السيرفر!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | ليس لدي صلاحية إدارة لقب هذا العضو!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | لقب هذا العضو مقفل بالفعل!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | تم قفل لقب ${member.toString()} على **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | تم قفل لقب ${member.toString()}!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | لقب هذا العضو غير مقفل!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | تم فتح قفل لقب ${member.toString()}!"
+util_lockname_logs_embed_title: "سجلات قفل الألقاب"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> قفل لقب <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> فتح قفل لقب <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
 util_autorenew_time_too_long: "يجب أن تكون الفترة الزمنية بين تجديد الصالون أقل من 30 يوماً"

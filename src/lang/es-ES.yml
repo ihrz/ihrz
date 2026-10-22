@@ -1193,6 +1193,19 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxit
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | ¡Este usuario no está bajo tu control!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Has liberado al usuario con éxito en este servidor :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | ¡Este miembro no está en el servidor!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | ¡No tengo permiso para gestionar el apodo de este miembro!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | ¡El apodo de este miembro ya está bloqueado!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | ¡El apodo de ${member.toString()} ahora está bloqueado como **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | ¡El apodo de ${member.toString()} ahora está bloqueado!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | ¡El apodo de este miembro no está bloqueado!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | ¡El apodo de ${member.toString()} ha sido desbloqueado!"
+util_lockname_logs_embed_title: "Logs de bloqueo de apodo"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> bloqueó el apodo de <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> desbloqueó el apodo de <@${member.id}>"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"
 util_autorenew_time_too_long: "El tiempo entre una renovación de canal debe ser menos de 30 días"
