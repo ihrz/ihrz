@@ -191,45 +191,23 @@ iHorizon supports **10 languages** for an optimal international experience:
 | Metric                   | Value                   |
 | ------------------------ | ----------------------- |
 | 👥 **Users**             | 450,000+                |
-| 🏢 **Servers**           | 3,100+                  |
+| 🏢 **Servers**           | 3,200+                  |
 | ✅ **Discord Certified** | Verified since Jun 2023 |
-| ⭐ **GitHub Stars**      | 74+                     |
+| ⭐ **GitHub Stars**      | 80+                     |
 
 ---
 
 ## 🚀 Installation & Self-Hosting
 
-### 📋 Prerequisites
-
-**[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
-
-**Operating System**: Linux, macOS, or Windows
-
-### ⚙️ Configuration
-
-**1. Download the repository**
+### 📦 One-Line Provisioning Script
 
 ```bash
-# Clone the GitLab repository (active development)
-git clone https://gitlab.com/ihrz/ihrz.git
-cd ihrz
+curl -fsSL https://ihorizon.org/install | bash
 ```
 
-**2. Configure the bot**
+That's it! The script handles everything for you: dependencies (Bun), configuration, installation, and first launch.
 
-- Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)
-- Fill in your information (Discord token, etc.)
-- Rename the file to `config.ts`
-
-**3. Install and launch**
-
-```bash
-# Install dependencies
-bun install
-
-# Start the bot
-bun start
-```
+🖥️ **Operating System**: Linux, macOS, or Windows
 
 ---
 
@@ -259,15 +237,15 @@ bun start
 			<sub>She/Her</sub><br />
 			<a href="https://github.com/name-shitty-github-profile">GitHub</a>
 		</td>
-	<tr>
 		<td align="center" width="33%">
 			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
 			<b>Kisakay</b><br />
 			<i>Creator & Lead Developer</i><br />
 			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
+			<a href="https://gitlab.com/Kisakay">GitLab</a> /
 			<a href="https://github.com/Kisakay">GitHub</a>
-		</td>	
+		</td>
+	</tr>
 </table>
 
 ## 💝 Contributors's walls
@@ -346,7 +324,7 @@ Past developers and contributors who have helped make iHorizon what it is today.
 🚀 **September 2020**: Initial project launch with discord.js v12  
 📈 **2021-2023**: Continuous growth and major feature additions  
 🔄 **2024**: Migration to GitLab for better development management  
-⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime
+⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime  
 😎 **2026**: Enforcing bot structure, features, community, adding major philosophical changes
 
 ---
