@@ -21,7 +21,7 @@
 
 **iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
 
-[**📚 Documentation (BETA)**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
+[**📚 Documentation (BETA)**](https://www.ihorizon.org/docs) • [**🔍 Command Search**](https://www.ihorizon.org/search) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
 ---
 
@@ -237,8 +237,8 @@ bun start
 
 | Resource                          | Link                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------- |
-| 📖 **Full Documentation**         | [docs.ihorizon.org](https://docs.ihorizon.org)                                  |
-| 🔍 **Command Search**             | [ihorizon.org/search](https://www.ihorizon.org/search)                          |
+| 📖 **Full Documentation**         | [www.ihorizon.org/docs](https://www.ihorizon.org/docs)                                  |
+| 🔍 **Command Search**             | [www.ihorizon.org/search](https://www.ihorizon.org/search)                          |
 | 💬 **Main Discord Server**        | [discord.ihorizon.org](http://discord.ihorizon.org/)                            |
 | 🔗 **Backup Discord Server Link** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                          |
 | 🤖 **Invite iHorizon**            | [Click Here](https://discord.com/oauth2/authorize?client_id=945202900907470899) |
@@ -374,7 +374,7 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 Need help? Several options are available:
 
 **Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)  
-**Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org/)  
+**Documentation**: Check [www.ihorizon.org/docs](https://www.ihorizon.org/docs/)  
 **Direct Contact**: Reach out to the owners via Discord
 
 ---
