@@ -114,8 +114,8 @@ export async function buildJoinImagePayload(
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
 
 	let backgroundURL =
-		member.guild.bannerURL({ size: 512 }) ||
-		member.user.bannerURL({ size: 512 }) ||
+		(await member.client.func.bannerURL(member.guild, { size: 512 })) ||
+		(await member.client.func.bannerURL(member.user, { size: 512 })) ||
 		"";
 	let profilePictureRound = member.displayHexColor;
 	let textColour = "#aa9999";

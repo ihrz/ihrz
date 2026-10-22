@@ -11,3 +11,6 @@ ignoreScripts = true
 
 # lockfile frozen in CI
 frozenLockfile = false
+
+[test]
+preload = ["./test/preload.ts"]

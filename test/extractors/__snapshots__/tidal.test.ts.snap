@@ -1,0 +1,700 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`tidal: resolve song 1`] = `
+{
+  "artist": {
+    "name": "La Rvfleuze",
+    "url": "https://tidal.com/artist/32867429",
+  },
+  "duration": 148,
+  "title": "Serrure #667",
+  "type": "song",
+  "url": "https://tidal.com/track/510366521",
+}
+`;
+
+exports[`tidal: resolve album 1`] = `
+{
+  "artist": {
+    "name": "Madonna",
+    "url": "https://tidal.com/artist/15545",
+  },
+  "description": "",
+  "numTracks": 16,
+  "title": "CONFESSIONS II",
+  "tracks": [
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 299,
+      "title": "I Feel So Free",
+      "type": "song",
+      "url": "https://tidal.com/track/539234102",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 188,
+      "title": "Good For The Soul",
+      "type": "song",
+      "url": "https://tidal.com/track/539234105",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 263,
+      "title": "One Step Away",
+      "type": "song",
+      "url": "https://tidal.com/track/539234106",
+    },
+    {
+      "artist": {
+        "name": "Sabrina Carpenter",
+        "url": "https://tidal.com/artist/4751756",
+      },
+      "duration": 222,
+      "title": "Bring Your Love",
+      "type": "song",
+      "url": "https://tidal.com/track/539234107",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 236,
+      "title": "Danceteria",
+      "type": "song",
+      "url": "https://tidal.com/track/539234108",
+    },
+    {
+      "artist": {
+        "name": "Feid",
+        "url": "https://tidal.com/artist/4480814",
+      },
+      "duration": 286,
+      "title": "Read My Lips",
+      "type": "song",
+      "url": "https://tidal.com/track/539234109",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 250,
+      "title": "Everything",
+      "type": "song",
+      "url": "https://tidal.com/track/539234110",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 227,
+      "title": "Love Sensation",
+      "type": "song",
+      "url": "https://tidal.com/track/539234112",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 261,
+      "title": "Love Without Words",
+      "type": "song",
+      "url": "https://tidal.com/track/539234113",
+    },
+    {
+      "artist": {
+        "name": "Martin Garrix",
+        "url": "https://tidal.com/artist/4715335",
+      },
+      "duration": 245,
+      "title": "Bizarre",
+      "type": "song",
+      "url": "https://tidal.com/track/539234115",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 263,
+      "title": "School",
+      "type": "song",
+      "url": "https://tidal.com/track/539234116",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 260,
+      "title": "Fragile",
+      "type": "song",
+      "url": "https://tidal.com/track/539234117",
+    },
+    {
+      "artist": {
+        "name": "Stromae",
+        "url": "https://tidal.com/artist/3657809",
+      },
+      "duration": 201,
+      "title": "My Sins Are My Savior (feat. Stromae)",
+      "type": "song",
+      "url": "https://tidal.com/track/539234118",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 249,
+      "title": "Betrayal",
+      "type": "song",
+      "url": "https://tidal.com/track/539234119",
+    },
+    {
+      "artist": {
+        "name": "Lola Leon",
+        "url": "https://tidal.com/artist/80025021",
+      },
+      "duration": 218,
+      "title": "The Test",
+      "type": "song",
+      "url": "https://tidal.com/track/539234120",
+    },
+    {
+      "artist": {
+        "name": "Madonna",
+        "url": "https://tidal.com/artist/15545",
+      },
+      "duration": 170,
+      "title": "L.E.S. Girl",
+      "type": "song",
+      "url": "https://tidal.com/track/539234121",
+    },
+  ],
+  "type": "album",
+}
+`;
+
+exports[`tidal: resolve playlist 1`] = `
+{
+  "description": "Playlist by TIDAL",
+  "numTracks": 50,
+  "title": "TIDAL's Top Hits",
+  "tracks": [
+    {
+      "artist": {
+        "name": "Adéla",
+        "url": "https://tidal.com/artist/10697175",
+      },
+      "duration": 181,
+      "title": "Nicole Kidman",
+      "type": "song",
+      "url": "https://tidal.com/track/556252691",
+    },
+    {
+      "artist": {
+        "name": "Belly Gang Kushington",
+        "url": "https://tidal.com/artist/36589538",
+      },
+      "duration": 185,
+      "title": "WTF GOIN (feat. 21 Savage)",
+      "type": "song",
+      "url": "https://tidal.com/track/532796069",
+    },
+    {
+      "artist": {
+        "name": "Olivia Rodrigo",
+        "url": "https://tidal.com/artist/8161298",
+      },
+      "duration": 222,
+      "title": "expectations",
+      "type": "song",
+      "url": "https://tidal.com/track/532396314",
+    },
+    {
+      "artist": {
+        "name": "Drake",
+        "url": "https://tidal.com/artist/3632070",
+      },
+      "duration": 237,
+      "title": "Janice STFU",
+      "type": "song",
+      "url": "https://tidal.com/track/524851240",
+    },
+    {
+      "artist": {
+        "name": "Lil Baby",
+        "url": "https://tidal.com/artist/6884754",
+      },
+      "duration": 157,
+      "title": "Dead Fresh",
+      "type": "song",
+      "url": "https://tidal.com/track/542825532",
+    },
+    {
+      "artist": {
+        "name": "Cardi B",
+        "url": "https://tidal.com/artist/7301626",
+      },
+      "duration": 176,
+      "title": "AH HA",
+      "type": "song",
+      "url": "https://tidal.com/track/547868148",
+    },
+    {
+      "artist": {
+        "name": "Ella Langley",
+        "url": "https://tidal.com/artist/9850354",
+      },
+      "duration": 232,
+      "title": "Choosin' Texas",
+      "type": "song",
+      "url": "https://tidal.com/track/466899107",
+    },
+    {
+      "artist": {
+        "name": "Yung Miami",
+        "url": "https://tidal.com/artist/15783216",
+      },
+      "duration": 181,
+      "title": "Spend Dat",
+      "type": "song",
+      "url": "https://tidal.com/track/516681628",
+    },
+    {
+      "artist": {
+        "name": "T.I.",
+        "url": "https://tidal.com/artist/14979",
+      },
+      "duration": 180,
+      "title": "LET 'EM KNOW",
+      "type": "song",
+      "url": "https://tidal.com/track/490623905",
+    },
+    {
+      "artist": {
+        "name": "Jhené Aiko",
+        "url": "https://tidal.com/artist/4899960",
+      },
+      "duration": 237,
+      "title": "So Good",
+      "type": "song",
+      "url": "https://tidal.com/track/560087091",
+    },
+    {
+      "artist": {
+        "name": "Drake",
+        "url": "https://tidal.com/artist/3632070",
+      },
+      "duration": 189,
+      "title": "Shabang",
+      "type": "song",
+      "url": "https://tidal.com/track/524851242",
+    },
+    {
+      "artist": {
+        "name": "Olivia Dean",
+        "url": "https://tidal.com/artist/17009569",
+      },
+      "duration": 184,
+      "title": "Man I Need",
+      "type": "song",
+      "url": "https://tidal.com/track/453498256",
+    },
+    {
+      "artist": {
+        "name": "Kehlani",
+        "url": "https://tidal.com/artist/5652094",
+      },
+      "duration": 238,
+      "title": "Folded",
+      "type": "song",
+      "url": "https://tidal.com/track/441289340",
+    },
+    {
+      "artist": {
+        "name": "BabyChiefDoit",
+        "url": "https://tidal.com/artist/40578772",
+      },
+      "duration": 178,
+      "title": "Ghetto Love Story",
+      "type": "song",
+      "url": "https://tidal.com/track/531756148",
+    },
+    {
+      "artist": {
+        "name": "Beyoncé",
+        "url": "https://tidal.com/artist/1566",
+      },
+      "duration": 217,
+      "title": "MORNING DEW (DONK) REMIX FEAT JAŸ-Z",
+      "type": "song",
+      "url": "https://tidal.com/track/549344986",
+    },
+    {
+      "artist": {
+        "name": "Don Toliver",
+        "url": "https://tidal.com/artist/9279273",
+      },
+      "duration": 153,
+      "title": "E85",
+      "type": "song",
+      "url": "https://tidal.com/track/494389865",
+    },
+    {
+      "artist": {
+        "name": "Olivia Rodrigo",
+        "url": "https://tidal.com/artist/8161298",
+      },
+      "duration": 210,
+      "title": "stupid song",
+      "type": "song",
+      "url": "https://tidal.com/track/532396302",
+    },
+    {
+      "artist": {
+        "name": "Kendrick Lamar",
+        "url": "https://tidal.com/artist/3816041",
+      },
+      "duration": 178,
+      "title": "luther",
+      "type": "song",
+      "url": "https://tidal.com/track/401317289",
+    },
+    {
+      "artist": {
+        "name": "Fontaines D.C.",
+        "url": "https://tidal.com/artist/9484963",
+      },
+      "duration": 297,
+      "title": "Six Shot Morning",
+      "type": "song",
+      "url": "https://tidal.com/track/563963540",
+    },
+    {
+      "artist": {
+        "name": "Tate McRae",
+        "url": "https://tidal.com/artist/9380062",
+      },
+      "duration": 209,
+      "title": "Housewife",
+      "type": "song",
+      "url": "https://tidal.com/track/570268437",
+    },
+    {
+      "artist": {
+        "name": "Drake",
+        "url": "https://tidal.com/artist/3632070",
+      },
+      "duration": 247,
+      "title": "Ran To Atlanta",
+      "type": "song",
+      "url": "https://tidal.com/track/524851241",
+    },
+    {
+      "artist": {
+        "name": "Meek Mill",
+        "url": "https://tidal.com/artist/3966408",
+      },
+      "duration": 350,
+      "title": "Wanna Be Free (feat. G Herbo)",
+      "type": "song",
+      "url": "https://tidal.com/track/569520384",
+    },
+    {
+      "artist": {
+        "name": "Justice",
+        "url": "https://tidal.com/artist/57425",
+      },
+      "duration": 225,
+      "title": "Flower In A Hurricane (feat. Tame Impala, SZA, King Gizzard & the Lizard Wizard) [from GTAVI]",
+      "type": "song",
+      "url": "https://tidal.com/track/569120138",
+    },
+    {
+      "artist": {
+        "name": "SZA",
+        "url": "https://tidal.com/artist/5416271",
+      },
+      "duration": 202,
+      "title": "Snooze",
+      "type": "song",
+      "url": "https://tidal.com/track/264617523",
+    },
+    {
+      "artist": {
+        "name": "Meek Mill",
+        "url": "https://tidal.com/artist/3966408",
+      },
+      "duration": 194,
+      "title": "Nightmares To Dreams",
+      "type": "song",
+      "url": "https://tidal.com/track/546482478",
+    },
+    {
+      "artist": {
+        "name": "Fontaines D.C.",
+        "url": "https://tidal.com/artist/9484963",
+      },
+      "duration": 226,
+      "title": "Marianne",
+      "type": "song",
+      "url": "https://tidal.com/track/546724493",
+    },
+    {
+      "artist": {
+        "name": "Beyoncé",
+        "url": "https://tidal.com/artist/1566",
+      },
+      "duration": 244,
+      "title": "MORNING DEW (DONK)",
+      "type": "song",
+      "url": "https://tidal.com/track/539982126",
+    },
+    {
+      "artist": {
+        "name": "Lucky Daye",
+        "url": "https://tidal.com/artist/8389112",
+      },
+      "duration": 177,
+      "title": "Mouf Say",
+      "type": "song",
+      "url": "https://tidal.com/track/566381004",
+    },
+    {
+      "artist": {
+        "name": "Ashe",
+        "url": "https://tidal.com/artist/5700677",
+      },
+      "duration": 199,
+      "title": "Stop The Wedding!",
+      "type": "song",
+      "url": "https://tidal.com/track/547264925",
+    },
+    {
+      "artist": {
+        "name": "Olivia Dean",
+        "url": "https://tidal.com/artist/17009569",
+      },
+      "duration": 169,
+      "title": "So Easy (To Fall In Love)",
+      "type": "song",
+      "url": "https://tidal.com/track/461592635",
+    },
+    {
+      "artist": {
+        "name": "Drake",
+        "url": "https://tidal.com/artist/3632070",
+      },
+      "duration": 223,
+      "title": "Whisper My Name",
+      "type": "song",
+      "url": "https://tidal.com/track/524851239",
+    },
+    {
+      "artist": {
+        "name": "Fontaines D.C.",
+        "url": "https://tidal.com/artist/9484963",
+      },
+      "duration": 232,
+      "title": "Mimesis",
+      "type": "song",
+      "url": "https://tidal.com/track/563963542",
+    },
+    {
+      "artist": {
+        "name": "KAROL G",
+        "url": "https://tidal.com/artist/5237820",
+      },
+      "duration": 226,
+      "title": "BbY WOW",
+      "type": "song",
+      "url": "https://tidal.com/track/549980035",
+    },
+    {
+      "artist": {
+        "name": "MK",
+        "url": "https://tidal.com/artist/3658086",
+      },
+      "duration": 155,
+      "title": "Obsession (feat. Ty Dolla $ign)",
+      "type": "song",
+      "url": "https://tidal.com/track/568548807",
+    },
+    {
+      "artist": {
+        "name": "Adéla",
+        "url": "https://tidal.com/artist/10697175",
+      },
+      "duration": 185,
+      "title": "Ain't In LA",
+      "type": "song",
+      "url": "https://tidal.com/track/543730510",
+    },
+    {
+      "artist": {
+        "name": "Don Toliver",
+        "url": "https://tidal.com/artist/9279273",
+      },
+      "duration": 156,
+      "title": "Body",
+      "type": "song",
+      "url": "https://tidal.com/track/494389866",
+    },
+    {
+      "artist": {
+        "name": "Offset",
+        "url": "https://tidal.com/artist/3958646",
+      },
+      "duration": 165,
+      "title": "Every Night",
+      "type": "song",
+      "url": "https://tidal.com/track/567747016",
+    },
+    {
+      "artist": {
+        "name": "HUNTR&#x2F;X",
+        "url": "https://tidal.com/artist/62075550",
+      },
+      "duration": 195,
+      "title": "Golden",
+      "type": "song",
+      "url": "https://tidal.com/track/441821360",
+    },
+    {
+      "artist": {
+        "name": "Latto",
+        "url": "https://tidal.com/artist/3933554",
+      },
+      "duration": 239,
+      "title": "Okayyy (feat. Doja Cat)",
+      "type": "song",
+      "url": "https://tidal.com/track/528849032",
+    },
+    {
+      "artist": {
+        "name": "Drake",
+        "url": "https://tidal.com/artist/3632070",
+      },
+      "duration": 218,
+      "title": "Solar Eclipse",
+      "type": "song",
+      "url": "https://tidal.com/track/566123441",
+    },
+    {
+      "artist": {
+        "name": "Gunna",
+        "url": "https://tidal.com/artist/6120065",
+      },
+      "duration": 139,
+      "title": "pop it",
+      "type": "song",
+      "url": "https://tidal.com/track/567414771",
+    },
+    {
+      "artist": {
+        "name": "Cardi B",
+        "url": "https://tidal.com/artist/7301626",
+      },
+      "duration": 164,
+      "title": "Don’t Chart (from GTAVI: The Album)",
+      "type": "song",
+      "url": "https://tidal.com/track/568276390",
+    },
+    {
+      "artist": {
+        "name": "BigXthaPlug",
+        "url": "https://tidal.com/artist/17042393",
+      },
+      "duration": 177,
+      "title": "BURN (feat. Ava Max)",
+      "type": "song",
+      "url": "https://tidal.com/track/562379465",
+    },
+    {
+      "artist": {
+        "name": "Slayyyter",
+        "url": "https://tidal.com/artist/10203583",
+      },
+      "duration": 215,
+      "title": "i think he's got a girl",
+      "type": "song",
+      "url": "https://tidal.com/track/567362962",
+    },
+    {
+      "artist": {
+        "name": "Young Nudy",
+        "url": "https://tidal.com/artist/8086286",
+      },
+      "duration": 251,
+      "title": "Who Dat Is",
+      "type": "song",
+      "url": "https://tidal.com/track/564384677",
+    },
+    {
+      "artist": {
+        "name": "Remi Wolf",
+        "url": "https://tidal.com/artist/10851818",
+      },
+      "duration": 211,
+      "title": "Champagne",
+      "type": "song",
+      "url": "https://tidal.com/track/566410187",
+    },
+    {
+      "artist": {
+        "name": "Remi Wolf",
+        "url": "https://tidal.com/artist/10851818",
+      },
+      "duration": 258,
+      "title": "Bottle",
+      "type": "song",
+      "url": "https://tidal.com/track/566410186",
+    },
+    {
+      "artist": {
+        "name": "Olivia Dean",
+        "url": "https://tidal.com/artist/17009569",
+      },
+      "duration": 212,
+      "title": "A Couple Minutes",
+      "type": "song",
+      "url": "https://tidal.com/track/461592641",
+    },
+    {
+      "artist": {
+        "name": "Jhené Aiko",
+        "url": "https://tidal.com/artist/4899960",
+      },
+      "duration": 123,
+      "title": "Ghost",
+      "type": "song",
+      "url": "https://tidal.com/track/560136178",
+    },
+    {
+      "artist": {
+        "name": "Nipsey Hussle",
+        "url": "https://tidal.com/artist/3635279",
+      },
+      "duration": 229,
+      "title": "500 Horses",
+      "type": "song",
+      "url": "https://tidal.com/track/551813962",
+    },
+  ],
+  "type": "playlist",
+}
+`;

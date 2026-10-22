@@ -41,10 +41,10 @@ import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
 import { getH247Data } from "../modules/h247Manager.js";
 
 import { Innertube, YTNodes } from "youtubei.js";
-import * as spotify from "spotify-metadata";
-import appleMusic from "apple-music-metadata";
-import amazonMusic from "amazon-music-metadata";
-import tidalMusic from "tidal-metadata";
+import * as spotify from "../extractors/spotify/index.js";
+import appleMusic from "../extractors/apple-music/index.js";
+import amazonMusic from "../extractors/amazon-music/index.js";
+import tidalMusic from "../extractors/tidal/index.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">

@@ -78,7 +78,10 @@ export const subCommand: SubCommand = {
 				`data:image/jpeg;base64,${base64String}`
 			);
 
-			const x = interaction.guild.members.me?.bannerURL({ size: 4096 });
+			const x = await client.func.bannerURL(
+				interaction.guild.members.me!,
+				{ size: 4096 }
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_banner_set

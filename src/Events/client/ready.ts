@@ -312,24 +312,29 @@ export const event: BotEvent = {
 
 		async function getTeam(): Promise<Team> {
 			const us: (User | null)[] = await Promise.all(
-				client.owners.map(async (x) =>
-					client.users.cache.get(x) ||
-					(await client.users.fetch(x).catch(() => null))
+				client.owners.map(
+					async (x) =>
+						client.users.cache.get(x) ||
+						(await client.users.fetch(x).catch(() => null))
 				)
 			);
 
-			return us
-				.filter((x): x is User => x !== null)
-				.map((x) => ({
-					id: x.id,
-					username: x.username,
-					avatarUrl: x.displayAvatarURL({
-						extension: "png",
-						size: 4096
-					}),
-					bannerUrl: x.bannerURL({ extension: "png" }) ?? null,
-					owner: true
-				}));
+			return Promise.all(
+				us
+					.filter((x): x is User => x !== null)
+					.map(async (x) => ({
+						id: x.id,
+						username: x.username,
+						avatarUrl: x.displayAvatarURL({
+							extension: "png",
+							size: 4096
+						}),
+						bannerUrl: await client.func.bannerURL(x, {
+							extension: "png"
+						}),
+						owner: true
+					}))
+			);
 		}
 
 		async function statsRefresher() {

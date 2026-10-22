@@ -156,11 +156,11 @@ export const subCommand: SubCommand = {
 					.setStyle(ButtonStyle.Link)
 					.setLabel(lang.var_guild_banner)
 					.setURL(
-						link_data.guild?.bannerURL({
+						(await client.func.bannerURL(link_data.guild!, {
 							size: 512,
 							extension: "webp",
 							forceStatic: false
-						})!
+						}))!
 					)
 			);
 		}

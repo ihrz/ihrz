@@ -56,7 +56,10 @@ export const subCommand: SubCommand = {
 			.setColor("#c4afed")
 			.setTitle(lang.banner_guild_embed)
 			.setImage(
-				interaction.guild.bannerURL({ extension: "png", size: 4096 })
+				await client.func.bannerURL(interaction.guild, {
+					extension: "png",
+					size: 4096
+				})
 			)
 			.setFooter(
 				await client.func.displayBotName.footerBuilder(

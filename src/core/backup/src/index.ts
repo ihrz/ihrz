@@ -206,14 +206,11 @@ export const create = async (
 				backupData.bannerURL = guild.banner;
 				if (options && options.saveImages) {
 					try {
-						let banner_url: string | null = guild.banner;
-						if ("bannerURL" in guild) {
-							banner_url = guild.bannerURL({
-								size: 4096,
-								extension: "webp",
-								forceStatic: false
-							});
-						}
+						const banner_url = await client.func.bannerURL(guild, {
+							size: 4096,
+							extension: "webp",
+							forceStatic: false
+						});
 
 						if (banner_url) {
 							const bannerResponse = await fetch(banner_url);
