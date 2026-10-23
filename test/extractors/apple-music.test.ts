@@ -19,39 +19,27 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
+import { expect, test } from "bun:test";
 
-import { SubCommand } from "../../../../types/command.js";
+import appleMusic from "../../src/core/extractors/apple-music/index.js";
 
-export const subCommand: SubCommand = {
-	run: async (
-		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
-	) => {
-		// Guard's Typing
-		if (
-			!interaction.member ||
-			!client.user ||
-			!interaction.user ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
-
-		const targetedChannel = interaction.options.getChannel("category");
-
-		await interaction.editReply({
-			content: `${client.iHorizon_Emojis.Yes} | <#${targetedChannel?.id}>`
-		});
-
-		await client.db.set(
-			`${interaction.guildId}.VOICE_INTERFACE.voice_channel_category`,
-			targetedChannel?.id
-		);
-
-		return;
+const testingTargets = {
+	song: {
+		type: "song",
+		url: "https://music.apple.com/nz/album/butterfly/1541902791?i=1541903021"
+	},
+	album: {
+		type: "album",
+		url: "https://music.apple.com/us/album/meditations-for-living-an-awakened-life/1602431360"
+	},
+	playlist: {
+		type: "playlist",
+		url: "https://music.apple.com/us/playlist/jumpstart/pl.4b0436590393442e9493307577d16742"
 	}
 };
+
+Object.values(testingTargets).forEach((target) => {
+	test(`apple music: resolve ${target.type}`, async () => {
+		await expect(appleMusic(target.url)).resolves.toMatchSnapshot();
+	});
+});

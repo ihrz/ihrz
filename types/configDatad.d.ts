@@ -34,7 +34,7 @@ export interface LavalinkNodeOptions {
 export interface ConfigData {
 	/**
 	 * @description Discord part for the configuration
-	 * @description Check https://docs.ihorizon.org/self-hosting/configuration/
+	 * @description Check https://www.ihorizon.org/docs/self-hosting/configuration/
 	 */
 	discord: {
 		/**

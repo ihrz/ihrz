@@ -190,7 +190,7 @@ export const event: BotEvent = {
 						.setEmoji(client.iHorizon_Emojis.Documentation)
 						.setLabel(lang.guild_create_btn_docs)
 						.setStyle(ButtonStyle.Link)
-						.setURL("https://docs.ihorizon.org")
+						.setURL("https://www.ihorizon.org/docs")
 				);
 			if (!channel) return;
 
@@ -306,7 +306,7 @@ export const event: BotEvent = {
 								.setLabel(lang.guild_create_btn_docs)
 								.setEmoji(client.iHorizon_Emojis.Documentation)
 								.setStyle(ButtonStyle.Link)
-								.setURL("https://docs.ihorizon.org"),
+								.setURL("https://www.ihorizon.org/docs"),
 							new ButtonBuilder()
 								.setLabel(lang.guild_create_btn_repos)
 								.setEmoji(client.iHorizon_Emojis.GitLab_Logo)

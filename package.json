@@ -15,7 +15,8 @@
 		"check:lc": "bun run check:lines",
 		"check:emoji": "bun run tools/Emoji_Creator.ts",
 		"dev": "echo \"Enjoy dev <3\" && bun run src/core/bot.ts",
-		"format": "prettier --write \"**/*.ts\""
+		"format": "prettier --write \"**/*.ts\"",
+		"test": "bun test"
 	},
 	"repository": {
 		"type": "git",
@@ -50,26 +51,22 @@
 		"nodemailer": "^7.0.13",
 		"puppeteer": "^24.43.1",
 		"rss-parser": "^3.13.0",
-		"spotify-metadata": "github:kisastractors/spotify-metadata",
-		"apple-music-metadata": "github:kisastractors/apple-music-metadata",
-		"amazon-music-metadata": "github:kisastractors/amazon-music-metadata",
-		"tidal-metadata": "github:kisastractors/tidal-metadata",
 		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",
-		"typescript-eslint": "^8.70.0",
+		"typescript-eslint": "^8.72.0",
 		"xml2js": "^0.6.2",
 		"youtubei.js": "^17.2.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.5",
-		"@types/bun": "^1.4.2",
-		"@types/node": "^24.13.4",
+		"@types/bun": "^1.4.3",
+		"@types/node": "^24.19.2",
 		"@types/nodemailer": "^7.0.12",
 		"@types/xml2js": "^0.4.14",
-		"@typescript-eslint/eslint-plugin": "^8.70.0",
-		"@typescript-eslint/parser": "^8.70.0",
+		"@typescript-eslint/eslint-plugin": "^8.72.0",
+		"@typescript-eslint/parser": "^8.72.0",
 		"eslint": "^9.39.5",
 		"eslint-plugin-unused-imports": "^4.4.1",
-		"prettier": "^3.9.6",
+		"prettier": "^3.9.10",
 		"tslib": "^2.8.1",
 		"typescript": "^5.9.3"
 	}

@@ -1193,6 +1193,25 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Hai messo al guinza
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Questo utente non è sotto il tuo controllo!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Hai liberato con successo l'utente in questo server :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Questo membro non è nel server!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Non ho il permesso di gestire il soprannome di questo membro!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | Il soprannome di questo membro è già bloccato!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | Il soprannome di ${member.toString()} è ora bloccato su **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | Il soprannome di ${member.toString()} è ora bloccato!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | Il soprannome di questo membro non è bloccato!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | Il soprannome di ${member.toString()} è stato sbloccato!"
+util_lockname_logs_embed_title: "Log blocco soprannomi"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> ha bloccato il soprannome di <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> ha sbloccato il soprannome di <@${member.id}>"
+
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | Nessun soprannome bloccato su questo server! `/utilss lockname` per crearne uno."
+util_locknamelist_embed_title: "Soprannomi bloccati"
+util_locknamelist_embed_count: "**${count}** soprannome(i) bloccato(i):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • da ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"
 util_autorenew_time_too_long: "Il tempo tra un rinnovo del canale deve essere inferiore a 30 giorni"
@@ -1824,6 +1843,45 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
 gw_doesnt_exit: "I regali non sono raggiungibili o non esistono."
+
+
+# /go
+gw_go_panel_title: "Pannello Giveaway"
+gw_go_panel_desc: "Prepara qui sotto il tuo giveaway e poi avvialo. Usa i menu per modificare ogni impostazione."
+gw_go_select_placeholder: "Modifica un'impostazione"
+gw_go_opt_prize: "Premio"
+gw_go_opt_duration: "Durata"
+gw_go_opt_winners: "Vincitori"
+gw_go_opt_requirement: "Requisito di partecipazione"
+gw_go_opt_image: "Immagine di anteprima"
+gw_go_channel_placeholder: "Canale del giveaway"
+gw_go_launch_buttontitle: "Avvia"
+gw_go_cancel_buttontitle: "Annulla"
+gw_go_req_none: "Nessuno"
+gw_go_req_invites: "Inviti"
+gw_go_req_messages: "Messaggi"
+gw_go_req_roles: "Ruoli"
+gw_go_req_value_dsc: "Valore richiesto: **${value}**"
+gw_go_started: "Il giveaway è iniziato in ${channel}!"
+gw_go_cancelled: "Pannello chiuso, non è stato avviato nulla."
+gw_go_expired: "Il pannello è scaduto prima dell'avvio del giveaway."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Devi impostare un premio prima di avviare il giveaway!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Devi impostare una durata valida prima di avviare il giveaway!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Devi impostare un numero di vincitori valido prima di avviare il giveaway!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | Il canale selezionato non può ricevere messaggi!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Questo URL immagine non è valido!"
+gw_go_modal_prize: "Imposta il premio"
+gw_go_modal_prize_label: "Premio"
+gw_go_modal_duration: "Imposta la durata"
+gw_go_modal_duration_label: "Durata (per esempio: 2d o 12h30)"
+gw_go_modal_winners: "Imposta il numero di vincitori"
+gw_go_modal_winners_label: "Numero di vincitori"
+gw_go_modal_req_title: "Requisito di partecipazione"
+gw_go_modal_req_type_label: "Tipo di requisito"
+gw_go_modal_req_value_label: "Valore del requisito (ID del ruolo o numero)"
+gw_go_modal_image: "Imposta l'immagine di anteprima"
+gw_go_modal_image_label: "URL dell'immagine"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -2931,6 +2989,29 @@ temporary_voice_transfer_untrust_placeholder: "Gli utenti selezionati non sarann
 
 temporary_voice_channel_name: "Canale di {nickname}"
 
+tempvoice_v2_embed_title: "## ${client.iHorizon_Emojis.VC_Name} ${channelName}"
+tempvoice_v2_embed_desc: "Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below."
+tempvoice_v2_hint: "-# Only the channel owner can use this menu."
+tempvoice_v2_select_placeholder: "Manage your voice channel..."
+
+tempvoice_cfg_panel_title: "TempVoice configuration"
+tempvoice_cfg_panel_desc: "Configure the TempVoice module below. Every change applies immediately, and each created voice channel gets its own control panel."
+tempvoice_cfg_hub: "Join-to-create channel"
+tempvoice_cfg_category: "Channels created in"
+tempvoice_cfg_name: "Channel name"
+tempvoice_cfg_position: "Position in category"
+tempvoice_cfg_position_top: "Top"
+tempvoice_cfg_position_bottom: "Bottom"
+tempvoice_cfg_staff: "Staff roles (bypass permissions)"
+tempvoice_cfg_select_placeholder: "More settings..."
+tempvoice_cfg_opt_name: "Change the channel name"
+tempvoice_cfg_opt_position_top: "Set position: Top"
+tempvoice_cfg_opt_position_bottom: "Set position: Bottom"
+tempvoice_cfg_done: "Done"
+tempvoice_cfg_saved: "TempVoice settings saved!"
+tempvoice_cfg_expired: "Configuration panel expired. Run /tempvoice again."
+tempvoice_cfg_modal_title: "Set the channel name"
+tempvoice_cfg_modal_label: "Name | Variable: {Username}"
 # Modulo di Protezione
 # Messaggio di evento
 
@@ -3302,3 +3383,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} Il modulo H24/7 è attivo su qu
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} Il modulo H24/7 è attivo su questo server. Entra nel canale vocale H24/7 per attivare il TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | La durata minima è di 3 minuti!"

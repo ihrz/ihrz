@@ -19,39 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
+/**
+ * Native music metadata extractors, embedded in the codebase instead of
+ * the former kisastractors GitHub packages:
+ *
+ *    src/core/extractors/spotify/       <- spotify-metadata
+ *    src/core/extractors/apple-music/   <- apple-music-metadata
+ *    src/core/extractors/amazon-music/  <- amazon-music-metadata
+ *    src/core/extractors/tidal/         <- tidal-metadata
+ *
+ * Shared rules and types live in src/core/extractors/common/.
+ */
 
-import { SubCommand } from "../../../../types/command.js";
-
-export const subCommand: SubCommand = {
-	run: async (
-		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
-	) => {
-		// Guard's Typing
-		if (
-			!interaction.member ||
-			!client.user ||
-			!interaction.user ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
-
-		const positionType = interaction.options.getString("position_type");
-
-		await interaction.editReply({
-			content: `${client.iHorizon_Emojis.Yes} | ${positionType === "top" ? "⬆" : "⬇"}`
-		});
-
-		await client.db.set(
-			`${interaction.guildId}.VOICE_INTERFACE.voice_channel_position`,
-			positionType
-		);
-
-		return;
-	}
-};
+export { default as appleMusic } from "./apple-music/index.js";
+export { default as amazonMusic } from "./amazon-music/index.js";
+export { default as tidalMusic } from "./tidal/index.js";
+export * as spotify from "./spotify/index.js";

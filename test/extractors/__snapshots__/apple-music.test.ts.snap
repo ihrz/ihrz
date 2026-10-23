@@ -1,0 +1,1114 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`apple music: resolve song 1`] = `
+{
+  "artist": {
+    "name": "",
+    "url": "",
+  },
+  "duration": 0,
+  "title": "butterfly",
+  "type": "song",
+  "url": "https://music.apple.com/nz/song/butterfly/1541903021",
+}
+`;
+
+exports[`apple music: resolve album 1`] = `
+{
+  "artist": {
+    "name": "Sarah Blondin",
+    "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+  },
+  "description": "Listen to Meditations for Living an Awakened Life by Sarah Blondin on Apple Music. 2021. 7 Songs. Duration: 2 hours 3 minutes.",
+  "numTracks": 7,
+  "title": "Meditations for Living an Awakened Life",
+  "tracks": [
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 1697,
+      "title": "Blessing the Body, Mind & Spirit",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/blessing-the-body-mind-spirit/1602431361",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 835,
+      "title": "I am here. I am home.",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-am-here-i-am-home/1602431364",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 935,
+      "title": "I love you. I am listening.",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-love-you-i-am-listening/1602431365",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 1121,
+      "title": "Holding Center",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/holding-center/1602431366",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 1181,
+      "title": "Look & it Shall Lift",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/look-it-shall-lift/1602431367",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 688,
+      "title": "Change Your Story.",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/change-your-story/1602431368",
+    },
+    {
+      "artist": {
+        "name": "Sarah Blondin",
+        "url": "https://music.apple.com/us/artist/sarah-blondin/1602422414",
+      },
+      "duration": 924,
+      "title": "Sleep. Rest. Reset.",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/sleep-rest-reset/1602431369",
+    },
+  ],
+  "type": "album",
+}
+`;
+
+exports[`apple music: resolve playlist 1`] = `
+{
+  "creator": {
+    "name": "Apple Music Classic Rock",
+    "url": "",
+  },
+  "description": "Listen to the Jumpstart playlist on Apple Music. 100 Songs. Duration: 5 hours 29 minutes.",
+  "numTracks": 100,
+  "title": "Jumpstart",
+  "tracks": [
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 219,
+      "title": "Inside Out",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/inside-out/258626806",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 269,
+      "title": "White Horses",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/white-horses/1812904939",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 212,
+      "title": "infinite source",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/infinite-source/1825435153",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 165,
+      "title": "The Middle",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/the-middle/1450030115",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 188,
+      "title": "catch these fists",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/catch-these-fists/1802918484",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 185,
+      "title": "Crazy World",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/crazy-world/1849799189",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 268,
+      "title": "Can't Stop",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/cant-stop/945578427",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 218,
+      "title": "Sally, When The Wine Runs Out",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/sally-when-the-wine-runs-out/1793693771",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 218,
+      "title": "Honestly",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/honestly/1814295269",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 194,
+      "title": "Devils Haircut",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/devils-haircut/1510827146",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 173,
+      "title": "Better Days",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/better-days/1810791074",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 209,
+      "title": "What Was That",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/what-was-that/1810905307",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 195,
+      "title": "The Impression That I Get",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/the-impression-that-i-get/1708975446",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 228,
+      "title": "The Contract",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/the-contract/1819814405",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 186,
+      "title": "I Want It All",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-want-it-all/1814416115",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 184,
+      "title": "Glide",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/glide/1802242418",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 301,
+      "title": "Smells Like Teen Spirit",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/smells-like-teen-spirit/1440783625",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 172,
+      "title": "SUCKERPUNCH",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/suckerpunch/1814835299",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 190,
+      "title": "The Rope",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/the-rope/1812687691",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 178,
+      "title": "Sabotage",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/sabotage/724771987",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 287,
+      "title": "NEVER ENOUGH",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/never-enough/1805820909",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 134,
+      "title": "Gruesome",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/gruesome/1793512156",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 289,
+      "title": "Cigarettes & Alcohol",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/cigarettes-alcohol/1517507099",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 229,
+      "title": "Human",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/human/1861786206",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 206,
+      "title": "With Rob As My Witness",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/with-rob-as-my-witness/1834233322",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 257,
+      "title": "Self Esteem",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/self-esteem/1485043450",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 158,
+      "title": "Getaway Plan",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/getaway-plan/1807111336",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 159,
+      "title": "Buddy Holly",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/buddy-holly/1440869921",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 174,
+      "title": "Above The Lake",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/above-the-lake/1821550750",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 174,
+      "title": "You Look Like A Drunk Phoebe Bridgers",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/you-look-like-a-drunk-phoebe-bridgers/1773190655",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 221,
+      "title": "Feel Good Inc. (feat. David Jolicoeur, Kelvin Mercer & Vincent Mason)",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/feel-good-inc-feat-david-jolicoeur-kelvin-mercer-vincent/850571371",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 174,
+      "title": "Rejects",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/rejects/1820967804",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 300,
+      "title": "Bad As I Used To Be",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/bad-as-i-used-to-be/1810796708",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 160,
+      "title": "Zero (Remastered 2012)",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/zero-remastered-2012/721224391",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 201,
+      "title": "Blame",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/blame/1811936611",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 175,
+      "title": "moody",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/moody/1811504269",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 313,
+      "title": "Killing In the Name",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/killing-in-the-name/191450927",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 196,
+      "title": "No Rain, No Flowers",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/no-rain-no-flowers/1811897148",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 227,
+      "title": "Bloom Baby Bloom",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/bloom-baby-bloom/1812904788",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 227,
+      "title": "All the Kids Are Right",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/all-the-kids-are-right/1443784814",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 161,
+      "title": "Ripple",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/ripple/1789325498",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 213,
+      "title": "Are You Gonna Be My Girl",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/are-you-gonna-be-my-girl/1778048261",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 212,
+      "title": "Everything You Do",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/everything-you-do/1805241084",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 217,
+      "title": "I Want You (Fever)",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-want-you-fever/1769091050",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 178,
+      "title": "Fat Lip",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/fat-lip/1440921141",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 179,
+      "title": "All the Noise",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/all-the-noise/1786317143",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 200,
+      "title": "Take Your Aim",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/take-your-aim/1788122084",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 208,
+      "title": "Float On",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/float-on/201257515",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 170,
+      "title": "my mind is a mountain",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/my-mind-is-a-mountain/1825435149",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 188,
+      "title": "Communicating",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/communicating/1785979190",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 151,
+      "title": "Lose You",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/lose-you/1784755181",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 252,
+      "title": "Dog Days Are Over",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/dog-days-are-over/1440729744",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 182,
+      "title": "jupiter",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/jupiter/1788259853",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 228,
+      "title": "I Can’t Escape Myself",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-cant-escape-myself/1806160420",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 222,
+      "title": "Mr. Brightside",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/mr-brightside/1526194192",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 185,
+      "title": "Blurry Lights (with Albert Hammond Jr)",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/blurry-lights-with-albert-hammond-jr/1805621516",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 202,
+      "title": "Relationships",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/relationships/1799261990",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 193,
+      "title": "Last Nite",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/last-nite/266377010",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 205,
+      "title": "BALCONY",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/balcony/1888610161",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 163,
+      "title": "Young Offenders",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/young-offenders/1820752413",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 198,
+      "title": "Volcano Girls",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/volcano-girls/1440908615",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 186,
+      "title": "Tall People Don't Live Long",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/tall-people-dont-live-long/1804513218",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 200,
+      "title": "There's No Future In Optimism",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/theres-no-future-in-optimism/1803176506",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 169,
+      "title": "My Own Worst Enemy",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/my-own-worst-enemy/258611995",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 150,
+      "title": "Tomatoes",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/tomatoes/1801610225",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 131,
+      "title": "Devil Ultrasonic Dream",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/devil-ultrasonic-dream/1793613893",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 164,
+      "title": "Never There",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/never-there/270055688",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 162,
+      "title": "Last Girls At The Party",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/last-girls-at-the-party/1804975729",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 183,
+      "title": "Up From the Bottom",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/up-from-the-bottom/1801842349",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 229,
+      "title": "Electric Feel",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/electric-feel/264720106",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 186,
+      "title": "Star",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/star/1770870401",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 161,
+      "title": "Worm in the Sun",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/worm-in-the-sun/1796152619",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 149,
+      "title": "I Wanna Be Sedated",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-wanna-be-sedated/77817249",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 181,
+      "title": "All My Friends",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/all-my-friends/1796436934",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 137,
+      "title": "Bored To Death",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/bored-to-death/1793617669",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 227,
+      "title": "Your House",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/your-house/1775931764",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 203,
+      "title": "Sex On Fire",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/sex-on-fire/290303003",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 166,
+      "title": "Wake Up",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/wake-up/1741841778",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 152,
+      "title": "Disco",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/disco/1574318912",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 110,
+      "title": "Fell In Love With a Girl",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/fell-in-love-with-a-girl/1573082609",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 163,
+      "title": "Can't Stop Talking",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/cant-stop-talking/1773016956",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 203,
+      "title": "Ok, But This Is The Last Time",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/ok-but-this-is-the-last-time/1746794873",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 193,
+      "title": "1901",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/1901/1771710539",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 175,
+      "title": "Eureka",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/eureka/1758064300",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 201,
+      "title": "All in My Head",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/all-in-my-head/1752949410",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 231,
+      "title": "Monkey Wrench",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/monkey-wrench/362133453",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 180,
+      "title": "Every Little Thing I Say I Do",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/every-little-thing-i-say-i-do/1750354849",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 182,
+      "title": "Learn to Say Goodbye",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/learn-to-say-goodbye/1767416206",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 227,
+      "title": "Hysteria",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/hysteria/1716097098",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 162,
+      "title": "ALL IN MY HEAD",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/all-in-my-head/1763330286",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 203,
+      "title": "Audacious",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/audacious/1763093108",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 173,
+      "title": "I Bet You Look Good on the Dancefloor",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/i-bet-you-look-good-on-the-dancefloor/111153391",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 191,
+      "title": "That's How I'm Feeling",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/thats-how-im-feeling/1760057436",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 185,
+      "title": "Adoringly Drunk",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/adoringly-drunk/1767043637",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 164,
+      "title": "Bleed It Out",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/bleed-it-out/590427308",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 134,
+      "title": "Kinky",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/kinky/1752004144",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 190,
+      "title": "Sad In Carolina",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/sad-in-carolina/1754467836",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 369,
+      "title": "Get Lucky",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/get-lucky/617154366",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 194,
+      "title": "Giving Up",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/giving-up/1769453333",
+    },
+    {
+      "artist": {
+        "name": "Apple Music Classic Rock",
+        "url": "",
+      },
+      "duration": 224,
+      "title": "Bobby Sox",
+      "type": "song",
+      "url": "https://music.apple.com/us/song/bobby-sox/1711049945",
+    },
+  ],
+  "type": "playlist",
+}
+`;

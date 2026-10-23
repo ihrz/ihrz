@@ -21,7 +21,7 @@
 
 **iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
 
-[**📚 Documentation (BETA)**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
+[**📚 Documentation (BETA)**](https://www.ihorizon.org/docs) • [**🔍 Command Search**](https://www.ihorizon.org/search) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
 ---
 
@@ -191,45 +191,23 @@ iHorizon supports **10 languages** for an optimal international experience:
 | Metric                   | Value                   |
 | ------------------------ | ----------------------- |
 | 👥 **Users**             | 450,000+                |
-| 🏢 **Servers**           | 3,100+                  |
+| 🏢 **Servers**           | 3,200+                  |
 | ✅ **Discord Certified** | Verified since Jun 2023 |
-| ⭐ **GitHub Stars**      | 74+                     |
+| ⭐ **GitHub Stars**      | 80+                     |
 
 ---
 
 ## 🚀 Installation & Self-Hosting
 
-### 📋 Prerequisites
-
-**[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
-
-**Operating System**: Linux, macOS, or Windows
-
-### ⚙️ Configuration
-
-**1. Download the repository**
+### 📦 One-Line Provisioning Script
 
 ```bash
-# Clone the GitLab repository (active development)
-git clone https://gitlab.com/ihrz/ihrz.git
-cd ihrz
+curl -fsSL https://ihorizon.org/install | bash
 ```
 
-**2. Configure the bot**
+That's it! The script handles everything for you: dependencies (Bun), configuration, installation, and first launch.
 
-- Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)
-- Fill in your information (Discord token, etc.)
-- Rename the file to `config.ts`
-
-**3. Install and launch**
-
-```bash
-# Install dependencies
-bun install
-
-# Start the bot
-bun start
-```
+🖥️ **Operating System**: Linux, macOS, or Windows
 
 ---
 
@@ -237,8 +215,8 @@ bun start
 
 | Resource                          | Link                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------- |
-| 📖 **Full Documentation**         | [docs.ihorizon.org](https://docs.ihorizon.org)                                  |
-| 🔍 **Command Search**             | [ihorizon.org/search](https://www.ihorizon.org/search)                          |
+| 📖 **Full Documentation**         | [www.ihorizon.org/docs](https://www.ihorizon.org/docs)                                  |
+| 🔍 **Command Search**             | [www.ihorizon.org/search](https://www.ihorizon.org/search)                          |
 | 💬 **Main Discord Server**        | [discord.ihorizon.org](http://discord.ihorizon.org/)                            |
 | 🔗 **Backup Discord Server Link** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                          |
 | 🤖 **Invite iHorizon**            | [Click Here](https://discord.com/oauth2/authorize?client_id=945202900907470899) |
@@ -252,6 +230,14 @@ bun start
 <table>
 	<tr>
 		<td align="center" width="33%">
+			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
+			<b>Kisakay</b><br />
+			<i>Main Creator</i><br />
+			<sub>She/Her</sub><br />
+			<a href="https://gitlab.com/Kisakay">GitLab</a> /
+			<a href="https://github.com/Kisakay">GitHub</a>
+		</td>
+		<td align="center" width="33%">
 			<img src="https://github.com/name-shitty-github-profile.png" width="100px"
 				style="border-radius:50%" /><br />
 			<b>Noémie</b><br />
@@ -259,16 +245,10 @@ bun start
 			<sub>She/Her</sub><br />
 			<a href="https://github.com/name-shitty-github-profile">GitHub</a>
 		</td>
-	<tr>
-		<td align="center" width="33%">
-			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
-			<b>Kisakay</b><br />
-			<i>Creator & Lead Developer</i><br />
-			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
-			<a href="https://github.com/Kisakay">GitHub</a>
-		</td>	
+	</tr>
 </table>
+
+> 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name **Anaïs Saraiva** appears as the owner.
 
 ## 💝 Contributors's walls
 
@@ -346,7 +326,7 @@ Past developers and contributors who have helped make iHorizon what it is today.
 🚀 **September 2020**: Initial project launch with discord.js v12  
 📈 **2021-2023**: Continuous growth and major feature additions  
 🔄 **2024**: Migration to GitLab for better development management  
-⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime
+⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime  
 😎 **2026**: Enforcing bot structure, features, community, adding major philosophical changes
 
 ---
@@ -374,7 +354,7 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 Need help? Several options are available:
 
 **Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)  
-**Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org/)  
+**Documentation**: Check [www.ihorizon.org/docs](https://www.ihorizon.org/docs/)  
 **Direct Contact**: Reach out to the owners via Discord
 
 ---

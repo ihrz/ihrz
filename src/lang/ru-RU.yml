@@ -1193,6 +1193,25 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Этого участника нет на сервере!"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | У меня нет разрешения управлять ником этого участника!"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | Ник этого участника уже заблокирован!"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} теперь заблокирован на **${nick}**!"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} теперь заблокирован!"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | Ник этого участника не заблокирован!"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | Ник ${member.toString()} был разблокирован!"
+util_lockname_logs_embed_title: "Логи блокировки ников"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> заблокировал ник <@${member.id}>"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> разблокировал ник <@${member.id}>"
+
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | На этом сервере нет заблокированных ников! `/utilss lockname`, чтобы создать."
+util_locknamelist_embed_title: "Заблокированные ники"
+util_locknamelist_embed_count: "**${count}** заблокир. ник(ов):"
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • заблокировал ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
 util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 30 дней"
@@ -1825,6 +1844,45 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`Да`"
 gw_getdata_no: "`Нет`"
 gw_doesnt_exit: "Подарки недоступны или не существуют."
+
+
+# /go
+gw_go_panel_title: "Панель розыгрышей"
+gw_go_panel_desc: "Настройте розыгрыш ниже и запустите его. Используйте меню для изменения параметров."
+gw_go_select_placeholder: "Изменить параметр"
+gw_go_opt_prize: "Приз"
+gw_go_opt_duration: "Длительность"
+gw_go_opt_winners: "Победители"
+gw_go_opt_requirement: "Условие участия"
+gw_go_opt_image: "Изображение"
+gw_go_channel_placeholder: "Канал розыгрыша"
+gw_go_launch_buttontitle: "Запустить"
+gw_go_cancel_buttontitle: "Отмена"
+gw_go_req_none: "Нет"
+gw_go_req_invites: "Приглашения"
+gw_go_req_messages: "Сообщения"
+gw_go_req_roles: "Роли"
+gw_go_req_value_dsc: "Требуемое значение: **${value}**"
+gw_go_started: "Розыгрыш запущен в ${channel}!"
+gw_go_cancelled: "Панель закрыта, розыгрыш не был запущен."
+gw_go_expired: "Панель завершила работу до запуска розыгрыша."
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать приз!"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать действительную длительность!"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | Перед запуском розыгрыша необходимо указать действительное число победителей!"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | В выбранный канал нельзя отправлять сообщения!"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | Ссылка на изображение недействительна!"
+gw_go_modal_prize: "Указать приз"
+gw_go_modal_prize_label: "Приз"
+gw_go_modal_duration: "Указать длительность"
+gw_go_modal_duration_label: "Длительность (например: 2d или 12h30)"
+gw_go_modal_winners: "Указать число победителей"
+gw_go_modal_winners_label: "Количество победителей"
+gw_go_modal_req_title: "Условие участия"
+gw_go_modal_req_type_label: "Тип условия"
+gw_go_modal_req_value_label: "Значение условия (ID роли или число)"
+gw_go_modal_image: "Указать изображение"
+gw_go_modal_image_label: "Ссылка на изображение"
+
 
 # Команды модерации
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -2932,6 +2990,29 @@ temporary_voice_transfer_untrust_placeholder: "Выбранные пользов
 
 temporary_voice_channel_name: "Канал {nickname}"
 
+tempvoice_v2_embed_title: "## ${client.iHorizon_Emojis.VC_Name} ${channelName}"
+tempvoice_v2_embed_desc: "Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below."
+tempvoice_v2_hint: "-# Only the channel owner can use this menu."
+tempvoice_v2_select_placeholder: "Manage your voice channel..."
+
+tempvoice_cfg_panel_title: "TempVoice configuration"
+tempvoice_cfg_panel_desc: "Configure the TempVoice module below. Every change applies immediately, and each created voice channel gets its own control panel."
+tempvoice_cfg_hub: "Join-to-create channel"
+tempvoice_cfg_category: "Channels created in"
+tempvoice_cfg_name: "Channel name"
+tempvoice_cfg_position: "Position in category"
+tempvoice_cfg_position_top: "Top"
+tempvoice_cfg_position_bottom: "Bottom"
+tempvoice_cfg_staff: "Staff roles (bypass permissions)"
+tempvoice_cfg_select_placeholder: "More settings..."
+tempvoice_cfg_opt_name: "Change the channel name"
+tempvoice_cfg_opt_position_top: "Set position: Top"
+tempvoice_cfg_opt_position_bottom: "Set position: Bottom"
+tempvoice_cfg_done: "Done"
+tempvoice_cfg_saved: "TempVoice settings saved!"
+tempvoice_cfg_expired: "Configuration panel expired. Run /tempvoice again."
+tempvoice_cfg_modal_title: "Set the channel name"
+tempvoice_cfg_modal_label: "Name | Variable: {Username}"
 # Модуль Защиты
 # Сообщение о событии
 
@@ -3303,3 +3384,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} На этом сервере а
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} На этом сервере активен модуль H24/7. Зайдите в голосовой канал H24/7, чтобы включить TTS!"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | Минимальная длительность — 3 минуты!"

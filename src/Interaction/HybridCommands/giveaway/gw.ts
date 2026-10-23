@@ -224,6 +224,32 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageMessages
 		},
 		{
+			name: "go",
+			name_localizations: {
+				fr: "go",
+				ja: "go",
+				ru: "go",
+				"es-ES": "go"
+			},
+			prefixName: "gw-go",
+
+			aliases: ["ggo"],
+
+			description:
+				"Open an interactive giveaway panel to configure and launch a giveaway!",
+			description_localizations: {
+				fr: "Ouvrir un panel interactif pour configurer et lancer un giveaway !",
+				ja: "ギブアウェイを設定して開始するためのパネルを開く！",
+				ru: "Открыть панель для настройки и запуска розыгрыша!",
+				"es-ES":
+					"Abrir un panel interactivo para configurar y lanzar un sorteo!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageMessages
+		},
+		{
 			name: "end",
 			name_localizations: {
 				fr: "finnir",

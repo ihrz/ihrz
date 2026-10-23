@@ -105,6 +105,11 @@ import {
 	Html2PngRequestMessage,
 	Html2PngResponseMessage
 } from "../src/core/functions/html2pngProtocol.ts";
+import {
+	BannerExtension,
+	BannerSource,
+	BannerUrlOptions
+} from "../src/core/functions/bannerURL.ts";
 
 declare namespace Client_Functions {
 	// From emojiChecker.ts
@@ -519,6 +524,12 @@ declare namespace Client_Functions {
 			status: string
 		): Promise<boolean>;
 	}
+
+	// From bannerURL.ts
+	export function bannerURL(
+		target: GuildMember | User | Guild | BannerSource,
+		options?: BannerUrlOptions
+	): Promise<string | null>;
 
 	// From encryptDecryptMethod.ts
 	export namespace encryptDecryptMethod {

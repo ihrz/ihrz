@@ -44,10 +44,11 @@ export default async function handleButtonInteraction(
 		`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
 	);
 
-	if (!result) return await interaction.deferUpdate();
+	if (!getChannelOwner) return await interaction.deferUpdate();
 	if (
-		result.channelId !== interaction.channelId ||
-		getChannelOwner !== targetedChannel?.id
+		getChannelOwner !== targetedChannel?.id ||
+		(interaction.channelId !== targetedChannel?.id &&
+			interaction.channelId !== result?.channelId)
 	) {
 		return await interaction.deferUpdate();
 	}

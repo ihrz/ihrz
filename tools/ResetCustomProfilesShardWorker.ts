@@ -26,6 +26,7 @@ import * as ClientVersion from "../src/version.js";
 import { readFile } from "fs/promises";
 import path from "path";
 import * as customProfileHelper from "../src/core/functions/customProfileHelper.js";
+import bannerURL from "../src/core/functions/bannerURL.js";
 import logger from "../src/core/logger.js";
 
 interface CustomEnabledGuild {
@@ -111,13 +112,12 @@ let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
 	}
 });
 const data = await res.json();
-const defaultBannerUrl =
-	`https://cdn.discordapp.com/banners/${client.user?.id}/${data?.["bot"]["banner"]}?size=1024` ||
-	client.user?.bannerURL({
-		extension: "png",
-		size: 4096
-	}) ||
-	null;
+const defaultBannerUrl = client.user
+	? await bannerURL(
+			{ id: client.user.id, banner: data?.["bot"]?.["banner"] ?? null },
+			{ size: 1024 }
+		)
+	: null;
 logger.debug(`Default banner URL: ${defaultBannerUrl || "null"}`);
 const defaultBannerBase64 = defaultBannerUrl
 	? Buffer.from(await (await fetch(defaultBannerUrl)).arrayBuffer()).toString(

@@ -19,39 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
+/**
+ * Preload for `bun test`.
+ *
+ * The extractors use the global `logger` (set up by the bot bootstrap at
+ * runtime). Tests run outside the bot, so a no-op stand-in is registered
+ * once here, before any extractor module is imported.
+ */
 
-import { SubCommand } from "../../../../types/command.js";
-
-export const subCommand: SubCommand = {
-	run: async (
-		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
-	) => {
-		// Guard's Typing
-		if (
-			!interaction.member ||
-			!client.user ||
-			!interaction.user ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
-
-		const new_channel_name = interaction.options.getString("channel_name");
-
-		await interaction.editReply({
-			content: `${client.iHorizon_Emojis.Yes} | ${new_channel_name}`
-		});
-
-		await client.db.set(
-			`${interaction.guildId}.VOICE_INTERFACE.voice_channel_name`,
-			new_channel_name
-		);
-
-		return;
-	}
+(globalThis as any).logger = {
+	log: () => {},
+	warn: () => {},
+	err: () => {},
+	debug: () => {}
 };

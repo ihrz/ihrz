@@ -271,8 +271,6 @@ export const subCommand: SubCommand = {
 		);
 
 		async function sendMessage(user: User) {
-			let format = "png";
-
 			const user_1 = (
 				await axios.get(
 					`https://discord.com/api/v10/users/${user?.id}`,
@@ -285,10 +283,6 @@ export const subCommand: SubCommand = {
 			).data;
 
 			banner = user_1.banner;
-
-			if (banner !== null && banner?.substring(0, 2) === "a_") {
-				format = "gif";
-			}
 
 			let badges = getBadges(member.flags?.bitfield!);
 			const nitro = await GetNitro();
@@ -395,7 +389,10 @@ export const subCommand: SubCommand = {
 			if (banner)
 				files.push({
 					attachment: await interaction.client.func.image64.image64(
-						`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`
+						(await interaction.client.func.bannerURL(
+							{ id: user.id, banner },
+							{ size: 1024 }
+						))!
 					),
 					name: "user_banner.gif"
 				});

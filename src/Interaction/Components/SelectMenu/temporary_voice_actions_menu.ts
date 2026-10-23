@@ -19,39 +19,26 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
+import { ButtonInteraction, StringSelectMenuInteraction } from "discord.js";
 
-import { SubCommand } from "../../../../types/command.js";
+/**
+ * String select menu of the temporary voice channel panel (inside the voice
+ * channel itself). Each option value is the matching button customId, so the
+ * whole permission + flow logic stays in the existing button handlers.
+ */
+export default async function (
+	interaction: StringSelectMenuInteraction<"cached">
+) {
+	const value = interaction.values[0];
 
-export const subCommand: SubCommand = {
-	run: async (
-		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
-	) => {
-		// Guard's Typing
-		if (
-			!interaction.member ||
-			!client.user ||
-			!interaction.user ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
+	if (!value?.startsWith("temporary_voice_")) return;
 
-		const targetedChannel = interaction.options.getChannel("channel");
+	const handler = interaction.client.buttons.get(value) as
+		((button: ButtonInteraction<"cached">) => Promise<any>) | undefined;
 
-		await interaction.editReply({
-			content: `${client.iHorizon_Emojis.Yes} | <#${targetedChannel?.id}>`
-		});
+	if (!handler) return await interaction.deferUpdate();
 
-		await client.db.set(
-			`${interaction.guildId}.VOICE_INTERFACE.voice_channel`,
-			targetedChannel?.id
-		);
-
-		return;
-	}
-};
+	await handler(interaction as unknown as ButtonInteraction<"cached">).catch(
+		() => null
+	);
+}

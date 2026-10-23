@@ -1193,6 +1193,25 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバー�
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | このユーザーはあなたの制御下にありません！"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーを無事に解放しました :)"
 
+# /util lockname, /util unlockname
+util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | このメンバーはサーバーにいません！"
+util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | このメンバーのニックネームを管理する権限がありません！"
+util_lockname_already_locked: "${client.iHorizon_Emojis.No} | このメンバーのニックネームはすでにロックされています！"
+util_lockname_success: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームは **${nick}** にロックされました！"
+util_lockname_success_reset: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームはロックされました！"
+util_unlockname_not_locked: "${client.iHorizon_Emojis.No} | このメンバーのニックネームはロックされていません！"
+util_unlockname_success: "${client.iHorizon_Emojis.Yes} | ${member.toString()} のニックネームのロックが解除されました！"
+util_lockname_logs_embed_title: "ニックネームロックのログ"
+util_lockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームをロックしました"
+util_unlockname_logs_embed_description: "<@${interaction.user.id}> が <@${member.id}> のニックネームのロックを解除しました"
+
+util_locknamelist_empty: "${client.iHorizon_Emojis.No} | このサーバーにはロックされたニックネームがありません！ `/utilss lockname` で作成できます。"
+util_locknamelist_embed_title: "ロックされたニックネーム"
+util_locknamelist_embed_count: "**${count}** 件のニックネームがロック中："
+util_locknamelist_embed_line: "> <@${member.id}> • **${nick}** • ロック：${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)"
+util_locknamelist_embed_line_short: "> <@${member.id}> • **${nick}**"
+
+
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
 util_autorenew_time_too_long: "サロンの更新間隔は30日以内でなければならない"
@@ -1825,6 +1844,45 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
 gw_doesnt_exit: "景品は到達できないか、存在しません。"
+
+
+# /go
+gw_go_panel_title: "ギブアウェイパネル"
+gw_go_panel_desc: "下のメニューで設定を編集して、ギブアウェイを開始してください。"
+gw_go_select_placeholder: "設定を編集する"
+gw_go_opt_prize: "賞品"
+gw_go_opt_duration: "期間"
+gw_go_opt_winners: "当選者数"
+gw_go_opt_requirement: "参加条件"
+gw_go_opt_image: "プレビュー画像"
+gw_go_channel_placeholder: "ギブアウェイのチャンネル"
+gw_go_launch_buttontitle: "開始"
+gw_go_cancel_buttontitle: "キャンセル"
+gw_go_req_none: "なし"
+gw_go_req_invites: "招待数"
+gw_go_req_messages: "メッセージ数"
+gw_go_req_roles: "ロール"
+gw_go_req_value_dsc: "必要な値：**${value}**"
+gw_go_started: "${channel} でギブアウェイが開始されました！"
+gw_go_cancelled: "パネルを閉じました。ギブアウェイは開始されていません。"
+gw_go_expired: "ギブアウェイが開始される前に、パネルが失効しました。"
+gw_go_need_prize: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に賞品を設定してください！"
+gw_go_need_duration: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に有効な期間を設定してください！"
+gw_go_need_winners: "${client.iHorizon_Emojis.No} | ギブアウェイを開始する前に有効な当選者数を設定してください！"
+gw_go_channel_error: "${client.iHorizon_Emojis.No} | 選択されたチャンネルはメッセージを送信できません！"
+gw_go_invalid_image: "${client.iHorizon_Emojis.No} | この画像のURLは無効です！"
+gw_go_modal_prize: "賞品を設定"
+gw_go_modal_prize_label: "賞品"
+gw_go_modal_duration: "期間を設定"
+gw_go_modal_duration_label: "期間（例：2d または 12h30）"
+gw_go_modal_winners: "当選者数を設定"
+gw_go_modal_winners_label: "当選者数"
+gw_go_modal_req_title: "参加条件"
+gw_go_modal_req_type_label: "条件の種類"
+gw_go_modal_req_value_label: "条件の値（ロールIDまたは数値）"
+gw_go_modal_image: "プレビュー画像を設定"
+gw_go_modal_image_label: "画像のURL"
+
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -2932,6 +2990,29 @@ temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加
 
 temporary_voice_channel_name: "{nickname}のチャンネル"
 
+tempvoice_v2_embed_title: "## ${client.iHorizon_Emojis.VC_Name} ${channelName}"
+tempvoice_v2_embed_desc: "Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below."
+tempvoice_v2_hint: "-# Only the channel owner can use this menu."
+tempvoice_v2_select_placeholder: "Manage your voice channel..."
+
+tempvoice_cfg_panel_title: "TempVoice configuration"
+tempvoice_cfg_panel_desc: "Configure the TempVoice module below. Every change applies immediately, and each created voice channel gets its own control panel."
+tempvoice_cfg_hub: "Join-to-create channel"
+tempvoice_cfg_category: "Channels created in"
+tempvoice_cfg_name: "Channel name"
+tempvoice_cfg_position: "Position in category"
+tempvoice_cfg_position_top: "Top"
+tempvoice_cfg_position_bottom: "Bottom"
+tempvoice_cfg_staff: "Staff roles (bypass permissions)"
+tempvoice_cfg_select_placeholder: "More settings..."
+tempvoice_cfg_opt_name: "Change the channel name"
+tempvoice_cfg_opt_position_top: "Set position: Top"
+tempvoice_cfg_opt_position_bottom: "Set position: Bottom"
+tempvoice_cfg_done: "Done"
+tempvoice_cfg_saved: "TempVoice settings saved!"
+tempvoice_cfg_expired: "Configuration panel expired. Run /tempvoice again."
+tempvoice_cfg_modal_title: "Set the channel name"
+tempvoice_cfg_modal_label: "Name | Variable: {Username}"
 # 保護モジュール
 # イベントメッセージ
 
@@ -3303,3 +3384,4 @@ h247_play_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7�
 
 # /tts join
 h247_tts_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。TTSを有効にするにはH24/7のボイスチャンネルに参加してください！"
+gw_go_duration_too_low: "${client.iHorizon_Emojis.No} | 最短の期間は3分です！"
