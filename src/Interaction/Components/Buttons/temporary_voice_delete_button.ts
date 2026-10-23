@@ -53,6 +53,9 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		await tempTable.delete(
 			`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
 		);
+		await tempTable.delete(
+			`TEMPVOICE_PANEL.${interaction.guildId}.${targetedChannel?.id}`
+		);
 
 		await interaction.reply({
 			embeds: [

@@ -60,7 +60,7 @@ const VOICE_PANEL_EMOJI_MAP: Record<string, string> = {
 	"${client.iHorizon_Emojis.VC_Delete}": "VC_Delete"
 };
 
-function buildVoicePanel(
+export function buildVoicePanel(
 	lang: LanguageData,
 	channelName: string,
 	ownerId: string
@@ -303,6 +303,9 @@ export const event: BotEvent = {
 			await tempTable.delete(
 				`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
 			);
+			await tempTable.delete(
+				`TEMPVOICE_PANEL.${newState.guild.id}.${oldState.channelId}`
+			);
 			channelDb = null;
 			ownedChannel = null;
 		}
@@ -337,6 +340,9 @@ export const event: BotEvent = {
 					await userChannel?.delete().catch(() => {});
 					await tempTable.delete(
 						`CUSTOM_VOICE.${newState.guild.id}.${userId}`
+					);
+					await tempTable.delete(
+						`TEMPVOICE_PANEL.${newState.guild.id}.${channelChannelId}`
 					);
 					break;
 				}
@@ -512,6 +518,12 @@ export const event: BotEvent = {
 										],
 										flags: [MessageFlags.IsComponentsV2]
 									})
+									.then(async (panel) => {
+										await tempTable.set(
+											`TEMPVOICE_PANEL.${newState.guild.id}.${chann.id}`,
+											panel.id
+										);
+									})
 									.catch(() => null);
 							})
 							.catch(async () => {
@@ -574,6 +586,9 @@ export async function recoverCustomVoiceChannels(client: Client) {
 					// Clean up database entry
 					await tempTable.delete(
 						`CUSTOM_VOICE.${guild.id}.${userId}`
+					);
+					await tempTable.delete(
+						`TEMPVOICE_PANEL.${guild.id}.${channelId}`
 					);
 				}
 				// If any error occurs, clean up the database entry

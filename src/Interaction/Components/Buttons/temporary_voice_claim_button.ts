@@ -20,13 +20,16 @@
 */
 
 import {
+	BaseGuildVoiceChannel,
 	ButtonInteraction,
 	ChannelType,
 	EmbedBuilder,
-	GuildMember
+	GuildMember,
+	MessageFlags
 } from "discord.js";
 import { tempTable } from "../../../Events/client/ready.ts";
 import { DatabaseStructure } from "../../../../types/database_structure";
+import { buildVoicePanel } from "../../../Events/voicedashboard/voiceState.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 	const result = (await interaction.client.db.get(
@@ -126,23 +129,20 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			interaction.user.displayName || interaction.user.username;
 
 		// change the voice channel name
-		if (result?.voice_channel_name) {
-			targetedChannel?.setName(
-				result.voice_channel_name.includes("{Username}")
-					? result.voice_channel_name.replace("{Username}", username!)
-					: result.voice_channel_name + " " + username
-			);
-		} else
-			targetedChannel?.setName(
-				lang.temporary_voice_channel_name.replace(
+		const plannedChannelName = result?.voice_channel_name
+			? result.voice_channel_name.includes("{Username}")
+				? result.voice_channel_name.replace("{Username}", username!)
+				: result.voice_channel_name + " " + username
+			: lang.temporary_voice_channel_name.replace(
 					"{nickname}",
 					`${username}`
-				)
-			);
+				);
+
+		await targetedChannel?.setName(plannedChannelName);
 
 		targetedChannel?.permissionOverwrites.delete(previousOwner.userId);
 
-		targetedChannel?.permissionOverwrites.edit(interaction.user.id, {
+		await targetedChannel?.permissionOverwrites.edit(interaction.user.id, {
 			ViewChannel: true,
 			Connect: true,
 			Stream: true,
@@ -153,6 +153,34 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			AttachFiles: true,
 			AddReactions: true
 		});
+
+		// Refresh the in-voice control panel with the new owner
+		const storedPanelId = (await tempTable.get(
+			`TEMPVOICE_PANEL.${interaction.guildId}.${targetedChannel?.id}`
+		)) as string | null | undefined;
+
+		if (storedPanelId) {
+			const panelMessage = await (
+				targetedChannel as BaseGuildVoiceChannel
+			).messages
+				.fetch(storedPanelId)
+				.catch(() => null);
+
+			if (panelMessage) {
+				await panelMessage
+					.edit({
+						components: [
+							buildVoicePanel(
+								lang,
+								plannedChannelName,
+								interaction.user.id
+							)
+						],
+						flags: [MessageFlags.IsComponentsV2]
+					})
+					.catch(() => null);
+			}
+		}
 
 		await interaction.reply({
 			flags: [1 << 6],
