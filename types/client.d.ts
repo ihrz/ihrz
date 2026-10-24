@@ -106,5 +106,6 @@ declare module "discord.js" {
 		blogger: BloggerNotifier;
 		email: Mailer;
 		lastFMScrobbler: LastFMScrobblerManager;
+		creator: User | null;
 	}
 }

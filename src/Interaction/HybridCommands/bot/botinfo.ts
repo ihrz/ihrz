@@ -29,7 +29,6 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { Main_iHorizon_Creator } from "../../../core/core.js";
 
 // Get statistics from all shards
 export const getShardStats = async (client: Client) => {
@@ -174,7 +173,7 @@ export const command: Command = {
 				},
 				{
 					name: lang.botinfo_embed_fields_created_by,
-					value: Main_iHorizon_Creator!.toString(),
+					value: client.creator!.toString(),
 					inline: false
 				}
 			)

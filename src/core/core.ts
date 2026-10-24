@@ -79,7 +79,6 @@ if (fs.existsSync(old_slash_logs_file)) {
 }
 
 export const Main_iHorizon_Creator_User_ID = "126874834910183424";
-export let Main_iHorizon_Creator: User | null = null;
 
 export async function main(client: Client) {
 	if (client.config.discord.phonePresence) {
@@ -132,6 +131,7 @@ export async function main(client: Client) {
 	client.tempbanManager = new TempbanManager();
 	client.email = new Mailer();
 	client.lastFMScrobbler = new LastFMScrobblerManager();
+	client.creator = null;
 
 	process.on("SIGINT", async () => {
 		// await client.destroy();
@@ -221,7 +221,7 @@ function login() {
 					`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`
 						.magenta
 				);
-				Main_iHorizon_Creator =
+				client.creator =
 					client.users.cache.get(Main_iHorizon_Creator_User_ID) ||
 					(await client.users
 						.fetch(Main_iHorizon_Creator_User_ID)
