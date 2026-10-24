@@ -32,7 +32,8 @@ import {
 	Client,
 	Collection,
 	Snowflake,
-	DefaultWebSocketManagerOptions
+	DefaultWebSocketManagerOptions,
+	User
 } from "discord.js";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -76,6 +77,9 @@ if (fs.existsSync(old_slash_logs_file)) {
 	writeFileSync(slash_logs_file, JSON.stringify(_));
 	rmSync(old_slash_logs_file);
 }
+
+export const Main_iHorizon_Creator_User_ID = "126874834910183424";
+export let Main_iHorizon_Creator: User | null = null;
 
 export async function main(client: Client) {
 	if (client.config.discord.phonePresence) {
@@ -205,7 +209,7 @@ function login() {
 				process.stdout.write("\x1b]2;" + title + "\x1b\x5c");
 			}
 
-			synchronizeCommands(client).then(() => {
+			synchronizeCommands(client).then(async () => {
 				logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
 				logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
 				logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
@@ -217,6 +221,12 @@ function login() {
 					`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`
 						.magenta
 				);
+				Main_iHorizon_Creator =
+					client.users.cache.get(Main_iHorizon_Creator_User_ID) ||
+					(await client.users
+						.fetch(Main_iHorizon_Creator_User_ID)
+						.catch(() => null)) ||
+					((await client.users.fetch(client.owners[0])) as User);
 			});
 		});
 }
