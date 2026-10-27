@@ -20,7 +20,6 @@
 */
 
 import { SQL } from "bun";
-import { HorizonDB } from "./driver/horizondb.ts";
 import { Json } from "./driver/json.ts";
 import { Memory } from "./driver/memory.ts";
 import { Postgres } from "./driver/postgres.ts";
