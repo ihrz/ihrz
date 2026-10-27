@@ -4,16 +4,16 @@
 # Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 #
 # Under the following terms:
-# 
-# - Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. 
+#
+# - Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
 #   You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 #
 # - NonCommercial — You may not use the material for commercial purposes.
 #
-# - ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same 
+# - ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same
 #   license as the original.
 #
-# - No additional restrictions — You may not apply legal terms or technological measures that legally restrict others 
+# - No additional restrictions — You may not apply legal terms or technological measures that legally restrict others
 #   from doing anything the license permits.
 #
 # Was mainly developed by Ether (https://gitlab.com/veryuhq)
@@ -23,7 +23,7 @@
 
 #!/bin/bash
 
-# Colors in ANSI Escape codes 
+# Colors in ANSI Escape codes
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -83,7 +83,7 @@ done
 
 	# Checking if necessary packages are already installed
 	echo -e "${BOLD}Checking if necessary packages are already installed...${DEFAULT}"
-    
+
 	# Check if git and curl are installed; if not, install them
 	if ! command -v git &>/dev/null; then
 		echo -e "${BOLD}git is not installed, installing...${DEFAULT}"
@@ -91,7 +91,7 @@ done
 	else
 		echo -e "${GREEN}git is already installed!${DEFAULT}"
 	fi
-	
+
 	if ! command -v curl &>/dev/null; then
 		echo -e "${BOLD}curl is not installed, installing...${DEFAULT}"
 		sudo apt install -y curl
@@ -99,12 +99,12 @@ done
 		echo -e "${GREEN}curl is already installed!${DEFAULT}"
 	fi
 
-	if ! command -v unzip &>/dev/null; then 
+	if ! command -v unzip &>/dev/null; then
 		echo -e "${BOLD}unzip is not installed, installing...${DEFAULT}"
-		sudo apt install -y unzip 
+		sudo apt install -y unzip
 	else
 		echo -e "${GREEN}unzip is already installed!${DEFAULT}"
-	fi	
+	fi
 
 	if ! command -v bun &>/dev/null; then
 		echo -e "${BOLD}bun is not installed, installing...${DEFAULT}"
@@ -136,15 +136,15 @@ done
         nvm install --lts
     else
 		echo -e "${GREEN}node is already installed!${DEFAULT}"
-	fi	
-    
+	fi
+
 	sudo ln -sf "$(realpath $(which node))" /usr/local/bin/node
 
-	if ! command -v pm2 &>/dev/null; then 
+	if ! command -v pm2 &>/dev/null; then
 		echo -e "${BOLD}pm2 is not installed, installing...${DEFAULT}"
 		npm install -g pm2
 		sudo ln -sf "$HOME/.bun/bin/pm2" /usr/local/bin/pm2
-	else 
+	else
 		echo -e "${GREEN}pm2 is already installed!${DEFAULT}"
 	fi
 
@@ -152,14 +152,14 @@ done
 		echo -e "${GREEN}fonts-noto-color-emoji is already installed!${DEFAULT}"
 	else
 		echo -e "${BOLD}fonts-noto-color-emoji is not installed, installing...${DEFAULT}"
-		sudo apt install -y fonts-noto-color-emoji		
+		sudo apt install -y fonts-noto-color-emoji
 	fi
 
 	if apt list --installed | grep -q xvfb; then
 		echo -e "${GREEN}xvfb is already installed!${DEFAULT}"
 	else
 		echo -e "${BOLD}xvfb is not installed, installing...${DEFAULT}"
-		sudo apt install -y xvfb	
+		sudo apt install -y xvfb
 	fi
 
 	if apt list --installed | grep -q melt; then
@@ -186,7 +186,7 @@ done
 			*)
 				echo -e "${RED}Invalid choice. Try again!${DEFAULT}"
 				;;
-		esac	
+		esac
 	done
 
 	# Cloning the GitLab repo with the chosen branch
@@ -198,14 +198,14 @@ done
     	git pull origin "$git_branch"
 		if [ -f "src/files/config.ts" ]; then
 		    CONFIG_ALREADY_EXISTS=true
-		fi	
+		fi
 	else
 		git clone -b "$git_branch" https://gitlab.com/ihrz/ihrz.git
 		cd ihrz
-	fi		
+	fi
 
 	# Step 3 : installing the dependencies
-	bun i 
+	bun i
 
 	# Installing Chrome via puppeteer.
 	./node_modules/.bin/puppeteer browsers install chrome
@@ -480,10 +480,11 @@ done
 	fi
 
 	# Step 6 : Starting the bot and making it daemonized
-	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
+	# The shared PM2 config defines the process name, working directory,
+	# Bun interpreter and restart policy.
 	echo -e "${BOLD}Setting up pm2...${DEFAULT}"
-	pm2 start ~/.bun/bin/bun --name "iHorizon" -- run src/index.ts
-	# Save pm2 config
+	pm2 start pm2.config.cjs
+	# Save pm2 process list
 	pm2 save --force
 
 	while true; do
