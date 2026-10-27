@@ -41,18 +41,16 @@
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
 		"@discordjs/voice": "^0.19.2",
-		"discord-html-transcripts": "3.2.0",
 		"discord.js": "^14.27.0",
 		"gifwrap": "^0.10.1",
+		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",
 		"jimp": "0.22.12",
 		"jszip": "^3.10.2",
 		"lavalink-client": "^2.11.0",
 		"nodemailer": "^7.0.13",
 		"puppeteer": "^24.43.1",
-		"rss-parser": "^3.13.0",
-		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",
+		"sweety-html-transcripts": "^0.4.0",
 		"typescript-eslint": "^8.72.0",
-		"xml2js": "^0.6.2",
 		"youtubei.js": "^17.2.0"
 	},
 	"devDependencies": {
@@ -60,7 +58,6 @@
 		"@types/bun": "^1.4.3",
 		"@types/node": "^24.19.2",
 		"@types/nodemailer": "^7.0.12",
-		"@types/xml2js": "^0.4.14",
 		"@typescript-eslint/eslint-plugin": "^8.72.0",
 		"@typescript-eslint/parser": "^8.72.0",
 		"eslint": "^9.39.5",

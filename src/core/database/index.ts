@@ -89,9 +89,9 @@ export async function initializeDatabase(
 			table: tables[0]
 		});
 	} else if (database.method === "horizondb") {
-		if (!database.horizon_db) {
+		if (!database.horizon_dbUrl) {
 			throw new Error(
-				"horizon_db configuration is required when using the 'horizondb' database method"
+				"horizon_dbUrl is required when using the 'horizondb' database method"
 			);
 		}
 
@@ -100,11 +100,27 @@ export async function initializeDatabase(
 				.green
 		);
 
+		const horizonDbUrl = new URL(database.horizon_dbUrl);
+		const login = horizonDbUrl.username
+			? decodeURIComponent(horizonDbUrl.username)
+			: undefined;
+		const password = horizonDbUrl.password
+			? decodeURIComponent(horizonDbUrl.password)
+			: undefined;
+		const requestTimeout =
+			horizonDbUrl.searchParams.get("requestTimeoutMs");
+
+		horizonDbUrl.username = "";
+		horizonDbUrl.password = "";
+		horizonDbUrl.searchParams.delete("requestTimeoutMs");
+
 		dbInstance = new HorizonDB({
-			url: `ws://${database.horizon_db.host}:${database.horizon_db.port}`,
-			login: database.horizon_db.login,
-			password: database.horizon_db.password,
-			requestTimeoutMs: database.horizon_db.requestTimeoutMs,
+			url: horizonDbUrl.toString(),
+			login,
+			password,
+			requestTimeoutMs: requestTimeout
+				? Number(requestTimeout)
+				: undefined,
 			table: tables[0]
 		});
 	} else {

@@ -53,7 +53,7 @@ import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 import { UnifiedDatabase } from "../src/core/database/types.ts";
 import * as backup from "../src/core/backup/src/";
-import * as discordTranscripts from "discord-html-transcripts";
+import * as discordTranscripts from "sweety-html-transcripts";
 import { BloggerNotifier } from "../src/core/Blogger.ts";
 import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
 import { TempbanManager } from "../src/core/modules/tempbanManager.ts";

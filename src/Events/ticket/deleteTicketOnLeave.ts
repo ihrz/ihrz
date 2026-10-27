@@ -22,6 +22,7 @@
 import { Client, EmbedBuilder, GuildMember, TextChannel } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -44,17 +45,13 @@ export const event: BotEvent = {
 					member.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
-				const attachment =
-					await client.discordTranscripts.createTranscript(
-						channel as TextChannel,
-						{
-							limit: -1,
-							filename: `${member.guild.id}-transcript.html`,
-							footerText: "Exported {number} message{s}",
-							poweredBy: false,
-							hydrate: true
-						}
-					);
+				const attachment = await DiscordJSTranscript.create({
+					channel: channel as TextChannel,
+					limit: -1,
+					filename: `${member.guild.id}-transcript.html`,
+					footerText: "Exported {number} message{s}",
+					poweredBy: false
+				});
 
 				const embed = new EmbedBuilder()
 					.setColor("#008000")

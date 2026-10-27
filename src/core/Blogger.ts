@@ -32,7 +32,6 @@ import {
 
 import { DatabaseStructure } from "../../types/database_structure.js";
 import logger from "./logger.js";
-import Parser from "rss-parser";
 
 interface BloggerFeedResponse {
 	blog: DatabaseStructure.BloggerBlogSchema;
@@ -48,20 +47,60 @@ interface RssFeedItem {
 	contentSnippet?: string;
 }
 
-export class BloggerNotifier {
-	private parser: Parser;
+interface ParsedFeed {
+	title: string;
+	items: RssFeedItem[];
+}
 
-	constructor() {
-		this.parser = new Parser({
-			customFields: {
-				item: [
-					["dc:creator", "creator"],
-					["content:encoded", "contentEncoded"]
-				]
-			}
-		});
+type XmlNode = Record<string, any>;
+
+function asArray<T>(value: T | T[] | null | undefined): T[] {
+	if (value === null || value === undefined) return [];
+	return Array.isArray(value) ? value : [value];
+}
+
+function xmlText(value: any): string {
+	if (value === null || value === undefined) return "";
+	if (typeof value === "string" || typeof value === "number") {
+		return String(value);
 	}
+	if (Array.isArray(value)) return xmlText(value[0]);
+	if (typeof value === "object") {
+		return xmlText(value["#text"] ?? value._ ?? "");
+	}
+	return "";
+}
 
+function xmlLink(value: any): string {
+	const links = asArray(value);
+	const alternate =
+		links.find(
+			(link) =>
+				typeof link !== "object" ||
+				!link["@rel"] ||
+				link["@rel"] === "alternate"
+		) ?? links[0];
+
+	if (alternate === null || alternate === undefined) return "";
+	if (typeof alternate === "string") return alternate;
+	return alternate["@href"] ?? xmlText(alternate);
+}
+
+function xmlAuthor(value: any): string {
+	const author = asArray(value)[0];
+	if (author === null || author === undefined) return "";
+	if (typeof author === "object") {
+		return xmlText(author.name ?? author["dc:creator"] ?? author);
+	}
+	return xmlText(author);
+}
+
+function xmlDate(value: any): Date {
+	const date = new Date(xmlText(value));
+	return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+export class BloggerNotifier {
 	private delay(ms: number): Promise<void> {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
@@ -102,17 +141,78 @@ export class BloggerNotifier {
 		}, items[0]);
 	}
 
+	private async parseFeed(rssUrl: string): Promise<ParsedFeed> {
+		const response = await fetch(rssUrl);
+
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status} while fetching ${rssUrl}`);
+		}
+
+		const xml = Bun.XML.parse(await response.text()) as XmlNode;
+		const rss = xml.rss ?? xml["rdf:RDF"];
+		const channel = rss?.channel;
+
+		if (channel) {
+			const rawItems = asArray(channel.item).length
+				? asArray(channel.item)
+				: asArray(rss.item);
+
+			return {
+				title: xmlText(channel.title),
+				items: rawItems.map((item) => ({
+					title: xmlText(item.title) || "No title",
+					link: xmlLink(item.link),
+					pubDate: xmlDate(
+						item.pubDate ?? item["dc:date"] ?? item.date
+					),
+					author:
+						xmlAuthor(item["dc:creator"] ?? item.author) ||
+						"Unknown",
+					id:
+						xmlText(item.guid ?? item.id) ||
+						xmlLink(item.link) ||
+						"",
+					contentSnippet:
+						xmlText(
+							item["content:encoded"] ??
+								item.description ??
+								item.content
+						) || ""
+				}))
+			};
+		}
+
+		const feed = xml.feed;
+		if (feed) {
+			return {
+				title: xmlText(feed.title),
+				items: asArray(feed.entry).map((entry) => ({
+					title: xmlText(entry.title) || "No title",
+					link: xmlLink(entry.link),
+					pubDate: xmlDate(
+						entry.published ?? entry.updated ?? entry.date
+					),
+					author:
+						xmlAuthor(entry["dc:creator"] ?? entry.author) ||
+						"Unknown",
+					id: xmlText(entry.id) || xmlLink(entry.link) || "",
+					contentSnippet:
+						xmlText(
+							entry["content:encoded"] ??
+								entry.content ??
+								entry.summary
+						) || ""
+				}))
+			};
+		}
+
+		return { title: "", items: [] };
+	}
+
 	private async fetchRssFeed(rssUrl: string): Promise<RssFeedItem[]> {
 		try {
-			const feed = await this.parser.parseURL(rssUrl);
-			return feed.items.map((item: any) => ({
-				title: item.title || "No title",
-				link: item.link || "",
-				pubDate: new Date(item.pubDate || item.isoDate || Date.now()),
-				author: item.creator || item.author || "Unknown",
-				id: item.guid || item.id || item.link || "",
-				contentSnippet: item.contentSnippet || item.content || ""
-			}));
+			const feed = await this.parseFeed(rssUrl);
+			return feed.items;
 		} catch (error) {
 			logger.err(`Error fetching RSS feed ${rssUrl}: ${error}`);
 			return [];
@@ -184,7 +284,7 @@ export class BloggerNotifier {
 		rssUrl: string
 	): Promise<{ valid: boolean; name?: string }> {
 		try {
-			const feed = await this.parser.parseURL(rssUrl);
+			const feed = await this.parseFeed(rssUrl);
 			return { valid: true, name: feed.title || "Unknown Blog" };
 		} catch (error) {
 			logger.err(`Error validating RSS feed ${rssUrl}: ${error}`);
@@ -194,7 +294,7 @@ export class BloggerNotifier {
 
 	public async getBlogNameByRss(rssUrl: string): Promise<string> {
 		try {
-			const feed = await this.parser.parseURL(rssUrl);
+			const feed = await this.parseFeed(rssUrl);
 			return feed.title || "Unknown Blog";
 		} catch (error) {
 			logger.err(`Error getting blog name for ${rssUrl}: ${error}`);

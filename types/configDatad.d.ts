@@ -160,14 +160,8 @@ export interface ConfigData {
 
 		/**
 		 * @description Public iHorizon technology - https://gitlab.com/ihrz/db.git
+		 * @example "ws://login:password@127.0.0.1:8080"
 		 */
-		horizon_db?: {
-			host: string;
-			port: number;
-			login: string;
-			password: string;
-			/** Per-request timeout in milliseconds (default: 10000). */
-			requestTimeoutMs?: number;
-		};
+		horizon_dbUrl?: string;
 	};
 }

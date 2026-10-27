@@ -142,8 +142,13 @@ const config: ConfigData = {
 			database: "",
 			user: "",
 			port: 3306
-		}
+		},
 		// The MySQL connection configuration if you want to use MySQL. MySQL is not the default, meaning you need to set it up yourself.
+
+		horizon_dbUrl: "ws://login:password@127.0.0.1:8080"
+		// The HorizonDB connection URL, required only when the method is set to "horizondb".
+		// Credentials are optional: ws://127.0.0.1:8080
+		// You can also append ?requestTimeoutMs=10000 to override the default request timeout.
 	}
 };
 

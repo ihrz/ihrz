@@ -1257,6 +1257,63 @@ export function isAnimated(attachmentUrl: string): boolean {
 	return fileName.startsWith("a_");
 }
 
+async function sendWarnLog(
+	author: GuildMember,
+	member: GuildMember,
+	reason: string,
+	lang: LanguageData
+): Promise<void> {
+	const guild = member.guild;
+	const embed = new EmbedBuilder()
+		.setColor("#bf0bb9")
+		.setTitle(lang.warn_logEmbed_title)
+		.setDescription(
+			lang.warn_logEmbed_desc
+				.replace("${interaction.member.toString()}", author.toString())
+				.replace("${member?.toString()}", member.toString())
+				.replace("${reason}", reason)
+		);
+
+	const sendTo = async (
+		channel: BaseGuildTextChannel | null | undefined
+	): Promise<boolean> => {
+		if (!channel || !channel.isTextBased()) return false;
+
+		try {
+			await channel.send({ embeds: [embed] });
+			return true;
+		} catch {
+			return false;
+		}
+	};
+
+	if (client.func.hasIhorizonLogs(guild)) {
+		const ihorizonLogsChannel = guild.channels.cache.find(
+			(channel) =>
+				channel.name.includes("ihorizon-logs") && channel.isTextBased()
+		) as BaseGuildTextChannel | undefined;
+
+		if (await sendTo(ihorizonLogsChannel)) return;
+	}
+
+	const modsChannel = guild.channels.cache.find(
+		(channel) => channel.name.includes("mods") && channel.isTextBased()
+	) as BaseGuildTextChannel | undefined;
+
+	if (await sendTo(modsChannel)) return;
+
+	const moderationLogsId = (await guild.client.db.get(
+		`${guild.id}.GUILD.SERVER_LOGS.moderation`
+	)) as string | null;
+
+	if (!moderationLogsId) return;
+
+	const moderationLogsChannel = guild.channels.cache.get(moderationLogsId) as
+		BaseGuildTextChannel | undefined;
+
+	await sendTo(moderationLogsChannel);
+}
+
 export async function warnMember(
 	author: GuildMember,
 	member: GuildMember,
@@ -1319,6 +1376,8 @@ export async function warnMember(
 			]
 		})
 		.catch(() => null);
+
+	await sendWarnLog(author, member, reason, lang).catch(() => {});
 
 	return warnObject.id;
 }

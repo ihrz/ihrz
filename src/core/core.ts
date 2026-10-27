@@ -57,7 +57,7 @@ import { InfrastructureMonitoring } from "./modules/infrastructureMonitoringMana
 import { GiveawayManager } from "./modules/giveawaysManager.js";
 import { isNumber } from "./functions/method.js";
 import * as backup from "./backup/src";
-import * as discordTranscripts from "discord-html-transcripts";
+import * as discordTranscripts from "sweety-html-transcripts";
 import { BloggerNotifier } from "./Blogger.js";
 import { TemproleManager } from "./modules/tempRoleManager.js";
 import { TempbanManager } from "./modules/tempbanManager.js";
