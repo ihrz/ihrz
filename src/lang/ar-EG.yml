@@ -1194,6 +1194,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت ف�
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | هذا المستخدم ليس مربوطاً لديك!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | لقد قمت بتحرير هذا المستخدم بنجاح في هذا السيرفر :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | لا توجد أي رباطة نشطة في هذا السيرفر."
+util_leashlist_embed_title: "الرباطات النشطة"
+util_leashlist_embed_desc: "${dom} -> ${sub} (تنتهي خلال `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | هذا العضو ليس في السيرفر!"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | ليس لدي صلاحية إدارة لقب هذا العضو!"

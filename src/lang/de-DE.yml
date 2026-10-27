@@ -1193,6 +1193,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Sie haben den Benut
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Dieser Benutzer ist nicht an deiner Leine!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Du hast den Benutzer in diesem Server erfolgreich losgelassen :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | Es gibt keine aktive Leine auf diesem Server."
+util_leashlist_embed_title: "Aktive Leinen"
+util_leashlist_embed_desc: "${dom} -> ${sub} (läuft in `${remaining}` ab)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Dieses Mitglied ist nicht auf dem Server!"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung, den Nicknamen dieses Mitglieds zu verwalten!"

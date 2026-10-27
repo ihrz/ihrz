@@ -144,6 +144,20 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageNicknames
 		},
 		{
+			name: "leashlist",
+
+			description: "List every active leash in the guild",
+			description_localizations: {
+				fr: "Lister toutes les laisses actives du serveur",
+				ja: "サーバー内の有効なリードを一覧表示",
+				ru: "Показать все активные привязки на сервере",
+				"es-ES": "Listar todas las ataduras activas del servidor"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: "renewvc",
 
 			description:

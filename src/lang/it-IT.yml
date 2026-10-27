@@ -1193,6 +1193,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Hai messo al guinza
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Questo utente non è sotto il tuo controllo!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Hai liberato con successo l'utente in questo server :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | Non c'è nessun guinzaglio attivo in questo server."
+util_leashlist_embed_title: "Guinzagli attivi"
+util_leashlist_embed_desc: "${dom} -> ${sub} (scade tra `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Questo membro non è nel server!"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | Non ho il permesso di gestire il soprannome di questo membro!"

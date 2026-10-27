@@ -1196,6 +1196,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en la
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Cet utilisateur n'est pas sous votre contrôle !"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Vous avez libéré cet utilisateur avec succès dans ce serveur :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | Il n'y a aucune laisse active sur ce serveur."
+util_leashlist_embed_title: "Laisses actives"
+util_leashlist_embed_desc: "${dom} -> ${sub} (expire dans `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Ce membre n'est pas dans le serveur !"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | J'ai pas la permission de gérer le pseudo de ce membre !"

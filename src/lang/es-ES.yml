@@ -1193,6 +1193,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxit
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | ¡Este usuario no está bajo tu control!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Has liberado al usuario con éxito en este servidor :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | No hay ninguna correa activa en este servidor."
+util_leashlist_embed_title: "Correas activas"
+util_leashlist_embed_desc: "${dom} -> ${sub} (expira en `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | ¡Este miembro no está en el servidor!"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | ¡No tengo permiso para gestionar el apodo de este miembro!"

@@ -1193,6 +1193,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | На этом сервере нет активных привязок."
+util_leashlist_embed_title: "Активные привязки"
+util_leashlist_embed_desc: "${dom} -> ${sub} (истекает через `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | Этого участника нет на сервере!"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | У меня нет разрешения управлять ником этого участника!"
