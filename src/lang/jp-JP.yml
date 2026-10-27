@@ -1193,6 +1193,11 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバー�
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | このユーザーはあなたの制御下にありません！"
 util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーを無事に解放しました :)"
 
+# /utilss leashlist
+util_leashlist_no_data: "${client.iHorizon_Emojis.No} | このサーバーには有効なリードがありません。"
+util_leashlist_embed_title: "有効なリード"
+util_leashlist_embed_desc: "${dom} -> ${sub} (残り `${remaining}`)"
+
 # /util lockname, /util unlockname
 util_lockname_not_in_guild: "${client.iHorizon_Emojis.No} | このメンバーはサーバーにいません！"
 util_lockname_not_manageable: "${client.iHorizon_Emojis.No} | このメンバーのニックネームを管理する権限がありません！"

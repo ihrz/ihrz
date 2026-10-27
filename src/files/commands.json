@@ -279,21 +279,6 @@
         "thinking": false
     },
     {
-        "name": "botinfo",
-        "description": "Get information about the bot!",
-        "description_translated": {
-            "fr": "Obtenir les informations supplémentaire par rapport au bot.",
-            "ja": "ボットの情報を取得！",
-            "ru": "Получить информацию о боте!",
-            "es-ES": "Obtener información sobre el bot!"
-        },
-        "category": "bot",
-        "aliases": [
-            "bi"
-        ],
-        "thinking": false
-    },
-    {
         "name": "custom",
         "description": "Custom the bot profile in your discord server",
         "description_translated": {
@@ -773,6 +758,21 @@
         "aliases": [
             "noemie",
             "noémie"
+        ],
+        "thinking": false
+    },
+    {
+        "name": "botinfo",
+        "description": "Get information about the bot!",
+        "description_translated": {
+            "fr": "Obtenir les informations supplémentaire par rapport au bot.",
+            "ja": "ボットの情報を取得！",
+            "ru": "Получить информацию о боте!",
+            "es-ES": "Obtener información sobre el bot!"
+        },
+        "category": "bot",
+        "aliases": [
+            "bi"
         ],
         "thinking": false
     },
@@ -9683,6 +9683,18 @@
                 },
                 "type": 1,
                 "commandFullName": "utilss locknamelist"
+            },
+            {
+                "name": "leashlist",
+                "description": "List every active leash in the guild",
+                "description_localizations": {
+                    "fr": "Lister toutes les laisses actives du serveur",
+                    "ja": "サーバー内の有効なリードを一覧表示",
+                    "ru": "Показать все активные привязки на сервере",
+                    "es-ES": "Listar todas las ataduras activas del servidor"
+                },
+                "type": 1,
+                "commandFullName": "utilss leashlist"
             },
             {
                 "name": "renewvc",

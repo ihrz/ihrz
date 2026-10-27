@@ -1,8 +1,11 @@
 module.exports = {
 	name: "iHorizon",
-	script: "bun .",
-	interpreter: "bun", // Bun interpreter
-	env: {
-		PATH: `${process.env.HOME}/.bun/bin:${process.env.PATH}` // Add "~/.bun/bin/bun" to PATH
-	}
+	cwd: __dirname,
+	script: `${process.env.HOME}/.bun/bin/bun`,
+	args: "src/index.ts",
+	interpreter: "none",
+	autorestart: true,
+	max_restarts: 10,
+	restart_delay: 5000,
+	time: true
 };

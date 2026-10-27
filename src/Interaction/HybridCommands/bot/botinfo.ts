@@ -119,6 +119,7 @@ export const command: Command = {
 	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
+	permission: null,
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
@@ -172,7 +173,7 @@ export const command: Command = {
 				},
 				{
 					name: lang.botinfo_embed_fields_created_by,
-					value: "<@171356978310938624>",
+					value: client.creator!.toString(),
 					inline: false
 				}
 			)
@@ -193,6 +194,5 @@ export const command: Command = {
 			]
 		});
 		return;
-	},
-	permission: null
+	}
 };

@@ -20,8 +20,10 @@
 */
 
 import {
+	BaseGuildTextChannel,
 	Client,
 	ChatInputCommandInteraction,
+	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
@@ -108,14 +110,50 @@ export const subCommand: SubCommand = {
 				.replace("${member?.toString()}", member?.toString()!)
 		});
 
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.unwarn_logEmbed_title,
-			description: lang.unwarn_logEmbed_desc
-				.replace(
-					"${interaction.member.toString()}",
-					interaction.member.toString()
-				)
-				.replace("${member?.toString()}", member?.toString()!)
-		});
+		const unwarnLogTitle = lang.unwarn_logEmbed_title;
+		const unwarnLogDescription = lang.unwarn_logEmbed_desc
+			.replace(
+				"${interaction.member.toString()}",
+				interaction.member.toString()
+			)
+			.replace("${member?.toString()}", member?.toString()!);
+
+		if (client.func.hasIhorizonLogs(interaction.guild)) {
+			await client.func.ihorizon_logs(interaction, {
+				title: unwarnLogTitle,
+				description: unwarnLogDescription
+			});
+			return;
+		}
+
+		const unwarnLogEmbed = new EmbedBuilder()
+			.setColor("#bf0bb9")
+			.setTitle(unwarnLogTitle)
+			.setDescription(unwarnLogDescription);
+
+		const modsChannel = interaction.guild.channels.cache.find(
+			(channel) => channel.name.includes("mods") && channel.isTextBased()
+		) as BaseGuildTextChannel | undefined;
+
+		if (modsChannel) {
+			await modsChannel
+				.send({ embeds: [unwarnLogEmbed] })
+				.catch(() => {});
+			return;
+		}
+
+		const moderationLogsId = (await client.db.get(
+			`${interaction.guildId}.GUILD.SERVER_LOGS.moderation`
+		)) as string | null;
+
+		if (!moderationLogsId) return;
+
+		const moderationLogsChannel = interaction.guild.channels.cache.get(
+			moderationLogsId
+		) as BaseGuildTextChannel | undefined;
+
+		await moderationLogsChannel
+			?.send({ embeds: [unwarnLogEmbed] })
+			.catch(() => {});
 	}
 };

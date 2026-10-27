@@ -906,6 +906,9 @@ export interface LanguageData {
 	util_leash_confirmed_leash: string;
 	util_unleash_not_in_leash: string;
 	util_unleash_command_ok: string;
+	util_leashlist_no_data: string;
+	util_leashlist_embed_title: string;
+	util_leashlist_embed_desc: string;
 	util_lockname_not_in_guild: string;
 	util_lockname_not_manageable: string;
 	util_lockname_already_locked: string;
@@ -1993,8 +1996,8 @@ export interface LanguageData {
 	antispam_ignorechannels_embed_desc: string;
 	header_h1_value: string;
 	messages_word: string;
-	voice_activity: string;
 	minutes_word: string;
+	voice_activity: string;
 	top_voice: string;
 	top_message: string;
 	activity_under_30d: string;

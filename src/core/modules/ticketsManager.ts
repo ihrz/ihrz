@@ -61,6 +61,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
 import { metasTable } from "../../Events/client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
+import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 
 interface CreatePanelData {
 	name: string | null;
@@ -1397,17 +1398,13 @@ async function CloseTicket(
 					fetch[user][channel]?.author
 				);
 
-				const attachment =
-					await client.discordTranscripts.createTranscript(
-						interaction.channel as TextBasedChannel,
-						{
-							limit: -1,
-							filename: `${interaction.guildId}-transcript.html`,
-							footerText: "Exported {number} message{s}",
-							poweredBy: false,
-							hydrate: true
-						}
-					);
+				const attachment = await DiscordJSTranscript.create({
+					channel: interaction.channel as TextBasedChannel,
+					limit: -1,
+					filename: `${interaction.guildId}-transcript.html`,
+					footerText: "Exported {number} message{s}",
+					poweredBy: false
+				});
 
 				const embed = new EmbedBuilder()
 					.setDescription(data.close_title_sourcebin)
@@ -1500,22 +1497,18 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
-				const attachment =
-					await client.discordTranscripts.createTranscript(
-						interactionChannel as TextBasedChannel,
-						{
-							limit: -1,
-							filename: `${interaction.guildId}-transcript.html`,
-							footerText: "Exported {number} message{s}",
-							poweredBy: false,
-							hydrate: true,
-							saveImages: true,
-							favicon: interaction.client.user.displayAvatarURL({
-								size: 512,
-								extension: "png"
-							})
-						}
-					);
+				const attachment = await DiscordJSTranscript.create({
+					channel: interactionChannel as TextBasedChannel,
+					limit: -1,
+					filename: `${interaction.guildId}-transcript.html`,
+					footerText: "Exported {number} message{s}",
+					poweredBy: false,
+					saveImages: true,
+					favicon: interaction.client.user.displayAvatarURL({
+						size: 512,
+						extension: "png"
+					})
+				});
 
 				const embed = new EmbedBuilder()
 					.setDescription(data.close_title_sourcebin)
@@ -1837,17 +1830,13 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 						);
 
 					if (TicketLogsChannel) {
-						const attachment =
-							await client.discordTranscripts.createTranscript(
-								interaction.channel as TextBasedChannel,
-								{
-									limit: -1,
-									filename: `${interaction.guildId}-transcript.html`,
-									footerText: "Exported {number} message{s}",
-									poweredBy: false,
-									hydrate: true
-								}
-							);
+						const attachment = await DiscordJSTranscript.create({
+							channel: interaction.channel as TextBasedChannel,
+							limit: -1,
+							filename: `${interaction.guildId}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false
+						});
 
 						if (shouldSendOwnerDm) {
 							await ticketOwner

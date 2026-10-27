@@ -948,6 +948,9 @@ declare namespace Client_Functions {
 		messageId: string
 	): string;
 
+	// From hasIhorizonLogs.ts
+	export function hasIhorizonLogs(guild: Guild): boolean;
+
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,

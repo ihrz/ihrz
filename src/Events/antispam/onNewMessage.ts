@@ -42,11 +42,13 @@ export const cache: AntiSpam.AntiSpamCache = {
 	raidInfo: new Map<string, Map<string, number | boolean>>(),
 	messages: new Map<string, Set<AntiSpam.CachedMessage>>(),
 	membersToPunish: new Map<string, Set<GuildMember>>(),
-	membersFlags: new Map<string, Map<string, number>>()
+	membersFlags: new Map<string, Map<string, number>>(),
+	membersSanctions: new Map<string, Map<string, number>>()
 };
 
 const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const ANTISPAM_MESSAGE_TTL = 1000 * 60 * 60 * 8;
+const MAX_TIMEOUT = 28 * 24 * 60 * 60 * 1000;
 
 function purgeOldMemberFlags(guildId: string): void {
 	const guildMessages = cache.messages.get(guildId);
@@ -257,8 +259,6 @@ async function PunishUsers(
 	await processBatchAsync(
 		membersCleaned,
 		async (member): Promise<boolean> => {
-			const time = options.punishTime;
-
 			switch (options.punishment_type) {
 				case "mute":
 					const userCanBeMuted =
@@ -270,6 +270,19 @@ async function PunishUsers(
 						member.id !== member.guild.ownerId;
 
 					if (userCanBeMuted) {
+						const guildSanctions =
+							cache.membersSanctions.get(guildId);
+						const sanctionCount =
+							(guildSanctions?.get(member.id) ?? 0) + 1;
+
+						guildSanctions?.set(member.id, sanctionCount);
+
+						// Each new antispam sanction doubles the mute duration.
+						const time = Math.min(
+							options.punishTime * 2 ** (sanctionCount - 1),
+							MAX_TIMEOUT
+						);
+
 						await member.timeout(time, "Spamming");
 						await member.client.func.method
 							.warnMember(
@@ -393,6 +406,9 @@ export const event: BotEvent = {
 		}
 		if (!cache.membersFlags.has(message.guild.id)) {
 			cache.membersFlags.set(message.guild.id, new Map());
+		}
+		if (!cache.membersSanctions.has(message.guild.id)) {
+			cache.membersSanctions.set(message.guild.id, new Map());
 		}
 
 		// Init User cache

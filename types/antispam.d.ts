@@ -37,6 +37,7 @@ export namespace AntiSpam {
 		messages: Map<string, Set<CachedMessage>>;
 		membersToPunish: Map<string, Set<GuildMember>>;
 		membersFlags: Map<string, Map<string, number>>;
+		membersSanctions: Map<string, Map<string, number>>;
 	}
 
 	export interface AntiSpamOptions {
