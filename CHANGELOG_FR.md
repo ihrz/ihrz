@@ -20,6 +20,12 @@
 
 ---
 
+## 🚨 AutoMod — toutes les règles dans un seul panneau
+
+`/automod` remplace les cinq sous-commandes `/automod block ...` par un **panneau Components V2** unique : activez ou désactivez chaque règle, définissez le canal qui reçoit ses logs et choisissez les **rôles autorisés à la contourner**. Spam, mentions de masse, liens & publicités, invitations Discord et liens Telegram possèdent chacun leur emoji dans la vue d'ensemble, la vue détail affiche la limite de mentions, et les anciennes sous-commandes disparaissent — le panneau pilote les mêmes règles AutoMod natives qu'avant.
+
+---
+
 ## 🔒 Utilitaires — verrouillez les pseudos, listez les laisses
 
 - `/utilss lockname` verrouille le pseudo d'un membre, avec la possibilité d'en imposer un nouveau, tandis que `/utilss unlockname` le libère. `/utilss locknamelist` affiche tous les pseudos verrouillés avec leur auteur et leur date.

@@ -20,6 +20,12 @@
 
 ---
 
+## 🚨 AutoMod — every rule in a single panel
+
+`/automod` replaces the five `/automod block ...` subcommands with one **Components V2** panel: turn each rule on or off, set the channel receiving its logs and pick the **roles allowed to bypass it**. Spam, mass mentions, links & advertising, Discord invites and Telegram links each get their own emoji in the overview, the detail view shows the mention limit, and the old subcommands are gone — the panel drives the same native AutoMod rules as before.
+
+---
+
 ## 🔒 Utilities — lock nicknames, list every leash
 
 - `/utilss lockname` locks a member's nickname, optionally forcing a new one, while `/utilss unlockname` releases it. `/utilss locknamelist` shows every locked nickname with who locked it and when.
