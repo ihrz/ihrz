@@ -3730,6 +3730,19 @@
         "thinking": false
     },
     {
+        "name": "automod",
+        "description": "Open the interactive AutoMod configuration panel!",
+        "description_translated": {
+            "fr": "Ouvre le panneau de configuration interactif de l'AutoMod !",
+            "ja": "対話型AutoMod設定パネルを開きます！",
+            "ru": "Открывает интерактивную панель настройки AutoMod!",
+            "es-ES": "¡Abre el panel de configuración interactivo de AutoMod!"
+        },
+        "category": "guildconfig",
+        "aliases": [],
+        "thinking": true
+    },
+    {
         "name": "h247",
         "name_translated": {
             "fr": "h247",
@@ -10611,6 +10624,102 @@
         "thinking": false
     },
     {
+        "name": "protect",
+        "description": "Open the interactive protection configuration panel!",
+        "description_translated": {
+            "fr": "Ouvre le panneau de configuration interactif de la protection !",
+            "ja": "対話型保護設定パネルを開きます！",
+            "ru": "Открывает интерактивную панель настройки защиты!",
+            "es-ES": "¡Abre el panel de configuración interactivo de protección!"
+        },
+        "category": "protection",
+        "aliases": [],
+        "thinking": true
+    },
+    {
+        "name": "allowlist",
+        "description": "Subcommand for protection category!",
+        "description_translated": {
+            "fr": "Commande sous-groupé pour la catégorie de protection",
+            "ja": "保護カテゴリのサブコマンド！",
+            "ru": "Подкоманда для категории защиты!",
+            "es-ES": "Subcomando para la categoría de protección!"
+        },
+        "category": "protection",
+        "options": [
+            {
+                "name": "add",
+                "prefixName": "wl",
+                "description": "Adding an user in the allowlist!",
+                "description_localizations": {
+                    "fr": "Ajouter un utilisateur à la liste blanche",
+                    "ja": "許可リストにユーザーを追加！",
+                    "ru": "Добавить пользователя в белый список!",
+                    "es-ES": "Añadiendo un usuario a la lista de permitidos!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "member",
+                        "type": 6,
+                        "description": "Whats is the member then?",
+                        "description_localizations": {
+                            "fr": "Quel est le membre alors?",
+                            "ja": "どのメンバーですか？",
+                            "ru": "Какой участник?",
+                            "es-ES": "Cual es el miembro entonces?"
+                        },
+                        "required": true,
+                        "commandFullName": "allowlist add member"
+                    }
+                ],
+                "commandFullName": "allowlist add"
+            },
+            {
+                "name": "remove",
+                "prefixName": "unwl",
+                "description": "Removing an user in the allowlist!",
+                "description_localizations": {
+                    "fr": "Supprimer un utilisateur de la liste blanche",
+                    "ja": "許可リストからユーザーを削除！",
+                    "ru": "Удалить пользователя из белого списка!",
+                    "es-ES": "Eliminando un usuario de la lista de permitidos!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "member",
+                        "type": 6,
+                        "description": "Whats is the member then?",
+                        "description_localizations": {
+                            "fr": "Quel est le membre alors?",
+                            "ja": "どのメンバーですか？",
+                            "ru": "Какой участник?",
+                            "es-ES": "Cual es el miembro entonces?"
+                        },
+                        "required": true,
+                        "commandFullName": "allowlist remove member"
+                    }
+                ],
+                "commandFullName": "allowlist remove"
+            },
+            {
+                "name": "show",
+                "prefixName": "wl-list",
+                "description": "List the users in the allowlist!",
+                "description_localizations": {
+                    "fr": "Lister les utilisateurs dans la liste autorisée",
+                    "ja": "許可リストのユーザーを一覧表示！",
+                    "ru": "Показать пользователей в белом списке!",
+                    "es-ES": "Listar los usuarios en la lista de permitidos!"
+                },
+                "type": 1,
+                "commandFullName": "allowlist show"
+            }
+        ],
+        "thinking": false
+    },
+    {
         "name": "authrestore",
         "description": "Do the same thing as authrestore with link verification button under iHorizon message",
         "description_translated": {
@@ -10942,18 +11051,6 @@
             }
         ],
         "thinking": false
-    },
-    {
-        "name": "automod",
-        "description": "Open the interactive AutoMod configuration panel!",
-        "description_translated": {
-            "fr": "Ouvre le panneau de configuration interactif de l'AutoMod !",
-            "ja": "対話型AutoMod設定パネルを開きます！",
-            "ru": "Открывает интерактивную панель настройки AutoMod!",
-            "es-ES": "¡Abre el panel de configuración interactivo de AutoMod!"
-        },
-        "category": "guildconfig",
-        "thinking": true
     },
     {
         "name": "join-ghostping",
@@ -12435,93 +12532,6 @@
             }
         ],
         "thinking": false
-    },
-    {
-        "name": "allowlist",
-        "description": "Subcommand for protection category!",
-        "description_translated": {
-            "fr": "Commande sous-groupé pour la catégorie de protection",
-            "ja": "保護カテゴリのサブコマンド！",
-            "ru": "Подкоманда для категории защиты!",
-            "es-ES": "Subcomando para la categoría de protección!"
-        },
-        "category": "protection",
-        "options": [
-            {
-                "name": "add",
-                "description": "Adding an user in the allowlist!",
-                "description_localizations": {
-                    "fr": "Ajouter un utilisateur à la liste blanche",
-                    "ja": "許可リストにユーザーを追加！",
-                    "ru": "Добавить пользователя в белый список!",
-                    "es-ES": "Añadiendo un usuario a la lista de permitidos!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "member",
-                        "type": 6,
-                        "description": "Whats is the member then?",
-                        "description_localizations": {
-                            "fr": "Quel est le membre alors?",
-                            "ja": "どのメンバーですか？",
-                            "ru": "Какой участник?",
-                            "es-ES": "Cual es el miembro entonces?"
-                        },
-                        "required": true
-                    }
-                ]
-            },
-            {
-                "name": "remove",
-                "description": "Removing an user in the allowlist!",
-                "description_localizations": {
-                    "fr": "Supprimer un utilisateur de la liste blanche",
-                    "ja": "許可リストからユーザーを削除！",
-                    "ru": "Удалить пользователя из белого списка!",
-                    "es-ES": "Eliminando un usuario de la lista de permitidos!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "member",
-                        "type": 6,
-                        "description": "Whats is the member then?",
-                        "description_localizations": {
-                            "fr": "Quel est le membre alors?",
-                            "ja": "どのメンバーですか？",
-                            "ru": "Какой участник?",
-                            "es-ES": "Cual es el miembro entonces?"
-                        },
-                        "required": true
-                    }
-                ]
-            },
-            {
-                "name": "show",
-                "description": "List the users in the allowlist!",
-                "description_localizations": {
-                    "fr": "Lister les utilisateurs dans la liste autorisée",
-                    "ja": "許可リストのユーザーを一覧表示！",
-                    "ru": "Показать пользователей в белом списке!",
-                    "es-ES": "Listar los usuarios en la lista de permitidos!"
-                },
-                "type": 1
-            }
-        ],
-        "thinking": false
-    },
-    {
-        "name": "protect",
-        "description": "Open the interactive protection configuration panel!",
-        "description_translated": {
-            "fr": "Ouvre le panneau de configuration interactif de la protection !",
-            "ja": "対話型保護設定パネルを開きます！",
-            "ru": "Открывает интерактивную панель настройки защиты!",
-            "es-ES": "¡Abre el panel de configuración interactivo de protección!"
-        },
-        "category": "protection",
-        "thinking": true
     },
     {
         "name": "setsuggest",
