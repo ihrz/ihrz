@@ -10669,7 +10669,7 @@
                             "ru": "Какой участник?",
                             "es-ES": "Cual es el miembro entonces?"
                         },
-                        "required": true,
+                        "required": false,
                         "commandFullName": "allowlist add member"
                     }
                 ],
