@@ -28,7 +28,7 @@
 
 ## 🔐 Protection — a dedicated panel for every rule
 
-`/protect` opens a **Components V2** panel covering all 13 protection rules: enable or disable each one, choose who can bypass it (allowlist, everyone or only the owner) and set a **sanction per rule** — cancel only, +derank, +ban, +kick or +mute — instead of a single server-wide sanction, which stays available as the global default. The old `actions`, `sanction` and `show` subcommands keep working.
+`/protect` replaces the old `actions`, `sanction` and `show` subcommands with a single **Components V2** panel covering all 13 protection rules: enable or disable each one, choose who can bypass it (allowlist, everyone or only the owner) and set a **sanction per rule** — cancel only, +derank, +ban, +kick or +mute — instead of a single server-wide sanction, which stays available as the global default.
 
 ---
 

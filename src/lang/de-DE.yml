@@ -2457,25 +2457,14 @@ pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestell
 pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
 pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
 
-# Schutzmodul
-# /Autorisierungsaktionen, ... Sanktionen, ... Konfiguration anzeigen, /Allowlist anzeigen, ... hinzufügen, ... löschen
+# Protection Module
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /Autorisierungsaktionen
+# /protect panel
 authorization_actions_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
 authorization_actions_everyone: "Jeder"
 authorization_actions_allowlist: "Mitglied(er) der Allowlist"
 authorization_actions_nobody: "Niemand. (Außer Serverbesitzer)"
-authorization_actions_rule_set: "${interaction.user}, die Regel für `${rule.toUpperCase()}` wurde festgelegt. **${allow}** dürfen sie umgehen!"
-authorization_actions_rule_clear: "${interaction.user}, alle Regeln für `${interaction.guild.name}` wurden gelöscht. Das Schutzmodul ist jetzt deaktiviert!"
-
-# /Autorisierungssanktion
-authorization_sanction_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
-authorization_sanction_simply: "N/A"
-authorization_sanction_simply_unrank: "ENTRANGIEREN"
-authorization_sanction_simply_ban: "SPERREN"
-authorization_sanction_command_work: "${interaction.user}, die Sanktionsregel wurde festgelegt. Wenn der Benutzer gegen die Regel verstößt, wird er **${choose}**. Und der Bot bricht seine Aktion ab."
-
-# /protect panel
 protect_panel_title: "Protect-Steuerpult"
 protect_panel_desc: "Konfiguriere jede Schutzregel: aktiviere oder deaktiviere sie, wähle wer sie umgehen kann und lege die Sanktion für das verantwortliche Mitglied fest."
 protect_panel_global_label: "Globale Sanktion"
@@ -2520,17 +2509,6 @@ protect_panel_rule_banmembers_name: "Mitglieder bannen"
 protect_panel_rule_kickmember_name: "Mitglieder kicken"
 protect_panel_rule_unbanmembers_name: "Banns aufheben"
 protect_panel_rule_add_admin_roles_name: "Admin-Rollenvergabe"
-
-# /Autorisierungskonfiguration anzeigen
-authorization_configshow_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
-authorization_configshow_not_anything_setup: "Sie haben im Schutzmodul nichts eingerichtet!"
-authorization_configshow_simply: "Aktion einfach abbrechen"
-authorization_configshow_simply_ban: "Aktion einfach abbrechen und sperren"
-authorization_configshow_simply_unrank: "Aktion einfach abbrechen und Entstufen"
-authorization_configshow_punishement: "```Strafe: ${okay}```"
-authorization_configshow_embed1_author: "Regelliste"
-authorization_configshow_embed2_author: "Allowlist"
-
 # /Allowlist anzeigen
 allowlist_show_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
 allowlist_show_embed_author: "Allowlist"

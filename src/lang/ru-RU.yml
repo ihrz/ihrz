@@ -2457,25 +2457,14 @@ pfps_channel_embed_desc: "${interaction.user} настроил модуль PFPS
 pfps_channel_command_work: "${interaction.user}, вы успешно настроили модуль PFPS для канала ${channel} !"
 pfps_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал, и включен ли модуль PFPP!"
 
-# Модуль защиты
-# /действия авторизации, ... санкции, ... показать настройки, /список разрешений показать, ... добавить, ... удалить
+# Protection Module
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /действия авторизации
+# /protect panel
 authorization_actions_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
 authorization_actions_everyone: "Все"
 authorization_actions_allowlist: "Участник(ы) списка разрешений"
 authorization_actions_nobody: "Никто. (Кроме владельца сервера)"
-authorization_actions_rule_set: "${interaction.user}, правило для `${rule.toUpperCase()}` установлено. **${allow}** могут его обойти!"
-authorization_actions_rule_clear: "${interaction.user}, все правила для `${interaction.guild.name}` были удалены. Модуль защиты теперь отключен!"
-
-# /санкция авторизации
-authorization_sanction_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
-authorization_sanction_simply: "Н/Д"
-authorization_sanction_simply_unrank: "СНИЗИТЬ РАНГ"
-authorization_sanction_simply_ban: "БАН"
-authorization_sanction_command_work: "${interaction.user}, установлено правило санкции. Когда пользователь нарушает правило, это **${choose}**. И бот отменяет его действие."
-
-# /protect panel
 protect_panel_title: "Панель управления Protect"
 protect_panel_desc: "Настройте каждое правило защиты: включайте и выключайте его, выберите, кто может его обходить, и задайте санкцию для ответственного участника."
 protect_panel_global_label: "Глобальная санкция"
@@ -2520,17 +2509,6 @@ protect_panel_rule_banmembers_name: "Бан участников"
 protect_panel_rule_kickmember_name: "Кик участников"
 protect_panel_rule_unbanmembers_name: "Разбан участников"
 protect_panel_rule_add_admin_roles_name: "Выдача ролей администратора"
-
-# /показать настройки авторизации
-authorization_configshow_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
-authorization_configshow_not_anything_setup: "Вы ничего не настроили в модуле защиты!"
-authorization_configshow_simply: "Просто отменить действие"
-authorization_configshow_simply_ban: "Просто отменить действие и забанить"
-authorization_configshow_simply_unrank: "Просто отменить действие и снять с ранга"
-authorization_configshow_punishement: "```Наказание: ${okay}```"
-authorization_configshow_embed1_author: "Список правил"
-authorization_configshow_embed2_author: "Список разрешений"
-
 # /список разрешений показать
 allowlist_show_not_permited: "У вас нет разрешения использовать эту команду! Вы должны быть в списке разрешений!"
 allowlist_show_embed_author: "Список разрешений"

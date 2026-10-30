@@ -2457,25 +2457,14 @@ pfps_channel_embed_desc: "${interaction.user} configurou o módulo PFPS aqui!\nA
 pfps_channel_command_work: "${interaction.user}, você configurou com sucesso o módulo PFPS para o canal ${channel}!"
 pfps_channel_command_error: "${interaction.user}, o comando retornou um erro. Por favor, verifique se o canal que você especificou existe e verifique se o Módulo PFPP foi habilitado!"
 
-# Módulo de Proteção
-# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+# Protection Module
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /authorization actions
+# /protect panel
 authorization_actions_not_permited: "Apenas o dono do servidor pode editar a regra de autorização sobre o módulo de proteção!"
 authorization_actions_everyone: "Todos"
 authorization_actions_allowlist: "Membro(s) da lista de permissões"
 authorization_actions_nobody: "Ninguém. (Exceto o proprietário do servidor)"
-authorization_actions_rule_set: "${interaction.user}, a regra para `${rule.toUpperCase()}` foi definida. **${allow}** estão autorizados a ignorá-la!"
-authorization_actions_rule_clear: "${interaction.user}, todas as regras para `${interaction.guild.name}` foram deletadas. O módulo de proteção está agora desativado!"
-
-# /authorization sanction
-authorization_sanction_not_permited: "Apenas o dono do servidor pode editar a regra de autorização sobre o módulo de proteção!"
-authorization_sanction_simply: "N/A"
-authorization_sanction_simply_unrank: "REBAIXAR"
-authorization_sanction_simply_ban: "BANIR"
-authorization_sanction_command_work: "${interaction.user}, a sanção da regra foi definida. Quando o usuário quebrar a regra, será **${choose}**. E o bot cancelará a ação."
-
-# /protect panel
 protect_panel_title: "Painel de controlo do Protect"
 protect_panel_desc: "Configura cada regra de proteção: ativa-a ou desativa-a, escolhe quem pode contorná-la e define a sanção aplicada ao membro responsável."
 protect_panel_global_label: "Sanção global"
@@ -2520,17 +2509,6 @@ protect_panel_rule_banmembers_name: "Banir membros"
 protect_panel_rule_kickmember_name: "Expulsar membros"
 protect_panel_rule_unbanmembers_name: "Desbanir membros"
 protect_panel_rule_add_admin_roles_name: "Concessão de papéis admin"
-
-# /authorization config-show
-authorization_configshow_not_permited: "Apenas o dono do servidor pode editar a regra de autorização sobre o módulo de proteção!"
-authorization_configshow_not_anything_setup: "Você não configurou nada no Módulo de Proteção!"
-authorization_configshow_simply: "Apenas Cancelar Ação"
-authorization_configshow_simply_ban: "Apenas Cancelar Ação & Banir"
-authorization_configshow_simply_unrank: "Apenas Cancelar Ação & Rebaixar"
-authorization_configshow_punishement: "```Punição: ${okay}```"
-authorization_configshow_embed1_author: "Lista de Regras"
-authorization_configshow_embed2_author: "Lista de Permissões"
-
 # /allowlist show
 allowlist_show_not_permited: "Você não tem permissão para usar este comando! Você precisa estar na lista de permissões!"
 allowlist_show_embed_author: "Lista de Permissões"

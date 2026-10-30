@@ -1900,13 +1900,6 @@ export interface LanguageData {
 	authorization_actions_everyone: string;
 	authorization_actions_allowlist: string;
 	authorization_actions_nobody: string;
-	authorization_actions_rule_set: string;
-	authorization_actions_rule_clear: string;
-	authorization_sanction_not_permited: string;
-	authorization_sanction_simply: string;
-	authorization_sanction_simply_unrank: string;
-	authorization_sanction_simply_ban: string;
-	authorization_sanction_command_work: string;
 	protect_panel_title: string;
 	protect_panel_desc: string;
 	protect_panel_global_label: string;
@@ -1951,14 +1944,6 @@ export interface LanguageData {
 	protect_panel_rule_kickmember_name: string;
 	protect_panel_rule_unbanmembers_name: string;
 	protect_panel_rule_add_admin_roles_name: string;
-	authorization_configshow_not_permited: string;
-	authorization_configshow_not_anything_setup: string;
-	authorization_configshow_simply: string;
-	authorization_configshow_simply_ban: string;
-	authorization_configshow_simply_unrank: string;
-	authorization_configshow_punishement: string;
-	authorization_configshow_embed1_author: string;
-	authorization_configshow_embed2_author: string;
 	allowlist_show_not_permited: string;
 	allowlist_show_embed_author: string;
 	allowlist_add_not_permited: string;

@@ -12810,6 +12810,17 @@
                     "es-ES": "Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"
                 },
                 "type": 1
+            },
+            {
+                "name": "panel",
+                "description": "Open the interactive protection configuration panel!",
+                "description_localizations": {
+                    "fr": "Ouvre le panneau de configuration interactif de la protection !",
+                    "ja": "対話型保護設定パネルを開きます！",
+                    "ru": "Открывает интерактивную панель настройки защиты!",
+                    "es-ES": "¡Abre el panel de configuración interactivo de protección!"
+                },
+                "type": 1
             }
         ],
         "thinking": true

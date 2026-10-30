@@ -2457,25 +2457,14 @@ pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
 
-# 保護モジュール
-# /認証アクション、...罰則、...設定表示、/許可リスト表示、...追加、...削除
+# Protection Module
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /認証アクション
+# /protect panel
 authorization_actions_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
 authorization_actions_everyone: "誰でも"
 authorization_actions_allowlist: "許可リストのメンバー"
 authorization_actions_nobody: "誰も。(サーバーオーナーを除く)"
-authorization_actions_rule_set: "${interaction.user}、`${rule.toUpperCase()}` のルールが設定されました。**${allow}** はこれをバイパスできます！"
-authorization_actions_rule_clear: "${interaction.user}、`${interaction.guild.name}` のすべてのルールが削除されました。保護モジュールは無効になりました！"
-
-# /認証罰則
-authorization_sanction_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
-authorization_sanction_simply: "該当なし"
-authorization_sanction_simply_unrank: "ランク外し"
-authorization_sanction_simply_ban: "BAN"
-authorization_sanction_command_work: "${interaction.user}、罰則ルールが設定されました。ユーザーがルールを犯した場合、**${choose}** です。ボットはそのアクションをキャンセルします。"
-
-# /protect panel
 protect_panel_title: "Protect コントロールパネル"
 protect_panel_desc: "すべての保護ルールを設定できます。ルールの有効化・無効化、バイパスできるロールの選択、責任者に適用する制裁の設定が可能です。"
 protect_panel_global_label: "全体制裁"
@@ -2520,17 +2509,6 @@ protect_panel_rule_banmembers_name: "メンバーBAN"
 protect_panel_rule_kickmember_name: "メンバーkick"
 protect_panel_rule_unbanmembers_name: "BAN解除"
 protect_panel_rule_add_admin_roles_name: "管理者ロール付与"
-
-# /認証設定表示
-authorization_configshow_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
-authorization_configshow_not_anything_setup: "保護モジュールには何も設定されていません！"
-authorization_configshow_simply: "アクションを単純にキャンセル"
-authorization_configshow_simply_ban: "アクションを単純にキャンセルしてBAN"
-authorization_configshow_simply_unrank: "アクションを単純にキャンセルしてランク外し"
-authorization_configshow_punishement: "```罰則：${okay}```"
-authorization_configshow_embed1_author: "ルールリスト"
-authorization_configshow_embed2_author: "許可リスト"
-
 # /許可リスト表示
 allowlist_show_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
 allowlist_show_embed_author: "許可リスト"

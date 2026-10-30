@@ -2458,24 +2458,13 @@ pfps_channel_command_work: "${interaction.user}, لقد قمت بنجاح بتع
 pfps_channel_command_error: "${interaction.user}, الأمر أرجع خطأ. يرجى التحقق من أن القناة التي حددتها موجودة، وتحقق من تمكين وحدة PFPS!"
 
 # Protection Module
-# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /authorization actions
+# /protect panel
 authorization_actions_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
 authorization_actions_everyone: "الجميع"
 authorization_actions_allowlist: "الأعضاء في القائمة المسموحة"
 authorization_actions_nobody: "لا أحد. (باستثناء صاحب الخادم)"
-authorization_actions_rule_set: "${interaction.user}, تم تعيين القاعدة لـ `${rule.toUpperCase()}`. **${allow}** مسموح لهم بتجاوزها!"
-authorization_actions_rule_clear: "${interaction.user}, تم حذف جميع القواعد لـ `${interaction.guild.name}`. وحدة الحماية الآن موقوفة!"
-
-# /authorization sanction
-authorization_sanction_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
-authorization_sanction_simply: "غير متاح"
-authorization_sanction_simply_unrank: "إلغاء التصنيف"
-authorization_sanction_simply_ban: "حظر"
-authorization_sanction_command_work: "${interaction.user}, تم تعيين عقوبة القاعدة. عندما ينتهك المستخدم القاعدة، ستكون **${choose}**. وسيقوم البوت بإلغاء إجراءه."
-
-# /protect panel
 protect_panel_title: "لوحة تحكم Protect"
 protect_panel_desc: "قم بتهيئة كل قاعدة حماية: فعّلها أو عطّلها، واختر من يمكنه تجاوزها، وحدد العقوبة المطبقة على العضو المسؤول."
 protect_panel_global_label: "العقوبة العامة"
@@ -2520,17 +2509,6 @@ protect_panel_rule_banmembers_name: "حظر الأعضاء"
 protect_panel_rule_kickmember_name: "طرد الأعضاء"
 protect_panel_rule_unbanmembers_name: "رفع الحظر"
 protect_panel_rule_add_admin_roles_name: "منح أدوار المشرف"
-
-# /authorization config-show
-authorization_configshow_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
-authorization_configshow_not_anything_setup: "لم تقم بإعداد أي شيء في وحدة الحماية!"
-authorization_configshow_simply: "إلغاء الإجراء ببساطة"
-authorization_configshow_simply_ban: "إلغاء الإجراء ببساطة & حظر"
-authorization_configshow_simply_unrank: "إلغاء الإجراء ببساطة & إلغاء التصنيف"
-authorization_configshow_punishement: "```العقوبة: ${okay}```"
-authorization_configshow_embed1_author: "قائمة القواعد"
-authorization_configshow_embed2_author: "القائمة المسموحة"
-
 # /allowlist show
 allowlist_show_not_permited: "أنت غير مسموح لك باستخدام هذا الأمر! يجب أن تكون في القائمة المسموحة!"
 allowlist_show_embed_author: "القائمة المسموحة"

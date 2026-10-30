@@ -2456,25 +2456,14 @@ pfps_channel_embed_desc: "${interaction.user} ha impostato il modulo PFPS qui!\n
 pfps_channel_command_work: "${interaction.user}, hai impostato con successo il modulo PFPS nel canale ${channel} !"
 pfps_channel_command_error: "${interaction.user}, il comando ha restituito un errore. Verifica che il canale specificato esista e che il modulo PFPP sia attivo!"
 
-# Modulo di Protezione
-# /azioni di autorizzazione, ... sanzioni, ... mostra configurazione, /lista bianca mostra, ... aggiungi, ... elimina
+# Protection Module
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /azioni di autorizzazione
+# /protect panel
 authorization_actions_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
 authorization_actions_everyone: "Tutti"
 authorization_actions_allowlist: "Membro(i) della lista bianca"
 authorization_actions_nobody: "Nessuno. (Tranne il proprietario del server)"
-authorization_actions_rule_set: "${interaction.user}, la regola per `${rule.toUpperCase()}` è stata impostata. **${allow}** possono superarla!"
-authorization_actions_rule_clear: "${interaction.user}, tutte le regole per `${interaction.guild.name}` sono state cancellate. Il modulo di protezione è ora disabilitato!"
-
-# /sanzione di autorizzazione
-authorization_sanction_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
-authorization_sanction_simply: "N/D"
-authorization_sanction_simply_unrank: "DEGRADA"
-authorization_sanction_simply_ban: "BANNA"
-authorization_sanction_command_work: "${interaction.user}, la regola di sanzione è stata impostata. Quando l'utente viola la regola, è **${choose}**. E il bot annulla la sua azione."
-
-# /protect panel
 protect_panel_title: "Pannello di controllo Protect"
 protect_panel_desc: "Configura ogni regola di protezione: attivala o disattivala, scegli chi può bypassarla e imposta la sanzione applicata al membro responsabile."
 protect_panel_global_label: "Sanzione globale"
@@ -2519,17 +2508,6 @@ protect_panel_rule_banmembers_name: "Bannare membri"
 protect_panel_rule_kickmember_name: "Espellere membri"
 protect_panel_rule_unbanmembers_name: "Sbannare membri"
 protect_panel_rule_add_admin_roles_name: "Concessione ruoli admin"
-
-# /mostra configurazione di autorizzazione
-authorization_configshow_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
-authorization_configshow_not_anything_setup: "Non hai configurato nulla nel modulo di protezione!"
-authorization_configshow_simply: "Annulla semplicemente l'azione"
-authorization_configshow_simply_ban: "Annulla semplicemente l'azione e banna"
-authorization_configshow_simply_unrank: "Annulla semplicemente l'azione e degrada"
-authorization_configshow_punishement: "```Sanzione: ${okay}```"
-authorization_configshow_embed1_author: "Elenco delle regole"
-authorization_configshow_embed2_author: "Lista bianca"
-
 # /lista bianca mostra
 allowlist_show_not_permited: "Non sei autorizzato a usare questo comando! Devi essere nella lista bianca!"
 allowlist_show_embed_author: "Lista bianca"

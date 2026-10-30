@@ -2460,24 +2460,13 @@ pfps_channel_command_work: "${interaction.user}, you have successfully set the P
 pfps_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the PFPS Module has been enabled!"
 
 # Protection Module
-# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+# /protect panel, /allowlist show, ... add, ... delete
 
-# /authorization actions
+# /protect panel
 authorization_actions_not_permited: "Only the Owner of the server can edit the authorization rule about the protection module!"
 authorization_actions_everyone: "Everyone"
 authorization_actions_allowlist: "Member(s) of allowlist"
 authorization_actions_nobody: "Nobody. (Except server owner)"
-authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` has been set. **${allow}** are allowed to bypass it!"
-authorization_actions_rule_clear: "${interaction.user}, all of the rules for `${interaction.guild.name}` have been deleted. Protection module is now disabled!"
-
-# /authorization sanction
-authorization_sanction_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
-authorization_sanction_simply: "N/A"
-authorization_sanction_simply_unrank: "UNRANK"
-authorization_sanction_simply_ban: "BAN"
-authorization_sanction_command_work: "${interaction.user}, rule sanction has been set. When the user breaks the rule, it's **${choose}**, and the bot cancels its action."
-
-# /protect panel
 protect_panel_title: "Protect Control Panel"
 protect_panel_desc: "Configure every protection rule: enable or disable it, choose who bypasses it and pick the sanction applied to the member responsible."
 protect_panel_global_label: "Global sanction"
@@ -2522,17 +2511,6 @@ protect_panel_rule_banmembers_name: "Ban members"
 protect_panel_rule_kickmember_name: "Kick members"
 protect_panel_rule_unbanmembers_name: "Unban members"
 protect_panel_rule_add_admin_roles_name: "Admin role grants"
-
-# /authorization config-show
-authorization_configshow_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
-authorization_configshow_not_anything_setup: "You have not set up anything in the Protection Module!"
-authorization_configshow_simply: "Simply Cancel Action"
-authorization_configshow_simply_ban: "Simply Cancel Action & Ban"
-authorization_configshow_simply_unrank: "Simply Cancel Action & Unrank"
-authorization_configshow_punishement: "```Punishment: ${okay}```"
-authorization_configshow_embed1_author: "Rule List"
-authorization_configshow_embed2_author: "Allowlist"
-
 # /allowlist show
 allowlist_show_not_permited: "You are not allowed to use this command! You need to be in the allowlist!"
 allowlist_show_embed_author: "Allowlist"
