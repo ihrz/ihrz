@@ -1557,26 +1557,38 @@ joinghostping_remove_isnt_set: "القناة ${channel} غير مهيأة!"
 joinghostping_remove_ok_embed_desc: "تم حذف القنوات من وحدة Join GhostPing!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} قام بحذف ${channel} من وحدة Join GhostPing!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **false**.\nالآن يمكن للمستخدمين إرسال الإشعارات في رسائلهم.\nAutoMod x iHorizon تم تعطيله في خادمك!"
-automod_block_massmention_command_on: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **true**.\nالآن لا يمكن للمستخدمين إرسال أكثر من **${max_mention}** إشعار في رسائلهم.\nAutoMod __يتم إرسال السجلات__ إلى ${logs_channel}.\nAutoMod x iHorizon يحمي خادمك!"
-automod_block_massmention_command_error404: هل تركت أمر حظر الإشارات المزعجة (ممكّن افتراضيًا بواسطة Discord) في إعدادات التعديل التلقائي، حيث إنه بالتأكيد مسؤول عن هذا الخطأ، يرجى تعطيله وتشغيل الأمر مرة أخرى.
+# /automod
+automod_panel_title: "لوحة تحكم AutoMod"
+automod_panel_desc: "قم بتهيئة كل قاعدة AutoMod من iHorizon: فعّلها أو عطّلها، وحدد قناة السجلات، واختر الأدوار التي يمكنها تجاوزها."
+automod_panel_overview_title: "القواعد المحمية"
+automod_panel_select_placeholder: "اختر قاعدة لإعدادها"
+automod_panel_label_logs: "قناة السجلات"
+automod_panel_label_bypass: "أدوار التجاوز"
+automod_panel_label_mention_limit: "حد الإشارات"
+automod_panel_rule_spam_name: "رسائل السبام"
+automod_panel_rule_spam_desc: "يحظر الفيض والرسائل المتكررة في الخادم."
+automod_panel_rule_mass_mention_name: "الإشارات الجماعية"
+automod_panel_rule_mass_mention_desc: "يحظر الرسائل التي تحتوي على عدد مفرط من الإشارات."
+automod_panel_rule_antipub_name: "الروابط والإعلانات"
+automod_panel_rule_antipub_desc: "يحظر روابط الإعلانات، مع قائمة آمنة (GitHub و Tenor و YouTube ...)."
+automod_panel_rule_media_name: "دعوات Discord"
+automod_panel_rule_media_desc: "يحظر روابط دعوة خوادم Discord المرسلة في الرسائل."
+automod_panel_rule_telegram_name: "روابط Telegram"
+automod_panel_rule_telegram_desc: "يحظر روابط Telegram (t.me و telegram.me و tg://...)."
+automod_panel_logs_placeholder: "اختر قناة استقبال سجلات هذه القاعدة"
+automod_panel_bypass_placeholder: "اختر الأدوار التي تتجاوز هذه القاعدة"
+automod_panel_enable_button: "تفعيل"
+automod_panel_disable_button: "تعطيل"
+automod_panel_back_button: "رجوع"
+automod_panel_refresh_button: "تحديث"
+automod_panel_close_button: "إغلاق اللوحة"
+automod_panel_rule_enabled: "تم تفعيل القاعدة **${rule}**!"
+automod_panel_rule_disabled: "تم تعطيل القاعدة **${rule}**!"
+automod_panel_bypass_saved: "تم تحديث أدوار تجاوز **${rule}**!"
+automod_panel_logs_saved: "تم إرسال سجلات **${rule}** الآن في ${channel}."
+automod_panel_logs_reset: "تمت إزالة قناة سجلات **${rule}**!"
+automod_panel_api_error: "لم أتمكن من تطبيق هذا التغيير، تأكد من أن لدي إذن `إدارة الخادم` وأن قواعد AutoMod الافتراضية في Discord معطّلة، ثم حاول مرة أخرى."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الروابط**. الآن، لا يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_link_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الروابط**. الآن، يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، لا يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_telegram_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الدعوات**. الآن، لا يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_pub_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الدعوات**. الآن، يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الرسائل المزعجة**. الآن، لا يمكن للمستخدمين إرسال رسائل مزعجة. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_spam_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الرسائل المزعجة**. الآن، يمكن للمستخدمين إرسال رسائل مزعجة. AutoMod x iHorizon تم تعطيله على خادمك!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "لم تقم بتحديد وقت. لتمكين هذه الوحدة، يلزم أن يكون عمر الحساب الأدنى محددًا!"

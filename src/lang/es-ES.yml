@@ -1556,26 +1556,38 @@ joinghostping_remove_isnt_set: "¡El canal ${channel} no está configurado!"
 joinghostping_remove_ok_embed_desc: "¡Los canales han sido eliminados del Módulo Join GhostPing!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} ha eliminado ${channel} del Módulo Join GhostPing!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Menciones Masivas` a **falso**.\nAhora los usuarios pueden enviar menciones en sus mensajes.\nAutoModeración x iHorizon ha sido desactivada en tu servidor."
-automod_block_massmention_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Menciones Masivas` a **verdadero**.\nAhora los usuarios no pueden enviar más de **${max_mention}** mención(es) en sus mensajes.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
-automod_block_massmention_command_error404: ¿Has dejado activado Block Mention Spam (activado por defecto por Discord) en la configuración de AutoMod, ya que seguramente es el responsable de este error, por favor desactívalo y ejecuta el comando de nuevo.
+# /automod
+automod_panel_title: "Panel de control de AutoMod"
+automod_panel_desc: "Configura cada regla de AutoMod de iHorizon: actívalas o desactívalas, define su canal de registros y elige los roles que pueden omitirlas."
+automod_panel_overview_title: "Reglas protegidas"
+automod_panel_select_placeholder: "Selecciona una regla para configurar"
+automod_panel_label_logs: "Canal de registros"
+automod_panel_label_bypass: "Roles de omisión"
+automod_panel_label_mention_limit: "Límite de menciones"
+automod_panel_rule_spam_name: "Spam de mensajes"
+automod_panel_rule_spam_desc: "Bloquea el flood y los mensajes repetidos en el servidor."
+automod_panel_rule_mass_mention_name: "Menciones masivas"
+automod_panel_rule_mass_mention_desc: "Bloquea los mensajes con un número abusivo de menciones."
+automod_panel_rule_antipub_name: "Enlaces y publicidad"
+automod_panel_rule_antipub_desc: "Bloquea enlaces publicitarios, con una lista segura (GitHub, Tenor, YouTube, ...)."
+automod_panel_rule_media_name: "Invitaciones de Discord"
+automod_panel_rule_media_desc: "Bloquea los enlaces de invitación a servidores de Discord enviados en los mensajes."
+automod_panel_rule_telegram_name: "Enlaces de Telegram"
+automod_panel_rule_telegram_desc: "Bloquea los enlaces de Telegram (t.me, telegram.me, tg://...)."
+automod_panel_logs_placeholder: "Selecciona el canal que recibe los registros de esta regla"
+automod_panel_bypass_placeholder: "Selecciona los roles que omiten esta regla"
+automod_panel_enable_button: "Activar"
+automod_panel_disable_button: "Desactivar"
+automod_panel_back_button: "Atrás"
+automod_panel_refresh_button: "Actualizar"
+automod_panel_close_button: "Cerrar panel"
+automod_panel_rule_enabled: "¡La regla **${rule}** ahora está activada!"
+automod_panel_rule_disabled: "¡La regla **${rule}** ahora está desactivada!"
+automod_panel_bypass_saved: "¡Los roles de omisión de **${rule}** se han actualizado!"
+automod_panel_logs_saved: "Los registros de **${rule}** ahora se envían a ${channel}."
+automod_panel_logs_reset: "¡El canal de registros de **${rule}** se ha eliminado!"
+automod_panel_api_error: "No pude aplicar este cambio, asegúrate de que tengo el permiso `Gestionar servidor` y de que las reglas de AutoMod predeterminadas de Discord estén desactivadas, e inténtalo de nuevo."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar enlaces en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
-automod_block_link_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar enlaces en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Telegram` en **true**.\nAhora los usuarios no pueden enviar enlaces relacionados con Telegram en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
-automod_block_telegram_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Telegram` en **false**.\nAhora los usuarios pueden enviar enlaces relacionados con Telegram en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar invitaciones de servidor en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
-automod_block_pub_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar invitaciones de servidor en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, has activado la regla de `AutoModeración de Spam` a **verdadero**.\nAhora los usuarios no pueden hacer spam.\nAutoModeración __enviando registros__ en ${logs_channel}.\nAutoModeración x iHorizon protege tu servidor!"
-automod_block_spam_command_off: "${interaction.user}, has desactivado la regla de `AutoModeración de Spam` a **falso**.\nAhora los usuarios pueden hacer spam.\nAutoModeración x iHorizon ha sido desactivada en tu servidor!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "¡No especificaste un tiempo! Para habilitar este módulo, se requiere una antigüedad mínima de la cuenta."
