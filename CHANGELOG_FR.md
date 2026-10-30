@@ -2,6 +2,12 @@
 
 ---
 
+## 🎶 Music — un backend maison en Rust
+
+La musique ne passe plus par Lavalink : le player est désormais propulsé par **notre propre backend maison écrit en Rust**. Le son est beaucoup plus clair, avec **0 packet loss** et plus de perte de gain, les titres sont lus en **FLAC et Opus en pleine stéréo** — l'époque du mono est révolue —, et chaque transition d'une piste à l'autre est un **cross-fade de 3 titres**.
+
+---
+
 ## 🎙️ TempVoice — un panneau de contrôle complet, directement dans votre salon
 
 `/tempvoice` remplace les anciennes commandes de configuration `/voice` par un **panneau Components V2** unique : choisissez le salon de création, la catégorie de destination, le nom et la position par défaut, ainsi que les rôles staff qui ignorent les restrictions. Chaque salon temporaire reçoit désormais son propre **panneau de contrôle Components V2** avec un menu de sélection pour réclamer la propriété, renommer, définir une limite d'utilisateurs, changer la confidentialité, la région, les listes de confiance/blocage, transférer la propriété et supprimer le salon. Le panneau est actualisé quand quelqu'un réclame le salon, et les anciennes commandes séparées `set-voice-channel*`, `set-staff-role` et `set-text-channel` disparaissent.

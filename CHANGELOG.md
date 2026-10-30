@@ -2,6 +2,12 @@
 
 ---
 
+## 🎶 Music — a home-made Rust backend
+
+Music no longer runs through Lavalink: the player is now powered by our own **home-made Rust backend**. The sound is much clearer, with **0 packet loss** and no more gain loss, tracks play in **FLAC and Opus, full stereo** — the mono era is over —, and every transition from one track to the next is a **3-song cross-fade**.
+
+---
+
 ## 🎙️ TempVoice — a full control panel, right in your channel
 
 `/tempvoice` replaces the old `/voice` setup commands with a single **Components V2** panel: choose the join-to-create channel, destination category, default name and position, and staff roles that bypass restrictions. Every temporary channel now gets its own **Components V2 control panel** with a select menu for claiming ownership, renaming, setting a user limit, changing privacy, region, trust/block lists, transferring ownership and deleting the channel. The panel refreshes when someone claims the channel, and the old separate `set-voice-channel*`, `set-staff-role` and `set-text-channel` commands are gone.
