@@ -59,7 +59,7 @@ New prefix command listing every hybrid command the member is allowed to use, ba
 
 ## 🧰 Hybrid commands — `/automod`, `/protect` and `/allowlist` with a prefix
 
-`/automod`, `/protect` and `/allowlist` are now hybrid commands: everything they do is reachable from the prefix too — `+automod`, `+protect`, `+allowlist show`, plus the new shortcuts `+wl`, `+unwl` and `+wl-list` to manage the allowlist.
+`/automod`, `/protect` and `/allowlist` are now hybrid commands, following the owner/unowner pattern: `+automod` and `+protect` open their panels, `+wl` alone lists the allowlist, `+wl <user>` adds a member, `+unwl [user]` (or a reply to their message) removes one — `+allowlist show` and `+wl-list` also work.
 
 ---
 

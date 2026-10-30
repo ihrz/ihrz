@@ -29,6 +29,7 @@ import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { subCommand as showSubCommand } from "./!show.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -53,6 +54,15 @@ export const subCommand: SubCommand = {
 			interaction instanceof ChatInputCommandInteraction
 				? (interaction.options.getMember("member") as GuildMember)
 				: client.func.method.member(interaction, args!, 0);
+
+		// "+wl" without any argument displays the ownerlist.
+		if (
+			!(interaction instanceof ChatInputCommandInteraction) &&
+			!args?.[0]
+		) {
+			await showSubCommand.run(client, interaction, lang, args);
+			return;
+		}
 
 		if (interaction.member.user.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {
