@@ -26,6 +26,12 @@
 
 ---
 
+## 🔐 Protection — un panneau dédié pour chaque règle
+
+`/protect` ouvre un **panneau Components V2** couvrant les 13 règles de protection : activez ou désactivez chacune, choisissez qui peut la contourner (liste d'autorisation, tout le monde ou seulement le propriétaire) et définissez une **sanction par règle** — annulation seule, +derank, +ban, +kick ou +mute — au lieu d'une sanction unique pour tout le serveur, qui reste disponible comme valeur globale par défaut. Les anciennes sous-commandes `actions`, `sanction` et `show` continuent de fonctionner.
+
+---
+
 ## 🔒 Utilitaires — verrouillez les pseudos, listez les laisses
 
 - `/utilss lockname` verrouille le pseudo d'un membre, avec la possibilité d'en imposer un nouveau, tandis que `/utilss unlockname` le libère. `/utilss locknamelist` affiche tous les pseudos verrouillés avec leur auteur et leur date.

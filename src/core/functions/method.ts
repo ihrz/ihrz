@@ -1036,12 +1036,19 @@ export async function derank(
 		});
 }
 
+const PROTECT_MUTE_DURATION = 10 * 60 * 1000;
+
 export async function punish(
 	data: DatabaseStructure.ProtectionData,
 	user: GuildMember,
-	reason?: string
+	reason?: string,
+	ruleKey?: string
 ): Promise<void> {
-	switch (data?.["SANCTION"]) {
+	const rule = ruleKey ? data?.[ruleKey] : undefined;
+	const ruleSanction =
+		rule && typeof rule === "object" ? rule.sanction : undefined;
+
+	switch (ruleSanction || data?.["SANCTION"]) {
 		case "simply":
 			break;
 		case "simply+derank":
@@ -1051,6 +1058,14 @@ export async function punish(
 			user?.ban({ reason: reason || "Protect!" }).catch(async () => {
 				await derank(user, reason).catch(() => false);
 			});
+			break;
+		case "simply+kick":
+			await user?.kick(reason || "Protect!").catch(() => {});
+			break;
+		case "simply+mute":
+			await user
+				?.timeout(PROTECT_MUTE_DURATION, reason || "Protect!")
+				.catch(() => {});
 			break;
 		default:
 			return;

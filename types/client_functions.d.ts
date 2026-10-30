@@ -455,7 +455,8 @@ declare namespace Client_Functions {
 		export function punish(
 			data: DatabaseStructure.ProtectionData,
 			user: GuildMember,
-			reason?: string
+			reason?: string,
+			ruleKey?: string
 		): Promise<void>;
 		export function generateCustomMessagePreview(
 			message: string,

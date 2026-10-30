@@ -274,6 +274,22 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "panel",
+
+			description: "Open the interactive protection configuration panel!",
+			description_localizations: {
+				fr: "Ouvre le panneau de configuration interactif de la protection !",
+				ja: "対話型保護設定パネルを開きます！",
+				ru: "Открывает интерактивную панель настройки защиты!",
+				"es-ES":
+					"¡Abre el panel de configuración interactivo de protección!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
 		}
 	],
 	thinking: true,

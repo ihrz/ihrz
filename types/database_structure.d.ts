@@ -60,13 +60,13 @@ export namespace DatabaseStructure {
 		alive: boolean;
 	}
 
+	export interface ProtectionRuleData {
+		mode: string;
+		sanction?: string;
+	}
+
 	export interface ProtectionData {
-		[rule: string]:
-			| {
-					mode: string;
-			  }
-			| string
-			| undefined;
+		[rule: string]: ProtectionRuleData | string | undefined;
 		SANCTION?: string;
 	}
 

@@ -26,6 +26,12 @@
 
 ---
 
+## 🔐 Protection — a dedicated panel for every rule
+
+`/protect` opens a **Components V2** panel covering all 13 protection rules: enable or disable each one, choose who can bypass it (allowlist, everyone or only the owner) and set a **sanction per rule** — cancel only, +derank, +ban, +kick or +mute — instead of a single server-wide sanction, which stays available as the global default. The old `actions`, `sanction` and `show` subcommands keep working.
+
+---
+
 ## 🔒 Utilities — lock nicknames, list every leash
 
 - `/utilss lockname` locks a member's nickname, optionally forcing a new one, while `/utilss unlockname` releases it. `/utilss locknamelist` shows every locked nickname with who locked it and when.

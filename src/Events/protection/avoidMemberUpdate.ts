@@ -76,7 +76,12 @@ export const event: BotEvent = {
 			!isOwner &&
 				shouldSanction &&
 				(async () => {
-					await client.func.method.punish(data, user!);
+					await client.func.method.punish(
+						data,
+						user!,
+						undefined,
+						"updatemember"
+					);
 					await newMember.roles
 						.set(oldMember.roles.cache, "[Protection] AntiRaid")
 						.catch(() => false);
