@@ -2519,7 +2519,6 @@ allowlist_show_embed_author: "Liste blanche"
 # /allowlist add
 allowlist_add_not_permited: "Vous n'êtes pas autorisé à utiliser cette commande ! Vous devez être sur la liste blanche !"
 allowlist_add_not_owner: "Seul le propriétaire du serveur peut ajouter/supprimer des utilisateurs de la liste blanche !"
-allowlist_add_member_unreachable: "Le membre que vous souhaitiez ajouter à la liste blanche est injoignable !"
 allowlist_add_already_in: "Le membre que vous souhaitez ajouter à la liste blanche s'y trouve déjà !"
 allowlist_add_command_work: "${member.user} a été ajouté à la liste blanche !"
 

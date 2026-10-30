@@ -1948,7 +1948,6 @@ export interface LanguageData {
 	allowlist_show_embed_author: string;
 	allowlist_add_not_permited: string;
 	allowlist_add_not_owner: string;
-	allowlist_add_member_unreachable: string;
 	allowlist_add_already_in: string;
 	allowlist_add_command_work: string;
 	allowlist_delete_not_permited: string;

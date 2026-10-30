@@ -64,7 +64,7 @@ export const command: Command = {
 						"es-ES": "Cual es el miembro entonces?"
 					},
 
-					required: true,
+					required: false,
 
 					permission: null
 				}

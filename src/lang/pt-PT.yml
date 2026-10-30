@@ -2516,7 +2516,6 @@ allowlist_show_embed_author: "Lista de Permissões"
 # /allowlist add
 allowlist_add_not_permited: "Você não está autorizado a usar este comando! Você deve estar na lista de permissões!"
 allowlist_add_not_owner: "Apenas o dono do servidor pode adicionar/remover usuários na lista de permissões!"
-allowlist_add_member_unreachable: "O membro que você queria adicionar à lista de permissões está inacessível!"
 allowlist_add_already_in: "O membro que você quer adicionar à lista de permissões já está nela!"
 allowlist_add_command_work: "${member.user} foi adicionado à lista de permissões!"
 

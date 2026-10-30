@@ -2516,7 +2516,6 @@ allowlist_show_embed_author: "許可リスト"
 # /許可リスト追加
 allowlist_add_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
 allowlist_add_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
-allowlist_add_member_unreachable: "許可リストに追加しようとしたメンバーは連絡が取れません！"
 allowlist_add_already_in: "許可リストから削除しようとするメンバーは既に含まれています！"
 allowlist_add_command_work: "${member.user} が許可リストに追加されました！"
 

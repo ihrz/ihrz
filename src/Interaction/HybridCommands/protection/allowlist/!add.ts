@@ -55,11 +55,9 @@ export const subCommand: SubCommand = {
 				? (interaction.options.getMember("member") as GuildMember)
 				: client.func.method.member(interaction, args!, 0);
 
-		// "+wl" without any argument displays the ownerlist.
-		if (
-			!(interaction instanceof ChatInputCommandInteraction) &&
-			!args?.[0]
-		) {
+		// Without any resolvable target the ownerlist is displayed,
+		// in slash as well as with the "+wl" prefix.
+		if (!member) {
 			await showSubCommand.run(client, interaction, lang, args);
 			return;
 		}
@@ -77,13 +75,6 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.allowlist_add_not_permited
-			});
-			return;
-		}
-
-		if (!member) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_add_member_unreachable
 			});
 			return;
 		}

@@ -2515,7 +2515,6 @@ allowlist_show_embed_author: "Lista bianca"
 # /aggiungi alla lista bianca
 allowlist_add_not_permited: "Non sei autorizzato a usare questo comando! Devi essere nella lista bianca!"
 allowlist_add_not_owner: "Solo il proprietario del server può aggiungere/rimuovere utenti dalla lista bianca!"
-allowlist_add_member_unreachable: "Il membro che volevi aggiungere alla lista bianca non è raggiungibile!"
 allowlist_add_already_in: "Il membro che vuoi aggiungere dalla lista bianca è già presente!"
 allowlist_add_command_work: "${member.user} è stato aggiunto alla lista bianca!"
 

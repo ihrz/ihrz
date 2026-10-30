@@ -2516,7 +2516,6 @@ allowlist_show_embed_author: "Allowlist"
 # /Allowlist hinzufügen
 allowlist_add_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
 allowlist_add_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
-allowlist_add_member_unreachable: "Das Mitglied, das Sie zur Allowlist hinzufügen wollten, ist nicht erreichbar!"
 allowlist_add_already_in: "Das Mitglied, das Sie von der Allowlist hinzufügen möchten, ist bereits dort!"
 allowlist_add_command_work: "${member.user} wurde zur Allowlist hinzugefügt!"
 

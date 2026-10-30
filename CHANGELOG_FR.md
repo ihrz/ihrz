@@ -59,7 +59,7 @@ Nouvelle commande préfixée listant toutes les commandes hybrides accessibles a
 
 ## 🧰 Commandes hybrides — `/automod`, `/protect` et `/allowlist` en préfixe
 
-`/automod`, `/protect` et `/allowlist` sont désormais des commandes hybrides, sur le modèle owner/unowner : `+automod` et `+protect` ouvrent leurs panneaux, `+wl` seul affiche la liste d'autorisation, `+wl <user>` ajoute un membre, `+unwl [user]` (ou en réponse à son message) en retire un — `+allowlist show` et `+wl-list` fonctionnent aussi.
+`/automod`, `/protect` et `/allowlist` sont désormais des commandes hybrides, sur le modèle owner/unowner : `+automod` et `+protect` ouvrent leurs panneaux, `+wl` seul — comme `/allowlist add` sans membre — affiche la liste d'autorisation, `+wl <user>` ajoute un membre, `+unwl [user]` (ou en réponse à son message) en retire un — `+allowlist show` et `+wl-list` fonctionnent aussi.
 
 ---
 

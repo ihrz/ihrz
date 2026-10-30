@@ -2516,7 +2516,6 @@ allowlist_show_embed_author: "القائمة المسموحة"
 # /allowlist add
 allowlist_add_not_permited: "أنت غير مصرح لك باستخدام هذا الأمر! يجب أن تكون في القائمة المسموحة!"
 allowlist_add_not_owner: "فقط مالك الخادم يمكنه إضافة/إزالة الأعضاء من القائمة المسموحة!"
-allowlist_add_member_unreachable: "العضو الذي تريد إضافته إلى القائمة المسموحة غير متاح!"
 allowlist_add_already_in: "العضو الذي تريد إضافته إلى القائمة المسموحة موجود بالفعل!"
 allowlist_add_command_work: "${member.user} تم إضافته إلى القائمة المسموحة!"
 
