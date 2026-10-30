@@ -2458,7 +2458,7 @@ pfps_channel_command_work: "${interaction.user}, вы успешно настр�
 pfps_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал, и включен ли модуль PFPP!"
 
 # Protection Module
-# /protect panel, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
 # /protect panel
 authorization_actions_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"

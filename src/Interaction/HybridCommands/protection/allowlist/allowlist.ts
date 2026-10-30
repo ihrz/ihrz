@@ -40,6 +40,7 @@ export const command: Command = {
 	options: [
 		{
 			name: "add",
+			prefixName: "wl",
 
 			description: "Adding an user in the allowlist!",
 			description_localizations: {
@@ -73,6 +74,7 @@ export const command: Command = {
 		},
 		{
 			name: "remove",
+			prefixName: "unwl",
 
 			description: "Removing an user in the allowlist!",
 			description_localizations: {
@@ -106,6 +108,7 @@ export const command: Command = {
 		},
 		{
 			name: "show",
+			prefixName: "wl-list",
 
 			description: "List the users in the allowlist!",
 			description_localizations: {

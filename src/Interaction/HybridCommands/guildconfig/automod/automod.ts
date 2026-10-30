@@ -33,6 +33,7 @@ import { openAutomodPanel } from "./automodPanel.js";
 
 export const command: Command = {
 	name: "automod",
+	aliases: [],
 
 	description: "Open the interactive AutoMod configuration panel!",
 	description_localizations: {

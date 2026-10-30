@@ -2458,7 +2458,7 @@ pfps_channel_command_work: "${interaction.user}, has configurado con éxito el m
 pfps_channel_command_error: "${interaction.user}, el comando ha devuelto un error. ¡Verifica que el canal que especificaste existe y que el módulo PFPP está habilitado!"
 
 # Protection Module
-# /protect panel, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
 # /protect panel
 authorization_actions_not_permited: "¡Solo el propietario del servidor puede editar la regla de autorización sobre el módulo de protección!"

@@ -129,7 +129,7 @@ function toProtectSanction(value: unknown): ProtectSanction | null {
 
 export async function openProtectPanel(
 	client: Client,
-	interaction: ChatInputCommandInteraction<"cached">,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	lang: LanguageData
 ): Promise<void> {
 	// Guard's Typing

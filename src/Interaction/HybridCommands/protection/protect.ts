@@ -23,6 +23,7 @@ import {
 	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
+	Message,
 	PermissionFlagsBits
 } from "discord.js";
 
@@ -32,6 +33,7 @@ import { openProtectPanel } from "./protectPanel.js";
 
 export const command: Command = {
 	name: "protect",
+	aliases: [],
 
 	description: "Open the interactive protection configuration panel!",
 	description_localizations: {
@@ -49,7 +51,7 @@ export const command: Command = {
 
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		args?: string[]
 	) => {
@@ -62,8 +64,8 @@ export const command: Command = {
 		)
 			return;
 
-		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.editReply({
+		if (interaction.member.user.id !== interaction.guild.ownerId) {
+			await client.func.method.interactionSend(interaction, {
 				content: lang.authorization_actions_not_permited
 			});
 			return;

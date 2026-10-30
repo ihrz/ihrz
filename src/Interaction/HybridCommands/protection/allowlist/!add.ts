@@ -19,16 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, User } from "discord.js";
-
+import {
+	ChatInputCommandInteraction,
+	Client,
+	GuildMember,
+	Message
+} from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
+
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		args?: string[]
 	) => {
@@ -36,7 +41,6 @@ export const subCommand: SubCommand = {
 		if (
 			!interaction.member ||
 			!client.user ||
-			!interaction.user ||
 			!interaction.guild ||
 			!interaction.channel
 		)
@@ -45,56 +49,52 @@ export const subCommand: SubCommand = {
 		const baseData = ((await client.db.get(
 			`${interaction.guildId}.ALLOWLIST`
 		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
-		const member = interaction.options.getUser("member") as User;
+		const member: GuildMember | null =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getMember("member") as GuildMember)
+				: client.func.method.member(interaction, args!, 0);
 
-		if (interaction.user.id !== interaction.guild.ownerId) {
+		if (interaction.member.user.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_delete_not_owner
+				content: lang.allowlist_add_not_owner
 			});
 			return;
 		}
 
 		if (
-			interaction.user.id !== interaction.guild.ownerId &&
-			baseData?.list?.[interaction.user.id]?.allowed !== true
+			interaction.member.user.id !== interaction.guild.ownerId &&
+			baseData?.list?.[interaction.member.user.id]?.allowed !== true
 		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_delete_not_permited
+				content: lang.allowlist_add_not_permited
 			});
 			return;
 		}
 
 		if (!member) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_delete_member_unreachable
+				content: lang.allowlist_add_member_unreachable
 			});
 			return;
 		}
 
-		if (member.id === interaction.guild.ownerId) {
+		if (baseData?.list?.[member.user.id]?.allowed == true) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_delete_cant_remove_owner
+				content: lang.allowlist_add_already_in
 			});
 			return;
 		}
 
-		if (!baseData.list?.[member.id]?.allowed == true) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.allowlist_delete_isnt_in
-			});
-			return;
-		}
-
-		await client.db.delete(
-			`${interaction.guild.id}.ALLOWLIST.list.${member.id}`
+		await client.db.set(
+			`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`,
+			{ allowed: true }
 		);
 		await client.func.method.interactionSend(interaction, {
-			content: lang.allowlist_delete_command_work.replace(
+			content: lang.allowlist_add_command_work.replace(
 				"${member.user}",
-				member.toString()
+				member.user.toString()
 			)
 		});
-
 		return;
 	}
 };

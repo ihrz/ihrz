@@ -2460,7 +2460,7 @@ pfps_channel_command_work: "${interaction.user}, you have successfully set the P
 pfps_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the PFPS Module has been enabled!"
 
 # Protection Module
-# /protect panel, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
 # /protect panel
 authorization_actions_not_permited: "Only the Owner of the server can edit the authorization rule about the protection module!"

@@ -57,6 +57,12 @@ New prefix command listing every hybrid command the member is allowed to use, ba
 
 ---
 
+## 🧰 Hybrid commands — `/automod`, `/protect` and `/allowlist` with a prefix
+
+`/automod`, `/protect` and `/allowlist` are now hybrid commands: everything they do is reachable from the prefix too — `+automod`, `+protect`, `+allowlist show`, plus the new shortcuts `+wl`, `+unwl` and `+wl-list` to manage the allowlist.
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Ticket transcripts**: closing, deleting or leaving a ticket uses the new transcript backend and keeps working when the ticket owner leaves the server

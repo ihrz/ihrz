@@ -2461,7 +2461,7 @@ pfps_channel_command_work: "${interaction.user}, vous avez configuré avec succ�
 pfps_channel_command_error: "${interaction.user}, la commande a renvoyé une erreur. Veuille vérifier que le salon que vous avez spécifié existe et que le module PFPS est activé !"
 
 # Protection Module
-# /protect panel, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
 # /protect panel
 authorization_actions_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"

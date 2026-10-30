@@ -1,0 +1,106 @@
+/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
+
+	・   Under the following terms:
+
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+		・ NonCommercial — You may not use the material for commercial purposes.
+
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2026 iHorizon
+*/
+
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
+
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
+
+export const subCommand: SubCommand = {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		// Guard's Typing
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
+
+		const baseData = ((await client.db.get(
+			`${interaction.guildId}.ALLOWLIST`
+		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
+		const member: User | null =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getUser("member") as User)
+				: ((await client.func.method.user(
+						interaction,
+						args!,
+						0
+					)) as User);
+
+		if (interaction.member.user.id !== interaction.guild.ownerId) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_delete_not_owner
+			});
+			return;
+		}
+
+		if (
+			interaction.member.user.id !== interaction.guild.ownerId &&
+			baseData?.list?.[interaction.member.user.id]?.allowed !== true
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_delete_not_permited
+			});
+			return;
+		}
+
+		if (!member) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_delete_member_unreachable
+			});
+			return;
+		}
+
+		if (member.id === interaction.guild.ownerId) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_delete_cant_remove_owner
+			});
+			return;
+		}
+
+		if (!baseData.list?.[member.id]?.allowed == true) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_delete_isnt_in
+			});
+			return;
+		}
+
+		await client.db.delete(
+			`${interaction.guild.id}.ALLOWLIST.list.${member.id}`
+		);
+		await client.func.method.interactionSend(interaction, {
+			content: lang.allowlist_delete_command_work.replace(
+				"${member.user}",
+				member.toString()
+			)
+		});
+
+		return;
+	}
+};

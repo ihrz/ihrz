@@ -57,6 +57,12 @@ Nouvelle commande préfixée listant toutes les commandes hybrides accessibles a
 
 ---
 
+## 🧰 Commandes hybrides — `/automod`, `/protect` et `/allowlist` en préfixe
+
+`/automod`, `/protect` et `/allowlist` sont désormais des commandes hybrides : tout ce qu'ils font est accessible en préfixe — `+automod`, `+protect`, `+allowlist show`, plus les nouveaux raccourcis `+wl`, `+unwl` et `+wl-list` pour gérer la liste d'autorisation.
+
+---
+
 ## 🛠️ Corrections & améliorations
 
 - **Transcriptions de tickets** : la fermeture, la suppression ou le départ d'un ticket utilise le nouveau moteur de transcription et continue de fonctionner quand le propriétaire du ticket quitte le serveur
