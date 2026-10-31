@@ -80,6 +80,7 @@ Nouvelle commande préfixée listant toutes les commandes hybrides accessibles a
 - **Honeypot** : le nettoyage parcourt désormais les salons non cachés et les fils actifs/archivés, avec une seconde passe pour les messages postés pendant le nettoyage
 - **Statut** : le graphique de ping est généré hors ligne en SVG intégré (sans CDN Chart.js), et le marqueur de point parasite a disparu
 - **Aide** : l'aide en préfixe n'affiche plus d'embed en double pour les groupes de commandes slash
+- **Alias** : `+pv` gèle désormais votre salon vocal (alias de `/util freeze`), et `+first` renvoie au premier message du salon (alias de `+top`)
 - **Bannières** : les bannières animées des utilisateurs et des serveurs s'affichent correctement grâce à un nouveau résolveur
 - **Notificateur de release** : attend que toutes les shards soient prêtes avant de démarrer, reprend dans un ordre déterministe et journalise la progression et l'ETA
 - **Base de données** : HorizonDB utilise désormais une seule `horizon_dbUrl` (identifiants et timeout inclus), et les clés de configuration obsolètes ont été supprimées

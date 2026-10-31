@@ -80,6 +80,7 @@ New prefix command listing every hybrid command the member is allowed to use, ba
 - **Honeypot**: cleanup now sweeps uncached channels and active/archived threads, with a second pass for messages posted during cleanup
 - **Status**: the ping chart is rendered offline as inline SVG (no Chart.js CDN), and the stray data-point marker is gone
 - **Help**: prefix help no longer shows a duplicate embed for slash command groups
+- **Aliases**: `+pv` now freezes your voice channel (alias of `/util freeze`), and `+first` jumps to the first message of the channel (alias of `+top`)
 - **Banners**: animated user and guild banners now render correctly through a new banner resolver
 - **Release notifier**: waits for every shard before starting, resumes in a deterministic order and logs progress and ETA
 - **Database**: HorizonDB now uses a single `horizon_dbUrl` (credentials and timeout included), and deprecated config keys were removed
