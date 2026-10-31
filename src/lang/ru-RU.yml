@@ -1556,26 +1556,38 @@ joinghostping_remove_isnt_set: "Канал ${channel} не установлен!
 joinghostping_remove_ok_embed_desc: "Каналы были удалены из модуля Join GhostPing!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} удалил ${channel} из модуля Join GhostPing!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации упоминаний` и теперь пользователи могут отправлять упоминания в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"
-automod_block_massmention_command_on: "${interaction.user}, вы включили `Правило автоматической модерации упоминаний` и теперь пользователи не могут отправлять более **${max_mention}** упоминаний в своих сообщениях.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
-automod_block_massmention_command_error404: Не оставили ли вы включенной функцию Block Mention Spam (по умолчанию включена Discord) в настройках AutoMod, так как она, несомненно, ответственна за эту ошибку, пожалуйста, отключите ее и запустите команду снова.
+# /automod
+automod_panel_title: "Панель управления AutoMod"
+automod_panel_desc: "Настройте каждое правило AutoMod от iHorizon: включайте и выключайте их, задайте канал логов и выберите роли, которые могут обходить их."
+automod_panel_overview_title: "Защищённые правила"
+automod_panel_select_placeholder: "Выберите правило для настройки"
+automod_panel_label_logs: "Канал логов"
+automod_panel_label_bypass: "Роли-исключения"
+automod_panel_label_mention_limit: "Лимит упоминаний"
+automod_panel_rule_spam_name: "Спам сообщениями"
+automod_panel_rule_spam_desc: "Блокирует флуд и повторяющиеся сообщения на сервере."
+automod_panel_rule_mass_mention_name: "Массовые упоминания"
+automod_panel_rule_mass_mention_desc: "Блокирует сообщения со слишком большим количеством упоминаний."
+automod_panel_rule_antipub_name: "Ссылки и реклама"
+automod_panel_rule_antipub_desc: "Блокирует рекламные ссылки, с безопасным списком разрешённых (GitHub, Tenor, YouTube, ...)."
+automod_panel_rule_media_name: "Приглашения Discord"
+automod_panel_rule_media_desc: "Блокирует ссылки-приглашения на серверы Discord в сообщениях."
+automod_panel_rule_telegram_name: "Ссылки Telegram"
+automod_panel_rule_telegram_desc: "Блокирует ссылки Telegram (t.me, telegram.me, tg://...)."
+automod_panel_logs_placeholder: "Выберите канал, куда будут отправляться логи этого правила"
+automod_panel_bypass_placeholder: "Выберите роли, обходящие это правило"
+automod_panel_enable_button: "Включить"
+automod_panel_disable_button: "Выключить"
+automod_panel_back_button: "Назад"
+automod_panel_refresh_button: "Обновить"
+automod_panel_close_button: "Закрыть панель"
+automod_panel_rule_enabled: "Правило **${rule}** теперь включено!"
+automod_panel_rule_disabled: "Правило **${rule}** теперь выключено!"
+automod_panel_bypass_saved: "Роли-исключения для **${rule}** обновлены!"
+automod_panel_logs_saved: "Логи **${rule}** теперь отправляются в ${channel}."
+automod_panel_logs_reset: "Канал логов для **${rule}** был удалён!"
+automod_panel_api_error: "Не удалось применить изменение. Убедитесь, что у меня есть разрешение `Управление сервером` и что стандартные правила AutoMod от Discord отключены, затем попробуйте снова."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
-automod_block_link_command_off: "${interaction.user}, вы установили `Pub AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, вы установили `Telegram AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки, связанные с Telegram, в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
-automod_block_telegram_command_off: "${interaction.user}, вы установили `Telegram AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки, связанные с Telegram, в своих сообщениях.\nAutoMod x iHorizon был отключён на вашем сервере!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
-automod_block_pub_command_off: "${interaction.user}, вы установили Pub AutoMod Rule на false.\nТеперь пользователи могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, вы включили `Правило автоматической модерации спама` и теперь пользователи не могут спамить.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
-automod_block_spam_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации спама` и теперь пользователи могут спамить.\nAutoMod x iHorizon отключен на вашем сервере!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "Вы не указали время. Для включения этого модуля требуется минимальный возраст аккаунта!"
@@ -2445,34 +2457,58 @@ pfps_channel_embed_desc: "${interaction.user} настроил модуль PFPS
 pfps_channel_command_work: "${interaction.user}, вы успешно настроили модуль PFPS для канала ${channel} !"
 pfps_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал, и включен ли модуль PFPP!"
 
-# Модуль защиты
-# /действия авторизации, ... санкции, ... показать настройки, /список разрешений показать, ... добавить, ... удалить
+# Protection Module
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /действия авторизации
+# /protect panel
 authorization_actions_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
 authorization_actions_everyone: "Все"
 authorization_actions_allowlist: "Участник(ы) списка разрешений"
 authorization_actions_nobody: "Никто. (Кроме владельца сервера)"
-authorization_actions_rule_set: "${interaction.user}, правило для `${rule.toUpperCase()}` установлено. **${allow}** могут его обойти!"
-authorization_actions_rule_clear: "${interaction.user}, все правила для `${interaction.guild.name}` были удалены. Модуль защиты теперь отключен!"
-
-# /санкция авторизации
-authorization_sanction_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
-authorization_sanction_simply: "Н/Д"
-authorization_sanction_simply_unrank: "СНИЗИТЬ РАНГ"
-authorization_sanction_simply_ban: "БАН"
-authorization_sanction_command_work: "${interaction.user}, установлено правило санкции. Когда пользователь нарушает правило, это **${choose}**. И бот отменяет его действие."
-
-# /показать настройки авторизации
-authorization_configshow_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
-authorization_configshow_not_anything_setup: "Вы ничего не настроили в модуле защиты!"
-authorization_configshow_simply: "Просто отменить действие"
-authorization_configshow_simply_ban: "Просто отменить действие и забанить"
-authorization_configshow_simply_unrank: "Просто отменить действие и снять с ранга"
-authorization_configshow_punishement: "```Наказание: ${okay}```"
-authorization_configshow_embed1_author: "Список правил"
-authorization_configshow_embed2_author: "Список разрешений"
-
+protect_panel_title: "Панель управления Protect"
+protect_panel_desc: "Настройте каждое правило защиты: включайте и выключайте его, выберите, кто может его обходить, и задайте санкцию для ответственного участника."
+protect_panel_global_label: "Глобальная санкция"
+protect_panel_global_hint: "Применяется к каждому правилу без собственной санкции"
+protect_panel_select_placeholder: "Выберите правило для настройки"
+protect_panel_mode_placeholder: "Выберите, кто может обходить это правило"
+protect_panel_sanction_placeholder: "Выберите применяемую санкцию"
+protect_panel_bypass_label: "Обход"
+protect_panel_sanction_label: "Санкция"
+protect_panel_rule_help: "Когда это правило срабатывает, действие автоматически отменяется, а санкция применяется к ответственному участнику."
+protect_panel_enable_button: "Включить"
+protect_panel_disable_button: "Выключить"
+protect_panel_back_button: "Назад"
+protect_panel_refresh_button: "Обновить"
+protect_panel_close_button: "Закрыть панель"
+protect_panel_rule_enabled: "Правило **${rule}** теперь включено!"
+protect_panel_rule_disabled: "Правило **${rule}** теперь выключено!"
+protect_panel_mode_saved: "Правило **${rule}** теперь обходит: **${mode}**."
+protect_panel_sanction_saved: "Санкция для **${rule}** теперь: **${sanction}**."
+protect_panel_global_saved: "Глобальная санкция теперь: **${sanction}**."
+protect_panel_api_error: "Не удалось применить изменение. Убедитесь, что у меня есть разрешение `Администратор`, и попробуйте снова."
+protect_panel_sanction_global: "Глобальное значение по умолчанию"
+protect_panel_sanction_cancel: "Только отменить действия"
+protect_panel_sanction_derank: "Отмена + Деранк"
+protect_panel_sanction_ban: "Отмена + Бан"
+protect_panel_sanction_kick: "Отмена + Кик"
+protect_panel_sanction_mute: "Отмена + Мьют (10 мин)"
+protect_panel_group_server: "Сервер и вебхуки"
+protect_panel_group_channels: "Каналы"
+protect_panel_group_roles: "Роли"
+protect_panel_group_members: "Участники"
+protect_panel_rule_webhook_name: "Вебхуки"
+protect_panel_rule_updateguild_name: "Изменения сервера"
+protect_panel_rule_createchannel_name: "Создание каналов"
+protect_panel_rule_updatechannel_name: "Изменения каналов"
+protect_panel_rule_deletechannel_name: "Удаление каналов"
+protect_panel_rule_createrole_name: "Создание ролей"
+protect_panel_rule_deleterole_name: "Удаление ролей"
+protect_panel_rule_updaterole_name: "Изменения ролей"
+protect_panel_rule_updatemember_name: "Изменения ролей участников"
+protect_panel_rule_banmembers_name: "Бан участников"
+protect_panel_rule_kickmember_name: "Кик участников"
+protect_panel_rule_unbanmembers_name: "Разбан участников"
+protect_panel_rule_add_admin_roles_name: "Выдача ролей администратора"
 # /список разрешений показать
 allowlist_show_not_permited: "У вас нет разрешения использовать эту команду! Вы должны быть в списке разрешений!"
 allowlist_show_embed_author: "Список разрешений"
@@ -2480,7 +2516,6 @@ allowlist_show_embed_author: "Список разрешений"
 # /список разрешений добавить
 allowlist_add_not_permited: "У вас нет разрешения использовать эту команду! Вы должны быть в списке разрешений!"
 allowlist_add_not_owner: "Только владелец сервера может добавлять/удалять пользователей из списка разрешений!"
-allowlist_add_member_unreachable: "Участник, которого вы хотели добавить в список разрешений, недоступен!"
 allowlist_add_already_in: "Участник, которого вы хотите добавить из списка разрешений, уже там находится!"
 allowlist_add_command_work: "${member.user} был добавлен в список разрешений!"
 

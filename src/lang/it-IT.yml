@@ -1556,26 +1556,38 @@ joinghostping_remove_isnt_set: "Il canale ${channel} non è impostato!"
 joinghostping_remove_ok_embed_desc: "I canali sono stati rimossi dal Modulo Join GhostPing!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} ha rimosso ${channel} dal Modulo Join GhostPing!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, hai impostato la regola `AutoMod Mass Mention` su **false**.\nOra gli utenti possono inviare menzioni nei loro messaggi.\nAutoMod x iHorizon è stato disattivato nel tuo server!"
-automod_block_massmention_command_on: "${interaction.user}, hai impostato la regola `AutoMod Mass Mention` su **true**.\nOra gli utenti non possono inviare più di **${max_mention}** menzioni nei loro messaggi.\nAutoMod __invia registri__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
-automod_block_massmention_command_error404: Hai lasciato Block Mention Spam abilitato (abilitato per impostazione predefinita da Discord) nelle impostazioni di AutoMod, poiché è sicuramente responsabile di questo errore, per favore disabilitalo ed esegui di nuovo il comando.
+# /automod
+automod_panel_title: "Pannello di controllo AutoMod"
+automod_panel_desc: "Configura ogni regola AutoMod di iHorizon: attivala o disattivala, imposta il suo canale dei log e scegli i ruoli che possono bypassarla."
+automod_panel_overview_title: "Regole protette"
+automod_panel_select_placeholder: "Seleziona una regola da configurare"
+automod_panel_label_logs: "Canale dei log"
+automod_panel_label_bypass: "Ruoli di bypass"
+automod_panel_label_mention_limit: "Limite di menzioni"
+automod_panel_rule_spam_name: "Spam di messaggi"
+automod_panel_rule_spam_desc: "Blocca flood e messaggi ripetuti sul server."
+automod_panel_rule_mass_mention_name: "Menzioni di massa"
+automod_panel_rule_mass_mention_desc: "Blocca i messaggi con un numero eccessivo di menzioni."
+automod_panel_rule_antipub_name: "Link e pubblicità"
+automod_panel_rule_antipub_desc: "Blocca i link pubblicitari, con una lista sicura (GitHub, Tenor, YouTube, ...)."
+automod_panel_rule_media_name: "Inviti Discord"
+automod_panel_rule_media_desc: "Blocca i link di invito ai server Discord inviati nei messaggi."
+automod_panel_rule_telegram_name: "Link Telegram"
+automod_panel_rule_telegram_desc: "Blocca i link Telegram (t.me, telegram.me, tg://...)."
+automod_panel_logs_placeholder: "Seleziona il canale che riceve i log di questa regola"
+automod_panel_bypass_placeholder: "Seleziona i ruoli che bypassano questa regola"
+automod_panel_enable_button: "Attiva"
+automod_panel_disable_button: "Disattiva"
+automod_panel_back_button: "Indietro"
+automod_panel_refresh_button: "Aggiorna"
+automod_panel_close_button: "Chiudi pannello"
+automod_panel_rule_enabled: "La regola **${rule}** è ora attiva!"
+automod_panel_rule_disabled: "La regola **${rule}** è ora disattiva!"
+automod_panel_bypass_saved: "I ruoli di bypass di **${rule}** sono stati aggiornati!"
+automod_panel_logs_saved: "I log di **${rule}** ora vengono inviati in ${channel}."
+automod_panel_logs_reset: "Il canale dei log di **${rule}** è stato rimosso!"
+automod_panel_api_error: "Non ho potuto applicare questa modifica, assicurati che abbia il permesso `Gestisci server` e che le regole AutoMod predefinite di Discord siano disattivate, poi riprova."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **true**.\nOra gli utenti non possono inviare link nei loro messaggi.\nAutoMod __invia log__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
-automod_block_link_command_off: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **false**.\nOra gli utenti possono inviare link nei loro messaggi.\nAutoMod x iHorizon è stato disabilitato sul tuo server!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, hai impostato la `Regola AutoMod Telegram` su **true**.\nOra gli utenti non possono inviare link relativi a Telegram nei loro messaggi.\nAutoMod __invia log__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
-automod_block_telegram_command_off: "${interaction.user}, hai impostato la `Regola AutoMod Telegram` su **false**.\nOra gli utenti possono inviare link relativi a Telegram nei loro messaggi.\nAutoMod x iHorizon è stato disabilitato sul tuo server!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **true**.\nOra gli utenti non possono inviare inviti di server nei loro messaggi.\nAutoMod __invia log__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
-automod_block_pub_command_off: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **false**.\nOra gli utenti possono inviare inviti di server nei loro messaggi.\nAutoMod x iHorizon è stato disabilitato sul tuo server!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, hai impostato la regola `AutoMod Spam` su **true**.\nOra gli utenti non possono fare spam.\nAutoMod __invia registri__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
-automod_block_spam_command_off: "${interaction.user}, hai impostato la regola `AutoMod Spam` su **false**.\nOra gli utenti possono fare spam.\nAutoMod x iHorizon è stato disattivato nel tuo server!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "Non hai specificato un tempo. Per abilitare questo modulo è richiesto un'età minima dell'account!"
@@ -2444,34 +2456,58 @@ pfps_channel_embed_desc: "${interaction.user} ha impostato il modulo PFPS qui!\n
 pfps_channel_command_work: "${interaction.user}, hai impostato con successo il modulo PFPS nel canale ${channel} !"
 pfps_channel_command_error: "${interaction.user}, il comando ha restituito un errore. Verifica che il canale specificato esista e che il modulo PFPP sia attivo!"
 
-# Modulo di Protezione
-# /azioni di autorizzazione, ... sanzioni, ... mostra configurazione, /lista bianca mostra, ... aggiungi, ... elimina
+# Protection Module
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /azioni di autorizzazione
+# /protect panel
 authorization_actions_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
 authorization_actions_everyone: "Tutti"
 authorization_actions_allowlist: "Membro(i) della lista bianca"
 authorization_actions_nobody: "Nessuno. (Tranne il proprietario del server)"
-authorization_actions_rule_set: "${interaction.user}, la regola per `${rule.toUpperCase()}` è stata impostata. **${allow}** possono superarla!"
-authorization_actions_rule_clear: "${interaction.user}, tutte le regole per `${interaction.guild.name}` sono state cancellate. Il modulo di protezione è ora disabilitato!"
-
-# /sanzione di autorizzazione
-authorization_sanction_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
-authorization_sanction_simply: "N/D"
-authorization_sanction_simply_unrank: "DEGRADA"
-authorization_sanction_simply_ban: "BANNA"
-authorization_sanction_command_work: "${interaction.user}, la regola di sanzione è stata impostata. Quando l'utente viola la regola, è **${choose}**. E il bot annulla la sua azione."
-
-# /mostra configurazione di autorizzazione
-authorization_configshow_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
-authorization_configshow_not_anything_setup: "Non hai configurato nulla nel modulo di protezione!"
-authorization_configshow_simply: "Annulla semplicemente l'azione"
-authorization_configshow_simply_ban: "Annulla semplicemente l'azione e banna"
-authorization_configshow_simply_unrank: "Annulla semplicemente l'azione e degrada"
-authorization_configshow_punishement: "```Sanzione: ${okay}```"
-authorization_configshow_embed1_author: "Elenco delle regole"
-authorization_configshow_embed2_author: "Lista bianca"
-
+protect_panel_title: "Pannello di controllo Protect"
+protect_panel_desc: "Configura ogni regola di protezione: attivala o disattivala, scegli chi può bypassarla e imposta la sanzione applicata al membro responsabile."
+protect_panel_global_label: "Sanzione globale"
+protect_panel_global_hint: "Si applica a ogni regola senza sanzione propria"
+protect_panel_select_placeholder: "Seleziona una regola da configurare"
+protect_panel_mode_placeholder: "Seleziona chi può bypassare questa regola"
+protect_panel_sanction_placeholder: "Seleziona la sanzione da applicare"
+protect_panel_bypass_label: "Bypass"
+protect_panel_sanction_label: "Sanzione"
+protect_panel_rule_help: "Quando questa regola viene attivata, l'azione viene annullata automaticamente e la sanzione viene applicata al membro responsabile."
+protect_panel_enable_button: "Attiva"
+protect_panel_disable_button: "Disattiva"
+protect_panel_back_button: "Indietro"
+protect_panel_refresh_button: "Aggiorna"
+protect_panel_close_button: "Chiudi pannello"
+protect_panel_rule_enabled: "La regola **${rule}** è ora attiva!"
+protect_panel_rule_disabled: "La regola **${rule}** è ora disattiva!"
+protect_panel_mode_saved: "La regola **${rule}** ora viene bypassata da: **${mode}**."
+protect_panel_sanction_saved: "La sanzione di **${rule}** ora è: **${sanction}**."
+protect_panel_global_saved: "La sanzione globale ora è: **${sanction}**."
+protect_panel_api_error: "Non ho potuto applicare questa modifica, assicurati che abbia il permesso `Amministratore` e riprova."
+protect_panel_sanction_global: "Valore globale predefinito"
+protect_panel_sanction_cancel: "Annulla solo le azioni"
+protect_panel_sanction_derank: "Annulla + Derank"
+protect_panel_sanction_ban: "Annulla + Ban"
+protect_panel_sanction_kick: "Annulla + Kick"
+protect_panel_sanction_mute: "Annulla + Mute (10 min)"
+protect_panel_group_server: "Server e webhook"
+protect_panel_group_channels: "Canali"
+protect_panel_group_roles: "Ruoli"
+protect_panel_group_members: "Membri"
+protect_panel_rule_webhook_name: "Webhook"
+protect_panel_rule_updateguild_name: "Modifiche al server"
+protect_panel_rule_createchannel_name: "Creazione canali"
+protect_panel_rule_updatechannel_name: "Modifiche ai canali"
+protect_panel_rule_deletechannel_name: "Eliminazione canali"
+protect_panel_rule_createrole_name: "Creazione ruoli"
+protect_panel_rule_deleterole_name: "Eliminazione ruoli"
+protect_panel_rule_updaterole_name: "Modifiche ai ruoli"
+protect_panel_rule_updatemember_name: "Modifiche ai ruoli dei membri"
+protect_panel_rule_banmembers_name: "Bannare membri"
+protect_panel_rule_kickmember_name: "Espellere membri"
+protect_panel_rule_unbanmembers_name: "Sbannare membri"
+protect_panel_rule_add_admin_roles_name: "Concessione ruoli admin"
 # /lista bianca mostra
 allowlist_show_not_permited: "Non sei autorizzato a usare questo comando! Devi essere nella lista bianca!"
 allowlist_show_embed_author: "Lista bianca"
@@ -2479,7 +2515,6 @@ allowlist_show_embed_author: "Lista bianca"
 # /aggiungi alla lista bianca
 allowlist_add_not_permited: "Non sei autorizzato a usare questo comando! Devi essere nella lista bianca!"
 allowlist_add_not_owner: "Solo il proprietario del server può aggiungere/rimuovere utenti dalla lista bianca!"
-allowlist_add_member_unreachable: "Il membro che volevi aggiungere alla lista bianca non è raggiungibile!"
 allowlist_add_already_in: "Il membro che vuoi aggiungere dalla lista bianca è già presente!"
 allowlist_add_command_work: "${member.user} è stato aggiunto alla lista bianca!"
 

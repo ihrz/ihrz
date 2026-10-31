@@ -1557,26 +1557,38 @@ joinghostping_remove_isnt_set: "The channel ${channel} isn't set!"
 joinghostping_remove_ok_embed_desc: "The channels have been deleted from the Join GhostPing Module!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} has deleted ${channel} from the Join GhostPing Module!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow users can send mentions in their messages.\nAutoMod x iHorizon has been disabled on your server!"
-automod_block_massmention_command_on: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow users can't send more than **${max_mention}** mention(s) in their messages.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!"
-automod_block_massmention_command_error404: "Did you leave Block Mention Spam enabled (enabled by default by Discord) in AutoMod settings? It is most likely the cause of this error: please disable it, then run the command again."
+# /automod
+automod_panel_title: "AutoMod Control Panel"
+automod_panel_desc: "Configure every iHorizon AutoMod rule: enable or disable them, set their logs channel and pick the roles allowed to bypass them."
+automod_panel_overview_title: "Protected rules"
+automod_panel_select_placeholder: "Select a rule to configure"
+automod_panel_label_logs: "Logs channel"
+automod_panel_label_bypass: "Bypass roles"
+automod_panel_label_mention_limit: "Mention limit"
+automod_panel_rule_spam_name: "Message spam"
+automod_panel_rule_spam_desc: "Blocks flood and repeated messages in the server."
+automod_panel_rule_mass_mention_name: "Mass mentions"
+automod_panel_rule_mass_mention_desc: "Blocks messages containing an abusive number of mentions."
+automod_panel_rule_antipub_name: "Links & advertising"
+automod_panel_rule_antipub_desc: "Blocks advertising links, with a safe allow-list (GitHub, Tenor, YouTube, ...)."
+automod_panel_rule_media_name: "Discord invites"
+automod_panel_rule_media_desc: "Blocks Discord server invitation links sent in messages."
+automod_panel_rule_telegram_name: "Telegram links"
+automod_panel_rule_telegram_desc: "Blocks Telegram links (t.me, telegram.me, tg://...)."
+automod_panel_logs_placeholder: "Select the channel receiving the logs of this rule"
+automod_panel_bypass_placeholder: "Select the roles bypassing this rule"
+automod_panel_enable_button: "Enable"
+automod_panel_disable_button: "Disable"
+automod_panel_back_button: "Back"
+automod_panel_refresh_button: "Refresh"
+automod_panel_close_button: "Close panel"
+automod_panel_rule_enabled: "The rule **${rule}** is now enabled!"
+automod_panel_rule_disabled: "The rule **${rule}** is now disabled!"
+automod_panel_bypass_saved: "The bypass roles of **${rule}** have been updated!"
+automod_panel_logs_saved: "The logs of **${rule}** are now sent in ${channel}."
+automod_panel_logs_reset: "The logs channel of **${rule}** has been removed!"
+automod_panel_api_error: "I couldn't apply this change, make sure I have the `Manage Server` permission and that the default Discord AutoMod rules are disabled, then try again."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow users can't send links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!"
-automod_block_link_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow users can send links in their messages.\nAutoMod x iHorizon has been disabled on your server!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon has been disabled on your server!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow users can't send server invites in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!"
-automod_block_pub_command_off: "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow users can send server invites in their messages.\nAutoMod x iHorizon has been disabled on your server!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow users can't spam anymore.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!"
-automod_block_spam_command_off: "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow users can spam.\nAutoMod x iHorizon has been disabled on your server!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "You did not specify a time. To enable this module, a minimum account age is required!"
@@ -2448,33 +2460,57 @@ pfps_channel_command_work: "${interaction.user}, you have successfully set the P
 pfps_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the PFPS Module has been enabled!"
 
 # Protection Module
-# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /authorization actions
+# /protect panel
 authorization_actions_not_permited: "Only the Owner of the server can edit the authorization rule about the protection module!"
 authorization_actions_everyone: "Everyone"
 authorization_actions_allowlist: "Member(s) of allowlist"
 authorization_actions_nobody: "Nobody. (Except server owner)"
-authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` has been set. **${allow}** are allowed to bypass it!"
-authorization_actions_rule_clear: "${interaction.user}, all of the rules for `${interaction.guild.name}` have been deleted. Protection module is now disabled!"
-
-# /authorization sanction
-authorization_sanction_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
-authorization_sanction_simply: "N/A"
-authorization_sanction_simply_unrank: "UNRANK"
-authorization_sanction_simply_ban: "BAN"
-authorization_sanction_command_work: "${interaction.user}, rule sanction has been set. When the user breaks the rule, it's **${choose}**, and the bot cancels its action."
-
-# /authorization config-show
-authorization_configshow_not_permited: "Only the owner of the server can edit the authorization rule about the protection module!"
-authorization_configshow_not_anything_setup: "You have not set up anything in the Protection Module!"
-authorization_configshow_simply: "Simply Cancel Action"
-authorization_configshow_simply_ban: "Simply Cancel Action & Ban"
-authorization_configshow_simply_unrank: "Simply Cancel Action & Unrank"
-authorization_configshow_punishement: "```Punishment: ${okay}```"
-authorization_configshow_embed1_author: "Rule List"
-authorization_configshow_embed2_author: "Allowlist"
-
+protect_panel_title: "Protect Control Panel"
+protect_panel_desc: "Configure every protection rule: enable or disable it, choose who bypasses it and pick the sanction applied to the member responsible."
+protect_panel_global_label: "Global sanction"
+protect_panel_global_hint: "Applied to every rule without its own sanction"
+protect_panel_select_placeholder: "Select a rule to configure"
+protect_panel_mode_placeholder: "Select who can bypass this rule"
+protect_panel_sanction_placeholder: "Select the sanction to apply"
+protect_panel_bypass_label: "Bypass"
+protect_panel_sanction_label: "Sanction"
+protect_panel_rule_help: "When this rule is triggered, the action is automatically undone and the sanction is applied to the member responsible."
+protect_panel_enable_button: "Enable"
+protect_panel_disable_button: "Disable"
+protect_panel_back_button: "Back"
+protect_panel_refresh_button: "Refresh"
+protect_panel_close_button: "Close panel"
+protect_panel_rule_enabled: "The rule **${rule}** is now enabled!"
+protect_panel_rule_disabled: "The rule **${rule}** is now disabled!"
+protect_panel_mode_saved: "The rule **${rule}** now bypasses: **${mode}**."
+protect_panel_sanction_saved: "The sanction of **${rule}** is now: **${sanction}**."
+protect_panel_global_saved: "The global sanction is now: **${sanction}**."
+protect_panel_api_error: "I couldn't apply this change, make sure I have the `Administrator` permission, then try again."
+protect_panel_sanction_global: "Global default"
+protect_panel_sanction_cancel: "Cancel the actions only"
+protect_panel_sanction_derank: "Cancel + Derank"
+protect_panel_sanction_ban: "Cancel + Ban"
+protect_panel_sanction_kick: "Cancel + Kick"
+protect_panel_sanction_mute: "Cancel + Mute (10 min)"
+protect_panel_group_server: "Server & webhooks"
+protect_panel_group_channels: "Channels"
+protect_panel_group_roles: "Roles"
+protect_panel_group_members: "Members"
+protect_panel_rule_webhook_name: "Webhooks"
+protect_panel_rule_updateguild_name: "Server edits"
+protect_panel_rule_createchannel_name: "Channel creation"
+protect_panel_rule_updatechannel_name: "Channel edits"
+protect_panel_rule_deletechannel_name: "Channel deletion"
+protect_panel_rule_createrole_name: "Role creation"
+protect_panel_rule_deleterole_name: "Role deletion"
+protect_panel_rule_updaterole_name: "Role edits"
+protect_panel_rule_updatemember_name: "Member role edits"
+protect_panel_rule_banmembers_name: "Ban members"
+protect_panel_rule_kickmember_name: "Kick members"
+protect_panel_rule_unbanmembers_name: "Unban members"
+protect_panel_rule_add_admin_roles_name: "Admin role grants"
 # /allowlist show
 allowlist_show_not_permited: "You are not allowed to use this command! You need to be in the allowlist!"
 allowlist_show_embed_author: "Allowlist"
@@ -2482,7 +2518,6 @@ allowlist_show_embed_author: "Allowlist"
 # /allowlist add
 allowlist_add_not_permited: "You are not authorized to use this command! You must be in the allowlist!"
 allowlist_add_not_owner: "Only the owner of the server can add/remove users in the allowlist!"
-allowlist_add_member_unreachable: "The member you wanted to add to the allowlist is unreachable!"
 allowlist_add_already_in: "The member you want to add to the allowlist is already in it!"
 allowlist_add_command_work: "${member.user} has been added to the allowlist!"
 

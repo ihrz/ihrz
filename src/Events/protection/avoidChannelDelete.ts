@@ -91,7 +91,12 @@ export const event: BotEvent = {
 				(async () => {
 					if (!user) return;
 
-					client.func.method.punish(data, user);
+					client.func.method.punish(
+						data,
+						user,
+						undefined,
+						"deletechannel"
+					);
 
 					const existingRestoration =
 						restorationInProgress.get(guildId);

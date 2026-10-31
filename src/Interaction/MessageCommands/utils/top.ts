@@ -35,7 +35,7 @@ export const command: Command = {
 		"es-ES": "Obtener el enlace del primer mensaje en el canal"
 	},
 
-	aliases: [],
+	aliases: ["first"],
 
 	thinking: false,
 	type: "PREFIX_IHORIZON_COMMAND",

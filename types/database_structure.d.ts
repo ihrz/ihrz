@@ -60,13 +60,13 @@ export namespace DatabaseStructure {
 		alive: boolean;
 	}
 
+	export interface ProtectionRuleData {
+		mode: string;
+		sanction?: string;
+	}
+
 	export interface ProtectionData {
-		[rule: string]:
-			| {
-					mode: string;
-			  }
-			| string
-			| undefined;
+		[rule: string]: ProtectionRuleData | string | undefined;
 		SANCTION?: string;
 	}
 
@@ -534,6 +534,19 @@ export namespace DatabaseStructure {
 		avatarSize: string;
 	}
 
+	export interface AutomodRulePanelSchema {
+		bypassRoles?: string[];
+		logsChannel?: string;
+	}
+
+	export interface AutomodPanelSchema {
+		spam?: AutomodRulePanelSchema;
+		mass_mention?: AutomodRulePanelSchema;
+		antipub?: AutomodRulePanelSchema;
+		media?: AutomodRulePanelSchema;
+		telegram?: AutomodRulePanelSchema;
+	}
+
 	export interface GuildConfigSchema {
 		joinmessage?: string;
 		joinbanner?: JoinBannerOptions;
@@ -553,6 +566,8 @@ export namespace DatabaseStructure {
 		antipub?: string;
 		spam?: string;
 		media?: boolean;
+		telegram?: string;
+		AUTOMOD_PANEL?: AutomodPanelSchema;
 		hey_reaction?: boolean;
 		rolesaver?: RoleSaverSchema;
 		GHOST_PING: GhostPingData;

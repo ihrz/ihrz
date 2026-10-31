@@ -1557,26 +1557,38 @@ joinghostping_remove_isnt_set: "القناة ${channel} غير مهيأة!"
 joinghostping_remove_ok_embed_desc: "تم حذف القنوات من وحدة Join GhostPing!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} قام بحذف ${channel} من وحدة Join GhostPing!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **false**.\nالآن يمكن للمستخدمين إرسال الإشعارات في رسائلهم.\nAutoMod x iHorizon تم تعطيله في خادمك!"
-automod_block_massmention_command_on: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **true**.\nالآن لا يمكن للمستخدمين إرسال أكثر من **${max_mention}** إشعار في رسائلهم.\nAutoMod __يتم إرسال السجلات__ إلى ${logs_channel}.\nAutoMod x iHorizon يحمي خادمك!"
-automod_block_massmention_command_error404: هل تركت أمر حظر الإشارات المزعجة (ممكّن افتراضيًا بواسطة Discord) في إعدادات التعديل التلقائي، حيث إنه بالتأكيد مسؤول عن هذا الخطأ، يرجى تعطيله وتشغيل الأمر مرة أخرى.
+# /automod
+automod_panel_title: "لوحة تحكم AutoMod"
+automod_panel_desc: "قم بتهيئة كل قاعدة AutoMod من iHorizon: فعّلها أو عطّلها، وحدد قناة السجلات، واختر الأدوار التي يمكنها تجاوزها."
+automod_panel_overview_title: "القواعد المحمية"
+automod_panel_select_placeholder: "اختر قاعدة لإعدادها"
+automod_panel_label_logs: "قناة السجلات"
+automod_panel_label_bypass: "أدوار التجاوز"
+automod_panel_label_mention_limit: "حد الإشارات"
+automod_panel_rule_spam_name: "رسائل السبام"
+automod_panel_rule_spam_desc: "يحظر الفيض والرسائل المتكررة في الخادم."
+automod_panel_rule_mass_mention_name: "الإشارات الجماعية"
+automod_panel_rule_mass_mention_desc: "يحظر الرسائل التي تحتوي على عدد مفرط من الإشارات."
+automod_panel_rule_antipub_name: "الروابط والإعلانات"
+automod_panel_rule_antipub_desc: "يحظر روابط الإعلانات، مع قائمة آمنة (GitHub و Tenor و YouTube ...)."
+automod_panel_rule_media_name: "دعوات Discord"
+automod_panel_rule_media_desc: "يحظر روابط دعوة خوادم Discord المرسلة في الرسائل."
+automod_panel_rule_telegram_name: "روابط Telegram"
+automod_panel_rule_telegram_desc: "يحظر روابط Telegram (t.me و telegram.me و tg://...)."
+automod_panel_logs_placeholder: "اختر قناة استقبال سجلات هذه القاعدة"
+automod_panel_bypass_placeholder: "اختر الأدوار التي تتجاوز هذه القاعدة"
+automod_panel_enable_button: "تفعيل"
+automod_panel_disable_button: "تعطيل"
+automod_panel_back_button: "رجوع"
+automod_panel_refresh_button: "تحديث"
+automod_panel_close_button: "إغلاق اللوحة"
+automod_panel_rule_enabled: "تم تفعيل القاعدة **${rule}**!"
+automod_panel_rule_disabled: "تم تعطيل القاعدة **${rule}**!"
+automod_panel_bypass_saved: "تم تحديث أدوار تجاوز **${rule}**!"
+automod_panel_logs_saved: "تم إرسال سجلات **${rule}** الآن في ${channel}."
+automod_panel_logs_reset: "تمت إزالة قناة سجلات **${rule}**!"
+automod_panel_api_error: "لم أتمكن من تطبيق هذا التغيير، تأكد من أن لدي إذن `إدارة الخادم` وأن قواعد AutoMod الافتراضية في Discord معطّلة، ثم حاول مرة أخرى."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الروابط**. الآن، لا يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_link_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الروابط**. الآن، يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، لا يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_telegram_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الدعوات**. الآن، لا يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_pub_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الدعوات**. الآن، يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الرسائل المزعجة**. الآن، لا يمكن للمستخدمين إرسال رسائل مزعجة. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
-automod_block_spam_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الرسائل المزعجة**. الآن، يمكن للمستخدمين إرسال رسائل مزعجة. AutoMod x iHorizon تم تعطيله على خادمك!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "لم تقم بتحديد وقت. لتمكين هذه الوحدة، يلزم أن يكون عمر الحساب الأدنى محددًا!"
@@ -2446,33 +2458,57 @@ pfps_channel_command_work: "${interaction.user}, لقد قمت بنجاح بتع
 pfps_channel_command_error: "${interaction.user}, الأمر أرجع خطأ. يرجى التحقق من أن القناة التي حددتها موجودة، وتحقق من تمكين وحدة PFPS!"
 
 # Protection Module
-# /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /authorization actions
+# /protect panel
 authorization_actions_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
 authorization_actions_everyone: "الجميع"
 authorization_actions_allowlist: "الأعضاء في القائمة المسموحة"
 authorization_actions_nobody: "لا أحد. (باستثناء صاحب الخادم)"
-authorization_actions_rule_set: "${interaction.user}, تم تعيين القاعدة لـ `${rule.toUpperCase()}`. **${allow}** مسموح لهم بتجاوزها!"
-authorization_actions_rule_clear: "${interaction.user}, تم حذف جميع القواعد لـ `${interaction.guild.name}`. وحدة الحماية الآن موقوفة!"
-
-# /authorization sanction
-authorization_sanction_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
-authorization_sanction_simply: "غير متاح"
-authorization_sanction_simply_unrank: "إلغاء التصنيف"
-authorization_sanction_simply_ban: "حظر"
-authorization_sanction_command_work: "${interaction.user}, تم تعيين عقوبة القاعدة. عندما ينتهك المستخدم القاعدة، ستكون **${choose}**. وسيقوم البوت بإلغاء إجراءه."
-
-# /authorization config-show
-authorization_configshow_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
-authorization_configshow_not_anything_setup: "لم تقم بإعداد أي شيء في وحدة الحماية!"
-authorization_configshow_simply: "إلغاء الإجراء ببساطة"
-authorization_configshow_simply_ban: "إلغاء الإجراء ببساطة & حظر"
-authorization_configshow_simply_unrank: "إلغاء الإجراء ببساطة & إلغاء التصنيف"
-authorization_configshow_punishement: "```العقوبة: ${okay}```"
-authorization_configshow_embed1_author: "قائمة القواعد"
-authorization_configshow_embed2_author: "القائمة المسموحة"
-
+protect_panel_title: "لوحة تحكم Protect"
+protect_panel_desc: "قم بتهيئة كل قاعدة حماية: فعّلها أو عطّلها، واختر من يمكنه تجاوزها، وحدد العقوبة المطبقة على العضو المسؤول."
+protect_panel_global_label: "العقوبة العامة"
+protect_panel_global_hint: "تُطبَّق على كل قاعدة بدون عقوبة خاصة"
+protect_panel_select_placeholder: "اختر قاعدة لإعدادها"
+protect_panel_mode_placeholder: "اختر من يمكنه تجاوز هذه القاعدة"
+protect_panel_sanction_placeholder: "اختر العقوبة المطبقة"
+protect_panel_bypass_label: "التجاوز"
+protect_panel_sanction_label: "العقوبة"
+protect_panel_rule_help: "عند تفعيل هذه القاعدة، يُلغى الإجراء تلقائيًا وتُطبَّق العقوبة على العضو المسؤول."
+protect_panel_enable_button: "تفعيل"
+protect_panel_disable_button: "تعطيل"
+protect_panel_back_button: "رجوع"
+protect_panel_refresh_button: "تحديث"
+protect_panel_close_button: "إغلاق اللوحة"
+protect_panel_rule_enabled: "تم تفعيل القاعدة **${rule}**!"
+protect_panel_rule_disabled: "تم تعطيل القاعدة **${rule}**!"
+protect_panel_mode_saved: "تجاوز القاعدة **${rule}** الآن بواسطة: **${mode}**."
+protect_panel_sanction_saved: "عقوبة **${rule}** الآن: **${sanction}**."
+protect_panel_global_saved: "العقوبة العامة الآن: **${sanction}**."
+protect_panel_api_error: "لم أتمكن من تطبيق هذا التغيير، تأكد من أن لدي إذن `مشرف` ثم حاول مرة أخرى."
+protect_panel_sanction_global: "القيمة العامة الافتراضية"
+protect_panel_sanction_cancel: "إلغاء الإجراءات فقط"
+protect_panel_sanction_derank: "إلغاء + تخفيض الرتبة"
+protect_panel_sanction_ban: "إلغاء + حظر"
+protect_panel_sanction_kick: "إلغاء + طرد"
+protect_panel_sanction_mute: "إلغاء + كتم (10 دقائق)"
+protect_panel_group_server: "الخادم و Webhooks"
+protect_panel_group_channels: "القنوات"
+protect_panel_group_roles: "الأدوار"
+protect_panel_group_members: "الأعضاء"
+protect_panel_rule_webhook_name: "Webhooks"
+protect_panel_rule_updateguild_name: "تعديلات الخادم"
+protect_panel_rule_createchannel_name: "إنشاء القنوات"
+protect_panel_rule_updatechannel_name: "تعديل القنوات"
+protect_panel_rule_deletechannel_name: "حذف القنوات"
+protect_panel_rule_createrole_name: "إنشاء الأدوار"
+protect_panel_rule_deleterole_name: "حذف الأدوار"
+protect_panel_rule_updaterole_name: "تعديل الأدوار"
+protect_panel_rule_updatemember_name: "تعديل أدوار الأعضاء"
+protect_panel_rule_banmembers_name: "حظر الأعضاء"
+protect_panel_rule_kickmember_name: "طرد الأعضاء"
+protect_panel_rule_unbanmembers_name: "رفع الحظر"
+protect_panel_rule_add_admin_roles_name: "منح أدوار المشرف"
 # /allowlist show
 allowlist_show_not_permited: "أنت غير مسموح لك باستخدام هذا الأمر! يجب أن تكون في القائمة المسموحة!"
 allowlist_show_embed_author: "القائمة المسموحة"
@@ -2480,7 +2516,6 @@ allowlist_show_embed_author: "القائمة المسموحة"
 # /allowlist add
 allowlist_add_not_permited: "أنت غير مصرح لك باستخدام هذا الأمر! يجب أن تكون في القائمة المسموحة!"
 allowlist_add_not_owner: "فقط مالك الخادم يمكنه إضافة/إزالة الأعضاء من القائمة المسموحة!"
-allowlist_add_member_unreachable: "العضو الذي تريد إضافته إلى القائمة المسموحة غير متاح!"
 allowlist_add_already_in: "العضو الذي تريد إضافته إلى القائمة المسموحة موجود بالفعل!"
 allowlist_add_command_work: "${member.user} تم إضافته إلى القائمة المسموحة!"
 

@@ -3730,6 +3730,19 @@
         "thinking": false
     },
     {
+        "name": "automod",
+        "description": "Open the interactive AutoMod configuration panel!",
+        "description_translated": {
+            "fr": "Ouvre le panneau de configuration interactif de l'AutoMod !",
+            "ja": "対話型AutoMod設定パネルを開きます！",
+            "ru": "Открывает интерактивную панель настройки AutoMod!",
+            "es-ES": "¡Abre el panel de configuración interactivo de AutoMod!"
+        },
+        "category": "guildconfig",
+        "aliases": [],
+        "thinking": true
+    },
+    {
         "name": "h247",
         "name_translated": {
             "fr": "h247",
@@ -10611,6 +10624,102 @@
         "thinking": false
     },
     {
+        "name": "protect",
+        "description": "Open the interactive protection configuration panel!",
+        "description_translated": {
+            "fr": "Ouvre le panneau de configuration interactif de la protection !",
+            "ja": "対話型保護設定パネルを開きます！",
+            "ru": "Открывает интерактивную панель настройки защиты!",
+            "es-ES": "¡Abre el panel de configuración interactivo de protección!"
+        },
+        "category": "protection",
+        "aliases": [],
+        "thinking": true
+    },
+    {
+        "name": "allowlist",
+        "description": "Subcommand for protection category!",
+        "description_translated": {
+            "fr": "Commande sous-groupé pour la catégorie de protection",
+            "ja": "保護カテゴリのサブコマンド！",
+            "ru": "Подкоманда для категории защиты!",
+            "es-ES": "Subcomando para la categoría de protección!"
+        },
+        "category": "protection",
+        "options": [
+            {
+                "name": "add",
+                "prefixName": "wl",
+                "description": "Adding an user in the allowlist!",
+                "description_localizations": {
+                    "fr": "Ajouter un utilisateur à la liste blanche",
+                    "ja": "許可リストにユーザーを追加！",
+                    "ru": "Добавить пользователя в белый список!",
+                    "es-ES": "Añadiendo un usuario a la lista de permitidos!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "member",
+                        "type": 6,
+                        "description": "Whats is the member then?",
+                        "description_localizations": {
+                            "fr": "Quel est le membre alors?",
+                            "ja": "どのメンバーですか？",
+                            "ru": "Какой участник?",
+                            "es-ES": "Cual es el miembro entonces?"
+                        },
+                        "required": false,
+                        "commandFullName": "allowlist add member"
+                    }
+                ],
+                "commandFullName": "allowlist add"
+            },
+            {
+                "name": "remove",
+                "prefixName": "unwl",
+                "description": "Removing an user in the allowlist!",
+                "description_localizations": {
+                    "fr": "Supprimer un utilisateur de la liste blanche",
+                    "ja": "許可リストからユーザーを削除！",
+                    "ru": "Удалить пользователя из белого списка!",
+                    "es-ES": "Eliminando un usuario de la lista de permitidos!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "member",
+                        "type": 6,
+                        "description": "Whats is the member then?",
+                        "description_localizations": {
+                            "fr": "Quel est le membre alors?",
+                            "ja": "どのメンバーですか？",
+                            "ru": "Какой участник?",
+                            "es-ES": "Cual es el miembro entonces?"
+                        },
+                        "required": true,
+                        "commandFullName": "allowlist remove member"
+                    }
+                ],
+                "commandFullName": "allowlist remove"
+            },
+            {
+                "name": "show",
+                "prefixName": "wl-list",
+                "description": "List the users in the allowlist!",
+                "description_localizations": {
+                    "fr": "Lister les utilisateurs dans la liste autorisée",
+                    "ja": "許可リストのユーザーを一覧表示！",
+                    "ru": "Показать пользователей в белом списке!",
+                    "es-ES": "Listar los usuarios en la lista de permitidos!"
+                },
+                "type": 1,
+                "commandFullName": "allowlist show"
+            }
+        ],
+        "thinking": false
+    },
+    {
         "name": "authrestore",
         "description": "Do the same thing as authrestore with link verification button under iHorizon message",
         "description_translated": {
@@ -10942,355 +11051,6 @@
             }
         ],
         "thinking": false
-    },
-    {
-        "name": "automod",
-        "description": "Subcommand for automod category!",
-        "description_translated": {
-            "fr": "Commande sous-groupé pour la catégorie de protection via l'automod",
-            "ja": "オートモデレーションカテゴリのサブコマンド！",
-            "ru": "Подкоманда для категории автомода!",
-            "es-ES": "Subcomando para la categoría automod!"
-        },
-        "category": "guildconfig",
-        "options": [
-            {
-                "name": "block",
-                "description": "Block/Protect someting/behaviours into this guild!",
-                "description_localizations": {
-                    "fr": "Bloquer/Protéger certains comportements/comportements dans ce serveur",
-                    "ja": "このサーバー内の何か/行動をブロック/保護！",
-                    "ru": "Заблокировать/защитить что-либо на этом сервере!",
-                    "es-ES": "Bloquear/Proteger algo/comportamientos en este servidor!"
-                },
-                "type": 2,
-                "options": [
-                    {
-                        "name": "discord_invite_link",
-                        "description": "Allow/Unallow the user to send a server invites into them messages!",
-                        "description_localizations": {
-                            "fr": "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages",
-                            "ja": "ユーザーがサーバー招待を送信するのを許可/禁止！",
-                            "ru": "Разрешить/запретить отправку приглашений сервера!",
-                            "es-ES": "Permitir/Denegar al usuario enviar invitaciones de servidor en sus mensajes!"
-                        },
-                        "type": 1,
-                        "options": [
-                            {
-                                "name": "action",
-                                "type": 3,
-                                "description": "What you want to do?",
-                                "description_localizations": {
-                                    "fr": "Que veux-tu faire?",
-                                    "ja": "何をしたいですか？",
-                                    "ru": "Что вы хотите сделать?",
-                                    "es-ES": "Que quieres hacer?"
-                                },
-                                "required": true,
-                                "choices": [
-                                    {
-                                        "name": "Power On",
-                                        "name_localizations": {
-                                            "fr": "Activer",
-                                            "ja": "power_on",
-                                            "ru": "power_on",
-                                            "es-ES": "power_on"
-                                        },
-                                        "value": "on"
-                                    },
-                                    {
-                                        "name": "Power Off",
-                                        "name_localizations": {
-                                            "fr": "Désactiver",
-                                            "ja": "power_off",
-                                            "ru": "power_off",
-                                            "es-ES": "power_off"
-                                        },
-                                        "value": "off"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "logs-channel",
-                                "description": "The channel you want logs when user break the rules!",
-                                "description_localizations": {
-                                    "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
-                                    "ja": "ユーザーがルールを破った時のログを送信するチャンネル！",
-                                    "ru": "Канал для логов при нарушении правил!",
-                                    "es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
-                                },
-                                "type": 7,
-                                "channel_types": [
-                                    0
-                                ],
-                                "required": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "telegram_link",
-                        "description": "Allow/Unallow the user to send Telegram links into them messages!",
-                        "description_localizations": {
-                            "fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages",
-                            "ja": "ユーザーがTelegramリンクを送信するのを許可/禁止！",
-                            "ru": "Разрешить/запретить отправку ссылок Telegram!",
-                            "es-ES": "Permitir/Denegar al usuario enviar enlaces de Telegram en sus mensajes!"
-                        },
-                        "type": 1,
-                        "options": [
-                            {
-                                "name": "action",
-                                "type": 3,
-                                "description": "What you want to do?",
-                                "description_localizations": {
-                                    "fr": "Que veux-tu faire?",
-                                    "ja": "何をしたいですか？",
-                                    "ru": "Что вы хотите сделать?",
-                                    "es-ES": "Que quieres hacer?"
-                                },
-                                "required": true,
-                                "choices": [
-                                    {
-                                        "name": "Power On",
-                                        "name_localizations": {
-                                            "fr": "Activer",
-                                            "ja": "power_on",
-                                            "ru": "power_on",
-                                            "es-ES": "power_on"
-                                        },
-                                        "value": "on"
-                                    },
-                                    {
-                                        "name": "Power Off",
-                                        "name_localizations": {
-                                            "fr": "Désactiver",
-                                            "ja": "power_off",
-                                            "ru": "power_off",
-                                            "es-ES": "power_off"
-                                        },
-                                        "value": "off"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "logs-channel",
-                                "description": "The channel you want logs when user break the rules!",
-                                "description_localizations": {
-                                    "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
-                                    "ja": "ユーザーがルールを破った時のログを送信するチャンネル！",
-                                    "ru": "Канал для логов при нарушении правил!",
-                                    "es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
-                                },
-                                "type": 7,
-                                "channel_types": [
-                                    0
-                                ],
-                                "required": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "link",
-                        "description": "Allow/Unallow the user to send links into them messages!",
-                        "description_localizations": {
-                            "fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages",
-                            "ja": "ユーザーがリンクを送信するのを許可/禁止！",
-                            "ru": "Разрешить/запретить отправку ссылок!",
-                            "es-ES": "Permitir/Denegar al usuario enviar enlaces en sus mensajes!"
-                        },
-                        "type": 1,
-                        "options": [
-                            {
-                                "name": "action",
-                                "type": 3,
-                                "description": "What you want to do?",
-                                "description_localizations": {
-                                    "fr": "Que veux-tu faire?",
-                                    "ja": "何をしたいですか？",
-                                    "ru": "Что вы хотите сделать?",
-                                    "es-ES": "Que quieres hacer?"
-                                },
-                                "required": true,
-                                "choices": [
-                                    {
-                                        "name": "Power On",
-                                        "name_localizations": {
-                                            "fr": "Activer",
-                                            "ja": "power_on",
-                                            "ru": "power_on",
-                                            "es-ES": "power_on"
-                                        },
-                                        "value": "on"
-                                    },
-                                    {
-                                        "name": "Power Off",
-                                        "name_localizations": {
-                                            "fr": "Désactiver",
-                                            "ja": "power_off",
-                                            "ru": "power_off",
-                                            "es-ES": "power_off"
-                                        },
-                                        "value": "off"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "logs-channel",
-                                "description": "The channel you want logs when user break the rules!",
-                                "description_localizations": {
-                                    "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
-                                    "ja": "ユーザーがルールを破った時のログを送信するチャンネル！",
-                                    "ru": "Канал для логов при нарушении правил!",
-                                    "es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
-                                },
-                                "type": 7,
-                                "channel_types": [
-                                    0
-                                ],
-                                "required": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "spam",
-                        "description": "Block the spam message in this server!",
-                        "description_localizations": {
-                            "fr": "Bloquer le message spam sur ce serveur",
-                            "ja": "このサーバーでのスパムメッセージをブロック！",
-                            "ru": "Блокировать спам-сообщения на этом сервере!",
-                            "es-ES": "Bloquear los mensajes de spam en este servidor!"
-                        },
-                        "type": 1,
-                        "options": [
-                            {
-                                "name": "action",
-                                "type": 3,
-                                "description": "What you want to do?",
-                                "description_localizations": {
-                                    "fr": "Que veux-tu faire?",
-                                    "ja": "何をしたいですか？",
-                                    "ru": "Что вы хотите сделать?",
-                                    "es-ES": "Que quieres hacer?"
-                                },
-                                "required": true,
-                                "choices": [
-                                    {
-                                        "name": "Power On",
-                                        "name_localizations": {
-                                            "fr": "Activer",
-                                            "ja": "power_on",
-                                            "ru": "power_on",
-                                            "es-ES": "power_on"
-                                        },
-                                        "value": "on"
-                                    },
-                                    {
-                                        "name": "Power Off",
-                                        "name_localizations": {
-                                            "fr": "Désactiver",
-                                            "ja": "power_off",
-                                            "ru": "power_off",
-                                            "es-ES": "power_off"
-                                        },
-                                        "value": "off"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "logs-channel",
-                                "description": "The channel you want logs when user break the rules",
-                                "description_localizations": {
-                                    "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
-                                    "ja": "ユーザーがルールを破った時のログを送信するチャンネル",
-                                    "ru": "Канал для логов при нарушении правил",
-                                    "es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
-                                },
-                                "type": 7,
-                                "channel_types": [
-                                    0
-                                ],
-                                "required": false
-                            }
-                        ]
-                    },
-                    {
-                        "name": "mass-mention",
-                        "description": "Block the spam which have mass-mention in this message!",
-                        "description_localizations": {
-                            "fr": "Bloquez les spams mentionnés en masse dans ce message",
-                            "ja": "大量メンションを含むスパムをブロック！",
-                            "ru": "Блокировать спам с массовыми упоминаниями!",
-                            "es-ES": "Bloquear el spam que tiene menciones masivas en este mensaje!"
-                        },
-                        "type": 1,
-                        "options": [
-                            {
-                                "name": "action",
-                                "type": 3,
-                                "description": "What you want to do?",
-                                "description_localizations": {
-                                    "fr": "Que voulez-vous faire?",
-                                    "ja": "何をしたいですか？",
-                                    "ru": "Что вы хотите сделать?",
-                                    "es-ES": "Que quieres hacer?"
-                                },
-                                "required": true,
-                                "choices": [
-                                    {
-                                        "name": "Power On",
-                                        "name_localizations": {
-                                            "fr": "Activer",
-                                            "ja": "power_on",
-                                            "ru": "power_on",
-                                            "es-ES": "power_on"
-                                        },
-                                        "value": "on"
-                                    },
-                                    {
-                                        "name": "Power Off",
-                                        "name_localizations": {
-                                            "fr": "Désactiver",
-                                            "ja": "power_off",
-                                            "ru": "power_off",
-                                            "es-ES": "power_off"
-                                        },
-                                        "value": "off"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "max-mention-allowed",
-                                "type": 10,
-                                "description": "Max amount of mention allowed in only one message !",
-                                "description_localizations": {
-                                    "fr": "Nombre maximum de mentions autorisées dans un seul message",
-                                    "ja": "1つのメッセージで許可される最大メンション数！",
-                                    "ru": "Максимальное количество упоминаний в одном сообщении!",
-                                    "es-ES": "Cantidad máxima de menciones permitidas en un solo mensaje!"
-                                },
-                                "required": false
-                            },
-                            {
-                                "name": "logs-channel",
-                                "description": "The channel you want logs when user break the rules",
-                                "description_localizations": {
-                                    "fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
-                                    "ja": "ユーザーがルールを破った時のログを送信するチャンネル",
-                                    "ru": "Канал для логов при нарушении правил",
-                                    "es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
-                                },
-                                "type": 7,
-                                "channel_types": [
-                                    0
-                                ],
-                                "required": false
-                            }
-                        ]
-                    }
-                ]
-            }
-        ],
-        "thinking": true
     },
     {
         "name": "join-ghostping",
@@ -12772,384 +12532,6 @@
             }
         ],
         "thinking": false
-    },
-    {
-        "name": "allowlist",
-        "description": "Subcommand for protection category!",
-        "description_translated": {
-            "fr": "Commande sous-groupé pour la catégorie de protection",
-            "ja": "保護カテゴリのサブコマンド！",
-            "ru": "Подкоманда для категории защиты!",
-            "es-ES": "Subcomando para la categoría de protección!"
-        },
-        "category": "protection",
-        "options": [
-            {
-                "name": "add",
-                "description": "Adding an user in the allowlist!",
-                "description_localizations": {
-                    "fr": "Ajouter un utilisateur à la liste blanche",
-                    "ja": "許可リストにユーザーを追加！",
-                    "ru": "Добавить пользователя в белый список!",
-                    "es-ES": "Añadiendo un usuario a la lista de permitidos!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "member",
-                        "type": 6,
-                        "description": "Whats is the member then?",
-                        "description_localizations": {
-                            "fr": "Quel est le membre alors?",
-                            "ja": "どのメンバーですか？",
-                            "ru": "Какой участник?",
-                            "es-ES": "Cual es el miembro entonces?"
-                        },
-                        "required": true
-                    }
-                ]
-            },
-            {
-                "name": "remove",
-                "description": "Removing an user in the allowlist!",
-                "description_localizations": {
-                    "fr": "Supprimer un utilisateur de la liste blanche",
-                    "ja": "許可リストからユーザーを削除！",
-                    "ru": "Удалить пользователя из белого списка!",
-                    "es-ES": "Eliminando un usuario de la lista de permitidos!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "member",
-                        "type": 6,
-                        "description": "Whats is the member then?",
-                        "description_localizations": {
-                            "fr": "Quel est le membre alors?",
-                            "ja": "どのメンバーですか？",
-                            "ru": "Какой участник?",
-                            "es-ES": "Cual es el miembro entonces?"
-                        },
-                        "required": true
-                    }
-                ]
-            },
-            {
-                "name": "show",
-                "description": "List the users in the allowlist!",
-                "description_localizations": {
-                    "fr": "Lister les utilisateurs dans la liste autorisée",
-                    "ja": "許可リストのユーザーを一覧表示！",
-                    "ru": "Показать пользователей в белом списке!",
-                    "es-ES": "Listar los usuarios en la lista de permitidos!"
-                },
-                "type": 1
-            }
-        ],
-        "thinking": false
-    },
-    {
-        "name": "protect",
-        "description": "Subcommand for protection category!",
-        "description_translated": {
-            "fr": "Commande sous-groupé pour la catégorie de protection",
-            "ja": "保護カテゴリのサブコマンド！",
-            "ru": "Подкоманда для категории защиты!",
-            "es-ES": "Subcomando para la categoría de protección!"
-        },
-        "category": "protection",
-        "options": [
-            {
-                "name": "actions",
-                "description": "Choose an actions to Deny/Allow for the user!",
-                "description_localizations": {
-                    "fr": "Choisissez une action à refuser/autoriser pour l'utilisateur",
-                    "ja": "ユーザーに対して拒否/許可するアクションを選択！",
-                    "ru": "Выберите действия для запрета/разрешения пользователю!",
-                    "es-ES": "Elegir acciones para Denegar/Permitir al usuario!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "rule",
-                        "type": 3,
-                        "description": "Whats is the rule to configure?",
-                        "description_localizations": {
-                            "fr": "Quelle est la règle à configurer ?",
-                            "ja": "設定するルールは？",
-                            "ru": "Какое правило настроить?",
-                            "es-ES": "Cual es la regla a configurar?"
-                        },
-                        "required": true,
-                        "choices": [
-                            {
-                                "name": "Delete All Settings",
-                                "name_localizations": {
-                                    "fr": "Delete All Settings",
-                                    "ja": "Delete All Settings",
-                                    "ru": "Delete All Settings",
-                                    "es-ES": "Delete All Settings"
-                                },
-                                "value": "cls"
-                            },
-                            {
-                                "name": "Select All Rules",
-                                "name_localizations": {
-                                    "fr": "Select All Rules",
-                                    "ja": "Select All Rules",
-                                    "ru": "Select All Rules",
-                                    "es-ES": "Select All Rules"
-                                },
-                                "value": "all"
-                            },
-                            {
-                                "name": "Create Webhook",
-                                "name_localizations": {
-                                    "fr": "Create Webhook",
-                                    "ja": "Create Webhook",
-                                    "ru": "Create Webhook",
-                                    "es-ES": "Create Webhook"
-                                },
-                                "value": "webhook"
-                            },
-                            {
-                                "name": "Edit Guild",
-                                "name_localizations": {
-                                    "fr": "Edit Guild",
-                                    "ja": "Edit Guild",
-                                    "ru": "Edit Guild",
-                                    "es-ES": "Edit Guild"
-                                },
-                                "value": "updateguild"
-                            },
-                            {
-                                "name": "Create Channel",
-                                "name_localizations": {
-                                    "fr": "Create Channel",
-                                    "ja": "Create Channel",
-                                    "ru": "Create Channel",
-                                    "es-ES": "Create Channel"
-                                },
-                                "value": "createchannel"
-                            },
-                            {
-                                "name": "Update Channel",
-                                "name_localizations": {
-                                    "fr": "Update Channel",
-                                    "ja": "Update Channel",
-                                    "ru": "Update Channel",
-                                    "es-ES": "Update Channel"
-                                },
-                                "value": "updatechannel"
-                            },
-                            {
-                                "name": "Delete Channel",
-                                "name_localizations": {
-                                    "fr": "Delete Channel",
-                                    "ja": "Delete Channel",
-                                    "ru": "Delete Channel",
-                                    "es-ES": "Delete Channel"
-                                },
-                                "value": "deletechannel"
-                            },
-                            {
-                                "name": "Create Role",
-                                "name_localizations": {
-                                    "fr": "Create Role",
-                                    "ja": "Create Role",
-                                    "ru": "Create Role",
-                                    "es-ES": "Create Role"
-                                },
-                                "value": "createrole"
-                            },
-                            {
-                                "name": "Delete Role",
-                                "name_localizations": {
-                                    "fr": "Delete Role",
-                                    "ja": "Delete Role",
-                                    "ru": "Delete Role",
-                                    "es-ES": "Delete Role"
-                                },
-                                "value": "deleterole"
-                            },
-                            {
-                                "name": "Update Role",
-                                "name_localizations": {
-                                    "fr": "Update Role",
-                                    "ja": "Update Role",
-                                    "ru": "Update Role",
-                                    "es-ES": "Update Role"
-                                },
-                                "value": "updaterole"
-                            },
-                            {
-                                "name": "Add/Remove Member Role(s)",
-                                "name_localizations": {
-                                    "fr": "Add/Remove Member Role(s)",
-                                    "ja": "Add/Remove Member Role(s)",
-                                    "ru": "Add/Remove Member Role(s)",
-                                    "es-ES": "Add/Remove Member Role(s)"
-                                },
-                                "value": "updatemember"
-                            },
-                            {
-                                "name": "Ban Members",
-                                "name_localizations": {
-                                    "fr": "Ban Members",
-                                    "ja": "Ban Members",
-                                    "ru": "Ban Members",
-                                    "es-ES": "Ban Members"
-                                },
-                                "value": "banmembers"
-                            },
-                            {
-                                "name": "Kick Members",
-                                "name_localizations": {
-                                    "fr": "Kick Members",
-                                    "ja": "Kick Members",
-                                    "ru": "Kick Members",
-                                    "es-ES": "Kick Members"
-                                },
-                                "value": "kickmember"
-                            },
-                            {
-                                "name": "Unban Members",
-                                "name_localizations": {
-                                    "fr": "Unban Members",
-                                    "ja": "Unban Members",
-                                    "ru": "Unban Members",
-                                    "es-ES": "Unban Members"
-                                },
-                                "value": "unbanmembers"
-                            },
-                            {
-                                "name": "Add admin role",
-                                "name_localizations": {
-                                    "fr": "Add admin role",
-                                    "ja": "Add admin role",
-                                    "ru": "Add admin role",
-                                    "es-ES": "Add admin role"
-                                },
-                                "value": "add_admin_roles"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "allow",
-                        "type": 3,
-                        "description": "The rule are bypassable for who?",
-                        "description_localizations": {
-                            "fr": "Les règles sont contournables pour qui ?",
-                            "ja": "ルールをバイパスできるのは誰？",
-                            "ru": "Для кого правила обходятся?",
-                            "es-ES": "Las reglas son evitables para quién?"
-                        },
-                        "required": false,
-                        "choices": [
-                            {
-                                "name": "Only the allowlist",
-                                "name_localizations": {
-                                    "fr": "Seulement la liste d'autorisation",
-                                    "ja": "only_the_allowlist",
-                                    "ru": "only_the_allowlist",
-                                    "es-ES": "only_the_allowlist"
-                                },
-                                "value": "allowlist"
-                            },
-                            {
-                                "name": "All of member",
-                                "name_localizations": {
-                                    "fr": "Tous les membres",
-                                    "ja": "all_of_member",
-                                    "ru": "all_of_member",
-                                    "es-ES": "all_of_member"
-                                },
-                                "value": "member"
-                            },
-                            {
-                                "name": "Nobody (except guild owner)",
-                                "name_localizations": {
-                                    "fr": "Personne (sauf le propriétaire du serveur)",
-                                    "ja": "nobody_except_guild_owner",
-                                    "ru": "nobody_except_guild_owner",
-                                    "es-ES": "nobody_except_guild_owner"
-                                },
-                                "value": "nobody"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "name": "sanction",
-                "description": "Choose the sanction to applied for the flagged user!",
-                "description_localizations": {
-                    "fr": "Choisissez la sanction à appliquer pour l'utilisateur signalé?",
-                    "ja": "フラグされたユーザーに適用する制裁を選択！",
-                    "ru": "Выберите санкцию для отмеченного пользователя!",
-                    "es-ES": "Elegir la sanción a aplicar para el usuario marcado!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "choose",
-                        "type": 3,
-                        "description": "Whats is the sanction then?",
-                        "description_localizations": {
-                            "fr": "Quelle est donc la sanction ?",
-                            "ja": "どの制裁ですか？",
-                            "ru": "Какая санкция?",
-                            "es-ES": "Cual es la sanción entonces?"
-                        },
-                        "required": true,
-                        "choices": [
-                            {
-                                "name": "Simply Cancel Actions",
-                                "name_localizations": {
-                                    "fr": "Simplemente annuler les actions",
-                                    "ja": "simply_cancel_actions",
-                                    "ru": "simply_cancel_actions",
-                                    "es-ES": "simply_cancel_actions"
-                                },
-                                "value": "simply"
-                            },
-                            {
-                                "name": "Simply Cancel Actions + Derank",
-                                "name_localizations": {
-                                    "fr": "Simplemente annuler les actions + déséléver",
-                                    "ja": "simply_cancel_actions_derank",
-                                    "ru": "simply_cancel_actions_derank",
-                                    "es-ES": "simply_cancel_actions_derank"
-                                },
-                                "value": "simply+derank"
-                            },
-                            {
-                                "name": "Simply Cancel Actions + Ban",
-                                "name_localizations": {
-                                    "fr": "Simplemente annuler les actions + bannir",
-                                    "ja": "simply_cancel_actions_ban",
-                                    "ru": "simply_cancel_actions_ban",
-                                    "es-ES": "simply_cancel_actions_ban"
-                                },
-                                "value": "simply+ban"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "name": "show",
-                "description": "Show the current configuration about protection authorization/rule & allow list!",
-                "description_localizations": {
-                    "fr": "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation",
-                    "ja": "保護認証/ルールと許可リストの現在の設定を表示！",
-                    "ru": "Показать текущую конфигурацию авторизации/правил и белого списка!",
-                    "es-ES": "Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"
-                },
-                "type": 1
-            }
-        ],
-        "thinking": true
     },
     {
         "name": "setsuggest",

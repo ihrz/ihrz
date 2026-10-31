@@ -2,6 +2,12 @@
 
 ---
 
+## 🎶 Music — un backend maison en Rust
+
+La musique ne passe plus par Lavalink : le player est désormais propulsé par **notre propre backend maison écrit en Rust**. Le son est beaucoup plus clair, avec **0 packet loss** et plus de perte de gain, les titres sont lus en **FLAC et Opus en pleine stéréo** — l'époque du mono est révolue —, et chaque transition d'une piste à l'autre est un **cross-fade de 3 titres**.
+
+---
+
 ## 🎙️ TempVoice — un panneau de contrôle complet, directement dans votre salon
 
 `/tempvoice` remplace les anciennes commandes de configuration `/voice` par un **panneau Components V2** unique : choisissez le salon de création, la catégorie de destination, le nom et la position par défaut, ainsi que les rôles staff qui ignorent les restrictions. Chaque salon temporaire reçoit désormais son propre **panneau de contrôle Components V2** avec un menu de sélection pour réclamer la propriété, renommer, définir une limite d'utilisateurs, changer la confidentialité, la région, les listes de confiance/blocage, transférer la propriété et supprimer le salon. Le panneau est actualisé quand quelqu'un réclame le salon, et les anciennes commandes séparées `set-voice-channel*`, `set-staff-role` et `set-text-channel` disparaissent.
@@ -17,6 +23,18 @@
 ## 🎁 Giveaways — `/gw go` ouvre un panneau interactif
 
 `/gw go` ouvre un **panneau Components V2** pour préparer un giveaway sans taper une commande complète : lot, durée, nombre de gagnants, condition de participation, image et salon cible. Modifiez chaque réglage, puis lancez, annulez ou fermez le panneau ; le giveaway démarre dans le salon choisi une fois que tout est valide.
+
+---
+
+## 🚨 AutoMod — toutes les règles dans un seul panneau
+
+`/automod` remplace les cinq sous-commandes `/automod block ...` par un **panneau Components V2** unique : activez ou désactivez chaque règle, définissez le canal qui reçoit ses logs et choisissez les **rôles autorisés à la contourner**. Spam, mentions de masse, liens & publicités, invitations Discord et liens Telegram possèdent chacun leur emoji dans la vue d'ensemble, la vue détail affiche la limite de mentions, et les anciennes sous-commandes disparaissent — le panneau pilote les mêmes règles AutoMod natives qu'avant.
+
+---
+
+## 🔐 Protection — un panneau dédié pour chaque règle
+
+`/protect` remplace les anciennes sous-commandes `actions`, `sanction` et `show` par un **panneau Components V2** couvrant les 13 règles de protection : activez ou désactivez chacune, choisissez qui peut la contourner (liste d'autorisation, tout le monde ou seulement le propriétaire) et définissez une **sanction par règle** — annulation seule, +derank, +ban, +kick ou +mute — au lieu d'une sanction unique pour tout le serveur, qui reste disponible comme valeur globale par défaut.
 
 ---
 
@@ -45,6 +63,12 @@ Nouvelle commande préfixée listant toutes les commandes hybrides accessibles a
 
 ---
 
+## 🧰 Commandes hybrides — `/automod`, `/protect` et `/allowlist` en préfixe
+
+`/automod`, `/protect` et `/allowlist` sont désormais des commandes hybrides, sur le modèle owner/unowner : `+automod` et `+protect` ouvrent leurs panneaux, `+wl` seul — comme `/allowlist add` sans membre — affiche la liste d'autorisation, `+wl <user>` ajoute un membre, `+unwl [user]` (ou en réponse à son message) en retire un — `+allowlist show` et `+wl-list` fonctionnent aussi.
+
+---
+
 ## 🛠️ Corrections & améliorations
 
 - **Transcriptions de tickets** : la fermeture, la suppression ou le départ d'un ticket utilise le nouveau moteur de transcription et continue de fonctionner quand le propriétaire du ticket quitte le serveur
@@ -56,6 +80,7 @@ Nouvelle commande préfixée listant toutes les commandes hybrides accessibles a
 - **Honeypot** : le nettoyage parcourt désormais les salons non cachés et les fils actifs/archivés, avec une seconde passe pour les messages postés pendant le nettoyage
 - **Statut** : le graphique de ping est généré hors ligne en SVG intégré (sans CDN Chart.js), et le marqueur de point parasite a disparu
 - **Aide** : l'aide en préfixe n'affiche plus d'embed en double pour les groupes de commandes slash
+- **Alias** : `+pv` gèle désormais votre salon vocal (alias de `/util freeze`), et `+first` renvoie au premier message du salon (alias de `+top`)
 - **Bannières** : les bannières animées des utilisateurs et des serveurs s'affichent correctement grâce à un nouveau résolveur
 - **Notificateur de release** : attend que toutes les shards soient prêtes avant de démarrer, reprend dans un ordre déterministe et journalise la progression et l'ETA
 - **Base de données** : HorizonDB utilise désormais une seule `horizon_dbUrl` (identifiants et timeout inclus), et les clés de configuration obsolètes ont été supprimées

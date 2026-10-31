@@ -19,56 +19,58 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client } from "discord.js";
+import {
+	ApplicationCommandType,
+	ChatInputCommandInteraction,
+	Client,
+	Message,
+	PermissionFlagsBits
+} from "discord.js";
+
 import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { openProtectPanel } from "./protectPanel.js";
 
-import { SubCommand } from "../../../../types/command.js";
+export const command: Command = {
+	name: "protect",
+	aliases: [],
 
-export const subCommand: SubCommand = {
+	description: "Open the interactive protection configuration panel!",
+	description_localizations: {
+		fr: "Ouvre le panneau de configuration interactif de la protection !",
+		ja: "対話型保護設定パネルを開きます！",
+		ru: "Открывает интерактивную панель настройки защиты!",
+		"es-ES": "¡Abre el panel de configuración interactivo de protección!"
+	},
+
+	thinking: true,
+	category: "protection",
+	type: ApplicationCommandType.ChatInput,
+
+	permission: PermissionFlagsBits.Administrator,
+
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		args?: string[]
 	) => {
 		// Guard's Typing
 		if (
-			!interaction.member ||
 			!client.user ||
-			!interaction.user ||
+			!interaction.member ||
 			!interaction.guild ||
 			!interaction.channel
 		)
 			return;
 
-		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.editReply({
-				content: lang.authorization_sanction_not_permited
+		if (interaction.member.user.id !== interaction.guild.ownerId) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.authorization_actions_not_permited
 			});
 			return;
 		}
 
-		let choose = interaction.options.getString("choose");
-
-		if (choose) {
-			await client.db.set(
-				`${interaction.guild.id}.PROTECTION.SANCTION`,
-				choose
-			);
-
-			if (choose === "simply")
-				choose = lang.authorization_sanction_simply;
-			if (choose === "simply+derank")
-				choose = lang.authorization_sanction_simply_unrank;
-			if (choose === "simply+ban")
-				choose = lang.authorization_sanction_simply_ban;
-
-			await interaction.editReply({
-				content: lang.authorization_sanction_command_work
-					.replace("${interaction.user}", interaction.user.toString())
-					.replace("${choose}", choose)
-			});
-			return;
-		}
+		await openProtectPanel(client, interaction, lang);
 	}
 };

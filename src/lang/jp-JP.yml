@@ -1556,26 +1556,38 @@ joinghostping_remove_isnt_set: "チャンネル ${channel} は設定されてい
 joinghostping_remove_ok_embed_desc: "チャンネルは Join GhostPing モジュールから削除されました！"
 joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing モジュールから ${channel} を削除しました！"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
-automod_block_massmention_command_on: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに**${max_mention}**回以上のメンションを送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
-automod_block_massmention_command_error404: AutoMod設定でBlock Mention Spamを有効にしたままにしていませんか（Discordではデフォルトで有効になっています）。
+# /automod
+automod_panel_title: "AutoMod コントロールパネル"
+automod_panel_desc: "iHorizon の AutoMod ルールをすべて設定できます。ルールの有効化・無効化、ログチャンネルの設定、バイパス可能なロールの選択が可能です。"
+automod_panel_overview_title: "保護中のルール"
+automod_panel_select_placeholder: "設定するルールを選択"
+automod_panel_label_logs: "ログチャンネル"
+automod_panel_label_bypass: "バイパスロール"
+automod_panel_label_mention_limit: "メンション上限"
+automod_panel_rule_spam_name: "メッセージスパム"
+automod_panel_rule_spam_desc: "サーバー内のフラッドや繰り返しメッセージをブロックします。"
+automod_panel_rule_mass_mention_name: "大量メンション"
+automod_panel_rule_mass_mention_desc: "過剰な数のメンションを含むメッセージをブロックします。"
+automod_panel_rule_antipub_name: "リンクと宣伝"
+automod_panel_rule_antipub_desc: "宣伝リンクをブロックします（GitHub、Tenor、YouTube などの安全な許可リスト付き）。"
+automod_panel_rule_media_name: "Discord 招待"
+automod_panel_rule_media_desc: "メッセージで送信される Discord サーバー招待リンクをブロックします。"
+automod_panel_rule_telegram_name: "Telegram リンク"
+automod_panel_rule_telegram_desc: "Telegram リンク（t.me、telegram.me、tg:// など）をブロックします。"
+automod_panel_logs_placeholder: "このルールのログを送信するチャンネルを選択"
+automod_panel_bypass_placeholder: "このルールをバイパスするロールを選択"
+automod_panel_enable_button: "有効化"
+automod_panel_disable_button: "無効化"
+automod_panel_back_button: "戻る"
+automod_panel_refresh_button: "更新"
+automod_panel_close_button: "パネルを閉じる"
+automod_panel_rule_enabled: "**${rule}** ルールが有効になりました！"
+automod_panel_rule_disabled: "**${rule}** ルールが無効になりました！"
+automod_panel_bypass_saved: "**${rule}** のバイパスロールが更新されました！"
+automod_panel_logs_saved: "**${rule}** のログが ${channel} に送信されます。"
+automod_panel_logs_reset: "**${rule}** のログチャンネルが削除されました！"
+automod_panel_api_error: "変更を適用できませんでした。`サーバーを管理` 権限があることと、Discord のデフォルト AutoMod ルールが無効になっていることを確認して、もう一度お試しください。"
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
-automod_block_link_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}、`Telegram AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにTelegram関連のリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
-automod_block_telegram_command_off: "${interaction.user}、`Telegram AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにTelegram関連のリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
-automod_block_pub_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, あなたは`Spam AutoModルール`を**true**に設定しました。\n今、ユーザーはスパムできません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
-automod_block_spam_command_off: "${interaction.user}, あなたは`Spam AutoModルール`を**false**に設定しました。\n今、ユーザーはスパムできます。\nAutoMod x iHorizonはサーバーで無効になっています！"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "時間が指定されていません。このモジュールを有効にするには、アカウントの最低年齢が必要です！"
@@ -2445,34 +2457,58 @@ pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
 
-# 保護モジュール
-# /認証アクション、...罰則、...設定表示、/許可リスト表示、...追加、...削除
+# Protection Module
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /認証アクション
+# /protect panel
 authorization_actions_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
 authorization_actions_everyone: "誰でも"
 authorization_actions_allowlist: "許可リストのメンバー"
 authorization_actions_nobody: "誰も。(サーバーオーナーを除く)"
-authorization_actions_rule_set: "${interaction.user}、`${rule.toUpperCase()}` のルールが設定されました。**${allow}** はこれをバイパスできます！"
-authorization_actions_rule_clear: "${interaction.user}、`${interaction.guild.name}` のすべてのルールが削除されました。保護モジュールは無効になりました！"
-
-# /認証罰則
-authorization_sanction_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
-authorization_sanction_simply: "該当なし"
-authorization_sanction_simply_unrank: "ランク外し"
-authorization_sanction_simply_ban: "BAN"
-authorization_sanction_command_work: "${interaction.user}、罰則ルールが設定されました。ユーザーがルールを犯した場合、**${choose}** です。ボットはそのアクションをキャンセルします。"
-
-# /認証設定表示
-authorization_configshow_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
-authorization_configshow_not_anything_setup: "保護モジュールには何も設定されていません！"
-authorization_configshow_simply: "アクションを単純にキャンセル"
-authorization_configshow_simply_ban: "アクションを単純にキャンセルしてBAN"
-authorization_configshow_simply_unrank: "アクションを単純にキャンセルしてランク外し"
-authorization_configshow_punishement: "```罰則：${okay}```"
-authorization_configshow_embed1_author: "ルールリスト"
-authorization_configshow_embed2_author: "許可リスト"
-
+protect_panel_title: "Protect コントロールパネル"
+protect_panel_desc: "すべての保護ルールを設定できます。ルールの有効化・無効化、バイパスできるロールの選択、責任者に適用する制裁の設定が可能です。"
+protect_panel_global_label: "全体制裁"
+protect_panel_global_hint: "独自の制裁を持たないすべてのルールに適用されます"
+protect_panel_select_placeholder: "設定するルールを選択"
+protect_panel_mode_placeholder: "このルールをバイパスできるロールを選択"
+protect_panel_sanction_placeholder: "適用する制裁を選択"
+protect_panel_bypass_label: "バイパス"
+protect_panel_sanction_label: "制裁"
+protect_panel_rule_help: "このルールが発動すると、操作は自動的に元に戻され、責任者に制裁が適用されます。"
+protect_panel_enable_button: "有効化"
+protect_panel_disable_button: "無効化"
+protect_panel_back_button: "戻る"
+protect_panel_refresh_button: "更新"
+protect_panel_close_button: "パネルを閉じる"
+protect_panel_rule_enabled: "**${rule}** ルールが有効になりました！"
+protect_panel_rule_disabled: "**${rule}** ルールが無効になりました！"
+protect_panel_mode_saved: "**${rule}** ルールのバイパス: **${mode}**"
+protect_panel_sanction_saved: "**${rule}** の制裁: **${sanction}**"
+protect_panel_global_saved: "全体制裁: **${sanction}**"
+protect_panel_api_error: "変更を適用できませんでした。`管理者` 権限があることを確認してもう一度お試しください。"
+protect_panel_sanction_global: "全体のデフォルト"
+protect_panel_sanction_cancel: "操作の取り消しだけ"
+protect_panel_sanction_derank: "取り消し + 役職剥奪"
+protect_panel_sanction_ban: "取り消し + BAN"
+protect_panel_sanction_kick: "取り消し + キック"
+protect_panel_sanction_mute: "取り消し + ミュート（10分）"
+protect_panel_group_server: "サーバーとWebhook"
+protect_panel_group_channels: "チャンネル"
+protect_panel_group_roles: "ロール"
+protect_panel_group_members: "メンバー"
+protect_panel_rule_webhook_name: "Webhook"
+protect_panel_rule_updateguild_name: "サーバーの編集"
+protect_panel_rule_createchannel_name: "チャンネル作成"
+protect_panel_rule_updatechannel_name: "チャンネルの編集"
+protect_panel_rule_deletechannel_name: "チャンネル削除"
+protect_panel_rule_createrole_name: "ロール作成"
+protect_panel_rule_deleterole_name: "ロール削除"
+protect_panel_rule_updaterole_name: "ロールの編集"
+protect_panel_rule_updatemember_name: "メンバーのロール編集"
+protect_panel_rule_banmembers_name: "メンバーBAN"
+protect_panel_rule_kickmember_name: "メンバーkick"
+protect_panel_rule_unbanmembers_name: "BAN解除"
+protect_panel_rule_add_admin_roles_name: "管理者ロール付与"
 # /許可リスト表示
 allowlist_show_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
 allowlist_show_embed_author: "許可リスト"
@@ -2480,7 +2516,6 @@ allowlist_show_embed_author: "許可リスト"
 # /許可リスト追加
 allowlist_add_not_permited: "このコマンドを使用する権限がありません！許可リストに含まれている必要があります！"
 allowlist_add_not_owner: "サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！"
-allowlist_add_member_unreachable: "許可リストに追加しようとしたメンバーは連絡が取れません！"
 allowlist_add_already_in: "許可リストから削除しようとするメンバーは既に含まれています！"
 allowlist_add_command_work: "${member.user} が許可リストに追加されました！"
 

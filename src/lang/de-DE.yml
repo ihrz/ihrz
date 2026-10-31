@@ -1556,26 +1556,38 @@ joinghostping_remove_isnt_set: "Der Kanal ${channel} ist nicht festgelegt!"
 joinghostping_remove_ok_embed_desc: "Die Kanäle wurden aus dem Join GhostPing Modul entfernt!"
 joinghostping_remove_logs_embed_desc: "${interaction.user} hat ${channel} aus dem Join GhostPing Modul entfernt!"
 
-# /automod block mass-mention
-automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
-automod_block_massmention_command_on: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer nicht mehr als **${max_mention}** Erwähnungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
-automod_block_massmention_command_error404: Haben Sie Block Mention Spam (standardmäßig von Discord aktiviert) in den AutoMod-Einstellungen aktiviert gelassen, da dies wahrscheinlich für diesen Fehler verantwortlich ist, deaktivieren Sie es bitte und starten Sie die Bestellung erneut.
+# /automod
+automod_panel_title: "AutoMod-Steuerpult"
+automod_panel_desc: "Konfiguriere jede iHorizon-AutoMod-Regel: aktiviere oder deaktiviere sie, lege ihren Log-Kanal fest und wähle die Rollen aus, die sie umgehen dürfen."
+automod_panel_overview_title: "Geschützte Regeln"
+automod_panel_select_placeholder: "Wähle eine Regel zum Konfigurieren"
+automod_panel_label_logs: "Log-Kanal"
+automod_panel_label_bypass: "Bypass-Rollen"
+automod_panel_label_mention_limit: "Erwähnungslimit"
+automod_panel_rule_spam_name: "Nachrichten-Spam"
+automod_panel_rule_spam_desc: "Blockiert Flood und wiederholte Nachrichten auf dem Server."
+automod_panel_rule_mass_mention_name: "Massenerwähnungen"
+automod_panel_rule_mass_mention_desc: "Blockiert Nachrichten mit einer übermäßigen Anzahl an Erwähnungen."
+automod_panel_rule_antipub_name: "Links & Werbung"
+automod_panel_rule_antipub_desc: "Blockiert Werbelinks, mit einer sicheren Whitelist (GitHub, Tenor, YouTube, ...)."
+automod_panel_rule_media_name: "Discord-Einladungen"
+automod_panel_rule_media_desc: "Blockiert Discord-Server-Einladungslinks in Nachrichten."
+automod_panel_rule_telegram_name: "Telegram-Links"
+automod_panel_rule_telegram_desc: "Blockiert Telegram-Links (t.me, telegram.me, tg://...)."
+automod_panel_logs_placeholder: "Wähle den Kanal, der die Logs dieser Regel erhält"
+automod_panel_bypass_placeholder: "Wähle die Rollen, die diese Regel umgehen"
+automod_panel_enable_button: "Aktivieren"
+automod_panel_disable_button: "Deaktivieren"
+automod_panel_back_button: "Zurück"
+automod_panel_refresh_button: "Aktualisieren"
+automod_panel_close_button: "Panel schließen"
+automod_panel_rule_enabled: "Die Regel **${rule}** ist jetzt aktiviert!"
+automod_panel_rule_disabled: "Die Regel **${rule}** ist jetzt deaktiviert!"
+automod_panel_bypass_saved: "Die Bypass-Rollen von **${rule}** wurden aktualisiert!"
+automod_panel_logs_saved: "Die Logs von **${rule}** werden jetzt in ${channel} gesendet."
+automod_panel_logs_reset: "Der Log-Kanal von **${rule}** wurde entfernt!"
+automod_panel_api_error: "Ich konnte diese Änderung nicht anwenden. Stelle sicher, dass ich die Berechtigung `Server verwalten` habe und die Standard-AutoMod-Regeln von Discord deaktiviert sind, und versuche es erneut."
 
-# /automod block links
-automod_block_link_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Links in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
-automod_block_link_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Links in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
-
-# /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, Sie haben die `Telegram AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Telegram-bezogenen Links in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
-automod_block_telegram_command_off: "${interaction.user}, Sie haben die `Telegram AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Telegram-bezogene Links in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
-
-# /automod block pub
-automod_block_pub_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Server-Einladungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
-automod_block_pub_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Server-Einladungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
-
-# /automod block spam
-automod_block_spam_command_on: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer keinen Spam mehr senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
-automod_block_spam_command_off: "${interaction.user}, du hast die `Spam-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Spam senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "Sie haben keine Zeit angegeben. Um dieses Modul zu aktivieren, ist ein Mindestalter des Kontos erforderlich!"
@@ -2445,34 +2457,58 @@ pfps_channel_embed_desc: "${interaction.user} hat das PFPS-Modul hier eingestell
 pfps_channel_command_work: "${interaction.user}, Sie haben das PFPS-Modul erfolgreich auf dem Kanal ${channel} eingestellt!"
 pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfen Sie, ob der angegebene Kanal existiert und das PFPP-Modul aktiviert ist!"
 
-# Schutzmodul
-# /Autorisierungsaktionen, ... Sanktionen, ... Konfiguration anzeigen, /Allowlist anzeigen, ... hinzufügen, ... löschen
+# Protection Module
+# /protect, /allowlist add, /allowlist remove, /allowlist show
 
-# /Autorisierungsaktionen
+# /protect panel
 authorization_actions_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
 authorization_actions_everyone: "Jeder"
 authorization_actions_allowlist: "Mitglied(er) der Allowlist"
 authorization_actions_nobody: "Niemand. (Außer Serverbesitzer)"
-authorization_actions_rule_set: "${interaction.user}, die Regel für `${rule.toUpperCase()}` wurde festgelegt. **${allow}** dürfen sie umgehen!"
-authorization_actions_rule_clear: "${interaction.user}, alle Regeln für `${interaction.guild.name}` wurden gelöscht. Das Schutzmodul ist jetzt deaktiviert!"
-
-# /Autorisierungssanktion
-authorization_sanction_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
-authorization_sanction_simply: "N/A"
-authorization_sanction_simply_unrank: "ENTRANGIEREN"
-authorization_sanction_simply_ban: "SPERREN"
-authorization_sanction_command_work: "${interaction.user}, die Sanktionsregel wurde festgelegt. Wenn der Benutzer gegen die Regel verstößt, wird er **${choose}**. Und der Bot bricht seine Aktion ab."
-
-# /Autorisierungskonfiguration anzeigen
-authorization_configshow_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
-authorization_configshow_not_anything_setup: "Sie haben im Schutzmodul nichts eingerichtet!"
-authorization_configshow_simply: "Aktion einfach abbrechen"
-authorization_configshow_simply_ban: "Aktion einfach abbrechen und sperren"
-authorization_configshow_simply_unrank: "Aktion einfach abbrechen und Entstufen"
-authorization_configshow_punishement: "```Strafe: ${okay}```"
-authorization_configshow_embed1_author: "Regelliste"
-authorization_configshow_embed2_author: "Allowlist"
-
+protect_panel_title: "Protect-Steuerpult"
+protect_panel_desc: "Konfiguriere jede Schutzregel: aktiviere oder deaktiviere sie, wähle wer sie umgehen kann und lege die Sanktion für das verantwortliche Mitglied fest."
+protect_panel_global_label: "Globale Sanktion"
+protect_panel_global_hint: "Gilt für jede Regel ohne eigene Sanktion"
+protect_panel_select_placeholder: "Wähle eine Regel zum Konfigurieren"
+protect_panel_mode_placeholder: "Wähle, wer diese Regel umgehen kann"
+protect_panel_sanction_placeholder: "Wähle die anzuwendende Sanktion"
+protect_panel_bypass_label: "Bypass"
+protect_panel_sanction_label: "Sanktion"
+protect_panel_rule_help: "Wenn diese Regel ausgelöst wird, wird die Aktion automatisch rückgängig gemacht und die Sanktion auf das verantwortliche Mitglied angewendet."
+protect_panel_enable_button: "Aktivieren"
+protect_panel_disable_button: "Deaktivieren"
+protect_panel_back_button: "Zurück"
+protect_panel_refresh_button: "Aktualisieren"
+protect_panel_close_button: "Panel schließen"
+protect_panel_rule_enabled: "Die Regel **${rule}** ist jetzt aktiviert!"
+protect_panel_rule_disabled: "Die Regel **${rule}** ist jetzt deaktiviert!"
+protect_panel_mode_saved: "Die Regel **${rule}** wird jetzt umgangen von: **${mode}**."
+protect_panel_sanction_saved: "Die Sanktion für **${rule}** ist jetzt: **${sanction}**."
+protect_panel_global_saved: "Die globale Sanktion ist jetzt: **${sanction}**."
+protect_panel_api_error: "Ich konnte diese Änderung nicht anwenden. Stelle sicher, dass ich die Berechtigung `Administrator` habe, und versuche es erneut."
+protect_panel_sanction_global: "Globaler Standard"
+protect_panel_sanction_cancel: "Nur Aktionen rückgängig machen"
+protect_panel_sanction_derank: "Rückgängig + Derank"
+protect_panel_sanction_ban: "Rückgängig + Bann"
+protect_panel_sanction_kick: "Rückgängig + Kick"
+protect_panel_sanction_mute: "Rückgängig + Mute (10 Min.)"
+protect_panel_group_server: "Server & Webhooks"
+protect_panel_group_channels: "Kanäle"
+protect_panel_group_roles: "Rollen"
+protect_panel_group_members: "Mitglieder"
+protect_panel_rule_webhook_name: "Webhooks"
+protect_panel_rule_updateguild_name: "Server-Änderungen"
+protect_panel_rule_createchannel_name: "Kanal-Erstellung"
+protect_panel_rule_updatechannel_name: "Kanal-Änderungen"
+protect_panel_rule_deletechannel_name: "Kanal-Löschung"
+protect_panel_rule_createrole_name: "Rollen-Erstellung"
+protect_panel_rule_deleterole_name: "Rollen-Löschung"
+protect_panel_rule_updaterole_name: "Rollen-Änderungen"
+protect_panel_rule_updatemember_name: "Mitglieder-Rollen-Änderungen"
+protect_panel_rule_banmembers_name: "Mitglieder bannen"
+protect_panel_rule_kickmember_name: "Mitglieder kicken"
+protect_panel_rule_unbanmembers_name: "Banns aufheben"
+protect_panel_rule_add_admin_roles_name: "Admin-Rollenvergabe"
 # /Allowlist anzeigen
 allowlist_show_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
 allowlist_show_embed_author: "Allowlist"
@@ -2480,7 +2516,6 @@ allowlist_show_embed_author: "Allowlist"
 # /Allowlist hinzufügen
 allowlist_add_not_permited: "Sie sind nicht berechtigt, diesen Befehl zu verwenden! Sie müssen in der Allowlist sein!"
 allowlist_add_not_owner: "Nur der Besitzer des Servers kann Benutzer zur Allowlist hinzufügen/entfernen!"
-allowlist_add_member_unreachable: "Das Mitglied, das Sie zur Allowlist hinzufügen wollten, ist nicht erreichbar!"
 allowlist_add_already_in: "Das Mitglied, das Sie von der Allowlist hinzufügen möchten, ist bereits dort!"
 allowlist_add_command_work: "${member.user} wurde zur Allowlist hinzugefügt!"
 

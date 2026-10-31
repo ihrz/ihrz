@@ -2,6 +2,12 @@
 
 ---
 
+## 🎶 Music — a home-made Rust backend
+
+Music no longer runs through Lavalink: the player is now powered by our own **home-made Rust backend**. The sound is much clearer, with **0 packet loss** and no more gain loss, tracks play in **FLAC and Opus, full stereo** — the mono era is over —, and every transition from one track to the next is a **3-song cross-fade**.
+
+---
+
 ## 🎙️ TempVoice — a full control panel, right in your channel
 
 `/tempvoice` replaces the old `/voice` setup commands with a single **Components V2** panel: choose the join-to-create channel, destination category, default name and position, and staff roles that bypass restrictions. Every temporary channel now gets its own **Components V2 control panel** with a select menu for claiming ownership, renaming, setting a user limit, changing privacy, region, trust/block lists, transferring ownership and deleting the channel. The panel refreshes when someone claims the channel, and the old separate `set-voice-channel*`, `set-staff-role` and `set-text-channel` commands are gone.
@@ -17,6 +23,18 @@
 ## 🎁 Giveaways — `/gw go` opens a live panel
 
 `/gw go` opens a **Components V2** panel to prepare a giveaway without typing a full command: prize, duration, winner count, entry requirement, image and target channel. Edit each setting, then launch, cancel or close the panel; the giveaway starts in the selected channel once everything is valid.
+
+---
+
+## 🚨 AutoMod — every rule in a single panel
+
+`/automod` replaces the five `/automod block ...` subcommands with one **Components V2** panel: turn each rule on or off, set the channel receiving its logs and pick the **roles allowed to bypass it**. Spam, mass mentions, links & advertising, Discord invites and Telegram links each get their own emoji in the overview, the detail view shows the mention limit, and the old subcommands are gone — the panel drives the same native AutoMod rules as before.
+
+---
+
+## 🔐 Protection — a dedicated panel for every rule
+
+`/protect` replaces the old `actions`, `sanction` and `show` subcommands with a single **Components V2** panel covering all 13 protection rules: enable or disable each one, choose who can bypass it (allowlist, everyone or only the owner) and set a **sanction per rule** — cancel only, +derank, +ban, +kick or +mute — instead of a single server-wide sanction, which stays available as the global default.
 
 ---
 
@@ -45,6 +63,12 @@ New prefix command listing every hybrid command the member is allowed to use, ba
 
 ---
 
+## 🧰 Hybrid commands — `/automod`, `/protect` and `/allowlist` with a prefix
+
+`/automod`, `/protect` and `/allowlist` are now hybrid commands, following the owner/unowner pattern: `+automod` and `+protect` open their panels, `+wl` alone — like `/allowlist add` without a member — lists the allowlist, `+wl <user>` adds a member, `+unwl [user]` (or a reply to their message) removes one — `+allowlist show` and `+wl-list` also work.
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Ticket transcripts**: closing, deleting or leaving a ticket uses the new transcript backend and keeps working when the ticket owner leaves the server
@@ -56,6 +80,7 @@ New prefix command listing every hybrid command the member is allowed to use, ba
 - **Honeypot**: cleanup now sweeps uncached channels and active/archived threads, with a second pass for messages posted during cleanup
 - **Status**: the ping chart is rendered offline as inline SVG (no Chart.js CDN), and the stray data-point marker is gone
 - **Help**: prefix help no longer shows a duplicate embed for slash command groups
+- **Aliases**: `+pv` now freezes your voice channel (alias of `/util freeze`), and `+first` jumps to the first message of the channel (alias of `+top`)
 - **Banners**: animated user and guild banners now render correctly through a new banner resolver
 - **Release notifier**: waits for every shard before starting, resumes in a deterministic order and logs progress and ETA
 - **Database**: HorizonDB now uses a single `horizon_dbUrl` (credentials and timeout included), and deprecated config keys were removed

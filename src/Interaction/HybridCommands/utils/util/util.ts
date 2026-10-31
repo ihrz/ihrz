@@ -863,7 +863,7 @@ export const command: Command = {
 				"es-ES": "Congelar el acceso a tu canal de voz actual"
 			},
 
-			aliases: ["voicefreeze", "vcfreeze"],
+			aliases: ["voicefreeze", "vcfreeze", "pv"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.MoveMembers
 		},
