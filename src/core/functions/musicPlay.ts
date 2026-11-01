@@ -45,6 +45,7 @@ import * as spotify from "../extractors/spotify/index.js";
 import appleMusic from "../extractors/apple-music/index.js";
 import amazonMusic from "../extractors/amazon-music/index.js";
 import tidalMusic from "../extractors/tidal/index.js";
+import { recordPlayedTrack } from "../modules/musicHistory.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -930,6 +931,7 @@ export async function handleMusicPlay({
 		`${player.guildId}.MUSIC_HISTORY.buffer`,
 		`[${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}: PLAYED]: { ${firstResult.tracks[0].requester} - ${firstResult.tracks[0].info.title as string} | ${firstResult.tracks[0].info.uri} } by ${firstResult.tracks[0].requester}`
 	);
+	void recordPlayedTrack(player.guildId, firstResult.tracks[0]);
 	await client.db.push(
 		`${player.guildId}.MUSIC_HISTORY.embed`,
 		`${time(new Date(), "R")}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`

@@ -86,7 +86,15 @@ export const subCommand: SubCommand = {
 			if (filteredEmbed.length < history.embed.length) {
 				history = {
 					embed: filteredEmbed,
-					buffer: filteredBuffer
+					buffer: filteredBuffer,
+					// Structured entries (dashboard): same 30-day window.
+					tracks: (Array.isArray(history.tracks)
+						? history.tracks
+						: []
+					).filter(
+						(t: { at?: number }) =>
+							typeof t?.at === "number" && t.at >= thirtyDaysAgo
+					)
 				};
 				await client.db.set(
 					`${interaction.guildId}.MUSIC_HISTORY`,
