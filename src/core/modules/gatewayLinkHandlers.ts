@@ -21,6 +21,7 @@
 
 import {
 	BaseGuildTextChannel,
+	ChannelType,
 	Client,
 	Guild,
 	GuildTextBasedChannel,
@@ -40,6 +41,7 @@ import {
 	queueStickyChannelRefresh
 } from "./stickyMessageManager.js";
 import { sendTrapEmbed } from "./honeypotManager.js";
+import { getTTSData } from "./ttsManager.js";
 import { sendConfessionPanel } from "./confessionManager.js";
 
 type Schema = DatabaseStructure.DbGuildObject;
@@ -51,7 +53,10 @@ const MESSAGE_LOOKUP_MAX_CHANNELS = 50;
 
 function textChannel(guild: Guild, id?: string | null) {
 	const channel = id ? guild.channels.cache.get(id) : undefined;
-	return channel instanceof BaseGuildTextChannel ? channel : null;
+	return channel instanceof BaseGuildTextChannel &&
+		channel.type === ChannelType.GuildText
+		? channel
+		: null;
 }
 
 // The gateway checked the dashboard rights; anything the bot posts in a
@@ -118,13 +123,36 @@ const handlers: Record<string, ChangeHandler> = {
 		const next = change.new as DatabaseStructure.H247Schema | null;
 		const prev = change.old as DatabaseStructure.H247Schema | null;
 
-		forgetH247Session(guild.id);
-
 		if (next?.enabled && next.voiceChannelId) {
+			// Same guards as /h247 join. The dashboard already wrote the
+			// section: on conflict it is reverted, otherwise the watchdog
+			// would join a minute later anyway.
+			const player = client.player.getPlayer(guild.id);
+			const tts = await getTTSData(client, guild.id);
+			const conflict = player?.playing
+				? "music is playing in this server"
+				: tts?.enabled && tts.voiceChannelId !== next.voiceChannelId
+					? "text-to-speech is active in another channel"
+					: null;
+			if (conflict) {
+				const path = `${guild.id}.GUILD.H247`;
+				if (prev) await client.db.set(path, prev);
+				else await client.db.delete(path);
+				throw `${conflict}, H24/7 not changed`;
+			}
+
+			forgetH247Session(guild.id);
+			// TTS on the same channel owns the connection: adopt it.
+			if (player && !tts?.enabled) await player.destroy().catch(() => {});
 			const joined = await ensureH247VoicePresence(client, guild.id);
 			if (!joined) throw "unable to join the voice channel";
 			return;
 		}
+
+		forgetH247Session(guild.id);
+		await client.db
+			.delete(`${guild.id}.GUILD.H247_TAKEOVER`)
+			.catch(() => {});
 
 		if (
 			prev?.enabled &&
@@ -142,6 +170,8 @@ const handlers: Record<string, ChangeHandler> = {
 		const profile = client.func.customProfileHelper;
 
 		if (prev.botName !== next.botName) {
+			if (next.botName && next.botName.length >= 32)
+				throw "the bot name must be shorter than 32 characters";
 			const ok = await profile.changeGuildBotName(
 				guild,
 				next.botName || client.user!.displayName
@@ -153,7 +183,10 @@ const handlers: Record<string, ChangeHandler> = {
 			let base64 = next.botPFP;
 			if (!base64) {
 				const res = await fetch(
-					client.user!.avatarURL({ size: 4096, extension: "png" })!
+					client.user!.displayAvatarURL({
+						size: 4096,
+						extension: "png"
+					})
 				);
 				base64 = Buffer.from(await res.arrayBuffer()).toString(
 					"base64"
@@ -168,8 +201,18 @@ const handlers: Record<string, ChangeHandler> = {
 	},
 
 	// Periodic manager; refreshed now instead of at the next 5 min tick.
-	"GUILD.MCOUNT": async (client, guild) => {
-		await client.memberCountManager.refreshGuild(guild.id);
+	"GUILD.MCOUNT": async (client, guild, change) => {
+		const prev = (change.old ?? {}) as Record<string, unknown>;
+		const next = (change.new ?? {}) as Record<string, unknown>;
+		const changed = Object.keys(next).filter(
+			(k) => JSON.stringify(prev[k]) !== JSON.stringify(next[k])
+		);
+		// Not awaited (like /membercount): Discord allows 2 renames per 10 min
+		// per channel, a queued rename would outlast the gateway ack.
+		if (changed.length)
+			void client.memberCountManager
+				.refreshGuild(guild.id, changed)
+				.catch(() => {});
 	},
 
 	// /sticky text · /sticky embed · /sticky disable
@@ -234,11 +277,17 @@ const handlers: Record<string, ChangeHandler> = {
 
 			const message = await findGuildMessage(guild, messageId);
 			if (!message) {
-				failed.push(`message ${messageId} not found`);
+				// Nothing left to clean up when only removing.
+				if (added.length) failed.push(`message ${messageId} not found`);
 				continue;
 			}
 
 			for (const emoji of added) {
+				// The bot stores custom emojis by id (/reactionroles add).
+				if (/[<>:]/.test(emoji)) {
+					failed.push(`use the emoji id instead of ${emoji}`);
+					continue;
+				}
 				await message
 					.react(emoji)
 					.catch(() => failed.push(`cannot react with ${emoji}`));
@@ -313,7 +362,11 @@ const handlers: Record<string, ChangeHandler> = {
 			?.lang;
 		if (!lang) return;
 
-		await client.func.customProfileHelper.applyLanguageBio(guild, lang);
+		const ok = await client.func.customProfileHelper.applyLanguageBio(
+			guild,
+			lang
+		);
+		if (!ok) throw "unable to update the server bio";
 	}
 };
 

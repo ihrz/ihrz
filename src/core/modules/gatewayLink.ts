@@ -32,6 +32,9 @@ import logger from "../logger.js";
 
 const RECONNECT_MIN_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
+// The gateway pings every 30 s: silence past this means a dead (half-open)
+// connection, closed so that the reconnect loop takes over.
+const SILENCE_TIMEOUT_MS = 75_000;
 
 // Persistent WebSocket to HorizonGateway: the dashboard only writes the
 // database, the gateway pushes the change here and the bot applies the
@@ -41,6 +44,10 @@ export class GatewayLink {
 	private ws: WebSocket | null = null;
 	private delay = RECONNECT_MIN_MS;
 	private started = false;
+	private silence: ReturnType<typeof setTimeout> | null = null;
+	// Events of a guild are applied in order (two quick saves of the same
+	// section must not interleave).
+	private queues = new Map<string, Promise<void>>();
 
 	constructor(private readonly client: Client) {}
 
@@ -74,17 +81,30 @@ export class GatewayLink {
 		}
 	}
 
+	private scheduleReconnect(): void {
+		setTimeout(() => this.connect(), this.delay);
+		this.delay = Math.min(this.delay * 2, RECONNECT_MAX_MS);
+	}
+
+	private armSilenceTimer(ws: WebSocket): void {
+		if (this.silence) clearTimeout(this.silence);
+		this.silence = setTimeout(() => ws.terminate(), SILENCE_TIMEOUT_MS);
+	}
+
 	private connect(): void {
 		let ws: WebSocket;
 		try {
 			ws = new WebSocket(this.url());
 		} catch (error) {
 			logger.err(`Gateway link: invalid gateway URL (${error})`);
+			this.scheduleReconnect();
 			return;
 		}
 		this.ws = ws;
+		ws.on("ping", () => this.armSilenceTimer(ws));
 
 		ws.on("open", () => {
+			this.armSilenceTimer(ws);
 			this.send({
 				op: "hello",
 				token: this.client.config.api.apiToken,
@@ -94,6 +114,7 @@ export class GatewayLink {
 		});
 
 		ws.on("message", (raw) => {
+			this.armSilenceTimer(ws);
 			let frame: Protocol.Ready | Protocol.Event;
 			try {
 				frame = JSON.parse(raw.toString());
@@ -107,15 +128,22 @@ export class GatewayLink {
 					`Gateway link ready (shard #${this.client.shard?.ids[0] ?? 0})`
 				);
 			} else if (frame.op === "event") {
-				void this.handle(frame);
+				const previous =
+					this.queues.get(frame.guildId) ?? Promise.resolve();
+				const next = previous.then(() => this.handle(frame));
+				this.queues.set(frame.guildId, next);
+				void next.finally(() => {
+					if (this.queues.get(frame.guildId) === next)
+						this.queues.delete(frame.guildId);
+				});
 			}
 		});
 
 		ws.on("error", () => {});
 		ws.on("close", () => {
+			if (this.silence) clearTimeout(this.silence);
 			this.ws = null;
-			setTimeout(() => this.connect(), this.delay);
-			this.delay = Math.min(this.delay * 2, RECONNECT_MAX_MS);
+			this.scheduleReconnect();
 		});
 	}
 

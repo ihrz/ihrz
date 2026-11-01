@@ -44,11 +44,11 @@ class MemberCountModule {
 
 	// Immediate refresh of one guild (dashboard change) instead of waiting
 	// for the 5 min tick.
-	async refreshGuild(guildId: string) {
+	async refreshGuild(guildId: string, keys?: string[]) {
 		const data = await client.db.get<
 			DatabaseStructure.DbGuildObject["MCOUNT"]
 		>(`${guildId}.GUILD.MCOUNT`);
-		if (data) await this.Refresh([{ guildId, data }]);
+		if (data) await this.Refresh([{ guildId, data }], keys);
 	}
 
 	private async GetMemberCountData(): Promise<memberCountData> {
@@ -65,7 +65,7 @@ class MemberCountModule {
 		return result;
 	}
 
-	private async Refresh(memberCountData: memberCountData) {
+	private async Refresh(memberCountData: memberCountData, only?: string[]) {
 		for (const guildObject of memberCountData) {
 			try {
 				const guild = await client.guilds
@@ -116,8 +116,10 @@ class MemberCountModule {
 				];
 
 				for (const { key, count } of mappings) {
+					if (only && !only.includes(key)) continue;
 					const data = baseData[key];
-					if (data) {
+					// Counters the dashboard leaves empty (`{}`) or disabled.
+					if (data?.enable && data.channel) {
 						const channel = (await guild.channels
 							.fetch(data.channel!)
 							.catch(() => null)) as TextChannel;
