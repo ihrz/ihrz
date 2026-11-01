@@ -278,13 +278,24 @@ export async function openAutomodPanel(
 	): AutomodRuleState {
 		const stored = storedPanel?.[key];
 
+		// Discord keeps the ids of deleted roles / channels in the rule, and
+		// discord.js maps them to undefined. Drop them so the panel opens and
+		// the next edit does not send unknown snowflakes back to the API.
+		const bypassRoles = (
+			rule ? [...rule.exemptRoles.keys()] : (stored?.bypassRoles ?? [])
+		).filter((roleId) => guild.roles.cache.has(roleId));
+
+		const logsChannel =
+			readLogsChannel(rule) ?? stored?.logsChannel ?? null;
+
 		return {
 			ruleId: rule?.id ?? null,
 			enabled: rule?.enabled ?? false,
-			bypassRoles: rule
-				? rule.exemptRoles.map((role) => role.id)
-				: (stored?.bypassRoles ?? []),
-			logsChannel: readLogsChannel(rule) ?? stored?.logsChannel ?? null,
+			bypassRoles,
+			logsChannel:
+				logsChannel && guild.channels.cache.has(logsChannel)
+					? logsChannel
+					: null,
 			mentionLimit: rule?.triggerMetadata.mentionTotalLimit ?? null
 		};
 	}
