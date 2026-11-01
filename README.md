@@ -317,8 +317,6 @@ Past developers and contributors who have helped make iHorizon what it is today.
 	</tr>
 </table>
 
-> 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
-
 ---
 
 ## 📜 History & Evolution

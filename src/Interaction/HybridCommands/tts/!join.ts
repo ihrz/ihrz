@@ -31,8 +31,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
 	getTTSData,
-	setTTSData,
-	sendTTSWelcomeEmbed,
+	startTTSSession,
 	cleanupTTS
 } from "../../../core/modules/ttsManager.js";
 import { getH247Data } from "../../../core/modules/h247Manager.js";
@@ -121,37 +120,13 @@ export const subCommand: SubCommand = {
 		const ttsLang = lang.tts_join_lang_fallback || "en-US";
 
 		try {
-			const player = client.player.createPlayer({
-				guildId: interaction.guild.id,
-				voiceChannelId: voiceChannel.id,
-				textChannelId: voiceChannel.id,
-				selfDeaf: true,
-				selfMute: false
-			});
-
-			if (!player.connected) {
-				await player.connect();
-			}
-
-			await client.func.method.changeVoiceChannelStatus(
-				voiceChannel.id,
-				lang.tts_voice_status
-			);
-
-			const embedMessageId = await sendTTSWelcomeEmbed(
+			await startTTSSession(
 				client,
 				interaction.guild,
 				voiceChannel as VoiceChannel,
-				lang
+				lang,
+				ttsLang
 			);
-
-			await setTTSData(client, interaction.guild.id, {
-				enabled: true,
-				voiceChannelId: voiceChannel.id,
-				textChannelId: voiceChannel.id,
-				embedMessageId,
-				lang: ttsLang
-			});
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_enabled
