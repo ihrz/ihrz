@@ -244,24 +244,9 @@ export const command: Command = {
 					// Update bot server bio in new language
 					const newLang =
 						await client.func.getLanguageDataByCode(selectedLang);
-					const commandCount = client.content.length.toString();
-					if (newLang.bot_server_bio) {
-						client.func.customProfileHelper
-							.changeGuildBotBio(
-								interaction.guild!,
-								newLang.bot_server_bio
-									.replace("{count}", commandCount)
-									.replace(
-										"{wink_emoji}",
-										client.iHorizon_Emojis.Wink
-									)
-									.replace(
-										"{home_emoji}",
-										client.iHorizon_Emojis.Home
-									)
-							)
-							.catch(() => {});
-					}
+					client.func.customProfileHelper
+						.applyLanguageBio(interaction.guild!, selectedLang)
+						.catch(() => {});
 
 					await client.func.ihorizon_logs(interaction, {
 						title: newLang.setserverlang_logs_embed_title_on_enable,

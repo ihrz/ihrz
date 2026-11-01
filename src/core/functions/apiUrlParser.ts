@@ -32,7 +32,8 @@ export enum GatewayMethod {
 	ServerBackup = 6,
 	SecureWebhook = 7,
 	CreateCustomVanity = 8,
-	ImageGeneration = 9
+	ImageGeneration = 9,
+	BotLink = 10
 }
 
 export function assetsFinder(body: Assets, type: string): string {
@@ -94,6 +95,9 @@ function buildGatewayUrl(
 			break;
 		case 9:
 			data += "/api/ihorizon/v1/image";
+			break;
+		case 10:
+			data += "/api/ihorizon/v1/bot/link";
 			break;
 	}
 

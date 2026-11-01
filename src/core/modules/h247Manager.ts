@@ -329,6 +329,17 @@ export async function deleteH247Data(
 	h247WatchdogWarns.delete(guildId);
 }
 
+// Drops the in-memory H24/7 state only. Used when the database was
+// changed elsewhere (dashboard): the document is already the source of
+// truth, only the caches mirroring it must go.
+export function forgetH247Session(guildId: string): void {
+	h247Sessions.delete(guildId);
+	h247VoiceSessions.delete(guildId);
+	h247NegativeCache.delete(guildId);
+	h247EventRejoinCooldowns.delete(guildId);
+	h247WatchdogWarns.delete(guildId);
+}
+
 async function fetchH247VoiceChannel(
 	guild: Guild,
 	voiceChannelId: string

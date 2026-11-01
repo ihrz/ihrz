@@ -42,6 +42,15 @@ class MemberCountModule {
 		}, 60_000 * 5);
 	}
 
+	// Immediate refresh of one guild (dashboard change) instead of waiting
+	// for the 5 min tick.
+	async refreshGuild(guildId: string) {
+		const data = await client.db.get<
+			DatabaseStructure.DbGuildObject["MCOUNT"]
+		>(`${guildId}.GUILD.MCOUNT`);
+		if (data) await this.Refresh([{ guildId, data }]);
+	}
+
 	private async GetMemberCountData(): Promise<memberCountData> {
 		const result: memberCountData = [];
 

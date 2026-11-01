@@ -45,6 +45,7 @@ import { KdenLive } from "./functions/kdenliveManipulator.js";
 import { Command } from "../../types/command.js";
 import { mkdir, readdir } from "node:fs/promises";
 import { MemberCountModule } from "./modules/memberCountManager.js";
+import { GatewayLink } from "./modules/gatewayLink.js";
 import { AutoRenew } from "./modules/autorenewManager.js";
 import { Client_Functions } from "../../types/client_functions.js";
 import { AnotherCommand } from "../../types/anotherCommand.js";
@@ -96,6 +97,7 @@ export async function main(client: Client) {
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
 	client.memberCountManager = new MemberCountModule();
+	client.gatewayLink = new GatewayLink(client);
 	client.autoRenewManager = new AutoRenew();
 	client.owners = [];
 	client.content = [];

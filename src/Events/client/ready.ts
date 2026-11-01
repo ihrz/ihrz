@@ -405,6 +405,7 @@ export const event: BotEvent = {
 			logger.err("H24/7 session recovery failed:", err);
 		});
 		client.memberCountManager.init().then(() => {});
+		client.gatewayLink.start();
 		client.autoRenewManager.init().then(() => {});
 		client.nightmodeManager.init().then(() => {});
 		client.notifier.start().then(() => {});

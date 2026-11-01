@@ -20,18 +20,13 @@
 */
 
 import {
-	ActionRowBuilder,
-	BaseGuildTextChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	SnowflakeUtil,
 	TextChannel
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { sendConfessionPanel } from "../../../core/modules/confessionManager.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -81,35 +76,13 @@ export const subCommand: SubCommand = {
 			)
 		});
 
-		const embed = new EmbedBuilder()
-			.setColor("#ff05aa")
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp()
-			.setDescription(lang.confession_channel_panel_embed_desc);
-		const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setStyle(ButtonStyle.Secondary)
-				.setLabel(buttonTitle)
-				.setCustomId("new-confession-button")
+		const message = await sendConfessionPanel(
+			client,
+			channel,
+			lang,
+			buttonTitle,
+			interaction
 		);
-
-		const nonce = SnowflakeUtil.generate().toString();
-
-		const message = await (channel as BaseGuildTextChannel).send({
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			],
-			components: [actionRow],
-			enforceNonce: true,
-			nonce: nonce
-		});
 
 		await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.panel`, {
 			channelId: message.channelId,
