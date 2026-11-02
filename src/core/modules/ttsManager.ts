@@ -171,6 +171,18 @@ export async function cleanupTTS(
 	const data = await getTTSData(client, guildId);
 	if (!data) return;
 
+	await stopTTSSession(client, guildId, data);
+	await deleteTTSData(client, guildId);
+}
+
+// Tears down a TTS session described by `data` (player, welcome embed,
+// voice status) without touching the database — the dashboard has already
+// written the new state when it calls this.
+export async function stopTTSSession(
+	client: Client,
+	guildId: string,
+	data: DatabaseStructure.TTSData
+): Promise<void> {
 	const player = client.player.getPlayer(guildId);
 	if (player) {
 		// When the H24/7 module parks iHorizon in the TTS voice channel,
@@ -207,8 +219,49 @@ export async function cleanupTTS(
 	} catch {
 		// Voice channel may no longer exist
 	}
+}
 
-	await deleteTTSData(client, guildId);
+// Joins `voiceChannel`, sets the voice status, posts the welcome embed and
+// stores the session (/tts join, dashboard).
+export async function startTTSSession(
+	client: Client,
+	guild: Guild,
+	voiceChannel: VoiceChannel,
+	lang: LanguageData,
+	ttsLang: string,
+	textChannelId: string = voiceChannel.id
+): Promise<void> {
+	const player = client.player.createPlayer({
+		guildId: guild.id,
+		voiceChannelId: voiceChannel.id,
+		textChannelId: voiceChannel.id,
+		selfDeaf: true,
+		selfMute: false
+	});
+
+	if (!player.connected) {
+		await player.connect();
+	}
+
+	await client.func.method.changeVoiceChannelStatus(
+		voiceChannel.id,
+		lang.tts_voice_status
+	);
+
+	const embedMessageId = await sendTTSWelcomeEmbed(
+		client,
+		guild,
+		voiceChannel,
+		lang
+	);
+
+	await setTTSData(client, guild.id, {
+		enabled: true,
+		voiceChannelId: voiceChannel.id,
+		textChannelId,
+		embedMessageId,
+		lang: ttsLang
+	});
 }
 
 export async function cleanupOrphanedTTS(client: Client): Promise<void> {

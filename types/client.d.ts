@@ -45,6 +45,7 @@ import { ConfigData } from "./configDatad.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
+import { GatewayLink } from "../src/core/modules/gatewayLink.js";
 import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
@@ -89,6 +90,7 @@ declare module "discord.js" {
 		kdenlive: KdenLive;
 		htmlfiles: Record<string, string>;
 		memberCountManager: MemberCountModule;
+		gatewayLink: GatewayLink;
 		autoRenewManager: AutoRenew;
 		emojisManager: EmojisManager;
 		infrastructureMonitoring: InfrastructureMonitoring;

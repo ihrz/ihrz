@@ -26,9 +26,7 @@ import {
 	Message,
 	EmbedBuilder,
 	ActionRowBuilder,
-	StringSelectMenuBuilder,
 	ColorResolvable,
-	ComponentType,
 	GuildMember
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -37,6 +35,11 @@ import { CategoryData } from "../../../../types/category.js";
 import { BotContent } from "../../../../types/botContent.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { guildPrefix } from "../../../core/functions/prefix.js";
+import {
+	chunkCategories,
+	createNavigationRow,
+	createSelectMenuRows
+} from "./@h.js";
 import {
 	checkExplicitRolePermission,
 	checkExplicitUserPermission,
@@ -183,7 +186,10 @@ export const command: Command = {
 			return customAllowed;
 		};
 
+		// Discord embeds hold at most 25 fields: like +h, split each category
+		// into "continued" entries of 24 commands, each with its own option.
 		const categories: CategoryData[] = [];
+		const continuedNames = new Set<string>();
 		for (const cat of client.category) {
 			const allowed = hybridEntries.filter(
 				(c) => c.category === cat.categoryName && canUse(c)
@@ -192,17 +198,24 @@ export const command: Command = {
 
 			const placeholder =
 				lang[cat.options.placeholder as keyof LanguageData].toString();
-			categories.push({
-				name: placeholder,
-				value: allowed,
-				inline: false,
-				description:
-					lang[
-						cat.options.description as keyof LanguageData
-					].toString(),
-				color: "#1519f0",
-				emoji: cat.options.emoji
-			});
+			const description =
+				lang[cat.options.description as keyof LanguageData].toString();
+
+			for (let i = 0, suite = 0; i < allowed.length; i += 24, suite++) {
+				const name =
+					suite === 0
+						? placeholder
+						: `${placeholder} ${lang.h_suite} ${suite}`;
+				if (suite > 0) continuedNames.add(name);
+				categories.push({
+					name,
+					value: allowed.slice(i, i + 24),
+					inline: false,
+					description,
+					color: "#1519f0",
+					emoji: cat.options.emoji
+				});
+			}
 		}
 
 		if (categories.length === 0) {
@@ -215,36 +228,26 @@ export const command: Command = {
 
 		categories.sort((a, b) => a.name.localeCompare(b.name));
 
+		const categoryKey = (cat: CategoryData) =>
+			cat.name.toLowerCase().replace(/\s+/g, "_");
+
 		const footer = `© iHorizon ${new Date().getFullYear()}`;
-		const categoryEmbeds: { [key: string]: EmbedBuilder[] } = {};
+		const categoryEmbeds: { [key: string]: EmbedBuilder } = {};
 		for (const cat of categories) {
-			const key = cat.name.toLowerCase().replace(/\s+/g, "_");
-			const pages: EmbedBuilder[] = [];
-			let current = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setTitle(cat.name)
 				.setDescription(
-					lang.hybridcommands_embed_footer_text.replace(
-						"${botPrefix}",
-						botPrefix
-					)
+					continuedNames.has(cat.name)
+						? lang.h_suite_desc
+						: lang.hybridcommands_embed_footer_text.replace(
+								"${botPrefix}",
+								botPrefix
+							)
 				)
 				.setColor("#1519f0" as ColorResolvable)
 				.setFooter({ text: footer });
 
-			cat.value.forEach((cmd, index) => {
-				if (index > 0 && index % 25 === 0) {
-					pages.push(current);
-					current = new EmbedBuilder()
-						.setTitle(`${cat.name} (${pages.length + 1})`)
-						.setDescription(
-							lang.hybridcommands_embed_footer_text.replace(
-								"${botPrefix}",
-								botPrefix
-							)
-						)
-						.setColor("#1519f0" as ColorResolvable)
-						.setFooter({ text: footer });
-				}
+			for (const cmd of cat.value) {
 				let fieldName = `\`${botPrefix}${cmd.prefixCmd || cmd.cmd}`;
 				if (cmd.usage) fieldName += " " + cmd.usage;
 				fieldName += "`";
@@ -257,47 +260,60 @@ export const command: Command = {
 					client.iHorizon_Emojis.Lock ?? "🔐",
 					client.iHorizon_Emojis.Crown ?? "👑"
 				).substring(0, Math.max(0, 256 - fieldName.length));
-				current.addFields({
+				embed.addFields({
 					name: fieldName.substring(0, 256),
 					value: localizedDesc(cmd, guildLang)
 				});
-			});
-			pages.push(current);
-			categoryEmbeds[key] = pages;
+			}
+			categoryEmbeds[categoryKey(cat)] = embed;
 		}
 
-		const selectRow =
-			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-				new StringSelectMenuBuilder()
-					.setCustomId("helpall_category_select")
-					.setPlaceholder(lang.help_select_menu)
-					.addOptions(
-						categories.map((cat) => ({
-							label: cat.name,
-							value: cat.name.toLowerCase().replace(/\s+/g, "_"),
-							description: `${cat.value.length} Commands`,
-							emoji: cat.emoji
-						}))
-					)
+		// The select menu holds at most 25 options: paginate it with the
+		// same rows and buttons as +h.
+		const categoryChunks = chunkCategories(categories);
+		let currentPageIndex = 0;
+
+		const buildComponents = (
+			pageIndex: number,
+			selectedCat?: string,
+			disabled: boolean = false
+		) => {
+			const components: ActionRowBuilder<any>[] = createSelectMenuRows(
+				categoryChunks[pageIndex],
+				lang,
+				pageIndex,
+				categoryChunks.length,
+				selectedCat
 			);
+			const navigationRow = createNavigationRow(
+				pageIndex,
+				categoryChunks.length,
+				lang
+			);
+			if (navigationRow) components.push(navigationRow);
+			if (disabled) {
+				for (const row of components) {
+					for (const component of row.components) {
+						component.setDisabled(true);
+					}
+				}
+			}
+			return components;
+		};
 
 		const helpMessage = await (
 			interaction.channel as BaseGuildTextChannel
 		).send({
-			embeds: categoryEmbeds[
-				categories[0].name.toLowerCase().replace(/\s+/g, "_")
-			],
-			components: [selectRow]
+			embeds: [categoryEmbeds[categoryKey(categoryChunks[0][0])]],
+			components: buildComponents(0)
 		});
 
 		const authorId = member.user.id;
 		const collector = helpMessage.createMessageComponentCollector({
-			componentType: ComponentType.StringSelect,
 			time: 120000 * 15
 		});
 
 		collector.on("collect", async (i) => {
-			if (i.customId !== "helpall_category_select") return;
 			if (i.user.id !== authorId) {
 				await i.reply({
 					content: lang.help_not_for_you,
@@ -305,27 +321,56 @@ export const command: Command = {
 				});
 				return;
 			}
-			const embeds = categoryEmbeds[i.values[0]];
-			if (!embeds) {
+
+			if (i.isStringSelectMenu()) {
+				if (!i.customId.startsWith("help_category_select_")) return;
+				const selectedCat = i.values[0];
+				const embed = categoryEmbeds[selectedCat];
+				if (!embed) {
+					await i.update({
+						content: lang.var_unreachable_command,
+						embeds: [],
+						components: []
+					});
+					return;
+				}
 				await i.update({
-					content: lang.var_unreachable_command,
-					embeds: [],
-					components: []
+					embeds: [embed],
+					components: buildComponents(currentPageIndex, selectedCat)
 				});
 				return;
 			}
-			await i.update({ embeds, components: [selectRow] });
+
+			if (!i.isButton()) return;
+			if (i.customId === "help_prev_page" && currentPageIndex > 0) {
+				currentPageIndex--;
+			} else if (
+				i.customId === "help_next_page" &&
+				currentPageIndex < categoryChunks.length - 1
+			) {
+				currentPageIndex++;
+			} else {
+				return;
+			}
+			await i.update({
+				embeds: [
+					categoryEmbeds[
+						categoryKey(categoryChunks[currentPageIndex][0])
+					]
+				],
+				components: buildComponents(currentPageIndex)
+			});
 		});
 
 		collector.on("end", async () => {
 			try {
-				const disabled =
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						StringSelectMenuBuilder.from(
-							selectRow.components[0]
-						).setDisabled(true)
-					);
-				await helpMessage.edit({ components: [disabled] });
+				await helpMessage.edit({
+					components: buildComponents(
+						currentPageIndex,
+						undefined,
+						true
+					)
+				});
 			} catch {
 				// Message may have been deleted
 			}

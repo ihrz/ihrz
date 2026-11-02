@@ -42,7 +42,7 @@ interface SelectMenuPage {
 	totalPages: number;
 }
 
-function chunkCategories(
+export function chunkCategories(
 	categories: CategoryData[],
 	chunkSize: number = 25
 ): CategoryData[][] {
@@ -53,7 +53,7 @@ function chunkCategories(
 	return chunks;
 }
 
-function createSelectMenuRows(
+export function createSelectMenuRows(
 	categoriesChunk: CategoryData[],
 	lang: LanguageData,
 	currentPage: number,
@@ -87,7 +87,7 @@ function createSelectMenuRows(
 	return rows;
 }
 
-function createNavigationRow(
+export function createNavigationRow(
 	currentPage: number,
 	totalPages: number,
 	lang: LanguageData

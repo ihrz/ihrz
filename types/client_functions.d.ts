@@ -794,6 +794,10 @@ declare namespace Client_Functions {
 			guild: Guild,
 			bio: string
 		): Promise<boolean>;
+		export function applyLanguageBio(
+			guild: Guild,
+			langCode: string
+		): Promise<boolean>;
 	}
 
 	// From database_latency.ts

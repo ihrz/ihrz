@@ -115,3 +115,21 @@ export async function changeGuildBotBio(
 
 	return res.status === 200;
 }
+
+// Server bio in the guild language (setserverlang, dashboard language change).
+export async function applyLanguageBio(
+	guild: Guild,
+	langCode: string
+): Promise<boolean> {
+	const lang = await client.func.getLanguageDataByCode(langCode);
+
+	if (!lang.bot_server_bio) return false;
+
+	return changeGuildBotBio(
+		guild,
+		lang.bot_server_bio
+			.replace("{count}", client.content.length.toString())
+			.replace("{wink_emoji}", client.iHorizon_Emojis.Wink)
+			.replace("{home_emoji}", client.iHorizon_Emojis.Home)
+	);
+}

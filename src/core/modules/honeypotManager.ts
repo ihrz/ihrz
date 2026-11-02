@@ -26,6 +26,7 @@ import {
 	Client,
 	Collection,
 	EmbedBuilder,
+	Guild,
 	Message,
 	Snowflake,
 	TextChannel,
@@ -39,7 +40,8 @@ import logger from "../logger.js";
 import wait from "../functions/wait.js";
 
 const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
-const HONEYPOT_EMBED_COLOR = "#D88A3D";
+export const HONEYPOT_EMBED_COLOR = "#D88A3D";
+export const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 const HONEYPOT_TRIGGER_DELAY = 1500;
 const HONEYPOT_SECOND_PASS_DELAY_MS = 8000;
 
@@ -612,4 +614,83 @@ export function scheduleHoneypotTrigger(
 	}, HONEYPOT_TRIGGER_DELAY);
 
 	honeypotTriggerTimeouts.set(queueKey, nextTimeout);
+}
+
+export function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
+	return new EmbedBuilder()
+		.setColor(HONEYPOT_EMBED_COLOR)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
+		.setTitle(lang.honeypot_trap_embed_title)
+		.setDescription(lang.honeypot_trap_embed_desc)
+		.setFooter({
+			text: lang.honeypot_trap_embed_footer.replace(
+				"${url}",
+				HONEYPOT_CREDIT_URL
+			)
+		});
+}
+
+async function ensureTrapChannel(
+	guild: Guild,
+	config: DatabaseStructure.HoneypotSchema,
+	lang: LanguageData
+): Promise<TextChannel | null> {
+	if (config.channelId) {
+		const existingChannel = await guild.channels
+			.fetch(config.channelId)
+			.catch(() => null);
+		if (existingChannel instanceof TextChannel) {
+			return existingChannel;
+		}
+	}
+
+	const createdChannel = await guild.channels
+		.create({
+			name: lang.honeypot_default_channel_name,
+			type: ChannelType.GuildText,
+			reason: "Honeypot automatic setup"
+		})
+		.catch(() => null);
+
+	if (!(createdChannel instanceof TextChannel)) {
+		return null;
+	}
+
+	await createdChannel.setPosition(0).catch(() => {});
+	config.channelId = createdChannel.id;
+	return createdChannel;
+}
+
+// Posts (or reposts) the trap message, creating the trap channel when
+// missing. Mutates `config.channelId` / `config.messageId`; the caller
+// persists it (/honeypot config, dashboard).
+export async function sendTrapEmbed(
+	guild: Guild,
+	config: DatabaseStructure.HoneypotSchema,
+	lang: LanguageData
+): Promise<TextChannel | null> {
+	const channel = await ensureTrapChannel(guild, config, lang);
+
+	if (!channel) {
+		return null;
+	}
+
+	if (config.messageId) {
+		const previousMessage = await channel.messages
+			.fetch(config.messageId)
+			.catch(() => null);
+		await previousMessage?.delete().catch(() => {});
+	}
+
+	const sentMessage = await channel
+		.send({ embeds: [buildTrapEmbed(lang)] })
+		.catch(() => null);
+
+	if (!sentMessage) {
+		return null;
+	}
+
+	config.channelId = channel.id;
+	config.messageId = sentMessage.id;
+	return channel;
 }

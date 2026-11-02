@@ -721,6 +721,19 @@ export namespace DatabaseStructure {
 		H247_TAKEOVER?: H247TakeoverSchema;
 	}
 
+	// One played track (`{guildId}.MUSIC_HISTORY.tracks`, newest last,
+	// capped). Read by the dashboard; /history keeps using embed/buffer.
+	export interface MusicHistoryTrack {
+		at: number;
+		requesterId: string | null;
+		title: string;
+		author: string | null;
+		uri: string | null;
+		artworkUrl: string | null;
+		duration: number | null;
+		source: string | null;
+	}
+
 	export type TempRoleSchema = Record<
 		string,
 		[{ roleId: string; time: number }]

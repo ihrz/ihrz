@@ -48,34 +48,7 @@ import {
 	isDiscordEmoji,
 	isSingleEmoji
 } from "../../../core/functions/emojiChecker.js";
-
-function generateSelectMenu(
-	data: DatabaseStructure.RoleReactData,
-	messageId: string,
-	placeholder: string
-) {
-	const dynamicSelectMenu = new StringSelectMenuBuilder()
-		.setCustomId(`roleselect_roles%${messageId}`)
-		.setPlaceholder(placeholder);
-
-	data.forEach((item, index) => {
-		const selectMenuOption = new StringSelectMenuOptionBuilder()
-			.setLabel(item.label)
-			.setValue(`role_${item.roleId}`);
-		if (
-			item.emoji &&
-			(isSingleEmoji(item.emoji) || isDiscordEmoji(item.emoji))
-		) {
-			selectMenuOption.setEmoji(item.emoji);
-		}
-		if (item.desc) {
-			selectMenuOption.setDescription(item.desc);
-		}
-		dynamicSelectMenu.addOptions(selectMenuOption);
-	});
-
-	return dynamicSelectMenu;
-}
+import { generateSelectMenu } from "../../../core/functions/roleSelectMenu.js";
 
 async function getMessage(channel: GuildTextBasedChannel, messageId: string) {
 	let fetchedMessage = null;
