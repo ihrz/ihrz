@@ -131,3 +131,54 @@ export async function getDetailedGuildData(
 	// Find the result that isn't null
 	return guildResults.find((result) => result !== null) || null;
 }
+
+// Public data of the guilds reaching a member threshold, across all shards
+export interface CommunityGuildData {
+	name: string;
+	avatar: string | null;
+	members: number;
+	online: number;
+	offline: number;
+}
+
+export async function getCommunityGuildsData(
+	client: Client,
+	minMembers: number
+): Promise<CommunityGuildData[]> {
+	const collect = (c: Client, { minMembers }: { minMembers: number }) =>
+		c.guilds.cache
+			.filter(
+				(guild) =>
+					guild.available &&
+					(guild.memberCount || guild.approximateMemberCount || 0) >=
+						minMembers
+			)
+			.map((guild) => {
+				const members =
+					guild.memberCount || guild.approximateMemberCount || 0;
+				// Requires the GuildPresences intent: offline members have no
+				// cached presence, so they are derived from the member count.
+				const online = guild.presences.cache.filter(
+					(presence) => presence.status !== "offline"
+				).size;
+				return {
+					name: guild.name,
+					avatar: guild.iconURL({ extension: "png", size: 512 }),
+					members,
+					online,
+					offline: Math.max(members - online, 0)
+				};
+			});
+
+	if (!client.shard) {
+		// No sharding - use local cache
+		return collect(client, { minMembers });
+	}
+
+	// With sharding - broadcast to collect every shard's guilds
+	const guildResults = await client.shard.broadcastEval(collect, {
+		context: { minMembers }
+	});
+
+	return guildResults.flat();
+}

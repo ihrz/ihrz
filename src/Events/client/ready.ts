@@ -286,6 +286,9 @@ export const event: BotEvent = {
 							bio: client.func.retrieveMyself.retrieveBio()
 						},
 						team: await getTeam(),
+						community: {
+							servers: await getCommunityServers()
+						},
 						lastPushAt: pushedAt,
 						lastPushAtISO: new Date(pushedAt).toISOString(),
 						writerShard: client.shard?.ids[0] ?? 0
@@ -308,6 +311,26 @@ export const event: BotEvent = {
 					);
 				}
 			}
+		}
+
+		async function getCommunityServers(): Promise<
+			DatabaseStructure.CommunityServer[]
+		> {
+			const guilds =
+				await client.func.shard_helper.getCommunityGuildsData(
+					client,
+					2000
+				);
+
+			// Sort on member count, then strip it: only the public fields are pushed.
+			return guilds
+				.sort((a, b) => b.members - a.members)
+				.map(({ name, avatar, online, offline }) => ({
+					name,
+					avatar,
+					online,
+					offline
+				}));
 		}
 
 		async function getTeam(): Promise<Team> {

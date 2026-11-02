@@ -62,7 +62,7 @@ import { Command } from './command.js';
 import { Option } from './option.js';
 import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command, PermissionValue } from '../src/core/functions/permissonsCalculator.ts';
-import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
+import { CommunityGuildData, DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
 import { Sqlite } from '../src/core/database/driver/sqlite.ts';
 import { Json } from '../src/core/database/driver/json.ts';
