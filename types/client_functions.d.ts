@@ -79,6 +79,7 @@ import {
 	PermissionValue
 } from "../src/core/functions/permissonsCalculator.ts";
 import {
+	CommunityGuildData,
 	DetailedGuildData,
 	GuildData
 } from "../src/core/functions/shard_helper.ts";
@@ -218,11 +219,17 @@ declare namespace Client_Functions {
 		): string;
 	}
 
-	// From awaitingResponse.ts
-	export function awaitingResponse(
-		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
-		opt: LangForPrompt
-	): Promise<boolean>;
+	// From roleSelectMenu.ts
+	export function roleSelectMenu(
+		data: Array<{
+			roleId: string;
+			emoji?: string;
+			desc?: string;
+			label: string;
+		}>,
+		messageId: string,
+		placeholder: string
+	): any;
 
 	// From authRestoreHelper.ts
 	export namespace authRestoreHelper {
@@ -248,6 +255,12 @@ declare namespace Client_Functions {
 			data: AuthRestore_RoleUpdate_EntryType
 		): Promise<AuthRestore_ForceJoin_ResponseType>;
 	}
+
+	// From awaitingResponse.ts
+	export function awaitingResponse(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		opt: LangForPrompt
+	): Promise<boolean>;
 
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
@@ -333,6 +346,10 @@ declare namespace Client_Functions {
 			client: Client<boolean>,
 			guildId: string
 		): Promise<DetailedGuildData | null>;
+		export function getCommunityGuildsData(
+			client: Client<boolean>,
+			minMembers: number
+		): Promise<Array<CommunityGuildData>>;
 	}
 
 	// From music_proximity.ts
