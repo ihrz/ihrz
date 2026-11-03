@@ -59,7 +59,8 @@ logger.debug("message"); // no-op unless client.config.core.devMode
 - Per-guild language: `await client.func.getLanguageData(guildId)` (see `src/core/functions/getLanguageData.ts`, fallback `en-US` only for guild config lookup, never for user strings).
 - Files: `src/lang/*.ts` (`ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU`), one default-exported object of `key: "text"` (or `string[]`).
 - Typing: `en-US.ts` is the reference, `LanguageData` is `typeof` it (`types/languageData.d.ts`, nothing to regenerate). Every other file ends with `satisfies LanguageData`, so a missing, extra or mistyped key fails `bun run build`. `src/lang/work_in_progress/` files use `satisfies Partial<LanguageData>` and are not loadable.
-- Placeholders stay plain text inside the strings (`"${interaction.user}"`, `"{mode}"`), replaced with `.replace()` at the call site: double quotes, never template literals.
+- Placeholders are plain names inside the strings (`"${roles}"`, `"${authorId}"`, `"{mode}"`), replaced at the call site with plain strings: `.replace("${roles}", value)` / `.replaceAll(...)`, double quotes, never template literals, never a regex. Never an expression (`${interaction.user.id}`): `check:lang` rejects it. Whoever ran the command is `author` (`${author}`, `${authorId}`, `${authorUsername}`), counts are `<thing>Count`.
+- Emojis are `${emoji_<Name>}` (`${emoji_Yes}` = `client.iHorizon_Emojis.Yes`), resolved when the language is loaded (`getLanguageDataByCode`): never replace them at the call site.
 - After touching any key:
 
 ```sh

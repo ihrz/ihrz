@@ -64,7 +64,11 @@ lang.perm_roles_created_role.replace("${roles}", createdRoles.join(", "));
   `${authorUsername}`); the target keeps its own name (`${user}`,
   `${memberId}`).
 - Emojis are `${emoji_<Name>}` (`${emoji_Yes}` for
-  `client.iHorizon_Emojis.Yes`); counts are `<thing>Count`.
+  `client.iHorizon_Emojis.Yes`). They are resolved once, when the language
+  is loaded (see below): call sites never replace emojis. Counts are
+  `<thing>Count`.
+- Replace with plain strings: `.replace("${name}", value)` for one
+  occurrence, `.replaceAll("${name}", value)` for several. No regex.
 - Always use double-quoted strings, never template literals, or the
   placeholder would be evaluated as code.
 
@@ -81,7 +85,9 @@ or drop a value. Missing or unknown keys make the command exit with code 1.
 - `client.func.getLanguageDataByCode(code)`: a given language. Only the codes
   listed in `AvailableLanguage` (`src/core/functions/getLanguageData.ts`) are
   imported; anything else falls back to `en-US`. Each language is imported
-  once and kept in memory.
+  once, its `${emoji_<Name>}` placeholders are replaced with the bot's
+  emojis, and the result is kept in memory. The cache is cleared when the
+  emojis are synced again (`EmojisManager`), so emoji ids stay current.
 
 ## Adding or changing a key
 
