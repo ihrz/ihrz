@@ -57,15 +57,18 @@ logger.debug("message"); // no-op unless client.config.core.devMode
 ## i18n — Languages (STRICT)
 
 - Per-guild language: `await client.func.getLanguageData(guildId)` (see `src/core/functions/getLanguageData.ts`, fallback `en-US` only for guild config lookup, never for user strings).
-- Files: `src/lang/*.yml` (`ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU`). Typed via `types/languageData.d.ts`.
-- After touching any YAML key:
+- Files: `src/lang/*.ts` (`ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU`), one default-exported object of `key: "text"` (or `string[]`).
+- Typing: `en-US.ts` is the reference, `LanguageData` is `typeof` it (`types/languageData.d.ts`, nothing to regenerate). Every other file ends with `satisfies LanguageData`, so a missing, extra or mistyped key fails `bun run build`. `src/lang/work_in_progress/` files use `satisfies Partial<LanguageData>` and are not loadable.
+- Placeholders stay plain text inside the strings (`"${interaction.user}"`, `"{mode}"`), replaced with `.replace()` at the call site: double quotes, never template literals.
+- After touching any key:
 
 ```sh
-bun run type:lang
+bun run check:lang     # keys + placeholder parity against en-US
+bun run build          # tsc: satisfies LanguageData
 ```
 
 - Rules:
-  - NO user-visible string in clear text in `.ts` files. Everything goes in YAML.
+  - NO user-visible string in clear text outside `src/lang/*.ts`. Everything goes in the language files.
   - Every new key MUST be translated in ALL languages immediately. No missing language. No fallback logic. No hardcode.
 
 ## Core functions (`client.func`)
@@ -83,21 +86,21 @@ bun run type:func
 
 - Location: `src/Interaction/HybridCommands/<category>/<command>.ts`.
 - Template: `src/Interaction/HybridCommands/!BlankHybridCommandTemplate.ts` (also `!BlankHybridSubCommandTemplate.ts`). Copy it. `Command` type: `types/command.d.ts`.
-- New command: add its YAML section with a comment header:
+- New command: add its keys to every language file under a comment header:
 
-```yaml
-# /<slash-command-name>
-<command_key_here>: "text"
+```ts
+	// /<slash-command-name>
+	command_key_here: "text",
 ```
 
 - New category: same, plus a module placeholder header listing its commands:
 
-```yaml
-# <Placeholder> module
-# /<cmd1>, /<cmd2>, ...
+```ts
+	// <Placeholder> module
+	// /<cmd1>, /<cmd2>, ...
 
-# /<slash-command-name>
-<command_key_here>: "text"
+	// /<slash-command-name>
+	command_key_here: "text",
 ```
 
 - Each category directory MUST contain a strict-JSON `init.json` (no comments), e.g. `src/Interaction/HybridCommands/backup/init.json`:
@@ -116,7 +119,7 @@ bun run type:func
 }
 ```
 
-Rules: `categoryName` is lowercase, single glued word. `description` / `placeholder` are YAML keys, not raw text. `emoji` is the literal string `"${client.iHorizon_Emojis.<Name>}"` or a plain UTF-8 emoji.
+Rules: `categoryName` is lowercase, single glued word. `description` / `placeholder` are language keys, not raw text. `emoji` is the literal string `"${client.iHorizon_Emojis.<Name>}"` or a plain UTF-8 emoji.
 
 ## Emojis
 
@@ -170,7 +173,7 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 
 ```sh
 bun run dev            # dev bot, bypasses ShardingManager (src/core/bot.ts)
-bun run type:lang      # retype YAML langs
+bun run check:lang     # language keys + placeholders vs en-US
 bun run type:func      # retype client.func
 bun run check:licence  # licence headers
 bun run build          # tsc
@@ -179,8 +182,8 @@ bun run format         # prettier --write "**/*.ts"
 
 ## Never do
 
-- Hardcode a user-visible string. Put it in YAML, all languages.
+- Hardcode a user-visible string. Put it in `src/lang/*.ts`, all languages.
 - Use `console.*`, `node:fs` when a Bun native exists, or add an npm package without necessity.
-- Create a command/category without its YAML comment block (and `init.json` for categories).
+- Create a command/category without its language comment block (and `init.json` for categories).
 - Use `client.iHorizon_Emojis` with wrong casing or a path outside `src/assets/emojis`.
-- Skip verification: after code changes run the relevant `type:*` / `check:licence`, and `bun run dev` to test.
+- Skip verification: after code changes run the relevant `check:lang` / `type:func` / `check:licence`, and `bun run dev` to test.

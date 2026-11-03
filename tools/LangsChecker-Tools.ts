@@ -19,318 +19,62 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+/*
+ * Language files check (src/lang/*.ts) against the reference en-US.ts.
+ * Keys and value types are already enforced by TypeScript (`satisfies
+ * LanguageData`); this also catches what the compiler cannot see: a
+ * placeholder (`${...}` or `{...}`) present in English but missing or
+ * renamed in a translation, which would leave raw text in a message.
+ *
+ * Usage: bun run check:lang   (exit code 1 when a key is missing or extra)
+ */
+
 import logger from "../src/core/logger.js";
 import "../src/core/functions/colors.js";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import path from "path";
-import readline from "readline";
-import { formatTypeScriptCode, readVSCodeConfig } from "./formatter.js";
-import { LICENCE_HEADER } from "./LicenceHeader.js";
+import { AvailableLanguage } from "../src/core/functions/getLanguageData.js";
 
-logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
-logger.legacy(
-	"[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
-		.gray
+type LangFile = Record<string, string | string[]>;
+
+const PLACEHOLDER = /\$\{[^}]+\}|\{[A-Za-z0-9_.]+\}/g;
+
+function placeholders(value: string | string[]): string[] {
+	const text = Array.isArray(value) ? value.join("\n") : value;
+	return [...new Set(text.match(PLACEHOLDER) ?? [])].sort();
+}
+
+async function load(code: string): Promise<LangFile> {
+	return (await import(`../src/lang/${code}.ts`)).default as LangFile;
+}
+
+const reference = await load("en-US");
+const referenceKeys = Object.keys(reference);
+let errors = 0;
+let warnings = 0;
+
+for (const { code } of AvailableLanguage) {
+	if (code === "en-US") continue;
+	const lang = await load(code);
+
+	const missing = referenceKeys.filter((key) => !(key in lang));
+	const extra = Object.keys(lang).filter((key) => !(key in reference));
+	for (const key of missing) logger.err(`${code}: missing key ${key}`);
+	for (const key of extra) logger.err(`${code}: unknown key ${key}`);
+	errors += missing.length + extra.length;
+
+	for (const key of referenceKeys) {
+		if (!(key in lang)) continue;
+		const expected = placeholders(reference[key]).join(" ");
+		const actual = placeholders(lang[key]).join(" ");
+		if (expected !== actual) {
+			logger.warn(
+				`${code}: ${key} placeholders [${actual}] differ from en-US [${expected}]`
+			);
+			warnings++;
+		}
+	}
+}
+
+logger.log(
+	`Languages checked: ${AvailableLanguage.length}, ${errors} error(s), ${warnings} placeholder warning(s).`
 );
-logger.legacy(
-	"[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0"
-		.gray
-);
-
-interface TypingsFiles {
-	[key: string]: string;
-}
-
-function parseArgs() {
-	const args = process.argv.slice(2); // Remove 'node' and script name
-	const result: Record<string, string> = {};
-
-	for (let i = 0; i < args.length; i++) {
-		if (args[i].startsWith("--")) {
-			const key = args[i].substring(2); // Remove '--' prefix
-			const value = args[i + 1];
-
-			if (value && !value.startsWith("--")) {
-				result[key] = value;
-				i++; // Skip next argument since we used it as value
-			}
-		}
-	}
-
-	return result;
-}
-
-function generateTypeScriptType(json: any, name: string = "Root"): string {
-	if (Array.isArray(json)) {
-		if (json.length === 0) {
-			return `${name}[]`;
-		}
-		const arrayType = generateTypeScriptType(json[0], `${name}Item`);
-		return `${arrayType}[]`;
-	} else if (typeof json === "object" && json !== null) {
-		let typeString = `{\n`;
-		// Use Object.prototype.hasOwnProperty.call() instead of json.hasOwnProperty()
-		for (const key in json) {
-			if (Object.prototype.hasOwnProperty.call(json, key)) {
-				const value = json[key];
-				const valueType = generateTypeScriptType(
-					value,
-					capitalizeFirstLetter(key)
-				);
-				typeString += `  ${key}: ${valueType};\n`;
-			}
-		}
-		typeString += `}`;
-		return typeString;
-	}
-	return getPrimitiveType(json);
-}
-
-function getPrimitiveType(value: any): string {
-	switch (typeof value) {
-		case "string":
-			return "string";
-		case "number":
-			return "number";
-		case "boolean":
-			return "boolean";
-		case "object":
-			return "null";
-		default:
-			return "any";
-	}
-}
-
-export function capitalizeFirstLetter(string: string): string {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-function parseType(typeStr: string): any {
-	typeStr = typeStr.replace(/[\n\r]/g, "");
-	typeStr = typeStr.replace(/\s+/g, " ");
-	if (typeStr.startsWith("{") && typeStr.endsWith("}")) {
-		typeStr = typeStr.slice(1, -1).trim();
-		const obj: any = {};
-		const keyValuePairs = typeStr
-			.split(";")
-			.map((kvp) => kvp.trim())
-			.filter((kvp) => kvp);
-		for (const kvp of keyValuePairs) {
-			const [key, value] = kvp.split(":").map((part) => part.trim());
-			obj[key] = parseType(value);
-		}
-		return obj;
-	}
-	return typeStr;
-}
-
-function compareParsedTypes(
-	parsed1: any,
-	parsed2: any,
-	path: string = ""
-): string[] {
-	const differences: string[] = [];
-
-	if (typeof parsed1 !== typeof parsed2) {
-		differences.push(`Type mismatch at ${path}: ${parsed1} vs ${parsed2}`);
-		return differences;
-	}
-
-	if (typeof parsed1 === "object" && parsed1 !== null && parsed2 !== null) {
-		const keys1 = Object.keys(parsed1);
-		const keys2 = Object.keys(parsed2);
-
-		for (const key of keys1) {
-			if (!keys2.includes(key)) {
-				differences.push(`Missing key '${key}' at ${path}`);
-				continue;
-			}
-			differences.push(
-				...compareParsedTypes(
-					parsed1[key],
-					parsed2[key],
-					`${path}.${key}`
-				)
-			);
-		}
-
-		for (const key of keys2) {
-			if (!keys1.includes(key)) {
-				differences.push(`Extra key '${key}' at ${path}`);
-			}
-		}
-	} else if (parsed1 !== parsed2) {
-		differences.push(`Value mismatch at ${path}: ${parsed1} vs ${parsed2}`);
-	}
-
-	return differences;
-}
-
-function mergeTypes(type1: string, type2: string): string {
-	const parsedType1 = parseType(type1);
-	const parsedType2 = parseType(type2);
-
-	const mergedType = { ...parsedType1, ...parsedType2 };
-
-	return generateMergedTypeString(mergedType);
-}
-
-function generateMergedTypeString(json: any): string {
-	let typeString = `{\n`;
-	// Use Object.prototype.hasOwnProperty.call() here as well
-	for (const key in json) {
-		if (Object.prototype.hasOwnProperty.call(json, key)) {
-			const value = json[key];
-			const valueType =
-				typeof value === "object" && value !== null
-					? generateMergedTypeString(value)
-					: value;
-			typeString += `  ${key}: ${valueType};\n`;
-		}
-	}
-	typeString += `}`;
-	return typeString;
-}
-
-function promptUser(): Promise<number> {
-	const args = parseArgs();
-
-	if (args?.type) {
-		return new Promise((resolve) => {
-			resolve(parseInt(args?.type, 10));
-		});
-	} else {
-		const rl = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-
-		return new Promise((resolve) => {
-			rl.question(
-				"Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n",
-				(answer) => {
-					rl.close();
-					resolve(parseInt(answer, 10));
-				}
-			);
-		});
-	}
-}
-
-async function main() {
-	const outputPath = path.join(process.cwd(), "types", "languageData.d.ts");
-	const langsPath = path.join(process.cwd(), "src", "lang");
-	const langsContent = readdirSync(langsPath).filter((x) =>
-		x.endsWith(".yml")
-	);
-
-	logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
-
-	const TypingFiles: TypingsFiles = {};
-
-	for (const langFile of langsContent) {
-		try {
-			const langData = await import(path.join(langsPath, langFile));
-			// Handle cases where the import might return a module with a default export
-			const actualData = langData.default || langData;
-			TypingFiles[langFile] = generateTypeScriptType(actualData);
-		} catch (err) {
-			console.error(err);
-			logger.warn(`Error when loading ${langFile} language file`);
-		}
-	}
-
-	// Check if we have any successfully loaded files
-	const typeValues = Object.entries(TypingFiles);
-	if (typeValues.length === 0) {
-		logger.err("[x] No language files could be loaded successfully.");
-		return;
-	}
-
-	const [referenceFile, referenceType] = typeValues[0];
-	const parsedReferenceType = parseType(referenceType);
-	let allMatch = true;
-
-	for (let i = 1; i < typeValues.length; i++) {
-		const [currentFile, currentType] = typeValues[i];
-		const parsedCurrentType = parseType(currentType);
-		const differences = compareParsedTypes(
-			parsedReferenceType,
-			parsedCurrentType,
-			`Root`
-		);
-
-		if (differences.length > 0) {
-			allMatch = false;
-			logger.err(
-				`[x] Mismatch found in file ${currentFile} compared to ${referenceFile}`
-			);
-			differences.forEach((diff) => logger.err(diff));
-		}
-	}
-
-	if (allMatch) {
-		logger.log("All typings are identical.");
-	} else {
-		logger.log("Some typings do not match.");
-	}
-
-	const userChoice = await promptUser();
-
-	if (userChoice === 2) {
-		let mergedType = referenceType;
-
-		for (let i = 1; i < typeValues.length; i++) {
-			const [_, currentType] = typeValues[i];
-			mergedType = mergeTypes(mergedType, currentType);
-		}
-
-		let interfaceContent = LICENCE_HEADER + "\n\n";
-
-		interfaceContent += `export interface LanguageData ${mergedType}`;
-		writeFileSync(
-			outputPath,
-			formatTypeScriptCode(
-				interfaceContent,
-				readVSCodeConfig(
-					path.join(process.cwd(), ".vscode", "settings.json")
-				)
-			),
-			"utf-8"
-		);
-		logger.log(`[+] TypeScript definition file created: ${outputPath}`);
-	} else if (userChoice === 3) {
-		// Build combined lang.json with all languages
-		const langJsonPath = path.join(
-			process.cwd(),
-			"src",
-			"lang",
-			"lang.json"
-		);
-		const langsData: Record<string, any> = {};
-
-		// Load all language data from YAML files
-		for (const langFile of langsContent) {
-			try {
-				const langCode = langFile.replace(".yml", "");
-				const langData = await import(path.join(langsPath, langFile));
-				// Handle cases where the import might return a module with a default export
-				const actualData = langData.default || langData;
-				langsData[langCode] = actualData;
-			} catch (err) {
-				logger.log(err);
-				logger.warn(`Error when loading ${langFile} language file`);
-			}
-		}
-
-		// Write the combined JSON file
-		writeFileSync(
-			langJsonPath,
-			JSON.stringify(langsData, null, 2),
-			"utf-8"
-		);
-		logger.log(`[+] Combined language file created: ${langJsonPath}`);
-	}
-}
-
-main();
+process.exit(errors > 0 ? 1 : 0);

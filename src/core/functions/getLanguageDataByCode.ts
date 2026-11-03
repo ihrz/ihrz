@@ -20,18 +20,23 @@
 */
 
 import { LanguageData } from "../../../types/languageData";
-import { LangsData } from "./getLanguageData.ts";
+import { AvailableLanguage, LangsData } from "./getLanguageData.ts";
+
+// Built on first use: getLanguageData.ts imports this module too.
+let langCodes: Set<string> | null = null;
 
 export default async function getLanguageDataByCode(
 	locale: string
 ): Promise<LanguageData> {
-	let dat = LangsData[locale];
+	// The locale comes from guild / user settings: only known codes may
+	// reach the dynamic import.
+	langCodes ??= new Set(AvailableLanguage.map((language) => language.code));
+	const code = langCodes.has(locale) ? locale : "en-US";
+	let dat = LangsData[code];
 
 	if (!dat) {
-		dat = (await import(
-			process.cwd() + "/src/lang/" + locale + ".yml"
-		)) as LanguageData;
-		LangsData[locale] = dat;
+		dat = (await import(`../../lang/${code}.ts`)).default as LanguageData;
+		LangsData[code] = dat;
 	}
 
 	return dat;
