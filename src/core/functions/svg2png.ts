@@ -38,10 +38,42 @@ export interface Svg2PngOptions {
 	background?: string;
 }
 
-export default async function svg2png(
+// Renders run one at a time per process (shard). Each render loads its
+// fonts and allocates a full-size pixmap on the libuv pool; with several in
+// flight the native allocator keeps the peak reserved (~300 MB RSS per
+// shard measured, vs ~150 MB serialized). Renders take ~15 ms, so the
+// queue adds no visible latency.
+const RENDER_CONCURRENCY = Math.max(
+	1,
+	Number(process.env.SVG_RENDER_CONCURRENCY) || 1
+);
+let active = 0;
+const waiting: (() => void)[] = [];
+
+async function withRenderSlot<T>(task: () => Promise<T>): Promise<T> {
+	if (active >= RENDER_CONCURRENCY) {
+		// The finishing render hands its slot over: no increment here.
+		await new Promise<void>((resolve) => waiting.push(resolve));
+	} else {
+		active++;
+	}
+	try {
+		return await task();
+	} finally {
+		const next = waiting.shift();
+		if (next) next();
+		else active--;
+	}
+}
+
+export default function svg2png(
 	svg: string,
 	options: Svg2PngOptions = {}
 ): Promise<Buffer> {
+	return withRenderSlot(() => render(svg, options));
+}
+
+async function render(svg: string, options: Svg2PngOptions): Promise<Buffer> {
 	const scale = options.scale ?? 1;
 	const rendered = await renderAsync(svg, {
 		font: {
