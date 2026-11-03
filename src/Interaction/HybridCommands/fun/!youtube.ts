@@ -33,6 +33,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { sanitizing } from "../../../core/functions/sanitizer.js";
 import { SubCommand } from "../../../../types/command.js";
+import { renderYoutubeComment } from "../../../core/modules/socialCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -79,24 +80,16 @@ export const subCommand: SubCommand = {
 
 		const random = client.func.random.secureRandomInt(1, 90_000);
 
-		let code = client.htmlfiles["youtubeCommentCard"]
-			.replace("{comment}", sanitizing(messageArgs.join(" ")))
-			.replace("{ago}", "2 hours ago")
-			.replace(
-				"{pfp}",
-				user.displayAvatarURL({ extension: "png", size: 1024 })
-			)
-			.replace("{displayname}", sanitizing(username))
-			.replace("{likes}", client.func.numberBeautifuer(random))
-			.replace("{reply}", "REPLY");
-
-		const img = await client.func.html2png(code, {
-			omitBackground: true,
-			selectElement: true,
-			elementSelector: ".comment",
-			width: 800,
-			height: 200,
-			scaleSize: 1.2
+		const img = await renderYoutubeComment({
+			displayName: sanitizing(username),
+			avatar:
+				(await client.func.image64.image64(
+					user.displayAvatarURL({ extension: "png", size: 128 })
+				)) ?? null,
+			content: sanitizing(messageArgs.join(" ")),
+			ago: "2 hours ago",
+			likes: client.func.numberBeautifuer(random),
+			reply: "REPLY"
 		});
 
 		const embed = new EmbedBuilder()

@@ -32,6 +32,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { sanitizing } from "../../../core/functions/sanitizer.js";
 import { SubCommand } from "../../../../types/command.js";
+import { renderTweet } from "../../../core/modules/socialCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -81,33 +82,19 @@ export const subCommand: SubCommand = {
 		const randomReplies = client.func.random.secureRandomInt(1, 10_000);
 		const randomViews = client.func.random.secureRandomInt(1_000, 500_000);
 
-		let code = client.htmlfiles["twitterCommentCard"]
-			.replaceAll("{tweet}", sanitizing(messageArgs.join(" ")))
-			.replaceAll("{ago}", "2h")
-			.replaceAll(
-				"{pfp}",
-				user.displayAvatarURL({ extension: "png", size: 1024 })
-			)
-			.replaceAll("{displayname}", sanitizing(username))
-			.replaceAll("{handle}", `@${sanitizing(user.username)}`)
-			.replaceAll("{likes}", client.func.numberBeautifuer(randomLikes))
-			.replaceAll(
-				"{retweets}",
-				client.func.numberBeautifuer(randomRetweets)
-			)
-			.replaceAll(
-				"{replies}",
-				client.func.numberBeautifuer(randomReplies)
-			)
-			.replaceAll("{views}", client.func.numberBeautifuer(randomViews));
-
-		const img = await client.func.html2png(code, {
-			omitBackground: true,
-			selectElement: true,
-			elementSelector: ".tweet-card",
-			width: 1200,
-			height: 500,
-			scaleSize: 3
+		const img = await renderTweet({
+			displayName: sanitizing(username),
+			handle: `@${sanitizing(user.username)}`,
+			avatar:
+				(await client.func.image64.image64(
+					user.displayAvatarURL({ extension: "png", size: 128 })
+				)) ?? null,
+			content: sanitizing(messageArgs.join(" ")),
+			ago: "2h",
+			replies: client.func.numberBeautifuer(randomReplies),
+			retweets: client.func.numberBeautifuer(randomRetweets),
+			likes: client.func.numberBeautifuer(randomLikes),
+			views: client.func.numberBeautifuer(randomViews)
 		});
 
 		const embed = new EmbedBuilder()
