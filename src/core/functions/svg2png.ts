@@ -30,11 +30,13 @@
 import { renderAsync } from "@resvg/resvg-js";
 
 import { fontFilesFor } from "../svg/fontMetrics.js";
+import { GatewayMethod, HorizonGatewayInternal } from "./apiUrlParser.js";
 
 export interface Svg2PngOptions {
 	/** Output scale (2 = twice the SVG size). Default 1. */
 	scale?: number;
-	/** CSS color painted behind transparent areas. Default transparent. */
+	/** `#rrggbb` / `#rrggbbaa` painted behind transparent areas (the gateway
+	 * only accepts hex). Default transparent. */
 	background?: string;
 }
 
@@ -66,11 +68,67 @@ async function withRenderSlot<T>(task: () => Promise<T>): Promise<T> {
 	}
 }
 
-export default function svg2png(
+// Rendering is delegated to HorizonGateway when configured: one resvg
+// engine (fonts loaded once) for every shard, instead of ~170 MB of native
+// memory per shard. Local rendering is the fallback (dev, gateway down).
+const GATEWAY_TIMEOUT_MS = 15_000;
+const GATEWAY_RETRY_AFTER_MS = 30_000;
+let gatewayDownUntil = 0;
+
+async function renderOnGateway(
+	svg: string,
+	options: Svg2PngOptions
+): Promise<Buffer | null> {
+	const config = globalThis.client?.config?.api;
+	if (!config?.HorizonGateway && !config?.HorizonGatewayLocal) return null;
+	if (!config.apiToken || Date.now() < gatewayDownUntil) return null;
+
+	try {
+		const response = await fetch(
+			HorizonGatewayInternal(GatewayMethod.SvgRendering),
+			{
+				method: "POST",
+				headers: {
+					"content-type": "application/json",
+					"x-admin-key": config.apiToken
+				},
+				body: JSON.stringify({
+					svg,
+					scale: options.scale ?? 1,
+					background: options.background
+				}),
+				signal: AbortSignal.timeout(GATEWAY_TIMEOUT_MS)
+			}
+		);
+		const type = response.headers.get("content-type") ?? "";
+		if (response.ok && type.startsWith("image/png")) {
+			return Buffer.from(await response.arrayBuffer());
+		}
+		// 400/413: this SVG itself is the problem, the local renderer will
+		// give the same answer; anything else means the gateway is unusable.
+		if (response.status !== 400 && response.status !== 413) {
+			gatewayDownUntil = Date.now() + GATEWAY_RETRY_AFTER_MS;
+		}
+		logger.warn(
+			`[svg2png] Gateway render failed (HTTP ${response.status}), rendering locally`
+		);
+	} catch (error) {
+		gatewayDownUntil = Date.now() + GATEWAY_RETRY_AFTER_MS;
+		logger.warn(
+			`[svg2png] Gateway unreachable (${String(error)}), rendering locally for ${GATEWAY_RETRY_AFTER_MS / 1000}s`
+		);
+	}
+	return null;
+}
+
+export default async function svg2png(
 	svg: string,
 	options: Svg2PngOptions = {}
 ): Promise<Buffer> {
-	return withRenderSlot(() => render(svg, options));
+	return (
+		(await renderOnGateway(svg, options)) ??
+		withRenderSlot(() => render(svg, options))
+	);
 }
 
 async function render(svg: string, options: Svg2PngOptions): Promise<Buffer> {

@@ -44,6 +44,20 @@ const svg = kit.fill(client.svgfiles["ranksCard"], {
 const png = await client.func.svg2png(svg, { scale: 2 });
 ```
 
+## Where rendering happens
+
+`svg2png` sends the SVG to HorizonGateway (`POST /api/ihorizon/v1/svg`,
+`x-admin-key` = `api.apiToken`) when `api.HorizonGateway` /
+`HorizonGatewayLocal` is configured: one native resvg 0.49 for every shard,
+fonts loaded once from this repo's `src/assets/fonts` (gateway
+`[api] svgFontsDir`). Measured from the bot (release gateway): card 10 ms,
+1920x1200 stats page 68 ms, 30 parallel renders 266 ms; ~60 MB bot RSS
+instead of ~190 MB with local rendering. The gateway also decodes WebP.
+
+Fallback: local resvg-js (one render at a time per process) when no gateway
+is configured, or for 30 s after the gateway failed (unreachable, 401, 5xx).
+A 400/413 answer is not retried locally as a gateway failure.
+
 ## Rules
 
 - Never build a `kit.raw(...)` from user input. Strings passed to `fill` and
