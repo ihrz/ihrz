@@ -83,6 +83,11 @@ interface DeletedChannelSnapshot {
 	overwrites: APIOverwrite[];
 }
 
+interface RoleIndex {
+	members: Map<string, string[]>;
+	overwrites: Map<string, DeletedRoleSnapshot["overwrites"]>;
+}
+
 interface DeletedRoleSnapshot {
 	body: RawBody;
 	iconHash: string | null;
@@ -100,8 +105,8 @@ const RULES_BY_ACTION: Partial<Record<AuditLogEvent, ProtectionRuleKey[]>> = {
 	[AuditLogEvent.ChannelOverwriteUpdate]: ["updatechannel"],
 	[AuditLogEvent.ChannelOverwriteDelete]: ["updatechannel"],
 	[AuditLogEvent.ChannelDelete]: ["deletechannel"],
-	[AuditLogEvent.RoleCreate]: ["createrole"],
-	[AuditLogEvent.RoleUpdate]: ["updaterole"],
+	[AuditLogEvent.RoleCreate]: ["add_admin_roles", "createrole"],
+	[AuditLogEvent.RoleUpdate]: ["add_admin_roles", "updaterole"],
 	[AuditLogEvent.RoleDelete]: ["deleterole"],
 	[AuditLogEvent.MemberRoleUpdate]: ["add_admin_roles", "updatemember"],
 	[AuditLogEvent.MemberBanAdd]: ["banmembers"],
@@ -175,6 +180,11 @@ const SNAPSHOT_TTL_MS = 60_000;
 const SNAPSHOT_WAIT_MS = 2_000;
 const REMAP_WAIT_MS = 3_000;
 const SWEEP_INTERVAL_MS = 60_000;
+// Reused by every role deleted in the same burst (see roleIndexOf).
+const ROLE_INDEX_TTL_MS = 10_000;
+// Max parallel bulk requests (member role re-adds, overwrites) per guild,
+// so one restore can never monopolise the bot-wide REST rate limit.
+const BULK_CONCURRENCY = 4;
 
 /**
  * Map whose entries expire, with the ability to wait for a key that has not
@@ -258,6 +268,7 @@ const orphans = new ExpiringStore<Set<string>>(SNAPSHOT_TTL_MS);
 // Deleted channel/role id -> id of its recreation (null when it failed).
 const recreated = new ExpiringStore<string | null>(SNAPSHOT_TTL_MS);
 const restoring = new ExpiringStore<true>(SNAPSHOT_TTL_MS);
+const roleIndexes = new ExpiringStore<RoleIndex>(ROLE_INDEX_TTL_MS);
 
 setInterval(() => {
 	const now = Date.now();
@@ -268,7 +279,8 @@ setInterval(() => {
 		deletedRoles,
 		orphans,
 		recreated,
-		restoring
+		restoring,
+		roleIndexes
 	]) {
 		store.sweep(now);
 	}
@@ -283,18 +295,17 @@ const keyOf = (guildId: string, id: string) => `${guildId}:${id}`;
 async function fetchContext(
 	guildId: string
 ): Promise<ProtectionContext | null> {
-	const protection = (await client.db.get(
-		`${guildId}.PROTECTION`
-	)) as DatabaseStructure.ProtectionData | null;
-	if (!protection) return null;
-
-	const [allowlist, owners] = (await Promise.all([
+	// One round trip: the first entry of a raid is the one that matters.
+	const [protection, allowlist, owners] = (await Promise.all([
+		client.db.get(`${guildId}.PROTECTION`),
 		client.db.get(`${guildId}.ALLOWLIST.list`),
 		client.db.get(`${guildId}.OWNER`)
 	])) as [
+		DatabaseStructure.ProtectionData | null,
 		DatabaseStructure.AllowListData["list"] | null,
 		DatabaseStructure.OwnerSchema | null
 	];
+	if (!protection) return null;
 
 	return { protection, allowlist: allowlist || {}, owners: owners || {} };
 }
@@ -405,24 +416,47 @@ export function rememberOrphan(
 	orphans.set(key, children);
 }
 
-export function rememberDeletedRole(role: Role): void {
-	const guild = role.guild;
+/**
+ * Role id -> holders and channel overwrites, built in a single pass over the
+ * guild caches. A mass role deletion reuses it instead of scanning every
+ * member once per role, which would block the shard in big guilds.
+ */
+function roleIndexOf(guild: Guild): RoleIndex {
+	const cached = roleIndexes.get(guild.id);
+	if (cached) return cached;
 
-	const memberIds = guild.members.cache
-		.filter((member) => rawRoleIds(member).includes(role.id))
-		.map((member) => member.id);
-
-	const overwrites: DeletedRoleSnapshot["overwrites"] = [];
+	const index: RoleIndex = { members: new Map(), overwrites: new Map() };
+	for (const member of guild.members.cache.values()) {
+		for (const roleId of rawRoleIds(member)) {
+			const holders = index.members.get(roleId);
+			if (holders) holders.push(member.id);
+			else index.members.set(roleId, [member.id]);
+		}
+	}
 	for (const channel of guild.channels.cache.values()) {
 		if (!("permissionOverwrites" in channel)) continue;
-		const overwrite = channel.permissionOverwrites.cache.get(role.id);
-		if (!overwrite) continue;
-		overwrites.push({
-			channelId: channel.id,
-			allow: overwrite.allow.bitfield.toString(),
-			deny: overwrite.deny.bitfield.toString()
-		});
+		for (const overwrite of channel.permissionOverwrites.cache.values()) {
+			if (overwrite.type !== OverwriteType.Role) continue;
+			const entry = {
+				channelId: channel.id,
+				allow: overwrite.allow.bitfield.toString(),
+				deny: overwrite.deny.bitfield.toString()
+			};
+			const list = index.overwrites.get(overwrite.id);
+			if (list) list.push(entry);
+			else index.overwrites.set(overwrite.id, [entry]);
+		}
 	}
+
+	roleIndexes.set(guild.id, index);
+	return index;
+}
+
+export function rememberDeletedRole(role: Role): void {
+	const guild = role.guild;
+	const index = roleIndexOf(guild);
+	const memberIds = index.members.get(role.id) ?? [];
+	const overwrites = index.overwrites.get(role.id) ?? [];
 
 	const body: RawBody = {
 		name: role.name,
@@ -465,12 +499,47 @@ function roleIdsOf(changes: AuditChange[], key: "$add" | "$remove"): string[] {
 		.map((role) => role.id);
 }
 
-function addsAdminRole(entry: GuildAuditLogsEntry, guild: Guild): boolean {
-	return roleIdsOf(changesOf(entry), "$add").some((id) =>
-		guild.roles.cache
-			.get(id)
-			?.permissions.has(PermissionFlagsBits.Administrator)
-	);
+const ADMINISTRATOR = PermissionFlagsBits.Administrator;
+
+function hasAdministrator(permissions: unknown): boolean {
+	if (typeof permissions !== "string" && typeof permissions !== "number")
+		return false;
+	try {
+		return (BigInt(permissions) & ADMINISTRATOR) === ADMINISTRATOR;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Administrator can be obtained three ways: getting an admin role, an existing
+ * role (or @everyone) gaining the permission, or a role created with it.
+ */
+function grantsAdministrator(
+	entry: GuildAuditLogsEntry,
+	guild: Guild
+): boolean {
+	const changes = changesOf(entry);
+	switch (entry.action) {
+		case AuditLogEvent.MemberRoleUpdate:
+			return roleIdsOf(changes, "$add").some((id) =>
+				guild.roles.cache.get(id)?.permissions.has(ADMINISTRATOR)
+			);
+		case AuditLogEvent.RoleCreate:
+			return hasAdministrator(
+				changes.find((change) => change.key === "permissions")?.new
+			);
+		case AuditLogEvent.RoleUpdate: {
+			const change = changes.find((c) => c.key === "permissions");
+			return (
+				!!change &&
+				!hasAdministrator(change.old) &&
+				hasAdministrator(change.new)
+			);
+		}
+		default:
+			return false;
+	}
 }
 
 function breaksRule(
@@ -498,7 +567,7 @@ function findBrokenRule(
 		const rule = context.protection[key];
 		if (!rule || typeof rule !== "object") return false;
 		if (!breaksRule(rule, executorId, context)) return false;
-		return key !== "add_admin_roles" || addsAdminRole(entry, guild);
+		return key !== "add_admin_roles" || grantsAdministrator(entry, guild);
 	});
 }
 
@@ -581,6 +650,34 @@ async function revertedImages(
 
 const IMAGE_OPTIONS = { extension: "png", size: 4096 } as const;
 
+const bulkQueues = new Map<
+	string,
+	{ active: number; waiting: (() => void)[] }
+>();
+
+/** Runs a bulk request through the guild's bounded queue. */
+async function bulk<T>(guildId: string, task: () => Promise<T>): Promise<T> {
+	let queue = bulkQueues.get(guildId);
+	if (!queue) {
+		queue = { active: 0, waiting: [] };
+		bulkQueues.set(guildId, queue);
+	}
+	const slots = queue;
+	if (slots.active >= BULK_CONCURRENCY) {
+		// The finishing task hands its slot over: no increment here.
+		await new Promise<void>((resolve) => slots.waiting.push(resolve));
+	} else {
+		slots.active++;
+	}
+	try {
+		return await task();
+	} finally {
+		const next = slots.waiting.shift();
+		if (next) next();
+		else if (--slots.active === 0) bulkQueues.delete(guildId);
+	}
+}
+
 /** Resolves an id that may belong to a channel/role recreated by this engine. */
 async function resolveId(
 	guild: Guild,
@@ -647,7 +744,8 @@ async function restoreMemberRoles(
 	guild: Guild,
 	memberId: string,
 	changes: AuditChange[],
-	reason: string
+	reason: string,
+	reAddRemoved: boolean
 ): Promise<void> {
 	const ceiling = guild.members.me?.roles.highest.position ?? 0;
 	const editable = (id: string) => {
@@ -667,7 +765,7 @@ async function restoreMemberRoles(
 					{ reason }
 				)
 			),
-		...roleIdsOf(changes, "$remove")
+		...(reAddRemoved ? roleIdsOf(changes, "$remove") : [])
 			.filter(editable)
 			.map((id) =>
 				client.rest.put(
@@ -886,16 +984,18 @@ async function restoreDeletedRole(
 		for (const overwrite of snapshot.overwrites) {
 			if (!guild.channels.cache.has(overwrite.channelId)) continue;
 			tasks.push(
-				client.rest.put(
-					Routes.channelPermission(overwrite.channelId, newId),
-					{
-						body: {
-							type: OverwriteType.Role,
-							allow: overwrite.allow,
-							deny: overwrite.deny
-						},
-						reason
-					}
+				bulk(guild.id, () =>
+					client.rest.put(
+						Routes.channelPermission(overwrite.channelId, newId),
+						{
+							body: {
+								type: OverwriteType.Role,
+								allow: overwrite.allow,
+								deny: overwrite.deny
+							},
+							reason
+						}
+					)
 				)
 			);
 		}
@@ -904,9 +1004,11 @@ async function restoreDeletedRole(
 		for (const memberId of snapshot.memberIds) {
 			if (memberId === executorId) continue;
 			tasks.push(
-				client.rest.put(
-					Routes.guildMemberRole(guild.id, memberId, newId),
-					{ reason }
+				bulk(guild.id, () =>
+					client.rest.put(
+						Routes.guildMemberRole(guild.id, memberId, newId),
+						{ reason }
+					)
 				)
 			);
 		}
@@ -1027,7 +1129,15 @@ async function restore(
 			return;
 		}
 		case AuditLogEvent.MemberRoleUpdate:
-			await restoreMemberRoles(guild, targetId, changes, reason);
+			// Never give roles back to an executor acting on themselves:
+			// it would race with (and undo) their derank.
+			await restoreMemberRoles(
+				guild,
+				targetId,
+				changes,
+				reason,
+				targetId !== executorId
+			);
 			return;
 		case AuditLogEvent.MemberBanAdd:
 			await guild.bans.remove(targetId, reason);
@@ -1094,15 +1204,8 @@ export async function handleProtectionEntry(
 	const punishment = () => sanction(guild, executorId, context, ruleKey);
 	const restoration = () => restore(entry, guild, executorId);
 
-	// Both target the same member's roles when they act on themselves:
-	// revert first so the sanction has the last word.
-	const results =
-		entry.targetId === executorId
-			? [
-					...(await Promise.allSettled([restoration()])),
-					...(await Promise.allSettled([punishment()]))
-				]
-			: await Promise.allSettled([punishment(), restoration()]);
+	// Sanction first in the REST queue: stopping the attacker beats repairing.
+	const results = await Promise.allSettled([punishment(), restoration()]);
 
 	for (const result of results) {
 		if (result.status === "rejected") {
