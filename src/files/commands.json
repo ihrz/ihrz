@@ -6074,6 +6074,7 @@
                             "es-ES": "El título de la pista que deseas (puedes poner URL como quieras)"
                         },
                         "required": true,
+                        "autocomplete": true,
                         "commandFullName": "music play title"
                     }
                 ],
@@ -10520,62 +10521,6 @@
                     }
                 ],
                 "commandFullName": "ticket remove-member"
-            },
-            {
-                "name": "set-here",
-                "description": "Make a embed for allowing to user to create a ticket!",
-                "description_localizations": {
-                    "fr": "Créer un embed pour permettre à l'utilisateur de créer un ticket",
-                    "ja": "ユーザーがチケットを作成できるようにする埋め込みを作成！",
-                    "ru": "Создать эмбед для возможности создания тикетов!",
-                    "es-ES": "Crear un embed para permitir al usuario crear un ticket!"
-                },
-                "type": 1,
-                "options": [
-                    {
-                        "name": "name",
-                        "description": "The name of you ticket's panel.",
-                        "description_localizations": {
-                            "fr": "Le nom du panneau de votre ticket",
-                            "ja": "チケットパネルの名前。",
-                            "ru": "Название вашей панели тикетов.",
-                            "es-ES": "El nombre de tu panel de tickets."
-                        },
-                        "type": 3,
-                        "required": true,
-                        "commandFullName": "ticket set-here name"
-                    },
-                    {
-                        "name": "description",
-                        "description": "The description of you ticket's panel.",
-                        "description_localizations": {
-                            "fr": "La description du panneau de votre ticket",
-                            "ja": "チケットパネルの説明。",
-                            "ru": "Описание вашей панели тикетов.",
-                            "es-ES": "La descripción de tu panel de tickets."
-                        },
-                        "type": 3,
-                        "required": false,
-                        "commandFullName": "ticket set-here description"
-                    },
-                    {
-                        "name": "category",
-                        "description": "The category for the ticket.",
-                        "description_localizations": {
-                            "fr": "La catégorie pour les ticket",
-                            "ja": "チケットのカテゴリ。",
-                            "ru": "Категория для тикета.",
-                            "es-ES": "La categoría para el ticket."
-                        },
-                        "channel_types": [
-                            4
-                        ],
-                        "type": 7,
-                        "required": false,
-                        "commandFullName": "ticket set-here category"
-                    }
-                ],
-                "commandFullName": "ticket set-here"
             },
             {
                 "name": "panel",
