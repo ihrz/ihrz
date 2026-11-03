@@ -78,7 +78,8 @@ export type StatsBlock =
 			type: "chart";
 			labels: string[];
 			series: StatsSeries[];
-			height?: number;
+			/** Plot height, or "fill" to take what a fixed-height page leaves. */
+			height?: number | "fill";
 	  })
 	| { type: "columns"; blocks: StatsBlock[] };
 
@@ -90,6 +91,10 @@ export interface StatsPage {
 	footer: string;
 	accent?: string;
 	width?: number;
+	/** Fixed height: "fill" charts absorb the difference. Default: content. */
+	height?: number;
+	/** Output scale. Default 2. */
+	scale?: number;
 }
 
 const COLORS = {
@@ -108,6 +113,8 @@ const BLOCK_GAP = 24;
 const HEADER_HEIGHT = 140;
 const SECTION_HEADER = 64;
 const SECTION_PADDING = 20;
+const DEFAULT_PLOT_HEIGHT = 240;
+const MIN_PLOT_HEIGHT = 120;
 
 interface Laid {
 	height: number;
@@ -363,7 +370,7 @@ async function chartBody(
 	width: number
 ): Promise<Laid> {
 	const legendHeight = 28;
-	const plotHeight = requestedHeight ?? 240;
+	const plotHeight = requestedHeight ?? DEFAULT_PLOT_HEIGHT;
 	const axisWidth = 48;
 	const labelsHeight = 24;
 	const plotX = x + axisWidth;
@@ -500,7 +507,7 @@ async function layoutBlock(
 					chartBody(
 						block.labels,
 						block.series,
-						block.height,
+						block.height === "fill" ? undefined : block.height,
 						bx,
 						by,
 						bw
@@ -545,21 +552,44 @@ export async function renderStatsPage(page: StatsPage): Promise<Buffer> {
 	const accent = page.accent ?? COLORS.primary;
 	const contentWidth = width - PAGE_PADDING * 2;
 
-	const blocks: string[] = [];
-	let y = HEADER_HEIGHT + 32;
-	for (const block of page.blocks) {
-		const laid = await layoutBlock(
-			block,
-			PAGE_PADDING,
-			y,
-			contentWidth,
-			accent
+	const layoutPage = async (fillHeight: number) => {
+		const resolve = (block: StatsBlock): StatsBlock =>
+			block.type === "columns"
+				? { ...block, blocks: block.blocks.map(resolve) }
+				: block.type === "chart" && block.height === "fill"
+					? { ...block, height: fillHeight }
+					: block;
+
+		const markup: string[] = [];
+		let y = HEADER_HEIGHT + 32;
+		for (const block of page.blocks) {
+			const laid = await layoutBlock(
+				resolve(block),
+				PAGE_PADDING,
+				y,
+				contentWidth,
+				accent
+			);
+			markup.push(laid.markup);
+			y += laid.height + BLOCK_GAP;
+		}
+		return { markup, contentHeight: y + 12 + 28 };
+	};
+
+	// Fixed-height page: lay out once, then give the leftover to the
+	// "fill" charts so the image keeps its exact size.
+	let laid = await layoutPage(DEFAULT_PLOT_HEIGHT);
+	if (page.height !== undefined && laid.contentHeight !== page.height) {
+		laid = await layoutPage(
+			Math.max(
+				MIN_PLOT_HEIGHT,
+				DEFAULT_PLOT_HEIGHT + page.height - laid.contentHeight
+			)
 		);
-		blocks.push(laid.markup);
-		y += laid.height + BLOCK_GAP;
 	}
-	const footerY = y + 12;
-	const height = footerY + 28;
+	const blocks = laid.markup;
+	const height = page.height ?? laid.contentHeight;
+	const footerY = height - 28;
 
 	const textX = PAGE_PADDING + 104;
 	const metaText = page.meta.join("  •  ");
@@ -618,5 +648,5 @@ ${blocks.join("\n")}
 ${footer.markup}
 </svg>`;
 
-	return svg2png(svg, { scale: 2 });
+	return svg2png(svg, { scale: page.scale ?? 2 });
 }

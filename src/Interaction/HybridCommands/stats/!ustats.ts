@@ -219,7 +219,11 @@ export const subCommand: SubCommand = {
 				)
 			}));
 
+		// Same size as the HTML card this replaces: 1920x1200 at 1x.
 		const image = await renderStatsPage({
+			width: 1920,
+			height: 1200,
+			scale: 1,
 			title: lang.header_h1_value.replace(
 				"{author_username}",
 				displayName
@@ -241,41 +245,46 @@ export const subCommand: SubCommand = {
 			),
 			blocks: [
 				{
-					type: "metrics",
-					title: lang.messages_word,
-					icon: "💬",
-					items: [
+					type: "columns",
+					blocks: [
 						{
-							value: String(dailyMessages.length),
-							label: lang.var_1d
+							type: "metrics",
+							title: lang.messages_word,
+							icon: "💬",
+							items: [
+								{
+									value: String(dailyMessages.length),
+									label: lang.var_1d
+								},
+								{
+									value: String(weeklyMessages.length),
+									label: lang.var_7d
+								},
+								{
+									value: String(monthlyMessages.length),
+									label: lang.var_14d
+								}
+							]
 						},
 						{
-							value: String(weeklyMessages.length),
-							label: lang.var_7d
-						},
-						{
-							value: String(monthlyMessages.length),
-							label: lang.var_14d
-						}
-					]
-				},
-				{
-					type: "metrics",
-					title: lang.voice_activity,
-					icon: "🔊",
-					accent: "#EB459E",
-					items: [
-						{
-							value: duration(dailyVoiceActivity),
-							label: lang.var_1d
-						},
-						{
-							value: duration(weeklyVoiceActivity),
-							label: lang.var_7d
-						},
-						{
-							value: duration(monthlyVoiceActivity),
-							label: lang.var_14d
+							type: "metrics",
+							title: lang.voice_activity,
+							icon: "🔊",
+							accent: "#EB459E",
+							items: [
+								{
+									value: duration(dailyVoiceActivity),
+									label: lang.var_1d
+								},
+								{
+									value: duration(weeklyVoiceActivity),
+									label: lang.var_7d
+								},
+								{
+									value: duration(monthlyVoiceActivity),
+									label: lang.var_14d
+								}
+							]
 						}
 					]
 				},
@@ -315,7 +324,8 @@ export const subCommand: SubCommand = {
 							color: "#EB459E",
 							values: voiceDataArray
 						}
-					]
+					],
+					height: "fill"
 				}
 			]
 		});
