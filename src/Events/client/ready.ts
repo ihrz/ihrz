@@ -487,22 +487,29 @@ export const event: BotEvent = {
 			writeFileSync(
 				path.join(process.cwd(), "src", "files", "commands.json"),
 				JSON.stringify(
-					client.commands.map((x) => {
-						return {
-							name: x.name,
-							prefix_name: x.prefixName,
-							name_translated: x.name_localizations,
+					// Commands load asynchronously: sort by name (plain code point
+					// order, locale independent) so the file is stable between boots.
+					[...client.commands.values()]
+						.sort((a, b) =>
+							a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+						)
+						.map((x) => {
+							return {
+								name: x.name,
+								prefix_name: x.prefixName,
+								name_translated: x.name_localizations,
 
-							description: x.description,
-							description_translated: x.description_localizations,
+								description: x.description,
+								description_translated:
+									x.description_localizations,
 
-							category: x.category,
-							options: removePermissionProperties(x.options),
-							aliases: x.aliases,
-							thinking: x.thinking,
-							ephemeral: x.ephemeral
-						};
-					}),
+								category: x.category,
+								options: removePermissionProperties(x.options),
+								aliases: x.aliases,
+								thinking: x.thinking,
+								ephemeral: x.ephemeral
+							};
+						}),
 					null,
 					4
 				)
