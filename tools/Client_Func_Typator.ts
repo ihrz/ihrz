@@ -46,6 +46,9 @@ import logger from "../src/core/logger.js";
 import { LICENCE_HEADER } from "./LicenceHeader.js";
 import prettier from "prettier";
 
+// Beyond this, an expanded type is written with its source name instead.
+const MAX_EXPANDED_TYPE_LENGTH = 1000;
+
 const header =
 	LICENCE_HEADER +
 	`
@@ -269,6 +272,16 @@ export class FunctionAnalyzer {
 				ts.TypeFormatFlags.WriteArrayAsGenericType |
 				ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
 		);
+
+		// A named type that expands to a huge structure (LanguageData is
+		// `typeof enUS`: thousands of keys) is kept as written; the names
+		// used by the source are imported in the generated file's header.
+		if (
+			typeString.length > MAX_EXPANDED_TYPE_LENGTH &&
+			ts.isTypeReferenceNode(typeNode)
+		) {
+			return typeNode.getText();
+		}
 
 		// If the type checker gives us a more accurate representation, use it
 		// Otherwise, fall back to the original text

@@ -631,6 +631,75 @@ declare namespace Client_Functions {
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
 
+	// From musicPlay.ts
+	export namespace musicPlay {
+		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
+		export function isUrlQuery(query: string): boolean;
+		export function isSpotifyURL(url: string): boolean;
+		export function isYoutubeURL(url: string): boolean;
+		export function isAppleMusicURL(url: string): boolean;
+		export function isAmazonMusicURL(url: string): boolean;
+		export function isTidalURL(url: string): boolean;
+		export function handleSpotify(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function removeParenthesesContent(text: string): string;
+		export function sanitizeYoutubeUrl(input: string): string;
+		export function handleYoutube(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function handleAppleMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function handleTidalMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function handleAmazonMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function responseExist(res: SearchResult | undefined): boolean;
+		export function buildTrackLabel(track: Track): string;
+		export function searchQueryOnNode(
+			client: Client<boolean>,
+			node: LavalinkNode,
+			query: string,
+			requester: User
+		): Promise<SearchResult | undefined>;
+		export function searchMusicQuery(
+			client: Client<boolean>,
+			query: string,
+			requester: User,
+			preferredNode?: LavalinkNode
+		): Promise<SearchMusicQueryResult>;
+		export function sendQueueAddMessage(
+			interaction:
+				| ChatInputCommandInteraction<"cached">
+				| Message<boolean>
+				| MessageContextMenuCommandInteraction<CacheType>,
+			lang: LanguageData,
+			player: Player,
+			client: Client<boolean>,
+			track: Track
+		): Promise<void>;
+		export function handleMusicPlay({
+			client,
+			interaction,
+			lang,
+			queries,
+			respond
+		}: HandleMusicPlayOptions): Promise<void>;
+	}
+
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {
 		export function calculateMessageTime(
@@ -749,76 +818,6 @@ declare namespace Client_Functions {
 			method: string
 		): Promise<number | null>;
 		export function capitalizeFirstLetter(string: string): string;
-	}
-
-	// From musicPlay.ts
-	export namespace musicPlay {
-		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
-		export function isUrlQuery(query: string): boolean;
-		export function isSpotifyURL(url: string): boolean;
-		export function isYoutubeURL(url: string): boolean;
-		export function isAppleMusicURL(url: string): boolean;
-		export function isAmazonMusicURL(url: string): boolean;
-		export function isTidalURL(url: string): boolean;
-		export function handleSpotify(
-			requester: User,
-			node: LavalinkNode,
-			query: string
-		): Promise<SearchResult | undefined>;
-		export function removeParenthesesContent(text: string): string;
-		export function sanitizeYoutubeUrl(input: string): string;
-		export function handleYoutube(
-			requester: User,
-			node: LavalinkNode,
-			query: string
-		): Promise<SearchResult | undefined>;
-		export function handleAppleMusic(
-			requester: User,
-			node: LavalinkNode,
-			query: string
-		): Promise<SearchResult | undefined>;
-		export function handleTidalMusic(
-			requester: User,
-			node: LavalinkNode,
-			query: string
-		): Promise<SearchResult | undefined>;
-		export function handleAmazonMusic(
-			requester: User,
-			node: LavalinkNode,
-			query: string
-		): Promise<SearchResult | undefined>;
-		export function responseExist(res: SearchResult | undefined): boolean;
-		export function buildTrackLabel(track: Track): string;
-		export function searchQueryOnNode(
-			client: Client<boolean>,
-			node: LavalinkNode,
-			query: string,
-			requester: User
-		): Promise<SearchResult | undefined>;
-		export function searchMusicQuery(
-			client: Client<boolean>,
-			query: string,
-			requester: User,
-			preferredNode?: LavalinkNode
-		): Promise<SearchMusicQueryResult>;
-		export function sendQueueAddMessage(
-			interaction:
-				| ChatInputCommandInteraction<"cached">
-				| Message<boolean>
-				| MessageContextMenuCommandInteraction<CacheType>,
-			lang: LanguageData,
-			player: Player,
-			client: Client<boolean>,
-			track: Track
-		): Promise<void>;
-		export function handleMusicPlay({
-			client,
-			deleteAfterMs = 3000,
-			interaction,
-			lang,
-			queries,
-			respond
-		}: HandleMusicPlayOptions): Promise<void>;
 	}
 
 	// From assetsCalc.ts
