@@ -38,6 +38,10 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	loadArtwork,
+	renderNowPlaying
+} from "../../../core/modules/musicCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -101,37 +105,34 @@ export const subCommand: SubCommand = {
 			player.queue.current?.info.duration!
 		);
 
-		let htmlContent = client.htmlfiles["nowPlaying"];
 		const dominant_color = await client.func.image_dominant_color(
 			player.queue.current?.info.artworkUrl as string
 		);
+		// Downloaded once, reused by every refresh below.
+		const artwork = await loadArtwork(
+			player.queue.current?.info.artworkUrl
+		);
+		const renderCard = (
+			current: NonNullable<typeof player.queue.current>,
+			position: number,
+			bar: { currentTime: string; totalTime: string }
+		) =>
+			renderNowPlaying({
+				title: current.info.title,
+				author: current.info.author,
+				artwork,
+				colorStart: dominant_color.color1,
+				colorEnd: dominant_color.color2,
+				progress: position / current.info.duration,
+				currentTime: bar.currentTime,
+				totalTime: bar.totalTime
+			});
 
-		htmlContent = htmlContent
-			.replace(
-				"{album_cover}",
-				player.queue.current?.info.artworkUrl as string
-			)
-			.replace("{song_title}", player.queue.current?.info.title as string)
-			.replace(
-				"{song_author}",
-				player.queue.current?.info.author as string
-			)
-			.replace("{color1}", dominant_color.color1)
-			.replace("{color2}", dominant_color.color2)
-			.replace(
-				"{time0}",
-				String(
-					(player.position / player.queue.current?.info.duration!) *
-						100
-				)
-			)
-			.replace("{time1}", progress.currentTime)
-			.replace("{time2}", progress.totalTime);
-
-		const image = await client.func.html2png(htmlContent, {
-			omitBackground: true,
-			selectElement: false
-		});
+		const image = await renderCard(
+			player.queue.current!,
+			player.position,
+			progress
+		);
 
 		const attachment = new AttachmentBuilder(image, {
 			name: "nowplaying.png"
@@ -177,36 +178,11 @@ export const subCommand: SubCommand = {
 					player.position,
 					player.queue.current?.info.duration!
 				);
-				const htmlContent = client.htmlfiles["nowPlaying"]
-					.replace(
-						"{album_cover}",
-						player.queue.current?.info.artworkUrl as string
-					)
-					.replace(
-						"{song_title}",
-						player.queue.current?.info.title as string
-					)
-					.replace(
-						"{song_author}",
-						player.queue.current?.info.author as string
-					)
-					.replace("{color1}", dominant_color.color1)
-					.replace("{color2}", dominant_color.color2)
-					.replace(
-						"{time0}",
-						String(
-							(player.position /
-								player.queue.current?.info.duration!) *
-								100
-						)
-					)
-					.replace("{time1}", progress.currentTime)
-					.replace("{time2}", progress.totalTime);
-
-				const image = await client.func.html2png(htmlContent, {
-					omitBackground: true,
-					selectElement: false
-				});
+				const image = await renderCard(
+					player.queue.current!,
+					player.position,
+					progress
+				);
 
 				const attachment = new AttachmentBuilder(image, {
 					name: "nowplaying.png"

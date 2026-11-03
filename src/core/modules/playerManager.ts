@@ -38,6 +38,7 @@ import {
 	handleH247PlayerCreated,
 	handleH247PlayerIdleDestroy
 } from "./h247Manager.js";
+import { loadArtwork, renderMusicBanner } from "./musicCards.js";
 
 let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
 
@@ -137,21 +138,10 @@ export default async (client: Client) => {
 			}
 		}
 
-		let htmlContent = client.htmlfiles["musicBanner"];
-
-		htmlContent = htmlContent
-			.replace("{song_title}", track?.info.title as string)
-			.replace("{song_artist}", track?.info.author as string)
-			.replace(
-				"{song_thumbnail}",
-				track?.info.artworkUrl ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			);
-
-		const image = await client.func.html2png(htmlContent, {
-			omitBackground: true,
-			selectElement: true,
-			elementSelector: ".spotify-banner"
+		const image = await renderMusicBanner({
+			title: track?.info.title ?? "",
+			author: track?.info.author ?? "",
+			artwork: await loadArtwork(track?.info.artworkUrl)
 		});
 
 		const attachment = new AttachmentBuilder(image, {

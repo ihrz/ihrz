@@ -30,7 +30,7 @@
 
 import path from "path";
 
-export type FontFamily = "Noto Sans" | "JetBrains Mono" | "Rye";
+export type FontFamily = "Noto Sans" | "JetBrains Mono" | "Rye" | "Anton";
 export type FontWeight = 400 | 700;
 
 export const FONT_DIR = path.join(process.cwd(), "src", "assets", "fonts");
@@ -43,7 +43,9 @@ const FONT_FILES: Record<FontFamily, Partial<Record<FontWeight, string>>> = {
 		400: "JetBrainsMono-Regular.ttf",
 		700: "JetBrainsMono-Bold.ttf"
 	},
-	Rye: { 400: "Rye-Regular.ttf" }
+	Rye: { 400: "Rye-Regular.ttf" },
+	// Open replacement for Impact (memes).
+	Anton: { 400: "Anton-Regular.ttf" }
 };
 
 // Missing glyphs fall back like resvg does: to the other bundled fonts.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="112" viewBox="0 0 432 112">
+	<rect width="432" height="112" rx="8" fill="#1e1f22"/>
+	<rect x="16" y="16" width="80" height="80" rx="4" fill="#1DB954"/>
+	{cover}
+	{title}
+	{artist}
+</svg>

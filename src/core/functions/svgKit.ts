@@ -359,6 +359,73 @@ function mimeOf(buffer: Buffer): string {
 	return "image/png";
 }
 
+/**
+ * Pixel size read from the file header (PNG, JPEG, GIF, WebP), to lay out
+ * an image at its aspect ratio (CSS `height: auto`). Null if unknown.
+ */
+export function imageSize(
+	buffer: Buffer
+): { width: number; height: number } | null {
+	if (buffer.length < 30) return null;
+	switch (mimeOf(buffer)) {
+		case "image/png":
+			return {
+				width: buffer.readUInt32BE(16),
+				height: buffer.readUInt32BE(20)
+			};
+		case "image/gif":
+			return {
+				width: buffer.readUInt16LE(6),
+				height: buffer.readUInt16LE(8)
+			};
+		case "image/webp": {
+			const chunk = buffer.subarray(12, 16).toString("ascii");
+			if (chunk === "VP8X")
+				return {
+					width: 1 + buffer.readUIntLE(24, 3),
+					height: 1 + buffer.readUIntLE(27, 3)
+				};
+			if (chunk === "VP8L") {
+				const bits = buffer.readUInt32LE(21);
+				return {
+					width: 1 + (bits & 0x3fff),
+					height: 1 + ((bits >> 14) & 0x3fff)
+				};
+			}
+			if (chunk === "VP8 ")
+				return {
+					width: buffer.readUInt16LE(26) & 0x3fff,
+					height: buffer.readUInt16LE(28) & 0x3fff
+				};
+			return null;
+		}
+		case "image/jpeg": {
+			// Walk the segments up to a start-of-frame marker.
+			let offset = 2;
+			while (offset + 9 < buffer.length) {
+				if (buffer[offset] !== 0xff) return null;
+				const marker = buffer[offset + 1];
+				const length = buffer.readUInt16BE(offset + 2);
+				const isFrame =
+					marker >= 0xc0 &&
+					marker <= 0xcf &&
+					marker !== 0xc4 &&
+					marker !== 0xc8 &&
+					marker !== 0xcc;
+				if (isFrame)
+					return {
+						width: buffer.readUInt16BE(offset + 7),
+						height: buffer.readUInt16BE(offset + 5)
+					};
+				offset += 2 + length;
+			}
+			return null;
+		}
+		default:
+			return null;
+	}
+}
+
 export function dataUri(buffer: Buffer): string {
 	return `data:${mimeOf(buffer)};base64,${buffer.toString("base64")}`;
 }

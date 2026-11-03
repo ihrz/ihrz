@@ -608,6 +608,9 @@ declare namespace Client_Functions {
 			content: string,
 			options: ParagraphOptions
 		): Promise<SvgMarkup>;
+		export function imageSize(
+			buffer: Buffer<ArrayBufferLike>
+		): { width: number; height: number } | null;
 		export function dataUri(buffer: Buffer<ArrayBufferLike>): string;
 		export function image(
 			source: Buffer<ArrayBufferLike>,
@@ -629,13 +632,6 @@ declare namespace Client_Functions {
 			string: string;
 		};
 	}
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: Html2PngOptions,
-		assets?: Array<Html2PngAsset>
-	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
@@ -1020,6 +1016,13 @@ declare namespace Client_Functions {
 
 	// From hasIhorizonLogs.ts
 	export function hasIhorizonLogs(guild: Guild): boolean;
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: Html2PngOptions,
+		assets?: Array<Html2PngAsset>
+	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
