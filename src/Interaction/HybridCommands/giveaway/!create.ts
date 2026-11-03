@@ -153,12 +153,12 @@ export const subCommand: SubCommand = {
 			title: lang.reroll_logs_embed_title,
 			description: lang.start_logs_embed_description
 				.replace("${authorId}", interaction.member.user.id)
-				.replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
+				.replaceAll("${giveawayChannel}", giveawayChannel.toString()!)
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.start_confirmation_command.replace(
-				/\${giveawayChannel}/g,
+			content: lang.start_confirmation_command.replaceAll(
+				"${giveawayChannel}",
 				giveawayChannel.toString()
 			)
 		});

@@ -143,7 +143,10 @@ export const command: Command = {
 			});
 		} catch (e) {
 			return await client.func.method.interactionSend(interaction, {
-				content: lang.embed_timeout_getbtn
+				content: lang.embed_timeout_getbtn.replace(
+					"${authorId}",
+					interaction.member!.user.id
+				)
 			});
 		}
 

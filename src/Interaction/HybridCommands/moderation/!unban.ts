@@ -98,8 +98,8 @@ export const subCommand: SubCommand = {
 					.remove(userID as string, reason as string)
 					.catch(() => {});
 				await client.func.method.interactionSend(interaction, {
-					content: lang.unban_is_now_unbanned.replace(
-						/\${userID}/g,
+					content: lang.unban_is_now_unbanned.replaceAll(
+						"${userID}",
 						userID as string
 					)
 				});
@@ -109,8 +109,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unban_logs_embed_title,
 			description: lang.unban_logs_embed_description
-				.replace(/\${userID}/g, userID as string)
-				.replace(/\${authorId}/g, interaction.member.user.id)
+				.replaceAll("${userID}", userID as string)
+				.replaceAll("${authorId}", interaction.member.user.id)
 		});
 	}
 };

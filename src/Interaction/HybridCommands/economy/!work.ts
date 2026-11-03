@@ -88,8 +88,8 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setAuthor({
-				name: lang.work_embed_author.replace(
-					/\${authorUsername}/g,
+				name: lang.work_embed_author.replaceAll(
+					"${authorUsername}",
 					(interaction.member.user as User).globalName ||
 						interaction.member.user.username
 				),
@@ -97,12 +97,12 @@ export const subCommand: SubCommand = {
 			})
 			.setDescription(
 				lang.work_embed_description
-					.replace(
-						/\${authorUsername}/g,
+					.replaceAll(
+						"${authorUsername}",
 						(interaction.member.user as User).globalName ||
 							interaction.member.user.username
 					)
-					.replace(/\${amount}/g, amount.toString())
+					.replaceAll("${amount}", amount.toString())
 			)
 			.setColor("#f1d488");
 

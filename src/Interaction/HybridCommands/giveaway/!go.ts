@@ -602,7 +602,7 @@ export const subCommand: SubCommand = {
 				title: lang.start_logs_embed_title,
 				description: lang.start_logs_embed_description
 					.replace("${authorId}", interaction.member!.user.id)
-					.replace(/\${giveawayChannel}/g, targetChannel.toString()!)
+					.replaceAll("${giveawayChannel}", targetChannel.toString()!)
 			});
 
 			await prompt(

@@ -264,9 +264,9 @@ export const command: Command = {
 				title: lang.setmembercount_logs_embed_title_on_enable,
 				description:
 					lang.setmembercount_logs_embed_description_on_enable
-						.replace(/\${authorId}/g, interaction.member.user.id)
-						.replace(/\${channelId}/g, channel?.id!)
-						.replace(/\${messagei}/g, messagei)
+						.replaceAll("${authorId}", interaction.member.user.id)
+						.replaceAll("${channelId}", channel?.id!)
+						.replaceAll("${messagei}", messagei)
 			});
 
 			const fetched = interaction.guild?.channels.cache.get(
@@ -287,8 +287,8 @@ export const command: Command = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setmembercount_logs_embed_title_on_disable,
 				description:
-					lang.setmembercount_logs_embed_description_on_disable.replace(
-						/\${authorId}/g,
+					lang.setmembercount_logs_embed_description_on_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});

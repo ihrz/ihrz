@@ -113,7 +113,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.economy_disable_logs_embed_title,
 			description: lang.economy_disable_logs_embed_desc
-				.replace(/\${authorId}/g, interaction.member.user.id)
+				.replaceAll("${authorId}", interaction.member.user.id)
 				.replace("${state}", state)
 		});
 	}

@@ -108,8 +108,8 @@ export const subCommand: SubCommand = {
 
 		if (targetuser < 250) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.rob_him_dont_enought_error.replace(
-					/\${userUsername}/g,
+				content: lang.rob_him_dont_enought_error.replaceAll(
+					"${userUsername}",
 					user.user.globalName as string
 				)
 			});
@@ -121,9 +121,9 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setDescription(
 				lang.rob_embed_description
-					.replace(/\${authorId}/g, interaction.member.user.id)
-					.replace(/\${userId}/g, user.id)
-					.replace(/\${random}/g, random.toString())
+					.replaceAll("${authorId}", interaction.member.user.id)
+					.replaceAll("${userId}", user.id)
+					.replaceAll("${random}", random.toString())
 			)
 			.setColor("#a4cb80")
 			.setTimestamp();

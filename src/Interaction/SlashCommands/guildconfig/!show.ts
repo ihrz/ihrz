@@ -118,13 +118,13 @@ export const subCommand: SubCommand = {
 			name: lang.guildprofil_embed_fields_punishPub,
 			value: baseData?.GUILD?.PUNISH?.PUNISH_PUB
 				? lang.guildprofil_set_punishPub
-						.replace(
-							/\${punishementType}/g,
+						.replaceAll(
+							"${punishementType}",
 							baseData.GUILD?.PUNISH?.PUNISH_PUB
 								?.punishementType ?? ""
 						)
-						.replace(
-							/\${amountMax}/g,
+						.replaceAll(
+							"${amountMax}",
 							String(
 								baseData.GUILD?.PUNISH?.PUNISH_PUB?.amountMax ??
 									0
@@ -227,8 +227,8 @@ export const subCommand: SubCommand = {
 			const embed = new EmbedBuilder()
 				.setColor("#016c9a")
 				.setDescription(
-					lang.guildprofil_embed_description.replace(
-						/\${guildName}/g,
+					lang.guildprofil_embed_description.replaceAll(
+						"${guildName}",
 						interaction.guild?.name as string
 					)
 				)
@@ -355,8 +355,8 @@ function supportConfigToString(
 ): string {
 	return supportConfig
 		? lang.guildprofil_set_supportConfig
-				.replace(/\${input}/g, supportConfig.input ?? "")
-				.replace(/\${rolesId}/g, supportConfig.rolesId ?? "")
+				.replaceAll("${input}", supportConfig.input ?? "")
+				.replaceAll("${rolesId}", supportConfig.rolesId ?? "")
 		: lang.guildprofil_not_set_supportConfig;
 }
 
@@ -396,9 +396,9 @@ function reactionRolesToString(
 					);
 
 					return lang.guildprofil_set_reactionrole
-						.replace(/\${rolesID}/g, rolesID!)
-						.replace(/\${emoji}/g, (emoji || key) as string)
-						.replace(/\${i}/g, i);
+						.replaceAll("${rolesID}", rolesID!)
+						.replaceAll("${emoji}", (emoji || key) as string)
+						.replaceAll("${i}", i);
 				})
 				.join("\n");
 			reactionrole = stringContent;

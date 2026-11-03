@@ -95,9 +95,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.removemoney_logs_embed_title,
 			description: lang.removemoney_logs_embed_description
-				.replace(/\${authorId}/g, interaction.member.user.id)
-				.replace(/\${amount}/g, amount.toString())
-				.replace(/\${userId}/g, user.id)
+				.replaceAll("${authorId}", interaction.member.user.id)
+				.replaceAll("${amount}", amount.toString())
+				.replaceAll("${userId}", user.id)
 		});
 
 		await client.func.method.interactionSend(interaction, {

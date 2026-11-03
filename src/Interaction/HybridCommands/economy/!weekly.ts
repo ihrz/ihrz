@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 			);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.weekly_cooldown_error.replace(/\${time}/g, time)
+				content: lang.weekly_cooldown_error.replaceAll("${time}", time)
 			});
 		} else {
 			const embed = new EmbedBuilder()

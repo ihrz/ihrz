@@ -179,8 +179,8 @@ export const subCommand: SubCommand = {
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.ban_logs_embed_title,
 					description: lang.ban_logs_embed_description
-						.replace(/\${memberId}/g, member.id)
-						.replace(/\${authorId}/g, interaction.member?.user.id!)
+						.replaceAll("${memberId}", member.id)
+						.replaceAll("${authorId}", interaction.member?.user.id!)
 				});
 			})
 			.catch(() => {

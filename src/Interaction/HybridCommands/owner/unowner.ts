@@ -129,8 +129,8 @@ export async function run_for_bot_owner(
 	await client.func.ownerHelper.removeBotOwner(member?.id!);
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.unowner_command_work.replace(
-			/\${memberUsername}/g,
+		content: lang.unowner_command_work.replaceAll(
+			"${memberUsername}",
 			member?.username!
 		)
 	});
@@ -183,8 +183,8 @@ export async function run_for_guild_owner(
 	);
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.unowner_command_work.replace(
-			/\${memberUsername}/g,
+		content: lang.unowner_command_work.replaceAll(
+			"${memberUsername}",
 			member?.username!
 		)
 	});

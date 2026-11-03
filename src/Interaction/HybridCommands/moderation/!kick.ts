@@ -110,9 +110,9 @@ export const subCommand: SubCommand = {
 		member
 			.send({
 				content: lang.kick_message_to_the_banned_member
-					.replace(/\${guildName}/g, interaction.guild.name)
-					.replace(
-						/\${authorUsername}/g,
+					.replaceAll("${guildName}", interaction.guild.name)
+					.replaceAll(
+						"${authorUsername}",
 						interaction.member.user.username
 					)
 			})
@@ -168,8 +168,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.kick_logs_embed_title,
 			description: lang.kick_logs_embed_description
-				.replace(/\${member}/g, member.user.toString())
-				.replace(/\${authorId}/g, interaction.member.user.id)
+				.replaceAll("${member}", member.user.toString())
+				.replaceAll("${authorId}", interaction.member.user.id)
 		});
 	}
 };

@@ -94,8 +94,8 @@ export const subCommand: SubCommand = {
 		const finalEmbed = new EmbedBuilder()
 			.setDescription(
 				lang.addinvites_confirmation_embed_description
-					.replace(/\${amount}/g, amount!.toString())
-					.replace(/\${user}/g, user.toString())
+					.replaceAll("${amount}", amount!.toString())
+					.replaceAll("${user}", user.toString())
 			)
 			.setColor(`#92A8D1`)
 			.setFooter({
@@ -110,9 +110,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.addinvites_logs_embed_title,
 			description: lang.addinvites_logs_embed_description
-				.replace(/\${authorId}/g, interaction.member.user.id)
-				.replace(/\${amount}/g, amount.toString())
-				.replace(/\${userId}/g, user.id)
+				.replaceAll("${authorId}", interaction.member.user.id)
+				.replaceAll("${amount}", amount.toString())
+				.replaceAll("${userId}", user.id)
 		});
 	}
 };

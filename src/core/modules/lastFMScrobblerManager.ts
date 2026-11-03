@@ -94,8 +94,8 @@ export class LastFMScrobblerManager {
 	}
 
 	public getMissingConfigurationMessage(lang: LanguageData): string {
-		return lang.lastfm_module_not_configured.replace(
-			/\${emoji_No}/g,
+		return lang.lastfm_module_not_configured.replaceAll(
+			"${emoji_No}",
 			client.iHorizon_Emojis.No
 		);
 	}
@@ -169,8 +169,8 @@ export class LastFMScrobblerManager {
 		if (!fetchedUsername || !sessionKey) {
 			return {
 				ok: false,
-				message: lang.lastfm_login_invalid_session.replace(
-					/\${emoji_No}/g,
+				message: lang.lastfm_login_invalid_session.replaceAll(
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			};
@@ -187,8 +187,8 @@ export class LastFMScrobblerManager {
 		return {
 			ok: true,
 			message: lang.lastfm_login_success
-				.replace(/\${emoji_Yes}/g, client.iHorizon_Emojis.Yes)
-				.replace(/\${username}/g, fetchedUsername),
+				.replaceAll("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll("${username}", fetchedUsername),
 			username: fetchedUsername
 		};
 	}
@@ -202,7 +202,7 @@ export class LastFMScrobblerManager {
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setTitle(
-				lang.lastfm_embed_title.replace(/\${userLabel}/g, userLabel)
+				lang.lastfm_embed_title.replaceAll("${userLabel}", userLabel)
 			)
 			.addFields(
 				{
@@ -641,9 +641,9 @@ export class LastFMScrobblerManager {
 					: lang.lastfm_api_error_scrobble;
 
 		return template
-			.replace(/\${emoji_No}/g, client.iHorizon_Emojis.No)
-			.replace(
-				/\${error}/g,
+			.replaceAll("${emoji_No}", client.iHorizon_Emojis.No)
+			.replaceAll(
+				"${error}",
 				response.message || lang.lastfm_api_error_unknown
 			);
 	}

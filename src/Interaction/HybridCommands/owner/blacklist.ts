@@ -332,8 +332,8 @@ export async function run_for_bot_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${memberUsername}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					member.user.globalName || member.user.username
 				)
 			});
@@ -351,8 +351,8 @@ export async function run_for_bot_owner(
 			.ban({ reason })
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.blacklist_command_work.replace(
-						/\${memberUsername}/g,
+					content: lang.blacklist_command_work.replaceAll(
+						"${memberUsername}",
 						String(member?.user.globalName || member?.user.username)
 					)
 				});
@@ -384,7 +384,7 @@ export async function run_for_bot_owner(
 			await client.func.method.channelSend(interaction, {
 				content: lang.blacklist_command_work_shard
 					.replace("{score}", score)
-					.replace("{username}", username)
+					.replace("${username}", username)
 					.replace("${totalSuccess}", totalSuccess.toString())
 			});
 		});
@@ -400,8 +400,8 @@ export async function run_for_bot_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${memberUsername}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					targetUser.globalName || targetUser.username
 				)
 			});
@@ -416,8 +416,8 @@ export async function run_for_bot_owner(
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work.replace(
-				/\${memberUsername}/g,
+			content: lang.blacklist_command_work.replaceAll(
+				"${memberUsername}",
 				targetUser.globalName || targetUser.username
 			)
 		});
@@ -445,7 +445,7 @@ export async function run_for_bot_owner(
 			await client.func.method.channelSend(interaction, {
 				content: lang.blacklist_command_work_shard
 					.replace("{score}", score)
-					.replace("{username}", username)
+					.replace("${username}", username)
 					.replace("${totalSuccess}", totalSuccess.toString())
 			});
 		});
@@ -625,8 +625,8 @@ export async function run_for_guild_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${memberUsername}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					member.user.globalName || member.user.username
 				)
 			});
@@ -647,8 +647,8 @@ export async function run_for_guild_owner(
 			.ban({ reason })
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.blacklist_command_work.replace(
-						/\${memberUsername}/g,
+					content: lang.blacklist_command_work.replaceAll(
+						"${memberUsername}",
 						String(member?.user.globalName || member?.user.username)
 					)
 				});
@@ -676,8 +676,8 @@ export async function run_for_guild_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${memberUsername}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					targetUser.globalName || targetUser.username
 				)
 			});
@@ -695,8 +695,8 @@ export async function run_for_guild_owner(
 		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work.replace(
-				/\${memberUsername}/g,
+			content: lang.blacklist_command_work.replaceAll(
+				"${memberUsername}",
 				targetUser.globalName || targetUser.username
 			)
 		});

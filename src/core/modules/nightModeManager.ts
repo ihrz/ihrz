@@ -252,18 +252,19 @@ class NightModeManager {
 			opt.type === "started"
 				? opt.lang.var_nm_running
 				: opt.lang.var_nm_stopping;
+		// Languages come with emojis resolved: this message wants a plain dash.
 		let warn_msg = opt.lang.var_nm_error_occured.replace("${type}", type);
 
 		if (!opt.im_on_top) {
 			warn_msg += opt.lang.var_nm_role_app_not_high.replace(
-				"${emoji_Warning_Icon}",
+				client.iHorizon_Emojis.Warning_Icon,
 				"-"
 			);
 		}
 
 		if (!opt.im_self_admin) {
 			warn_msg += opt.lang.var_nm_role_app_not_admin.replace(
-				"${emoji_Warning_Icon}",
+				client.iHorizon_Emojis.Warning_Icon,
 				"-"
 			);
 		}

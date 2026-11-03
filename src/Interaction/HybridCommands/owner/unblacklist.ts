@@ -220,8 +220,8 @@ export async function run_for_bot_owner(
 		await interaction.guild.members.unban(bannedMember).catch(() => {});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.unblacklist_command_work.replace(
-				/\${memberId}/g,
+			content: lang.unblacklist_command_work.replaceAll(
+				"${memberId}",
 				member?.id!
 			)
 		});
@@ -326,8 +326,8 @@ export async function run_for_guild_owner(
 	await interaction.guild.members.unban(bannedMember).catch(() => {});
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.unblacklist_command_work.replace(
-			/\${memberId}/g,
+		content: lang.unblacklist_command_work.replaceAll(
+			"${memberId}",
 			member?.id!
 		)
 	});

@@ -91,16 +91,16 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.pay_command_work
-				.replace(
-					/\${authorUsername}/g,
+				.replaceAll(
+					"${authorUsername}",
 					(interaction.member.user as User).globalName ||
 						interaction.member.user.username
 				)
-				.replace(
-					/\${userUsername}/g,
+				.replaceAll(
+					"${userUsername}",
 					user.user.globalName || user.user.displayName
 				)
-				.replace(/\${amount}/g, amount.toString())
+				.replaceAll("${amount}", amount.toString())
 		});
 
 		await client.db.add(

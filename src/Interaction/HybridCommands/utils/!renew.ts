@@ -79,8 +79,8 @@ export const subCommand: SubCommand = {
 			await channel.delete();
 
 			here.send({
-				content: lang.renew_channel_send_success.replace(
-					/\${author}/g,
+				content: lang.renew_channel_send_success.replaceAll(
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});

@@ -68,8 +68,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setxpchannels_logs_embed_title_enable,
 				description: lang.setxpchannels_logs_embed_description_enable
-					.replace(/\${authorId}/g, interaction.member.user.id)
-					.replace(/\${argsid}/g, argsid.id)
+					.replaceAll("${authorId}", interaction.member.user.id)
+					.replaceAll("${argsid}", argsid.id)
 			});
 
 			try {
@@ -93,8 +93,8 @@ export const subCommand: SubCommand = {
 				);
 
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setxpchannels_command_work_enable.replace(
-						/\${argsid}/g,
+					content: lang.setxpchannels_command_work_enable.replaceAll(
+						"${argsid}",
 						argsid.id
 					)
 				});
@@ -109,8 +109,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setxpchannels_logs_embed_title_disable,
 				description:
-					lang.setxpchannels_logs_embed_description_disable.replace(
-						/\${authorId}/g,
+					lang.setxpchannels_logs_embed_description_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});

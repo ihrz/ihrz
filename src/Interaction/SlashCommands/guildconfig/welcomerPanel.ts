@@ -1045,10 +1045,11 @@ export async function openWelcomerPanel(
 			);
 
 			await modal.reply({
-				content: lang.setjoindm_confirmation_message_on_enable.replace(
-					/\${dm_msg}/g,
-					response
-				),
+				content:
+					lang.setjoindm_confirmation_message_on_enable.replaceAll(
+						"${dm_msg}",
+						response
+					),
 				flags: [1 << 6]
 			});
 
@@ -1500,15 +1501,15 @@ export async function openWelcomerPanel(
 					? lang.setchannels_logs_embed_description_on_join
 					: lang.setchannels_logs_embed_description_on_leave
 				)
-					.replace(/\${argsid\.id}/g, channelId as string)
-					.replace(/\${authorId}/g, authorId)
+					.replaceAll("${argsidId}", channelId as string)
+					.replaceAll("${authorId}", authorId)
 			});
 
 			await safeFollowUp(source, {
 				content: (isJoin
 					? lang.setchannels_command_work_on_join
 					: lang.setchannels_command_work_on_leave
-				).replace(/\${argsid\.id}/g, channelId as string)
+				).replaceAll("${argsidId}", channelId as string)
 			});
 
 			await render(message);
@@ -1528,10 +1529,11 @@ export async function openWelcomerPanel(
 		await source.deferUpdate().catch(() => null);
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.setchannels_logs_embed_title_on_off,
-			description: lang.setchannels_logs_embed_description_on_off.replace(
-				/\${authorId}/g,
-				authorId
-			)
+			description:
+				lang.setchannels_logs_embed_description_on_off.replaceAll(
+					"${authorId}",
+					authorId
+				)
 		});
 
 		if (!state.joinChannel && !state.leaveChannel) {

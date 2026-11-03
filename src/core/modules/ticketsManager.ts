@@ -1069,8 +1069,8 @@ async function TicketRemoveMember(
 			ReadMessageHistory: false
 		});
 		client.func.method.interactionSend(interaction, {
-			content: data.remove_command_work.replace(
-				/\${memberTag}/g,
+			content: data.remove_command_work.replaceAll(
+				"${memberTag}",
 				member?.username!
 			)
 		});
@@ -1148,8 +1148,8 @@ async function TicketAddMember(
 			ReadMessageHistory: true
 		});
 		await client.func.method.interactionSend(interaction, {
-			content: data.add_command_work.replace(
-				/\${memberTag}/g,
+			content: data.add_command_work.replaceAll(
+				"${memberTag}",
 				member.username
 			)
 		});
@@ -1228,8 +1228,8 @@ async function TicketReOpen(
 						})
 						.then(() => {
 							client.func.method.interactionSend(interaction, {
-								content: lang.open_command_work.replace(
-									/\${channel}/g,
+								content: lang.open_command_work.replaceAll(
+									"${channel}",
 									interaction.channel?.toString()!
 								)
 							});

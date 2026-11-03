@@ -63,15 +63,15 @@ export const subCommand: SubCommand = {
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unlockall_logs_embed_title,
-			description: lang.unlockall_logs_embed_description.replace(
-				/\${authorId}/g,
+			description: lang.unlockall_logs_embed_description.replaceAll(
+				"${authorId}",
 				interaction.member.user.id
 			)
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.unlockall_embed_message_description.replace(
-				/\${authorId}/g,
+			content: lang.unlockall_embed_message_description.replaceAll(
+				"${authorId}",
 				interaction.member.user.id
 			)
 		});

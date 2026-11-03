@@ -51,8 +51,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.disablexp_logs_embed_title_disable,
 				description:
-					lang.disablexp_logs_embed_description_disable.replace(
-						/\${authorId}/g,
+					lang.disablexp_logs_embed_description_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});
@@ -70,8 +70,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.disablexp_logs_embed_title_disable,
 				description:
-					lang.disablexp_logs_embed_description_disable.replace(
-						/\${authorId}/g,
+					lang.disablexp_logs_embed_description_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});
@@ -89,8 +89,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.disablexp_logs_embed_title_enable,
 				description:
-					lang.disablexp_logs_embed_description_enable.replace(
-						/\${authorId}/g,
+					lang.disablexp_logs_embed_description_enable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});

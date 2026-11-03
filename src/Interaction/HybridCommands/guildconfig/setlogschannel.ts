@@ -325,8 +325,8 @@ export const command: Command = {
 					title: lang.setlogschannel_logs_embed_title,
 					description:
 						lang.setlogschannel_logs_embed_description_on_enable
-							.replace(
-								/\${authorId}/g,
+							.replaceAll(
+								"${authorId}",
 								interaction.member?.user.id!
 							)
 							.replace("${argsidId}", channel.id)
@@ -508,8 +508,8 @@ export const command: Command = {
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.setlogschannel_logs_embed_title,
 					description:
-						lang.setlogschannel_logs_embed_description_on_off.replace(
-							/\${authorId}/g,
+						lang.setlogschannel_logs_embed_description_on_off.replaceAll(
+							"${authorId}",
 							interaction.member.user.id!
 						)
 				});

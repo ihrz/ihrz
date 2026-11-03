@@ -76,8 +76,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setrankroles_logs_embed_title_enable,
 				description: lang.setrankroles_logs_embed_description_enable
-					.replace(/\${authorId}/g, interaction.member.user.id)
-					.replace(/\${argsid}/g, argsid.id)
+					.replaceAll("${authorId}", interaction.member.user.id)
+					.replaceAll("${argsid}", argsid.id)
 			});
 
 			try {
@@ -139,8 +139,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setrankroles_logs_embed_title_disable,
 				description:
-					lang.setrankroles_logs_embed_description_disable.replace(
-						/\${authorId}/g,
+					lang.setrankroles_logs_embed_description_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});
@@ -151,8 +151,8 @@ export const subCommand: SubCommand = {
 				);
 
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_work_disable.replace(
-						/\${authorId}/g,
+					content: lang.setrankroles_command_work_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 				});

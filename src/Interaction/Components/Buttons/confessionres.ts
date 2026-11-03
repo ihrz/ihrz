@@ -73,7 +73,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		);
 
 		await interaction.reply({
-			content: lang.monthly_cooldown_error.replace(/\${time}/g, time),
+			content: lang.monthly_cooldown_error.replaceAll("${time}", time),
 			flags: [1 << 6]
 		});
 		return;

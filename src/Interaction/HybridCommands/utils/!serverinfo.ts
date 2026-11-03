@@ -58,15 +58,15 @@ export const subCommand: SubCommand = {
 		const embeds = new EmbedBuilder()
 			.setColor("#C3B2A1")
 			.setAuthor({
-				name: lang.serverinfo_embed_author.replace(
-					/\${guildName}/g,
+				name: lang.serverinfo_embed_author.replaceAll(
+					"${guildName}",
 					interaction.guild.name
 				),
 				iconURL: interaction.guild?.iconURL() as string
 			})
 			.setDescription(
-				lang.serverinfo_embed_description.replace(
-					/\${guildDescription}/g,
+				lang.serverinfo_embed_description.replaceAll(
+					"${guildDescription}",
 					interaction.guild.description || "None"
 				)
 			)

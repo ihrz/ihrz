@@ -159,8 +159,8 @@ export async function run_for_bot_owner(
 	await client.func.ownerHelper.addBotOwner(member.id);
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.owner_is_now_owner.replace(
-			/\${memberUsername}/g,
+		content: lang.owner_is_now_owner.replaceAll(
+			"${memberUsername}",
 			member.globalName || member.displayName
 		)
 	});
@@ -245,8 +245,8 @@ export async function run_for_guild_owner(
 	);
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.owner_is_now_owner.replace(
-			/\${memberUsername}/g,
+		content: lang.owner_is_now_owner.replaceAll(
+			"${memberUsername}",
 			member.globalName || member.displayName
 		)
 	});
