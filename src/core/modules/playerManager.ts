@@ -23,7 +23,13 @@ import {
 	AttachmentBuilder,
 	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
+	ContainerBuilder,
+	MediaGalleryBuilder,
+	MediaGalleryItemBuilder,
+	MessageFlags,
+	SeparatorBuilder,
+	SeparatorSpacingSize,
+	TextDisplayBuilder,
 	User
 } from "discord.js";
 import { LavalinkManager } from "lavalink-client";
@@ -138,27 +144,67 @@ export default async (client: Client) => {
 			}
 		}
 
-		const image = await renderMusicBanner({
-			title: track?.info.title ?? "",
-			author: track?.info.author ?? "",
-			artwork: await loadArtwork(track?.info.artworkUrl)
-		});
+		const artwork = await loadArtwork(track?.info.artworkUrl).catch(
+			() => null
+		);
+		const [image, colors] = await Promise.all([
+			renderMusicBanner({
+				title: track?.info.title ?? "",
+				author: track?.info.author ?? "",
+				artwork
+			}),
+			artwork
+				? client.func.image_dominant_color(artwork).catch(() => null)
+				: null
+		]);
+		const accent = colors
+			? parseInt(colors.color1.replace("#", ""), 16)
+			: NaN;
 
-		const attachment = new AttachmentBuilder(image, {
-			name: "music_banner.png"
-		});
+		const container = new ContainerBuilder()
+			.setAccentColor(Number.isFinite(accent) ? accent : 2829617)
+			.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					data.event_mp_playerStart
+						.replace(
+							"${client.iHorizon_Emojis.Music_Icon}",
+							client.iHorizon_Emojis.Music_Icon
+						)
+						// Inside an inline code link label: a backtick would
+						// end it.
+						.replace(
+							"${track.title}",
+							String(track?.info.title).replace(/`/g, "'")
+						)
+						.replace(
+							"${queue.channel.name}",
+							`<#${player.voiceChannelId}>`
+						)
+						.replace("${url}", track?.info.uri!)
+				)
+			)
+			.addMediaGalleryComponents(
+				new MediaGalleryBuilder().addItems(
+					new MediaGalleryItemBuilder().setURL(
+						"attachment://music_banner.png"
+					)
+				)
+			);
 
-		const embeds = [];
 		const isLastFmConfig = await profilTable.get(
 			`${(track?.requester as User)!.id}`
 		);
 
 		// Added a last.fm explore category
 		if (secureRandomFloat() < 1 / 3 && !isLastFmConfig) {
-			embeds.push(
-				new EmbedBuilder()
-					.setColor("#ba0000")
-					.setDescription(
+			container
+				.addSeparatorComponents(
+					new SeparatorBuilder()
+						.setDivider(true)
+						.setSpacing(SeparatorSpacingSize.Small)
+				)
+				.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(
 						data.even_mp_playerStart_tip
 							.replace(
 								"${client.iHorizon_Emojis.LastFM_Logo}",
@@ -169,32 +215,19 @@ export default async (client: Client) => {
 								client.iHorizon_Emojis.Sunglass
 							)
 					)
-			);
+				);
 		}
 
-		embeds.push(
-			new EmbedBuilder()
-				.setColor(2829617)
-				.setDescription(
-					data.event_mp_playerStart
-						.replace(
-							"${client.iHorizon_Emojis.Music_Icon}",
-							client.iHorizon_Emojis.Music_Icon
-						)
-						.replace("${track.title}", String(track?.info.title))
-						.replace(
-							"${queue.channel.name}",
-							`<#${player.voiceChannelId}>`
-						)
-						.replace("${url}", track?.info.uri!)
-				)
-				.setImage("attachment://music_banner.png")
-		);
-
-		(channel as BaseGuildTextChannel).send({
-			embeds,
-			files: [attachment]
-		});
+		await (channel as BaseGuildTextChannel)
+			.send({
+				components: [container],
+				files: [
+					new AttachmentBuilder(image, { name: "music_banner.png" })
+				],
+				flags: [MessageFlags.IsComponentsV2],
+				allowedMentions: { parse: [] }
+			})
+			.catch(() => null);
 
 		await client.func.method.changeVoiceChannelStatus(
 			player.voiceChannelId!,
