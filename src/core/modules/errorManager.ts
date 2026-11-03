@@ -23,7 +23,7 @@ import { format } from "../functions/date_and_time.js";
 import logger from "../logger.js";
 
 import fs from "node:fs";
-import { Client } from "discord.js";
+import { Client, RESTJSONErrorCodes } from "discord.js";
 
 const errorLogPath = (): string => `${process.cwd()}/src/files/error.log`;
 
@@ -46,8 +46,31 @@ const appendErrorLog = (error: unknown): void => {
 	fs.appendFile(errorLogPath(), entry, () => {});
 };
 
+/**
+ * Discord refusing an action because the bot lacks access to a channel or a
+ * permission: expected on servers that restrict the bot, not a bug. These
+ * are neither printed nor saved.
+ */
+const IGNORED_DISCORD_CODES = new Set<number>([
+	RESTJSONErrorCodes.MissingAccess,
+	RESTJSONErrorCodes.MissingPermissions
+]);
+
+// Shape check rather than instanceof: a second copy of discord.js in
+// node_modules would make instanceof fail.
+const isIgnored = (error: unknown): boolean => {
+	if (typeof error !== "object" || error === null) return false;
+	const { code, rawError } = error as { code?: unknown; rawError?: unknown };
+	return (
+		rawError !== undefined &&
+		typeof code === "number" &&
+		IGNORED_DISCORD_CODES.has(code)
+	);
+};
+
 export const uncaughtExceptionHandler = (client: Client) => {
 	process.on("uncaughtException", function (err) {
+		if (isIgnored(err)) return;
 		if (!client.config.core.devMode) {
 			logger.err(
 				`${client.config.console.emojis.ERROR} >> Error detected`.red
@@ -63,16 +86,12 @@ export const uncaughtExceptionHandler = (client: Client) => {
 	});
 
 	process.on("unhandledRejection", function (err) {
-		console.error(err);
-		if (!client.config.core.devMode) {
-			logger.err(
-				`${client.config.console.emojis.ERROR} >> Error detected`.red
-			);
-			logger.err(
-				`${client.config.console.emojis.OK} >> Save in the logs`.gray
-			);
-
-			return appendErrorLog(err);
-		}
+		if (isIgnored(err)) return;
+		// Printed in every mode (it used to be a raw console dump), and saved
+		// to error.log in production.
+		logger.err(
+			err instanceof Error ? err.stack || err.message : String(err)
+		);
+		if (!client.config.core.devMode) appendErrorLog(err);
 	});
 };
