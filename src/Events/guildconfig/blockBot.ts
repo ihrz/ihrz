@@ -42,6 +42,8 @@ export const event: BotEvent = {
 		const data =
 			(await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`)) ||
 			false;
+		// Disabled: skip the REST audit log fetch below.
+		if (data !== true) return;
 
 		if (
 			!member.guild.members.me?.permissions.has([

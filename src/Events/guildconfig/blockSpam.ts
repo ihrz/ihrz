@@ -22,17 +22,48 @@
 import {
 	Client,
 	PermissionsBitField,
-	ChannelType,
 	Message,
 	GuildMember,
-	AutoModerationRuleTriggerType
+	AutoModerationRuleTriggerType,
+	Guild
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import { axios } from "../../core/functions/axios.js";
 import { UnifiedDatabase } from "../../core/database/types.js";
 import { tempTable } from "../client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
+
+// Hosts whose links are allowed (subdomains included).
+const WHITELIST = [
+	"giphy.com",
+	"tenor.com",
+	"imgur.com",
+	"gyazo.com",
+	"ezgif.com",
+	"reddit.com",
+	"tumblr.com",
+	"twitter.com",
+	"flickr.com",
+	"postimages.org",
+	"imagebam.com",
+	"x.com",
+	"youtube.com",
+	"github.com",
+	"gitlab.com",
+	"cdn.discordapp.com",
+	"media.discordapp.net",
+	"streamable.com",
+	"files.catbox.moe",
+	"0x0.st"
+];
+
+// Cheap pre-filter: anything that may be a link or an invite. Messages that
+// do not match never cost a DB read.
+const CANDIDATE_PATTERN = /https?:\/\/|\.gg\/|discord(?:app)?\.com\/invite/i;
+const INVITE_PATTERN = /\.gg\/\S|discord(?:app)?\.com\/invite\/\S/i;
+const LINK_PATTERN = /https?:\/\/[^\s<>]+/gi;
+const AUTOMOD_REFRESH_MS = 10 * 60 * 1000;
+const automodFetchedAt = new Map<string, number>();
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -45,7 +76,7 @@ import { LanguageData } from "../../../types/languageData.js";
 async function applySanction(
 	client: Client,
 	message: Message,
-	member: GuildMember,
+	member: GuildMember | null,
 	LOG: DatabaseStructure.PunishPubSchema,
 	table: UnifiedDatabase,
 	lang: LanguageData
@@ -64,10 +95,11 @@ async function applySanction(
 				);
 				break;
 			case "mute":
-				await member?.timeout(40000, "Timeout by PunishPUB");
+				if (!member) break;
+				await member.timeout(40000, "Timeout by PunishPUB");
 				await client.func.method.warnMember(
 					message.guild?.members.me!,
-					message.member!,
+					member,
 					"Timeout by PunishPUB",
 					lang
 				);
@@ -87,225 +119,105 @@ async function applySanction(
 }
 
 /**
- * Check if a message contains links that should be sanctioned
- * @param message Discord message to check
- * @param whitelist Array of whitelisted domains
- * @returns true if the message should be sanctioned, false otherwise
+ * Exact host match (or subdomain): `url.includes(domain)` let
+ * `https://evil.com/?tenor.com` or `https://tenor.com.evil.com` through.
  */
-async function shouldSanctionMessage(
-	message: Message,
-	whitelist: string[]
-): Promise<boolean> {
-	const contentLower = message.content.toLowerCase();
-	const blacklist = ["https://", "http://", ".gg/"];
-
-	// Check if message contains links
-	const links = contentLower.match(/https?:\/\/\S+/g) || [];
-
-	if (links.length > 0) {
-		// Check if links are media or whitelisted
-		const mediaChecks = await Promise.all(links.map(isMediaLink));
-		const whitelistChecks = links.map((url) =>
-			isWhitelisted(url, whitelist)
-		);
-
-		const hasOnlyValidMedia = mediaChecks.every(Boolean);
-		const isValidWhitelisted = whitelistChecks.some(Boolean);
-
-		// If all links are media or at least one is whitelisted, don't sanction
-		if (hasOnlyValidMedia || isValidWhitelisted) return false;
-	}
-
-	// Check if message contains blacklisted terms
-	for (const word of blacklist) {
-		if (contentLower.includes(word)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-/**
- * Check if a URL is a media link
- * @param url URL to check
- * @returns true if the URL points to media content
- */
-async function isMediaLink(url: string): Promise<boolean> {
+function isWhitelisted(url: string): boolean {
+	let host: string;
 	try {
-		const response = await axios.head(url, {
-			timeout: 5000
-		});
-
-		const contentType =
-			response.headers.get("content-type")?.toLowerCase() || "";
-		const mediaTypes = ["image/", "video/", "gif"];
-
-		return mediaTypes.some((type) => contentType.includes(type));
-	} catch (error) {
+		host = new URL(url.replace(/[)\]}>.,!?'"]+$/, "")).hostname;
+	} catch {
 		return false;
 	}
+	return WHITELIST.some(
+		(domain) => host === domain || host.endsWith(`.${domain}`)
+	);
 }
 
 /**
- * Check if a URL is whitelisted
- * @param url URL to check
- * @param whitelist Array of whitelisted domains
- * @returns true if the URL is whitelisted
+ * Every link must be whitelisted (one allowed link no longer covers an invite
+ * in the same message), invites are never allowed. No network request is made
+ * on user-supplied URLs.
  */
-function isWhitelisted(url: string, whitelist: string[]): boolean {
-	return whitelist.some((domain) => url.includes(domain));
+function shouldSanctionMessage(content: string): boolean {
+	if (INVITE_PATTERN.test(content)) return true;
+	const links = content.match(LINK_PATTERN) ?? [];
+	return links.some((link) => !isWhitelisted(link));
+}
+
+async function automodExemptRoleIds(guild: Guild): Promise<string[]> {
+	const lastFetch = automodFetchedAt.get(guild.id) ?? 0;
+	if (Date.now() - lastFetch > AUTOMOD_REFRESH_MS) {
+		automodFetchedAt.set(guild.id, Date.now());
+		await guild.autoModerationRules.fetch().catch(() => null);
+	}
+	const rule = guild.autoModerationRules.cache.find(
+		(entry) => entry.triggerType === AutoModerationRuleTriggerType.Keyword
+	);
+	return rule ? [...rule.exemptRoles.keys()] : [];
 }
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		// Basic validation checks
+		// Any guild text channel, threads and voice chats included.
 		if (
-			!message.guild ||
-			!message.channel ||
+			!message.inGuild() ||
 			!message.member ||
-			message.channel.type !== ChannelType.GuildText ||
 			message.author.bot ||
-			message.author.id === client.user?.id ||
-			message.webhookId
+			message.webhookId ||
+			!CANDIDATE_PATTERN.test(message.content)
 		) {
 			return;
 		}
 
-		// Check if anti-pub is enabled for this guild
-		const type = (await client.db.get(
-			`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`
-		)) as DatabaseStructure.GuildConfigSchema["antipub"];
 		if (
-			type === "off" ||
-			message.member.permissions.has([
-				PermissionsBitField.Flags.Administrator |
-					PermissionsBitField.Flags.ManageGuild
+			message.member.permissions.any([
+				PermissionsBitField.Flags.Administrator,
+				PermissionsBitField.Flags.ManageGuild
 			])
 		)
 			return;
 
-		const lang = await client.func.getLanguageData(message.guildId);
+		const content = message.content;
+		if (!shouldSanctionMessage(content)) return;
 
-		let automodRules = message.guild.autoModerationRules.cache.find(
-			(rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword
+		const type = (await client.db.get(
+			`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`
+		)) as DatabaseStructure.GuildConfigSchema["antipub"];
+		if (type !== "on") return;
+
+		const member = message.member;
+		const exemptRoles = await automodExemptRoleIds(message.guild);
+		if (exemptRoles.some((id) => member.roles.cache.has(id))) return;
+
+		const [LOG, flags, lang] = await Promise.all([
+			client.db.get(
+				`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`
+			) as Promise<DatabaseStructure.PunishPubSchema | null>,
+			tempTable.get(
+				`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`
+			) as Promise<number | null>,
+			client.func.getLanguageData(message.guildId)
+		]);
+
+		try {
+			await message.delete();
+		} catch {}
+
+		const newFlagsCount = (flags || 0) + 1;
+		await tempTable.set(
+			`${message.guild.id}.PUNISH_DATA.${message.author.id}`,
+			{ flags: newFlagsCount }
 		);
 
-		if (!automodRules) {
-			await message.guild.autoModerationRules.fetch();
-
-			automodRules = message.guild.autoModerationRules.cache.find(
-				(rule) =>
-					rule.triggerType === AutoModerationRuleTriggerType.Keyword
-			);
-		}
-
-		const member =
-			message.guild.members.cache.get(message.author.id) ||
-			(await message.guild.members
-				.fetch(message.author.id)
-				.catch(() => null));
-
+		// `>=`: lowering amountMax must not make sanctions unreachable.
 		if (
-			automodRules?.exemptRoles
-				.values()
-				.toArray()
-				.some((x) => x && member?.roles.cache.has(x.id))
+			LOG?.state === "true" &&
+			LOG.amountMax &&
+			newFlagsCount >= LOG.amountMax
 		) {
-			return;
-		}
-
-		if (type === "on") {
-			// Get punishment configuration and user data
-			const LOG = (await client.db.get(
-				`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`
-			)) as DatabaseStructure.PunishPubSchema;
-			const LOGfetched = await tempTable.get(
-				`${message.guild.id}.PUNISH_DATA.${message.author.id}`
-			);
-
-			// Check if user has already reached max flags and should be sanctioned
-			if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
-				await applySanction(
-					client,
-					message,
-					member!,
-					LOG,
-					tempTable,
-					lang
-				);
-			}
-
-			try {
-				// List of whitelisted domains
-				const whitelist = [
-					"giphy.com",
-					"tenor.com",
-					"imgur.com",
-					"gyazo.com",
-					"ezgif.com",
-					"reddit.com",
-					"tumblr.com",
-					"twitter.com",
-					"flickr.com",
-					"postimages.org",
-					"imagebam.com",
-					"x.com",
-					"youtube.com",
-					"github.com",
-					"gitlab.com",
-					"cdn.discordapp.com",
-					"streamable.com",
-					"files.catbox.moe",
-					"0x0.st"
-				];
-
-				// Check if message should be sanctioned
-				const shouldSanction = await shouldSanctionMessage(
-					message,
-					whitelist
-				);
-
-				if (shouldSanction) {
-					try {
-						// Get current flags count
-						let FLAGS_FETCH = await tempTable.get(
-							`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`
-						);
-						FLAGS_FETCH = FLAGS_FETCH || 0;
-
-						// Increment flags count
-						const newFlagsCount = FLAGS_FETCH + 1;
-
-						// Delete the message first
-						await message.delete();
-
-						// Then update the database with the new flags count
-						await tempTable.set(
-							`${message.guild.id}.PUNISH_DATA.${message.author.id}`,
-							{ flags: newFlagsCount }
-						);
-
-						// Check if we need to apply sanctions immediately after updating
-						if (
-							LOG?.amountMax === newFlagsCount &&
-							LOG?.state === "true"
-						) {
-							await applySanction(
-								client,
-								message,
-								member!,
-								LOG,
-								tempTable,
-								lang
-							);
-						}
-					} catch (error) {}
-				}
-			} catch (error) {
-				return;
-			}
+			await applySanction(client, message, member, LOG, tempTable, lang);
 		}
 	}
 };

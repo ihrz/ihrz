@@ -32,6 +32,7 @@ import {
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { AntiSpam } from "../../../../types/antispam.js";
+import { invalidateAntiSpamConfig } from "../../../core/modules/antiSpamEngine.js";
 import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
@@ -128,6 +129,7 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`,
 				all_roles
 			);
+			invalidateAntiSpamConfig(interaction.guildId!);
 
 			await i.deferUpdate();
 

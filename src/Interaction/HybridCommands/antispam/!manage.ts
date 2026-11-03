@@ -38,6 +38,7 @@ import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { AntiSpam } from "../../../../types/antispam.js";
+import { invalidateAntiSpamConfig } from "../../../core/modules/antiSpamEngine.js";
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 type PresetKeys = "chill" | "guard" | "extreme";
@@ -396,6 +397,7 @@ export const subCommand: SubCommand = {
 						`${interaction.guildId}.GUILD.ANTISPAM`,
 						baseData
 					);
+					invalidateAntiSpamConfig(interaction.guildId!);
 					await i.deferUpdate();
 
 					collector.stop();

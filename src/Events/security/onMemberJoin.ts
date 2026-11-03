@@ -48,7 +48,7 @@ export const event: BotEvent = {
 		const channel = member.guild.channels.cache.get(baseData?.channel);
 		if (!channel) return;
 		const { code, image } = await captcha();
-		const memberJoinDate = member.joinedAt;
+		const joinedTimestamp = member.joinedTimestamp;
 		const expiresAt = Math.floor(
 			(Date.now() + COLLECTOR_TIMEOUT_MS) / 1000
 		);
@@ -74,8 +74,10 @@ export const event: BotEvent = {
 				enforceNonce: true,
 				nonce
 			});
-		} catch (error: any) {
-			console.log(error);
+		} catch (error: unknown) {
+			logger.warn(
+				`[Security] Captcha send failed in ${member.guild.id}: ${String(error)}`
+			);
 			return;
 		}
 
@@ -120,8 +122,13 @@ export const event: BotEvent = {
 		collector.on("end", async () => {
 			if (passed) return;
 
-			if (!member.joinedAt || memberJoinDate === member.joinedAt) {
-				await member
+			// Kick only if this is still the same membership: `joinedAt` is a new
+			// Date on every access, so it was never equal and nobody was kicked.
+			const current = await member.guild.members
+				.fetch({ user: member.id, force: true })
+				.catch(() => null);
+			if (current && current.joinedTimestamp === joinedTimestamp) {
+				await current
 					.kick(data.event_security_kick_reason)
 					.catch(() => {});
 			}

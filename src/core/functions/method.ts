@@ -1089,7 +1089,10 @@ export async function punish(
 				.catch(fallback);
 			return;
 		case "simply+kick":
-			await guild.members.kick(user.id, auditReason).catch(fallback);
+			// Derank first: otherwise the role saver stores the roles on leave
+			// and hands them back on rejoin, undoing the sanction.
+			await derank(user, auditReason).catch(() => {});
+			await guild.members.kick(user.id, auditReason).catch(() => {});
 			return;
 		case "simply+mute": {
 			const mute = () =>

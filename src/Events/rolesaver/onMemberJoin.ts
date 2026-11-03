@@ -37,9 +37,21 @@ export const event: BotEvent = {
 
 			if (!array || array.length === 0) return;
 
-			await member.roles
-				.set(array, "[RoleSaver] Give role back")
-				.catch(() => false);
+			// Only roles the bot can hand out: a single managed (booster, bot)
+			// or higher role made the whole request fail. `add` keeps the
+			// roles given on join (joinRole) instead of overwriting them.
+			const ceiling =
+				member.guild.members.me?.roles.highest.position ?? 0;
+			const roles = array.filter((id) => {
+				const role = member.guild.roles.cache.get(id);
+				return !!role && !role.managed && role.position < ceiling;
+			});
+
+			if (roles.length > 0) {
+				await member.roles
+					.add(roles, "[RoleSaver] Give role back")
+					.catch(() => false);
+			}
 
 			await client.db.delete(
 				`${member.guild.id}.ROLE_SAVER.${member.user.id}`
