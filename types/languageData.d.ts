@@ -1060,8 +1060,8 @@ export interface LanguageData {
 	setjoindm_confirmation_message_on_enable: string;
 	setjoindm_command_error_on_enable: string;
 	setjoindm_logs_embed_title_on_disable: string;
-	setjoindm_logs_embed_description_on_disable: string;
 	setjoindm_confirmation_message_on_disable: string;
+	setjoindm_logs_embed_description_on_disable: string;
 	setjoindm_command_error_on_disable: string;
 	setjoindm_already_disable: string;
 	setjoindm_not_setup_ls: string;
@@ -2043,8 +2043,8 @@ export interface LanguageData {
 	antispam_ignorechannels_embed_desc: string;
 	header_h1_value: string;
 	messages_word: string;
-	voice_activity: string;
 	minutes_word: string;
+	voice_activity: string;
 	top_voice: string;
 	top_message: string;
 	activity_under_30d: string;
@@ -2060,6 +2060,7 @@ export interface LanguageData {
 	activity_overview: string;
 	active_users_title: string;
 	var_members: string;
+	stats_generated_on: string;
 	starboard_channel_command_ok: string;
 	starboard_config_command_ok: string;
 	starboard_threshold_command_ok: string;

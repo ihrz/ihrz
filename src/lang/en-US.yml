@@ -2686,6 +2686,7 @@ top_active_users_title: "Top Active Users"
 activity_overview: "Activity Overview"
 active_users_title: "Active Users"
 var_members: "member(s)"
+stats_generated_on: "Stats generated on {date} • Powered by IHRZ"
 
 # Starboard Module
 # lazy

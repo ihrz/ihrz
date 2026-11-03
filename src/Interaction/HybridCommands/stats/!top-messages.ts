@@ -28,6 +28,10 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	fetchAvatar,
+	renderStatsPage
+} from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -120,8 +124,6 @@ export const subCommand: SubCommand = {
 		leaderboardData.sort((a, b) => b.messages - a.messages);
 		const topUsers = leaderboardData.slice(0, limit);
 
-		let htmlContent = client.htmlfiles["topMessagesLeaderboard"];
-
 		const periodLabel =
 			period === "daily"
 				? lang.var_1d
@@ -140,56 +142,49 @@ export const subCommand: SubCommand = {
 			}
 		);
 
-		htmlContent = htmlContent
-			.replaceAll("{header_h1_value}", lang.top_messages_title)
-			.replaceAll(
-				"{guild_pfp}",
-				interaction.guild.iconURL({ size: 512 }) ||
-					client.user.displayAvatarURL({ size: 512 })
-			)
-			.replaceAll("{author_username}", interaction.guild.name)
-			.replaceAll(
-				"{member_count}",
-				interaction.guild.memberCount.toString()
-			)
-			.replaceAll("{current_date}", currentDate)
-			.replaceAll("{period_label}", periodLabel)
-			.replaceAll(
-				"{top_message_users}",
-				topUsers
-					.map((user, index) => {
-						const rankClass =
-							index === 0
-								? "rank-1"
-								: index === 1
-									? "rank-2"
-									: index === 2
-										? "rank-3"
-										: "";
-						return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <img class="avatar" src="${user.member?.displayAvatarURL({ size: 128 }) || "https://cdn.discordapp.com/embed/avatars/0.png"}" alt="User">
-            <div class="info">
-                <div class="name">@${user.member?.username || lang.var_unknown}</div>
-                <div class="detail">${lang.var_total}: ${user.messages} ${lang.messages_word}</div>
-            </div>
-            <div class="stat">${user.messages} <span>${lang.messages_word}</span></div>
-        </div>
-        `;
+		const [guildIcon, avatars] = await Promise.all([
+			fetchAvatar(
+				interaction.guild.iconURL({ size: 256, extension: "png" }) ||
+					client.user.displayAvatarURL({
+						size: 256,
+						extension: "png"
 					})
-					.join("")
+			),
+			Promise.all(
+				topUsers.map((user) =>
+					fetchAvatar(
+						user.member?.displayAvatarURL({
+							size: 64,
+							extension: "png"
+						})
+					)
+				)
 			)
-			.replaceAll("{top_active_users_title}", lang.top_active_users_title)
-			.replaceAll("{var_members}", lang.var_members);
+		]);
 
-		const image = await client.func.html2png(htmlContent, {
-			width: 1902,
-			height: Math.min(1080, 200 + topUsers.length * 120),
-			scaleSize: 3,
-			elementSelector: ".container",
-			omitBackground: true,
-			selectElement: true
+		const image = await renderStatsPage({
+			title: lang.top_messages_title,
+			meta: [
+				`${interaction.guild.memberCount} ${lang.var_members}`,
+				periodLabel
+			],
+			avatar: guildIcon,
+			footer: lang.stats_generated_on.replace("{date}", currentDate),
+			blocks: [
+				{
+					type: "list",
+					title: lang.top_active_users_title,
+					icon: "💬",
+					empty: lang.stats_no_data,
+					rows: topUsers.map((user, index) => ({
+						avatar: avatars[index],
+						name: `@${user.member?.username || lang.var_unknown}`,
+						detail: `${lang.var_total}: ${user.messages} ${lang.messages_word}`,
+						value: String(user.messages),
+						unit: lang.messages_word
+					}))
+				}
+			]
 		});
 
 		const attachment = new AttachmentBuilder(image, {

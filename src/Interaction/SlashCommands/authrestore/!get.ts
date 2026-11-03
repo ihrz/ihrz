@@ -40,6 +40,10 @@ import { format } from "../../../core/functions/date_and_time.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { authRestoreTable } from "../../../Events/client/ready.js";
+import {
+	fetchAvatar,
+	renderStatsPage
+} from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -132,8 +136,6 @@ export const subCommand: SubCommand = {
 			)
 			.setFooter(footer);
 
-		let htmlContent = client.htmlfiles["authRestoreGetPage"];
-
 		const now = Date.now();
 
 		const timeLabels = Array.from({ length: 30 }, (_, i) => {
@@ -196,68 +198,96 @@ export const subCommand: SubCommand = {
 			Data.data.config.roleId
 		)?.name;
 
-		htmlContent = htmlContent
-			.replaceAll(
-				"{author_pfp}",
-				interaction.member.user.displayAvatarURL({ size: 512 })
-			)
-			.replaceAll(
-				"{author_username}",
-				interaction.member.user.globalName ||
-					interaction.member.user.displayName
-			)
-			.replaceAll("{guild_name}", interaction.guild.name)
-			.replaceAll("{config_author}", Data.data.config.author.username)
-			.replaceAll(
-				"{create_date}",
-				new Date(Data.data.config.createDate).toLocaleDateString(
-					"en-US",
-					{
-						year: "numeric",
-						month: "long",
-						day: "numeric"
-					}
-				)
-			)
-			.replaceAll(
-				"{role_id}",
-				given_role !== undefined
-					? "@" + given_role
-					: Data.data.config.roleId
-			)
-			.replaceAll("{total_members}", String(members.length))
-			.replaceAll("{total_verifications}", String(members.length))
-			.replaceAll(
-				"{key_used_count}",
-				String(Data.data.config.securityCodeUsed)
-			)
-			.replaceAll("{registrationData}", JSON.stringify(registrationData))
-			.replaceAll("{timeLabels}", JSON.stringify(timeLabels))
-			.replaceAll("{localeData}", JSON.stringify(localeData))
-			.replaceAll(
-				"{recentVerifications}",
-				JSON.stringify(recentVerifications)
-			)
-			.replaceAll("{created_by}", lang.rc_created_by)
-			.replaceAll("{created_on}", lang.rc_created_on)
-			.replaceAll("{total_members2}", lang.rc_total_membres)
-			.replaceAll("{total_verification2}", lang.rc_total_verification)
-			.replaceAll("{key_used_count2}", lang.rc_total_key_used_count)
-			.replaceAll(
-				"{recent_locales_distribution}",
-				lang.rc_recent_locales_distribution
-			)
-			.replaceAll("{recent_verifications}", lang.rc_recent_verifications)
-			.replaceAll(
-				"{registration_over_time}",
-				lang.rc_registration_over_time
-			)
-			.replaceAll("{role}", lang.var_roles);
+		const roleLabel =
+			given_role !== undefined
+				? "@" + given_role
+				: Data.data.config.roleId;
 
-		const image = await client.func.html2png(htmlContent, {
-			elementSelector: ".container",
-			omitBackground: true,
-			selectElement: true
+		const image = await renderStatsPage({
+			title: "AuthRestore",
+			meta: [
+				interaction.guild.name,
+				`${lang.rc_created_by} ${Data.data.config.author.username}`,
+				`${lang.rc_created_on} ${new Date(
+					Data.data.config.createDate
+				).toLocaleDateString("en-US", {
+					year: "numeric",
+					month: "long",
+					day: "numeric"
+				})}`,
+				`${lang.var_roles}: ${roleLabel}`
+			],
+			avatar: await fetchAvatar(
+				interaction.member.user.displayAvatarURL({
+					size: 256,
+					extension: "png"
+				})
+			),
+			footer: interaction.guild.name,
+			blocks: [
+				{
+					type: "metrics",
+					title: "AuthRestore",
+					icon: "🔐",
+					items: [
+						{
+							value: String(members.length),
+							label: lang.rc_total_membres
+						},
+						{
+							value: String(members.length),
+							label: lang.rc_total_verification
+						},
+						{
+							value: String(Data.data.config.securityCodeUsed),
+							label: lang.rc_total_key_used_count
+						}
+					]
+				},
+				{
+					type: "chart",
+					title: lang.rc_registration_over_time,
+					icon: "📈",
+					labels: timeLabels,
+					series: [
+						{
+							name: lang.rc_total_verification,
+							color: "#5865F2",
+							values: registrationData
+						}
+					]
+				},
+				{
+					type: "columns",
+					blocks: [
+						{
+							type: "list",
+							title: lang.rc_recent_locales_distribution,
+							icon: "🌐",
+							empty: lang.var_none,
+							rows: Object.entries(localeData)
+								.slice(0, 10)
+								.map(([locale, count]) => ({
+									icon: discordLocales[locale] || "🌐",
+									name: locale,
+									value: String(count)
+								}))
+						},
+						{
+							type: "list",
+							title: lang.rc_recent_verifications,
+							icon: "✅",
+							empty: lang.var_none,
+							rows: recentVerifications.map((entry) => ({
+								icon: "👤",
+								name: entry.username,
+								detail: entry.date,
+								value: ""
+							}))
+						}
+					]
+				}
+			]
 		});
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });

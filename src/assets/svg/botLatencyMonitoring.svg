@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="480" viewBox="0 0 1024 480">
+	<defs>
+		<linearGradient id="top" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#5865F2"/>
+			<stop offset="0.5" stop-color="#57F287"/>
+			<stop offset="1" stop-color="#FEE75C"/>
+		</linearGradient>
+		<linearGradient id="header" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#313338"/>
+			<stop offset="1" stop-color="#2B2D31"/>
+		</linearGradient>
+	</defs>
+	<rect width="1024" height="480" rx="12" fill="#2B2D31"/>
+	<path d="M 0 12 A 12 12 0 0 1 12 0 H 1012 A 12 12 0 0 1 1024 12 V 76 H 0 Z" fill="url(#header)"/>
+	<path d="M 0 12 A 12 12 0 0 1 12 0 H 1012 A 12 12 0 0 1 1024 12 V 3 H 0 Z" fill="url(#top)"/>
+	<rect y="76" width="1024" height="1" fill="#ffffff" opacity="0.08"/>
+	{title}
+	<text x="30" y="62" font-family="Noto Sans" font-size="13" fill="#A3A6AA">History of the last hour</text>
+
+	<g font-family="Noto Sans">
+		<rect x="30" y="96" width="229" height="78" rx="8" fill="#313338"/>
+		<rect x="30" y="96" width="4" height="78" rx="2" fill="#57F287"/>
+		<text x="50" y="122" font-size="11" fill="#A3A6AA" letter-spacing="0.5">ACTUAL</text>
+		<text x="50" y="158" font-size="28" font-weight="700" fill="#FFFFFF" xml:space="preserve">{current_ping}<tspan font-size="14" font-weight="400" fill="#A3A6AA"> ms</tspan></text>
+
+		<rect x="274" y="96" width="229" height="78" rx="8" fill="#313338"/>
+		<rect x="274" y="96" width="4" height="78" rx="2" fill="#5865F2"/>
+		<text x="294" y="122" font-size="11" fill="#A3A6AA" letter-spacing="0.5">AVERAGE</text>
+		<text x="294" y="158" font-size="28" font-weight="700" fill="#FFFFFF" xml:space="preserve">{avg_ping}<tspan font-size="14" font-weight="400" fill="#A3A6AA"> ms</tspan></text>
+
+		<rect x="518" y="96" width="229" height="78" rx="8" fill="#313338"/>
+		<rect x="518" y="96" width="4" height="78" rx="2" fill="#FEE75C"/>
+		<text x="538" y="122" font-size="11" fill="#A3A6AA" letter-spacing="0.5">MINIMUM</text>
+		<text x="538" y="158" font-size="28" font-weight="700" fill="#FFFFFF" xml:space="preserve">{min_ping}<tspan font-size="14" font-weight="400" fill="#A3A6AA"> ms</tspan></text>
+
+		<rect x="762" y="96" width="232" height="78" rx="8" fill="#313338"/>
+		<rect x="762" y="96" width="4" height="78" rx="2" fill="#ED4245"/>
+		<text x="782" y="122" font-size="11" fill="#A3A6AA" letter-spacing="0.5">MAXIMUM</text>
+		<text x="782" y="158" font-size="28" font-weight="700" fill="#FFFFFF" xml:space="preserve">{max_ping}<tspan font-size="14" font-weight="400" fill="#A3A6AA"> ms</tspan></text>
+	</g>
+
+	<rect x="30" y="194" width="964" height="256" rx="8" fill="#313338"/>
+	<g transform="translate(60 228)">{chart_svg}</g>
+</svg>

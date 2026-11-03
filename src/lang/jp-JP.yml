@@ -2684,6 +2684,7 @@ top_active_users_title: "アクティブユーザー上位"
 activity_overview: "アクティビティ概要"
 active_users_title: "アクティブユーザー"
 var_members: "メンバー"
+stats_generated_on: "統計の生成日時: {date} • Powered by IHRZ"
 
 # Starboard Module
 # lazy

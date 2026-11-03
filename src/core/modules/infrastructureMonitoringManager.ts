@@ -336,27 +336,31 @@ class InfrastructureMonitoring {
 	}
 
 	private async generatePingChart(): Promise<Buffer> {
-		let htmlContent = client.htmlfiles["botLatencyMonitoring"];
-
 		const { pingData, timeLabels } = this.generatePingChartData();
 		const stats = this.calculatePingStats();
-		const chartSvg = this.buildPingChartSvg(pingData, timeLabels);
+		const kit = client.func.svgKit;
 
-		htmlContent = htmlContent
-			.replace("{bot_name}", client.user?.username || "iHorizon")
-			.replace("{current_ping}", stats.current.toString())
-			.replace("{avg_ping}", stats.avg.toString())
-			.replace("{max_ping}", stats.max.toString())
-			.replace("{min_ping}", stats.min.toString())
-			.replace("{chart_svg}", chartSvg);
-
-		const image = await client.func.html2png(htmlContent, {
-			elementSelector: "body",
-			omitBackground: true,
-			selectElement: false,
-			width: 1024,
-			height: 512
+		// The chart was already SVG: it is now rendered by resvg directly
+		// instead of being wrapped in an HTML page for Chromium.
+		const svg = kit.fill(client.svgfiles["botLatencyMonitoring"], {
+			title: await kit.text(
+				`WebSocket Ping - ${client.user?.username || "iHorizon"}`,
+				{ x: 30, y: 40, size: 22, weight: 700, maxWidth: 964 }
+			),
+			current_ping: stats.current,
+			avg_ping: stats.avg,
+			min_ping: stats.min,
+			max_ping: stats.max,
+			// A nested <svg> clips its content: let the edge labels overflow.
+			chart_svg: kit.raw(
+				this.buildPingChartSvg(pingData, timeLabels).replace(
+					"<svg ",
+					'<svg overflow="visible" '
+				)
+			)
 		});
+
+		const image = await client.func.svg2png(svg, { scale: 2 });
 
 		return image;
 	}
