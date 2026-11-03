@@ -26,6 +26,7 @@ import {
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
+import { musicPlayAutocomplete } from "../../../core/modules/musicAutocomplete.js";
 
 const VOLUMES = [
 	"10",
@@ -261,6 +262,7 @@ export const command: Command = {
 					},
 
 					required: true,
+					autocomplete: true,
 
 					permission: null
 				}
@@ -424,5 +426,13 @@ export const command: Command = {
 	thinking: true,
 	category: "music",
 	type: ApplicationCommandType.ChatInput,
-	permission: null
+	permission: null,
+	async autocomplete(client, interaction) {
+		if (
+			interaction.options.getSubcommand(false) === "play" &&
+			interaction.options.getFocused(true).name === "title"
+		) {
+			await musicPlayAutocomplete(client, interaction);
+		}
+	}
 };
