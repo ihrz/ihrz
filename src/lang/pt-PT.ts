@@ -2286,8 +2286,6 @@ export default {
 	p_not_in_voice_channel:
 		"Você precisa estar conectado a um canal de voz para usar este comando!",
 	p_embed_title: "Nenhum resultado",
-	p_loading_message: "${emoji_Timer} Loading a : **{result}** !",
-	p_duration: "Duration: ",
 	p_not_allowed:
 		"O link que você enviou não é suportado por este bot. Use serviços de streaming de música autorizados, como Deezer, Spotify, Soundcloud, etc.",
 	p_attachment_too_large:
@@ -3734,10 +3732,8 @@ export default {
 	// Eventos do Player de Música
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} Sabia que pode fazer scrobble da sua música com `/lastfm` no iHorizon ? ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Tocando agora [`${trackTitle}`](${url}) em **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} foi adicionada à fila!",
+		"${emoji_Player_Queue_Add} - ${trackTitle} foi adicionada à fila!",
 	event_mp_playerError:
 		"Estou tendo problemas para conectar => ${errorMessage}",
 	event_mp_error:

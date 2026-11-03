@@ -2260,8 +2260,6 @@ export default {
 	p_not_in_voice_channel:
 		"Вы должны находиться в голосовом канале, чтобы использовать эту команду!",
 	p_embed_title: "Нет результатов",
-	p_loading_message: "${emoji_Timer} Загружается : **{result}** !",
-	p_duration: "Продолжительность: ",
 	p_not_allowed:
 		"Ссылка, которую вы отправили, не поддерживается этим ботом. Пожалуйста, используйте авторизованные музыкальные сервисы, такие как Deezer, Spotify, Soundcloud и т. д.",
 	p_attachment_too_large:
@@ -3689,10 +3687,8 @@ export default {
 	// События проигрывателя музыки
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} Знаешь ли ты, что можешь скробблить свою музыку с помощью `/lastfm` на iHorizon ? ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Сейчас играет [`${trackTitle}`](${url}) в **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} добавлена в очередь!",
+		"${emoji_Player_Queue_Add} - ${trackTitle} добавлена в очередь!",
 	event_mp_playerError:
 		"У меня возникли проблемы с подключением => ${errorMessage}",
 	event_mp_error: "Возникла проблема с очередью песен => ${errorMessage}",

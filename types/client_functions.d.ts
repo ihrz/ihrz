@@ -754,7 +754,6 @@ declare namespace Client_Functions {
 	// From musicPlay.ts
 	export namespace musicPlay {
 		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
-		export function buildTrackDuration(track: Track): string;
 		export function isUrlQuery(query: string): boolean;
 		export function isSpotifyURL(url: string): boolean;
 		export function isYoutubeURL(url: string): boolean;
@@ -802,7 +801,6 @@ declare namespace Client_Functions {
 			requester: User,
 			preferredNode?: LavalinkNode
 		): Promise<SearchMusicQueryResult>;
-		export function platformLabel(url: string, lang: LanguageData): string;
 		export function sendQueueAddMessage(
 			interaction:
 				| ChatInputCommandInteraction<"cached">

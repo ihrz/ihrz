@@ -2313,8 +2313,6 @@ export default {
 	p_not_in_voice_channel:
 		"Sie müssen mit einem Sprachkanal verbunden sein, um diesen Befehl zu verwenden!",
 	p_embed_title: "Keine Ergebnisse",
-	p_loading_message: "${emoji_Timer} Lade ein: **{result}** !",
-	p_duration: "Dauer: ",
 	p_not_allowed:
 		"Der von Ihnen gesendete Link wird von diesem Bot nicht unterstützt. Bitte verwenden Sie autorisierte Musik-Streaming-Dienste wie Deezer, Spotify, Soundcloud usw.",
 	p_attachment_too_large:
@@ -3800,10 +3798,8 @@ export default {
 
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} Wusstest du, dass du deine Musik mit `/lastfm` auf iHorizon scrobbeln kannst ? ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Wiedergabe von [`${trackTitle}`](${url}) in **${queueChannelName}** gestartet ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} wurde zur Warteschlange hinzugefügt !",
+		"${emoji_Player_Queue_Add} - ${trackTitle} wurde zur Warteschlange hinzugefügt !",
 	event_mp_playerError: "Ich habe Probleme beim Verbinden => ${errorMessage}",
 	event_mp_error:
 		"Es gab ein Problem mit der Song-Warteschlange => ${errorMessage}",

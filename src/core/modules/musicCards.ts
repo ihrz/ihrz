@@ -20,7 +20,7 @@
 */
 
 /*
- * Music images (now playing player, track banner) rendered with resvg.
+ * Music images (now playing player card) rendered with resvg.
  * Track titles come from YouTube / SoundCloud / ...: anyone can publish one,
  * so they are only ever inserted as escaped text. Artwork is downloaded
  * once through the public-only fetcher and reused for refreshes.
@@ -49,12 +49,6 @@ export interface NowPlayingData {
 	paused: boolean;
 	/** Set for streams: replaces the progress bar. */
 	liveLabel?: string;
-}
-
-export interface MusicBannerData {
-	title: string;
-	author: string;
-	artwork: Buffer | null;
 }
 
 // YouTube "hqdefault" thumbnails are 4:3 with black bars around a 16:9
@@ -177,45 +171,6 @@ export async function renderNowPlaying(data: NowPlayingData): Promise<Buffer> {
 		progress,
 		current_time: currentTime,
 		total_time: totalTime
-	});
-
-	return svg2png(svg, { scale: 2 });
-}
-
-export async function renderMusicBanner(
-	data: MusicBannerData
-): Promise<Buffer> {
-	const textX = 16 + 80 + 16;
-	const textWidth = 432 - textX - 16;
-	const [title, artist] = await Promise.all([
-		text(data.title, {
-			x: textX,
-			y: 50,
-			size: 16,
-			weight: 700,
-			maxWidth: textWidth
-		}),
-		text(data.author, {
-			x: textX,
-			y: 74,
-			size: 14,
-			fill: "#b9bbbe",
-			maxWidth: textWidth
-		})
-	]);
-
-	const svg = fill(globalThis.client.svgfiles["musicBanner"], {
-		cover: data.artwork
-			? image(data.artwork, {
-					x: 16,
-					y: 16,
-					width: 80,
-					height: 80,
-					radius: 4
-				})
-			: raw(""),
-		title,
-		artist
 	});
 
 	return svg2png(svg, { scale: 2 });

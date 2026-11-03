@@ -2305,8 +2305,6 @@ export default {
 	p_not_in_voice_channel:
 		"¡Debes estar conectado a un canal de voz para usar este comando!",
 	p_embed_title: "Sin resultados",
-	p_loading_message: "${emoji_Timer} Cargando un(a) : **{result}** !",
-	p_duration: "Duración: ",
 	p_not_allowed:
 		"El enlace que ha enviado no es compatible con este bot. Utilice servicios de transmisión de música autorizados como Deezer, Spotify, Soundcloud, etc.",
 	p_attachment_too_large:
@@ -3778,10 +3776,8 @@ export default {
 	// Music Player Events
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} ¿Sabías que puedes registrar tu música con `/lastfm` en iHorizon ? ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Reproduciendo [`${trackTitle}`](${url}) en **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ¡${trackTitle} ha sido agregado a la cola!",
+		"${emoji_Player_Queue_Add} - ¡${trackTitle} ha sido agregado a la cola!",
 	event_mp_playerError: "Tengo problemas para conectarme => ${errorMessage}",
 	event_mp_error:
 		"Hubo un problema con la cola de canciones => ${errorMessage}",

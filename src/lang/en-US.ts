@@ -2230,8 +2230,6 @@ const enUS = {
 	p_not_in_voice_channel:
 		"You must be connected to a voice channel to use this command!",
 	p_embed_title: "No results",
-	p_loading_message: "${emoji_Timer} Loading: **{result}**!",
-	p_duration: "Duration: ",
 	p_not_allowed:
 		"The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc.",
 	p_attachment_too_large:
@@ -3659,10 +3657,8 @@ const enUS = {
 
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} Did you know that you can scrobble your music with `/lastfm` on iHorizon? ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Now playing [`${trackTitle}`](${url}) in **${queueChannelName}**...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} has been added to the queue!",
+		"${emoji_Player_Queue_Add} - ${trackTitle} has been added to the queue!",
 	event_mp_playerError: "I'm having trouble connecting => ${errorMessage}",
 	event_mp_error:
 		"There was a problem with the song queue => ${errorMessage}",

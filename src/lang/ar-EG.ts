@@ -2143,8 +2143,6 @@ export default {
 	p_not_in_voice_channel:
 		"يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!",
 	p_embed_title: "لا توجد نتائج",
-	p_loading_message: "${emoji_Timer} جارٍ تحميل: **{result}**!",
-	p_duration: "المدة: ",
 	p_not_allowed:
 		"الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Soundcloud، إلخ.",
 	p_attachment_too_large:
@@ -3505,10 +3503,8 @@ export default {
 	// أحداث مشغل الموسيقى
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} هل تعلم أنك تستطيع تتبع موسيقاك باستخدام `/lastfm` على iHorizon ؟ ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - الآن يتم تشغيل [`${trackTitle}`](${url}) في **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - تم إضافة ${trackTitle} إلى قائمة الانتظار!",
+		"${emoji_Player_Queue_Add} - تم إضافة ${trackTitle} إلى قائمة الانتظار!",
 	event_mp_playerError: "توجد مشكلة في الاتصال => ${errorMessage}",
 	event_mp_error: "حدثت مشكلة في قائمة الأغاني => ${errorMessage}",
 	event_mp_emptyChannel:

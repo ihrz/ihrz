@@ -69,7 +69,6 @@ export const command: AnotherCommand = {
 
 		await handleMusicPlay({
 			client,
-			deleteAfterMs: 4000,
 			interaction,
 			lang,
 			queries,

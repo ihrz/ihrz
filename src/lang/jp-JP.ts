@@ -2242,8 +2242,6 @@ export default {
 	p_not_in_voice_channel:
 		"このコマンドを使用するには、ボイスチャンネルに接続する必要があります！",
 	p_embed_title: "検索結果がありません",
-	p_loading_message: "${emoji_Timer}  {result}をロード中！",
-	p_duration: "再生時間：",
 	p_not_allowed:
 		"このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Soundcloudなど、許可された音楽ストリーミングサービスを使用してください。",
 	p_attachment_too_large:
@@ -3681,10 +3679,8 @@ export default {
 	// Music Player Events
 	even_mp_playerStart_tip:
 		"> ${emoji_LastFM_Logo} iHorizon で `/lastfm` を使って音楽をスクロブルできること、知っていましたか？ ${emoji_Sunglass}",
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - 現在 **${queueChannelName}** で [`${trackTitle}`](${url}) を再生中...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} をキューに追加しました！",
+		"${emoji_Player_Queue_Add} - ${trackTitle} をキューに追加しました！",
 	event_mp_playerError: "接続に問題があります => ${errorMessage}",
 	event_mp_error: "曲のキューに問題があります => ${errorMessage}",
 	event_mp_emptyChannel:

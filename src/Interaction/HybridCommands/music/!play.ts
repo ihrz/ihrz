@@ -47,7 +47,6 @@ export const subCommand: SubCommand = {
 
 		await client.func.musicPlay.handleMusicPlay({
 			client,
-			deleteAfterMs: 3000,
 			interaction,
 			lang,
 			queries: [query],

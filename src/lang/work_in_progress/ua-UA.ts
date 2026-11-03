@@ -1045,8 +1045,6 @@ export default {
 	p_not_in_voice_channel:
 		"Ви повинні бути в голосовому каналі, щоб використовувати цю команду!",
 	p_embed_title: "Немає результатів",
-	p_loading_message: "${emoji_Timer} Завантажується: **{result}**!",
-	p_duration: "Тривалість: ",
 	p_not_allowed:
 		"Посилання, яке ви відправили, не підтримується цим ботом. Будь ласка, використовуйте авторизовані музичні сервіси, такі як Deezer, Spotify, Soundcloud та інші.",
 
@@ -1777,10 +1775,8 @@ export default {
 
 	// События проигрывателя музыки
 
-	event_mp_playerStart:
-		"${emoji_Music_Icon} - Зараз грає `${trackTitle}` у каналі **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${emoji_Music_Icon} - ${trackTitle} було додано до черги!",
+		"${emoji_Player_Queue_Add} - ${trackTitle} було додано до черги!",
 	event_mp_playerError: "Виникли проблеми з підключенням => ${errorMessage}",
 	event_mp_error: "Виникла проблема з музичною чергою => ${errorMessage}",
 	event_mp_emptyChannel:

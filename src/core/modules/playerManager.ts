@@ -19,32 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	AttachmentBuilder,
-	BaseGuildTextChannel,
-	Client,
-	ContainerBuilder,
-	MediaGalleryBuilder,
-	MediaGalleryItemBuilder,
-	MessageFlags,
-	SeparatorBuilder,
-	SeparatorSpacingSize,
-	TextDisplayBuilder,
-	User
-} from "discord.js";
+import { BaseGuildTextChannel, Client, User } from "discord.js";
 import { LavalinkManager } from "lavalink-client";
 
 import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
-import { secureRandomFloat } from "../functions/random.js";
-import { profilTable } from "../../Events/client/ready.js";
 import { getTTSData } from "./ttsManager.js";
 import {
 	handleH247PlayerDestroyed,
 	handleH247PlayerCreated,
 	handleH247PlayerIdleDestroy
 } from "./h247Manager.js";
-import { loadArtwork, renderMusicBanner } from "./musicCards.js";
 
 let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
 
@@ -98,8 +83,6 @@ export default async (client: Client) => {
 			}
 		}
 
-		const data = await client.func.getLanguageData(player.guildId);
-
 		const guild = await client.guilds
 			.fetch(player.guildId)
 			.catch(() => null);
@@ -109,6 +92,7 @@ export default async (client: Client) => {
 			.catch(() => null);
 
 		// Fallback: if the stored text channel was deleted, find a new one
+		// (panel announcements and queue notices are sent there).
 		if (!channel) {
 			const voiceChannel = guild?.channels.cache.get(
 				player.voiceChannelId!
@@ -134,100 +118,11 @@ export default async (client: Client) => {
 						c.permissionsFor(client.user!)?.has("SendMessages")
 				);
 
-			if (fallback) {
-				player.textChannelId = fallback.id;
-				channel = fallback;
-			} else {
-				// Nowhere to send — destroy player silently
-				player.destroy();
-				return;
-			}
+			if (fallback) player.textChannelId = fallback.id;
 		}
 
-		const artwork = await loadArtwork(track?.info.artworkUrl).catch(
-			() => null
-		);
-		const [image, colors] = await Promise.all([
-			renderMusicBanner({
-				title: track?.info.title ?? "",
-				author: track?.info.author ?? "",
-				artwork
-			}),
-			artwork
-				? client.func.image_dominant_color(artwork).catch(() => null)
-				: null
-		]);
-		const accent = colors
-			? parseInt(colors.color1.replace("#", ""), 16)
-			: NaN;
-
-		const container = new ContainerBuilder()
-			.setAccentColor(Number.isFinite(accent) ? accent : 2829617)
-			.addTextDisplayComponents(
-				new TextDisplayBuilder().setContent(
-					data.event_mp_playerStart
-						.replace(
-							"${emoji_Music_Icon}",
-							client.iHorizon_Emojis.Music_Icon
-						)
-						// Inside an inline code link label: a backtick would
-						// end it.
-						.replace(
-							"${trackTitle}",
-							String(track?.info.title).replace(/`/g, "'")
-						)
-						.replace(
-							"${queueChannelName}",
-							`<#${player.voiceChannelId}>`
-						)
-						.replace("${url}", track?.info.uri!)
-				)
-			)
-			.addMediaGalleryComponents(
-				new MediaGalleryBuilder().addItems(
-					new MediaGalleryItemBuilder().setURL(
-						"attachment://music_banner.png"
-					)
-				)
-			);
-
-		const isLastFmConfig = await profilTable.get(
-			`${(track?.requester as User)!.id}`
-		);
-
-		// Added a last.fm explore category
-		if (secureRandomFloat() < 1 / 3 && !isLastFmConfig) {
-			container
-				.addSeparatorComponents(
-					new SeparatorBuilder()
-						.setDivider(true)
-						.setSpacing(SeparatorSpacingSize.Small)
-				)
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(
-						data.even_mp_playerStart_tip
-							.replace(
-								"${emoji_LastFM_Logo}",
-								client.iHorizon_Emojis.LastFM_Logo
-							)
-							.replace(
-								"${emoji_Sunglass}",
-								client.iHorizon_Emojis.Sunglass
-							)
-					)
-				);
-		}
-
-		await (channel as BaseGuildTextChannel)
-			.send({
-				components: [container],
-				files: [
-					new AttachmentBuilder(image, { name: "music_banner.png" })
-				],
-				flags: [MessageFlags.IsComponentsV2],
-				allowedMentions: { parse: [] }
-			})
-			.catch(() => null);
+		// The track is announced by the live /music play panel, which follows
+		// the queue (src/core/modules/nowPlayingPanel.ts).
 
 		await client.func.method.changeVoiceChannelStatus(
 			player.voiceChannelId!,

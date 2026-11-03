@@ -30,6 +30,7 @@ import {
 	MessageContextMenuCommandInteraction,
 	MessageReplyOptions,
 	User,
+	escapeMarkdown,
 	time
 } from "discord.js";
 
@@ -46,6 +47,12 @@ import appleMusic from "../extractors/apple-music/index.js";
 import amazonMusic from "../extractors/amazon-music/index.js";
 import tidalMusic from "../extractors/tidal/index.js";
 import { recordPlayedTrack } from "../modules/musicHistory.js";
+import {
+	NowPlayingPayload,
+	openNowPlayingPanel
+} from "../modules/nowPlayingPanel.js";
+import { secureRandomFloat } from "./random.js";
+import { profilTable } from "../../Events/client/ready.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -55,13 +62,13 @@ export type PlayInteraction =
 export type PlayResponsePayload = Pick<
 	MessageReplyOptions,
 	"allowedMentions" | "content" | "embeds"
->;
+> &
+	Partial<NowPlayingPayload>;
 
 const youtube = await Innertube.create();
 
 export interface HandleMusicPlayOptions {
 	client: Client;
-	deleteAfterMs?: number;
 	interaction: PlayInteraction;
 	lang: LanguageData;
 	queries: string[];
@@ -74,7 +81,6 @@ export interface SearchMusicQueryResult {
 }
 
 const NO_RESULT_EMBED_COLOR = "#ff0000";
-const SUCCESS_EMBED_COLOR = "#00cc1a";
 const QUEUE_ADD_EMBED_COLOR = 2829617;
 const DEFAULT_VOLUME = 75;
 
@@ -83,16 +89,6 @@ export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder {
 		.setTitle(lang.p_embed_title)
 		.setColor(NO_RESULT_EMBED_COLOR)
 		.setTimestamp();
-}
-
-export function buildTrackDuration(track: Track): string {
-	const totalDurationMs = track.info.duration;
-	const totalDurationSec = Math.floor(totalDurationMs / 1000);
-	const hours = Math.floor(totalDurationSec / 3600);
-	const minutes = Math.floor((totalDurationSec % 3600) / 60);
-	const seconds = totalDurationSec % 60;
-
-	return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 export function isUrlQuery(query: string): boolean {
@@ -724,15 +720,6 @@ export async function searchMusicQuery(
 	return {};
 }
 
-export function platformLabel(url: string, lang: LanguageData): string {
-	if (url.includes("deezer")) {
-		return `\n-# ${client.iHorizon_Emojis.Deezer} [${lang.var_source} Deezer](${url})`;
-	} else if (url.includes("soundcloud")) {
-		return `\n-# ${client.iHorizon_Emojis.SoundCloud} [${lang.var_source} SoundCloud](${url})`;
-	}
-	return "";
-}
-
 export async function sendQueueAddMessage(
 	interaction: PlayInteraction,
 	lang: LanguageData,
@@ -767,7 +754,6 @@ export async function sendQueueAddMessage(
 
 export async function handleMusicPlay({
 	client,
-	deleteAfterMs = 3000,
 	interaction,
 	lang,
 	queries,
@@ -904,24 +890,41 @@ export async function handleMusicPlay({
 		return;
 	}
 
+	// The reply is the live now playing panel. When the requested track was
+	// queued behind another one, the panel shows what plays now plus a note.
 	const firstTrack = firstResult.tracks[0];
-	const embed = new EmbedBuilder()
-		.setDescription(
-			`**${firstTrack.info.title}**${platformLabel(firstTrack.info.uri, lang)}`
-		)
-		.setColor(SUCCESS_EMBED_COLOR)
-		.setTimestamp()
-		.setFooter({ text: lang.p_duration + buildTrackDuration(firstTrack) })
-		.setThumbnail(firstTrack.info.artworkUrl as string);
+	const notes: string[] = [];
+	const current = player.queue.current;
+	const startedNow =
+		!!current &&
+		(current.encoded && firstTrack.encoded
+			? current.encoded === firstTrack.encoded
+			: current.info.identifier === firstTrack.info.identifier);
+	if (!startedNow) {
+		const label =
+			firstResult.loadType === "playlist"
+				? `${firstResult.playlist?.name || firstTrack.info.title} (${firstResult.tracks.length})`
+				: firstTrack.info.title;
+		notes.push(
+			`-# ${lang.event_mp_audioTrackAdd.replace(
+				"${trackTitle}",
+				`**${escapeMarkdown(label || "?")}**`
+			)}`
+		);
+	}
+	if (
+		secureRandomFloat() < 1 / 3 &&
+		!(await profilTable.get(`${requester.id}`))
+	) {
+		notes.push(lang.even_mp_playerStart_tip);
+	}
 
-	const response = await respond({
-		content: lang.p_loading_message
-			.replace("${emoji_Timer}", client.iHorizon_Emojis.Timer)
-			.replace(
-				"{result}",
-				firstResult.loadType === "playlist" ? "playlist" : "track"
-			),
-		embeds: [embed]
+	await openNowPlayingPanel({
+		client,
+		lang,
+		guildId: player.guildId,
+		send: respond,
+		notes
 	});
 
 	await client.db.push(
@@ -933,10 +936,4 @@ export async function handleMusicPlay({
 		`${player.guildId}.MUSIC_HISTORY.embed`,
 		`${time(new Date(), "R")}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
 	);
-
-	setTimeout(() => {
-		response
-			.edit({ content: null, allowedMentions: { repliedUser: false } })
-			.catch(() => null);
-	}, deleteAfterMs);
 }
