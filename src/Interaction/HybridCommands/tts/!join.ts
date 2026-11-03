@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 		if (!voiceChannel) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_not_in_voice.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 		if (!voiceChannel.isTextBased()) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_not_text_based.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 			if (existingPlayer && existingPlayer.connected) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.tts_join_already_enabled.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 		if (musicPlayer && musicPlayer.playing) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_music_playing.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -110,7 +110,7 @@ export const subCommand: SubCommand = {
 		if (h247Data?.enabled && voiceChannel.id !== h247Data.voiceChannelId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_tts_refused.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -131,10 +131,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_enabled
 					.replace("${voiceChannel}", voiceChannel.toString())
-					.replace(
-						"${client.iHorizon_Emojis.Yes}",
-						client.iHorizon_Emojis.Yes
-					)
+					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 			});
 		} catch (err) {
 			logger.err(
@@ -142,7 +139,7 @@ export const subCommand: SubCommand = {
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_error.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});

@@ -65,10 +65,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.notifier_config_channel_logsEmbed_title,
 			description: lang.notifier_config_channel_logsEmbed_desc
-				.replace(
-					"${interaction.user.id}",
-					interaction.member.toString()
-				)
+				.replace("${authorId}", interaction.member.toString())
 				.replace("${channel}", channel.toString())
 		});
 
@@ -79,7 +76,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.notifier_config_message_command_ok.replace(
-				"${channel.toString()}",
+				"${channel}",
 				channel.toString()
 			)
 		});

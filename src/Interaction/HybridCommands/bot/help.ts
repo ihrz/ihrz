@@ -113,41 +113,32 @@ async function handleCategorySelect(
 			.setColor("#001eff")
 			.setDescription(
 				lang.help_tip_embed
+					.replaceAll("${botName}", i.client.user.username)
+					.replaceAll("${emoji_Pin}", client.iHorizon_Emojis.Pin)
 					.replaceAll(
-						"${client.user?.username}",
-						i.client.user.username
-					)
-					.replaceAll(
-						"${client.iHorizon_Emojis.Pin}",
-						client.iHorizon_Emojis.Pin
-					)
-					.replaceAll(
-						"${categories.length}",
+						"${categorieCount}",
 						categories.length.toString()
 					)
 					.replaceAll(
-						"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+						"${emoji_Slash_Bot_Badge}",
 						client.iHorizon_Emojis.Slash_Bot_Badge
 					)
 					.replaceAll(
-						"${client.content.filter(c => c.messageCmd === false).length}",
+						"${slashCount}",
 						i.client.content.length.toString()
 					)
+					.replaceAll("${emoji_Crown}", client.iHorizon_Emojis.Crown)
+					.replaceAll("${owner1}", client.owners[0])
 					.replaceAll(
-						"${client.iHorizon_Emojis.Crown}",
-						client.iHorizon_Emojis.Crown
-					)
-					.replaceAll("${config.owner.ownerid1}", client.owners[0])
-					.replaceAll(
-						"${config.owner.ownerid2}",
+						"${owner2}",
 						client.owners[1] ?? client.owners[0]
 					)
 					.replaceAll(
-						"${client.iHorizon_Emojis.VC_Region}",
+						"${emoji_VC_Region}",
 						client.iHorizon_Emojis.VC_Region
 					)
 					.replaceAll(
-						"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+						"${emoji_Slash_Bot_Badge}",
 						client.iHorizon_Emojis.Slash_Bot_Badge
 					)
 			)
@@ -475,7 +466,7 @@ export const command: Command = {
 							.setLabel(category.name)
 							.setDescription(
 								lang.help_select_menu_fields_desc.replace(
-									"${categories[index].value.length}",
+									"${commandCount}",
 									category.value.length.toString()
 								)
 							)
@@ -499,43 +490,34 @@ export const command: Command = {
 				.setDescription(
 					lang.help_tip_embed
 						.replaceAll(
-							"${client.user?.username}",
+							"${botName}",
 							interaction.client.user.username
 						)
+						.replaceAll("${emoji_Pin}", client.iHorizon_Emojis.Pin)
 						.replaceAll(
-							"${client.iHorizon_Emojis.Pin}",
-							client.iHorizon_Emojis.Pin
-						)
-						.replaceAll(
-							"${categories.length}",
+							"${categorieCount}",
 							categories.length.toString()
 						)
 						.replaceAll(
-							"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+							"${emoji_Slash_Bot_Badge}",
 							client.iHorizon_Emojis.Slash_Bot_Badge
 						)
 						.replaceAll(
-							"${client.content.filter(c => c.messageCmd === false).length}",
+							"${slashCount}",
 							client.content.length.toString()
 						)
 						.replaceAll(
-							"${client.iHorizon_Emojis.Crown}",
+							"${emoji_Crown}",
 							client.iHorizon_Emojis.Crown
 						)
+						.replaceAll("${owner1}", client.owners[0])
+						.replaceAll("${owner2}", client.owners[1] ?? "")
 						.replaceAll(
-							"${config.owner.ownerid1}",
-							client.owners[0]
-						)
-						.replaceAll(
-							"${config.owner.ownerid2}",
-							client.owners[1] ?? ""
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.VC_Region}",
+							"${emoji_VC_Region}",
 							client.iHorizon_Emojis.VC_Region
 						)
 						.replaceAll(
-							"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+							"${emoji_Slash_Bot_Badge}",
 							client.iHorizon_Emojis.Slash_Bot_Badge
 						)
 				)

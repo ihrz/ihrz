@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempban_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -114,11 +114,8 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.tempban_user_highest_role_or_same
-						.replace(
-							"${client.iHorizon_Emojis.No}",
-							client.iHorizon_Emojis.No
-						)
-						.replace("${user.toString()}", userToBan.toString())
+						.replace("${emoji_No}", client.iHorizon_Emojis.No)
+						.replace("${user}", userToBan.toString())
 				});
 				return;
 			}
@@ -130,7 +127,7 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.tempban_user_is_admin.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -160,7 +157,7 @@ export const subCommand: SubCommand = {
 		if (!success) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempban_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -168,13 +165,13 @@ export const subCommand: SubCommand = {
 		}
 
 		let content = lang.tempban_command_work
-			.replace("${user.id}", userToBan.id)
+			.replace("${userId}", userToBan.id)
 			.replace("${duration}", bantimeString)
 			.replace("${reason}", reason || lang.var_no_set);
 
 		if (overflow) {
 			content += lang.tempban_max_time_passed.replace(
-				"${client.iHorizon_Emojis.VC_OpenChat}",
+				"${emoji_VC_OpenChat}",
 				client.iHorizon_Emojis.VC_OpenChat
 			);
 		}
@@ -183,8 +180,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.tempban_logs_embed_title,
 			description: lang.tempban_logs_embed_description
-				.replace("${executor.id}", interaction.member.user.id)
-				.replace("${user.id}", userToBan.id)
+				.replace("${executorId}", interaction.member.user.id)
+				.replace("${userId}", userToBan.id)
 				.replace("${duration}", bantimeString)
 				.replace("${reason}", reason || lang.var_no_set)
 		});

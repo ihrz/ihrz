@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.kick_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -86,7 +86,7 @@ export const subCommand: SubCommand = {
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.kick_attempt_kick_your_self.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -100,7 +100,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.kick_attempt_kick_higter_member.replace(
-					"${client.iHorizon_Emojis.Stop}",
+					"${emoji_Stop}",
 					client.iHorizon_Emojis.Stop
 				)
 			});
@@ -110,12 +110,9 @@ export const subCommand: SubCommand = {
 		member
 			.send({
 				content: lang.kick_message_to_the_banned_member
+					.replace(/\${guildName}/g, interaction.guild.name)
 					.replace(
-						/\${interaction\.guild\.name}/g,
-						interaction.guild.name
-					)
-					.replace(
-						/\${interaction\.member\.user\.username}/g,
+						/\${authorUsername}/g,
 						interaction.member.user.username
 					)
 			})
@@ -128,7 +125,7 @@ export const subCommand: SubCommand = {
 			.catch((error) => {
 				return client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -171,11 +168,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.kick_logs_embed_title,
 			description: lang.kick_logs_embed_description
-				.replace(/\${member\.user}/g, member.user.toString())
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
+				.replace(/\${member}/g, member.user.toString())
+				.replace(/\${authorId}/g, interaction.member.user.id)
 		});
 	}
 };

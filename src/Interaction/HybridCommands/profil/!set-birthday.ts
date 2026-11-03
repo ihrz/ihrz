@@ -85,29 +85,17 @@ export const subCommand: SubCommand = {
 		}
 
 		const introduction = lang.profil_birthday_embed_introduction
-			.replaceAll(
-				"${client.iHorizon_Emojis.Sparkles}",
-				client.iHorizon_Emojis.Sparkles
-			)
-			.replace(
-				"${client.iHorizon_Emojis.Crown}",
-				client.iHorizon_Emojis.Crown
-			)
-			.replace(
-				"${interaction.member?.toString()}",
-				interaction.member?.toString()!
-			);
+			.replaceAll("${emoji_Sparkles}", client.iHorizon_Emojis.Sparkles)
+			.replace("${emoji_Crown}", client.iHorizon_Emojis.Crown)
+			.replace("${author}", interaction.member?.toString()!);
 
 		// function to get the current birthday
 		function getBirthdayString(): string {
 			return lang.profil_birthday_embed_current_birthday
-				.replace(
-					"${client.iHorizon_Emojis.Pin}",
-					client.iHorizon_Emojis.Pin
-				)
-				.replace("${birthday.month}", birthday.month)
-				.replace("${birthday.day}", birthday.day)
-				.replace("${birthday.year}", birthday.year);
+				.replace("${emoji_Pin}", client.iHorizon_Emojis.Pin)
+				.replace("${birthdayMonth}", birthday.month)
+				.replace("${birthdayDay}", birthday.day)
+				.replace("${birthdayYear}", birthday.year);
 		}
 
 		const embed = new EmbedBuilder()

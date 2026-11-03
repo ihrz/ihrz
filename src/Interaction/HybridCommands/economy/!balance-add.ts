@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -63,8 +63,8 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.addmoney_command_work
-				.replace("${user.user.id}", user?.id!)
-				.replace("${amount.value}", amount.toString())
+				.replace("${userId}", user?.id!)
+				.replace("${amountValue}", amount.toString())
 		});
 
 		await client.db.add(
@@ -75,12 +75,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.addmoney_logs_embed_title,
 			description: lang.addmoney_logs_embed_description
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
-				.replace(/\${amount\.value}/g, amount.toString())
-				.replace(/\${user\.user\.id}/g, user?.id!)
+				.replace(/\${authorId}/g, interaction.member.user.id)
+				.replace(/\${amountValue}/g, amount.toString())
+				.replace(/\${userId}/g, user?.id!)
 		});
 
 		client.func.economyLogs.addMoney(

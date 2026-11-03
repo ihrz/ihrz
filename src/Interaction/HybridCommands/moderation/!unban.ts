@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unban_bot_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 				if (bans.size == 0) {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.unban_there_is_nobody_banned.replace(
-							"${client.iHorizon_Emojis.No}",
+							"${emoji_No}",
 							client.iHorizon_Emojis.No
 						)
 					});
@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 				if (!bannedID) {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.unban_the_member_is_not_banned.replace(
-							"${client.iHorizon_Emojis.No}",
+							"${emoji_No}",
 							client.iHorizon_Emojis.No
 						)
 					});
@@ -110,10 +110,7 @@ export const subCommand: SubCommand = {
 			title: lang.unban_logs_embed_title,
 			description: lang.unban_logs_embed_description
 				.replace(/\${userID}/g, userID as string)
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
+				.replace(/\${authorId}/g, interaction.member.user.id)
 		});
 	}
 };

@@ -34,7 +34,7 @@ export default {
 	// /add
 	add_disabled_command:
 		"Ви не можете використовувати цю команду, оскільки адміністратор вимкнув команди для тікетів!",
-	add_command_work: "Успішно додано ${member.tag} до вашого тікетів!",
+	add_command_work: "Успішно додано ${memberTag} до вашого тікетів!",
 	add_command_error: "Сталася помилка, будь ласка, спробуйте ще раз.",
 
 	// /close
@@ -58,12 +58,12 @@ export default {
 
 	// /sethereticket
 	sethereticket_panel_select_embed_desc:
-		"# Назва панелі\n```${result.panelName}```\n{msg}\n\n## Категорія\n```{category}```\n",
+		"# Назва панелі\n```${panelName}```\n{msg}\n\n## Категорія\n```{category}```\n",
 
 	// /open
 	open_disabled_command:
 		"Ви не можете використовувати цю команду, оскільки адміністратор вимкнув команди для тікетів!",
-	open_command_work: "Знову відкрито ${interaction.channel}",
+	open_command_work: "Знову відкрито ${channel}",
 	open_command_error: "Сталася помилка, будь ласка, спробуйте ще раз!",
 	open_not_in_ticket:
 		"Ви не можете використовувати цю команду поза каналом для тікетів!",
@@ -74,13 +74,13 @@ export default {
 	remove_not_in_ticket:
 		"Ви не можете використовувати цю команду поза каналом для тікетів!",
 	remove_command_error: "Сталася помилка, будь ласка, спробуйте ще раз.",
-	remove_command_work: "Успішно видалено ${member.tag} з вашого тікету!",
+	remove_command_work: "Успішно видалено ${memberTag} з вашого тікету!",
 
 	// /transript
 	transript_disabled_command:
 		"Ви не можете використовувати цю команду, оскільки адміністратор вимкнув команди для тікетів!",
 	transript_name_sourcebin: " ",
-	transript_title_sourcebin: "Транскрипт чату тікета для ${channel.name}",
+	transript_title_sourcebin: "Транскрипт чату тікета для ${channelName}",
 	transript_command_error: "Сталася помилка, будь ласка, спробуйте ще раз!",
 	transript_command_work:
 		"Ви закрили свій тікет. iHorizon надіслав вам транскрипт.",
@@ -109,12 +109,12 @@ export default {
 	setticketcategory_not_a_category:
 		"Вказаний канал не є категорією, будь ласка, спробуйте ще раз.",
 	setticketcategory_command_work:
-		"<@${interaction.user.id}>, ви встановили категорію для каналу тікетів на `${category.name}`!",
+		"<@${authorId}>, ви встановили категорію для каналу тікетів на `${categoryName}`!",
 
 	// /ticket log-channel
 	ticket_logchannel_embed_title: "Канал логів тікетів",
 	ticket_logchannel_embed_desc:
-		"${interaction.user}, ви встановили канал логів модуля тікетів на ${channel}!",
+		"${author}, ви встановили канал логів модуля тікетів на ${channel}!",
 
 	// Команды для рангов
 	// /level, /setxpchannels, /disablexp
@@ -123,13 +123,11 @@ export default {
 	disablexp_not_admin:
 		":x: | Ви повинні бути адміністратором цього сервера, щоб використовувати цю команду!",
 	disablexp_logs_embed_title_disable: "Логи xp вимкнення",
-	disablexp_logs_embed_description_disable:
-		"<@${interaction.user.id}> вимкнув xp!",
+	disablexp_logs_embed_description_disable: "<@${authorId}> вимкнув xp!",
 	disablexp_command_work_disable:
 		"Ви успішно вимкнули повідомлення про підвищення рівня (xp)!",
 	disablexp_logs_embed_title_enable: "Логи xp увімкнені",
-	disablexp_logs_embed_description_enable:
-		"<@${interaction.user.id}> увімкнув xp!",
+	disablexp_logs_embed_description_enable: "<@${authorId}> увімкнув xp!",
 	disablexp_command_work_enable:
 		"Ви успішно ввімкнули повідомлення про підвищення рівня (xp)!",
 	disablexp_command_work_disable_entierly:
@@ -141,7 +139,7 @@ export default {
 
 	setxpchannels_logs_embed_title_disable: "Логи вимкнення каналів досвіду",
 	setxpchannels_logs_embed_description_disable:
-		"<@${interaction.user.id}> вимкнув користувацькі канали досвіду. Я встановив налаштування за замовчуванням...",
+		"<@${authorId}> вимкнув користувацькі канали досвіду. Я встановив налаштування за замовчуванням...",
 	setxpchannels_already_disabled_disable:
 		"Користувацькі канали досвіду вже вимкнені!",
 	setxpchannels_command_work_disable:
@@ -151,7 +149,7 @@ export default {
 
 	setxpchannels_logs_embed_title_enable: "Логи увімкнення каналів досвіду",
 	setxpchannels_logs_embed_description_enable:
-		"<@${interaction.user.id}> встановив користувацькі канали досвіду на: <#${argsid}>",
+		"<@${authorId}> встановив користувацькі канали досвіду на: <#${argsid}>",
 	setxpchannels_valid_channel_message:
 		"Ви повинні вказати дійсний канал для ваших налаштувань.",
 	setxpchannels_already_with_this_config:
@@ -164,7 +162,7 @@ export default {
 		"Помилка: недостатньо прав або канал не існує",
 
 	// /level
-	level_embed_title: "__**Рівень - XP**__: `${user.username}`",
+	level_embed_title: "__**Рівень - XP**__: `${userUsername}`",
 	level_embed_fields1_name: ":arrow_up:・__Рівень:__",
 	level_embed_fields1_value: "`${currentxp}/${xpNeeded}`",
 	level_embed_fields2_name: ":money_with_wings:・__XP:__",
@@ -173,12 +171,11 @@ export default {
 		"**Для підвищення рівня потрібно потрібно xp!** `${expNeededForLevelUp}`",
 
 	// /ranks leaderboard
-	ranks_leaderboard_embed_title:
-		"Таблиця лідерів рівнів ${interaction.guild?.name}",
+	ranks_leaderboard_embed_title: "Таблиця лідерів рівнів ${guildName}",
 	ranks_leaderboard_top_txt: "Топ #${i}",
-	ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n",
+	ranks_leaderboard_top_txt_raw: "Топ #${i} ${rawText}\n",
 	ranks_leaderboard_txt_text:
-		"👤 ${user} `(${user.globalName})`\n⭐ ➥ **Рівень**: `${a.level || '0'}`\n🔱 ➥ **Загальний XP**: `${a.xptotal}`",
+		"👤 ${user} `(${userGlobalName})`\n⭐ ➥ **Рівень**: `${level}`\n🔱 ➥ **Загальний XP**: `${xpTotal}`",
 
 	// Команды владельца
 	// /owner, /unowner, /blacklist, /unblacklist
@@ -187,37 +184,35 @@ export default {
 	owner_not_owner:
 		"Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду.",
 	owner_already_owner: "Цей користувач уже власник!",
-	owner_is_now_owner:
-		"${member.user.username} тепер власник проекту iHorizon",
+	owner_is_now_owner: "${memberUsername} тепер власник проекту iHorizon",
 
 	// /unowner
 	unowner_not_owner:
 		"Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду.",
 	unowner_cant_unowner_creator:
 		"ННеможливо видалити цього користувача, оскільки він є творцем проекту iHorizon.",
-	unowner_command_work: "${member.username} більше не є власником",
+	unowner_command_work: "${memberUsername} більше не є власником",
 
 	// /blacklist
 	blacklist_not_owner:
 		"Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду.",
 	blacklist_bot_lol: "Не можу внести себе в чорний список x)",
-	blacklist_command_work: "${member.user.username} тепер у чорному списку",
+	blacklist_command_work: "${memberUsername} тепер у чорному списку",
 	blacklist_blacklisted_but_can_ban_him:
-		"${client.iHorizon_Emojis.No} Тепер у чорному списку, не можна заблокувати цього учасника тут, відсутні дозволи?",
-	blacklist_already_blacklisted:
-		"${member.user.username} уже у чорному списку!",
+		"${emoji_No} Тепер у чорному списку, не можна заблокувати цього учасника тут, відсутні дозволи?",
+	blacklist_already_blacklisted: "${memberUsername} уже у чорному списку!",
 	blacklist_no_one_blacklist:
-		"${client.iHorizon_Emojis.No} Нікого не знайдено в чорному списку!",
+		"${emoji_No} Нікого не знайдено в чорному списку!",
 	blacklist_var_no_reason: "Причину не знайдено",
-	blacklist_embed_title: "Чорний список - Сторінка ${i / usersPerPage + 1}",
+	blacklist_embed_title: "Чорний список - Сторінка ${page}",
 
 	// /unblacklist
 	unblacklist_not_owner:
 		"Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду.",
-	unblacklist_command_work: "<@${member.id}> більше не у чорному списку",
-	unblacklist_not_blacklisted: "<@${member.id}> не був у чорному списку",
+	unblacklist_command_work: "<@${memberId}> більше не у чорному списку",
+	unblacklist_not_blacklisted: "<@${memberId}> не був у чорному списку",
 	unblacklist_unblacklisted_but_can_unban_him:
-		"${client.iHorizon_Emojis.No} Тепер не в чорному списку, не можна розблокувати цього учасника тут, відсутні дозволи або його вже розблоковано?",
+		"${emoji_No} Тепер не в чорному списку, не можна розблокувати цього учасника тут, відсутні дозволи або його вже розблоковано?",
 	unblacklist_user_is_not_exist: "Я не можу знайти цього користувача",
 
 	// Команды менеджера приглашений
@@ -230,16 +225,16 @@ export default {
 		"Додано ${amount} запрошень для ${user}",
 	addinvites_logs_embed_title: "Логи менеджера запрошень",
 	addinvites_logs_embed_description:
-		"<@${interaction.user.id}> Додав ${amount} запрошень для <@${user.id}>!",
+		"<@${authorId}> Додав ${amount} запрошень для <@${userId}>!",
 
 	// /invites
 	invites_confirmation_embed_description:
-		"<@${member.user.id}> Має `${inv || 0}` Запрошень (`${Regular || 0}` Звичайних, `${bonus || 0}` Бонусних, `${leaves || 0}` Відказів).",
+		"<@${memberId}> Має `${invites}` Запрошень (`${regular}` Звичайних, `${bonus}` Бонусних, `${leaves}` Відказів).",
 	invites_confirmation_embed_title: "Статистика приглашений",
 
 	// /leaderboard
 	leaderboard_text_inline:
-		"<@${i}> Має **${a.invites || 0}** Запрошень (**${a.regular || 0}** Звичайних **${a.bonus || 0}** Бонусних **${a.leaves || 0}** Відказів)\n",
+		"<@${i}> Має **${invites}** Запрошень (**${regular}** Звичайних **${bonus}** Бонусних **${leaves}** Відказів)\n",
 	leaderboard_default_text: "**__Таблиця лідерів__**",
 
 	// /removeinvites
@@ -249,7 +244,7 @@ export default {
 		"Видалено ${amount} запрошень для ${user}",
 	removeinvites_logs_embed_title: "Логи менеджера запрошень",
 	removeinvites_logs_embed_description:
-		"<@${interaction.user.id}> Видалив ${amount} запрошень для <@${user.id}>!",
+		"<@${authorId}> Видалив ${amount} запрошень для <@${userId}>!",
 
 	// Команды бота
 	// /botinfo, /invite, /kisakay, /ping, /status
@@ -275,7 +270,7 @@ export default {
 
 	// /kisakay
 	kisakay_message:
-		"${client.iHorizon_Emojis.Sparkles} Kisakay - і мій творець і розробник. Завдяки їй та її клавіатурі я з'явився в цьому світі. Я глибоко вдячний їй!✨ ❤️❤️",
+		"${emoji_Sparkles} Kisakay - і мій творець і розробник. Завдяки їй та її клавіатурі я з'явився в цьому світі. Я глибоко вдячний їй!✨ ❤️❤️",
 
 	// /Irisweb
 	irisweb_message:
@@ -290,7 +285,7 @@ export default {
 
 	// /help
 	help_tip_embed:
-		"```${client.user?.username} ・ Меню допомоги```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** доступні категорії команд\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступні слеш-команди\n${client.iHorizon_Emojis.Crown} ・ **Створено** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Чи знаєте ви? ・ Підказки```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} **100% багатомовний**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`",
+		"```${botName} ・ Меню допомоги```\n${emoji_Pin} ・ **${categorieCount}** доступні категорії команд\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** доступні слеш-команди\n${emoji_Crown} ・ **Створено** <@${owner1}>, <@${owner2}>\n\n```Чи знаєте ви? ・ Підказки```\n${emoji_VC_Region} ・ ${botName} **100% багатомовний**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Модерація",
 	help_ranks_fields: "Ранги",
 	help_fun_fields: "Розваги",
@@ -356,7 +351,7 @@ export default {
 	help_voicedashboard_dsc:
 		"Створіть користувацький тимчасовий голосовий канал з інтерфейсом!",
 	help_select_menu: "Зробіть вибір!",
-	help_select_menu_fields_desc: "${categories[index].value.length} Команди",
+	help_select_menu_fields_desc: "${commandCount} Команди",
 	help_back_to_menu: "Основне меню",
 	help_back_to_menu_desc: "Повернутися в основне меню",
 	help_confession_dsc:
@@ -367,12 +362,12 @@ export default {
 	help_antispam_fields: "Антиспам",
 
 	// /say
-	say_footer_msg: "\n\nВідправлено з команди `/say` від ${interaction.user}",
+	say_footer_msg: "\n\nВідправлено з команди `/say` від ${author}",
 
 	// /ping
 	ping_down_msg: "**НЕДОСТУПНО**",
 	ping_embed_desc:
-		"# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.Pointer} **[Середнє]** >> (ср)`${averagePing}` мс.",
+		"# Понг! Статистика мережі ${botName}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${emoji_Crown} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${emoji_Crown} **[Пінг веб-сокету]** `${ping}` мс.\n\n## ${emoji_Pointer} **[Середнє]** >> (ср)`${averagePing}` мс.",
 
 	// Fun commands
 	// /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -388,21 +383,20 @@ export default {
 	duck_embed_title: "кря-кря :duck:",
 
 	// /hack
-	hack_embed_description:
-		"<@${victim.id}> зламаний <@${interaction.user.id}> !",
+	hack_embed_description: "<@${victimId}> зламаний <@${authorId}> !",
 	hack_embed_fields_ip: "IP",
 	hack_embed_fields_email: "Електронна пошта",
 	hack_embed_fields_password: "Пароль",
 
 	// /hug
-	hug_embed_title: "<@${interaction.user.id}> обіймає <@${hug.id}> ❤️",
+	hug_embed_title: "<@${authorId}> обіймає <@${hugId}> ❤️",
 
 	// /kiss
-	kiss_embed_description: "<@${interaction.user.id}> цілує <@${kiss.id}> 💏",
+	kiss_embed_description: "<@${authorId}> цілує <@${kissId}> 💏",
 
 	// /poll
 	poll_not_admin: "У вас немає прав для цього!",
-	poll_embed_title: "__**Опитування**__: `${interaction.user.username}`",
+	poll_embed_title: "__**Опитування**__: `${authorUsername}`",
 	poll_embed_fields_reaction: "Натисніть на реакції нижче.⬇",
 	poll_embed_fields_choice: ":white_check_mark: **Так**\n :x: **Ні** ",
 
@@ -420,10 +414,10 @@ export default {
 	],
 	question_fields_input_embed: ":question:__**Питання**__",
 	question_fields_output_embed: ":grey_exclamation:__**Відповідь:**__",
-	question_embed_title: "__**Питання**__: `${interaction.user.username}`",
+	question_embed_title: "__**Питання**__: `${authorUsername}`",
 
 	// /slap
-	slap_embed_description: "<@${interaction.user.id}> вдарив <@${slap.id}> 😓",
+	slap_embed_description: "<@${authorId}> вдарив <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error: "Помилка під час отримання зображення собаки.",
@@ -431,7 +425,7 @@ export default {
 
 	// /love
 	love_embed_description:
-		"**${user1.username}** + **${user2.username}** = __${randomNumber}%__ любові 💗",
+		"**${user1Username}** + **${user2Username}** = __${randomNumber}%__ любові 💗",
 	love_command_error: "Сталася помилка під час створення зображення",
 
 	// Economy commands
@@ -442,17 +436,15 @@ export default {
 		"Ви не можете виконати цю команду, оскільки у вас немає необхідних прав `АДМІНІСТРАТОР`.",
 	addmoney_logs_embed_title: "Логи економіки",
 	addmoney_logs_embed_description:
-		"Адміністратор <@${interaction.user.id}> додав ${amount.value} монет користувачу <@${user.user.id}>!",
+		"Адміністратор <@${authorId}> додав ${amountValue} монет користувачу <@${userId}>!",
 	addmoney_command_work:
-		"Успішно додано `${amount.value}`$ користувачу <@${user.user.id}>.",
+		"Успішно додано `${amountValue}`$ користувачу <@${userId}>.",
 
 	// /balance
 	balance_dont_have_wallet: "👛 У вас немає гаманця... !",
-	balance_he_dont_have_wallet:
-		"${client.iHorizon_Emojis.Wallet} ${user} не має гаманця... !",
+	balance_he_dont_have_wallet: "${emoji_Wallet} ${user} не має гаманця... !",
 	balance_have_wallet: "👛 У вас є ${bal} монет(и) !",
-	balance_he_have_wallet:
-		"${client.iHorizon_Emojis.Wallet} У ${user} є ${bal} монет(и) !",
+	balance_he_have_wallet: "${emoji_Wallet} У ${user} є ${bal} монет(и) !",
 	balance_embed_fields1_name: "Банк",
 	balance_embed_fields2_name: "На рахунку",
 
@@ -475,7 +467,7 @@ export default {
 	pay_dont_have_enought_to_give:
 		"Це більше коштів, ніж у вас на балансі. Спробуйте ще раз.",
 	pay_command_work:
-		"${interaction.user.username}, ви успішно переказали ${amount}$ користувачеві ${user.user.username}.",
+		"${authorUsername}, ви успішно переказали ${amount}$ користувачеві ${userUsername}.",
 
 	// /removemoney
 	removemoney_not_admin:
@@ -484,7 +476,7 @@ export default {
 	removemoney_embed_fields: "Сума",
 	removemoney_embed_second_fields: "Баланс оновлено",
 	removemoney_logs_embed_description:
-		"<@${interaction.user.id}> видалив ${amount} монет у користувача <@${user.user.id}>!",
+		"<@${authorId}> видалив ${amount} монет у користувача <@${userId}>!",
 	removemoney_logs_embed_title: "Логи економіки",
 
 	// /rob
@@ -493,9 +485,9 @@ export default {
 	rob_dont_enought_error:
 		":x: Вам потрібно щонайменше 250$, щоб грабувати когось.",
 	rob_him_dont_enought_error:
-		":x: У ${user.user.username} недостатньо коштів для грабежу.",
+		":x: У ${userUsername} недостатньо коштів для грабежу.",
 	rob_embed_description:
-		"<@${interaction.user.id}>, ви пограбували <@${user.id}> і втекли з ${random}!",
+		"<@${authorId}>, ви пограбували <@${userId}> і втекли з ${random}!",
 
 	// /weekly
 	weekly_cooldown_error:
@@ -506,46 +498,45 @@ export default {
 
 	// /work
 	work_cooldown_error:
-		"<@${interaction.user.id}>, **Зачекайте ${time} хвилин, перш ніж знову грабувати іншого користувача!**",
-	work_embed_author: "${interaction.user.username}, це було вигідно!",
+		"<@${authorId}>, **Зачекайте ${time} хвилин, перш ніж знову грабувати іншого користувача!**",
+	work_embed_author: "${authorUsername}, це було вигідно!",
 	work_embed_description:
-		"${interaction.user.username}, ви працювали і заробили ${amount}$ !",
+		"${authorUsername}, ви працювали і заробили ${amount}$ !",
 
 	// /withdraw
 	withdraw_cannot_abuse:
-		"${client.iHorizon_Emojis.No} | Ви не можете зняти більшу суму монет, ніж у вас в банку!",
+		"${emoji_No} | Ви не можете зняти більшу суму монет, ніж у вас в банку!",
 	withdraw_embed_title: "Зняття з вашого банку",
 	withdraw_embed_desc:
-		"${interaction.user}, ви зняли ${toWithdraw}${client.iHorizon_Emojis.Coin} з вашого `банку`",
+		"${author}, ви зняли ${toWithdraw}${emoji_Coin} з вашого `банку`",
 	withdraw_embed_fields1_name: "Банк",
 
 	// /deposit
 	deposit_cannot_abuse:
-		"${client.iHorizon_Emojis.No} | Ви не можете внести більшу суму монет, ніж у вас в гаманці!",
+		"${emoji_No} | Ви не можете внести більшу суму монет, ніж у вас в гаманці!",
 	deposit_embed_title: "Внесення в ваш банк",
 	deposit_embed_desc:
-		"${interaction.user}, ви внесли ${toDeposit}${client.iHorizon_Emojis.Coin} в ваш `банк`",
+		"${author}, ви внесли ${toDeposit}${emoji_Coin} в ваш `банк`",
 	deposit_embed_fields1_name: "Банк",
 
 	// /leaderboard
-	economy_leaderboard_embed_title:
-		"Лідерство за економікою `${interaction.guild.name}`",
+	economy_leaderboard_embed_title: "Лідерство за економікою `${guildName}`",
 	economy_leaderboard_embed_fields_value:
-		"<@${userId}> - Банк: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | Баланс: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}",
+		"<@${userId}> - Банк: `${bank}`${emoji_Coin} | Баланс: `${money}`${emoji_Coin}",
 
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | Ви повинні бути адміністратором цього сервера, щоб виконати цю команду!",
 	economy_disable_already_disable:
-		"<@${interaction.user.id}>, Модуль Економіки вже **відключений**!",
+		"<@${authorId}>, Модуль Економіки вже **відключений**!",
 	economy_disable_already_enable:
-		"<@${interaction.user.id}>, Модуль Економіки вже **увімкнений**!",
+		"<@${authorId}>, Модуль Економіки вже **увімкнений**!",
 	economy_disable_set_enable:
-		"<@${interaction.user.id}>, ви успішно **увімкнули** Модуль Економіки!",
+		"<@${authorId}>, ви успішно **увімкнули** Модуль Економіки!",
 	economy_disable_set_disable:
-		"<@${interaction.user.id}>, ви успішно **вимкнули** Модуль Економіки!",
+		"<@${authorId}>, ви успішно **вимкнули** Модуль Економіки!",
 	economy_disable_logs_embed_desc:
-		"<@${interaction.user.id}> змінив(ла) стан Модуля Економіки на `${state}`!",
+		"<@${authorId}> змінив(ла) стан Модуля Економіки на `${state}`!",
 	economy_disable_logs_embed_title: "Логи Економіки",
 
 	// Profil Customisation commands
@@ -560,8 +551,7 @@ export default {
 	// /profil
 	profil_not_description_set: "Опис не встановлено!",
 	profil_unknown: "Невідомо",
-	profil_embed_title:
-		"${client.iHorizon_Emojis.Pin} __Профіль ${member.tag}__",
+	profil_embed_title: "${emoji_Pin} __Профіль ${memberTag}__",
 	profil_embed_fields_nickname: "📝 ・ __Нікнейм__",
 	profil_embed_fields_money: "🪙 ・ __Гроші__",
 	profil_embed_fields_money_value: " Монет",
@@ -580,8 +570,8 @@ export default {
 	serverinfo_verlvl_MEDIUM: "Середній",
 	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
 	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
-	serverinfo_embed_author: "🚩 -> ${interaction.guild.name}",
-	serverinfo_embed_description: "**Опис**: ${interaction.guild.description}",
+	serverinfo_embed_author: "🚩 -> ${guildName}",
+	serverinfo_embed_description: "**Опис**: ${guildDescription}",
 	serverinfo_embed_fields_name: "🏷・**Назва:**",
 	serverinfo_embed_fields_members: "🧔・**Участнивік:**",
 	serverinfo_embed_fields_id: "🆔・**ID:**",
@@ -595,23 +585,23 @@ export default {
 
 	// /setrankroles
 	setrankroles_not_admin:
-		"${client.iHorizon_Emojis.No} Ви не є адміністратором цього сервера. Ви не можете виконати цю команду!",
+		"${emoji_No} Ви не є адміністратором цього сервера. Ви не можете виконати цю команду!",
 	setrankroles_already_this_in_db:
-		"${client.iHorizon_Emojis.No} Ролі рангів вже є в базі даних для цього сервера.",
+		"${emoji_No} Ролі рангів вже є в базі даних для цього сервера.",
 	setrankroles_not_roles_typed:
-		"${client.iHorizon_Emojis.No} Ви не включили жодної ролі у своїй команді!",
+		"${emoji_No} Ви не включили жодної ролі у своїй команді!",
 	setrankroles_command_work:
 		"Тепер, коли ви згадуєте мене `@iHorizon`, я додам наступні ролі: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
-		"<@${interaction.user.id}> встановив ролі рангів на <@&${argsid}>",
+		"<@${authorId}> встановив ролі рангів на <@&${argsid}>",
 	setrankroles_logs_embed_title_enable: "Встановлення ролей рангів",
 	setrankroles_logs_embed_description_disable:
-		"<@${interaction.user.id}> видалив роль рангів!",
+		"<@${authorId}> видалив роль рангів!",
 	setrankroles_logs_embed_title_disable: "Встановлення ролей рангів",
 	setrankroles_command_work_disable:
-		"<@${interaction.user.id}>, ви видалили роль рангів!",
+		"<@${authorId}>, ви видалили роль рангів!",
 	setrankroles_command_error:
-		"${client.iHorizon_Emojis.No} Команда зіткнулася з помилкою! Спробуйте ще раз пізніше.",
+		"${emoji_No} Команда зіткнулася з помилкою! Спробуйте ще раз пізніше.",
 	setrankroles_command_work_with_nicknames:
 		"Тепер, коли ви згадуєте мене з `@iHorizon`, я додам наступні ролі: <@&${argsid}> **Тільки якщо у користувача є ім'я користувача або глобальне ім'я з** `${nicknames}`",
 
@@ -620,8 +610,7 @@ export default {
 		"У цьому каналі немає видалених повідомлень!",
 
 	// /userinfo
-	userinfo_wait_please:
-		"${client.iHorizon_Emojis.Timer} Будь ласка, зачекайте...",
+	userinfo_wait_please: "${emoji_Timer} Будь ласка, зачекайте...",
 	userinfo_embed_fields_1_name: "Значок",
 	userinfo_embed_fields_2_name: "Ім'я користувача",
 	userinfo_embed_fields_3_name: "Показане ім'я",
@@ -631,89 +620,87 @@ export default {
 	userinfo_button_label: "Профіль користувача",
 
 	// /renew
-	renew_channel_send_success: "${interaction.user} канал було відновлено!",
+	renew_channel_send_success: "${author} канал було відновлено!",
 	renew_dont_have_permission: ":x: **Не можна** `Не має дозволу!`",
 	renew_not_administrator:
 		":x: **Ви не є адміністратором для використання цієї команди!**",
 
 	// /prevnames
-	prevnames_embed_title: "Список всіх псевдонімів ${user.username}",
+	prevnames_embed_title: "Список всіх псевдонімів ${userUsername}",
 	prevnames_undetected: "Дані не знайдено!",
 	prevnames_not_admin:
 		"У вас немає дозволу `АДМІНІСТРАТОРА` для виконання цієї команди!",
 	prevnames_data_erased:
 		"Ваші попередні імена користувача були повністю видалені за вашим запитом!",
-	prevnames_embed_footer_text:
-		"iHorizon | Сторінка ${currentPage + 1}/${pages.length}",
+	prevnames_embed_footer_text: "iHorizon | Сторінка ${page}/${pageCount}",
 
 	// /blockbot
 	blockbot_not_owner: ":x: **Ви не є власником сервера!**",
 	blockbot_logs_enable_title: "Журнал блокування бота",
 	blockbot_logs_enable_description:
-		"${interaction.user} (Власник сервера) __увімкнув__ `BlockBot`. Тепер бот **не може** бути доданий на цей сервер!",
+		"${author} (Власник сервера) __увімкнув__ `BlockBot`. Тепер бот **не може** бути доданий на цей сервер!",
 	blockbot_command_work_on_enable:
 		"**Ви увімкнули `BlockBot`**\nТепер бот **не може** бути доданий на цей сервер!",
 	blockbot_command_work_on_disable:
 		"**Ви вимкнули `BlockBot`**\nТепер бот **може** бути доданий на цей сервер!",
 	blockbot_logs_disable_commmand_work: "Журнал блокування бота",
 	blockbot_logs_disable_description:
-		"${interaction.user} (Власник сервера) __вимкнув__ `BlockBot`. Тепер бот **може** бути доданий на цей сервер!",
+		"${author} (Власник сервера) __вимкнув__ `BlockBot`. Тепер бот **може** бути доданий на цей сервер!",
 
 	// /banner
 	banner_guild_embed: "**Це банер сервера!**",
-	banner_user_embed: "**Це банер ${user?.username}!**",
+	banner_user_embed: "**Це банер ${userUsername}!**",
 
 	// /massiverole
 	massiverole_add_command_work:
-		"${interaction.user}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
+		"${author}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
 	massiverole_sub_command_work:
-		"${interaction.user}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
+		"${author}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
 	massiverole_too_much_member:
 		"Занадто багато учасників, операція не може бути виконана через можливі обмеження швидкості!",
 
 	// /nickrole
 	nickrole_add_command_work:
-		"${interaction.user}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
+		"${author}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
 	nickrole_sub_command_work:
-		"${interaction.user}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
+		"${author}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
 	nickrole_too_much_member:
 		"Занадто багато учасників, операція не може бути виконана через можливі обмеження швидкості!",
 
 	// /emoji
 	emoji_send_new_emoji:
-		"__Створено новий емодзі__ з ім'ям **${emoji.name}** ! (${emoji})",
+		"__Створено новий емодзі__ з ім'ям **${emojiName}** ! (${emoji})",
 	emoji_send_err_emoji:
-		"__Помилка при створенні нового емодзі__ з ім'ям **${emoji.name}** !",
+		"__Помилка при створенні нового емодзі__ з ім'ям **${emojiName}** !",
 	emoji_embed_desc_work:
-		"__Створені **${cnt}** емодзі на сервері `${interaction.guild.name}`__\n(${nemj})",
+		"__Створені **${cnt}** емодзі на сервері `${guildName}`__\n(${nemj})",
 
 	// /derank
 	derank_msg_desc_embed:
-		"## Я успішно видалив **${good}** ролей у <@${member.id}>.\n## Однак, не вдалося видалити **${bad}** ролей.",
+		"## Я успішно видалив **${good}** ролей у <@${memberId}>.\n## Однак, не вдалося видалити **${bad}** ролей.",
 	derank_msg_failed: "При видаленні ролей сталася помилка.",
 
 	// /action unban all
 	action_unban_all_embed_desc:
-		"## Розблокувати всіх учасників гільдії\n${client.iHorizon_Emojis.Yes} | Я успішно зняв блокування для `${unbanned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.No} | Я не можу розблокувати `${cannot_unban}` учасника(ів)!",
+		"## Розблокувати всіх учасників гільдії\n${emoji_Yes} | Я успішно зняв блокування для `${unbannedMemberCount}` учасника(ів) у гільдії!\n${emoji_No} | Я не можу розблокувати `${cannot_unban}` учасника(ів)!",
 	action_unban_all_no_banned_members: "Заблокованих учасників немає.",
 
 	// /action unban undo
 	action_unban_undo_embed_desc:
-		"## Скасувати всі розблокування\n${client.iHorizon_Emojis.Yes} | Я успішно забанив `${banned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.No} | Я не можу розблокувати `${cannot_ban}` учасника(ів)!",
+		"## Скасувати всі розблокування\n${emoji_Yes} | Я успішно забанив `${bannedMemberCount}` учасника(ів) у гільдії!\n${emoji_No} | Я не можу розблокувати `${cannot_ban}` учасника(ів)!",
 
 	// /vc
 	vc_embed_desc:
-		'## Стани Голосу\n`${voiceStates?.size}` учасник(ів) у голосовому каналі:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Стани Учасників\n`${membersStates?.size}` учасник(ів) у гільдії:\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "online").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}\n## Стани Бустів\n`${interaction.guild?.premiumSubscriptionCount}` буст(ів) у гільдії,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}',
+		"## Стани Голосу\n`${voiceCount}` учасник(ів) у голосовому каналі:\n${emoji_iHorizon_Streaming} **=>** ${streaming}\n${emoji_iHorizon_Deaf} **=>** ${deafened}\n${emoji_iHorizon_Mute} **=>** ${muted}\n${emoji_iHorizon_Camera} **=>** ${video}\n## Стани Учасників\n`${memberCount}` учасник(ів) у гільдії:\n${emoji_DND} **=>** ${dnd}\n${emoji_Online} **=>** ${online}\n${emoji_Idle} **=>** ${idle}\n${emoji_Invisible} **=>** ${offline}\n## Стани Бустів\n`${boostCount}` буст(ів) у гільдії,\n${members}",
 	vc_embed_fields_1_name: "・Кількість Учасників",
-	vc_embed_fields_1_value:
-		"```py\n${interaction.guild?.memberCount} учасників```",
+	vc_embed_fields_1_value: "```py\n${memberCount} учасників```",
 	vc_embed_fields_2_name: "・Кількість Каналів",
 	vc_embed_fields_2_value:
 		"```py\n${textChannelSize} текстовий(і) канал(и)\n${voiceChannelSize} голосовий(і) канал(и)```",
 
 	// /massmove
 	massmove_results:
-		"${interaction.user}, iHorizon перемістив учасників між голосовими каналами.\n\n**${movedCount}** учасник(ів) було успішно переміщено з ${fromChannel} до ${toChannel}.\n**${errorCount}** учасник(ів) не вдалося перемістити (детальніше див. у журналах сервера).",
+		"${author}, iHorizon перемістив учасників між голосовими каналами.\n\n**${movedCount}** учасник(ів) було успішно переміщено з ${fromChannel} до ${toChannel}.\n**${errorCount}** учасник(ів) не вдалося перемістити (детальніше див. у журналах сервера).",
 	massmove_too_much_member:
 		"Занадто багато учасників, не можу перемістити усіх через можливе обмеження швидкості!",
 
@@ -731,15 +718,14 @@ export default {
 		":x: | Ви повинні бути адміністратором цього сервера!",
 	guildprofil_not_set_reactionrole: "Не встановлено!",
 	guildprofil_set_reactionrole:
-		"**MessageID**: `${i}` -> ${emoji || key} дає роль <@&${rolesID}>\n",
+		"**MessageID**: `${i}` -> ${emoji} дає роль <@&${rolesID}>\n",
 	guildprofil_not_set_ticketFetched: "Не встановлено!",
 	guildprofil_set_ticketFetched: "",
 	guildprofil_not_set_punishPub: "Не встановлено!",
 	guildprofil_set_punishPub:
-		"`${punishPub.punishementType}`: максимум: `${punishPub.amountMax}` прапорців.",
+		"`${punishementType}`: максимум: `${amountMax}` прапорців.",
 	guildprofil_not_set_supportConfig: "Не встановлено!",
-	guildprofil_set_supportConfig:
-		"`${supportConfig.input}` в біо дає роль <@&${supportConfig.rolesId}>.",
+	guildprofil_set_supportConfig: "`${input}` в біо дає роль <@&${rolesId}>.",
 	guildprofil_not_set_setchannelsjoin: "Не встановлено!",
 	guildprofil_set_setchannelsjoin: "",
 	guildprofil_not_set_setchannelsleave: "Не встановлено!",
@@ -754,8 +740,7 @@ export default {
 	guildprofil_set_joinDmMessage: "",
 	guildprofil_not_set_blockpub: "Вимкнено",
 	guildprofil_set_blockpub: "Увімкнено",
-	guildprofil_embed_description:
-		"`Налаштування сервера:` ${interaction.guild.name} !",
+	guildprofil_embed_description: "`Налаштування сервера:` ${guildName} !",
 	guildprofil_embed_fields_joinmessage: "Повідомлення про вхід",
 	guildprofil_embed_fields_leavemessage: "Повідомлення про виход",
 	guildprofil_embed_fields_setchannelsjoin: "Канал для входу",
@@ -773,7 +758,7 @@ export default {
 	guildprofil_disable_xp: "Повідомлення відключені",
 	guildprofil_enable_xp: "Повідомлення увімкнені",
 	guildprofil_another_enable_xp:
-		"Повідомлення увімкнені для надсилання в <#${xp.xpchannels}>",
+		"Повідомлення увімкнені для надсилання в <#${xpChannels}>",
 	guildprofil_embed_fields_blockbot: "Блокування ботів",
 	guildprofil_embed_fields_logs: "Журнали",
 	guildprofil_embed_fields_ranks: "Ранги",
@@ -790,10 +775,10 @@ export default {
 	setchannels_command_error_on_join:
 		"Помилка: відсутні дозволи або канал не існує",
 	setchannels_command_work_on_join:
-		"Ви успішно налаштували модуль входу на канал <#${argsid.id}>",
+		"Ви успішно налаштували модуль входу на канал <#${argsidId}>",
 	setchannels_logs_embed_title_on_join: "Налаштування журналу каналів",
 	setchannels_logs_embed_description_on_join:
-		"<@${interaction.user.id}> встановив модуль входу на: <#${argsid.id}>",
+		"<@${authorId}> встановив модуль входу на: <#${argsidId}>",
 	setchannels_already_this_channel_on_leave:
 		"Модуль вже налаштований на цей канал для виходу!",
 	setchannels_confirmation_message_on_leave:
@@ -801,25 +786,25 @@ export default {
 	setchannels_command_error_on_leave:
 		"Помилка: відсутні дозволи або канал не існує",
 	setchannels_command_work_on_leave:
-		"Ви успішно налаштували модуль виходу на <#${argsid.id}>",
+		"Ви успішно налаштували модуль виходу на <#${argsidId}>",
 	setchannels_logs_embed_title_on_leave: "Налаштування журналу каналів",
 	setchannels_logs_embed_description_on_leave:
-		"<@${interaction.user.id}> встановив канал виходу на: <#${argsid.id}>",
+		"<@${authorId}> встановив канал виходу на: <#${argsidId}>",
 	setchannels_already_on_off: "Канали входу та виходу вже вимкнені",
 	setchannels_command_work_on_off:
 		"Ви успішно вимкнули канали входу та виходу!",
 	setchannels_logs_embed_title_on_off: "Налаштування журналу каналів",
 	setchannels_logs_embed_description_on_off:
-		"<@${interaction.user.id}> видалив усі налаштування каналів входу та виходу!",
+		"<@${authorId}> видалив усі налаштування каналів входу та виходу!",
 	setchannels_button_join: "Змінити канал приєднання",
 	setchannels_button_leave: "Змінити канал виходу",
 	setchannels_button_delete: "Видалити конфігурацію",
 	setchannels_embed_fields_value_join: "Канал приєднання",
 	setchannels_embed_fields_value_leave: "Канал виходу",
 	setchannels_not_a_text_channel:
-		"${client.iHorizon_Emojis.Warning_Icon} Вказаний канал не є текстовим каналом!",
+		"${emoji_Warning_Icon} Вказаний канал не є текстовим каналом!",
 	setchannels_which_channel:
-		"<@${interaction.user.id}>, Який канал ви хочете встановити?",
+		"<@${authorId}>, Який канал ви хочете встановити?",
 	setchannels_title_embed_panel:
 		"Панель конфігурації каналів для налаштувань серверу",
 
@@ -828,7 +813,7 @@ export default {
 		":x: | Для виконання цієї команди ви повинні бути адміністратором цього сервера!",
 	setjoindm_logs_embed_title_on_enable: "Журнал встановлення JoinDm",
 	setjoindm_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив повідомлення при вході в особисті повідомлення!",
+		"<@${authorId}> встановив повідомлення при вході в особисті повідомлення!",
 	setjoindm_not_specified_args_on_enable:
 		"Ви повинні вказати допустиме повідомлення для повідомлення при вході в особисті повідомлення.",
 	setjoindm_confirmation_message_on_enable:
@@ -837,7 +822,7 @@ export default {
 		"Помилка: відсутні дозволи або канал не існує",
 	setjoindm_logs_embed_title_on_disable: "Журнал вимкнення JoinDm",
 	setjoindm_logs_embed_description_on_disable:
-		"<@${interaction.user.id}> вимкнув повідомлення при вході в особисті повідомлення!",
+		"<@${authorId}> вимкнув повідомлення при вході в особисті повідомлення!",
 	setjoindm_confirmation_message_on_disable:
 		"Ви успішно вимкнули повідомлення при вході в особисті повідомлення!",
 	setjoindm_command_error_on_disable:
@@ -869,15 +854,15 @@ export default {
 	setjoinmessage_logs_embed_title_on_enable:
 		"Журнал встановлення повідомлення при вході",
 	setjoinmessage_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив повідомлення при вході!",
+		"<@${authorId}> встановив повідомлення при вході!",
 	setjoinmessage_command_work_on_enable:
-		"${client.iHorizon_Emojis.GreenTick}  | Повідомлення при вході успішно встановлено.",
+		"${emoji_GreenTick}  | Повідомлення при вході успішно встановлено.",
 	setjoinmessage_logs_embed_title_on_disable:
 		"Журнал вимкнення повідомлення при вході",
 	setjoinmessage_logs_embed_description_on_disable:
-		"<@${interaction.user.id}> видалив повідомлення при вході!",
+		"<@${authorId}> видалив повідомлення при вході!",
 	setjoinmessage_command_work_on_disable:
-		"${client.iHorizon_Emojis.Yes} | Повідомлення при вході успішно видалено.",
+		"${emoji_Yes} | Повідомлення при вході успішно видалено.",
 	setjoinmessage_command_work_ls: "Повідомлення при вході:",
 	setjoinmessage_help_embed_fields_custom_name: "Користувацьке повідомлення",
 	setjoinmessage_help_embed_fields_custom_name_empy: "Не встановлено!",
@@ -922,7 +907,7 @@ export default {
 	setjoinroles_help_embed_fields_1_name: "Усі зареєстровані ролі",
 	setjoinroles_logs_embed_title_on_enable: "Журнал ролей приєднання",
 	setjoinroles_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> налаштував ролі приєднання!",
+		"<@${authorId}> налаштував ролі приєднання!",
 	setjoinroles_already_on_enable:
 		"Ролі приєднання вже налаштовані з цією роллю!",
 
@@ -938,22 +923,22 @@ export default {
 	setleavemessage_logs_embed_title_on_enable:
 		"Журнал встановлення повідомлення при виході",
 	setleavemessage_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив повідомлення при виході!",
+		"<@${authorId}> встановив повідомлення при виході!",
 	setleavemessage_command_work_on_enable:
-		"${client.iHorizon_Emojis.Yes} | Успішно встановлено користувацьке повідомлення при виході.",
+		"${emoji_Yes} | Успішно встановлено користувацьке повідомлення при виході.",
 	setleavemessage_logs_embed_title_on_disable:
 		"Журнал вимкнення повідомлення при виході",
 	setleavemessage_logs_embed_description_on_disable:
-		"<@${interaction.user.id}> видалив повідомлення при виході!",
+		"<@${authorId}> видалив повідомлення при виході!",
 	setleavemessage_command_work_on_disable:
-		"${client.iHorizon_Emojis.Yes} | Успішно видалено користувацьке повідомлення при виході.",
+		"${emoji_Yes} | Успішно видалено користувацьке повідомлення при виході.",
 	setleavemessage_command_work_ls: "Повідомлення при виході:",
 	setleavemessage_awaiting_response: "Напишіть повідомлення.",
 
 	// /setup
 	setup_not_admin:
 		":x: | Для виконання цієї команди ви повинні бути адміністратором цього сервера!",
-	setup_command_work: "${client.iHorizon_Emojis.Yes} | Налаштування каналів",
+	setup_command_work: "${emoji_Yes} | Налаштування каналів",
 	setup_command_error:
 		"Бот вже налаштував канали для журналів! Або у бота немає дозволів...",
 
@@ -963,23 +948,23 @@ export default {
 	setlogschannel_not_specified_args:
 		"Ви повинні вказати припустимий канал для вашого модуля.",
 	setlogschannel_confirmation_message:
-		"${client.iHorizon_Emojis.Yes} | Тепер `${typeOfLogs}` налаштовано, встановлено користувачем <@${interaction.user.id}> !",
+		"${emoji_Yes} | Тепер `${typeOfLogs}` налаштовано, встановлено користувачем <@${authorId}> !",
 	setlogschannel_already_this_channel:
 		"На цьому сервері вже є цей канал для журналів!",
 	setlogschannel_already_deleted: "На цьому сервері вже немає `SERVER_LOGS`!",
 	setlogschannel_command_error: "Помилка?",
 	setlogschannel_command_work:
-		"Ви успішно налаштували `${typeOfLogs}` в <#${argsid.id}> !",
+		"Ви успішно налаштували `${typeOfLogs}` в <#${argsidId}> !",
 	setlogschannel_utils_command_work:
-		"Ви успішно налаштували `${typeOfLogs}` в ${argsid.id} !",
+		"Ви успішно налаштували `${typeOfLogs}` в ${argsidId} !",
 	setlogschannel_command_work_on_delete:
-		"Ви успішно видалили всі `SERVER_LOGS` в **${interaction.guild.name}**",
+		"Ви успішно видалили всі `SERVER_LOGS` в **${guildName}**",
 	setlogschannel_logs_embed_title: "Налаштування ServerLogs",
 	setlogschannel_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив `${typeOfLogs}` на <#${argsid.id}>",
+		"<@${authorId}> встановив `${typeOfLogs}` на <#${argsidId}>",
 	setlogschannel_logs_embed_title_on_off: "Налаштування ServerLogs",
 	setlogschannel_logs_embed_description_on_off:
-		"<@${interaction.user.id}> видалив всі `SERVER_LOGS` на сервері!",
+		"<@${authorId}> видалив всі `SERVER_LOGS` на сервері!",
 	setlogschannel_var_roles: "Логи ролей",
 	setlogschannel_var_mods: "Логи модерації",
 	setlogschannel_var_voice: "Логи Голосових каналів",
@@ -998,14 +983,14 @@ export default {
 	joinghostping_add_ok_embed_fields_name: "Всі канали",
 	joinghostping_add_logs_embed_title: "Журнали Join GhostPing",
 	joinghostping_add_logs_embed_desc:
-		"${interaction.user} додав ${channel} до модуля Join GhostPing!",
+		"${author} додав ${channel} до модуля Join GhostPing!",
 
 	// /join-ghostping remove
 	joinghostping_remove_isnt_set: "Канал ${channel} не встановлено!",
 	joinghostping_remove_ok_embed_desc:
 		"Канали були видалені з модуля Join GhostPing!",
 	joinghostping_remove_logs_embed_desc:
-		"${interaction.user} видалив ${channel} з модуля Join GhostPing!",
+		"${author} видалив ${channel} з модуля Join GhostPing!",
 
 	// /automod block mass-mention
 
@@ -1020,13 +1005,12 @@ export default {
 		"Введений вами час недійсний! **Приклад допустимого часу**: `3h; 30m; 4w; 4y` -> 3 години; 30 хвилин; 4 тижні; 4 роки",
 	too_new_account_logEmbed_title: "Модуль TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${interaction.user} увімкнув модуль TooNewAccount. Тепер для облікових записів потрібний мінімальний вік ${beautifulTime}!",
+		"${author} увімкнув модуль TooNewAccount. Тепер для облікових записів потрібний мінімальний вік ${beautifulTime}!",
 	too_new_account_command_work_on_enable:
-		"${interaction.user}, нові учасники, які приєдналися до **${interaction.guild?.name}** з обліковими записами молодше `${beautifulTime}`, будуть видалені.",
-	too_new_account_logEmbed_desc_on_disable:
-		"${interaction.user} вимкнув модуль!",
+		"${author}, нові учасники, які приєдналися до **${guildName}** з обліковими записами молодше `${beautifulTime}`, будуть видалені.",
+	too_new_account_logEmbed_desc_on_disable: "${author} вимкнув модуль!",
 	too_new_account_command_work_on_disable:
-		"${interaction.user}, модуль успішно вимкнено. Дати створення нових облікових записів учасників більше не будуть перевірятися.",
+		"${author}, модуль успішно вимкнено. Дати створення нових облікових записів учасників більше не будуть перевірятися.",
 
 	// Commandes de décompte des membres
 	// /setmembercount
@@ -1044,15 +1028,15 @@ export default {
 	setmembercount_logs_embed_title_on_enable:
 		"Журнал встановлення лічильника учасників",
 	setmembercount_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив лічильник учасників на <#${channel.id}> у `${messagei}`!",
+		"<@${authorId}> встановив лічильник учасників на <#${channelId}> у `${messagei}`!",
 	setmembercount_command_work_on_enable:
-		"${client.iHorizon_Emojis.Yes} | Лічильник учасників успішно встановлено.",
+		"${emoji_Yes} | Лічильник учасників успішно встановлено.",
 	setmembercount_command_work_on_disable:
-		"${client.iHorizon_Emojis.Yes} | Лічильник учасників успішно видалено.",
+		"${emoji_Yes} | Лічильник учасників успішно видалено.",
 	setmembercount_logs_embed_title_on_disable:
 		"Журнал видалення лічильника учасників",
 	setmembercount_logs_embed_description_on_disable:
-		"<@${interaction.user.id}> видалив лічильник учасників з цього сервера!",
+		"<@${authorId}> видалив лічильник учасників з цього сервера!",
 
 	// Команды музыки
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
@@ -1061,8 +1045,7 @@ export default {
 	p_not_in_voice_channel:
 		"Ви повинні бути в голосовому каналі, щоб використовувати цю команду!",
 	p_embed_title: "Немає результатів",
-	p_loading_message:
-		"${client.iHorizon_Emojis.Timer} Завантажується: **{result}**!",
+	p_loading_message: "${emoji_Timer} Завантажується: **{result}**!",
 	p_duration: "Тривалість: ",
 	p_not_allowed:
 		"Посилання, яке ви відправили, не підтримується цим ботом. Будь ласка, використовуйте авторизовані музичні сервіси, такі як Deezer, Spotify, Soundcloud та інші.",
@@ -1074,16 +1057,14 @@ export default {
 	// /nowplaying
 	nowplaying_no_queue: "Зараз нічого не відтворюється",
 	nowplaying_message_embed_title: "Зараз відтворюється",
-	nowplaying_resume_button:
-		"${interaction.user} **продовжив** відтворення музики!",
-	nowplaying_pause_button:
-		"${interaction.user} **поставив(ла) на паузу** музику!",
+	nowplaying_resume_button: "${author} **продовжив** відтворення музики!",
+	nowplaying_pause_button: "${author} **поставив(ла) на паузу** музику!",
 	nowplaying_lyrics_button: "Текст для цієї пісні не знайдено",
-	nowplaying_stop_buttom: "${interaction.user} **зупинив(ла)** музику!",
+	nowplaying_stop_buttom: "${author} **зупинив(ла)** музику!",
 
 	// /pause
 	pause_no_queue:
-		"${client.iHorizon_Emojis.Warning_Icon} - Ви не перебуваєте в голосовому каналі!",
+		"${emoji_Warning_Icon} - Ви не перебуваєте в голосовому каналі!",
 	pause_nothing_playing: "Зараз нічого не відтворюється",
 	pause_var_paused: "Пауза",
 	pause_var_err: "Щось пішло не так",
@@ -1094,7 +1075,7 @@ export default {
 
 	// /skip
 	skip_not_in_voice_channel:
-		"${client.iHorizon_Emojis.Warning_Icon} - Ви не перебуваєте у голосовому каналі!",
+		"${emoji_Warning_Icon} - Ви не перебуваєте у голосовому каналі!",
 	skip_nothing_playing: "Зараз нічого не відтворюється",
 	skip_command_work: "Пропущено {queue}",
 
@@ -1117,10 +1098,8 @@ export default {
 
 	// /music history
 	history_no_entries: "У цьому конкурсі немає записів.",
-	history_embed_title:
-		"Історія Музики ${interaction.guild?.name} | Сторінка ${i / usersPerPage + 1}",
-	history_embed_footer_text:
-		"iHorizon | Сторінка ${currentPage + 1}/${pages.length}",
+	history_embed_title: "Історія Музики ${guildName} | Сторінка ${page}",
+	history_embed_footer_text: "iHorizon | Сторінка ${page}/${pageCount}",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Невідомий заголовок",
@@ -1129,7 +1108,7 @@ export default {
 
 	// /music clear-queue
 	clear_queue_command_ok:
-		"${client.iHorizon_Emojis.Security} | Музичну чергу на цьому Discord-сервері було очищено.",
+		"${emoji_Security} | Музичну чергу на цьому Discord-сервері було очищено.",
 
 	// Команды раздачи призов
 	// /end, /start, /reroll
@@ -1142,7 +1121,7 @@ export default {
 		"Розіграш завершиться менш ніж через (${timeEstimate}) секунд...",
 	end_logs_embed_title: "Журнали завершення розіграшу призів",
 	end_logs_embed_description:
-		"<@${interaction.user.id}> завершив розіграші з ідентифікатором: ${giveaway.messageID}",
+		"<@${authorId}> завершив розіграші з ідентифікатором: ${messageId}",
 	end_command_error: "Цей розіграш вже завершено!",
 
 	// /start
@@ -1153,9 +1132,9 @@ export default {
 		"Розіграш розпочався у каналі ${giveawayChannel}!",
 	start_logs_embed_title: "Журнали початку розіграшу призів",
 	start_logs_embed_description:
-		"<@${interaction.user.id}> розпочав розіграш у каналі: ${giveawayChannel}",
+		"<@${authorId}> розпочав розіграш у каналі: ${giveawayChannel}",
 	start_time_not_valid:
-		"${interaction.user}, вказаний вами час розіграшу недійсний, будь ласка, спробуйте ще раз!",
+		"${author}, вказаний вами час розіграшу недійсний, будь ласка, спробуйте ще раз!",
 
 	// /reroll
 	reroll_not_perm:
@@ -1164,12 +1143,12 @@ export default {
 	reroll_command_work: "Розіграш призів перезапущено!",
 	reroll_logs_embed_title: "Журнали розіграшу призів",
 	reroll_logs_embed_description:
-		"<@${interaction.user.id}> перезапустив розіграш з ідентифікатором: ${giveaway.messageID}",
+		"<@${authorId}> перезапустив розіграш з ідентифікатором: ${messageId}",
 	reroll_command_error: "Помилка!",
 	reroll_giveaway_not_over: "Цей розіграш ще не завершено!",
 
 	// /get-all
-	gw_getall_embed_title: "Список розіграшів для ${interaction.guild?.name}",
+	gw_getall_embed_title: "Список розіграшів для ${guildName}",
 	gw_getall_embed_fields:
 		"${Channel} [Переглянути тут](${MessageURL}) \n**Закінчується через** ${ExpireIn}",
 
@@ -1178,9 +1157,9 @@ export default {
 	gw_getdata_embed_fields_channel: "Канал",
 	gw_getdata_embed_fields_amountWinner: "Кількість переможців",
 	gw_getdata_embed_fields_value_amountWinner:
-		"`${giveawayData.winnerCount}` переможець(ів)",
+		"`${winnerCount}` переможець(ів)",
 	gw_getdata_embed_fields_prize: "Приз",
-	gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`",
+	gw_getdata_embed_fields_value_prize: "`${prize}`",
 	gw_getdata_embed_fields_hostedBy: "Організатор",
 	gw_getdata_embed_fields_isEnded: "Завершено?",
 	gw_getdata_embed_fields_isValid: "Дійсно?",
@@ -1188,7 +1167,7 @@ export default {
 	gw_getdata_embed_fields_entriesAmount: "Кількість учасників",
 	gw_getdata_embed_fields_winners: "Переможець(і)",
 	gw_getdata_embed_fields_value_entriesAmount:
-		"**${(giveawayData.entries as string[]).length}** (використовуйте `/gw list-entries giveaway-id:${giveawayId}` для отримання додаткової інформації)",
+		"**${entries}** (використовуйте `/gw list-entries giveaway-id:${giveawayId}` для отримання додаткової інформації)",
 	gw_getdata_yes: "`Так`",
 	gw_getdata_no: "`Ні`",
 
@@ -1198,133 +1177,124 @@ export default {
 
 	// /avatar
 	avatar_embed_description: "Подивіться на цей чудовий аватар! :D",
-	avatar_embed_title: "__**Аватар**__: `${mentionedUser.username}`",
+	avatar_embed_title: "__**Аватар**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування учасників.",
+		"${emoji_No} | У вас немає дозволу на блокування учасників.",
 	ban_dont_found_member: "🔍 | Не вдалося знайти цього учасника",
 	ban_dont_have_perm_myself:
-		"${client.iHorizon_Emojis.No} | У мене немає дозволу на блокування учасників!",
+		"${emoji_No} | У мене немає дозволу на блокування учасників!",
 	ban_try_to_ban_yourself:
-		"${client.iHorizon_Emojis.No} | Ви не можете заблокувати самих себе!",
+		"${emoji_No} | Ви не можете заблокувати самих себе!",
 	ban_attempt_ban_higter_member:
-		"${client.iHorizon_Emojis.Stop} Ви не можете заблокувати користувача з вищою роллю, ніж у вас...",
-	ban_cant_ban_member:
-		"${client.iHorizon_Emojis.No} | Я не можу заблокувати цього учасника",
+		"${emoji_Stop} Ви не можете заблокувати користувача з вищою роллю, ніж у вас...",
+	ban_cant_ban_member: "${emoji_No} | Я не можу заблокувати цього учасника",
 	ban_message_to_the_banned_member:
-		"Ви були заблоковані на цьому сервері: **${interaction.guild.name}** користувачем `${interaction.member.user.username}`",
-	ban_command_work:
-		"<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>",
+		"Ви були заблоковані на цьому сервері: **${guildName}** користувачем `${authorUsername}`",
+	ban_command_work: "<@${memberId}> заблокований користувачем <@${authorId}>",
 	ban_logs_embed_title: "Логи блокувань",
 	ban_logs_embed_description:
-		"<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>",
+		"<@${memberId}> заблокований користувачем <@${authorId}>",
 
 	// /kick
 	kick_not_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на вигнання учасників.",
+		"${emoji_No} | У вас немає дозволу на вигнання учасників.",
 	kick_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У мене немає дозволу на вигнання учасників!",
+		"${emoji_No} | У мене немає дозволу на вигнання учасників!",
 	kick_attempt_kick_your_self:
-		"${client.iHorizon_Emojis.No} | Ви не можете вигнати самих себе!",
+		"${emoji_No} | Ви не можете вигнати самих себе!",
 	kick_attempt_kick_higter_member:
-		"${client.iHorizon_Emojis.Stop} Ви не можете вигнати користувача з вищою роллю, ніж у вас...",
+		"${emoji_Stop} Ви не можете вигнати користувача з вищою роллю, ніж у вас...",
 	kick_message_to_the_banned_member:
-		"Ви були вигнані з цього серверу: **${interaction.guild.name}** користувачем `${interaction.member.user.username}`",
-	kick_command_work:
-		"${member.user} був вигнаний користувачем ${interaction.user}",
+		"Ви були вигнані з цього серверу: **${guildName}** користувачем `${authorUsername}`",
+	kick_command_work: "${member} був вигнаний користувачем ${author}",
 	kick_logs_embed_title: "Логи вигнань",
 	kick_logs_embed_description:
-		"${member.user} був вигнаний користувачем <@${interaction.user.id}>",
+		"${member} був вигнаний користувачем <@${authorId}>",
 
 	// /clear
 	clear_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на керування повідомленнями (`MANAGE_MESSAGES`).",
+		"${emoji_No} | У вас немає дозволу на керування повідомленнями (`MANAGE_MESSAGES`).",
 	clear_max_message_limit:
-		"${client.iHorizon_Emojis.No} | Я не можу видалити більше 99 повідомлень за один раз!",
-	clear_channel_message_deleted: "Видалено ${messages.size} повідомлень!",
-	clear_confirmation_message: "${messages.size} повідомлень було видалено!",
+		"${emoji_No} | Я не можу видалити більше 99 повідомлень за один раз!",
+	clear_channel_message_deleted: "Видалено ${messageCount} повідомлень!",
+	clear_confirmation_message: "${messageCount} повідомлень було видалено!",
 	clear_logs_embed_title: "Логи видалення повідомлень",
 	clear_logs_embed_description:
-		"<@${interaction.user.id}> видалив ${messages.size} повідомлень в <#${interaction.channel.id}>",
+		"<@${authorId}> видалив ${messageCount} повідомлень в <#${channelId}>",
 
 	// /lock
 	lock_embed_message_description:
-		"Канал заблоковано користувачем <@${interaction.user.id}>.",
+		"Канал заблоковано користувачем <@${authorId}>.",
 	lock_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування каналів.",
+		"${emoji_No} | У вас немає дозволу на блокування каналів.",
 	lock_logs_embed_title: "Логи блокування каналів",
 	lock_logs_embed_description:
-		"<@${interaction.user.id}> заблокував канал <#${interaction.channel.id}>",
+		"<@${authorId}> заблокував канал <#${channelId}>",
 
 	// /unlock
 	unlock_embed_message_description: "Канал успішно розблоковано!",
 	unlock_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування каналу.",
+		"${emoji_No} | У вас немає дозволу на розблокування каналу.",
 	unlock_logs_embed_title: "Логи розблокування каналів",
 	unlock_logs_embed_description:
-		"<@${interaction.user.id}> розблокував канал <#${interaction.channel.id}>",
+		"<@${authorId}> розблокував канал <#${channelId}>",
 
 	// /lockall
 	lockall_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування всіх каналів.",
+		"${emoji_No} | У вас немає дозволу на блокування всіх каналів.",
 	lockall_embed_message_description:
-		"Всі канали заблоковані користувачем <@${interaction.user.id}>.",
+		"Всі канали заблоковані користувачем <@${authorId}>.",
 	lockall_logs_embed_title: "Логи блокування всіх каналів",
-	lockall_logs_embed_description:
-		"<@${interaction.user.id}> заблокував всі канали!",
+	lockall_logs_embed_description: "<@${authorId}> заблокував всі канали!",
 
 	// /unban
 	unban_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування учасників.",
-	unban_bot_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У мене немає дозволу.",
+		"${emoji_No} | У вас немає дозволу на розблокування учасників.",
+	unban_bot_dont_have_permission: "${emoji_No} | У мене немає дозволу.",
 	unban_there_is_nobody_banned:
-		"${client.iHorizon_Emojis.No} | **На цьому сервері немає забанених учасників!**",
+		"${emoji_No} | **На цьому сервері немає забанених учасників!**",
 	unban_the_member_is_not_banned:
-		"${client.iHorizon_Emojis.No} | **Вказаний ID не забанений на цьому сервері**!",
+		"${emoji_No} | **Вказаний ID не забанений на цьому сервері**!",
 	unban_is_now_unbanned: "<@${userID}> тепер розбанений на цьому сервері!",
 	unban_logs_embed_title: "Логи розбанів",
 	unban_logs_embed_description:
-		"<@${userID}> тепер розбанений на сервері користувачем ${interaction.user.id}!",
+		"<@${userID}> тепер розбанений на сервері користувачем ${authorId}!",
 	unban_reason: "Причина не вказана.",
 
 	// /tempmute
 	tempmute_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на тимчасове блокування учасників.",
-	tempmute_i_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У мене немає дозволу.",
+		"${emoji_No} | У вас немає дозволу на тимчасове блокування учасників.",
+	tempmute_i_dont_have_permission: "${emoji_No} | У мене немає дозволу.",
 	tempmute_cannot_mute_yourself:
-		"${client.iHorizon_Emojis.No} | Ви не можете тимчасово заблокувати самі себе!",
+		"${emoji_No} | Ви не можете тимчасово заблокувати самі себе!",
 	tempmute_already_muted: "Цей користувач вже заблокований!",
-	tempmute_command_work:
-		"<@${tomute.id}> був заблокований на ${ms(ms(mutetime))}",
-	tempmute_unmuted_by_time: "<@${tomute.id}> був розблокований!",
+	tempmute_command_work: "<@${tomuteId}> був заблокований на ${duration}",
+	tempmute_unmuted_by_time: "<@${tomuteId}> був розблокований!",
 	tempmute_logs_embed_title: "Логи тимчасової блокування",
 	tempmute_logs_embed_description:
-		"<@${interaction.user.id}> заблокував <@${tomute.id}> на ${ms(ms(mutetime))}",
+		"<@${authorId}> заблокував <@${tomuteId}> на ${duration}",
 	tempmute_reason_create_roles: "Створено роль для тимчасового блокування!",
 
 	// /unmute
 	unmute_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування учасників.",
+		"${emoji_No} | У вас немає дозволу на розблокування учасників.",
 	unmute_attempt_mute_your_self:
-		"${client.iHorizon_Emojis.No} | Ви не можете розблокувати самі себе!",
-	unmute_i_dont_have_permission:
-		"${client.iHorizon_Emojis.No} | У мене немає дозволу.",
+		"${emoji_No} | Ви не можете розблокувати самі себе!",
+	unmute_i_dont_have_permission: "${emoji_No} | У мене немає дозволу.",
 	unmute_not_muted: "Цей користувач не заблокований!",
 	unmute_muted_role_doesnt_exist:
 		"Роль `muted` не існує. Будь ласка, заблокуйте користувача **перед** створенням ролей для блокування...",
-	unmute_command_work: "<@${tomute.id}> був розблокований!",
+	unmute_command_work: "<@${tomuteId}> був розблокований!",
 	unmute_logs_embed_title: "Логи розблокування",
-	unmute_logs_embed_description:
-		"<@${interaction.user.id}> розблокував <@${tomute.id}>",
+	unmute_logs_embed_description: "<@${authorId}> розблокував <@${tomuteId}>",
 	unmuteall_no_muted_members: "Заглушених учасників не знайдено.",
 	unmuteall_audit_reason: "Зняти заглушення з усіх",
 	unmuteall_command_work: "Знято заглушення з ${unmuted}/${total} учасників.",
 	unmuteall_logs_embed_title: "Логи масового зняття заглушення",
 	unmuteall_logs_embed_description:
-		"<@${interaction.user.id}> зняв заглушення з ${unmuted}/${total} учасників.",
+		"<@${authorId}> зняв заглушення з ${unmuted}/${total} учасників.",
 
 	// Команды резервного копирования
 	// /backup
@@ -1337,40 +1307,39 @@ export default {
 	backup_command_work_on_creation:
 		":white_check_mark: Резервне копіювання успішно створено.",
 	backup_command_work_info_on_creation:
-		"Резервна копія створена! ID: `${backupData.id}`!",
+		"Резервна копія створена! ID: `${id}`!",
 	backup_logs_embed_title_on_creation: "Журнали створення резервної копії",
 	backup_logs_embed_description_on_creation:
-		"<@${interaction.user.id}> Створено резервне копіювання!",
+		"<@${authorId}> Створено резервне копіювання!",
 	backup_dont_have_perm_on_load:
 		":x: | Ви повинні бути адміністратором сервера, щоб завантажити резервну копію!",
 	backup_i_dont_have_perm_on_load: "У мене немає дозволу `АДМІНІСТРАТОР`",
 	backup_unvalid_id_on_load:
 		":x: | Ви повинні вказати дійсний ID резервної копії!",
-	backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - Завантаження...",
+	backup_waiting_on_load: "${emoji_Yes} - Завантаження...",
 	backup_error_on_load:
 		":x: | Вибачте, сталася помилка... Будь ласка, перевірте, що у мене є права адміністратора!",
 	backup_error_when_fetch_backup_on_load:
 		":x: | Резервна копія не знайдена для ${backupID}!",
-	backup_this_is_not_your_backup:
-		"${client.iHorizon_Emojis.No} | Це не ваша резервна копія!",
+	backup_this_is_not_your_backup: "${emoji_No} | Це не ваша резервна копія!",
 	backup_backup_doesnt_exist: "Помилка? Резервна копія не існує.",
 	backup_string_see_v:
-		":placard:・Кількість категорій: `${data.categoryCount}`\n:hash:・Кількість каналів: `${data.channelCount}`",
+		":placard:・Кількість категорій: `${categoryCount}`\n:hash:・Кількість каналів: `${channelCount}`",
 	backup_all_of_your_backup: "**Всі ваші резервні копії:**",
 	backup_string_see_another_v:
-		":placard:・Кількість категорій: `${result.categoryCount}`\n:hash:・Кількість каналів: `${result.channelCount}`",
+		":placard:・Кількість категорій: `${categoryCount}`\n:hash:・Кількість каналів: `${channelCount}`",
 
 	// /backup delete
 	backup_really_want:
-		"${client.iHorizon_Emojis.Warning_Icon} Ви дійсно бажаєте видалити цей резервний файл?",
+		"${emoji_Warning_Icon} Ви дійсно бажаєте видалити цей резервний файл?",
 	backup_confirm_button: "Так, видалити цей резервний файл",
 	backup_cancel_button: "Скасувати дію",
 	backup_embed_title_succefully_deleted:
-		"${client.iHorizon_Emojis.Yes} Резервну копію успішно видалено!",
+		"${emoji_Yes} Резервну копію успішно видалено!",
 	backup_embed_title_cancel_deletion:
-		"${client.iHorizon_Emojis.Yes} Резервна копія збережена!",
+		"${emoji_Yes} Резервна копія збережена!",
 	backup_embed_title_timesup_deletion:
-		"${client.iHorizon_Emojis.No} Час вийшов. Резервна копія збережена!",
+		"${emoji_No} Час вийшов. Резервна копія збережена!",
 
 	// Реакции ролей
 	// /reactionroles
@@ -1382,10 +1351,10 @@ export default {
 		"__як користуватися?__\n/rolesreaction add `<ID повідомлення>` `<реакція>` `<ID ролі>`\n/rolesreaction remove `<ID повідомлення>` `<реакція>`\n/rolesreaction list `<ID повідомлення>`",
 	reactionroles_missing_reaction_added: "Відсутній аргумент: Емодзі реакції",
 	reactionroles_invalid_emote_format_added:
-		"${client.iHorizon_Emojis.No} | Ви не можете надіслати мені `CUSTOM_EMOJI` у форматі `<::xxx>`! Мені потрібно лише їх ID!",
+		"${emoji_No} | Ви не можете надіслати мені `CUSTOM_EMOJI` у форматі `<::xxx>`! Мені потрібно лише їх ID!",
 	reactionroles_logs_embed_title_added: "Логи реакцій на ролі",
 	reactionroles_logs_embed_description_added:
-		"<@${interaction.user.id}> встановив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}` | Роль: ${role}",
+		"<@${authorId}> встановив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}` | Роль: ${role}",
 	reactionroles_command_work_added:
 		"${reaction} було додано до повідомлення ${messagei} для надання ролі ${role}",
 	reactionroles_missing_remove: "`Відсутній аргумент: Емодзі реакції",
@@ -1395,7 +1364,7 @@ export default {
 		"Не вдалося отримати вибрану реакцію в цьому повідомленні!",
 	reactionroles_logs_embed_title_remove: "Логи реакцій на ролі",
 	reactionroles_logs_embed_description_remove:
-		"<@${interaction.user.id}> видалив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}`",
+		"<@${authorId}> видалив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}`",
 	reactionroles_command_work_remove:
 		"${reaction} було видалено з повідомлення ${messagei}",
 	reactionroles_dont_message_found:
@@ -1414,11 +1383,11 @@ export default {
 		"Ви успішно **увімкнули** PunishPub з максимальною кількістю прапорців **${amount}** та покаранням **${punishement}** !",
 	punishpub_logs_embed_title: "Логи PunishPub",
 	punishpub_logs_embed_description:
-		"<@${interaction.user.id}> увімкнув PunishPUB з кількістю прапорців ${amount} та покаранням ${punishement} !",
+		"<@${authorId}> увімкнув PunishPUB з кількістю прапорців ${amount} та покаранням ${punishement} !",
 	punishpub_confirmation_disable: "Ви успішно вимкнули PunishPub",
 	punishpub_logs_embed_title_disable: "Логи PunishPub",
 	punishpub_logs_embed_description_disable:
-		"<@${interaction.user.id}> вимкнув PunishPUB !",
+		"<@${authorId}> вимкнув PunishPUB !",
 
 	// /report
 	report_cooldown_command:
@@ -1433,9 +1402,9 @@ export default {
 	support_not_admin:
 		":x: | Ви повинні бути адміністратором сервера, щоб використовувати ці команди!",
 	support_command_work:
-		"Ви налаштували модуль підтримки для **${interaction.guild.name}**.\nКоли у користувача є в біографії:\n**${input}**.\nЯ повинен дати їм роль <@&${roles.id}>!",
+		"Ви налаштували модуль підтримки для **${guildName}**.\nКоли у користувача є в біографії:\n**${input}**.\nЯ повинен дати їм роль <@&${rolesId}>!",
 	support_command_work_on_disable:
-		"Ви налаштували модуль підтримки для **${interaction.guild.name}**.\nТепер ніхто не може мати роль!",
+		"Ви налаштували модуль підтримки для **${guildName}**.\nТепер ніхто не може мати роль!",
 	support_command_not_role: ":x: | Ви не вказали роль!",
 
 	// /setserverlang
@@ -1443,7 +1412,7 @@ export default {
 		":x: | Ви повинні бути адміністратором сервера, щоб використовувати цю команду!",
 	setserverlang_logs_embed_title_on_enable: "Логи SetServerLang",
 	setserverlang_logs_embed_description_on_enable:
-		"<@${interaction.user.id}> встановив мову iHorizon на **${type}** !",
+		"<@${authorId}> встановив мову iHorizon на **${type}** !",
 	setserverlang_already: "Я вже на цій мові!",
 	setserverlang_command_work_enable: "Тепер моя мова - **${type}**",
 	setserverlang_command_error_enable: "Помилка!",
@@ -1470,13 +1439,13 @@ export default {
 	embed_interaction_not_for_you: "Ця інтеракція не для вас",
 	embed_first_message: "Що ви хочете зробити?",
 	embed_save_message:
-		"<@${interaction.user.id}>, **Ви вирішили зберегти конфігурацію вбудовання!**```ID вбудовання: ${await saveEmbed()}```",
+		"<@${authorId}>, **Ви вирішили зберегти конфігурацію вбудовання!**```ID вбудовання: ${embedId}```",
 	embed_cancel_message:
-		"<@${interaction.user.id}>, **Ви вирішили відмовитися від конфігурації вбудовання!**",
+		"<@${authorId}>, **Ви вирішили відмовитися від конфігурації вбудовання!**",
 	embed_send_message:
-		"<@${interaction.user.id}>, **В якому каналі ви хочете надіслати це вбудовання?**",
+		"<@${authorId}>, **В якому каналі ви хочете надіслати це вбудовання?**",
 	embed_timeout_getbtn:
-		"<@${interaction.user.id}>, **Ви занадто довго не відповідали, я перериваю поточну операцію!**",
+		"<@${authorId}>, **Ви занадто довго не відповідали, я перериваю поточну операцію!**",
 	embed_choose_0: "Яке повідомлення ви хочете включити в вбудовання?",
 	embed_choose_1: "Який заголовок ви хочете включити в вбудовання?",
 	embed_choose_2: "Заголовок вбудовання успішно видалено!",
@@ -1492,10 +1461,10 @@ export default {
 	embed_choose_12:
 		"Який колір ви хочете включити в вбудовання? **www.color-hex.com**",
 	embed_choose_12_error:
-		"${client.iHorizon_Emojis.No} | Неправильний колір! Будь ласка, перевірте **www.color-hex.com**",
+		"${emoji_No} | Неправильний колір! Будь ласка, перевірте **www.color-hex.com**",
 	embed_choose_13: "Колір вбудовання успішно видалено!",
 	embed_send_embed_work:
-		"<@${interaction.user.id}>, **Ви успішно відправили ембет у канал <#${message.content}>!**",
+		"<@${authorId}>, **Ви успішно відправили ембет у канал <#${messageContent}>!**",
 
 	// /rolesaver
 	rolesaver_embed_title: "Модуль RoleSaver",
@@ -1516,85 +1485,81 @@ export default {
 	// /suggest accept
 	suggest_accept_not_admin: "Ви не є адміністратором!",
 	suggest_acceptnot_good_channel:
-		"Цю команду слід виконувати в каналі модуля пропозицій (<#${baseData?.channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
+		"Цю команду слід виконувати в каналі модуля пропозицій (<#${channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
 	suggest_accept_not_found_db: "Пропозиція не знайдена у моїй базі даних!",
 	suggest_accept_already_replied: "На цю пропозицію вже було дано відповідь!",
 	suggest_accept_embed_fields_to_put:
-		"Відповідь від ${interaction.user.username} (Прийнято)",
-	suggest_acceptembed_title_to_put: "[Прийнято] ${msg.embeds[0].data?.title}",
+		"Відповідь від ${authorUsername} (Прийнято)",
+	suggest_acceptembed_title_to_put: "[Прийнято] ${title}",
 	suggest_accept_command_work:
-		"Ви прийняли пропозицію!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}",
+		"Ви прийняли пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error: "Пропозиція не знайдена на Discord-каналі!",
 
 	// /suggest deny
 	suggest_deny_not_admin: "Ви не є адміністратором!",
 	suggest_deny_not_good_channel:
-		"Цю команду слід виконувати в каналі модуля пропозицій (<#${baseData?.channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
+		"Цю команду слід виконувати в каналі модуля пропозицій (<#${channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
 	suggest_deny_not_found_db: "Пропозиція не знайдена у моїй базі даних!",
 	suggest_deny_already_replied: "На цю пропозицію вже було дано відповідь!",
 	suggest_deny_embed_fields_to_put:
-		"Відповідь від ${interaction.user.username} (Відхилено)",
-	suggest_deny_embed_title_to_put: "[Відхилено] ${msg.embeds[0].data?.title}",
+		"Відповідь від ${authorUsername} (Відхилено)",
+	suggest_deny_embed_title_to_put: "[Відхилено] ${title}",
 	suggest_deny_command_work:
-		"Ви відхилили пропозицію!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}",
+		"Ви відхилили пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error: "Пропозиція не знайдена на Discord-каналі!",
 
 	// /suggest reply
 	suggest_reply_not_admin: "Ви не є адміністратором!",
 	suggest_reply_not_good_channel:
-		"Цю команду слід виконувати в каналі модуля пропозицій (<#${baseData?.channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
+		"Цю команду слід виконувати в каналі модуля пропозицій (<#${channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
 	suggest_replynot_found_db: "Пропозиція не знайдена у моїй базі даних!",
 	suggest_reply_already_replied: "На цю пропозицію вже було дано відповідь!",
-	suggest_reply_embed_fields_to_put:
-		"Відповідь від ${interaction.user.username}",
-	suggest_reply_embed_title_to_put:
-		"[Відповідь] ${msg.embeds[0].data?.title}",
+	suggest_reply_embed_fields_to_put: "Відповідь від ${authorUsername}",
+	suggest_reply_embed_title_to_put: "[Відповідь] ${title}",
 	suggest_reply_command_work:
-		"Ви відправили відповідь на пропозицію!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}",
+		"Ви відправили відповідь на пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error: "Пропозиція не знайдена на Discord-каналі!",
 
 	// /suggest delete
 	suggest_delete_not_delete: "Ви не адміністратор!",
 	suggest_delete_not_good_channel:
-		"Цю команду слід виконувати в каналі модуля пропозицій (<#${baseData?.channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
+		"Цю команду слід виконувати в каналі модуля пропозицій (<#${channel}>)!\nПереконайтеся, що модуль пропозицій не вимкнено!",
 	suggest_delete_not_found_db: "Пропозиція не знайдена у моїй базі даних!",
 	suggest_delete_command_work: "Ви видалили пропозицію!",
 	suggest_delete_command_error: "Пропозиція не знайдена на Discord-каналі!",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "Ви не адміністратор!",
-	setsuggest_disable_pw_on:
-		"${interaction.user}, ви увімкнули модуль пропозицій!",
-	setsuggest_disable_pw_off:
-		"${interaction.user}, ви вимкнули модуль пропозицій!",
+	setsuggest_disable_pw_on: "${author}, ви увімкнули модуль пропозицій!",
+	setsuggest_disable_pw_off: "${author}, ви вимкнули модуль пропозицій!",
 
 	// /setsuggest channel
 	setsuggest_channel_not_admin: "Ви не адміністратор!",
 	setsuggest_channel_already_set_with_that:
-		"${interaction.user}, канал модуля пропозицій вже встановлено в ${channel}!",
+		"${author}, канал модуля пропозицій вже встановлено в ${channel}!",
 	setsuggest_channel_embed_title: "Модуль пропозицій встановлено тут!",
 	setsuggest_channel_embed_desc:
 		"Тепер усі користувачі, які мають право надсилати повідомлення тут, можуть пропонувати свої ідеї, надсилаючи повідомлення!",
 	setsuggest_channel_command_work:
-		"${interaction.user}, ви встановили канал модуля пропозицій в ${channel}!",
+		"${author}, ви встановили канал модуля пропозицій в ${channel}!",
 
 	// Команда безопасности
 	// /security
 
 	// /security disable
 	security_disable_not_admin: "Ви не є адміністратором!",
-	security_disable_pw_on: "${interaction.user}, ви увімкнули модуль безпеки!",
-	security_disable_pw_off: "${interaction.user}, ви вимкнули модуль безпеки!",
+	security_disable_pw_on: "${author}, ви увімкнули модуль безпеки!",
+	security_disable_pw_off: "${author}, ви вимкнули модуль безпеки!",
 
 	// /security role-to-give
 	security_role_to_give_not_admin: "Ви не є адміністратором!",
 	security_role_to_give_command_work:
-		"${interaction.user}, ви встановили роль ${role} для модуля безпеки!",
+		"${author}, ви встановили роль ${role} для модуля безпеки!",
 
 	// /security channel
 	security_channel_not_admin: "Ви не є адміністратором!",
 	security_channel_command_work:
-		"${interaction.user}, ви встановили канал ${channel} для модуля безпеки!",
+		"${author}, ви встановили канал ${channel} для модуля безпеки!",
 
 	// Команда расписания
 	// /schedule
@@ -1622,17 +1587,17 @@ export default {
 	schedule_list_not_schedule: "РОЗКЛАД для цього учасника не знайдено!",
 	schedule_list_title_embed: "Список усіх розкладів",
 	schedule_list_fields_embed:
-		"**Закінчується**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n",
+		"**Закінчується**: ${expiresAt}```${title}``````${description}```\n",
 	schedule_list_content_message: "Це список всіх ваших розкладів!",
 	schedule_create_title_embed: "Створення розкладу",
 	schedule_create_when_question:
 		"Коли ви хочете отримувати сповіщення про цей розклад? (Приклад: 6d = 6 днів, 2h = 2 години, 10m = 10 хвилин, 10s = 10 секунд)",
 	schedule_create_not_number_time:
-		"${interaction.user}, ваша відповідь (час, коли ви хочете отримувати сповіщення про цей розклад) не є числом!",
+		"${author}, ваша відповідь (час, коли ви хочете отримувати сповіщення про цей розклад) не є числом!",
 	schedule_create_embed_fields_name_confirm: "Дата сповіщення",
 	schedule_create_embed_title_confirm: "Розклад #${scheduleCode} створено!",
 	schedule_create_confirm_msg:
-		"${interaction.user}, ваш розклад був створений!\nКод: `${scheduleCode}`",
+		"${author}, ваш розклад був створений!\nКод: `${scheduleCode}`",
 
 	// Команда PFPS
 	// /pfps channel, /pfps config
@@ -1641,20 +1606,19 @@ export default {
 	pfps_config_not_admin:
 		":x: У вас немає прав адміністратора для виконання цієї команди",
 	pfps_config_command_action_on:
-		"${interaction.user}, ви увімкнули модуль PFPS.\nЯкщо канал не існує, налаштуйте його за допомогою команди: **/pfps channel**.",
-	pfps_config_command_action_off:
-		"${interaction.user}, ви вимкнули модуль PFPS.",
+		"${author}, ви увімкнули модуль PFPS.\nЯкщо канал не існує, налаштуйте його за допомогою команди: **/pfps channel**.",
+	pfps_config_command_action_off: "${author}, ви вимкнули модуль PFPS.",
 
 	// /pfps channel
 	pfps_channel_not_admin:
 		":x: У вас немає прав адміністратора для виконання цієї команди",
 	pfps_channel_embed_title: "Модуль PFPS налаштовано тут!",
 	pfps_channel_embed_desc:
-		"${interaction.user} налаштував модуль PFPS тут!\nТепер кожні 30 секунд iHorizon буде відправляти аватар випадкового користувача у цій гільдії!\nЯ зроблю все можливе!",
+		"${author} налаштував модуль PFPS тут!\nТепер кожні 30 секунд iHorizon буде відправляти аватар випадкового користувача у цій гільдії!\nЯ зроблю все можливе!",
 	pfps_channel_command_work:
-		"${interaction.user}, ви успішно налаштували модуль PFPS для каналу ${channel}!",
+		"${author}, ви успішно налаштували модуль PFPS для каналу ${channel}!",
 	pfps_channel_command_error:
-		"${interaction.user}, команда повернула помилку. Будь ласка, перевірте, чи існує зазначений канал і чи увімкнено модуль PFPP!",
+		"${author}, команда повернула помилку. Будь ласка, перевірте, чи існує зазначений канал і чи увімкнено модуль PFPP!",
 
 	// Protection Module
 	// /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
@@ -1681,8 +1645,7 @@ export default {
 		"Тільки власник сервера може додавати/видаляти користувачів зі списку дозволів!",
 	allowlist_add_already_in:
 		"Учасник, якого ви хочете додати до списку дозволів, вже там є!",
-	allowlist_add_command_work:
-		"${member.user} був доданий до списку дозволів!",
+	allowlist_add_command_work: "${member} був доданий до списку дозволів!",
 
 	// /allowlist delete
 	allowlist_delete_not_permited:
@@ -1696,77 +1659,70 @@ export default {
 	allowlist_delete_isnt_in:
 		"Учасник, якого ви хочете видалити зі списку дозволів, не знаходиться там!",
 	allowlist_delete_command_work:
-		"${member.user} був видалений зі списку дозволів!",
+		"${member} був видалений зі списку дозволів!",
 
 	// TempVoice Module
 	// /text, /voice, /status, /staff
 
 	// /voice interface set-text-channel
 	tempvoice_if_text_not_admin:
-		"<@${interaction.user.id}>, у вас немає прав на використання цієї команди!",
+		"<@${authorId}>, у вас немає прав на використання цієї команди!",
 	tempvoice_if_text_desc_embed:
 		"## Інтерфейс тимчасового голосового каналу\nЦей **інтерфейс** може бути використаний для управління тимчасовими голосовими каналами.\n",
-	tempvoice_if_text_fields_value_limit:
-		"${client.iHorizon_Emojis.VC_Limit} **Змінити ліміт**",
-	tempvoice_if_text_fields_value_name:
-		"${client.iHorizon_Emojis.VC_Name} **Змінити назву**",
+	tempvoice_if_text_fields_value_limit: "${emoji_VC_Limit} **Змінити ліміт**",
+	tempvoice_if_text_fields_value_name: "${emoji_VC_Name} **Змінити назву**",
 	tempvoice_if_text_fields_value_region:
-		"${client.iHorizon_Emojis.VC_Region} **Змінити регіон**",
+		"${emoji_VC_Region} **Змінити регіон**",
 	tempvoice_if_text_fields_value_trust:
-		"${client.iHorizon_Emojis.VC_Trust} **Довірений користувач**",
+		"${emoji_VC_Trust} **Довірений користувач**",
 	tempvoice_if_text_fields_value_untrust:
-		"${client.iHorizon_Emojis.VC_Untrust} **Недовірий користувач**",
-	tempvoice_if_text_fields_value_block:
-		"${client.iHorizon_Emojis.VC_Block} **Блокувати**",
+		"${emoji_VC_Untrust} **Недовірий користувач**",
+	tempvoice_if_text_fields_value_block: "${emoji_VC_Block} **Блокувати**",
 	tempvoice_if_text_fields_value_unblock:
-		"${client.iHorizon_Emojis.VC_Unblock} **Розблокувати**",
-	tempvoice_if_text_fields_value_claim:
-		"${client.iHorizon_Emojis.VC_Claim} **Призначити**",
+		"${emoji_VC_Unblock} **Розблокувати**",
+	tempvoice_if_text_fields_value_claim: "${emoji_VC_Claim} **Призначити**",
 	tempvoice_if_text_fields_value_privacy:
-		"${client.iHorizon_Emojis.VC_Privacy} **Конфіденційність**",
+		"${emoji_VC_Privacy} **Конфіденційність**",
 	tempvoice_if_text_fields_value_transfer:
-		"${client.iHorizon_Emojis.VC_Transfer} **Передати**",
-	tempvoice_if_text_fields_value_delete:
-		"${client.iHorizon_Emojis.VC_Delete} **Видалити**",
+		"${emoji_VC_Transfer} **Передати**",
+	tempvoice_if_text_fields_value_delete: "${emoji_VC_Delete} **Видалити**",
 
 	// /voice inteface set-voice-channel
 	tempvoice_vc_not_admin:
-		"<@${interaction.user.id}>, у вас немає прав на використання цієї команди!",
+		"<@${authorId}>, у вас немає прав на використання цієї команди!",
 
 	// /voice interface set-staff-role
 	tempvoice_staff_not_admin:
-		"<@${interaction.user.id}>, у вас немає прав на використання цієї команди!",
+		"<@${authorId}>, у вас немає прав на використання цієї команди!",
 	tempvoice_staff_desc_embed:
-		"## Роль персоналу тимчасового голосового каналу\nТепер <@&${targetedRole?.id}> може увійти в канал у режимі модератора!\n",
+		"## Роль персоналу тимчасового голосового каналу\nТепер <@&${targetedRoleId}> може увійти в канал у режимі модератора!\n",
 
 	// Confessionn Module
 	// /cooldown, /disable, /channel
 
 	// /confession channel
 	confession_channel_command_work:
-		"Панель исповедей була надіслана у ${channel?.toString()}",
+		"Панель исповедей була надіслана у ${channel}",
 	confession_channel_panel_embed_desc:
 		"# **Анонімні Сповіді**\n\nНатисніть кнопку нижче, щоб відкрити форму сповіді. Ви можете написати те, що хочете сповідати. Якщо хочете, можете зробити вашу сповідь приватною.\n\n## **Зробити Сповідь**\n\n*Примітка: Щоб зробити вашу сповідь приватною, вкажіть відповідний варіант у формі.*",
 	confession_channel_log_embed_title: "Модуль Установки Каналу Сповідей",
 	confession_channel_log_embed_desc:
-		"${interaction.user} встановив канал на ${channel}",
+		"${author} встановив канал на ${channel}",
 
 	// /confession cooldown
 	confession_coolodwn_command_work:
-		"${interaction.user.toString()}, час очікування для сповіді тепер складає **${client.timeCalculator.to_beautiful_string(time)}**!",
+		"${author}, час очікування для сповіді тепер складає **${time}**!",
 	confession_cooldown_log_embed_title:
 		"Модуль Встановлення Часу Очікування Сповідей",
 	confession_cooldown_log_embed_desc:
-		"${interaction.user} встановив час очікування на `${client.timeCalculator.to_beautiful_string(time)}`",
+		"${author} встановив час очікування на `${time}`",
 
 	// /confession disable
 	confession_disable_command_work_on: "Модуль сповідей тепер увімкнено.",
 	confession_disable_command_work_off: "Модуль сповідей тепер вимкнено.",
 	confession_log_embed_title_on_enable: "Увімкнення/Вимкнення Сповідей",
-	confession_log_embed_desc_on_enable:
-		"${interaction.user} увімкнув модуль сповідей!",
-	confession_log_embed_desc_on_disabled:
-		"${interaction.user} вимкнув модуль сповідей!",
+	confession_log_embed_desc_on_enable: "${author} увімкнув модуль сповідей!",
+	confession_log_embed_desc_on_disabled: "${author} вимкнув модуль сповідей!",
 
 	// Модуль AntiSpam
 	// /antispam manage
@@ -1822,17 +1778,17 @@ export default {
 	// События проигрывателя музыки
 
 	event_mp_playerStart:
-		"${client.iHorizon_Emojis.Music_Icon} - Зараз грає `${track.title}` у каналі **${queue.channel.name}** ...",
+		"${emoji_Music_Icon} - Зараз грає `${trackTitle}` у каналі **${queueChannelName}** ...",
 	event_mp_audioTrackAdd:
-		"${client.iHorizon_Emojis.Music_Icon} - ${track.title} було додано до черги!",
-	event_mp_playerError: "Виникли проблеми з підключенням => ${error.message}",
-	event_mp_error: "Виникла проблема з музичною чергою => ${error.message}",
+		"${emoji_Music_Icon} - ${trackTitle} було додано до черги!",
+	event_mp_playerError: "Виникли проблеми з підключенням => ${errorMessage}",
+	event_mp_error: "Виникла проблема з музичною чергою => ${errorMessage}",
 	event_mp_emptyChannel:
-		"${client.iHorizon_Emojis.No} | Ніхто не знаходиться в голосовому каналі, виходимо...",
+		"${emoji_No} | Ніхто не знаходиться в голосовому каналі, виходимо...",
 	event_mp_playerSkip:
-		"${client.iHorizon_Emojis.Music_Icon} - Пропускається **${track.title}** !",
+		"${emoji_Music_Icon} - Пропускається **${trackTitle}** !",
 	event_mp_emptyQueue:
-		"${client.iHorizon_Emojis.Warning_Icon} - Музика зупинена, оскільки в черзі більше немає музики!",
+		"${emoji_Warning_Icon} - Музика зупинена, оскільки в черзі більше немає музики!",
 
 	// События создания канала
 	event_channel_create_message_embed_title: "Успішно налаштовано!",
@@ -1857,16 +1813,16 @@ export default {
 
 	// События модуля билетов:
 	event_ticket_embed_description:
-		"Привіт, ${user.username}, ласкаво просимо до вашого тікета",
+		"Привіт, ${userUsername}, ласкаво просимо до вашого тікета",
 	event_ticket_add_member:
-		"${interaction.user}, ви **додали** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} до тікету ${interaction.channel} !",
+		"${author}, ви **додали** ${addedMembers} до тікету ${channel} !",
 	event_ticket_del_member:
-		"${interaction.user}, ви **видалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} з тікета ${interaction.channel} !",
+		"${author}, ви **видалили** ${removedMembers} з тікета ${channel} !",
 	event_ticket_button_name: "Створити тікет",
 	event_ticket_category_awaiting_response:
-		"Виберіть категорію [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}",
+		"Виберіть категорію [${emoji}] >> ${name}",
 	event_ticket_reason_awaiting_response:
-		"${interaction.user.toString()} чи потрібно користувачеві вказати причину перед створенням тікета?",
+		"${author} чи потрібно користувачеві вказати причину перед створенням тікета?",
 	event_ticket_create_reason_modal_title: "У чому причина вашого звернення?",
 	event_ticket_create_reason_modal_fields_1_label: "Причина звернення",
 	event_ticket_reason_embed_desc: "# Причина звернення\n`${reason}`",
@@ -1890,43 +1846,42 @@ export default {
 
 	// Журналы сервера
 	event_srvLogs_banAdd_description:
-		"<@${firstEntry.executor.id}> **забанив** <@${firstEntry.target.id}>",
+		"<@${executorId}> **забанив** <@${targetId}>",
 	event_srvLogs_banAdd_fields_name: "Причина",
 	event_srvLogs_banAdd_fields_value: "`{reason}`",
 	event_srvLogs_banRemove_description:
-		"<@${firstEntry.executor.id}> **зняв бан** з ${firstEntry.target.username}",
+		"<@${executorId}> **зняв бан** з ${targetUsername}",
 	event_srvLogs_guildMemberRemove_description:
-		"<@${firstEntry.executor.id}> **вигнав** <@${firstEntry.target.id}>",
+		"<@${executorId}> **вигнав** <@${targetId}>",
 	event_srvLogs_guildMemberUpdate_description:
-		"📤 <@${firstEntry.executor.id}> зняв роль ${removedRoles} з ${oldMember.user.username}",
+		"📤 <@${executorId}> зняв роль ${removedRoles} з ${oldMemberUserUsername}",
 	event_srvLogs_guildMemberUpdate_2_description:
-		"📥 <@${firstEntry.executor.id}> додав роль ${addedRoles} до ${oldMember.user.username}",
+		"📥 <@${executorId}> додав роль ${addedRoles} до ${oldMemberUserUsername}",
 	event_srvLogs_messageDelete_description:
-		"**Повідомлення видалено в <#${message.channel.id}>**\n${message.content}",
+		"**Повідомлення видалено в <#${messageChannelId}>**\n${messageContent}",
 	event_srvLogs_messageUpdate_description:
-		"**Повідомлення відредаговане** [в](xxx) **<#${oldMessage.channelId}>**",
+		"**Повідомлення відредаговане** [в](xxx) **<#${oldMessageChannelId}>**",
 	event_srvLogs_messageUpdate_footer_1: "До",
 	event_srvLogs_messageUpdate_footer_2: "Після",
 	event_srvLogs_voiceStateUpdate_description:
-		"📤 <@${targetUser.id}> покинув канал <#${OchannelID}>",
+		"📤 <@${targetUserId}> покинув канал <#${OchannelID}>",
 	event_srvLogs_voiceStateUpdate_2_description:
-		"📥 <@${targetUser.id}> приєднався до каналу <#${channelID}>",
+		"📥 <@${targetUserId}> приєднався до каналу <#${channelID}>",
 	event_srvLogs_voiceStateUpdate_3_description:
-		"<@${targetUser.id}> вимкнув мікрофон у каналі <#${channelID}>",
+		"<@${targetUserId}> вимкнув мікрофон у каналі <#${channelID}>",
 	event_srvLogs_voiceStateUpdate_4_description:
-		"<@${targetUser.id}> увімкнув мікрофон у каналі <#${channelID}>",
+		"<@${targetUserId}> увімкнув мікрофон у каналі <#${channelID}>",
 	event_srvLogs_voiceStateUpdate_5_description:
-		"<@${targetUser.id}> вимкнув звук у каналі <#${channelID}>",
+		"<@${targetUserId}> вимкнув звук у каналі <#${channelID}>",
 	event_srvLogs_voiceStateUpdate_6_description:
-		"<@${targetUser.id}> увімкнув звук у каналі <#${channelID}>",
+		"<@${targetUserId}> увімкнув звук у каналі <#${channelID}>",
 
 	// RankUp event
-	event_rank_role:
-		"<@${message.author.id}>, у вас тепер є нова роль <@&${fetch.id}>",
+	event_rank_role: "<@${messageAuthorId}>, у вас тепер є нова роль <@&${id}>",
 
 	// Событие предложения
 	event_suggestion_embed_author:
-		"Нова пропозиція від ${message.author.username}",
+		"Нова пропозиція від ${messageAuthorUsername}",
 
 	// Событие безопасности
 	event_security:
@@ -1934,61 +1889,60 @@ export default {
 
 	// Событие по билетам
 	event_ticket_whenCreated_msg:
-		"${interaction.user}, ваш тікет був створений, відвідайте <#${channel.id}>!",
+		"${author}, ваш тікет був створений, відвідайте <#${channelId}>!",
 	event_ticket_logsChannel_onCreation_embed_title:
 		"Логи тікетів - Створення панелі",
 	event_ticket_logsChannel_onCreation_embed_desc:
-		"Панель тікетів з назвою `${data.name}` в ${interaction} створена!",
+		"Панель тікетів з назвою `${name}` в ${interaction} створена!",
 	event_ticket_logsChannel_onCreationChannel_embed_title:
 		"Логи тікетів - Створення тікету",
 	event_ticket_logsChannel_onCreationChannel_embed_desc:
-		"Квиток створено: ${interaction.user} (<#${channel.id}>)!",
+		"Квиток створено: ${author} (<#${channelId}>)!",
 	event_ticket_logsChannel_onClose_embed_title:
 		"Логи тікетів - Закриття тікету",
 	event_ticket_logsChannel_onClose_embed_desc:
-		"Квиток тепер закритий ${interaction.user} (<#${interaction.channel.id}>)!",
+		"Квиток тепер закритий ${author} (<#${channelId}>)!",
 	event_ticket_logsChannel_onRemoveMember_embed_title:
 		"Логи тікетів - Видалення учасника з тікету",
 	event_ticket_logsChannel_onRemoveMember_embed_desc:
-		"${member} видалений з тікету ${interaction.user} (<#${interaction.channel.id}>)!",
+		"${member} видалений з тікету ${author} (<#${channelId}>)!",
 	event_ticket_logsChannel_onAddMember_embed_title:
 		"Логи тікетів - Додавання учасника до тікету",
 	event_ticket_logsChannel_onAddMember_embed_desc:
-		"${member} доданий до тікету ${interaction.user} (<#${interaction.channel.id}>)!",
+		"${member} доданий до тікету ${author} (<#${channelId}>)!",
 	event_ticket_logsChannel_onReopen_embed_title:
 		"Логи тікетів - Повторне відкриття тікету",
 	event_ticket_logsChannel_onReopen_embed_desc:
-		"${interaction.user} повторно відкриває тікет (<#${interaction.channel.id}>)!",
+		"${author} повторно відкриває тікет (<#${channelId}>)!",
 	event_ticket_logsChannel_onDelete_embed_title:
 		"Логи тікетів - Видалення тікету",
 	event_ticket_logsChannel_onDelete_embed_desc:
-		"${interaction.user} видалив тікет (#${interaction.channel.name})!",
+		"${author} видалив тікет (#${channelName})!",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"Логи тікетів - Додавання/видалення учасників з тікету",
 	event_ticket_logsChannel_onAddMember2_embed_desc:
-		"${interaction.user}\nВидалені: ${removedMembers}.\nДодані: ${addedMembers}.\n в тікеті (${interaction.channel})!",
+		"${author}\nВидалені: ${removedMembers}.\nДодані: ${addedMembers}.\n в тікеті (${channel})!",
 
 	// Событие раздачи подарков
-	event_gw_reroll_win_msg:
-		"Вітаємо ${winners}! ваш приз **${fetch[channelId][messageId].prize}**!",
+	event_gw_reroll_win_msg: "Вітаємо ${winners}! ваш приз **${prize}**!",
 	event_gw_reroll_cannot_win_msg:
 		"Немає дійсних учасників, тому переможець не може бути визначений!",
-	event_gw_finnish_msg: "Вітаємо ${winners}! Ваш приз **${fetch.prize}**!",
+	event_gw_finnish_msg: "Вітаємо ${winners}! Ваш приз **${prize}**!",
 	event_gw_finnish_cannot_msg:
 		"Немає дійсних учасників, тому переможець не може бути визначений!",
 	event_gw_finnish_button_title: "Розіграш завершено",
 	event_gw_entries_button_title: "Список учасників",
-	event_gw_removeentries_msg: "${interaction.user}, ви покинули цей конкурс!",
+	event_gw_removeentries_msg: "${author}, ви покинули цей конкурс!",
 
 	// Событие логов улучшения
 	event_boostlog_add:
-		"<@${newMember.user.id}> **лише що покращив(ла)** сервер! (**${newMember.guild.premiumSubscriptionCount}** всього покращень)",
+		"<@${newMemberUserId}> **лише що покращив(ла)** сервер! (**${boostCount}** всього покращень)",
 	event_boostlog_sub:
-		"<@${newMember.user.id}> **лише що зняв(ла) своє покращення** з сервера! (**${newMember.guild.premiumSubscriptionCount}** всього покращень)",
+		"<@${newMemberUserId}> **лише що зняв(ла) своє покращення** з сервера! (**${boostCount}** всього покращень)",
 
 	// Модуль Экономики
 	economy_disable_msg:
-		"<@${interaction.user.id}>, `Модуль Економіки` на цьому сервері **відключено**. Тепер ви не можете використовувати модуль економіки!",
+		"<@${authorId}>, `Модуль Економіки` на цьому сервері **відключено**. Тепер ви не можете використовувати модуль економіки!",
 
 	// Модуль TempVoice
 	// Все компоненты, глобальные переменные...
@@ -2018,7 +1972,7 @@ export default {
 
 	temporary_voice_limit_button_menu_label: "Який ліміт користувачів каналу?",
 	temporary_voice_limit_button_not_integer:
-		"${interaction.client.iHorizon_Emojis.No} | Введене значення не є числом",
+		"${emoji_No} | Введене значення не є числом",
 
 	temporary_voice_name_button_menu_label: "Яка назва каналу?",
 
@@ -2061,7 +2015,7 @@ export default {
 	// Сообщение о событии
 
 	protection_avoid_channel_delete:
-		"**РЕЖИМ ЗАХИСТУ УВІМКНЕНО**\n<@${channel.guild.ownerId}>, канал було відновлено, <@${firstEntry.executorId}> намагався видалити канал!",
+		"**РЕЖИМ ЗАХИСТУ УВІМКНЕНО**\n<@${channelGuildOwnerId}>, канал було відновлено, <@${executorId}> намагався видалити канал!",
 
 	// Модуль AntiSpam
 	// Событийное сообщение
@@ -2093,7 +2047,6 @@ export default {
 
 	// Встроенные логи AntiSpam
 	antispam_log_embed_title: "[АнтіСпам] Новий ${actionType}",
-	antispam_log_embed_desc:
-		"${client.user?.toString()} **${actionType}** ${user.toString()}"
+	antispam_log_embed_desc: "${bot} **${actionType}** ${user}"
 	// -----------------------------/ \-----------------------------
 } satisfies Partial<LanguageData>;

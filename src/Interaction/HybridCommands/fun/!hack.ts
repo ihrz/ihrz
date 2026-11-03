@@ -546,8 +546,8 @@ export const subCommand: SubCommand = {
 			.setColor("#800000")
 			.setDescription(
 				lang.hack_embed_description
-					.replace(/\${victim\.id}/g, victim.id)
-					.replace(/\${interaction\.user\.id}/g, user.id)
+					.replace(/\${victimId}/g, victim.id)
+					.replace(/\${authorId}/g, user.id)
 			)
 			.addFields(
 				{

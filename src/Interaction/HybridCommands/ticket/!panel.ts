@@ -839,10 +839,7 @@ export const subCommand: SubCommand = {
 						buildPromptContainer(
 							lang.ticket_panel_saved_and_sended_panel
 								.replace("${panelCode}", panelCode)
-								.replace(
-									"${channel.toString()}",
-									channel.toString()
-								)
+								.replace("${channel}", channel.toString())
 						)
 					],
 					files: [],
@@ -957,7 +954,7 @@ export const subCommand: SubCommand = {
 				components: [
 					buildPromptContainer(
 						lang.ticket_panel_manage_form_title.replace(
-							"${option.name}",
+							"${optionName}",
 							option.name
 						)
 					),
@@ -1363,7 +1360,7 @@ export const subCommand: SubCommand = {
 
 			await i.followUp({
 				content: lang.ticket_panel_tip_about_variable1.replace(
-					"${client.iHorizon_Emojis.VC_OpenChat}",
+					"${emoji_VC_OpenChat}",
 					client.iHorizon_Emojis.VC_OpenChat
 				),
 				flags: MessageFlags.Ephemeral
@@ -1919,7 +1916,7 @@ export const subCommand: SubCommand = {
 				components: [
 					buildPromptContainer(
 						lang.ticket_panel_change_role_interaction_content.replace(
-							"${option.name}",
+							"${optionName}",
 							option.name
 						)
 					),

@@ -73,11 +73,8 @@ export const subCommand: SubCommand = {
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${member?.toString()}", member?.toString()!)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${member}", member?.toString()!)
 			});
 			return;
 		}
@@ -91,25 +88,19 @@ export const subCommand: SubCommand = {
 			const pageContent = pageUsers
 				.map((x) =>
 					lang.warnlist_embed_desc
-						.replace("${x.id}", x.id)
+						.replace("${id}", x.id)
 						.replace(
-							"${format(x.timestamp, 'DD/MM/YYYY')}",
+							"${date}",
 							format(x.timestamp, "DD/MM/YYYY").replace("`", "\`")
 						)
-						.replace("${x.authorID}", x.authorID.replace("`", "\`"))
-						.replace("${x.reason}", x.reason.replace("`", "\`"))
+						.replace("${authorID}", x.authorID.replace("`", "\`"))
+						.replace("${reason}", x.reason.replace("`", "\`"))
 				)
 				.join("\n");
 			pages.push({
 				title: lang.warnlist_embed_title
-					.replace(
-						"${member?.user.globalName}",
-						member?.user.globalName!
-					)
-					.replace(
-						"${i / usersPerPage + 1}",
-						String(i / usersPerPage + 1)
-					),
+					.replace("${memberGlobalName}", member?.user.globalName!)
+					.replace("${page}", String(i / usersPerPage + 1)),
 				description: pageContent
 			});
 		}

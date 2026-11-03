@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 				// Send immediate response
 				await ogInteraction.edit({
 					content: lang.batch_massiverole_process.replace(
-						"${membersToProcess.length}",
+						"${membersToProcessCount}",
 						membersToProcess.length.toString()
 					)
 				});
@@ -124,7 +124,7 @@ export const subCommand: SubCommand = {
 							.setDescription(
 								lang.massiverole_add_command_work
 									.replace(
-										"${interaction.user}",
+										"${author}",
 										interaction.member!.user.toString()
 									)
 									.replace("${a}", a.toString())
@@ -159,7 +159,7 @@ export const subCommand: SubCommand = {
 				.setDescription(
 					lang.massiverole_add_command_work
 						.replace(
-							"${interaction.user}",
+							"${author}",
 							interaction.member.user.toString()
 						)
 						.replace("${a}", a.toString())
@@ -191,7 +191,7 @@ export const subCommand: SubCommand = {
 				// Send immediate response
 				await ogInteraction.edit({
 					content: lang.batch_unmassiverole_process.replace(
-						"${membersToProcess.length}",
+						"${membersToProcessCount}",
 						membersToProcess.length.toString()
 					)
 				});
@@ -227,7 +227,7 @@ export const subCommand: SubCommand = {
 							.setDescription(
 								lang.massiverole_sub_command_work
 									.replace(
-										"${interaction.user}",
+										"${author}",
 										interaction.member!.user.toString()
 									)
 									.replace("${a}", a.toString())
@@ -262,7 +262,7 @@ export const subCommand: SubCommand = {
 				.setDescription(
 					lang.massiverole_sub_command_work
 						.replace(
-							"${interaction.user}",
+							"${author}",
 							interaction.member.user.toString()
 						)
 						.replace("${a}", a.toString())

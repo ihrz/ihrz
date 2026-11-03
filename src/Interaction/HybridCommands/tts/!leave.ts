@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		if (!ttsData || !ttsData.enabled) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_leave_not_active.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 		if (!voiceChannel || voiceChannel.id !== ttsData.voiceChannelId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_leave_not_in_voice.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -74,7 +74,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.tts_leave_disabled.replace(
-				"${client.iHorizon_Emojis.Yes}",
+				"${emoji_Yes}",
 				client.iHorizon_Emojis.Yes
 			)
 		});

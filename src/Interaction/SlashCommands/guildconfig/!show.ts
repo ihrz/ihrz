@@ -119,12 +119,12 @@ export const subCommand: SubCommand = {
 			value: baseData?.GUILD?.PUNISH?.PUNISH_PUB
 				? lang.guildprofil_set_punishPub
 						.replace(
-							/\${punishPub\.punishementType}/g,
+							/\${punishementType}/g,
 							baseData.GUILD?.PUNISH?.PUNISH_PUB
 								?.punishementType ?? ""
 						)
 						.replace(
-							/\${punishPub\.amountMax}/g,
+							/\${amountMax}/g,
 							String(
 								baseData.GUILD?.PUNISH?.PUNISH_PUB?.amountMax ??
 									0
@@ -228,7 +228,7 @@ export const subCommand: SubCommand = {
 				.setColor("#016c9a")
 				.setDescription(
 					lang.guildprofil_embed_description.replace(
-						/\${interaction\.guild\.name}/g,
+						/\${guildName}/g,
 						interaction.guild?.name as string
 					)
 				)
@@ -355,11 +355,8 @@ function supportConfigToString(
 ): string {
 	return supportConfig
 		? lang.guildprofil_set_supportConfig
-				.replace(/\${supportConfig\.input}/g, supportConfig.input ?? "")
-				.replace(
-					/\${supportConfig\.rolesId}/g,
-					supportConfig.rolesId ?? ""
-				)
+				.replace(/\${input}/g, supportConfig.input ?? "")
+				.replace(/\${rolesId}/g, supportConfig.rolesId ?? "")
 		: lang.guildprofil_not_set_supportConfig;
 }
 
@@ -400,10 +397,7 @@ function reactionRolesToString(
 
 					return lang.guildprofil_set_reactionrole
 						.replace(/\${rolesID}/g, rolesID!)
-						.replace(
-							/\${emoji\s*\|\|\s*key}/g,
-							(emoji || key) as string
-						)
+						.replace(/\${emoji}/g, (emoji || key) as string)
 						.replace(/\${i}/g, i);
 				})
 				.join("\n");
@@ -420,7 +414,7 @@ function xpStatsToString(
 	return xp?.disable === false
 		? xp?.xpchannels
 			? lang.guildprofil_another_enable_xp.replace(
-					"${xp.xpchannels}",
+					"${xpChannels}",
 					xp.xpchannels
 				)
 			: lang.guildprofil_enable_xp
@@ -517,7 +511,7 @@ function tooNewAccountToString(
 ): string {
 	return tooNewConfig?.state === true
 		? lang.too_new_account_logEmbed_desc_on_enable
-				.replace("${interaction.user}", user.toString())
+				.replace("${author}", user.toString())
 				.replace("${maxJoin}", String(tooNewConfig.maxJoin || 0))
 				.replace(
 					"${beautifulTime}",

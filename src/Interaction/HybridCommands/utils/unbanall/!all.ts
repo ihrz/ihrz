@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 			interaction,
 			{
 				content: lang.batch_unbanall_process.replace(
-					"${banned_members.size}",
+					"${bannedMemberCount}",
 					banned_members.size.toString()
 				)
 			}
@@ -98,15 +98,15 @@ export const subCommand: SubCommand = {
 							.setDescription(
 								lang.action_unban_all_embed_desc
 									.replace(
-										"${client.iHorizon_Emojis.Yes}",
+										"${emoji_Yes}",
 										client.iHorizon_Emojis.Yes
 									)
 									.replace(
-										"${unbanned_members.length}",
+										"${unbannedMemberCount}",
 										unbanned_members.length.toString()
 									)
 									.replace(
-										"${client.iHorizon_Emojis.No}",
+										"${emoji_No}",
 										client.iHorizon_Emojis.No
 									)
 									.replace(

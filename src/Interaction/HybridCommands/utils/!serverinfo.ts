@@ -59,14 +59,14 @@ export const subCommand: SubCommand = {
 			.setColor("#C3B2A1")
 			.setAuthor({
 				name: lang.serverinfo_embed_author.replace(
-					/\${interaction\.guild\.name}/g,
+					/\${guildName}/g,
 					interaction.guild.name
 				),
 				iconURL: interaction.guild?.iconURL() as string
 			})
 			.setDescription(
 				lang.serverinfo_embed_description.replace(
-					/\${interaction\.guild\.description}/g,
+					/\${guildDescription}/g,
 					interaction.guild.description || "None"
 				)
 			)

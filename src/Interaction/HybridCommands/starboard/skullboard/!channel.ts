@@ -77,15 +77,9 @@ export const subCommand: SubCommand = {
 
 		client.func.method.interactionSend(interaction, {
 			content: lang.skullboard_channel_command_ok
-				.replaceAll(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replaceAll("${channel.toString()}", channel.toString())
-				.replaceAll(
-					"${baseData.threshold}",
-					baseData.threshold.toString()
-				)
+				.replaceAll("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll("${channel}", channel.toString())
+				.replaceAll("${threshold}", baseData.threshold.toString())
 		});
 	}
 };

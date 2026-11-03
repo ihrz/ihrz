@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 			const pageContent = pageUsers.map((userId) => userId).join("\n");
 			pages.push({
 				title: lang.all_bots_embed_title.replace(
-					"${i / usersPerPage + 1}",
+					"${page}",
 					String(i / usersPerPage + 1)
 				),
 				description: pageContent

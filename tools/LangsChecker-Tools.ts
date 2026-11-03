@@ -26,7 +26,11 @@
  * placeholder (`${...}` or `{...}`) present in English but missing or
  * renamed in a translation, which would leave raw text in a message.
  *
- * Usage: bun run check:lang   (exit code 1 when a key is missing or extra)
+ * Placeholders must be plain identifiers (`${roles}`, `${authorId}`,
+ * `${emoji_Yes}`): no expressions such as `${interaction.user.id}`.
+ *
+ * Usage: bun run check:lang   (exit code 1 on a missing / extra key or a
+ * non-identifier placeholder)
  */
 
 import logger from "../src/core/logger.js";
@@ -36,6 +40,7 @@ import { AvailableLanguage } from "../src/core/functions/getLanguageData.js";
 type LangFile = Record<string, string | string[]>;
 
 const PLACEHOLDER = /\$\{[^}]+\}|\{[A-Za-z0-9_.]+\}/g;
+const SIMPLE_PLACEHOLDER = /^\$\{[A-Za-z_][A-Za-z0-9_]*\}$/;
 
 function placeholders(value: string | string[]): string[] {
 	const text = Array.isArray(value) ? value.join("\n") : value;
@@ -52,8 +57,22 @@ let errors = 0;
 let warnings = 0;
 
 for (const { code } of AvailableLanguage) {
-	if (code === "en-US") continue;
 	const lang = await load(code);
+
+	for (const [key, value] of Object.entries(lang)) {
+		for (const placeholder of placeholders(value)) {
+			if (
+				placeholder.startsWith("$") &&
+				!SIMPLE_PLACEHOLDER.test(placeholder)
+			) {
+				logger.err(
+					`${code}: ${key} placeholder ${placeholder} is not a plain name`
+				);
+				errors++;
+			}
+		}
+	}
+	if (code === "en-US") continue;
 
 	const missing = referenceKeys.filter((key) => !(key in lang));
 	const extra = Object.keys(lang).filter((key) => !(key in reference));

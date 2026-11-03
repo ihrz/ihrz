@@ -47,17 +47,17 @@ import maskLink from "../../core/functions/maskLink.js";
  * (tempvoice_if_text_fields_value_*) so both dashboards stay consistent.
  */
 const VOICE_PANEL_EMOJI_MAP: Record<string, string> = {
-	"${client.iHorizon_Emojis.VC_Limit}": "VC_Limit",
-	"${client.iHorizon_Emojis.VC_Name}": "VC_Name",
-	"${client.iHorizon_Emojis.VC_Region}": "VC_Region",
-	"${client.iHorizon_Emojis.VC_Trust}": "VC_Trust",
-	"${client.iHorizon_Emojis.VC_Untrust}": "VC_Untrust",
-	"${client.iHorizon_Emojis.VC_Block}": "VC_Block",
-	"${client.iHorizon_Emojis.VC_Unblock}": "VC_Unblock",
-	"${client.iHorizon_Emojis.VC_Claim}": "VC_Claim",
-	"${client.iHorizon_Emojis.VC_Privacy}": "VC_Privacy",
-	"${client.iHorizon_Emojis.VC_Transfer}": "VC_Transfer",
-	"${client.iHorizon_Emojis.VC_Delete}": "VC_Delete"
+	"${emoji_VC_Limit}": "VC_Limit",
+	"${emoji_VC_Name}": "VC_Name",
+	"${emoji_VC_Region}": "VC_Region",
+	"${emoji_VC_Trust}": "VC_Trust",
+	"${emoji_VC_Untrust}": "VC_Untrust",
+	"${emoji_VC_Block}": "VC_Block",
+	"${emoji_VC_Unblock}": "VC_Unblock",
+	"${emoji_VC_Claim}": "VC_Claim",
+	"${emoji_VC_Privacy}": "VC_Privacy",
+	"${emoji_VC_Transfer}": "VC_Transfer",
+	"${emoji_VC_Delete}": "VC_Delete"
 };
 
 export function buildVoicePanel(
@@ -92,10 +92,7 @@ export function buildVoicePanel(
 	container.addTextDisplayComponents(
 		new TextDisplayBuilder().setContent(
 			`${lang.tempvoice_v2_embed_title
-				.replace(
-					"${client.iHorizon_Emojis.VC_Name}",
-					client.iHorizon_Emojis.VC_Name
-				)
+				.replace("${emoji_VC_Name}", client.iHorizon_Emojis.VC_Name)
 				.replace(
 					"${channelName}",
 					channelName

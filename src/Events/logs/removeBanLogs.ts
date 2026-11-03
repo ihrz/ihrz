@@ -83,11 +83,8 @@ export const event: BotEvent = {
 			.setColor("#010101")
 			.setDescription(
 				data.event_srvLogs_banRemove_description
-					.replace(
-						"${firstEntry.executor.id}",
-						relevantLog?.executor?.id!
-					)
-					.replace("${firstEntry.target.username}", user.username)
+					.replace("${executorId}", relevantLog?.executor?.id!)
+					.replace("${targetUsername}", user.username)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,

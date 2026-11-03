@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 		if (!targetMember) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_lockname_not_in_guild.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 		if (!targetMember.manageable) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_lockname_not_manageable.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_lockname_already_locked.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 			} catch {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.util_lockname_not_manageable.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -126,32 +126,20 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_lockname_logs_embed_title,
 			description: lang.util_lockname_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
-				.replace("${member.id}", targetMember.id)
+				.replace("${authorId}", interaction.member.user.id)
+				.replace("${memberId}", targetMember.id)
 		});
 
 		await client.func.method.interactionSend(
 			interaction,
 			lockedNick
 				? lang.util_lockname_success
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${member.toString()}",
-							targetMember.toString()
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${member}", targetMember.toString())
 						.replace("${nick}", lockedNick)
 				: lang.util_lockname_success_reset
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${member.toString()}",
-							targetMember.toString()
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${member}", targetMember.toString())
 		);
 
 		return;

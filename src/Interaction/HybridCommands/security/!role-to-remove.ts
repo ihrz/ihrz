@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.security_role_to_give_command_work
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace("${role}", role?.toString()!)
 		});
 

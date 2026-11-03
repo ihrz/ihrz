@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -88,14 +88,8 @@ export const subCommand: SubCommand = {
 			const result = data2[i];
 
 			const v = lang.backup_string_see_another_v
-				.replace(
-					"${result.categoryCount}",
-					result.categoryCount.toString()
-				)
-				.replace(
-					"${result.channelCount}",
-					result.channelCount.toString()
-				);
+				.replace("${categoryCount}", result.categoryCount.toString())
+				.replace("${channelCount}", result.channelCount.toString());
 
 			if (result)
 				backups.push({

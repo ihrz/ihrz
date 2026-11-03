@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 			if (!argsid) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_not_roles_typed.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -76,10 +76,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setrankroles_logs_embed_title_enable,
 				description: lang.setrankroles_logs_embed_description_enable
-					.replace(
-						/\${interaction\.user.id}/g,
-						interaction.member.user.id
-					)
+					.replace(/\${authorId}/g, interaction.member.user.id)
 					.replace(/\${argsid}/g, argsid.id)
 			});
 
@@ -91,7 +88,7 @@ export const subCommand: SubCommand = {
 				if (already === argsid.id) {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.setrankroles_already_this_in_db.replace(
-							"${client.iHorizon_Emojis.No}",
+							"${emoji_No}",
 							client.iHorizon_Emojis.No
 						)
 					});
@@ -132,7 +129,7 @@ export const subCommand: SubCommand = {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -143,7 +140,7 @@ export const subCommand: SubCommand = {
 				title: lang.setrankroles_logs_embed_title_disable,
 				description:
 					lang.setrankroles_logs_embed_description_disable.replace(
-						/\${interaction\.user.id}/g,
+						/\${authorId}/g,
 						interaction.member.user.id
 					)
 			});
@@ -155,7 +152,7 @@ export const subCommand: SubCommand = {
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_work_disable.replace(
-						/\${interaction\.user.id}/g,
+						/\${authorId}/g,
 						interaction.member.user.id
 					)
 				});
@@ -164,7 +161,7 @@ export const subCommand: SubCommand = {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});

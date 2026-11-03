@@ -238,7 +238,7 @@ export const subCommand: SubCommand = {
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.utils_wlRoles_logsEmbed_title,
 						description: lang.utils_wlRoles_logsEmbed_desc.replace(
-							"${interaction.member?.user.toString()}",
+							"${author}",
 							interaction.member?.user.toString()!
 						)
 					});

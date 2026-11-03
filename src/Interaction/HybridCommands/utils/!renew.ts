@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
 
 			here.send({
 				content: lang.renew_channel_send_success.replace(
-					/\${interaction\.user}/g,
+					/\${author}/g,
 					interaction.member.user.toString()
 				)
 			});

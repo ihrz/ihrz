@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(
 				lang.economy_shop_embed_title.replace(
-					"${interaction.guild.name}",
+					"${guildName}",
 					interaction.guild.name
 				)
 			)
@@ -253,7 +253,7 @@ export const subCommand: SubCommand = {
 			await i.reply({
 				content: lang.economy_shop_role_purchased
 					.replace("{roleName}", string_role_name)
-					.replace("${role.price}", role.price.toString()),
+					.replace("${rolePrice}", role.price.toString()),
 				flags: [1 << 6]
 			});
 		});

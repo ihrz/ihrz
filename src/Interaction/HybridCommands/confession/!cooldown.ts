@@ -62,12 +62,9 @@ export const subCommand: SubCommand = {
 		);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.confession_coolodwn_command_work
+				.replace("${author}", interaction.member.user.toString())
 				.replace(
-					"${interaction.user.toString()}",
-					interaction.member.user.toString()
-				)
-				.replace(
-					"${client.timeCalculator.to_beautiful_string(time)}",
+					"${time}",
 					client.timeCalculator.to_beautiful_string(time, lang)
 				)
 		});
@@ -75,12 +72,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.confession_cooldown_log_embed_title,
 			description: lang.confession_cooldown_log_embed_desc
+				.replace("${author}", interaction.member.user.toString())
 				.replace(
-					"${interaction.user}",
-					interaction.member.user.toString()
-				)
-				.replace(
-					"${client.timeCalculator.to_beautiful_string(time)}",
+					"${time}",
 					client.timeCalculator.to_beautiful_string(time, lang)
 				)
 		});

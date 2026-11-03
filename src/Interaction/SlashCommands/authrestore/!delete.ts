@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.rc_delete_command_ok.replace(
-						"${interaction.user.toString()}",
+						"${author}",
 						interaction.user.toString()
 					),
 					flags: [1 << 6]

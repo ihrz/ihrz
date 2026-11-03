@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 		) {
 			await interaction.editReply({
 				content: lang.suggest_delete_not_good_channel.replace(
-					"${baseData?.channel}",
+					"${channel}",
 					baseData?.channel
 				),
 				flags: [1 << 6]

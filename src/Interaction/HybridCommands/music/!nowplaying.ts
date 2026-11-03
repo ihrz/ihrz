@@ -504,7 +504,7 @@ export const subCommand: SubCommand = {
 				) {
 					await i.reply({
 						content: lang.music_cannot.replace(
-							"${client.iHorizon_Emojis.No}",
+							"${emoji_No}",
 							emojis.No
 						),
 						flags: [MessageFlags.Ephemeral]
@@ -521,7 +521,7 @@ export const subCommand: SubCommand = {
 							await live.resume();
 							announce(
 								lang.nowplaying_resume_button.replace(
-									"${interaction.user}",
+									"${author}",
 									user
 								)
 							);
@@ -529,7 +529,7 @@ export const subCommand: SubCommand = {
 							await live.pause();
 							announce(
 								lang.nowplaying_pause_button.replace(
-									"${interaction.user}",
+									"${author}",
 									user
 								)
 							);
@@ -541,7 +541,7 @@ export const subCommand: SubCommand = {
 						else await live.stopPlaying();
 						announce(
 							lang.nowplaying_skip_button.replace(
-								"${interaction.user}",
+								"${author}",
 								user
 							)
 						);
@@ -554,7 +554,7 @@ export const subCommand: SubCommand = {
 						await live.setRepeatMode(mode);
 						announce(
 							lang.nowplaying_loop_button
-								.replace("${interaction.user}", user)
+								.replace("${author}", user)
 								.replace("${mode}", loopLabel(mode))
 						);
 						await update(live);
@@ -564,7 +564,7 @@ export const subCommand: SubCommand = {
 						await live.destroy();
 						announce(
 							lang.nowplaying_stop_buttom.replace(
-								"${interaction.user}",
+								"${author}",
 								user
 							)
 						);

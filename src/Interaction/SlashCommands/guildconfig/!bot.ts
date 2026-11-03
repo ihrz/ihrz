@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.blockbot_logs_enable_title,
 				description: lang.blockbot_logs_enable_description.replace(
-					/\${interaction\.user}/g,
+					/\${author}/g,
 					interaction.user.toString()
 				)
 			});
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.blockbot_logs_disable_commmand_work,
 				description: lang.blockbot_logs_disable_description.replace(
-					/\${interaction\.user}/g,
+					/\${author}/g,
 					interaction.user.toString()
 				)
 			});

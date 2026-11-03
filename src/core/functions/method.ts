@@ -682,7 +682,7 @@ async function sendErrorMessage(
 		.setDescription(
 			lang.hybridcommands_args_error_embed_desc
 				.replace(
-					"${currentCommand.name}",
+					"${currentCommandName}",
 					currentCommand.prefixName || currentCommand.name
 				)
 				.replace("${botPrefix}", botPrefix)
@@ -1325,8 +1325,8 @@ async function sendWarnLog(
 		.setTitle(lang.warn_logEmbed_title)
 		.setDescription(
 			lang.warn_logEmbed_desc
-				.replace("${interaction.member.toString()}", author.toString())
-				.replace("${member?.toString()}", member.toString())
+				.replace("${author}", author.toString())
+				.replace("${member}", member.toString())
 				.replace("${reason}", reason)
 		);
 
@@ -1395,19 +1395,16 @@ export async function warnMember(
 					.setColor("Red")
 					.setTitle(
 						lang.global_warn_embed_title.replace(
-							"${warnObject.id}",
+							"${id}",
 							warnObject.id
 						)
 					)
 					.setDescription(
 						lang.global_warn_embed_desc
-							.replace("${warnObject.reason}", warnObject.reason)
+							.replace("${reason}", warnObject.reason)
+							.replace("${authorUsername}", author.user.username)
 							.replace(
-								"${author.user.username}",
-								author.user.username
-							)
-							.replace(
-								"${author.roles.highest.name}",
+								"${authorRolesHighestName}",
 								author.roles.highest.name
 							)
 							.replace(
@@ -1424,7 +1421,7 @@ export async function warnMember(
 						.setDisabled(true)
 						.setLabel(
 							lang.global_warn_component_button_label.replace(
-								"${author.guild.name}",
+								"${authorGuildName}",
 								author.guild.name
 							)
 						)

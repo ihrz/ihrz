@@ -136,7 +136,7 @@ export const subCommand: SubCommand = {
 		const podium = array.slice(0, 3);
 		const image = await renderPodium({
 			title: lang.ranks_leaderboard_embed_title.replace(
-				"${interaction.guild?.name}",
+				"${guildName}",
 				interaction.guild.name
 			),
 			badgeColors: ["#22c55e", "#16a34a"],

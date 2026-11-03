@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.joinghostping_add_logs_embed_title,
 			description: lang.joinghostping_remove_logs_embed_desc
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace("${channel}", channel.toString())
 		});
 

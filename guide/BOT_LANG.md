@@ -51,10 +51,22 @@ lang.nowplaying_header.replace("${channel}", `<#${channelId}>`);
 
 ## Placeholders
 
-Placeholders are plain text inside the strings (`"${interaction.user}"`,
-`"{mode}"`) and are replaced at the call site with `.replace()`. Always use
-double-quoted strings, never template literals, or the placeholder would be
-evaluated as code.
+Placeholders are plain names inside the strings (`"${roles}"`,
+`"${authorId}"`, `"{mode}"`) and are replaced at the call site:
+
+```ts
+lang.perm_roles_created_role.replace("${roles}", createdRoles.join(", "));
+```
+
+- A placeholder is a name, never an expression: `${interaction.user.id}` is
+  rejected by `bun run check:lang`.
+- Whoever ran the command is `author` (`${author}`, `${authorId}`,
+  `${authorUsername}`); the target keeps its own name (`${user}`,
+  `${memberId}`).
+- Emojis are `${emoji_<Name>}` (`${emoji_Yes}` for
+  `client.iHorizon_Emojis.Yes`); counts are `<thing>Count`.
+- Always use double-quoted strings, never template literals, or the
+  placeholder would be evaluated as code.
 
 TypeScript cannot see placeholders, so `bun run check:lang`
 (`tools/LangsChecker-Tools.ts`) compares, for every key, the set of

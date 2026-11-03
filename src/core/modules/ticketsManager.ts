@@ -318,31 +318,22 @@ async function CreateChannel(
 			if (interaction instanceof ButtonInteraction) {
 				await interaction.editReply({
 					content: lang.event_ticket_whenCreated_msg
-						.replace(
-							"${interaction.user}",
-							interaction.user.toString()
-						)
-						.replace("${channel.id}", channel.id)
+						.replace("${author}", interaction.user.toString())
+						.replace("${channelId}", channel.id)
 				});
 			} else {
 				if (reasonInteraction) {
 					await reasonInteraction.reply({
 						content: lang.event_ticket_whenCreated_msg
-							.replace(
-								"${interaction.user}",
-								interaction.user.toString()
-							)
-							.replace("${channel.id}", channel.id),
+							.replace("${author}", interaction.user.toString())
+							.replace("${channelId}", channel.id),
 						flags: [1 << 6]
 					});
 				} else {
 					await interaction.editReply({
 						content: lang.event_ticket_whenCreated_msg
-							.replace(
-								"${interaction.user}",
-								interaction.user.toString()
-							)
-							.replace("${channel.id}", channel.id)
+							.replace("${author}", interaction.user.toString())
+							.replace("${channelId}", channel.id)
 					});
 				}
 			}
@@ -355,14 +346,11 @@ async function CreateChannel(
 						.setColor(2829617)
 						.setDescription(
 							lang.sethereticket_panel_select_embed_desc
-								.replace(
-									"${result.panelName}",
-									result.panelName
-								)
+								.replace("${panelName}", result.panelName)
 								.replace(
 									"{msg}",
 									lang.event_ticket_embed_description.replace(
-										"${user.username}",
+										"${userUsername}",
 										interaction.user.username
 									)
 								)
@@ -405,7 +393,7 @@ async function CreateChannel(
 						.setColor("#3b8f41")
 						.setDescription(
 							lang.event_ticket_embed_description.replace(
-								"${user.username}",
+								"${userUsername}",
 								interaction.user.username
 							)
 						)
@@ -486,11 +474,8 @@ async function CreateChannel(
 					)
 					.setDescription(
 						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-							.replace(
-								"${interaction.user}",
-								interaction.user.toString()
-							)
-							.replace("${channel.id}", channel.id)
+							.replace("${author}", interaction.user.toString())
+							.replace("${channelId}", channel.id)
 					)
 					.setFooter(
 						await interaction.client.func.displayBotName.footerBuilder(
@@ -657,21 +642,15 @@ async function CreateChannelV2(
 			if (reasonInteraction) {
 				await reasonInteraction.editReply({
 					content: lang.event_ticket_whenCreated_msg
-						.replace(
-							"${interaction.user}",
-							interaction.user.toString()
-						)
-						.replace("${channel.id}", channel.id),
+						.replace("${author}", interaction.user.toString())
+						.replace("${channelId}", channel.id),
 					flags: [1 << 6]
 				});
 			} else {
 				await interaction.editReply({
 					content: lang.event_ticket_whenCreated_msg
-						.replace(
-							"${interaction.user}",
-							interaction.user.toString()
-						)
-						.replace("${channel.id}", channel.id),
+						.replace("${author}", interaction.user.toString())
+						.replace("${channelId}", channel.id),
 					flags: [1 << 6]
 				});
 			}
@@ -680,7 +659,7 @@ async function CreateChannelV2(
 			const files: any[] = [];
 
 			const welcome = lang.event_ticket_embed_description.replace(
-				"${user.username}",
+				"${userUsername}",
 				interaction.user.username
 			);
 			const og_embed = new EmbedBuilder()
@@ -689,10 +668,7 @@ async function CreateChannelV2(
 					simple
 						? welcome
 						: lang.sethereticket_panel_select_embed_desc
-								.replace(
-									"${result.panelName}",
-									result.placeholder
-								)
+								.replace("${panelName}", result.placeholder)
 								.replace("{msg}", welcome)
 								.replace(
 									"{category}",
@@ -884,11 +860,8 @@ async function CreateChannelV2(
 					)
 					.setDescription(
 						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-							.replace(
-								"${interaction.user}",
-								interaction.user.toString()
-							)
-							.replace("${channel.id}", channel.id)
+							.replace("${author}", interaction.user.toString())
+							.replace("${channelId}", channel.id)
 					)
 					.setFooter(
 						await interaction.client.func.displayBotName.footerBuilder(
@@ -984,11 +957,11 @@ async function CloseTicket(
 						.setDescription(
 							data.event_ticket_logsChannel_onClose_embed_desc
 								.replace(
-									"${interaction.user}",
+									"${author}",
 									interaction.member?.user.toString()!
 								)
 								.replace(
-									"${interaction.channel.id}",
+									"${channelId}",
 									interaction.channel?.id!
 								)
 						)
@@ -1097,7 +1070,7 @@ async function TicketRemoveMember(
 		});
 		client.func.method.interactionSend(interaction, {
 			content: data.remove_command_work.replace(
-				/\${member\.tag}/g,
+				/\${memberTag}/g,
 				member?.username!
 			)
 		});
@@ -1119,13 +1092,10 @@ async function TicketRemoveMember(
 					data.event_ticket_logsChannel_onRemoveMember_embed_desc
 						.replace("${member}", member?.toString()!)
 						.replace(
-							"${interaction.user}",
+							"${author}",
 							interaction.member?.user.toString()!
 						)
-						.replace(
-							"${interaction.channel.id}",
-							interaction.channel?.id!
-						)
+						.replace("${channelId}", interaction.channel?.id!)
 				)
 				.setFooter(
 					await interaction.client.func.displayBotName.footerBuilder(
@@ -1179,7 +1149,7 @@ async function TicketAddMember(
 		});
 		await client.func.method.interactionSend(interaction, {
 			content: data.add_command_work.replace(
-				/\${member\.tag}/g,
+				/\${memberTag}/g,
 				member.username
 			)
 		});
@@ -1199,13 +1169,10 @@ async function TicketAddMember(
 					data.event_ticket_logsChannel_onAddMember_embed_desc
 						.replace("${member}", member.toString())
 						.replace(
-							"${interaction.user}",
+							"${author}",
 							interaction.member?.user.toString()!
 						)
-						.replace(
-							"${interaction.channel.id}",
-							interaction.channel?.id!
-						)
+						.replace("${channelId}", interaction.channel?.id!)
 				)
 				.setFooter(
 					await interaction.client.func.displayBotName.footerBuilder(
@@ -1262,7 +1229,7 @@ async function TicketReOpen(
 						.then(() => {
 							client.func.method.interactionSend(interaction, {
 								content: lang.open_command_work.replace(
-									/\${interaction\.channel}/g,
+									/\${channel}/g,
 									interaction.channel?.toString()!
 								)
 							});
@@ -1287,11 +1254,11 @@ async function TicketReOpen(
 							.setDescription(
 								lang.event_ticket_logsChannel_onReopen_embed_desc
 									.replace(
-										"${interaction.user}",
+										"${author}",
 										interaction.member?.user.toString()!
 									)
 									.replace(
-										"${interaction.channel.id}",
+										"${channelId}",
 										interaction.channel.id
 									)
 							)
@@ -1398,11 +1365,11 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 							.setDescription(
 								data.event_ticket_logsChannel_onDelete_embed_desc
 									.replace(
-										"${interaction.user}",
+										"${author}",
 										interaction.member?.user.toString()!
 									)
 									.replace(
-										"${interaction.channel.name}",
+										"${channelName}",
 										(
 											interaction.channel as BaseGuildTextChannel
 										)?.name
@@ -1497,30 +1464,24 @@ async function TicketAddMember_2(
 	if (addedMembers.length > 0) {
 		interaction.client.func.method.channelSend(interaction, {
 			content: data.event_ticket_add_member
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace(
-					"${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}",
+					"${addedMembers}",
 					addedMembers.map((memberId) => `<@${memberId}>`).join(" ")
 				)
-				.replace(
-					"${interaction.channel}",
-					interaction.channel!.toString()
-				)
+				.replace("${channel}", interaction.channel!.toString())
 		});
 	}
 
 	if (removedMembers.length > 0) {
 		interaction.client.func.method.channelSend(interaction, {
 			content: data.event_ticket_del_member
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace(
-					"${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}",
+					"${removedMembers}",
 					removedMembers.map((memberId) => `<@${memberId}>`).join(" ")
 				)
-				.replace(
-					"${interaction.channel}",
-					interaction.channel!.toString()
-				)
+				.replace("${channel}", interaction.channel!.toString())
 		});
 	}
 	await interaction.deferUpdate();
@@ -1538,7 +1499,7 @@ async function TicketAddMember_2(
 			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
 			.setDescription(
 				data.event_ticket_logsChannel_onAddMember2_embed_desc
-					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${author}", interaction.user.toString())
 					.replace(
 						"${removedMembers}",
 						removedMembers
@@ -1551,10 +1512,7 @@ async function TicketAddMember_2(
 							.map((memberId) => `<@${memberId}>`)
 							.join(" ") || "None"
 					)
-					.replace(
-						"${interaction.channel}",
-						interaction.channel?.toString()!
-					)
+					.replace("${channel}", interaction.channel?.toString()!)
 			)
 			.setFooter(
 				await interaction.client.func.displayBotName.footerBuilder(
@@ -1671,11 +1629,8 @@ async function TicketRemind(
 	if (!Success) {
 		client.func.method.interactionSend(interaction, {
 			content: lang.utils_dm_cant
-				.replace(
-					"${client.iHorizon_Emojis.No}",
-					client.iHorizon_Emojis.No
-				)
-				.replace("${targetMember.toString()}", ticketOwner?.toString()!)
+				.replace("${emoji_No}", client.iHorizon_Emojis.No)
+				.replace("${targetMember}", ticketOwner?.toString()!)
 		});
 	} else {
 		client.func.method.interactionSend(interaction, {

@@ -53,7 +53,7 @@ export const event: BotEvent = {
 				client.func.random.secureRandomInt(0, 7) === 0
 			) {
 				botMsg += lang.git_lines_borred_warning.replace(
-					"${client.iHorizon_Emojis.VC_OpenChat}",
+					"${emoji_VC_OpenChat}",
 					client.iHorizon_Emojis.VC_OpenChat
 				);
 			}

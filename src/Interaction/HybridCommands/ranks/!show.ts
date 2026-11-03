@@ -165,7 +165,7 @@ export const subCommand: SubCommand = {
 		const nivEmbed = new EmbedBuilder()
 			.setTitle(
 				lang.level_embed_title.replace(
-					"${user.username}",
+					"${userUsername}",
 					String(user.user.globalName || user.displayName)
 				)
 			)

@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.member.user.od}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});

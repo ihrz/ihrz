@@ -44,7 +44,7 @@ function getDiff(
 
 	if (oldChannel.name !== newChannel.name) {
 		after += lang.event_srvLogs_channelUpdate_field_name.replace(
-			"${newChannel.name}",
+			"${newChannelName}",
 			newChannel.name
 		);
 	}
@@ -183,7 +183,7 @@ export const event: BotEvent = {
 			})
 			.setDescription(
 				lang.event_srvLogs_channelUpdate_embed_desc.replace(
-					"${newChannel.toString()}",
+					"${newChannel}",
 					newChannel.toString()
 				)
 			)

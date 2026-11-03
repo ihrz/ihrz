@@ -78,9 +78,9 @@ export const command: Command = {
 
 		await interaction.reply({
 			content: lang.add_react_command_work
-				.replace("${interaction.member?.id}", interaction.member?.id!)
+				.replace("${authorId}", interaction.member?.id!)
 				.replace("{emoji}", emojiMsg)
-				.replace("${message.toLowerCase()}", message.toLowerCase()),
+				.replace("${message}", message.toLowerCase()),
 			allowedMentions: { repliedUser: false }
 		});
 

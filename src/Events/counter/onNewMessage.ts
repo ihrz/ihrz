@@ -90,13 +90,13 @@ export const event: BotEvent = {
 				if (message.author.id === lastNumber.userId) {
 					message.reply({
 						content: lang.counter_error_too_much_u
-							.replace("${message.author.id}", message.author.id)
+							.replace("${messageAuthorId}", message.author.id)
 							.replace("${number}", number.toString())
 					});
 				} else {
 					message.reply({
 						content: lang.counter_error_syntaxic.replace(
-							"${message.author.id}",
+							"${messageAuthorId}",
 							message.author.id
 						)
 					});
@@ -110,7 +110,7 @@ export const event: BotEvent = {
 			});
 			message.reply({
 				content: lang.counter_error_syntaxic.replace(
-					"${message.author.id}",
+					"${messageAuthorId}",
 					message.author.id
 				)
 			});

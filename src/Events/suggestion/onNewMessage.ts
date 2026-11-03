@@ -57,7 +57,7 @@ export const event: BotEvent = {
 			.setTitle(`#${suggestCode}`)
 			.setAuthor({
 				name: data.event_suggestion_embed_author.replace(
-					"${message.author.username}",
+					"${messageAuthorUsername}",
 					message.author.username
 				),
 				iconURL: message.author.displayAvatarURL()

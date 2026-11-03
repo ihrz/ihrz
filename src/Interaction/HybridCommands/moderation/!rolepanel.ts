@@ -237,8 +237,8 @@ export const subCommand: SubCommand = {
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.rolepanel_logs_embed_title_apply,
 						description: lang.rolepanel_logs_embed_desc_apply
-							.replace("${interaction.user.id}", author.id)
-							.replace("${member.id}", targetMember.id)
+							.replace("${authorId}", author.id)
+							.replace("${memberId}", targetMember.id)
 							.replace(
 								"${addedRoles}",
 								addedRoles.join(", ") || lang.var_none

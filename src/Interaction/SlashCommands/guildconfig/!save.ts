@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 			await interaction.user
 				.send({
 					content: lang.guildconfig_config_save_user_msg.replace(
-						"${interaction.guild.name}",
+						"${guildName}",
 						interaction.guild.name
 					),
 					files: [attachment]

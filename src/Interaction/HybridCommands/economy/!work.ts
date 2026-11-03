@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: lang.work_embed_author.replace(
-					/\${interaction\.user\.username}/g,
+					/\${authorUsername}/g,
 					(interaction.member.user as User).globalName ||
 						interaction.member.user.username
 				),
@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 			.setDescription(
 				lang.work_embed_description
 					.replace(
-						/\${interaction\.user\.username}/g,
+						/\${authorUsername}/g,
 						(interaction.member.user as User).globalName ||
 							interaction.member.user.username
 					)

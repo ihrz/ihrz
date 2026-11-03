@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 				.join("\n");
 			pages.push({
 				title: lang.admin_roles_embed_title.replace(
-					"${i / rolesPerPage + 1}",
+					"${page}",
 					String(i / rolesPerPage + 1)
 				),
 				description: pageContent
@@ -199,7 +199,7 @@ export const subCommand: SubCommand = {
 						.setDescription(
 							lang.admin_roles_remove_embed_desc
 								.replace(
-									"${interaction.member?.user.toString()}",
+									"${author}",
 									interaction.member?.user.toString()!
 								)
 								.replace("${good}", good.toString())

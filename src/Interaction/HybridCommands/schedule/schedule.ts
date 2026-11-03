@@ -365,17 +365,14 @@ export const command: Command = {
 						name: `#${i}`,
 						value: lang.schedule_list_fields_embed
 							.replace(
-								"${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}",
+								"${expiresAt}",
 								format(
 									new Date(fetched[i]?.expired),
 									"YYYY/MM/DD HH:mm:ss"
 								)
 							)
-							.replace("${fetched[i]?.title}", fetched[i]?.title)
-							.replace(
-								"${fetched[i]?.description}",
-								fetched[i]?.description
-							)
+							.replace("${title}", fetched[i]?.title)
+							.replace("${description}", fetched[i]?.description)
 					});
 				}
 
@@ -453,7 +450,7 @@ export const command: Command = {
 							embeds: [],
 							content:
 								lang.schedule_create_not_number_time.replace(
-									"${interaction.user}",
+									"${author}",
 									user.toString()
 								),
 							files: []
@@ -480,7 +477,7 @@ export const command: Command = {
 								)
 						],
 						content: lang.schedule_create_confirm_msg
-							.replace("${interaction.user}", user.toString())
+							.replace("${author}", user.toString())
 							.replace("${scheduleCode}", scheduleCode)
 					});
 

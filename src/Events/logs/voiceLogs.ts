@@ -73,7 +73,7 @@ export const event: BotEvent = {
 		if (user && !channelID) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${OchannelID}", OchannelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)
@@ -85,7 +85,7 @@ export const event: BotEvent = {
 		if (Ouser && !OchannelID) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_2_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${channelID}", channelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)
@@ -98,7 +98,7 @@ export const event: BotEvent = {
 		if (!Ostatus.selfDeaf && status.selfDeaf) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_3_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${channelID}", channelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)
@@ -110,7 +110,7 @@ export const event: BotEvent = {
 		if (Ostatus.selfDeaf && !status.selfDeaf) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_4_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${channelID}", channelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)
@@ -123,7 +123,7 @@ export const event: BotEvent = {
 		if (!Ostatus.selfMute && status.selfMute) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_5_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${channelID}", channelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)
@@ -135,7 +135,7 @@ export const event: BotEvent = {
 		if (Ostatus.selfMute && !status.selfMute) {
 			logsEmbed.setDescription(
 				data.event_srvLogs_voiceStateUpdate_6_description
-					.replace("${targetUser.id}", targetUser.id)
+					.replace("${targetUserId}", targetUser.id)
 					.replace("${channelID}", channelID?.toString()!)
 			);
 			await (Msgchannel as BaseGuildTextChannel)

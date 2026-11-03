@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 			if (!targetVc) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.renewvc_not_in_voice.replace(
-						/\${client\.iHorizon_Emojis\.No}/g,
+						/\${emoji_No}/g,
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -76,10 +76,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.renewvc_region_success
-					.replace(
-						/\${client\.iHorizon_Emojis\.Yes}/g,
-						client.iHorizon_Emojis.Yes
-					)
+					.replace(/\${emoji_Yes}/g, client.iHorizon_Emojis.Yes)
 					.replace(/\${targetVc}/g, targetVc.toString())
 			});
 			return;

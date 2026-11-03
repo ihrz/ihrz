@@ -68,10 +68,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setxpchannels_logs_embed_title_enable,
 				description: lang.setxpchannels_logs_embed_description_enable
-					.replace(
-						/\${interaction\.user.id}/g,
-						interaction.member.user.id
-					)
+					.replace(/\${authorId}/g, interaction.member.user.id)
 					.replace(/\${argsid}/g, argsid.id)
 			});
 
@@ -113,7 +110,7 @@ export const subCommand: SubCommand = {
 				title: lang.setxpchannels_logs_embed_title_disable,
 				description:
 					lang.setxpchannels_logs_embed_description_disable.replace(
-						/\${interaction\.user.id}/g,
+						/\${authorId}/g,
 						interaction.member.user.id
 					)
 			});

@@ -130,7 +130,7 @@ export async function run_for_bot_owner(
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unowner_command_work.replace(
-			/\${member\.username}/g,
+			/\${memberUsername}/g,
 			member?.username!
 		)
 	});
@@ -184,7 +184,7 @@ export async function run_for_guild_owner(
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unowner_command_work.replace(
-			/\${member\.username}/g,
+			/\${memberUsername}/g,
 			member?.username!
 		)
 	});

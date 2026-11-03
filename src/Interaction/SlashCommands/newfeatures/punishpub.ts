@@ -199,14 +199,14 @@ export const command: Command = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.punishpub_logs_embed_title,
 				description: lang.punishpub_logs_embed_description
-					.replace("${interaction.user.id}", interaction.user.id)
+					.replace("${authorId}", interaction.user.id)
 					.replace("${amount}", amount.toString())
 					.replace("${punishement}", punishment?.toString()!)
 			});
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.punishpub_confirmation_message_enable
-					.replace("${interaction.user.id}", interaction.user.id)
+					.replace("${authorId}", interaction.user.id)
 					.replace("${amount}", amount.toString())
 					.replace("${punishement}", punishment!)
 			});
@@ -223,7 +223,7 @@ export const command: Command = {
 				title: lang.punishpub_logs_embed_title_disable,
 				description:
 					lang.punishpub_logs_embed_description_disable.replace(
-						"${interaction.user.id}",
+						"${authorId}",
 						interaction.user.id
 					)
 			});

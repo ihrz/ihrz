@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_delrole_highter_or_egal_roles_msg.replace(
-					"${client.iHorizon_Emojis.Stop}",
+					"${emoji_Stop}",
 					client.iHorizon_Emojis.Stop
 				)
 			});
@@ -99,10 +99,10 @@ export const subCommand: SubCommand = {
 			{
 				content: lang.batch_derank_process
 					.replace(
-						"${rolesToRemove.length}",
+						"${rolesToRemoveCount}",
 						rolesToRemove.length.toString()
 					)
-					.replace("${member.user.username}", member.user.username)
+					.replace("${memberUsername}", member.user.username)
 			}
 		);
 
@@ -129,7 +129,7 @@ export const subCommand: SubCommand = {
 						lang.derank_msg_desc_embed
 							.replace("${good}", good.toString())
 							.replace("${bad}", bad.toString())
-							.replace("${member.id}", member.id)
+							.replace("${memberId}", member.id)
 					)
 					.setFooter(
 						await client.func.displayBotName.footerBuilder(

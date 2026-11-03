@@ -122,7 +122,7 @@ class GiveawayManager {
 								"${winners_amount}",
 								String(winners_amount)
 							)
-							.replace("${data.hostedBy}", String(data.hostedBy))
+							.replace("${hostedBy}", String(data.hostedBy))
 					)
 					.setTimestamp(new Date(Date.now() + data.duration))
 					.setFooter(
@@ -214,15 +214,15 @@ class GiveawayManager {
 					return interaction.reply({
 						content: lang.event_gw_break_req
 							.replace(
-								"${giveawayData?.requirement.value}",
+								"${requirementValue}",
 								String(giveawayData?.requirement.value)
 							)
 							.replace(
-								"${giveawayData?.requirement.type}",
+								"${requirementType}",
 								String(giveawayData?.requirement.type)
 							)
 							.replace(
-								"${interaction.client.iHorizon_Emojis.No}",
+								"${emoji_No}",
 								interaction.client.iHorizon_Emojis.No
 							),
 						flags: [1 << 6]
@@ -262,7 +262,7 @@ class GiveawayManager {
 
 		await interaction.reply({
 			content: lang.event_gw_confirm_leave_msg.replace(
-				"${interaction.user}",
+				"${author}",
 				interaction.user.toString()
 			),
 			components: [
@@ -309,7 +309,7 @@ class GiveawayManager {
 				await interaction.editReply({
 					components: [],
 					content: lang.event_gw_removeentries_msg.replace(
-						"${interaction.user}",
+						"${author}",
 						interaction.user.toString()
 					)
 				});
@@ -450,9 +450,9 @@ class GiveawayManager {
 							"${time2}",
 							time(new Date(fetch.expireIn), "D")
 						)
-						.replace("${fetch.hostedBy}", fetch.hostedBy)
+						.replace("${hostedBy}", fetch.hostedBy)
 						.replace(
-							"${fetch.entries.length}",
+							"${entrieCount}",
 							fetch.entries.length.toString()
 						)
 						.replace(
@@ -478,10 +478,7 @@ class GiveawayManager {
 				await message?.reply({
 					content: lang.event_gw_reroll_win_msg
 						.replace("${winners}", winners.toString())
-						.replace(
-							"${fetch[channelId][messageId].prize}",
-							fetch.prize
-						)
+						.replace("${prize}", fetch.prize)
 				});
 				return;
 			} else {
@@ -581,10 +578,7 @@ class GiveawayManager {
 					await client.func.method.reply(message, {
 						content: lang.event_gw_reroll_win_msg
 							.replace("${winners}", winners.toString())
-							.replace(
-								"${fetch[channelId][messageId].prize}",
-								fetch.prize
-							)
+							.replace("${prize}", fetch.prize)
 					});
 				} else {
 					await client.func.method.reply(message, {

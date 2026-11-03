@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 			if (createdRoles.length > 0) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.perm_roles_created_role.replace(
-						"${createdRoles.join(', ')}",
+						"${roles}",
 						createdRoles.join(", ")
 					)
 				});

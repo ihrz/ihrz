@@ -70,10 +70,7 @@ export const subCommand: SubCommand = {
 		if (!Data || !Data.id || !Data.data.members)
 			return client.func.method.interactionSend(interaction, {
 				content: lang.rc_key_doesnt_exist
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
 					.replace("${secretCode}", secretCode),
 				flags: [1 << 6]
 			});
@@ -128,7 +125,7 @@ export const subCommand: SubCommand = {
 							await client.users.fetch(Data.data.config.author.id)
 						).toString() ||
 						lang.rc_get_unkwnon_user.replace(
-							"${Data.data.config.author.id}",
+							"${authorId}",
 							Data.data.config.author.id
 						),
 					inline: true

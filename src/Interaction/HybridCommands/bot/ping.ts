@@ -112,27 +112,15 @@ export const command: Command = {
 			.setColor(2829617)
 			.setDescription(
 				lang.ping_embed_desc
-					.replaceAll(
-						"${interaction.client.user.username}",
-						interaction.client.user.username
-					)
+					.replaceAll("${botName}", interaction.client.user.username)
 					.replaceAll("${_net03}", _net03)
 					.replaceAll("${_net02}", _net02)
 					.replaceAll("${_net01}", _net01)
-					.replaceAll(
-						"${client.iHorizon_Emojis.Crown}",
-						client.iHorizon_Emojis.Crown
-					)
+					.replaceAll("${emoji_Crown}", client.iHorizon_Emojis.Crown)
 					.replace("${_net04}", _net04)
-					.replace("${client.ws.ping}", client.ws.ping.toString())
-					.replace(
-						"${interaction.client.user.username}",
-						interaction.client.user.username
-					)
-					.replace(
-						"${client.iHorizon_Emojis.Pointer}",
-						client.iHorizon_Emojis.Pointer
-					)
+					.replace("${ping}", client.ws.ping.toString())
+					.replace("${botName}", interaction.client.user.username)
+					.replace("${emoji_Pointer}", client.iHorizon_Emojis.Pointer)
 					.replace("${averagePing}", averagePing.toString())
 			)
 			.setFooter(

@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.perm_set_deleted.replace(
-					"${user.toString()}",
+					"${user}",
 					user.toString()
 				)
 			});
@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.perm_set_warn_message.replace(
-						"${interaction.member.toString()}",
+						"${author}",
 						interaction.member.toString()
 					)
 				});
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.perm_set_ok
-					.replace("${user.toString()}", user.toString())
+					.replace("${user}", user.toString())
 					.replace("${perm}", perm)
 			});
 		}

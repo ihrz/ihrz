@@ -54,7 +54,7 @@ export const command: AnotherCommand = {
 			if (oversizedAttachment) {
 				await interaction.editReply({
 					content: lang.p_attachment_too_large.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});

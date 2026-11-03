@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unmute_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unmuteall_logs_embed_title,
 			description: lang.unmuteall_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
+				.replace("${authorId}", interaction.member.user.id)
 				.replace("${unmuted}", unmuted.toString())
 				.replace("${total}", mutedMembers.length.toString())
 		});

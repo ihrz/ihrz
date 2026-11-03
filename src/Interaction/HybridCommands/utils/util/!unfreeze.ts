@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_unfreeze_logs_title,
 			description: lang.util_unfreeze_logs_description.replace(
-				"${interaction.member.user.toString()}",
+				"${author}",
 				(interaction.member as GuildMember).user.toString()
 			)
 		});

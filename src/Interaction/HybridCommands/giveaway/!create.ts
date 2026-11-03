@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 		if (!giveawayDurationFormated) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_time_not_valid.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -101,7 +101,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_invites_req_value.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -112,7 +112,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_messages_req_value.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -123,7 +123,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_roles_req_value.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -152,7 +152,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.reroll_logs_embed_title,
 			description: lang.start_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
+				.replace("${authorId}", interaction.member.user.id)
 				.replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
 		});
 

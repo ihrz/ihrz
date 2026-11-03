@@ -95,7 +95,7 @@ export class LastFMScrobblerManager {
 
 	public getMissingConfigurationMessage(lang: LanguageData): string {
 		return lang.lastfm_module_not_configured.replace(
-			/\${client\.iHorizon_Emojis\.No}/g,
+			/\${emoji_No}/g,
 			client.iHorizon_Emojis.No
 		);
 	}
@@ -170,7 +170,7 @@ export class LastFMScrobblerManager {
 			return {
 				ok: false,
 				message: lang.lastfm_login_invalid_session.replace(
-					/\${client\.iHorizon_Emojis\.No}/g,
+					/\${emoji_No}/g,
 					client.iHorizon_Emojis.No
 				)
 			};
@@ -187,10 +187,7 @@ export class LastFMScrobblerManager {
 		return {
 			ok: true,
 			message: lang.lastfm_login_success
-				.replace(
-					/\${client\.iHorizon_Emojis\.Yes}/g,
-					client.iHorizon_Emojis.Yes
-				)
+				.replace(/\${emoji_Yes}/g, client.iHorizon_Emojis.Yes)
 				.replace(/\${username}/g, fetchedUsername),
 			username: fetchedUsername
 		};
@@ -644,10 +641,7 @@ export class LastFMScrobblerManager {
 					: lang.lastfm_api_error_scrobble;
 
 		return template
-			.replace(
-				/\${client\.iHorizon_Emojis\.No}/g,
-				client.iHorizon_Emojis.No
-			)
+			.replace(/\${emoji_No}/g, client.iHorizon_Emojis.No)
 			.replace(
 				/\${error}/g,
 				response.message || lang.lastfm_api_error_unknown

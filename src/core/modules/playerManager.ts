@@ -167,17 +167,17 @@ export default async (client: Client) => {
 				new TextDisplayBuilder().setContent(
 					data.event_mp_playerStart
 						.replace(
-							"${client.iHorizon_Emojis.Music_Icon}",
+							"${emoji_Music_Icon}",
 							client.iHorizon_Emojis.Music_Icon
 						)
 						// Inside an inline code link label: a backtick would
 						// end it.
 						.replace(
-							"${track.title}",
+							"${trackTitle}",
 							String(track?.info.title).replace(/`/g, "'")
 						)
 						.replace(
-							"${queue.channel.name}",
+							"${queueChannelName}",
 							`<#${player.voiceChannelId}>`
 						)
 						.replace("${url}", track?.info.uri!)
@@ -207,11 +207,11 @@ export default async (client: Client) => {
 					new TextDisplayBuilder().setContent(
 						data.even_mp_playerStart_tip
 							.replace(
-								"${client.iHorizon_Emojis.LastFM_Logo}",
+								"${emoji_LastFM_Logo}",
 								client.iHorizon_Emojis.LastFM_Logo
 							)
 							.replace(
-								"${client.iHorizon_Emojis.Sunglass}",
+								"${emoji_Sunglass}",
 								client.iHorizon_Emojis.Sunglass
 							)
 					)
@@ -243,7 +243,7 @@ export default async (client: Client) => {
 		// const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
 		// (channel as BaseGuildTextChannel).send({
-		// 	content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
+		// 	content: data.event_mp_emptyQueue.replace("${emoji_Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 		// });
 		await client.func.method.changeVoiceChannelStatus(
 			player.voiceChannelId!,

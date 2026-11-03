@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		if (user.voice.channelId === null) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_wakeup_not_in_vc.replace(
-					"${user.displayName}",
+					"${userDisplayName}",
 					user.displayName
 				)
 			});
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_wakeup_command_work.replace(
-				"${user.toString()}",
+				"${user}",
 				user.toString()
 			)
 		});

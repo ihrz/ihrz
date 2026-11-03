@@ -237,7 +237,7 @@ class EmbedManager {
 		if (parts.userIdOrGuildId !== this.interaction.guildId) {
 			throw new Error(
 				this.lang.embed_copy_bad_guild_msg.replace(
-					"${interaction.guild?.name}",
+					"${guildName}",
 					this.interaction.guild?.name!
 				)
 			);
@@ -388,7 +388,7 @@ class EmbedManager {
 								{
 									content:
 										this.lang.embed_choose_12_error.replace(
-											"${client.iHorizon_Emojis.No}",
+											"${emoji_No}",
 											client.iHorizon_Emojis.No
 										)
 								}
@@ -456,7 +456,7 @@ class EmbedManager {
 
 		await confirmation.update({
 			content: this.lang.embed_send_message.replace(
-				"${interaction.user.id}",
+				"${authorId}",
 				this.interaction.member?.user.id!
 			),
 			components: [channelSelectMenu],
@@ -490,10 +490,10 @@ class EmbedManager {
 				await this.response.edit({
 					content: this.lang.embed_send_embed_work
 						.replace(
-							"${interaction.user.id}",
+							"${authorId}",
 							this.interaction.member?.user.id!
 						)
-						.replace("${message.content}", channel.id),
+						.replace("${messageContent}", channel.id),
 					embeds: [],
 					components: [],
 					files: []
@@ -533,7 +533,7 @@ class EmbedManager {
 			if (parts.userIdOrGuildId !== this.interaction.guildId) {
 				throw new Error(
 					this.lang.embed_copy_bad_guild_msg.replace(
-						"${interaction.guild?.name}",
+						"${guildName}",
 						this.interaction.guild?.name!
 					)
 				);
@@ -790,10 +790,10 @@ class EmbedManager {
 						await confirmation.update({
 							content: this.lang.embed_save_message
 								.replace(
-									"${interaction.user.id}",
+									"${authorId}",
 									this.interaction.member?.user.id!
 								)
-								.replace("${await saveEmbed()}", embedId),
+								.replace("${embedId}", embedId),
 							components: [],
 							embeds: [],
 							files: []
@@ -803,7 +803,7 @@ class EmbedManager {
 					case "cancel":
 						await confirmation.update({
 							content: this.lang.embed_cancel_message.replace(
-								"${interaction.user.id}",
+								"${authorId}",
 								this.interaction.member?.user.id!
 							),
 							components: [],

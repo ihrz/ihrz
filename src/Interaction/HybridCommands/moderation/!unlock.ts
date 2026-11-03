@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 		if (!channel?.permissionOverwrites?.edit) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setrankroles_command_error.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -75,14 +75,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unlock_logs_embed_title,
 			description: lang.unlock_logs_embed_description
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
-				.replace(
-					/\${interaction\.channel\.id}/g,
-					interaction.channel?.id!
-				)
+				.replace(/\${authorId}/g, interaction.member.user.id)
+				.replace(/\${channelId}/g, interaction.channel?.id!)
 		});
 
 		await client.func.method.interactionSend(interaction, {

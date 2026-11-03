@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -85,10 +85,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.work_cooldown_error
-					.replace(
-						"${interaction.user.id}",
-						interaction.member.user.id
-					)
+					.replace("${authorId}", interaction.member.user.id)
 					.replace("${time}", time),
 				flags: [1 << 6]
 			});
@@ -112,7 +109,7 @@ export const subCommand: SubCommand = {
 		if (targetuser < 250) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.rob_him_dont_enought_error.replace(
-					/\${user\.user\.username}/g,
+					/\${userUsername}/g,
 					user.user.globalName as string
 				)
 			});
@@ -124,11 +121,8 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setDescription(
 				lang.rob_embed_description
-					.replace(
-						/\${interaction\.user\.id}/g,
-						interaction.member.user.id
-					)
-					.replace(/\${user\.id}/g, user.id)
+					.replace(/\${authorId}/g, interaction.member.user.id)
+					.replace(/\${userId}/g, user.id)
 					.replace(/\${random}/g, random.toString())
 			)
 			.setColor("#a4cb80")

@@ -36,7 +36,7 @@ export const event: BotEvent = {
 		// 		if (player_text_channel?.type === ChannelType.GuildText) {
 		// 			player_text_channel.send({
 		// 				content: lang.event_mp_emptyChannel
-		// 					.replace('${client.iHorizon_Emojis.No}', oldState.client.iHorizon_Emojis.No)
+		// 					.replace('${emoji_No}', oldState.client.iHorizon_Emojis.No)
 		// 			});
 		// 		}
 		// 	} else {

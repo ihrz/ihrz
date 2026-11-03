@@ -752,11 +752,11 @@ export async function sendQueueAddMessage(
 					.setDescription(
 						lang.event_mp_audioTrackAdd
 							.replace(
-								"${client.iHorizon_Emojis.Music_Icon}",
+								"${emoji_Music_Icon}",
 								client.iHorizon_Emojis.Music_Icon
 							)
 							.replace(
-								"${track.title}",
+								"${trackTitle}",
 								track.info.title as string
 							)
 					)
@@ -798,7 +798,7 @@ export async function handleMusicPlay({
 	) {
 		await respond({
 			content: lang.h247_play_refused.replace(
-				"${client.iHorizon_Emojis.No}",
+				"${emoji_No}",
 				client.iHorizon_Emojis.No
 			)
 		});
@@ -816,7 +816,7 @@ export async function handleMusicPlay({
 	) {
 		await respond({
 			content: lang.music_cannot.replace(
-				"${client.iHorizon_Emojis.No}",
+				"${emoji_No}",
 				client.iHorizon_Emojis.No
 			)
 		});
@@ -916,10 +916,7 @@ export async function handleMusicPlay({
 
 	const response = await respond({
 		content: lang.p_loading_message
-			.replace(
-				"${client.iHorizon_Emojis.Timer}",
-				client.iHorizon_Emojis.Timer
-			)
+			.replace("${emoji_Timer}", client.iHorizon_Emojis.Timer)
 			.replace(
 				"{result}",
 				firstResult.loadType === "playlist" ? "playlist" : "track"

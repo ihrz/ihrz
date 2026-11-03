@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		if (!result.ok) {
 			return client.func.method.interactionSend(interaction, {
 				content: lang.lastfm_config_login_required.replace(
-					/\${client\.iHorizon_Emojis\.No}/g,
+					/\${emoji_No}/g,
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -59,11 +59,11 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: enabled
 				? lang.lastfm_config_enabled.replace(
-						/\${client\.iHorizon_Emojis\.Yes}/g,
+						/\${emoji_Yes}/g,
 						client.iHorizon_Emojis.Yes
 					)
 				: lang.lastfm_config_disabled.replace(
-						/\${client\.iHorizon_Emojis\.Yes}/g,
+						/\${emoji_Yes}/g,
 						client.iHorizon_Emojis.Yes
 					),
 			embeds: [

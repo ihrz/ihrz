@@ -142,7 +142,7 @@ export async function run_for_bot_owner(
 	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});
@@ -152,7 +152,7 @@ export async function run_for_bot_owner(
 	if (client.func.ownerHelper.isBotDev(user.id)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});
@@ -166,7 +166,7 @@ export async function run_for_bot_owner(
 	if (!userObj) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});
@@ -230,7 +230,7 @@ export async function run_for_guild_owner(
 	) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});
@@ -240,7 +240,7 @@ export async function run_for_guild_owner(
 	if (client.func.ownerHelper.isBotDev(user.id)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});
@@ -259,7 +259,7 @@ export async function run_for_guild_owner(
 	if (!userObj) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				user.id
 			)
 		});

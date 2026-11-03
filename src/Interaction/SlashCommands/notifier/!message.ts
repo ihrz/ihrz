@@ -170,7 +170,7 @@ export const subCommand: SubCommand = {
 					await modalInteraction.reply({
 						content:
 							lang.notifier_config_message_command_work_on_enable.replace(
-								"${client.iHorizon_Emojis.GreenTick}",
+								"${emoji_GreenTick}",
 								client.iHorizon_Emojis.GreenTick
 							),
 						flags: [1 << 6]
@@ -181,7 +181,7 @@ export const subCommand: SubCommand = {
 					// await client.func.ihorizon_logs(interaction, {
 					//     title: lang.ranksSetMessage_logs_embed_title_on_enable,
 					//     description: lang.ranksSetMessage_logs_embed_description_on_enable
-					//         .replace("${interaction.user.id}", interaction.user.id)
+					//         .replace("${authorId}", interaction.user.id)
 					// });
 				} catch (e) {
 					logger.err(e);
@@ -200,7 +200,7 @@ export const subCommand: SubCommand = {
 				await buttonInteraction.reply({
 					content:
 						lang.notifier_config_message_command_work_on_enable.replace(
-							"${client.iHorizon_Emojis.GreenTick}",
+							"${emoji_GreenTick}",
 							client.iHorizon_Emojis.GreenTick
 						),
 					flags: [1 << 6]
@@ -212,7 +212,7 @@ export const subCommand: SubCommand = {
 				// await client.func.ihorizon_logs(interaction, {
 				//     title: lang.ranksSetMessage_logs_embed_title_on_disable,
 				//     description: lang.ranksSetMessage_logs_embed_description_on_disable
-				//         .replace("${interaction.user.id}", interaction.user.id)
+				//         .replace("${authorId}", interaction.user.id)
 				// });
 			}
 		});

@@ -63,7 +63,7 @@ export const command: Command = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.ether_message.replace(
-				"${client.iHorizon_Emojis.Sparkles}",
+				"${emoji_Sparkles}",
 				client.iHorizon_Emojis.Sparkles
 			)
 		});

@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 		invalidateProtectionContext(interaction.guild.id);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.allowlist_delete_command_work.replace(
-				"${member.user}",
+				"${member}",
 				member.toString()
 			)
 		});

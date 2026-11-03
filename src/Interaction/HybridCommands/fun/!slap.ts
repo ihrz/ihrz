@@ -70,8 +70,8 @@ export const subCommand: SubCommand = {
 					.setColor("#42ff08")
 					.setDescription(
 						lang.slap_embed_description
-							.replace(/\${slap\.id}/g, slap?.id as string)
-							.replace(/\${interaction\.user\.id}/g, user.id)
+							.replace(/\${slapId}/g, slap?.id as string)
+							.replace(/\${authorId}/g, user.id)
 					)
 					.setImage(url)
 					.setTimestamp();

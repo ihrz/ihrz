@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 		client.func.method.deleteTicketChannelFromDatabase(ticketChannel);
 		client.func.method.interactionSend(interaction, {
 			content: lang.ticket_unlink_command_ok.replace(
-				"${client.iHorizon_Emojis.Yes}",
+				"${emoji_Yes}",
 				client.iHorizon_Emojis.Yes
 			)
 		});

@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.music_cannot.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.clear_queue_command_ok.replace(
-					"${client.iHorizon_Emojis.Security}",
+					"${emoji_Security}",
 					client.iHorizon_Emojis.Security
 				)
 			});

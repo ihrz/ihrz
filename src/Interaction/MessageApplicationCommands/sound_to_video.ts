@@ -197,7 +197,7 @@ export const command: AnotherCommand = {
 					.setColor("#ff0000")
 					.setDescription(
 						lang.global_too_heavy_file.replace(
-							"${fileSizeMB.toFixed(2)}",
+							"${fileSize}",
 							fileSizeMB.toFixed(2)
 						)
 					)
@@ -213,7 +213,7 @@ export const command: AnotherCommand = {
 					.setColor("#00ff00")
 					.setDescription(
 						lang.global_convert_ok_desc.replace(
-							"${fileSizeMB.toFixed(2)}",
+							"${fileSize}",
 							fileSizeMB.toFixed(2)
 						)
 					)

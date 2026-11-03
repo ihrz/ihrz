@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 			const embed = new EmbedBuilder()
 				.setTitle(
 					lang.economy_leaderboard_embed_title.replace(
-						"${interaction.guild.name}",
+						"${guildName}",
 						interaction.guild!.name
 					)
 				)
@@ -169,7 +169,7 @@ export const subCommand: SubCommand = {
 		]);
 		const image = await renderPodium({
 			title: lang.economy_leaderboard_embed_title.replace(
-				"`${interaction.guild.name}`",
+				"`${guildName}`",
 				interaction.guild.name + " "
 			),
 			badgeColors: ["#ffd700", "#b8860b"],

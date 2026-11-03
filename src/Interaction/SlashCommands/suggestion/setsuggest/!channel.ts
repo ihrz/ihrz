@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
 		if (fetchOldChannel === channel?.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setsuggest_channel_already_set_with_that
-					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${author}", interaction.user.toString())
 					.replace("${channel}", channel.toString())
 			});
 			return;
@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 		);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.setsuggest_channel_command_work
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace("${channel}", channel.toString())
 		});
 

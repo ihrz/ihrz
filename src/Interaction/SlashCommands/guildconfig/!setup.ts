@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 
 			await interaction.editReply({
 				content: lang.setup_command_work.replace(
-					"${client.iHorizon_Emojis.Yes}",
+					"${emoji_Yes}",
 					client.iHorizon_Emojis.Yes
 				)
 			});

@@ -200,7 +200,7 @@ export const event: BotEvent = {
 					client.func.random.secureRandomFloat() < 0.5
 				) {
 					msg += lang.event_xp_level_additional_info.replace(
-						"${client.iHorizon_Emojis.VC_OpenChat}",
+						"${emoji_VC_OpenChat}",
 						client.iHorizon_Emojis.VC_OpenChat
 					);
 				}

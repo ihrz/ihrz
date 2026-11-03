@@ -298,14 +298,8 @@ export const command: Command = {
 					) as BaseGuildTextChannel | null
 				)?.send({
 					content: lang.setlogschannel_confirmation_message
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${interaction.user.id}",
-							interaction.member?.user.id!
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${authorId}", interaction.member?.user.id!)
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
 
@@ -323,7 +317,7 @@ export const command: Command = {
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setlogschannel_command_work
-						.replace("${argsid.id}", channel.id)
+						.replace("${argsidId}", channel.id)
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
 
@@ -332,10 +326,10 @@ export const command: Command = {
 					description:
 						lang.setlogschannel_logs_embed_description_on_enable
 							.replace(
-								/\${interaction\.user\.id}/g,
+								/\${authorId}/g,
 								interaction.member?.user.id!
 							)
-							.replace("${argsid.id}", channel.id)
+							.replace("${argsidId}", channel.id)
 							.replace("${typeOfLogs}", typeOfLogs)
 				});
 			} catch (e) {
@@ -368,14 +362,8 @@ export const command: Command = {
 					) as BaseGuildTextChannel | null
 				)?.send({
 					content: lang.setlogschannel_confirmation_message
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${interaction.user.id}",
-							interaction.member.user.id!
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${authorId}", interaction.member.user.id!)
 						.replace(
 							"${typeOfLogs}",
 							allLogsPossible.map((x) => x.value).join(",")
@@ -384,7 +372,7 @@ export const command: Command = {
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setlogschannel_utils_command_work
-						.replace("${argsid.id}", `<#${channel.id}>`)
+						.replace("${argsidId}", `<#${channel.id}>`)
 						.replace(
 							"${typeOfLogs}",
 							allLogsPossible.map((x) => x.value).join(", ")
@@ -472,11 +460,11 @@ export const command: Command = {
 								content:
 									lang.setlogschannel_confirmation_message
 										.replace(
-											"${client.iHorizon_Emojis.Yes}",
+											"${emoji_Yes}",
 											client.iHorizon_Emojis.Yes
 										)
 										.replace(
-											"${interaction.user.id}",
+											"${authorId}",
 											interaction.member.user.id!
 										)
 										.replace("${typeOfLogs}", logType.value)
@@ -500,7 +488,7 @@ export const command: Command = {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.setlogschannel_utils_command_work
 							.replace(
-								"${argsid.id}",
+								"${argsidId}",
 								allCreatedChannels
 									.map((x) => `<#${x}>`)
 									.join(",")
@@ -521,7 +509,7 @@ export const command: Command = {
 					title: lang.setlogschannel_logs_embed_title,
 					description:
 						lang.setlogschannel_logs_embed_description_on_off.replace(
-							/\${interaction\.user\.id}/g,
+							/\${authorId}/g,
 							interaction.member.user.id!
 						)
 				});
@@ -541,7 +529,7 @@ export const command: Command = {
 				);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setlogschannel_command_work_on_delete.replace(
-						"${interaction.guild.name}",
+						"${guildName}",
 						interaction.guild?.name as string
 					)
 				});

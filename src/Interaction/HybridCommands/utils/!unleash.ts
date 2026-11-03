@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 		if (!pairingToRemove) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unleash_not_in_leash.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_unleash_command_ok.replace(
-				"${client.iHorizon_Emojis.Yes}",
+				"${emoji_Yes}",
 				client.iHorizon_Emojis.Yes
 			)
 		});

@@ -68,8 +68,8 @@ export const subCommand: SubCommand = {
 					.setColor("#FFB6C1")
 					.setDescription(
 						lang.hug_embed_title
-							.replace(/\${hug\.id}/g, hug.id)
-							.replace(/\${interaction\.user\.id}/g, user.id)
+							.replace(/\${hugId}/g, hug.id)
+							.replace(/\${authorId}/g, user.id)
 					)
 					.setImage(url)
 					.setTimestamp();

@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(
 				lang.question_embed_title.replace(
-					/\${interaction\.user\.username}/g,
+					/\${authorUsername}/g,
 					user.globalName || user.username
 				)
 			)

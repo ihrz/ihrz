@@ -98,11 +98,8 @@ export const subCommand: SubCommand = {
 		const profil = new EmbedBuilder()
 			.setTitle(
 				lang.profil_embed_title
-					.replace(/\${member\.tag}/g, member.username)
-					.replace(
-						"${client.iHorizon_Emojis.Pin}",
-						client.iHorizon_Emojis.Pin
-					)
+					.replace(/\${memberTag}/g, member.username)
+					.replace("${emoji_Pin}", client.iHorizon_Emojis.Pin)
 			)
 			.setDescription(`\`${description}\``)
 			.addFields(

@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 				title: lang.disableticket_logs_embed_title_disable,
 				description:
 					lang.disableticket_logs_embed_description_disable.replace(
-						/\${interaction\.user\.id}/g,
+						/\${authorId}/g,
 						interaction.member.user.id
 					)
 			});
@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 				title: lang.disableticket_logs_embed_title_enable,
 				description:
 					lang.disableticket_logs_embed_description_enable.replace(
-						/\${interaction\.user\.id}/g,
+						/\${authorId}/g,
 						interaction.member.user.id
 					)
 			});

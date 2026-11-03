@@ -98,17 +98,14 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_untalk_logs_title,
 			description: lang.util_untalk_logs_description
-				.replace(
-					"${interaction.member.user.toString()}",
-					member.user.toString()
-				)
-				.replace("${voiceChannel.toString()}", targetChannel.toString())
+				.replace("${author}", member.user.toString())
+				.replace("${voiceChannel}", targetChannel.toString())
 				.replace("${unmutedCount}", unmutedCount.toString())
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_untalk_command_work
-				.replace("${voiceChannel.toString()}", targetChannel.toString())
+				.replace("${voiceChannel}", targetChannel.toString())
 				.replace("${unmutedCount}", unmutedCount.toString())
 		});
 		return;

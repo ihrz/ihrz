@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 		if (!targetMember) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_lockname_not_in_guild.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 		if (!lockedNameData) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unlockname_not_locked.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -95,17 +95,14 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_lockname_logs_embed_title,
 			description: lang.util_unlockname_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
-				.replace("${member.id}", targetMember.id)
+				.replace("${authorId}", interaction.member.user.id)
+				.replace("${memberId}", targetMember.id)
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_unlockname_success
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace("${member.toString()}", targetMember.toString())
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${member}", targetMember.toString())
 		});
 
 		return;

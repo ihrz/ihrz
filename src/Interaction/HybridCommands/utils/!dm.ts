@@ -94,47 +94,23 @@ export const subCommand: SubCommand = {
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.utils_dm
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${targetMember.toString()}",
-							targetMember.toString()
-						)
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${targetMember}", targetMember.toString())
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 				});
 			})
 			.catch(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.utils_dm
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
-						.replace(
-							"${targetMember.toString()}",
-							targetMember.toString()
-						)
-						.replace(
-							"${client.iHorizon_Emojis.Yes}",
-							client.iHorizon_Emojis.Yes
-						)
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+						.replace("${targetMember}", targetMember.toString())
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 				});
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.utils_dm_cant
-						.replace(
-							"${client.iHorizon_Emojis.No}",
-							client.iHorizon_Emojis.No
-						)
-						.replace(
-							"${targetMember.toString()}",
-							targetMember.toString()
-						)
+						.replace("${emoji_No}", client.iHorizon_Emojis.No)
+						.replace("${targetMember}", targetMember.toString())
 				});
 			});
 

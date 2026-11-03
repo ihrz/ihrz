@@ -124,10 +124,7 @@ export const subCommand: SubCommand = {
 			.setThumbnail(interaction.guild.iconURL())
 			.setDescription(
 				lang.massmove_results
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${movedCount}", movedCount.toString())
 					.replace("${errorCount}", errorCount.toString())
 					.replace(

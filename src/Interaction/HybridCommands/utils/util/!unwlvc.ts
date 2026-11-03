@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 		if (!(baseData.allowedUsers || []).includes(target.id)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unwlvc_not_whitelisted.replace(
-					"${member.toString()}",
+					"${member}",
 					target.toString()
 				)
 			});
@@ -90,15 +90,15 @@ export const subCommand: SubCommand = {
 			title: lang.util_unwlvc_logs_title,
 			description: lang.util_unwlvc_logs_description
 				.replace(
-					"${interaction.member.user.toString()}",
+					"${author}",
 					(interaction.member as GuildMember).user.toString()
 				)
-				.replace("${member.toString()}", target.toString())
+				.replace("${member}", target.toString())
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_unwlvc_command_work.replace(
-				"${member.toString()}",
+				"${member}",
 				target.toString()
 			)
 		});

@@ -110,12 +110,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.addinvites_logs_embed_title,
 			description: lang.addinvites_logs_embed_description
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
+				.replace(/\${authorId}/g, interaction.member.user.id)
 				.replace(/\${amount}/g, amount.toString())
-				.replace(/\${user\.id}/g, user.id)
+				.replace(/\${userId}/g, user.id)
 		});
 	}
 };

@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 		if (!channel || channel.type !== ChannelType.GuildText) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.sticky_channel_command_error.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 		if (!stickyMessage?.trim()) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.sticky_text_command_missing_message.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -111,14 +111,8 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.sticky_text_command_work
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace(
-					"${interaction.user}",
-					interaction.member.user.toString()
-				)
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${author}", interaction.member.user.toString())
 				.replace("${channel}", channel.toString())
 		});
 	}

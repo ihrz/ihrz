@@ -60,10 +60,7 @@ export const subCommand: SubCommand = {
 		if (!Data)
 			return client.func.method.interactionSend(interaction, {
 				content: lang.rc_key_doesnt_exist
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
 					.replace("${secretCode}", secretCode),
 				flags: [1 << 6]
 			});
@@ -222,13 +219,10 @@ export const subCommand: SubCommand = {
 									.send(
 										lang.rc_command_ok_dm
 											.replace(
-												"${interaction.guild.name}",
+												"${guildName}",
 												interaction.guild.name
 											)
-											.replace(
-												"${res.secretCode}",
-												value2
-											)
+											.replace("${secretCode}", value2)
 									)
 									.catch(() =>
 										interaction.followUp({

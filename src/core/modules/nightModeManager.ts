@@ -256,14 +256,14 @@ class NightModeManager {
 
 		if (!opt.im_on_top) {
 			warn_msg += opt.lang.var_nm_role_app_not_high.replace(
-				"${client.iHorizon_Emojis.Warning_Icon}",
+				"${emoji_Warning_Icon}",
 				"-"
 			);
 		}
 
 		if (!opt.im_self_admin) {
 			warn_msg += opt.lang.var_nm_role_app_not_admin.replace(
-				"${client.iHorizon_Emojis.Warning_Icon}",
+				"${emoji_Warning_Icon}",
 				"-"
 			);
 		}

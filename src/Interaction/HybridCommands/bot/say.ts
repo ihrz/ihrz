@@ -98,7 +98,7 @@ export const command: Command = {
 		await client.func.method.channelSend(interaction, {
 			content:
 				"> " +
-				`${toSay}${lang.say_footer_msg.replace("${interaction.user}", interaction.member.user.toString())}`,
+				`${toSay}${lang.say_footer_msg.replace("${author}", interaction.member.user.toString())}`,
 			allowedMentions: { roles: [], users: [], repliedUser: false }
 		});
 		return;

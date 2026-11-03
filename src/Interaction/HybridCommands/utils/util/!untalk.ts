@@ -90,18 +90,15 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_talk_logs_title,
 			description: lang.util_talk_logs_description
-				.replace(
-					"${interaction.member.user.toString()}",
-					member.user.toString()
-				)
-				.replace("${voiceChannel.toString()}", voiceChannel.toString())
+				.replace("${author}", member.user.toString())
+				.replace("${voiceChannel}", voiceChannel.toString())
 				.replace("${mutedCount}", mutedCount.toString())
 				.replace("${skippedCount}", skippedCount.toString())
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_talk_command_work
-				.replace("${voiceChannel.toString()}", voiceChannel.toString())
+				.replace("${voiceChannel}", voiceChannel.toString())
 				.replace("${mutedCount}", mutedCount.toString())
 				.replace("${skippedCount}", skippedCount.toString())
 		});

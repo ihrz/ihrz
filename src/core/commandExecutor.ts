@@ -391,7 +391,7 @@ export async function checkGlobalCooldown(
 			ctx.lang.global_command_cooldown_msg
 				.replace("${emoji}", ctx.client.iHorizon_Emojis.Warn)
 				.replace("${time}", time)
-				.replace("${ctx.commandPath}", ctx.commandPath)
+				.replace("${ctxCommandPath}", ctx.commandPath)
 		);
 		return { unallowed: true };
 	}

@@ -82,7 +82,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		if (!userLimit) {
 			await response.reply({
 				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${interaction.client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					interaction.client.iHorizon_Emojis.No
 				),
 				flags: [1 << 6]

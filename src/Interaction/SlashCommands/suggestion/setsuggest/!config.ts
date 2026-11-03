@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setsuggest_disable_pw_on.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.user.toString()
 				)
 			});
@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 			await client.db.set(`${interaction.guildId}.SUGGEST.disable`, true);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setsuggest_disable_pw_off.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.user.toString()
 				)
 			});

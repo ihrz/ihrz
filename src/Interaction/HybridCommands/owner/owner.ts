@@ -160,7 +160,7 @@ export async function run_for_bot_owner(
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.owner_is_now_owner.replace(
-			/\${member\.user\.username}/g,
+			/\${memberUsername}/g,
 			member.globalName || member.displayName
 		)
 	});
@@ -246,7 +246,7 @@ export async function run_for_guild_owner(
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.owner_is_now_owner.replace(
-			/\${member\.user\.username}/g,
+			/\${memberUsername}/g,
 			member.globalName || member.displayName
 		)
 	});

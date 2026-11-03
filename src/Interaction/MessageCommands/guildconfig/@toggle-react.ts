@@ -67,7 +67,7 @@ export const command: Command = {
 		await interaction.reply({
 			content: lang.toggle_react_command_work
 				.replace("{activeMsg}", activeMsg)
-				.replace("${interaction.member?.id}", interaction.member?.id!),
+				.replace("${authorId}", interaction.member?.id!),
 			allowedMentions: { repliedUser: false }
 		});
 		return;

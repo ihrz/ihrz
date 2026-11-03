@@ -79,7 +79,7 @@ export const event: BotEvent = {
 				.setColor(2829617)
 				.setTitle(
 					lang.protection_blockbot_embed_title.replace(
-						"${member.guild.name}",
+						"${memberGuildName}",
 						member.guild.name
 					)
 				)

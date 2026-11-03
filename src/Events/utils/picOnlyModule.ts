@@ -116,7 +116,7 @@ export const event: BotEvent = {
 						await message.author
 							.send({
 								content: lang.piconly_module_punish_msg.replace(
-									"${message.author}",
+									"${messageAuthor}",
 									message.author.toString()
 								)
 							})
@@ -127,11 +127,11 @@ export const event: BotEvent = {
 						.send({
 							content: lang.piconly_module_warn_msg
 								.replace(
-									"${message.author}",
+									"${messageAuthor}",
 									message.author.toString()
 								)
 								.replace(
-									"${userWarnings.length}",
+									"${userWarningCount}",
 									String(userWarnings.length)
 								)
 								.replace("${threshold}", String(threshold))
