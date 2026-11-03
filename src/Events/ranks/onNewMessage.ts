@@ -206,7 +206,10 @@ export const event: BotEvent = {
 				}
 
 				client.func.method.channelSend(message, {
-					content: msg
+					content: msg,
+					// Message modèle éditable par les gestionnaires (dashboard) :
+					// jamais de ping @everyone/@here ni de rôle.
+					allowedMentions: { parse: ["users"] }
 				});
 				return;
 			}
@@ -214,7 +217,8 @@ export const event: BotEvent = {
 			if (!MsgChannel) return;
 
 			MsgChannel.send({
-				content: msg
+				content: msg,
+				allowedMentions: { parse: ["users"] }
 			});
 			return;
 		}

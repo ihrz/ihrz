@@ -209,14 +209,16 @@ export const event: BotEvent = {
 			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
-			let desc: string = "";
 
 			Object.entries(listAll).forEach(async ([userId, array]) => {
 				const member = client.users.cache.get(array.id) as User;
 
 				for (const ScheduleId in array.value) {
 					if (array.value[ScheduleId]?.expired <= dateNow) {
-						desc += `${format(new Date(array.value[ScheduleId]?.expired), "YYYY/MM/DD HH:mm:ss")}`;
+						// Une description PAR rappel : un accumulateur partagé
+						// envoyait le contenu des rappels d'autres utilisateurs
+						// dans le DM de chacun (fuite + injection inter-users).
+						let desc = `${format(new Date(array.value[ScheduleId]?.expired), "YYYY/MM/DD HH:mm:ss")}`;
 						desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
 						desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
 
