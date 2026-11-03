@@ -1056,7 +1056,7 @@ export default {
 
 	// /weekly
 	weekly_cooldown_error:
-		"Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !",
+		"Désolé, tu dois attendre **${time}** avant d'exécuter cette commande !",
 	weekly_embed_title: "Hebdomadaire",
 	weekly_embed_description: "**Récompense Hebdomadaire**",
 	weekly_embed_fields: "Collecté",
@@ -2954,7 +2954,7 @@ export default {
 
 	// /report
 	report_cooldown_command:
-		"Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !",
+		"Désolé, tu dois attendre **${time}** avant d'exécuter cette commande !",
 	report_owner_need: ":x: | **Faut etre le chef du serv pour faire ça !**",
 	report_specify: "Precise le bug sinon jpeu pas lcomprendre!",
 	report_command_work:
