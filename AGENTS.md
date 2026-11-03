@@ -8,7 +8,7 @@
 - Respect existing patterns. Clean code, follow the module you are editing.
 - No French comments. No emojis. No decorative characters in code (the licence header below is the only exception).
 - User-visible strings: NEVER hardcoded. Technical / log strings: allowed.
-- Never invent a new pattern when one already exists. Search first (`src/core/functions`, `src/Interaction`, `src/assets`).
+- Never invent a new pattern when one already exists. Search first (`src/core/functions`, `src/core/modules`, `src/Interaction`, `src/assets`).
 
 ## Licence header
 
@@ -70,7 +70,7 @@ bun run type:lang
 
 ## Core functions (`client.func`)
 
-- Implementations live in `src/core/functions/`, consumed as `client.func.<name>` (e.g. `client.func.html2png`, `client.func.numberBeautifuer`, `client.func.sanitizing` — keep exact existing names, including historical typos).
+- Implementations live in `src/core/functions/`, consumed as `client.func.<name>` (e.g. `client.func.svg2png`, `client.func.numberBeautifuer`, `client.func.sanitizing` — keep exact existing names, including historical typos).
 - Types: `types/client_functions.d.ts`. Regenerate with:
 
 ```sh
@@ -123,31 +123,10 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - Mandatory namespace: `client.iHorizon_Emojis.<Pascal_Snake_Case>`, e.g. `client.iHorizon_Emojis.Save_Clip`.
 - Files: `src/assets/emojis/`. Check creation tool: `bun run check:emoji` (`tools/Emoji_Creator.ts`).
 
-## HTML -> PNG
+## SVG -> PNG
 
-- Templates: `src/assets/html/*.html` with `{snake_case}` variables, camelCase files.
-- Render via `client.func.html2png` (wraps puppeteer or HorizonGateway, see `src/core/functions/html2png.ts`):
-
-```ts
-let code = client.htmlfiles["twitterCommentCard"]
-	.replaceAll("{tweet}", sanitizing(messageArgs.join(' ')))
-	.replaceAll("{displayname}", sanitizing(username));
-
-const img = await client.func.html2png(code, {
-	omitBackground: true,
-	selectElement: true,
-	elementSelector: ".tweet-card",
-	width: 1200,
-	height: 500,
-	scaleSize: 3,
-});
-
-let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
-```
-
-## SVG -> PNG (preferred for new images)
-
-- Templates: `src/assets/svg/*.svg` with `{snake_case}` placeholders (`client.svgfiles`), rendered by `client.func.svg2png` (resvg). Full guide and migration status: `src/assets/svg/README.md`. New images use this, not HTML.
+- Every generated image is SVG rendered by `client.func.svg2png` (resvg). There is no HTML renderer anymore (no `html2png`, no `src/assets/html`). Full guide: `src/assets/svg/README.md`.
+- Templates: `src/assets/svg/*.svg` with `{snake_case}` placeholders (`client.svgfiles`). Layout-driven images reuse the modules in `src/core/modules/` (`statsPage.ts` for stats/leaderboards/charts, `podiumCard.ts`, `musicCards.ts`, `socialCards.ts`).
 - Fill with `client.func.svgKit.fill`: plain values are escaped; generated markup comes from `svgKit.text` / `paragraph` / `image` / `raw`. Never `raw()` user input.
 - User text goes through `svgKit.text` (emoji via Twemoji, `maxWidth` ellipsis). Images are embedded buffers: avatars via `image64`, any other URL via `svgKit.fetchImage` (public hosts only).
 - Never call `new Resvg(...).render()` (leaks under Bun): always `svg2png`.
@@ -156,7 +135,7 @@ let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
 
 - Welcomer (join/leave) messages MUST be sent via `client.func.welcomerMessage` (see `src/core/functions/welcomerMessage.ts`). Never rebuild the Container + Thumbnail manually in events.
 - Thumbnails: NEVER use a raw `displayAvatarURL()` CDN URL. Always snapshot the avatar via `client.func.image64.image64` and send it as an `attachment://` file, otherwise the thumbnail shows "media lost" when the user changes their avatar.
-- Same rule for HTML -> PNG templates: embed avatars as `data:image/png;base64,...` (via `image64`), never as a remote URL.
+- Same rule for SVG images: embed avatars as buffers (`svgKit.image(await image64(url))`), never as a remote URL.
 
 ## Database
 
@@ -182,7 +161,7 @@ let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
     bun run tools/ChangelogPdf.ts [version]  # defaults to package.json version
     ```
     It renders both CHANGELOG markdowns to styled HTML and prints them via `page.pdf()` (A4, 15–18mm margins). Gotchas already handled inside (plus manual checks):
-    - The repo puppeteer config points to a dead `/nix/store/.../bin/chromium`: the tool auto-resolves the newest cached `chrome-headless-shell` (`~/.cache/puppeteer/...`) and launches with `--no-sandbox --disable-setuid-sandbox`, like `html2png.ts`.
+    - The repo puppeteer config points to a dead `/nix/store/.../bin/chromium`: the tool auto-resolves the newest cached `chrome-headless-shell` (`~/.cache/puppeteer/...`) and launches with `--no-sandbox --disable-setuid-sandbox`, like `/togif`.
     - Emoji fonts exist on the system (Noto Color Emoji) — emojis render fine.
     - Verify output with `file *.pdf` (PDF 1.4, 2 pages typical) and a screenshot of the HTML before shipping.
 

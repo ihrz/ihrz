@@ -102,11 +102,6 @@ import { components } from "../src/core/functions/method.ts";
 import { Player } from "lavalink-client";
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from "./musicPlay";
 import {
-	Html2PngOptions,
-	Html2PngRequestMessage,
-	Html2PngResponseMessage
-} from "../src/core/functions/html2pngProtocol.ts";
-import {
 	BannerExtension,
 	BannerSource,
 	BannerUrlOptions
@@ -1016,13 +1011,6 @@ declare namespace Client_Functions {
 
 	// From hasIhorizonLogs.ts
 	export function hasIhorizonLogs(guild: Guild): boolean;
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: Html2PngOptions,
-		assets?: Array<Html2PngAsset>
-	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(

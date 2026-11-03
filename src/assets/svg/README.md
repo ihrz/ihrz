@@ -76,36 +76,30 @@ const png = await client.func.svg2png(svg, { scale: 2 });
   each script run as its own element, positioned from the metrics. Arabic
   is measured with its contextual forms (`src/core/svg/arabic.ts`, 1-4%
   error instead of ~40% with the base letters).
+- No WebP decoding in resvg-js 2.6: `fetchImage` asks Discord's CDN /
+  media proxy for PNG and treats any remaining WebP as missing; request
+  Discord avatars / banners with `extension: "png"`.
 - No variable fonts: weights are separate static files.
 - No CSS (filters and gradients are SVG ones), no JavaScript.
 
 ## Migration status
 
-Done on this branch:
+Done: every image of the bot is rendered with resvg. `html2png`,
+`loadHtmlFile`, `src/assets/html` and the HorizonGateway image offload are
+gone.
 
-| Template | Notes |
+| Image | Where |
 |---|---|
-| `captcha` | glyph rotation/offset and noise strokes now random per render (the HTML one drew the same lines every time); no Google Fonts fetch |
-| `ranksCard` | emoji in names, ellipsis, labels shortened before values; fixes "total XP" showing the current XP |
-| `welcomeCard` (was `guildconfigWelcomeCart`) | background downloaded through `fetchImage` (Chromium loaded the admin URL itself: SSRF), message escaped (HTML/CSS injection), `<br>` and wrapping, readability veil |
+| captcha | `src/core/captcha.ts` (random glyph rotation and noise per render) |
+| ranks card | `/ranks show` |
+| welcome card | `src/Events/guildconfig/joinMessage.ts` (background via `fetchImage`) |
+| love, catsay, captions, bubbles | `src/core/images.ts` (Anton replaces Impact) |
+| now playing, track banner | `src/core/modules/musicCards.ts` |
+| /tweet, /youtube | `src/core/modules/socialCards.ts` |
+| top messages / voice, gstats, channel stats, ustats, authrestore | `src/core/modules/statsPage.ts` (block engine: lists, metric cards, columns, area charts) |
+| ranks / economy podiums | `src/core/modules/podiumCard.ts` |
+| latency monitoring | `src/assets/svg/botLatencyMonitoring.svg` |
 
-Remaining, by effort:
-
-| Template | Used by | Effort | What it needs |
-|---|---|---|---|
-| `love`, `catsay`, `captions`, `bubbles` | `src/core/images.ts` | S | image + text overlays |
-| `musicBanner`, `nowPlaying` | music, playerManager | S | cover art, progress bar, ellipsis |
-| `youtubeCommentCard` | `/youtube` | S | avatar, wrapped comment |
-| `twitterCommentCard` | `/tweet` | M | wrapped text, icons (inline SVG paths already in the HTML) |
-| `topMessagesLeaderboard`, `topVoiceLeaderboard` | stats | M | rows of avatar + bar + numbers |
-| `podiumRanksModule`, `podiumEconomyModule` | leaderboards | M | 3 avatars, steps; drops the Tailwind CDN script |
-| `guildStatsLeaderboard`, `channelStatsPage` | stats | M/L | tables, cards grid |
-| `botLatencyMonitoring` | infrastructure monitoring | M | line chart (polyline from data) |
-| `userStatsPage`, `authRestoreGetPage` | stats, authrestore | L | charts currently drawn by `chart.js` loaded from an unpinned CDN at render time: replace with generated SVG paths (line/area/bar) |
-| `botProfileCard`, `old.userStatsPage` | unused | - | delete |
-
-Suggested order: small cards first (S), then a tiny chart helper in svgKit
-(axes, polyline, area, bars) shared by the four chart templates. Once the
-last template is migrated: remove `html2png`, `loadHtmlFile`,
-`src/assets/html`, the `puppeteer` dependency, and the HorizonGateway image
-offload (it existed because Chromium was too heavy to run on every shard).
+Puppeteer is still a dependency for two non-rendering uses: `/togif`
+decodes WebP through a browser canvas (resvg-js 2.6 cannot decode WebP)
+and `tools/ChangelogPdf.ts` prints the changelog PDFs.

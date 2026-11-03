@@ -73,7 +73,6 @@ import { LavalinkNode, LyricsResult, SearchResult, Track } from "lavalink-client
 import { components } from '../src/core/functions/method.ts';
 import { Player } from 'lavalink-client';
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from './musicPlay';
-import { Html2PngOptions, Html2PngRequestMessage, Html2PngResponseMessage } from '../src/core/functions/html2pngProtocol.ts';
 import { BannerExtension, BannerSource, BannerUrlOptions } from '../src/core/functions/bannerURL.ts';
 `;
 export class FunctionAnalyzer {
