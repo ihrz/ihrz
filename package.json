@@ -41,6 +41,7 @@
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
 		"@discordjs/voice": "^0.19.2",
+		"@resvg/resvg-js": "^2.6.2",
 		"discord.js": "^14.28.0",
 		"gifwrap": "^0.10.1",
 		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",

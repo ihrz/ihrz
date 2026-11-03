@@ -177,21 +177,6 @@ declare namespace Client_Functions {
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
 
-	// From batchProcessor.ts
-	export namespace batchProcessor {
-		export function processBatch<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options?: BatchProcessorOptions
-		): Promise<BatchProcessorResult>;
-		export function processBatchAsync<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options?: BatchProcessorOptions,
-			onComplete?: (result: BatchProcessorResult) => void
-		): void;
-	}
-
 	// From mediaManipulation.ts
 	export namespace mediaManipulation {
 		export function convertToPng(
@@ -350,6 +335,21 @@ declare namespace Client_Functions {
 			client: Client<boolean>,
 			minMembers: number
 		): Promise<Array<CommunityGuildData>>;
+	}
+
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options?: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options?: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
 	}
 
 	// From music_proximity.ts
@@ -564,18 +564,59 @@ declare namespace Client_Functions {
 		variables: WelcomerEmbedVariables
 	): Promise<APIEmbed | null>;
 
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: Html2PngOptions,
-		assets?: Array<Html2PngAsset>
-	): Promise<Buffer<ArrayBufferLike>>;
-
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
 		optionName: string,
 		optionValue: unknown
 	): string;
+
+	// From svg2png.ts
+	export function svg2png(
+		svg: string,
+		options?: Svg2PngOptions
+	): Promise<Buffer<ArrayBufferLike>>;
+
+	// From svgKit.ts
+	export namespace svgKit {
+		export function uid(prefix?: any): string;
+		export function escape(value: string): string;
+		export function raw(markup: string): SvgMarkup;
+		export function fill(
+			template: string,
+			values: { [x: string]: string | number | SvgMarkup }
+		): string;
+		export function measure(
+			text: string,
+			style: TextStyle
+		): Promise<number>;
+		export function ellipsize(
+			text: string,
+			maxWidth: number,
+			style: TextStyle
+		): Promise<string>;
+		export function wrap(
+			text: string,
+			maxWidth: number,
+			style: TextStyle,
+			maxLines?: any
+		): Promise<Array<string>>;
+		export function text(
+			content: string,
+			options: TextOptions
+		): Promise<SvgMarkup>;
+		export function paragraph(
+			content: string,
+			options: ParagraphOptions
+		): Promise<SvgMarkup>;
+		export function dataUri(buffer: Buffer<ArrayBufferLike>): string;
+		export function image(
+			source: Buffer<ArrayBufferLike>,
+			options: ImageOptions
+		): SvgMarkup;
+		export function fetchImage(
+			url: string
+		): Promise<Buffer<ArrayBufferLike> | null>;
+	}
 
 	// From prefix.ts
 	export namespace prefix {
@@ -588,6 +629,13 @@ declare namespace Client_Functions {
 			string: string;
 		};
 	}
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: Html2PngOptions,
+		assets?: Array<Html2PngAsset>
+	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+	<defs>
+		<linearGradient id="fallback" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#1e1f22"/>
+			<stop offset="1" stop-color="#313338"/>
+		</linearGradient>
+		<filter id="shadow" x="-10%" y="-30%" width="120%" height="160%">
+			<feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.7"/>
+		</filter>
+	</defs>
+	<rect width="1280" height="800" fill="url(#fallback)"/>
+	{background}
+	{avatar}
+	<circle cx="640" cy="{avatar_center_y}" r="{avatar_ring_radius}" fill="none" stroke="{ring_color}" stroke-width="5"/>
+	<g filter="url(#shadow)">{message}</g>
+</svg>

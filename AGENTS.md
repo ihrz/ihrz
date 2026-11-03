@@ -145,6 +145,13 @@ const img = await client.func.html2png(code, {
 let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
 ```
 
+## SVG -> PNG (preferred for new images)
+
+- Templates: `src/assets/svg/*.svg` with `{snake_case}` placeholders (`client.svgfiles`), rendered by `client.func.svg2png` (resvg). Full guide and migration status: `src/assets/svg/README.md`. New images use this, not HTML.
+- Fill with `client.func.svgKit.fill`: plain values are escaped; generated markup comes from `svgKit.text` / `paragraph` / `image` / `raw`. Never `raw()` user input.
+- User text goes through `svgKit.text` (emoji via Twemoji, `maxWidth` ellipsis). Images are embedded buffers: avatars via `image64`, any other URL via `svgKit.fetchImage` (public hosts only).
+- Never call `new Resvg(...).render()` (leaks under Bun): always `svg2png`.
+
 ## Components V2 (STRICT)
 
 - Welcomer (join/leave) messages MUST be sent via `client.func.welcomerMessage` (see `src/core/functions/welcomerMessage.ts`). Never rebuild the Container + Thumbnail manually in events.

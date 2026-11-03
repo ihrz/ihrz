@@ -38,7 +38,6 @@ import { apiTable } from "../client/ready.js";
 import resolveWelcomerEmbed, {
 	WelcomerEmbedVariables
 } from "../../core/functions/welcomerEmbed.js";
-import type { Html2PngAsset } from "../../core/functions/html2png.js";
 
 const INVITE_RESOLVE_TIMEOUT_MS = 1200;
 
@@ -85,48 +84,39 @@ async function downscaleAvatar(
 	}
 }
 
-export const JOIN_IMAGE_AVATAR_TOKEN = "%%AVATAR%%";
+const WELCOME_WIDTH = 1280;
+const WELCOME_HEIGHT = 800;
+const WELCOME_TEXT_WIDTH = 1160;
+const WELCOME_MAX_LINES = 6;
 
+function pixels(value: string, fallback: number, min: number, max: number) {
+	const parsed = parseInt(value, 10);
+	return Math.min(
+		max,
+		Math.max(min, Number.isFinite(parsed) ? parsed : fallback)
+	);
+}
+
+/**
+ * Welcome banner, rendered with resvg. Background: the guild/user banner or
+ * the configured URL, downloaded through the public-only fetcher (Chromium
+ * used to load that admin-supplied URL itself). `<br>` and new lines in the
+ * message split lines; everything else is plain text.
+ */
 export async function generateJoinImage(
 	member: GuildMember,
 	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
 ): Promise<Buffer> {
-	const { code, assets } = await buildJoinImagePayload(
-		member,
-		ImageBannerOptions
-	);
-
-	const image = await member.client.func.html2png(
-		code,
-		{
-			omitBackground: false,
-			selectElement: false
-		},
-		assets
-	);
-	return image;
-}
-
-export async function buildJoinImagePayload(
-	member: GuildMember,
-	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
-): Promise<{ code: string; assets: Html2PngAsset[] }> {
-	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
+	const kit = member.client.func.svgKit;
 
 	let backgroundURL =
-		(await member.client.func.bannerURL(member.guild, { size: 512 })) ||
-		(await member.client.func.bannerURL(member.user, { size: 512 })) ||
+		(await member.client.func.bannerURL(member.guild, { size: 1024 })) ||
+		(await member.client.func.bannerURL(member.user, { size: 1024 })) ||
 		"";
 	let profilePictureRound = member.displayHexColor;
 	let textColour = "#aa9999";
-	let textMessage = member.client.func.method.generateCustomMessagePreview(
-		"Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild",
-		{
-			user: member.user,
-			guild: member.guild,
-			guildLocal: "en-US"
-		}
-	);
+	let textMessage =
+		"Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild";
 	let textSize = "40px";
 	let avatarSize = "140px";
 
@@ -156,54 +146,82 @@ export async function buildJoinImagePayload(
 		}
 	}
 
-	let avatarURL = member.displayAvatarURL({
-		size: 512,
-		extension: "png",
-		forceStatic: true
-	});
-	const assets: Html2PngAsset[] = [];
-	try {
-		const avatarBuffer =
-			await member.client.func.image64.image64(avatarURL);
-		if (avatarBuffer) {
-			const resized = await downscaleAvatar(avatarBuffer, avatarSize);
-			avatarURL = JOIN_IMAGE_AVATAR_TOKEN;
-			assets.push({
-				token: JOIN_IMAGE_AVATAR_TOKEN,
-				mime: "image/png",
-				buffer: resized
-			});
-		}
-	} catch {
-		// Fallback to CDN URL
-	}
+	const fontSize = pixels(textSize, 40, 12, 96);
+	const avatarPx = pixels(avatarSize, 140, 48, 400);
+	const lineHeight = Math.round(fontSize * 1.3);
 
-	htmlContent = htmlContent
-		.replaceAll("USERLOGO", avatarURL)
-		.replaceAll(
-			"USERNAME",
-			member.user.globalName || member.user.displayName
+	const message = member.client.func.method.generateCustomMessagePreview(
+		textMessage,
+		{ user: member.user, guild: member.guild, guildLocal: "fr-FR" }
+	);
+	const style = { size: fontSize, family: "JetBrains Mono" as const };
+	const lines = (
+		await kit.wrap(
+			message.replace(/<br\s*\/?>/gi, "\n"),
+			WELCOME_TEXT_WIDTH,
+			style,
+			WELCOME_MAX_LINES
 		)
-		.replaceAll("SERVERNAME", member.guild.name)
-		.replaceAll("XXX", member.guild.memberCount.toString())
-		.replaceAll("#000000", profilePictureRound)
-		.replaceAll("BACKGROUNDURL", `url('${backgroundURL}')`)
-		.replaceAll("#aa9999", textColour)
-		.replaceAll(
-			"MSG",
-			member.client.func.method.generateCustomMessagePreview(
-				textMessage,
-				{
-					user: member.user,
-					guild: member.guild!,
-					guildLocal: "fr-FR"
-				}
+	).filter((line, index, all) => line || index < all.length - 1);
+
+	// Vertically centered block: avatar, 20px gap, text lines.
+	const blockHeight = avatarPx + 20 + lines.length * lineHeight;
+	const top = (WELCOME_HEIGHT - blockHeight) / 2;
+	const firstBaseline = top + avatarPx + 20 + fontSize;
+
+	const [background, avatar, rendered] = await Promise.all([
+		backgroundURL ? kit.fetchImage(backgroundURL) : Promise.resolve(null),
+		member.client.func.image64.image64(
+			member.displayAvatarURL({
+				size: 512,
+				extension: "png",
+				forceStatic: true
+			})
+		),
+		Promise.all(
+			lines.map((line, index) =>
+				kit.text(line, {
+					...style,
+					x: WELCOME_WIDTH / 2,
+					y: firstBaseline + index * lineHeight,
+					anchor: "middle",
+					fill: textColour
+				})
 			)
 		)
-		.replaceAll("40px", textSize)
-		.replaceAll("140px", avatarSize);
+	]);
 
-	return { code: htmlContent, assets };
+	const svg = kit.fill(member.client.svgfiles["welcomeCard"], {
+		// A light veil keeps the text readable on bright backgrounds.
+		background: background
+			? kit.raw(
+					kit.image(background, {
+						x: 0,
+						y: 0,
+						width: WELCOME_WIDTH,
+						height: WELCOME_HEIGHT
+					}).markup +
+						`<rect width="${WELCOME_WIDTH}" height="${WELCOME_HEIGHT}" fill="#000000" opacity="0.35"/>`
+				)
+			: kit.raw(""),
+		avatar: avatar
+			? kit.image(await downscaleAvatar(avatar, String(avatarPx)), {
+					x: (WELCOME_WIDTH - avatarPx) / 2,
+					y: top,
+					width: avatarPx,
+					height: avatarPx,
+					radius: "circle"
+				})
+			: kit.raw(""),
+		avatar_center_y: (top + avatarPx / 2).toFixed(1),
+		avatar_ring_radius: (avatarPx / 2 + 2.5).toFixed(1),
+		ring_color: profilePictureRound,
+		message: kit.raw(
+			rendered.map((line: { markup: string }) => line.markup).join("")
+		)
+	});
+
+	return member.client.func.svg2png(svg);
 }
 
 export async function resolveInvite(
