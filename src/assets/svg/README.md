@@ -108,7 +108,7 @@ gone.
 | ranks card | `/ranks show` |
 | welcome card | `src/Events/guildconfig/joinMessage.ts` (background via `fetchImage`) |
 | love, catsay, captions, bubbles | `src/core/images.ts` (Anton replaces Impact) |
-| now playing, track banner | `src/core/modules/musicCards.ts` |
+| now playing player (inside the `/nowplaying` Components V2 panel), track banner | `src/core/modules/musicCards.ts` |
 | /tweet, /youtube | `src/core/modules/socialCards.ts` |
 | top messages / voice, gstats, channel stats, ustats, authrestore | `src/core/modules/statsPage.ts` (block engine: lists, metric cards, columns, area charts) |
 | ranks / economy podiums | `src/core/modules/podiumCard.ts` |
