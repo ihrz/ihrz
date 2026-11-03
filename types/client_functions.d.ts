@@ -466,12 +466,12 @@ declare namespace Client_Functions {
 		): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
 		export function derank(
-			user: GuildMember,
+			target: GuildMember | { guild: Guild; id: string },
 			reason?: string
 		): Promise<void>;
 		export function punish(
 			data: DatabaseStructure.ProtectionData,
-			user: GuildMember,
+			user: GuildMember | { guild: Guild; id: string },
 			reason?: string,
 			ruleKey?: string
 		): Promise<void>;

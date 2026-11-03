@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { invalidateProtectionContext } from "../../../../core/modules/protectionEngine.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -94,6 +95,7 @@ export const subCommand: SubCommand = {
 		await client.db.delete(
 			`${interaction.guild.id}.ALLOWLIST.list.${member.id}`
 		);
+		invalidateProtectionContext(interaction.guild.id);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.allowlist_delete_command_work.replace(
 				"${member.user}",

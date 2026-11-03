@@ -33,7 +33,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 function getDiff(
 	oldChannel: GuildChannel,

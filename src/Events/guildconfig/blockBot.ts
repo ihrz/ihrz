@@ -31,7 +31,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",

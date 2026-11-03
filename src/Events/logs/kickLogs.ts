@@ -33,7 +33,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -63,7 +63,7 @@ export const event: BotEvent = {
 			guild: member.guild,
 			target: member.id,
 			actionType: AuditLogEvent.MemberKick,
-			type: "PROTECTION"
+			type: "LOGS"
 		});
 		if (!firstEntry) return;
 
