@@ -174,6 +174,7 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 
 ```sh
 bun run dev            # dev bot, bypasses ShardingManager (src/core/bot.ts)
+pm2 start pm2.config.cjs  # prod: local ./.bun Bun (installed/upgraded), git pull, bun install, then src/index.ts
 bun run check:lang     # language keys + placeholders vs en-US
 bun run type:func      # retype client.func
 bun run check:licence  # licence headers

@@ -19,26 +19,6 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { execSync } from "child_process";
-
-execSync("git pull", {
-	stdio: [0, 1, 2],
-	cwd: process.cwd()
-});
-
-// A pull can bring new dependencies (e.g. @resvg/resvg-js): install them
-// before the shards import anything. Instant when nothing changed;
-// --production skips dev tools (Puppeteer would download a browser).
-try {
-	execSync(`"${process.execPath}" install --production`, {
-		stdio: [0, 1, 2],
-		cwd: process.cwd()
-	});
-} catch {
-	// Keep booting with what is installed; a missing module is reported by
-	// the shard that needs it.
-}
-
 import "./core/functions/colors.js";
 
 import config from "./files/config.js";

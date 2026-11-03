@@ -176,3 +176,5 @@ src/files/custom-enabled-guilds.json
 .opencommit-commitlint
 
 !src/files/commands.json
+# Project-local Bun installed and upgraded by pm2.config.cjs
+.bun/
