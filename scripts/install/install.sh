@@ -207,9 +207,6 @@ done
 	# Step 3 : installing the dependencies
 	bun i
 
-	# Installing Chrome via puppeteer.
-	./node_modules/.bin/puppeteer browsers install chrome
-
 	# Step 4 : creating config.ts from config.example.ts
 	# If a config.ts already exists from a previous run, back it up instead of
 	# silently overwriting it, and let the user decide whether to re-run the

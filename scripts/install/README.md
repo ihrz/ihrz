@@ -4,7 +4,7 @@ This folder contains an installation script designed to automate the installatio
 
 These scripts help you:
 
-- Install `git`, `curl`, `unzip`, `bun`, `nodejs`, `pm2`, the Chrome web browser (via Puppeteer), and additional required packages (`fonts-noto-color-emoji`, `xvfb`, `melt`)
+- Install `git`, `curl`, `unzip`, `bun`, `nodejs`, `pm2`, and additional required packages (`fonts-noto-color-emoji`, `xvfb`, `melt`)
 - Clone the iHorizon repository (choosing between the `production` and `dev` branches)
 - Install iHorizon dependencies
 - Back up any existing `config.ts` before regenerating it, and optionally skip the interactive setup to keep your current configuration
