@@ -322,15 +322,8 @@ export const event: BotEvent = {
 					2000
 				);
 
-			// Sort on member count, then strip it: only the public fields are pushed.
-			return guilds
-				.sort((a, b) => b.members - a.members)
-				.map(({ name, avatar, online, offline }) => ({
-					name,
-					avatar,
-					online,
-					offline
-				}));
+			// Biggest communities first; only name, icon and member count are public.
+			return guilds.sort((a, b) => b.members - a.members);
 		}
 
 		async function getTeam(): Promise<Team> {

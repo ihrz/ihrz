@@ -721,15 +721,15 @@ export namespace DatabaseStructure {
 		H247_TAKEOVER?: H247TakeoverSchema;
 	}
 
-	// One played track (`{guildId}.MUSIC_HISTORY.tracks`, newest last,
-	// capped). Read by the dashboard; /history keeps using embed/buffer.
+	// Public community server listed on ihorizon.org (`BOT.community.servers`).
 	export interface CommunityServer {
 		name: string;
 		avatar: string | null;
-		online: number;
-		offline: number;
+		members: number;
 	}
 
+	// One played track (`{guildId}.MUSIC_HISTORY.tracks`, newest last,
+	// capped). Read by the dashboard; /history keeps using embed/buffer.
 	export interface MusicHistoryTrack {
 		at: number;
 		requesterId: string | null;
