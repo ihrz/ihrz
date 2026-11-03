@@ -32,6 +32,7 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { guildPrefix } from "../../core/functions/prefix.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -56,7 +57,7 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const dbGet = (await client.db.get(
+		const dbGet = (await getCachedGuildValue(
 			`${message.guild.id}.GUILD.RANK_ROLES`
 		)) as DatabaseStructure.DbGuildObject["RANK_ROLES"];
 		const prefix = (await guildPrefix(client, message.guildId!)).string;

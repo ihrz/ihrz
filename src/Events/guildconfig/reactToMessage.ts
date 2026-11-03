@@ -22,6 +22,7 @@
 import { Client, Message } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -30,7 +31,7 @@ export const event: BotEvent = {
 			!message.guild ||
 			message.author.bot ||
 			!message.channel ||
-			(await client.db.get(
+			(await getCachedGuildValue(
 				`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`
 			)) === false
 		)
@@ -49,7 +50,7 @@ export const event: BotEvent = {
 			"hi",
 			"hola"
 		];
-		const customReacts = await client.db.get(
+		const customReacts = await getCachedGuildValue(
 			`${message.guildId}.GUILD.REACT_MSG`
 		);
 		const firstWord = message.content.split(" ")[0]?.toLowerCase();

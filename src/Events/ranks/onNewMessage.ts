@@ -32,32 +32,23 @@ import {
 import { parseMessageCommand } from "../interaction/messageCommandHandler.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || message.author.bot || !message.channel) return;
-
-		const lang = await client.func.getLanguageData(message.guild.id);
-		const guildLocal =
-			(await client.db.get(`${message.guild.id}.GUILD.LANG.lang`)) ||
-			"en-US";
-
-		if ((await parseMessageCommand(client, message)).success) return;
-
 		if (
 			!message.guild ||
 			message.author.bot ||
-			message.channel.type !== ChannelType.GuildText
+			message.channel?.type !== ChannelType.GuildText
 		)
 			return;
 
-		const baseData = (await client.db.get(
-			`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`
-		)) as DatabaseStructure.XpLevelingUserSchema;
-		const ranksConfig = (await client.db.get(
-			`${message.guild.id}.GUILD.XP_LEVELING`
-		)) as DatabaseStructure.DbGuildObject["XP_LEVELING"];
+		// Cheapest checks first: cached config, then command parsing, and
+		// only then the per-user read. Language is only needed on level up.
+		const ranksConfig = await getCachedGuildValue<
+			NonNullable<DatabaseStructure.DbGuildObject["XP_LEVELING"]>
+		>(`${message.guild.id}.GUILD.XP_LEVELING`);
 		const xpTurn = ranksConfig?.disable;
 
 		if (
@@ -66,17 +57,25 @@ export const event: BotEvent = {
 		)
 			return;
 
+		if ((await parseMessageCommand(client, message)).success) return;
+
+		const baseData = (await client.db.get(
+			`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`
+		)) as DatabaseStructure.XpLevelingUserSchema;
+
 		const level = baseData?.level || 1;
 		const randomNumber = client.func.random.secureRandomInt(35, 37);
 
-		await client.db.add(
-			`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`,
-			randomNumber
-		);
-		await client.db.add(
-			`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`,
-			randomNumber
-		);
+		await Promise.all([
+			client.db.add(
+				`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`,
+				randomNumber
+			),
+			client.db.add(
+				`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xptotal`,
+				randomNumber
+			)
+		]);
 
 		if (level * 500 < baseData?.xp!) {
 			await client.db.add(
@@ -95,9 +94,15 @@ export const event: BotEvent = {
 				level * 500
 			);
 
-			const newLevel = await client.db.get(
-				`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`
-			);
+			const [newLevel, lang, guildLocal] = await Promise.all([
+				client.db.get(
+					`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`
+				),
+				client.func.getLanguageData(message.guild.id),
+				getCachedGuildValue<string>(
+					`${message.guild.id}.GUILD.LANG.lang`
+				).then((code) => code || "en-US")
+			]);
 
 			// Check if the rank roles configuration exists
 			if (ranksConfig?.ranksRoles) {

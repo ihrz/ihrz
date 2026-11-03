@@ -29,6 +29,7 @@ import config from "../files/config.js";
 import { setMaxListeners } from "events";
 import { getOS } from "./getOS.js";
 import { iHorizonTimeCalculator } from "./functions/ms.js";
+import { installGuildConfigCache } from "./modules/guildConfigCache.js";
 setMaxListeners(0);
 
 const DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60 * 60 * 8;
@@ -120,5 +121,6 @@ client.version = ClientVersion;
 client.config = config;
 
 client.db = await initializeDatabase(config.database);
+installGuildConfigCache(client.db);
 
 core.main(client);

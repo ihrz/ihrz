@@ -25,6 +25,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { BotEvent } from "../../../types/event.js";
 
 import { scheduleHoneypotTrigger } from "../../core/modules/honeypotManager.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -50,9 +51,10 @@ export const event: BotEvent = {
 			return;
 		}
 
-		const config = (await client.db.get(
-			`${message.guildId}.GUILD.HONEYPOT`
-		)) as DatabaseStructure.HoneypotSchema | null;
+		const config =
+			await getCachedGuildValue<DatabaseStructure.HoneypotSchema>(
+				`${message.guildId}.GUILD.HONEYPOT`
+			);
 		if (
 			!config?.enabled ||
 			!config.channelId ||

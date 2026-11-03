@@ -23,6 +23,7 @@ import { BaseGuildTextChannel, Client, Message } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -35,8 +36,19 @@ export const event: BotEvent = {
 		)
 			return;
 
-		let baseData = (await client.db.get(`${message.guild?.id}.COUNTER`)) as
-			DatabaseStructure.CounterSchema | undefined;
+		// Config first (cached): only the counter channel reads the count.
+		const baseData =
+			await getCachedGuildValue<DatabaseStructure.CounterSchema>(
+				`${message.guild.id}.COUNTER`
+			);
+		if (
+			!baseData ||
+			baseData.channelId !== message.channelId ||
+			baseData.config === "off"
+		) {
+			return;
+		}
+
 		let lastNumber = ((await client.db.get(
 			`${message.guild.id}.COUNTER_DATA`
 		)) || {
@@ -47,14 +59,6 @@ export const event: BotEvent = {
 		if (typeof lastNumber === "number")
 			lastNumber = { amount: lastNumber, userId: client.user?.id! };
 
-		if (
-			!baseData ||
-			baseData.channelId !== message.channelId ||
-			baseData.config === "off"
-		) {
-			return;
-		}
-
 		const lang = await client.func.getLanguageData(message.guildId);
 
 		if (client.func.method.isNumber(message.content)) {
@@ -64,10 +68,6 @@ export const event: BotEvent = {
 				number === lastNumber.amount + 1 &&
 				message.author.id !== lastNumber.userId
 			) {
-				const lang = await client.func.getLanguageData(
-					message.guild.id
-				);
-
 				await client.db.set(`${message.guild.id}.COUNTER_DATA`, {
 					amount: number,
 					userId: message.author.id

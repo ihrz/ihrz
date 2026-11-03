@@ -25,6 +25,7 @@ import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 import { scheduleStickyChannelRefresh } from "../../core/modules/stickyMessageManager.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -38,7 +39,7 @@ export const event: BotEvent = {
 			return;
 		if (message.channel.type !== ChannelType.GuildText) return;
 
-		const stickyConfig = (await client.db.get(
+		const stickyConfig = (await getCachedGuildValue(
 			`${message.guild.id}.STICKY.${message.channelId}`
 		)) as DatabaseStructure.StickyChannelConfig | null;
 

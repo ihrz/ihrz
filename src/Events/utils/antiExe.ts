@@ -22,6 +22,7 @@
 import { ChannelType, Client, Message, PermissionFlagsBits } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 const binaryExtensions: string[] = [
 	"exe",
@@ -68,7 +69,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let config = (await client.db.get(
+		let config = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.antiExe`
 		)) as DatabaseStructure.UtilsData["antiExe"];
 		if (!config && config !== "on") return;

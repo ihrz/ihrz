@@ -21,6 +21,7 @@
 
 import { BaseGuildTextChannel, Client, DMChannel, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -36,8 +37,9 @@ export const event: BotEvent = {
 		// Handles all messages and checks whether they contain a resolvable link
 		if (
 			message.author.bot ||
-			(await client.db.get(`${message.guildId}.UTILS.git_lines`)) ===
-				false
+			(await getCachedGuildValue(
+				`${message.guildId}.UTILS.git_lines`
+			)) === false
 		) {
 			return;
 		}
