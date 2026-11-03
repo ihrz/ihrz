@@ -23,12 +23,13 @@
  * SVG -> PNG with resvg, the replacement for `html2png` (headless Chromium).
  * A few milliseconds per image on the libuv thread pool, no browser process,
  * no network: only the bundled fonts are loaded (system fonts would cost
- * ~1.7s per render and differ between hosts).
+ * ~1.7s per render and differ between hosts), script fonts (Arabic, CJK)
+ * only when the SVG uses them.
  */
 
 import { renderAsync } from "@resvg/resvg-js";
 
-import { bundledFontFiles } from "../svg/fontMetrics.js";
+import { fontFilesFor } from "../svg/fontMetrics.js";
 
 export interface Svg2PngOptions {
 	/** Output scale (2 = twice the SVG size). Default 1. */
@@ -37,8 +38,6 @@ export interface Svg2PngOptions {
 	background?: string;
 }
 
-const fontFiles = bundledFontFiles();
-
 export default async function svg2png(
 	svg: string,
 	options: Svg2PngOptions = {}
@@ -46,7 +45,7 @@ export default async function svg2png(
 	const scale = options.scale ?? 1;
 	const rendered = await renderAsync(svg, {
 		font: {
-			fontFiles,
+			fontFiles: fontFilesFor(svg),
 			loadSystemFonts: false,
 			defaultFontFamily: "Noto Sans",
 			sansSerifFamily: "Noto Sans",

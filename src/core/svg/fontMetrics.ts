@@ -30,7 +30,9 @@
 
 import path from "path";
 
-export type FontFamily = "Noto Sans" | "JetBrains Mono" | "Rye" | "Anton";
+export type FontFamily =
+	"Noto Sans" | "JetBrains Mono" | "Rye" | "Anton" | ScriptFamily;
+export type ScriptFamily = "Noto Sans Arabic" | "Noto Sans JP" | "Noto Sans KR";
 export type FontWeight = 400 | 700;
 
 export const FONT_DIR = path.join(process.cwd(), "src", "assets", "fonts");
@@ -45,8 +47,44 @@ const FONT_FILES: Record<FontFamily, Partial<Record<FontWeight, string>>> = {
 	},
 	Rye: { 400: "Rye-Regular.ttf" },
 	// Open replacement for Impact (memes).
-	Anton: { 400: "Anton-Regular.ttf" }
+	Anton: { 400: "Anton-Regular.ttf" },
+	// Script fonts: only loaded by resvg when the SVG uses them (the CJK
+	// files are ~4.5 MB each and resvg parses its fonts on every render).
+	"Noto Sans Arabic": {
+		400: "NotoSansArabic-Regular.ttf",
+		700: "NotoSansArabic-Bold.ttf"
+	},
+	"Noto Sans JP": { 400: "NotoSansJP-Regular.otf" },
+	"Noto Sans KR": { 400: "NotoSansKR-Regular.otf" }
 };
+
+const SCRIPT_FAMILIES: ScriptFamily[] = [
+	"Noto Sans Arabic",
+	"Noto Sans JP",
+	"Noto Sans KR"
+];
+
+const SCRIPT_PATTERNS: [ScriptFamily, RegExp][] = [
+	["Noto Sans Arabic", /\p{Script=Arabic}/u],
+	["Noto Sans KR", /\p{Script=Hangul}/u],
+	[
+		"Noto Sans JP",
+		/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303f\uff00-\uffef]/u
+	]
+];
+
+/**
+ * Script font needed for a grapheme, if any. resvg (2.6) keeps the first
+ * fallback font for the rest of a text element and drops the whole element
+ * when an Arabic tspan sits in it, so such text is drawn as separate runs,
+ * each with its own font-family.
+ */
+export function scriptFamilyOf(grapheme: string): ScriptFamily | null {
+	for (const [family, pattern] of SCRIPT_PATTERNS) {
+		if (pattern.test(grapheme)) return family;
+	}
+	return null;
+}
 
 // Missing glyphs fall back like resvg does: to the other bundled fonts.
 const FALLBACK_ORDER: FontFamily[] = ["Noto Sans", "JetBrains Mono"];
@@ -176,15 +214,29 @@ function loadFont(file: string): Promise<ParsedFont> {
 	return font;
 }
 
-/** Bundled font files resvg must load (absolute paths). */
-export function bundledFontFiles(): string[] {
-	const files = new Set<string>();
-	for (const weights of Object.values(FONT_FILES)) {
-		for (const file of Object.values(weights)) {
-			if (file) files.add(path.join(FONT_DIR, file));
-		}
+function filesOf(family: FontFamily): string[] {
+	return Object.values(FONT_FILES[family])
+		.filter((file): file is string => !!file)
+		.map((file) => path.join(FONT_DIR, file));
+}
+
+const CORE_FILES = (Object.keys(FONT_FILES) as FontFamily[])
+	.filter((family) => !SCRIPT_FAMILIES.includes(family as ScriptFamily))
+	.flatMap(filesOf);
+
+/** Font files resvg must load for this SVG (absolute paths). */
+export function fontFilesFor(svg: string): string[] {
+	const files = [...CORE_FILES];
+	for (const family of SCRIPT_FAMILIES) {
+		if (svg.includes(`font-family="${family}"`))
+			files.push(...filesOf(family));
 	}
-	return [...files];
+	return files;
+}
+
+/** Every bundled font file (absolute paths). */
+export function bundledFontFiles(): string[] {
+	return (Object.keys(FONT_FILES) as FontFamily[]).flatMap(filesOf);
 }
 
 export interface Measurer {
@@ -211,7 +263,7 @@ export async function measurer(
 			const glyph = font.glyphOf(codePoint);
 			if (glyph !== 0) return font.advances[glyph] / font.unitsPerEm;
 		}
-		// Not covered by any bundled font (e.g. CJK): average glyph width.
+		// Not covered by the fonts of this run: average glyph width.
 		return 0.6;
 	};
 

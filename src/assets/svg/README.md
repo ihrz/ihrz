@@ -66,10 +66,16 @@ const png = await client.func.svg2png(svg, { scale: 2 });
 - resvg-js 2.6.2 cannot draw color emoji fonts: emoji are Twemoji SVGs
   fetched once from jsDelivr (pinned 15.1.0) and cached in memory. Offline,
   an emoji is skipped, the image still renders.
-- Bundled fonts cover Latin, Greek and Cyrillic. CJK, Arabic, Thai... render
-  as missing glyphs. Fix: add e.g. `NotoSansJP-Regular.ttf` to
-  `src/assets/fonts` and `FONT_FILES` (each font file is parsed on every
-  render: prefer subsets).
+- Scripts: Latin, Greek, Cyrillic (Noto Sans), Arabic (Noto Sans Arabic),
+  Japanese incl. kanji (Noto Sans JP), Korean (Noto Sans KR). Script fonts
+  are only loaded when the SVG uses them (~5 ms extra for CJK). Chinese
+  characters outside the Japanese set, Thai, Hebrew, Devanagari... render
+  as missing glyphs: add the Noto font to `FONT_FILES` / `SCRIPT_PATTERNS`.
+- resvg 2.6 keeps the first fallback font for the rest of a text element
+  and drops an element containing an Arabic `<tspan>`: `svgKit.text` draws
+  each script run as its own element, positioned from the metrics. Arabic
+  is measured with its contextual forms (`src/core/svg/arabic.ts`, 1-4%
+  error instead of ~40% with the base letters).
 - No variable fonts: weights are separate static files.
 - No CSS (filters and gradients are SVG ones), no JavaScript.
 

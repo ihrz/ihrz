@@ -29,8 +29,15 @@
  * anything: images are embedded as data URIs.
  */
 
-import { FontFamily, FontWeight, measurer } from "../svg/fontMetrics.js";
+import {
+	FontFamily,
+	FontWeight,
+	Measurer,
+	measurer,
+	scriptFamilyOf
+} from "../svg/fontMetrics.js";
 import { emojiImage, Grapheme, graphemes } from "../svg/emoji.js";
+import { arabicPresentationForms } from "../svg/arabic.js";
 import { fetchPublicImage } from "../svg/remoteImage.js";
 
 export type { FontFamily, FontWeight };
@@ -118,31 +125,84 @@ export function fill(
 /* Text                                                               */
 /* ------------------------------------------------------------------ */
 
-async function widthOf(style: TextStyle) {
-	const metrics = await measurer(
-		style.family ?? "Noto Sans",
-		style.weight ?? 400,
-		style.size,
-		style.letterSpacing ?? 0
+type RunKind = "emoji" | FontFamily;
+
+interface Run {
+	kind: RunKind;
+	value: string;
+}
+
+// Spaces, digits and punctuation stay in the current run, so an Arabic or
+// Japanese phrase keeps its spaces and numbers inside one shaped run.
+const NEUTRAL = /^[\s\p{P}\p{N}\p{S}]+$/u;
+
+/** Splits text into emoji runs, script-font runs and base-family runs. */
+function runsOf(parts: Grapheme[], base: FontFamily): Run[] {
+	const runs: Run[] = [];
+	for (const part of parts) {
+		const last = runs[runs.length - 1];
+		let kind: RunKind;
+		if (part.emoji) kind = "emoji";
+		else
+			kind =
+				scriptFamilyOf(part.value) ??
+				(NEUTRAL.test(part.value) && last && last.kind !== "emoji"
+					? last.kind
+					: base);
+
+		if (last && last.kind === kind && kind !== "emoji")
+			last.value += part.value;
+		else runs.push({ kind, value: part.value });
+	}
+	return runs;
+}
+
+/**
+ * Synchronous width function for the given text sample: loads the base
+ * family and only the script fonts the sample actually needs.
+ */
+async function widthOf(style: TextStyle, sample: Grapheme[]) {
+	const base = style.family ?? "Noto Sans";
+	const families = new Set<FontFamily>([base]);
+	for (const run of runsOf(sample, base)) {
+		if (run.kind !== "emoji") families.add(run.kind);
+	}
+	const measurers = new Map<FontFamily, Measurer>();
+	await Promise.all(
+		[...families].map(async (family) =>
+			measurers.set(
+				family,
+				await measurer(
+					family,
+					style.weight ?? 400,
+					style.size,
+					style.letterSpacing ?? 0
+				)
+			)
+		)
 	);
 	const emojiWidth = style.size + (style.letterSpacing ?? 0);
-	return (parts: Grapheme[]) => {
-		let width = 0;
-		let run = "";
-		for (const part of parts) {
-			if (part.emoji) {
-				width += metrics.width(run) + emojiWidth;
-				run = "";
-			} else {
-				run += part.value;
-			}
-		}
-		return width + metrics.width(run);
+	const runWidth = (run: Run) => {
+		if (run.kind === "emoji") return emojiWidth;
+		const metrics = measurers.get(run.kind) ?? measurers.get(base)!;
+		// Arabic is measured with its contextual forms (see svg/arabic.ts).
+		return metrics.width(
+			run.kind === "Noto Sans Arabic"
+				? arabicPresentationForms(run.value)
+				: run.value
+		);
 	};
+
+	return Object.assign(
+		(parts: Grapheme[]) =>
+			runsOf(parts, base).reduce((sum, run) => sum + runWidth(run), 0),
+		{ runWidth }
+	);
 }
 
 export async function measure(text: string, style: TextStyle): Promise<number> {
-	return (await widthOf(style))(graphemes(text));
+	const parts = graphemes(text);
+	return (await widthOf(style, parts))(parts);
 }
 
 function truncate(
@@ -169,8 +229,9 @@ export async function ellipsize(
 	maxWidth: number,
 	style: TextStyle
 ): Promise<string> {
-	const width = await widthOf(style);
-	return truncate(graphemes(text), maxWidth, width)
+	const parts = graphemes(text);
+	const width = await widthOf(style, parts);
+	return truncate(parts, maxWidth, width)
 		.map((part) => part.value)
 		.join("");
 }
@@ -182,7 +243,7 @@ export async function wrap(
 	style: TextStyle,
 	maxLines = Infinity
 ): Promise<string[]> {
-	const width = await widthOf(style);
+	const width = await widthOf(style, graphemes(text));
 	const lines: Grapheme[][] = [];
 
 	for (const paragraph of text.split(/\r?\n/)) {
@@ -239,9 +300,9 @@ export async function wrap(
 	);
 }
 
-function textAttributes(options: TextOptions): string {
+function textAttributes(options: TextOptions, family: FontFamily): string {
 	const attributes = [
-		`font-family="${escape(options.family ?? "Noto Sans")}"`,
+		`font-family="${escape(family)}"`,
 		`font-size="${options.size}"`,
 		`font-weight="${options.weight ?? 400}"`,
 		`fill="${escape(options.fill ?? "#ffffff")}"`,
@@ -256,26 +317,29 @@ function textAttributes(options: TextOptions): string {
 }
 
 /**
- * One line of text. Without emoji, resvg aligns it itself (exact); with
- * emoji, runs and Twemoji images are positioned from the font metrics.
+ * One line of text. A single run (one font, no emoji) is aligned by resvg
+ * itself (exact). Otherwise every run (base font, script font, Twemoji
+ * image) is its own element, positioned from the font metrics: resvg 2.6
+ * cannot mix scripts inside one text element reliably.
  */
 export async function text(
 	content: string,
 	options: TextOptions
 ): Promise<SvgMarkup> {
-	const width = await widthOf(options);
 	let parts = graphemes(content);
+	const width = await widthOf(options, parts);
 	if (options.maxWidth !== undefined) {
 		parts = truncate(parts, options.maxWidth, width);
 	}
 
-	const attributes = textAttributes(options);
+	const base = options.family ?? "Noto Sans";
+	const runs = runsOf(parts, base);
 	const anchor = options.anchor ?? "start";
 
-	if (!parts.some((part) => part.emoji)) {
-		const value = escape(parts.map((part) => part.value).join(""));
+	if (runs.length <= 1 && runs[0]?.kind !== "emoji") {
+		const family = (runs[0]?.kind as FontFamily | undefined) ?? base;
 		return raw(
-			`<text x="${options.x}" y="${options.y}" text-anchor="${anchor}" ${attributes}>${value}</text>`
+			`<text x="${options.x}" y="${options.y}" text-anchor="${anchor}" ${textAttributes(options, family)}>${escape(runs[0]?.value ?? "")}</text>`
 		);
 	}
 
@@ -287,21 +351,13 @@ export async function text(
 				? options.x - total
 				: options.x;
 
-	const runs: { value: string; emoji: boolean }[] = [];
-	for (const part of parts) {
-		const last = runs[runs.length - 1];
-		if (!part.emoji && last && !last.emoji) last.value += part.value;
-		else runs.push({ ...part });
-	}
-
 	const images = await Promise.all(
-		runs.map((run) => (run.emoji ? emojiImage(run.value) : null))
+		runs.map((run) => (run.kind === "emoji" ? emojiImage(run.value) : null))
 	);
 
 	const elements: string[] = [];
 	runs.forEach((run, index) => {
-		const runWidth = width([run]);
-		if (run.emoji) {
+		if (run.kind === "emoji") {
 			const href = images[index];
 			if (href) {
 				const opacity =
@@ -314,10 +370,10 @@ export async function text(
 			}
 		} else {
 			elements.push(
-				`<text x="${x.toFixed(2)}" y="${options.y}" ${attributes}>${escape(run.value)}</text>`
+				`<text x="${x.toFixed(2)}" y="${options.y}" ${textAttributes(options, run.kind)}>${escape(run.value)}</text>`
 			);
 		}
-		x += runWidth;
+		x += width.runWidth(run);
 	});
 
 	return raw(`<g>${elements.join("")}</g>`);
