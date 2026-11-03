@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 		) {
 			await interaction.editReply({
 				content: lang.suggest_deny_not_good_channel.replace(
-					"${baseData?.channel}",
+					"${channel}",
 					baseData?.channel
 				),
 				flags: [1 << 6]
@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 
 				embed.addFields({
 					name: lang.suggest_deny_embed_fields_to_put.replace(
-						"${interaction.user.username}",
+						"${authorUsername}",
 						interaction.user.globalName as string
 					),
 					value: message as string
@@ -109,7 +109,7 @@ export const subCommand: SubCommand = {
 				);
 				embed.setTitle(
 					lang.suggest_deny_embed_title_to_put.replace(
-						"${msg.embeds[0].data?.title}",
+						"${title}",
 						msg.embeds[0].data?.title as string
 					)
 				);
@@ -122,15 +122,12 @@ export const subCommand: SubCommand = {
 
 				await interaction.editReply({
 					content: lang.suggest_deny_command_work
+						.replace("${guildId}", interaction.guildId as string)
 						.replace(
-							"${interaction.guild.id}",
-							interaction.guildId as string
-						)
-						.replace(
-							"${interaction.channel.id}",
+							"${channelId}",
 							interaction.channel?.id as string
 						)
-						.replace("${fetchId?.msgId}", fetchId?.msgId),
+						.replace("${messageId}", fetchId?.msgId),
 					flags: [1 << 6]
 				});
 				msg.thread?.setLocked(true);

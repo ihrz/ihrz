@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 			const pageUsers = char.slice(i, i + usersPerPage);
 			const pageContent = pageUsers.map((userId) => userId).join("\n");
 			pages.push({
-				title: `${lang.prevnames_embed_title.replace("${user.username}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
+				title: `${lang.prevnames_embed_title.replace("${userUsername}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
 				description: pageContent
 			});
 		}

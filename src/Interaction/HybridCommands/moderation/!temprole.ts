@@ -101,7 +101,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temprole_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -115,11 +115,8 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temprole_tomute_highest_role_or_same
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${tomute.toString()}", memberToAdd.toString())
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${tomute}", memberToAdd.toString())
 			});
 			return;
 		}
@@ -131,7 +128,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temprole_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -158,13 +155,13 @@ export const subCommand: SubCommand = {
 		);
 
 		let content = lang.temprole_command_work
-			.replace("${tomute.id}", memberToAdd.id)
-			.replace("${ms(ms(mutetime))}", roletimeString)
+			.replace("${tomuteId}", memberToAdd.id)
+			.replace("${duration}", roletimeString)
 			.replace("${reason}", reason || lang.var_no_set);
 
 		if (overflow) {
 			content += lang.temprole_tomute_max_time_passed.replace(
-				"${client.iHorizon_Emojis.VC_OpenChat}",
+				"${emoji_VC_OpenChat}",
 				client.iHorizon_Emojis.VC_OpenChat
 			);
 		}
@@ -173,9 +170,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.temprole_logs_embed_title,
 			description: lang.temprole_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
-				.replace("${tomute.id}", memberToAdd.id)
-				.replace("${ms(ms(mutetime))}", roletimeString)
+				.replace("${authorId}", interaction.member.user.id)
+				.replace("${tomuteId}", memberToAdd.id)
+				.replace("${duration}", roletimeString)
 				.replace("${reason}", reason || lang.var_no_set)
 		});
 	}

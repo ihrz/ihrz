@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 			if (!current_state) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.economy_disable_already_enable.replace(
-						"${interaction.user.id}",
+						"${authorId}",
 						interaction.member.user.id
 					)
 				});
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_set_enable.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 			if (current_state) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.economy_disable_already_disable.replace(
-						"${interaction.user.id}",
+						"${authorId}",
 						interaction.member.user.id
 					)
 				});
@@ -97,7 +97,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_set_disable.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -113,10 +113,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.economy_disable_logs_embed_title,
 			description: lang.economy_disable_logs_embed_desc
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
+				.replaceAll("${authorId}", interaction.member.user.id)
 				.replace("${state}", state)
 		});
 	}

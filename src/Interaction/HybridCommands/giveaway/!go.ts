@@ -319,7 +319,7 @@ export const subCommand: SubCommand = {
 			if (!durationMs) {
 				return await modal.followUp({
 					content: lang.start_time_not_valid.replace(
-						"${interaction.user}",
+						"${author}",
 						selectInteraction.user.toString()
 					),
 					flags: [1 << 6]
@@ -329,7 +329,7 @@ export const subCommand: SubCommand = {
 			if (durationMs < 3 * 60_000) {
 				return await modal.followUp({
 					content: lang.gw_go_duration_too_low.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					),
 					flags: [1 << 6]
@@ -490,7 +490,7 @@ export const subCommand: SubCommand = {
 			if (!(await client.func.mediaManipulation.isImageUrl(imageUrl))) {
 				return await modal.followUp({
 					content: lang.gw_go_invalid_image.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					),
 					flags: [1 << 6]
@@ -504,28 +504,28 @@ export const subCommand: SubCommand = {
 		function validateState(): string | null {
 			if (!state.prize) {
 				return lang.gw_go_need_prize.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				);
 			}
 
 			if (!state.durationMs) {
 				return lang.gw_go_need_duration.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				);
 			}
 
 			if (state.durationMs < 3 * 60_000) {
 				return lang.gw_go_duration_too_low.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				);
 			}
 
 			if (!state.winners || state.winners <= 0) {
 				return lang.gw_go_need_winners.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				);
 			}
@@ -543,7 +543,7 @@ export const subCommand: SubCommand = {
 							: lang.start_invalid_messages_req_value;
 
 					return errorKey.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					);
 				}
@@ -553,7 +553,7 @@ export const subCommand: SubCommand = {
 					!interaction.guild!.roles.cache.has(value)
 				) {
 					return lang.start_invalid_roles_req_value.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					);
 				}
@@ -574,7 +574,7 @@ export const subCommand: SubCommand = {
 			) as BaseGuildTextChannel | undefined;
 
 			const channelError = lang.gw_go_channel_error.replace(
-				"${client.iHorizon_Emojis.No}",
+				"${emoji_No}",
 				client.iHorizon_Emojis.No
 			);
 
@@ -601,11 +601,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.start_logs_embed_title,
 				description: lang.start_logs_embed_description
-					.replace(
-						"${interaction.user.id}",
-						interaction.member!.user.id
-					)
-					.replace(/\${giveawayChannel}/g, targetChannel.toString()!)
+					.replace("${authorId}", interaction.member!.user.id)
+					.replaceAll("${giveawayChannel}", targetChannel.toString()!)
 			});
 
 			await prompt(

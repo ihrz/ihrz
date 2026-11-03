@@ -9,7 +9,7 @@
 		"auto-build": "npx tsc -w",
 		"build": "npx tsc",
 		"type:func": "bun run tools/Client_Func_Typator.ts",
-		"type:lang": "bun run tools/LangsChecker-Tools.ts --type 2",
+		"check:lang": "bun run tools/LangsChecker-Tools.ts",
 		"check:licence": "bun run tools/Licence_Workspace_Checker.ts",
 		"check:lines": "bun run tools/Lines_Count.ts",
 		"check:lc": "bun run check:lines",
@@ -41,6 +41,7 @@
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
 		"@discordjs/voice": "^0.19.2",
+		"@resvg/resvg-js": "^2.6.2",
 		"discord.js": "^14.28.0",
 		"gifwrap": "^0.10.1",
 		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",
@@ -48,7 +49,6 @@
 		"jszip": "^3.10.2",
 		"lavalink-client": "^2.11.0",
 		"nodemailer": "^7.0.13",
-		"puppeteer": "^24.43.1",
 		"sweety-html-transcripts": "^0.4.0",
 		"typescript-eslint": "^8.72.1",
 		"youtubei.js": "^17.2.0"
@@ -64,6 +64,7 @@
 		"eslint-plugin-unused-imports": "^4.4.1",
 		"jiti": "^2.7.0",
 		"prettier": "^3.9.10",
+		"puppeteer": "^24.43.1",
 		"tslib": "^2.9.1",
 		"typescript": "^5.9.3"
 	}

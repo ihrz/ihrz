@@ -19,27 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { GuildMember, Snowflake } from "discord.js";
-
 export namespace AntiSpam {
-	export interface CachedMessage {
-		messageID: Snowflake;
-		guildID: Snowflake;
-		authorID: Snowflake;
-		channelID: Snowflake;
-		content: string;
-		sentTimestamp: number;
-		isSpam: boolean;
-	}
-
-	export interface AntiSpamCache {
-		raidInfo: Map<string, Map<string, number | boolean>>;
-		messages: Map<string, Set<CachedMessage>>;
-		membersToPunish: Map<string, Set<GuildMember>>;
-		membersFlags: Map<string, Map<string, number>>;
-		membersSanctions: Map<string, Map<string, number>>;
-	}
-
 	export interface AntiSpamOptions {
 		BYPASS_ROLES?: string[];
 		BYPASS_CHANNELS?: string[];

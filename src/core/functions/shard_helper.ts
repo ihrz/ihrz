@@ -137,8 +137,6 @@ export interface CommunityGuildData {
 	name: string;
 	avatar: string | null;
 	members: number;
-	online: number;
-	offline: number;
 }
 
 export async function getCommunityGuildsData(
@@ -153,22 +151,11 @@ export async function getCommunityGuildsData(
 					(guild.memberCount || guild.approximateMemberCount || 0) >=
 						minMembers
 			)
-			.map((guild) => {
-				const members =
-					guild.memberCount || guild.approximateMemberCount || 0;
-				// Requires the GuildPresences intent: offline members have no
-				// cached presence, so they are derived from the member count.
-				const online = guild.presences.cache.filter(
-					(presence) => presence.status !== "offline"
-				).size;
-				return {
-					name: guild.name,
-					avatar: guild.iconURL({ extension: "png", size: 512 }),
-					members,
-					online,
-					offline: Math.max(members - online, 0)
-				};
-			});
+			.map((guild) => ({
+				name: guild.name,
+				avatar: guild.iconURL({ extension: "png", size: 512 }),
+				members: guild.memberCount || guild.approximateMemberCount || 0
+			}));
 
 	if (!client.shard) {
 		// No sharding - use local cache

@@ -33,7 +33,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -113,10 +113,7 @@ export const event: BotEvent = {
 		if (removeObjects.length >= 1) {
 			desc +=
 				data.event_srvLogs_guildMemberUpdate_description
-					.replace(
-						"${firstEntry.executor.id}",
-						firstEntry.executor?.id!
-					)
+					.replace("${executorId}", firstEntry.executor?.id!)
 					.replace(
 						"${removedRoles}",
 						removeObjectIds
@@ -124,21 +121,21 @@ export const event: BotEvent = {
 							.toString()
 					)
 					.replace(
-						"${oldMember.user.username}",
+						"${oldMemberUserUsername}",
 						user?.user?.username!
 					) + "\n";
 		}
 
 		if (newObjects.length >= 1) {
 			desc += data.event_srvLogs_guildMemberUpdate_2_description
-				.replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
+				.replace("${executorId}", firstEntry.executor?.id!)
 				.replace(
 					"${addedRoles}",
 					newObjectsnewObjectIds
 						.map((value) => `<@&${value}>`)
 						.toString()
 				)
-				.replace("${oldMember.user.username}", user?.user?.username!);
+				.replace("${oldMemberUserUsername}", user?.user?.username!);
 		}
 		logsEmbed.setDescription(desc);
 

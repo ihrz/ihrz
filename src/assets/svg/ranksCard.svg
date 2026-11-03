@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="160" viewBox="0 0 560 160">
+	<defs>
+		<linearGradient id="progress" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="{color_start}"/>
+			<stop offset="1" stop-color="{color_end}"/>
+		</linearGradient>
+		<clipPath id="track">
+			<rect x="140" y="92" width="400" height="24" rx="12"/>
+		</clipPath>
+		<filter id="shadow" x="-10%" y="-50%" width="120%" height="200%">
+			<feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.5"/>
+		</filter>
+	</defs>
+	<rect width="560" height="160" rx="10" fill="#23272A"/>
+	{avatar}
+	{username}
+	{level}
+	<rect x="140" y="92" width="400" height="24" rx="12" fill="#40444B"/>
+	<rect x="140" y="92" width="{progress_width}" height="24" fill="url(#progress)" clip-path="url(#track)"/>
+	{xp}
+	{remaining}
+	{total}
+</svg>

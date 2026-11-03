@@ -155,7 +155,7 @@ export const command: Command = {
 				await client.func.method.channelSend(message, {
 					content:
 						lang.util_securewebhook_action_create_error.replace(
-							"${data.status}",
+							"${status}",
 							data.error
 						)
 				});
@@ -164,8 +164,8 @@ export const command: Command = {
 
 			await client.func.method.channelSend(message, {
 				content: lang.util_securewebhook_action_create_ok
-					.replace("${data.url}", data.url)
-					.replace("${data.use}", String(0))
+					.replace("${url}", data.url)
+					.replace("${use}", String(0))
 			});
 		} else if (action == "delete") {
 			const data = (await apiTable.get("WH_SEC")) || {};

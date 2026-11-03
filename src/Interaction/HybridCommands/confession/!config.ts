@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.confession_log_embed_title_on_enable,
 				description: lang.confession_log_embed_desc_on_enable.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.confession_log_embed_title_on_enable,
 				description: lang.confession_log_embed_desc_on_disabled.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});

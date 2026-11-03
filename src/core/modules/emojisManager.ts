@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { LangsData } from "../functions/getLanguageData.js";
 import { REST, Routes } from "discord.js";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -218,6 +219,9 @@ class EmojisManager {
 	private writeInClient() {
 		if (!global.client) return;
 		client.iHorizon_Emojis = this.final_appEmojis as any;
+		// Languages are cached with their emojis resolved: drop them so the
+		// next load uses the synced emoji ids.
+		for (const code of Object.keys(LangsData)) delete LangsData[code];
 	}
 }
 

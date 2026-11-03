@@ -22,6 +22,7 @@
 import { ChannelType, Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { guildPrefix } from "../../core/functions/prefix.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 export const auto_respond: Record<string, string> = {
 	feur: "tgl",
 	quoi: "feur",
@@ -77,12 +78,13 @@ export const event: BotEvent = {
 			message.author.bot ||
 			message.channel.type === ChannelType.DM ||
 			message.author.id === client.user?.id ||
-			(await client.db.get(`${message.guildId}.UTILS.autoFeur`)) === false
+			(await getCachedGuildValue(`${message.guildId}.UTILS.autoFeur`)) ===
+				false
 		) {
 			return;
 		}
 
-		let guildLang = await client.db.get(
+		let guildLang = await getCachedGuildValue(
 			`${message.guild?.id}.GUILD.LANG.lang`
 		);
 

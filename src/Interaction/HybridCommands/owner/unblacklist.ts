@@ -127,7 +127,7 @@ export async function run_for_bot_owner(
 	if (!fetched) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				member?.id!
 			)
 		});
@@ -220,8 +220,8 @@ export async function run_for_bot_owner(
 		await interaction.guild.members.unban(bannedMember).catch(() => {});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.unblacklist_command_work.replace(
-				/\${member\.id}/g,
+			content: lang.unblacklist_command_work.replaceAll(
+				"${memberId}",
 				member?.id!
 			)
 		});
@@ -229,8 +229,8 @@ export async function run_for_bot_owner(
 		// Send immediate response
 		await client.func.method.channelSend(interaction, {
 			content: lang.batch_unblacklist_process
-				.replace("${bannedMember.username}", bannedMember.username)
-				.replace("${guildObjects.length}", "all shards")
+				.replace("${bannedMemberUsername}", bannedMember.username)
+				.replace("${guildObjectCount}", "all shards")
 		});
 
 		// Process unbans across all shards asynchronously
@@ -245,7 +245,7 @@ export async function run_for_bot_owner(
 			// Send final result when processing is complete
 			await client.func.method.channelSend(interaction, {
 				content: lang.unblacklist_command_work_across_all_shard
-					.replace("${bannedMember.username}", bannedMember.username)
+					.replace("${bannedMemberUsername}", bannedMember.username)
 					.replace("${totalSuccess}", totalSuccess.toString())
 					.replace("${score}", score)
 			});
@@ -256,7 +256,7 @@ export async function run_for_bot_owner(
 		await blacklistTable.delete(`${member?.id}`);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_unblacklisted_but_can_unban_him.replace(
-				"${client.iHorizon_Emojis.No}",
+				"${emoji_No}",
 				client.iHorizon_Emojis.No
 			)
 		});
@@ -304,7 +304,7 @@ export async function run_for_guild_owner(
 	if (!fetched) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
-				"${member.id}",
+				"${memberId}",
 				member?.id!
 			)
 		});
@@ -326,8 +326,8 @@ export async function run_for_guild_owner(
 	await interaction.guild.members.unban(bannedMember).catch(() => {});
 
 	await client.func.method.interactionSend(interaction, {
-		content: lang.unblacklist_command_work.replace(
-			/\${member\.id}/g,
+		content: lang.unblacklist_command_work.replaceAll(
+			"${memberId}",
 			member?.id!
 		)
 	});

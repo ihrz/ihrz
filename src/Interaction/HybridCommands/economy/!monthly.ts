@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 			);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.monthly_cooldown_error.replace(/\${time}/g, time)
+				content: lang.monthly_cooldown_error.replaceAll("${time}", time)
 			});
 			return;
 		} else {

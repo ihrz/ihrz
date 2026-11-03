@@ -77,10 +77,7 @@ export const subCommand: SubCommand = {
 			.setDescription(
 				changes.length > 0
 					? lang.util_sync_embed_description_1
-							.replace(
-								"${category?.name}",
-								String(category?.name)
-							)
+							.replace("${categoryName}", String(category?.name))
 							.replace("${changes}", changes)
 					: lang.util_sync_embed_description_0
 			)

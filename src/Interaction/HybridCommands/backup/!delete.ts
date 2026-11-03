@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 		const em = new EmbedBuilder()
 			.setTitle(
 				lang.backup_really_want.replace(
-					"${client.iHorizon_Emojis.Warning_Icon}",
+					"${emoji_Warning_Icon}",
 					client.iHorizon_Emojis.Warning_Icon
 				)
 			)
@@ -93,8 +93,8 @@ export const subCommand: SubCommand = {
 			.addFields({
 				name: `${data_2.guildName} - (||${backupID}||)`,
 				value: lang.backup_string_see_v
-					.replace("${data.categoryCount}", data_2.categoryCount)
-					.replace("${data.channelCount}", data_2.channelCount)
+					.replace("${categoryCount}", data_2.categoryCount)
+					.replace("${channelCount}", data_2.channelCount)
 			});
 
 		const delete_button = new ButtonBuilder()
@@ -138,7 +138,7 @@ export const subCommand: SubCommand = {
 
 				em.setTitle(
 					lang.backup_embed_title_succefully_deleted.replace(
-						"${client.iHorizon_Emojis.Yes}",
+						"${emoji_Yes}",
 						client.iHorizon_Emojis.Yes
 					)
 				);
@@ -149,7 +149,7 @@ export const subCommand: SubCommand = {
 
 				em.setTitle(
 					lang.backup_embed_title_cancel_deletion.replace(
-						"${client.iHorizon_Emojis.Yes}",
+						"${emoji_Yes}",
 						client.iHorizon_Emojis.Yes
 					)
 				);
@@ -163,7 +163,7 @@ export const subCommand: SubCommand = {
 
 			em.setTitle(
 				lang.backup_embed_title_timesup_deletion.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			);

@@ -76,7 +76,7 @@ export const command: Command = {
 					.then(async (x) => {
 						await client.func.method.interactionSend(message, {
 							content: lang.sticket_command_work.replace(
-								"${x.name}",
+								"${name}",
 								x.name
 							)
 						});
@@ -84,7 +84,7 @@ export const command: Command = {
 					.catch(async (err) => {
 						await client.func.method.interactionSend(message, {
 							content: lang.sticker_command_error.replace(
-								"${err.message}",
+								"${errMessage}",
 								err.message
 							)
 						});

@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.ban_dont_have_perm_myself.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.ban_try_to_ban_yourself.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.ban_attempt_ban_higter_member.replace(
-						"${client.iHorizon_Emojis.Stop}",
+						"${emoji_Stop}",
 						client.iHorizon_Emojis.Stop
 					)
 				});
@@ -116,7 +116,7 @@ export const subCommand: SubCommand = {
 			if (!guildMember.bannable) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.ban_cant_ban_member.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -127,10 +127,7 @@ export const subCommand: SubCommand = {
 		member
 			.send({
 				content: lang.ban_message_to_the_banned_member
-					.replace(
-						"${interaction.guild.name}",
-						interaction.guild.name
-					)
+					.replace("${guildName}", interaction.guild.name)
 					.replace("${reason}", reason)
 			})
 			.catch(() => false)
@@ -182,17 +179,14 @@ export const subCommand: SubCommand = {
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.ban_logs_embed_title,
 					description: lang.ban_logs_embed_description
-						.replace(/\${member\.user\.id}/g, member.id)
-						.replace(
-							/\${interaction\.member\.id}/g,
-							interaction.member?.user.id!
-						)
+						.replaceAll("${memberId}", member.id)
+						.replaceAll("${authorId}", interaction.member?.user.id!)
 				});
 			})
 			.catch(() => {
 				return client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});

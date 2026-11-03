@@ -54,6 +54,10 @@ type ChannelStats = {
 };
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	fetchAvatar,
+	renderStatsPage
+} from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -222,7 +226,6 @@ export const subCommand: SubCommand = {
 			thirdActiveVoiceChannel
 		] = topThree(channelStats, "dailyVoice").map((item) => item.id);
 
-		let htmlContent = client.htmlfiles["guildStatsLeaderboard"];
 		leaderboardData = getStatsLeaderboard(leaderboardData);
 
 		// Format current date for footer
@@ -238,123 +241,109 @@ export const subCommand: SubCommand = {
 			}
 		);
 
-		htmlContent = htmlContent
-			.replaceAll("{header_h1_value}", lang.header_h1_value)
-			.replaceAll(
-				"{guild_pfp}",
-				interaction.guild.iconURL({ size: 512 }) ||
-					client.user.displayAvatarURL({ size: 512 })
-			)
-			.replaceAll("{author_username}", interaction.guild.name)
-			.replaceAll(
-				"{member_count}",
-				interaction.guild.memberCount.toString()
-			)
-			.replaceAll("{current_date}", currentDate)
-			.replaceAll(
-				"{top_message_users}",
-				leaderboardData
-					.map((user, index) => {
-						// Determine rank class for styling
-						const rankClass =
-							index === 0
-								? "rank-1"
-								: index === 1
-									? "rank-2"
-									: index === 2
-										? "rank-3"
-										: "";
+		const guild = interaction.guild;
+		const channelRow = (channelId: string, icon: string) => ({
+			icon,
+			name: String(getChannelName(guild, channelId)),
+			detail: `${lang.var_category}: ${guild.channels.cache.get(channelId)?.parent?.name || lang.var_none}`
+		});
 
-						return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <img class="avatar" src="${user.member?.displayAvatarURL({ size: 128 }) || "https://cdn.discordapp.com/embed/avatars/0.png"}" alt="User">
-            <div class="info">
-                <div class="name">@${user.member?.username || lang.var_unknown}</div>
-                <div class="detail">${lang.var_total}: ${user.monthlyMessages} ${lang.messages_word}, ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(0)} ${lang.minutes_word}</div>
-            </div>
-            <div class="stat">${user.dailyMessages} <span>${lang.messages_word}</span></div>
-        </div>
-        `;
+		const [guildIcon, avatars] = await Promise.all([
+			fetchAvatar(
+				guild.iconURL({ size: 256, extension: "png" }) ||
+					client.user.displayAvatarURL({
+						size: 256,
+						extension: "png"
 					})
-					.join("")
+			),
+			Promise.all(
+				leaderboardData.map((user) =>
+					fetchAvatar(
+						user.member?.displayAvatarURL({
+							size: 64,
+							extension: "png"
+						})
+					)
+				)
 			)
-			.replaceAll(
-				"{top_text_channels}",
-				[firstActiveChannel, secondActiveChannel, thirdActiveChannel]
-					.map((channelId, index) => {
-						if (!channelId) return "";
-						const rankClass =
-							index === 0
-								? "rank-1"
-								: index === 1
-									? "rank-2"
-									: index === 2
-										? "rank-3"
-										: "";
-						const messagesCount = getChannelMessagesCount(
-							channelId,
-							allMessages
-						);
+		]);
 
-						return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <div class="channel-icon">#</div>
-            <div class="info">
-                <div class="name">${getChannelName(interaction.guild!, channelId)}</div>
-                <div class="detail">${lang.var_category}: ${interaction.guild!.channels.cache.get(channelId)?.parent?.name || "N/A"}</div>
-            </div>
-            <div class="stat">${messagesCount} <span>${lang.messages_word}</span></div>
-        </div>
-        `;
-					})
-					.join("")
-			)
-			.replaceAll(
-				"{top_voice_channels}",
-				[
-					firstActiveVoiceChannel,
-					secondActiveVoiceChannel,
-					thirdActiveVoiceChannel
-				]
-					.map((channelId, index) => {
-						if (!channelId) return "";
-						const rankClass =
-							index === 0
-								? "rank-1"
-								: index === 1
-									? "rank-2"
-									: index === 2
-										? "rank-3"
-										: "";
-						const minutesCount = getChannelMinutesCount(
-							channelId,
-							allVoiceActivities
-						);
-
-						return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <div class="channel-icon">🎤</div>
-            <div class="info">
-                <div class="name">${getChannelName(interaction.guild!, channelId)}</div>
-                <div class="detail">${lang.var_category}: ${interaction.guild!.channels.cache.get(channelId)?.parent?.name || "N/A"}</div>
-            </div>
-            <div class="stat">${minutesCount} <span>${lang.minutes_word}</span></div>
-        </div>
-        `;
-					})
-					.join("")
-			);
-
-		const image = await client.func.html2png(htmlContent, {
-			width: 1902,
-			height: 1080,
-			scaleSize: 3,
-			elementSelector: ".container",
-			omitBackground: true,
-			selectElement: true
+		const image = await renderStatsPage({
+			title: lang.header_h1_value.replace(
+				"{author_username}",
+				guild.name
+			),
+			meta: [
+				`${guild.memberCount} ${lang.var_members}`,
+				lang.activity_overview
+			],
+			avatar: guildIcon,
+			footer: lang.stats_generated_on.replace("{date}", currentDate),
+			blocks: [
+				{
+					type: "list",
+					title: lang.top_active_users_title,
+					icon: "👑",
+					empty: lang.stats_no_data,
+					rows: leaderboardData.map((user, index) => ({
+						avatar: avatars[index],
+						name: `@${user.member?.username || lang.var_unknown}`,
+						detail: `${lang.var_total}: ${user.monthlyMessages} ${lang.messages_word}, ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(0)} ${lang.minutes_word}`,
+						value: String(user.dailyMessages),
+						unit: lang.messages_word
+					}))
+				},
+				{
+					type: "columns",
+					blocks: [
+						{
+							type: "list",
+							title: lang.top_message,
+							icon: "💬",
+							empty: lang.stats_no_data,
+							rows: [
+								firstActiveChannel,
+								secondActiveChannel,
+								thirdActiveChannel
+							]
+								.filter((id): id is string => !!id)
+								.map((channelId) => ({
+									...channelRow(channelId, "#"),
+									value: String(
+										getChannelMessagesCount(
+											channelId,
+											allMessages
+										)
+									),
+									unit: lang.messages_word
+								}))
+						},
+						{
+							type: "list",
+							title: lang.top_voice,
+							icon: "🎤",
+							accent: "#EB459E",
+							empty: lang.stats_no_data,
+							rows: [
+								firstActiveVoiceChannel,
+								secondActiveVoiceChannel,
+								thirdActiveVoiceChannel
+							]
+								.filter((id): id is string => !!id)
+								.map((channelId) => ({
+									...channelRow(channelId, "🔊"),
+									value: String(
+										getChannelMinutesCount(
+											channelId,
+											allVoiceActivities
+										)
+									),
+									unit: lang.minutes_word
+								}))
+						}
+					]
+				}
+			]
 		});
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });

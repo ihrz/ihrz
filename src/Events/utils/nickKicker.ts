@@ -54,7 +54,7 @@ export const event: BotEvent = {
 				member
 					.send({
 						content: lang.event_nick_kicker_kick_msg.replace(
-							"${member.guild.name}",
+							"${memberGuildName}",
 							member.guild.name
 						)
 					})

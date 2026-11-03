@@ -21,6 +21,7 @@
 
 import { LanguageData } from "../../../types/languageData.js";
 import getLanguageDataByCode from "./getLanguageDataByCode.js";
+import { getCachedGuildValue } from "../modules/guildConfigCache.js";
 
 export interface LangsData {
 	[lang: string]: LanguageData;
@@ -86,7 +87,10 @@ export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 export default async function getLanguageData(
 	arg: string | undefined | null
 ): Promise<LanguageData> {
-	let lang = (await client.db.get(`${arg}.GUILD.LANG.lang`)) as string;
+	// Read on nearly every message by several modules: served from cache.
+	let lang = arg
+		? await getCachedGuildValue<string>(`${arg}.GUILD.LANG.lang`)
+		: null;
 
 	if (!lang) {
 		lang = "en-US";

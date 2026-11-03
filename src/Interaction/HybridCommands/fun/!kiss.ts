@@ -68,8 +68,8 @@ export const subCommand: SubCommand = {
 					.setColor("#ff0884")
 					.setDescription(
 						lang.kiss_embed_description
-							.replace(/\${kiss\.id}/g, kiss.id)
-							.replace(/\${interaction\.user\.id}/g, user.id)
+							.replaceAll("${kissId}", kiss.id)
+							.replaceAll("${authorId}", user.id)
 					)
 					.setImage(url)
 					.setTimestamp();

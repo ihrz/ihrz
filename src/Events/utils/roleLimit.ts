@@ -23,20 +23,11 @@
 - Anaïs Saraiva
 */
 
-import {
-	AuditLogEvent,
-	Client,
-	GuildMember,
-	Role,
-	Collection
-} from "discord.js";
+import { Client, GuildMember } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/ready.js";
+
+const COUNTER_REGEX = /\s*\[\d+\/\d+\]\s*$/;
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -47,125 +38,54 @@ export const event: BotEvent = {
 	) => {
 		if (oldMember.roles.cache.equals(newMember.roles.cache)) return;
 
-		try {
-			// Get the latest audit log entry for this member role update
-			const relevantLog = await getLogs({
-				guild: newMember.guild,
-				target: newMember.id,
-				actionType: AuditLogEvent.MemberRoleUpdate,
-				type: "NONE"
-			});
+		// Config first: most guilds have no limit, and the role diff below
+		// replaces the REST audit log fetch done on every role change.
+		const roleLimits = (await client.db.get(
+			`${newMember.guild.id}.GUILD.UTILS.ROLE_LIMIT`
+		)) as DatabaseStructure.RoleLimitSchema | null;
+		if (!roleLimits) return;
 
-			// If no relevant audit log was found, exit
-			if (!relevantLog) {
-				return;
-			}
+		const addedRoleIds = newMember.roles.cache
+			.filter((role) => !oldMember.roles.cache.has(role.id))
+			.map((role) => role.id);
+		const removedRoleIds = oldMember.roles.cache
+			.filter((role) => !newMember.roles.cache.has(role.id))
+			.map((role) => role.id);
 
-			// Extract role changes from the audit log
-			const changes = relevantLog.changes;
+		const affectedRoleIds = [...addedRoleIds, ...removedRoleIds].filter(
+			(id) => roleLimits[id]
+		);
+		if (affectedRoleIds.length === 0) return;
 
-			// Find added and removed roles
-			let addedRoleIds: string[] = [];
-			let removedRoleIds: string[] = [];
+		for (const roleId of affectedRoleIds) {
+			const limit = roleLimits[roleId];
+			const role = newMember.guild.roles.cache.get(roleId);
+			if (!role) continue;
 
-			for (const change of changes) {
-				if (change.key === "$add") {
-					const roles = change.new as Array<{
-						id: string;
-						name: string;
-					}>;
-					addedRoleIds = roles.map((role) => role.id);
-				} else if (change.key === "$remove") {
-					const roles = change.new as Array<{
-						id: string;
-						name: string;
-					}>;
-					removedRoleIds = roles.map((role) => role.id);
-				}
-			}
+			let holders = role.members.size;
 
-			// Combine both added and removed roles to update
-			const affectedRoleIds = [
-				...new Set([...addedRoleIds, ...removedRoleIds])
-			];
-
-			// If no roles were changed, stop execution
-			if (affectedRoleIds.length === 0) {
-				return;
-			}
-
-			const roleLimits = (await client.db.get(
-				`${newMember.guild.id}.GUILD.UTILS.ROLE_LIMIT`
-			)) as DatabaseStructure.RoleLimitSchema;
-
-			// If no limits are configured, stop execution
-			if (!roleLimits) return;
-
-			// Helper function to update role name
-			const updateRoleName = async (roleId: string) => {
-				const limit = roleLimits[roleId];
-
-				// If this role has no limit configured, skip it
-				if (!limit) return;
-
-				let role =
-					newMember.guild.roles.cache.get(roleId) ||
-					(await newMember.guild.roles
-						.fetch(roleId)
-						.catch(() => null));
-
-				if (!role) return;
-
-				// Count how many members have this role
-				const membersWithRole = newMember.guild.members.cache.filter(
-					(member) => member.roles.cache.has(roleId)
-				).size;
-
-				// Extract base role name (remove existing counter if present)
-				let baseRoleName = role.name;
-				const counterRegex = /\s*\[\d+\/\d+\]\s*$/;
-				if (counterRegex.test(baseRoleName)) {
-					baseRoleName = baseRoleName
-						.replace(counterRegex, "")
-						.trim();
-				}
-
-				// Update role name with counter
-				const newRoleName = `${baseRoleName} [${membersWithRole}/${limit}]`;
-
-				try {
-					await role.setName(
-						newRoleName,
-						"[RoleLimit] - Updating role counter"
-					);
-				} catch (error) {
-					console.error(`Failed to update role name: ${error}`);
-				}
-			};
-
-			// Update all affected roles
-			for (const roleId of affectedRoleIds) {
-				await updateRoleName(roleId);
-			}
-
-			// Check if any added roles exceed the limit
-			for (const roleId of addedRoleIds) {
-				const limit = roleLimits[roleId];
-
-				if (!limit) continue;
-
-				const membersWithRole = newMember.guild.members.cache.filter(
-					(member) => member.roles.cache.has(roleId)
-				).size;
-
-				// If the limit is exceeded, remove the role
-				if (membersWithRole > limit) {
-					await newMember.roles.remove(
+			// Over the limit: take the role back before updating the counter.
+			if (addedRoleIds.includes(roleId) && holders > limit) {
+				const removed = await newMember.roles
+					.remove(
 						roleId,
 						"[RoleLimit] - The limit of users is reached!"
-					);
-				}
+					)
+					.then(() => true)
+					.catch(() => false);
+				if (removed) holders--;
 			}
-		} catch {}
+
+			const newRoleName = `${role.name.replace(COUNTER_REGEX, "").trim()} [${holders}/${limit}]`;
+			if (newRoleName === role.name) continue;
+
+			await role
+				.setName(newRoleName, "[RoleLimit] - Updating role counter")
+				.catch((error: unknown) =>
+					logger.warn(
+						`[RoleLimit] Failed to update role name: ${String(error)}`
+					)
+				);
+		}
 	}
 };

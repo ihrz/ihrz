@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 						client.func.method.channelSend(
 							interaction,
 							lang.emoji_send_new_emoji
-								.replace("${emoji.name}", emoji.name!)
+								.replace("${emojiName}", emoji.name!)
 								.replace("${emoji}", emoji.toString())
 						);
 
@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 						client.func.method.channelSend(
 							interaction,
 							lang.emoji_send_err_emoji.replace(
-								"${emoji.name}",
+								"${emojiName}",
 								emoji
 							)
 						);
@@ -104,10 +104,7 @@ export const subCommand: SubCommand = {
 			.setDescription(
 				lang.emoji_embed_desc_work
 					.replace("${cnt}", cnt.toString())
-					.replace(
-						"${interaction.guild.name}",
-						interaction.guild?.name!
-					)
+					.replace("${guildName}", interaction.guild?.name!)
 					.replace("${nemj}", nemj)
 			);
 

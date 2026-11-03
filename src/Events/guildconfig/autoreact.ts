@@ -21,13 +21,14 @@
 
 import { Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		if (!message.guild || !message.channel || message.author.bot) return;
 
-		const reactionData = await client.db.get(
+		const reactionData = await getCachedGuildValue(
 			`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`
 		);
 		if (!reactionData) return;

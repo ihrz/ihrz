@@ -130,14 +130,8 @@ export const subCommand: SubCommand = {
 
 			pages.push({
 				title: lang.history_embed_title
-					.replace(
-						"${interaction.guild?.name}",
-						interaction.guild.name
-					)
-					.replace(
-						"${i / usersPerPage + 1}",
-						(i / usersPerPage + 1).toString()
-					),
+					.replace("${guildName}", interaction.guild.name)
+					.replace("${page}", (i / usersPerPage + 1).toString()),
 				description: pageContent
 			});
 		}

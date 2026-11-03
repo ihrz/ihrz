@@ -26,127 +26,20 @@ import { SubCommand } from "../../../../types/command.js";
 
 import { GifUtil, GifFrame, BitmapImage, GifCodec } from "gifwrap";
 import Jimp from "jimp";
-import { Browser, launch } from "puppeteer";
-import { existsSync, readdirSync } from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import { fetchImage } from "../../../core/functions/svgKit.js";
 
-const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
 const MAX_GIF_SIDE = 512;
-const FETCH_TIMEOUT_MS = 15_000;
 
-let fallbackBrowser: Browser | null = null;
+/**
+ * The attachment is downloaded as PNG: Discord's media proxy converts on
+ * `format=png` (see svgKit.fetchImage), so WebP never reaches Jimp and no
+ * headless browser is needed to decode it anymore.
+ */
+async function createGifFromUrl(imageUrl: string): Promise<Buffer> {
+	const source = await fetchImage(imageUrl);
+	if (!source) throw new Error("Image unavailable or not decodable");
 
-function resolveChromiumPath(): string | undefined {
-	const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH;
-	if (fromEnv && existsSync(fromEnv)) return fromEnv;
-
-	const cacheDir = path.join(
-		os.homedir(),
-		".cache",
-		"puppeteer",
-		"chrome-headless-shell"
-	);
-	if (!existsSync(cacheDir)) return undefined;
-	const versions = readdirSync(cacheDir)
-		.filter((entry) => entry.startsWith("linux-"))
-		.sort()
-		.reverse();
-	for (const entry of versions) {
-		const candidate = path.join(
-			cacheDir,
-			entry,
-			"chrome-headless-shell-linux64",
-			"chrome-headless-shell"
-		);
-		if (existsSync(candidate)) return candidate;
-	}
-	return undefined;
-}
-
-async function getFallbackBrowser(): Promise<Browser | null> {
-	if (fallbackBrowser) return fallbackBrowser;
-	try {
-		const executablePath = resolveChromiumPath();
-		fallbackBrowser = await launch({
-			args: ["--no-sandbox", "--disable-setuid-sandbox"],
-			...(executablePath ? { executablePath } : {})
-		});
-		return fallbackBrowser;
-	} catch {
-		return null;
-	}
-}
-
-// Jimp cannot decode some formats Discord serves (notably webp).
-// Decode those through a headless browser canvas into PNG first.
-async function decodeWithBrowser(
-	buffer: Buffer,
-	mime: string
-): Promise<Buffer> {
-	const browser = await getFallbackBrowser();
-	if (!browser) throw new Error("Browser unavailable for image decode");
-
-	const page = await browser.newPage();
-	try {
-		await page.setContent(
-			`<html><body style="margin:0;background:#fff"><img id="src" src="data:${mime};base64,${buffer.toString("base64")}" style="display:block" /></body></html>`,
-			{ waitUntil: "load", timeout: FETCH_TIMEOUT_MS }
-		);
-		const pngDataUrl = await page.evaluate(async () => {
-			const img = document.getElementById("src") as HTMLImageElement;
-			if (!img.complete) {
-				await new Promise<void>((resolve, reject) => {
-					img.onload = () => resolve();
-					img.onerror = () =>
-						reject(new Error("Image failed to load"));
-				});
-			}
-			if (!img.naturalWidth || !img.naturalHeight) {
-				throw new Error("Image is not decodable");
-			}
-			const canvas = document.createElement("canvas");
-			canvas.width = img.naturalWidth;
-			canvas.height = img.naturalHeight;
-			canvas.getContext("2d")!.drawImage(img, 0, 0);
-			return canvas.toDataURL("image/png");
-		});
-		return Buffer.from(pngDataUrl.split(",")[1], "base64");
-	} finally {
-		await page.close().catch(() => {});
-	}
-}
-
-async function createGifFromUrl(
-	imageUrl: string,
-	contentType?: string | null
-): Promise<Buffer> {
-	const response = await fetch(imageUrl, {
-		signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
-	});
-	if (!response.ok) {
-		throw new Error(`Image download failed (HTTP ${response.status})`);
-	}
-	const mime =
-		response.headers
-			.get("content-type")
-			?.split(";")[0]
-			?.trim()
-			.toLowerCase() ||
-		contentType ||
-		"image/png";
-	const source = Buffer.from(await response.arrayBuffer());
-	if (source.length === 0) throw new Error("Downloaded image is empty");
-	if (source.length > MAX_SOURCE_BYTES) {
-		throw new Error("Downloaded image exceeds the size limit");
-	}
-
-	let image: Jimp;
-	try {
-		image = await Jimp.read(source);
-	} catch {
-		image = await Jimp.read(await decodeWithBrowser(source, mime));
-	}
+	const image = await Jimp.read(source);
 
 	if (!image.getWidth() || !image.getHeight()) {
 		throw new Error("Image has invalid dimensions");
@@ -206,7 +99,7 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			const res = await createGifFromUrl(image.url, image.contentType);
+			const res = await createGifFromUrl(image.url);
 
 			await client.func.method.interactionSend(interaction, {
 				files: [

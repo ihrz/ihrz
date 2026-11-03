@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 		) {
 			await interaction.editReply({
 				content: lang.suggest_acceptnot_good_channel.replace(
-					"${baseData?.channel}",
+					"${channel}",
 					baseData?.channel
 				),
 				flags: [1 << 6]
@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 
 				embed.addFields({
 					name: lang.suggest_accept_embed_fields_to_put.replace(
-						"${interaction.user.username}",
+						"${authorUsername}",
 						interaction.user.globalName as string
 					),
 					value: message as string
@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 				embed.setColor("#21744c");
 				embed.setTitle(
 					lang.suggest_acceptembed_title_to_put.replace(
-						"${msg.embeds[0].data?.title}",
+						"${title}",
 						msg.embeds[0].data?.title as string
 					)
 				);
@@ -128,15 +128,12 @@ export const subCommand: SubCommand = {
 
 				await interaction.editReply({
 					content: lang.suggest_accept_command_work
+						.replace("${guildId}", interaction.guildId as string)
 						.replace(
-							"${interaction.guild.id}",
-							interaction.guildId as string
-						)
-						.replace(
-							"${interaction.channel.id}",
+							"${channelId}",
 							interaction.channel?.id as string
 						)
-						.replace("${fetchId?.msgId}", fetchId?.msgId),
+						.replace("${messageId}", fetchId?.msgId),
 					flags: [1 << 6]
 				});
 

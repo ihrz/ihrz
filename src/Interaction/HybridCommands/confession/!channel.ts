@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.confession_channel_command_work.replace(
-				"${channel?.toString()}",
+				"${channel}",
 				channel.toString()!
 			)
 		});
@@ -92,10 +92,7 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.confession_channel_log_embed_title,
 			description: lang.confession_channel_log_embed_desc
-				.replace(
-					"${interaction.user}",
-					interaction.member.user.toString()
-				)
+				.replace("${author}", interaction.member.user.toString())
 				.replace("${channel}", channel.toString())
 		});
 

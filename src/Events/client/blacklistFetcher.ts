@@ -40,7 +40,7 @@ export const event: BotEvent = {
 				await member
 					.send({
 						content: lang.global_blacklist_msg_to_send.replace(
-							"${data.reason}",
+							"${reason}",
 							data.reason
 						)
 					})
@@ -48,7 +48,7 @@ export const event: BotEvent = {
 				member
 					.ban({
 						reason: lang.global_blacklist_reason.replace(
-							"${data.reason}",
+							"${reason}",
 							data.reason
 						)
 					})
@@ -64,7 +64,7 @@ export const event: BotEvent = {
 				await member
 					.send({
 						content: lang.server_blacklist_msg_to_send.replace(
-							"${data2.reason}",
+							"${data2Reason}",
 							data2?.reason
 						)
 					})
@@ -72,7 +72,7 @@ export const event: BotEvent = {
 				member
 					.ban({
 						reason: lang.server_blacklist_reason.replace(
-							"${data2.reason}",
+							"${data2Reason}",
 							data2?.reason
 						)
 					})

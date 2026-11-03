@@ -69,12 +69,9 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.too_new_account_logEmbed_title,
 				description: lang.too_new_account_logEmbed_desc_on_enable
-					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${author}", interaction.user.toString())
 					.replace("${beautifulTime}", beautifulTime.toString())
-					.replace(
-						"${interaction.guild?.name}",
-						beautifulTime.toString()
-					)
+					.replace("${guildName}", beautifulTime.toString())
 					.replace("${maxJoin}", String(maximumJoin))
 			});
 
@@ -90,19 +87,13 @@ export const subCommand: SubCommand = {
 			await interaction.editReply({
 				content:
 					lang.too_new_account_logEmbed_desc_on_enable
-						.replace(
-							"${interaction.user}",
-							interaction.user.toString()
-						)
+						.replace("${author}", interaction.user.toString())
 						.replace("${beautifulTime}", beautifulTime.toString())
-						.replace(
-							"${interaction.guild?.name}",
-							beautifulTime.toString()
-						)
+						.replace("${guildName}", beautifulTime.toString())
 						.replace("${maxJoin}", String(maximumJoin)) +
 					lang.too_new_account_command_work_on_enable2
 						.replace(
-							"${client.iHorizon_Emojis.Sparkles}",
+							"${emoji_Sparkles}",
 							client.iHorizon_Emojis.Sparkles
 						)
 						.replace("${maxJoin}", String(maximumJoin))
@@ -113,7 +104,7 @@ export const subCommand: SubCommand = {
 				title: lang.too_new_account_logEmbed_title,
 				description:
 					lang.too_new_account_logEmbed_desc_on_disable.replace(
-						"${interaction.user}",
+						"${author}",
 						interaction.user.toString()
 					)
 			});
@@ -124,7 +115,7 @@ export const subCommand: SubCommand = {
 
 			await interaction.editReply({
 				content: lang.too_new_account_command_work_on_disable.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.user.toString()
 				)
 			});

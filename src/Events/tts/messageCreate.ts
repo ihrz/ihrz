@@ -24,6 +24,7 @@ import { Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { getTTSData, speakTTS } from "../../core/modules/ttsManager.js";
 import logger from "../../core/logger.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 const DETECTORS: Array<{ regex: RegExp; locale: string }> = [
 	{ regex: /[а-яА-ЯёЁ]/g, locale: "ru-RU" },
@@ -50,8 +51,9 @@ async function getServerLocale(
 	client: Client,
 	guildId: string
 ): Promise<string | null> {
-	const serverLang = (await client.db.get(`${guildId}.GUILD.LANG.lang`)) as
-		string | null;
+	const serverLang = (await getCachedGuildValue(
+		`${guildId}.GUILD.LANG.lang`
+	)) as string | null;
 	return serverLang || null;
 }
 

@@ -96,8 +96,8 @@ export const subCommand: SubCommand = {
 		const finalEmbed = new EmbedBuilder()
 			.setDescription(
 				lang.removeinvites_confirmation_embed_description
-					.replace(/\${amount}/g, amount.toString())
-					.replace(/\${user}/g, user.toString()!)
+					.replaceAll("${amount}", amount.toString())
+					.replaceAll("${user}", user.toString()!)
 			)
 			.setColor(`#92A8D1`)
 			.setFooter({
@@ -112,12 +112,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.removeinvites_logs_embed_title,
 			description: lang.removeinvites_logs_embed_description
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
-				.replace(/\${amount}/g, amount.toString())
-				.replace(/\${user\.id}/g, user.id)
+				.replaceAll("${authorId}", interaction.member.user.id)
+				.replaceAll("${amount}", amount.toString())
+				.replaceAll("${userId}", user.id)
 		});
 	}
 };

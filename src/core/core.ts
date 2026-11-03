@@ -111,7 +111,7 @@ export async function main(client: Client) {
 	client.selectmenu = new Collection<string, Function>();
 	client.buttons = new Collection<string, Function>();
 	client.func = {} as typeof Client_Functions;
-	client.htmlfiles = {};
+	client.svgfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
 	client.emojisManager = new EmojisManager();
 	client.nightmodeManager = new NightModeManager();

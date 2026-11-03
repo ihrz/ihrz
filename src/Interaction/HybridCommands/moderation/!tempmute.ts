@@ -100,7 +100,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -110,7 +110,7 @@ export const subCommand: SubCommand = {
 		if (tomute.permissions.has(PermissionFlagsBits.Administrator)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_tomute_is_admin.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -124,11 +124,8 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_tomute_highest_role_or_same
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${tomute.toString()}", tomute.toString())
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${tomute}", tomute.toString())
 			});
 			return;
 		}
@@ -140,11 +137,8 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_cannot_mute_higher_role
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${tomute.toString()}", tomute.toString())
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${tomute}", tomute.toString())
 			});
 			return;
 		}
@@ -152,7 +146,7 @@ export const subCommand: SubCommand = {
 		if (tomute.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_cannot_mute_yourself.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -171,13 +165,13 @@ export const subCommand: SubCommand = {
 			.catch(() => {});
 
 		let content = lang.tempmute_command_work
-			.replace("${tomute.id}", tomute.id)
-			.replace("${ms(ms(mutetime))}", mutetimeString)
+			.replace("${tomuteId}", tomute.id)
+			.replace("${duration}", mutetimeString)
 			.replace("${reason}", reason || lang.var_no_set);
 
 		if (overflow) {
 			content += lang.tempmute_tomute_max_time_passed.replace(
-				"${client.iHorizon_Emojis.VC_OpenChat}",
+				"${emoji_VC_OpenChat}",
 				client.iHorizon_Emojis.VC_OpenChat
 			);
 		}
@@ -188,7 +182,7 @@ export const subCommand: SubCommand = {
 				if (tomute?.isCommunicationDisabled() === true) {
 					await client.func.method.channelSend(interaction, {
 						content: lang.tempmute_unmuted_by_time.replace(
-							"${tomute.id}",
+							"${tomuteId}",
 							tomute?.id!
 						)
 					});
@@ -199,9 +193,9 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.tempmute_logs_embed_title,
 			description: lang.tempmute_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
-				.replace("${tomute.id}", tomute.id)
-				.replace("${ms(ms(mutetime))}", mutetimeString)
+				.replace("${authorId}", interaction.member.user.id)
+				.replace("${tomuteId}", tomute.id)
+				.replace("${duration}", mutetimeString)
 				.replace("${reason}", reason || lang.var_no_set)
 		});
 
@@ -210,12 +204,9 @@ export const subCommand: SubCommand = {
 				interaction.member!,
 				tomute!,
 				lang.tempmute_logs_embed_description
-					.replace(
-						"${interaction.user.id}",
-						interaction.member.user.id
-					)
-					.replace("${tomute.id}", tomute.id)
-					.replace("${ms(ms(mutetime))}", mutetimeString)
+					.replace("${authorId}", interaction.member.user.id)
+					.replace("${tomuteId}", tomute.id)
+					.replace("${duration}", mutetimeString)
 					.replace("${reason}", reason || lang.var_no_set),
 				lang
 			)

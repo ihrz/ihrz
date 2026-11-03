@@ -108,11 +108,11 @@ export const subCommand: SubCommand = {
 						await client.func.method.interactionSend(interaction, {
 							content: lang.rc_command_ok
 								.replace(
-									"${interaction.user.toString()}",
+									"${author}",
 									interaction.user.toString()
 								)
 								.replace(
-									"${res.secretCode}",
+									"${secretCode}",
 									String(res.secretCode)
 								)
 								.replace("${msgLink}", msgLink),
@@ -123,13 +123,10 @@ export const subCommand: SubCommand = {
 							.send(
 								lang.rc_command_ok_dm
 									.replace(
-										"${interaction.guild.name}",
+										"${guildName}",
 										interaction.guild.name
 									)
-									.replace(
-										"${res.secretCode}",
-										res.secretCode!
-									)
+									.replace("${secretCode}", res.secretCode!)
 							)
 							.catch(() =>
 								interaction.followUp({

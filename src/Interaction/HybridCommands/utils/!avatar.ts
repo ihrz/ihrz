@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 			.setColor("#add5ff")
 			.setTitle(
 				lang.avatar_embed_title.replace(
-					"${mentionedUser.username}",
+					"${mentionedUserUsername}",
 					mentionedUser.displayName
 				)
 			)

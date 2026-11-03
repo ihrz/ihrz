@@ -253,7 +253,7 @@ export const command: Command = {
 						description:
 							newLang.setserverlang_logs_embed_description_on_enable
 								.replace(
-									"${interaction.user.id}",
+									"${authorId}",
 									interaction.member?.user.id!
 								)
 								.replace("${type}", selectedLang)

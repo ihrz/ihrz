@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 		if (!(interaction.member as GuildMember).voice.channel) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.skip_not_in_voice_channel.replace(
-					"${client.iHorizon_Emojis.Warning_Icon}",
+					"${emoji_Warning_Icon}",
 					client.iHorizon_Emojis.Warning_Icon
 				)
 			});
@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.music_cannot.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -104,13 +104,10 @@ export const subCommand: SubCommand = {
 							.setDescription(
 								lang.event_mp_playerSkip
 									.replace(
-										"${client.iHorizon_Emojis.Music_Icon}",
+										"${emoji_Music_Icon}",
 										client.iHorizon_Emojis.Music_Icon
 									)
-									.replace(
-										"${track.title}",
-										oldName as string
-									)
+									.replace("${trackTitle}", oldName as string)
 							)
 					]
 				});

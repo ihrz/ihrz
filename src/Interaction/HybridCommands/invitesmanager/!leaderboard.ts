@@ -85,20 +85,14 @@ export const subCommand: SubCommand = {
 		const userRankText =
 			userRank !== -1
 				? lang.leaderboard_rank_text
-						.replace("${userRank + 1}", String(userRank + 1))
-						.replace("${arr.length}", arr.length.toString())
-						.replace(
-							"${arr[userRank].invites}",
-							String(arr[userRank].invites)
-						)
+						.replace("${rank}", String(userRank + 1))
+						.replace("${arrCount}", arr.length.toString())
+						.replace("${invites}", String(arr[userRank].invites))
 				: lang.leaderboard_rank_none;
 
 		const text = lang.leaderboard_gen_time_msg
-			.replace("${interaction.guild?.name}", interaction.guild?.name!)
-			.replace(
-				"${Date.now() - execTimestamp}",
-				String(Date.now() - execTimestamp!)
-			);
+			.replace("${guildName}", interaction.guild?.name!)
+			.replace("${elapsed}", String(Date.now() - execTimestamp!));
 
 		const generateEmbed = async (start: number) => {
 			const current = arr.slice(start, start + itemsPerPage);
@@ -118,11 +112,11 @@ export const subCommand: SubCommand = {
 										: i.toString()
 						)
 					)
-					.replace("${index.invites}", index.invites.toString())
-					.replace("${index.regular}", index.regular.toString())
-					.replace("${index.bonus}", index.bonus.toString())
-					.replace("${index.inviter}", index.inviter.toString())
-					.replace("${index.leaves}", index.leaves.toString());
+					.replace("${invites}", index.invites.toString())
+					.replace("${regular}", index.regular.toString())
+					.replace("${bonus}", index.bonus.toString())
+					.replace("${inviter}", index.inviter.toString())
+					.replace("${leaves}", index.leaves.toString());
 				i++;
 			});
 

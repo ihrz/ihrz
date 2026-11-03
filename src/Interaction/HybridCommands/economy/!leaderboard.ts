@@ -35,6 +35,8 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import formatNumber from "../../../core/functions/numberBeautifuer.js";
+import { renderPodium } from "../../../core/modules/podiumCard.js";
+import { fetchAvatar } from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -57,7 +59,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -93,52 +95,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let htmlContent = client.htmlfiles["podiumEconomyModule"];
-
 		array.sort((a, b) => b.totalWealth - a.totalWealth);
 
 		const itemsPerPage = 10;
 		const totalPages = Math.ceil(array.length / itemsPerPage);
-
-		htmlContent = htmlContent
-			.replaceAll(
-				"{title}",
-				lang.economy_leaderboard_embed_title.replace(
-					"`${interaction.guild.name}`",
-					interaction.guild.name + " "
-				)
-			)
-			.replaceAll(
-				"{1_username}",
-				array[0]?.user.username || lang.profil_unknown
-			)
-			.replaceAll(
-				"{2_username}",
-				array[1]?.user.username || lang.profil_unknown
-			)
-			.replaceAll(
-				"{3_username}",
-				array[2]?.user.username || lang.profil_unknown
-			)
-			.replaceAll("{1_wealth}", formatNumber(array[0]?.totalWealth || 0))
-			.replaceAll("{2_wealth}", formatNumber(array[1]?.totalWealth || 0))
-			.replaceAll("{3_wealth}", formatNumber(array[2]?.totalWealth || 0))
-			.replaceAll(
-				"{1_avatar}",
-				array[0]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			.replaceAll(
-				"{2_avatar}",
-				array[1]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			.replaceAll(
-				"{3_avatar}",
-				array[2]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			.replaceAll("{coin_emoji}", client.iHorizon_Emojis.Coin);
 
 		const createEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
@@ -148,7 +108,7 @@ export const subCommand: SubCommand = {
 			const embed = new EmbedBuilder()
 				.setTitle(
 					lang.economy_leaderboard_embed_title.replace(
-						"${interaction.guild.name}",
+						"${guildName}",
 						interaction.guild!.name
 					)
 				)
@@ -184,12 +144,37 @@ export const subCommand: SubCommand = {
 			return embed;
 		};
 
-		const image = await client.func.html2png(htmlContent, {
-			elementSelector: "body",
-			omitBackground: true,
-			selectElement: false,
-			width: 1024,
-			height: 512
+		// The coin is a Discord custom emoji (<:Coin:id>): draw its image
+		// (the HTML printed the raw markup).
+		const coinId = client.iHorizon_Emojis.Coin.match(/:(\d+)>$/)?.[1];
+		const podium = array.slice(0, 3);
+		const [badgeIcon, entries] = await Promise.all([
+			fetchAvatar(
+				coinId
+					? `https://cdn.discordapp.com/emojis/${coinId}.png?size=64`
+					: null
+			),
+			Promise.all(
+				podium.map(async (entry) => ({
+					name: entry.user.username || lang.profil_unknown,
+					avatar: await fetchAvatar(
+						entry.user.displayAvatarURL({
+							extension: "png",
+							size: 128
+						})
+					),
+					badge: formatNumber(entry.totalWealth || 0)
+				}))
+			)
+		]);
+		const image = await renderPodium({
+			title: lang.economy_leaderboard_embed_title.replace(
+				"`${guildName}`",
+				interaction.guild.name + " "
+			),
+			badgeColors: ["#ffd700", "#b8860b"],
+			badgeIcon,
+			entries
 		});
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });

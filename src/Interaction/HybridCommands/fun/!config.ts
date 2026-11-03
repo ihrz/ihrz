@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 			content: lang.fun_disable_command_msg
 				.replace("${action_type}", action_type)
 				.replace(
-					"${interaction.member?.user.toString()}",
+					"${author}",
 					String(interaction.member?.user.toString())
 				)
 		});

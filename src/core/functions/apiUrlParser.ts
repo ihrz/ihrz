@@ -33,7 +33,8 @@ export enum GatewayMethod {
 	SecureWebhook = 7,
 	CreateCustomVanity = 8,
 	ImageGeneration = 9,
-	BotLink = 10
+	BotLink = 10,
+	SvgRendering = 11
 }
 
 export function assetsFinder(body: Assets, type: string): string {
@@ -98,6 +99,9 @@ function buildGatewayUrl(
 			break;
 		case 10:
 			data += "/api/ihorizon/v1/bot/link";
+			break;
+		case 11:
+			data += "/api/ihorizon/v1/svg";
 			break;
 	}
 

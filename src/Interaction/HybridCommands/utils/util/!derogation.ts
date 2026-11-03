@@ -171,14 +171,8 @@ export const subCommand: SubCommand = {
 				.replace("${updatedChannels}", updatedChannels.toString())
 				.replace("${failedChannels}", failedChannels.toString())
 				.replace("${missingChannels}", missingChannels.toString())
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace(
-					"${client.iHorizon_Emojis.No}",
-					client.iHorizon_Emojis.No
-				)
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${emoji_No}", client.iHorizon_Emojis.No)
 		});
 	}
 };

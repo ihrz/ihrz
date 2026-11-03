@@ -74,11 +74,8 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.music_volume_command_ok
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace("${Number(query)}", String(query))
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${query}", String(query))
 		});
 	}
 };

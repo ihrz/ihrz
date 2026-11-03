@@ -23,6 +23,7 @@ import { Client, EmbedBuilder, Message, SnowflakeUtil } from "discord.js";
 import { generatePassword } from "../../core/functions/random.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -37,7 +38,9 @@ export const event: BotEvent = {
 
 		const data = await client.func.getLanguageData(message.guild.id);
 
-		const baseData = await client.db.get(`${message.guildId}.SUGGEST`);
+		const baseData = await getCachedGuildValue(
+			`${message.guildId}.SUGGEST`
+		);
 
 		if (
 			!baseData ||
@@ -54,7 +57,7 @@ export const event: BotEvent = {
 			.setTitle(`#${suggestCode}`)
 			.setAuthor({
 				name: data.event_suggestion_embed_author.replace(
-					"${message.author.username}",
+					"${messageAuthorUsername}",
 					message.author.username
 				),
 				iconURL: message.author.displayAvatarURL()

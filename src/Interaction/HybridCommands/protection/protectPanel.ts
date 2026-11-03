@@ -41,6 +41,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import logger from "../../../core/logger.js";
+import { invalidateProtectionContext } from "../../../core/modules/protectionEngine.js";
 
 const COLLECTOR_TIMEOUT = 800_000;
 const PANEL_ACCENT_COLOR = 0x3b9614;
@@ -319,6 +320,7 @@ export async function openProtectPanel(
 		if (ruleState.sanction) value.sanction = ruleState.sanction;
 
 		await client.db.set(`${guildId}.PROTECTION.${key}`, value);
+		invalidateProtectionContext(guild.id);
 	}
 
 	function buildRuleSelectRow(
@@ -645,6 +647,7 @@ export async function openProtectPanel(
 							`${guildId}.PROTECTION.SANCTION`,
 							value
 						);
+						invalidateProtectionContext(guild.id);
 						await feedback(
 							source,
 							lang.protect_panel_global_saved.replace(
@@ -716,6 +719,7 @@ export async function openProtectPanel(
 								await client.db.delete(
 									`${guildId}.PROTECTION.${key}`
 								);
+								invalidateProtectionContext(guild.id);
 								ruleState.enabled = false;
 								await feedback(
 									source,

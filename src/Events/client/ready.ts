@@ -209,14 +209,16 @@ export const event: BotEvent = {
 			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
-			let desc: string = "";
 
 			Object.entries(listAll).forEach(async ([userId, array]) => {
 				const member = client.users.cache.get(array.id) as User;
 
 				for (const ScheduleId in array.value) {
 					if (array.value[ScheduleId]?.expired <= dateNow) {
-						desc += `${format(new Date(array.value[ScheduleId]?.expired), "YYYY/MM/DD HH:mm:ss")}`;
+						// Une description PAR rappel : un accumulateur partagé
+						// envoyait le contenu des rappels d'autres utilisateurs
+						// dans le DM de chacun (fuite + injection inter-users).
+						let desc = `${format(new Date(array.value[ScheduleId]?.expired), "YYYY/MM/DD HH:mm:ss")}`;
 						desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
 						desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
 
@@ -322,15 +324,8 @@ export const event: BotEvent = {
 					2000
 				);
 
-			// Sort on member count, then strip it: only the public fields are pushed.
-			return guilds
-				.sort((a, b) => b.members - a.members)
-				.map(({ name, avatar, online, offline }) => ({
-					name,
-					avatar,
-					online,
-					offline
-				}));
+			// Biggest communities first; only name, icon and member count are public.
+			return guilds.sort((a, b) => b.members - a.members);
 		}
 
 		async function getTeam(): Promise<Team> {
@@ -494,22 +489,29 @@ export const event: BotEvent = {
 			writeFileSync(
 				path.join(process.cwd(), "src", "files", "commands.json"),
 				JSON.stringify(
-					client.commands.map((x) => {
-						return {
-							name: x.name,
-							prefix_name: x.prefixName,
-							name_translated: x.name_localizations,
+					// Commands load asynchronously: sort by name (plain code point
+					// order, locale independent) so the file is stable between boots.
+					[...client.commands.values()]
+						.sort((a, b) =>
+							a.name < b.name ? -1 : a.name > b.name ? 1 : 0
+						)
+						.map((x) => {
+							return {
+								name: x.name,
+								prefix_name: x.prefixName,
+								name_translated: x.name_localizations,
 
-							description: x.description,
-							description_translated: x.description_localizations,
+								description: x.description,
+								description_translated:
+									x.description_localizations,
 
-							category: x.category,
-							options: removePermissionProperties(x.options),
-							aliases: x.aliases,
-							thinking: x.thinking,
-							ephemeral: x.ephemeral
-						};
-					}),
+								category: x.category,
+								options: removePermissionProperties(x.options),
+								aliases: x.aliases,
+								thinking: x.thinking,
+								ephemeral: x.ephemeral
+							};
+						}),
 					null,
 					4
 				)

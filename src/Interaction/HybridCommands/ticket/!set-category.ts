@@ -90,11 +90,8 @@ export const subCommand: SubCommand = {
 			.setColor("#00FFFF")
 			.setDescription(
 				lang.setticketcategory_command_work
-					.replace("${category.name}", category.name)
-					.replace(
-						"${interaction.user.id}",
-						interaction.member.user.id
-					)
+					.replace("${categoryName}", category.name)
+					.replace("${authorId}", interaction.member.user.id)
 			);
 
 		await client.func.method.interactionSend(interaction, {

@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 		if (entries.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_locknamelist_empty.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -74,7 +74,7 @@ export const subCommand: SubCommand = {
 
 				return lockData.lockedAt && lockData.lockedBy
 					? lang.util_locknamelist_embed_line
-							.replace("${member.id}", memberId)
+							.replace("${memberId}", memberId)
 							.replace(
 								"${nick}",
 								lockData.nick || lang.var_no_set
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 							.replace("${lockedBy}", `<@${lockData.lockedBy}>`)
 							.replace("${lockedAt}", String(lockData.lockedAt))
 					: lang.util_locknamelist_embed_line_short
-							.replace("${member.id}", memberId)
+							.replace("${memberId}", memberId)
 							.replace(
 								"${nick}",
 								lockData.nick || lang.var_no_set

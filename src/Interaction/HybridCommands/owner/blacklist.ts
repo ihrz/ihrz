@@ -167,7 +167,7 @@ export async function run_for_bot_owner(
 		if (!blacklistedUsers.length) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blacklist_no_one_blacklist.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				),
 				flags: [1 << 6]
@@ -189,7 +189,7 @@ export async function run_for_bot_owner(
 
 			pages.push({
 				title: lang.blacklist_embed_title.replace(
-					"${i / usersPerPage + 1}",
+					"${page}",
 					(i / usersPerPage + 1).toString()
 				),
 				description: pageContent
@@ -332,8 +332,8 @@ export async function run_for_bot_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${member\.user\.username}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					member.user.globalName || member.user.username
 				)
 			});
@@ -351,8 +351,8 @@ export async function run_for_bot_owner(
 			.ban({ reason })
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.blacklist_command_work.replace(
-						/\${member\.user\.username}/g,
+					content: lang.blacklist_command_work.replaceAll(
+						"${memberUsername}",
 						String(member?.user.globalName || member?.user.username)
 					)
 				});
@@ -360,7 +360,7 @@ export async function run_for_bot_owner(
 			.catch(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_blacklisted_but_can_ban_him.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -369,8 +369,8 @@ export async function run_for_bot_owner(
 		// Immediate response to user
 		await client.func.method.channelSend(interaction, {
 			content: lang.batch_ban_process
-				.replace("${member.user.username}", member.user.username)
-				.replace("${guilds.length}", "all shards")
+				.replace("${memberUsername}", member.user.username)
+				.replace("${guildCount}", "all shards")
 		});
 
 		// Asynchronous background processing across all shards
@@ -384,7 +384,7 @@ export async function run_for_bot_owner(
 			await client.func.method.channelSend(interaction, {
 				content: lang.blacklist_command_work_shard
 					.replace("{score}", score)
-					.replace("{username}", username)
+					.replace("${username}", username)
 					.replace("${totalSuccess}", totalSuccess.toString())
 			});
 		});
@@ -400,8 +400,8 @@ export async function run_for_bot_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${member\.user\.username}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					targetUser.globalName || targetUser.username
 				)
 			});
@@ -416,8 +416,8 @@ export async function run_for_bot_owner(
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work.replace(
-				/\${member\.user\.username}/g,
+			content: lang.blacklist_command_work.replaceAll(
+				"${memberUsername}",
 				targetUser.globalName || targetUser.username
 			)
 		});
@@ -426,10 +426,10 @@ export async function run_for_bot_owner(
 		await client.func.method.channelSend(interaction, {
 			content: lang.batch_ban_process
 				.replace(
-					"${member.user.username}",
+					"${memberUsername}",
 					targetUser.globalName || targetUser.username
 				)
-				.replace("${guilds.length}", "all shards")
+				.replace("${guildCount}", "all shards")
 		});
 
 		// Asynchronous background processing across all shards
@@ -445,7 +445,7 @@ export async function run_for_bot_owner(
 			await client.func.method.channelSend(interaction, {
 				content: lang.blacklist_command_work_shard
 					.replace("{score}", score)
-					.replace("{username}", username)
+					.replace("${username}", username)
 					.replace("${totalSuccess}", totalSuccess.toString())
 			});
 		});
@@ -513,7 +513,7 @@ export async function run_for_guild_owner(
 		if (!blacklistedUsersArray.length) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blacklist_no_one_blacklist.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				),
 				flags: [1 << 6]
@@ -535,7 +535,7 @@ export async function run_for_guild_owner(
 
 			pages.push({
 				title: lang.blacklist_embed_title.replace(
-					"${i / usersPerPage + 1}",
+					"${page}",
 					(i / usersPerPage + 1).toString()
 				),
 				description: pageContent
@@ -625,8 +625,8 @@ export async function run_for_guild_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${member\.user\.username}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					member.user.globalName || member.user.username
 				)
 			});
@@ -647,8 +647,8 @@ export async function run_for_guild_owner(
 			.ban({ reason })
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.blacklist_command_work.replace(
-						/\${member\.user\.username}/g,
+					content: lang.blacklist_command_work.replaceAll(
+						"${memberUsername}",
 						String(member?.user.globalName || member?.user.username)
 					)
 				});
@@ -657,7 +657,7 @@ export async function run_for_guild_owner(
 				console.error(err);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_blacklisted_but_can_ban_him.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});
@@ -676,8 +676,8 @@ export async function run_for_guild_owner(
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted.replace(
-					/\${member\.user\.username}/g,
+				content: lang.blacklist_already_blacklisted.replaceAll(
+					"${memberUsername}",
 					targetUser.globalName || targetUser.username
 				)
 			});
@@ -695,8 +695,8 @@ export async function run_for_guild_owner(
 		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work.replace(
-				/\${member\.user\.username}/g,
+			content: lang.blacklist_command_work.replaceAll(
+				"${memberUsername}",
 				targetUser.globalName || targetUser.username
 			)
 		});

@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 			.setColor("#c4afed")
 			.setTitle(
 				lang.banner_user_embed.replace(
-					"${user?.username}",
+					"${userUsername}",
 					user?.username
 				)
 			)

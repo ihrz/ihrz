@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -87,10 +87,7 @@ export const subCommand: SubCommand = {
 				lang.balance_he_have_wallet
 					.replace("${bal}", totalWallet.toString())
 					.replace("${user}", member.toString())
-					.replace(
-						"${client.iHorizon_Emojis.Wallet}",
-						client.iHorizon_Emojis.Wallet
-					)
+					.replace("${emoji_Wallet}", client.iHorizon_Emojis.Wallet)
 			)
 			.addFields(
 				{

@@ -88,7 +88,7 @@ declare module "discord.js" {
 		team: Team;
 		notifier: StreamNotifier;
 		kdenlive: KdenLive;
-		htmlfiles: Record<string, string>;
+		svgfiles: Record<string, string>;
 		memberCountManager: MemberCountModule;
 		gatewayLink: GatewayLink;
 		autoRenewManager: AutoRenew;

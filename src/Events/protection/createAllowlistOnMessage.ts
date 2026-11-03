@@ -22,10 +22,14 @@
 import { Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 
+// Guilds whose allowlist is known to be seeded: avoids a DB read per message.
+const seededGuilds = new Set<string>();
+
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		if (!message.guild || message.author.bot || !message.channel) return;
+		if (seededGuilds.has(message.guild.id)) return;
 
 		const baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
 
@@ -35,5 +39,7 @@ export const event: BotEvent = {
 				list: { [`${message.guild?.ownerId}`]: { allowed: true } }
 			});
 		}
+
+		seededGuilds.add(message.guild.id);
 	}
 };

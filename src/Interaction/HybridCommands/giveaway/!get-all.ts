@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 			.setTimestamp()
 			.setTitle(
 				lang.gw_getall_embed_title.replace(
-					"${interaction.guild?.name}",
+					"${guildName}",
 					interaction.guild.name as string
 				)
 			)

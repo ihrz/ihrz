@@ -72,11 +72,8 @@ export const subCommand: SubCommand = {
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${member?.toString()}", member?.toString()!)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${member}", member?.toString()!)
 			});
 			return;
 		}
@@ -84,14 +81,8 @@ export const subCommand: SubCommand = {
 		if (!allWarns.find((x) => x.id === warnID)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found_id
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace(
-						"${member?.toString()}",
-						interaction.member?.toString()!
-					)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${member}", interaction.member?.toString()!)
 			});
 			return;
 		}
@@ -103,20 +94,14 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unwarn_command_ok
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace("${member?.toString()}", member?.toString()!)
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${member}", member?.toString()!)
 		});
 
 		const unwarnLogTitle = lang.unwarn_logEmbed_title;
 		const unwarnLogDescription = lang.unwarn_logEmbed_desc
-			.replace(
-				"${interaction.member.toString()}",
-				interaction.member.toString()
-			)
-			.replace("${member?.toString()}", member?.toString()!);
+			.replace("${author}", interaction.member.toString())
+			.replace("${member}", member?.toString()!);
 
 		if (client.func.hasIhorizonLogs(interaction.guild)) {
 			await client.func.ihorizon_logs(interaction, {

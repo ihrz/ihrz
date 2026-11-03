@@ -49,8 +49,8 @@ export const subCommand: SubCommand = {
 
 		if (!(await client.giveawaysManager.isValid(inputData as string))) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.end_not_find_giveaway.replace(
-					/\${gw}/g,
+				content: lang.end_not_find_giveaway.replaceAll(
+					"${gw}",
 					inputData as string
 				)
 			});
@@ -67,8 +67,8 @@ export const subCommand: SubCommand = {
 		client.giveawaysManager.end(client, inputData as string);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.end_confirmation_message.replace(
-				/\${timeEstimate}/g,
+			content: lang.end_confirmation_message.replaceAll(
+				"${timeEstimate}",
 				"0"
 			)
 		});
@@ -76,11 +76,8 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.end_logs_embed_title,
 			description: lang.end_logs_embed_description
-				.replace(
-					/\${interaction\.user\.id}/g,
-					interaction.member.user.id
-				)
-				.replace(/\${giveaway\.messageID}/g, inputData as string)
+				.replaceAll("${authorId}", interaction.member.user.id)
+				.replaceAll("${messageId}", inputData as string)
 		});
 
 		return;

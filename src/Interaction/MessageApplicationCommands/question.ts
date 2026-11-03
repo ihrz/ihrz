@@ -51,8 +51,8 @@ export const command: AnotherCommand = {
 
 		const embed = new EmbedBuilder()
 			.setTitle(
-				lang.question_embed_title.replace(
-					/\${interaction\.user\.username}/g,
+				lang.question_embed_title.replaceAll(
+					"${authorUsername}",
 					interaction.targetMessage.author.globalName ||
 						interaction.targetMessage.author.tag
 				)

@@ -32,6 +32,7 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { guildPrefix } from "../../core/functions/prefix.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -56,21 +57,21 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const dbGet = (await client.db.get(
+		const dbGet = (await getCachedGuildValue(
 			`${message.guild.id}.GUILD.RANK_ROLES`
 		)) as DatabaseStructure.DbGuildObject["RANK_ROLES"];
 		const prefix = (await guildPrefix(client, message.guildId!)).string;
 		var text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
-			.replace("${message.author.toString()}", message.author.toString())
+			.replace("${messageAuthor}", message.author.toString())
 			.replace(
-				"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+				"${emoji_Slash_Bot_Badge}",
 				client.iHorizon_Emojis.Slash_Bot_Badge
 			);
 		// 1 chance sur 8
 		if (client.func.random.secureRandomInt(0, 7) === 0) {
 			text += lang.ping_bot_show_info_msg_about_change_prefix.replace(
-				"${client.iHorizon_Emojis.VC_OpenChat}",
+				"${emoji_VC_OpenChat}",
 				client.iHorizon_Emojis.VC_OpenChat
 			);
 		}
@@ -118,8 +119,8 @@ export const event: BotEvent = {
 			const embed = new EmbedBuilder()
 				.setDescription(
 					lang.event_rank_role
-						.replace("${message.author.id}", message.author.id)
-						.replace("${fetch.id}", fetch.id)
+						.replace("${messageAuthorId}", message.author.id)
+						.replace("${id}", fetch.id)
 				)
 				.setFooter(
 					await client.func.displayBotName.footerBuilder(

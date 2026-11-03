@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.zip_emojis_command_work
 					.replace("${calcTime}", String(calcTime))
-					.replace("${emojis.size}", String(emojis.size)),
+					.replace("${emojiCount}", String(emojis.size)),
 				files: [
 					{
 						attachment: archiveBuffer,

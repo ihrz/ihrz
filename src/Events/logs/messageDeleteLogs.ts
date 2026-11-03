@@ -60,8 +60,8 @@ export const event: BotEvent = {
 			})
 			.setDescription(
 				data.event_srvLogs_messageDelete_description
-					.replace("${message.channel.id}", message.channel.id)
-					.replace("${message.content}", " " + message.content)
+					.replace("${messageChannelId}", message.channel.id)
+					.replace("${messageContent}", " " + message.content)
 			)
 			.setTimestamp();
 

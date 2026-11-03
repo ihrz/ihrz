@@ -239,18 +239,12 @@ export const command: Command = {
 			let Message: string =
 				type === "tag"
 					? lang.support_command_work_2
-							.replace(
-								"${interaction.guild.name}",
-								interaction.guild.name
-							)
-							.replace("${roles.id}", roles.id)
+							.replace("${guildName}", interaction.guild.name)
+							.replace("${rolesId}", roles.id)
 					: lang.support_command_work
-							.replace(
-								"${interaction.guild.name}",
-								interaction.guild.name
-							)
+							.replace("${guildName}", interaction.guild.name)
 							.replace("${input}", input!)
-							.replace("${roles.id}", roles.id);
+							.replace("${rolesId}", roles.id);
 
 			await client.func.method.interactionSend(interaction, {
 				content: Message
@@ -260,7 +254,7 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.support_command_work_on_disable.replace(
-					"${interaction.guild.name}",
+					"${guildName}",
 					interaction.guild.name
 				)
 			});

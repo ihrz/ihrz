@@ -135,13 +135,13 @@ async function notifyOwnerFromAnotherGuild(
 		.setColor("#11304c")
 		.setTitle(
 			lang.guild_leave_data_clear_notice_title.replace(
-				"${guild.name}",
+				"${guildName}",
 				guild.name
 			)
 		)
 		.setDescription(
 			lang.guild_leave_data_clear_notice_description
-				.replace("${guild.name}", guild.name)
+				.replace("${guildName}", guild.name)
 				.replace("${deleteAt}", `<t:${Math.floor(deleteAt / 1000)}:F>`)
 		)
 		.setTimestamp()
@@ -151,7 +151,7 @@ async function notifyOwnerFromAnotherGuild(
 	await owner
 		.send({
 			content: lang.guild_leave_data_clear_notice_message
-				.replace("${guild.name}", guild.name)
+				.replace("${guildName}", guild.name)
 				.replace("${deleteAt}", `<t:${Math.floor(deleteAt / 1000)}:R>`),
 			embeds: [embed]
 		})
@@ -184,13 +184,13 @@ export async function cancelPendingGuildDataDeletion(
 		.setColor("#57f287")
 		.setTitle(
 			lang.guild_leave_data_clear_cancelled_title.replace(
-				"${guild.name}",
+				"${guildName}",
 				guild.name
 			)
 		)
 		.setDescription(
 			lang.guild_leave_data_clear_cancelled_description.replace(
-				"${guild.name}",
+				"${guildName}",
 				guild.name
 			)
 		)
@@ -201,7 +201,7 @@ export async function cancelPendingGuildDataDeletion(
 	await owner
 		.send({
 			content: lang.guild_leave_data_clear_cancelled_message.replace(
-				"${guild.name}",
+				"${guildName}",
 				guild.name
 			),
 			embeds: [embed]

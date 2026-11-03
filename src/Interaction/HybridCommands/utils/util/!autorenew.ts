@@ -84,11 +84,8 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_command_ok
-					.replace(
-						"${client.iHorizon_Emojis.Yes}",
-						client.iHorizon_Emojis.Yes
-					)
-					.replace("${channel.toString()}", channel.toString())
+					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+					.replace("${channel}", channel.toString())
 					.replace(
 						"${time}",
 						client.timeCalculator.to_beautiful_string(

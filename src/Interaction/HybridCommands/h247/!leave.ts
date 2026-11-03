@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 		if (!existing?.enabled) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_leave_not_active.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_left.replace(
-					"${client.iHorizon_Emojis.Yes}",
+					"${emoji_Yes}",
 					client.iHorizon_Emojis.Yes
 				)
 			});
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_leave_error.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});

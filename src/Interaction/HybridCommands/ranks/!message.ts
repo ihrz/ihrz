@@ -181,7 +181,7 @@ export const subCommand: SubCommand = {
 					await modalInteraction.reply({
 						content:
 							lang.ranksSetMessage_command_work_on_enable.replace(
-								"${client.iHorizon_Emojis.GreenTick}",
+								"${emoji_GreenTick}",
 								client.iHorizon_Emojis.GreenTick
 							),
 						flags: [1 << 6]
@@ -193,7 +193,7 @@ export const subCommand: SubCommand = {
 						title: lang.ranksSetMessage_logs_embed_title_on_enable,
 						description:
 							lang.ranksSetMessage_logs_embed_description_on_enable.replace(
-								"${interaction.user.id}",
+								"${authorId}",
 								interaction.member.user.id
 							)
 					});
@@ -214,7 +214,7 @@ export const subCommand: SubCommand = {
 				await buttonInteraction.reply({
 					content:
 						lang.ranksSetMessage_command_work_on_enable.replace(
-							"${client.iHorizon_Emojis.GreenTick}",
+							"${emoji_GreenTick}",
 							client.iHorizon_Emojis.GreenTick
 						),
 					flags: [1 << 6]
@@ -227,7 +227,7 @@ export const subCommand: SubCommand = {
 					title: lang.ranksSetMessage_logs_embed_title_on_disable,
 					description:
 						lang.ranksSetMessage_logs_embed_description_on_disable.replace(
-							"${interaction.user.id}",
+							"${authorId}",
 							interaction.member.user.id
 						)
 				});

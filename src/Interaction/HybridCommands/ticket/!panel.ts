@@ -55,8 +55,16 @@ import {
 import { metasTable } from "../../../Events/client/ready.js";
 import { SubCommand } from "../../../../types/command.js";
 
+export type TicketPanelMode = "simple" | "advanced";
+
 export interface TicketPanel {
 	panelCode: string;
+	/**
+	 * simple: one button, no option or question. advanced: select menu with
+	 * option fields and forms. Panels saved before the mode existed are
+	 * advanced.
+	 */
+	mode?: TicketPanelMode;
 	relatedEmbedId: string | null;
 	placeholder: string;
 	category?: string;
@@ -133,6 +141,7 @@ export const subCommand: SubCommand = {
 					uppercase: true,
 					numbers: true
 				}),
+			mode: rawData?.mode ?? (rawData ? "advanced" : "simple"),
 			relatedEmbedId: rawData?.relatedEmbedId ?? null,
 			category: rawData?.category ?? null,
 			placeholder:
@@ -206,15 +215,28 @@ export const subCommand: SubCommand = {
 
 			container.addTextDisplayComponents(
 				new TextDisplayBuilder().setContent(
+					`**${lang.ticket_panel_mode}** ${isSimple() ? lang.ticket_panel_mode_simple : lang.ticket_panel_mode_advanced}\n` +
+						`-# ${isSimple() ? lang.ticket_panel_mode_simple_desc : lang.ticket_panel_mode_advanced_desc}`
+				)
+			);
+
+			container.addSeparatorComponents(new SeparatorBuilder());
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
 					`**${lang.ticket_panel_role_to_ping}**\n${formatRoles(baseData.config.rolesToPing, lang)}\n` +
 						`**${lang.ticket_panel_ping_user}** ${baseData.config.pingUser ? "🟢" : "🔴"}\n` +
-						`**${lang.ticket_panel_placeholder}**\n${baseData.placeholder || lang.var_no_set}\n` +
+						(isSimple()
+							? ""
+							: `**${lang.ticket_panel_placeholder}**\n${baseData.placeholder || lang.var_no_set}\n`) +
 						`**${lang.ticket_panel_category}**\n${formatCategory(baseData.category, interaction.guild!)}\n` +
 						`**${lang.ticket_panel_select_user}** ${baseData.config.userSelectPanel ? "🟢" : "🔴"}\n` +
 						`**${lang.ticket_panel_button_delete}** ${baseData.config.deleteButton ? "🟢" : "🔴"}\n` +
 						`**${lang.ticket_panel_button_transcript}** ${baseData.config.transcriptButton ? "🟢" : "🔴"}`
 				)
 			);
+
+			if (isSimple()) return container;
 
 			container.addTextDisplayComponents(
 				new TextDisplayBuilder().setContent(
@@ -231,6 +253,23 @@ export const subCommand: SubCommand = {
 			return container;
 		}
 
+		function defaultSimpleEmbed(): EmbedBuilder {
+			return new EmbedBuilder()
+				.setColor(PANEL_ACCENT)
+				.setTitle(lang.ticket_panel_simple_default_title)
+				.setDescription(lang.ticket_panel_simple_default_desc);
+		}
+
+		function openTicketButton(customId: string): ButtonBuilder {
+			const button = new ButtonBuilder()
+				.setCustomId(customId)
+				.setLabel(lang.event_ticket_button_name)
+				.setStyle(ButtonStyle.Primary);
+			const emoji = ticketEmoji("Ticket");
+			if (emoji) button.setEmoji(emoji);
+			return button;
+		}
+
 		function buildPromptContainer(text: string): ContainerBuilder {
 			return new ContainerBuilder()
 				.setAccentColor(PANEL_ACCENT)
@@ -241,97 +280,108 @@ export const subCommand: SubCommand = {
 
 		ensureUniqueOptionFieldValues();
 
-		// Menu de sélection
-		const panelSelect = new StringSelectMenuBuilder()
-			.setCustomId("panelSelect")
-			.setPlaceholder(lang.ticket_panel_panel_placeholder)
-			.addOptions([
-				panelOption(
-					lang.ticket_panel_panel_1_label,
-					"save",
-					"Ticket_Save"
-				),
-				panelOption(
-					lang.ticket_panel_panel_2_label,
-					"preview",
-					"Ticket_Preview"
-				),
-				panelOption(
-					lang.ticket_panel_panel_3_label,
-					"change_embed",
-					"Ticket_Nitro"
-				),
-				panelOption(
-					lang.ticket_panel_panel_4_label,
-					"change_role",
-					"Ticket_Role"
-				),
-				panelOption(
-					lang.ticket_panel_panel_5_label,
-					"change_placeholder",
-					"Ticket_Paint"
-				),
-				panelOption(
-					lang.ticket_panel_panel_6_label,
-					"change_category",
-					"Ticket_Category"
-				),
-				panelOption(
-					lang.ticket_panel_panel_10_label,
-					"change_category_2",
-					"Ticket_Category"
-				),
-				panelOption(
-					lang.ticket_panel_panel_7_label,
-					"change_ping",
-					"Ticket_Bell"
-				),
-				panelOption(
-					lang.ticket_panel_panel_8_label,
-					"change_option",
-					"Ticket_List"
-				),
-				panelOption(
-					lang.ticket_panel_panel_9_label,
-					"change_form",
-					"Ticket_Form"
-				),
-				panelOption(
-					lang.ticket_panel_panel_11_label,
-					"change_ticket_channel_panel",
-					"Ticket_Hash"
-				),
-				panelOption(
-					lang.ticket_panel_panel_12_label,
-					"change_ticket_user_select_panel",
-					"Ticket_User"
-				),
-				panelOption(
-					lang.ticket_panel_panel_13_label,
-					"change_ticket_button_delete_panel",
-					"Ticket_Trash"
-				),
-				panelOption(
-					lang.ticket_panel_panel_14_label,
-					"change_ticket_button_transcript_panel",
-					"Ticket_Transcript"
-				),
-				panelOption(
-					lang.ticket_panel_panel_15_label,
-					"change_ticket_channel_panel_options",
+		// Choices only meaningful with a select menu (options, forms).
+		const ADVANCED_ONLY_CHOICES = new Set([
+			"change_category_2",
+			"change_form",
+			"change_option",
+			"change_placeholder",
+			"change_role_to_ping_options",
+			"change_ticket_channel_panel_options",
+			"change_ticket_forms_options"
+		]);
+
+		function isSimple(): boolean {
+			return baseData.mode === "simple";
+		}
+
+		function buildPanelSelect(): StringSelectMenuBuilder {
+			const choices: [string, string, string][] = [
+				["save", lang.ticket_panel_panel_1_label, "Ticket_Save"],
+				["preview", lang.ticket_panel_panel_2_label, "Ticket_Preview"],
+				[
+					"change_mode",
+					lang.ticket_panel_panel_18_label,
 					"Ticket_Settings"
-				),
-				panelOption(
-					lang.ticket_panel_panel_16_label,
+				],
+				[
+					"change_embed",
+					lang.ticket_panel_panel_3_label,
+					"Ticket_Nitro"
+				],
+				["change_role", lang.ticket_panel_panel_4_label, "Ticket_Role"],
+				[
+					"change_placeholder",
+					lang.ticket_panel_panel_5_label,
+					"Ticket_Paint"
+				],
+				[
+					"change_category",
+					lang.ticket_panel_panel_6_label,
+					"Ticket_Category"
+				],
+				[
+					"change_category_2",
+					lang.ticket_panel_panel_10_label,
+					"Ticket_Category"
+				],
+				["change_ping", lang.ticket_panel_panel_7_label, "Ticket_Bell"],
+				[
+					"change_option",
+					lang.ticket_panel_panel_8_label,
+					"Ticket_List"
+				],
+				["change_form", lang.ticket_panel_panel_9_label, "Ticket_Form"],
+				[
+					"change_ticket_channel_panel",
+					lang.ticket_panel_panel_11_label,
+					"Ticket_Hash"
+				],
+				[
+					"change_ticket_user_select_panel",
+					lang.ticket_panel_panel_12_label,
+					"Ticket_User"
+				],
+				[
+					"change_ticket_button_delete_panel",
+					lang.ticket_panel_panel_13_label,
+					"Ticket_Trash"
+				],
+				[
+					"change_ticket_button_transcript_panel",
+					lang.ticket_panel_panel_14_label,
+					"Ticket_Transcript"
+				],
+				[
+					"change_ticket_channel_panel_options",
+					lang.ticket_panel_panel_15_label,
+					"Ticket_Settings"
+				],
+				[
 					"change_ticket_forms_options",
+					lang.ticket_panel_panel_16_label,
 					"Ticket_Form"
-				),
-				panelOption(
-					lang.ticket_panel_panel_17_label,
+				],
+				[
 					"change_role_to_ping_options",
+					lang.ticket_panel_panel_17_label,
 					"Ticket_Megaphone"
-				)
-			]);
+				]
+			];
+			return new StringSelectMenuBuilder()
+				.setCustomId("panelSelect")
+				.setPlaceholder(lang.ticket_panel_panel_placeholder)
+				.addOptions(
+					choices
+						.filter(
+							([value]) =>
+								!isSimple() || !ADVANCED_ONLY_CHOICES.has(value)
+						)
+						.map(([value, label, emoji]) =>
+							panelOption(label, value, emoji)
+						)
+				);
+		}
 
 		const sendButton = new ButtonBuilder()
 			.setCustomId("send_embed")
@@ -341,12 +391,14 @@ export const subCommand: SubCommand = {
 				ticketEmoji("Ticket_Send") ?? client.iHorizon_Emojis.GreenTick
 			);
 
-		const components = [
-			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-				panelSelect
-			),
-			new ActionRowBuilder<ButtonBuilder>().addComponents(sendButton)
-		];
+		function panelComponents() {
+			return [
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					buildPanelSelect()
+				),
+				new ActionRowBuilder<ButtonBuilder>().addComponents(sendButton)
+			];
+		}
 
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
@@ -393,8 +445,21 @@ export const subCommand: SubCommand = {
 				}
 
 				const choice = i.values[0];
+				// A choice hidden in simple mode can still come from a menu
+				// rendered before the mode changed.
+				if (isSimple() && ADVANCED_ONLY_CHOICES.has(choice)) {
+					await i.deferUpdate();
+					await refreshPanelMessage();
+					return;
+				}
 
 				switch (choice) {
+					case "change_mode":
+						await i.deferUpdate();
+						baseData.mode = isSimple() ? "advanced" : "simple";
+						isSaved = false;
+						await refreshPanelMessage();
+						break;
 					case "save":
 						await i.deferUpdate();
 						await save();
@@ -531,7 +596,7 @@ export const subCommand: SubCommand = {
 		function buildPanelMessage() {
 			const file = buildOptionsAttachment();
 			return {
-				components: [buildContainer(), ...components],
+				components: [buildContainer(), ...panelComponents()],
 				files: file ? [file] : [],
 				flags: V2_FLAGS
 			};
@@ -669,11 +734,11 @@ export const subCommand: SubCommand = {
 		}
 
 		async function sendEmbed() {
-			if (baseData.config.optionFields.length === 0)
+			if (!isSimple() && baseData.config.optionFields.length === 0)
 				return originalResponse.edit({
 					components: [
 						buildPromptContainer(lang.ticket_panel_need_1_option),
-						...components
+						...panelComponents()
 					],
 					flags: [MessageFlags.IsComponentsV2]
 				});
@@ -720,16 +785,19 @@ export const subCommand: SubCommand = {
 						content: lang.ticket_panel_channel_error
 					});
 
-				const embedData = await metasTable.get(
-					`EMBED.${baseData.relatedEmbedId}`
-				);
-				if (!embedData?.embedSource)
+				const embedData = baseData.relatedEmbedId
+					? await metasTable.get(`EMBED.${baseData.relatedEmbedId}`)
+					: null;
+				// Simple panels work without a custom embed.
+				if (!embedData?.embedSource && !isSimple())
 					return i.reply({
 						flags: [1 << 6],
 						content: lang.ticket_panel_related_embed_dont_exist
 					});
 
-				const embed = EmbedBuilder.from(embedData.embedSource);
+				const embed = embedData?.embedSource
+					? EmbedBuilder.from(embedData.embedSource)
+					: defaultSimpleEmbed();
 				const selectMenu = new StringSelectMenuBuilder()
 					.setCustomId("ticket-open-selection-v2")
 					.setPlaceholder(baseData.placeholder)
@@ -750,9 +818,13 @@ export const subCommand: SubCommand = {
 				const sentPanel = await channel.send({
 					embeds: [embed],
 					components: [
-						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-							selectMenu
-						)
+						isSimple()
+							? new ActionRowBuilder<ButtonBuilder>().addComponents(
+									openTicketButton("ticket-open-button-v2")
+								)
+							: new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+									selectMenu
+								)
 					]
 				});
 				await client.db.set(
@@ -767,10 +839,7 @@ export const subCommand: SubCommand = {
 						buildPromptContainer(
 							lang.ticket_panel_saved_and_sended_panel
 								.replace("${panelCode}", panelCode)
-								.replace(
-									"${channel.toString()}",
-									channel.toString()
-								)
+								.replace("${channel}", channel.toString())
 						)
 					],
 					files: [],
@@ -787,7 +856,7 @@ export const subCommand: SubCommand = {
 						buildPromptContainer(
 							lang.ticket_panel_remove_option_empty
 						),
-						...components
+						...panelComponents()
 					],
 					attachments: [],
 					files: file ? [file] : [],
@@ -885,7 +954,7 @@ export const subCommand: SubCommand = {
 				components: [
 					buildPromptContainer(
 						lang.ticket_panel_manage_form_title.replace(
-							"${option.name}",
+							"${optionName}",
 							option.name
 						)
 					),
@@ -1291,7 +1360,7 @@ export const subCommand: SubCommand = {
 
 			await i.followUp({
 				content: lang.ticket_panel_tip_about_variable1.replace(
-					"${client.iHorizon_Emojis.VC_OpenChat}",
+					"${emoji_VC_OpenChat}",
 					client.iHorizon_Emojis.VC_OpenChat
 				),
 				flags: MessageFlags.Ephemeral
@@ -1604,7 +1673,7 @@ export const subCommand: SubCommand = {
 						buildPromptContainer(
 							lang.ticket_panel_remove_option_empty
 						),
-						...components
+						...panelComponents()
 					],
 					attachments: [],
 					files: file ? [file] : [],
@@ -1670,9 +1739,29 @@ export const subCommand: SubCommand = {
 		}
 
 		async function preview(i: StringSelectMenuInteraction<CacheType>) {
-			const relatedEmbed = await metasTable.get(
-				`EMBED.${baseData.relatedEmbedId}`
-			);
+			const relatedEmbed = baseData.relatedEmbedId
+				? await metasTable.get(`EMBED.${baseData.relatedEmbedId}`)
+				: null;
+
+			if (isSimple()) {
+				await i.reply({
+					embeds: [
+						relatedEmbed?.embedSource
+							? EmbedBuilder.from(relatedEmbed.embedSource)
+							: defaultSimpleEmbed()
+					],
+					content: lang.ticket_panel_preview_message,
+					components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							openTicketButton(
+								"ticket-open-button-v2-preview"
+							).setDisabled(true)
+						)
+					],
+					flags: [1 << 6]
+				});
+				return;
+			}
 
 			if (!relatedEmbed || !relatedEmbed.embedSource) {
 				await refreshPanelMessage();
@@ -1827,7 +1916,7 @@ export const subCommand: SubCommand = {
 				components: [
 					buildPromptContainer(
 						lang.ticket_panel_change_role_interaction_content.replace(
-							"${option.name}",
+							"${optionName}",
 							option.name
 						)
 					),

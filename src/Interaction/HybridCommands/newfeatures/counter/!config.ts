@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			await client.db.set(`${interaction.guildId}.COUNTER.config`, "on");
 			await client.func.method.interactionSend(interaction, {
 				content: lang.counter_config_command_action_on.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 			await client.db.set(`${interaction.guildId}.COUNTER.config`, "off");
 			await client.func.method.interactionSend(interaction, {
 				content: lang.counter_config_command_action_off.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});

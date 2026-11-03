@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 		if (!role || !limit_count) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_rolelimit_bad_opt.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -69,11 +69,8 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_rolelimit_good
-				.replaceAll(
-					"${client.iHorizon_Emojis.Crown}",
-					client.iHorizon_Emojis.Crown
-				)
-				.replaceAll("${role.toString()}", role.toString())
+				.replaceAll("${emoji_Crown}", client.iHorizon_Emojis.Crown)
+				.replaceAll("${role}", role.toString())
 				.replaceAll("${limit_count}", String(limit_count))
 		});
 

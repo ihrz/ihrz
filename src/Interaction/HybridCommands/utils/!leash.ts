@@ -84,17 +84,11 @@ export const subCommand: SubCommand = {
 			const response = await promptYesOrNo(interaction, {
 				content: lang.util_leash_confirm_message
 					.replace(
-						"${client.iHorizon_Emojis.Warning_Icon}",
+						"${emoji_Warning_Icon}",
 						client.iHorizon_Emojis.Warning_Icon
 					)
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace(
-						"${client.iHorizon_Emojis.Yes}",
-						client.iHorizon_Emojis.Yes
-					),
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes),
 				yesButton: lang.var_yes,
 				noButton: lang.var_no,
 				dangerAction: false
@@ -102,7 +96,7 @@ export const subCommand: SubCommand = {
 			if (!response) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.util_leash_canceled_leash.replace(
-						"${client.iHorizon_Emojis.Yes}",
+						"${emoji_Yes}",
 						client.iHorizon_Emojis.Yes
 					),
 					components: []
@@ -123,7 +117,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_leash_confirmed_leash.replace(
-				"${client.iHorizon_Emojis.Yes}",
+				"${emoji_Yes}",
 				client.iHorizon_Emojis.Yes
 			),
 			components: []

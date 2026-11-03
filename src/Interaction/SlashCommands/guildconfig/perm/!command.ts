@@ -617,7 +617,7 @@ export const subCommand: SubCommand = {
 							: "";
 
 				msg += lang.perm_command_delete_all_command_ok
-					.replace("${changes.length}", changes.length.toString())
+					.replace("${changeCount}", changes.length.toString())
 					.replace("${type}", type)
 					.replace("${value}", value);
 				await client.func.method.interactionSend(interaction, {

@@ -51,8 +51,8 @@ export const subCommand: SubCommand = {
 
 		if (!(await client.giveawaysManager.isValid(inputData))) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.end_not_find_giveaway.replace(
-					/\${gw}/g,
+				content: lang.end_not_find_giveaway.replaceAll(
+					"${gw}",
 					inputData
 				)
 			});

@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
 				.setTitle(lang.pfps_channel_embed_title)
 				.setDescription(
 					lang.pfps_channel_embed_desc.replace(
-						"${interaction.user}",
+						"${author}",
 						interaction.member.user.toString()
 					)
 				)
@@ -81,10 +81,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.pfps_channel_command_work
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${channel}", channel.toString())
 			});
 
@@ -93,7 +90,7 @@ export const subCommand: SubCommand = {
 		} else {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.pfps_channel_command_error.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});

@@ -21,6 +21,7 @@
 
 import { BaseGuildTextChannel, Client, DMChannel, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -36,8 +37,9 @@ export const event: BotEvent = {
 		// Handles all messages and checks whether they contain a resolvable link
 		if (
 			message.author.bot ||
-			(await client.db.get(`${message.guildId}.UTILS.git_lines`)) ===
-				false
+			(await getCachedGuildValue(
+				`${message.guildId}.UTILS.git_lines`
+			)) === false
 		) {
 			return;
 		}
@@ -51,7 +53,7 @@ export const event: BotEvent = {
 				client.func.random.secureRandomInt(0, 7) === 0
 			) {
 				botMsg += lang.git_lines_borred_warning.replace(
-					"${client.iHorizon_Emojis.VC_OpenChat}",
+					"${emoji_VC_OpenChat}",
 					client.iHorizon_Emojis.VC_OpenChat
 				);
 			}

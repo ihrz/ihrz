@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		if (!(interaction.member as GuildMember)?.voice.channel) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.pause_no_queue.replace(
-					"${client.iHorizon_Emojis.Warning_Icon}",
+					"${emoji_Warning_Icon}",
 					client.iHorizon_Emojis.Warning_Icon
 				)
 			});
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.music_cannot.replace(
-						"${client.iHorizon_Emojis.No}",
+						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					)
 				});

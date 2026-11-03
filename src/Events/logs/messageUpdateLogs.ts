@@ -126,7 +126,7 @@ export const event: BotEvent = {
 			.setAuthor({ name: newMessage.author.username, iconURL: icon })
 			.setDescription(
 				data.event_srvLogs_messageUpdate_description
-					.replace("${oldMessage.channelId}", oldMessage.channelId)
+					.replace("${oldMessageChannelId}", oldMessage.channelId)
 					.replace(
 						"(xxx)",
 						`(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`

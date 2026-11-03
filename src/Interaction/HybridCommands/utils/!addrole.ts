@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_not_wl.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_highter_or_egal_roles_msg.replace(
-					"${client.iHorizon_Emojis.Stop}",
+					"${emoji_Stop}",
 					client.iHorizon_Emojis.Stop
 				)
 			});
@@ -137,9 +137,9 @@ export const subCommand: SubCommand = {
 			embeds: [
 				new EmbedBuilder().setDescription(
 					lang.utils_addrole_command_ok
-						.replace("${author.toString()}", author.toString())
-						.replace("${role?.toString()}", role?.toString()!)
-						.replace("${user.toString()}", user.toString())
+						.replace("${author}", author.toString())
+						.replace("${role}", role?.toString()!)
+						.replace("${user}", user.toString())
 				)
 			]
 		});

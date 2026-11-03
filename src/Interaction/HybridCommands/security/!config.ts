@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.security_disable_pw_on.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.user.toString()
 				)
 			});
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.security_disable_pw_off.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.user.toString()
 				)
 			});

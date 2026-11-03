@@ -31,7 +31,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
@@ -42,6 +42,8 @@ export const event: BotEvent = {
 		const data =
 			(await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`)) ||
 			false;
+		// Disabled: skip the REST audit log fetch below.
+		if (data !== true) return;
 
 		if (
 			!member.guild.members.me?.permissions.has([
@@ -77,7 +79,7 @@ export const event: BotEvent = {
 				.setColor(2829617)
 				.setTitle(
 					lang.protection_blockbot_embed_title.replace(
-						"${member.guild.name}",
+						"${memberGuildName}",
 						member.guild.name
 					)
 				)

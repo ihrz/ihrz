@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.security_channel_command_work
-				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${author}", interaction.user.toString())
 				.replace("${channel}", channel as unknown as string)
 		});
 

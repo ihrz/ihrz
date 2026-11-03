@@ -53,10 +53,7 @@ export const subCommand: SubCommand = {
 		if (!data)
 			return client.func.method.interactionSend(interaction, {
 				content: lang.rc_key_doesnt_exist
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
 					.replace("${secretCode}", secretCode),
 				flags: [1 << 6]
 			});

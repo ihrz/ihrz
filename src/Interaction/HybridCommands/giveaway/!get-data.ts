@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 						{
 							name: lang.gw_getdata_embed_fields_amountWinner,
 							value: lang.gw_getdata_embed_fields_value_amountWinner.replace(
-								"${giveawayData.winnerCount}",
+								"${winnerCount}",
 								giveawayData.winnerCount
 							),
 							inline: true
@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 						{
 							name: lang.gw_getdata_embed_fields_prize,
 							value: lang.gw_getdata_embed_fields_value_prize.replace(
-								"${giveawayData.prize}",
+								"${prize}",
 								giveawayData.prize
 							),
 							inline: true
@@ -116,7 +116,7 @@ export const subCommand: SubCommand = {
 							name: lang.gw_getdata_embed_fields_entriesAmount,
 							value: lang.gw_getdata_embed_fields_value_entriesAmount
 								.replace(
-									"${(giveawayData.entries as string[]).length}",
+									"${entries}",
 									(
 										giveawayData.entries as string[]
 									).length.toString()

@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.reset_geconomy_logs_embed_title,
 				description: lang.reset_geconomy_logs_embed_desc.replace(
-					"${interaction.member.user.toString()}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});

@@ -102,11 +102,6 @@ import { components } from "../src/core/functions/method.ts";
 import { Player } from "lavalink-client";
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from "./musicPlay";
 import {
-	Html2PngOptions,
-	Html2PngRequestMessage,
-	Html2PngResponseMessage
-} from "../src/core/functions/html2pngProtocol.ts";
-import {
 	BannerExtension,
 	BannerSource,
 	BannerUrlOptions
@@ -176,21 +171,6 @@ declare namespace Client_Functions {
 
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
-
-	// From batchProcessor.ts
-	export namespace batchProcessor {
-		export function processBatch<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options?: BatchProcessorOptions
-		): Promise<BatchProcessorResult>;
-		export function processBatchAsync<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options?: BatchProcessorOptions,
-			onComplete?: (result: BatchProcessorResult) => void
-		): void;
-	}
 
 	// From mediaManipulation.ts
 	export namespace mediaManipulation {
@@ -352,6 +332,21 @@ declare namespace Client_Functions {
 		): Promise<Array<CommunityGuildData>>;
 	}
 
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options?: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options?: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
+	}
+
 	// From music_proximity.ts
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
@@ -466,12 +461,12 @@ declare namespace Client_Functions {
 		): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
 		export function derank(
-			user: GuildMember,
+			target: GuildMember | { guild: Guild; id: string },
 			reason?: string
 		): Promise<void>;
 		export function punish(
 			data: DatabaseStructure.ProtectionData,
-			user: GuildMember,
+			user: GuildMember | { guild: Guild; id: string },
 			reason?: string,
 			ruleKey?: string
 		): Promise<void>;
@@ -564,18 +559,62 @@ declare namespace Client_Functions {
 		variables: WelcomerEmbedVariables
 	): Promise<APIEmbed | null>;
 
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: Html2PngOptions,
-		assets?: Array<Html2PngAsset>
-	): Promise<Buffer<ArrayBufferLike>>;
-
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
 		optionName: string,
 		optionValue: unknown
 	): string;
+
+	// From svg2png.ts
+	export function svg2png(
+		svg: string,
+		options?: Svg2PngOptions
+	): Promise<Buffer<ArrayBufferLike>>;
+
+	// From svgKit.ts
+	export namespace svgKit {
+		export function uid(prefix?: any): string;
+		export function escape(value: string): string;
+		export function raw(markup: string): SvgMarkup;
+		export function fill(
+			template: string,
+			values: { [x: string]: string | number | SvgMarkup }
+		): string;
+		export function measure(
+			text: string,
+			style: TextStyle
+		): Promise<number>;
+		export function ellipsize(
+			text: string,
+			maxWidth: number,
+			style: TextStyle
+		): Promise<string>;
+		export function wrap(
+			text: string,
+			maxWidth: number,
+			style: TextStyle,
+			maxLines?: any
+		): Promise<Array<string>>;
+		export function text(
+			content: string,
+			options: TextOptions
+		): Promise<SvgMarkup>;
+		export function paragraph(
+			content: string,
+			options: ParagraphOptions
+		): Promise<SvgMarkup>;
+		export function imageSize(
+			buffer: Buffer<ArrayBufferLike>
+		): { width: number; height: number } | null;
+		export function dataUri(buffer: Buffer<ArrayBufferLike>): string;
+		export function image(
+			source: Buffer<ArrayBufferLike>,
+			options: ImageOptions
+		): SvgMarkup;
+		export function fetchImage(
+			url: string
+		): Promise<Buffer<ArrayBufferLike> | null>;
+	}
 
 	// From prefix.ts
 	export namespace prefix {

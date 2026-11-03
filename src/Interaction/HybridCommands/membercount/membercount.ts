@@ -264,12 +264,9 @@ export const command: Command = {
 				title: lang.setmembercount_logs_embed_title_on_enable,
 				description:
 					lang.setmembercount_logs_embed_description_on_enable
-						.replace(
-							/\${interaction\.user\.id}/g,
-							interaction.member.user.id
-						)
-						.replace(/\${channel\.id}/g, channel?.id!)
-						.replace(/\${messagei}/g, messagei)
+						.replaceAll("${authorId}", interaction.member.user.id)
+						.replaceAll("${channelId}", channel?.id!)
+						.replaceAll("${messagei}", messagei)
 			});
 
 			const fetched = interaction.guild?.channels.cache.get(
@@ -279,7 +276,7 @@ export const command: Command = {
 			(fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setmembercount_command_work_on_enable.replace(
-					"${client.iHorizon_Emojis.Yes}",
+					"${emoji_Yes}",
 					client.iHorizon_Emojis.Yes
 				)
 			});
@@ -290,15 +287,15 @@ export const command: Command = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setmembercount_logs_embed_title_on_disable,
 				description:
-					lang.setmembercount_logs_embed_description_on_disable.replace(
-						/\${interaction\.user\.id}/g,
+					lang.setmembercount_logs_embed_description_on_disable.replaceAll(
+						"${authorId}",
 						interaction.member.user.id
 					)
 			});
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setmembercount_command_work_on_disable.replace(
-					"${client.iHorizon_Emojis.Yes}",
+					"${emoji_Yes}",
 					client.iHorizon_Emojis.Yes
 				)
 			});

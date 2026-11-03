@@ -96,7 +96,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.zip_stickers_command_work
 					.replace("${calcTime}", String(calcTime))
-					.replace("${stickers.size}", String(stickers.size)),
+					.replace("${stickerCount}", String(stickers.size)),
 				files: [
 					{
 						attachment: archiveBuffer,

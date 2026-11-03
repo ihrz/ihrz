@@ -33,7 +33,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -63,7 +63,7 @@ export const event: BotEvent = {
 			guild: member.guild,
 			target: member.id,
 			actionType: AuditLogEvent.MemberKick,
-			type: "PROTECTION"
+			type: "LOGS"
 		});
 		if (!firstEntry) return;
 
@@ -71,11 +71,8 @@ export const event: BotEvent = {
 			.setColor("#010101")
 			.setDescription(
 				data.event_srvLogs_guildMemberRemove_description
-					.replace(
-						"${firstEntry.executor.id}",
-						firstEntry.executor?.id!
-					)
-					.replace("${firstEntry.target.id}", firstEntry.targetId!)
+					.replace("${executorId}", firstEntry.executor?.id!)
+					.replace("${targetId}", firstEntry.targetId!)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,

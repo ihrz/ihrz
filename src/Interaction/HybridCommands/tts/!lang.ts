@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		if (!ttsData || !ttsData.enabled) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_lang_not_active.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -63,10 +63,7 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.tts_lang_set
 				.replace("${language}", languageChoice)
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 		});
 	}
 };

@@ -71,39 +71,101 @@ export const subCommand: SubCommand = {
 		);
 		const level = baseData?.level || 0;
 		const currentxp = baseData?.xp || 0;
+		// The old card printed the current XP as the total.
+		const totalXp = baseData?.xptotal || currentxp;
 
 		const xpNeeded = level * 500 + 500;
 		const expNeededForLevelUp = xpNeeded - currentxp;
 
-		let htmlContent = client.htmlfiles["ranksCard"];
+		const kit = client.func.svgKit;
+		const displayName = user.user.globalName || user.displayName;
+		const avatar = await client.func.image64.image64(
+			user.displayAvatarURL({ extension: "png", size: 256 })
+		);
+		const progress = Math.max(0, Math.min(1, currentxp / xpNeeded));
+		const textX = 140;
+		const textWidth = 400;
 
-		htmlContent = htmlContent
-			.replace("AVATAR_URL", userAvatar)
-			.replace("USERNAME", user.user.globalName || user.displayName)
-			.replace("LEVEL", level)
-			.replace("PROGRESS_PERCENT", String((currentxp / xpNeeded) * 100))
-			.replace("CURRENT_XP", currentxp)
-			.replace("XP_NEEDED", String(xpNeeded))
-			.replace("XP_REMAINING", String(expNeededForLevelUp))
-			.replace("TOTAL_XP", currentxp)
-			.replace("{level}", lang.var_level)
-			.replace("{xp_total}", lang.level_xp_total)
-			.replace("{needed_xp}", lang.level_xp_needed_for_new_level)
-			.replaceAll("[color1]", color1)
-			.replaceAll("[color2]", color2);
+		// Bottom row: two columns where only the label may be shortened,
+		// the number always stays visible.
+		const statStyle = { size: 14 };
+		const columnWidth = textWidth / 2 - 8;
+		const statLine = async (label: string, value: number) => {
+			const valueText = ` ${value}`;
+			const room =
+				columnWidth - (await kit.measure(valueText, statStyle));
+			return (await kit.ellipsize(label, room, statStyle)) + valueText;
+		};
+		const [remainingText, totalText] = await Promise.all([
+			statLine(lang.level_xp_needed_for_new_level, expNeededForLevelUp),
+			statLine(lang.level_xp_total, totalXp)
+		]);
 
-		const image = await client.func.html2png(htmlContent, {
-			elementSelector: ".card",
-			omitBackground: true,
-			selectElement: true
+		const [username, levelLine, xpLine, remainingLine, totalLine] =
+			await Promise.all([
+				kit.text(displayName, {
+					x: textX,
+					y: 48,
+					size: 24,
+					weight: 700,
+					maxWidth: textWidth
+				}),
+				kit.text(`${lang.var_level} ${level}`, {
+					x: textX,
+					y: 78,
+					size: 18
+				}),
+				kit.text(`${currentxp} / ${xpNeeded} XP`, {
+					x: textX + textWidth / 2,
+					y: 109,
+					size: 14,
+					weight: 700,
+					anchor: "middle",
+					attributes: 'filter="url(#shadow)"'
+				}),
+				kit.text(remainingText, {
+					...statStyle,
+					x: textX,
+					y: 140,
+					fill: "#B9BBBE"
+				}),
+				kit.text(totalText, {
+					...statStyle,
+					x: textX + textWidth,
+					y: 140,
+					fill: "#B9BBBE",
+					anchor: "end"
+				})
+			]);
+
+		const svg = kit.fill(client.svgfiles["ranksCard"], {
+			color_start: color1,
+			color_end: color2,
+			progress_width: (textWidth * progress).toFixed(1),
+			avatar: avatar
+				? kit.image(avatar, {
+						x: 20,
+						y: 30,
+						width: 100,
+						height: 100,
+						radius: "circle"
+					})
+				: kit.raw(""),
+			username,
+			level: levelLine,
+			xp: xpLine,
+			remaining: remainingLine,
+			total: totalLine
 		});
+
+		const image = await client.func.svg2png(svg, { scale: 2 });
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });
 
 		const nivEmbed = new EmbedBuilder()
 			.setTitle(
 				lang.level_embed_title.replace(
-					"${user.username}",
+					"${userUsername}",
 					String(user.user.globalName || user.displayName)
 				)
 			)

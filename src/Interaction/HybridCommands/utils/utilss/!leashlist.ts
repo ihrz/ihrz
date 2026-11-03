@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 		if (activeLeashes.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_leashlist_no_data.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});

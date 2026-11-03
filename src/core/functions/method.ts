@@ -682,7 +682,7 @@ async function sendErrorMessage(
 		.setDescription(
 			lang.hybridcommands_args_error_embed_desc
 				.replace(
-					"${currentCommand.name}",
+					"${currentCommandName}",
 					currentCommand.prefixName || currentCommand.name
 				)
 				.replace("${botPrefix}", botPrefix)
@@ -1012,35 +1012,59 @@ export function isSubCommand(option: Option | Command): boolean {
 	return option.type === ApplicationCommandOptionType.Subcommand;
 }
 
+// A member, or only an id when the member is not cached (e.g. a nuke bot).
+export type PunishTarget = GuildMember | { guild: Guild; id: string };
+
+async function resolvePunishTarget(
+	target: PunishTarget
+): Promise<GuildMember | null> {
+	if (target instanceof GuildMember) return target;
+	return target.guild.members.fetch(target.id).catch(() => null);
+}
+
 export async function derank(
-	user: GuildMember,
+	target: PunishTarget,
 	reason?: string
 ): Promise<void> {
-	const user_roles = Array.from(user?.roles.cache.values() || []);
-	const role_app = user_roles.find((x) => x.managed);
-	if (role_app) {
-		await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
+	const member = await resolvePunishTarget(target);
+	const me = member?.guild.members.me;
+	if (!member || !me) return;
+
+	const auditReason = reason || "Protection";
+	const ceiling = me.roles.highest.position;
+	const everyoneId = member.guild.id;
+	const roles = member.roles.cache.filter((role) => role.id !== everyoneId);
+	// Managed roles and roles above the bot cannot be removed.
+	const kept = roles.filter(
+		(role) => role.managed || role.position >= ceiling
+	);
+
+	const tasks: Promise<unknown>[] = [];
+	if (kept.size !== roles.size) {
+		tasks.push(member.roles.set([...kept.keys()], auditReason));
 	}
 
-	user_roles
-		.filter(
-			(x) =>
-				!x.managed &&
-				x.position < x.guild.members.me?.roles.highest.position! &&
-				x.id !== x.guild.roles.everyone.id
-		)
-		.forEach(async (role) => {
-			await user?.roles
-				.remove(role.id, reason || "Protection")
-				.catch(() => {});
-		});
+	// A bot keeps its own integration role: strip that role's permissions.
+	const integrationRole = roles.find(
+		(role) => role.tags?.botId === member.id && role.position < ceiling
+	);
+	if (integrationRole) {
+		tasks.push(
+			integrationRole.setPermissions(
+				PermissionFlagsBits.ViewChannel,
+				auditReason
+			)
+		);
+	}
+
+	await Promise.allSettled(tasks);
 }
 
 const PROTECT_MUTE_DURATION = 10 * 60 * 1000;
 
 export async function punish(
 	data: DatabaseStructure.ProtectionData,
-	user: GuildMember,
+	user: PunishTarget,
 	reason?: string,
 	ruleKey?: string
 ): Promise<void> {
@@ -1048,25 +1072,42 @@ export async function punish(
 	const ruleSanction =
 		rule && typeof rule === "object" ? rule.sanction : undefined;
 
+	const guild = user.guild;
+	const auditReason = reason || "Protect!";
+	// When the sanction itself is refused (hierarchy), still disarm the user.
+	const fallback = () => derank(user, auditReason).catch(() => {});
+
 	switch (ruleSanction || data?.["SANCTION"]) {
 		case "simply":
-			break;
+			return;
 		case "simply+derank":
-			await derank(user, reason);
-			break;
+			await derank(user, auditReason);
+			return;
 		case "simply+ban":
-			user?.ban({ reason: reason || "Protect!" }).catch(async () => {
-				await derank(user, reason).catch(() => false);
-			});
-			break;
+			await guild.bans
+				.create(user.id, { reason: auditReason })
+				.catch(fallback);
+			return;
 		case "simply+kick":
-			await user?.kick(reason || "Protect!").catch(() => {});
-			break;
-		case "simply+mute":
-			await user
-				?.timeout(PROTECT_MUTE_DURATION, reason || "Protect!")
-				.catch(() => {});
-			break;
+			// Derank first: otherwise the role saver stores the roles on leave
+			// and hands them back on rejoin, undoing the sanction.
+			await derank(user, auditReason).catch(() => {});
+			await guild.members.kick(user.id, auditReason).catch(() => {});
+			return;
+		case "simply+mute": {
+			const mute = () =>
+				guild.members.edit(user.id, {
+					communicationDisabledUntil:
+						Date.now() + PROTECT_MUTE_DURATION,
+					reason: auditReason
+				});
+			// Administrators cannot be timed out: derank first, then retry.
+			await mute().catch(async () => {
+				await fallback();
+				await mute().catch(() => {});
+			});
+			return;
+		}
 		default:
 			return;
 	}
@@ -1284,8 +1325,8 @@ async function sendWarnLog(
 		.setTitle(lang.warn_logEmbed_title)
 		.setDescription(
 			lang.warn_logEmbed_desc
-				.replace("${interaction.member.toString()}", author.toString())
-				.replace("${member?.toString()}", member.toString())
+				.replace("${author}", author.toString())
+				.replace("${member}", member.toString())
 				.replace("${reason}", reason)
 		);
 
@@ -1354,19 +1395,16 @@ export async function warnMember(
 					.setColor("Red")
 					.setTitle(
 						lang.global_warn_embed_title.replace(
-							"${warnObject.id}",
+							"${id}",
 							warnObject.id
 						)
 					)
 					.setDescription(
 						lang.global_warn_embed_desc
-							.replace("${warnObject.reason}", warnObject.reason)
+							.replace("${reason}", warnObject.reason)
+							.replace("${authorUsername}", author.user.username)
 							.replace(
-								"${author.user.username}",
-								author.user.username
-							)
-							.replace(
-								"${author.roles.highest.name}",
+								"${authorRolesHighestName}",
 								author.roles.highest.name
 							)
 							.replace(
@@ -1383,7 +1421,7 @@ export async function warnMember(
 						.setDisabled(true)
 						.setLabel(
 							lang.global_warn_component_button_label.replace(
-								"${author.guild.name}",
+								"${authorGuildName}",
 								author.guild.name
 							)
 						)

@@ -78,10 +78,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.ticket_logchannel_embed_title)
 			.setDescription(
 				lang.ticket_logchannel_embed_desc
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${channel}", channel.toString())
 			)
 			.setFooter(

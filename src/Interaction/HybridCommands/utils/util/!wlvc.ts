@@ -80,15 +80,15 @@ export const subCommand: SubCommand = {
 			title: lang.util_wlvc_logs_title,
 			description: lang.util_wlvc_logs_description
 				.replace(
-					"${interaction.member.user.toString()}",
+					"${author}",
 					(interaction.member as GuildMember).user.toString()
 				)
-				.replace("${member.toString()}", target.toString())
+				.replace("${member}", target.toString())
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_wlvc_command_work.replace(
-				"${member.toString()}",
+				"${member}",
 				target.toString()
 			)
 		});

@@ -92,21 +92,21 @@ export const command: Command = {
 
 		if (!check.bot_role) {
 			warn_msg += lang.var_nm_role_app_dont_exist.replace(
-				"${client.iHorizon_Emojis.Warning_Icon}",
+				"${emoji_Warning_Icon}",
 				client.iHorizon_Emojis.Warning_Icon
 			);
 		}
 
 		if (!check.im_on_top) {
 			warn_msg += lang.var_nm_role_app_not_high.replace(
-				"${client.iHorizon_Emojis.Warning_Icon}",
+				"${emoji_Warning_Icon}",
 				client.iHorizon_Emojis.Warning_Icon
 			);
 		}
 
 		if (!check.im_self_admin) {
 			warn_msg += lang.var_nm_role_app_not_admin.replace(
-				"${client.iHorizon_Emojis.Warning_Icon}",
+				"${emoji_Warning_Icon}",
 				client.iHorizon_Emojis.Warning_Icon
 			);
 		}
@@ -414,7 +414,7 @@ export const command: Command = {
 					? interaction.followUp({
 							content:
 								lang.nightmode_invalid_hour_morning.replace(
-									"${client.iHorizon_Emojis.No}",
+									"${emoji_No}",
 									client.iHorizon_Emojis.No
 								),
 							flags: MessageFlags.Ephemeral
@@ -422,7 +422,7 @@ export const command: Command = {
 					: await client.func.method.interactionSend(interaction, {
 							content:
 								lang.nightmode_invalid_hour_morning.replace(
-									"${client.iHorizon_Emojis.No}",
+									"${emoji_No}",
 									client.iHorizon_Emojis.No
 								)
 						});
@@ -434,14 +434,14 @@ export const command: Command = {
 				interaction instanceof ChatInputCommandInteraction
 					? interaction.followUp({
 							content: lang.nightmode_invalid_hour_night.replace(
-								"${client.iHorizon_Emojis.No}",
+								"${emoji_No}",
 								client.iHorizon_Emojis.No
 							),
 							flags: MessageFlags.Ephemeral
 						})
 					: await client.func.method.interactionSend(interaction, {
 							content: lang.nightmode_invalid_hour_night.replace(
-								"${client.iHorizon_Emojis.No}",
+								"${emoji_No}",
 								client.iHorizon_Emojis.No
 							),
 							flags: MessageFlags.Ephemeral

@@ -109,7 +109,10 @@ async function SendMessage(
 			new EmbedBuilder()
 				.setColor("#a2add0")
 				.setTitle(
-					lang.pfps_embed_guild_title.replace("{username}", username!)
+					lang.pfps_embed_guild_title.replace(
+						"${username}",
+						username!
+					)
 				)
 				.setImage(member.displayAvatarURL({ extension, size: 4096 }))
 		);
@@ -129,7 +132,7 @@ async function SendMessage(
 		new EmbedBuilder()
 			.setColor("#a2add0")
 			.setTitle(
-				lang.pfps_embed_user_title.replace("{username}", username!)
+				lang.pfps_embed_user_title.replace("${username}", username!)
 			)
 			.setImage(member.user.displayAvatarURL({ extension, size: 4096 }))
 			.setTimestamp()

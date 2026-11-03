@@ -88,8 +88,8 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_move_command_ok
-				.replace("${member?.toString()}", member?.toString()!)
-				.replace("${channel.toString()}", channel.toString())
+				.replace("${member}", member?.toString()!)
+				.replace("${channel}", channel.toString())
 		});
 		return;
 	}

@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unmute_i_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 		if (tomute?.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unmute_attempt_mute_your_self.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -95,14 +95,14 @@ export const subCommand: SubCommand = {
 		tomute.disableCommunicationUntil(Date.now());
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.unmute_command_work.replace("${tomute.id}", tomute.id)
+			content: lang.unmute_command_work.replace("${tomuteId}", tomute.id)
 		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unmute_logs_embed_title,
 			description: lang.unmute_logs_embed_description
-				.replace("${interaction.user.id}", interaction.member.user.id)
-				.replace("${tomute.id}", tomute.id)
+				.replace("${authorId}", interaction.member.user.id)
+				.replace("${tomuteId}", tomute.id)
 		});
 	}
 };

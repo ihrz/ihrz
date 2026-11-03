@@ -74,14 +74,8 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_desc_set
-					.replace(
-						"${client.iHorizon_Emojis.Yes}",
-						client.iHorizon_Emojis.Yes
-					)
-					.replace(
-						"${client.iHorizon_Emojis.Crown}",
-						client.iHorizon_Emojis.Crown
-					)
+					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+					.replace("${emoji_Crown}", client.iHorizon_Emojis.Crown)
 					.replace("${desc}", desc)
 			});
 			return;

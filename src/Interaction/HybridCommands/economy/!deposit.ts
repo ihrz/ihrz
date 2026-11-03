@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 		if (isNaN(Number(toDeposit))) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${interaction.client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -85,7 +85,7 @@ export const subCommand: SubCommand = {
 		if (Number(toDeposit) <= 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${interaction.client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 		if (toDeposit && toDeposit > balance) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.deposit_cannot_abuse.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -120,14 +120,8 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.deposit_embed_title)
 			.setDescription(
 				lang.deposit_embed_desc
-					.replace(
-						"${client.iHorizon_Emojis.Coin}",
-						client.iHorizon_Emojis.Coin
-					)
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${toDeposit}", toDeposit.toString())
 			)
 			.addFields({

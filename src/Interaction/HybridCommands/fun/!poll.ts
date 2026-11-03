@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 		const pollEmbed = new EmbedBuilder()
 			.setTitle(
 				lang.poll_embed_title.replace(
-					"${interaction.user.username}",
+					"${authorUsername}",
 					user.globalName || user.username
 				)
 			)

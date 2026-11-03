@@ -246,7 +246,7 @@ export const command: Command = {
 									{
 										content:
 											lang.reactionroles_invalid_emote_format_added.replace(
-												"${client.iHorizon_Emojis.No}",
+												"${emoji_No}",
 												client.iHorizon_Emojis.No
 											)
 									}
@@ -268,7 +268,7 @@ export const command: Command = {
 								description:
 									lang.buttonreaction_logs_embed_description_added
 										.replace(
-											"${interaction.user.id}",
+											"${authorId}",
 											interaction.member?.user.id!
 										)
 										.replace("${messagei}", messagei!)
@@ -367,7 +367,7 @@ export const command: Command = {
 						description:
 							lang.reactionroles_logs_embed_description_remove
 								.replace(
-									"${interaction.user.id}",
+									"${authorId}",
 									String(interaction.member?.user.id)
 								)
 								.replace("${messagei}", messagei!)

@@ -72,7 +72,7 @@ export async function clearMessage(
 
 		const sent = await client.func.method.channelSend(interaction, {
 			content: lang.clear_confirmation_message.replace(
-				"${messages.size}",
+				"${messageCount}",
 				messages.size.toString()
 			)
 		});
@@ -82,15 +82,9 @@ export async function clearMessage(
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.clear_logs_embed_title,
 			description: lang.clear_logs_embed_description
-				.replace(
-					"${interaction.user.id}",
-					String(interaction.member?.user.id)
-				)
-				.replace("${messages.size}", messages.size.toString())
-				.replace(
-					"${interaction.channel.id}",
-					String(interaction.channel?.id)
-				)
+				.replace("${authorId}", String(interaction.member?.user.id))
+				.replace("${messageCount}", messages.size.toString())
+				.replace("${channelId}", String(interaction.channel?.id))
 		});
 	} catch (error) {
 		console.error("[clear] bulkDelete failed:", error);

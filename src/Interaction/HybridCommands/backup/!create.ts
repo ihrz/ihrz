@@ -96,7 +96,7 @@ export const subCommand: SubCommand = {
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.backup_command_work_info_on_creation.replace(
-						"${backupData.id}",
+						"${id}",
 						backupData.id
 					)
 				});
@@ -105,7 +105,7 @@ export const subCommand: SubCommand = {
 					title: lang.backup_logs_embed_title_on_creation,
 					description:
 						lang.backup_logs_embed_description_on_creation.replace(
-							"${interaction.user.id}",
+							"${authorId}",
 							interaction.member?.user.id!
 						)
 				});

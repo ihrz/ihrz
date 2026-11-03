@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 		) {
 			return await client.func.method.interactionSend(interaction, {
 				content: lang.unban_bot_dont_have_permission.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});

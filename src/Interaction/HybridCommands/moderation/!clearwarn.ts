@@ -68,11 +68,8 @@ export const subCommand: SubCommand = {
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
-					.replace(
-						"${client.iHorizon_Emojis.No}",
-						client.iHorizon_Emojis.No
-					)
-					.replace("${member?.toString()}", member?.toString()!)
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${member}", member?.toString()!)
 			});
 			return;
 		}
@@ -84,16 +81,10 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.clearwarn_command_ok
-				.replace(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-				.replace("${member?.toString()}", member?.toString()!)
-				.replace("${allWarns.length}", allWarns.length.toString())
-				.replace(
-					"${interaction.member.toString()}",
-					interaction.member.toString()
-				)
+				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				.replace("${member}", member?.toString()!)
+				.replace("${allWarnCount}", allWarns.length.toString())
+				.replace("${author}", interaction.member.toString())
 		});
 
 		return;

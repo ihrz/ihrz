@@ -74,9 +74,9 @@ export const event: BotEvent = {
 		if (!oldPremiumSince && newPremiumSince && isRecentBoost) {
 			embed.setDescription(
 				data.event_boostlog_add
-					.replace("${newMember.user.id}", newMember.user.id)
+					.replace("${newMemberUserId}", newMember.user.id)
 					.replace(
-						"${newMember.guild.premiumSubscriptionCount}",
+						"${boostCount}",
 						newMember.guild.premiumSubscriptionCount?.toString()!
 					)
 			);
@@ -89,9 +89,9 @@ export const event: BotEvent = {
 		if (oldPremiumSince && !newPremiumSince) {
 			embed.setDescription(
 				data.event_boostlog_sub
-					.replace("${newMember.user.id}", newMember.user.id)
+					.replace("${newMemberUserId}", newMember.user.id)
 					.replace(
-						"${newMember.guild.premiumSubscriptionCount}",
+						"${boostCount}",
 						newMember.guild.premiumSubscriptionCount?.toString()!
 					)
 			);

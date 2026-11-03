@@ -33,7 +33,7 @@ import {
 	getLogs,
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
-} from "../protection/ready.js";
+} from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildBanAdd",
@@ -69,11 +69,8 @@ export const event: BotEvent = {
 			.setColor("#010101")
 			.setDescription(
 				data.event_srvLogs_banAdd_description
-					.replace(
-						"${firstEntry.executor.id}",
-						relevantLog?.executor?.id!
-					)
-					.replace("${firstEntry.target.id}", relevantLog?.targetId!)
+					.replace("${executorId}", relevantLog?.executor?.id!)
+					.replace("${targetId}", relevantLog?.targetId!)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,

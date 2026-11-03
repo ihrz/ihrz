@@ -289,7 +289,8 @@ async function applyConfiguredAction(
 				.catch(() => null);
 			return kickResult ? "kick" : "failed";
 		case "ban":
-			if (!member?.bannable) {
+			// A spam bot that already left can still be banned by id.
+			if (member && !member.bannable) {
 				return "failed";
 			}
 

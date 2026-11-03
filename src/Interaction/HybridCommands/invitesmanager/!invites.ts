@@ -72,11 +72,11 @@ export const subCommand: SubCommand = {
 			.setThumbnail(member.displayAvatarURL())
 			.setDescription(
 				lang.invites_confirmation_embed_description
-					.replace(/\${member\.user\.id}/g, member.id)
-					.replace(/\${bonus\s*\|\|\s*0}/g, bonus || 0)
-					.replace(/\${leaves\s*\|\|\s*0}/g, leaves || 0)
-					.replace(/\${Regular\s*\|\|\s*0}/g, Regular || 0)
-					.replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
+					.replaceAll("${memberId}", member.id)
+					.replaceAll("${bonus}", bonus || 0)
+					.replaceAll("${leaves}", leaves || 0)
+					.replaceAll("${regular}", Regular || 0)
+					.replaceAll("${invites}", inv || 0)
 			);
 
 		await client.func.method.interactionSend(interaction, {

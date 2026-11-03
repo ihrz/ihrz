@@ -254,7 +254,7 @@ export const command: Command = {
 						await client.func.method.interactionSend(interaction, {
 							content:
 								lang.reactionroles_invalid_emote_format_added.replace(
-									"${client.iHorizon_Emojis.No}",
+									"${emoji_No}",
 									client.iHorizon_Emojis.No
 								)
 						});
@@ -275,7 +275,7 @@ export const command: Command = {
 						description:
 							lang.reactionroles_logs_embed_description_added
 								.replace(
-									"${interaction.user.id}",
+									"${authorId}",
 									interaction.member?.user.id!
 								)
 								.replace("${messagei}", messagei!)
@@ -356,10 +356,7 @@ export const command: Command = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.reactionroles_logs_embed_title_remove,
 				description: lang.reactionroles_logs_embed_description_remove
-					.replace(
-						"${interaction.user.id}",
-						interaction.member.user.id
-					)
+					.replace("${authorId}", interaction.member.user.id)
 					.replace("${messagei}", messagei!)
 					.replace("${reaction}", reaction!)
 			});

@@ -73,8 +73,8 @@ export const command: AnotherCommand = {
 				.setImage(`attachment://love.png`)
 				.setDescription(
 					lang.love_embed_description
-						.replace("${user1.username}", user1.globalName!)
-						.replace("${user2.username}", user2?.globalName!)
+						.replace("${user1Username}", user1.globalName!)
+						.replace("${user2Username}", user2?.globalName!)
 						.replace("${randomNumber}", randomNumber.toString())
 				)
 				.setFooter(

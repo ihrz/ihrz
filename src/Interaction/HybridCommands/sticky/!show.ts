@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 		if (!channel || channel.type !== ChannelType.GuildText) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.sticky_channel_command_error.replace(
-					"${interaction.user}",
+					"${author}",
 					interaction.member.user.toString()
 				)
 			});
@@ -97,10 +97,7 @@ export const subCommand: SubCommand = {
 		if (!config) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.sticky_show_command_not_found
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${channel}", channel.toString())
 			});
 			return;

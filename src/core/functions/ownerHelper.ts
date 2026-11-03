@@ -22,6 +22,7 @@
 import { DatabaseStructure } from "../../../types/database_structure";
 import { ownerTable } from "../../Events/client/ready.ts";
 import { Guild } from "discord.js";
+import { invalidateProtectionContext } from "../modules/protectionEngine.js";
 
 export async function isGuildOwner(
 	userId: string,
@@ -82,6 +83,7 @@ export async function addGuildOwner(
 	guildId: string
 ): Promise<void> {
 	await client.db.set(`${guildId}.OWNER.${userId}`, { owner: true });
+	invalidateProtectionContext(guildId);
 }
 
 export async function removeGuildOwner(
@@ -89,4 +91,5 @@ export async function removeGuildOwner(
 	guildId: string
 ): Promise<void> {
 	await client.db.delete(`${guildId}.OWNER.${userId}`);
+	invalidateProtectionContext(guildId);
 }

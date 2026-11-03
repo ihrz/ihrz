@@ -861,7 +861,7 @@ export async function openWelcomerPanel(
 					? lang.setjoinmessage_command_work_on_enable
 					: lang.setleavemessage_command_work_on_enable
 				).replace(
-					"${client.iHorizon_Emojis.GreenTick}",
+					"${emoji_GreenTick}",
 					client.iHorizon_Emojis.GreenTick
 				),
 				flags: [1 << 6]
@@ -874,7 +874,7 @@ export async function openWelcomerPanel(
 				description: (isJoin
 					? lang.setjoinmessage_logs_embed_description_on_enable
 					: lang.setleavemessage_logs_embed_description_on_enable
-				).replace("${interaction.user.id}", authorId)
+				).replace("${authorId}", authorId)
 			});
 
 			return response;
@@ -902,10 +902,7 @@ export async function openWelcomerPanel(
 			content: (isJoin
 				? lang.setjoinmessage_command_work_on_disable
 				: lang.setleavemessage_command_work_on_disable
-			).replace(
-				"${client.iHorizon_Emojis.Yes}",
-				client.iHorizon_Emojis.Yes
-			),
+			).replace("${emoji_Yes}", client.iHorizon_Emojis.Yes),
 			flags: [1 << 6]
 		});
 
@@ -916,7 +913,7 @@ export async function openWelcomerPanel(
 			description: (isJoin
 				? lang.setjoinmessage_logs_embed_description_on_disable
 				: lang.setleavemessage_logs_embed_description_on_disable
-			).replace("${interaction.user.id}", authorId)
+			).replace("${authorId}", authorId)
 		});
 
 		await render(message);
@@ -1048,10 +1045,11 @@ export async function openWelcomerPanel(
 			);
 
 			await modal.reply({
-				content: lang.setjoindm_confirmation_message_on_enable.replace(
-					/\${dm_msg}/g,
-					response
-				),
+				content:
+					lang.setjoindm_confirmation_message_on_enable.replaceAll(
+						"${dm_msg}",
+						response
+					),
 				flags: [1 << 6]
 			});
 
@@ -1059,7 +1057,7 @@ export async function openWelcomerPanel(
 				title: lang.setjoindm_logs_embed_title_on_enable,
 				description:
 					lang.setjoindm_logs_embed_description_on_enable.replace(
-						"${interaction.user.id}",
+						"${authorId}",
 						authorId
 					)
 			});
@@ -1096,7 +1094,7 @@ export async function openWelcomerPanel(
 			title: lang.setjoindm_logs_embed_title_on_disable,
 			description:
 				lang.setjoindm_logs_embed_description_on_disable.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					authorId
 				)
 		});
@@ -1119,7 +1117,7 @@ export async function openWelcomerPanel(
 			title: lang.setjoinroles_logs_embed_title_on_enable,
 			description:
 				lang.setjoinroles_logs_embed_description_on_enable.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					authorId
 				)
 		});
@@ -1382,7 +1380,7 @@ export async function openWelcomerPanel(
 				} else {
 					await modal.reply({
 						content: lang.embed_choose_12_error.replace(
-							"${client.iHorizon_Emojis.No}",
+							"${emoji_No}",
 							client.iHorizon_Emojis.No
 						),
 						flags: [1 << 6]
@@ -1452,7 +1450,7 @@ export async function openWelcomerPanel(
 		if (!(channel instanceof TextChannel)) {
 			await safeFollowUp(source, {
 				content: lang.setchannels_not_a_text_channel.replace(
-					"${client.iHorizon_Emojis.Warning_Icon}",
+					"${emoji_Warning_Icon}",
 					client.iHorizon_Emojis.Warning_Icon
 				)
 			});
@@ -1503,15 +1501,15 @@ export async function openWelcomerPanel(
 					? lang.setchannels_logs_embed_description_on_join
 					: lang.setchannels_logs_embed_description_on_leave
 				)
-					.replace(/\${argsid\.id}/g, channelId as string)
-					.replace(/\${interaction\.user\.id}/g, authorId)
+					.replaceAll("${argsidId}", channelId as string)
+					.replaceAll("${authorId}", authorId)
 			});
 
 			await safeFollowUp(source, {
 				content: (isJoin
 					? lang.setchannels_command_work_on_join
 					: lang.setchannels_command_work_on_leave
-				).replace(/\${argsid\.id}/g, channelId as string)
+				).replaceAll("${argsidId}", channelId as string)
 			});
 
 			await render(message);
@@ -1531,10 +1529,11 @@ export async function openWelcomerPanel(
 		await source.deferUpdate().catch(() => null);
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.setchannels_logs_embed_title_on_off,
-			description: lang.setchannels_logs_embed_description_on_off.replace(
-				/\${interaction\.user\.id}/g,
-				authorId
-			)
+			description:
+				lang.setchannels_logs_embed_description_on_off.replaceAll(
+					"${authorId}",
+					authorId
+				)
 		});
 
 		if (!state.joinChannel && !state.leaveChannel) {

@@ -36,6 +36,12 @@ import {
 	getChannelMessagesCount,
 	getChannelMinutesCount
 } from "../../../core/functions/userStatsUtils.js";
+import {
+	fetchAvatar,
+	renderStatsPage,
+	StatsBlock,
+	StatsMetric
+} from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -190,8 +196,6 @@ export const subCommand: SubCommand = {
 		const isVoiceChannel = targetChannel instanceof VoiceChannel;
 		const isTextChannel = targetChannel instanceof TextChannel;
 
-		let htmlContent = client.htmlfiles["channelStatsPage"];
-
 		const currentDate = new Date().toLocaleDateString(
 			(await client.db.get(`${interaction.guildId}.LANG.lang`)) ||
 				"en-US",
@@ -204,126 +208,129 @@ export const subCommand: SubCommand = {
 			}
 		);
 
-		htmlContent = htmlContent
-			.replaceAll("{header_h1_value}", lang.channel_stats_title)
-			.replaceAll(
-				"{guild_pfp}",
-				interaction.guild.iconURL({ size: 512 }) ||
-					client.user.displayAvatarURL({ size: 512 })
-			)
-			.replaceAll("{author_username}", interaction.guild.name)
-			.replaceAll("{channel_name}", targetChannel.name)
-			.replaceAll("{current_date}", currentDate)
-			.replaceAll("{daily_messages}", dailyMessages.toString())
-			.replaceAll("{weekly_messages}", weeklyMessages.toString())
-			.replaceAll("{monthly_messages}", monthlyMessages.toString())
-			.replaceAll(
-				"{daily_voice}",
-				client.timeCalculator.to_beautiful_string(dailyVoice, lang)
-			)
-			.replaceAll(
-				"{weekly_voice}",
-				client.timeCalculator.to_beautiful_string(weeklyVoice, lang)
-			)
-			.replaceAll(
-				"{monthly_voice}",
-				client.timeCalculator.to_beautiful_string(monthlyVoice, lang)
-			)
-			.replaceAll("{total_messages}", totalMessages.toString())
-			.replaceAll(
-				"{total_voice}",
-				client.timeCalculator.to_beautiful_string(totalVoice, lang)
-			)
-			.replaceAll("{active_users}", activeUsers.toString())
-			.replaceAll("{var_1d}", lang.var_1d || "Daily")
-			.replaceAll("{var_7d}", lang.var_7d || "Weekly")
-			.replaceAll("{var_14d}", lang.var_14d || "Monthly")
-			.replaceAll("{var_total}", lang.var_total || "Total")
-			.replaceAll("{messages_word}", lang.messages_word || "Messages")
-			.replaceAll(
-				"{voice_activity}",
-				lang.voice_activity || "Voice Activity"
-			)
-			.replaceAll(
-				"{top_message_users}",
-				isTextChannel && topMessageUsersResolved.length > 0
-					? topMessageUsersResolved
-							.map((item, index) => {
-								const rankClass =
-									index === 0
-										? "rank-1"
-										: index === 1
-											? "rank-2"
-											: index === 2
-												? "rank-3"
-												: "";
-								return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <img class="avatar" src="${item.user?.displayAvatarURL({ size: 128 }) || "https://cdn.discordapp.com/embed/avatars/0.png"}" alt="User">
-            <div class="info">
-                <div class="name">@${item.user?.username || lang.var_unknown}</div>
-                <div class="detail">${item.count} ${lang.messages_word}</div>
-            </div>
-            <div class="stat">${item.count} <span>${lang.messages_word}</span></div>
-        </div>
-        `;
-							})
-							.join("")
-					: '<div class="empty-state"><div class="empty-state-icon">📭</div><div>' +
-							"</div></div>"
-			)
-			.replaceAll(
-				"{top_voice_users}",
-				isVoiceChannel && topVoiceUsersResolved.length > 0
-					? topVoiceUsersResolved
-							.map((item, index) => {
-								const rankClass =
-									index === 0
-										? "rank-1"
-										: index === 1
-											? "rank-2"
-											: index === 2
-												? "rank-3"
-												: "";
-								return `
-        <div class="list-item">
-            <div class="rank ${rankClass}">${index + 1}</div>
-            <img class="avatar" src="${item.user?.displayAvatarURL({ size: 128 }) || "https://cdn.discordapp.com/embed/avatars/0.png"}" alt="User">
-            <div class="info">
-                <div class="name">@${item.user?.username || lang.var_unknown}</div>
-                <div class="detail">${client.timeCalculator.to_beautiful_string(item.duration, lang)}</div>
-            </div>
-            <div class="stat">${client.timeCalculator.to_beautiful_string(item.duration, lang)}</div>
-        </div>
-        `;
-							})
-							.join("")
-					: '<div class="empty-state"><div class="empty-state-icon">🔇</div><div>' +
-							lang.var_none +
-							"</div></div>"
-			)
-			.replaceAll(
-				"{show_messages_section}",
-				isTextChannel ? "block" : "none"
-			)
-			.replaceAll(
-				"{show_voice_section}",
-				isVoiceChannel ? "block" : "none"
-			)
-			.replaceAll("{top_messages_title}", lang.top_messages_title)
-			.replaceAll("{top_voice_title}", lang.top_voice_title)
-			.replaceAll("{channel_stats_title}", lang.channel_stats_title)
-			.replaceAll("{top_active_users_title}", lang.top_active_users_title)
-			.replaceAll("{active_users_title}", lang.active_users_title);
+		const duration = (ms: number) =>
+			client.timeCalculator.to_beautiful_string(ms, lang);
 
-		const image = await client.func.html2png(htmlContent, {
-			width: 1902,
-			height: 1400,
-			scaleSize: 3,
-			elementSelector: ".container",
-			omitBackground: true,
-			selectElement: true
+		const [guildIcon, messageAvatars, voiceAvatars] = await Promise.all([
+			fetchAvatar(
+				interaction.guild.iconURL({ size: 256, extension: "png" }) ||
+					client.user.displayAvatarURL({
+						size: 256,
+						extension: "png"
+					})
+			),
+			Promise.all(
+				topMessageUsersResolved.map((item) =>
+					fetchAvatar(
+						item.user?.displayAvatarURL({
+							size: 64,
+							extension: "png"
+						})
+					)
+				)
+			),
+			Promise.all(
+				topVoiceUsersResolved.map((item) =>
+					fetchAvatar(
+						item.user?.displayAvatarURL({
+							size: 64,
+							extension: "png"
+						})
+					)
+				)
+			)
+		]);
+
+		const blocks: StatsBlock[] = [];
+		const overview: StatsMetric[] = [];
+		if (isTextChannel) {
+			overview.push(
+				{
+					value: String(dailyMessages),
+					label: `${lang.var_1d} ${lang.messages_word}`
+				},
+				{
+					value: String(weeklyMessages),
+					label: `${lang.var_7d} ${lang.messages_word}`
+				},
+				{
+					value: String(monthlyMessages),
+					label: `${lang.var_14d} ${lang.messages_word}`
+				},
+				{
+					value: String(totalMessages),
+					label: `${lang.var_total} ${lang.messages_word}`
+				}
+			);
+		}
+		if (isVoiceChannel) {
+			overview.push(
+				{
+					value: duration(dailyVoice),
+					label: `${lang.var_1d} ${lang.voice_activity}`
+				},
+				{
+					value: duration(weeklyVoice),
+					label: `${lang.var_7d} ${lang.voice_activity}`
+				},
+				{
+					value: duration(monthlyVoice),
+					label: `${lang.var_14d} ${lang.voice_activity}`
+				},
+				{
+					value: duration(totalVoice),
+					label: `${lang.var_total} ${lang.voice_activity}`
+				}
+			);
+		}
+		overview.push({
+			value: String(activeUsers),
+			label: lang.active_users_title
+		});
+
+		blocks.push({
+			type: "metrics",
+			title: lang.channel_stats_title,
+			icon: "📊",
+			columns: overview.length > 3 ? 3 : overview.length,
+			items: overview
+		});
+		if (isTextChannel) {
+			blocks.push({
+				type: "list",
+				title: lang.top_messages_title,
+				icon: "💬",
+				empty: lang.var_none,
+				rows: topMessageUsersResolved.map((item, index) => ({
+					avatar: messageAvatars[index],
+					name: `@${item.user?.username || lang.var_unknown}`,
+					detail: `${item.count} ${lang.messages_word}`,
+					value: String(item.count),
+					unit: lang.messages_word
+				}))
+			});
+		}
+		if (isVoiceChannel) {
+			blocks.push({
+				type: "list",
+				title: lang.top_voice_title,
+				icon: "🎤",
+				accent: "#EB459E",
+				empty: lang.var_none,
+				rows: topVoiceUsersResolved.map((item, index) => ({
+					avatar: voiceAvatars[index],
+					name: `@${item.user?.username || lang.var_unknown}`,
+					value: duration(item.duration)
+				}))
+			});
+		}
+
+		const image = await renderStatsPage({
+			title: lang.channel_stats_title,
+			meta: [interaction.guild.name, `#${targetChannel.name}`],
+			avatar: guildIcon,
+			footer: lang.stats_generated_on.replace("{date}", currentDate),
+			blocks
 		});
 
 		const attachment = new AttachmentBuilder(image, {

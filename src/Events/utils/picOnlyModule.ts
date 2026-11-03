@@ -22,6 +22,7 @@
 import { Client, Message, PermissionFlagsBits } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 const warnings = new Map<string, number[]>();
 
@@ -46,10 +47,10 @@ export const event: BotEvent = {
 	run: async (client: Client, message: Message) => {
 		if (message.author.bot || message.webhookId) return;
 
-		const picOnlyChannels = (await client.db.get(
+		const picOnlyChannels = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.picOnly`
 		)) as DatabaseStructure.UtilsData["picOnly"];
-		const picOnlyConfig = (await client.db.get(
+		const picOnlyConfig = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.picOnlyConfig`
 		)) as DatabaseStructure.PicOnlyConfig;
 
@@ -115,7 +116,7 @@ export const event: BotEvent = {
 						await message.author
 							.send({
 								content: lang.piconly_module_punish_msg.replace(
-									"${message.author}",
+									"${messageAuthor}",
 									message.author.toString()
 								)
 							})
@@ -126,11 +127,11 @@ export const event: BotEvent = {
 						.send({
 							content: lang.piconly_module_warn_msg
 								.replace(
-									"${message.author}",
+									"${messageAuthor}",
 									message.author.toString()
 								)
 								.replace(
-									"${userWarnings.length}",
+									"${userWarningCount}",
 									String(userWarnings.length)
 								)
 								.replace("${threshold}", String(threshold))

@@ -1,0 +1,4470 @@
+/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
+
+	・   Under the following terms:
+
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+		・ NonCommercial — You may not use the material for commercial purposes.
+
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2026 iHorizon
+*/
+
+import type { LanguageData } from "../../types/languageData.js";
+
+export default {
+	// Basic language file for iHorizon Discord Bot
+	// jp-JP: Japanesse
+
+	// Variable
+	var_member: "メンバー",
+	var_user: "ユーザー",
+	var_author: "著者",
+	var_reason: "理由",
+	var_guild: "ギルド",
+	var_sanction: "制裁",
+	var_time: "時間",
+	var_message: "メッセージ",
+	var_no_set: "設定されていない",
+	var_none: "なし",
+	var_roles: "役割",
+	var_names: "名前",
+	var_text_channel: "テキストチャンネル",
+	var_voice_channel: "ボイスチャンネル",
+	var_creator: "作成者",
+	var_doesnt_have_permissions:
+		"この操作を行う権限がありません。{permission} 権限が必要です。",
+	var_ihorizon: "iHorizon",
+	var_developer: "開発者",
+	var_chance: "チャンス",
+	var_other: "その他",
+	var_unknown: "不明",
+	var_secure: "安全",
+	var_unsecure: "安全でない",
+	var_prefix: "プレフィックス",
+	var_slash: "スラッシュ",
+	var_discord: "ディスコード",
+	var_network: "ネットワーク",
+	var_latency: "レイテンシ",
+	var_bot: "ボット",
+	var_true: "真",
+	var_false: "偽",
+	var_enabled: "有効",
+	var_disabled: "無効",
+	var_yes: "はい",
+	var_no: "いいえ",
+	var_colour: "色",
+	var_length: "長さ",
+	var_good: "良い",
+	var_size: "サイズ",
+	var_level: "レベル",
+	var_add: "追加",
+	var_remove: "削除",
+	var_edit: "編集",
+	var_confirm: "確認",
+	var_succes: "成功",
+	var_page: "ページ",
+	var_permission: "権限",
+	var_usage: "使用法",
+	var_aliases: "エイリアス",
+	var_dont_have_perm: "必要な権限がありません。({perm}権限が必要です)",
+	var_price: "価格",
+	var_boost: "ブースト",
+	var_uses: "使用回数",
+	var_vc_stats: "音声統計",
+	var_1d: "1日",
+	var_7d: "7日",
+	var_14d: "14日",
+	var_year: "年",
+	var_mo: "月",
+	var_w: "週",
+	var_d: "日",
+	var_h: "時間",
+	var_m: "分",
+	var_s: "秒",
+	var_ms: "ミリ秒",
+	var_banned_user: "BANされたユーザー",
+	var_no_one_banned: "このサーバーでBANされているユーザーはいません。",
+	var_category: "カテゴリー",
+	var_total: "合計",
+	var_online_members: "オンラインメンバー",
+	var_boost_level: "ブーストレベル",
+	var_features: "機能",
+	var_guild_icon: "サーバーアイコン",
+	var_guild_banner: "サーバーバナー",
+	var_guild_splash: "サーバースプラッシュ",
+	var_unknown_guild_name: "不明なサーバー名",
+	var_preview: "プレビュー",
+	var_form: "フォーム",
+	var_original_message: "元のメッセージ",
+	var_click_here: "ここをクリック",
+	var_s_message: "{nickname}のメッセージ",
+	var_source: "音楽提供: ",
+	var_online_call: "ボイスチャンネルに参加中",
+	var_online: "オンライン",
+	var_stream: "配信中",
+	var_boosts: "ブースト",
+	var_muted: "ミュート中",
+	var_camera: "カメラオン",
+
+	// Discord Permission Name
+	perm_createinstantinvite_name: "インスタント招待を作成",
+	perm_kickmembers_name: "メンバーをキック",
+	perm_banmembers_name: "メンバーを禁止",
+	perm_administrator_name: "管理者",
+	perm_managechannels_name: "チャンネルを管理",
+	perm_manageguild_name: "サーバーを管理",
+	perm_addreactions_name: "リアクションを追加",
+	perm_viewauditlog_name: "監査ログを表示",
+	perm_priorityspeaker_name: "優先スピーカー",
+	perm_stream_name: "配信",
+	perm_viewchannel_name: "チャンネルを見る",
+	perm_sendmessages_name: "メッセージを送信",
+	perm_sendttsmessages_name: "TTSメッセージを送信",
+	perm_managemessages_name: "メッセージを管理",
+	perm_embedlinks_name: "リンクを埋め込み",
+	perm_attachfiles_name: "ファイルを添付",
+	perm_readmessagehistory_name: "メッセージ履歴を読む",
+	perm_mentioneveryone_name: "全員をメンション",
+	perm_useexternalemojis_name: "外部絵文字を使用",
+	perm_viewguildinsights_name: "サーバーのインサイトを表示",
+	perm_connect_name: "接続",
+	perm_speak_name: "発言",
+	perm_mutemembers_name: "メンバーをミュート",
+	perm_deafenmembers_name: "メンバーをデフン",
+	perm_movemembers_name: "メンバーを移動",
+	perm_usevad_name: "音声アクティビティを使用",
+	perm_changenickname_name: "ニックネームを変更",
+	perm_managenicknames_name: "ニックネームを管理",
+	perm_manageroles_name: "ロールを管理",
+	perm_managewebhooks_name: "Webhookを管理",
+	perm_manageemojisandstickers_name: "絵文字とステッカーを管理",
+	perm_manageguildexpressions_name: "サーバー表現を管理",
+	perm_useapplicationcommands_name: "アプリコマンドを使用",
+	perm_requesttospeak_name: "発言をリクエスト",
+	perm_manageevents_name: "イベントを管理",
+	perm_managethreads_name: "スレッドを管理",
+	perm_createpublicthreads_name: "公開スレッドを作成",
+	perm_createprivatethreads_name: "非公開スレッドを作成",
+	perm_useexternalstickers_name: "外部ステッカーを使用",
+	perm_sendmessagesinthreads_name: "スレッドでメッセージを送信",
+	perm_useembeddedactivities_name: "埋め込みアクティビティを使用",
+	perm_moderatemembers_name: "メンバーをモデレート",
+	perm_viewcreatormonetizationanalytics_name: "収益化分析を表示",
+	perm_usesoundboard_name: "サウンドボードを使用",
+	perm_createguildexpressions_name: "サーバー表現を作成",
+	perm_createevents_name: "イベントを作成",
+	perm_useexternalsounds_name: "外部サウンドを使用",
+	perm_sendvoicemessages_name: "音声メッセージを送信",
+	perm_sendpolls_name: "投票を送信",
+	perm_useexternalapps_name: "外部アプリを使用",
+
+	// Ticket commands
+	// /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
+	ticket_disabled_command: "このコマンドは管理者によって無効化されています！",
+
+	// /add
+	add_disabled_command: "このコマンドは管理者によって無効化されています！",
+	add_command_work: "${memberTag} をチケットに追加しました！",
+	add_command_error: "エラーが発生しました。もう一度お試しください。",
+
+	// /close
+	close_disabled_command: "このコマンドは管理者によって無効化されています！",
+	close_title_sourcebin: "iHorizon によるチケットのトランスクリプト",
+	close_description_sourcebin: " ",
+	close_error_command: "エラーが発生しました。もう一度お試しください。",
+	close_command_work_channel:
+		"チケットを終了しました。iHorizon からトランスクリプトが送信されました。",
+	close_command_work_notify_channel: "チケットは正常に終了しました！",
+	close_command_error: "エラーが発生しました。もう一度お試しください。",
+	close_not_in_ticket:
+		"チケットチャンネルの外でこのコマンドを使用することはできません！",
+
+	// /delete
+	delete_disabled_command: "このコマンドは管理者によって無効化されています！",
+	delete_not_in_ticket:
+		"チケットチャンネルの外でこのコマンドを使用することはできません！",
+	ticket_deleted:
+		"チケット ${ticketOwnerMention} は <@${deletedByUserId}> によって削除されました。トランスクリプトはこちらです：",
+
+	// /sethereticket
+	sethereticket_panel_select_embed_desc:
+		"# パネル名\n```${panelName}```\n{msg}\n\n## カテゴリー\n```{category}```\n",
+
+	// /open
+	open_disabled_command:
+		"管理者がチケットコマンドを無効にしたため、このコマンドを使用することはできません！",
+	open_command_work: "${channel} を再度開きました。",
+	open_command_error: "エラーが発生しました。もう一度お試しください。",
+	open_not_in_ticket:
+		"このコマンドはチケットチャンネル以外では使用できません！",
+
+	// /remove
+	remove_disabled_command:
+		"管理者がチケットコマンドを無効にしたため、このコマンドを使用することはできません！",
+	remove_not_in_ticket:
+		"このコマンドはチケットチャンネル以外では使用できません！",
+	remove_command_error: "エラーが発生しました。もう一度お試しください。",
+	remove_command_work: "${memberTag} をチケットから削除しました！",
+
+	// /transript
+	transript_disabled_command:
+		"管理者がチケットコマンドを無効にしたため、このコマンドを使用することはできません！",
+	transript_name_sourcebin: " ",
+	transript_title_sourcebin: "${channelName} のチケットチャットの転記",
+	transript_command_error: "エラーが発生しました。もう一度お試しください。",
+	transript_command_work:
+		"チケットを閉じました。iHorizonが転記を送信しました。",
+	transript_not_in_ticket:
+		"このコマンドはチケットチャンネル以外では使用できません！",
+
+	// /disableticket
+	disableticket_not_admin:
+		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
+	disableticket_logs_embed_title_disable: "DisableTicket ログ",
+	disableticket_logs_embed_description_disable:
+		"<@${authorId}> がチケットコマンドを無効にしました！",
+	disableticket_command_work_disable: "チケットコマンドを無効にしました！",
+	disableticket_logs_embed_title_enable: "EnableTicket ログ",
+	disableticket_logs_embed_description_enable:
+		"<@${authorId}> がチケットコマンドを有効にしました！",
+	disableticket_command_work_enable: "チケットコマンドを有効にしました！",
+
+	// /setticketcategory
+	setticketcategory_not_admin:
+		":x: | このコマンドをリクエストするには、サーバーの管理者である必要があります！",
+	setticketcategory_disabled_command:
+		"このコマンドは管理者によって無効化されているため、使用できません！",
+	setticketcategory_not_a_category:
+		"指定されたチャンネルはカテゴリーではありません。もう一度試してください。",
+	setticketcategory_command_work:
+		"<@${authorId}>さん、チケットチャンネルのカテゴリーを `${categoryName}` に設定しました！",
+
+	// /ticket log-channel
+	ticket_logchannel_embed_title: "チケットログチャンネル",
+	ticket_logchannel_embed_desc:
+		"${author}、チケットモジュールのログチャンネルを${channel}に設定しました！",
+
+	// /ticket panel
+	ticket_panel_default_placeholder:
+		"チケットを作成するカテゴリーを選択してください",
+	ticket_panel_embed_title: "チケットパネル #",
+	ticket_panel_embed_desc: "特定のオプションでチケット埋め込みをカスタマイズ",
+	ticket_panel_saved_conf: "💾 保存された設定",
+	ticket_panel_related_embed: "🕸️ 関連埋め込み",
+	ticket_panel_role_to_ping: "📌 メンション対象のロール",
+	ticket_panel_ping_user: "📎 ユーザーをメンション",
+	ticket_panel_placeholder: "🏷️ プレースホルダー",
+	ticket_panel_category: "📤 カテゴリー",
+	ticket_panel_option_fields: "📔 オプションフィールド",
+	ticket_panel_form: "📝 フォーム",
+	ticket_panel_panel_placeholder: "オプションを選択",
+	ticket_panel_panel_1_label: "現在の設定を保存",
+	ticket_panel_panel_2_label: "プレビューを表示",
+	ticket_panel_panel_3_label: "現在の関連埋め込みを変更",
+	ticket_panel_panel_4_label: "メンション対象のロールを追加/削除",
+	ticket_panel_panel_5_label: "プレースホルダーを変更",
+	ticket_panel_panel_6_label: "カテゴリーを変更",
+	ticket_panel_panel_7_label: "ユーザーメンションを変更",
+	ticket_panel_panel_8_label: "オプションフィールドを追加/削除",
+	ticket_panel_panel_9_label: "フォームを変更",
+	ticket_panel_button_send: "埋め込みを送信",
+	ticket_panel_change_category_channelSelect_placeholder: "カテゴリーを選択",
+	ticket_panel_select_channel_to_send: "埋め込みを送信するチャンネルを選択",
+	ticket_panel_change_placeholder_modal_title: "プレースホルダーを変更",
+	ticket_panel_change_placeholder_modal_placeholder: "新しいプレースホルダー",
+	ticket_panel_need_save_config:
+		"埋め込みを送信する前に現在の設定を保存する必要があります",
+	ticket_panel_need_1_option:
+		"埋め込みを送信するには少なくとも1つのオプションが必要です",
+	ticket_panel_related_embed_dont_exist: "関連する埋め込みが存在しません",
+	ticket_panel_channel_error:
+		"チャンネルが存在しないか、メッセージを送信する権限がありません",
+	ticket_panel_embed_been_send: "埋め込みがチャンネルに送信されました",
+	ticket_panel_successfully_saved: "設定が正常に保存されました",
+	ticket_panel_change_role_roleSelect_placeholder: "ロールを選択",
+	ticket_panel_change_role_interaction_content:
+		"チケットが開かれた時にメンションされるロールを選択してください",
+	ticket_panel_change_embed_modal_title: "関連埋め込みを変更",
+	ticket_panel_change_embed_modal_placeholder: "埋め込みID",
+	ticket_panel_change_embed_dont_exist: "埋め込みが存在しません",
+	ticket_panel_change_option_select_placeholder: "オプションを選択",
+	ticket_panel_change_option_select_1_label:
+		"新しいオプションフィールドを追加",
+	ticket_panel_change_option_select_2_label: "オプションフィールドを削除",
+	ticket_panel_change_option_interaction_content:
+		"オプションフィールドを追加または削除するオプションを選択",
+	ticket_panel_add_option_max_10:
+		"オプションフィールドは10個以上追加できません",
+	ticket_panel_add_option_modal_title: "オプションフィールドを追加",
+	ticket_panel_add_option_modal_field1_label: "名前",
+	ticket_panel_add_option_modal_field2_label: "説明",
+	ticket_panel_add_option_modal_field3_label: "絵文字",
+	ticket_panel_remove_option_empty:
+		"削除するオプションフィールドがありません",
+	ticket_panel_remove_option_select_placeholder: "削除するオプションを選択",
+	ticket_panel_rempve_option_interaction_content:
+		"削除するオプションを選択してください",
+	ticket_panel_change_form_select_placeholder_1: "フォームフィールドを追加",
+	ticket_panel_change_form_select_placeholder_2: "フォームフィールドを削除",
+	ticket_panel_change_form_interaction_content:
+		"フォームフィールドを追加または削除するオプションを選択",
+	ticket_panel_add_form_max_3: "フォームフィールドは3つ以上追加できません",
+	ticket_panel_add_form_modal_title: "フォームフィールドを追加",
+	ticket_panel_add_form_modal_field1_label: "質問タイトル",
+	ticket_panel_add_form_modal_field2_label: "質問プレースホルダー",
+	ticket_panel_preview_message: "チケットパネルのプレビュー",
+	ticket_panel_option_change_category:
+		"カテゴリを変更するオプションを選択してください",
+	ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する",
+	ticket_panel_channel_panel_embed_id: "チケットチャンネル埋め込みID",
+	ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネルを変更",
+	ticket_panel_select_user: "チケットにメンバーを追加するメニュー",
+	ticket_panel_button_delete: "チケットを削除するボタン",
+	ticket_panel_button_transcript: "トランスクリプトを作成するボタン",
+	ticket_panel_panel_12_label:
+		"チケット内でメンバーを追加/削除するメニューを表示",
+	ticket_panel_panel_13_label: "チケットを削除するボタンを表示",
+	ticket_panel_panel_14_label: "記録ボタンを表示",
+	ticket_panel_tip_about_variable1:
+		"${emoji_VC_OpenChat} **ご存知でしたか？** `/utils embed` を使用してembedを生成する際、**`{category}`** 変数を導入することができ、これはユーザーが選択したカテゴリに置き換えられます。",
+	ticket_panel_no_question_to_delete: "削除する質問はありません。",
+	ticket_panel_chose_a_question: "質問を選択",
+	ticket_panel_select_question_to_delete: "削除する質問を選択してください。",
+	ticket_panel_panel_15_label: "オプションごとに埋め込みを設定",
+	ticket_panel_panel_16_label: "オプションごとにフォームを設定",
+	ticket_panel_panel_17_label:
+		"オプションごとにメンションするロールを設定します",
+	ticket_panel_mode: "⚙️ モード",
+	ticket_panel_mode_simple: "シンプル",
+	ticket_panel_mode_advanced: "アドバンス",
+	ticket_panel_mode_simple_desc:
+		"ボタン1つでチケットを作成、選択や質問はありません。",
+	ticket_panel_mode_advanced_desc:
+		"オプション、オプションごとの設定、フォームを含むメニュー。",
+	ticket_panel_panel_18_label: "モードを切り替え（シンプル / アドバンス）",
+	ticket_panel_simple_default_title: "サポート",
+	ticket_panel_simple_default_desc:
+		"お困りですか？下のボタンをクリックしてチケットを作成してください。",
+	ticket_panel_manage_form_title:
+		"オプションのフォームを管理: **${optionName}**",
+	ticket_panel_change_embed_options:
+		"チャンネルパネルの埋め込みIDを編集するオプションを選択してください。",
+	ticket_panel_change_embed_options_null:
+		"チャンネルパネルの埋め込みIDを編集するオプションがありません。",
+	ticket_panel_change_embed_options_chose:
+		"チャンネルパネルIDを編集するカテゴリを選択してください。",
+	ticket_panel_add_a_question: "質問を追加",
+	ticket_panel_remove_a_question: "質問を削除",
+	ticket_panel_option_invalid: "❌ 無効なオプション。",
+	ticket_panel_chose_option_to_form:
+		"フォームを設定するオプションを選択してください。",
+	var_chose_option: "オプションを選択",
+	ticket_panel_saved_and_sended_panel:
+		"チケットパネル #${panelCode} は ${channel} に正常に送信されました。パネルを変更する必要がある場合に備えて、コードをどこかに保存してください。",
+	var_title: "タイトル",
+	var_action: "アクション",
+
+	// /ticket rename
+	ticket_rename_ok: "チケットチャンネルの名前が変更されました！",
+	ticket_rename_error:
+		"テキストチャンネルの名前を変更中にエラーが発生しました。",
+
+	// /ticket unlink
+	ticket_unlink_command_ok:
+		"${emoji_Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**",
+	ticket_unlink_panel_edited_content:
+		"このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。",
+
+	// /ticket remind
+	ticket_remind_embed_title: "おっと！チケットのリマインダー",
+	ticket_remind_embed_desc:
+		"最近あまりアクティブではありませんが、問題ありません。チケットはまだ処理中です！ぜひ返信してください！",
+	ticket_remind_embed_fields_1_name: "最後の返信",
+	ticket_remind_command_ok:
+		"ユーザーにリマインダーメッセージを送信しました。",
+	var_never: "なし",
+
+	// Ranks commands
+	// /xp, /setxpchannels, /disablexp
+
+	// /disablexp
+	disablexp_not_admin: ":x: | 管理者である必要があります！",
+	disablexp_logs_embed_title_disable: "XP無効化ログ",
+	disablexp_logs_embed_description_disable:
+		"<@${authorId}> がXPを無効化しました！",
+	disablexp_command_work_disable:
+		"レベリングメッセージ（XP）の送信を無効にしました！",
+	disablexp_logs_embed_title_enable: "XP有効化ログ",
+	disablexp_logs_embed_description_enable:
+		"<@${authorId}> がXPを有効化しました！",
+	disablexp_command_work_enable:
+		"レベリングメッセージ（XP）の送信を有効にしました！",
+	disablexp_command_work_disable_entierly:
+		"ランクモジュールが正常に無効化されました！（メッセージなし、ユーザーはレベルを獲得しません）",
+
+	// /setxpchannels
+	setxpchannels_not_admin:
+		":x: | このコマンドを実行するには、サーバーの管理者である必要があります！",
+	setxpchannels_logs_embed_title_disable: "XPチャンネル設定ログ",
+	setxpchannels_logs_embed_description_disable:
+		"<@${authorId}> がカスタムXPチャンネルを無効化しました。デフォルト設定に戻します...",
+	setxpchannels_already_disabled_disable:
+		"カスタムXPチャンネルは既に無効化されています！",
+	setxpchannels_command_work_disable:
+		"カスタムXPチャンネルを無効にしました！",
+	setxpchannels_command_error_disable:
+		"エラー：権限が不足しているか、チャンネルが存在しません",
+	setxpchannels_logs_embed_title_enable: "XPチャンネル設定ログ",
+	setxpchannels_logs_embed_description_enable:
+		"<@${authorId}> がカスタムXPチャンネルを <#${argsid}> に設定しました。",
+	setxpchannels_valid_channel_message:
+		"有効なチャンネルを指定する必要があります。",
+	setxpchannels_already_with_this_config:
+		"カスタムXPチャンネルはすでにこのチャンネルIDで構成されています！",
+	setxpchannels_confirmation_message:
+		"**ここにカスタムXPチャンネルが設定されました！**",
+	setxpchannels_command_work_enable:
+		"カスタムXPチャンネルを <#${argsid}> に設定しました！",
+	setxpchannels_command_error_enable:
+		"エラー：権限が不足しているか、チャンネルが存在しません。",
+
+	// /level
+	level_embed_title: "__**XP レベル**__: `${userUsername}`",
+	level_embed_fields1_name: ":arrow_up:・__レベル:__",
+	level_embed_fields1_value: "`${currentxp}/${xpNeeded}`",
+	level_embed_fields2_name: ":money_with_wings:・__経験値:__",
+	level_embed_fields2_value: "`${level}`",
+	level_embed_description:
+		"`${expNeededForLevelUp}` **次のレベルに必要な経験値ポイント！**",
+	level_xp_needed_for_new_level: "次のレベルまでのXP：",
+	level_xp_total: "合計XP：",
+
+	// /ranks leaderboard
+	ranks_leaderboard_top_txt: "トップ#${i}",
+	ranks_leaderboard_top_txt_raw: "トップ#${i} ${rawText}\n",
+	ranks_leaderboard_txt_text:
+		"👤 ${user} `(${userGlobalName})`\n⭐ ➥ **レベル**: `${level}`\n🔱 ➥ **総XP**: `${xpTotal}`",
+	ranks_leaderboard_embed_title: "🏆 サーバーレジェンドリーダーボード",
+	ranks_leaderboard_embed_footer:
+		"ページ ${cPage} / ${totalPages} • 総XPでランク付け",
+
+	// /ranks ignore-channels
+	ranks_ignorechannels_embed_title: "ランクモジュールの設定",
+	ranks_ignorechannels_embed_desc:
+		"これらのチャネルのいずれかに新しいメッセージが送信されると、ランクモジュールはそれを無視します。",
+
+	// /ranks set-message
+	ranksSetMessage_not_admin:
+		":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！",
+	ranksSetMessage_help_embed_title: "/ranks set-message ヘルプ!",
+	ranksSetMessage_help_embed_description: "/ranks set-message",
+	ranksSetMessage_help_embed_fields_name: "使い方?",
+	ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage ログ",
+	ranksSetMessage_logs_embed_description_on_enable:
+		"<@${authorId}> がランクメッセージを設定しました！",
+	ranksSetMessage_command_work_on_enable:
+		"${emoji_GreenTick} | ランクメッセージが正常に設定されました。",
+	ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage ログ",
+	ranksSetMessage_logs_embed_description_on_disable:
+		"<@${authorId}> がランクメッセージを削除しました！",
+	ranksSetMessage_command_work_on_disable:
+		"${emoji_Yes} | カスタムランクメッセージが正常に削除されました。",
+	ranksSetMessage_command_work_ls: "ランクメッセージは:",
+	ranksSetMessage_help_embed_fields_custom_name: "カスタムメッセージ",
+	ranksSetMessage_help_embed_fields_custom_name_empy: "未設定！",
+	ranksSetMessage_help_embed_fields_default_name_empy: "デフォルトメッセージ",
+	ranksSetMessage_help_embed_desc:
+		"{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンションする\n{memberCount} => ギルドのメンバー数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 (dd/mm/yyyy)\n{xpLevel} => ユーザーのXPレベル\n{accountCreationTimestamp} => アカウント作成のタイムスタンプ",
+	ranksSetMessage_button_set_name: "メッセージを設定",
+	ranksSetMessage_buttom_del_name: "デフォルトメッセージ",
+	ranksSetMessage_awaiting_response:
+		"新しいカスタムランクメッセージを書いてください。",
+	ranksSetMessage_embed_fields_xpmessage: "ランクメッセージ",
+
+	// /ranks ranks-ureset
+	reset_uranks_are_you_sure:
+		"**すべてのランクデータを削除しても本当に良いですか？\nこの操作は永久的で、元に戻せません。**\n**この操作は破壊的です!!**",
+	reset_uranks_logs_embed_title: "ランクモジュールのログ (危険な操作)",
+	reset_uranks_logs_embed_desc:
+		"${author} が ${user} のランクモジュールデータをすべて削除しました！",
+
+	// /ranks config
+	ranks_config_embed_title: "🏆 ランクロール設定",
+	ranks_config_embed_desc:
+		"サーバーのXPに基づいたロール報酬をカスタマイズしましょう！",
+	ranks_config_autofields_name: "🌟 レベル ${level}",
+	ranks_config_autofields_value:
+		"ロール: <@&${roleId}>\n🔓 レベル ${level} でアンロック",
+	ranks_config_nofields_name: "🚫 設定されたロールがありません",
+	ranks_config_nofields_value:
+		"アクティブなメンバーに報酬を与えるためのランクロールを設定しましょう！",
+	ranks_config_help_footer:
+		"ページ ${currentPage} / ${totalPage} • 総ランク数: ${totalRanks}",
+	ranks_config_btn_add_name: "ロールを追加",
+	ranks_config_btn_remove_name: "ロールを削除",
+	ranks_config_add_max_roles: "ランクロールの最大数 (25) に達しました。",
+	ranks_config_add_role_menu_placeholder: "ロールを選択",
+	ranks_config_awaiting1_response:
+		"特定のレベルに割り当てたいロールを選択してください。",
+	ranks_config_add_modal_title: "ロールのレベルを設定",
+	ranks_config_add_modal_fields1_placeholder: "レベル要件",
+	ranks_config_add_invalid_level:
+		"無効なレベルです！正の数字を入力してください。",
+	ranks_config_add_invalid_role:
+		"ロール {role} は既に存在します。ロールは1つのレベルにのみ割り当てることができます。",
+	ranks_config_add_command_work:
+		"ロール ${selectedRole} がレベル ${level} に追加されました！",
+	ranks_config_add_command_warn:
+		"# 警告 ⚠️ ロール ${selectedRole} には以下の機密権限があります:\n\n${_}",
+	ranks_config_remove_no_rank: "削除できるランクロールが設定されていません。",
+	ranks_config_var_level: "レベル {level}",
+	ranks_config_remove_string_menu_desc: "レベル ${level} のロールを削除",
+	ranks_config_remove_string_menu1_placeholder: "削除するロールを選択",
+	ranks_config_remove_awaiting_response:
+		"削除したいロールを選択してください。",
+	ranks_config_remove_command_work:
+		"レベル ${levelToRemove} のロールが削除されました！",
+
+	// Owner commands
+	// /owner, /unowner, /blacklist, /unblacklist
+
+	// /owner
+	owner_not_owner:
+		"あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。",
+	owner_already_owner: "このユーザーはすでに所有者です！",
+	owner_is_now_owner:
+		"${memberUsername}はiHorizonプロジェクトの所有者になりました。",
+
+	// /unowner
+	unowner_not_owner:
+		"あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。",
+	unowner_cant_unowner_creator:
+		"彼を削除することはできません。iHorizonプロジェクトの作成者です。",
+	unowner_command_work: "${memberUsername}はもう所有者ではありません。",
+
+	// /blacklist
+	blacklist_not_owner:
+		"あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。",
+	blacklist_bot_lol: "自分自身をブラックリストにすることはできません x)",
+	blacklist_command_work:
+		"${memberUsername}は今、ブラックリストに登録されています。",
+	blacklist_blacklisted_but_can_ban_him:
+		"${emoji_No} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？",
+	blacklist_already_blacklisted:
+		"${memberUsername}はすでにブラックリストに登録されています！",
+	blacklist_no_one_blacklist:
+		"${emoji_No} ブラックリストに誰も見つかりませんでした！",
+	blacklist_var_no_reason: "理由が見つかりません",
+	blacklist_embed_title: "ブラックリスト - ページ ${page}",
+	blacklist_command_work_shard:
+		"✅ ${username} は全シャードで **${totalSuccess}** サーバーからBANされました (`{score}`)",
+
+	// /unblacklist
+	unblacklist_not_owner:
+		"あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。",
+	unblacklist_command_work:
+		"<@${memberId}>はもうブラックリストに登録されていません。",
+	unblacklist_not_blacklisted:
+		"<@${memberId}>はブラックリストに登録されていませんでした。",
+	unblacklist_unblacklisted_but_can_unban_him:
+		"${emoji_No} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？",
+	unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。",
+	unblacklist_command_work_across_all_shard:
+		"✅ ${bannedMemberUsername} は全シャードで **${totalSuccess}** サーバーからBAN解除されました (`${score}`)",
+
+	// Invite Managerコマンド
+	// /addinvites、/invites、/leaderboard、/removeinvites
+
+	// /addinvites
+	addinvites_not_admin_embed_description: "管理者である必要があります！",
+	addinvites_confirmation_embed_description:
+		"${user}に${amount}の招待状が追加されました",
+	addinvites_logs_embed_title: "招待状マネージャーログ",
+	addinvites_logs_embed_description:
+		"<@${authorId}>さんが<@${userId}>さんに${amount}の招待状を追加しました！",
+
+	// /invites
+	invites_confirmation_embed_description:
+		"<@${memberId}>さんは`${invites}`の招待状を持っています（`${regular}`レギュラー、`${bonus}`ボーナス、`${leaves}`リーブス）。",
+	invites_confirmation_embed_title: "招待状統計情報",
+
+	// /leaderboard
+	leaderboard_text_inline:
+		"`${i} ` <@${inviter}> • 招待∶ **${invites}**\n  ┖ 通常 **${regular}**, ボーナス∶ **${bonus}**, 退出∶ **${leaves}**\n",
+	leaderboard_default_text: "**__リーダーボード__**",
+	leaderboard_rank_text:
+		"🏅あなたは現在 `${rank}` 位 / `${arrCount}` 位で、**${invites}** 招待があります\n\n",
+	leaderboard_rank_none: "🏅あなたは現在ランクインしていません。\n\n",
+	leaderboard_gen_time_msg:
+		"**${guildName}** のリーダーボードは ${elapsed} ミリ秒で生成されました。\n\n",
+
+	// /removeinvites
+	removeinvites_not_admin_embed_description: "管理者である必要があります！",
+	removeinvites_confirmation_embed_description:
+		"${user}から${amount}の招待状を削除しました",
+	removeinvites_logs_embed_title: "招待状マネージャーログ",
+	removeinvites_logs_embed_description:
+		"<@${authorId}>さんが<@${userId}>さんから${amount}の招待状を削除しました！",
+
+	// /invites reset-all
+	resetallinvites_warning_msg:
+		"**InviteManagerのすべてのデータを削除してもよろしいですか？\nこの操作は永久的であり、元に戻すことはできません。**\n**この操作は破壊的です!!**",
+	resetallinvites_yes_button: "すべて削除",
+	resetallinvites_no_button: "アクションを元に戻す",
+	resetallinvites_succes_on_delete: "正常に削除されました!",
+	resetallinvites_logs_embed_title: "Invite Manager ログ (危険な操作)",
+	resetallinvites_logs_embed_desc:
+		"${author} がInvite Managerのすべてのデータを削除しました！",
+
+	// Bot commands
+	// /botinfo, /invite, /kisakay, /ping, /status
+
+	// /links
+	links_message: "私に関する下記のリンクをクリックしてください！",
+	links_website: "私のウェブサイト",
+	links_gitlab: "私のGitLab",
+
+	// /botinfo
+	botinfo_embed_fields_myname: "私の名前：",
+	botinfo_embed_fields_mychannels: "私のチャンネル：",
+	botinfo_embed_fields_myservers: "私のサーバー：",
+	botinfo_embed_fields_members: "メンバー数：",
+	botinfo_embed_fields_libraires: "ライブラリ：",
+	botinfo_embed_fields_created_at: "作成日：",
+	botinfo_embed_fields_created_by: "作成者：",
+
+	// /invite
+	invite_embed_title: "iHorizonを追加していただきありがとうございます！",
+	invite_embed_description:
+		"私はあなたを愛しています、私に対するあなたの愛を見せてください！私を招待してください！",
+
+	// /kisakay
+	kisakay_message:
+		"${emoji_Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️",
+
+	// /andru
+	andru_message:
+		'Andruはコラボレーターであり開発者です。"何でも屋"として、マーケティング、コミュニティを管理しています...',
+
+	// /ether
+	ether_message:
+		"${emoji_Sparkles} EtherはiHorizonプロジェクトのコントリビューターであり、チームメンバーでした。iHorizonのドキュメントとiHorizonインストールスクリプトを制作し、ボットの翻訳を（ほぼ）完璧にするために管理していました！<t:1785567600:f> に去りました。",
+
+	// /Irisweb
+	irisweb_message:
+		"😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️",
+
+	// /ping
+	pong_message: "【:ballot_box_with_check:】__**Pong**__ : ",
+
+	// /status
+	status_be_bot_dev: ":x: | **Botの開発者である必要があります！**",
+
+	// /help
+	help_tip_embed:
+		"```${botName} ・ ヘルプメニュー```\n${emoji_Pin} ・ **${categorieCount}** 利用可能なコマンドカテゴリ\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** 利用可能なスラッシュコマンド\n${emoji_Crown} ・ **作成者** <@${owner1}>, <@${owner2}>\n\n```知ってますか？ ・ ヒント```\n${emoji_VC_Region} ・ ${botName} は**100％マルチ言語**です\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
+	help_mod_fields: "モデレーション",
+	help_ranks_fields: "ランク",
+	help_fun_fields: "楽しい",
+	help_utils_fields: "ユーティリティ",
+	help_giveaway_fields: "ギブアウェイ",
+	help_bot_fields: "ボット",
+	help_music_fields: "音楽",
+	help_backup_fields: "バックアップ",
+	help_guildconf_fields: "ギルド設定",
+	help_prof_fields: "プロフィールのカスタマイズ",
+	help_economy_fields: "経済",
+	help_owner_fields: "オーナー",
+	help_roler_fields: "役割反応",
+	help_invitem_fields: "招待管理",
+	help_ticket_fields: "チケット",
+	help_memberc_fields: "メンバーカウント",
+	help_newftrs_fields: "新機能",
+	help_mod_dsc:
+		"> *iHorizonのコマンドでストレスなくDiscordサーバーをモデレートしましょう。*",
+	help_ranks_dsc:
+		"> *サーバーで誰が一番アクティブかを確認するために、自分の経験レベルを観察して楽しんでください！*",
+	help_fun_dsc:
+		"> *Discordが退屈だと感じている？大丈夫です、このカテゴリーはあなたのためにあります！iHorizonがあなたの笑顔を取り戻します！*",
+	help_utils_dsc:
+		"> *特定の場合に役立つ特定のコマンドが必要ですか？大丈夫です、ここにあります！*",
+	help_giveaway_dsc:
+		"> *寛大な気持ちになりたいですか？コミュニティに何かを提供したいですか？これらはあなたを助けるための私のコマンドです！*",
+	help_bot_dsc:
+		"> *私についてもっと知りたいと思っている好奇心旺盛な方？これらのコマンドがそのためにあります！*",
+	help_music_dsc: "> *音楽がお好きですか？どうぞ、プレゼントです！*",
+	help_backup_dsc:
+		"> *サーバーの迅速なバックアップが必要ですか？ここにいます！*",
+	help_guildconf_dsc:
+		"> *高度で簡単に設定できる設定をお求めですか？こちらです！*",
+	help_prof_dsc:
+		"> *自分の外見に気を使うタイプですか？ユーザーに素晴らしいプロフィールを提供するためのコマンドをご用意しました！*",
+	help_economy_dsc:
+		"> *財布に気を使っていますか？それとも単にお買い物をしたいですか？私がお手伝いします！*",
+	help_owner_dsc:
+		"> *このカテゴリーはiHorizonプロジェクトのオーナーや管理者のために予約されています！*",
+	help_roler_dsc:
+		"> *サーバーにリアクションの役割を設定したいですか？私がお手伝いします！！*",
+	help_invitem_dsc: "> *メンバーの招待を確認したいですか？こちらです！*",
+	help_ticket_dsc:
+		"> *チケットを作成したり、その中の機能を使用したりしたいですか？もちろんです！*",
+	help_memberc_dsc:
+		"> *メンバーのカウントのためにボイスチャンネルを設定したいですか？もちろんです :smile:*",
+	help_newftrs_dsc: "> *ここには非常に興味深い新機能があります！*",
+	help_not_for_you: "このインタラクションはあなたのためではありません",
+	help_protection_fields: "保護",
+	help_protection_dsc:
+		"> *サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。*",
+	help_suggestion_fields: "提案",
+	help_suggestion_dsc:
+		"> *ユーザーに自己表現の機会を与え、専用のチャンネルで提案を送信する力を与えましょう！*",
+	help_security_fields: "セキュリティ",
+	help_security_dsc:
+		"> *新メンバーにキャプチャテストを実施して、サーバーへのアクセスを保護します。*",
+	help_schedule_fields: "スケジュール",
+	help_schedule_dsc:
+		"> *プリプログラムされたメッセージを使用してリマインダーを作成し、ボットがプライベートメッセージで送信する*",
+	help_pfps_fields: "PFPS",
+	help_pfps_dsc: "> *チャンネルにランダムなユーザーアバターを送信します！*",
+	help_voicedashboard_fields: "音声ダッシュボード",
+	help_voicedashboard_dsc:
+		"> *インターフェイスでカスタム一時ボイスチャンネルを作成します！*",
+	help_select_menu: "選択してください！",
+	help_select_menu_fields_desc: "${commandCount} コマンド",
+	help_back_to_menu: "メインメニュー",
+	help_back_to_menu_desc: "初期メニューに戻る",
+	help_confession_dsc:
+		"> *告白したいことがありますか？ とてもいいでしょう、それがどんなに陰惨であっても、iHorizon はあなたのためにここにいます！*",
+	help_confession_fields: "告白",
+	help_antispam_dsc:
+		"> *スパムにうんざり？大丈夫！iHorizonがスパムをモデレートします！*",
+	help_antispam_fields: "AntiSpam",
+	help_stats_fields: "ユーザースタッツ",
+	help_stats_dsc:
+		"> *サーバー内のユーザーのメッセージ数と音声アクティビティを確認する*",
+	help_notifier_dsc:
+		"> *YouTuberやストリーマーが動画を公開したら通知を受け取ろう！*",
+	help_notifier_fields: "通知機能",
+	help_authrestore_fields: "AuthRestore",
+	help_authrestore_dsc:
+		"> *oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！*",
+	help_tags_fields: "カスタムタグ",
+	help_tags_dsc:
+		"> *サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！*",
+	help_starboard_dsc:
+		"> *Discordサーバーで最もスターを獲得したメッセージを表示します。*",
+	help_starboard_fields: "スター掲示板",
+	help_blogger_dsc:
+		"お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります",
+	help_blogger_fields: "ブロガー",
+	help_lastfm_dsc:
+		"> *Last.fm アカウントを接続し、ボイスチャンネルにいる間 iHorizon が再生する曲を自動で scrobble します。*",
+	help_lastfm_fields: "LastFM Scrobbler",
+	help_honeypot_fields: "Honeypot",
+	help_honeypot_dsc:
+		"> *トラップチャンネルを設定して乗っ取られたアカウントを検出し、サーバー内の最近のスパムを自動で削除します。*",
+
+	// /h
+	h_suite: "(続き)",
+	h_suite_desc: "*カテゴリのコマンドの続き*",
+	helpall_no_perms_defined:
+		"このサーバーにはカスタム権限が設定されていないため、`helpall`は無意味です — 代わりに`${botPrefix}h`を使ってください。",
+	helpall_no_access:
+		"このサーバーでは権限が必要なコマンドにアクセスできません。",
+
+	// /say
+	say_footer_msg: "\n\n`${author}` から `/say` から送信",
+
+	// /ping
+	ping_down_msg: "**ダウン**",
+	ping_embed_desc:
+		"# Pong！${botName}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${emoji_Crown} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${emoji_Crown} **[Websocket の Ping]** `${ping}` ms\n\n## ${emoji_Pointer} **[平均]** >> (平均)`${averagePing}` ms",
+
+	// /custom
+	custom_avatar_reset:
+		"サーバー上のボットのプロフィール画像をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットのプロフィール画像も同様です。",
+	custom_avatar_set:
+		"${emoji_Yes} **サーバー上のボットのプロフィール画像を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットのプロフィール画像も同様です。**\n${emoji_Crown} 新しい値: `${x}`",
+	custom_name_reset:
+		"サーバー上のボットの名前をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットの名前も同様です。",
+	custom_name_set:
+		"${emoji_Yes} **サーバー上のボットの名前を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの名前も同様です。**\n${emoji_Crown} 新しい値: `${name}`",
+	custom_desc_reset:
+		"サーバー上のボットの説明をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットの説明も同様です。",
+	custom_desc_set:
+		"${emoji_Yes} **サーバー上のボットの説明を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの説明も同様です。**\n${emoji_Crown} 新しい値: `${desc}`",
+	custom_banner_reset:
+		"サーバー上のボットのバナーをリセットすることにしました。",
+	custom_banner_set:
+		"${emoji_Yes} **サーバー上のボットのバナーを変更することにしました。**\n${emoji_Crown} 新しい値: `${x}`",
+	custom_sdk_only:
+		"このコマンドは、本番環境では `Custom iHorizon Profile` サブスクリプションを持つサーバーでのみ利用できます。",
+	custom_sdk_only_title: "Custom iHorizon Profile で iHorizon を支援",
+	custom_sdk_only_description:
+		"私たちのボットは 2022 年から無料かつオープンソースです。ボットの運用、開発、ホスティングを続けるために収益が必要です。運用コストはサーバー、boosts、ドメイン、ライセンスを含めて年間およそ 500 EUR です。\n\n`/custom` コマンドを使うと、アバター、名前、バナー、自己紹介を変更して、あなたのサーバー上で iHorizon のアイデンティティを変えることができます。これを使うと、iHorizon の視覚的なアイデンティティはあなたのサーバーから消えます。\n\nそのため、月額 2.99 USD の Discord 内サブスクリプションを用意しました。\n\nこのサブスクリプションを購入すると、このコマンドを使えるようになります。OWN-IHRZ のようなカスタム bot だと思ってください。ただし、安定していて、クリーンで、しっかり動作します。",
+
+	// Fun commands
+	// /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
+
+	// Fun Var
+	fun_var_down_api: "エラー: APIがダウンしています！",
+	fun_var_good_sentence: "良い文章を送ってください！",
+
+	// /cats
+	cats_embed_title: "ニャー🐱",
+
+	// /duck
+	duck_embed_title: "ガーガー :duck:",
+
+	// /panda
+	panda_embed_title: "ムワァ 🐼",
+
+	// /fox
+	fox_embed_title: "ワパパパパ 🦊",
+
+	// /dolphin
+	dolphin_embed_title: "イーイー・クリッククリック 🐬",
+
+	// /frog
+	frog_embed_title: "ゲロゲロ 🐸",
+
+	// /squirrel
+	squirrel_embed_title: "チッチッ 🐿️",
+
+	// /hack
+	hack_embed_description:
+		"<@${victimId}> が <@${authorId}> にハックされました！",
+	hack_embed_fields_ip: "IPアドレス：",
+	hack_embed_fields_email: "メールアドレス：",
+	hack_embed_fields_password: "パスワード：",
+
+	// /hug
+	hug_embed_title: "<@${authorId}> が <@${hugId}> にハグ❤️",
+
+	// /kiss
+	kiss_embed_description: "<@${authorId}> が <@${kissId}> にキス💏",
+
+	// /poll
+	poll_not_admin: "権限がありません！",
+	poll_embed_title: "__**投票**__: `${authorUsername}`",
+	poll_embed_fields_reaction: "下のリアクションをタップしてください。⬇",
+	poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **",
+
+	// /question
+	question_not_full: "3つ以上の単語で質問を入力してください！",
+	question_s: [
+		"はい。",
+		"いいえ。",
+		"わかりません。",
+		"自信がありません。",
+		"バカじゃない？",
+		"いいえ、結構です。",
+		"いいえ。",
+		"はい。"
+	],
+	question_fields_input_embed: ":question:質問",
+	question_fields_output_embed: ":grey_exclamation:**回答**:",
+	question_embed_title: "**質問**: `${authorUsername}`",
+
+	// /slap
+	slap_embed_description: "<@${authorId}> slap <@${slapId}> 😓",
+
+	// /dogs
+	dogs_embed_command_error: "犬の画像の取得中にエラーが発生しました。",
+	dogs_embed_title: "🐶 わんわん。",
+
+	// /love
+	love_embed_description:
+		"**${user1Username}** + **${user2Username}** = __${randomNumber}%__ の愛 💗",
+	love_command_error: "画像を作成しようとしてエラーが発生しました",
+
+	// /fun disable
+	fun_disable_command_msg:
+		"${author}さん、${action_type}でファンカテゴリーを操作しました！",
+	fun_category_disable:
+		"このコマンドを使用できません。ファンコマンドカテゴリーは無効です。",
+
+	// /fun gay
+	fun_gay_command_ok: "ユーザー${user}は**${random}%**ゲイです🏳️‍🌈",
+
+	// /fun stench
+	fun_stench_command_ok: "ユーザー${user}は**${random}%**臭いです👃🛀",
+
+	// /fun rate
+	fun_rate_command_ok: "**${the_things}**を${random}/10で評価します。",
+
+	// /fun caracteres
+	fun_caracteres_command_ok: "変換するテキストを入力してください！",
+	fun_caracteres_help_title: "🎨 テキストスタイルを選択",
+	fun_caracteres_embed_desc:
+		"元のテキスト: **${inputText}**\n\n下のドロップダウンメニューからスタイルを選んでテキストを変換してください。",
+	fun_caracteres_select_menu_placeholder: "フォントスタイルを選択...",
+	fun_caracteres_final_embed_title:
+		"🎨 変換されたテキスト - スタイル: ${selectedStyle}",
+	fun_caracteres_final_embed_field1_name: "📝 元のテキスト",
+	fun_caracteres_final_embed_field2_name: "✨ 変換後のテキスト",
+
+	// /fun random dice
+	fun_dice_embed_title: "🎲 サイコロの結果",
+	fun_dice_var_rolled_dices: "**振ったサイコロ:**",
+	fun_dice_var_results: "**結果:**",
+	fun_dice_var_total: "**合計:**",
+
+	// /fun random heads-tails
+	fun_coinflip_embed_title: "🪙 コイントス",
+	fun_coinflip_result_text: "結果は:",
+	fun_coinflip_result_heads: "表",
+	fun_coinflip_result_tails: "裏",
+
+	// /fun random number
+	fun_random_embed_title: "🔢 ランダムな数字",
+	fun_random_result_text: "生成された数字は:",
+	fun_random_between: "の間",
+
+	// +transgender
+	fun_trans_command_ok:
+		"ユーザー ${user} は **${random}%** トランスジェンダーです 🏳️‍⚧️",
+
+	// Economy commands
+	// /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+	economy_cooldown_error:
+		"このコマンドを再度実行するには **${time}** 待つ必要があります！",
+
+	// /addmoney
+	addmoney_not_admin:
+		"`ADMINISTRATOR` 権限がないため、このコマンドを実行できません。",
+	addmoney_logs_embed_title: "Economy Logs",
+	addmoney_logs_embed_description:
+		"<@${authorId}> Added ${amountValue} coin to <@${userId}> !",
+	addmoney_command_work:
+		"<@${userId}> に `${amountValue}`$ 追加に成功しました",
+
+	// /balance
+	balance_dont_have_wallet: "👛 財布がありません... !",
+	balance_he_dont_have_wallet:
+		"${emoji_Wallet} ${user} は財布を持っていません... !",
+	balance_have_wallet: "👛 ${bal} コインを持っています！",
+	balance_he_have_wallet:
+		"${emoji_Wallet} ${user} は ${bal} コインを持っています！",
+	balance_embed_fields1_name: "銀行",
+	balance_embed_fields2_name: "バランス中",
+
+	// /daily
+	daily_cooldown_error:
+		"申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！",
+	daily_embed_title: "Daily",
+	daily_embed_description: "**Daily Reward**",
+	daily_embed_fields: "Collected",
+
+	// /monthly
+	monthly_cooldown_error:
+		"申し訳ありませんが、このコマンドを実行する前に**${time}**待つ必要があります！",
+	monthly_embed_title: "Monthly",
+	monthly_embed_description: "**Monthly Reward**",
+	monthly_embed_fields: "Collected",
+
+	// /pay
+	pay_negative_number_error: "負の金額は支払えません。",
+	pay_dont_have_enought_to_give:
+		"残高より多い金額は支払えません。もう一度お試しください。",
+	pay_command_work:
+		"${authorUsername}さんが${userUsername}さんに${amount}$を支払いました。",
+
+	// /removemoney
+	removemoney_not_admin:
+		"必要な権限 `ADMINISTRATOR` を持っていないため、このコマンドを実行できません。",
+	removemoney_embed_title: "お金を取り除きました！",
+	removemoney_embed_fields: "金額",
+	removemoney_embed_second_fields: "残高が更新されました",
+	removemoney_logs_embed_description:
+		"<@${authorId}>さんが<@${userId}>さんから${amount}コインを取り除きました！",
+	removemoney_logs_embed_title: "経済ログ",
+
+	// /rob
+	rob_cooldown_error:
+		"**50分間待ってから、再びユーザーを強盗することができます！**",
+	rob_dont_enought_error: ":x: 誰かを強盗するには、少なくとも250$必要です。",
+	rob_him_dont_enought_error:
+		":x: ${userUsername}さんには強盗できるだけのお金がありません。",
+	rob_embed_description:
+		"<@${authorId}>さんが<@${userId}>さんを強盗して、${random}を手に入れました！",
+
+	// /weekly
+	weekly_cooldown_error:
+		"このコマンドを実行する前に、**${time}**待たなければなりません！",
+	weekly_embed_title: "デイリー",
+	weekly_embed_description: "**週の報酬**",
+	weekly_embed_fields: "収集された",
+
+	// /work
+	work_cooldown_error:
+		"<@${authorId}>、**${time} 分後に別のユーザーを再び襲う前に待ってください！**",
+	work_embed_author: "${authorUsername}、報酬がもらえました！",
+	work_embed_description:
+		"${authorUsername}、あなたは働いて${amount}$を稼ぎました！",
+
+	// /withdraw
+	withdraw_cannot_abuse:
+		"${emoji_No} | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！",
+	withdraw_embed_title: "あなたの銀行から引き出す",
+	withdraw_embed_desc:
+		"${author}、あなたは`銀行`から${toWithdraw}${emoji_Coin}を引き出しました",
+	withdraw_embed_fields1_name: "銀行",
+
+	// /deposit
+	deposit_cannot_abuse:
+		"${emoji_No} | あなたのウォレットにある金額よりも多くのコインを預けることはできません！",
+	deposit_embed_title: "あなたの銀行に預ける",
+	deposit_embed_desc:
+		"${author}、あなたは`銀行`に${toDeposit}${emoji_Coin}を預けました",
+	deposit_embed_fields1_name: "銀行",
+
+	// /leaderboard
+	economy_leaderboard_embed_title: "`${guildName}`の経済リーダーボード",
+	economy_leaderboard_embed_fields_value:
+		"<@${userId}> - 銀行: `${bank}`${emoji_Coin} | バランス: `${money}`${emoji_Coin}",
+
+	// /economy disable
+	economy_disable_not_admin:
+		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
+	economy_disable_already_disable:
+		"<@${authorId}>、経済モジュールは既に **無効** になっています！",
+	economy_disable_already_enable:
+		"<@${authorId}>、経済モジュールは既に **有効** になっています！",
+	economy_disable_set_enable:
+		"<@${authorId}>、経済モジュールを正常に **有効化** しました！",
+	economy_disable_set_disable:
+		"<@${authorId}>、経済モジュールを正常に **無効化** しました！",
+	economy_disable_logs_embed_desc:
+		"<@${authorId}> が経済モジュールの状態を `${state}` に変更しました！",
+	economy_disable_logs_embed_title: "経済ログ",
+
+	// /economy boost-set
+	economy_boost_role_not_found:
+		"ロールが見つかりません。ロールの価格を設定する必要があります。",
+	economy_boost_embed_title: "経済システム - 購入可能なロール",
+	economy_boost_embed_desc:
+		"購入可能なすべてのロールが以下に一覧表示されています。",
+
+	// /economy role add
+	economy_role_add_no_role: "削除する購入可能なロールがありません。",
+	economy_role_add_max_20_roles:
+		"購入可能なロールは最大20個までに制限されています。",
+	economy_role_add_canceled:
+		"ロールは購入可能なロールに追加されませんでした。",
+	economy_role_add_prompt_dangerous:
+		"このロールを購入可能なロールに追加してもよろしいですか？\n**警告:** このロールには危険な権限があります。\n権限: ${stringDangerousPermissions}",
+
+	// /economy shop
+	economy_shop_embed_title: "🛍️ `${guildName}`のショップ",
+	economy_shop_embed_desc:
+		"ショップでは、お金を使用してアイテムやロールを購入できます。以下に購入可能なロールが表示されています。",
+	economy_shop_not_available: "選択したロールは購入できません。",
+	economy_shop_already_own_role: "このロールはすでに所有しています。",
+	economy_shop_not_enough_money:
+		"このロールを購入するのに十分なお金がありません。",
+	economy_shop_role_purchased:
+		"ロール **{roleName}** を **${rolePrice}** 💰で購入しました。",
+	economy_shop_unknown_role: "不明なロール",
+	economy_shop_not_set:
+		"このサーバーでは購入可能なロールがありません。詳細についてはサーバー管理者にお問い合わせください。",
+	economy_shop_already_owned: "すでに所有しています",
+	economy_shop_menu_placeholder: "購入するロールを選択してください",
+
+	// /economy manage-rewards set-cooldown
+	economy_manage_rewards_cooldown_invalid_time:
+		"無効な時間形式です。正しい時間形式を使用してください.",
+	economy_manage_rewards_cooldown_command_ok:
+		"${type} のクールダウンが ${stime} に正常に設定されました。",
+
+	// /economy mange-rewards set-money
+	economy_manage_rewards_set_money:
+		"${type} のお金が ${money} に正常に設定されました。",
+
+	// /economy role list
+	economy_role_list_no_buyable_roles:
+		"表示できる購入可能なロールはありません。",
+	economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール",
+	economy_role_list_embed_desc:
+		"購入可能なロールは以下に一覧表示されています。",
+
+	// /economy economy-ureset
+	reset_ueconomy_are_you_sure:
+		"**本当にすべての経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**",
+	reset_ueconomy_logs_embed_title: "経済モジュールログ（危険な操作）",
+	reset_ueconomy_logs_embed_desc:
+		"${author} が ${user} のすべての経済モジュールデータを削除しました！",
+
+	// /economy economy-greset
+	reset_geconomy_are_you_sure:
+		"**本当にすべてのサーバーメンバーの経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**",
+	reset_geconomy_logs_embed_title: "経済モジュールログ（非常に危険な操作）",
+	reset_geconomy_logs_embed_desc:
+		"${author} が **全員** の経済モジュールデータを削除しました！",
+
+	// Profil Customisation commands
+	// /setprofilage, /setprofildescriptions, /profil
+
+	// /setprofilage
+	setprofilage_command_work: "**プロフィールの年齢が正常に更新されました。**",
+
+	// /setprofildescriptions
+	setprofildescriptions_command_work: "**説明が正常に更新されました。**",
+
+	// /profil
+	profil_not_description_set: "説明が設定されていません！",
+	profil_unknown: "不明",
+	profil_embed_title: "${emoji_Pin} __${memberTag}のプロフィール__",
+	profil_embed_fields_nickname: "📝 ・ __ニックネーム__",
+	profil_embed_fields_money: "🪙 ・ __所持金__",
+	profil_embed_fields_money_value: " コイン",
+	profil_embed_fields_xplevels: "💳 ・ __XPレベル__",
+	profil_embed_fields_xplevels_value: " XPレベル",
+	profil_embed_fields_age: "🎂 ・ __年齢__",
+	profil_embed_fields_age_value: " 歳",
+	profil_embed_fields_gender: "👤 ・ __性別__",
+	profil_embed_fields_pronouns: "📌 ・ __代名詞__",
+	profil_embed_fields_birthdate: "🎂 ・ __誕生日の日付__",
+
+	// /プロフィール 誕生日設定
+	profil_birthday_month_button_label: "月を設定",
+	profil_birthday_day_button_label: "日を設定",
+	profil_birthday_year_button_label: "年を設定",
+	profil_birthday_embed_title: "🎂 ・ 誕生日を設定しましょう！",
+	profil_birthday_embed_introduction:
+		"${emoji_Sparkles} **人間なら誰でも誕生日がありますよね！**${emoji_Sparkles}\n\n${emoji_Crown} ・ こんにちは、${author}\n:tada: ・ お祝いするために、設定しましょう！\n",
+	profil_birthday_embed_current_birthday:
+		"${emoji_Pin} ・ **現在の誕生日**: `${birthdayMonth}/${birthdayDay}/${birthdayYear}` (MM/DD/YYYY形式)",
+	profil_birthday_modal1_title: "生年を入力してください",
+	profil_birthday_modal1_fields1_label: "年",
+	profil_birthday_invalid_year: "無効な年です！有効な年を入力してください。",
+	profil_birthday_year_already_set: "年は既に設定されています。",
+	profil_birthday_year_set: "年が設定されました！",
+	profil_birthday_modal2_title: "誕生月を入力してください",
+	profil_birthday_modal2_fields1_label: "月",
+	profil_birthday_invalid_month: "無効な月です！有効な月を入力してください。",
+	profil_birthday_month_already_set: "月は既に設定されています。",
+	profil_birthday_month_set: "月が設定されました！",
+	profil_birthday_modal3_title: "誕生日を入力してください",
+	profil_birthday_modal3_fields1_label: "日",
+	profil_birthday_invalid_day: "無効な日です！有効な日を入力してください。",
+	profil_birthday_day_already_set: "日は既に設定されています。",
+	profil_birthday_day_set: "日が設定されました！",
+
+	// Utils commands
+	// /serverinfo, /snipe, /userinfo, /renew
+
+	// /serverinfo
+	serverinfo_verlvl_NONE: "なし",
+	serverinfo_verlvl_LOW: "低い",
+	serverinfo_verlvl_MEDIUM: "中程度",
+	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
+	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
+	serverinfo_embed_author: "🚩 -> ${guildName}",
+	serverinfo_embed_description: "**説明**: ${guildDescription}",
+	serverinfo_embed_fields_name: "🏷・**名前:**",
+	serverinfo_embed_fields_members: "🧔・**メンバー数:**",
+	serverinfo_embed_fields_id: "🆔・**ID:**",
+	serverinfo_embed_fields_owner: "👑・**オーナー:**",
+	serverinfo_embed_fields_verlvl: "🎚 ・**認証レベル:**",
+	serverinfo_embed_fields_region: "🌍・**リージョン:**",
+	serverinfo_embed_fields_roles: "📇・**役職数:**",
+	serverinfo_embed_fields_channels: "✍・**チャンネル数:**",
+	serverinfo_embed_fields_joinat: "🚲・**参加日時:**",
+	serverinfo_embed_fields_createat: "⚓・**作成日時:**",
+
+	// /setrankroles
+	setrankroles_not_admin:
+		"${emoji_No} このサーバーの管理者ではありません。このコマンドを実行することはできません！",
+	setrankroles_already_this_in_db:
+		"${emoji_No} ランクロールは既にこのサーバーのデータベースに存在します。",
+	setrankroles_not_roles_typed:
+		"${emoji_No} コマンドには役職が指定されていません！",
+	setrankroles_command_work:
+		"今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>",
+	setrankroles_logs_embed_description_enable:
+		"<@${authorId}> がランクロールを <@&${argsid}> に設定しました",
+	setrankroles_logs_embed_title_enable: "ランクロールの設定",
+	setrankroles_logs_embed_description_disable:
+		"<@${authorId}> がランクロールを削除しました！",
+	setrankroles_logs_embed_title_disable: "ランクロールの設定",
+	setrankroles_command_work_disable:
+		"<@${authorId}> さん、ランクロールを削除しました！",
+	setrankroles_command_error:
+		"${emoji_No} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。",
+	setrankroles_command_work_with_nicknames:
+		"今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**",
+	setrankroles_command_work_with_nicknames_2:
+		"\n**注意**:\nニックネームの一部を削除した場合、ロールは自動的に削除されます。再度追加した際には、ロールを再度付与します。",
+
+	// /snipe
+	snipe_no_previous_message_deleted:
+		"このチャンネルで削除されたメッセージはありません！",
+
+	// /userinfo
+	userinfo_wait_please: "${emoji_Timer} 少々お待ちください...",
+	userinfo_embed_fields_1_name: "バッジ",
+	userinfo_embed_fields_2_name: "ユーザー名",
+	userinfo_embed_fields_3_name: "表示名",
+	userinfo_embed_fields_4_name: "作成日",
+	userinfo_embed_fields_5_name: "Nitroステータス",
+	userinfo_var_notfound: "`見つかりません`",
+	userinfo_button_label: "ユーザープロフィール",
+
+	// /renew
+	renew_channel_send_success: "${author} チャンネルが再作成されました！",
+	renew_dont_have_permission: ":x: **権限がありません！**",
+	renew_not_administrator:
+		":x: **このコマンドを使用するための管理者ではありません！**",
+
+	// /renewvc
+	renewvc_not_in_voice:
+		"${emoji_No} このコマンドを使用するにはボイスチャンネルに接続している必要があります！",
+	renewvc_region_success:
+		"${emoji_Yes} ${targetVc} のボイスリージョンが自動に設定されました！",
+	renewvc_dont_have_permission: ":x: **権限がありません！**",
+
+	// /prevnames
+	prevnames_embed_title: "${userUsername} のニックネームのリスト",
+	prevnames_undetected: "データが見つかりませんでした！",
+	prevnames_not_admin:
+		"このコマンドを実行するための `ADMINISTRATOR` 権限がありません！",
+	prevnames_data_erased:
+		"以前のユーザー名は、あなたの要望に基づいて完全に削除されました！",
+	prevnames_embed_footer_text: "iHorizon | ページ ${page}/${pageCount}",
+
+	// /blockbot
+	blockbot_not_owner: ":x: **サーバーのオーナーではありません！**",
+	blockbot_logs_enable_title: "BlockBot ログ",
+	blockbot_logs_enable_description:
+		"${author}（サーバーのオーナー）が `BlockBot` を __有効化__ しました。これにより、ボットはこのサーバーには **追加できなくなります**！",
+	blockbot_command_work_on_enable:
+		"**`BlockBot` を有効にしました**\nボットはこのサーバーには **追加できなくなります**！",
+	blockbot_command_work_on_disable:
+		"**`BlockBot` を無効にしました**\nボットはこのサーバーに追加できるようになります！",
+	blockbot_logs_disable_commmand_work: "BlockBot ログ",
+	blockbot_logs_disable_description:
+		"${author}（サーバーのオーナー）が `BlockBot` を __無効化__ しました。ボットはこのサーバーに追加できるようになります！",
+
+	// /banner
+	banner_guild_embed: "**これはギルドサーバーバナーです！**",
+	banner_user_embed: "**これは${userUsername}のバナーです！**",
+	banner_guild_no_banner: "サーバーにはバナーがありません。",
+	banner_user_no_banner: "このユーザーにはバナーがありません。",
+
+	// /massiverole
+	massiverole_add_command_work:
+		"${author}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__受け取りました__\n**${s}** ユーザーがすでに${role}役職を__持っていました__\niHorizonは**${e}** ユーザーに役職を追加できませんでした。",
+	massiverole_sub_command_work:
+		"${author}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__失いました__\n**${s}** ユーザーがすでに${role}役職を__持っていませんでした__\niHorizonは**${e}** ユーザーから役職を削除できませんでした。",
+	massiverole_too_much_member:
+		"メンバーが多すぎて、実行できません。レート制限の可能性があります！",
+
+	// /nickrole
+	nickrole_add_command_work:
+		"${author}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含んでいませんでした\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。",
+	nickrole_sub_command_work:
+		"${author}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含まなくなりました\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。",
+	nickrole_too_much_member:
+		"メンバーが多すぎるため、実行できません。レート制限の可能性があります！",
+
+	// /emoji
+	emoji_send_new_emoji:
+		"__新しい絵文字が作成されました__ 名前：**${emojiName}** ! (${emoji})",
+	emoji_send_err_emoji:
+		"__新しい絵文字の作成時エラー__ 名前：**${emojiName}** !",
+	emoji_embed_desc_work:
+		"__`${guildName}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})",
+
+	// /derank
+	derank_msg_desc_embed:
+		"## 私は<@${memberId}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。",
+	derank_msg_failed: "役職の削除中にエラーが発生しました。",
+	derank_no_role: "このメンバーには削除するロールがありません。",
+
+	// /アクション全員の禁止解除
+	action_unban_all_embed_desc:
+		"## ギルドメンバー全員の禁止を解除する\n${emoji_Yes} | ギルドで`${unbannedMemberCount}`人のメンバーの禁止を成功裏に解除しました！\n${emoji_No} | `${cannot_unban}`人のメンバーを禁止解除できません！",
+	action_unban_all_no_banned_members: "禁止されているメンバーはいません。",
+
+	// /アクションの禁止解除を元に戻す
+	action_unban_undo_embed_desc:
+		"## 全員の禁止解除を元に戻す\n${emoji_Yes} | ギルドで`${bannedMemberCount}`人のメンバーを成功裏に禁止しました！\n${emoji_No} | `${cannot_ban}`人のメンバーを禁止解除できません！",
+
+	// /vc
+	vc_embed_desc:
+		"## ボイスステータス\n`${voiceCount}` 人がボイスチャンネルにいます：\n${emoji_iHorizon_Streaming} **=>** ${streaming}\n${emoji_iHorizon_Deaf} **=>** ${deafened}\n${emoji_iHorizon_Mute} **=>** ${muted}\n${emoji_iHorizon_Camera} **=>** ${video}\n## メンバーステータス\n`${memberCount}` 人がギルドにいます：\n${emoji_DND} **=>** ${dnd}\n${emoji_Online} **=>** ${online}\n${emoji_Idle} **=>** ${idle}\n${emoji_Invisible} **=>** ${offline}\n## ブーストステータス\n`${boostCount}` ブーストがギルドにあります、\n${members}",
+	vc_embed_fields_1_name: "・メンバー数",
+	vc_embed_fields_1_value: "```py\n${memberCount} 人のメンバー```",
+	vc_embed_fields_2_name: "・チャンネル数",
+	vc_embed_fields_2_value:
+		"```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```",
+	vc_embed_short_desc:
+		"## ボイスステータス\n`${voiceCount}` 人がボイスチャンネルにいます:\n${emoji_iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${emoji_iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${emoji_iHorizon_Mute} **=>** ${total_members_vc_mute}\n${emoji_iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${emoji_DND} **=>** ${total_members_states_dnd}\n${emoji_Online} **=>** ${total_members_states_online}\n${emoji_Idle} **=>** ${total_members_states_idle}",
+
+	// /massmove
+	massmove_results:
+		"${author}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。",
+	massmove_too_much_member:
+		"メンバーが多すぎます。レート制限の可能性があるため、実行できません。",
+
+	// /all-admins
+	all_admins_nobody_admins: "このサーバーに管理者はいません！",
+	all_admins_embed_title: "すべての管理者のリスト | ページ ${page}",
+	all_admins_unrank_button_label: "全員のランクを下げる",
+	all_admins_unrank_embed_desc:
+		"${author}、iHorizonはAllAdminsモジュールの全員のランクダウンを実行しました。\n\n**${good}** ユーザーが__正常に__ランクを下げました\niHorizonは**${bad}** ユーザーのランクを下げることに__失敗しました__。",
+	all_admins_unrank_not_owner:
+		"サーバーの所有者のみがサーバーのすべての管理者のランクを下げることができます",
+
+	// /allbots
+	all_bots_embed_title: "全てのボットのリスト | ページ ${page}",
+
+	// /addrole
+	utils_addrole_highter_or_egal_roles_msg:
+		"${emoji_Stop} あなたより上位の役職を持つユーザーに役職を追加することはできません...",
+	utils_addrole_command_ok:
+		"${author} は正常に ${role} の役職を ${user} に追加しました",
+	utils_addrole_not_wl:
+		"${emoji_No} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）",
+	utils_addrole_cant_level:
+		"そのユーザーは管理者じゃないのに、管理者ロールを付けたいの？冗談でしょ？サーバー壊したいのか？",
+	utils_addrole_try2brain:
+		"ボットのロールが下すぎて、その変なロールは付けられないよ。",
+
+	// /delrole
+	utils_delrole_highter_or_egal_roles_msg:
+		"${emoji_Stop} あなたより上位の役職を持つユーザーから役職を削除することはできません...",
+	utils_delrole_command_ok:
+		"${author} は正常に ${user} から ${role} の役職を削除しました",
+	utils_delrole_not_wl:
+		"${emoji_No} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）",
+	utils_delrole_try2brain:
+		"ボットのロールが下すぎて、その変なロールは外せないよ。",
+
+	// /utils wlroles
+	utils_wlroles_embed_title: "ホワイトリストの役職",
+	utils_wlroles_embed_desc:
+		"`addrole`、`delrole` コマンドで割り当て可能な許可された役職は次の通りです！",
+	utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール",
+	utils_wlRoles_logsEmbed_desc:
+		"${author} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）",
+	utils_derogation_already_exists:
+		"${emoji_No} 例外ロール ${role} はすでに正しく設定されています",
+	utils_derogation_created:
+		"${emoji_Yes} 例外ロール ${role} を作成しました。同期済みチャンネル数: `${updatedChannels}`。失敗: `${failedChannels}`",
+	utils_derogation_resynced:
+		"${emoji_Yes} 例外ロール ${role} はすでに存在していたため、`${updatedChannels}` 個のチャンネルを再同期しました。失敗: `${failedChannels}`",
+
+	// /utils dm
+	utils_dm:
+		"${emoji_Yes} メッセージは ${targetMember} に正常に送信されました。",
+	utils_dm_cant:
+		"${emoji_No} ${targetMember} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。",
+
+	// /utils pic-only
+	utils_pic_only_embed_title: "メディア専用チャンネル",
+	utils_pic_only_emnbed_desc:
+		"画像や動画のみ許可されるチャンネルです。その他のコンテンツ（テキストメッセージなど）はボットによってブロックされます",
+	utils_piconly_embed_fields_3_name: "タイムアウト時間",
+	utils_piconly_select1_option1_label: "タイムアウト時間を変更",
+	utils_piconly_select1_option2_label: "しきい値を変更",
+	utils_piconly_modal1_title: "MediaOnly - 時間設定",
+	utils_piconly_modal1_fields1_placeholder: "ミュート時間",
+	utils_piconly_modal1_fields1_label: "ミュート時間",
+	utils_piconly_modal2_title: "MediaOnly - しきい値設定",
+	utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値",
+	utils_piconly_modal2_fields1_label: "しきい値",
+	utils_piconly_embed_fields2_placeholder: "画像/動画の下にスレッドを作成",
+	utils_piconly_var_thread_name: "{name} によるスレッド",
+
+	// /zip-emojis
+	zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。",
+	zip_emojis_command_work:
+		"🎉 **${calcTime}**ミリ秒で書き出し完了！${emojiCount}個の絵文字を含むアーカイブはこちらです。",
+	zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。",
+
+	// /zip-stickers
+	zip_stickers_doesnt_have_perm: "ステッカーを管理する権限がありません。",
+	zip_stickers_command_work:
+		"🎉 **${calcTime}**ミリ秒でエクスポートが完了しました！ ${stickerCount}枚のステッカーが含まれるアーカイブです。",
+	zip_stickers_command_error:
+		"ステッカーをエクスポート中にエラーが発生しました。",
+
+	// +sticker
+	sticket_no_sticker:
+		"返信されたメッセージにスタンプが見つかりませんでした。",
+	sticket_command_work: "スタンプ `${name}` が正常に作成されました。",
+	sticker_command_error:
+		"スタンプを作成できませんでした。エラーが発生しました: `${errMessage}`。",
+	sticket_command_error2: "スタンプを含むメッセージに返信してください。",
+
+	// /util nick-kicker
+	util_nick_kicker_embed_title: "ニックネームキッカー",
+	util_nick_kicker_embed_desc:
+		"メンバーが参加したとき、そのニックネームが特定の単語を含んでいる場合、キックされます",
+	util_nick_kicker_words: "単語",
+	util_nick_kicker_select_to_remove: "削除する単語を選択",
+	util_nick_kicker_remove_word: "この単語を削除",
+	util_nick_kicker_no_word_to_remove: "削除する単語がありません",
+	util_nick_kicker_add_word: "単語を追加",
+	util_nick_kicker_words_max_15: "15個以上の単語は追加できません",
+	util_nick_kicker_disable: "無効化",
+	util_nick_kicker_remove_word2: "単語を削除",
+	util_nick_kicker_remove_desc: "ニックネームキッカーから単語を削除",
+	util_nick_kicker_add_desc: "ニックネームキッカーに単語を追加",
+	util_nick_kicker_disable_desc: "ニックネームキッカーを無効化",
+	util_nick_kicker_enable_desc: "ニックネームキッカーを有効化",
+
+	// /util wakeup
+	util_wakeup_yourself:
+		"おい、お前バカか？このコマンドを打ちながら寝てるって言わないよな？笑",
+	util_wakeup_not_in_vc:
+		"おいおい、ボットが同じアイコンとバナーで ${userDisplayName} を複製して、起きたと思わせるわけじゃないんだぞ…その人はVCにすらいないよ笑",
+	util_wakeup_command_work: "${user}を起こしに行くぞ！",
+
+	// /util talk
+	util_talk_not_in_vc:
+		"このコマンドを使用するにはボイスチャンネルに参加している必要があります。",
+	util_talk_audit_reason: "ボイストークモードが有効化されました",
+	util_talk_logs_title: "ボイストーク",
+	util_talk_logs_description:
+		"${author} が ${voiceChannel} でトークモードを有効化し、${mutedCount} 人のメンバーをミュートしました。${skippedCount} 人のメンバーはスキップされました。",
+	util_talk_command_work:
+		"${voiceChannel} でトークモードが有効になりました。${mutedCount} 人のメンバーがミュートされ、${skippedCount} 人のメンバーがスキップされました。",
+
+	// /util untalk
+	util_untalk_nothing_active:
+		"このサーバーには有効なトークモードがありません。",
+	util_untalk_audit_reason: "ボイストークモードが無効化されました",
+	util_untalk_logs_title: "ボイスアントーク",
+	util_untalk_logs_description:
+		"${author} が ${voiceChannel} のトークモードを無効化し、${unmutedCount} 人のメンバーのミュートを解除しました。",
+	util_untalk_command_work:
+		"${voiceChannel} のトークモードが無効化されました。${unmutedCount} 人のメンバーのミュートが解除されました。",
+
+	// /util freeze
+	util_freeze_logs_title: "ボイスフリーズ",
+	util_freeze_logs_description:
+		"${author} が ${voiceChannel} へのアクセスを凍結しました。",
+	util_freeze_command_work:
+		"ボイスチャンネル ${voiceChannel} は現在凍結されています。",
+
+	// /util wlvc
+	util_wlvc_no_member:
+		"凍結されたボイスチャンネルに許可するメンバーを指定する必要があります。",
+	util_wlvc_no_freeze:
+		"このサーバーには有効な凍結ボイスチャンネルがありません。",
+	util_wlvc_logs_title: "ボイスフリーズ許可",
+	util_wlvc_logs_description:
+		"${author} が ${member} に凍結されたボイスチャンネルへの参加を許可しました。",
+	util_wlvc_command_work:
+		"${member} は凍結されたボイスチャンネルに参加できるようになりました。",
+
+	// /util unwlvc
+	util_unwlvc_no_member:
+		"凍結されたボイスチャンネルのホワイトリストから削除するメンバーを指定する必要があります。",
+	util_unwlvc_no_freeze:
+		"このサーバーには有効な凍結ボイスチャンネルがありません。",
+	util_unwlvc_not_whitelisted:
+		"${member} は凍結されたボイスチャンネルで許可されていません。",
+	util_unwlvc_logs_title: "ボイスフリーズ許可削除",
+	util_unwlvc_logs_description:
+		"${author} が ${member} を凍結されたボイスチャンネルのホワイトリストから削除しました。",
+	util_unwlvc_command_work:
+		"${member} は凍結されたボイスチャンネルに参加できなくなりました。",
+
+	// /util unfreeze
+	util_unfreeze_no_freeze:
+		"このサーバーには有効な凍結ボイスチャンネルがありません。",
+	util_unfreeze_logs_title: "ボイスフリーズ解除",
+	util_unfreeze_logs_description:
+		"${author} が有効なボイスフリーズを解除しました。",
+	util_unfreeze_command_work: "ボイスチャンネルはもう凍結されていません。",
+
+	// /util leash
+	util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D",
+	util_leah_already_owned:
+		"やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:",
+	util_leash_confirm_message:
+		"${emoji_No} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${emoji_Warning_Icon} | この操作を実行してもよろしいですか？",
+	util_leash_canceled_leash:
+		"${emoji_Yes} | リーシュの設定がキャンセルされました",
+	util_leash_confirmed_leash:
+		"${emoji_Yes} | このサーバーでユーザーのリーシュに成功しました :smirk:",
+
+	// /util unleash
+	util_unleash_not_in_leash:
+		"${emoji_No} | このユーザーはあなたの制御下にありません！",
+	util_unleash_command_ok:
+		"${emoji_Yes} | このサーバーでユーザーを無事に解放しました :)",
+
+	// /utilss leashlist
+	util_leashlist_no_data:
+		"${emoji_No} | このサーバーには有効なリードがありません。",
+	util_leashlist_embed_title: "有効なリード",
+	util_leashlist_embed_desc: "${dom} -> ${sub} (残り `${remaining}`)",
+
+	// /util lockname, /util unlockname
+	util_lockname_not_in_guild:
+		"${emoji_No} | このメンバーはサーバーにいません！",
+	util_lockname_not_manageable:
+		"${emoji_No} | このメンバーのニックネームを管理する権限がありません！",
+	util_lockname_already_locked:
+		"${emoji_No} | このメンバーのニックネームはすでにロックされています！",
+	util_lockname_success:
+		"${emoji_Yes} | ${member} のニックネームは **${nick}** にロックされました！",
+	util_lockname_success_reset:
+		"${emoji_Yes} | ${member} のニックネームはロックされました！",
+	util_unlockname_not_locked:
+		"${emoji_No} | このメンバーのニックネームはロックされていません！",
+	util_unlockname_success:
+		"${emoji_Yes} | ${member} のニックネームのロックが解除されました！",
+	util_lockname_logs_embed_title: "ニックネームロックのログ",
+	util_lockname_logs_embed_description:
+		"<@${authorId}> が <@${memberId}> のニックネームをロックしました",
+	util_unlockname_logs_embed_description:
+		"<@${authorId}> が <@${memberId}> のニックネームのロックを解除しました",
+
+	util_locknamelist_empty:
+		"${emoji_No} | このサーバーにはロックされたニックネームがありません！ `/utilss lockname` で作成できます。",
+	util_locknamelist_embed_title: "ロックされたニックネーム",
+	util_locknamelist_embed_count: "**${count}** 件のニックネームがロック中：",
+	util_locknamelist_embed_line:
+		"> <@${memberId}> • **${nick}** • ロック：${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)",
+	util_locknamelist_embed_line_short: "> <@${memberId}> • **${nick}**",
+
+	// /util autorenew
+	util_autorenew_time_too_short:
+		"チャンネルの更新間隔は1分以上である必要があります",
+	util_autorenew_time_too_long:
+		"サロンの更新間隔は30日以内でなければならない",
+	util_autorenew_command_ok:
+		"${emoji_Yes} これで、${channel} チャンネルは${time}ごとに自動的に削除-作成（更新）されます！\nチャンネルの更新を停止するには、自分で削除してください。",
+	event_autorenew_channel_renewed: "AutoRenewがチャンネルを更新しました！",
+	event_autorenew_channel_warning:
+		"AutoRenewモジュールはこのチャンネルを更新するように設定されています。次回の更新は${time}です。",
+
+	// /util where
+	util_where_deaf: "スピーカーミュート",
+	util_where_mute: "マイクミュート",
+	var_video: "ビデオ",
+	var_whereis: "どこに",
+	util_not_in_vc: "メンバーはボイスチャンネルにいません",
+
+	// /util allwebhooks
+	util_no_webhooks: "このサーバーにはwebhookはありません。",
+	util_allwebhooks_embed_title: "すべてのWebhook",
+	util_allwebhooks_deleting: "すべてのWebhookを削除しています...",
+	util_allwebhooks_deleted: "**`${u}`** webhookが削除されました！",
+
+	// /util unzip-emojis
+	util_unzip_emojis_command_work:
+		"🎉 ${calcTime}ミリ秒で解凍が完了しました！サーバーで${emojiCount}個の絵文字を作成しました。",
+	util_unzip_emojis_command_error: "絵文字の解凍中にエラーが発生しました。",
+	util_unzip_emojis_command_no_file:
+		"絵文字を含むZIPファイルを添付してください。",
+
+	// /util vkick
+	vkick_member_not_in_guild: "メンバーはギルドにいません。",
+	vkick_not_in_vc: "メンバーはボイスチャンネルにいません。",
+	vkick_not_admin_kick:
+		"管理者をボイスチャンネルから切断することはできません。",
+	vkick_logEmbed_title: "ボイスキック",
+	vkick_logEmbed_desc:
+		"${author} は ${member} をボイスチャンネル ${voiceChannel} から切断しました。",
+	vkick_command_work:
+		"${author}、${member} を ${voiceChannel} から正常に切断しました。",
+
+	// /util sync
+	util_sync_embed_description_1:
+		"以下のチャンネルが `#${categoryName}` カテゴリーと同期されました：\n\n${changes}",
+	util_sync_embed_description_0:
+		"カテゴリー内のすべてのチャンネルは既に権限が同期されています。",
+
+	// /util securewebhook
+	util_securewebhook_action_create: "無効なDiscord WebhookのURL",
+	util_securewebhook_action_create_error:
+		"Webhookの作成中にエラーが発生しました：`${status}`",
+	util_securewebhook_action_create_ok:
+		"Webhookが正常に作成されました\n> URL：${url}\n> 使用法：${use}",
+	util_securewebhook_action_delete_any: "Webhookがありません",
+	util_securewebhook_action_delete_not_owner:
+		"あなたはこのWebhookの所有者ではありません",
+	util_securewebhook_action_delete_error:
+		"Webhookの削除中にエラーが発生しました",
+	util_securewebhook_actiom_list_ok: ":star: __**あなたのWebhook**__：\n",
+
+	// /util admin-roles
+	admin_roles_nobody_roles: "このサーバーには管理者ロールがありません！",
+	admin_roles_embed_title: "すべての管理者ロール一覧 | ページ ${page}",
+	admin_roles_remove_button_label: "全てから管理者を削除",
+	admin_roles_remove_embed_desc:
+		"${author}、iHorizon は AdminRoles モジュールの管理者権限削除を実行しました。\n\n**${good}** 個のロールを __正常に変更__\niHorizon は **${bad}** 個のロールを変更できませんでした。",
+	admin_roles_remove_not_owner: "あなたはサーバーオーナーではありません！",
+
+	// /util rolelimit
+	util_rolelimit_bad_opt:
+		"${emoji_No} | 指定されたオプションが無効です。入力内容をご確認ください。",
+	util_rolelimit_good:
+		"${emoji_Crown} | ロール: ${role} | 最大メンバー数: ${limit_count}\n- すでに${limit_count}人がこのロールを持っている場合、新しいユーザーには付与できません。",
+
+	// /util inviteinfo
+	util_inviteinfo_not_valid_invite: "この `discord_invite` は無効です！",
+
+	// /util cooldown
+	util_cooldown_command_ok:
+		"チャンネルのスローモードが ${duration_in_string} に設定されました。",
+
+	// /util role-members
+	util_role_members: "そのロールを持っているユーザーの一覧",
+	util_role_members_no_one: "サーバーにそのロールを持つ人はいません",
+
+	// /util vanity-generator
+	util_vanity_generator_invalid_code:
+		"URL Vanityコード `${VanityCode}` は無効です。文字列は英数字で、単語間にハイフンを含めることができます。最大長は32文字です。ハイフンは文字列の先頭または末尾に置けません。",
+	util_vanity_generator_already_claimed:
+		"このURL Vanityコードはすでに使用されています！別のコードを選んでください。",
+	util_vanity_generator_command_err:
+		"Vanityコードの作成中にエラーが発生しました。後でもう一度試してください。",
+
+	// +top
+	utils_top_no_message: "このチャンネルにメッセージが見つかりません",
+	utils_top_command_ok: "このチャンネルの最初のメッセージは[こちら](${link})",
+
+	// +bringall
+	bringall_no_from_channel: "元のボイスチャンネルを指定してください。",
+	bringall_invalid_category: "有効なカテゴリを指定してください。",
+	bringall_no_voice_channels:
+		"指定されたカテゴリにはボイスチャンネルがありません。",
+	bringall_no_members: "元のボイスチャンネルにメンバーがいません。",
+	bringall_results:
+		"${author}、iHorizonはメンバーをボイスチャンネルに分散させました。\n\n**${movedCount}** 人のメンバーが${fromChannel}から${category}の${channelCount}チャンネルに正常に移動されました。\n**${errorCount}** 人のメンバーは移動できませんでした（詳細はサーバーログを参照してください）。",
+
+	// /util move
+	util_move_not_in_vc:
+		"移動しようとしているメンバーはボイスチャンネルに接続されていません",
+	util_move_impossible_to_move_admin:
+		"移動しようとしているメンバーは管理者です。あなたも管理者ではありません。",
+	util_move_command_ok: "${member} は ${channel} に移動しました",
+
+	// Guild Config commands
+	// /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
+
+	// /blockpub
+	blockpub_not_admin: ":x: | このサーバーの管理者である必要があります！",
+	blockpub_now_enable:
+		"📌 | アンチ広告機能が有効になりました（管理者以外のユーザーには機能します）",
+	blockpub_now_disable: "📌 | アンチ広告機能が無効になりました！",
+
+	// /guildprofil
+	guildprofil_not_admin: ":x: | このサーバーの管理者である必要があります！",
+	guildprofil_not_set_reactionrole: "設定なし！",
+	guildprofil_set_reactionrole:
+		"**MessageID**: `${i}` -> ${emoji}で<@&${rolesID}>の役割を与えます\n",
+	guildprofil_not_set_ticketFetched: "設定なし！",
+	guildprofil_set_ticketFetched: "",
+	guildprofil_not_set_punishPub: "設定なし！",
+	guildprofil_set_punishPub:
+		"`${punishementType}`：max：`${amountMax}`フラグ。",
+	guildprofil_not_set_supportConfig: "設定なし！",
+	guildprofil_set_supportConfig:
+		"bio内の`${input}`で<@&${rolesId}>の役割を与えます。",
+	guildprofil_not_set_setchannelsjoin: "設定なし！",
+	guildprofil_set_setchannelsjoin: "",
+	guildprofil_not_set_setchannelsleave: "設定なし！",
+	guildprofil_set_setchannelsleave: "",
+	guildprofil_not_set_joinmessage: "設定なし！",
+	guildprofil_set_joinmessage: "",
+	guildprofil_not_set_leavemessage: "設定なし！",
+	guildprofil_set_leavemessage: "",
+	guildprofil_not_set_joinroles: "設定なし！",
+	guildprofil_set_joinroles: "",
+	guildprofil_not_set_joinDmMessage: "設定なし！",
+	guildprofil_set_joinDmMessage: "",
+	guildprofil_not_set_blockpub: "オフ",
+	guildprofil_set_blockpub: "オン",
+	guildprofil_embed_description: "`ギルドの設定：` ${guildName} !",
+	guildprofil_embed_fields_joinmessage: "参加メッセージ",
+	guildprofil_embed_fields_leavemessage: "退出メッセージ",
+	guildprofil_embed_fields_setchannelsjoin: "参加チャンネル",
+	guildprofil_embed_fields_setchannelsleave: "退出チャンネル",
+	guildprofil_embed_fields_joinroles: "参加ロール",
+	guildprofil_embed_fields_joinDmMessage: "参加時DM",
+	guildprofil_embed_fields_blockpub: "宣伝ブロック",
+	guildprofil_embed_fields_punishPub: "宣伝罰則",
+	guildprofil_embed_fields_supportConfig: "サポート",
+	guildprofil_embed_fields_ticketFetched: "チケット",
+	guildprofil_embed_fields_reactionrole: "リアクション役割",
+	guildprofil_not_logs_set: "チャネルログが設定されていません",
+	guildprofil_blockbot_on: "ボットブロックが有効になっています",
+	guildprofil_blockbot_off: "ボットブロックが無効になっています",
+	guildprofil_disable_xp: "メッセージが無効になっています",
+	guildprofil_enable_xp: "メッセージが有効になっています",
+	guildprofil_another_enable_xp:
+		"<#${xpChannels}> への送信が有効になっているメッセージ",
+	guildprofil_embed_fields_blockbot: "ボットブロック",
+	guildprofil_embed_fields_logs: "ログ",
+	guildprofil_embed_fields_ranks: "ランク",
+
+	// /setchannels
+	setchannels_not_admin:
+		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
+	setchannels_not_specified_args:
+		"モジュールに有効なチャンネルを指定する必要があります。",
+	setchannels_already_this_channel_on_join:
+		"このチャンネルはすでに参加時のモジュールとして構成されています！",
+	setchannels_confirmation_message_on_join:
+		"**参加チャンネルがここに設定されました！** :tada:",
+	setchannels_command_error_on_join:
+		"エラー：権限が不足しているか、チャンネルが存在しません",
+	setchannels_command_work_on_join:
+		"参加時のチャンネルモジュールを <#${argsidId}> に正常に設定しました",
+	setchannels_logs_embed_title_on_join: "チャンネル設定ログ",
+	setchannels_logs_embed_description_on_join:
+		"<@${authorId}> が参加時のチャンネルモジュールを以下のチャンネルに設定しました：<#${argsidId}>",
+	setchannels_already_this_channel_on_leave:
+		"このチャンネルはすでに退出時のモジュールとして構成されています！",
+	setchannels_confirmation_message_on_leave:
+		"**退出チャンネルがここに設定されました！** :tada:",
+	setchannels_command_error_on_leave:
+		"エラー：権限が不足しているか、チャンネルが存在しません",
+	setchannels_command_work_on_leave:
+		"退出時のチャンネルモジュールを <#${argsidId}> に正常に設定しました",
+	setchannels_logs_embed_title_on_leave: "チャンネル設定ログ",
+	setchannels_logs_embed_description_on_leave:
+		"<@${authorId}> が退出時のチャンネルを以下のチャンネルに設定しました：<#${argsidId}>",
+	setchannels_already_on_off:
+		"参加と退出のチャンネルはすでに無効になっています",
+	setchannels_command_work_on_off:
+		"参加と退出のチャンネルを正常に無効にしました！",
+	setchannels_logs_embed_title_on_off: "チャンネル設定ログ",
+	setchannels_logs_embed_description_on_off:
+		"<@${authorId}> がすべての参加/退出チャンネルの設定を削除しました！",
+	setchannels_button_join: "参加チャンネルを変更",
+	setchannels_button_leave: "退出チャンネルを変更",
+	setchannels_button_delete: "設定を削除",
+	setchannels_embed_fields_value_join: "参加チャンネル",
+	setchannels_embed_fields_value_leave: "退出チャンネル",
+	setchannels_not_a_text_channel:
+		"${emoji_Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！",
+	setchannels_which_channel: "<@${authorId}>, どのチャンネルに設定しますか？",
+	setchannels_title_embed_panel: "ギルド構成のチャンネルの設定パネル",
+
+	// /setjoindm
+	setjoindm_not_admin: ":x: | 管理者である必要があります！",
+	setjoindm_logs_embed_title_on_enable: "JoinDmの設定",
+	setjoindm_logs_embed_description_on_enable:
+		"<@${authorId}> がJoinDmメッセージを設定しました！",
+	setjoindm_not_specified_args_on_enable:
+		"有効なJoinDmメッセージを指定する必要があります。",
+	setjoindm_confirmation_message_on_enable:
+		"JoinDmを ```${dm_msg}``` に設定し、有効にしました！",
+	setjoindm_command_error_on_enable:
+		"エラー：パーミッションが足りないか、チャンネルが存在しません。",
+	setjoindm_logs_embed_title_on_disable: "JoinDmの設定",
+	setjoindm_logs_embed_description_on_disable:
+		"<@${authorId}> がJoinDmメッセージを無効にしました！",
+	setjoindm_confirmation_message_on_disable: "JoinDmを無効にしました！",
+	setjoindm_command_error_on_disable:
+		"エラー：パーミッションが足りないか、チャンネルが存在しません。",
+	setjoindm_already_disable: "JoinDmは既に無効です！",
+	setjoindm_not_setup_ls: "JoinDmは設定されていません！",
+	setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```",
+	setjoindm_help_embed_title: "JoinDMメッセージの設定ヘルプ！",
+	setjoindm_help_embed_desc:
+		"{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）\n{accountCreationTimestamp} => アカウント作成日のタイムスタンプ",
+	setjoindm_buttom_set_name: "メッセージを設定",
+	setjoindm_buttom_delete_name: "DMメッセージを削除",
+	setjoindm_awaiting_response:
+		"チャンネルに新しいカスタムJoinDMメッセージを入力してください。",
+
+	// /setjoinmessage
+	setjoinmessage_not_admin:
+		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
+	setjoinmessage_help_embed_title: "setjoinmessageのヘルプ！",
+	setjoinmessage_help_embed_description:
+		"/setjoinmessage <Power on / Power off / Show the message set> <join message>",
+	setjoinmessage_help_embed_fields_name: "使い方",
+	setjoinmessage_help_embed_fields_value:
+		"```/setjoinmessage <Power on / Power off / Show the message set> <message>```\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{createdat} = メンバーアカウントの作成日\n{guild} = ギルドの名前\n{inviter} = 招待者のユーザー名＆識別子\n{invites} = 招待数",
+	setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs",
+	setjoinmessage_logs_embed_description_on_enable:
+		"<@${authorId}> が参加メッセージを設定しました！",
+	setjoinmessage_command_work_on_enable:
+		"${emoji_GreenTick}  | カスタム参加メッセージの設定に成功しました。",
+	setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs",
+	setjoinmessage_logs_embed_description_on_disable:
+		"<@${authorId}> が参加メッセージを削除しました！",
+	setjoinmessage_command_work_on_disable:
+		"${emoji_Yes} | カスタム参加メッセージの削除に成功しました。",
+	setjoinmessage_command_work_ls: "参加メッセージは以下の通りです：",
+	setjoinmessage_help_embed_fields_custom_name: "カスタムメッセージ",
+	setjoinmessage_help_embed_fields_custom_name_empy: "未設定！",
+	setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセージ",
+	setjoinmessage_help_embed_desc:
+		"{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンションする\n{inviterUsername} => 招待者のユーザー名\n{inviterMention} => 招待者をメンションする\n{memberCount} => ギルドのメンバー数\n{invitesCount} => 招待者の招待数\n{guildName} => ギルドの名前\n{createdAt} => アカウント作成日 (dd/mm/yyyy)\n{accountCreationTimestamp} => アカウント作成のタイムスタンプ",
+	setjoinmessage_button_set_name: "メッセージを設定",
+	setjoinmessage_buttom_del_name: "デフォルトメッセージ",
+	setjoinmessage_awaiting_response:
+		"新しいカスタム参加メッセージを作成しました",
+	setjoinmessage_image_default_text:
+		"ようこそ {memberUsername} さん {guildName} へ<br>現在のメンバー数は {memberCount} 人です",
+	setjoinmessage_change_image_button_title: "画像を変更",
+	setjoinmessage_default_image_button_title: "デフォルト画像",
+	setjoinmessage_var_enable_image: "画像を有効にする",
+	setjoinmessage_var_disable_image: "画像を削除する",
+	setjoinmessage_var_image_card: "参加メッセージカード",
+	setjoinmessage_change_image_propreties_background: "背景を変更",
+	setjoinmessage_change_image_propreties_frame_color:
+		"円形フレームの色を変更",
+	setjoinmessage_change_image_propreties_text_colour: "テキストの色を変更",
+	setjoinmessage_change_image_propreties_text_message:
+		"テキストメッセージを変更",
+	setjoinmessage_change_image_propreties_text_size: "テキストのサイズを変更",
+	setjoinmessage_change_image_propreties_avatar_size: "アバターサイズを変更",
+	setjoinmessage_modal_fields_background_url: "背景画像のURL",
+	setjoinmessage_change_image_menu_frame_color_profil:
+		"ユーザープロフィールカラーに基づく",
+	setjoinmessage_change_image_menu_frame_status_profil:
+		"ユーザーステータスに基づく",
+	setjoinmessage_modal_fields_hex_color: "色 www.color-hex.com",
+	setjoinmessage_modal_fields_message: "希望するメッセージ",
+	setjoinmessage_var_text_size: "テキストサイズ: ",
+	setjoinmessage_var_avatar_size: "アバターサイズ: ",
+	setjoinmessage_change_image_invalid_url:
+		"無効な画像URLです。別の画像プロバイダーで試してください。",
+
+	// /setjoinroles
+	setjoinroles_var_none: "なし",
+	setjoinroles_var_perm_admin: "管理者",
+	setjoinroles_var_perm_manage_guild: "サーバーを管理する**",
+	setjoinroles_var_perm_manage_role: "ロールを管理する",
+	setjoinroles_var_perm_use_mention:
+		"@everyone @here を使用し、ロールをピン留めする",
+	setjoinroles_var_perm_ban_members: "メンバーをBANする",
+	setjoinroles_var_perm_kick_members: "メンバーをキックする",
+	setjoinroles_var_perm_manage_webhooks: "Webhookを管理する",
+	setjoinroles_var_perm_manage_channels: "チャンネルを管理する",
+	setjoinroles_var_perm_manage_expression:
+		"絵文字、ステッカー、サウンドボードを管理する",
+	setjoinroles_var_perm_view_monetization_analytics:
+		"クリエーターの収益化と分析を表示する",
+	setjoinroles_var_perm_issue: "ロールを管理する権限がありません。",
+	setjoinroles_var_timesup: "ロールの選択の時間が切れました。",
+	setjoinroles_warn_dangerous_perm:
+		"次のロールは危険な権限を持っています。本当にそれらを割り当てますか？",
+	setjoinroles_warn_title: "警告！",
+	setjoinroles_timesup_button: "時間切れ！",
+	setjoinroles_action_canceled: "アクションがキャンセルされました",
+	setjoinroles_too_highter_roles:
+		"次のロールは私の役職よりも高い位置にあります。",
+	setjoinroles_not_admin:
+		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
+	setjoinroles_help_embed_title: "参加ロールモジュール",
+	setjoinroles_help_embed_description:
+		"新しいメンバーに与えるすべてのロールです。",
+	setjoinroles_help_embed_fields_1_name: "すべての登録済みロール",
+	setjoinroles_logs_embed_title_on_enable: "JoinRolesログ",
+	setjoinroles_logs_embed_description_on_enable:
+		"<@${authorId}>が参加ロールを設定しました！",
+	setjoinroles_already_on_enable:
+		"参加ロールはすでにこのロールで構成されています！",
+
+	// /welcomer
+	welcomer_panel_title: "ウェルカム",
+	welcomer_section_placeholder: "設定する項目を選択",
+	welcomer_section_channels: "チャンネル",
+	welcomer_embed_label: "カスタム埋め込み",
+	welcomer_text_label: "テキスト",
+	welcomer_embed_set_button: "埋め込みを設定",
+	welcomer_embed_remove_button: "埋め込みを削除",
+	welcomer_embed_modal_title: "カスタム埋め込みを設定",
+	welcomer_embed_modal_label: "埋め込みID（埋め込みビルダーから）",
+	welcomer_embed_not_found:
+		"ID `${embed_id}` の保存済み埋め込みが見つかりません。先に埋め込みビルダーで作成してください。",
+	welcomer_embed_set_ok:
+		"カスタム埋め込み `${embed_id}` がこのイベントで送信されるようになります。{memberMention} などの変数は自動的に置換されます。",
+	welcomer_embed_removed_ok:
+		"カスタム埋め込みを削除しました。デフォルトカードに戻ります。",
+	welcomer_text_enable_button: "テキストを有効化",
+	welcomer_text_disable_button: "テキストを無効化",
+	welcomer_components_enable_button: "Componentsを有効化",
+	welcomer_components_disable_button: "Componentsを無効化",
+	welcomer_render_mode_label: "表示モード",
+	welcomer_render_mode_components: "Components（カード）",
+	welcomer_render_mode_simple: "シンプルメッセージ",
+
+	// /setleavemessage
+	setleavemessage_not_admin:
+		":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！",
+	setleavemessage_help_embed_title: "/setleavemessage ヘルプ！",
+	setleavemessage_help_embed_description:
+		"/setleavemessage <オン/オフ/設定されたメッセージを表示する> <退出メッセージ>",
+	setleavemessage_help_embed_fields_name: "使い方？",
+	setleavemessage_help_embed_fields_value:
+		"`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前",
+	setleavemessage_logs_embed_title_on_enable: "SetLeaveMessage ログ",
+	setleavemessage_logs_embed_description_on_enable:
+		"<@${authorId}>が退出メッセージを設定しました！",
+	setleavemessage_command_work_on_enable:
+		"${emoji_Yes} | カスタム退出メッセージを正常に設定しました。",
+	setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage ログ",
+	setleavemessage_logs_embed_description_on_disable:
+		"<@${authorId}>が退出メッセージを削除しました！",
+	setleavemessage_command_work_on_disable:
+		"${emoji_Yes} | カスタム退出メッセージを正常に削除しました。",
+	setleavemessage_command_work_ls: "退出メッセージは次のとおりです。",
+	setleavemessage_awaiting_response: "休暇メッセージを書きます。",
+
+	// /setup
+	setup_not_admin: ":x: | このサーバーの管理者である必要があります！",
+	setup_command_work: "${emoji_Yes} | チャンネルセットアップ完了",
+	setup_command_error:
+		"ボットは既にログチャンネルを設定しています！またはボットに権限がありません...",
+
+	// /setlogschannel
+	setlogschannel_not_admin:
+		":x: | このコマンドを実行するには、サーバーの管理者である必要があります！",
+	setlogschannel_not_specified_args:
+		"モジュールに有効なチャンネルを指定する必要があります。",
+	setlogschannel_confirmation_message:
+		"${emoji_Yes} | `${typeOfLogs}` は <@${authorId}> によって設定されました！",
+	setlogschannel_already_this_channel:
+		"このサーバーは既にログのためのこのチャンネルを持っています！",
+	setlogschannel_already_deleted:
+		"このサーバーは既に `SERVER_LOGS` を持っていません！",
+	setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？",
+	setlogschannel_command_work:
+		"<#${argsidId}> に `${typeOfLogs}` を正常に設定しました！",
+	setlogschannel_utils_command_work:
+		"${argsidId} に `${typeOfLogs}` を正常に設定しました！",
+	setlogschannel_command_work_on_delete:
+		"**${guildName}** からすべての `SERVER_LOGS` を正常に削除しました！",
+	setlogschannel_logs_embed_title: "サーバーログの設定",
+	setlogschannel_logs_embed_description_on_enable:
+		"<@${authorId}> が `${typeOfLogs}` を <#${argsidId}> に設定しました",
+	setlogschannel_logs_embed_title_on_off: "サーバーログの設定",
+	setlogschannel_logs_embed_description_on_off:
+		"<@${authorId}> がギルド内のすべての `SERVER_LOGS` を削除しました！",
+	setlogschannel_var_roles: "役職のログ",
+	setlogschannel_var_mods: "モデレーションログ",
+	setlogschannel_var_voice: "音声ログ",
+	setlogschannel_var_msg: "メッセージログ",
+	setlogschannel_var_boost: "ブーストログ",
+	setlogschannel_var_tickets: "チケットログ",
+	setlogschannel_var_antispam: "AntiSpam ログ",
+	setlogschannel_var_channel: "チャンネルログ",
+	setlogschannel_var_confession: "告白ログ",
+	setlogschannel_all_already_exist:
+		"すべてのログチャンネルは既に設定されています！",
+	setlogschannel_var_economy: "経済ログ",
+
+	// /join-ghostping add
+	joinghostping_add_already_set:
+		"チャンネル ${channel} はすでに設定されています！",
+	joinghostping_add_sent_to_channel:
+		"これから、メンバーがギルドに参加すると、ここに幽霊メッセージを送信します。",
+	joinghostping_add_ok_embed_title: "Join GhostPing モジュール",
+	joinghostping_add_ok_embed_desc:
+		"今後、メンバーがギルドに参加するたびに、このチャンネルに幽霊メッセージを送信します！",
+	joinghostping_add_ok_embed_fields_name: "すべての登録済みチャンネル",
+	joinghostping_add_logs_embed_title: "Join GhostPing ログ",
+	joinghostping_add_logs_embed_desc:
+		"${author} が ${channel} を Join GhostPing モジュールに追加しました！",
+
+	// /join-ghostping remove
+	joinghostping_remove_isnt_set:
+		"チャンネル ${channel} は設定されていません！",
+	joinghostping_remove_ok_embed_desc:
+		"チャンネルは Join GhostPing モジュールから削除されました！",
+	joinghostping_remove_logs_embed_desc:
+		"${author} が Join GhostPing モジュールから ${channel} を削除しました！",
+
+	// /automod
+	automod_panel_title: "AutoMod コントロールパネル",
+	automod_panel_desc:
+		"iHorizon の AutoMod ルールをすべて設定できます。ルールの有効化・無効化、ログチャンネルの設定、バイパス可能なロールの選択が可能です。",
+	automod_panel_overview_title: "保護中のルール",
+	automod_panel_select_placeholder: "設定するルールを選択",
+	automod_panel_label_logs: "ログチャンネル",
+	automod_panel_label_bypass: "バイパスロール",
+	automod_panel_label_mention_limit: "メンション上限",
+	automod_panel_rule_spam_name: "メッセージスパム",
+	automod_panel_rule_spam_desc:
+		"サーバー内のフラッドや繰り返しメッセージをブロックします。",
+	automod_panel_rule_mass_mention_name: "大量メンション",
+	automod_panel_rule_mass_mention_desc:
+		"過剰な数のメンションを含むメッセージをブロックします。",
+	automod_panel_rule_antipub_name: "リンクと宣伝",
+	automod_panel_rule_antipub_desc:
+		"宣伝リンクをブロックします（GitHub、Tenor、YouTube などの安全な許可リスト付き）。",
+	automod_panel_rule_media_name: "Discord 招待",
+	automod_panel_rule_media_desc:
+		"メッセージで送信される Discord サーバー招待リンクをブロックします。",
+	automod_panel_rule_telegram_name: "Telegram リンク",
+	automod_panel_rule_telegram_desc:
+		"Telegram リンク（t.me、telegram.me、tg:// など）をブロックします。",
+	automod_panel_logs_placeholder:
+		"このルールのログを送信するチャンネルを選択",
+	automod_panel_bypass_placeholder: "このルールをバイパスするロールを選択",
+	automod_panel_enable_button: "有効化",
+	automod_panel_disable_button: "無効化",
+	automod_panel_back_button: "戻る",
+	automod_panel_refresh_button: "更新",
+	automod_panel_close_button: "パネルを閉じる",
+	automod_panel_rule_enabled: "**${rule}** ルールが有効になりました！",
+	automod_panel_rule_disabled: "**${rule}** ルールが無効になりました！",
+	automod_panel_bypass_saved:
+		"**${rule}** のバイパスロールが更新されました！",
+	automod_panel_logs_saved:
+		"**${rule}** のログが ${channel} に送信されます。",
+	automod_panel_logs_reset: "**${rule}** のログチャンネルが削除されました！",
+	automod_panel_api_error:
+		"変更を適用できませんでした。`サーバーを管理` 権限があることと、Discord のデフォルト AutoMod ルールが無効になっていることを確認して、もう一度お試しください。",
+
+	// /guildconfig block too-new-account
+	too_new_account_dont_specified_time_on_enable:
+		"時間が指定されていません。このモジュールを有効にするには、アカウントの最低年齢が必要です！",
+	too_new_account_invalid_time_on_enable:
+		"入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年",
+	too_new_account_logEmbed_title: "TooNewAccount モジュール",
+	too_new_account_logEmbed_desc_on_enable:
+		"${author} が TooNewAccount モジュールを有効にしました。アカウントは最低でも ${beautifulTime} 経過している必要があり、ユーザーが `${maxJoin}` 回以上参加するとBANされます。",
+	too_new_account_command_work_on_enable:
+		"${author}、**${guildName}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。",
+	too_new_account_command_work_on_enable2:
+		"\n-#  ${emoji_Sparkles} アカウントがサーバーに**`${maxJoin}`**回参加すると、BANされます。",
+	too_new_account_logEmbed_desc_on_disable:
+		"${author} がモジュールを無効にしました！",
+	too_new_account_command_work_on_disable:
+		"${author}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。",
+
+	// /guildconfig set-bot footer-name
+	guildconfig_setbot_footername_footer_too_long_msg:
+		"ボットのフッターが長すぎます。表示するには醜すぎます。",
+	guildconfig_setbot_footername_is_good:
+		"正常に変更されました。すべてのiHorizon埋め込みは`${footerName}`をフッターとして使用します！",
+	guildconfig_setbot_footername_is_reset:
+		"フッター名が削除されました。これで、すべてのiHorizon埋め込みは`ボットの名前`を使用します。",
+	guildconfig_setbot_footername_not_found:
+		"フッター名が見つかりません。もう一度お試しください！",
+
+	// /guildconfig set-bot footer-pfp
+	guildconfig_setbot_footeravatar_is_good:
+		"正常に変更されました。iHorizonのすべての埋め込みはフッターとして`image`を使用します！",
+	guildconfig_setbot_footeravatar_incorect:
+		"ファイルが画像ではありません。画像を使ってもう一度お試しください。",
+	guildconfig_setbot_footeravatar_is_reset:
+		"フッターアバターが削除されました。これで、すべてのiHorizon埋め込みは`ボットのアバター`を使用します。",
+
+	// /guildconfig set-bot prefix
+	guildconfig_setbot_prefix_prefix_now_mention:
+		"コマンドのボットプレフィックスは今メンションです！ `@Ping-Me`",
+	guildconfig_setbot_prefix_prefix_specify_prefix:
+		"ボットプレフィックスを指定する必要があります。",
+	guildconfig_setbot_prefix_prefix_too_long:
+		"ボットプレフィックスが長すぎます。使用するには難しすぎます。",
+	guildconfig_setbot_prefix_prefix_is_good:
+		"ボットプレフィックスが正常に変更されました。今すぐコマンドは`${formatedPrefix}`で使用可能です。",
+
+	// /guildconfig config save
+	guildconfig_config_save_check_dm:
+		"DMを確認してください。メッセージが届いていない場合は、DMを受け入れる設定になっているか確認してください。",
+	guildconfig_config_save_user_msg:
+		"`${guildName}` の設定のバックアップです！",
+	guildconfig_config_save_user_msg_2:
+		"サーバーのバックアップをダウンロードするリンクはこちらです！\n",
+
+	// /guildconfig config restore
+	guildconfig_config_restore_err_msg:
+		"ファイルのダウンロード中にエラーが発生しました。",
+	guildconfig_config_restore_msg: "データがデータベースに保存されました。",
+
+	// /perm add
+	perm_add_args_error: "変更するコマンドや設定する権限を指定していません。",
+
+	// /perm list
+	perm_list_embed_title: "すべてのユーザーの権限：",
+	perm_list_unknown_user: "不明なユーザー (ID: ${userId})",
+	perm_list_no_user: "ユーザーが見つかりません",
+	var_command: "コマンド",
+	var_subcommand: "サブコマンド",
+	var_subcommand_group: "サブコマンドグループ",
+	var_unreachable_command: "コマンドが見つかりません",
+	perm_list_no_command_set:
+		"このサーバーには特定の権限が設定されたコマンドがありません！",
+
+	// /perm set
+	perm_set_deleted: "${user} の権限は **削除** されました！",
+	perm_set_ok: "${user} の権限は **`${perm}`** に変更されました",
+	perm_set_warn_message:
+		"${author}、あなたの権限以上または同等の権限を与えることはできません！",
+	perm_set_chng_perm_lvl: "権限レベルが変更されました",
+	perm_set_add_role: "ロールを追加しました",
+	perm_set_add_usr: "ユーザーを追加しました",
+	perm_rmv_role: "ロールを削除しました",
+	perm_rmv_usr: "ユーザーを削除しました",
+	perm_set_command_reset: "このコマンドはリセットされました",
+	perm_set_no_modified: "権限が変更されませんでした",
+	perm_command_delete_dont_exist:
+		"指定されたコマンドには権限が設定されていません。",
+	perm_command_delete_command_deleted:
+		"コマンドの権限を削除しました：`${commands}`",
+	perm_command_delete_specify_command:
+		"権限を削除するコマンドを指定する必要があります。",
+	perm_command_delete_all_one:
+		"権限を削除するには1つのオプションを指定する必要があります。",
+	perm_command_delete_all_one_option:
+		"権限を削除するには1つのオプションのみ指定できます。",
+	perm_command_delete_all_zero_change:
+		"指定した権限タイプはどのコマンドでも使用されていませんでした。",
+	perm_command_delete_all_command_ok:
+		"\nデータベースから**${changeCount}**個のネストされた`${type}`タイプ（${value}）の権限を正常に削除しました。",
+	commandlimit_current_value: "${count} use(s) per ${time}",
+	commandlimit_invalid_value:
+		"コマンドのレート制限に指定された値が無効です。",
+	commandlimit_missing_command: "コマンドを指定してください。",
+	commandlimit_set_success:
+		"`${command}` のレート制限を `${limit}` に設定しました。",
+	commandlimit_reset_success: "`${command}` のレート制限をリセットしました。",
+	commandlimit_reset_missing:
+		"`${command}` にレート制限は設定されていません。",
+	commandlimit_list_title: "設定済みのコマンドレート制限",
+	commandlimit_list_item: "- `${command}`: ${limit}",
+	commandlimit_list_empty:
+		"このサーバーにはコマンドのレート制限が設定されていません。",
+	commandlimit_rate_limited:
+		"このコマンドの制限に達しました。${time} 後に再試行してください。",
+
+	// /perm roles
+	perm_roles_created_role: "以下の役割が作成されました：${roles}",
+	perm_roles_already_upate: "すべての役割が既に存在し、最新の状態です。",
+	perm_roles_error: "役割の作成または更新中にエラーが発生しました。",
+	perm_roles_not_owner:
+		"サーバーの所有者のみが権限レベルのロールを追加できます。",
+
+	// /perm edit-roles
+	perm_edit_roles_command_ok:
+		"権限 ${permName} のロールが ${strRole} に変更されました",
+
+	// /toggle-react
+	toggle_react_command_work:
+		"<@${authorId}>, メンバーが歓迎メッセージを送信すると、ボットは **{activeMsg}**",
+	toggle_react_doesnt_react: "もう反応しません",
+	toggle_react_react: "反応します",
+
+	// /remove-react
+	remove_react_command_work:
+		"<@${authorId}>, メンバーが `${message}` を送信すると、ボットは **もう反応しません**.",
+
+	// /add-react
+	add_react_command_err_emojis:
+		"リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！",
+	add_react_command_err_message:
+		"リアクションを発動させるメッセージを指定してください！",
+	add_react_command_work:
+		"<@${authorId}>, メンバーが `${message}` を送信すると、ボットは **{emoji} で反応します**.",
+
+	// /list-react
+	list_react_nothing_found:
+		"データが見つかりませんでした。まずいくつか追加してください。",
+	list_react_embed_msg:
+		"誰かが **`${key}`** を送信すると、私は **${value} で反応します**\n",
+
+	// /autoreact
+	autoreact_embed_title: "オートリアクト設定",
+	autoreact_embed_desc:
+		"指定したチャンネルに新しいメッセージが送信されると、ボットは指定された絵文字でリアクションします。",
+	autoreact_embed_autofields_value: "リアクション: ${reaction}",
+	autoreact_embed_autofields_none_value: "オートリアクト設定はありません。",
+	autoreact_embed_footer:
+		"ページ ${currentPage} / ${totalPage} • 合計リアクション: ${totalReact}",
+	autoreact_btn_add_name: "チャンネルを追加",
+	autoreact_btn_remove_name: "チャンネルを削除",
+	autoreact_max_25: "オートリアクト設定は最大25個までです。",
+	autoreact_menu_add_place: "追加するチャンネルを選択",
+	autoreact_awaiting1_msg:
+		"オートリアクトモジュールに追加するチャンネルを選択してください。",
+	autoreact_modal_title: "オートリアクト設定",
+	autoreact_modal_fields1_label: "リアクション (絵文字)",
+	autoreact_invalid_emoji:
+		"無効な絵文字です。有効な絵文字を入力してください。",
+	autoreact_add_command_ok: "オートリアクト設定が完了しました。",
+	autoreact_remove_not_found: "オートリアクト設定はありません。",
+	autoreact_menu_remove_place: "削除するチャンネルを選択",
+	autoreact_awaiting_remove_msg:
+		"オートリアクトモジュールから削除するチャンネルを選択してください。",
+	autoreact_remove_command_ok:
+		"このチャンネルのオートリアクト設定が削除されました。",
+
+	// Member Count commands
+	// /setmembercount
+
+	// /setmembercount
+	setmembercount_not_admin:
+		":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！",
+	setmembercount_helpembed_title: "メンバーカウント設定ヘルプ！",
+	setmembercount_helpembed_description:
+		"/membercount <有効 / 無効> <チャンネル名>",
+	setmembercount_helpembed_fields_name: "使い方",
+	setmembercount_helpembed_fields_value:
+		"{MemberCount} = サーバーのメンバー数\n{RolesCount} = ロール数\n{BotCount} = サーバーのボット数\n{ChannelCount} = サーバーのチャンネル数\n{BoostCount} = サーバーのブースト数\n{VoiceCount} = サーバーのボイスチャンネルにいるメンバーの総数\n{OnlineCount} = サーバーのオンラインメンバーの総数",
+	setmembercount_logs_embed_title_on_enable: "メンバーカウントログ",
+	setmembercount_logs_embed_description_on_enable:
+		"<@${authorId}>さんが <#${channelId}> チャンネルのメンバーカウントを ${messagei} に設定しました！",
+	setmembercount_command_work_on_enable:
+		"${emoji_Yes} | メンバーカウントを設定しました。",
+	setmembercount_command_work_on_disable:
+		"${emoji_Yes} | メンバーカウントを削除しました。",
+	setmembercount_logs_embed_title_on_disable: "メンバーカウントの設定ログ",
+	setmembercount_logs_embed_description_on_disable:
+		"<@${authorId}>さんがこのサーバーのメンバーカウントを削除しました！",
+
+	// Music commands
+	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
+
+	music_cannot:
+		"${emoji_No} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！",
+
+	// /p
+	p_not_in_voice_channel:
+		"このコマンドを使用するには、ボイスチャンネルに接続する必要があります！",
+	p_embed_title: "検索結果がありません",
+	p_loading_message: "${emoji_Timer}  {result}をロード中！",
+	p_duration: "再生時間：",
+	p_not_allowed:
+		"このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Soundcloudなど、許可された音楽ストリーミングサービスを使用してください。",
+	p_attachment_too_large:
+		"${emoji_No} 添付ファイルが10MBの上限を超えているため、読み込めません。",
+
+	// /loop
+	loop_no_queue: "キューがありません！",
+	loop_command_work: "{mode} | ループモードが更新されました",
+
+	// /nowplaying
+	nowplaying_no_queue: "再生中の曲はありません",
+	nowplaying_message_embed_title: "再生中の曲",
+	nowplaying_resume_button: "${author}が**音楽を再開**しました！",
+	nowplaying_pause_button: "${author}が**音楽を一時停止**しました！",
+	nowplaying_lyrics_button: "この曲の歌詞は見つかりませんでした",
+	nowplaying_stop_buttom: "${author}が**音楽を停止**しました！",
+	nowplaying_header: "${channel} で再生中",
+	nowplaying_requested_by: "リクエスト: ${user}",
+	nowplaying_paused: "一時停止中",
+	nowplaying_live: "ライブ配信",
+	nowplaying_volume: "音量 ${volume}%",
+	nowplaying_loop_off: "ループなし",
+	nowplaying_loop_track: "曲をループ",
+	nowplaying_loop_queue: "キューをループ",
+	nowplaying_queue_count: "キュー: ${count}曲",
+	nowplaying_up_next: "次の曲: ${track}",
+	nowplaying_queue_end: "キューの最後の曲です",
+	nowplaying_ended: "この曲の再生は終了しました。",
+	nowplaying_button_pause: "一時停止",
+	nowplaying_button_resume: "再開",
+	nowplaying_button_skip: "スキップ",
+	nowplaying_button_stop: "停止",
+	nowplaying_button_lyrics: "歌詞",
+	nowplaying_button_open: "開く",
+	nowplaying_skip_button: "${author}が曲を**スキップ**しました！",
+	nowplaying_loop_button:
+		"${author}がループモードを変更しました: **${mode}**",
+
+	// /pause
+	pause_no_queue:
+		"${emoji_Warning_Icon} - ボイスチャンネルに接続していません！",
+	pause_nothing_playing: "再生中の曲はありません",
+	pause_var_paused: "一時停止",
+	pause_var_err: "何かがうまくいかなかった",
+
+	// /resume
+	resume_nothing_playing: "再生中の曲はありません",
+	resume_command_work: "再生が再開されました",
+
+	// /skip
+	skip_not_in_voice_channel:
+		"${emoji_Warning_Icon} - ボイスチャンネルに接続していません！",
+	skip_nothing_playing: "再生中の曲はありません",
+	skip_command_work: "{queue} をスキップしました",
+
+	// /stop
+	stop_nothing_playing: "再生中の曲はありません",
+	stop_command_work: "キューが停止されました",
+
+	// /queue
+	queue_iam_not_voicec: "私はボイスチャンネルにいません",
+	queue_no_queue: "キューがありません",
+	queue_empty_queue: "キューにはもうトラックがありません",
+	queue_embed_title: "キューされた曲",
+	queue_embed_description_empty: "**もうキューされた曲はありません**",
+	queue_embed_footer_text: "ページ {index} | 合計 {track} トラック",
+
+	// /shuffle
+	shuffle_no_queue: "私はボイスチャンネルにいません",
+	shuffle_no_enought: "キューには **十分なトラックがありません**",
+	shuffle_command_work: "キューを**シャッフル**しました",
+
+	// /music history
+	history_no_entries: "このコンペティションにはエントリーがありません。",
+	history_embed_title: "${guildName}の音楽履歴 | ページ ${page}",
+	history_embed_footer_text: "iHorizon | ページ ${page}/${pageCount}",
+	history_delete_embed_title: "✅ 履歴を削除しました",
+	history_delete_embed_desc: "音楽の履歴が正常に削除されました。",
+
+	// /music lyrics
+	lyrics_embed_title_unknown: "不明なタイトル",
+	lyrics_embed_author_name_unknown: "不明な著者",
+	lyrics_not_found: "歌詞が見つかりません",
+
+	// /music clear-queue
+	clear_queue_command_ok:
+		"${emoji_Security} | このDiscordサーバーの音楽キューはクリアされました。",
+
+	// /music trackinfo
+	music_requested_by: "要求者",
+	music_visit_here: "ここをクリック",
+	music_lyrics: "歌詞",
+	music_link_here: "リンクをクリック: [クリック]({link})",
+
+	music_volume_command_ok:
+		"${emoji_Yes} **音量を** `${query}`% **に設定しました**",
+
+	// Giveaway commands
+	// /end, /start, /reroll
+
+	// /end
+	end_not_admin: "このギブアウェイを終了するための権限が必要です。",
+	end_not_find_giveaway: "`${gw}`のギブアウェイが見つかりませんでした。",
+	end_confirmation_message:
+		"ギブアウェイはあと${timeEstimate}秒で終了します...",
+	end_logs_embed_title: "ギブアウェイのログ",
+	end_logs_embed_description:
+		"<@${authorId}>がこのIDでギブアウェイを終了しました: ${messageId}",
+	end_command_error: "このギブアウェイはすでに終了しています！",
+
+	// /start
+	start_not_perm:
+		"ギブアウェイを開始するには、メッセージを管理する権限が必要です。",
+	start_is_not_valid: "有効な受賞者の数を指定する必要があります！",
+	start_confirmation_command:
+		"${giveawayChannel}でギブアウェイが開始されました！",
+	start_logs_embed_title: "ギブアウェイのログ",
+	start_logs_embed_description:
+		"<@${authorId}>が${giveawayChannel}でギブアウェイを開始しました。",
+	start_time_not_valid:
+		"${author}、指定したギブアウェイの期間が無効です。もう一度試してみてください！",
+	start_invalid_invites_req_value:
+		"${emoji_No} | 「招待」の値が無効です！ギブアウェイに参加するために招待数を指定する必要があります！",
+	start_invalid_messages_req_value:
+		"${emoji_No} | 「メッセージ」の値が無効です！ギブアウェイに参加するためにメッセージ数を指定する必要があります！",
+	start_invalid_roles_req_value:
+		"${emoji_No} | 「役割」の値のロールが見つかりません！ギブアウェイに参加するためにロールIDを指定する必要があります！",
+
+	// /reroll
+	reroll_not_perm:
+		"このギブアウェイを終了するためには、メッセージを管理する権限が必要です。",
+	reroll_dont_find_giveaway:
+		"`{args}` に対応するギブアウェイが見つかりませんでした。",
+	reroll_command_work: "ギブアウェイが再開されました！",
+	reroll_logs_embed_title: "ギブアウェイログ",
+	reroll_logs_embed_description:
+		"<@${authorId}> がこのIDのギブアウェイを再開しました：${messageId}",
+	reroll_command_error: "エラー！",
+	reroll_giveaway_not_over: "このプレゼントは終了していません！",
+
+	// /get-all
+	gw_getall_embed_title: "${guildName}のギブアウェイリスト",
+	gw_getall_embed_fields:
+		"${Channel} [こちらをご覧ください](${MessageURL}) \n**有効期限** ${ExpireIn}",
+
+	// /get-data
+	gw_getdata_embed_title: "ギブアウェイ情報！",
+	gw_getdata_embed_fields_channel: "チャンネル",
+	gw_getdata_embed_fields_amountWinner: "当選者数",
+	gw_getdata_embed_fields_value_amountWinner: "`${winnerCount}`人の当選者",
+	gw_getdata_embed_fields_prize: "賞品",
+	gw_getdata_embed_fields_value_prize: "`${prize}`",
+	gw_getdata_embed_fields_hostedBy: "主催者",
+	gw_getdata_embed_fields_isEnded: "終了済み？",
+	gw_getdata_embed_fields_isValid: "有効？",
+	gw_getdata_embed_fields_time: "終了日時",
+	gw_getdata_embed_fields_entriesAmount: "応募数",
+	gw_getdata_embed_fields_winners: "優勝者",
+	gw_getdata_embed_fields_value_entriesAmount:
+		"**${entries}** (詳細は `/gw list-entries giveaway-id:${giveawayId}` をご利用ください)",
+	gw_getdata_yes: "`はい`",
+	gw_getdata_no: "`いいえ`",
+	gw_doesnt_exit: "景品は到達できないか、存在しません。",
+
+	// /go
+	gw_go_panel_title: "ギブアウェイパネル",
+	gw_go_panel_desc:
+		"下のメニューで設定を編集して、ギブアウェイを開始してください。",
+	gw_go_select_placeholder: "設定を編集する",
+	gw_go_opt_prize: "賞品",
+	gw_go_opt_duration: "期間",
+	gw_go_opt_winners: "当選者数",
+	gw_go_opt_requirement: "参加条件",
+	gw_go_opt_image: "プレビュー画像",
+	gw_go_channel_placeholder: "ギブアウェイのチャンネル",
+	gw_go_launch_buttontitle: "開始",
+	gw_go_cancel_buttontitle: "キャンセル",
+	gw_go_req_none: "なし",
+	gw_go_req_invites: "招待数",
+	gw_go_req_messages: "メッセージ数",
+	gw_go_req_roles: "ロール",
+	gw_go_req_value_dsc: "必要な値：**${value}**",
+	gw_go_started: "${channel} でギブアウェイが開始されました！",
+	gw_go_cancelled: "パネルを閉じました。ギブアウェイは開始されていません。",
+	gw_go_expired: "ギブアウェイが開始される前に、パネルが失効しました。",
+	gw_go_need_prize:
+		"${emoji_No} | ギブアウェイを開始する前に賞品を設定してください！",
+	gw_go_need_duration:
+		"${emoji_No} | ギブアウェイを開始する前に有効な期間を設定してください！",
+	gw_go_need_winners:
+		"${emoji_No} | ギブアウェイを開始する前に有効な当選者数を設定してください！",
+	gw_go_channel_error:
+		"${emoji_No} | 選択されたチャンネルはメッセージを送信できません！",
+	gw_go_invalid_image: "${emoji_No} | この画像のURLは無効です！",
+	gw_go_modal_prize: "賞品を設定",
+	gw_go_modal_prize_label: "賞品",
+	gw_go_modal_duration: "期間を設定",
+	gw_go_modal_duration_label: "期間（例：2d または 12h30）",
+	gw_go_modal_winners: "当選者数を設定",
+	gw_go_modal_winners_label: "当選者数",
+	gw_go_modal_req_title: "参加条件",
+	gw_go_modal_req_type_label: "条件の種類",
+	gw_go_modal_req_value_label: "条件の値（ロールIDまたは数値）",
+	gw_go_modal_image: "プレビュー画像を設定",
+	gw_go_modal_image_label: "画像のURL",
+
+	// Moderation commands
+	// /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
+	// /unban, /tempmute, /unmute
+
+	// /avatar
+	avatar_embed_description: "素晴らしいアバターをご覧ください！ :D",
+	avatar_embed_title: "__**アバター**__: `${mentionedUserUsername}`",
+
+	// /ban
+	ban_not_permission: "${emoji_No} | メンバーをBANする権限がありません。",
+	ban_dont_found_member: "🔍 | そのメンバーが見つかりません",
+	ban_dont_have_perm_myself:
+		"${emoji_No} | 私にはメンバーをBANする権限がありません！",
+	ban_try_to_ban_yourself:
+		"${emoji_No} | 自分自身をBANすることはできません！",
+	ban_attempt_ban_higter_member:
+		"${emoji_Stop} あなたよりも高い役職のユーザーをBANすることはできません...",
+	ban_cant_ban_member: "${emoji_No} | そのメンバーをBANすることができません",
+	ban_message_to_the_banned_member:
+		"あなたはこのサーバー `${guildName}` からBANされました。理由: **`${reason}`**",
+	ban_command_work:
+		"<@${memberId}> が <@${authorId}> によってBANされました。",
+	ban_logs_embed_title: "BANログ",
+	ban_logs_embed_description:
+		"<@${authorId}> によって <@${memberId}> がBANされました。",
+
+	// /kick
+	kick_not_permission: "${emoji_No} | メンバーをキックする権限がありません。",
+	kick_dont_have_permission:
+		"${emoji_No} | メンバーをキックする権限がありません！",
+	kick_attempt_kick_your_self:
+		"${emoji_No} | 自分自身をキックすることはできません！",
+	kick_attempt_kick_higter_member:
+		"${emoji_Stop} 自分よりも権限が高いユーザーをキックすることはできません...",
+	kick_message_to_the_banned_member:
+		"あなたは `${authorUsername}` によって、このサーバー：**${guildName}** からキックされました。",
+	kick_command_work: "${author} によって ${member} がキックされました。",
+	kick_logs_embed_title: "キックログ",
+	kick_logs_embed_description:
+		"<@${authorId}> によって ${member} がキックされました。",
+
+	// /clear
+	clear_dont_have_permission:
+		"${emoji_No} | `MANAGE_MESSAGES` の権限がありません。",
+	clear_max_message_limit:
+		"${emoji_No} | 一度に99以上のメッセージを削除することはできません！",
+	clear_channel_message_deleted:
+		"${messageCount} 個のメッセージが削除されました！",
+	clear_confirmation_message:
+		"${messageCount} 個のメッセージが削除されました！",
+	clear_logs_embed_title: "メッセージクリアログ",
+	clear_logs_embed_description:
+		"<@${authorId}> が <#${channelId}> で ${messageCount} 個のメッセージをクリアしました。",
+	clear_command_no_message:
+		"このチャンネルには削除できるメッセージがありません",
+
+	// /lock
+	lock_embed_message_description:
+		"<@${authorId}> によってチャンネルがロックされました。",
+	lock_dont_have_permission:
+		"${emoji_No} | チャンネルをロックする権限がありません。",
+	lock_logs_embed_title: "ロックログ",
+	lock_logs_embed_description:
+		"<@${authorId}> によって <#${channelId}> がロックされました。",
+
+	// /unlock
+	unlock_embed_message_description:
+		"チャンネルが正常にアンロックされました！",
+	unlock_dont_have_permission:
+		"${emoji_No} | チャンネルをアンロックする権限がありません。",
+	unlock_logs_embed_title: "アンロックログ",
+	unlock_logs_embed_description:
+		"<@${authorId}> が <#${channelId}> をアンロックしました。",
+
+	// /lockall
+	lockall_dont_have_permission:
+		"${emoji_No} | 全てのチャンネルをロックする権限がありません。",
+	lockall_embed_message_description:
+		"全てのチャンネルが <@${authorId}> によってロックされました。",
+	lockall_logs_embed_title: "ロックオールログ",
+	lockall_logs_embed_description:
+		"<@${authorId}> が全てのチャンネルをロックしました！",
+
+	// /unlockall
+	unlockall_embed_message_description:
+		"全てのチャンネルが <@${authorId}> によってアンロックされました。",
+	unlockall_logs_embed_title: "アンロックオールログ",
+	unlockall_logs_embed_description:
+		"<@${authorId}> が全てのチャンネルをアンロックしました！",
+
+	// /unban
+	unban_dont_have_permission:
+		"${emoji_No} | メンバーをアンバンする権限がありません。",
+	unban_bot_dont_have_permission: "${emoji_No} | 私には権限がありません。",
+	unban_there_is_nobody_banned:
+		"${emoji_No} | **このサーバーから誰もBANされていません！**",
+	unban_the_member_is_not_banned:
+		"${emoji_No} | **指定されたIDは、このサーバーからBANされていません！**",
+	unban_is_now_unbanned:
+		"<@${userID}> はこのサーバーからアンバンされました！",
+	unban_logs_embed_title: "アンバンログ",
+	unban_logs_embed_description:
+		"<@${authorId}>によって<@${userID}>がサーバーからアンバンされました！",
+	unban_reason: "理由が提供されませんでした。",
+
+	// /tempmute
+	tempmute_dont_have_permission:
+		"${emoji_No} | メンバーを一時的にミュートする権限がありません。",
+	tempmute_i_dont_have_permission: "${emoji_No} | 私には権限がありません。",
+	tempmute_cannot_mute_yourself:
+		"${emoji_No} | 自分自身をミュートすることはできません！",
+	tempmute_already_muted: "このユーザーはすでにミュートされています！",
+	tempmute_command_work:
+		"<@${tomuteId}> は ${duration} の間ミュートされました\n**理由**: `${reason}`",
+	tempmute_unmuted_by_time: "<@${tomuteId}>さんがミュート解除されました！",
+	tempmute_logs_embed_title: "Tempmute Logs",
+	tempmute_logs_embed_description:
+		"<@${authorId}> が <@${tomuteId}> を ${duration} の間ミュートしました\n**理由**: `${reason}`",
+	tempmute_reason_create_roles:
+		"一時ミュートのミュート役職を作成してください！",
+	tempmute_tomute_is_admin:
+		"${emoji_No} | ユーザーは管理者権限を持っているため、ミュートできません。",
+	tempmute_tomute_highest_role_or_same:
+		"${emoji_No} | **このサーバーでの私の役職は ${tomute} と同じかそれ以下です。このメンバーをモデレートできません。**",
+	tempmute_cannot_mute_higher_role:
+		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	tempmute_tomute_max_time_passed:
+		"\n-# ${emoji_VC_OpenChat} Discordではミュートの制限は28日です。28日を適用しました。",
+
+	// /temprole
+	temprole_dont_have_permission:
+		"${emoji_No} | メンバーに一時ロールを追加する権限がありません。",
+	temprole_i_dont_have_permission: "${emoji_No} | 私には権限がありません。",
+	temprole_cannot_add_yourself:
+		"${emoji_No} | 自分に一時ロールを追加することはできません！",
+	temprole_already_has_role:
+		"このユーザーはすでにこの一時ロールを持っています！",
+	temprole_command_work:
+		"<@${tomuteId}> に ${duration} の間ロールが付与されました\n**理由**: `${reason}`",
+	temprole_removed_by_time: "<@${tomuteId}> の一時ロールが削除されました！",
+	temprole_logs_embed_title: "一時ロールログ",
+	temprole_logs_embed_description:
+		"<@${authorId}> が <@${tomuteId}> に ${duration} の一時ロールを追加しました\n**理由**: `${reason}`",
+	temprole_tomute_is_admin:
+		"${emoji_No} | このユーザーは管理者権限を持っているため、一時ロールを付与できません。",
+	temprole_tomute_highest_role_or_same:
+		"${emoji_No} | **私の役職はこのサーバーで ${tomute} と同じか下のため、このメンバーを管理できません。**",
+	temprole_tomute_max_time_passed:
+		"\n-# ${emoji_VC_OpenChat} 一時ロールの最大期間は1年です。1年を適用しました。",
+
+	// /unmute
+	unmute_dont_have_permission:
+		"${emoji_No} | メンバーをミュート解除する権限がありません。",
+	unmute_attempt_mute_your_self:
+		"${emoji_No} | 自分自身をミュートすることはできません！",
+	unmute_i_dont_have_permission: "${emoji_No} | 私には権限がありません。",
+	unmute_not_muted: "このユーザーはミュートされていません！",
+	unmute_muted_role_doesnt_exist:
+		"`muted` 役職が存在しません。ミュート役職を作成してから、ユーザーをミュートしてください...",
+	unmute_command_work: "<@${tomuteId}>さんがミュート解除されました！",
+	unmute_logs_embed_title: "Unmute Logs",
+	unmute_logs_embed_description:
+		"<@${authorId}>さんが<@${tomuteId}>さんのミュートを解除しました。",
+	unmuteall_no_muted_members:
+		"ミュートされているメンバーは見つかりませんでした。",
+	unmuteall_audit_reason: "全員のミュート解除",
+	unmuteall_command_work:
+		"${unmuted}/${total} 人のメンバーのミュートを解除しました。",
+	unmuteall_logs_embed_title: "全員ミュート解除ログ",
+	unmuteall_logs_embed_description:
+		"<@${authorId}>さんが ${unmuted}/${total} 人のメンバーのミュートを解除しました。",
+
+	// /warn
+	warn_command_work:
+		"${emoji_Yes} ${member} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`",
+	warn_logEmbed_title: "警告ログ",
+	warn_logEmbed_desc:
+		"${author} が ${member} に警告しました。理由：`${reason}`",
+	warn_dont_have_permission:
+		"${emoji_No} | このDiscordサーバーでメンバーに警告を与える権限がありません。",
+
+	// /unwarn
+	unwarn_cannot_found:
+		"${emoji_No} ${member} はデータベースに警告が見つかりません！",
+	unwarn_cannot_found_id:
+		"${emoji_No} ${member} 提供された警告IDはデータベースにありません",
+	unwarn_command_ok: "${emoji_Yes} ${member} の警告が解除されました！",
+	unwarn_logEmbed_title: "警告解除ログ",
+	unwarn_logEmbed_desc: "${author} が ${member} の警告を解除しました",
+	unwarn_dont_have_permission:
+		"${emoji_No} | このDiscordサーバーでメンバーの警告を削除する権限がありません。",
+
+	// /clear-allwarns
+	clear_allwarns_confirmation_message:
+		"**本当にすべての警告データを削除してもよろしいですか？ このアクションは永続的であり、元に戻すことはできません。** **このアクションは破壊的です!!**",
+	clear_allwarns_command_ok:
+		"このDiscordサーバーのすべての警告が削除されました。",
+
+	// /warnlist
+	warnlist_no_data:
+		"${emoji_No} ${member} はデータベースに警告が見つかりません！",
+	warnlist_embed_desc:
+		"### ID：${id} - ${date}\n> 作成者：<@${authorID}>\n> 理由：`${reason}`",
+	warnlist_embed_title: "${memberGlobalName} の警告リスト | ページ ${page}",
+	warnlist_dont_have_permission:
+		"${emoji_No} | このDiscordサーバーでメンバーの警告を管理する権限がありません。",
+
+	// /baninfo
+	baninfo_not_banned: "ユーザーはBANされていません",
+	baninfo_ban_info: "BAN情報",
+	baninfo_user_not_found: "ユーザーが見つかりません",
+	var_banned_by: "BAN実行者",
+	var_ban_date: "BAN日時",
+
+	// /警告クリア
+	clearwarn_command_ok:
+		"${emoji_Yes} ${author}、${member} の **`${allWarnCount}`** 件の警告が削除されました。",
+
+	// /tempban
+	tempban_dont_have_permission: "メンバーを一時的にBANする権限がありません。",
+	tempban_i_dont_have_permission: "メンバーをBANする権限がありません。",
+	tempban_cannot_ban_yourself: "自分自身をBANすることはできません！",
+	tempban_already_banned: "このユーザーはすでに一時的にBANされています！",
+	tempban_command_work:
+		"**<@${userId}>** は **${duration}** の間、一時的にBANされました\n**理由**: `${reason}`",
+	tempban_unbanned_by_time: "**<@${userId}>** のBANが解除されました！",
+	tempban_logs_embed_title: "一時BANログ",
+	tempban_logs_embed_description:
+		"**<@${executorId}>** が **<@${userId}>** を **${duration}** 一時的にBANしました\n**理由**: `${reason}`",
+	tempban_user_is_admin:
+		"ユーザーは管理者権限を持っているため、BANできません。",
+	tempban_user_highest_role_or_same:
+		"私のサーバーでのロールが **user_mention** と同じか低いため、このメンバーをモデレートできません。",
+	tempban_max_time_passed:
+		"\n*一時BANの最長期間は1年です。1年を適用しました。*",
+	tempban_user_not_in_guild:
+		"このユーザーはサーバーにいませんが、BANは可能です。",
+
+	// Backup commands
+	// /backup
+
+	// /backup
+	backup_wait_please: "⏲ お待ちください...",
+	backup_not_admin:
+		":x: | サーバーの管理者でなければ、バックアップの作成を要求できません！",
+	backup_i_dont_have_permission: "私には `ADMINISTRATOR` 権限がありません。",
+	backup_command_work_on_creation:
+		":white_check_mark: バックアップが正常に作成されました。",
+	backup_command_work_info_on_creation:
+		"バックアップが作成されました！ID: `${id}`!",
+	backup_logs_embed_title_on_creation: "Backup Logs",
+	backup_logs_embed_description_on_creation:
+		"<@${authorId}>さんがバックアップを作成しました！",
+	backup_dont_have_perm_on_load:
+		":x: | バックアップを読み込むためには、サーバーの管理者である必要があります！",
+	backup_i_dont_have_perm_on_load: "管理者権限が必要です。",
+	backup_unvalid_id_on_load:
+		":x: | 有効なバックアップIDを指定する必要があります！",
+	backup_waiting_on_load: "${emoji_Yes} - 読み込み中...",
+	backup_error_on_load:
+		":x: | 申し訳ありませんが、エラーが発生しました... 管理者権限を持っているか確認してください！",
+	backup_error_when_fetch_backup_on_load:
+		":x: | ${backupID} のバックアップは見つかりませんでした！",
+	backup_this_is_not_your_backup:
+		"${emoji_No} | これはあなたのバックアップではありません！",
+	backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。",
+	backup_string_see_v:
+		":placard:・カテゴリ数: `${categoryCount}`\n:hash:・チャンネル数: `${channelCount}`",
+	backup_all_of_your_backup: "**すべてのバックアップ:**",
+	backup_string_see_another_v:
+		":placard:・カテゴリ数: `${categoryCount}`\n:hash:・チャンネル数: `${channelCount}`",
+	backup_load_confirm:
+		"${author},\n# 非常に危険な操作\n# このバックアップをロードしてもよろしいですか？\n現在のサーバーのすべてのチャンネル、役職、絵文字、禁止、設定...が置き換えられます。\nこの操作は元に戻せません！",
+	backup_not_load:
+		"バックアップはロードされませんでした。リクエストにより操作がキャンセルされました。",
+
+	// /backup delete
+	backup_really_want:
+		"${emoji_Warning_Icon} 本当にこのバックアップを削除しますか？",
+	backup_confirm_button: "はい、このバックアップを削除します",
+	backup_cancel_button: "アクションをキャンセル",
+	backup_embed_title_succefully_deleted:
+		"${emoji_Yes} バックアップは正常に削除されました！",
+	backup_embed_title_cancel_deletion:
+		"${emoji_Yes} バックアップは保持されました！",
+	backup_embed_title_timesup_deletion:
+		"${emoji_No} 時間切れです。バックアップは保持されました！",
+
+	// /backup manage
+	backup_manage_nique_tes_mort:
+		"アクセスが拒否されました。このコマンドはサーバー所有者専用です。\n# サーバーのセキュリティを損なうためにバックアップ保護を無効にすることはできません。\n# すべての悪用試行は報告され、ブロックされます。",
+	backup_manage_admin: "すべての管理者",
+	backup_manage_owner: "サーバー所有者",
+	backup_manage_command_ok:
+		"バックアップモジュールが更新されました。これからは、${allowed_user_string} がこのサーバーでバックアップの作成・読み込みを実行できます。",
+
+	// Role Reactions
+	// /reactionroles
+
+	// /reactionroles
+	reactionroles_dont_admin_added:
+		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
+	reactionroles_embed_message_description_added:
+		"__使い方__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`",
+	reactionroles_missing_reaction_added:
+		"引数が足りません：リアクションの絵文字",
+	reactionroles_invalid_emote_format_added:
+		"${emoji_No} | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！",
+	reactionroles_logs_embed_title_added: "ReactionRoles ログ",
+	reactionroles_logs_embed_description_added:
+		"<@${authorId}> がリアクションロールを設定しました：メッセージ： `${messagei}` | リアクション： `${reaction}` | 役割： ${role}",
+	reactionroles_command_work_added:
+		"${reaction} が ${role} を与えるために ${messagei} のメッセージに追加されました",
+	reactionroles_missing_remove: "引数が足りません：リアクションの絵文字",
+	reactionroles_missing_reaction_remove:
+		"データベース上でリアクションロールが見つかりません...",
+	reactionroles_cant_fetched_reaction_remove:
+		"このメッセージから対象のリアクションを取得できません！",
+	reactionroles_logs_embed_title_remove: "ReactionRoles ログ",
+	reactionroles_logs_embed_description_remove:
+		"<@${authorId}> がリアクションロールを削除しました：メッセージ： `${messagei}` | リアクション： `${reaction}`",
+	reactionroles_command_work_remove:
+		"${reaction} が ${messagei} のメッセージから削除されました",
+	reactionroles_dont_message_found:
+		"現在のメッセージIDでメッセージを取得できません。または、選択した絵文字が私がいるサーバーにありません!",
+
+	// /buttonreaction
+	buttonreaction_logs_embed_title_added: "ButtonReactionログ",
+	buttonreaction_logs_embed_description_added:
+		"<@${authorId}> がボタンでリアクションを設定しました: メッセージ: `${messagei}` | リアクション: `${reaction}` | ロール: ${role}",
+	buttonreaction_dont_message_found:
+		"このボタンを追加できません。役割は既存のボタンに設定されているようです！",
+	buttonreaction_roles_not_found:
+		"引数が不足しています: 設定する役割を指定していません！",
+	buttonreaction_message_other_user_error:
+		"Discordでは、ボットが他のユーザーのメッセージのコンポーネントを変更することはできません。私が送信したメッセージを選択する必要があります。ヒント: `/utils embed` を使って、自分の美しい埋め込みを作成してください！",
+
+	// /roleselect
+	roleselect_invalid_message_id:
+		"無効なメッセージIDが提供されました。有効なメッセージIDを入力してください。",
+	roleselect_message_not_found:
+		"指定されたチャンネルにメッセージが見つかりませんでした。",
+	roleselect_default_placeholder: "設定されたロールを選択",
+	roleselect_menu1_placeholder: "アクションを選択",
+	roleselect_menu1_add: "ロールオプションを追加",
+	roleselect_menu1_remove: "ロールオプションを削除",
+	roleselect_menu1_change_placeholder: "メニューのプレースホルダーを変更",
+	roleselect_menu1_save: "設定を保存して適用",
+	roleselect_menu1_cancel: "キャンセル",
+	roleselect_menu1_embed_title: "ロール選択の設定",
+	roleselect_menu1_embed_description:
+		"ユーザーがメニューからオプションを選択すると、指定されたロールが付与されます。",
+	roleselect_modal1_title: "ロールオプションを追加",
+	roleselect_modal1_fields1_label: "絵文字",
+	roleselect_modal1_fields1_placeholder:
+		"このロールオプションの絵文字を選択（任意）",
+	roleselect_modal1_fields2_label: "オプションタイトル",
+	roleselect_modal1_fields2_placeholder: "ロールオプションの短いタイトル",
+	roleselect_modal1_fields3_label: "説明",
+	roleselect_modal1_fields3_placeholder: "ロールオプションを説明する（任意）",
+	roleselect_awaiting1_msg:
+		"このオプションに対するロールを選択してください。",
+	roleselect_awaiting1_menu_placeholder: "ロールを選択",
+	roleselect_role_already_exist: "そのロールは既に設定されています。",
+	roleselect_no_role_found: "削除するロールオプションが見つかりません。",
+	roleselect_all_role_removed: "すべてのロールオプションが削除されました。",
+	roleselect_last_role_removed:
+		"最後のロールオプションが正常に削除されました。",
+	roleselect_save_command_ok: "ロール選択の設定が正常に保存されました！",
+	roleselect_failed_to_save_config:
+		"設定の保存に失敗しました。もう一度お試しください。",
+	roleselect_canceled_command_ok: "ロール選択の設定がキャンセルされました。",
+	roleselect_modal2_title: "メニュープレースホルダー",
+	roleselect_modal2_label: "プレースホルダー",
+	roleselect_modal2_placeholder: "選択メニューのプレースホルダー",
+
+	// New feature commands
+	// /punishpub, /report, /support
+
+	// /punishpub
+	punishpub_not_admin:
+		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
+	punishpub_too_hight_enable: "許容範囲を超えています！お勧めできません！",
+	punishpub_negative_number_enable: "負の数を入力することはできません！",
+	punishpub_zero_number_enable: "0は不可能です！",
+	punishpub_confirmation_message_enable:
+		"PunishPubを最大フラグ数**${amount}**と罰則**${punishement}**で**有効化**しました！",
+	punishpub_logs_embed_title: "PunishPubログ",
+	punishpub_logs_embed_description:
+		"<@${authorId}> は最大フラグ数${amount}で${punishement}罰則のPunishPUBをオンに設定しました！",
+	punishpub_confirmation_disable: "PunishPubをオフに設定しました",
+	punishpub_logs_embed_title_disable: "PunishPubログ",
+	punishpub_logs_embed_description_disable:
+		"<@${authorId}> はPunishPUBをオフに設定しました！",
+
+	// /report
+	report_cooldown_command:
+		"**${time}**待ってからこのコマンドを実行してください！",
+	report_owner_need:
+		":x: | **このコマンドを実行するには、サーバーのオーナーである必要があります！**",
+	report_specify: "バグを指定してください。良い文章を作成してください！",
+	report_command_work: "**バグを報告してくれてありがとう！**",
+
+	// /support
+	support_not_admin:
+		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
+	support_command_work:
+		"**${guildName}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${rolesId}>役割を与えるべきです！",
+	support_command_work_on_disable:
+		"**${guildName}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！",
+	support_command_not_role: ":x: | 役割を指定していません！",
+	support_command_not_type:
+		":x: | ユーザープロフィールで希望するサポートタイプが指定されていません（bio = 自己紹介。例: サーバーリンク、tag = サーバーのDiscordタグ）!",
+	support_command_guild_not_have_tag:
+		":x: | このサーバーには現在タグがありません。",
+	support_command_work_2:
+		"${guildName} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${rolesId}> のロールを付与します！",
+
+	// /setserverlang
+
+	updates_embed_title: "iHorizon アップデート",
+	updates_embed_description: "iHorizonの最新の変更とアップデートです。",
+	updates_field_version: "バージョン",
+	updates_field_commit: "最新コミット",
+	updates_field_branch: "ブランチ",
+	updates_field_links: "リンク",
+	updates_changelog_attached: "完全なチェンジログはPDFで添付されています。",
+	newsletter_dm_title: "iHorizon {version} - Release Notes",
+	newsletter_dm_body:
+		"{owner}さん、こんにちは。\n\niHorizonの新しいメジャーバージョンがデプロイされました。\n\n**バージョン**: {version}\n**リリース**: {releaseUrl}\n\n完全なチェンジログはPDFで添付されています。\n\nヘルプが必要ですか？サポートサーバーに参加してください: https://discord.gg/ihorizon\n-# +updates を使用するか、下のボタンで購読を管理してください。",
+	newsletter_btn_unsubscribe: "Unsubscribe from newsletter",
+	newsletter_btn_subscribe: "Subscribe to newsletter",
+	newsletter_not_owner:
+		"あはは、私のコードの変更をリアルタイムで見たいと思ってくれるなんて嬉しいよ :3\n\n**でもね、まずは私をDiscordサーバーに追加してね：**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**そうすれば最新情報をお届けするよ。**\n\n> 別の方法：discord.gg/ihorizon に参加することもできるよ。創設者たちがアップデートのたびにチェンジログをピンしてくれるんだ。お好きな方を選んでね :3",
+	newsletter_toggle_enabled: "Newsletter notifications enabled.",
+	newsletter_toggle_disabled: "Newsletter notifications disabled.",
+	setserverlang_not_admin:
+		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
+	setserverlang_logs_embed_title_on_enable: "SetServerLangログ",
+	setserverlang_logs_embed_description_on_enable:
+		"<@${authorId}>はiHorizonの言語を**${type}**に設定しました！",
+	setserverlang_already: "既にこの言語で動作しています！",
+	setserverlang_command_work_enable: "私の言語は今**${type}**になりました",
+	setserverlang_panel_title: "言語選択",
+	setserverlang_panel_description:
+		"このサーバーでiHorizonが使用する言語を選択してください。",
+	setserverlang_panel_current: "現在の言語",
+	setserverlang_panel_select: "言語を選択...",
+	setserverlang_panel_saved: "言語が正常に変更されました！",
+	setserverlang_command_error_enable: "エラー！",
+
+	// /embed
+	embed_placeholder_string_select_menu_builder: "何をしたいですか？",
+	embed_placeholder_option_copy_embed: "埋め込みをコピー",
+	embed_placeholder_option_edit_title: "タイトルを編集",
+	embed_placeholder_option_delete_title: "タイトルを削除",
+	embed_placeholder_option_edit_description: "説明を編集",
+	embed_placeholder_option_delete_description: "説明を削除",
+	embed_placeholder_option_edit_author: "著者を編集",
+	embed_placeholder_option_delete_author: "著者を削除",
+	embed_placeholde_option_change_footer_image: "フッターアイコンを変更",
+	embed_placeholder_option_edit_footer: "フッターを編集",
+	embed_placeholder_option_delete_footer: "フッターを削除",
+	embed_placeholder_option_edit_thumbnail: "サムネイルを編集",
+	embed_placeholder_option_edit_image: "画像を編集",
+	embed_placeholder_option_edit_titleurl: "タイトルのURLを編集",
+	embed_placeholder_option_edit_color: "色を編集",
+	embed_placeholder_option_delete_color: "色を削除",
+	embed_btn_save: "埋め込みを保存",
+	embed_btn_send: "埋め込みを送信",
+	embed_btn_cancel: "キャンセル",
+	embed_interaction_not_for_you:
+		"このインタラクションはあなた向けではありません",
+	embed_first_message: "何を行いたいですか？",
+	embed_save_message:
+		"<@${authorId}>さん、**埋め込みの設定を保存しました！**```埋め込みのID：${embedId}```",
+	embed_cancel_message:
+		"<@${authorId}>さん、**埋め込みの設定を中止しました！**",
+	embed_send_message:
+		"<@${authorId}>さん、**この埋め込みをどのチャンネルに送信しますか？**",
+	embed_timeout_getbtn:
+		"<@${authorId}>さん、**回答に時間がかかりすぎました。操作を中止します！**",
+	embed_choose_0: "埋め込みに含めるメッセージは何ですか？",
+	embed_choose_1: "埋め込みに含めるタイトルは何ですか？",
+	embed_choose_2: "埋め込みのタイトルが正常に削除されました！",
+	embed_choose_3: "埋め込みに含める説明は何ですか？",
+	embed_choose_4: "埋め込みの説明が正常に削除されました！",
+	embed_choose_5: "埋め込みに含める著者は誰ですか？",
+	embed_choose_6: "埋め込みの著者が正常に削除されました！",
+	embed_choose_7: "埋め込みに含めるフッターは何ですか？",
+	embed_choose_7bis: "埋め込みメッセージのフッターアイコンを何にしますか？",
+	embed_choose_8: "埋め込みのフッターが正常に削除されました！",
+	embed_choose_9: "埋め込みに含めるサムネイルの画像は何ですか？",
+	embed_choose_10: "埋め込みに含める画像は何ですか？",
+	embed_choose_11: "埋め込みに含めるタイトルのURLは何ですか？",
+	embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.com**",
+	embed_choose_12_error:
+		"${emoji_No} | 無効な色です！ www.color-hex.comで調べてください。",
+	embed_choose_13: "埋め込みの色が正常に削除されました！",
+	embed_send_embed_work:
+		"<@${authorId}>さん、**埋め込みを正常に<#${messageContent}>チャンネルに送信しました！**",
+	embed_copy_bad_guild_msg:
+		"メッセージがあるギルドは ${guildName} と同じではありません",
+	embed_copy_bad_channel_msg:
+		"メッセージがあるチャンネルにアクセスできません！",
+	embed_copy_bad_message_msg: "メッセージにアクセスできません！",
+	embed_copy_bad_embed_message_msg: "メッセージに埋め込みがありません！",
+	embed_copy_bad_url_msg:
+		"無効なURLです。再試行してください。正しい形式は次のとおりです: https://discord.com/channels/${messageGuildId}/${channelId}/${id}",
+	embed_btn_replace: "埋め込みを置き換える",
+	embed_replace_question_msg:
+		"埋め込みを置き換える必要があるメッセージの新しいURLは何ですか？",
+	embed_replace_message:
+		"{user}、新しい埋め込みが {messageUrl} の埋め込みに置き換えられました。",
+
+	// /rolesaver
+	rolesaver_embed_title: "RoleSaverモジュール",
+	rolesaver_embed_desc:
+		"ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されます。今、彼らが再参加すると、iHorizonは彼らの役割を戻します。",
+	rolesaver_embed_fields_1_name: "有効にする",
+	rolesaver_embed_fields_2_name: "管理者ロールの再付与",
+	rolesaver_embed_fields_3_name: "タイムアウト",
+	rolesaver_on_off_already_set: "モジュールはすでに無効です！",
+	rolesaver_on_off_embed_title: "RoleSaverモジュール",
+	rolesaver_on_off_embed_desc:
+		"ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されません。iHorizonは、メンバーがサーバーに戻ってきたときに古い役割を復元しなくなります。",
+	rolesaver_on_off_embed_fields_1_name: "有効にする",
+
+	// /nigthmode
+	var_nm_role_app_dont_exist:
+		"${emoji_Warning_Icon} ボットにアプリケーションロールがありません。ボットを正しく再追加してください。\n",
+	var_nm_role_app_not_high:
+		"${emoji_Warning_Icon} ボットが最高位のロールではありません。上位に設定してください。\n",
+	var_nm_role_app_not_admin:
+		"${emoji_Warning_Icon} ボットのロールに管理者権限がありません。\n",
+	var_nm_end_main: "ナイトモードが終了します。\n\n",
+	var_nm_start_main: "ナイトモードが開始されます。\n\n",
+	var_nm_edited_roles: "以下のロールが変更されました：",
+	var_nm_running: "開始の",
+	var_nm_stopping: "停止の",
+	var_nm_running2: "開始します",
+	var_nm_stopping2: "終了します",
+	var_nm_title: "ナイトモード",
+	var_nm_ping_embed_title: "ナイトモード ${type}",
+	var_nm_ping_embed_fields_0_name: "時間帯",
+	var_nm_error_occured: "# ナイトモードの${type}中に問題が発生しました。\n",
+	nightmode_embed_desc:
+		"# ⭐️ ナイトモード\n> *ナイトモードとは？* ナイトモードは **[made by iHorizon](https://www.ihorizon.org)** によるセキュリティ機能で、指定された期間中にDiscordサーバーのすべての管理者権限を無効化できます。\n> *例：多くのスタッフがいるDiscordサーバーで、レイドやDiscord vanityスナイプなどを避けるために夜間にすべての管理者権限を削除したい場合*\n> *あなたは正しい場所にいます。**iHorizonは常に解決策です。***\n\n---\n",
+	nightmode_embed_fields_0_name: "モジュールを有効化",
+	nightmode_embed_fields_1_name: "サーバーオーナーに通知",
+	nightmode_embed_fields_2_name: "ボットを降格？",
+	nightmode_embed_fields_3_name: "ホワイトリストのボット",
+	nightmode_embed_fields_4_name: "時間帯",
+	nightmode_select_placeholder: "サーバーでナイトモードを設定してください。",
+	nightmode_select_0_label: "ナイトモードを有効化",
+	nightmode_select_0_desc: "ナイトモードを有効化/無効化します。",
+	nightmode_select_1_label: "サーバーオーナーに警告",
+	nightmode_select_1_desc: "有効化/無効化時にサーバーオーナーに通知",
+	nightmode_select_2_label: "ナイトモードの時間帯を設定",
+	nightmode_select_2_desc: "管理者権限が自動的に削除される時間帯。",
+	nightmode_select_3_label: "ボットを降格",
+	nightmode_select_3_desc: "夜間にボットを降格する必要がありますか？",
+	nightmode_select_4_label: "タイムゾーンを変更 (UTC)",
+	nightmode_select_4_desc:
+		"特定の時間がある場合は設定してください（UTC数値形式）",
+	nightmode_select1_placeholder:
+		"夜間に管理者権限を持つことを許可されたボット",
+	nightmode_change_timezone_question:
+		"DiscordサーバーのUTCを選択してください",
+	nightmode_modal_hours_window_fields0_label:
+		"開始時刻 (例: 21:30 または 2130)",
+	nightmode_modal_hours_window_fields1_label:
+		"終了時刻 (例: 06:15 または 0615)",
+	nightmode_modal_hours_window_title:
+		"ナイトモード - 時間帯 (24時間形式、分付き)",
+	nightmode_invalid_hour_morning:
+		"${emoji_No} 開始時刻が無効です。形式を使用してください: 21:30 または 2130",
+	nightmode_invalid_hour_night:
+		"${emoji_No} 終了時刻が無効です。形式を使用してください: 06:15 または 0615",
+	nightmode_utc_timezone_on: "UTCタイムゾーンを",
+
+	// /git lines
+	git_lines_avoiding_spam:
+		"申し訳ありませんが、スパムを防ぐため、表示される行数を50に制限しています",
+	git_lines_avoiding_limit:
+		"申し訳ありませんが、Discordには2000文字の制限があるため、目的のスニペットを表示できませんでした",
+	git_lines_work: "✅ Git Linesが有効になりました。",
+	git_lines_work_disabled: "❌ Git Linesが無効になりました。",
+	git_lines_borred_warning:
+		"\n-# ${emoji_VC_OpenChat} 邪魔してる？`/git lines`でこのモジュールを無効にできるよ！",
+
+	// /counter config
+	counter_config_command_action_on:
+		"${author}、カウンターモジュールを `オン` に設定しました。\nチャンネルが存在しない場合は、**/counter channel** コマンドで設定してください。",
+	counter_config_command_action_off:
+		"${author}、カウンターモジュールを `オフ` に設定しました。",
+
+	// /counter channel
+	counter_channel_embed_title: "カウンターモジュールがここに設定されました！",
+	counter_channel_embed_desc:
+		"${author} がカウンターモジュールをここに設定しました！\nユーザーはこのチャンネルでカウントできます！",
+	counter_channel_command_work:
+		"${author}、カウンターモジュールをチャンネル ${channel} に正常に設定しました！",
+	counter_channel_command_error:
+		"${author}、コマンドの実行中にエラーが発生しました。指定したチャンネルが存在し、カウンターモジュールが有効になっているか確認してください！",
+
+	counter_actual_number: "✨ **現在の数字:** {number}",
+
+	// 提案コマンド
+	// /setsuggest, /suggest
+
+	// /suggest accept
+	suggest_accept_not_admin: "あなたは管理者ではありません！",
+	suggest_acceptnot_good_channel:
+		"このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${channel}>)！\n提案モジュールが無効になっていないか確認してください！",
+	suggest_accept_not_found_db: "提案はデータベースで見つかりませんでした！",
+	suggest_accept_already_replied: "この提案はすでに回答されています！",
+	suggest_accept_embed_fields_to_put: "${authorUsername} の応答（承諾）",
+	suggest_acceptembed_title_to_put: "[承諾] ${title}",
+	suggest_accept_command_work:
+		"提案を受け入れました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+	suggest_accept_command_error:
+		"提案はDiscordのチャンネルで見つかりませんでした！",
+
+	// /suggest deny
+	suggest_deny_not_admin: "あなたは管理者ではありません！",
+	suggest_deny_not_good_channel:
+		"このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${channel}>)！\n提案モジュールが無効になっていないか確認してください！",
+	suggest_deny_not_found_db: "提案はデータベースで見つかりませんでした！",
+	suggest_deny_already_replied: "この提案はすでに回答されています！",
+	suggest_deny_embed_fields_to_put: "${authorUsername} の応答（拒否）",
+	suggest_deny_embed_title_to_put: "[拒否] ${title}",
+	suggest_deny_command_work:
+		"提案を拒否しました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+	suggest_deny_command_error:
+		"提案はDiscordのチャンネルで見つかりませんでした！",
+
+	// /suggest reply
+	suggest_reply_not_admin: "あなたは管理者ではありません！",
+	suggest_reply_not_good_channel:
+		"このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${channel}>)！\n提案モジュールが無効になっていないか確認してください！",
+	suggest_replynot_found_db: "提案はデータベースで見つかりませんでした！",
+	suggest_reply_already_replied: "この提案はすでに回答されています！",
+	suggest_reply_embed_fields_to_put: "${authorUsername} の応答",
+	suggest_reply_embed_title_to_put: "[回答済み] ${title}",
+	suggest_reply_command_work:
+		"提案に対する応答を送信しました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+	suggest_reply_command_error:
+		"提案はDiscordのチャンネルで見つかりませんでした！",
+
+	// /suggest delete
+	suggest_delete_not_delete: "あなたは管理者ではありません！",
+	suggest_delete_not_good_channel:
+		"このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${channel}>)！\n提案モジュールが無効になっていないか確認してください！",
+	suggest_delete_not_found_db: "提案はデータベースで見つかりませんでした！",
+	suggest_delete_command_work: "提案を削除しました！",
+	suggest_delete_command_error:
+		"提案はDiscordのチャンネルで見つかりませんでした！",
+
+	// /setsuggest disable
+	setsuggest_disable_not_admin: "あなたは管理者ではありません！",
+	setsuggest_disable_pw_on: "${author}、提案モジュールを有効にしました！",
+	setsuggest_disable_pw_off: "${author}、提案モジュールを無効にしました！",
+
+	// /setsuggest channel
+	setsuggest_channel_not_admin: "あなたは管理者ではありません！",
+	setsuggest_channel_already_set_with_that:
+		"${author}、提案モジュールのチャンネルは既に ${channel} に設定されています！",
+	setsuggest_channel_embed_title: "提案モジュールがここに設定されました！",
+	setsuggest_channel_embed_desc:
+		"これで、ここにメッセージを送信する許可があるすべてのユーザーは、メッセージを送信するだけで提案できます！",
+	setsuggest_channel_command_work:
+		"${author}、提案モジュールのチャンネルを ${channel} に設定しました！",
+
+	// セキュリティコマンド
+	// /セキュリティ
+
+	// /セキュリティ 無効化
+	security_disable_not_admin: "管理者ではありません！",
+	security_disable_pw_on:
+		"${author} さん、セキュリティモジュールをオンにしました！",
+	security_disable_pw_off:
+		"${author} さん、セキュリティモジュールをオフにしました。",
+
+	// /セキュリティ ロール割り当て
+	security_role_to_give_not_admin: "管理者ではありません！",
+	security_role_to_give_command_work:
+		"${author} さん、セキュリティモジュールのロールを ${role} に設定しました！",
+
+	// /セキュリティ チャンネル
+	security_channel_not_admin: "管理者ではありません！",
+	security_channel_command_work:
+		"${author} さん、セキュリティモジュールのチャンネルを ${channel} に設定しました！",
+
+	// スケジュールコマンド
+	// /schedule
+
+	// /schedule
+	schedule_menu_placeholder: "何を行いたいですか？",
+	schedule_menu_choice_0: "スケジュールを作成",
+	schedule_menu_choice_1: "スケジュールを削除",
+	schedule_menu_choice_2: "すべてのスケジュールを削除",
+	schedule_menu_choice_3: "すべてのスケジュールをリスト",
+	schedule_modal_title: "スケジュールマネージャー",
+	schedule_modal_fields_1_label: "スケジュールの名前？",
+	schedule_modal_fields_2_label: "スケジュールの説明？",
+	schedule_delete_question: "削除したいスケジュールのIDは何ですか？",
+	schedule_deleteall_question:
+		"すべてのスケジュールを削除してもよろしいですか？ (Y/n)",
+	schedule_delete_not_found:
+		"このメンバーのSCHEDULE (${arg0}) は存在しません！",
+	schedule_delete_title_embed: "スケジュールの削除 (${arg0})",
+	schedule_delete_confirm: "スケジュールが削除されました！",
+	schedule_deleteall_title_embed: "すべてのスケジュールの削除",
+	schedule_deleteall_desc_embed: "すべてのスケジュールが削除されました！",
+	schedule_deleteall_confirm: "すべてのスケジュールが削除されました！",
+	schedule_deleteall_cancel:
+		"`DELETE_ALL` アクションはキャンセルされました！",
+	schedule_list_not_schedule: "このメンバーのスケジュールはありません！",
+	schedule_list_title_embed: "すべてのスケジュールのリスト",
+	schedule_list_fields_embed:
+		"**終了時刻**: ${expiresAt}```${title}``````${description}```\n",
+	schedule_list_content_message: "これがすべてのスケジュールのリストです！",
+	schedule_create_title_embed: "スケジュールの作成",
+	schedule_create_when_question:
+		"このスケジュールについて通知を受けるタイミングはいつですか？ (例: 6d = 6日間、2h = 2時間、10m = 10分、10s = 10秒)",
+	schedule_create_not_number_time:
+		"${author}、あなたの回答（このスケジュールの通知タイミング）は数値ではありません！",
+	schedule_create_embed_fields_name_confirm: "通知日時",
+	schedule_create_embed_title_confirm:
+		"#${scheduleCode} スケジュールが作成されました！",
+	schedule_create_confirm_msg:
+		"${author}、スケジュールが作成されました！\nコード: `${scheduleCode}`",
+
+	// PFPSコマンド
+	// /pfps channel, /pfps config
+
+	// /pfps config
+	pfps_config_not_admin:
+		":x: このコマンドを実行するための管理者権限がありません",
+	pfps_config_command_action_on:
+		"${author}、あなたはPFPSモジュールを「オン」に設定しました。\nチャンネルが存在しない場合は、次のコマンドで設定してください：**/pfps channel**。",
+	pfps_config_command_action_off:
+		"${author}、あなたはPFPSモジュールを「オフ」に設定しました。",
+
+	// /pfps channel
+	pfps_channel_not_admin:
+		":x: このコマンドを実行するための管理者権限がありません",
+	pfps_channel_embed_title: "ここにPFPSモジュールが設定されています！",
+	pfps_channel_embed_desc:
+		"${author} がPFPSモジュールをここに設定しました！\nこれから30秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！",
+	pfps_channel_command_work:
+		"${author}、チャンネル${channel} にPFPSモジュールを正常に設定しました！",
+	pfps_channel_command_error:
+		"${author}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！",
+
+	// Protection Module
+	// /protect, /allowlist add, /allowlist remove, /allowlist show
+
+	// /protect panel
+	authorization_actions_not_permited:
+		"この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！",
+	authorization_actions_everyone: "誰でも",
+	authorization_actions_allowlist: "許可リストのメンバー",
+	authorization_actions_nobody: "誰も。(サーバーオーナーを除く)",
+	protect_panel_title: "Protect コントロールパネル",
+	protect_panel_desc:
+		"すべての保護ルールを設定できます。ルールの有効化・無効化、バイパスできるロールの選択、責任者に適用する制裁の設定が可能です。",
+	protect_panel_global_label: "全体制裁",
+	protect_panel_global_hint:
+		"独自の制裁を持たないすべてのルールに適用されます",
+	protect_panel_select_placeholder: "設定するルールを選択",
+	protect_panel_mode_placeholder: "このルールをバイパスできるロールを選択",
+	protect_panel_sanction_placeholder: "適用する制裁を選択",
+	protect_panel_bypass_label: "バイパス",
+	protect_panel_sanction_label: "制裁",
+	protect_panel_rule_help:
+		"このルールが発動すると、操作は自動的に元に戻され、責任者に制裁が適用されます。",
+	protect_panel_enable_button: "有効化",
+	protect_panel_disable_button: "無効化",
+	protect_panel_back_button: "戻る",
+	protect_panel_refresh_button: "更新",
+	protect_panel_close_button: "パネルを閉じる",
+	protect_panel_rule_enabled: "**${rule}** ルールが有効になりました！",
+	protect_panel_rule_disabled: "**${rule}** ルールが無効になりました！",
+	protect_panel_mode_saved: "**${rule}** ルールのバイパス: **${mode}**",
+	protect_panel_sanction_saved: "**${rule}** の制裁: **${sanction}**",
+	protect_panel_global_saved: "全体制裁: **${sanction}**",
+	protect_panel_api_error:
+		"変更を適用できませんでした。`管理者` 権限があることを確認してもう一度お試しください。",
+	protect_panel_sanction_global: "全体のデフォルト",
+	protect_panel_sanction_cancel: "操作の取り消しだけ",
+	protect_panel_sanction_derank: "取り消し + 役職剥奪",
+	protect_panel_sanction_ban: "取り消し + BAN",
+	protect_panel_sanction_kick: "取り消し + キック",
+	protect_panel_sanction_mute: "取り消し + ミュート（10分）",
+	protect_panel_group_server: "サーバーとWebhook",
+	protect_panel_group_channels: "チャンネル",
+	protect_panel_group_roles: "ロール",
+	protect_panel_group_members: "メンバー",
+	protect_panel_rule_webhook_name: "Webhook",
+	protect_panel_rule_updateguild_name: "サーバーの編集",
+	protect_panel_rule_createchannel_name: "チャンネル作成",
+	protect_panel_rule_updatechannel_name: "チャンネルの編集",
+	protect_panel_rule_deletechannel_name: "チャンネル削除",
+	protect_panel_rule_createrole_name: "ロール作成",
+	protect_panel_rule_deleterole_name: "ロール削除",
+	protect_panel_rule_updaterole_name: "ロールの編集",
+	protect_panel_rule_updatemember_name: "メンバーのロール編集",
+	protect_panel_rule_banmembers_name: "メンバーBAN",
+	protect_panel_rule_kickmember_name: "メンバーkick",
+	protect_panel_rule_unbanmembers_name: "BAN解除",
+	protect_panel_rule_add_admin_roles_name: "管理者ロール付与",
+	// /許可リスト表示
+	allowlist_show_not_permited:
+		"このコマンドを使用する権限がありません！許可リストに含まれている必要があります！",
+	allowlist_show_embed_author: "許可リスト",
+
+	// /許可リスト追加
+	allowlist_add_not_permited:
+		"このコマンドを使用する権限がありません！許可リストに含まれている必要があります！",
+	allowlist_add_not_owner:
+		"サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！",
+	allowlist_add_already_in:
+		"許可リストから削除しようとするメンバーは既に含まれています！",
+	allowlist_add_command_work: "${member} が許可リストに追加されました！",
+
+	// /許可リスト削除
+	allowlist_delete_not_permited:
+		"このコマンドを使用する権限がありません！許可リストに含まれている必要があります！",
+	allowlist_delete_not_owner:
+		"サーバーのオーナーだけが許可リストにユーザーを追加/削除できます！",
+	allowlist_delete_member_unreachable:
+		"許可リストから削除しようとしたメンバーは連絡が取れません！",
+	allowlist_delete_cant_remove_owner:
+		"サーバーのオーナーを許可リストから削除することはできません！",
+	allowlist_delete_isnt_in:
+		"許可リストから削除しようとするメンバーは含まれていません！",
+	allowlist_delete_command_work: "${member} が許可リストから削除されました！",
+
+	// Custom Tag Module
+	// /tag create, ... delete, ... edit, ... list, ... info
+
+	tag_name: "タグ",
+	tag_embed_created_at: "作成日",
+	tag_embed_last_update: "最終更新",
+	tag_embed_last_updated_by: "最終更新者",
+
+	// /tag create
+	tag_create_not_permited:
+		"タグを作成する権限がありません。\n管理者権限またはホワイトリストに登録される必要があります（`tag wlroles-create`）。",
+	tag_create_not_good_name:
+		"タグ名にスペースを含めることはできず、16文字を超えることはできません。",
+	tag_create_command_work: "タグ `${tag_name}` が作成されました。",
+	tag_create_already_exist: "タグは既に存在します。",
+	tag_create_embed_doesnt_exist: "埋め込みが存在しません。",
+
+	// /tag delete
+	tag_no_one_found: "このサーバーには保存されているタグがありません！",
+	tag_delete_dnt_exist: "タグ `${tag_name}` は存在しません。",
+	tag_delete_command_ok: "タグ `${tag_name}` が削除されました。",
+
+	// /tag info
+	tag_doesnt_exist: "タグ `${tag_name}` は存在しません！",
+
+	// /tag wlcreate
+	tag_wlcreate_embed_title: "ホワイトリスト作成 - タグ",
+	tag_wlcreate_embed_desc: "タグを作成できるすべての役割。",
+
+	// /tag wluse
+	tag_wluse_embed_title: "ホワイトリスト使用 - タグ",
+	tag_wluse_embed_desc: "タグを使用できるすべての役割。",
+
+	// /tag list
+	tag_list_no_anything: "このサーバーには保存されているタグがありません！",
+
+	// /tag use
+	tag_use_not_allowed:
+		"タグ `${tag_name}` を使用する権限がありません。\n管理者権限が必要か、タグの所有者 <@${createBy}> にホワイトリストへの追加を依頼してください（`tag wlroles-use`）。",
+	tag_use_command_work: "タグ `${tag_name}` が送信されました。",
+
+	// /tag edit
+	tag_edit_error_perm:
+		"タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。",
+	tag_edit_command_ok:
+		"現在のタグ名が **`${current_tag_name}`** から **`${new_tag_name}`** に変更されました。",
+
+	// TempVoiceモジュール
+	// /text, /voice, /status, /staff
+
+	// /voice インターフェースを設定する
+	tempvoice_if_text_not_admin:
+		"<@${authorId}>, このコマンドを使用する権限がありません！",
+	tempvoice_if_text_desc_embed:
+		"## TempVoice インターフェース\nこの**インターフェース**は一時的な音声チャンネルを管理するために使用できます。\n",
+	tempvoice_if_text_fields_value_limit:
+		"${emoji_VC_Limit} **制限を変更する**",
+	tempvoice_if_text_fields_value_name: "${emoji_VC_Name} **名前を変更する**",
+	tempvoice_if_text_fields_value_region:
+		"${emoji_VC_Region} **地域を変更する**",
+	tempvoice_if_text_fields_value_trust: "${emoji_VC_Trust} **信頼する**",
+	tempvoice_if_text_fields_value_untrust:
+		"${emoji_VC_Untrust} **信頼しない**",
+	tempvoice_if_text_fields_value_block: "${emoji_VC_Block} **ブロックする**",
+	tempvoice_if_text_fields_value_unblock:
+		"${emoji_VC_Unblock} **ブロック解除する**",
+	tempvoice_if_text_fields_value_claim: "${emoji_VC_Claim} **クレームする**",
+	tempvoice_if_text_fields_value_privacy:
+		"${emoji_VC_Privacy} **プライバシー**",
+	tempvoice_if_text_fields_value_transfer:
+		"${emoji_VC_Transfer} **転送する**",
+	tempvoice_if_text_fields_value_delete: "${emoji_VC_Delete} **削除する**",
+
+	// /voice インターフェースを設定する
+	tempvoice_vc_not_admin:
+		"<@${authorId}>, このコマンドを使用する権限がありません！",
+
+	// /voice インターフェースを設定する
+	tempvoice_staff_not_admin:
+		"<@${authorId}>, このコマンドを使用する権限がありません！",
+	tempvoice_staff_desc_embed:
+		"## TempVoiceスタッフロール\nここにあるロールはチャンネルに入り、モデレートできるようになりました！\n",
+
+	// 告白モジュール
+	// /cooldown, /disable, /channel
+
+	// /confession channel
+	confession_channel_command_work: "告白パネルが${channel}に送信されました",
+	confession_channel_panel_embed_desc:
+		"# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n告白は匿名のままでない場合があることに注意してください — ログへのアクセス権を持つサーバーオーナーやその他のユーザーが、ログが有効になっている場合にユーザーを特定できる可能性があります。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*",
+	confession_channel_log_embed_title: "SetChannel 告白モジュール",
+	confession_channel_log_embed_desc:
+		"${author}がチャンネルを${channel}に設定しました",
+
+	// /confession cooldown
+	confession_coolodwn_command_work:
+		"${author}、告白のクールダウン時間は現在**${time}**です！",
+	confession_cooldown_log_embed_title: "SetCooldown 告白モジュール",
+	confession_cooldown_log_embed_desc:
+		"${author}がタイムアウトを`${time}`に設定しました",
+
+	// /confession disable
+	confession_disable_command_work_on: "告白モジュールが有効になりました。",
+	confession_disable_command_work_off: "告白モジュールが無効になりました。",
+	confession_log_embed_title_on_enable: "告白の有効化/無効化",
+	confession_log_embed_desc_on_enable:
+		"${author}が告白モジュールを有効にしました！",
+	confession_log_embed_desc_on_disabled:
+		"${author}が告白モジュールを無効にしました！",
+
+	// /confession thread
+	confession_thread_enabled:
+		"今後、誰かが告白したとき、埋め込みの下にディスカッションスレッドを作成します。",
+	confession_thread_disabled:
+		"埋め込みの下にディスカッションスレッドを作成しません。",
+
+	// アンチスパムモジュール
+	// /antispam manage
+
+	// /antispam manage
+	antispam_manage_embed_title: "アンチスパムモジュール設定",
+	antispam_manage_choices_1_label: "モジュールを有効にする",
+	antispam_manage_choices_1_desc:
+		"アンチスパムモジュールを有効または無効にする",
+	antispam_manage_choices_2_label: "ボットを無視する",
+	antispam_manage_choices_2_desc: "サーバー内のボットのスパムを無視する",
+	antispam_manage_choices_3_label: "処罰の種類",
+	antispam_manage_choices_3_desc: "ユーザーにどのような種類の制裁を与えるか",
+	antispam_manage_choices_4_label: "処罰時間",
+	antispam_manage_choices_4_desc: "制裁がどれくらい続くか",
+	antispam_manage_choices_5_label: "処罰時間倍率",
+	antispam_manage_choices_5_desc:
+		"制裁の期間がそれぞれの処罰に対して乗算されるかどうか",
+	antispam_manage_choices_6_label: "メッセージを削除する",
+	antispam_manage_choices_6_desc: "スパムメッセージを削除する",
+	antispam_manage_choices_7_label: "最大メッセージ間隔",
+	antispam_manage_choices_7_desc:
+		"スパムと見なすためのメッセージ間の最大間隔",
+	antispam_manage_choices_8_label: "最大重複メッセージ数",
+	antispam_manage_choices_8_desc: "制裁前の最大重複メッセージ数",
+	antispam_manage_choices_9_label: "最大重複間隔",
+	antispam_manage_choices_9_desc:
+		"ユーザーをフラグするための重複メッセージ間の間隔",
+	antispam_manage_choices_10_label: "最大類似メッセージ数",
+	antispam_manage_choices_10_desc: "制裁前の最大類似メッセージ数",
+	antispam_manage_choices_12_label: "罰則前の閾値",
+	antispam_manage_choices_12_desc: "罰則前の最大閾値",
+	antispam_manage_select_menu_punish_mute_label: "メンバーをミュートする",
+	antispam_manage_modal_title: "アンチスパムモーダル",
+	antispam_manage_button_label: "設定を保存",
+	antispam_manage_preset_level1_name: "チルモード",
+	antispam_manage_preset_level2_name: "ガードモード",
+	antispam_manage_preset_level3_name: "エクストリーム保護モード",
+	antispam_manage_button_preset_label: "プリセットを読み込む",
+	antispam_manage_selectstring_preset_label: "プリセット構成",
+
+	// /antispam bypass-roles
+	antispan_bypassroles_embed_desc:
+		"以下のすべてのロールはアンチスパムモジュールをバイパスできます",
+
+	// /antispam bypass-roles
+	antispam_ignorechannels_embed_desc:
+		"以下のチャネルのいずれかに送信されたすべてのメッセージは、アンチスパムモジュールをバイパスできます。",
+
+	// Stats Module
+	// /stats ustats
+
+	// /stats ustats
+	header_h1_value: "{author_username}のメッセージ統計",
+	messages_word: "メッセージ",
+	voice_activity: "音声活動",
+	minutes_word: "分",
+	top_voice: "トップ音声チャンネル",
+	top_message: "トップメッセージチャンネル",
+	activity_under_30d: "30日間のアクティビティ",
+	top_messages_title: "メッセージランキング",
+	top_voice_title: "ボイスアクティビティランキング",
+	stats_no_data: "このサーバーには利用可能な統計データがありません。",
+	stats_compare_title: "統計の比較",
+	stats_compare_invalid_users:
+		"比較する有効なユーザーを2人指定してください。",
+	stats_compare_no_data: "一方または両方のユーザーに統計データがありません。",
+	channel_stats_title: "チャンネル統計",
+	stats_channel_invalid: "指定されたチャンネルは無効です。",
+	top_active_users_title: "アクティブユーザー上位",
+	activity_overview: "アクティビティ概要",
+	active_users_title: "アクティブユーザー",
+	var_members: "メンバー",
+	stats_generated_on: "統計の生成日時: {date} • Powered by IHRZ",
+
+	// Starboard Module
+	// lazy
+
+	// /starboard channel
+	starboard_channel_command_ok:
+		"${emoji_Yes} | **Starboardチャンネルが${channel}に設定されました。** サーバーメンバーがメッセージに'⭐'でリアクションし、しきい値 **`${threshold}`** を超えると、そのメッセージは${channel}に送信されます！",
+
+	// /starboard config
+	starboard_config_command_ok:
+		"${emoji_Yes} | **Starboardモジュールは現在${action}されています**",
+
+	// /starboard threshold
+	starboard_threshold_command_ok:
+		"${emoji_Yes} | サーバーメンバーが'⭐'でリアクションし、しきい値 **`${amount}`** を超えると、メッセージは指定されたチャンネルに送信されます！",
+
+	// /starboard create-thread
+	starboard_create_thread_command_ok:
+		"${emoji_Yes} | サーバーメンバーが'⭐'でリアクションし、しきい値 **`${amount}`** を超えると、メッセージは指定されたチャンネルに送信されます **`${action}`**",
+	starboard_create_thread_yes: "ディスカッションスレッドが作成されます",
+	starboard_create_thread_no: "ディスカッションスレッドは作成されません",
+
+	// /skullboard channel
+	skullboard_channel_command_ok:
+		"${emoji_Yes} | **Skullboard チャンネルは ${channel} に設定されました**。サーバーメンバーがメッセージに '💀' リアクションをし、**`${threshold}`** の閾値を超えた場合、そのメッセージは ${channel} に送信されます！",
+
+	// /skullboard config
+	skullboard_config_command_ok:
+		"${emoji_Yes} | **Skullboard モジュールは ${action} になりました**",
+
+	// /skullboard threshold
+	skullboard_threshold_command_ok:
+		"${emoji_Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネルに送信されます！",
+
+	// /skullboard create-thread
+	skullboard_create_thread_command_ok:
+		"${emoji_Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネル **`${action}`** に送信されます",
+
+	// 通知モジュール
+	// 通知の作成者, 通知の設定
+
+	// /notifier author add
+	notifier_author_add_author_doesnt_exist:
+		"作成者が存在しません。IDを確認してください。",
+
+	// /notifier config channel
+	notifier_config_channel_logsEmbed_title: "通知チャンネルモジュール",
+	notifier_config_channel_logsEmbed_desc:
+		"<@${authorId}> が通知チャンネルモジュールを ${channel} に設定しました",
+	notifier_config_message_command_ok:
+		"これで、ストリーマー/ユーチューバー/ツイッチャーが動画を公開すると、${channel} にメッセージを送信します",
+
+	// /notifier config message
+	notifier_config_message_helpEmbed_title: "カスタム通知メッセージ",
+	notifier_config_message_helpEmbed_desc:
+		"{artistAuthor} => ストリーマー/ユーチューバーのユーザー名\n{artistLink} => ストリーマー/ユーチューバーのチャンネルリンク\n{mediaURL} => ストリーマー/ユーチューバーの動画URL",
+	notifier_config_message_embed_fields_notifyMessage: "通知メッセージ",
+	notifier_config_message_awaiting_response:
+		"通知メッセージを書いてください。",
+	notifier_config_message_command_work_on_enable:
+		"${emoji_GreenTick} | 通知メッセージを設定しました。",
+
+	// ブロガーモジュール
+
+	blogger_generateBlogsEmbed_embed_desc: "設定されたRSSフィード一覧:\n\n",
+	blogger_generateBlogsEmbed_embed_title: "📰 RSSブログ設定",
+	blogger_generateConfigurationEmbed_embed_title: "📰 ブロガー設定",
+	blogger_no_rss: "設定されたRSSフィードがありません。",
+	blogger_generateConfigurationEmbed_embed_fields_1_name: "ステータス",
+	blogger_generateConfigurationEmbed_embed_fields_2_name: "合計ブログ数",
+	blogger_unknown_blog: "不明なブログ",
+	blogger_on_new_article_default_message:
+		"📰 新しい記事が公開されました！\n**{articleTitle}**（{articleAuthor} 著）\n{articleLink}",
+	blogger_config_status_enabled:
+		"✅ ブロガーモジュールが**有効化**されました。RSSフィードが監視されます。",
+	blogger_config_status_disabled:
+		"❌ ブロガーモジュールが**無効化**されました。RSSフィードは監視されません。",
+	blogger_read_article: "記事を読む",
+	blogger_blog_add_invalid_channel:
+		"無効なチャンネルタイプです。テキストチャンネルを選択してください。",
+	blogger_blog_add_success:
+		"✅ RSSフィード **${validationName}** が追加されました！通知は ${channel} に送信されます（ID: `${blogId}`）",
+	blogger_blog_add_invalid_rss:
+		"❌ 指定されたRSSフィードは無効またはアクセスできません。URLを確認して再試行してください。",
+	blogger_blog_remove_success:
+		"✅ ID `${blogId}` のRSSフィードを削除しました。",
+	blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。",
+	lastfm_module_not_configured:
+		"${emoji_No} | Bot 側で Last.fm モジュールが設定されていません。設定に `lastfm.apiKey` と `lastfm.sharedSecret` を追加するか、`LASTFM_API_KEY` と `LASTFM_SHARED_SECRET` を設定してください。",
+	lastfm_config_login_required:
+		"${emoji_No} | モジュールを有効にする前に `/lastfm login` を使用する必要があります。",
+	lastfm_config_enabled:
+		"${emoji_Yes} | あなたのアカウントで Last.fm の scrobbling が有効になりました。",
+	lastfm_config_disabled:
+		"${emoji_Yes} | あなたのアカウントで Last.fm の scrobbling が無効になりました。",
+	lastfm_login_invalid_session:
+		"${emoji_No} | Last.fm から有効なセッションが返されませんでした。",
+	lastfm_login_success:
+		"${emoji_Yes} | Last.fm アカウント `${username}` が接続され、scrobbling が有効になりました。",
+	lastfm_embed_title: "${userLabel} の Last.fm 設定",
+	lastfm_embed_field_status: "ステータス",
+	lastfm_embed_field_account: "接続済みアカウント",
+	lastfm_embed_field_connected_at: "接続日時",
+	lastfm_api_error_login:
+		"${emoji_No} | Last.fm への接続に失敗しました: ${error}",
+	lastfm_api_error_nowplaying:
+		"${emoji_No} | Last.fm に Now Playing を通知できませんでした: ${error}",
+	lastfm_api_error_scrobble:
+		"${emoji_No} | この曲を scrobble できませんでした: ${error}",
+	lastfm_api_error_unknown: "不明なエラー",
+
+	// AuthRestore モジュール
+	// ロール、設定、削除、取得、強制参加
+
+	rc_key_doesnt_exist:
+		"${emoji_No} キー：**${secretCode}** による AuthRestore モジュールは存在しません！",
+	rc_verify: "確認する",
+
+	// /authrestore ロール
+	rc_role_embed_title: "AuthRestore 新しい変更",
+	rc_role_embed_field1_name: "確認後に付与される新しいロール",
+
+	// /authrestore 設定
+	rc_command_ok:
+		'${author}、"AuthRestore" モジュールを設定しました。サーバーメンバーがボタンをクリックし、OAuth2でログインすると、データベースに追加されます。OAuth2を通じてサーバーに自動的に参加できるようになります。\n# よく読んでください\nメッセージ ${msgLink} には確認用のボタンがあります。\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${secretCode}```',
+	rc_command_ok_dm:
+		"# ${guildName} 用の AuthRestore コード\n```${secretCode}```",
+	rc_command_dm_failed: "DMを送信しようとしましたが、ブロックされています :/",
+	rc_command_dm_ok: "念のため、DMでもコードを送信しました！",
+	rc_command_horizongw_down:
+		"エラー: HorizonGatewayがダウンしている可能性があります",
+
+	// /authrestore 削除
+	rc_delete_config_not_found:
+		"このサーバーでのモジュール設定が見つかりません！",
+	rc_delete_command_ok:
+		'${author}、"AuthRestore" モジュールの設定を削除しました。セキュリティ上（データ保護）、ボタンのみ削除し、OAuth2データとシークレットコードは48時間以内に削除されます。',
+
+	// /authrestore 取得
+	rc_get_mainEmbed_title: "AuthRestore 一般情報",
+	rc_get_mainEmbed_field1_name: "サーバーID",
+	rc_get_mainEmbed_field2_name: "確認後に付与されるロール",
+	rc_get_mainEmbed_field3_name: "作成日時",
+	rc_get_mainEmbed_field3_value: "*日付は MM/DD/YYYY HH:mm 形式*",
+	rc_get_mainEmbed_field4_name: "キー使用回数",
+	rc_get_mainEmbed_field5_name: "設定作成者",
+	rc_get_secondEmbed_title: "保存されたユーザー",
+	rc_get_secondEmbed_footer: "ページ ${from} / ${to}",
+	rc_get_locale: "ロケール",
+	rc_get_username: "ユーザー名",
+	rc_get_unkwnon_user: "不明なユーザー (${authorId})",
+
+	// /authrestore 強制参加
+	rc_forceJoin_embed_title: "AuthRestore - 強制参加",
+	rc_forceJoin_embed_desc:
+		"## このサーバーにメンバーを強制参加させますか？\n### 注意:\nこの操作を実行すると、現在のプライベートキーは破棄され、新しいキーが提供されます。\n\n\n",
+	rc_forceJoin_embed_field1: "見つかったメンバー",
+	rc_forceJoin_embed_field2: "既存のメンバー",
+	rc_forceJoin_embed_field3: "参加可能",
+	rc_forceJoin_embed_2_field1: "参加可能",
+	rc_forceJoin_embed_2_field2: "参加済み",
+	rc_forceJoin_ws_size:
+		"# **${value2}** 人のメンバーをサーバーに追加準備中です。",
+	rc_forceJoin_ws_start: "# 強制参加プロセスを開始しています...",
+	rc_forceJoin_ws_end: "# 強制参加プロセスが完了しました。",
+	rc_forceJoin_ws_end_renew_msg:
+		"# 注意\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${value2}```",
+
+	// ミスカテゴリ
+	// メディア操作
+
+	// メディアクールダウン
+	media_gen_cooldown: "メディア生成は`1分間 30秒`間をあける必要があります！",
+	media_gen_error_args: "2つの有効な画像URLを提供してください。",
+
+	// jp-JP.yml (Japanese - Japan)
+	batch_ban_process:
+		"🔄 ${guildCount}個のサーバーで${memberUsername}をBAN中...",
+	batch_unban_process: "🔄 ${bannedMemberCount}人のメンバーのBAN解除中...",
+	batch_unblacklist_process:
+		"🔄 ${guildObjectCount}個のサーバーで${bannedMemberUsername}をブラックリストから削除中...",
+	batch_unbanall_process: "🔄 ${bannedMemberCount}人のメンバーのBAN解除中...",
+	batch_massiverole_process:
+		"🔄 ${membersToProcessCount}人のメンバーにロールを付与中...",
+	batch_unmassiverole_process:
+		"🔄 ${membersToProcessCount}人のメンバーからロールを削除中...",
+	batch_undo_unban: "🔄 ${unbannedMemberCount}人のメンバーを再BAN解除中...",
+	batch_derank_process:
+		"🔄 ${rolesToRemoveCount}人のロールを${memberUsername}から削除中...",
+	unbanall_undo_command_err:
+		"再度BANするメンバーがいません。まずは全員のBAN解除コマンドを使用してください。",
+
+	// -----------------------------/ \-----------------------------
+	// 告白モジュールイベント
+	confession_module_modal_title: "告白を送る",
+	confession_module_modal_components1_label: "何を告白しますか？",
+	confession_module_modal_components1_placeholder: "うーん",
+	confession_module_modal_components2_label: "これはプライベートですか？",
+
+	// Music Player Events
+	even_mp_playerStart_tip:
+		"> ${emoji_LastFM_Logo} iHorizon で `/lastfm` を使って音楽をスクロブルできること、知っていましたか？ ${emoji_Sunglass}",
+	event_mp_playerStart:
+		"${emoji_Music_Icon} - 現在 **${queueChannelName}** で [`${trackTitle}`](${url}) を再生中...",
+	event_mp_audioTrackAdd:
+		"${emoji_Music_Icon} - ${trackTitle} をキューに追加しました！",
+	event_mp_playerError: "接続に問題があります => ${errorMessage}",
+	event_mp_error: "曲のキューに問題があります => ${errorMessage}",
+	event_mp_emptyChannel:
+		"${emoji_No} | 誰もボイスチャンネルにいないため、退出します...",
+	event_mp_playerSkip:
+		"${emoji_Music_Icon} - **${trackTitle}** をスキップしました！",
+	event_mp_emptyQueue:
+		"${emoji_Warning_Icon} - キューにはもう曲がありません！音楽を停止しました。",
+
+	// Channel Create Events
+	event_channel_create_message_embed_title: "正常にセットアップされました！",
+	event_channel_create_message_embed_description:
+		"ボットは完璧にセットアップされました。もう何もする必要はありません。\n\niHorizonに関連するすべてのモデレーションログがここに表示されます。",
+
+	// Welcome Message Events
+	event_welcomer_inviter:
+		"{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います",
+	event_welcomer_default:
+		"{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います",
+
+	// Goodbye Message Events
+	event_goodbye_inviter:
+		"`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います",
+	event_goodbye_default:
+		"`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います",
+
+	// XP Level Events
+	event_xp_level_earn:
+		"{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。",
+	event_xp_level_additional_info:
+		"\n-#  ${emoji_VC_OpenChat} このメッセージは煩わしいですか？`/ranks config`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます",
+
+	// Ticket Module Events:
+	event_ticket_embed_description:
+		"${userUsername}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。",
+	event_ticket_add_member:
+		"${author}, あなたはチケット ${channel} に**追加**しました：${addedMembers}！",
+	event_ticket_del_member:
+		"${author}, あなたはチケット ${channel} から**削除**しました：${removedMembers}！",
+	event_ticket_button_name: "チケットを作成する",
+	event_ticket_category_awaiting_response:
+		"カテゴリは何ですか [${emoji}] >> ${name}",
+	event_ticket_reason_awaiting_response:
+		"${author} ユーザーはチケットを作成する前に理由を入力する必要がありますか？",
+	event_ticket_create_reason_modal_title: "チケットの理由は何ですか？",
+	event_ticket_create_reason_modal_fields_1_label: "チケットの理由",
+	event_ticket_reason_embed_desc: "# チケットの理由\n`${reason}`",
+
+	// interactionCreateイベント：
+	iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！",
+	iC_event_connection_error: "接続エラー！",
+
+	// Cooldown
+	Msg_cooldown:
+		"「コマンドを実行する前に、一秒待っていただけますか？お願いします。」",
+
+	// チケットモジュール
+	ticket_module_button_delete: "チケットを削除",
+	ticket_module_button_transcript: "チケットの記録",
+	ticket_module_button_addmember: "メンバーを追加",
+	ticket_module_button_removemember: "メンバーを削除",
+	ticket_module_add_question:
+		"チケットに追加したいユーザーは誰ですか？（ユーザーIDを指定してください）！",
+	ticket_module_remove_question:
+		"チケットから削除したいユーザーは誰ですか？（ユーザーIDを指定してください）！",
+	ticket_transcript_failed_to_send:
+		"ファイルをプライベートメッセージで送信しようとしましたが、あなたはDMをブロックしています :/",
+
+	// サーバーログ
+	event_srvLogs_banAdd_description:
+		"<@${executorId}> **が<@${targetId}>をBANしました**",
+	event_srvLogs_banAdd_fields_name: "理由",
+	event_srvLogs_banAdd_fields_value: "`{reason}`",
+	event_srvLogs_banRemove_description:
+		"<@${executorId}> **が${targetUsername}のBANを解除しました**",
+	event_srvLogs_guildMemberRemove_description:
+		"<@${executorId}> **が<@${targetId}>をキックしました**",
+	event_srvLogs_guildMemberUpdate_description:
+		"📤 <@${executorId}> **が${oldMemberUserUsername}から${removedRoles}役職を削除しました**",
+	event_srvLogs_guildMemberUpdate_2_description:
+		"📥 <@${executorId}> **が${oldMemberUserUsername}に${addedRoles}役職を追加しました**",
+	event_srvLogs_messageDelete_description:
+		"**<#${messageChannelId}>でメッセージが削除されました**\n${messageContent}",
+	event_srvLogs_messageUpdate_description:
+		"**<#${oldMessageChannelId}>**[でメッセ](xxx)**ージが編集されました**",
+	event_srvLogs_messageUpdate_footer_1: "編集前",
+	event_srvLogs_messageUpdate_footer_2: "編集後",
+	event_srvLogs_voiceStateUpdate_description:
+		"📤 <@${targetUserId}> **が<#${OchannelID}>チャンネルから退出しました**",
+	event_srvLogs_voiceStateUpdate_2_description:
+		"📥 <@${targetUserId}> **が<#${channelID}>チャンネルに参加しました**",
+	event_srvLogs_voiceStateUpdate_3_description:
+		"<@${targetUserId}> **が<#${channelID}>チャンネルでヘッドセットをミュートしました**",
+	event_srvLogs_voiceStateUpdate_4_description:
+		"<@${targetUserId}> **が<#${channelID}>チャンネルでヘッドセットのミュートを解除しました**",
+	event_srvLogs_voiceStateUpdate_5_description:
+		"<@${targetUserId}> **が<#${channelID}>チャンネルで自身をミュートしました**",
+	event_srvLogs_voiceStateUpdate_6_description:
+		"<@${targetUserId}> **が<#${channelID}>チャンネルで自身のミュートを解除しました**",
+	event_srvLogs_channelUpdate_disabled_for:
+		"-    ❌ ${perm} は ${target} で無効化されました\n",
+	event_srvLogs_channelUpdate_enabled_for:
+		"-    ✅ ${perm} は ${target} で有効化されました\n",
+	event_srvLogs_channelUpdate_allowed_for:
+		"-    ✅ ${perm} は ${target} に許可されました\n",
+	event_srvLogs_channelUpdate_unallowed_for:
+		"-    ❌ ${perm} は ${target} に拒否されました\n",
+	event_srvLogs_channelUpdate_field_name: "🎫 名前: ${newChannelName}\n",
+	event_srvLogs_channelUpdate_perm_added: "🛡 ${target} に追加された権限:\n",
+	event_srvLogs_channelUpdate_embed_desc: "${newChannel} が更新されました",
+
+	// ランクアップイベント
+	event_rank_role:
+		"<@${messageAuthorId}>さん、あなたは今、役職 <@&${id}> を持っています",
+
+	// 提案イベント
+	event_suggestion_embed_author: "${messageAuthorUsername} からの新しい提案",
+
+	// セキュリティイベント
+	event_security_title: "${guild}へようこそ！",
+	event_security:
+		"${member}さん、このメッセージに表示されているCAPTCHAを入力してください。",
+	event_security_expiry:
+		"{emoji} 自動キック ${timestamp}（残り **${attempts}** 回の試行）。",
+	event_security_footer:
+		"数秒しかかからず、コミュニティの安全維持に役立ちます。",
+	event_security_kick_reason: "セキュリティ認証に失敗しました",
+
+	// チケットイベント
+	event_ticket_whenCreated_msg:
+		"${author}さん、チケットが作成されました。 <#${channelId}> をご覧ください！",
+	event_ticket_logsChannel_onCreation_embed_title:
+		"チケットログ - パネルの作成",
+	event_ticket_logsChannel_onCreation_embed_desc:
+		"チケットパネル`${name}`が${interaction}に作成されました！",
+	event_ticket_logsChannel_onCreationChannel_embed_title:
+		"チケットログ - チケットの作成",
+	event_ticket_logsChannel_onCreationChannel_embed_desc:
+		"チケットが作成されました：${author} (<#${channelId}>)！",
+	event_ticket_logsChannel_onClose_embed_title:
+		"チケットログ - チケットのクローズ",
+	event_ticket_logsChannel_onClose_embed_desc:
+		"チケットは${author}によって閉じられました（<#${channelId}>）！",
+	event_ticket_logsChannel_onRemoveMember_embed_title:
+		"チケットログ - チケットからメンバーを削除",
+	event_ticket_logsChannel_onRemoveMember_embed_desc:
+		"${author}によってチケットから${member}が削除されました（<#${channelId}>）！",
+	event_ticket_logsChannel_onAddMember_embed_title:
+		"チケットログ - チケットにメンバーを追加",
+	event_ticket_logsChannel_onAddMember_embed_desc:
+		"${author}によってチケットに${member}が追加されました（<#${channelId}>）！",
+	event_ticket_logsChannel_onReopen_embed_title:
+		"チケットログ - チケットの再オープン",
+	event_ticket_logsChannel_onReopen_embed_desc:
+		"${author}さんがチケットを再オープンしました（<#${channelId}>）！",
+	event_ticket_logsChannel_onDelete_embed_title:
+		"チケットログ - チケットの削除",
+	event_ticket_logsChannel_onDelete_embed_desc:
+		"${author}さんがチケットを削除しました（#${channelName}）！",
+	event_ticket_logsChannel_onAddMember2_embed_title:
+		"チケットログ - チケットのメンバーの追加/削除",
+	event_ticket_logsChannel_onAddMember2_embed_desc:
+		"${author}さん\n削除されたメンバー：${removedMembers}。\n追加されたメンバー：${addedMembers}。\nチケット（${channel}）にいます！",
+	event_ticket_already_opened:
+		"あらら、既にチケットが開いています (<#${channelId}>)！新しいチケットを作成する前に閉じてください。",
+
+	// ギブアウェイイベント
+	event_gw_reroll_win_msg:
+		"おめでとうございます、${winners}さん！ **${prize}** を獲得しました！",
+	event_gw_reroll_cannot_win_msg:
+		"有効な応募者がいないため、受賞者を決定できませんでした！",
+	event_gw_finnish_msg:
+		"おめでとうございます、${winners}さん！ **${prize}** を獲得しました！",
+	event_gw_finnish_cannot_msg:
+		"有効な応募者がいないため、受賞者を決定できませんでした！",
+	event_gw_finnish_button_title: "ギブアウェイ終了",
+	event_gw_entries_button_title: "参加者一覧",
+	event_gw_removeentries_msg:
+		"${author}さん、このギブアウェイから退出しました！",
+	event_gw_leave_button_placeholder: "ギブアウェイを退出",
+	event_gw_confirm_leave_msg:
+		"${author}、このギブアウェイを退出してもよろしいですか？",
+	event_gw_embed_desc:
+		"終了: ${end_string} (${end_string2})\n主催者: <@${hostedBy}>\n参加数: **0**\n当選者: **${winners_amount}**",
+	event_gw_ended_embed_desc:
+		"終了: ${time1} (${time2})\n主催者: <@${hostedBy}>\nエントリー **${entrieCount}**\n勝者: ${winners}",
+	event_gw_entries_words: "参加数",
+	event_gw_ended_word:
+		"終了: ${ended} (${time2})\n主催者: <@${hostedBy}>\n参加数 **${entries}**\n当選者: ${winners}",
+	event_gw_break_req:
+		"${emoji_No} このプレゼントに参加するための必要条件を満たしていません。\nタイプ: `${requirementType}`\n値: `${requirementValue}`",
+
+	// ブーストログイベント
+	event_boostlog_add:
+		"<@${newMemberUserId}> **がサーバーをブーストしました**！（合計**${boostCount}**ブースト）",
+	event_boostlog_sub:
+		"<@${newMemberUserId}> **がサーバーからブーストを解除しました**！（合計**${boostCount}**ブースト）",
+
+	// 経済モジュール
+	economy_disable_msg:
+		"<@${authorId}>、このギルドの `経済モジュール` は**無効**になっています。もう経済モジュールは使えません！",
+
+	// Permission Event
+	event_permission_wrong:
+		"${author}、このコマンドを使用する権限がありません！必要な権限：${neededPerm}",
+
+	// TempVoiceモジュール
+	// すべてのコンポーネント、グローバル変数...
+
+	// グローバル変数
+
+	temporary_voice_title_embec: "## 一時ボイスチャンネルの変更点",
+	temporary_voice_unblocked_member: "ブロック解除されたメンバー",
+	temporary_voice_blocked_mmeber: "ブロックされたメンバー",
+	temporary_voice_no_one: "誰もいない",
+	temporary_voice_new_member: "新しい所有者",
+	temporary_voice_old_member: "古い所有者",
+	temporary_voice_modal_title: "iHorizonのボイスダッシュボード",
+	temporary_voice_new_userlimit: "新しいユーザー制限",
+	temporary_voice_new_name: "新しい名前",
+	temporary_voice_new_region: "新しい地域",
+	temporary_voice_untrusted_member: "信頼されていないメンバー",
+	temporary_voice_trusted_member: "信頼されたメンバー",
+
+	// ボタン
+	temporary_voice_block_button_menu_placeholder:
+		"選択したユーザーは参加できません",
+
+	temporary_voice_delete_button_desc_embed:
+		"## チャンネル削除\nチャンネルが正常に削除されました！",
+
+	temporary_voice_limit_button_menu_label:
+		"チャンネルのユーザー制限は何ですか？",
+	temporary_voice_limit_button_not_integer:
+		"${emoji_No} | 入力が数字ではありません",
+
+	temporary_voice_name_button_menu_label: "チャンネルの名前は何ですか？",
+
+	temporary_voice_privacy_menu_placeholder:
+		"プライバシーオプションを選択してください",
+	temporary_voice_privacy_menu_lock_label: "チャンネルをロックする",
+	temporary_voice_privacy_menu_lock_desc:
+		"信頼されたユーザーのみがボイスチャンネルに参加できます",
+	temporary_voice_privacy_menu_unlock_label: "チャンネルのロック解除",
+	temporary_voice_privacy_menu_unlock_desc:
+		"誰もがボイスチャンネルに参加できます",
+	temporary_voice_privacy_menu_invisible_label: "不可視",
+	temporary_voice_privacy_menu_invisible_desc:
+		"信頼されたユーザーのみがボイスチャンネルを表示できます",
+	temporary_voice_privacy_menu_visible_label: "可視",
+	temporary_voice_privacy_menu_visible_desc:
+		"誰もがボイスチャンネルを表示できます",
+	temporary_voice_privacy_menu_closechat_label: "チャットを閉じる",
+	temporary_voice_privacy_menu_closechat_desc:
+		"信頼されたユーザーのみがチャットでテキストを送信できます",
+	temporary_voice_privacy_menu_openchat_label: "チャットを開く",
+	temporary_voice_privacy_menu_openchat_desc:
+		"誰もがチャットでテキストを送信できます",
+
+	temporary_voice_region_menu_placeholder: "地域を選択してください",
+
+	temporary_voice_transfer_menu_placeholder:
+		"ボイスチャンネルの移動先を選択したユーザー",
+
+	temporary_voice_transfer_trust_placeholder:
+		"選択したユーザーは参加するために信頼されます",
+
+	temporary_voice_transfer_unblocked_placeholder:
+		"選択したユーザーは参加できるようになります",
+
+	temporary_voice_transfer_untrust_placeholder:
+		"選択したユーザーは参加するために信頼されません",
+
+	temporary_voice_channel_name: "{nickname}のチャンネル",
+
+	tempvoice_v2_embed_title: "## ${emoji_VC_Name} ${channelName}",
+	tempvoice_v2_embed_desc:
+		"Welcome to your temporary voice channel, ${owner}!\nManage it with the buttons below.",
+	tempvoice_v2_hint: "-# Only the channel owner can use this menu.",
+	tempvoice_v2_select_placeholder: "Manage your voice channel...",
+
+	tempvoice_cfg_panel_title: "TempVoice configuration",
+	tempvoice_cfg_panel_desc:
+		"Configure the TempVoice module below. Every change applies immediately, and each created voice channel gets its own control panel.",
+	tempvoice_cfg_hub: "Join-to-create channel",
+	tempvoice_cfg_category: "Channels created in",
+	tempvoice_cfg_name: "Channel name",
+	tempvoice_cfg_position: "Position in category",
+	tempvoice_cfg_position_top: "Top",
+	tempvoice_cfg_position_bottom: "Bottom",
+	tempvoice_cfg_staff: "Staff roles (bypass permissions)",
+	tempvoice_cfg_select_placeholder: "More settings...",
+	tempvoice_cfg_opt_name: "Change the channel name",
+	tempvoice_cfg_opt_position_top: "Set position: Top",
+	tempvoice_cfg_opt_position_bottom: "Set position: Bottom",
+	tempvoice_cfg_done: "Done",
+	tempvoice_cfg_saved: "TempVoice settings saved!",
+	tempvoice_cfg_expired: "Configuration panel expired. Run /tempvoice again.",
+	tempvoice_cfg_modal_title: "Set the channel name",
+	tempvoice_cfg_modal_label: "Name | Variable: {Username}",
+	// 保護モジュール
+	// イベントメッセージ
+
+	protection_avoid_channel_delete:
+		"**保護モードオン**\n<@${channelGuildOwnerId}>, チャンネルが再作成されました, <@${executorId}> がチャンネルを削除しようとしました!",
+	protection_blockbot_embed_title: "⚠️ ${memberGuildName}で危険 ⚠️",
+	protection_blockbot_embed_desc:
+		"# ボット追加警告\n誰かがDiscordボットを追加しようとしました。",
+	var_target_bot: "対象ボット",
+	var_not_detected: "検出されませんでした",
+
+	// アンチスパムモジュール
+	// イベントメッセージ
+
+	// 基本的な警告メッセージ
+	antispam_base_warn_message:
+		"警告 ${mentionedMembers}、あなたはスパム行為をしており、罰せられる可能性があります。",
+
+	// 処罰の種類に基づいた追加の警告メッセージ
+	antispam_more_ban_msg: " 続行すると、サーバーから追放されます。",
+	antispam_more_mute_msg: " 続行すると、ミュートされます。",
+	antispam_more_kick_msg: " 続行すると、サーバーからキックされます。",
+
+	// AntiSpamのログを埋め込む
+	antispam_log_embed_title: "[AntiSpam] 新しい ${actionType}",
+	antispam_log_embed_desc: "${bot} が **${actionType}** ${user} を行いました",
+
+	// ハイブリッドコマンド
+	// イベントメッセージ
+
+	hybridcommands_global_prefix_mention: "`@Ping-Me`",
+	hybridcommands_global_prefix_cleaned_mention: "@Ping-Me ",
+	hybridcommands_args_error_embed_desc:
+		'```ts\nコマンド名: ${currentCommandName}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n引数 "${wrongArgumentName}" の送信中にエラーが発生しました。\n```',
+	hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み",
+	hybridcommands_embed_help_fields_value:
+		"**エイリアス:** ${aliases}\n**使用法:** ${use}",
+	hybridcommands_embed_footer_text:
+		"［...］内のオプションは必須で、<...>内のオプションは任意です。\n詳しくは、コマンド: ${botPrefix}help [command] を使用してください。",
+
+	ping_bot_show_info_msg:
+		"こんにちは ${messageAuthor}、私は `Slash Command` (${emoji_Slash_Bot_Badge}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！",
+	ping_bot_show_info_msg_about_change_prefix:
+		"\n-# ${emoji_VC_OpenChat} プレフィックスが気に入らない？ **`/guildconfig bot prefix`** を使って変更してね！",
+
+	// 通知モジュール
+	notifier_on_new_media_default_message:
+		"@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました [ここをクリック]({mediaURL})",
+	notifier_on_new_media_default_button_label: "チェックする！",
+	notifier_generateAuthorsEmbed_embed_desc:
+		"これはすべてのストリーマー/ユーチューバーのリストです:\n",
+	notifier_generateAuthorsEmbed_embed_title:
+		"サーバー内のすべてのストリーマー/ユーチューバー",
+	notifier_generateConfigurationEmbed_embed_title: "通知モジュールの設定",
+	notifier_generateConfigurationEmbed_embed_fields_1_name: "通知チャンネル",
+	notifier_generateConfigurationEmbed_embed_fields_2_name: "通知メッセージ",
+
+	// ButtonReaction
+	buttonreaction_role_doesnt_exit:
+		"私のデータベースにある役割は、サーバーにはもう存在しません！",
+	buttonreaction_role_too_high:
+		"役割が高すぎるため、役割を与えたり削除したりできません。権限を変更する必要があります！",
+	buttonreaction_role_add: "あなたは今、${role} の役割を持っています :tada:",
+	buttonreaction_role_remove: "${role} の役割はもうありません ✅",
+	rolepanel_setup_embed_title: "ロールパネル設定",
+	rolepanel_setup_embed_desc:
+		"${member} に追加または削除するロールを選択してください。${member} が選択したロールを既に持っている場合、そのロールは削除されます。許可されていないロールは無視されます。",
+	rolepanel_setup_embed_roles_field: "許可されたロール",
+	rolepanel_setup_embed_refused_field: "拒否されたロール",
+	rolepanel_setup_select_placeholder: "提供するロールを選択",
+	rolepanel_setup_apply_button: "パネルを作成",
+	rolepanel_setup_no_roles: "有効なロールが選択されていません。",
+	rolepanel_setup_saved: "ロールパネルを送信しました。",
+	rolepanel_panel_embed_title: "ロールパネル",
+	rolepanel_panel_embed_desc:
+		"プロフィールに追加または削除するロールを選択してください。",
+	rolepanel_panel_select_placeholder: "ロールを選択",
+	rolepanel_role_managed_or_everyone: "システムロールまたは @everyone",
+	rolepanel_role_too_high_bot: "ボットより高いロール",
+	rolepanel_role_too_high_user: "あなたより高いロール",
+	rolepanel_role_missing_permissions: "不足している権限: ${permissions}",
+	rolepanel_apply_added: "追加されたロール: ${roles}",
+	rolepanel_apply_removed: "削除されたロール: ${roles}",
+	rolepanel_apply_refused: "拒否されたロール: ${roles}",
+	rolepanel_logs_embed_title_create: "ロールパネルログ",
+	rolepanel_logs_embed_desc_create:
+		"<@${authorId}> がロールパネル (${messageId}) を作成しました: ${roles}",
+	rolepanel_logs_embed_title_apply: "ロールパネル使用ログ",
+	rolepanel_logs_embed_desc_apply:
+		"<@${authorId}> がパネルで <@${memberId}> のロールを変更しました。追加: ${addedRoles} | 削除: ${removedRoles}",
+
+	// AuthRestore HTML
+	rc_created_by: "作成者:",
+	rc_created_on: "作成日:",
+	rc_total_membres: "メンバー総数",
+	rc_total_verification: "総認証数",
+	rc_total_key_used_count: "キー使用回数",
+	rc_recent_locales_distribution: "メンバーのロケール分布",
+	rc_recent_verifications: "最近の認証",
+	rc_registration_over_time: "時間経過による登録",
+
+	// 画像専用モジュール
+	piconly_module_punish_msg:
+		"${messageAuthor}、画像専用チャンネルで画像なしのメッセージを多く送信したため、10分間タイムアウトされました。",
+	piconly_module_warn_msg:
+		"${messageAuthor}、このチャンネルは画像を含むメッセージのみを受け付けます（対応フォーマット：JPG、PNG、GIF、WEBP、BMP、TIFF）。警告 ${userWarningCount}/${threshold}",
+	piconly_module_timeout_reason:
+		"画像専用チャンネルでの画像なしメッセージのスパム",
+
+	// Nick Kicker Event
+	event_nick_kicker_kick_reason:
+		"ユーザー名に禁止された単語があります - ニックネームキッカー",
+	event_nick_kicker_kick_msg:
+		"サーバー `${memberGuildName}` において、あなたのユーザー名に禁止された単語が含まれています。サーバーからキックされました。",
+
+	// プロフィール画像モジュール
+	pfps_embed_user_title: "${username}の**ユーザー**アバター",
+	pfps_embed_guild_title: "${username}の**サーバー**アバター",
+	pfps_download_user_button: "ユーザーアバターをダウンロード",
+	pfps_download_guild_button: "サーバーアバターをダウンロード",
+	// -----------------------------\ /-----------------------------
+
+	// AddRoleReact Command
+	addrolereact_role_not_found: "役割が見つかりません。",
+	addrolereact_cannot_check_permissions:
+		"役割をチェックする権限がありません。",
+	addrolereact_role_too_high: "役割を追加する権限がありません。",
+	addrolereact_must_be_text_channel:
+		"このコマンドはテキストチャンネルで実行する必要があります。",
+	addrolereact_message_not_found: "メッセージが見つかりません。",
+	addrolereact_no_reactions: "このメッセージにはリアクションがありません。",
+	addrolereact_adding_role: "役割 {role} を追加中...",
+	addrolereact_adding_role_progress:
+		"役割 {role} を {count} 人のユーザーに追加中...",
+	addrolereact_role_added:
+		"役割 {role} を追加しました。{count} 人のユーザーが役割を受け取りました。",
+	addrolereact_error: "コマンドの実行中にエラーが発生しました。",
+
+	// チャンネル非表示/表示コマンド
+	channel_hide_in_progress: "現在のチャンネルを非表示にしています...",
+	channel_hide_success: "チャンネルが@everyoneから非表示になりました",
+	channel_hide_already_hidden:
+		"このチャンネルは既に@everyoneから非表示になっています",
+	channel_unhide_in_progress: "現在のチャンネルを表示しています...",
+	channel_unhide_success: "チャンネルが@everyoneに表示されるようになりました",
+	channel_unhide_already_visible:
+		"このチャンネルは既に@everyoneに表示されています",
+	channel_hideall_in_progress: "すべてのチャンネルを非表示にしています...",
+	channel_hideall_success:
+		"**非表示完了！**\n**統計:**\n• **{hiddenCount}** チャンネルが非表示になりました\n• **{errorCount}** エラーが発生しました",
+	channel_hideall_error: "チャンネルの非表示中にエラーが発生しました。",
+	channel_unhideall_in_progress: "すべてのチャンネルを表示しています...",
+	channel_unhideall_success:
+		"**表示完了！**\n**統計:**\n• **{unhiddenCount}** チャンネルが表示されました\n• **{errorCount}** エラーが発生しました",
+	channel_unhideall_error: "チャンネルの表示中にエラーが発生しました。",
+
+	// jp-JP.yml (Japanese - Japan)
+	new_guild_embed_title: [
+		"あなたのサーバーへようこそ！🎉",
+		"こんにちは、Discord仲間たち！👋",
+		"iHorizonがチャットに参加しました！💬",
+		"鳥だ、飛行機だ、いや、iHorizonだ！🦸‍♂",
+		"iHorizonを温かく迎えましょう！🔥",
+		"新しい冒険が始まります！🚀",
+		"素晴らしいメンバーが到着しました！✨"
+	],
+	new_guild_embed_desc:
+		"## ${randomMessage}\nこんにちは、素晴らしい友達たち！\n\n私はiHorizon、あなたのDiscord体験を特別で楽しいものにするために設計された高度なボットです。\n\n✨ **私ができること：**\n• インテリジェントでプロフェッショナルなサーバー管理\n• インタラクティブなゲームと無限のエンターテイメント\n• コミュニティ組織のための便利なツール\n• 24時間365日のテクニカルサポート\n\n私のコマンドを探索し、無限の可能性の世界に飛び込んでください。\n一緒に美しい思い出でいっぱいの素晴らしいコミュニティを構築しましょう！\n\n私を選んでくれてありがとう、この素晴らしい冒険を始めましょう！🌟",
+	new_guild_owner_dm_title: "iHorizonファミリーへようこそ！",
+	new_guild_owner_dm_description:
+		"# iHorizonをサーバーに追加してくれてありがとう！\n\n> *待って...それだけ？いいえ、絶対に違います。*\n\niHorizonはDiscordボットです。でもそれだけじゃない。コミュニティであり、伝説であり、6年以上（2020年）かけて構築されたプロジェクトです。\niHorizonを使うことは、完全なDiscordボットを持つことだけではなく、永遠に**無料**で**オープンソース**。それは**コンセプト**を受け入れることでもあります。\n\n> **無料のDiscordボットは有料ボットよりも良い仕事ができる。**\n*そう、それがiHorizon：情熱的な人々によって6年間維持されてきた完全なボットです。*\n\nそう...このメッセージの後、ありがとう。\n私たちはレギオンです。#ihorizon",
+	guild_create_btn_invite: "iHorizonを招待",
+	guild_create_btn_website: "iHorizonウェブサイト",
+	guild_create_btn_search: "iHorizon検索",
+	guild_create_btn_repos: "iHorizonリポジトリ",
+	guild_create_btn_support: "サポートサーバー",
+	guild_create_btn_docs: "iHorizonドキュメント",
+	bot_server_bio:
+		"{wink_emoji} **iHorizon Discord Bot** **`+{count} コマンド`**\n> *« 2022年から人々によって作られ、あなたのコミュニティのために。 »*\n**https://www.ihorizon.org**",
+	guild_leave_data_clear_notice_title: "iHorizonが${guildName}を退出しました",
+	guild_leave_data_clear_notice_description:
+		"えーん、悲しいです。`${guildName}`からボットをキックしました。iHorizonがそれまでに戻らない場合、サーバーデータは${deleteAt}に削除されます。",
+	guild_leave_data_clear_notice_message:
+		"えーん、悲しいです。`${guildName}`からiHorizonをキックしました。データは${deleteAt}に削除されます。",
+	guild_leave_data_clear_cancelled_title:
+		"iHorizonが${guildName}に戻りました",
+	guild_leave_data_clear_cancelled_description:
+		"やったー、`${guildName}`にiHorizonを戻してくれてありがとうございます。予定されていたデータ削除はキャンセルされました。",
+	guild_leave_data_clear_cancelled_message:
+		"やったー、`${guildName}`にiHorizonを戻してくれてありがとうございます。サーバーデータは安全です。",
+
+	// Confession Event
+	confession_embed_logs_title: "新しい告白",
+	confession_channel_button_name: "匿名で返信",
+	confession_1_embed_log_title: "告白への新しい返信",
+
+	// Context Menu Interaction
+	global_unknown_message: "メッセージが見つかりません。",
+	global_error: "❌ エラー",
+	global_not_atc: "選択したメッセージには添付ファイルがありません。",
+	global_not_valid_atc:
+		"選択した添付ファイルは有効な音声ファイルではありません。",
+	global_too_heavy_file:
+		"生成された MP4 ファイルが大きすぎます (${fileSize} MB)。Discord の上限は 25 MB です。",
+	global_convert_ok: "✅ 変換成功",
+	global_convert_ok_desc:
+		"音声ファイルが MP4 に変換されました (${fileSize} MB)。",
+
+	// Economy logs titles
+	economy_logs_add_money_title: "経済ログ - お金の追加",
+	economy_logs_remove_money_title: "経済ログ - お金の削除",
+	economy_logs_boost_role_title: "経済ログ - ロールブースト",
+	economy_logs_config_title: "経済ログ - モジュール設定",
+	economy_logs_role_add_title: "経済ログ - ショップにロールを追加",
+	economy_logs_role_remove_title: "経済ログ - ショップからロールを削除",
+	economy_logs_pay_title: "経済ログ - 支払い",
+	economy_logs_rob_title: "経済ログ - 強奪",
+	economy_logs_set_cooldown_title: "経済ログ - クールダウン設定",
+	economy_logs_set_money_title: "経済ログ - 金額設定",
+	economy_logs_withdraw_title: "経済ログ - 引き出し",
+	economy_logs_deposit_title: "経済ログ - 預け入れ",
+
+	// Economy logs descriptions
+	economy_logs_add_money_desc:
+		"{author} が {target} に `{amount}$` {coin} を追加しました",
+	economy_logs_remove_money_desc:
+		"{author} が {target} から `{amount}$` {coin} を削除しました",
+	economy_logs_boost_role_desc:
+		"{author} がロール {role} のブーストを設定しました。現在のブースト: `x{amount}`",
+	economy_logs_config_desc: "{author} が経済モジュールを{state}しました",
+	economy_logs_role_add_desc:
+		"{author} がロール {role} をショップに追加しました。価格: `{amount}$`",
+	economy_logs_role_remove_desc:
+		"{author} がロール {role} をショップから削除しました。",
+	economy_logs_pay_desc: "{author} が {target} に `{amount}$` を送信しました",
+	economy_logs_rob_desc: "{author} が {target} から `{amount}$` を奪いました",
+	economy_logs_set_cooldown_desc:
+		"{author} が `{type}` のクールダウンを **{time}** に設定しました",
+	economy_logs_set_money_desc:
+		"{author} が `{type}` の金額を **{money}** に設定しました",
+	economy_logs_withdraw_desc:
+		"{author} が銀行から **${money}** を引き出しました",
+	economy_logs_deposit_desc: "{author} が銀行に **${money}** を預けました",
+
+	// Generic vars
+	var_on: "有効",
+	var_off: "無効",
+	global_command_cooldown_msg:
+		"${emoji} **`${ctxCommandPath}`** の使用間隔を **${time}** 待つ必要があります",
+
+	global_warn_embed_title: "警告を受けました – ケース **`${id}`**",
+	global_warn_embed_desc:
+		"> **理由:** ${reason}\n> **担当者:** @${authorUsername} (*${authorRolesHighestName}*)\n警告が生成されました ${time}",
+	global_warn_component_button_label: "${authorGuildName} から送信",
+
+	counter_error_too_much_u:
+		"<@${messageAuthorId}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**",
+	counter_error_syntaxic:
+		"<@${messageAuthorId}> が間違えました！！ 次の数字は **1** です。",
+
+	global_blacklist_msg_to_send:
+		"あなたのアカウントが iHorizon のグローバルブラックリストに登録されているため、このサーバーから自動的にBANされました。\n\n理由: `${reason}`\n\n利用規約の第3条に基づき、iHorizon を使用しているサーバーは、このグローバルブラックリストに関連する制裁をボットが自動的に適用することに同意しています。\n\nもしこれが誤りだと思われる場合、またはこの決定に異議を申し立てたい場合は、こちらからアピールできます:\nAppeal: <https://www.ihorizon.org/appeal>\n\n利用規約: <https://www.ihorizon.org/tos>",
+	global_blacklist_reason:
+		"iHorizon プロジェクト処分 - ブラックリスト | 理由: ${reason}",
+	server_blacklist_msg_to_send:
+		"このサーバーのブラックリストに登録されているため、あなたはBANされました。\n理由: `${data2Reason}`",
+	server_blacklist_reason: "ブラックリスト | 理由: ${data2Reason}",
+	help_sticky_fields: "Sticky",
+	help_sticky_dsc:
+		"> *自動再投稿で重要なメッセージをチャンネル内で常に見える状態に保ちます。*",
+	sticky_channel_command_error:
+		"${emoji_No} | ${author}、有効なテキストチャンネルが見つかりませんでした。",
+	sticky_text_command_missing_message:
+		"${emoji_No} | ${author}、sticky メッセージを指定する必要があります。",
+	sticky_text_command_work:
+		"${emoji_Yes} | ${author}、テキストの sticky メッセージが ${channel} で有効になりました。",
+	sticky_embed_command_embed_not_found:
+		"${emoji_No} | ${author}、embed `${embed_id}` が見つかりませんでした。",
+	sticky_embed_command_work:
+		"${emoji_Yes} | ${author}、sticky embed `${embed_id}` が ${channel} で有効になりました。",
+	sticky_disable_command_not_found:
+		"${emoji_No} | ${author}、${channel} には sticky メッセージが設定されていません。",
+	sticky_disable_command_work:
+		"${emoji_Yes} | ${author}、${channel} の sticky メッセージを無効にしました。",
+	sticky_refresh_command_not_found:
+		"${emoji_No} | ${author}、${channel} には sticky メッセージが設定されていません。",
+	sticky_refresh_command_missing_embed:
+		"${emoji_No} | ${author}、${channel} の sticky メッセージは、もう存在しない embed を参照しています。",
+	sticky_refresh_command_missing_permissions:
+		"${emoji_No} | ${author}、${channel} に sticky メッセージを再投稿できません。権限を確認してください。",
+	sticky_refresh_command_work:
+		"${emoji_Yes} | ${author}、sticky メッセージを ${channel} に再投稿しました。",
+	sticky_show_command_not_found:
+		"${emoji_No} | ${author}、${channel} には sticky メッセージが設定されていません。",
+	sticky_show_embed_title: "Sticky メッセージ設定",
+	sticky_show_embed_fields_channel: "チャンネル",
+	sticky_show_embed_fields_type: "種類",
+	sticky_show_embed_fields_status: "状態",
+	sticky_show_embed_fields_message: "メッセージ",
+	sticky_show_embed_fields_embed: "Embed ID",
+	sticky_show_embed_fields_last_message: "最後の sticky メッセージ ID",
+	sticky_list_embed_title: "Sticky チャンネル",
+	sticky_list_embed_desc_empty:
+		"このサーバーには sticky チャンネルが設定されていません。",
+	sticky_list_embed_desc_line_text: "${channel} - テキスト sticky",
+	sticky_list_embed_desc_line_embed:
+		"${channel} - Embed sticky (`${embed_id}`)",
+	sticky_list_embed_desc_line_text_embed:
+		"${channel} - テキスト + embed sticky (`${embed_id}`)",
+	sticky_var_text: "テキスト",
+	sticky_var_embed: "Embed",
+	sticky_var_text_embed: "テキスト + embed",
+	sticky_var_enabled: "有効",
+	sticky_var_disabled: "無効",
+	sticky_var_none: "なし",
+
+	// /honeypot config
+	honeypot_config_not_allowed:
+		"Honeypot を設定するには、管理者であるか allowlist に入っている必要があります。",
+	honeypot_config_embed_title: "Honeypot 設定",
+	honeypot_config_embed_desc:
+		"トラップチャンネル、ログチャンネル、そして *Honeypot* チャンネルで誰かがメッセージの送信を開始したときに使う自動アクションを設定します。",
+	honeypot_config_embed_field_status: "状態",
+	honeypot_config_embed_field_trap_channel: "トラップチャンネル",
+	honeypot_config_embed_field_logs_channel: "ログチャンネル",
+	honeypot_config_embed_field_action: "アクション",
+	honeypot_config_embed_field_message: "送信済みメッセージ",
+	honeypot_config_embed_field_notes: "注意",
+	honeypot_config_embed_field_credit: "クレジット",
+	honeypot_config_notes_value:
+		"- **iHorizon ロールをすべてのメンバーロールより上に配置してください。**\n- **自動作成された Honeypot チャンネルはサーバーの一番上へ移動されます。**\n- **Honeypot チャンネルは名前を変更してもシステムは壊れません。**",
+	honeypot_config_credit_value:
+		"*RiskyMH による Honeypot に着想を得ています*\n${url}",
+	honeypot_config_select_trap_placeholder: "トラップチャンネルを選択",
+	honeypot_config_select_logs_placeholder: "ログチャンネルを選択",
+	honeypot_config_select_action_placeholder: "適用するアクションを選択",
+	honeypot_config_button_send: "Embed を送信",
+	honeypot_config_button_preview: "プレビュー",
+	honeypot_config_button_enable: "Honeypot を有効化",
+	honeypot_config_button_disable: "Honeypot を無効化",
+	honeypot_config_send_success:
+		"Honeypot の embed を ${channel} に送信しました。",
+	honeypot_config_enable_success:
+		"Honeypot は ${channel} で有効になりました。",
+	honeypot_config_disable_success: "Honeypot は無効になりました。",
+	honeypot_config_missing_logs_channel:
+		"Honeypot を有効化する前にログチャンネルを設定する必要があります。",
+	honeypot_config_generic_error: "Honeypot の更新中にエラーが発生しました。",
+	honeypot_config_select_action_kick: "ユーザーをキックする",
+	honeypot_config_select_action_ban: "ユーザーをバンする",
+	honeypot_config_select_action_none: "メッセージのみを削除",
+	honeypot_config_select_action_del_messages: "メッセージを削除",
+	honeypot_default_channel_name: "🍯・general-chat",
+	honeypot_action_none: "メッセージのみ削除",
+	honeypot_action_failed: "アクション失敗",
+	honeypot_dm_action_kicked: "あなたはキックされました！",
+	honeypot_dm_action_banned: "あなたはバンされました！",
+	honeypot_dm_action_none: "あなたのメッセージは削除されました",
+	honeypot_trap_embed_title:
+		"このチャンネルにメッセージを送信しないでください",
+	honeypot_trap_embed_desc:
+		"*このチャンネルはスパムボットを捕まえるために使用されます。*\n*ここに送信されたメッセージはサーバーの自動保護を**トリガー**します。*",
+	honeypot_trap_embed_footer:
+		"RiskyMH の Honeypot に着想を得ています、チェックしてみてください！\n${url}",
+	honeypot_dm_title: "Honeypot 発動!",
+	honeypot_dm_desc:
+		"以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*",
+	honeypot_log_title: "Honeypot 発動 - ${action}",
+	honeypot_log_field_author: "送信者",
+	honeypot_log_field_channel: "チャンネル",
+	honeypot_log_field_message: "削除されたメッセージ",
+	honeypot_log_field_attachments: "添付ファイル",
+	honeypot_log_field_stickers: "ステッカー",
+	honeypot_log_field_embeds: "Embeds",
+	honeypot_log_field_deleted_messages: "削除されたメッセージ数",
+	honeypot_log_field_triggered_messages: "トリガーされたメッセージ数",
+	honeypot_log_field_dm_status: "DM 状態",
+	honeypot_log_field_result: "結果",
+	honeypot_log_dm_open: "配信済み",
+	honeypot_log_dm_closed: "閉じているか到達不可",
+	honeypot_log_no_content: "テキスト内容なし",
+	honeypot_log_action_ban: "ユーザーをバン",
+	honeypot_log_action_kick: "ユーザーをキック",
+	honeypot_log_action_none: "アクションなし",
+
+	// TTSモジュール
+	// /tts join, /tts leave, /tts info, /tts lang
+
+	help_tts_fields: "TTS",
+	help_tts_dsc: "> *iHorizonでボイスチャンネルのテキストを音声に変換！*",
+
+	// /tts join
+	tts_join_not_in_voice:
+		"${emoji_No} このコマンドを使用するにはボイスチャンネルに接続する必要があります！",
+	tts_join_already_enabled:
+		"${emoji_No} TTSモジュールはこのサーバーで既に有効です！",
+	tts_join_music_playing:
+		"${emoji_No} このサーバーでは現在音楽が再生中です。TTSを有効にする前に音楽を停止してください。",
+	tts_join_enabled:
+		"${emoji_Yes} TTSモードが${voiceChannel}で有効になりました！",
+	tts_join_error: "${emoji_No} TTSモードの有効化中にエラーが発生しました。",
+	tts_join_lang_fallback: "jp-JP",
+
+	// /tts leave
+	tts_leave_not_active:
+		"${emoji_No} TTSモジュールは現在このサーバーで有効ではありません！",
+	tts_leave_not_in_voice:
+		"${emoji_No} TTSを無効にするにはTTSボイスチャンネルにいる必要があります！",
+	tts_leave_disabled:
+		"${emoji_Yes} TTSモードがこのサーバーで無効になりました！",
+
+	// /tts info
+	tts_info_embed_title: "TTSモジュール情報",
+	tts_info_embed_description:
+		"TTS（Text-to-Speech）モジュールは、iHorizonがボイスチャンネルでメッセージを読み上げることを可能にします。有効にすると、ボイスチャンネルにいるメンバーが設定されたテキストチャンネルに送信した各メッセージがiHorizonによって読み上げられます。",
+	tts_info_field_status: "ステータス",
+	tts_info_field_lang: "TTS言語",
+	tts_info_field_howto: "使い方",
+	tts_info_howto_value:
+		"`/tts join` でボイスチャンネルでTTSを開始します。\n`/tts leave` でTTSを停止します。\n`/tts lang` で音声言語を変更します。",
+
+	// /tts lang
+	tts_lang_not_active:
+		"${emoji_No} TTSモジュールは現在このサーバーで有効ではありません！",
+	tts_lang_set: "${emoji_Yes} TTS言語が `${language}` に設定されました。",
+
+	// TTS Embed
+	tts_embed_title: "TTSモード有効",
+	tts_embed_description:
+		"TTSモジュールが${voiceChannel}で有効になりました。\nボイスチャンネルにいるメンバーがここに送信したすべてのメッセージが読み上げられます。\n\n**ボイスチャンネルのメンバー:** ${members}",
+	tts_embed_footer: "/tts leave でTTSを停止",
+	tts_join_not_text_based:
+		"${emoji_No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。",
+	tts_music_blocked:
+		"${emoji_No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。",
+	tts_voice_status: "TTSモード - 音声合成",
+
+	// H24/7 module
+	// /h247 join, /h247 leave
+
+	help_h247_fields: "H24/7",
+	help_h247_dsc:
+		"> *iHorizonをボイスチャンネルに24時間365日接続し続けます！*",
+
+	// /h247 join
+	h247_join_invalid_channel:
+		"${emoji_No} 有効なボイスチャンネルを指定してください！",
+	h247_join_already_active:
+		"${emoji_No} H24/7モジュールはすでに${voiceChannel}で有効です！",
+	h247_join_music_playing:
+		"${emoji_No} このサーバーでは現在音楽が再生されています。H24/7モジュールを有効にする前に音楽を停止してください。",
+	h247_join_tts_active:
+		"${emoji_No} TTSモジュールが現在別のボイスチャンネルで有効です。H24/7モジュールを有効にする前にTTSを無効にしてください。",
+	h247_joined:
+		"${emoji_Yes} iHorizonは${voiceChannel}に24時間365日接続し続けます！",
+	h247_join_error:
+		"${emoji_No} H24/7モジュールの有効化中にエラーが発生しました。",
+
+	// /h247 leave
+	h247_leave_not_active:
+		"${emoji_No} H24/7モジュールはこのサーバーでは現在有効ではありません！",
+	h247_left: "${emoji_Yes} このサーバーのH24/7モジュールは無効になりました！",
+	h247_leave_error:
+		"${emoji_No} H24/7モジュールの無効化中にエラーが発生しました。",
+
+	// /h247 info
+	h247_info_embed_title: "H24/7モジュール情報",
+	h247_info_embed_description:
+		"H24/7モジュールは、何も再生していなくてもiHorizonを24時間365日ボイスチャンネルに接続し続けます。サーバーのボイスアクティビティ streak を維持するのに役立ちます。\nこのモジュールが有効な間、音楽とTTSはH24/7のボイスチャンネル内でのみ動作します。\n接続は再起動やプレイヤー停止後も自動的に復旧します。",
+	h247_info_field_status: "ステータス",
+	h247_info_field_howto: "使い方",
+	h247_info_howto_value:
+		"`/h247 join` でiHorizonをボイスチャンネルに常駐させます。\n`/h247 leave` でモジュールを無効化します。\n`/h247 info` でこのパネルを表示します。",
+
+	// /music play
+	h247_play_refused:
+		"${emoji_No} このサーバーではH24/7モジュールが有効です。音楽を再生するにはH24/7のボイスチャンネルに参加してください！",
+
+	// /tts join
+	h247_tts_refused:
+		"${emoji_No} このサーバーではH24/7モジュールが有効です。TTSを有効にするにはH24/7のボイスチャンネルに参加してください！",
+	gw_go_duration_too_low: "${emoji_No} | 最短の期間は3分です！"
+} satisfies LanguageData;

@@ -91,28 +91,16 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.vkick_logEmbed_title,
 			description: lang.vkick_logEmbed_desc
-				.replace(
-					"${interaction.member.user.toString()}",
-					interaction.member.user.toString()
-				)
-				.replace("${member.toString()}", member.toString())
-				.replace(
-					"${voiceChannel?.toString()}",
-					voiceChannel?.toString()!
-				)
+				.replace("${author}", interaction.member.user.toString())
+				.replace("${member}", member.toString())
+				.replace("${voiceChannel}", voiceChannel?.toString()!)
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.vkick_command_work
-				.replace("${member.toString()}", member.toString())
-				.replace(
-					"${interaction.member.user.toString()}",
-					interaction.member.user.toString()
-				)
-				.replace(
-					"${voiceChannel?.toString()}",
-					voiceChannel?.toString()!
-				)
+				.replace("${member}", member.toString())
+				.replace("${author}", interaction.member.user.toString())
+				.replace("${voiceChannel}", voiceChannel?.toString()!)
 		});
 		return;
 	}

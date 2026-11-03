@@ -92,8 +92,8 @@ export const subCommand: SubCommand = {
 				.setImage(`attachment://love.png`)
 				.setDescription(
 					lang.love_embed_description
-						.replace("${user1.username}", user1.username)
-						.replace("${user2.username}", user2.username)
+						.replace("${user1Username}", user1.username)
+						.replace("${user2Username}", user2.username)
 						.replace("${randomNumber}", randomNumber.toString())
 				)
 				.setFooter(

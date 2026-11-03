@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+	<rect width="{width}" height="{height}" rx="3" fill="#d6d2c8"/>
+	<g fill="none" stroke="#1c130a" stroke-linecap="round">{noise_back}</g>
+	<g font-family="Rye" font-size="38" fill="#1c130a">{code}</g>
+	<g fill="none" stroke="#1c130a" stroke-linecap="round">{noise_front}</g>
+</svg>

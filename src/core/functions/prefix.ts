@@ -20,12 +20,15 @@
 */
 
 import { Client } from "discord.js";
+import { getCachedGuildValue } from "../modules/guildConfigCache.js";
 
 export async function guildPrefix(
 	client: Client,
 	guildId: string
 ): Promise<{ type: "prefix" | "mention"; string: string }> {
-	const custom_prefix = await client.db.get(`${guildId}.BOT.prefix`);
+	const custom_prefix = await getCachedGuildValue<string>(
+		`${guildId}.BOT.prefix`
+	);
 	const prefix_string =
 		(!custom_prefix
 			? client.config.discord.messageCommandsMention

@@ -274,7 +274,7 @@ export const event: BotEvent = {
 						.setDescription(
 							lang.new_guild_owner_dm_description
 								.replace("${owner}", user.username)
-								.replace("${guild.name}", guild.name)
+								.replace("${guildName}", guild.name)
 						)
 						.setThumbnail(Expressions.Wink)
 						.setFooter({

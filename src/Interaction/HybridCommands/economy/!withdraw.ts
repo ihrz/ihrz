@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
-					"${interaction.user.id}",
+					"${authorId}",
 					interaction.member.user.id
 				)
 			});
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 		if (isNaN(Number(toWithdraw))) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${interaction.client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 		if (clean_to_withdraw <= 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${interaction.client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -100,7 +100,7 @@ export const subCommand: SubCommand = {
 		if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.withdraw_cannot_abuse.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -125,14 +125,8 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.withdraw_embed_title)
 			.setDescription(
 				lang.withdraw_embed_desc
-					.replace(
-						"${client.iHorizon_Emojis.Coin}",
-						client.iHorizon_Emojis.Coin
-					)
-					.replace(
-						"${interaction.user}",
-						interaction.member.user.toString()
-					)
+					.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
+					.replace("${author}", interaction.member.user.toString())
 					.replace("${toWithdraw}", toWithdraw.toString())
 			)
 			.addFields({

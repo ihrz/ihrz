@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace(
-					"${client.iHorizon_Emojis.No}",
+					"${emoji_No}",
 					client.iHorizon_Emojis.No
 				)
 			});
@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 
 		const confirm = await promptYesOrNo(interaction, {
 			content: lang.backup_load_confirm.replace(
-				"${interaction.member.user.toString()}",
+				"${author}",
 				interaction.member.user.toString()
 			),
 			yesButton: lang.var_confirm,
@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.channelSend(interaction, {
 			content: lang.backup_waiting_on_load.replace(
-				"${client.iHorizon_Emojis.Yes}",
+				"${emoji_Yes}",
 				client.iHorizon_Emojis.Yes
 			),
 			components: []

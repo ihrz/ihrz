@@ -64,16 +64,13 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_freeze_logs_title,
 			description: lang.util_freeze_logs_description
-				.replace(
-					"${interaction.member.user.toString()}",
-					member.user.toString()
-				)
-				.replace("${voiceChannel.toString()}", voiceChannel.toString())
+				.replace("${author}", member.user.toString())
+				.replace("${voiceChannel}", voiceChannel.toString())
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_freeze_command_work.replace(
-				"${voiceChannel.toString()}",
+				"${voiceChannel}",
 				voiceChannel.toString()
 			)
 		});

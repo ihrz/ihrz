@@ -36,6 +36,8 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import formatNumber from "../../../core/functions/numberBeautifuer.js";
+import { renderPodium } from "../../../core/modules/podiumCard.js";
+import { fetchAvatar } from "../../../core/modules/statsPage.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -83,78 +85,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let htmlContent = client.htmlfiles["podiumRanksModule"];
-
 		// Sort array by total XP in descending order
 		array.sort((a, b) => b.xptotal - a.xptotal);
 
 		// Pagination setup
 		const itemsPerPage = 10;
 		const totalPages = Math.ceil(array.length / itemsPerPage);
-
-		htmlContent = htmlContent
-			.replaceAll(
-				"{title}",
-				lang.ranks_leaderboard_embed_title.replace(
-					"${interaction.guild?.name}",
-					interaction.guild.name
-				)
-			)
-			// username
-			.replaceAll(
-				"{1_username}",
-				array[0]?.user.username || lang.profil_unknown
-			)
-			.replaceAll(
-				"{2_username}",
-				array[1]?.user.username || lang.profil_unknown
-			)
-			.replaceAll(
-				"{3_username}",
-				array[2]?.user.username || lang.profil_unknown
-			)
-			// level
-			.replaceAll(
-				"{1_level}",
-				lang.ranks_config_var_level.replace(
-					"{level}",
-					array[0]?.level.toString() || lang.var_none
-				)
-			)
-			.replaceAll(
-				"{2_level}",
-				lang.ranks_config_var_level.replace(
-					"{level}",
-					array[1]?.level.toString() || lang.var_none
-				)
-			)
-			.replaceAll(
-				"{3_level}",
-				lang.ranks_config_var_level.replace(
-					"{level}",
-					array[2]?.level.toString() || lang.var_none
-				)
-			)
-			// avatar
-			.replaceAll(
-				"{1_avatar}",
-				array[0]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			.replaceAll(
-				"{2_avatar}",
-				array[1]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			.replaceAll(
-				"{3_avatar}",
-				array[2]?.user.avatarURL({ extension: "png", size: 128 }) ||
-					"https://www.ihorizon.org/assets/img/unknown-user.png"
-			)
-			// xp
-			.replaceAll("{1_xp}", formatNumber(array[0]?.xptotal).toString())
-			.replaceAll("{2_xp}", formatNumber(array[1]?.xptotal).toString())
-			.replaceAll("{3_xp}", formatNumber(array[2]?.xptotal).toString());
 
 		const createEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
@@ -197,12 +133,29 @@ export const subCommand: SubCommand = {
 			return embed;
 		};
 
-		const image = await client.func.html2png(htmlContent, {
-			elementSelector: "body",
-			omitBackground: true,
-			selectElement: false,
-			width: 1024,
-			height: 512
+		const podium = array.slice(0, 3);
+		const image = await renderPodium({
+			title: lang.ranks_leaderboard_embed_title.replace(
+				"${guildName}",
+				interaction.guild.name
+			),
+			badgeColors: ["#22c55e", "#16a34a"],
+			entries: await Promise.all(
+				podium.map(async (entry) => ({
+					name: entry.user.username || lang.profil_unknown,
+					subtitle: lang.ranks_config_var_level.replace(
+						"{level}",
+						entry.level.toString()
+					),
+					avatar: await fetchAvatar(
+						entry.user.displayAvatarURL({
+							extension: "png",
+							size: 128
+						})
+					),
+					badge: `${formatNumber(entry.xptotal)} XP`
+				}))
+			)
 		});
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });

@@ -46,20 +46,6 @@ import maskLink from "../../core/functions/maskLink.js";
  * voice channel. Reuses the capability wording of the text interface
  * (tempvoice_if_text_fields_value_*) so both dashboards stay consistent.
  */
-const VOICE_PANEL_EMOJI_MAP: Record<string, string> = {
-	"${client.iHorizon_Emojis.VC_Limit}": "VC_Limit",
-	"${client.iHorizon_Emojis.VC_Name}": "VC_Name",
-	"${client.iHorizon_Emojis.VC_Region}": "VC_Region",
-	"${client.iHorizon_Emojis.VC_Trust}": "VC_Trust",
-	"${client.iHorizon_Emojis.VC_Untrust}": "VC_Untrust",
-	"${client.iHorizon_Emojis.VC_Block}": "VC_Block",
-	"${client.iHorizon_Emojis.VC_Unblock}": "VC_Unblock",
-	"${client.iHorizon_Emojis.VC_Claim}": "VC_Claim",
-	"${client.iHorizon_Emojis.VC_Privacy}": "VC_Privacy",
-	"${client.iHorizon_Emojis.VC_Transfer}": "VC_Transfer",
-	"${client.iHorizon_Emojis.VC_Delete}": "VC_Delete"
-};
-
 export function buildVoicePanel(
 	lang: LanguageData,
 	channelName: string,
@@ -77,25 +63,14 @@ export function buildVoicePanel(
 		lang.tempvoice_if_text_fields_value_privacy,
 		lang.tempvoice_if_text_fields_value_transfer,
 		lang.tempvoice_if_text_fields_value_delete
-	]
-		.join("\n")
-		.replaceAll(
-			/\$\{client\.iHorizon_Emojis\.VC_\w+\}/g,
-			(token) =>
-				(client.iHorizon_Emojis as Record<string, string>)[
-					VOICE_PANEL_EMOJI_MAP[token]
-				]
-		);
+	].join("\n");
 
 	const container = new ContainerBuilder().setAccentColor(0xed8bbe);
 
 	container.addTextDisplayComponents(
 		new TextDisplayBuilder().setContent(
 			`${lang.tempvoice_v2_embed_title
-				.replace(
-					"${client.iHorizon_Emojis.VC_Name}",
-					client.iHorizon_Emojis.VC_Name
-				)
+				.replace("${emoji_VC_Name}", client.iHorizon_Emojis.VC_Name)
 				.replace(
 					"${channelName}",
 					channelName
@@ -187,9 +162,15 @@ export function buildVoicePanel(
 					actions.map((action) =>
 						new StringSelectMenuOptionBuilder()
 							.setLabel(
+								// The emoji is set on the option itself.
 								action.text
 									.replace(
-										/\$\{client\.iHorizon_Emojis\.VC_\w+\}/g,
+										(
+											client.iHorizon_Emojis as Record<
+												string,
+												string
+											>
+										)[action.emojiName] ?? "",
 										""
 									)
 									.replaceAll("**", "")

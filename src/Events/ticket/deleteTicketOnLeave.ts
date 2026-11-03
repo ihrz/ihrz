@@ -60,14 +60,8 @@ export const event: BotEvent = {
 					)
 					.setDescription(
 						lang.event_ticket_logsChannel_onDelete_embed_desc
-							.replace(
-								"${interaction.user}",
-								member.user.toString()
-							)
-							.replace(
-								"${interaction.channel.name}",
-								channel?.name!
-							)
+							.replace("${author}", member.user.toString())
+							.replace("${channelName}", channel?.name!)
 					)
 					.setFooter(
 						await client.func.displayBotName.footerBuilder(

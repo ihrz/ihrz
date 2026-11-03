@@ -81,11 +81,8 @@ export const subCommand: SubCommand = {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.resetallinvites_logs_embed_title,
 				description: lang.reset_uranks_logs_embed_desc
-					.replace(
-						"${interaction.member.user.toString()}",
-						interaction.member.user.toString()
-					)
-					.replace("${user.toString()}", user.toString())
+					.replace("${author}", interaction.member.user.toString())
+					.replace("${user}", user.toString())
 			});
 		} else {
 			await client.func.method.interactionSend(interaction, {

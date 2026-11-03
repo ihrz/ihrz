@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tag_use_not_allowed
 					.replace("${tag_name}", tag_name)
-					.replace("${tag.createBy}", tag.createBy)
+					.replace("${createBy}", tag.createBy)
 			});
 			return;
 		}

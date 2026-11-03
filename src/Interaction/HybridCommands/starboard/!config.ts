@@ -70,10 +70,7 @@ export const subCommand: SubCommand = {
 
 		client.func.method.interactionSend(interaction, {
 			content: lang.starboard_config_command_ok
-				.replaceAll(
-					"${client.iHorizon_Emojis.Yes}",
-					client.iHorizon_Emojis.Yes
-				)
+				.replaceAll("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 				.replaceAll("${action}", action)
 		});
 	}

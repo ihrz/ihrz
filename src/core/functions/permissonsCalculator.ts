@@ -257,10 +257,7 @@ export async function sendErrorMessage(
 
 	return await interaction.client.func.method.interactionSend(interaction, {
 		content: lang.event_permission_wrong
-			.replace(
-				"${interaction.member?.user.toString()}",
-				interaction.member?.user.toString()!
-			)
+			.replace("${author}", interaction.member?.user.toString()!)
 			.replace("${neededPerm}", neededPerm),
 		flags: [1 << 6]
 	});
