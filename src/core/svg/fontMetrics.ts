@@ -64,13 +64,15 @@ const SCRIPT_FAMILIES: ScriptFamily[] = [
 	"Noto Sans KR"
 ];
 
+// Script_Extensions, not Script: shared characters such as the katakana
+// long vowel mark (U+30FC) or the Arabic tatweel are "Common" by Script.
 const SCRIPT_PATTERNS: [ScriptFamily, RegExp][] = [
-	["Noto Sans Arabic", /\p{Script=Arabic}/u],
-	["Noto Sans KR", /\p{Script=Hangul}/u],
+	["Noto Sans Arabic", /\p{Script_Extensions=Arabic}/u],
 	[
 		"Noto Sans JP",
-		/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303f\uff00-\uffef]/u
-	]
+		/[\p{Script_Extensions=Han}\p{Script_Extensions=Hiragana}\p{Script_Extensions=Katakana}\uff00-\uffef]/u
+	],
+	["Noto Sans KR", /\p{Script_Extensions=Hangul}/u]
 ];
 
 /**

@@ -110,8 +110,16 @@ export async function generateJoinImage(
 	const kit = member.client.func.svgKit;
 
 	let backgroundURL =
-		(await member.client.func.bannerURL(member.guild, { size: 1024 })) ||
-		(await member.client.func.bannerURL(member.user, { size: 1024 })) ||
+		(await member.client.func.bannerURL(member.guild, {
+			size: 1024,
+			extension: "png",
+			forceStatic: true
+		})) ||
+		(await member.client.func.bannerURL(member.user, {
+			size: 1024,
+			extension: "png",
+			forceStatic: true
+		})) ||
 		"";
 	let profilePictureRound = member.displayHexColor;
 	let textColour = "#aa9999";

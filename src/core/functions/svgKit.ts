@@ -141,14 +141,15 @@ function runsOf(parts: Grapheme[], base: FontFamily): Run[] {
 	const runs: Run[] = [];
 	for (const part of parts) {
 		const last = runs[runs.length - 1];
+		const neutral = NEUTRAL.test(part.value);
+		const family = scriptFamilyOf(part.value);
+		const lastIsScript =
+			!!last && last.kind !== "emoji" && last.kind !== base;
 		let kind: RunKind;
 		if (part.emoji) kind = "emoji";
-		else
-			kind =
-				scriptFamilyOf(part.value) ??
-				(NEUTRAL.test(part.value) && last && last.kind !== "emoji"
-					? last.kind
-					: base);
+		// Shared punctuation stays in the script run it belongs to.
+		else if (family) kind = neutral && lastIsScript ? last!.kind : family;
+		else kind = neutral && last && last.kind !== "emoji" ? last.kind : base;
 
 		if (last && last.kind === kind && kind !== "emoji")
 			last.value += part.value;
@@ -506,10 +507,38 @@ export function image(source: Buffer, options: ImageOptions): SvgMarkup {
 	);
 }
 
+const DISCORD_HOSTS = new Set(["cdn.discordapp.com", "media.discordapp.net"]);
+
+/**
+ * Discord serves WebP by default, which resvg 2.6 cannot decode: ask the
+ * CDN / media proxy for PNG instead (attachments go through the media
+ * proxy, which converts on `format=png`).
+ */
+function preferPng(url: string): string {
+	let parsed: URL;
+	try {
+		parsed = new URL(url);
+	} catch {
+		return url;
+	}
+	if (!DISCORD_HOSTS.has(parsed.hostname)) return url;
+
+	if (/^\/(ephemeral-)?attachments\//.test(parsed.pathname)) {
+		parsed.hostname = "media.discordapp.net";
+		parsed.searchParams.set("format", "png");
+	} else {
+		parsed.pathname = parsed.pathname.replace(/\.webp$/i, ".png");
+	}
+	return parsed.toString();
+}
+
 /**
  * Downloads a user-supplied image URL safely (public hosts only, bounded
  * size and time). Use it for any URL that does not come from Discord.
+ * WebP (not decodable by resvg 2.6) is reported as missing, never drawn
+ * as an empty image.
  */
-export function fetchImage(url: string): Promise<Buffer | null> {
-	return fetchPublicImage(url);
+export async function fetchImage(url: string): Promise<Buffer | null> {
+	const buffer = await fetchPublicImage(preferPng(url));
+	return buffer && mimeOf(buffer) !== "image/webp" ? buffer : null;
 }
