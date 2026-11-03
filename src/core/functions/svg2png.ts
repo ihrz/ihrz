@@ -27,7 +27,7 @@
  * only when the SVG uses them.
  */
 
-import { renderAsync } from "@resvg/resvg-js";
+import type { renderAsync as RenderAsync } from "@resvg/resvg-js";
 
 import { fontFilesFor } from "../svg/fontMetrics.js";
 import { GatewayMethod, HorizonGatewayInternal } from "./apiUrlParser.js";
@@ -131,9 +131,14 @@ export default async function svg2png(
 	);
 }
 
+// Loaded on first local render only: a deployment rendering on the gateway
+// still boots if the native module is missing.
+let localRenderer: typeof RenderAsync | null = null;
+
 async function render(svg: string, options: Svg2PngOptions): Promise<Buffer> {
+	localRenderer ??= (await import("@resvg/resvg-js")).renderAsync;
 	const scale = options.scale ?? 1;
-	const rendered = await renderAsync(svg, {
+	const rendered = await localRenderer(svg, {
 		font: {
 			fontFiles: fontFilesFor(svg),
 			loadSystemFonts: false,
