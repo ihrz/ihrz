@@ -100,6 +100,7 @@ gone.
 | ranks / economy podiums | `src/core/modules/podiumCard.ts` |
 | latency monitoring | `src/assets/svg/botLatencyMonitoring.svg` |
 
-Puppeteer is still a dependency for two non-rendering uses: `/togif`
-decodes WebP through a browser canvas (resvg-js 2.6 cannot decode WebP)
-and `tools/ChangelogPdf.ts` prints the changelog PDFs.
+Puppeteer is no longer a runtime dependency: it is a devDependency used
+only by `tools/ChangelogPdf.ts` (release PDFs). `/togif` used it to decode
+WebP; it now downloads attachments as PNG through Discord's media proxy
+(`svgKit.fetchImage`), so WebP never has to be decoded by the bot.
