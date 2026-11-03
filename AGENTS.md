@@ -152,10 +152,27 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - No new npm dependency unless strictly necessary (image buffering with png handling: OK; API wrapper: NOT OK — write it with fetch).
 - Prefer Bun natives over Node APIs: `Bun.file` over `node:fs`, native `fetch` (see `src/core/functions/axios.ts` wrapper) over extra HTTP libs.
 
+## Every change: queue changelog + documentation (MANDATORY)
+
+Any change you make (on request or on your own initiative) that is visible to users, server admins or self-hosters MUST, in the same task:
+
+1. Be queued in the changelog for the next release, in BOTH files:
+    - `CHANGELOG_QUEUE.md` (EN) and `CHANGELOG_QUEUE_FR.md` (FR), at the repo root.
+    - One bullet per change under the matching section (new section with an emoji `##` heading if needed, same style as `CHANGELOG.md`), small fixes under `🛠️ Fixes & improvements`. Update an existing bullet instead of duplicating it when you touch the same feature again.
+    - Purely internal changes (refactor, tooling, tests, CI) are skipped unless they change behaviour.
+    - At release (see below), the queue is the source for `CHANGELOG.md` / `CHANGELOG_FR.md`, then both queue files are reset to their empty template.
+2. Be documented on the website docs: `../ihorizon.org/docs/docs/en/` AND `../ihorizon.org/docs/docs/fr/` (MkDocs, nav in `../ihorizon.org/docs/mkdocs.yml`).
+    - Command pages (`commands/<category>.md`): the `## \`/cmd\`` headings and option tables are synced by CI (`docs/commands.py` from the commands API): never hand-edit those, edit the prose around them (description, usage, examples).
+    - New page: add it in both languages and to `mkdocs.yml` nav.
+    - Commit in the `ihorizon.org` repo separately, style `docs(<area>): ...` (e.g. `docs(music): /music play replies with the live player panel`).
+
+Report both updates (queue + docs) in your final summary.
+
 ## Release (version + changelog + newsletter)
 
 - The current version lives in `package.json` (`"version": "YYYY.M.P"`). Bumping it IS the release: on boot `src/index.ts` calls `writeVersionFile()` (`v.txt` vs `v.old.txt`), and shard 0 then runs `checkAndNotifyRelease()` (`src/core/modules/releaseNotifier.ts`), which DMs every server owner once. See its header comments for the anti-spam guards (main-shard only, claim-before-send, distributed lock, circuit-breaker) — do not weaken them.
 - Find the range to document: the last commit that bumped `package.json` version up to `HEAD` (e.g. `git log --oneline <last-bump>..HEAD`). Only list what is genuinely new since that commit: verify each candidate against the tree AT the bump commit (`git show <bump>:<file>`, `git log <bump>..HEAD -- <file>`) — files touched again after a release must not be re-announced.
+- Start from `CHANGELOG_QUEUE.md` / `CHANGELOG_QUEUE_FR.md` (then reset them), and cross-check against the commit range above.
 - Rewrite `CHANGELOG.md` (EN) and `CHANGELOG_FR.md` (FR): they contain the LATEST release only, never appended history. Keep the established style (emoji `##` sections, `---` separators, `🛠️ Fixes & improvements` list at the end).
 - PDFs are mandatory for the newsletter attachment. Exact paths (built by `getPdfPath()`, no fallback on names):
     - `changelogs/en/<version>/CHANGELOG_EN_<version>.pdf`
@@ -188,4 +205,5 @@ bun run format         # prettier --write "**/*.ts"
 - Use `console.*`, `node:fs` when a Bun native exists, or add an npm package without necessity.
 - Create a command/category without its language comment block (and `init.json` for categories).
 - Use `client.iHorizon_Emojis` with wrong casing or a path outside `src/assets/emojis`.
+- Ship a user-visible change without its `CHANGELOG_QUEUE*.md` entry (EN + FR) and its `../ihorizon.org` docs update (EN + FR).
 - Skip verification: after code changes run the relevant `check:lang` / `type:func` / `check:licence`, and `bun run dev` to test.
