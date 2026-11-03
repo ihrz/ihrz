@@ -123,9 +123,15 @@ export class FunctionAnalyzer {
 				return isNotNodeModules && isInRootDir;
 			});
 
-		const results = sourceFiles.map((sourceFile) =>
-			this.analyzeSourceFile(sourceFile)
-		);
+		// Sorted a-z (plain code point order, locale independent): the
+		// program's file order follows imports and changes between runs.
+		const byName = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+		const results = sourceFiles
+			.map((sourceFile) => this.analyzeSourceFile(sourceFile))
+			.sort((a, b) => byName(a.fileName, b.fileName));
+		for (const file of results) {
+			file.functions.sort((a, b) => byName(a.name, b.name));
+		}
 		return results;
 	}
 
