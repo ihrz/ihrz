@@ -89,13 +89,31 @@ export async function resyncNextTrack(player: Player): Promise<void> {
 	await syncNextTrack(player);
 }
 
-/** lavalink-client queue watcher that syncs after every queue change. */
+/**
+ * lavalink-client queue watcher that syncs after every queue change. A class
+ * on purpose: lavalink-client looks the methods up on the prototype and
+ * refuses a plain object (the manager then fails to start).
+ */
+class NextTrackQueueWatcher implements QueueChangesWatcher {
+	constructor(private readonly client: Client) {}
+
+	private sync(guildId: string): void {
+		void syncNextTrack(this.client.player?.getPlayer(guildId));
+	}
+
+	tracksAdd(guildId: string): void {
+		this.sync(guildId);
+	}
+
+	tracksRemoved(guildId: string): void {
+		this.sync(guildId);
+	}
+
+	shuffled(guildId: string): void {
+		this.sync(guildId);
+	}
+}
+
 export function nextTrackQueueWatcher(client: Client): QueueChangesWatcher {
-	const sync = (guildId: string) =>
-		void syncNextTrack(client.player?.getPlayer(guildId));
-	return {
-		tracksAdd: (guildId) => sync(guildId),
-		tracksRemoved: (guildId) => sync(guildId),
-		shuffled: (guildId) => sync(guildId)
-	};
+	return new NextTrackQueueWatcher(client);
 }

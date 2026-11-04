@@ -128,3 +128,19 @@ test("the queue watcher syncs the guild's player", async () => {
 	await new Promise((r) => setTimeout(r, 0));
 	expect(sent).toEqual(["B"]);
 });
+
+test("lavalink-client accepts the queue watcher", async () => {
+	const { LavalinkManager } = await import("lavalink-client");
+	const build = () =>
+		new LavalinkManager({
+			nodes: [
+				{ id: "n", host: "127.0.0.1", port: 1, authorization: "x" }
+			],
+			sendToShard: () => {},
+			client: { id: "1" },
+			queueOptions: {
+				queueChangesWatcher: nextTrackQueueWatcher({} as any)
+			}
+		});
+	expect(build).not.toThrow();
+});
