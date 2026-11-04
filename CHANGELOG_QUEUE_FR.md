@@ -21,3 +21,4 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
 - **Musique** : `/music trackinfo` fonctionne de nouveau, accepte un titre facultatif (vide : le morceau en cours) et affiche sa pochette, sa durée, sa source et ses paroles dans une nouvelle carte
 - **Musique** : la carte « en cours de lecture » utilise la police JetBrains Mono
+- **Musique** : les paroles fonctionnent de nouveau (`/music lyrics`, le bouton **Paroles** du lecteur, `/music trackinfo`) : elles viennent maintenant de lyrics.ovh via le nœud musical, et sont mémorisées par chanson pour s'afficher instantanément la fois suivante

@@ -900,9 +900,9 @@ declare namespace Client_Functions {
 
 	// From searchLyrics.ts
 	export function searchLyrics(
-		query: string,
+		query: string | Track,
 		author?: User
-	): Promise<{ track: Track | undefined; res: LyricsResult } | null>;
+	): Promise<{ track: Track | undefined; res: LyricsData } | null>;
 
 	// From shard_helper.ts
 	export namespace shard_helper {

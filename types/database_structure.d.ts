@@ -807,4 +807,21 @@ export namespace DatabaseStructure {
 		articleId: string;
 		timestamp: string;
 	}
+
+	/**
+	 * `lyrics` table, keyed by ISRC: lyrics served by the Wavyzon node
+	 * (lyrics.ovh). An entry that does not match this shape is refetched.
+	 */
+	export interface LyricsCacheEntry {
+		/** Entry format version. */
+		v: 1;
+		/** Unix ms of the lookup. */
+		fetchedAt: number;
+		/** The lyrics; null when none were found (checked again later). */
+		text: string | null;
+		/** Who provided them ("lyrics.ovh"). */
+		provider?: string;
+		/** Source of the track they were looked up for. */
+		sourceName?: string;
+	}
 }

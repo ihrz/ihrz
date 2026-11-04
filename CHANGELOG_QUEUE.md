@@ -21,3 +21,4 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
 - **Music**: `/music trackinfo` works again, takes an optional title (empty: the track playing now) and shows its artwork, length, source and lyrics in a new card
 - **Music**: the now playing card uses the JetBrains Mono font
+- **Music**: lyrics work again (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music node, and are remembered per song so they show up instantly the next time

@@ -490,7 +490,7 @@ export async function openNowPlayingPanel(
 		await i.deferReply({ flags: [MessageFlags.Ephemeral] });
 
 		const lyrics = await client.func
-			.searchLyrics(`${track.info.title} - ${track.info.author}`)
+			.searchLyrics(track)
 			.catch(() => null);
 		const content = lyrics?.res?.text?.trim();
 

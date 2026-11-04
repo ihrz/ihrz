@@ -130,7 +130,7 @@ export const subCommand: SubCommand = {
 		const [artwork, lyrics] = await Promise.all([
 			loadArtwork(info.artworkUrl).catch(() => null),
 			client.func
-				.searchLyrics(`${info.title} - ${info.author}`)
+				.searchLyrics(track)
 				.catch(() => null)
 		]);
 		const colors = artwork
