@@ -2376,11 +2376,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "Ich bin nicht in einem Sprachkanal",
 	queue_no_queue: "Es gibt keine Warteschlange",
-	queue_empty_queue: "Es gibt keine weiteren Titel in der Warteschlange",
-	queue_embed_title: "Warteschlange der Titel",
-	queue_embed_description_empty:
-		"**Keine weiteren Titel in der Warteschlange**",
-	queue_embed_footer_text: "Seite {index} | Insgesamt {track} Titel",
+	queue_title: "Warteschlange",
+	queue_time_left: "noch ${duration}",
+	queue_now_playing: "Läuft gerade",
+	queue_up_next: "Als Nächstes",
+	queue_page: "Seite ${page}/${pages}",
+	queue_button_shuffle: "Mischen",
+	queue_button_refresh: "Aktualisieren",
+	queue_jump_placeholder: "Zu einem Titel springen…",
+	queue_shuffled: "${author} hat die Warteschlange **gemischt**!",
+	queue_jumped: "${author} ist zu ${track} gesprungen!",
 
 	// /shuffle
 	shuffle_no_queue: "Ich bin nicht in einem Sprachkanal",
@@ -2405,10 +2410,7 @@ export default {
 		"${emoji_Security} | Die Musikwarteschlange auf diesem Discord-Server wurde geleert.",
 
 	// /music trackinfo
-	music_requested_by: "Anfordert von",
-	music_visit_here: "Klicken hier",
 	music_lyrics: "Liedtexte",
-	music_link_here: "Klicken hier: [Klicken hier]({link})",
 
 	music_volume_command_ok:
 		"${emoji_Yes} **Lautstärke auf** `${query}`% **gesetzt**",

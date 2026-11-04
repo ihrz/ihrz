@@ -2202,10 +2202,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "أنا لست في قناة صوتية",
 	queue_no_queue: "لا توجد قائمة تشغيل",
-	queue_empty_queue: "لا توجد مسارات أخرى في قائمة التشغيل",
-	queue_embed_title: "قائمة التشغيل",
-	queue_embed_description_empty: "**لا توجد أغاني أخرى في قائمة التشغيل**",
-	queue_embed_footer_text: "الصفحة {index} | إجمالي {track} مسارات",
+	queue_title: "قائمة التشغيل",
+	queue_time_left: "متبقي ${duration}",
+	queue_now_playing: "قيد التشغيل",
+	queue_up_next: "التالي",
+	queue_page: "الصفحة ${page}/${pages}",
+	queue_button_shuffle: "خلط",
+	queue_button_refresh: "تحديث",
+	queue_jump_placeholder: "الانتقال إلى مقطع…",
+	queue_shuffled: "قام ${author} **بخلط** قائمة التشغيل!",
+	queue_jumped: "انتقل ${author} إلى ${track}!",
 
 	// /shuffle
 	shuffle_no_queue: "أنا لست في قناة صوتية",
@@ -2229,10 +2235,7 @@ export default {
 		"${emoji_Security} | تم مسح قائمة انتظار الموسيقى في خادم Discord هذا.",
 
 	// /music trackinfo
-	music_requested_by: "طلوب من",
-	music_visit_here: "انقر هنا",
 	music_lyrics: "كلمات",
-	music_link_here: "رابط هنا: [انقر هنا]({link})",
 
 	music_volume_command_ok:
 		"${emoji_Yes} **تم ضبط مستوى الصوت إلى** `${query}`%",

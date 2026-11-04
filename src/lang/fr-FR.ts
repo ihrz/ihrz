@@ -2379,10 +2379,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "Je ne suis pas dans un canal vocal",
 	queue_no_queue: "Il n'y a pas de file d'attente",
-	queue_empty_queue: "Il n'y a plus de morceaux dans la file d'attente",
-	queue_embed_title: "File d'attente des morceaux",
-	queue_embed_description_empty: "**Aucun morceau en file d'attente**",
-	queue_embed_footer_text: "Page {index} | {track} morceaux au total",
+	queue_title: "File d'attente",
+	queue_time_left: "${duration} restantes",
+	queue_now_playing: "En lecture",
+	queue_up_next: "À suivre",
+	queue_page: "Page ${page}/${pages}",
+	queue_button_shuffle: "Mélanger",
+	queue_button_refresh: "Actualiser",
+	queue_jump_placeholder: "Passer directement à…",
+	queue_shuffled: "${author} a **mélangé** la file d'attente !",
+	queue_jumped: "${author} est passé directement à ${track} !",
 
 	// /shuffle
 	shuffle_no_queue: "Je ne suis pas dans un salon vocal",
@@ -2408,10 +2414,7 @@ export default {
 		"${emoji_Security} | La file d'attente musicale de ce serveur Discord a été vidée.",
 
 	// /music trackinfo
-	music_requested_by: "Demandé par",
-	music_visit_here: "Visite ici",
 	music_lyrics: "Paroles",
-	music_link_here: "Lien ici : [Voir ici]({link})",
 
 	music_volume_command_ok: "${emoji_Yes} **volume réglé à** `${query}`%",
 

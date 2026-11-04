@@ -2321,10 +2321,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "Я не нахожусь в голосовом канале",
 	queue_no_queue: "Очереди нет",
-	queue_empty_queue: "Больше нет треков в очереди",
-	queue_embed_title: "Очередь треков",
-	queue_embed_description_empty: "**Больше нет ожидающих песен**",
-	queue_embed_footer_text: "Страница {index} | Всего треков {track}",
+	queue_title: "Очередь",
+	queue_time_left: "осталось ${duration}",
+	queue_now_playing: "Сейчас играет",
+	queue_up_next: "Далее",
+	queue_page: "Страница ${page}/${pages}",
+	queue_button_shuffle: "Перемешать",
+	queue_button_refresh: "Обновить",
+	queue_jump_placeholder: "Перейти к треку…",
+	queue_shuffled: "${author} **перемешал(а)** очередь!",
+	queue_jumped: "${author} перешёл(ла) к ${track}!",
 
 	// /shuffle
 	shuffle_no_queue: "Я не нахожусь в голосовом канале",
@@ -2348,10 +2354,7 @@ export default {
 		"${emoji_Security} | Музыкальная очередь на этом Discord-сервере была очищена.",
 
 	// /music trackinfo
-	music_requested_by: "Запрошенный",
-	music_visit_here: "Посетите здесь",
 	music_lyrics: "Тексты",
-	music_link_here: "Ссылка здесь: [Клик здесь]({link})",
 
 	music_volume_command_ok:
 		"${emoji_Yes} **громкость установлена на** `${query}`%",

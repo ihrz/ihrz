@@ -2290,10 +2290,16 @@ const enUS = {
 	// /queue
 	queue_iam_not_voicec: "I am not in a voice channel",
 	queue_no_queue: "There is no queue",
-	queue_empty_queue: "There are no more tracks in the queue",
-	queue_embed_title: "Tracks Queue",
-	queue_embed_description_empty: "**No more queued songs**",
-	queue_embed_footer_text: "Page {index} | Total {track} tracks",
+	queue_title: "Queue",
+	queue_time_left: "${duration} left",
+	queue_now_playing: "Now playing",
+	queue_up_next: "Up next",
+	queue_page: "Page ${page}/${pages}",
+	queue_button_shuffle: "Shuffle",
+	queue_button_refresh: "Refresh",
+	queue_jump_placeholder: "Skip to a track…",
+	queue_shuffled: "${author} **shuffled** the queue!",
+	queue_jumped: "${author} skipped to ${track}!",
 
 	// /shuffle
 	shuffle_no_queue: "I am not in a voice channel",
@@ -2319,10 +2325,7 @@ const enUS = {
 		"${emoji_Security} | The music queue in this discord has been cleared.",
 
 	// /music trackinfo
-	music_requested_by: "Requested by",
-	music_visit_here: "Visit here",
 	music_lyrics: "Lyrics",
-	music_link_here: "Link here: [Click here]({link})",
 
 	// /music volume
 	music_volume_command_ok: "${emoji_Yes} **volume set to** `${query}`%",

@@ -329,6 +329,27 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
+			options: [
+				{
+					name: "title",
+					type: ApplicationCommandOptionType.String,
+
+					description:
+						"The track title or URL (empty: the track playing now)",
+					description_localizations: {
+						fr: "Titre ou URL de la musique (vide : celle en cours de lecture)",
+						ja: "曲名またはURL（空欄：再生中の曲）",
+						ru: "Название или URL трека (пусто: текущий трек)",
+						"es-ES":
+							"Título o URL de la pista (vacío: la que suena ahora)"
+					},
+
+					required: false,
+
+					permission: null
+				}
+			],
+
 			permission: null
 		},
 		{

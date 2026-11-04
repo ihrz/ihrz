@@ -2304,10 +2304,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "私はボイスチャンネルにいません",
 	queue_no_queue: "キューがありません",
-	queue_empty_queue: "キューにはもうトラックがありません",
-	queue_embed_title: "キューされた曲",
-	queue_embed_description_empty: "**もうキューされた曲はありません**",
-	queue_embed_footer_text: "ページ {index} | 合計 {track} トラック",
+	queue_title: "キュー",
+	queue_time_left: "残り ${duration}",
+	queue_now_playing: "再生中",
+	queue_up_next: "次に再生",
+	queue_page: "ページ ${page}/${pages}",
+	queue_button_shuffle: "シャッフル",
+	queue_button_refresh: "更新",
+	queue_jump_placeholder: "曲にスキップ…",
+	queue_shuffled: "${author} がキューを**シャッフル**しました！",
+	queue_jumped: "${author} が ${track} にスキップしました！",
 
 	// /shuffle
 	shuffle_no_queue: "私はボイスチャンネルにいません",
@@ -2331,10 +2337,7 @@ export default {
 		"${emoji_Security} | このDiscordサーバーの音楽キューはクリアされました。",
 
 	// /music trackinfo
-	music_requested_by: "要求者",
-	music_visit_here: "ここをクリック",
 	music_lyrics: "歌詞",
-	music_link_here: "リンクをクリック: [クリック]({link})",
 
 	music_volume_command_ok:
 		"${emoji_Yes} **音量を** `${query}`% **に設定しました**",

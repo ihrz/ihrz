@@ -2356,10 +2356,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "Non sono in un canale vocale",
 	queue_no_queue: "Non c'è alcuna coda",
-	queue_empty_queue: "Non ci sono altre tracce nella coda",
-	queue_embed_title: "Coda dei brani",
-	queue_embed_description_empty: "Nessuna canzone in coda",
-	queue_embed_footer_text: "Pagina {index} | Totale {track} brani",
+	queue_title: "Coda",
+	queue_time_left: "${duration} rimanenti",
+	queue_now_playing: "In riproduzione",
+	queue_up_next: "A seguire",
+	queue_page: "Pagina ${page}/${pages}",
+	queue_button_shuffle: "Mescola",
+	queue_button_refresh: "Aggiorna",
+	queue_jump_placeholder: "Salta a un brano…",
+	queue_shuffled: "${author} ha **mescolato** la coda!",
+	queue_jumped: "${author} è passato a ${track}!",
 
 	// /shuffle
 	shuffle_no_queue: "Non sono in un canale vocale",
@@ -2385,10 +2391,7 @@ export default {
 		"${emoji_Security} | La coda musicale di questo server Discord è stata svuotata.",
 
 	// /music trackinfo
-	music_requested_by: "Richiesto da",
-	music_visit_here: "Visita qui",
 	music_lyrics: "Testi",
-	music_link_here: "Link qui: [Clic qui]({link})",
 
 	music_volume_command_ok: "${emoji_Yes} **volume impostato su** `${query}`%",
 	// Giveaway commands

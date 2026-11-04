@@ -2365,10 +2365,16 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "No estoy en un canal de voz",
 	queue_no_queue: "No hay ninguna cola",
-	queue_empty_queue: "No hay más canciones en la cola",
-	queue_embed_title: "Cola de canciones",
-	queue_embed_description_empty: "**No hay más canciones en cola**",
-	queue_embed_footer_text: "Página {index} | Total {track} canciones",
+	queue_title: "Cola",
+	queue_time_left: "quedan ${duration}",
+	queue_now_playing: "Reproduciendo",
+	queue_up_next: "A continuación",
+	queue_page: "Página ${page}/${pages}",
+	queue_button_shuffle: "Mezclar",
+	queue_button_refresh: "Actualizar",
+	queue_jump_placeholder: "Saltar a una canción…",
+	queue_shuffled: "¡${author} **mezcló** la cola!",
+	queue_jumped: "¡${author} saltó a ${track}!",
 
 	// /shuffle
 	shuffle_no_queue: "No estoy en un canal de voz",
@@ -2394,10 +2400,7 @@ export default {
 		"${emoji_Security} | La cola de música de este servidor de Discord ha sido vaciada.",
 
 	// /music trackinfo
-	music_requested_by: "Solicitado por",
-	music_visit_here: "Visita aquí",
 	music_lyrics: "Letras",
-	music_link_here: "Enlace aquí: [Haz clic aquí]({link})",
 
 	music_volume_command_ok:
 		"${emoji_Yes} **volumen establecido en** `${query}`%",

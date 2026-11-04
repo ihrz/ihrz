@@ -1084,10 +1084,6 @@ export default {
 	// /queue
 	queue_iam_not_voicec: "Я не знаходжусь у голосовому каналі",
 	queue_no_queue: "Черги немає",
-	queue_empty_queue: "Більше немає треків у черзі",
-	queue_embed_title: "Черга треків",
-	queue_embed_description_empty: "**Більше немає очікуючих пісень**",
-	queue_embed_footer_text: "Сторінка {index} | Всього треків {track}",
 
 	// /shuffle
 	shuffle_no_queue: "Я не знаходжуся у голосовому каналі",
