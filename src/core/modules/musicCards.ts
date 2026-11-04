@@ -35,6 +35,9 @@ const TEXT_X = 204;
 const TEXT_WIDTH = CARD_WIDTH - CARD_PADDING - TEXT_X;
 const PROGRESS_Y = 144;
 const PROGRESS_HEIGHT = 6;
+// The whole card is set in JetBrains Mono (bundled, OFL); scripts it lacks
+// (Arabic, CJK) still fall back to their Noto fonts per run.
+const CARD_FONT = "JetBrains Mono";
 
 export interface NowPlayingData {
 	title: string;
@@ -77,14 +80,16 @@ export async function renderNowPlaying(data: NowPlayingData): Promise<Buffer> {
 		text(data.title, {
 			x: TEXT_X,
 			y: 76,
-			size: 26,
+			size: 24,
 			weight: 700,
+			family: CARD_FONT,
 			maxWidth: TEXT_WIDTH - (data.paused ? 32 : 0)
 		}),
 		text(data.author, {
 			x: TEXT_X,
 			y: 108,
-			size: 18,
+			size: 17,
+			family: CARD_FONT,
 			fill: muted,
 			opacity: 0.72,
 			maxWidth: TEXT_WIDTH
@@ -109,6 +114,7 @@ export async function renderNowPlaying(data: NowPlayingData): Promise<Buffer> {
 			y: PROGRESS_Y + 8,
 			size: 14,
 			weight: 700,
+			family: CARD_FONT,
 			letterSpacing: 1.5
 		});
 		progress = raw(
@@ -129,7 +135,7 @@ export async function renderNowPlaying(data: NowPlayingData): Promise<Buffer> {
 				x: TEXT_X,
 				y: 178,
 				size: 13,
-				family: "JetBrains Mono",
+				family: CARD_FONT,
 				fill: muted,
 				opacity: 0.72
 			}),
@@ -137,7 +143,7 @@ export async function renderNowPlaying(data: NowPlayingData): Promise<Buffer> {
 				x: CARD_WIDTH - CARD_PADDING,
 				y: 178,
 				size: 13,
-				family: "JetBrains Mono",
+				family: CARD_FONT,
 				fill: muted,
 				opacity: 0.72,
 				anchor: "end"
