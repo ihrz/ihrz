@@ -20,8 +20,10 @@
 */
 
 /*
- * Suggestions for /music play: same sources as a text query in musicPlay
- * (Deezer first, SoundCloud when Deezer has nothing). Discord drops an
+ * Track suggestions for /music play and /music lyrics: same sources as a
+ * text query in musicPlay (Deezer first, SoundCloud when Deezer has nothing).
+ * The chosen value is the track URL, which both commands resolve to exactly
+ * that track. Discord drops an
  * autocomplete answer after 3 s, so searches are bounded and cached: typing
  * a title fires one request per keystroke.
  */
@@ -139,7 +141,7 @@ function remember(key: string, choices: Choice[]): void {
 	cache.set(key, { expires: Date.now() + CACHE_TTL_MS, choices });
 }
 
-export async function musicPlayAutocomplete(
+export async function musicTrackAutocomplete(
 	client: Client,
 	interaction: AutocompleteInteraction
 ): Promise<void> {

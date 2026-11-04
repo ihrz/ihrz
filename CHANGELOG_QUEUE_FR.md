@@ -28,3 +28,4 @@ Les morceaux s'enchaînent désormais en fondu : le suivant de la file monte pen
 - **Musique** : `/music trackinfo` fonctionne de nouveau, accepte un titre facultatif (vide : le morceau en cours) et affiche sa pochette, sa durée, sa source et ses paroles dans une nouvelle carte
 - **Musique** : la carte « en cours de lecture » utilise la police JetBrains Mono
 - **Musique** : les paroles fonctionnent de nouveau (`/music lyrics`, le bouton **Paroles** du lecteur, `/music trackinfo`) : elles viennent maintenant de lyrics.ovh via le nœud musical, et sont mémorisées par chanson pour s'afficher instantanément la fois suivante
+- **Musique** : `/music lyrics` propose des morceaux pendant la saisie, comme `/music play`

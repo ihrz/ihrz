@@ -26,7 +26,7 @@ import {
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
-import { musicPlayAutocomplete } from "../../../core/modules/musicAutocomplete.js";
+import { musicTrackAutocomplete } from "../../../core/modules/musicAutocomplete.js";
 
 const VOLUMES = [
 	"10",
@@ -150,6 +150,7 @@ export const command: Command = {
 					},
 
 					required: true,
+					autocomplete: true,
 
 					permission: null
 				}
@@ -449,11 +450,14 @@ export const command: Command = {
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
 	async autocomplete(client, interaction) {
+		// Track suggestions: /music play `title` and /music lyrics `query`.
+		const sub = interaction.options.getSubcommand(false);
+		const focused = interaction.options.getFocused(true).name;
 		if (
-			interaction.options.getSubcommand(false) === "play" &&
-			interaction.options.getFocused(true).name === "title"
+			(sub === "play" && focused === "title") ||
+			(sub === "lyrics" && focused === "query")
 		) {
-			await musicPlayAutocomplete(client, interaction);
+			await musicTrackAutocomplete(client, interaction);
 		}
 	}
 };

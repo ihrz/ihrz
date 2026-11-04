@@ -28,3 +28,4 @@ Tracks now blend into each other: the next track of the queue fades in during th
 - **Music**: `/music trackinfo` works again, takes an optional title (empty: the track playing now) and shows its artwork, length, source and lyrics in a new card
 - **Music**: the now playing card uses the JetBrains Mono font
 - **Music**: lyrics work again (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music node, and are remembered per song so they show up instantly the next time
+- **Music**: `/music lyrics` suggests tracks as you type, like `/music play`

@@ -5981,6 +5981,7 @@
                             "es-ES": "El título de la pista que deseas"
                         },
                         "required": true,
+                        "autocomplete": true,
                         "commandFullName": "music lyrics query"
                     }
                 ],
