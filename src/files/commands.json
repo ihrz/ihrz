@@ -6239,6 +6239,21 @@
                     "es-ES": "Buscar música en Internet"
                 },
                 "type": 1,
+                "options": [
+                    {
+                        "name": "title",
+                        "type": 3,
+                        "description": "The track title or URL (empty: the track playing now)",
+                        "description_localizations": {
+                            "fr": "Titre ou URL de la musique (vide : celle en cours de lecture)",
+                            "ja": "曲名またはURL（空欄：再生中の曲）",
+                            "ru": "Название или URL трека (пусто: текущий трек)",
+                            "es-ES": "Título o URL de la pista (vacío: la que suena ahora)"
+                        },
+                        "required": false,
+                        "commandFullName": "music trackinfo title"
+                    }
+                ],
                 "commandFullName": "music trackinfo"
             },
             {

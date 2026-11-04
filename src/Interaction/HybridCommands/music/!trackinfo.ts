@@ -186,7 +186,7 @@ export const subCommand: SubCommand = {
 		const lyricsBody = text
 			? escapeMarkdown(
 					text.length > LYRICS_MAX_LENGTH
-						? `${text.substring(0, LYRICS_MAX_LENGTH)}…`
+						? `${text.substring(0, LYRICS_MAX_LENGTH)}...`
 						: text
 				)
 			: `-# ${lang.lyrics_not_found}`;

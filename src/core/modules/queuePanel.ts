@@ -56,7 +56,6 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
-import logger from "../logger.js";
 import { NowPlayingPayload } from "./nowPlayingPanel.js";
 
 type Player = NonNullable<ReturnType<Client["player"]["getPlayer"]>>;
@@ -96,7 +95,7 @@ export function formatDuration(ms: number): string {
 }
 
 function clip(value: string, max: number): string {
-	return value.length > max ? `${value.slice(0, max - 1)}…` : value;
+	return value.length > max ? `${value.slice(0, max - 3)}...` : value;
 }
 
 /** Markdown link label: escaped, brackets included. */
@@ -289,35 +288,34 @@ export async function openQueuePanel(
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId(ID.first)
-					.setEmoji("⏮️")
+					.setLabel("<<")
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(disabled || page === 0),
 				new ButtonBuilder()
 					.setCustomId(ID.previous)
-					.setEmoji("◀️")
+					.setLabel("<")
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(disabled || page === 0),
 				new ButtonBuilder()
 					.setCustomId(ID.next)
-					.setEmoji("▶️")
+					.setLabel(">")
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(disabled || page >= pages - 1),
 				new ButtonBuilder()
 					.setCustomId(ID.last)
-					.setEmoji("⏭️")
+					.setLabel(">>")
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(disabled || page >= pages - 1)
 			),
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId(ID.shuffle)
-					.setEmoji("🔀")
 					.setLabel(lang.queue_button_shuffle)
 					.setStyle(ButtonStyle.Primary)
 					.setDisabled(disabled || tracks.length < 2),
 				new ButtonBuilder()
 					.setCustomId(ID.refresh)
-					.setEmoji("🔄")
+					.setEmoji(emojis.Restore)
 					.setLabel(lang.queue_button_refresh)
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(disabled)
