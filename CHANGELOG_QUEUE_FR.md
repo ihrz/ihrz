@@ -10,6 +10,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🎶 Musique — des transitions fluides
+
+Les morceaux s'enchaînent désormais en fondu : le suivant de la file monte pendant les 3 dernières secondes du morceau en cours, sans silence entre les deux, comme sur une appli de streaming. Les morceaux très courts et les diffusions en direct s'enchaînent sans blanc.
+
+---
+
 ## 🎶 Musique — un nouveau `/music queue`
 
 `/music queue` est redessiné en panneau moderne : le morceau en cours avec sa pochette et sa position, puis les morceaux à venir, dix par page, avec leur artiste, leur durée et qui les a demandés, ainsi que le nombre de morceaux, le temps restant et le mode de boucle. Tout le monde peut le parcourir ; les auditeurs du salon vocal du bot peuvent aussi **mélanger** la file ou **passer directement** à n'importe quel morceau depuis un menu.

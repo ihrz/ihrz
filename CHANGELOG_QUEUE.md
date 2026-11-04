@@ -10,6 +10,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🎶 Music — smooth transitions
+
+Tracks now blend into each other: the next track of the queue fades in during the last 3 seconds of the current one, with no silence in between, like on a streaming app. Very short tracks and live streams follow each other without a gap.
+
+---
+
 ## 🎶 Music — a new `/music queue`
 
 `/music queue` is redrawn as a modern panel: the track playing now with its artwork and position, then the upcoming tracks ten per page with their author, length and who asked for them, plus the number of tracks, the time left and the loop mode. Anyone can browse it; listeners in the bot's voice channel can also **shuffle** the queue or **skip straight to** any track from a menu.

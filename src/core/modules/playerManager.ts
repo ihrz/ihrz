@@ -26,6 +26,11 @@ import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
 import { getTTSData } from "./ttsManager.js";
 import {
+	nextTrackQueueWatcher,
+	resyncNextTrack,
+	syncNextTrack
+} from "./nextTrackSync.js";
+import {
 	handleH247PlayerDestroyed,
 	handleH247PlayerCreated,
 	handleH247PlayerIdleDestroy
@@ -50,6 +55,10 @@ export default async (client: Client) => {
 		sendToShard(id, payload) {
 			return client.guilds.cache.get(id)?.shard?.send(payload);
 		},
+		queueOptions: {
+			// Keeps the Wavyzon node's nextTrack (crossfade) in step.
+			queueChangesWatcher: nextTrackQueueWatcher(client)
+		},
 		playerOptions: {
 			onEmptyQueue: {
 				destroyAfterMs: 120_000
@@ -67,6 +76,7 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("trackStart", async (player, track) => {
+		await resyncNextTrack(player);
 		const ttsData = await getTTSData(client, player.guildId);
 		if (ttsData && ttsData.enabled) return;
 		if (
@@ -181,6 +191,7 @@ export default async (client: Client) => {
 	);
 
 	client.player.on("playerUpdate", async (oldPlayerJson, newPlayer) => {
+		await syncNextTrack(newPlayer);
 		await client.lastFMScrobbler.handlePlayerUpdate(
 			oldPlayerJson,
 			newPlayer
