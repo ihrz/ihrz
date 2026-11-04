@@ -4,15 +4,17 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
-## 🎶 Music — `/music play` opens the live player
+## 🎶 Music — a live player panel
 
-`/music play` now replies with the same live player panel as `/music nowplaying`: it follows the guild's player from track to track (artwork, colours and card refresh on every change), shows where the track comes from (Deezer, SoundCloud, YouTube...) and says when a track was added to the queue. One live panel per server: opening a new one closes the previous one. The separate "now playing" banner posted in the channel is gone, and the player buttons get a new set of emojis.
+`/music play` and `/music nowplaying` now reply with the same **Components V2 live player**: a compact player card (blurred artwork backdrop, cover, title, artist and a progress bar with the elapsed and total time, set in JetBrains Mono), the voice channel, who asked for the track, what comes next, the volume, loop mode and queue size, the platform the track comes from and an **Open** button. **Pause/Resume**, **Skip**, **Loop**, **Lyrics** and **Stop** work right from the panel for listeners of the bot's voice channel, and each action is announced in the channel.
+
+The panel follows the queue by itself (new artwork, colours and card on every track change), so the separate "now playing" message is gone; `/music play` adds a note when your track was queued behind another one. One live panel per server: opening a new one freezes the previous one. The player buttons get a new set of emojis.
 
 ---
 
-## 🎶 Music — smooth transitions
+## 🎶 Music — smooth transitions, for real
 
-Tracks now blend into each other: the next track of the queue fades in during the last 3 seconds of the current one, with no silence in between, like on a streaming app. Very short tracks and live streams follow each other without a gap.
+The cross-fade announced with the new music backend now actually happens: the next track of the queue fades in during the last 3 seconds of the current one, with no silence in between. Very short tracks and live streams follow each other without a gap.
 
 ---
 
@@ -22,10 +24,69 @@ Tracks now blend into each other: the next track of the queue fades in during th
 
 ---
 
+## 🎤 Music — lyrics that work, and track suggestions
+
+- Lyrics show up again everywhere (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music backend, and are remembered per song so they appear instantly the next time.
+- `/music play` and `/music lyrics` **suggest tracks as you type** ("Title - Artist (3:20)", from Deezer, then SoundCloud); picking one plays, or fetches the lyrics of, exactly that song. A pasted link is kept as is.
+- `/music trackinfo` works again: it takes an optional title (empty: the track playing now) and shows a card with the artwork, length, source and lyrics.
+
+---
+
+## 🖥️ Dashboard — changes apply instantly
+
+Settings saved on the dashboard are now applied right away by the bot, with the same checks as the matching commands: H24/7, the server language bio, the bot's name and avatar, member counters, sticky messages, reaction roles (buttons and select menus), the honeypot trap, the confession panel, temporary bans and roles, TTS join/leave and the AuthRestore verify button. A change the bot refuses is reverted and reported. The music history now keeps each track's artwork for the dashboard.
+
+---
+
+## 🎟️ Tickets — simple or advanced panels
+
+`/ticket panel` gets a mode. **Simple**: one button opens a ticket, with no options or questions; the embed is optional and a localized default is used. **Advanced**: the select menu with options and forms, as before. New panels start in simple mode, existing ones stay advanced, and advanced-only settings are hidden in simple mode. `/ticket set-here` is removed (simple mode replaces it); panels already posted keep working.
+
+---
+
+## 🔐 Protection — a real-time engine
+
+Protection now reacts to Discord's audit log events as they happen, instead of fetching the audit log on every change: sanctions and restorations run in parallel and are much faster during a raid.
+
+- Changes are reverted from their previous values in one request (channels, permission overwrites, roles, server settings including icon and banner, webhooks, member roles)
+- Deleted channels and roles are rebuilt with their categories, overwrites and **members** (the role goes back to its members, not to the attacker)
+- New coverage: permission overwrites, member prune, webhook updates and deletions
+- **Administrator** granted by editing a role (including @everyone) or by creating one with it is now caught
+- An attacker can no longer get their removed roles back, and a mass role deletion no longer slows the bot down for other servers
+
+---
+
+## 🛡️ Anti-spam & anti-advertising — rewritten
+
+- Spam is punished **immediately**: a sustained raid from several accounts used to escape the sanction entirely
+- Detection is a sliding window plus duplicate content, which also catches slow cross-channel spam, and regular members chatting fast no longer get muted by flags that piled up for hours
+- Only the spam burst is deleted (not hours of the member's history), and escalating mutes cool down after 24 h
+- Anti-advertising matches allowed sites by their exact domain (look-alike domains and links hiding an allowed name no longer slip through), detects `discord.com/invite` without `https://` and covers threads and voice-channel chats
+- Links are no longer fetched to check them
+
+---
+
+## 🖼️ Images — a new renderer
+
+Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `/youtube` cards, stats pages, podiums, latency monitoring, the music player card) moved to a new renderer: much faster, with emojis, **Arabic, Japanese and Korean** text and long names cut cleanly. Stats pages grow with their content, `/stats ustats` keeps its 1920×1200 format, the captcha draws new noise on every render, and the economy podium now draws its coin.
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
-- **Music**: `/music trackinfo` works again, takes an optional title (empty: the track playing now) and shows its artwork, length, source and lyrics in a new card
-- **Music**: the now playing card uses the JetBrains Mono font
-- **Music**: lyrics work again (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music node, and are remembered per song so they show up instantly the next time
-- **Music**: `/music lyrics` suggests tracks as you type, like `/music play`
+- **Self-hosting**: `pm2 start pm2.config.cjs` now installs and upgrades its own Bun, pulls the latest code and installs new dependencies on every start; images can be rendered by HorizonGateway to save memory on every shard
+- **Security**: reminder DMs could contain other users' reminders, and the level-up message could ping `@everyone` or roles — both fixed; user text in generated images is always shown as text
+- **Music**: some SoundCloud tracks failed with "not found at source"; they play now
+- **Music**: a connection to the music provider that drops mid-track (after a long pause, for example) no longer stops the track: it resumes where it stopped
+- **Music**: the player is no longer destroyed when its text channel is missing
+- **`+helpall`**: paginated by category with a select menu, like `+h`
+- **`/automod`**: the panel opens again when a bypass role or the log channel was deleted
+- **Captcha**: members who fail it are now actually kicked
+- **Role saver**: gives back only roles the bot can assign, merged with the join roles; a protection kick deranks first so roles cannot come back on rejoin
+- **Honeypot**: bans a spammer who already left the server
+- **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated
+- **Languages**: raw placeholders fixed in `/perm create-roles` (Japanese), `/daily`, `/schedule`, profile pictures and the blacklist summary; missing emojis now show in sticky messages, Last.fm errors, the welcomer leave message, the TempVoice panel and the empty-channel music notice; French texts fixed
+- **Performance**: server settings are cached, so busy servers get faster answers
+- Fewer error-log entries: Discord refusals for missing access or permissions are expected and no longer logged
+- The `+fexini` partner command is removed
