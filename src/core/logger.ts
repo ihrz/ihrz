@@ -125,10 +125,10 @@ const logger: Logger = {
 			message,
 			...optionalParams
 		);
-		_(formattedMessage);
-
 		if (typeof process !== "undefined" && process.stderr) {
 			process.stderr.write(formattedMessage + "\n");
+		} else {
+			_(formattedMessage);
 		}
 	},
 

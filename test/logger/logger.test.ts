@@ -18,7 +18,7 @@
 
 */
 
-import { afterAll, expect, test } from "bun:test";
+import { afterAll, expect, spyOn, test } from "bun:test";
 
 const previous = (globalThis as any).logger;
 const { default: logger } = await import("../../src/core/logger.js");
@@ -63,4 +63,17 @@ test("logger: plain objects and strings keep their format", () => {
 
 	expect(out).toContain('"a": 1');
 	expect(out).toContain("data");
+});
+
+test("logger: err writes the message once, on stderr", () => {
+	const write = spyOn(process.stderr, "write").mockImplementation(() => true);
+
+	try {
+		logger.err("only once");
+
+		expect(write).toHaveBeenCalledTimes(1);
+		expect(String(write.mock.calls[0][0])).toContain("only once");
+	} finally {
+		write.mockRestore();
+	}
 });
