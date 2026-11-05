@@ -315,6 +315,8 @@ export const event: BotEvent = {
 			]);
 
 			const guildLocal = guildLocalRaw || "en-US";
+			// A server that never configured anything has no GUILD_CONFIG: its
+			// invites are still counted below, only the welcome is skipped.
 			const {
 				joinmessage: joinMessage,
 				joinbannerStates: ImageBannerStates,
@@ -323,7 +325,7 @@ export const event: BotEvent = {
 				joinEmbedId,
 				joinTextEnabled,
 				joinComponentsEnabled
-			} = config as DatabaseStructure.GuildConfigSchema;
+			} = (config ?? {}) as DatabaseStructure.GuildConfigSchema;
 
 			const textEnabled = joinTextEnabled !== false;
 			const componentsEnabled = joinComponentsEnabled !== false;
