@@ -21,6 +21,7 @@
 
 import { Logger } from "../../types/logger.js";
 import { log as _ } from "console";
+import { inspect } from "util";
 import "./functions/colors.js";
 
 enum LogLevel {
@@ -48,6 +49,22 @@ function getCurrentTime(): string {
 	return `SHARD#${shardId} ${timestamp}`;
 }
 
+function formatValue(value: any): string {
+	if (value instanceof Error) {
+		return value.stack || `${value.name}: ${value.message}`;
+	}
+
+	if (typeof value === "object") {
+		try {
+			return JSON.stringify(value, null, 2) ?? String(value);
+		} catch {
+			return inspect(value);
+		}
+	}
+
+	return String(value);
+}
+
 function formatMessage(
 	level: LogLevel,
 	message: any,
@@ -58,20 +75,10 @@ function formatMessage(
 
 	const coloredPrefix = applyColorToPrefix(prefix, level);
 
-	const messageStr =
-		typeof message === "object"
-			? JSON.stringify(message, null, 2)
-			: String(message);
+	const messageStr = formatValue(message);
 	const paramsStr =
 		optionalParams.length > 0
-			? " " +
-				optionalParams
-					.map((param) =>
-						typeof param === "object"
-							? JSON.stringify(param, null, 2)
-							: String(param)
-					)
-					.join(" ")
+			? " " + optionalParams.map(formatValue).join(" ")
 			: "";
 	return coloredPrefix + " " + messageStr + paramsStr;
 }
