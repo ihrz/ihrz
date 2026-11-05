@@ -386,7 +386,8 @@ export async function openNowPlayingPanel(
 					.setCustomId(BUTTON.lyrics)
 					.setEmoji(emojis.Player_Lyrics)
 					.setLabel(lang.nowplaying_button_lyrics)
-					.setStyle(ButtonStyle.Secondary),
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(ended),
 				new ButtonBuilder()
 					.setCustomId(BUTTON.stop)
 					.setEmoji(emojis.Player_Stop)
