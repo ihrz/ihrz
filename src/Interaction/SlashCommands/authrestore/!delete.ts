@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 				});
 			})
 			.catch(async (err) => {
-				console.error(err);
+				logger.err(err);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.reactionroles_cant_fetched_reaction_remove
 				});

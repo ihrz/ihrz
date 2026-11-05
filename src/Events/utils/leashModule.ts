@@ -75,7 +75,7 @@ export const event: BotEvent = {
 						try {
 							await subMember!.voice.setChannel(targetChannel);
 						} catch (error) {
-							console.error(
+							logger.err(
 								`Error moving sub ${subMember!.id}:`,
 								error
 							);
@@ -97,7 +97,7 @@ export const event: BotEvent = {
 						);
 					}
 				} catch (error) {
-					console.error("Channel synchronization error:", error);
+					logger.err("Channel synchronization error:", error);
 				}
 			}
 		}

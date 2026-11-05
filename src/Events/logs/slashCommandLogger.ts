@@ -112,7 +112,7 @@ class SafeJSONLogger {
 		try {
 			await this.writeCommandsToFile(commandsToWrite);
 		} catch (error) {
-			console.error("Error writing commands to log file:", error);
+			logger.err("Error writing commands to log file:", error);
 			// Re-add commands to queue on error
 			this.writeQueue.unshift(...commandsToWrite);
 		} finally {
@@ -142,7 +142,7 @@ class SafeJSONLogger {
 				existingData = JSON.parse(fileContent);
 			}
 		} catch (error) {
-			console.warn(
+			logger.warn(
 				"Could not read existing log file, starting fresh:",
 				error
 			);

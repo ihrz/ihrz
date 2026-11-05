@@ -83,7 +83,7 @@ export class Ping {
 		if (this.config.timeout) {
 			if (this.isMac && this.isV6) {
 				// macOS ping6 doesn't support timeout
-				console.warn("Timeout not supported on macOS ping6");
+				logger.warn("Timeout not supported on macOS ping6");
 			} else {
 				const timeoutValue = this.isMac
 					? (this.config.timeout * 1000).toString()

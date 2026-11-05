@@ -90,7 +90,7 @@ function rgbToHex(rgb: RGB): string {
 
 	// Security Check
 	if (hex.length !== 7) {
-		console.error("Invalid hex generated:", hex, "from RGB:", rgb);
+		logger.err("Invalid hex generated:", hex, "from RGB:", rgb);
 		return "#000000"; // Fallback
 	}
 
@@ -205,7 +205,7 @@ export default async function getVibrantAndDarkColors(
 			color2: rgbToHex(darkColor)
 		};
 	} catch (error) {
-		console.error("Error analyzing image:", error);
+		logger.err("Error analyzing image:", error);
 		throw error;
 	}
 }

@@ -295,7 +295,7 @@ function setupHelpCategoryCollector(
 
 			await helpMessage.edit({ components });
 		} catch (error) {
-			console.error("Error disabling help menu:", error);
+			logger.err("Error disabling help menu:", error);
 		}
 	});
 

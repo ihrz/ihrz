@@ -163,7 +163,7 @@ export const event: BotEvent = {
 						await client.db.set(starboardDataPath, starboardData);
 					}
 				} catch (error) {
-					console.error("Error updating starboard message:", error);
+					logger.err("Error updating starboard message:", error);
 				}
 			} else {
 				// Create new starboard message
@@ -205,14 +205,11 @@ export const event: BotEvent = {
 					starboardData.push(newEntry);
 					await client.db.set(starboardDataPath, starboardData);
 				} catch (error) {
-					console.error("Error creating starboard message:", error);
+					logger.err("Error creating starboard message:", error);
 				}
 			}
 		} catch (error) {
-			console.error(
-				"Error in messageReactionAdd starboard event:",
-				error
-			);
+			logger.err("Error in messageReactionAdd starboard event:", error);
 		}
 	}
 };

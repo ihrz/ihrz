@@ -524,26 +524,26 @@ class InfrastructureMonitoring {
 							} else {
 								// The entry is kept at all costs: no delete,
 								// no new message. Retry on the next minute.
-								console.warn(
+								logger.warn(
 									`[InfrastructureMonitoring] Message ${channelData.message_id} not found in channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}), entry kept, retrying in 1 min.`
 								);
 							}
 						} catch (msgError) {
 							const errorCode = (msgError as { code?: unknown })
 								?.code;
-							console.error(
+							logger.err(
 								`[InfrastructureMonitoring] Failed to update message ${channelData.message_id} channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}, code: ${errorCode}): ${msgError} — entry kept, retrying in 1 min.`
 							);
 						}
 					}
 				} catch (channelError) {
-					console.error(
+					logger.err(
 						`Failed to process guild ${guild_id}: ${channelError}`
 					);
 				}
 			}
 		} catch (error) {
-			console.error("Error in Infrastructure Monitoring init:", error);
+			logger.err("Error in Infrastructure Monitoring init:", error);
 		}
 	}
 

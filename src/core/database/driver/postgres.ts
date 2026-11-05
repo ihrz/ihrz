@@ -71,7 +71,7 @@ export class Postgres<D = any> {
 						: row.value
 			}));
 		} catch (err) {
-			console.error("Error exporting ", err);
+			logger.err("Error exporting ", err);
 			throw new Error("Failed to export data");
 		}
 	}
@@ -85,7 +85,7 @@ export class Postgres<D = any> {
                 )
             `;
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error ensuring table ${tableName.toLowerCase()} exists:`,
 				err
 			);
@@ -111,7 +111,7 @@ export class Postgres<D = any> {
 						: row.value
 			}));
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error getting all rows from ${table.toLowerCase()}:`,
 				err
 			);
@@ -137,7 +137,7 @@ export class Postgres<D = any> {
 					: rows[0].value;
 			return [val as T, true];
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error getting row by key ${key} from ${table.toLowerCase()}:`,
 				err
 			);
@@ -162,7 +162,7 @@ export class Postgres<D = any> {
 						: row.value
 			}));
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error getting rows starting with ${query} from ${table.toLowerCase()}:`,
 				err
 			);
@@ -190,7 +190,7 @@ export class Postgres<D = any> {
 			}
 			return value as T;
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error setting row by key ${key} in ${table.toLowerCase()}:`,
 				err
 			);
@@ -211,7 +211,7 @@ export class Postgres<D = any> {
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error deleting all rows from ${table.toLowerCase()}:`,
 				err
 			);
@@ -234,7 +234,7 @@ export class Postgres<D = any> {
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(
+			logger.err(
 				`Error deleting row by key ${key} from ${table.toLowerCase()}:`,
 				err
 			);
@@ -556,7 +556,7 @@ export class Postgres<D = any> {
 				await this.sql.end();
 			}
 		} catch (err) {
-			console.error("Error closing Postgres connection:", err);
+			logger.err("Error closing Postgres connection:", err);
 		}
 	}
 }

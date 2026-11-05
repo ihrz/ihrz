@@ -137,13 +137,13 @@ export const create = async (
 						: null
 				};
 			} catch (widgetError) {
-				console.error(
+				logger.err(
 					`Error while retrieving widget information: ${widgetError}`
 				);
 				// Continue with default values
 			}
 		} catch (basicInfoError) {
-			console.error(
+			logger.err(
 				`Error while retrieving basic server information: ${basicInfoError}`
 			);
 			// Continue with default values
@@ -168,7 +168,7 @@ export const create = async (
 								Buffer.from(iconBuffer).toString("base64");
 						}
 					} catch (iconError) {
-						console.error(
+						logger.err(
 							`Error while retrieving server icon: ${iconError}`
 						);
 					}
@@ -195,7 +195,7 @@ export const create = async (
 								Buffer.from(splashBuffer).toString("base64");
 						}
 					} catch (splashError) {
-						console.error(
+						logger.err(
 							`Error while retrieving server splash: ${splashError}`
 						);
 					}
@@ -220,16 +220,14 @@ export const create = async (
 								Buffer.from(bannerBuffer).toString("base64");
 						}
 					} catch (bannerError) {
-						console.error(
+						logger.err(
 							`Error while retrieving server banner: ${bannerError}`
 						);
 					}
 				}
 			}
 		} catch (imageError) {
-			console.error(
-				`Error while retrieving server images: ${imageError}`
-			);
+			logger.err(`Error while retrieving server images: ${imageError}`);
 			// Continue without images
 		}
 
@@ -238,9 +236,7 @@ export const create = async (
 			try {
 				backupData.members = await createMaster.getMembers(guild);
 			} catch (membersError) {
-				console.error(
-					`Error while retrieving members: ${membersError}`
-				);
+				logger.err(`Error while retrieving members: ${membersError}`);
 				// Continue with empty array
 			}
 		}
@@ -250,7 +246,7 @@ export const create = async (
 			try {
 				backupData.bans = await createMaster.getBans(guild);
 			} catch (bansError) {
-				console.error(`Error while retrieving bans: ${bansError}`);
+				logger.err(`Error while retrieving bans: ${bansError}`);
 				// Continue with empty array
 			}
 		}
@@ -260,7 +256,7 @@ export const create = async (
 			try {
 				backupData.roles = await createMaster.getRoles(guild);
 			} catch (rolesError) {
-				console.error(`Error while retrieving roles: ${rolesError}`);
+				logger.err(`Error while retrieving roles: ${rolesError}`);
 				// Continue with empty array
 			}
 		}
@@ -273,7 +269,7 @@ export const create = async (
 					options
 				);
 			} catch (emojisError) {
-				console.error(`Error while retrieving emojis: ${emojisError}`);
+				logger.err(`Error while retrieving emojis: ${emojisError}`);
 				// Continue with empty array
 			}
 		}
@@ -286,9 +282,7 @@ export const create = async (
 					options
 				);
 			} catch (channelsError) {
-				console.error(
-					`Error while retrieving channels: ${channelsError}`
-				);
+				logger.err(`Error while retrieving channels: ${channelsError}`);
 				// Continue with empty arrays
 			}
 		}
@@ -296,7 +290,7 @@ export const create = async (
 		try {
 			await backupsTable.set(backupData.id, backupData);
 		} catch (saveError) {
-			console.error(`Error while saving backup: ${saveError}`);
+			logger.err(`Error while saving backup: ${saveError}`);
 		}
 
 		// Return data even if some parts failed

@@ -80,14 +80,14 @@ export async function getMembers(guild: Guild): Promise<MemberData[]> {
 				});
 			} catch (error) {
 				// If an error occurs for a specific member, continue with others
-				console.error(
+				logger.err(
 					`Error while retrieving member ${member?.user?.id || "unknown"}: ${error}`
 				);
 			}
 		});
 	} catch (error) {
 		// If an error occurs while retrieving members, return an empty array
-		console.error(`Error while retrieving members: ${error}`);
+		logger.err(`Error while retrieving members: ${error}`);
 	}
 	return members;
 }
@@ -113,14 +113,14 @@ export async function getRoles(guild: Guild): Promise<RoleData[]> {
 					roles.push(roleData);
 				} catch (error) {
 					// If an error occurs for a specific role, continue with others
-					console.error(
+					logger.err(
 						`Error while retrieving role ${role?.id || "unknown"}: ${error}`
 					);
 				}
 			});
 	} catch (error) {
 		// If an error occurs while retrieving roles, return an empty array
-		console.error(`Error while retrieving roles: ${error}`);
+		logger.err(`Error while retrieving roles: ${error}`);
 	}
 	return roles;
 }
@@ -149,7 +149,7 @@ export async function getEmojis(
 								Buffer.from(response).toString("base64");
 						} catch (fetchError) {
 							// If the image cannot be retrieved, use the URL instead
-							console.error(
+							logger.err(
 								`Error while retrieving emoji image ${emoji.name}: ${fetchError}`
 							);
 							eData.url = emoji.imageURL({ size: 4096 });
@@ -161,7 +161,7 @@ export async function getEmojis(
 					emojis.push(eData);
 				} catch (emojiError) {
 					// If an error occurs for a specific emoji, continue with others
-					console.error(
+					logger.err(
 						`Error while retrieving emoji ${emoji?.name || "unknown"}: ${emojiError}`
 					);
 				}
@@ -174,7 +174,7 @@ export async function getEmojis(
 		await Promise.all(promises);
 	} catch (error) {
 		// If an error occurs while retrieving emojis, return an empty array
-		console.error(`Error while retrieving emojis: ${error}`);
+		logger.err(`Error while retrieving emojis: ${error}`);
 	}
 
 	return emojis;

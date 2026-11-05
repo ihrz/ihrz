@@ -35,11 +35,11 @@ class AutoRenew {
 				try {
 					await this.Refresh(await this.GetAutoRenewData());
 				} catch (error) {
-					console.error("Error in AutoRenew interval:", error);
+					logger.err("Error in AutoRenew interval:", error);
 				}
 			}, 30_000);
 		} catch (error) {
-			console.error("Error initializing AutoRenew:", error);
+			logger.err("Error initializing AutoRenew:", error);
 		}
 	}
 

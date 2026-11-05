@@ -884,7 +884,7 @@ async function CreateChannelV2(
 			}
 		})
 		.catch((e) => {
-			console.error(e);
+			logger.err(e);
 		});
 }
 

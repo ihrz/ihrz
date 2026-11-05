@@ -229,10 +229,10 @@ export const command: AnotherCommand = {
 			try {
 				fs.rmSync(tmpDir, { recursive: true, force: true });
 			} catch (e) {
-				console.warn("Cleanup failed:", e);
+				logger.warn("Cleanup failed:", e);
 			}
 		} catch (err) {
-			console.error("Audio to MP4 Conversion Error:", err);
+			logger.err("Audio to MP4 Conversion Error:", err);
 			const embed = new EmbedBuilder()
 				.setTitle(lang.global_error)
 				.setColor("#ff0000")
@@ -251,7 +251,7 @@ export const command: AnotherCommand = {
 					});
 				}
 			} catch (e) {
-				console.error("Reply failed:", e);
+				logger.err("Reply failed:", e);
 			}
 		}
 
