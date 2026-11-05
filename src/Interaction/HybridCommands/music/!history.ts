@@ -322,13 +322,11 @@ export const subCommand: SubCommand = {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setCustomId(ID.previous)
-						.setEmoji("◀️")
 						.setLabel(lang.history_button_previous)
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(ended || pages < 2),
 					new ButtonBuilder()
 						.setCustomId(ID.next)
-						.setEmoji("▶️")
 						.setLabel(lang.history_button_next)
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(ended || pages < 2),
