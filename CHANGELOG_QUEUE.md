@@ -52,6 +52,20 @@ The same cards reach **moderation**, **fun** and the **invites manager**. `/ban`
 
 ---
 
+## 📊 Stats — rebuilt from scratch
+
+`/stats` answers with a **Components V2** card: a few sentences on what stands out (when you are most active, this week against the last, your favourite channel, your streak, who leads), a new image, and a menu to switch views without running the command again. The images are redrawn from the ground up: big figures with their trend against last week, a daily chart (messages as bars, voice as a curve), and a **weekday × hour heatmap** that shows when the server, a member or a channel is really active, with the peak outlined. Messages are always blue and voice always coral. Hours follow the server's time zone (from its language) and dates and weekdays are written in the server's language.
+
+- `/stats ustats`: messages, voice time, active days and current streak, server rank, favourite text and voice channels; the **Rhythm** view adds average message length, voice sessions, longest session and best streak.
+- `/stats gstats`: messages, voice, active members and peak hour, top members by messages and by voice; **Rhythm** and **Channels** views.
+- `/stats channel-stats`: one text or voice channel, with its members and its rhythm.
+- `/stats compare`: two members face to face on six measures, and both daily curves.
+- `/stats top-messages` / `/stats top-voice`: a ranked list with avatars over 24 hours, 7 or 30 days (up to 15 members).
+
+Fixes on the way: the 30-day figures were labelled "14d", and the activity chart could be cut off by the footer.
+
+---
+
 ## 🖥️ Dashboard — changes apply instantly
 
 Settings saved on the dashboard are now applied right away by the bot, with the same checks as the matching commands: H24/7, the server language bio, the bot's name and avatar, member counters, sticky messages, reaction roles (buttons and select menus), the honeypot trap, the confession panel, temporary bans and roles, TTS join/leave and the AuthRestore verify button. A change the bot refuses is reverted and reported. The music history now keeps each track's artwork for the dashboard.

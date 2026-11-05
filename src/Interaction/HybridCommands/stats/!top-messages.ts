@@ -20,18 +20,30 @@
 */
 
 import {
-	AttachmentBuilder,
+	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
-	Message
+	GuildMember,
+	Message,
+	User
 } from "discord.js";
+
 import { LanguageData } from "../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
-	fetchAvatar,
-	renderStatsPage
-} from "../../../core/modules/statsPage.js";
+	Period,
+	sendStatsCard,
+	statsContext,
+	topView
+} from "../../../core/modules/statsCommand.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
+
+// /stats top-messages [period] [limit]: the members with the most messages.
+const PERIODS: Record<string, Period> = {
+	daily: "1d",
+	weekly: "7d",
+	monthly: "30d"
+};
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -40,157 +52,47 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (!client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let period: "daily" | "weekly" | "monthly" = "monthly";
-		let limit = 10;
-
+		let periodKey: string | null;
+		let limit: number | null;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			const periodOption = interaction.options.getString("period");
-			if (
-				periodOption &&
-				["daily", "weekly", "monthly"].includes(periodOption)
-			) {
-				period = periodOption as "daily" | "weekly" | "monthly";
-			}
-			limit = interaction.options.getInteger("limit") || 10;
+			periodKey = interaction.options.getString("period");
+			limit = interaction.options.getInteger("limit");
 		} else {
-			// Handle message command args parsing if needed
-			if (args && args.length > 0) {
-				const periodArg = args[0]?.toLowerCase();
-				if (["daily", "weekly", "monthly"].includes(periodArg)) {
-					period = periodArg as "daily" | "weekly" | "monthly";
-				}
-				if (args[1] && !isNaN(parseInt(args[1]))) {
-					limit = Math.min(Math.max(parseInt(args[1]), 5), 25);
-				}
-			}
+			periodKey = args?.[0]?.toLowerCase() ?? null;
+			limit = args?.[1] ? parseInt(args[1], 10) : null;
 		}
-
-		const msg = await client.func.method.interactionSend(
-			interaction,
-			client.iHorizon_Emojis.Discord_Loading
+		const period = PERIODS[periodKey ?? ""] ?? "30d";
+		const count = Math.min(
+			15,
+			Math.max(3, Number.isFinite(limit) && limit ? limit : 10)
 		);
 
-		const res = (await client.db.get(
-			`${interaction.guildId}.STATS`
-		)) as DatabaseStructure.GuildStats | null;
-
-		if (!res || !res.USER) {
-			await msg.edit({ content: lang.stats_no_data });
+		const ctx = await statsContext(client, interaction, lang);
+		const views = await topView(ctx, "messages", period, count);
+		if (!views) {
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"info",
+					`${client.iHorizon_Emojis.Stats} ${lang.stats_card_no_data}`
+				)
+			);
 			return;
 		}
-
-		const nowTimestamp = Date.now();
-		const dailyTimeout = 86_400_000;
-		const weeklyTimeout = 604_800_000;
-		const monthlyTimeout = 2_592_000_000;
-
-		const timeout =
-			period === "daily"
-				? dailyTimeout
-				: period === "weekly"
-					? weeklyTimeout
-					: monthlyTimeout;
-
-		const leaderboardData: {
-			memberId: string;
-			member: any;
-			messages: number;
-		}[] = [];
-
-		for (const memberId in res.USER) {
-			const userData = res.USER[memberId];
-			let messageCount = 0;
-
-			userData.messages?.forEach((message) => {
-				if (nowTimestamp - message.sentTimestamp <= timeout) {
-					messageCount++;
-				}
-			});
-
-			if (messageCount > 0) {
-				const user = await client.users
-					.fetch(memberId)
-					.catch(() => null);
-				leaderboardData.push({
-					memberId,
-					member: user,
-					messages: messageCount
-				});
-			}
-		}
-
-		leaderboardData.sort((a, b) => b.messages - a.messages);
-		const topUsers = leaderboardData.slice(0, limit);
-
-		const periodLabel =
-			period === "daily"
-				? lang.var_1d
-				: period === "weekly"
-					? lang.var_7d
-					: lang.var_14d;
-		const currentDate = new Date().toLocaleDateString(
-			(await client.db.get(`${interaction.guildId}.LANG.lang`)) ||
-				"en-US",
-			{
-				year: "numeric",
-				month: "long",
-				day: "numeric",
-				hour: "2-digit",
-				minute: "2-digit"
-			}
-		);
-
-		const [guildIcon, avatars] = await Promise.all([
-			fetchAvatar(
-				interaction.guild.iconURL({ size: 256, extension: "png" }) ||
-					client.user.displayAvatarURL({
-						size: 256,
-						extension: "png"
-					})
-			),
-			Promise.all(
-				topUsers.map((user) =>
-					fetchAvatar(
-						user.member?.displayAvatarURL({
-							size: 64,
-							extension: "png"
-						})
-					)
-				)
-			)
-		]);
-
-		const image = await renderStatsPage({
-			title: lang.top_messages_title,
-			meta: [
-				`${interaction.guild.memberCount} ${lang.var_members}`,
-				periodLabel
-			],
-			avatar: guildIcon,
-			footer: lang.stats_generated_on.replace("{date}", currentDate),
-			blocks: [
-				{
-					type: "list",
-					title: lang.top_active_users_title,
-					icon: "💬",
-					empty: lang.stats_no_data,
-					rows: topUsers.map((user, index) => ({
-						avatar: avatars[index],
-						name: `@${user.member?.username || lang.var_unknown}`,
-						detail: `${lang.var_total}: ${user.messages} ${lang.messages_word}`,
-						value: String(user.messages),
-						unit: lang.messages_word
-					}))
-				}
-			]
+		await sendStatsCard(ctx, {
+			title: lang.stats_title_top_messages,
+			emoji: client.iHorizon_Emojis.Crown,
+			accent: 0x6c8bff,
+			views
 		});
-
-		const attachment = new AttachmentBuilder(image, {
-			name: "top-messages.png"
-		});
-
-		await msg.edit({ content: null, files: [attachment] });
 	}
 };

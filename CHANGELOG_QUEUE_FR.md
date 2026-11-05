@@ -52,6 +52,20 @@ Les mêmes cartes arrivent dans la **modération**, le **fun** et le **gestionna
 
 ---
 
+## 📊 Stats — entièrement refaites
+
+`/stats` répond avec une carte **Components V2** : quelques phrases sur ce qui ressort (quand tu es le plus actif, cette semaine par rapport à la précédente, ton salon favori, ta série de jours, qui mène), une nouvelle image, et un menu pour changer de vue sans relancer la commande. Les images sont redessinées de zéro : de grands chiffres avec leur tendance par rapport à la semaine passée, un graphique quotidien (les messages en barres, le vocal en courbe) et une **carte de chaleur jour × heure** qui montre quand le serveur, un membre ou un salon est vraiment actif, avec le pic entouré. Les messages sont toujours en bleu et le vocal toujours en corail. Les heures suivent le fuseau du serveur (déduit de sa langue), et les dates et jours sont écrits dans la langue du serveur.
+
+- `/stats ustats` : messages, temps en vocal, jours actifs et série en cours, classement sur le serveur, salons texte et vocaux favoris ; la vue **Rythme** ajoute la longueur moyenne des messages, les sessions vocales, la plus longue session et la meilleure série.
+- `/stats gstats` : messages, vocal, membres actifs et heure de pointe, meilleurs membres en messages et en vocal ; vues **Rythme** et **Salons**.
+- `/stats channel-stats` : un salon texte ou vocal, avec ses membres et son rythme.
+- `/stats compare` : deux membres face à face sur six critères, avec leurs deux courbes quotidiennes.
+- `/stats top-messages` / `/stats top-voice` : un classement avec avatars sur 24 heures, 7 ou 30 jours (jusqu'à 15 membres).
+
+Corrigé au passage : les chiffres sur 30 jours étaient étiquetés « 14d », et le graphique d'activité pouvait être coupé par le pied de page.
+
+---
+
 ## 🖥️ Dashboard — les changements s'appliquent tout de suite
 
 Les réglages enregistrés sur le dashboard sont maintenant appliqués immédiatement par le bot, avec les mêmes vérifications que les commandes correspondantes : H24/7, la bio de langue du serveur, le nom et l'avatar du bot, les compteurs de membres, les messages épinglés (sticky), les rôles-réactions (boutons et menus déroulants), le piège honeypot, le panneau de confessions, les bans et rôles temporaires, l'arrivée et le départ du TTS et le bouton de vérification AuthRestore. Un changement refusé par le bot est annulé et signalé. L'historique musical garde désormais la pochette de chaque morceau pour le dashboard.

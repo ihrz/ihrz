@@ -20,20 +20,24 @@
 */
 
 import {
-	AttachmentBuilder,
+	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
+	GuildMember,
 	Message,
-	EmbedBuilder
+	User
 } from "discord.js";
+
 import { LanguageData } from "../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
-	calculateMessageTime,
-	calculateVoiceActivity
-} from "../../../core/functions/userStatsUtils.js";
+	compareView,
+	sendStatsCard,
+	statsContext
+} from "../../../core/modules/statsCommand.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
+// /stats compare user1 user2: two members side by side over 30 days.
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -41,182 +45,57 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (!client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let user1Id: string | null = null;
-		let user2Id: string | null = null;
-
+		let a: User | null;
+		let b: User | null;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			const user1 = interaction.options.getUser("user1", true);
-			const user2 = interaction.options.getUser("user2", true);
-			user1Id = user1.id;
-			user2Id = user2.id;
+			a = interaction.options.getUser("user1", true);
+			b = interaction.options.getUser("user2", true);
 		} else {
-			// Handle message command args parsing
-			if (args && args.length >= 2) {
-				const user1 = await client.func.method.user(
-					interaction as Message,
-					args,
-					0
-				);
-				const user2 = await client.func.method.user(
-					interaction as Message,
-					args,
-					1
-				);
-				if (user1) user1Id = user1.id;
-				if (user2) user2Id = user2.id;
-			}
+			a = (await client.func.method.user(interaction, args!, 0)) ?? null;
+			b = (await client.func.method.user(interaction, args!, 1)) ?? null;
+		}
+		if (!a || !b || a.id === b.id) {
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"warning",
+					`${client.iHorizon_Emojis.Warn} ${lang.stats_compare_same}`
+				)
+			);
+			return;
 		}
 
-		if (!user1Id || !user2Id) {
-			return await client.func.method.interactionSend(interaction, {
-				content: lang.stats_compare_invalid_users
-			});
+		const ctx = await statsContext(client, interaction, lang);
+		const views = await compareView(ctx, a.id, b.id);
+		if (!views) {
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"info",
+					`${client.iHorizon_Emojis.Stats} ${lang.stats_card_no_data}`
+				)
+			);
+			return;
 		}
-
-		const msg = await client.func.method.interactionSend(
-			interaction,
-			client.iHorizon_Emojis.Discord_Loading
-		);
-
-		const user1Data = (await client.db.get(
-			`${interaction.guildId}.STATS.USER.${user1Id}`
-		)) as DatabaseStructure.UserStats | null;
-		const user2Data = (await client.db.get(
-			`${interaction.guildId}.STATS.USER.${user2Id}`
-		)) as DatabaseStructure.UserStats | null;
-
-		if (!user1Data || !user2Data) {
-			return await client.func.method.interactionSend(interaction, {
-				content: lang.stats_compare_no_data
-			});
-		}
-
-		const user1 = await client.users.fetch(user1Id).catch(() => null);
-		const user2 = await client.users.fetch(user2Id).catch(() => null);
-
-		const nowTimestamp = Date.now();
-		const dailyTimeout = 86_400_000;
-		const weeklyTimeout = 604_800_000;
-		const monthlyTimeout = 2_592_000_000;
-
-		// Calculate stats for user1
-		let user1DailyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user1WeeklyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user1MonthlyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user1DailyVoice = 0;
-		let user1WeeklyVoice = 0;
-		let user1MonthlyVoice = 0;
-
-		user1Data.messages?.forEach((msg) => {
-			const result = calculateMessageTime(
-				msg,
-				nowTimestamp,
-				dailyTimeout,
-				weeklyTimeout,
-				monthlyTimeout,
-				user1DailyMessages,
-				user1WeeklyMessages,
-				user1MonthlyMessages
-			);
-			user1DailyMessages = result.dailyMessages;
-			user1WeeklyMessages = result.weeklyMessages;
-			user1MonthlyMessages = result.monthlyMessages;
+		const name = (u: User) =>
+			interaction.guild!.members.cache.get(u.id)?.displayName ??
+			u.displayName;
+		await sendStatsCard(ctx, {
+			title: lang.stats_title_compare
+				.replace("${a}", name(a))
+				.replace("${b}", name(b)),
+			emoji: client.iHorizon_Emojis.Stats,
+			views
 		});
-
-		user1Data.voices?.forEach((voice) => {
-			const result = calculateVoiceActivity(
-				voice,
-				nowTimestamp,
-				dailyTimeout,
-				weeklyTimeout,
-				monthlyTimeout,
-				user1DailyVoice,
-				user1WeeklyVoice,
-				user1MonthlyVoice
-			);
-			user1DailyVoice = result.dailyVoiceActivity;
-			user1WeeklyVoice = result.weeklyVoiceActivity;
-			user1MonthlyVoice = result.monthlyVoiceActivity;
-		});
-
-		// Calculate stats for user2
-		let user2DailyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user2WeeklyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user2MonthlyMessages: DatabaseStructure.StatsMessage[] = [];
-		let user2DailyVoice = 0;
-		let user2WeeklyVoice = 0;
-		let user2MonthlyVoice = 0;
-
-		user2Data.messages?.forEach((msg) => {
-			const result = calculateMessageTime(
-				msg,
-				nowTimestamp,
-				dailyTimeout,
-				weeklyTimeout,
-				monthlyTimeout,
-				user2DailyMessages,
-				user2WeeklyMessages,
-				user2MonthlyMessages
-			);
-			user2DailyMessages = result.dailyMessages;
-			user2WeeklyMessages = result.weeklyMessages;
-			user2MonthlyMessages = result.monthlyMessages;
-		});
-
-		user2Data.voices?.forEach((voice) => {
-			const result = calculateVoiceActivity(
-				voice,
-				nowTimestamp,
-				dailyTimeout,
-				weeklyTimeout,
-				monthlyTimeout,
-				user2DailyVoice,
-				user2WeeklyVoice,
-				user2MonthlyVoice
-			);
-			user2DailyVoice = result.dailyVoiceActivity;
-			user2WeeklyVoice = result.weeklyVoiceActivity;
-			user2MonthlyVoice = result.monthlyVoiceActivity;
-		});
-
-		const embed = new EmbedBuilder()
-			.setTitle(lang.stats_compare_title)
-			.setColor("#5865F2")
-			.setDescription(
-				`${user1?.username || lang.var_unknown} vs ${user2?.username || lang.var_unknown}`
-			)
-			.addFields(
-				{
-					name: `📨 ${lang.messages_word}`,
-					value: `**${user1?.username || lang.var_unknown}**: ${user1MonthlyMessages.length} | **${user2?.username || lang.var_unknown}**: ${user2MonthlyMessages.length}`,
-					inline: true
-				},
-				{
-					name: `🎤 ${lang.voice_activity}`,
-					value: `**${user1?.username || lang.var_unknown}**: ${client.timeCalculator.to_beautiful_string(user1MonthlyVoice, lang)} | **${user2?.username || lang.var_unknown}**: ${client.timeCalculator.to_beautiful_string(user2MonthlyVoice, lang)}`,
-					inline: true
-				},
-				{
-					name: lang.var_1d,
-					value: `**${user1?.username || lang.var_unknown}**: ${user1DailyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user1DailyVoice, lang)}\n**${user2?.username || lang.var_unknown}**: ${user2DailyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user2DailyVoice, lang)}`,
-					inline: false
-				},
-				{
-					name: lang.var_7d,
-					value: `**${user1?.username || lang.var_unknown}**: ${user1WeeklyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user1WeeklyVoice, lang)}\n**${user2?.username || lang.var_unknown}**: ${user2WeeklyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user2WeeklyVoice, lang)}`,
-					inline: false
-				},
-				{
-					name: lang.var_14d,
-					value: `**${user1?.username || lang.var_unknown}**: ${user1MonthlyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user1MonthlyVoice, lang)}\n**${user2?.username || lang.var_unknown}**: ${user2MonthlyMessages.length} ${lang.messages_word}, ${client.timeCalculator.to_beautiful_string(user2MonthlyVoice, lang)}`,
-					inline: false
-				}
-			)
-			.setThumbnail(interaction.guild.iconURL({ size: 512 }) || null)
-			.setTimestamp();
-
-		msg.edit({ content: null, embeds: [embed] });
 	}
 };
