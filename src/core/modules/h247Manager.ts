@@ -27,7 +27,12 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
-import { getVoiceConnection, joinVoiceChannel } from "@discordjs/voice";
+import {
+	getVoiceConnection,
+	joinVoiceChannel,
+	VoiceConnectionStatus,
+	type VoiceConnection
+} from "@discordjs/voice";
 
 import type { Player, VoicePacket, VoiceState } from "lavalink-client";
 
@@ -48,6 +53,9 @@ const H247_WATCHDOG_WARN_INTERVAL_MS = 30 * 60_000;
 const H247_NEGATIVE_CACHE_TTL_MS = 30 * 60_000;
 const H247_TAKEOVER_VERIFY_INTERVAL_MS = 1_000;
 const H247_TAKEOVER_VERIFY_ATTEMPTS = 10;
+const H247_CONNECTION_ERROR_LIMIT = 3;
+const H247_CONNECTION_ERROR_WINDOW_MS = 60_000;
+const H247_CONNECTION_RECOVERY_COOLDOWN_MS = 60_000;
 
 // In-memory mirror of the enabled H24/7 sessions, required to keep the
 // "playerQueueEmptyEnd" handling synchronous against the internal destroy.
@@ -64,6 +72,21 @@ const h247EventRejoinCooldowns = new Map<string, number>();
 // Last watchdog warning per guild. Failures (missing perms, deleted
 // channel) are retried silently until this interval elapses.
 const h247WatchdogWarns = new Map<string, number>();
+
+interface H247ConnectionHealth {
+	// Recent error timestamps, never more than the limit.
+	errors: number[];
+	recovering: boolean;
+	recoveredAt: number;
+}
+
+// Voice connection failures per guild, driving the reset of a session
+// that keeps failing.
+const h247ConnectionHealth = new Map<string, H247ConnectionHealth>();
+
+// joinVoiceChannel returns the existing connection on a rejoin, each one
+// must only be watched once.
+const h247WatchedConnections = new WeakSet<VoiceConnection>();
 
 interface H247VoiceSession {
 	channelId: string;
@@ -327,6 +350,7 @@ export async function deleteH247Data(
 	h247NegativeCache.delete(guildId);
 	h247EventRejoinCooldowns.delete(guildId);
 	h247WatchdogWarns.delete(guildId);
+	h247ConnectionHealth.delete(guildId);
 }
 
 // Drops the in-memory H24/7 state only. Used when the database was
@@ -338,6 +362,7 @@ export function forgetH247Session(guildId: string): void {
 	h247NegativeCache.delete(guildId);
 	h247EventRejoinCooldowns.delete(guildId);
 	h247WatchdogWarns.delete(guildId);
+	h247ConnectionHealth.delete(guildId);
 }
 
 async function fetchH247VoiceChannel(
@@ -383,6 +408,102 @@ async function waitForH247VoiceDisconnection(
 	return false;
 }
 
+// Replaces a session that keeps failing: the stored connection data goes
+// and the bot joins again from scratch. The H24/7 setting itself is kept.
+async function resetH247Connection(guild: Guild): Promise<void> {
+	const data = await getH247Data(guild.client, guild.id);
+
+	if (!data?.enabled || !data.voiceChannelId) return;
+
+	h247Sessions.set(guild.id, data.voiceChannelId);
+
+	logger.warn(
+		`H24/7 voice connection of guild ${guild.id} failed ${H247_CONNECTION_ERROR_LIMIT} times, resetting it`
+	);
+
+	await leaveCurrentVoiceConnection(guild);
+	await waitForH247VoiceDisconnection(guild, data.voiceChannelId);
+
+	// /h247 leave may have run meanwhile, and the voice state handler may
+	// have already rejoined after seeing the leave.
+	if (h247Sessions.get(guild.id) !== data.voiceChannelId) return;
+	if (getVoiceConnection(guild.id)) return;
+
+	const joined = await joinH247VoiceChannel(
+		guild,
+		data.voiceChannelId,
+		true,
+		true
+	);
+
+	if (!joined) {
+		logger.warn(
+			`Unable to rejoin the H24/7 channel ${data.voiceChannelId} of guild ${guild.id} after a connection reset`
+		);
+	}
+}
+
+function handleH247ConnectionError(guild: Guild, error: Error): void {
+	const now = Date.now();
+	const health = h247ConnectionHealth.get(guild.id) ?? {
+		errors: [],
+		recovering: false,
+		recoveredAt: 0
+	};
+
+	h247ConnectionHealth.set(guild.id, health);
+
+	health.errors = [...health.errors, now]
+		.filter((at) => now - at < H247_CONNECTION_ERROR_WINDOW_MS)
+		.slice(-H247_CONNECTION_ERROR_LIMIT);
+
+	logger.warn(
+		`H24/7 voice connection error in guild ${guild.id} (${health.errors.length}/${H247_CONNECTION_ERROR_LIMIT}): ${error.message}`
+	);
+
+	if (health.errors.length < H247_CONNECTION_ERROR_LIMIT) return;
+
+	// Keeps a connection that cannot recover from leaving and joining in
+	// a tight loop.
+	if (
+		health.recovering ||
+		now - health.recoveredAt < H247_CONNECTION_RECOVERY_COOLDOWN_MS
+	) {
+		return;
+	}
+
+	health.recovering = true;
+	health.errors = [];
+
+	resetH247Connection(guild)
+		.catch((resetError) => {
+			logger.err(
+				`Failed to reset the H24/7 voice connection of guild ${guild.id}:`,
+				resetError
+			);
+		})
+		.finally(() => {
+			health.recovering = false;
+			health.recoveredAt = Date.now();
+		});
+}
+
+// Without an "error" listener, djs-voice failures end up as unhandled
+// rejections that name no guild and that nothing reacts to.
+function watchH247Connection(guild: Guild, connection: VoiceConnection): void {
+	if (h247WatchedConnections.has(connection)) return;
+
+	h247WatchedConnections.add(connection);
+
+	connection.on("error", (error) => handleH247ConnectionError(guild, error));
+
+	connection.on(VoiceConnectionStatus.Ready, () => {
+		const health = h247ConnectionHealth.get(guild.id);
+
+		if (health) health.errors = [];
+	});
+}
+
 // djs-voice owns the H24/7 voice session: messaging the same channel back
 // re-adopts an orphaned pre-restart session without any observable
 // rotation, and the gateway + UDP keepalives it holds afterwards prevent
@@ -416,13 +537,15 @@ export async function joinH247VoiceChannel(
 
 	ensureH247VoiceSession(guild.id, channel.id);
 
-	joinVoiceChannel({
+	const connection = joinVoiceChannel({
 		guildId: guild.id,
 		channelId: channel.id,
 		adapterCreator: guild.voiceAdapterCreator,
 		selfDeaf: true,
 		selfMute: false
 	});
+
+	watchH247Connection(guild, connection);
 
 	if (!confirmConnection) return true;
 

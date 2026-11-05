@@ -117,6 +117,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Security**: reminder DMs could contain other users' reminders, and the level-up message could ping `@everyone` or roles — both fixed; user text in generated images is always shown as text
 - **Music**: some SoundCloud tracks failed with "not found at source"; they play now
 - **Music**: a connection to the music provider that drops mid-track (after a long pause, for example) no longer stops the track: it resumes where it stopped
+- **H24/7**: a voice connection that fails 3 times in a row is now reset on its own: the bot drops its stored connection and joins its channel again, the H24/7 setting stays on
 - **Music**: the player is no longer destroyed when its text channel is missing
 - **`+helpall`**: paginated by category with a select menu, like `+h`
 - **`/automod`**: the panel opens again when a bypass role or the log channel was deleted

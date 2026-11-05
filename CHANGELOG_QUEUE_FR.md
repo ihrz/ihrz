@@ -117,6 +117,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Sécurité** : les DM de rappel pouvaient contenir les rappels d'autres utilisateurs, et le message de passage de niveau pouvait mentionner `@everyone` ou des rôles — les deux sont corrigés ; le texte des utilisateurs dans les images générées est toujours affiché comme du texte
 - **Musique** : certains morceaux SoundCloud échouaient avec « not found at source » ; ils se lancent maintenant
 - **Musique** : une connexion au fournisseur musical qui coupe en plein morceau (après une longue pause, par exemple) n'arrête plus le morceau : il reprend là où il s'était arrêté
+- **H24/7** : une connexion vocale qui échoue 3 fois de suite est maintenant réinitialisée toute seule : le bot oublie sa connexion enregistrée et revient dans son salon, le H24/7 reste activé
 - **Musique** : le lecteur n'est plus détruit quand son salon textuel a disparu
 - **`+helpall`** : paginé par catégorie avec un menu déroulant, comme `+h`
 - **`/automod`** : le panneau s'ouvre de nouveau quand un rôle exempté ou le salon de logs a été supprimé
