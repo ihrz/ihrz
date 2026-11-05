@@ -168,7 +168,7 @@ export const subCommand: SubCommand = {
 					const data = res.message.split("%");
 					const ws = new WebSocket(data[0]);
 
-					ws.on("error", console.error);
+					ws.on("error", (err) => logger.err(err));
 
 					ws.on("open", function open() {
 						ws.send("forceJoin%" + data[1]);

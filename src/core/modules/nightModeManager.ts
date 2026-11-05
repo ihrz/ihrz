@@ -106,7 +106,7 @@ class NightModeManager {
 					await this.Add_All_PA(guild, guildObject, lang);
 				}
 			} catch (err) {
-				console.error(err);
+				logger.err(err);
 			}
 		}
 	}

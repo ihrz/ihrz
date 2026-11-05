@@ -262,10 +262,7 @@ class GithubLinesManager {
 		if (botMsg && msg.deletable) {
 			// can always supress embed if deletable
 			// it can take a few ms before the supress can be registered
-			setTimeout(
-				() => msg.suppressEmbeds(true).catch(console.error),
-				100
-			);
+			setTimeout(() => msg.suppressEmbeds(true).catch(logger.err), 100);
 		}
 
 		return { botMsg, toDelete: false, lang };

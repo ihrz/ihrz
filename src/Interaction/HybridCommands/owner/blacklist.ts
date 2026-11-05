@@ -654,7 +654,7 @@ export async function run_for_guild_owner(
 				});
 			})
 			.catch(async (err) => {
-				console.error(err);
+				logger.err(err);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_blacklisted_but_can_ban_him.replace(
 						"${emoji_No}",

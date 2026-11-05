@@ -84,7 +84,7 @@ export function fetchChannelPermissions(
 			!typedChannel.permissionOverwrites ||
 			!typedChannel.permissionOverwrites.cache
 		) {
-			console.error(
+			logger.err(
 				`Channel ${typedChannel.name || typedChannel.id || "unknown"} doesn't have valid permissionOverwrites`
 			);
 			return permissions;
@@ -122,13 +122,13 @@ export function fetchChannelPermissions(
 						});
 					}
 				} catch (permError) {
-					console.error(
+					logger.err(
 						`Error getting permissions for role ${perm?.id || "unknown"}: ${permError}`
 					);
 				}
 			});
 	} catch (error) {
-		console.error(`Error getting channel permissions: ${error}`);
+		logger.err(`Error getting channel permissions: ${error}`);
 	}
 	return permissions;
 }

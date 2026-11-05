@@ -87,7 +87,7 @@ export async function clearMessage(
 				.replace("${channelId}", String(interaction.channel?.id))
 		});
 	} catch (error) {
-		console.error("[clear] bulkDelete failed:", error);
+		logger.err("[clear] bulkDelete failed:", error);
 		await client.func.method.interactionSend(interaction, {
 			content: `${error?.message}`
 		});
@@ -167,7 +167,7 @@ export const subCommand: SubCommand = {
 				targetAmount
 			);
 
-			console.debug(
+			logger.debug(
 				`[clear] scanned ${scanned} message(s) to find ${matched.length}/${targetAmount} from ${member.id}`
 			);
 

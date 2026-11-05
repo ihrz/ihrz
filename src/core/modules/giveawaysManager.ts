@@ -488,7 +488,7 @@ class GiveawayManager {
 				return;
 			}
 		} catch (e) {
-			console.error(e);
+			logger.err(e);
 		}
 	}
 

@@ -162,7 +162,7 @@ export const event: BotEvent = {
 						await client.db.set(skullboardDataPath, skullboardData);
 					}
 				} catch (error) {
-					console.error("Error updating skullboard message:", error);
+					logger.err("Error updating skullboard message:", error);
 				}
 			} else {
 				// Create new skullboard message
@@ -204,14 +204,11 @@ export const event: BotEvent = {
 					skullboardData.push(newEntry);
 					await client.db.set(skullboardDataPath, skullboardData);
 				} catch (error) {
-					console.error("Error creating skullboard message:", error);
+					logger.err("Error creating skullboard message:", error);
 				}
 			}
 		} catch (error) {
-			console.error(
-				"Error in messageReactionAdd skullboard event:",
-				error
-			);
+			logger.err("Error in messageReactionAdd skullboard event:", error);
 		}
 	}
 };

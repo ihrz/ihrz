@@ -108,7 +108,7 @@ export const event: BotEvent = {
 					);
 					await client.db.set(skullboardDataPath, skullboardData);
 				} catch (error) {
-					console.error("Error deleting skullboard message:", error);
+					logger.err("Error deleting skullboard message:", error);
 				}
 			} else {
 				// Update the skullboard message with new count
@@ -166,11 +166,11 @@ export const event: BotEvent = {
 						]
 					});
 				} catch (error) {
-					console.error("Error updating skullboard message:", error);
+					logger.err("Error updating skullboard message:", error);
 				}
 			}
 		} catch (error) {
-			console.error(
+			logger.err(
 				"Error in messageReactionRemove skullboard event:",
 				error
 			);

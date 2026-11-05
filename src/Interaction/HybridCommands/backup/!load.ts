@@ -143,7 +143,7 @@ export const subCommand: SubCommand = {
 					});
 			})
 			.catch((err) => {
-				console.error(err);
+				logger.err(err);
 				client.func.method.channelSend(interaction, {
 					content: client.iHorizon_Emojis.No
 				});

@@ -217,7 +217,7 @@ async function loadSubCommandModule(
 		return (await import(moduleURL)) as SubCommandModule;
 	} catch (error) {
 		logger.err(`Failed to load subcommand module: ${commandName}`);
-		console.error(error);
+		logger.err(error);
 		return null;
 	}
 }

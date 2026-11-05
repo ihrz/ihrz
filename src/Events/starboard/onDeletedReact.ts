@@ -110,7 +110,7 @@ export const event: BotEvent = {
 					);
 					await client.db.set(starboardDataPath, starboardData);
 				} catch (error) {
-					console.error("Error deleting starboard message:", error);
+					logger.err("Error deleting starboard message:", error);
 				}
 			} else {
 				// Update the starboard message with new count
@@ -168,11 +168,11 @@ export const event: BotEvent = {
 						]
 					});
 				} catch (error) {
-					console.error("Error updating starboard message:", error);
+					logger.err("Error updating starboard message:", error);
 				}
 			}
 		} catch (error) {
-			console.error(
+			logger.err(
 				"Error in messageReactionRemove starboard event:",
 				error
 			);
