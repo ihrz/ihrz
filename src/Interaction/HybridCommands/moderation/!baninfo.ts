@@ -23,12 +23,16 @@ import {
 	AuditLogEvent,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	Message,
-	time
+	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -75,25 +79,55 @@ export const subCommand: SubCommand = {
 				log.action === AuditLogEvent.MemberBanAdd
 		);
 
-		const embed = new EmbedBuilder()
-			.setTitle(`${lang.baninfo_ban_info}: ${user.displayName}`)
-			.setColor("#4fdb12")
-			.setDescription(
-				`> 🕒 **${lang.var_ban_date}:** ${time(banLog?.createdAt || new Date())}
-           > 👤 **${lang.var_banned_by}:** ${banLog?.executor?.tag || lang.var_unknown}
-           > 📝 **${lang.var_reason}:** ${ban_info.reason || lang.blacklist_var_no_reason}`
-			)
-			.setThumbnail(
-				user.displayAvatarURL({
-					extension: "gif",
-					forceStatic: false,
-					size: 4096
-				})
-			);
+		const e = client.iHorizon_Emojis;
+		const bannedAt = banLog
+			? Math.floor(banLog.createdTimestamp / 1000)
+			: null;
+		const executor = banLog?.executor;
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: e.Ban_Hammer,
+				title: lang.baninfo_card_title.replace(
+					"${user}",
+					user.displayName
+				),
+				thumbnail: user.displayAvatarURL({
+					forceStatic: false,
+					size: 256
+				}),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${user} (\`${user.id}\`)`
+					},
+					{
+						emoji: e.Schedule,
+						label: lang.var_ban_date,
+						value: bannedAt
+							? `<t:${bannedAt}:D> · <t:${bannedAt}:R>`
+							: lang.var_unknown
+					},
+					{
+						emoji: e.Security,
+						label: lang.var_banned_by,
+						value: executor
+							? `<@${executor.id}> (\`${executor.tag}\`)`
+							: lang.var_unknown
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: ban_info.reason || lang.blacklist_var_no_reason
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,15 +50,22 @@ export const subCommand: SubCommand = {
 
 		const random = client.func.random.secureRandomInt(min, max);
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.fun_random_embed_title)
-			.setDescription(
-				`${lang.fun_random_result_text} **${random}**\n(${lang.fun_random_between} ${min} ↔ ${max})`
-			)
-			.setColor("Random");
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.fun_card_number_title,
+				fields: [
+					{ label: lang.fun_label_result, value: `**${random}**` },
+					{
+						label: lang.fun_label_range,
+						value: `\`${min}\` – \`${max}\``
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

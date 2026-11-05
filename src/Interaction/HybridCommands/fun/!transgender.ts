@@ -23,7 +23,6 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	User
 } from "discord.js";
@@ -32,6 +31,12 @@ import { AxiosResponse, axios } from "../../../core/functions/axios.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCardWithFiles
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -61,35 +66,27 @@ export const subCommand: SubCommand = {
 
 		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: "png", size: 1024 }))}`;
 
-		const embed = new EmbedBuilder()
-			.setColor("#010101")
-			.setImage("attachment://transgender.png")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
-
-		let imgs: AttachmentBuilder | undefined;
-
 		const response: AxiosResponse = await axios.get(link, {
 			responseType: "arrayBuffer"
 		});
-		imgs = new AttachmentBuilder(Buffer.from(response.data, "base64"), {
-			name: "transgender.png"
-		});
-		embed.setImage(`attachment://transgender.png`);
+		const imgs = new AttachmentBuilder(
+			Buffer.from(response.data, "base64"),
+			{ name: "transgender.png" }
+		);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				imgs,
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCardWithFiles(
+			client,
+			interaction,
+			[imgs],
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.fun_card_transgender_title,
+				description: member1.toString(),
+				images: ["attachment://transgender.png"],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

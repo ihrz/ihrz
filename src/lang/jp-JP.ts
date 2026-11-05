@@ -588,7 +588,6 @@ export default {
 	// /addinvites、/invites、/leaderboard、/removeinvites
 
 	// /addinvites
-	addinvites_not_admin_embed_description: "管理者である必要があります！",
 	addinvites_confirmation_embed_description:
 		"${user}に${amount}の招待状が追加されました",
 	addinvites_logs_embed_title: "招待状マネージャーログ",
@@ -596,19 +595,8 @@ export default {
 		"<@${authorId}>さんが<@${userId}>さんに${amount}の招待状を追加しました！",
 
 	// /invites
-	invites_confirmation_embed_description:
-		"<@${memberId}>さんは`${invites}`の招待状を持っています（`${regular}`レギュラー、`${bonus}`ボーナス、`${leaves}`リーブス）。",
-	invites_confirmation_embed_title: "招待状統計情報",
 
 	// /leaderboard
-	leaderboard_text_inline:
-		"`${i} ` <@${inviter}> • 招待∶ **${invites}**\n  ┖ 通常 **${regular}**, ボーナス∶ **${bonus}**, 退出∶ **${leaves}**\n",
-	leaderboard_default_text: "**__リーダーボード__**",
-	leaderboard_rank_text:
-		"🏅あなたは現在 `${rank}` 位 / `${arrCount}` 位で、**${invites}** 招待があります\n\n",
-	leaderboard_rank_none: "🏅あなたは現在ランクインしていません。\n\n",
-	leaderboard_gen_time_msg:
-		"**${guildName}** のリーダーボードは ${elapsed} ミリ秒で生成されました。\n\n",
 
 	// /removeinvites
 	removeinvites_not_admin_embed_description: "管理者である必要があります！",
@@ -823,44 +811,29 @@ export default {
 	fun_var_good_sentence: "良い文章を送ってください！",
 
 	// /cats
-	cats_embed_title: "ニャー🐱",
 
 	// /duck
-	duck_embed_title: "ガーガー :duck:",
 
 	// /panda
-	panda_embed_title: "ムワァ 🐼",
 
 	// /fox
-	fox_embed_title: "ワパパパパ 🦊",
 
 	// /dolphin
-	dolphin_embed_title: "イーイー・クリッククリック 🐬",
 
 	// /frog
-	frog_embed_title: "ゲロゲロ 🐸",
 
 	// /squirrel
-	squirrel_embed_title: "チッチッ 🐿️",
 
 	// /hack
 	hack_embed_description:
 		"<@${victimId}> が <@${authorId}> にハックされました！",
-	hack_embed_fields_ip: "IPアドレス：",
-	hack_embed_fields_email: "メールアドレス：",
-	hack_embed_fields_password: "パスワード：",
 
 	// /hug
-	hug_embed_title: "<@${authorId}> が <@${hugId}> にハグ❤️",
 
 	// /kiss
-	kiss_embed_description: "<@${authorId}> が <@${kissId}> にキス💏",
 
 	// /poll
 	poll_not_admin: "権限がありません！",
-	poll_embed_title: "__**投票**__: `${authorUsername}`",
-	poll_embed_fields_reaction: "下のリアクションをタップしてください。⬇",
-	poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **",
 
 	// /question
 	question_not_full: "3つ以上の単語で質問を入力してください！",
@@ -879,11 +852,9 @@ export default {
 	question_embed_title: "**質問**: `${authorUsername}`",
 
 	// /slap
-	slap_embed_description: "<@${authorId}> slap <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error: "犬の画像の取得中にエラーが発生しました。",
-	dogs_embed_title: "🐶 わんわん。",
 
 	// /love
 	love_embed_description:
@@ -897,45 +868,26 @@ export default {
 		"このコマンドを使用できません。ファンコマンドカテゴリーは無効です。",
 
 	// /fun gay
-	fun_gay_command_ok: "ユーザー${user}は**${random}%**ゲイです🏳️‍🌈",
 
 	// /fun stench
-	fun_stench_command_ok: "ユーザー${user}は**${random}%**臭いです👃🛀",
 
 	// /fun rate
-	fun_rate_command_ok: "**${the_things}**を${random}/10で評価します。",
 
 	// /fun caracteres
 	fun_caracteres_command_ok: "変換するテキストを入力してください！",
-	fun_caracteres_help_title: "🎨 テキストスタイルを選択",
 	fun_caracteres_embed_desc:
 		"元のテキスト: **${inputText}**\n\n下のドロップダウンメニューからスタイルを選んでテキストを変換してください。",
 	fun_caracteres_select_menu_placeholder: "フォントスタイルを選択...",
-	fun_caracteres_final_embed_title:
-		"🎨 変換されたテキスト - スタイル: ${selectedStyle}",
-	fun_caracteres_final_embed_field1_name: "📝 元のテキスト",
-	fun_caracteres_final_embed_field2_name: "✨ 変換後のテキスト",
 
 	// /fun random dice
-	fun_dice_embed_title: "🎲 サイコロの結果",
-	fun_dice_var_rolled_dices: "**振ったサイコロ:**",
-	fun_dice_var_results: "**結果:**",
-	fun_dice_var_total: "**合計:**",
 
 	// /fun random heads-tails
-	fun_coinflip_embed_title: "🪙 コイントス",
-	fun_coinflip_result_text: "結果は:",
 	fun_coinflip_result_heads: "表",
 	fun_coinflip_result_tails: "裏",
 
 	// /fun random number
-	fun_random_embed_title: "🔢 ランダムな数字",
-	fun_random_result_text: "生成された数字は:",
-	fun_random_between: "の間",
 
 	// +transgender
-	fun_trans_command_ok:
-		"ユーザー ${user} は **${random}%** トランスジェンダーです 🏳️‍⚧️",
 
 	// Economy commands
 	// /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -2607,7 +2559,6 @@ export default {
 		"${emoji_No} ${member} はデータベースに警告が見つかりません！",
 	unwarn_cannot_found_id:
 		"${emoji_No} ${member} 提供された警告IDはデータベースにありません",
-	unwarn_command_ok: "${emoji_Yes} ${member} の警告が解除されました！",
 	unwarn_logEmbed_title: "警告解除ログ",
 	unwarn_logEmbed_desc: "${author} が ${member} の警告を解除しました",
 	unwarn_dont_have_permission:
@@ -2622,15 +2573,11 @@ export default {
 	// /warnlist
 	warnlist_no_data:
 		"${emoji_No} ${member} はデータベースに警告が見つかりません！",
-	warnlist_embed_desc:
-		"### ID：${id} - ${date}\n> 作成者：<@${authorID}>\n> 理由：`${reason}`",
-	warnlist_embed_title: "${memberGlobalName} の警告リスト | ページ ${page}",
 	warnlist_dont_have_permission:
 		"${emoji_No} | このDiscordサーバーでメンバーの警告を管理する権限がありません。",
 
 	// /baninfo
 	baninfo_not_banned: "ユーザーはBANされていません",
-	baninfo_ban_info: "BAN情報",
 	baninfo_user_not_found: "ユーザーが見つかりません",
 	var_banned_by: "BAN実行者",
 	var_ban_date: "BAN日時",
@@ -4027,9 +3974,6 @@ export default {
 	rolepanel_role_too_high_bot: "ボットより高いロール",
 	rolepanel_role_too_high_user: "あなたより高いロール",
 	rolepanel_role_missing_permissions: "不足している権限: ${permissions}",
-	rolepanel_apply_added: "追加されたロール: ${roles}",
-	rolepanel_apply_removed: "削除されたロール: ${roles}",
-	rolepanel_apply_refused: "拒否されたロール: ${roles}",
 	rolepanel_logs_embed_title_create: "ロールパネルログ",
 	rolepanel_logs_embed_desc_create:
 		"<@${authorId}> がロールパネル (${messageId}) を作成しました: ${roles}",
@@ -4576,5 +4520,94 @@ export default {
 	util_leashlist_card_count: "有効なリード: ${count}",
 	util_leashlist_card_expires: "期限",
 	util_locknamelist_card_count: "ロック中のニックネーム: ${count}",
-	util_locknamelist_card_by: "ロック: ${user}"
+	util_locknamelist_card_by: "ロック: ${user}",
+
+	// Components V2 cards: /invites, /leaderboard, /addinvites, /removeinvites
+	invites_card_title: "招待の統計",
+	invites_label_total: "合計",
+	invites_label_regular: "通常",
+	invites_label_left: "退出",
+	invites_label_bonus: "ボーナス",
+	invites_label_invited_by: "招待者",
+	leaderboard_card_title: "招待ランキング",
+	leaderboard_card_count: "${guild} のランキング参加者: ${count}",
+	leaderboard_card_your_rank:
+		"あなたの順位: ${rank}/${count}(招待 ${invites})",
+	leaderboard_card_not_ranked: "まだランキングに入っていません。",
+	leaderboard_card_empty: "このサーバーではまだ誰も招待していません。",
+	leaderboard_card_generated: "${elapsed} ms で生成",
+
+	// Components V2 cards: /fun caracteres, catsay, hack, hug, kiss, slap, love, poll, question, tweet, youtube
+	caracteres_card_title: "テキストスタイルを選んでね",
+	caracteres_card_result_title: "${style} に変換したテキスト",
+	caracteres_label_original: "元のテキスト",
+	caracteres_label_converted: "変換後",
+	catsay_card_title: "ねこが話しました",
+	hack_card_title: "ハック完了",
+	hack_label_ip: "IPアドレス",
+	hack_label_email: "メールアドレス",
+	hack_label_password: "パスワード",
+	hug_card_title: "ハグの時間",
+	hug_card_desc: "${author} が ${target} をぎゅっとハグしました。",
+	kiss_card_title: "チュッ",
+	kiss_card_desc: "${author} が ${target} にキスしました。",
+	slap_card_title: "ビンタ",
+	slap_card_desc: "${author} が ${target} をビンタしました。",
+	love_card_title: "ラブ診断",
+	love_card_desc: "**${user1}** + **${user2}** = 愛情度 `${percent}%`",
+	poll_card_title: "${author} のアンケート",
+	poll_card_vote: "賛成は ${yes}、反対は ${no} でリアクションしてね。",
+	question_card_title: "${author} の質問",
+	question_label_question: "質問",
+	question_label_answer: "回答",
+	tweet_card_title: "${user} の新しいポスト",
+	youtube_card_title: "${user} の新しいコメント",
+
+	// Components V2 cards: fun animal pictures (/cat /dog /dolphin /duck /fox /frog /panda /squirrel) and random results (/dice /heads-tails /number /rate /gay /trans /stench /transgender)
+	fun_card_cat_title: "ニャー",
+	fun_card_dog_title: "ワンワン",
+	fun_card_dolphin_title: "キュイキュイ",
+	fun_card_duck_title: "ガーガー",
+	fun_card_fox_title: "ワパパパパ",
+	fun_card_frog_title: "ケロケロ",
+	fun_card_panda_title: "ムワァ",
+	fun_card_squirrel_title: "チッチッ",
+	fun_card_animal_hint: "あなたのためのランダムな画像です。",
+	fun_card_dice_title: "サイコロ",
+	fun_card_coinflip_title: "コイントス",
+	fun_card_number_title: "ランダムな数字",
+	fun_card_gay_title: "ゲイメーター",
+	fun_card_trans_title: "トランスメーター",
+	fun_card_stench_title: "におい度メーター",
+	fun_card_rate_title: "私の評価",
+	fun_card_transgender_title: "トランスプライドのアバター",
+	fun_label_dice: "サイコロ",
+	fun_label_rolls: "出目",
+	fun_label_total: "合計",
+	fun_label_result: "結果",
+	fun_label_range: "範囲",
+	fun_label_score: "スコア",
+	fun_label_rated: "評価対象",
+
+	// Components V2 cards: /ban, /kick, /baninfo, /banlist, /mutelist, /warnlist, /unwarn, /rolepanel
+	mod_label_moderator: "モデレーター",
+	mod_label_warn_id: "警告ID",
+	ban_card_title: "メンバーをBANしました",
+	kick_card_title: "メンバーをキックしました",
+	baninfo_card_title: "${user} のBAN",
+	banlist_card_title: "BANされたメンバー",
+	banlist_card_count: "BAN数: ${count}",
+	mutelist_card_title: "タイムアウト中のメンバー",
+	mutelist_card_count: "タイムアウト中: ${count}",
+	mutelist_card_ends: "終了 ${time}",
+	mutelist_button_unmute_all: "すべてのタイムアウトを解除",
+	mutelist_card_cleared_title: "タイムアウトを解除しました",
+	mutelist_card_cleared_desc: "${count} 人のメンバーが再び発言できます。",
+	warnlist_card_title: "${user} の警告",
+	warnlist_card_count: "警告数: ${count}",
+	unwarn_card_title: "警告を削除しました",
+	rolepanel_card_done_title: "ロールを更新しました",
+	rolepanel_label_added: "追加",
+	rolepanel_label_removed: "削除",
+	rolepanel_label_refused: "拒否"
 } satisfies LanguageData;

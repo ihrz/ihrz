@@ -21,21 +21,25 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	GuildMember,
-	Message,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
-import { format } from "../../../core/functions/date_and_time.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel,
+	sendPaginatedCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 5;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -79,92 +83,38 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
+		const e = client.iHorizon_Emojis;
+		const pages = Math.ceil(allWarns.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
 
-		for (let i = 0; i < allWarns.length; i += usersPerPage) {
-			const pageUsers = allWarns.slice(i, i + usersPerPage);
-			const pageContent = pageUsers
-				.map((x) =>
-					lang.warnlist_embed_desc
-						.replace("${id}", x.id)
-						.replace(
-							"${date}",
-							format(x.timestamp, "DD/MM/YYYY").replace("`", "\`")
-						)
-						.replace("${authorID}", x.authorID.replace("`", "\`"))
-						.replace("${reason}", x.reason.replace("`", "\`"))
-				)
-				.join("\n");
-			pages.push({
-				title: lang.warnlist_embed_title
-					.replace("${memberGlobalName}", member?.user.globalName!)
-					.replace("${page}", String(i / usersPerPage + 1)),
-				description: pageContent
-			});
-		}
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary)
-		);
-
-		const messageEmbed = await client.func.method.interactionSend(
+		await sendPaginatedCard({
+			client,
 			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
-
-		const collector = messageEmbed.createMessageComponentCollector({
-			filter: async (i) => {
-				await i.deferUpdate();
-				return interaction.member?.user.id === i.user.id;
-			},
-			time: 60_000 * 15
-		});
-
-		collector.on("collect", async (interaction_2: { customId: string }) => {
-			if (interaction_2.customId === "previousPage") {
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				currentPage = (currentPage + 1) % pages.length;
-			}
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
-		});
-
-		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
+			lang,
+			pages,
+			timeoutMs: 60_000 * 15,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.warning,
+					emoji: e.Warn,
+					title: lang.warnlist_card_title.replace(
+						"${user}",
+						member?.displayName ?? lang.var_unknown
+					),
+					description: `${member ?? ""}\n-# ${lang.warnlist_card_count.replace("${count}", String(allWarns.length))}`,
+					thumbnail: member?.displayAvatarURL({ size: 128 }),
+					blocks: allWarns
+						.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+						.map((x) => {
+							const at = Math.floor(x.timestamp / 1000);
+							return [
+								`**\`${x.id}\`** · ${x.reason}`,
+								`-# ${lang.utils_label_by} <@${x.authorID}> · <t:${at}:D> · <t:${at}:R>`
+							].join("\n");
+						}),
+					footer: pageLabel(lang, page, pages),
+					signature
+				})
 		});
 	}
 };

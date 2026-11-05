@@ -23,7 +23,6 @@ import {
 	BaseGuildTextChannel,
 	Client,
 	ChatInputCommandInteraction,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
@@ -33,6 +32,13 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -78,7 +84,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (!allWarns.find((x) => x.id === warnID)) {
+		const removedWarn = allWarns.find((x) => x.id === warnID);
+		if (!removedWarn) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found_id
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
@@ -92,11 +99,49 @@ export const subCommand: SubCommand = {
 			allWarns.filter((x) => x.id !== warnID)
 		);
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.unwarn_command_ok
-				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-				.replace("${member}", member?.toString()!)
-		});
+		const e = client.iHorizon_Emojis;
+		const warnedAt = Math.floor(removedWarn.timestamp / 1000);
+		const resultCard = (signature: string | null) =>
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Yes,
+				title: lang.unwarn_card_title,
+				thumbnail: member?.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: member ? `${member} (\`${member.id}\`)` : ""
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member!.toString()
+					},
+					{
+						emoji: e.Warn,
+						label: lang.mod_label_warn_id,
+						value: `\`${removedWarn.id}\``
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: removedWarn.reason
+					},
+					{
+						emoji: e.Schedule,
+						label: lang.utils_label_by,
+						value: `<@${removedWarn.authorID}> · <t:${warnedAt}:D>`
+					}
+				],
+				signature
+			});
+
+		await sendCard(
+			client,
+			interaction,
+			resultCard(await botSignature(client, interaction.guildId))
+		);
 
 		const unwarnLogTitle = lang.unwarn_logEmbed_title;
 		const unwarnLogDescription = lang.unwarn_logEmbed_desc
@@ -111,19 +156,31 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const unwarnLogEmbed = new EmbedBuilder()
-			.setColor("#bf0bb9")
-			.setTitle(unwarnLogTitle)
-			.setDescription(unwarnLogDescription);
+		const unwarnLogCard = buildCard({
+			accent: ACCENT.success,
+			emoji: e.Logs,
+			title: unwarnLogTitle,
+			description: unwarnLogDescription,
+			fields: [
+				{
+					emoji: e.Warn,
+					label: lang.mod_label_warn_id,
+					value: `\`${removedWarn.id}\``
+				},
+				{
+					emoji: e.Paper,
+					label: lang.var_reason,
+					value: removedWarn.reason
+				}
+			]
+		});
 
 		const modsChannel = interaction.guild.channels.cache.find(
 			(channel) => channel.name.includes("mods") && channel.isTextBased()
 		) as BaseGuildTextChannel | undefined;
 
 		if (modsChannel) {
-			await modsChannel
-				.send({ embeds: [unwarnLogEmbed] })
-				.catch(() => {});
+			await modsChannel.send(cardPayload(unwarnLogCard)).catch(() => {});
 			return;
 		}
 
@@ -138,7 +195,7 @@ export const subCommand: SubCommand = {
 		) as BaseGuildTextChannel | undefined;
 
 		await moderationLogsChannel
-			?.send({ embeds: [unwarnLogEmbed] })
+			?.send(cardPayload(unwarnLogCard))
 			.catch(() => {});
 	}
 };

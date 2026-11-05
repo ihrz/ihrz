@@ -19,19 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { axios } from "../../../core/functions/axios.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -64,18 +64,24 @@ export const subCommand: SubCommand = {
 		axios
 			.get(url)
 			.then(async () => {
-				const embed = new EmbedBuilder()
-					.setColor("#FFB6C1")
-					.setDescription(
-						lang.hug_embed_title
-							.replaceAll("${hugId}", hug.id)
-							.replaceAll("${authorId}", user.id)
-					)
-					.setImage(url)
-					.setTimestamp();
-				await client.func.method.interactionSend(interaction, {
-					embeds: [embed]
-				});
+				// hug, kiss and slap share one look: same card, own words and gif.
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.neutral,
+						emoji: client.iHorizon_Emojis.Blushed,
+						title: lang.hug_card_title,
+						description: lang.hug_card_desc
+							.replace("${author}", `<@${user.id}>`)
+							.replace("${target}", `<@${hug.id}>`),
+						images: [url],
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
+					})
+				);
 				return;
 			})
 			.catch(async (err) => {

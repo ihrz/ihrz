@@ -219,8 +219,6 @@ export default {
 	// /addinvites, /invites, /leaderboard, /removeinvites
 
 	// /addinvites
-	addinvites_not_admin_embed_description:
-		"Вам потрібні права адміністратора для використання цієї команди!",
 	addinvites_confirmation_embed_description:
 		"Додано ${amount} запрошень для ${user}",
 	addinvites_logs_embed_title: "Логи менеджера запрошень",
@@ -228,14 +226,8 @@ export default {
 		"<@${authorId}> Додав ${amount} запрошень для <@${userId}>!",
 
 	// /invites
-	invites_confirmation_embed_description:
-		"<@${memberId}> Має `${invites}` Запрошень (`${regular}` Звичайних, `${bonus}` Бонусних, `${leaves}` Відказів).",
-	invites_confirmation_embed_title: "Статистика приглашений",
 
 	// /leaderboard
-	leaderboard_text_inline:
-		"<@${i}> Має **${invites}** Запрошень (**${regular}** Звичайних **${bonus}** Бонусних **${leaves}** Відказів)\n",
-	leaderboard_default_text: "**__Таблиця лідерів__**",
 
 	// /removeinvites
 	removeinvites_not_admin_embed_description:
@@ -377,28 +369,18 @@ export default {
 	fun_var_good_sentence: "Будь ласка, надішліть гарну пропозицію!",
 
 	// /cats
-	cats_embed_title: "Мяу :cat:",
 
 	// /duck
-	duck_embed_title: "кря-кря :duck:",
 
 	// /hack
 	hack_embed_description: "<@${victimId}> зламаний <@${authorId}> !",
-	hack_embed_fields_ip: "IP",
-	hack_embed_fields_email: "Електронна пошта",
-	hack_embed_fields_password: "Пароль",
 
 	// /hug
-	hug_embed_title: "<@${authorId}> обіймає <@${hugId}> ❤️",
 
 	// /kiss
-	kiss_embed_description: "<@${authorId}> цілує <@${kissId}> 💏",
 
 	// /poll
 	poll_not_admin: "У вас немає прав для цього!",
-	poll_embed_title: "__**Опитування**__: `${authorUsername}`",
-	poll_embed_fields_reaction: "Натисніть на реакції нижче.⬇",
-	poll_embed_fields_choice: ":white_check_mark: **Так**\n :x: **Ні** ",
 
 	// /question
 	question_not_full: "Введіть повне питання з 3 або більше словами!",
@@ -417,11 +399,9 @@ export default {
 	question_embed_title: "__**Питання**__: `${authorUsername}`",
 
 	// /slap
-	slap_embed_description: "<@${authorId}> вдарив <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error: "Помилка під час отримання зображення собаки.",
-	dogs_embed_title: "🐶 Гав-гав.",
 
 	// /love
 	love_embed_description:

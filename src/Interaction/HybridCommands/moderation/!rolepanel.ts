@@ -27,9 +27,10 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
+	ContainerBuilder,
 	GuildMember,
 	Message,
+	MessageFlags,
 	PermissionFlagsBits,
 	PermissionsBitField,
 	Role,
@@ -39,6 +40,13 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -63,6 +71,7 @@ export const subCommand: SubCommand = {
 		);
 		let selectedRoles: Role[] = [];
 		let refusedRoles: string[] = [];
+		let done: ContainerBuilder | null = null;
 
 		if (!targetMember) {
 			await client.func.method.interactionSend(interaction, {
@@ -71,20 +80,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.rolepanel_setup_embed_title)
-			.setDescription(
-				lang.rolepanel_setup_embed_desc.replaceAll(
-					"${member}",
-					targetMember.toString()
-				)
-			)
-			.setColor("#016c9a")
-			.setThumbnail(interaction.guild.iconURL({ forceStatic: false }))
-			.addFields({
-				name: lang.rolepanel_setup_embed_roles_field,
-				value: lang.var_none
-			});
+		const e = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+		const signature = await botSignature(client, guild.id);
 
 		const roleSelectMenu = new RoleSelectMenuBuilder()
 			.setCustomId("mod-rolepanel-role-select")
@@ -105,12 +103,41 @@ export const subCommand: SubCommand = {
 			applyButton
 		);
 
-		const originalResponse = await client.func.method.interactionSend(
+		const setupCard = (): ContainerBuilder =>
+			buildCard({
+				accent: ACCENT.info,
+				emoji: e.Ticket_Role,
+				title: lang.rolepanel_setup_embed_title,
+				description: lang.rolepanel_setup_embed_desc.replaceAll(
+					"${member}",
+					targetMember.toString()
+				),
+				thumbnail: guild.iconURL({ forceStatic: false }),
+				fields: [
+					{
+						emoji: e.Ticket_Role,
+						label: lang.rolepanel_setup_embed_roles_field,
+						value:
+							selectedRoles.length > 0
+								? selectedRoles
+										.map((role) => role.toString())
+										.join(", ")
+								: lang.var_none
+					}
+				],
+				blocks: [
+					refusedRoles.length > 0 &&
+						`${e.No} **${lang.rolepanel_setup_embed_refused_field}**\n${refusedRoles.join("\n")}`
+				],
+				signature
+			})
+				.addActionRowComponents(selectRow)
+				.addActionRowComponents(buttonRow);
+
+		const originalResponse = await sendCard(
+			client,
 			interaction,
-			{
-				embeds: [embed],
-				components: [selectRow, buttonRow]
-			}
+			setupCard()
 		);
 
 		const selectCollector =
@@ -164,14 +191,7 @@ export const subCommand: SubCommand = {
 
 				selectedRoles = validRoles;
 				refusedRoles = refused;
-				updateEmbed(
-					embed,
-					selectedRoles,
-					refusedRoles,
-					targetMember,
-					lang
-				);
-				await originalResponse.edit({ embeds: [embed] });
+				await roleInteraction.editReply({ components: [setupCard()] });
 			}
 		);
 
@@ -222,16 +242,43 @@ export const subCommand: SubCommand = {
 					addedRoles.push(role.toString());
 				}
 
-				embed.setDescription(
-					buildApplyMessage(
-						addedRoles,
-						removedRoles,
-						refusedOnApply,
-						lang
-					)
-				);
-				embed.setFields([]);
-				await originalResponse.edit({ embeds: [embed] });
+				done = buildCard({
+					accent:
+						addedRoles.length > 0 || removedRoles.length > 0
+							? ACCENT.success
+							: ACCENT.warning,
+					emoji: e.Ticket_Role,
+					title: lang.rolepanel_card_done_title,
+					thumbnail: targetMember.displayAvatarURL({ size: 128 }),
+					fields: [
+						{
+							emoji: e.Ticket_User,
+							label: lang.utils_label_member,
+							value: targetMember.toString()
+						},
+						{
+							emoji: e.Security,
+							label: lang.utils_label_by,
+							value: author.toString()
+						},
+						{
+							emoji: e.Plus,
+							label: lang.rolepanel_label_added,
+							value: addedRoles.join(", ") || lang.var_none
+						},
+						{
+							emoji: e.Minus,
+							label: lang.rolepanel_label_removed,
+							value: removedRoles.join(", ") || lang.var_none
+						}
+					],
+					blocks: [
+						refusedOnApply.length > 0 &&
+							`${e.No} **${lang.rolepanel_label_refused}**\n${refusedOnApply.join("\n")}`
+					],
+					signature
+				});
+				await buttonInteraction.editReply({ components: [done] });
 
 				if (addedRoles.length > 0 || removedRoles.length > 0) {
 					await client.func.ihorizon_logs(interaction, {
@@ -256,13 +303,20 @@ export const subCommand: SubCommand = {
 		);
 
 		selectCollector.on("end", async () => {
+			// After an apply the result card is already shown, without rows.
+			if (done) return;
 			selectRow.components.forEach((component) =>
 				component.setDisabled(true)
 			);
 			buttonRow.components.forEach((component) =>
 				component.setDisabled(true)
 			);
-			await originalResponse.edit({ components: [selectRow, buttonRow] });
+			await originalResponse
+				.edit({
+					...cardPayload(setupCard()),
+					flags: [MessageFlags.IsComponentsV2]
+				} as never)
+				.catch(() => undefined);
 		});
 	}
 };
@@ -288,71 +342,6 @@ async function resolveTargetMember(
 		(client.func.method.member(interaction, args!, 0) as GuildMember) ||
 		null
 	);
-}
-
-function updateEmbed(
-	embed: EmbedBuilder,
-	roles: Role[],
-	refusedRoles: string[],
-	member: GuildMember,
-	lang: LanguageData
-) {
-	embed.setDescription(
-		lang.rolepanel_setup_embed_desc.replaceAll(
-			"${member}",
-			member.toString()
-		)
-	);
-	embed.setFields({
-		name: lang.rolepanel_setup_embed_roles_field,
-		value:
-			roles.length > 0
-				? roles.map((role) => role.toString()).join(", ")
-				: lang.var_none
-	});
-
-	if (refusedRoles.length > 0) {
-		embed.addFields({
-			name: lang.rolepanel_setup_embed_refused_field,
-			value: refusedRoles.join("\n").substring(0, 1024)
-		});
-	}
-}
-
-function buildApplyMessage(
-	addedRoles: string[],
-	removedRoles: string[],
-	refusedRoles: string[],
-	lang: LanguageData
-): string {
-	const lines: string[] = [];
-
-	if (addedRoles.length > 0) {
-		lines.push(
-			lang.rolepanel_apply_added.replace(
-				"${roles}",
-				addedRoles.join(", ")
-			)
-		);
-	}
-	if (removedRoles.length > 0) {
-		lines.push(
-			lang.rolepanel_apply_removed.replace(
-				"${roles}",
-				removedRoles.join(", ")
-			)
-		);
-	}
-	if (refusedRoles.length > 0) {
-		lines.push(
-			lang.rolepanel_apply_refused.replace(
-				"${roles}",
-				refusedRoles.join(", ")
-			)
-		);
-	}
-
-	return lines.join("\n") || lang.var_none;
 }
 
 function getRefusedRoleReason(

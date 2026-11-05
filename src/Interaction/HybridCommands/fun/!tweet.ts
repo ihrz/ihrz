@@ -23,7 +23,6 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	User
 } from "discord.js";
@@ -32,6 +31,12 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { sanitizing } from "../../../core/functions/sanitizer.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCardWithFiles
+} from "../../../core/modules/uiCard.js";
 import { renderTweet } from "../../../core/modules/socialCards.js";
 
 export const subCommand: SubCommand = {
@@ -97,28 +102,20 @@ export const subCommand: SubCommand = {
 			views: client.func.numberBeautifuer(randomViews)
 		});
 
-		const embed = new EmbedBuilder()
-			.setColor("#000000")
-			.setImage("attachment://twitter.png")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		const imgs = new AttachmentBuilder(img, { name: "twitter.png" });
 
-		let imgs = new AttachmentBuilder(img, { name: "twitter.png" });
-		embed.setImage(`attachment://twitter.png`);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				imgs!,
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCardWithFiles(
+			client,
+			interaction,
+			[imgs],
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.tweet_card_title.replace("${user}", username),
+				images: ["attachment://twitter.png"],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

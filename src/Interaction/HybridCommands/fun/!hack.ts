@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import crypto from "crypto";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -542,32 +542,30 @@ export const subCommand: SubCommand = {
 				Math.floor(crypto.randomInt(0, hackerPasswords.length))
 			];
 
-		const embed = new EmbedBuilder()
-			.setColor("#800000")
-			.setDescription(
-				lang.hack_embed_description
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: client.iHorizon_Emojis.Nerd,
+				title: lang.hack_card_title,
+				description: lang.hack_embed_description
 					.replaceAll("${victimId}", victim.id)
-					.replaceAll("${authorId}", user.id)
-			)
-			.addFields(
-				{
-					name: lang.hack_embed_fields_ip,
-					value: `\`${generatedIp}\``
-				},
-				{
-					name: lang.hack_embed_fields_email,
-					value: `\`${generatedEmail}\``
-				},
-				{
-					name: lang.hack_embed_fields_password,
-					value: `\`${generatedPassword}\``
-				}
-			)
-			.setTimestamp();
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+					.replaceAll("${authorId}", user.id),
+				fields: [
+					{ label: lang.hack_label_ip, value: `\`${generatedIp}\`` },
+					{
+						label: lang.hack_label_email,
+						value: `\`${generatedEmail}\``
+					},
+					{
+						label: lang.hack_label_password,
+						value: `\`${generatedPassword}\``
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

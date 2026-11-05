@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	User,
-	Message
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, User, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import logger from "../../../core/logger.js";
 import { SubCommand } from "../../../../types/command.js";
 import { love } from "../../../core/images.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCardWithFiles
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -86,32 +86,22 @@ export const subCommand: SubCommand = {
 				randomNumber = client.func.random.secureRandomInt(0, 100);
 			}
 
-			const embed = new EmbedBuilder()
-				.setColor("#FFC0CB")
-				.setTitle("💕")
-				.setImage(`attachment://love.png`)
-				.setDescription(
-					lang.love_embed_description
-						.replace("${user1Username}", user1.username)
-						.replace("${user2Username}", user2.username)
-						.replace("${randomNumber}", randomNumber.toString())
-				)
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setTimestamp();
-
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed],
-				files: [
-					{ attachment: loveResult, name: "love.png" },
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			await sendCardWithFiles(
+				client,
+				interaction,
+				[{ attachment: loveResult, name: "love.png" }],
+				buildCard({
+					accent: ACCENT.neutral,
+					emoji: client.iHorizon_Emojis.Blushed,
+					title: lang.love_card_title,
+					description: lang.love_card_desc
+						.replace("${user1}", user1.username)
+						.replace("${user2}", user2.username)
+						.replace("${percent}", randomNumber.toString()),
+					images: ["attachment://love.png"],
+					signature: await botSignature(client, interaction.guildId)
+				})
+			);
 		} catch (error) {
 			logger.err(error);
 			await client.func.method.interactionSend(interaction, {

@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMemberRoleManager,
 	Message,
 	PermissionsBitField,
@@ -32,6 +31,12 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -138,43 +143,38 @@ export const subCommand: SubCommand = {
 				reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}`
 			})
 			.then(async () => {
-				client.func.method
-					.interactionSend(interaction, {
-						embeds: [
-							new EmbedBuilder()
-								.setTitle(
-									lang.setjoinroles_var_perm_ban_members
-								)
-								.setFields(
-									{
-										name: lang.var_member,
-										value: member.toString(),
-										inline: true
-									},
-									{
-										name: lang.var_author,
-										value: interaction.member?.toString()!,
-										inline: true
-									},
-									{
-										name: lang.var_reason,
-										value: reason || lang.var_no_set,
-										inline: true
-									}
-								)
-								.setFooter(
-									await client.func.displayBotName.footerBuilder(
-										interaction.guildId!
-									)
-								)
+				const e = client.iHorizon_Emojis;
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.danger,
+						emoji: e.Ban_Hammer,
+						title: lang.ban_card_title,
+						thumbnail: member.displayAvatarURL({ size: 128 }),
+						fields: [
+							{
+								emoji: e.Ticket_User,
+								label: lang.utils_label_member,
+								value: `${member} (\`${member.id}\`)`
+							},
+							{
+								emoji: e.Security,
+								label: lang.mod_label_moderator,
+								value: interaction.member!.toString()
+							},
+							{
+								emoji: e.Paper,
+								label: lang.var_reason,
+								value: reason || lang.var_no_set
+							}
 						],
-						files: [
-							await client.func.displayBotName.footerAttachmentBuilder(
-								interaction
-							)
-						]
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
 					})
-					.catch(() => {});
+				).catch(() => {});
 
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.ban_logs_embed_title,

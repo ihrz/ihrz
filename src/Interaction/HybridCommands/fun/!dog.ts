@@ -19,18 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { axios } from "../../../core/functions/axios.js";
 import logger from "../../../core/logger.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,14 +52,22 @@ export const subCommand: SubCommand = {
 		axios
 			.get("https://dog.ceo/api/breeds/image/random")
 			.then(async (res) => {
-				const emb = new EmbedBuilder()
-					.setImage(res.data.message)
-					.setTitle(lang.dogs_embed_title)
-					.setTimestamp();
-
-				await client.func.method.interactionSend(interaction, {
-					embeds: [emb]
-				});
+				// Same look for every animal picture.
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.info,
+						emoji: client.iHorizon_Emojis.Camera,
+						title: lang.fun_card_dog_title,
+						description: `-# ${lang.fun_card_animal_hint}`,
+						images: [res.data.message],
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
+					})
+				);
 				return;
 			})
 			.catch(async (err) => {

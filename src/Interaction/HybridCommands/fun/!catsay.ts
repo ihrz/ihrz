@@ -23,7 +23,6 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message
 } from "discord.js";
 
@@ -31,6 +30,12 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { axios } from "../../../core/functions/axios.js";
 import { SubCommand } from "../../../../types/command.js";
 import { catsay } from "../../../core/images.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCardWithFiles
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -61,33 +66,28 @@ export const subCommand: SubCommand = {
 			var text = client.func.method.longString(args!, 0)?.slice(0, 70);
 		}
 
-		const embed = new EmbedBuilder()
-			.setColor("#010101")
-			.setImage("attachment://catsay.png")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
-
 		let imgs: AttachmentBuilder | undefined;
 
 		try {
 			let image = await catsay(baseImg[0].url, text || "");
 			imgs = new AttachmentBuilder(image, { name: "catsay.png" });
-			embed.setImage(`attachment://catsay.png`);
 
 			if (imgs) {
-				await client.func.method.interactionSend(interaction, {
-					embeds: [embed],
-					files: [
-						imgs,
-						await interaction.client.func.displayBotName.footerAttachmentBuilder(
-							interaction
+				await sendCardWithFiles(
+					client,
+					interaction,
+					[imgs],
+					buildCard({
+						accent: ACCENT.neutral,
+						emoji: client.iHorizon_Emojis.Sunglass,
+						title: lang.catsay_card_title,
+						images: ["attachment://catsay.png"],
+						signature: await botSignature(
+							client,
+							interaction.guildId
 						)
-					]
-				});
+					})
+				);
 			}
 		} catch {
 			await client.func.method.interactionSend(interaction, {

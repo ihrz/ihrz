@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -53,27 +54,29 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		}
 
-		const pollEmbed = new EmbedBuilder()
-			.setTitle(
-				lang.poll_embed_title.replace(
-					"${authorUsername}",
+		// The reactions are the votes; they work on a Components V2 message too.
+		const msg = await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Thinking,
+				title: lang.poll_card_title.replace(
+					"${author}",
 					user.globalName || user.username
-				)
-			)
-			.setColor("#ddd98b")
-			.setDescription(`**${pollMessage}**`)
-			.addFields({
-				name: lang.poll_embed_fields_reaction,
-				value: lang.poll_embed_fields_choice
+				),
+				description: `**${pollMessage}**`,
+				blocks: [
+					lang.poll_card_vote
+						.replace("${yes}", client.iHorizon_Emojis.Yes)
+						.replace("${no}", client.iHorizon_Emojis.No)
+				],
+				images: [
+					"https://www.ihorizon.org/assets/img/poll_embed_image.gif"
+				],
+				signature: await botSignature(client, interaction.guildId)
 			})
-			.setImage(
-				"https://www.ihorizon.org/assets/img/poll_embed_image.gif"
-			)
-			.setTimestamp();
-
-		const msg = await client.func.method.interactionSend(interaction, {
-			embeds: [pollEmbed]
-		});
+		);
 
 		await msg.react(client.iHorizon_Emojis.Yes);
 		await msg.react(client.iHorizon_Emojis.No);

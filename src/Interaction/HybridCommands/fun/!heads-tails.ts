@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -42,13 +43,18 @@ export const subCommand: SubCommand = {
 			? lang.fun_coinflip_result_heads
 			: lang.fun_coinflip_result_tails;
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.fun_coinflip_embed_title)
-			.setDescription(`${lang.fun_coinflip_result_text} ${result}`)
-			.setColor("Random");
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Coin,
+				title: lang.fun_card_coinflip_title,
+				fields: [
+					{ label: lang.fun_label_result, value: `**${result}**` }
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

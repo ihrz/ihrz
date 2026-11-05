@@ -19,15 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+
+/** `▰▰▰▱▱▱▱▱▱▱`, ten steps. */
+function meter(value: number, max: number): string {
+	const filled = Math.max(0, Math.min(10, Math.round((value / max) * 10)));
+	return `\`${"▰".repeat(filled)}${"▱".repeat(10 - filled)}\``;
+}
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -41,15 +48,27 @@ export const subCommand: SubCommand = {
 
 		// Fetch user ou soit même
 		const user =
-			interaction instanceof ChatInputCommandInteraction
+			(interaction instanceof ChatInputCommandInteraction
 				? interaction.options.getUser("user")
-				: client.func.method.member(interaction, args!, 0) ||
-					interaction.member!;
+				: client.func.method.member(interaction, args!, 0)) ||
+			interaction.member!;
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.fun_trans_command_ok
-				.replace("${user}", user?.toString() || "")
-				.replace("${random}", random.toString())
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.fun_card_trans_title,
+				fields: [
+					{ label: lang.utils_label_member, value: user.toString() },
+					{
+						label: lang.fun_label_score,
+						value: `${meter(random, 100)} **${random}%**`
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

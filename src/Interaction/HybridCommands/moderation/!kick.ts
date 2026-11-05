@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	GuildMemberRoleManager,
 	Message,
@@ -32,6 +31,12 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -118,52 +123,51 @@ export const subCommand: SubCommand = {
 			})
 			.catch(() => {});
 
-		await member
+		const kicked = await member
 			.kick(
 				`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`
 			)
-			.catch((error) => {
-				return client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-			});
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [
-				new EmbedBuilder()
-					.setTitle(lang.setjoinroles_var_perm_kick_members)
-					.setFields(
-						{
-							name: lang.var_member,
-							value: member.toString(),
-							inline: true
-						},
-						{
-							name: lang.var_author,
-							value: interaction.member?.toString()!,
-							inline: true
-						},
-						{
-							name: lang.var_reason,
-							value: reason || lang.var_no_set,
-							inline: true
-						}
-					)
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-			],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
+			.then(() => true)
+			.catch(() => false);
+		if (!kicked) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setrankroles_command_error.replace(
+					"${emoji_No}",
+					client.iHorizon_Emojis.No
 				)
-			]
-		});
+			});
+			return;
+		}
+
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: e.Ban_Hammer,
+				title: lang.kick_card_title,
+				thumbnail: member.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${member} (\`${member.id}\`)`
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: reason || lang.var_no_set
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.kick_logs_embed_title,

@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,17 +52,26 @@ export const subCommand: SubCommand = {
 
 		const total = results.reduce((acc, val) => acc + val, 0);
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.fun_dice_embed_title)
-			.setDescription(
-				`${lang.fun_dice_var_rolled_dices} ${number} × D${faces}\n` +
-					`${lang.fun_dice_var_results} ${results.join(", ")}\n` +
-					`${lang.fun_dice_var_total} ${total}`
-			)
-			.setColor("Random");
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Grin,
+				title: lang.fun_card_dice_title,
+				fields: [
+					{
+						label: lang.fun_label_dice,
+						value: `\`${number} × D${faces}\``
+					},
+					{
+						label: lang.fun_label_rolls,
+						value: `\`${results.join(", ")}\``
+					},
+					{ label: lang.fun_label_total, value: `**${total}**` }
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

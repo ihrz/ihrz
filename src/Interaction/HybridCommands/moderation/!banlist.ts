@@ -19,18 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ChatInputCommandInteraction,
-	Client,
-	ComponentType,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel,
+	sendPaginatedCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
+const REASON_MAX = 80;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,94 +50,38 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
+		const e = client.iHorizon_Emojis;
+		const pages = Math.ceil(bansArray.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
 
-		for (let i = 0; i < bansArray.length; i += usersPerPage) {
-			const page = bansArray.slice(i, i + usersPerPage);
-			const description = page
-				.map((ban) => {
-					return `[${ban.user.id}](https://discord.com/users/${ban.user.id}) (${ban.user.toString()})`;
+		await sendPaginatedCard({
+			client,
+			interaction,
+			lang,
+			pages,
+			timeoutMs: 60_000 * 15,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.danger,
+					emoji: e.Ban_Hammer,
+					title: lang.banlist_card_title,
+					description: `-# ${lang.banlist_card_count.replace("${count}", String(bansArray.length))}`,
+					thumbnail: interaction.guild?.iconURL({ size: 128 }),
+					blocks: [
+						bansArray
+							.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+							.map((ban) => {
+								const reason = ban.reason
+									? ` · ${ban.reason.length > REASON_MAX ? `${ban.reason.slice(0, REASON_MAX - 1)}…` : ban.reason}`
+									: "";
+								return `${ban.user} \`${ban.user.tag}\`\n-# \`${ban.user.id}\`${reason}`;
+							})
+							.join("\n")
+					],
+					footer: pageLabel(lang, page, pages),
+					signature
 				})
-				.join("\n");
-
-			pages.push({
-				title: lang.var_banned_user,
-				description: description
-			});
-		}
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setColor("#72f3f3");
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previous")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("next")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary)
-		);
-
-		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [await createEmbed()],
-			components: [row]
 		});
-
-		const collector = message.createMessageComponentCollector({
-			time: 60_000 * 15,
-			componentType: ComponentType.Button
-		});
-
-		collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({
-					content: lang.help_not_for_you,
-					flags: [1 << 6]
-				});
-				return;
-			}
-
-			if (i.customId === "previous") {
-				i.deferUpdate();
-				if (currentPage == 0) return;
-				currentPage--;
-				await message.edit({
-					embeds: [await createEmbed()],
-					components: [row]
-				});
-			} else if (i.customId === "next") {
-				i.deferUpdate();
-				if (currentPage == pages.length - 1) return;
-				currentPage++;
-				await message.edit({
-					embeds: [await createEmbed()],
-					components: [row]
-				});
-			}
-		});
-
-		collector.on("end", async () => {
-			await message.edit({
-				components: []
-			});
-		});
-
 		return;
 	}
 };

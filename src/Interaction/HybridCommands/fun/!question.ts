@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -64,35 +65,28 @@ export const subCommand: SubCommand = {
 
 		const reponses = lang.question_s;
 
-		const embed = new EmbedBuilder()
-			.setTitle(
-				lang.question_embed_title.replaceAll(
-					"${authorUsername}",
-					user.globalName || user.username
-				)
-			)
-			.setColor("#ddd98b")
-			.addFields(
-				{
-					name: lang.question_fields_input_embed,
-					value: question,
-					inline: true
-				},
-				{
-					name: lang.question_fields_output_embed,
-					value: reponses[
-						client.func.random.secureRandomInt(
-							0,
-							reponses.length - 1
-						)
-					]
-				}
-			)
-			.setTimestamp();
+		const answer =
+			reponses[
+				client.func.random.secureRandomInt(0, reponses.length - 1)
+			];
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Thinking,
+				title: lang.question_card_title.replace(
+					"${author}",
+					user.globalName || user.username
+				),
+				fields: [
+					{ label: lang.question_label_question, value: question },
+					{ label: lang.question_label_answer, value: answer }
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

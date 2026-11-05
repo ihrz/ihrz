@@ -22,13 +22,13 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -55,10 +55,6 @@ export const subCommand: SubCommand = {
 				interaction.member;
 			var amount = client.func.method.number(args!, 1);
 		}
-
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
 
 		const check = await client.db.get(
 			`${interaction?.guild?.id}.USER.${user.id}.INVITES`
@@ -93,21 +89,24 @@ export const subCommand: SubCommand = {
 			);
 		}
 
-		const finalEmbed = new EmbedBuilder()
-			.setDescription(
-				lang.removeinvites_confirmation_embed_description
-					.replaceAll("${amount}", amount.toString())
-					.replaceAll("${user}", user.toString()!)
-			)
-			.setColor(`#92A8D1`)
-			.setFooter({
-				text: interaction.guild.name as string,
-				iconURL: interaction.guild.iconURL() as string
-			});
+		const total =
+			(await client.db.get(
+				`${interaction.guildId}.USER.${user.id}.INVITES.invites`
+			)) || 0;
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [finalEmbed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				`${client.iHorizon_Emojis.Yes} ${lang.removeinvites_confirmation_embed_description
+					.replaceAll("${amount}", amount.toString())
+					.replaceAll(
+						"${user}",
+						user.toString()
+					)}\n-# ${lang.invites_label_total} : \`${total}\``
+			)
+		);
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.removeinvites_logs_embed_title,

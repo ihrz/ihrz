@@ -23,7 +23,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	EmbedBuilder,
 	ActionRowBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
@@ -31,6 +30,12 @@ import {
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const fontStyles = {
 	Original: [
@@ -166,16 +171,18 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.fun_caracteres_help_title)
-			.setDescription(
-				lang.fun_caracteres_embed_desc.replace(
+		const signature = await botSignature(client, interaction.guildId);
+		const intro = () =>
+			buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.caracteres_card_title,
+				description: lang.fun_caracteres_embed_desc.replace(
 					"${inputText}",
 					inputText
-				)
-			)
-			.setColor(0x3498db)
-			.setTimestamp();
+				),
+				signature
+			});
 
 		const options = Object.keys(fontStyles)
 			.filter((style) => style !== "Original")
@@ -199,10 +206,12 @@ export const subCommand: SubCommand = {
 				selectMenu
 			);
 
-		const response = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [row]
-		});
+		const response = await sendCard(
+			client,
+			interaction,
+			intro().addActionRowComponents(row)
+		);
+		let picked = false;
 
 		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
@@ -226,40 +235,31 @@ export const subCommand: SubCommand = {
 			const selectedStyle = selectInteraction.values[0];
 			const convertedText = convertText(inputText, selectedStyle);
 
-			// Créer l'embed de résultat
-			const resultEmbed = new EmbedBuilder()
-				.setTitle(
-					lang.fun_caracteres_final_embed_title.replace(
-						"${selectedStyle}",
-						selectedStyle
-					)
-				)
-				.addFields(
-					{
-						name: lang.fun_caracteres_final_embed_field1_name,
-						value: `\`\`\`${inputText}\`\`\``,
-						inline: false
-					},
-					{
-						name: lang.fun_caracteres_final_embed_field2_name,
-						value: `\`\`\`${convertedText}\`\`\``,
-						inline: false
-					}
-				)
-				.setColor(0x2ecc71)
-				.setTimestamp();
-
+			picked = true;
 			await selectInteraction.update({
-				embeds: [resultEmbed],
-				components: []
+				components: [
+					buildCard({
+						accent: ACCENT.success,
+						emoji: client.iHorizon_Emojis.Sparkles,
+						title: lang.caracteres_card_result_title.replace(
+							"${style}",
+							selectedStyle
+						),
+						blocks: [
+							`**${lang.caracteres_label_original}**\n\`\`\`${inputText}\`\`\``,
+							`**${lang.caracteres_label_converted}**\n\`\`\`${convertedText}\`\`\``
+						],
+						signature
+					})
+				]
 			});
 		});
 
 		collector.on("end", async () => {
 			try {
-				await response.edit({
-					components: []
-				});
+				// A V2 message cannot be left empty: put the card back
+				// without its menu when nothing was picked.
+				if (!picked) await response.edit({ components: [intro()] });
 			} catch (error) {}
 		});
 

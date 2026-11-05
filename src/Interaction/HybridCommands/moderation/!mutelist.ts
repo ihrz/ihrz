@@ -25,13 +25,24 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
+	ContainerBuilder,
 	GuildMember,
-	Message
+	Message,
+	MessageFlags
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	pageLabel,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,12 +60,15 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let char =
-			Array.from(
-				interaction.guild.members.cache
-					.filter((member) => member.isCommunicationDisabled())
-					.values()
-			) || [];
+		const char: GuildMember[] = Array.from(
+			interaction.guild.members.cache
+				.filter((member) => member.isCommunicationDisabled())
+				.values()
+		).sort(
+			(a, b) =>
+				(a.communicationDisabledUntilTimestamp ?? 0) -
+				(b.communicationDisabledUntilTimestamp ?? 0)
+		);
 
 		if (char.length == 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -63,120 +77,118 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		const e = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+		const authorId = interaction.member.user.id;
+		const pages = Math.ceil(char.length / PER_PAGE);
+		const signature = await botSignature(client, guild.id);
 		let currentPage = 0;
-		const usersPerPage = 5;
+		let cleared: ContainerBuilder | null = null;
 
-		const getTimeRemaining = (member: GuildMember) => {
-			const now = Date.now();
-			const endTime = member.communicationDisabledUntil?.getTime()!;
-			const remaining = endTime - now;
+		const render = (page: number, disabled: boolean): ContainerBuilder => {
+			const container = buildCard({
+				accent: ACCENT.warning,
+				emoji: e.Mute,
+				title: lang.mutelist_card_title,
+				description: `-# ${lang.mutelist_card_count.replace("${count}", String(char.length))}`,
+				thumbnail: guild.iconURL({ size: 128 }),
+				blocks: [
+					char
+						.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+						.map((member) => {
+							const until = Math.floor(
+								(member.communicationDisabledUntilTimestamp ??
+									0) / 1000
+							);
+							return `${member} \`${member.user.tag}\`\n-# ${lang.mutelist_card_ends.replace("${time}", `<t:${until}:f> · <t:${until}:R>`)}`;
+						})
+						.join("\n")
+				],
+				footer: pageLabel(lang, page, pages),
+				signature
+			});
 
-			return client.timeCalculator.to_beautiful_string(remaining, lang);
-		};
-
-		const generatePages = () => {
-			const pages: { description: string }[] = [];
-
-			if (char.length === 0) {
-				pages.push({
-					description:
-						lang.prevnames_undetected || "Aucun membre en timeout."
-				});
-				return pages;
+			const row = new ActionRowBuilder<ButtonBuilder>();
+			if (pages > 1) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId("previousPage")
+						.setLabel(lang.var_previous)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled),
+					new ButtonBuilder()
+						.setCustomId("nextPage")
+						.setLabel(lang.var_next)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled)
+				);
 			}
-
-			for (let i = 0; i < char.length; i += usersPerPage) {
-				const pageUsers = char.slice(i, i + usersPerPage);
-				const pageContent = pageUsers
-					.map((member) => {
-						const timeRemaining = getTimeRemaining(member);
-						return `${member} - \`${timeRemaining}\``;
-					})
-					.join("\n");
-
-				pages.push({
-					description: pageContent
-				});
-			}
-
-			return pages;
+			row.addComponents(
+				new ButtonBuilder()
+					.setCustomId("trash-mutelist-embed")
+					.setLabel(lang.mutelist_button_unmute_all)
+					.setEmoji(e.Ticket_Trash)
+					.setStyle(ButtonStyle.Danger)
+					.setDisabled(disabled)
+			);
+			return container.addActionRowComponents(row);
 		};
 
-		let pages = generatePages();
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("trash-mutelist-embed")
-				.setLabel("🗑️")
-				.setStyle(ButtonStyle.Danger)
-		);
-
-		const messageEmbed = await client.func.method.interactionSend(
+		const message = await sendCard(
+			client,
 			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
+			render(currentPage, false)
 		);
 
-		const collector = messageEmbed.createMessageComponentCollector({
-			filter: async (i) => {
-				await i.deferUpdate();
-				return interaction.member?.user.id === i.user.id;
-			},
+		const collector = message.createMessageComponentCollector({
 			time: 60_000
 		});
 
-		collector.on("collect", async (interaction_2) => {
-			if (interaction_2.customId === "previousPage") {
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				currentPage = (currentPage + 1) % pages.length;
-			} else if (interaction_2.customId === "trash-mutelist-embed") {
+		collector.on("collect", async (i) => {
+			if (!i.isButton()) return;
+			if (i.user.id !== authorId) {
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
+			}
+
+			if (i.customId === "previousPage") {
+				currentPage = (currentPage - 1 + pages) % pages;
+			} else if (i.customId === "nextPage") {
+				currentPage = (currentPage + 1) % pages;
+			} else if (i.customId === "trash-mutelist-embed") {
+				await i.deferUpdate();
 				for (let member of char) {
 					await member.timeout(null).catch(() => {});
 				}
-				char = [];
-				pages = generatePages();
-				currentPage = 0;
-			}
+				cleared = buildCard({
+					accent: ACCENT.success,
+					emoji: e.Yes,
+					title: lang.mutelist_card_cleared_title,
+					description: lang.mutelist_card_cleared_desc.replace(
+						"${count}",
+						String(char.length)
+					),
+					signature
+				});
+				await i.editReply({ components: [cleared] });
+				collector.stop();
+				return;
+			} else return;
 
-			await messageEmbed.edit({
-				embeds: [await createEmbed()],
-				components: [row]
-			});
+			await i.update({ components: [render(currentPage, false)] });
 		});
 
 		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
+			if (cleared) return;
+			await message
+				.edit({
+					...cardPayload(render(currentPage, true)),
+					flags: [MessageFlags.IsComponentsV2]
+				} as never)
+				.catch(() => undefined);
 		});
 	}
 };

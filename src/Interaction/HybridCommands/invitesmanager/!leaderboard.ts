@@ -19,22 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ComponentType,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-const itemsPerPage = 15;
-
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	pageLabel,
+	sendCard,
+	sendPaginatedCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -80,143 +80,70 @@ export const subCommand: SubCommand = {
 		}
 		arr.sort((a, b) => b.invites - a.invites);
 
+		const e = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+
+		if (arr.length === 0) {
+			await sendCard(
+				client,
+				interaction,
+				notice("info", `${e.No} ${lang.leaderboard_card_empty}`)
+			);
+			return;
+		}
+
 		const userId = interaction.member.user.id;
 		const userRank = arr.findIndex((user) => user.inviter === userId);
 		const userRankText =
 			userRank !== -1
-				? lang.leaderboard_rank_text
+				? lang.leaderboard_card_your_rank
 						.replace("${rank}", String(userRank + 1))
-						.replace("${arrCount}", arr.length.toString())
+						.replace("${count}", arr.length.toString())
 						.replace("${invites}", String(arr[userRank].invites))
-				: lang.leaderboard_rank_none;
-
-		const text = lang.leaderboard_gen_time_msg
-			.replace("${guildName}", interaction.guild?.name!)
-			.replace("${elapsed}", String(Date.now() - execTimestamp!));
-
-		const generateEmbed = async (start: number) => {
-			const current = arr.slice(start, start + itemsPerPage);
-			let pageText = text;
-			let i = start + 1;
-			current.forEach((index) => {
-				pageText += lang.leaderboard_text_inline
-					.replace(
-						"${i}",
-						String(
-							i === 1
-								? "🥇"
-								: i === 2
-									? "🥈"
-									: i === 3
-										? "🥉"
-										: i.toString()
-						)
-					)
-					.replace("${invites}", index.invites.toString())
-					.replace("${regular}", index.regular.toString())
-					.replace("${bonus}", index.bonus.toString())
-					.replace("${inviter}", index.inviter.toString())
-					.replace("${leaves}", index.leaves.toString());
-				i++;
-			});
-
-			if (start === 0) {
-				pageText += `\n${userRankText}`;
-			}
-
-			return new EmbedBuilder()
-				.setColor("#FFB6C1")
-				.setTitle(
-					lang.leaderboard_default_text +
-						" • " +
-						interaction.guild?.name
-				)
-				.setDescription(pageText)
-				.setTimestamp()
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setThumbnail("attachment://guildIcon.png");
-		};
-
-		const canFitOnOnePage = arr.length <= itemsPerPage;
-		const embedMessage = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [await generateEmbed(0)],
-				components: canFitOnOnePage
-					? []
-					: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								new ButtonBuilder()
-									.setCustomId("previous")
-									.setLabel("<<<")
-									.setStyle(ButtonStyle.Secondary)
-									.setDisabled(true),
-								new ButtonBuilder()
-									.setCustomId("next")
-									.setLabel(">>>")
-									.setStyle(ButtonStyle.Secondary)
-									.setDisabled(arr.length <= itemsPerPage)
-							)
-						],
-				files: [
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					),
-					{
-						attachment:
-							(await interaction.client.func.image64.image64(
-								interaction.guild.iconURL({ size: 512 }) ||
-									interaction.client.user?.displayAvatarURL()
-							)) ?? Buffer.from([]),
-						name: "guildIcon.png"
-					}
-				]
-			}
+				: lang.leaderboard_card_not_ranked;
+		const generated = lang.leaderboard_card_generated.replace(
+			"${elapsed}",
+			String(Date.now() - execTimestamp)
 		);
 
-		if (canFitOnOnePage) return;
+		const pages = Math.ceil(arr.length / PER_PAGE);
+		const signature = await botSignature(client, guild.id);
 
-		const collector = embedMessage.createMessageComponentCollector({
-			filter: (i) => i.customId === "previous" || i.customId === "next",
-			componentType: ComponentType.Button,
-			time: 60_000 * 15
-		});
-
-		let currentIndex = 0;
-		collector.on("collect", async (i) => {
-			if (i.customId === "previous") {
-				currentIndex -= itemsPerPage;
-			} else if (i.customId === "next") {
-				currentIndex += itemsPerPage;
-			}
-
-			await i.update({
-				embeds: [await generateEmbed(currentIndex)],
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId("previous")
-							.setLabel("<<<")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(currentIndex === 0),
-						new ButtonBuilder()
-							.setCustomId("next")
-							.setLabel(">>>")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(
-								currentIndex + itemsPerPage >= arr.length
-							)
-					)
-				]
-			});
-		});
-
-		collector.on("end", () => {
-			embedMessage.edit({ components: [] });
+		await sendPaginatedCard({
+			client,
+			interaction,
+			lang,
+			pages,
+			// As before: the pages stay usable for 15 minutes.
+			timeoutMs: 15 * 60_000,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.neutral,
+					emoji: e.Crown,
+					title: lang.leaderboard_card_title,
+					description: `-# ${lang.leaderboard_card_count
+						.replace("${count}", String(arr.length))
+						.replace("${guild}", guild.name)}`,
+					thumbnail:
+						guild.iconURL({ size: 256 }) ||
+						client.user?.displayAvatarURL({ size: 256 }),
+					blocks: [
+						arr
+							.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+							.map((entry, index) => {
+								const rank = page * PER_PAGE + index + 1;
+								const badge = rank === 1 ? `${e.Crown} ` : "";
+								return (
+									`${badge}\`#${rank}\` <@${entry.inviter}> · ${lang.invites_label_total} **${entry.invites}**\n` +
+									`-# ${lang.invites_label_regular} \`${entry.regular}\` · ${lang.invites_label_bonus} \`${entry.bonus}\` · ${lang.invites_label_left} \`${entry.leaves}\``
+								);
+							})
+							.join("\n"),
+						`${e.Stats} ${userRankText}`
+					],
+					footer: `${pageLabel(lang, page, pages)} · ${generated}`,
+					signature
+				})
 		});
 	}
 };

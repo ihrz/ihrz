@@ -26,6 +26,7 @@
 
 import {
 	ActionRowBuilder,
+	AttachmentBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -187,6 +188,22 @@ export function cardPayload(...containers: ContainerBuilder[]) {
 }
 
 type Source = ChatInputCommandInteraction<"cached"> | Message;
+
+/**
+ * Like sendCard, with attachments (generated images…). Show an attachment in
+ * the card with `images: ["attachment://name.png"]` (same file name).
+ */
+export async function sendCardWithFiles(
+	client: Client,
+	interaction: Source,
+	files: (AttachmentBuilder | { attachment: unknown; name: string })[],
+	...containers: ContainerBuilder[]
+): Promise<Message> {
+	return client.func.method.interactionSend(interaction, {
+		...cardPayload(...containers),
+		files
+	} as never);
+}
 
 export async function sendCard(
 	client: Client,

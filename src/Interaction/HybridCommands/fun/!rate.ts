@@ -19,17 +19,24 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 import maskLink from "../../../core/functions/maskLink.js";
+
+/** `▰▰▰▱▱▱▱▱▱▱`, ten steps. */
+function meter(value: number, max: number): string {
+	const filled = Math.max(0, Math.min(10, Math.round((value / max) * 10)));
+	return `\`${"▰".repeat(filled)}${"▱".repeat(10 - filled)}\``;
+}
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -46,19 +53,24 @@ export const subCommand: SubCommand = {
 				? interaction.options.getString("the_things")
 				: client.func.method.longString(args!, 0);
 
-		// Fetch user ou soit mêmea
 		const the_things = maskLink(string || "nothing");
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.fun_rate_command_ok
-				.replace("${the_things}", the_things)
-				.replace("${random}", random.toString()),
-			allowedMentions: {
-				repliedUser: false,
-				roles: [],
-				users: [],
-				parse: []
-			}
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Thinking,
+				title: lang.fun_card_rate_title,
+				fields: [
+					{ label: lang.fun_label_rated, value: `**${the_things}**` },
+					{
+						label: lang.fun_label_score,
+						value: `${meter(random, 10)} **${random}/10**`
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

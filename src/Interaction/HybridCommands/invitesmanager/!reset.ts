@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
@@ -47,10 +42,6 @@ export const subCommand: SubCommand = {
 			!interaction.channel
 		)
 			return;
-
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.resetallinvites_warning_msg,

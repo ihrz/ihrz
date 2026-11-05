@@ -23,7 +23,6 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	User
 } from "discord.js";
@@ -33,6 +32,12 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { sanitizing } from "../../../core/functions/sanitizer.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCardWithFiles
+} from "../../../core/modules/uiCard.js";
 import { renderYoutubeComment } from "../../../core/modules/socialCards.js";
 
 export const subCommand: SubCommand = {
@@ -92,28 +97,20 @@ export const subCommand: SubCommand = {
 			reply: "REPLY"
 		});
 
-		const embed = new EmbedBuilder()
-			.setColor("#010101")
-			.setImage("attachment://youtube.png")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		const imgs = new AttachmentBuilder(img, { name: "youtube.png" });
 
-		let imgs = new AttachmentBuilder(img, { name: "youtube.png" });
-		embed.setImage(`attachment://youtube.png`);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				imgs!,
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCardWithFiles(
+			client,
+			interaction,
+			[imgs],
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Grin,
+				title: lang.youtube_card_title.replace("${user}", username),
+				images: ["attachment://youtube.png"],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

@@ -597,8 +597,6 @@ export default {
 	// /addinvites, /invites, /leaderboard, /removeinvites
 
 	// /addinvites
-	addinvites_not_admin_embed_description:
-		"Вам нужны права администратора для использования этой команды!",
 	addinvites_confirmation_embed_description:
 		"Добавлено ${amount} приглашений для ${user}",
 	addinvites_logs_embed_title: "Логи менеджера приглашений",
@@ -606,19 +604,8 @@ export default {
 		"<@${authorId}> Добавил ${amount} приглашений для <@${userId}>!",
 
 	// /invites
-	invites_confirmation_embed_description:
-		"<@${memberId}> имеет `${invites}` приглашений (`${regular}` Обычных, `${bonus}` Бонусных, `${leaves}` Отказов).",
-	invites_confirmation_embed_title: "Статистика приглашений",
 
 	// /leaderboard
-	leaderboard_text_inline:
-		"`${i} ` <@${inviter}> • Приглашения∶ **${invites}**\n  ┖ Обычные **${regular}**, Бонус∶ **${bonus}**, Покинули∶ **${leaves}**\n",
-	leaderboard_default_text: "**__Таблица лидеров__**",
-	leaderboard_rank_text:
-		"🏅Вы в настоящее время занимаете `${rank}` место из `${arrCount}` с **${invites}** приглашениями\n\n",
-	leaderboard_rank_none: "🏅Вы в настоящее время не занесены в рейтинг.\n\n",
-	leaderboard_gen_time_msg:
-		"Таблица лидеров **${guildName}** сгенерирована за ${elapsed}мс.\n\n",
 
 	// /removeinvites
 	removeinvites_not_admin_embed_description:
@@ -834,43 +821,28 @@ export default {
 	fun_var_good_sentence: "Пожалуйста, отправьте хорошее предложение!",
 
 	// /cats
-	cats_embed_title: "Мяу :cat:",
 
 	// /duck
-	duck_embed_title: "кря-кря :duck:",
 
 	// /panda
-	panda_embed_title: "Мваа 🐼",
 
 	// /fox
-	fox_embed_title: "ва-па-па-па-па 🦊",
 
 	// /dolphin
-	dolphin_embed_title: "ии-ии-клик-клик 🐬",
 
 	// /frog
-	frog_embed_title: "ква-ква 🐸",
 
 	// /squirrel
-	squirrel_embed_title: "чит-чит 🐿️",
 
 	// /hack
 	hack_embed_description: "<@${victimId}> взломан <@${authorId}> !",
-	hack_embed_fields_ip: "IP",
-	hack_embed_fields_email: "Электронная почта",
-	hack_embed_fields_password: "Пароль",
 
 	// /hug
-	hug_embed_title: "<@${authorId}> обнимает <@${hugId}> ❤️",
 
 	// /kiss
-	kiss_embed_description: "<@${authorId}> целует <@${kissId}> 💏",
 
 	// /poll
 	poll_not_admin: "У вас нет прав для этого!",
-	poll_embed_title: "__**Опрос**__: `${authorUsername}`",
-	poll_embed_fields_reaction: "Нажмите на реакции ниже.⬇",
-	poll_embed_fields_choice: ":white_check_mark: **Да**\n :x: **Нет** ",
 
 	// /question
 	question_not_full: "Введите полный вопрос с 3 или более словами!",
@@ -889,11 +861,9 @@ export default {
 	question_embed_title: "__**Вопрос**__: `${authorUsername}`",
 
 	// /slap
-	slap_embed_description: "<@${authorId}> ударил <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error: "Ошибка при получении изображения собаки.",
-	dogs_embed_title: "🐶 Гав-гав.",
 
 	// /love
 	love_embed_description:
@@ -907,45 +877,26 @@ export default {
 		"Вы не можете использовать эту команду, категория команд развлечений отключена.",
 
 	// /fun gay
-	fun_gay_command_ok: "Пользователь ${user} на **${random}%** гей 🏳️‍🌈",
 
 	// /fun stench
-	fun_stench_command_ok: "Пользователь ${user} воняет на **${random}%** 👃🛀",
 
 	// /fun rate
-	fun_rate_command_ok: "Я оцениваю **${the_things}** на ${random}/10.",
 
 	// /fun caracteres
 	fun_caracteres_command_ok: "Пожалуйста, введите текст для преобразования!",
-	fun_caracteres_help_title: "🎨 Выберите стиль текста",
 	fun_caracteres_embed_desc:
 		"Исходный текст: **${inputText}**\n\nВыберите стиль из выпадающего меню ниже, чтобы преобразовать текст.",
 	fun_caracteres_select_menu_placeholder: "Выберите стиль шрифта...",
-	fun_caracteres_final_embed_title:
-		"🎨 Преобразованный текст - Стиль: ${selectedStyle}",
-	fun_caracteres_final_embed_field1_name: "📝 Исходный текст",
-	fun_caracteres_final_embed_field2_name: "✨ Преобразованный текст",
 
 	// /fun random dice
-	fun_dice_embed_title: "🎲 Результат броска костей",
-	fun_dice_var_rolled_dices: "**Брошенные кости:**",
-	fun_dice_var_results: "**Результаты:**",
-	fun_dice_var_total: "**Итого:**",
 
 	// /fun random heads-tails
-	fun_coinflip_embed_title: "🪙 Орёл или решка",
-	fun_coinflip_result_text: "Результат:",
 	fun_coinflip_result_heads: "Орёл",
 	fun_coinflip_result_tails: "Решка",
 
 	// /fun random number
-	fun_random_embed_title: "🔢 Случайное число",
-	fun_random_result_text: "Сгенерированное число:",
-	fun_random_between: "между",
 
 	// +transgender
-	fun_trans_command_ok:
-		"Пользователь ${user} является трансгендером на **${random}%** 🏳️‍⚧️",
 
 	// Economy commands
 	// /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -2613,7 +2564,6 @@ export default {
 		"${emoji_No} Похоже, у ${member} нет предупреждений в моей базе данных!",
 	unwarn_cannot_found_id:
 		"${emoji_No} ${member} предоставленный ID предупреждения отсутствует в моей базе данных",
-	unwarn_command_ok: "${emoji_Yes} Предупреждение с ${member} было снято!",
 	unwarn_logEmbed_title: "Журнал снятия предупреждений",
 	unwarn_logEmbed_desc: "${author} снял предупреждение с ${member}",
 	unwarn_dont_have_permission:
@@ -2628,16 +2578,11 @@ export default {
 	// /warnlist
 	warnlist_no_data:
 		"${emoji_No} Похоже, у ${member} нет предупреждений в моей базе данных!",
-	warnlist_embed_desc:
-		"### ID: ${id} - ${date}\n> Автор: <@${authorID}>\n> Причина: `${reason}`",
-	warnlist_embed_title:
-		"Список предупреждений ${memberGlobalName} | Страница ${page}",
 	warnlist_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на управление предупреждениями участников на этом сервере Discord.",
 
 	// /baninfo
 	baninfo_not_banned: "Пользователь не заблокирован",
-	baninfo_ban_info: "Информация о блокировке",
 	baninfo_user_not_found: "Пользователь не найден",
 	var_banned_by: "Заблокирован",
 	var_ban_date: "Дата блокировки",
@@ -4038,9 +3983,6 @@ export default {
 	rolepanel_role_too_high_bot: "Роль выше роли бота",
 	rolepanel_role_too_high_user: "Роль выше вашей",
 	rolepanel_role_missing_permissions: "Отсутствующие права: ${permissions}",
-	rolepanel_apply_added: "Добавлены роли: ${roles}",
-	rolepanel_apply_removed: "Удалены роли: ${roles}",
-	rolepanel_apply_refused: "Отклонены роли: ${roles}",
 	rolepanel_logs_embed_title_create: "Логи панели ролей",
 	rolepanel_logs_embed_desc_create:
 		"<@${authorId}> создал панель ролей (${messageId}) с: ${roles}",
@@ -4574,5 +4516,94 @@ export default {
 	util_leashlist_card_count: "Активных поводков: ${count}",
 	util_leashlist_card_expires: "Истекает",
 	util_locknamelist_card_count: "Заблокированных ников: ${count}",
-	util_locknamelist_card_by: "Заблокировал ${user}"
+	util_locknamelist_card_by: "Заблокировал ${user}",
+
+	// Components V2 cards: /invites, /leaderboard, /addinvites, /removeinvites
+	invites_card_title: "Статистика приглашений",
+	invites_label_total: "Всего",
+	invites_label_regular: "Обычные",
+	invites_label_left: "Ушли",
+	invites_label_bonus: "Бонус",
+	invites_label_invited_by: "Пригласил",
+	leaderboard_card_title: "Рейтинг приглашений",
+	leaderboard_card_count: "Участников в рейтинге ${guild}: ${count}",
+	leaderboard_card_your_rank:
+		"Ваше место: ${rank}/${count}, приглашений: ${invites}",
+	leaderboard_card_not_ranked: "Вас пока нет в рейтинге.",
+	leaderboard_card_empty: "На этом сервере пока ни у кого нет приглашений.",
+	leaderboard_card_generated: "Сформировано за ${elapsed} мс",
+
+	// Components V2 cards: /fun caracteres, catsay, hack, hug, kiss, slap, love, poll, question, tweet, youtube
+	caracteres_card_title: "Выбери стиль текста",
+	caracteres_card_result_title: "Твой текст в стиле ${style}",
+	caracteres_label_original: "Исходный",
+	caracteres_label_converted: "Преобразованный",
+	catsay_card_title: "Кот сказал своё слово",
+	hack_card_title: "Взлом завершён",
+	hack_label_ip: "IP-адрес",
+	hack_label_email: "Электронная почта",
+	hack_label_password: "Пароль",
+	hug_card_title: "Время обнимашек",
+	hug_card_desc: "${author} крепко обнимает ${target}.",
+	kiss_card_title: "Чмок",
+	kiss_card_desc: "${author} целует ${target}.",
+	slap_card_title: "Пощёчина",
+	slap_card_desc: "${author} даёт пощёчину ${target}.",
+	love_card_title: "Калькулятор любви",
+	love_card_desc: "**${user1}** + **${user2}** = `${percent}%` любви",
+	poll_card_title: "Опрос от ${author}",
+	poll_card_vote: "Поставь ${yes}, если да, или ${no}, если нет.",
+	question_card_title: "${author} спрашивает",
+	question_label_question: "Вопрос",
+	question_label_answer: "Ответ",
+	tweet_card_title: "Новый пост от ${user}",
+	youtube_card_title: "Новый комментарий от ${user}",
+
+	// Components V2 cards: fun animal pictures (/cat /dog /dolphin /duck /fox /frog /panda /squirrel) and random results (/dice /heads-tails /number /rate /gay /trans /stench /transgender)
+	fun_card_cat_title: "Мяу",
+	fun_card_dog_title: "Гав-гав",
+	fun_card_dolphin_title: "Иии-иии, щёлк-щёлк",
+	fun_card_duck_title: "Кря-кря",
+	fun_card_fox_title: "Ва-па-па-па-па",
+	fun_card_frog_title: "Ква-ква",
+	fun_card_panda_title: "Мваа",
+	fun_card_squirrel_title: "Цок-цок",
+	fun_card_animal_hint: "Случайная картинка, специально для тебя.",
+	fun_card_dice_title: "Бросок костей",
+	fun_card_coinflip_title: "Орёл или решка",
+	fun_card_number_title: "Случайное число",
+	fun_card_gay_title: "Гей-метр",
+	fun_card_trans_title: "Транс-метр",
+	fun_card_stench_title: "Вонь-метр",
+	fun_card_rate_title: "Моя оценка",
+	fun_card_transgender_title: "Аватар транс-прайда",
+	fun_label_dice: "Кости",
+	fun_label_rolls: "Броски",
+	fun_label_total: "Итого",
+	fun_label_result: "Результат",
+	fun_label_range: "Диапазон",
+	fun_label_score: "Счёт",
+	fun_label_rated: "Оценено",
+
+	// Components V2 cards: /ban, /kick, /baninfo, /banlist, /mutelist, /warnlist, /unwarn, /rolepanel
+	mod_label_moderator: "Модератор",
+	mod_label_warn_id: "ID предупреждения",
+	ban_card_title: "Участник забанен",
+	kick_card_title: "Участник исключён",
+	baninfo_card_title: "Бан ${user}",
+	banlist_card_title: "Забаненные участники",
+	banlist_card_count: "Забанено: ${count}",
+	mutelist_card_title: "Участники в тайм-ауте",
+	mutelist_card_count: "В тайм-ауте: ${count}",
+	mutelist_card_ends: "Закончится ${time}",
+	mutelist_button_unmute_all: "Снять все тайм-ауты",
+	mutelist_card_cleared_title: "Тайм-ауты сняты",
+	mutelist_card_cleared_desc: "Участники снова могут писать: ${count}.",
+	warnlist_card_title: "Предупреждения ${user}",
+	warnlist_card_count: "Предупреждений: ${count}",
+	unwarn_card_title: "Предупреждение снято",
+	rolepanel_card_done_title: "Роли обновлены",
+	rolepanel_label_added: "Добавлены",
+	rolepanel_label_removed: "Сняты",
+	rolepanel_label_refused: "Отклонены"
 } satisfies LanguageData;

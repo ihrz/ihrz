@@ -558,8 +558,6 @@ export default {
 	// /addinvites, /invites, /leaderboard, /removeinvites
 
 	// /addinvites
-	addinvites_not_admin_embed_description:
-		"تحتاج إلى صلاحيات المسؤول لاستخدام هذا!",
 	addinvites_confirmation_embed_description:
 		"تمت إضافة ${amount} دعوات لـ ${user}",
 	addinvites_logs_embed_title: "سجلات مدير الدعوات",
@@ -567,19 +565,8 @@ export default {
 		"<@${authorId}> أضاف ${amount} دعوات إلى <@${userId}>!",
 
 	// /invites
-	invites_confirmation_embed_description:
-		"<@${memberId}> لديه `${invites}` دعوات (`${regular}` عادية، `${bonus}` مكافأة، `${leaves}` مغادرة).",
-	invites_confirmation_embed_title: "إحصائيات الدعوات",
 
 	// /leaderboard
-	leaderboard_text_inline:
-		"`${i} ` <@${inviter}> • الدعوات: **${invites}**\n  ┖ عادية **${regular}**، مكافأة: **${bonus}**، مغادرة: **${leaves}**\n",
-	leaderboard_default_text: "**__لوحة المتصدرين__**",
-	leaderboard_rank_text:
-		"🏅 أنت حاليا في المرتبة `${rank}`/`${arrCount}` مع **${invites}** دعوة\n\n",
-	leaderboard_rank_none: "🏅 أنت غير مصنف حالياً.\n\n",
-	leaderboard_gen_time_msg:
-		"**لوحة المتصدرين في ${guildName} تم إنشاؤها في ${elapsed}ms.\n\n",
 
 	// /removeinvites
 	removeinvites_not_admin_embed_description:
@@ -784,43 +771,28 @@ export default {
 	fun_var_good_sentence: "يرجى إرسال جملة جيدة!",
 
 	// /cats
-	cats_embed_title: "مياو :cat:",
 
 	// /duck
-	duck_embed_title: ":duck: بطبط",
 
 	// /panda
-	panda_embed_title: "موا 🐼",
 
 	// /fox
-	fox_embed_title: "وا-با-با-با-با 🦊",
 
 	// /dolphin
-	dolphin_embed_title: "يي-يي-كليك-كليك 🐬",
 
 	// /frog
-	frog_embed_title: "كرواك-كرواك 🐸",
 
 	// /squirrel
-	squirrel_embed_title: "تشيت-تشيت 🐿️",
 
 	// /hack
 	hack_embed_description: "<@${victimId}> تم اختراقه بواسطة <@${authorId}> !",
-	hack_embed_fields_ip: "IP",
-	hack_embed_fields_email: "البريد الإلكتروني",
-	hack_embed_fields_password: "كلمة السر",
 
 	// /hug
-	hug_embed_title: "<@${authorId}> قدم عناقاً إلى <@${hugId}> ❤️",
 
 	// /kiss
-	kiss_embed_description: "<@${authorId}> قبلة لـ <@${kissId}> 💏",
 
 	// /poll
 	poll_not_admin: "ليس لديك الصلاحيات لتنفيذ هذا الأمر!",
-	poll_embed_title: "__**استطلاع**__: `${authorUsername}`",
-	poll_embed_fields_reaction: "اضغط على التفاعلات أدناه.⬇",
-	poll_embed_fields_choice: ":white_check_mark: **نعم**\n :x: **لا** ",
 
 	// /question
 	question_not_full: "يرجى إدخال سؤال كامل يتكون من 3 كلمات أو أكثر!",
@@ -839,11 +811,9 @@ export default {
 	question_embed_title: "__**السؤال**__: `${authorUsername}`",
 
 	// /slap
-	slap_embed_description: "<@${authorId}> صفع <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error: "خطأ في استرجاع صورة الكلب.",
-	dogs_embed_title: "🐶 عواء.",
 
 	// /love
 	love_embed_description:
@@ -856,45 +826,26 @@ export default {
 		"مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة.",
 
 	// /fun gay
-	fun_gay_command_ok: "المستخدم ${user} هو **${random}%** مثلي 🏳️‍🌈",
 
 	// /fun stench
-	fun_stench_command_ok:
-		"المستخدم ${user} هو **${random}%** ذو رائحة كريهة 👃🛀",
 
 	// /fun rate
-	fun_rate_command_ok: "أنا أقيم **${the_things}** ${random}/10.",
 
 	// /fun caracteres
 	fun_caracteres_command_ok: "يرجى إدخال نص لتحويله!",
-	fun_caracteres_help_title: "🎨 اختر نمط النص",
 	fun_caracteres_embed_desc:
 		"النص الأصلي: **${inputText}**\n\nاختر نمطًا من القائمة المنسدلة أدناه لتحويل النص.",
 	fun_caracteres_select_menu_placeholder: "اختر نمط الخط...",
-	fun_caracteres_final_embed_title:
-		"🎨 النص المحول - النمط: ${selectedStyle}",
-	fun_caracteres_final_embed_field1_name: "📝 النص الأصلي",
-	fun_caracteres_final_embed_field2_name: "✨ النص المحول",
 
 	// /fun random dice
-	fun_dice_embed_title: "🎲 نتيجة رمي النرد",
-	fun_dice_var_rolled_dices: "**النرد المرمي:**",
-	fun_dice_var_results: "**النتائج:**",
-	fun_dice_var_total: "**المجموع:**",
 
 	// /fun random heads-tails
-	fun_coinflip_embed_title: "🪙 صورة أم كتابة",
-	fun_coinflip_result_text: "النتيجة هي:",
 	fun_coinflip_result_heads: "صورة",
 	fun_coinflip_result_tails: "كتابة",
 
 	// /fun random number
-	fun_random_embed_title: "🔢 رقم عشوائي",
-	fun_random_result_text: "الرقم المولد هو:",
-	fun_random_between: "بين",
 
 	// +transgender
-	fun_trans_command_ok: "المستخدم ${user} هو **${random}%** متحول جنسيًا 🏳️‍⚧️",
 
 	// Economy commands
 	// /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -2465,7 +2416,6 @@ export default {
 		"${emoji_No} ${member} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!",
 	unwarn_cannot_found_id:
 		"${emoji_No} ${member} رقم التحذير اللي إديته مش موجود في قاعدة البيانات بتاعتي",
-	unwarn_command_ok: "${emoji_Yes} ${member} تم إلغاء التحذير بتاعه!",
 	unwarn_logEmbed_title: "سجلات إلغاء التحذير",
 	unwarn_logEmbed_desc: "${author} ألغى تحذير ${member}",
 	unwarn_dont_have_permission:
@@ -2479,15 +2429,11 @@ export default {
 	// /warnlist
 	warnlist_no_data:
 		"${emoji_No} ${member} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!",
-	warnlist_embed_desc:
-		"### الرقم: ${id} - ${date}\n> الكاتب: <@${authorID}>\n> السبب: `${reason}`",
-	warnlist_embed_title: "قائمة تحذيرات ${memberGlobalName} | الصفحة ${page}",
 	warnlist_dont_have_permission:
 		"${emoji_No} | ليس لديك إذن لإدارة تحذيرات الأعضاء في هذا السيرفر.",
 
 	// /baninfo
 	baninfo_not_banned: "المستخدم غير محظور",
-	baninfo_ban_info: "معلومات الحظر",
 	baninfo_user_not_found: "المستخدم غير موجود",
 	var_banned_by: "محظور من قبل",
 	var_ban_date: "تاريخ الحظر",
@@ -3828,9 +3774,6 @@ export default {
 	rolepanel_role_too_high_bot: "دور أعلى من البوت",
 	rolepanel_role_too_high_user: "دور أعلى منك",
 	rolepanel_role_missing_permissions: "الأذونات الناقصة: ${permissions}",
-	rolepanel_apply_added: "الأدوار المضافة: ${roles}",
-	rolepanel_apply_removed: "الأدوار المزالة: ${roles}",
-	rolepanel_apply_refused: "الأدوار المرفوضة: ${roles}",
 	rolepanel_logs_embed_title_create: "سجلات لوحة الأدوار",
 	rolepanel_logs_embed_desc_create:
 		"<@${authorId}> أنشأ لوحة أدوار (${messageId}) مع: ${roles}",
@@ -4357,5 +4300,93 @@ export default {
 	util_leashlist_card_count: "${count} مقود نشط",
 	util_leashlist_card_expires: "ينتهي",
 	util_locknamelist_card_count: "${count} لقب مقفل",
-	util_locknamelist_card_by: "أقفله ${user}"
+	util_locknamelist_card_by: "أقفله ${user}",
+
+	// Components V2 cards: /invites, /leaderboard, /addinvites, /removeinvites
+	invites_card_title: "إحصائيات الدعوات",
+	invites_label_total: "المجموع",
+	invites_label_regular: "عادية",
+	invites_label_left: "غادروا",
+	invites_label_bonus: "إضافية",
+	invites_label_invited_by: "دعاه",
+	leaderboard_card_title: "ترتيب الدعوات",
+	leaderboard_card_count: "${count} عضو في ترتيب ${guild}",
+	leaderboard_card_your_rank: "ترتيبك: ${rank}/${count} مع ${invites} دعوة",
+	leaderboard_card_not_ranked: "لست في الترتيب بعد.",
+	leaderboard_card_empty: "لا أحد لديه دعوات في هذا الخادم بعد.",
+	leaderboard_card_generated: "تم الإنشاء في ${elapsed} ms",
+
+	// Components V2 cards: /fun caracteres, catsay, hack, hug, kiss, slap, love, poll, question, tweet, youtube
+	caracteres_card_title: "اختر نمط النص",
+	caracteres_card_result_title: "نصك بنمط ${style}",
+	caracteres_label_original: "الأصلي",
+	caracteres_label_converted: "المحوَّل",
+	catsay_card_title: "لقد تكلّم القط",
+	hack_card_title: "اكتمل الاختراق",
+	hack_label_ip: "عنوان IP",
+	hack_label_email: "البريد الإلكتروني",
+	hack_label_password: "كلمة السر",
+	hug_card_title: "وقت العناق",
+	hug_card_desc: "${author} يعانق ${target} بحرارة.",
+	kiss_card_title: "قبلة",
+	kiss_card_desc: "${author} يقبّل ${target}.",
+	slap_card_title: "صفعة",
+	slap_card_desc: "${author} يصفع ${target}.",
+	love_card_title: "حاسبة الحب",
+	love_card_desc: "**${user1}** + **${user2}** = `${percent}%` من الحب",
+	poll_card_title: "استطلاع من ${author}",
+	poll_card_vote: "تفاعل بـ ${yes} للموافقة أو ${no} للرفض.",
+	question_card_title: "${author} يسأل",
+	question_label_question: "السؤال",
+	question_label_answer: "الجواب",
+	tweet_card_title: "منشور جديد من ${user}",
+	youtube_card_title: "تعليق جديد من ${user}",
+
+	// Components V2 cards: fun animal pictures (/cat /dog /dolphin /duck /fox /frog /panda /squirrel) and random results (/dice /heads-tails /number /rate /gay /trans /stench /transgender)
+	fun_card_cat_title: "مياو",
+	fun_card_dog_title: "هو هو",
+	fun_card_dolphin_title: "إيي-إيي، طق طق",
+	fun_card_duck_title: "كواك كواك",
+	fun_card_fox_title: "وا-با-با-با-با",
+	fun_card_frog_title: "نق نق",
+	fun_card_panda_title: "مواا",
+	fun_card_squirrel_title: "تشيك تشيك",
+	fun_card_animal_hint: "صورة عشوائية، خصيصًا لك.",
+	fun_card_dice_title: "رمي النرد",
+	fun_card_coinflip_title: "ملك أم كتابة",
+	fun_card_number_title: "رقم عشوائي",
+	fun_card_gay_title: "مقياس المثلية",
+	fun_card_trans_title: "مقياس العبور الجنسي",
+	fun_card_stench_title: "مقياس الرائحة",
+	fun_card_rate_title: "تقييمي",
+	fun_card_transgender_title: "صورة فخر العابرين",
+	fun_label_dice: "النرد",
+	fun_label_rolls: "الرميات",
+	fun_label_total: "المجموع",
+	fun_label_result: "النتيجة",
+	fun_label_range: "النطاق",
+	fun_label_score: "النتيجة",
+	fun_label_rated: "المُقيَّم",
+
+	// Components V2 cards: /ban, /kick, /baninfo, /banlist, /mutelist, /warnlist, /unwarn, /rolepanel
+	mod_label_moderator: "المشرف",
+	mod_label_warn_id: "معرف التحذير",
+	ban_card_title: "تم حظر العضو",
+	kick_card_title: "تم طرد العضو",
+	baninfo_card_title: "حظر ${user}",
+	banlist_card_title: "الأعضاء المحظورون",
+	banlist_card_count: "${count} عضو محظور",
+	mutelist_card_title: "الأعضاء المكتومون",
+	mutelist_card_count: "${count} عضو مكتوم",
+	mutelist_card_ends: "ينتهي ${time}",
+	mutelist_button_unmute_all: "إزالة كل الكتم",
+	mutelist_card_cleared_title: "تمت إزالة الكتم",
+	mutelist_card_cleared_desc: "يمكن لـ ${count} عضو التحدث مجددًا.",
+	warnlist_card_title: "تحذيرات ${user}",
+	warnlist_card_count: "${count} تحذير",
+	unwarn_card_title: "تمت إزالة التحذير",
+	rolepanel_card_done_title: "تم تحديث الرتب",
+	rolepanel_label_added: "أضيفت",
+	rolepanel_label_removed: "أزيلت",
+	rolepanel_label_refused: "مرفوضة"
 } satisfies LanguageData;

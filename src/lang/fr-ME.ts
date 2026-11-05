@@ -622,8 +622,6 @@ export default {
 	// /addinvites, /invites, /leaderboard, /removeinvites
 
 	// /addinvites
-	addinvites_not_admin_embed_description:
-		"ta bsoin detre admin pour faire la commande , allez bouge de la!",
 	addinvites_confirmation_embed_description:
 		"Allez jajoute ${amount} invs a ${user} jadore triché fdp",
 	addinvites_logs_embed_title: "Logs Gestionnaire d'invs",
@@ -631,19 +629,8 @@ export default {
 		"<@${authorId}> a ajouté ${amount} invs à <@${userId}> !",
 
 	// /invites
-	invites_confirmation_embed_description:
-		"<@${memberId}> a  **${invites}** invs ( il a des amis en gros pas comme toi ) (**${regular}** régulières, **${bonus}** bonus, **${leaves}** départs).",
-	invites_confirmation_embed_title: "Statistiques d'inv",
 
 	// /leaderboard
-	leaderboard_text_inline:
-		"`${i} ` <@${inviter}> • invs∶ **${invites}**\n  ┖ Régulier **${regular}**, Bonus∶ **${bonus}**, Départs∶ **${leaves}**\n",
-	leaderboard_default_text: "**__Classement__**",
-	leaderboard_rank_text:
-		"🏅Vous êtes actuellement classé `${rank}`/`${arrCount}` avec **${invites}** invs\n\n",
-	leaderboard_rank_none: "🏅Vous n'êtes pas actuellement classé.\n\n",
-	leaderboard_gen_time_msg:
-		"Le classement de **${guildName}** a été généré en ${elapsed}ms.\n\n",
 
 	// /removeinvites
 	removeinvites_not_admin_embed_description:
@@ -865,47 +852,29 @@ export default {
 	fun_var_good_sentence: "Veuille envoyer une bonne phrase !",
 
 	// /cats
-	cats_embed_title: "Miauw , MIAUWWWW :cat:",
 
 	// /duck
-	duck_embed_title: "Coin coin, COIN COINNNNNNN :duck:",
 
 	// /panda
-	panda_embed_title: "Mwaa 🐼",
 
 	// /fox
-	fox_embed_title: "wa-pa-pa-pa-pa 🦊",
 
 	// /dolphin
-	dolphin_embed_title: "eee-eee-click-click 🐬",
 
 	// /frog
-	frog_embed_title: "croa-croa 🐸",
 
 	// /squirrel
-	squirrel_embed_title: "chit-chit 🐿️",
 
 	// /hack
 	hack_embed_description:
 		"<@${victimId}> a été piraté par <@${authorId}> sale merde t hack!",
-	hack_embed_fields_ip: "Adresse IP",
-	hack_embed_fields_email: "Email",
-	hack_embed_fields_password: "Mot de passe",
 
 	// /hug
-	hug_embed_title:
-		"<@${authorId}> fait un câlin à et oui no hate que du love<@${hugId}> ❤️",
 
 	// /kiss
-	kiss_embed_description:
-		"<@${authorId}> fait un baiser à <@${kissId}> jespere ca finit en ph 💏",
 
 	// /poll
 	poll_not_admin: "Ta pas les perms pour faire ca bouffon !",
-	poll_embed_title: "Sondage: `${authorUsername}`",
-	poll_embed_fields_reaction:
-		"Cliquez sur les réactions ci-dessous sous peine de mort⬇",
-	poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** ",
 
 	// /question
 	question_not_full: "Entrez une question complète avec 3 mots ou plus!",
@@ -927,13 +896,10 @@ export default {
 	question_embed_title: "`Question: ${authorUsername}`",
 
 	// /slap
-	slap_embed_description:
-		"<@${authorId}> a giflé allez dégage salle merde personne t'aime <@${slapId}> 😓",
 
 	// /dogs
 	dogs_embed_command_error:
 		"Jai pas recup limage de chien , ptet parce que c'est toi ?",
-	dogs_embed_title: "🐶 ouaf-ouaf.",
 
 	// /love
 	love_embed_description:
@@ -948,47 +914,26 @@ export default {
 		"Tu ne peux pas utiliser cette commande, la catégorie des commandes fun est désactivée.",
 
 	// /fun gay
-	fun_gay_command_ok: "L'utilisateur ${user} est **${random}%** gay 🏳️‍🌈",
 
 	// /fun stench
-	fun_stench_command_ok:
-		"L'utilisateur ${user} est **${random}%** malodorant 👃🛀",
 
 	// /fun rate
-	fun_rate_command_ok:
-		"Je donne une note de ${random}/10 à **${the_things}**.",
 
 	// /fun caracteres
 	fun_caracteres_command_ok: "Veuillez fournir un texte à transformer !",
-	fun_caracteres_help_title: "🎨 Sélectionnez un style de texte",
 	fun_caracteres_embed_desc:
 		"Texte original : **${inputText}**\n\nChoisissez un style dans le menu déroulant ci-dessous pour transformer votre texte.",
 	fun_caracteres_select_menu_placeholder: "Choisissez un style de police...",
-	fun_caracteres_final_embed_title:
-		"🎨 Texte transformé - Style: ${selectedStyle}",
-	fun_caracteres_final_embed_field1_name: "📝 Texte original",
-	fun_caracteres_final_embed_field2_name: "✨ Texte transformé",
 
 	// /fun random dice
-	fun_dice_embed_title: "🎲 Résultat du lancer de dés",
-	fun_dice_var_rolled_dices: "**Dé(s) lancé(s) :**",
-	fun_dice_var_results: "**Résultats :**",
-	fun_dice_var_total: "**Total :**",
 
 	// /fun random heads-tails
-	fun_coinflip_embed_title: "🪙 Pile ou face",
-	fun_coinflip_result_text: "Le résultat est :",
 	fun_coinflip_result_heads: "Pile",
 	fun_coinflip_result_tails: "Face",
 
 	// /fun random number
-	fun_random_embed_title: "🔢 Nombre aléatoire",
-	fun_random_result_text: "Le nombre généré est :",
-	fun_random_between: "entre",
 
 	// +transgender
-	fun_trans_command_ok:
-		"L’utilisateur ${user} est **${random}%** transgenre 🏳️‍⚧️",
 
 	// Economy commands
 	// /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -2705,8 +2650,6 @@ export default {
 		"${emoji_No} ${member} ne semble avoir aucun avertissement dans ma base de données !",
 	unwarn_cannot_found_id:
 		"${emoji_No} ${member} l'ID d'avertissement que vous avez fourni n'est pas dans ma base de données",
-	unwarn_command_ok:
-		"${emoji_Yes} L'avertissement de ${member} a été retiré avec succès !",
 	unwarn_logEmbed_title: "Historique des Retraits d'Avertissements",
 	unwarn_logEmbed_desc: "${author} a retiré l'avertissement de ${member}",
 	unwarn_dont_have_permission:
@@ -2721,16 +2664,11 @@ export default {
 	// /warnlist
 	warnlist_no_data:
 		"${emoji_No} ${member} ne semble avoir aucun avertissement dans ma base de données !",
-	warnlist_embed_desc:
-		"### ID: ${id} - ${date}\n> Auteur : <@${authorID}>\n> Raison : `${reason}`",
-	warnlist_embed_title:
-		"Liste des Avertissements de ${memberGlobalName} | Page ${page}",
 	warnlist_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission de gérer les avertissements des membres de ce serveur discord.",
 
 	// /baninfo
 	baninfo_not_banned: "L'utilisateur n'est pas banni",
-	baninfo_ban_info: "Informations du bannissement",
 	baninfo_user_not_found: "Utilisateur non trouvé",
 	var_banned_by: "Banni par",
 	var_ban_date: "Date du bannissement",
@@ -4190,9 +4128,6 @@ export default {
 	rolepanel_role_too_high_user: "Rôle plus haut que toi",
 	rolepanel_role_missing_permissions:
 		"Permissions non détenues: ${permissions}",
-	rolepanel_apply_added: "Rôles ajoutés: ${roles}",
-	rolepanel_apply_removed: "Rôles retirés: ${roles}",
-	rolepanel_apply_refused: "Rôles refusés: ${roles}",
 	rolepanel_logs_embed_title_create: "Logs du panel de rôles",
 	rolepanel_logs_embed_desc_create:
 		"<@${authorId}> a créé un panel de rôles (${messageId}) avec: ${roles}",
@@ -4749,5 +4684,94 @@ export default {
 	util_leashlist_card_count: "${count} laisses actives",
 	util_leashlist_card_expires: "Expire",
 	util_locknamelist_card_count: "${count} pseudos verrouillés",
-	util_locknamelist_card_by: "Verrouillé par ${user}"
+	util_locknamelist_card_by: "Verrouillé par ${user}",
+
+	// Components V2 cards: /invites, /leaderboard, /addinvites, /removeinvites
+	invites_card_title: "Statistiques d'invitations",
+	invites_label_total: "Total",
+	invites_label_regular: "Normales",
+	invites_label_left: "Partis",
+	invites_label_bonus: "Bonus",
+	invites_label_invited_by: "Invité par",
+	leaderboard_card_title: "Classement des invitations",
+	leaderboard_card_count: "${count} membres classés sur ${guild}",
+	leaderboard_card_your_rank:
+		"Votre rang : ${rank}/${count} avec ${invites} invitations",
+	leaderboard_card_not_ranked: "Vous n'êtes pas encore classé.",
+	leaderboard_card_empty: "Personne n'a encore d'invitations sur ce serveur.",
+	leaderboard_card_generated: "Généré en ${elapsed} ms",
+
+	// Components V2 cards: /fun caracteres, catsay, hack, hug, kiss, slap, love, poll, question, tweet, youtube
+	caracteres_card_title: "Choisis un style de texte",
+	caracteres_card_result_title: "Ton texte en ${style}",
+	caracteres_label_original: "Original",
+	caracteres_label_converted: "Transformé",
+	catsay_card_title: "Le chat a parlé",
+	hack_card_title: "Piratage terminé",
+	hack_label_ip: "Adresse IP",
+	hack_label_email: "Email",
+	hack_label_password: "Mot de passe",
+	hug_card_title: "C'est l'heure du câlin",
+	hug_card_desc: "${author} fait un gros câlin à ${target}.",
+	kiss_card_title: "Un bisou",
+	kiss_card_desc: "${author} fait un bisou à ${target}.",
+	slap_card_title: "Une claque",
+	slap_card_desc: "${author} met une claque à ${target}.",
+	love_card_title: "Calculateur d'amour",
+	love_card_desc: "**${user1}** + **${user2}** = `${percent}%` d'amour",
+	poll_card_title: "Sondage de ${author}",
+	poll_card_vote: "Réagis avec ${yes} pour oui ou ${no} pour non.",
+	question_card_title: "${author} demande",
+	question_label_question: "Question",
+	question_label_answer: "Réponse",
+	tweet_card_title: "Nouveau post de ${user}",
+	youtube_card_title: "Nouveau commentaire de ${user}",
+
+	// Components V2 cards: fun animal pictures (/cat /dog /dolphin /duck /fox /frog /panda /squirrel) and random results (/dice /heads-tails /number /rate /gay /trans /stench /transgender)
+	fun_card_cat_title: "Miaou",
+	fun_card_dog_title: "Ouaf ouaf",
+	fun_card_dolphin_title: "Iii-iii, clic clic",
+	fun_card_duck_title: "Coin coin",
+	fun_card_fox_title: "Wa-pa-pa-pa-pa",
+	fun_card_frog_title: "Croa croa",
+	fun_card_panda_title: "Mwaa",
+	fun_card_squirrel_title: "Tchic-tchic",
+	fun_card_animal_hint: "Une image au hasard, rien que pour toi.",
+	fun_card_dice_title: "Lancer de dés",
+	fun_card_coinflip_title: "Pile ou face",
+	fun_card_number_title: "Nombre aléatoire",
+	fun_card_gay_title: "Gay-o-mètre",
+	fun_card_trans_title: "Trans-o-mètre",
+	fun_card_stench_title: "Puant-o-mètre",
+	fun_card_rate_title: "Ma note",
+	fun_card_transgender_title: "Avatar fierté trans",
+	fun_label_dice: "Dés",
+	fun_label_rolls: "Lancers",
+	fun_label_total: "Total",
+	fun_label_result: "Résultat",
+	fun_label_range: "Intervalle",
+	fun_label_score: "Score",
+	fun_label_rated: "Noté",
+
+	// Components V2 cards: /ban, /kick, /baninfo, /banlist, /mutelist, /warnlist, /unwarn, /rolepanel
+	mod_label_moderator: "Modérateur",
+	mod_label_warn_id: "ID de l'avertissement",
+	ban_card_title: "Membre banni",
+	kick_card_title: "Membre expulsé",
+	baninfo_card_title: "Bannissement de ${user}",
+	banlist_card_title: "Membres bannis",
+	banlist_card_count: "${count} membres bannis",
+	mutelist_card_title: "Membres en exclusion temporaire",
+	mutelist_card_count: "${count} membres en exclusion temporaire",
+	mutelist_card_ends: "Fin ${time}",
+	mutelist_button_unmute_all: "Retirer toutes les exclusions",
+	mutelist_card_cleared_title: "Exclusions retirées",
+	mutelist_card_cleared_desc: "${count} membres peuvent de nouveau parler.",
+	warnlist_card_title: "Avertissements de ${user}",
+	warnlist_card_count: "${count} avertissements",
+	unwarn_card_title: "Avertissement retiré",
+	rolepanel_card_done_title: "Rôles mis à jour",
+	rolepanel_label_added: "Ajoutés",
+	rolepanel_label_removed: "Retirés",
+	rolepanel_label_refused: "Refusés"
 } satisfies LanguageData;
