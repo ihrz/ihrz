@@ -19,19 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel,
+	sendPaginatedCard
+} from "../../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -61,7 +62,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		const roles_members = Array.from(role.members.values()) || [];
+		const roles_members = Array.from(role.members.values());
 
 		if (roles_members.length == 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -70,92 +71,42 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
+		const e = client.iHorizon_Emojis;
+		const pages = Math.ceil(roles_members.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
 
-		for (let i = 0; i < roles_members.length; i += usersPerPage) {
-			const pageUsers = roles_members.slice(i, i + usersPerPage);
-			const pageContent = pageUsers
-				.map((member) => {
-					if (member.user.bot) {
-						return member.toString() + "🤖 (BOT)";
-					}
-					return member.toString();
-				})
-				.join("\n");
-			pages.push({
-				title: lang.util_role_members,
-				description: pageContent
-			});
-		}
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary)
-		);
-
-		const messageEmbed = await client.func.method.interactionSend(
+		await sendPaginatedCard({
+			client,
 			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
-
-		const collector = messageEmbed.createMessageComponentCollector({
-			time: 1_60_000
-		});
-
-		collector.on("collect", async (interaction_2) => {
-			if (interaction_2.user.id !== interaction.member?.user.id) {
-				await interaction_2.reply({
-					content: lang.help_not_for_you,
-					flags: [1 << 6]
-				});
-				return;
-			}
-
-			if (interaction_2.customId === "previousPage") {
-				await interaction_2.deferUpdate();
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				await interaction_2.deferUpdate();
-				currentPage = (currentPage + 1) % pages.length;
-			}
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
-		});
-
-		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
+			lang,
+			pages,
+			timeoutMs: 1_60_000,
+			render: (page) =>
+				buildCard({
+					accent: role.color || ACCENT.info,
+					emoji: e.Ticket_Role,
+					title: lang.role_members_card_title.replace(
+						"${role}",
+						role.name
+					),
+					description: `${role}\n-# ${lang.role_members_card_count.replace("${count}", String(roles_members.length))}`,
+					blocks: [
+						roles_members
+							.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+							.map((m) => {
+								const bot = m.user.bot
+									? ` ${e.Slash_Bot_Badge} ${lang.card_bot}`
+									: "";
+								const joined = m.joinedTimestamp
+									? ` · <t:${Math.floor(m.joinedTimestamp / 1000)}:R>`
+									: "";
+								return `${m}${bot}\n-# \`${m.user.tag}\`${joined}`;
+							})
+							.join("\n")
+					],
+					footer: pageLabel(lang, page, pages),
+					signature
+				})
 		});
 
 		return;

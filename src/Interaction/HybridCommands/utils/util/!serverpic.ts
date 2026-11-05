@@ -19,17 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -47,30 +45,36 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const embed = new EmbedBuilder()
-			.setImage(
-				interaction.guild.iconURL({ extension: "webp", size: 4096 })
-			)
-			.setColor("#add5ff")
-			.setTitle(interaction.guild.name);
+		const guild = interaction.guild;
+		const url = (extension: "png" | "webp" | "gif") =>
+			guild.iconURL({
+				extension,
+				size: 4096,
+				forceStatic: extension !== "gif"
+			});
+		const formats = [
+			`[PNG](${url("png")})`,
+			`[WEBP](${url("webp")})`,
+			guild.icon?.startsWith("a_") ? `[GIF](${url("gif")})` : null
+		].filter(Boolean);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setStyle(ButtonStyle.Link)
-						.setLabel(lang.pfps_download_guild_button)
-						.setURL(
-							interaction.guild.iconURL({
-								extension: "webp",
-								size: 4096
-							}) ||
-								"https://www.ihorizon.org/assets/img/unknown-user.png"
-						)
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Camera,
+				title: lang.serverpic_card_title.replace(
+					"${guild}",
+					guild.name
+				),
+				description: guild.icon
+					? `-# ${lang.card_download} : ${formats.join(" · ")}`
+					: lang.serverpic_card_no_icon,
+				images: [guild.iconURL({ size: 4096, forceStatic: false })],
+				signature: await botSignature(client, guild.id)
+			})
+		);
 		return;
 	}
 };

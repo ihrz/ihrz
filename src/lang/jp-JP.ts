@@ -73,6 +73,8 @@ export default {
 	var_confirm: "確認",
 	var_succes: "成功",
 	var_page: "ページ",
+	var_previous: "前へ",
+	var_next: "次へ",
 	var_permission: "権限",
 	var_usage: "使用法",
 	var_aliases: "エイリアス",
@@ -1166,23 +1168,6 @@ export default {
 	// /serverinfo, /snipe, /userinfo, /renew
 
 	// /serverinfo
-	serverinfo_verlvl_NONE: "なし",
-	serverinfo_verlvl_LOW: "低い",
-	serverinfo_verlvl_MEDIUM: "中程度",
-	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
-	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
-	serverinfo_embed_author: "🚩 -> ${guildName}",
-	serverinfo_embed_description: "**説明**: ${guildDescription}",
-	serverinfo_embed_fields_name: "🏷・**名前:**",
-	serverinfo_embed_fields_members: "🧔・**メンバー数:**",
-	serverinfo_embed_fields_id: "🆔・**ID:**",
-	serverinfo_embed_fields_owner: "👑・**オーナー:**",
-	serverinfo_embed_fields_verlvl: "🎚 ・**認証レベル:**",
-	serverinfo_embed_fields_region: "🌍・**リージョン:**",
-	serverinfo_embed_fields_roles: "📇・**役職数:**",
-	serverinfo_embed_fields_channels: "✍・**チャンネル数:**",
-	serverinfo_embed_fields_joinat: "🚲・**参加日時:**",
-	serverinfo_embed_fields_createat: "⚓・**作成日時:**",
 
 	// /setrankroles
 	setrankroles_not_admin:
@@ -1191,8 +1176,6 @@ export default {
 		"${emoji_No} ランクロールは既にこのサーバーのデータベースに存在します。",
 	setrankroles_not_roles_typed:
 		"${emoji_No} コマンドには役職が指定されていません！",
-	setrankroles_command_work:
-		"今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
 		"<@${authorId}> がランクロールを <@&${argsid}> に設定しました",
 	setrankroles_logs_embed_title_enable: "ランクロールの設定",
@@ -1203,10 +1186,6 @@ export default {
 		"<@${authorId}> さん、ランクロールを削除しました！",
 	setrankroles_command_error:
 		"${emoji_No} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。",
-	setrankroles_command_work_with_nicknames:
-		"今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**",
-	setrankroles_command_work_with_nicknames_2:
-		"\n**注意**:\nニックネームの一部を削除した場合、ロールは自動的に削除されます。再度追加した際には、ロールを再度付与します。",
 
 	// /snipe
 	snipe_no_previous_message_deleted:
@@ -1214,11 +1193,6 @@ export default {
 
 	// /userinfo
 	userinfo_wait_please: "${emoji_Timer} 少々お待ちください...",
-	userinfo_embed_fields_1_name: "バッジ",
-	userinfo_embed_fields_2_name: "ユーザー名",
-	userinfo_embed_fields_3_name: "表示名",
-	userinfo_embed_fields_4_name: "作成日",
-	userinfo_embed_fields_5_name: "Nitroステータス",
 	userinfo_var_notfound: "`見つかりません`",
 	userinfo_button_label: "ユーザープロフィール",
 
@@ -1236,7 +1210,6 @@ export default {
 	renewvc_dont_have_permission: ":x: **権限がありません！**",
 
 	// /prevnames
-	prevnames_embed_title: "${userUsername} のニックネームのリスト",
 	prevnames_undetected: "データが見つかりませんでした！",
 	prevnames_not_admin:
 		"このコマンドを実行するための `ADMINISTRATOR` 権限がありません！",
@@ -1258,24 +1231,14 @@ export default {
 		"${author}（サーバーのオーナー）が `BlockBot` を __無効化__ しました。ボットはこのサーバーに追加できるようになります！",
 
 	// /banner
-	banner_guild_embed: "**これはギルドサーバーバナーです！**",
-	banner_user_embed: "**これは${userUsername}のバナーです！**",
 	banner_guild_no_banner: "サーバーにはバナーがありません。",
 	banner_user_no_banner: "このユーザーにはバナーがありません。",
 
 	// /massiverole
-	massiverole_add_command_work:
-		"${author}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__受け取りました__\n**${s}** ユーザーがすでに${role}役職を__持っていました__\niHorizonは**${e}** ユーザーに役職を追加できませんでした。",
-	massiverole_sub_command_work:
-		"${author}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__失いました__\n**${s}** ユーザーがすでに${role}役職を__持っていませんでした__\niHorizonは**${e}** ユーザーから役職を削除できませんでした。",
 	massiverole_too_much_member:
 		"メンバーが多すぎて、実行できません。レート制限の可能性があります！",
 
 	// /nickrole
-	nickrole_add_command_work:
-		"${author}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含んでいませんでした\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。",
-	nickrole_sub_command_work:
-		"${author}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含まなくなりました\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。",
 	nickrole_too_much_member:
 		"メンバーが多すぎるため、実行できません。レート制限の可能性があります！",
 
@@ -1284,23 +1247,15 @@ export default {
 		"__新しい絵文字が作成されました__ 名前：**${emojiName}** ! (${emoji})",
 	emoji_send_err_emoji:
 		"__新しい絵文字の作成時エラー__ 名前：**${emojiName}** !",
-	emoji_embed_desc_work:
-		"__`${guildName}` に**${cnt}**個の絵文字を作成しました__\n(${nemj})",
 
 	// /derank
-	derank_msg_desc_embed:
-		"## 私は<@${memberId}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。",
 	derank_msg_failed: "役職の削除中にエラーが発生しました。",
 	derank_no_role: "このメンバーには削除するロールがありません。",
 
 	// /アクション全員の禁止解除
-	action_unban_all_embed_desc:
-		"## ギルドメンバー全員の禁止を解除する\n${emoji_Yes} | ギルドで`${unbannedMemberCount}`人のメンバーの禁止を成功裏に解除しました！\n${emoji_No} | `${cannot_unban}`人のメンバーを禁止解除できません！",
 	action_unban_all_no_banned_members: "禁止されているメンバーはいません。",
 
 	// /アクションの禁止解除を元に戻す
-	action_unban_undo_embed_desc:
-		"## 全員の禁止解除を元に戻す\n${emoji_Yes} | ギルドで`${bannedMemberCount}`人のメンバーを成功裏に禁止しました！\n${emoji_No} | `${cannot_ban}`人のメンバーを禁止解除できません！",
 
 	// /vc
 	vc_embed_desc:
@@ -1314,22 +1269,16 @@ export default {
 		"## ボイスステータス\n`${voiceCount}` 人がボイスチャンネルにいます:\n${emoji_iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${emoji_iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${emoji_iHorizon_Mute} **=>** ${total_members_vc_mute}\n${emoji_iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${emoji_DND} **=>** ${total_members_states_dnd}\n${emoji_Online} **=>** ${total_members_states_online}\n${emoji_Idle} **=>** ${total_members_states_idle}",
 
 	// /massmove
-	massmove_results:
-		"${author}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。",
 	massmove_too_much_member:
 		"メンバーが多すぎます。レート制限の可能性があるため、実行できません。",
 
 	// /all-admins
 	all_admins_nobody_admins: "このサーバーに管理者はいません！",
-	all_admins_embed_title: "すべての管理者のリスト | ページ ${page}",
 	all_admins_unrank_button_label: "全員のランクを下げる",
-	all_admins_unrank_embed_desc:
-		"${author}、iHorizonはAllAdminsモジュールの全員のランクダウンを実行しました。\n\n**${good}** ユーザーが__正常に__ランクを下げました\niHorizonは**${bad}** ユーザーのランクを下げることに__失敗しました__。",
 	all_admins_unrank_not_owner:
 		"サーバーの所有者のみがサーバーのすべての管理者のランクを下げることができます",
 
 	// /allbots
-	all_bots_embed_title: "全てのボットのリスト | ページ ${page}",
 
 	// /addrole
 	utils_addrole_highter_or_egal_roles_msg:
@@ -1411,7 +1360,6 @@ export default {
 	sticket_command_error2: "スタンプを含むメッセージに返信してください。",
 
 	// /util nick-kicker
-	util_nick_kicker_embed_title: "ニックネームキッカー",
 	util_nick_kicker_embed_desc:
 		"メンバーが参加したとき、そのニックネームが特定の単語を含んでいる場合、キックされます",
 	util_nick_kicker_words: "単語",
@@ -1514,7 +1462,6 @@ export default {
 	util_leashlist_no_data:
 		"${emoji_No} | このサーバーには有効なリードがありません。",
 	util_leashlist_embed_title: "有効なリード",
-	util_leashlist_embed_desc: "${dom} -> ${sub} (残り `${remaining}`)",
 
 	// /util lockname, /util unlockname
 	util_lockname_not_in_guild:
@@ -1540,10 +1487,6 @@ export default {
 	util_locknamelist_empty:
 		"${emoji_No} | このサーバーにはロックされたニックネームがありません！ `/utilss lockname` で作成できます。",
 	util_locknamelist_embed_title: "ロックされたニックネーム",
-	util_locknamelist_embed_count: "**${count}** 件のニックネームがロック中：",
-	util_locknamelist_embed_line:
-		"> <@${memberId}> • **${nick}** • ロック：${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)",
-	util_locknamelist_embed_line_short: "> <@${memberId}> • **${nick}**",
 
 	// /util autorenew
 	util_autorenew_time_too_short:
@@ -1557,8 +1500,6 @@ export default {
 		"AutoRenewモジュールはこのチャンネルを更新するように設定されています。次回の更新は${time}です。",
 
 	// /util where
-	util_where_deaf: "スピーカーミュート",
-	util_where_mute: "マイクミュート",
 	var_video: "ビデオ",
 	var_whereis: "どこに",
 	util_not_in_vc: "メンバーはボイスチャンネルにいません",
@@ -1588,8 +1529,6 @@ export default {
 		"${author}、${member} を ${voiceChannel} から正常に切断しました。",
 
 	// /util sync
-	util_sync_embed_description_1:
-		"以下のチャンネルが `#${categoryName}` カテゴリーと同期されました：\n\n${changes}",
 	util_sync_embed_description_0:
 		"カテゴリー内のすべてのチャンネルは既に権限が同期されています。",
 
@@ -1608,10 +1547,7 @@ export default {
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "このサーバーには管理者ロールがありません！",
-	admin_roles_embed_title: "すべての管理者ロール一覧 | ページ ${page}",
 	admin_roles_remove_button_label: "全てから管理者を削除",
-	admin_roles_remove_embed_desc:
-		"${author}、iHorizon は AdminRoles モジュールの管理者権限削除を実行しました。\n\n**${good}** 個のロールを __正常に変更__\niHorizon は **${bad}** 個のロールを変更できませんでした。",
 	admin_roles_remove_not_owner: "あなたはサーバーオーナーではありません！",
 
 	// /util rolelimit
@@ -1628,7 +1564,6 @@ export default {
 		"チャンネルのスローモードが ${duration_in_string} に設定されました。",
 
 	// /util role-members
-	util_role_members: "そのロールを持っているユーザーの一覧",
 	util_role_members_no_one: "サーバーにそのロールを持つ人はいません",
 
 	// /util vanity-generator
@@ -1649,8 +1584,6 @@ export default {
 	bringall_no_voice_channels:
 		"指定されたカテゴリにはボイスチャンネルがありません。",
 	bringall_no_members: "元のボイスチャンネルにメンバーがいません。",
-	bringall_results:
-		"${author}、iHorizonはメンバーをボイスチャンネルに分散させました。\n\n**${movedCount}** 人のメンバーが${fromChannel}から${category}の${channelCount}チャンネルに正常に移動されました。\n**${errorCount}** 人のメンバーは移動できませんでした（詳細はサーバーログを参照してください）。",
 
 	// /util move
 	util_move_not_in_vc:
@@ -2495,8 +2428,6 @@ export default {
 	// /unban, /tempmute, /unmute
 
 	// /avatar
-	avatar_embed_description: "素晴らしいアバターをご覧ください！ :D",
-	avatar_embed_title: "__**アバター**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission: "${emoji_No} | メンバーをBANする権限がありません。",
@@ -3700,14 +3631,6 @@ export default {
 	batch_unban_process: "🔄 ${bannedMemberCount}人のメンバーのBAN解除中...",
 	batch_unblacklist_process:
 		"🔄 ${guildObjectCount}個のサーバーで${bannedMemberUsername}をブラックリストから削除中...",
-	batch_unbanall_process: "🔄 ${bannedMemberCount}人のメンバーのBAN解除中...",
-	batch_massiverole_process:
-		"🔄 ${membersToProcessCount}人のメンバーにロールを付与中...",
-	batch_unmassiverole_process:
-		"🔄 ${membersToProcessCount}人のメンバーからロールを削除中...",
-	batch_undo_unban: "🔄 ${unbannedMemberCount}人のメンバーを再BAN解除中...",
-	batch_derank_process:
-		"🔄 ${rolesToRemoveCount}人のロールを${memberUsername}から削除中...",
 	unbanall_undo_command_err:
 		"再度BANするメンバーがいません。まずは全員のBAN解除コマンドを使用してください。",
 
@@ -4504,5 +4427,154 @@ export default {
 	// /tts join
 	h247_tts_refused:
 		"${emoji_No} このサーバーではH24/7モジュールが有効です。TTSを有効にするにはH24/7のボイスチャンネルに参加してください！",
-	gw_go_duration_too_low: "${emoji_No} | 最短の期間は3分です！"
+	gw_go_duration_too_low: "${emoji_No} | 最短の期間は3分です！",
+
+	// Components V2 cards: /avatar, /serverinfo, /allbots
+	avatar_card_title: "${user} のアバター",
+	card_download: "ダウンロード",
+	serverinfo_label_owner: "オーナー",
+	serverinfo_label_members: "メンバー",
+	serverinfo_label_created: "作成日",
+	serverinfo_label_joined: "参加日",
+	serverinfo_label_roles: "ロール",
+	serverinfo_label_channels: "チャンネル",
+	serverinfo_label_boosts: "ブースト",
+	serverinfo_boost_value: "${count}（レベル ${tier}）",
+	serverinfo_label_verification: "認証レベル",
+	serverinfo_label_language: "言語",
+	serverinfo_label_id: "ID",
+	serverinfo_verif_none: "なし",
+	serverinfo_verif_low: "低",
+	serverinfo_verif_medium: "中",
+	serverinfo_verif_high: "高",
+	serverinfo_verif_highest: "最高",
+	all_bots_card_title: "${guild} のボット",
+	all_bots_card_count: "${count} 個のボット",
+	all_bots_none: "このサーバーにはボットがいません。",
+
+	// Components V2 cards: /unbanall, /media-only, /nick-kicker, /sync, /wlroles
+	unbanall_card_progress: "`${count}` 人のBANを解除しています…",
+	unbanall_card_undo_progress: "`${count}` 人を再度BANしています…",
+	unbanall_card_title: "全員のBAN解除",
+	unbanall_card_undo_title: "BAN解除を取り消しました",
+	unbanall_label_unbanned: "BAN解除",
+	unbanall_label_banned: "再BAN",
+	unbanall_label_failed: "失敗",
+	sync_card_title: "権限を同期しました",
+	sync_card_desc: "これらのチャンネルは ${category} の権限に従います:",
+	media_only_card_title: "メディア専用チャンネル",
+	utils_label_save: "保存",
+	nick_kicker_card_title: "ニックネームキック",
+	nick_kicker_label_status: "状態",
+	nick_kicker_label_words: "単語",
+	wlroles_card_title: "許可されたロール",
+	wlroles_card_warn_title: "危険な権限",
+	wlroles_card_high_title: "私より上のロール",
+
+	// Components V2 cards: /userinfo, /banner, /inviteinfo, /serverpic, /where, /vc, /snipe
+	userinfo_label_badges: "バッジ",
+	userinfo_label_username: "ユーザー名",
+	userinfo_label_created: "アカウント作成日",
+	userinfo_label_joined: "サーバー参加日",
+	userinfo_label_nitro: "Nitro",
+	userinfo_label_roles: "ロール",
+	userinfo_label_id: "ID",
+	userinfo_card_loading: "プロフィールを読み込み中…",
+	banner_card_guild_title: "${guild} のバナー",
+	banner_card_user_title: "${user} のバナー",
+	inviteinfo_label_channel: "チャンネル",
+	inviteinfo_label_inviter: "招待者",
+	inviteinfo_label_created: "サーバー作成日",
+	inviteinfo_label_expires: "有効期限",
+	inviteinfo_label_members: "メンバー",
+	inviteinfo_label_online: "オンライン",
+	inviteinfo_label_boosts: "ブースト",
+	inviteinfo_label_features: "機能",
+	serverpic_card_title: "${guild} のアイコン",
+	serverpic_card_no_icon: "このサーバーにはアイコンがありません。",
+	where_card_title: "${member} の居場所",
+	where_label_member: "メンバー",
+	where_label_channel: "ボイスチャンネル",
+	where_label_stream: "配信中",
+	where_label_video: "カメラ",
+	where_label_mute: "自分でミュート",
+	where_label_deaf: "自分でスピーカーミュート",
+	vc_card_title: "ボイスアクティビティ",
+	vc_label_members: "メンバー",
+	vc_label_online: "オンライン",
+	vc_label_in_voice: "ボイス参加中",
+	vc_label_streaming: "配信中",
+	vc_label_boosts: "ブースト",
+	vc_label_camera: "カメラオン",
+	vc_label_muted: "ミュート中",
+	snipe_card_title: "最後に削除されたメッセージ",
+	snipe_label_author: "投稿者",
+	snipe_label_sent: "送信日時",
+
+	// Components V2 cards: /delrole, /derank, /massiverole, /massmove, /nickrole, /setmentionrole, /util bringall, /util move
+	utils_label_member: "メンバー",
+	utils_label_role: "ロール",
+	utils_label_by: "実行者",
+	utils_label_failed: "失敗",
+	utils_label_from: "移動元",
+	utils_label_to: "移動先",
+	utils_label_moved: "移動済み",
+	utils_label_name_filter: "名前に含む",
+	derank_card_progress: "${member} から ${count} 個のロールを外しています…",
+	derank_card_title: "メンバーのロールを解除しました",
+	derank_label_removed: "外したロール",
+	massiverole_card_progress_add:
+		"${count} 人のメンバーにロールを付与しています…",
+	massiverole_card_progress_sub:
+		"${count} 人のメンバーからロールを外しています…",
+	massiverole_card_title_add: "メンバーにロールを付与しました",
+	massiverole_card_title_sub: "メンバーからロールを外しました",
+	massiverole_label_added: "付与",
+	massiverole_label_already: "付与済み",
+	massiverole_label_removed: "解除",
+	massiverole_label_without: "未所持",
+	nickrole_label_skipped: "スキップ",
+	massmove_card_title: "メンバーを移動しました",
+	bringall_card_title: "メンバーを振り分けました",
+	bringall_label_category: "カテゴリー",
+	bringall_label_channels: "ボイスチャンネル",
+	setmentionrole_card_title: "メンションロールを有効にしました",
+	setmentionrole_card_desc:
+		"メンバーが私をメンションすると、このロールを付与します。",
+	setmentionrole_card_note:
+		"ユーザー名または表示名にこの文字列を含むメンバーだけがロールを受け取ります。文字列を外すとロールも外れ、戻すと再び付与されます。",
+
+	// Components V2 cards: /admin-users, /admin-roles, /allwebhooks, /role-members, /prevnames, /emojis, /leashlist, /locknamelist
+	card_bot: "ボット",
+	card_working: "処理中…",
+	card_label_requested_by: "リクエスト者",
+	card_label_failed: "失敗",
+	admin_users_card_title: "管理者",
+	admin_users_card_count: "管理者権限を持つメンバー: ${count}",
+	admin_users_card_only_bots: "この権限を持つのはボットだけです。",
+	admin_users_button_hide_bots: "ボットを隠す",
+	admin_users_button_show_bots: "ボットを表示",
+	admin_users_card_done_title: "管理者を降格しました",
+	admin_users_label_unranked: "降格したメンバー",
+	admin_roles_card_title: "管理者ロール",
+	admin_roles_card_count: "管理者権限を持つロール: ${count}",
+	admin_roles_card_managed: "連携で管理",
+	admin_roles_card_done_title: "管理者権限を削除しました",
+	admin_roles_label_modified: "変更したロール",
+	allwebhooks_card_count: "Webhook: ${count}",
+	allwebhooks_button_delete: "すべて削除",
+	role_members_card_title: "${role} のメンバー",
+	role_members_card_count: "メンバー: ${count}",
+	prevnames_card_title: "${user} の過去の名前",
+	prevnames_card_count: "記録された名前: ${count}",
+	prevnames_button_erase: "履歴を消去",
+	prevnames_label_username: "ユーザー名",
+	prevnames_label_display_name: "表示名",
+	prevnames_label_nickname: "${guild} でのニックネーム",
+	emoji_card_title: "絵文字を追加しました",
+	emoji_card_count: "${guild} に作成した絵文字: ${count}",
+	util_leashlist_card_count: "有効なリード: ${count}",
+	util_leashlist_card_expires: "期限",
+	util_locknamelist_card_count: "ロック中のニックネーム: ${count}",
+	util_locknamelist_card_by: "ロック: ${user}"
 } satisfies LanguageData;

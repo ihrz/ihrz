@@ -20,19 +20,57 @@
 */
 
 import {
-	Client,
-	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
-	Message
+	Client,
+	ContainerBuilder,
+	Message,
+	MessageFlags,
+	escapeMarkdown
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { prevnamesTable } from "../../../Events/client/ready.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	pageLabel,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
+
+const ID = {
+	previous: "prevnames_previous",
+	next: "prevnames_next",
+	erase: "prevnames_erase"
+} as const;
+
+/**
+ * Entries are stored as `<t:SECONDS:d> - [type] value` (see prevnamesModule):
+ * show the name first and the kind of name and date on the sub-line.
+ */
+function formatEntry(entry: string, lang: LanguageData): string {
+	const match = entry.match(/^<t:(\d+):\w>\s*-\s*\[([^\]]+)\]\s*([\s\S]*)$/);
+	if (!match) return entry;
+	const [, seconds, type, value] = match;
+	let kind: string;
+	if (type === "username") kind = lang.prevnames_label_username;
+	else if (type === "globalName") kind = lang.prevnames_label_display_name;
+	else if (type.startsWith("nickname:"))
+		kind = lang.prevnames_label_nickname.replace(
+			"${guild}",
+			escapeMarkdown(type.slice("nickname:".length))
+		);
+	else kind = type;
+	return `**${escapeMarkdown(value)}**\n-# ${kind} · <t:${seconds}:D> · <t:${seconds}:R>`;
+}
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -67,95 +105,109 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		const e = client.iHorizon_Emojis;
+		// Newest first.
+		const entries = [...char].reverse();
+		const pages = Math.ceil(entries.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
+		// Only the user can erase their own history.
+		const canErase = interaction.member.user.id === user.id;
 		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
 
-		for (let i = 0; i < char.length; i += usersPerPage) {
-			const pageUsers = char.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((userId) => userId).join("\n");
-			pages.push({
-				title: `${lang.prevnames_embed_title.replace("${userUsername}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
-				description: pageContent
+		const render = (disabled: boolean): ContainerBuilder => {
+			const container = buildCard({
+				accent: user.accentColor ?? ACCENT.info,
+				emoji: e.Nametag,
+				title: lang.prevnames_card_title.replace(
+					"${user}",
+					user.globalName ?? user.username
+				),
+				description: `-# ${lang.prevnames_card_count.replace("${count}", String(entries.length))}`,
+				thumbnail: user.displayAvatarURL({ size: 128 }),
+				blocks: [
+					entries
+						.slice(
+							currentPage * PER_PAGE,
+							(currentPage + 1) * PER_PAGE
+						)
+						.map((entry) => formatEntry(entry, lang))
+						.join("\n")
+				],
+				footer: pageLabel(lang, currentPage, pages),
+				signature
 			});
-		}
 
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
+			const row = new ActionRowBuilder<ButtonBuilder>();
+			if (pages > 1) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId(ID.previous)
+						.setLabel(lang.var_previous)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled),
+					new ButtonBuilder()
+						.setCustomId(ID.next)
+						.setLabel(lang.var_next)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled)
+				);
+			}
+			if (canErase) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId(ID.erase)
+						.setEmoji(e.Ticket_Trash)
+						.setLabel(lang.prevnames_button_erase)
+						.setStyle(ButtonStyle.Danger)
+						.setDisabled(disabled)
+				);
+			}
+			if (row.components.length) container.addActionRowComponents(row);
+			return container;
 		};
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("trash-prevnames-embed")
-				.setLabel("🗑️")
-				.setStyle(ButtonStyle.Danger)
-		);
+		const message = await sendCard(client, interaction, render(false));
+		if (pages < 2 && !canErase) return;
 
-		const messageEmbed = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
-
-		const collector = messageEmbed.createMessageComponentCollector({
-			filter: async (i) => {
-				await i.deferUpdate();
-				return interaction.member?.user.id === i.user.id;
-			},
+		const collector = message.createMessageComponentCollector({
 			time: 60_000 * 15
 		});
 
-		collector.on("collect", async (interaction_2: { customId: string }) => {
-			if (interaction_2.customId === "previousPage") {
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				currentPage = (currentPage + 1) % pages.length;
-			} else if (interaction_2.customId === "trash-prevnames-embed") {
-				if (interaction.member?.user.id === user.id) {
-					await prevnamesTable.delete(`${user.id}`);
-
-					messageEmbed.edit({
-						embeds: [],
-						components: [],
-						files: [],
-						content: lang.prevnames_data_erased
-					});
-					return;
-				}
+		collector.on("collect", async (i) => {
+			if (i.user.id !== interaction.member?.user.id) {
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
 			}
 
-			messageEmbed.edit({ embeds: [await createEmbed()] });
+			if (i.customId === ID.previous) {
+				currentPage = (currentPage - 1 + pages) % pages;
+			} else if (i.customId === ID.next) {
+				currentPage = (currentPage + 1) % pages;
+			} else if (i.customId === ID.erase && canErase) {
+				await prevnamesTable.delete(`${user.id}`);
+				collector.stop("erased");
+				await i.update({
+					components: [
+						notice(
+							"success",
+							`${e.Yes} ${lang.prevnames_data_erased}`
+						)
+					]
+				});
+				return;
+			} else return;
+
+			await i.update({ components: [render(false)] });
 		});
 
-		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
+		collector.on("end", async (_collected, reason) => {
+			if (reason === "erased") return;
+			await message
+				.edit({ components: [render(true)] })
+				.catch(() => undefined);
 		});
 
 		return;

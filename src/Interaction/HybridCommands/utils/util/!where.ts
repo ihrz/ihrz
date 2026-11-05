@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -58,28 +59,48 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = new EmbedBuilder()
-			.setTitle(`${lang.var_whereis}: ${member.displayName}`)
-			.setColor("#4fdb12")
-			.setDescription(
-				`> ${client.iHorizon_Emojis.VC_Limit} **${lang.var_member}:** ${member.toString()}
-> ${client.iHorizon_Emojis.VC_Name} **${lang.var_voice_channel}:** ${member.voice.channel?.toString()}
-> ${client.iHorizon_Emojis.Streaming} **${lang.perm_stream_name}:** ${member.voice.streaming ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.Camera} **${lang.var_video}:** ${member.voice.selfVideo ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.Mute} **${lang.util_where_mute}:** ${member.voice.selfMute ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.Deaf} **${lang.util_where_deaf}:** ${member.voice.selfDeaf ? lang.var_yes : lang.var_no}`
-			)
-			.setThumbnail(
-				member.user.displayAvatarURL({
-					extension: "gif",
-					forceStatic: false,
-					size: 4096
-				})
-			);
+		const e = client.iHorizon_Emojis;
+		const voice = member.voice;
+		const yesNo = (value: boolean | null) =>
+			value ? `${e.Yes} ${lang.var_yes}` : `${e.No} ${lang.var_no}`;
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: member.displayColor || ACCENT.success,
+				emoji: e.Voice_Channel,
+				title: lang.where_card_title.replace(
+					"${member}",
+					member.displayName
+				),
+				thumbnail: member.displayAvatarURL({
+					size: 256,
+					forceStatic: false
+				}),
+				fields: [
+					{
+						emoji: e.VC_Limit,
+						label: lang.where_label_member,
+						value: member.toString()
+					},
+					{
+						emoji: e.VC_Name,
+						label: lang.where_label_channel,
+						value: voice.channel!.toString()
+					}
+				],
+				blocks: [
+					[
+						`${e.Streaming} **${lang.where_label_stream}** : ${yesNo(voice.streaming)}`,
+						`${e.Camera} **${lang.where_label_video}** : ${yesNo(voice.selfVideo)}`,
+						`${e.Mute} **${lang.where_label_mute}** : ${yesNo(voice.selfMute)}`,
+						`${e.Deaf} **${lang.where_label_deaf}** : ${yesNo(voice.selfDeaf)}`
+					].join("\n")
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

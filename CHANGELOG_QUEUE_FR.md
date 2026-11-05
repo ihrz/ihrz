@@ -44,6 +44,12 @@ Les propriétaires du bot peuvent maintenant joindre une configuration **Equaliz
 
 ---
 
+## 🧰 Utilitaires — de nouvelles cartes partout
+
+Toutes les commandes utilitaires répondent avec une carte **Components V2** au lieu d'un embed : un titre clair avec un emoji du pack du bot, une information par ligne, des dates affichées dans le fuseau horaire de chacun, le nom du bot du serveur en signature discrète, et des couleurs qui disent ce qui s'est passé (vert quand c'est fait, rouge pour une action destructive, orange quand quelque chose a échoué). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (une seule carte maintenant, avec l'auteur de l'invitation et son expiration), `/serverpic`, `/where`, `/vc` et `/snipe` ont des cartes plus riches ; les listes (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) se feuillettent avec Précédent / Suivant, réservés à l'auteur ; les actions de masse (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) montrent ce qu'elles ont fait et ce qui a échoué ; les panneaux media-only, nick-kicker et rôles autorisés gardent leurs menus dans la carte. Corrigé au passage : `/vc` comptait les membres en sourdine comme muets, `/locknamelist` affichait de mauvaises dates, `/util move` tentait de déplacer des membres absents des salons vocaux, et `/admin-users` peut vraiment masquer les bots.
+
+---
+
 ## 🖥️ Dashboard — les changements s'appliquent tout de suite
 
 Les réglages enregistrés sur le dashboard sont maintenant appliqués immédiatement par le bot, avec les mêmes vérifications que les commandes correspondantes : H24/7, la bio de langue du serveur, le nom et l'avatar du bot, les compteurs de membres, les messages épinglés (sticky), les rôles-réactions (boutons et menus déroulants), le piège honeypot, le panneau de confessions, les bans et rôles temporaires, l'arrivée et le départ du TTS et le bouton de vérification AuthRestore. Un changement refusé par le bot est annulé et signalé. L'historique musical garde désormais la pochette de chaque morceau pour le dashboard.

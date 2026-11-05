@@ -23,17 +23,20 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	Message,
-	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
-	ButtonStyle,
-	time,
-	ComponentType
+	ButtonStyle
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { isValidDiscordInvite } from "../../../../core/functions/method.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -74,225 +77,91 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed_1 = new EmbedBuilder()
-			.setColor("Aqua")
-			.setDescription(
-				link_data.guild?.description || lang.profil_not_description_set
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
-			.setFields(
-				{
-					name: lang.setlogschannel_var_channel,
-					value: `${link_data.channel?.toString()} (ID: \`${link_data.channelId}\`)`
-				},
-				{
-					name: lang.var_guild,
-					value: `${link_data.guild?.name} (ID: \`${link_data.guild?.id}\`)`
-				},
-				{
-					name: lang.userinfo_embed_fields_4_name,
-					value: `${time(new Date(Number(link_data.guild?.createdTimestamp)), "R")}`
-				}
-			);
+		const e = client.iHorizon_Emojis;
+		const guild = link_data.guild;
+		const ts = (ms: number | null | undefined) =>
+			ms
+				? `<t:${Math.floor(ms / 1000)}:D> (<t:${Math.floor(ms / 1000)}:R>)`
+				: "";
+		const count = (n: number | null | undefined) =>
+			n ? `\`${n.toLocaleString()}\`` : lang.var_unknown;
 
-		// Second embed for additional info
-		const embed_2 = new EmbedBuilder()
-			.setColor("Aqua")
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
-			.setFields(
+		const icon = guild?.iconURL({ size: 512, forceStatic: false });
+		const banner = guild?.banner
+			? await client.func.bannerURL(guild, {
+					size: 1024,
+					forceStatic: false
+				})
+			: null;
+		const splash = guild?.splashURL({ size: 1024 });
+
+		// Everything on one card: the two embed pages it replaces fit easily.
+		const container = buildCard({
+			accent: ACCENT.info,
+			emoji: e.Link_Icon,
+			title: guild?.name || lang.var_unknown_guild_name,
+			description: guild?.description || lang.profil_not_description_set,
+			thumbnail: icon,
+			fields: [
 				{
-					name: lang.help_memberc_fields,
-					value: `${link_data.memberCount || lang.var_unknown}`,
-					inline: true
+					emoji: e.Ticket_Hash,
+					label: lang.inviteinfo_label_channel,
+					value: link_data.channelId
+						? `<#${link_data.channelId}> (\`${link_data.channelId}\`)`
+						: ""
+				},
+				link_data.inviter && {
+					emoji: e.Ticket_User,
+					label: lang.inviteinfo_label_inviter,
+					value: `${link_data.inviter} (\`${link_data.inviter.username}\`)`
 				},
 				{
-					name: lang.var_online_members,
-					value: `${link_data.presenceCount || lang.var_unknown}`,
-					inline: true
+					emoji: e.Schedule,
+					label: lang.inviteinfo_label_created,
+					value: ts(guild?.createdTimestamp)
 				},
 				{
-					name: lang.var_boost_level,
-					value: `${link_data.guild?.premiumSubscriptionCount || 0}`,
-					inline: true
-				},
-				{
-					name: lang.var_features,
-					value: link_data.guild?.features.length
-						? link_data.guild.features.join(", ").substring(0, 1020)
+					emoji: e.Timer,
+					label: lang.inviteinfo_label_expires,
+					value: ts(link_data.expiresTimestamp)
+				}
+			],
+			blocks: [
+				[
+					`${e.Stats} **${lang.inviteinfo_label_members}** : ${count(link_data.memberCount)}`,
+					`${e.Online} **${lang.inviteinfo_label_online}** : ${count(link_data.presenceCount)}`,
+					`${e.Boost_Gem} **${lang.inviteinfo_label_boosts}** : \`${guild?.premiumSubscriptionCount || 0}\``
+				].join("\n"),
+				`${e.Sparkles} **${lang.inviteinfo_label_features}** : ${
+					guild?.features.length
+						? guild.features.map((f) => `\`${f}\``).join(" ")
 						: lang.var_none
-				}
-			);
-
-		const buttons_1: ButtonBuilder[] = [];
-
-		if (link_data.guild?.icon) {
-			buttons_1.push(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setLabel(lang.var_guild_icon)
-					.setURL(
-						link_data.guild?.iconURL({
-							size: 512,
-							extension: "webp",
-							forceStatic: false
-						})!
-					)
-			);
-		}
-
-		if (link_data.guild?.banner) {
-			buttons_1.push(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setLabel(lang.var_guild_banner)
-					.setURL(
-						(await client.func.bannerURL(link_data.guild!, {
-							size: 512,
-							extension: "webp",
-							forceStatic: false
-						}))!
-					)
-			);
-		}
-
-		if (link_data.guild?.splash) {
-			buttons_1.push(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setLabel(lang.var_guild_splash)
-					.setURL(
-						link_data.guild?.splashURL({
-							size: 512,
-							extension: "webp",
-							forceStatic: false
-						})!
-					)
-			);
-		}
-
-		// Create components arrays properly
-		const components: ActionRowBuilder<ButtonBuilder>[] = [];
-
-		// Add link buttons if any exist
-		if (buttons_1.length > 0) {
-			components.push(
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					...buttons_1
-				)
-			);
-		}
-
-		// Add navigation button
-		components.push(
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Secondary)
-					.setLabel(">>>")
-					.setCustomId("inviteinfo-next-page")
-			)
-		);
-
-		let currentPage = 1;
-		const totalPages = 2;
-
-		const ogMessage = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [embed_1],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				],
-				components: components
-			}
-		);
-
-		const collector = ogMessage.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 120_000
+				}`,
+				guild && `-# ${lang.serverinfo_label_id} \`${guild.id}\``
+			],
+			images: [banner, splash],
+			signature: await botSignature(client, interaction.guildId)
 		});
 
-		collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({
-					content: lang.help_not_for_you,
-					ephemeral: true
-				});
-				return;
-			}
-
-			if (i.customId === "inviteinfo-next-page") {
-				// Toggle between pages
-				currentPage = currentPage === 1 ? 2 : 1;
-
-				// Update button label
-				const newComponents: ActionRowBuilder<ButtonBuilder>[] = [];
-
-				if (buttons_1.length > 0) {
-					newComponents.push(
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							...buttons_1
-						)
-					);
-				}
-
-				newComponents.push(
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setStyle(ButtonStyle.Secondary)
-							.setLabel(currentPage === 1 ? ">>>" : "<<<")
-							.setCustomId("inviteinfo-next-page")
-					)
-				);
-
-				await i.update({
-					embeds: [currentPage === 1 ? embed_1 : embed_2],
-					components: newComponents
-				});
-			}
-		});
-
-		collector.on("end", async () => {
-			// Disable all buttons when collector ends
-			const disabledComponents: ActionRowBuilder<ButtonBuilder>[] = [];
-
-			if (buttons_1.length > 0) {
-				const disabledLinkButtons = buttons_1.map((btn) =>
-					ButtonBuilder.from(btn).setDisabled(true)
-				);
-				disabledComponents.push(
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						...disabledLinkButtons
-					)
-				);
-			}
-
-			disabledComponents.push(
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const buttons: ButtonBuilder[] = [];
+		const link = (label: string, url: string | null | undefined) => {
+			if (url)
+				buttons.push(
 					new ButtonBuilder()
-						.setStyle(ButtonStyle.Secondary)
-						.setLabel(currentPage === 1 ? ">>>" : "<<<")
-						.setCustomId("inviteinfo-next-page")
-						.setDisabled(true)
-				)
+						.setStyle(ButtonStyle.Link)
+						.setLabel(label)
+						.setURL(url)
+				);
+		};
+		link(lang.var_guild_icon, icon);
+		link(lang.var_guild_banner, banner);
+		link(lang.var_guild_splash, splash);
+		if (buttons.length) {
+			container.addActionRowComponents(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons)
 			);
+		}
 
-			try {
-				await ogMessage.edit({ components: disabledComponents });
-			} catch (error) {
-				// Message might have been deleted
-			}
-		});
+		await sendCard(client, interaction, container);
 	}
 };

@@ -44,6 +44,12 @@ Bot owners can now attach an **Equalizer APO** configuration (`.txt`: AutoEQ hea
 
 ---
 
+## 🧰 Utilities — new cards everywhere
+
+Every utility command answers with a **Components V2** card instead of an embed: one clear title with an emoji from the bot's pack, one detail per line, dates shown in each reader's own time zone, the server's bot name as a quiet signature, and colours that say what happened (green when done, red when destructive, orange when something failed). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (one card now, with the inviter and the expiry), `/serverpic`, `/where`, `/vc` and `/snipe` get richer cards; the lists (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) turn pages with Previous / Next that only the author can use; mass actions (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) show what they did and what failed; the media-only, nick-kicker and whitelisted-roles panels keep their menus inside the card. Fixes on the way: `/vc` counted deafened members as muted, `/locknamelist` showed wrong dates, `/util move` tried to move members who weren't in a voice channel, and `/admin-users` can really hide bots now.
+
+---
+
 ## 🖥️ Dashboard — changes apply instantly
 
 Settings saved on the dashboard are now applied right away by the bot, with the same checks as the matching commands: H24/7, the server language bio, the bot's name and avatar, member counters, sticky messages, reaction roles (buttons and select menus), the honeypot trap, the confession panel, temporary bans and roles, TTS join/leave and the AuthRestore verify button. A change the bot refuses is reverted and reported. The music history now keeps each track's artwork for the dashboard.

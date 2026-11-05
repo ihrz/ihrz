@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	ChannelType,
 	BaseGuildVoiceChannel,
@@ -32,6 +31,13 @@ import {
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -109,9 +115,11 @@ export const subCommand: SubCommand = {
 		let movedCount = 0;
 		let errorCount = 0;
 
-		await client.func.method.interactionSend(interaction, {
-			content: client.iHorizon_Emojis.Discord_Loading
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice("info", client.iHorizon_Emojis.Discord_Loading)
+		);
 
 		// Shuffle members randomly
 		const shuffledMembers = membersToMove.sort(
@@ -132,36 +140,49 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		const embed = new EmbedBuilder()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setColor("#007fff")
-			.setTimestamp()
-			.setThumbnail(interaction.guild.iconURL())
-			.setDescription(
-				lang.bringall_results
-					.replace("${author}", interaction.member.user.toString())
-					.replace("${movedCount}", movedCount.toString())
-					.replace("${errorCount}", errorCount.toString())
-					.replace("${fromChannel}", fromChannel.toString())
-					.replace("${category}", category.toString())
-					.replace(
-						"${channelCount}",
-						targetVoiceChannels.length.toString()
-					)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			content: null,
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		const emojis = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: errorCount > 0 ? ACCENT.warning : ACCENT.success,
+				emoji: emojis.Voice_Channel,
+				title: lang.bringall_card_title,
+				thumbnail: interaction.guild.iconURL(),
+				fields: [
+					{
+						emoji: emojis.Voice_Channel,
+						label: lang.utils_label_from,
+						value: fromChannel.toString()
+					},
+					{
+						emoji: emojis.Ticket_Category,
+						label: lang.bringall_label_category,
+						value: category.toString()
+					},
+					{
+						emoji: emojis.VC_Transfer,
+						label: lang.bringall_label_channels,
+						value: `\`${targetVoiceChannels.length}\``
+					},
+					{
+						emoji: emojis.Yes,
+						label: lang.utils_label_moved,
+						value: `\`${movedCount}\``
+					},
+					{
+						emoji: emojis.No,
+						label: lang.utils_label_failed,
+						value: `\`${errorCount}\``
+					},
+					{
+						emoji: emojis.Crown,
+						label: lang.utils_label_by,
+						value: interaction.member.toString()
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

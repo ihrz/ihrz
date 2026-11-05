@@ -21,8 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	time,
 	User,
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -42,6 +40,13 @@ import {
 } from "../../../core/functions/authRestoreHelper.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { authRestoreTable } from "../../../Events/client/ready.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -263,11 +268,14 @@ export const subCommand: SubCommand = {
 				interaction.author;
 		}
 
-		const originalInteraction = await client.func.method.interactionSend(
-			interaction as ChatInputCommandInteraction,
-			{
-				content: client.iHorizon_Emojis.Discord_Loading
-			}
+		// A V2 placeholder, so the final card can replace it with components only.
+		const originalInteraction = await sendCard(
+			client,
+			interaction as ChatInputCommandInteraction<"cached">,
+			notice(
+				"info",
+				`${client.iHorizon_Emojis.Discord_Loading} ${lang.userinfo_card_loading}`
+			)
 		);
 
 		async function sendMessage(user: User) {
@@ -310,106 +318,91 @@ export const subCommand: SubCommand = {
 			const donatorOrSomeProject = await getEquiboAndOthersData(user.id);
 			badges += donatorOrSomeProject;
 
-			const embed = new EmbedBuilder()
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setThumbnail("attachment://user_icon.gif")
-				.setTimestamp()
-				.setColor("#0014a8")
-				.setFields(
+			const e = client.iHorizon_Emojis;
+			const ts = (date: Date | null | undefined) =>
+				date
+					? `<t:${Math.floor(date.getTime() / 1000)}:D> (<t:${Math.floor(date.getTime() / 1000)}:R>)`
+					: "";
+			const nitroValue =
+				nitro.type ||
+				(client.config.api.HorizonGateway?.startsWith("http")
+					? `[${lang.userinfo_var_notfound}](${createOauth2LinkWithoutGuild(
+							{
+								clientId: client.user?.id,
+								scope: "identify"
+							}
+						)})`
+					: lang.userinfo_var_notfound);
+			// Highest roles first, without @everyone.
+			const roles =
+				guildMember?.roles.cache
+					.filter((role) => role.id !== interaction.guild?.id)
+					.sort((a, b) => b.position - a.position)
+					.map((role) => role.toString())
+					.slice(0, 37)
+					.join(" ") || lang.var_none;
+
+			const container = buildCard({
+				accent: user_1.accent_color ?? ACCENT.info,
+				emoji: e.Ticket_User,
+				title: user.displayName || user.username,
+				description: `${user}`,
+				thumbnail: user.displayAvatarURL({
+					size: 512,
+					forceStatic: false
+				}),
+				fields: [
 					{
-						name: lang.userinfo_embed_fields_1_name,
-						value: badges || lang.userinfo_var_notfound,
-						inline: true
+						emoji: e.Sparkles,
+						label: lang.userinfo_label_badges,
+						value: badges
 					},
 					{
-						name: lang.userinfo_embed_fields_2_name,
-						value: user.username,
-						inline: true
+						emoji: e.Nametag,
+						label: lang.userinfo_label_username,
+						value: `\`${user.username}\``
 					},
 					{
-						name: lang.userinfo_embed_fields_3_name,
-						value: user.displayName || lang.userinfo_var_notfound,
-						inline: true
+						emoji: e.Schedule,
+						label: lang.userinfo_label_created,
+						value: ts(user.createdAt)
 					},
 					{
-						name: lang.userinfo_embed_fields_4_name,
-						value:
-							time(user.createdAt, "D") ||
-							lang.userinfo_var_notfound,
-						inline: true
+						emoji: e.Home,
+						label: lang.userinfo_label_joined,
+						value: ts(guildMember?.joinedAt)
 					},
 					{
-						name: lang.userinfo_embed_fields_5_name,
-						value:
-							nitro.type ||
-							(client.config.api.HorizonGateway?.startsWith(
-								"http"
-							)
-								? `[${lang.userinfo_var_notfound}](${createOauth2LinkWithoutGuild(
-										{
-											clientId: client.user?.id,
-											scope: "identify"
-										}
-									)})`
-								: lang.userinfo_var_notfound),
-						inline: true
-					},
-					{
-						name: lang.var_roles,
-						value:
-							Array.from(
-								interaction.guild?.members.cache
-									.get(user.id)
-									?.roles.cache?.values() ?? []
-							)
-								.slice(0, 37)
-								.join("") || lang.var_none,
-						inline: false
+						emoji: e.Discord_Nitro_Badge,
+						label: lang.userinfo_label_nitro,
+						value: nitroValue
 					}
-				)
-				.setImage("attachment://user_banner.gif");
-
-			const files: { name: string; attachment: any }[] = [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				),
-				{
-					attachment: user.displayAvatarURL({
-						size: 512,
-						forceStatic: false
-					}),
-					name: "user_icon.gif"
-				}
-			];
-
-			if (banner)
-				files.push({
-					attachment: await interaction.client.func.image64.image64(
-						(await interaction.client.func.bannerURL(
-							{ id: user.id, banner },
-							{ size: 1024 }
-						))!
-					),
-					name: "user_banner.gif"
-				});
-
-			await originalInteraction.edit({
-				content: null,
-				embeds: [embed],
-				files: files,
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setStyle(ButtonStyle.Link)
-							.setURL(`https://discordapp.com/users/${user.id}`)
-							.setLabel(lang.userinfo_button_label)
-					)
-				]
+				],
+				blocks: [
+					`${e.Ticket_Role} **${lang.userinfo_label_roles}** : ${roles}`,
+					`-# ${lang.userinfo_label_id} \`${user.id}\``
+				],
+				images: [
+					banner
+						? await interaction.client.func.bannerURL(
+								{ id: user.id, banner },
+								{ size: 1024 }
+							)
+						: null
+				],
+				signature: await botSignature(client, interaction.guildId)
 			});
+			container.addActionRowComponents(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setStyle(ButtonStyle.Link)
+						.setURL(`https://discordapp.com/users/${user.id}`)
+						.setLabel(lang.userinfo_button_label)
+				)
+			);
+
+			// The placeholder is already a V2 message: only swap its components.
+			await originalInteraction.edit({ components: [container] });
 
 			return;
 		}

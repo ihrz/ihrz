@@ -26,10 +26,10 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	ComponentType,
 	PermissionFlagsBits,
 	Message,
+	MessageFlags,
 	ChannelSelectMenuBuilder,
 	ChannelType,
 	StringSelectMenuBuilder,
@@ -43,6 +43,12 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -72,46 +78,8 @@ export const subCommand: SubCommand = {
 			createThread: "yes"
 		};
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.utils_pic_only_embed_title)
-			.setColor("#475387")
-			.setDescription(lang.utils_pic_only_emnbed_desc)
-			.setFields(
-				{
-					name: lang.joinghostping_add_ok_embed_fields_name,
-					value:
-						Array.isArray(all_channels) && all_channels.length > 0
-							? all_channels.map((x) => `<#${x}>`).join(", ")
-							: lang.setjoinroles_var_none
-				},
-				{
-					name: lang.antispam_manage_choices_12_label,
-					value: String(baseData?.threshold || 3),
-					inline: true
-				},
-				{
-					name: lang.utils_piconly_embed_fields_3_name,
-					value: String(
-						client.timeCalculator.to_beautiful_string(
-							baseData.muteTime!,
-							lang
-						) ||
-							client.timeCalculator.to_beautiful_string(
-								"10m",
-								lang
-							)
-					),
-					inline: true
-				},
-				{
-					name: lang.utils_piconly_embed_fields2_placeholder,
-					value:
-						baseData.createThread === "yes"
-							? lang.var_yes
-							: lang.var_no,
-					inline: true
-				}
-			);
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
 
 		const channelSelectMenu = new ChannelSelectMenuBuilder()
 			.setCustomId("utils-picOnly-role-selecter")
@@ -143,7 +111,8 @@ export const subCommand: SubCommand = {
 		const saveButton = new ButtonBuilder()
 			.setCustomId("utils-picOnly-save-button")
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji("💾");
+			.setLabel(lang.utils_label_save)
+			.setEmoji(e.Save_Clip);
 
 		const comp =
 			new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
@@ -157,13 +126,71 @@ export const subCommand: SubCommand = {
 			saveButton
 		);
 
-		const og_response = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [embed],
-				components: [comp, comp_1, comp_2]
+		// Once saved, only the (disabled) save button stays under the card.
+		let saved = false;
+
+		function render() {
+			const channels: string[] = Array.isArray(all_channels)
+				? all_channels
+				: [];
+			const container = buildCard({
+				accent: ACCENT.info,
+				emoji: e.Camera,
+				title: lang.media_only_card_title,
+				description: lang.utils_pic_only_emnbed_desc,
+				fields: [
+					{
+						emoji: e.Ticket_Hash,
+						label: lang.joinghostping_add_ok_embed_fields_name,
+						value:
+							channels.map((x) => `<#${x}>`).join(", ") ||
+							lang.setjoinroles_var_none
+					},
+					{
+						emoji: e.Warn,
+						label: lang.antispam_manage_choices_12_label,
+						value: `\`${baseData?.threshold || 3}\``
+					},
+					{
+						emoji: e.Timer,
+						label: lang.utils_piconly_embed_fields_3_name,
+						value: String(
+							client.timeCalculator.to_beautiful_string(
+								baseData.muteTime!,
+								lang
+							) ||
+								client.timeCalculator.to_beautiful_string(
+									"10m",
+									lang
+								)
+						)
+					},
+					{
+						emoji: e.Pin,
+						label: lang.utils_piconly_embed_fields2_placeholder,
+						value:
+							baseData.createThread === "yes"
+								? lang.var_yes
+								: lang.var_no
+					}
+				],
+				signature
+			});
+			if (saved) {
+				container.addActionRowComponents(comp_2);
+			} else {
+				container
+					.addActionRowComponents(comp)
+					.addActionRowComponents(comp_1)
+					.addActionRowComponents(comp_2);
 			}
-		);
+			return container;
+		}
+
+		const refresh = () =>
+			og_response.edit({ components: [render()] }).catch(() => undefined);
+
+		const og_response = await sendCard(client, interaction, render());
 
 		const collector = og_response.createMessageComponentCollector({
 			componentType: ComponentType.ChannelSelect,
@@ -192,16 +219,17 @@ export const subCommand: SubCommand = {
 				)
 			) {
 				await channelInteraction.deferUpdate();
-				await client.func.method.interactionSend(interaction, {
+				// The panel is a Components V2 message: it cannot take a
+				// plain text edit, so the warning goes in an ephemeral reply.
+				await channelInteraction.followUp({
 					content: lang.setjoinroles_var_perm_issue,
-					flags: [1 << 6]
+					flags: [MessageFlags.Ephemeral]
 				});
 				return;
 			}
 
 			await channelInteraction.deferUpdate();
-			updateEmbed(embed, all_channels, lang);
-			await og_response.edit({ embeds: [embed] });
+			await refresh();
 		});
 
 		collector_1.on("collect", async (stringInteraction) => {
@@ -239,8 +267,7 @@ export const subCommand: SubCommand = {
 				baseData.muteTime =
 					1296000000 < calculedTime ? 600000 : calculedTime;
 
-				updateEmbed(embed, all_channels, lang);
-				await og_response.edit({ embeds: [embed] });
+				await refresh();
 				await client.db.set(
 					`${interaction.guildId}.UTILS.picOnlyConfig`,
 					baseData
@@ -277,8 +304,7 @@ export const subCommand: SubCommand = {
 
 				baseData.threshold = 15 < threshold ? 3 : threshold;
 
-				updateEmbed(embed, all_channels, lang);
-				await og_response.edit({ embeds: [embed] });
+				await refresh();
 				await client.db.set(
 					`${interaction.guildId}.UTILS.picOnlyConfig`,
 					baseData
@@ -293,8 +319,7 @@ export const subCommand: SubCommand = {
 				} else {
 					baseData.createThread = "no";
 				}
-				updateEmbed(embed, all_channels, lang);
-				await og_response.edit({ embeds: [embed] });
+				await refresh();
 				await client.db.set(
 					`${interaction.guildId}.UTILS.picOnlyConfig`,
 					baseData
@@ -309,15 +334,13 @@ export const subCommand: SubCommand = {
 				if (
 					buttonInteraction.customId === "utils-picOnly-save-button"
 				) {
-					const newComp_2 =
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							saveButton
-								.setStyle(ButtonStyle.Success)
-								.setEmoji(client.iHorizon_Emojis.Yes)
-								.setDisabled(true)
-						);
+					saveButton
+						.setStyle(ButtonStyle.Success)
+						.setEmoji(e.Yes)
+						.setDisabled(true);
+					saved = true;
 
-					await og_response.edit({ components: [newComp_2] });
+					await refresh();
 
 					await client.db.set(
 						`${interaction.guildId}.UTILS.picOnly`,
@@ -346,50 +369,7 @@ export const subCommand: SubCommand = {
 				x.setDisabled(true);
 			});
 
-			await og_response.edit({ components: [comp, comp_1, comp_2] });
+			await refresh();
 		});
-
-		function updateEmbed(
-			embed: EmbedBuilder,
-			roles: string[],
-			lang: LanguageData
-		) {
-			embed.setFields(
-				{
-					name: lang.joinghostping_add_ok_embed_fields_name,
-					value:
-						roles.map((role) => `<#${role}>`).join(", ") ||
-						lang.setjoinroles_var_none,
-					inline: false
-				},
-				{
-					name: lang.antispam_manage_choices_12_label,
-					value: String(baseData?.threshold || 3),
-					inline: true
-				},
-				{
-					name: lang.utils_piconly_embed_fields_3_name,
-					value: String(
-						client.timeCalculator.to_beautiful_string(
-							baseData.muteTime!,
-							lang
-						) ||
-							client.timeCalculator.to_beautiful_string(
-								"10m",
-								lang
-							)
-					),
-					inline: true
-				},
-				{
-					name: lang.utils_piconly_embed_fields2_placeholder,
-					value:
-						baseData.createThread === "yes"
-							? lang.var_yes
-							: lang.var_no,
-					inline: true
-				}
-			);
-		}
 	}
 };

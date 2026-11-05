@@ -21,9 +21,9 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
+	MessageFlags,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
 	ActionRowBuilder,
@@ -38,6 +38,12 @@ import { iHorizonModalResolve } from "../../../../core/functions/modalHelper.js"
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -62,31 +68,8 @@ export const subCommand: SubCommand = {
 			words: []
 		}) as DatabaseStructure.NickKickerData;
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.util_nick_kicker_embed_title)
-			.setDescription(lang.util_nick_kicker_embed_desc)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setFields(
-				{
-					name: lang.var_enabled,
-					value: baseData.enabled ? "✅" : "❌",
-					inline: true
-				},
-				{
-					name: lang.util_nick_kicker_words,
-					value:
-						"```" +
-						(baseData.words.length === 0
-							? lang.var_none
-							: baseData.words.join(", ")) +
-						"```",
-					inline: true
-				}
-			);
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
 
 		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId("nick-kicker")
@@ -96,22 +79,22 @@ export const subCommand: SubCommand = {
 					.setLabel(lang.rolesaver_embed_fields_1_name)
 					.setValue("enable")
 					.setDescription(lang.util_nick_kicker_enable_desc)
-					.setEmoji("✅"),
+					.setEmoji(e.Yes),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.util_nick_kicker_disable)
 					.setValue("disable")
 					.setDescription(lang.util_nick_kicker_disable_desc)
-					.setEmoji("❌"),
+					.setEmoji(e.No),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.util_nick_kicker_add_word)
 					.setValue("add")
 					.setDescription(lang.util_nick_kicker_add_desc)
-					.setEmoji("🔧"),
+					.setEmoji(e.Plus),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.util_nick_kicker_remove_word2)
 					.setValue("remove")
 					.setDescription(lang.util_nick_kicker_remove_desc)
-					.setEmoji("🔨")
+					.setEmoji(e.Minus)
 			);
 
 		const row =
@@ -119,18 +102,42 @@ export const subCommand: SubCommand = {
 				selectMenu
 			);
 
-		const ogInteraction = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [embed],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
+		/** The card, with `actions` (the main menu by default) inside it. */
+		function render(
+			actions: ActionRowBuilder<StringSelectMenuBuilder> = row,
+			hint?: string
+		) {
+			return buildCard({
+				accent: baseData.enabled ? ACCENT.success : ACCENT.neutral,
+				emoji: e.Nametag,
+				title: lang.nick_kicker_card_title,
+				description: lang.util_nick_kicker_embed_desc,
+				fields: [
+					{
+						emoji: baseData.enabled ? e.Yes : e.No,
+						label: lang.nick_kicker_label_status,
+						value: baseData.enabled
+							? lang.var_enabled
+							: lang.var_disabled
+					},
+					{
+						emoji: e.Ticket_List,
+						label: lang.nick_kicker_label_words,
+						value:
+							baseData.words.length === 0
+								? lang.var_none
+								: baseData.words
+										.map((w) => `\`${w}\``)
+										.join(", ")
+					}
+				],
+				blocks: [hint && `-# ${hint}`],
+				footer: `${baseData.words.length}/15`,
+				signature
+			}).addActionRowComponents(actions);
+		}
+
+		const ogInteraction = await sendCard(client, interaction, render());
 
 		const collector = ogInteraction.createMessageComponentCollector({
 			time: 60_000 * 15,
@@ -150,71 +157,38 @@ export const subCommand: SubCommand = {
 				await AddWord(i);
 			} else if (i.values[0] === "remove") {
 				await i.deferUpdate();
-				await RemoveWord();
+				await RemoveWord(i);
 			} else if (i.values[0].startsWith("nick-kicker-remove")) {
 				await i.deferUpdate();
 				const word = i.values[0].split("-")[3];
 				baseData.words = baseData.words.filter((w) => w !== word);
-				embed.data.fields![1].value =
-					"```" +
-					(baseData.words.length === 0
-						? lang.var_none
-						: baseData.words.join(", ")) +
-					"```";
 				await client.db.set(
 					`${interaction.guild!.id}.UTILS.NICK_KICKER`,
 					baseData
 				);
 
-				await ogInteraction.edit({
-					content: null,
-					embeds: [embed],
-					components: [row],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
-				});
+				await ogInteraction.edit({ components: [render()] });
 			}
 		});
 
 		async function EnableModule() {
 			baseData.enabled = true;
-			embed.data.fields![0].value = "✅";
 			await client.db.set(
 				`${interaction.guild!.id}.UTILS.NICK_KICKER`,
 				baseData
 			);
 
-			await ogInteraction.edit({
-				embeds: [embed],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			await ogInteraction.edit({ components: [render()] });
 		}
 
 		async function DisableModule() {
 			baseData.enabled = false;
-			embed.data.fields![0].value = "❌";
 			await client.db.set(
 				`${interaction.guild!.id}.UTILS.NICK_KICKER`,
 				baseData
 			);
 
-			await ogInteraction.edit({
-				embeds: [embed],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			await ogInteraction.edit({ components: [render()] });
 		}
 
 		async function AddWord(i: StringSelectMenuInteraction<CacheType>) {
@@ -251,33 +225,22 @@ export const subCommand: SubCommand = {
 			let word = modal?.fields.getTextInputValue("word") || lang.var_none;
 			word = word.toLowerCase().substring(0, 20);
 			baseData.words.push(word);
-			embed.data.fields![1].value =
-				"```" +
-				(baseData.words.length === 0
-					? lang.var_none
-					: baseData.words.join(", ")) +
-				"```";
 			await client.db.set(
 				`${interaction.guild!.id}.UTILS.NICK_KICKER`,
 				baseData
 			);
 
-			await ogInteraction.edit({
-				embeds: [embed],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			await ogInteraction.edit({ components: [render()] });
 		}
 
-		async function RemoveWord() {
+		async function RemoveWord(i: StringSelectMenuInteraction<CacheType>) {
 			// if there is no word to remove
 			if (baseData.words.length === 0) {
-				await ogInteraction.edit({
-					content: lang.util_nick_kicker_no_word_to_remove
+				// A Components V2 message cannot take plain text: tell the
+				// author in an ephemeral reply instead.
+				await i.followUp({
+					content: lang.util_nick_kicker_no_word_to_remove,
+					flags: [MessageFlags.Ephemeral]
 				});
 				return;
 			}
@@ -292,30 +255,28 @@ export const subCommand: SubCommand = {
 							.setLabel(word)
 							.setValue("nick-kicker-remove-" + word)
 							.setDescription(lang.util_nick_kicker_remove_word)
-							.setEmoji("🔨");
+							.setEmoji(e.Minus);
 					})
 				);
 
-			const row =
+			const removeRow =
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					selectMenu
 				);
 
 			await ogInteraction.edit({
-				content: lang.util_nick_kicker_select_to_remove,
-				components: [row],
-				embeds: [],
-				files: []
+				components: [
+					render(removeRow, lang.util_nick_kicker_select_to_remove)
+				]
 			});
 		}
 
 		collector.on("end", async (_, reason) => {
 			if (reason === "legit") return;
-			const row =
-				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-					selectMenu.setDisabled(true)
-				);
-			await ogInteraction.edit({ components: [row] });
+			selectMenu.setDisabled(true);
+			await ogInteraction
+				.edit({ components: [render()] })
+				.catch(() => undefined);
 		});
 	}
 };

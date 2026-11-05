@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	GuildMemberRoleManager,
 	Message,
@@ -34,6 +33,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -133,15 +133,16 @@ export const subCommand: SubCommand = {
 
 		await user.roles.add(role?.id!, `[AddRole] Author: ${author.id}`);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [
-				new EmbedBuilder().setDescription(
-					lang.utils_addrole_command_ok
-						.replace("${author}", author.toString())
-						.replace("${role}", role?.toString()!)
-						.replace("${user}", user.toString())
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				`${client.iHorizon_Emojis.Yes} ${lang.utils_addrole_command_ok
+					.replace("${author}", author.toString())
+					.replace("${role}", role?.toString()!)
+					.replace("${user}", user.toString())}`
+			)
+		);
 	}
 };

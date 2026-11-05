@@ -19,18 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { axios } from "../../../../core/functions/axios.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -57,8 +57,6 @@ export const subCommand: SubCommand = {
 				interaction.author;
 		}
 
-		let format = "png";
-
 		const config = {
 			headers: {
 				Authorization: `Bot ${client.token}`
@@ -71,7 +69,7 @@ export const subCommand: SubCommand = {
 				config
 			)
 		)?.data;
-		const banner = user_1?.banner;
+		const banner: string | null | undefined = user_1?.banner;
 
 		if (!banner) {
 			client.func.method.interactionSend(interaction, {
@@ -80,35 +78,33 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (banner !== null && banner?.startsWith("a_")) {
-			format = "gif";
-		}
+		const animated = banner.startsWith("a_");
+		const url = (extension: "png" | "webp" | "gif") =>
+			`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${extension}?size=4096`;
+		const formats = [
+			`[PNG](${url("png")})`,
+			`[WEBP](${url("webp")})`,
+			animated ? `[GIF](${url("gif")})` : null
+		].filter(Boolean);
 
-		const embed = new EmbedBuilder()
-			.setColor("#c4afed")
-			.setTitle(
-				lang.banner_user_embed.replace(
-					"${userUsername}",
-					user?.username
-				)
-			)
-			.setImage(
-				`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: user_1?.accent_color ?? ACCENT.info,
+				emoji: client.iHorizon_Emojis.Camera,
+				title: lang.banner_card_user_title.replace(
+					"${user}",
+					user?.displayName ?? user_1?.username
+				),
+				description: `<@${user_1?.id}>\n-# ${lang.card_download} : ${formats.join(" · ")}`,
+				thumbnail: user?.displayAvatarURL({ size: 256 }),
+				images: [
+					`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${animated ? "gif" : "png"}?size=1024`
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

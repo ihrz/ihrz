@@ -19,16 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { processBatchAsync } from "../../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -59,15 +61,19 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		// Send immediate response
-		const ogInteraction = await client.func.method.interactionSend(
+		const e = client.iHorizon_Emojis;
+
+		// Send immediate response (a card, so the final result can replace it)
+		await sendCard(
+			client,
 			interaction,
-			{
-				content: lang.batch_undo_unban.replace(
-					"${unbannedMemberCount}",
+			notice(
+				"info",
+				`${e.Discord_Loading} ${lang.unbanall_card_undo_progress.replace(
+					"${count}",
 					unbanned_members.length.toString()
-				)
-			}
+				)}`
+			)
 		);
 
 		// Process bans in batches asynchronously
@@ -91,43 +97,32 @@ export const subCommand: SubCommand = {
 					[]
 				);
 
-				await client.func.method.interactionSend(interaction, {
-					embeds: [
-						new EmbedBuilder()
-							.setColor(2829617)
-							.setDescription(
-								lang.action_unban_undo_embed_desc
-									.replace(
-										"${emoji_Yes}",
-										client.iHorizon_Emojis.Yes
-									)
-									.replace(
-										"${bannedMemberCount}",
-										banned_members.length.toString()
-									)
-									.replace(
-										"${emoji_No}",
-										client.iHorizon_Emojis.No
-									)
-									.replace(
-										"${cannot_ban}",
-										cannot_ban.toString()
-									)
-							)
-							.setFooter(
-								await client.func.displayBotName.footerBuilder(
-									interaction.guildId!
-								)
-							)
-							.setTimestamp()
-							.setThumbnail(interaction.guild!.iconURL())
-					],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							interaction
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.danger,
+						emoji: e.Ban_Hammer,
+						title: lang.unbanall_card_undo_title,
+						thumbnail: interaction.guild?.iconURL({ size: 128 }),
+						fields: [
+							{
+								emoji: e.Yes,
+								label: lang.unbanall_label_banned,
+								value: `\`${banned_members.length}\``
+							},
+							{
+								emoji: e.No,
+								label: lang.unbanall_label_failed,
+								value: `\`${cannot_ban}\``
+							}
+						],
+						signature: await botSignature(
+							client,
+							interaction.guildId
 						)
-					]
-				});
+					})
+				);
 			}
 		);
 

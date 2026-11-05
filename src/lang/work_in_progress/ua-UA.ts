@@ -565,23 +565,6 @@ export default {
 	// /serverinfo, /snipe, /userinfo, /renew
 
 	// /serverinfo
-	serverinfo_verlvl_NONE: "Немає",
-	serverinfo_verlvl_LOW: "Низький",
-	serverinfo_verlvl_MEDIUM: "Середній",
-	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
-	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
-	serverinfo_embed_author: "🚩 -> ${guildName}",
-	serverinfo_embed_description: "**Опис**: ${guildDescription}",
-	serverinfo_embed_fields_name: "🏷・**Назва:**",
-	serverinfo_embed_fields_members: "🧔・**Участнивік:**",
-	serverinfo_embed_fields_id: "🆔・**ID:**",
-	serverinfo_embed_fields_owner: "👑・**Власник:**",
-	serverinfo_embed_fields_verlvl: "🎚 ・**Рівень верифікації:**",
-	serverinfo_embed_fields_region: "🌍・**Регіон:**",
-	serverinfo_embed_fields_roles: "📇・**Кількість ролей:**",
-	serverinfo_embed_fields_channels: "✍・**Кількість каналів:**",
-	serverinfo_embed_fields_joinat: "🚲・**Приєднався:**",
-	serverinfo_embed_fields_createat: "⚓・**Створено:**",
 
 	// /setrankroles
 	setrankroles_not_admin:
@@ -590,8 +573,6 @@ export default {
 		"${emoji_No} Ролі рангів вже є в базі даних для цього сервера.",
 	setrankroles_not_roles_typed:
 		"${emoji_No} Ви не включили жодної ролі у своїй команді!",
-	setrankroles_command_work:
-		"Тепер, коли ви згадуєте мене `@iHorizon`, я додам наступні ролі: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
 		"<@${authorId}> встановив ролі рангів на <@&${argsid}>",
 	setrankroles_logs_embed_title_enable: "Встановлення ролей рангів",
@@ -602,8 +583,6 @@ export default {
 		"<@${authorId}>, ви видалили роль рангів!",
 	setrankroles_command_error:
 		"${emoji_No} Команда зіткнулася з помилкою! Спробуйте ще раз пізніше.",
-	setrankroles_command_work_with_nicknames:
-		"Тепер, коли ви згадуєте мене з `@iHorizon`, я додам наступні ролі: <@&${argsid}> **Тільки якщо у користувача є ім'я користувача або глобальне ім'я з** `${nicknames}`",
 
 	// /snipe
 	snipe_no_previous_message_deleted:
@@ -611,11 +590,6 @@ export default {
 
 	// /userinfo
 	userinfo_wait_please: "${emoji_Timer} Будь ласка, зачекайте...",
-	userinfo_embed_fields_1_name: "Значок",
-	userinfo_embed_fields_2_name: "Ім'я користувача",
-	userinfo_embed_fields_3_name: "Показане ім'я",
-	userinfo_embed_fields_4_name: "Дата створення аккаунту",
-	userinfo_embed_fields_5_name: "Статус Nitro",
 	userinfo_var_notfound: "`Не знайдено`",
 	userinfo_button_label: "Профіль користувача",
 
@@ -626,7 +600,6 @@ export default {
 		":x: **Ви не є адміністратором для використання цієї команди!**",
 
 	// /prevnames
-	prevnames_embed_title: "Список всіх псевдонімів ${userUsername}",
 	prevnames_undetected: "Дані не знайдено!",
 	prevnames_not_admin:
 		"У вас немає дозволу `АДМІНІСТРАТОРА` для виконання цієї команди!",
@@ -648,22 +621,12 @@ export default {
 		"${author} (Власник сервера) __вимкнув__ `BlockBot`. Тепер бот **може** бути доданий на цей сервер!",
 
 	// /banner
-	banner_guild_embed: "**Це банер сервера!**",
-	banner_user_embed: "**Це банер ${userUsername}!**",
 
 	// /massiverole
-	massiverole_add_command_work:
-		"${author}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
-	massiverole_sub_command_work:
-		"${author}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
 	massiverole_too_much_member:
 		"Занадто багато учасників, операція не може бути виконана через можливі обмеження швидкості!",
 
 	// /nickrole
-	nickrole_add_command_work:
-		"${author}, iHorizon виконав команду масової видачі ролі.\n\n**${a}** користувачам надано роль ${role}\n**${s}** користувачів вже мають роль ${role}\niHorizon не зміг надати роль **${e}** користувачам.",
-	nickrole_sub_command_work:
-		"${author}, iHorizon виконав команду масового зняття ролі.\n\n**${a}** користувачам знято роль ${role}\n**${s}** користувачів більше не мають ролі ${role}\niHorizon не зміг зняти роль у **${e}** користувачів.",
 	nickrole_too_much_member:
 		"Занадто багато учасників, операція не може бути виконана через можливі обмеження швидкості!",
 
@@ -672,22 +635,14 @@ export default {
 		"__Створено новий емодзі__ з ім'ям **${emojiName}** ! (${emoji})",
 	emoji_send_err_emoji:
 		"__Помилка при створенні нового емодзі__ з ім'ям **${emojiName}** !",
-	emoji_embed_desc_work:
-		"__Створені **${cnt}** емодзі на сервері `${guildName}`__\n(${nemj})",
 
 	// /derank
-	derank_msg_desc_embed:
-		"## Я успішно видалив **${good}** ролей у <@${memberId}>.\n## Однак, не вдалося видалити **${bad}** ролей.",
 	derank_msg_failed: "При видаленні ролей сталася помилка.",
 
 	// /action unban all
-	action_unban_all_embed_desc:
-		"## Розблокувати всіх учасників гільдії\n${emoji_Yes} | Я успішно зняв блокування для `${unbannedMemberCount}` учасника(ів) у гільдії!\n${emoji_No} | Я не можу розблокувати `${cannot_unban}` учасника(ів)!",
 	action_unban_all_no_banned_members: "Заблокованих учасників немає.",
 
 	// /action unban undo
-	action_unban_undo_embed_desc:
-		"## Скасувати всі розблокування\n${emoji_Yes} | Я успішно забанив `${bannedMemberCount}` учасника(ів) у гільдії!\n${emoji_No} | Я не можу розблокувати `${cannot_ban}` учасника(ів)!",
 
 	// /vc
 	vc_embed_desc:
@@ -699,8 +654,6 @@ export default {
 		"```py\n${textChannelSize} текстовий(і) канал(и)\n${voiceChannelSize} голосовий(і) канал(и)```",
 
 	// /massmove
-	massmove_results:
-		"${author}, iHorizon перемістив учасників між голосовими каналами.\n\n**${movedCount}** учасник(ів) було успішно переміщено з ${fromChannel} до ${toChannel}.\n**${errorCount}** учасник(ів) не вдалося перемістити (детальніше див. у журналах сервера).",
 	massmove_too_much_member:
 		"Занадто багато учасників, не можу перемістити усіх через можливе обмеження швидкості!",
 
@@ -1168,8 +1121,6 @@ export default {
 	// /unban, /tempmute, /unmute
 
 	// /avatar
-	avatar_embed_description: "Подивіться на цей чудовий аватар! :D",
-	avatar_embed_title: "__**Аватар**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission:

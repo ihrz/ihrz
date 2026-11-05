@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	GuildMember,
 	Message,
@@ -32,6 +31,13 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -94,16 +100,15 @@ export const subCommand: SubCommand = {
 		}
 
 		// Send immediate response
-		const ogInteraction = await client.func.method.interactionSend(
+		await sendCard(
+			client,
 			interaction,
-			{
-				content: lang.batch_derank_process
-					.replace(
-						"${rolesToRemoveCount}",
-						rolesToRemove.length.toString()
-					)
-					.replace("${memberUsername}", member.user.username)
-			}
+			notice(
+				"info",
+				`${client.iHorizon_Emojis.Discord_Loading} ${lang.derank_card_progress
+					.replace("${count}", rolesToRemove.length.toString())
+					.replace("${member}", member.toString())}`
+			)
 		);
 
 		// Process role removal in batches asynchronously
@@ -122,29 +127,43 @@ export const subCommand: SubCommand = {
 			{ batchSize: 5, delay: 100 },
 			async (result) => {
 				// Send final result when processing is complete
-				const embed = new EmbedBuilder()
-					.setColor(2829617)
-					.setTimestamp()
-					.setDescription(
-						lang.derank_msg_desc_embed
-							.replace("${good}", good.toString())
-							.replace("${bad}", bad.toString())
-							.replace("${memberId}", member.id)
-					)
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							interaction.guildId!
+				const emojis = client.iHorizon_Emojis;
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: bad > 0 ? ACCENT.warning : ACCENT.success,
+						emoji: emojis.Minus,
+						title: lang.derank_card_title,
+						thumbnail: member.displayAvatarURL({ size: 256 }),
+						fields: [
+							{
+								emoji: emojis.Ticket_User,
+								label: lang.utils_label_member,
+								value: member.toString()
+							},
+							{
+								emoji: emojis.Yes,
+								label: lang.derank_label_removed,
+								value: `\`${good}\``
+							},
+							bad > 0 && {
+								emoji: emojis.No,
+								label: lang.utils_label_failed,
+								value: `\`${bad}\``
+							},
+							{
+								emoji: emojis.Crown,
+								label: lang.utils_label_by,
+								value: interaction.member!.toString()
+							}
+						],
+						signature: await botSignature(
+							client,
+							interaction.guildId
 						)
-					);
-
-				await client.func.method.interactionSend(interaction, {
-					embeds: [embed],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
-				});
+					})
+				);
 			}
 		);
 	}

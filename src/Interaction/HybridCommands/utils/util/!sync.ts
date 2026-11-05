@@ -23,12 +23,17 @@ import {
 	CategoryChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -60,7 +65,7 @@ export const subCommand: SubCommand = {
 
 		const child_channels = category?.children.cache.values()!;
 
-		let changes: string[] | string = [];
+		const changes: string[] = [];
 
 		for (const child of child_channels) {
 			if (!child.permissionsLocked) {
@@ -69,32 +74,23 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		changes = changes.map((x) => `• <#${x}>`).join("\n");
-
-		// Create an embed message
-		const embed = new EmbedBuilder()
-			.setColor("#5865F2") // Discord's blurple color
-			.setDescription(
-				changes.length > 0
-					? lang.util_sync_embed_description_1
-							.replace("${categoryName}", String(category?.name))
-							.replace("${changes}", changes)
-					: lang.util_sync_embed_description_0
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp();
-
-		client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: changes.length > 0 ? ACCENT.success : ACCENT.info,
+				emoji: client.iHorizon_Emojis.Lock,
+				title: lang.sync_card_title,
+				description:
+					changes.length > 0
+						? lang.sync_card_desc.replace(
+								"${category}",
+								category ? `<#${category.id}>` : "`?`"
+							)
+						: lang.util_sync_embed_description_0,
+				blocks: [changes.map((x) => `<#${x}>`).join("\n")],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

@@ -22,15 +22,22 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	Message
+	Message,
+	escapeMarkdown
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel,
+	sendPaginatedCard
+} from "../../../../core/modules/uiCard.js";
 
-const LOCKLIST_ACCENT_COLOR = "#9a5af2";
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -68,41 +75,51 @@ export const subCommand: SubCommand = {
 
 		entries.sort(([, a], [, b]) => (b?.lockedAt ?? 0) - (a?.lockedAt ?? 0));
 
-		const lines = entries
-			.map(([memberId, lockData]) => {
-				if (!lockData) return "";
+		const lines = entries.map(([memberId, lockData]) => {
+			const nick = lockData?.nick
+				? `**${escapeMarkdown(lockData.nick)}**`
+				: lang.var_no_set;
+			const sub: string[] = [];
+			if (lockData?.lockedBy)
+				sub.push(
+					lang.util_locknamelist_card_by.replace(
+						"${user}",
+						`<@${lockData.lockedBy}>`
+					)
+				);
+			if (lockData?.lockedAt) {
+				// `/utilss lockname` stores Date.now(); accept seconds too.
+				const seconds =
+					lockData.lockedAt > 1e12
+						? Math.floor(lockData.lockedAt / 1000)
+						: lockData.lockedAt;
+				sub.push(`<t:${seconds}:D> · <t:${seconds}:R>`);
+			}
+			return `<@${memberId}> · ${nick}${sub.length ? `\n-# ${sub.join(" · ")}` : ""}`;
+		});
 
-				return lockData.lockedAt && lockData.lockedBy
-					? lang.util_locknamelist_embed_line
-							.replace("${memberId}", memberId)
-							.replace(
-								"${nick}",
-								lockData.nick || lang.var_no_set
-							)
-							.replace("${lockedBy}", `<@${lockData.lockedBy}>`)
-							.replace("${lockedAt}", String(lockData.lockedAt))
-					: lang.util_locknamelist_embed_line_short
-							.replace("${memberId}", memberId)
-							.replace(
-								"${nick}",
-								lockData.nick || lang.var_no_set
-							);
-			})
-			.filter(Boolean)
-			.join("\n");
+		const pages = Math.ceil(lines.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
 
-		const embed = new EmbedBuilder()
-			.setColor(LOCKLIST_ACCENT_COLOR)
-			.setTitle(lang.util_locknamelist_embed_title)
-			.setDescription(
-				`${lang.util_locknamelist_embed_count.replace(
-					"${count}",
-					String(entries.length)
-				)}\n\n${lines}`.substring(0, 4000)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
+		await sendPaginatedCard({
+			client,
+			interaction,
+			lang,
+			pages,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.info,
+					emoji: client.iHorizon_Emojis.Lock,
+					title: lang.util_locknamelist_embed_title,
+					description: `-# ${lang.util_locknamelist_card_count.replace("${count}", String(entries.length))}`,
+					blocks: [
+						lines
+							.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+							.join("\n")
+					],
+					footer: pageLabel(lang, page, pages),
+					signature
+				})
 		});
 
 		return;

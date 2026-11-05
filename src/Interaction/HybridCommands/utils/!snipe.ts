@@ -19,17 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -60,18 +61,46 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = new EmbedBuilder()
-			.setColor("#474749")
-			.setAuthor({
-				name: based.snipeUserInfoTag,
-				iconURL: based.snipeUserInfoPp
-			})
-			.setDescription(message_content)
-			.setTimestamp(based.snipeTimestamp);
+		const e = client.iHorizon_Emojis;
+		// The tag is stored as "username (id)": mention the author when we can.
+		const tag = based.snipeUserInfoTag ?? "";
+		const authorId = tag.match(/\((\d{15,25})\)$/)?.[1];
+		const username = tag.replace(/\s*\(\d{15,25}\)$/, "");
+		const sent = Math.floor(based.snipeTimestamp / 1000);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: e.Search,
+				title: lang.snipe_card_title,
+				thumbnail: based.snipeUserInfoPp,
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.snipe_label_author,
+						value: authorId
+							? `<@${authorId}> (\`${username}\`)`
+							: `\`${tag}\``
+					},
+					{
+						emoji: e.Schedule,
+						label: lang.snipe_label_sent,
+						value: based.snipeTimestamp
+							? `<t:${sent}:f> (<t:${sent}:R>)`
+							: ""
+					}
+				],
+				blocks: [
+					message_content
+						.split("\n")
+						.map((line) => `> ${line}`)
+						.join("\n")
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

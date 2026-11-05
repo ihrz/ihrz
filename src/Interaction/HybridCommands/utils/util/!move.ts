@@ -20,18 +20,15 @@
 */
 
 import {
-	ActionRowBuilder,
 	BaseGuildVoiceChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	PermissionFlagsBits
 } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { notice, sendCard } from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -65,10 +62,11 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if member is in a voice channel
-		if (member?.voice.channelId === null) {
+		if (!member?.voice.channelId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_move_not_in_vc
 			});
+			return;
 		}
 
 		// Check if the member is an admin
@@ -86,11 +84,16 @@ export const subCommand: SubCommand = {
 
 		await member?.voice.setChannel(channel.id);
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.util_move_command_ok
-				.replace("${member}", member?.toString()!)
-				.replace("${channel}", channel.toString())
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				`${client.iHorizon_Emojis.Yes} ${lang.util_move_command_ok
+					.replace("${member}", member?.toString()!)
+					.replace("${channel}", channel.toString())}`
+			)
+		);
 		return;
 	}
 };

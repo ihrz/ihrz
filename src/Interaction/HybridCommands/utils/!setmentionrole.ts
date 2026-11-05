@@ -19,18 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	Message,
-	Role
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, Message, Role } from "discord.js";
 
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -95,22 +96,10 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
-				let msg = "";
-
 				if (nickname) {
-					msg = lang.setrankroles_command_work_with_nicknames
-						.replace("${argsid}", argsid.id)
-						.replace("${nicknames}", nickname);
-					msg += lang.setrankroles_command_work_with_nicknames_2;
-
 					await client.db.set(
 						`${interaction.guildId}.GUILD.RANK_ROLES.nicknames`,
 						nickname
-					);
-				} else {
-					msg = lang.setrankroles_command_work.replace(
-						"${argsid}",
-						argsid.id
 					);
 				}
 
@@ -119,11 +108,41 @@ export const subCommand: SubCommand = {
 					argsid.id
 				);
 
-				const e = new EmbedBuilder().setDescription(msg);
-
-				await client.func.method.interactionSend(interaction, {
-					embeds: [e]
-				});
+				const emojis = client.iHorizon_Emojis;
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: argsid.color || ACCENT.success,
+						emoji: emojis.Ticket_Role,
+						title: lang.setmentionrole_card_title,
+						description: lang.setmentionrole_card_desc,
+						fields: [
+							{
+								emoji: emojis.Ticket_Role,
+								label: lang.utils_label_role,
+								value: argsid.toString()
+							},
+							!!nickname && {
+								emoji: emojis.Nametag,
+								label: lang.utils_label_name_filter,
+								value: `\`${nickname}\``
+							},
+							{
+								emoji: emojis.Crown,
+								label: lang.utils_label_by,
+								value: interaction.member.toString()
+							}
+						],
+						blocks: [
+							nickname && `-# ${lang.setmentionrole_card_note}`
+						],
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
+					})
+				);
 				return;
 			} catch (e) {
 				logger.err(e);
@@ -150,12 +169,17 @@ export const subCommand: SubCommand = {
 					`${interaction.guildId}.GUILD.RANK_ROLES`
 				);
 
-				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_work_disable.replaceAll(
-						"${authorId}",
-						interaction.member.user.id
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						`${client.iHorizon_Emojis.Yes} ${lang.setrankroles_command_work_disable.replaceAll(
+							"${authorId}",
+							interaction.member.user.id
+						)}`
 					)
-				});
+				);
 				return;
 			} catch (e) {
 				logger.err(e);

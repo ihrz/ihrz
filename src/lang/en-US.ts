@@ -73,6 +73,8 @@ const enUS = {
 	var_confirm: "Confirm",
 	var_succes: "Success",
 	var_page: "Page",
+	var_previous: "Previous",
+	var_next: "Next",
 	var_permission: "Permission",
 	var_usage: "Usage",
 	var_aliases: "Aliases",
@@ -1153,23 +1155,6 @@ const enUS = {
 	// /serverinfo, /snipe, /userinfo, /renew
 
 	// /serverinfo
-	serverinfo_verlvl_NONE: "NONE",
-	serverinfo_verlvl_LOW: "LOW",
-	serverinfo_verlvl_MEDIUM: "MEDIUM",
-	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
-	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
-	serverinfo_embed_author: "🚩 -> ${guildName}",
-	serverinfo_embed_description: "**Description**: ${guildDescription}",
-	serverinfo_embed_fields_name: "🏷・**Name:**",
-	serverinfo_embed_fields_members: "🧔・**Members:**",
-	serverinfo_embed_fields_id: "🆔・**ID:**",
-	serverinfo_embed_fields_owner: "👑・**Owner:**",
-	serverinfo_embed_fields_verlvl: "🎚 ・**Verification Level:**",
-	serverinfo_embed_fields_region: "🌍・**Region:**",
-	serverinfo_embed_fields_roles: "📇・**Role(s) number:**",
-	serverinfo_embed_fields_channels: "✍・**Channel(s) number:**",
-	serverinfo_embed_fields_joinat: "🚲・**Joined at:**",
-	serverinfo_embed_fields_createat: "⚓・**Created at:**",
 
 	// /setrankroles
 	setrankroles_not_admin:
@@ -1178,8 +1163,6 @@ const enUS = {
 		"${emoji_No} The rank roles are already in the database for this server.",
 	setrankroles_not_roles_typed:
 		"${emoji_No} You have not included any roles in your command!",
-	setrankroles_command_work:
-		"Now, when you ping me `@iHorizon` I will add the following roles: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
 		"<@${authorId}> set the rankrole to <@&${argsid}>",
 	setrankroles_logs_embed_title_enable: "Set RankRole",
@@ -1190,10 +1173,6 @@ const enUS = {
 		"<@${authorId}>, you have deleted the rank role!",
 	setrankroles_command_error:
 		"${emoji_No} The command has encountered an error! Please try again later.",
-	setrankroles_command_work_with_nicknames:
-		"Now, when you ping me `@iHorizon` I will add the following roles: <@&${argsid}> **Only if the user has** `${nicknames}` in their username or globalName",
-	setrankroles_command_work_with_nicknames_2:
-		"\n**Note**:\nIf the person removes the part of the nickname, the role will be automatically removed. When they put it back, I will give it back to them.",
 
 	// /snipe
 	snipe_no_previous_message_deleted:
@@ -1201,11 +1180,6 @@ const enUS = {
 
 	// /userinfo
 	userinfo_wait_please: "${emoji_Timer} Wait please...",
-	userinfo_embed_fields_1_name: "Badge",
-	userinfo_embed_fields_2_name: "Username",
-	userinfo_embed_fields_3_name: "Display Name",
-	userinfo_embed_fields_4_name: "Creation Date",
-	userinfo_embed_fields_5_name: "Nitro Status",
 	userinfo_var_notfound: "`Not found`",
 	userinfo_button_label: "User Profile",
 
@@ -1223,7 +1197,6 @@ const enUS = {
 	renewvc_dont_have_permission: ":x: **Can't** `Don't have permission!`",
 
 	// /prevnames
-	prevnames_embed_title: "List of all ${userUsername}'s nicknames",
 	prevnames_undetected: "No data found!",
 	prevnames_not_admin:
 		"You don't have the `ADMINISTRATOR` permission to execute this command!",
@@ -1245,24 +1218,14 @@ const enUS = {
 		"${author} (The owner of the server) __disabled__ `BlockBot`. Now bots **can** be added to this guild!",
 
 	// /banner
-	banner_guild_embed: "**This is the server's banner!**",
-	banner_user_embed: "**This is ${userUsername}'s banner!**",
 	banner_guild_no_banner: "The server has no banner.",
 	banner_user_no_banner: "This user has no banner.",
 
 	// /massiverole
-	massiverole_add_command_work:
-		"${author}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __received__ the ${role} role\n**${s}** User(s) __already had__ the ${role} role\niHorizon __failed__ to add the role to **${e}** User(s).",
-	massiverole_sub_command_work:
-		"${author}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __lost__ the ${role} role\n**${s}** User(s) __no longer had__ the ${role} role\niHorizon __failed__ to remove the role from **${e}** User(s).",
 	massiverole_too_much_member:
 		"Too many members, can't do it due to possible rate limiting!",
 
 	// /nickrole
-	nickrole_add_command_work:
-		"${author}, iHorizon has executed the nickrole command.\n\n**${a}** user(s) received the ${role} role\n**${s}** user(s) didn't have `${part_of_nickname}` in their nickname\niHorizon failed to add the role to **${e}** user(s).",
-	nickrole_sub_command_work:
-		"${author}, iHorizon has executed the nickrole command.\n\n**${a}** user(s) lost the ${role} role\n**${s}** user(s) no longer had `${part_of_nickname}` in their nickname\niHorizon failed to remove the role from **${e}** user(s).",
 	nickrole_too_much_member:
 		"Too many members, cannot proceed due to possible rate limit!",
 
@@ -1271,23 +1234,15 @@ const enUS = {
 		"__Created new emoji__ with the following name: **${emojiName}**! (${emoji})",
 	emoji_send_err_emoji:
 		"__Error when creating new emoji__ with the following name: **${emojiName}**!",
-	emoji_embed_desc_work:
-		"__Created **${cnt}** emoji(s) in `${guildName}`__\n(${nemj})",
 
 	// /derank
-	derank_msg_desc_embed:
-		"## I have successfully removed **${good}** role(s) from <@${memberId}>.\n## However, I failed to remove **${bad}** role(s).",
 	derank_msg_failed: "An error occurred while removing roles.",
 	derank_no_role: "This member has no roles to remove.",
 
 	// /action unban all
-	action_unban_all_embed_desc:
-		"## Unban all guild members\n${emoji_Yes} | I have successfully removed the ban of `${unbannedMemberCount}` member(s) in the guild!\n${emoji_No} | I can't unban `${cannot_unban}` member(s)!",
 	action_unban_all_no_banned_members: "There are no banned members.",
 
 	// /action unban undo
-	action_unban_undo_embed_desc:
-		"## Undo the unban-all\n${emoji_Yes} | I have successfully banned `${bannedMemberCount}` member(s) in the guild!\n${emoji_No} | I can't unban `${cannot_ban}` member(s)!",
 
 	// /vc
 	vc_embed_desc:
@@ -1301,22 +1256,16 @@ const enUS = {
 		"## Voice States\n`${voiceCount}` member(s) are in a voice channel:\n${emoji_iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${emoji_iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${emoji_iHorizon_Mute} **=>** ${total_members_vc_mute}\n${emoji_iHorizon_Camera} **=>** ${total_members_vc_video}\n## Member States\n`${total_members_size}` member(s) are in the guild:\n${emoji_DND} **=>** ${total_members_states_dnd}\n${emoji_Online} **=>** ${total_members_states_online}\n${emoji_Idle} **=>** ${total_members_states_idle}",
 
 	// /massmove
-	massmove_results:
-		"${author}, iHorizon has moved members between voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${toChannel}.\n**${errorCount}** member(s) could not be moved (see the server logs for details).",
 	massmove_too_much_member:
 		"Too many members, can't do it due to possible rate limiting!",
 
 	// /all-admins
 	all_admins_nobody_admins: "There is no administrator in this guild!",
-	all_admins_embed_title: "List of all administrator users | Page ${page}",
 	all_admins_unrank_button_label: "Unrank all",
-	all_admins_unrank_embed_desc:
-		"${author}, iHorizon has executed the unrank-all for the AllAdmins module.\n\n**${good}** User(s) __unranked__ successfully\niHorizon __failed__ to unrank **${bad}** User(s).",
 	all_admins_unrank_not_owner:
 		"Only the owner of the guild can unrank all administrators of the server",
 
 	// /allbots
-	all_bots_embed_title: "List of all bot(s) | Page ${page}",
 
 	// /addrole
 	utils_addrole_highter_or_egal_roles_msg:
@@ -1400,7 +1349,6 @@ const enUS = {
 	sticket_command_error2: "Please reply to a message containing a sticker.",
 
 	// /util nick-kicker
-	util_nick_kicker_embed_title: "Nick Content Kicker",
 	util_nick_kicker_embed_desc:
 		"If a member's nickname contains a specific word, they will be kicked.",
 	util_nick_kicker_words: "words",
@@ -1500,7 +1448,6 @@ const enUS = {
 	util_leashlist_no_data:
 		"${emoji_No} | There is no active leash in this guild.",
 	util_leashlist_embed_title: "Active leashes",
-	util_leashlist_embed_desc: "${dom} -> ${sub} (expires in `${remaining}`)",
 
 	// /util lockname, /util unlockname
 	util_lockname_not_in_guild:
@@ -1526,10 +1473,6 @@ const enUS = {
 	util_locknamelist_empty:
 		"${emoji_No} | No locked nickname on this guild! `/utilss lockname` to create one.",
 	util_locknamelist_embed_title: "Locked nicknames",
-	util_locknamelist_embed_count: "**${count}** locked nickname(s):",
-	util_locknamelist_embed_line:
-		"> <@${memberId}> • **${nick}** • by ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)",
-	util_locknamelist_embed_line_short: "> <@${memberId}> • **${nick}**",
 
 	// /util autorenew
 	util_autorenew_time_too_short:
@@ -1543,8 +1486,6 @@ const enUS = {
 		"The AutoRenew module is configured to renew this channel. Next renewal is in ${time}.",
 
 	// /util where
-	util_where_deaf: "Self deaf",
-	util_where_mute: "Self mute",
 	var_video: "Video",
 	var_whereis: "Where is",
 	util_not_in_vc: "The members are not in a voice channel",
@@ -1575,8 +1516,6 @@ const enUS = {
 		"${author}, you have successfully disconnected ${member} from ${voiceChannel}",
 
 	// /util sync
-	util_sync_embed_description_1:
-		"The following channels are now synchronized to the `#${categoryName}` category:\n\n${changes}",
 	util_sync_embed_description_0:
 		"All channels in the category already have synchronized permissions.",
 
@@ -1594,10 +1533,7 @@ const enUS = {
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "There is no administrator role in this guild!",
-	admin_roles_embed_title: "List of all administrator roles | Page ${page}",
 	admin_roles_remove_button_label: "Remove admin from all",
-	admin_roles_remove_embed_desc:
-		"${author}, iHorizon has executed the admin permission removal for the AdminRoles module.\n\n**${good}** Role(s) __modified__ successfully\niHorizon __failed__ to modify **${bad}** Role(s).",
 	admin_roles_remove_not_owner:
 		"Only the owner of the guild can remove administrator permission from roles",
 
@@ -1615,7 +1551,6 @@ const enUS = {
 		"The channel's slowmode has been set to ${duration_in_string}.",
 
 	// /util role-members
-	util_role_members: "List of users who have the roles",
 	util_role_members_no_one: "There is nobody with that role on the server",
 
 	// /util vanity-generator
@@ -1637,8 +1572,6 @@ const enUS = {
 	bringall_no_voice_channels:
 		"The specified category contains no voice channels.",
 	bringall_no_members: "There are no members in the source voice channel.",
-	bringall_results:
-		"${author}, iHorizon has distributed members across voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${channelCount} channels in ${category}.\n**${errorCount}** member(s) could not be moved (see the server logs for details).",
 
 	// /util move
 	util_move_not_in_vc:
@@ -2479,8 +2412,6 @@ const enUS = {
 	// /unban, /tempmute, /unmute
 
 	// /avatar
-	avatar_embed_description: "Look at this amazing avatar! :D",
-	avatar_embed_title: "__**Avatar**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission:
@@ -3673,16 +3604,6 @@ const enUS = {
 		"🔄 Unbanning ${bannedMemberCount} members in progress...",
 	batch_unblacklist_process:
 		"🔄 Unblacklisting ${bannedMemberUsername} from ${guildObjectCount} servers in progress...",
-	batch_unbanall_process:
-		"🔄 Unbanning ${bannedMemberCount} members in progress...",
-	batch_massiverole_process:
-		"🔄 Adding role to ${membersToProcessCount} members in progress...",
-	batch_unmassiverole_process:
-		"🔄 Removing role from ${membersToProcessCount} members in progress...",
-	batch_undo_unban:
-		"🔄 Re-unbanning ${unbannedMemberCount} members in progress...",
-	batch_derank_process:
-		"🔄 Removing ${rolesToRemoveCount} roles from ${memberUsername}...",
 	unbanall_undo_command_err:
 		"No members to re-ban. Use the unban all command first.",
 
@@ -4474,7 +4395,155 @@ const enUS = {
 	// /tts join
 	h247_tts_refused:
 		"${emoji_No} The H24/7 module is active on this server. Join the H24/7 voice channel to enable TTS!",
-	gw_go_duration_too_low: "${emoji_No} | The minimum duration is 3 minutes!"
+	gw_go_duration_too_low: "${emoji_No} | The minimum duration is 3 minutes!",
+
+	// Components V2 cards: /avatar, /serverinfo, /allbots
+	avatar_card_title: "${user}'s avatar",
+	card_download: "Download",
+	serverinfo_label_owner: "Owner",
+	serverinfo_label_members: "Members",
+	serverinfo_label_created: "Created",
+	serverinfo_label_joined: "You joined",
+	serverinfo_label_roles: "Roles",
+	serverinfo_label_channels: "Channels",
+	serverinfo_label_boosts: "Boosts",
+	serverinfo_boost_value: "${count} (level ${tier})",
+	serverinfo_label_verification: "Verification",
+	serverinfo_label_language: "Language",
+	serverinfo_label_id: "ID",
+	serverinfo_verif_none: "None",
+	serverinfo_verif_low: "Low",
+	serverinfo_verif_medium: "Medium",
+	serverinfo_verif_high: "High",
+	serverinfo_verif_highest: "Highest",
+	all_bots_card_title: "Bots on ${guild}",
+	all_bots_card_count: "${count} bots",
+	all_bots_none: "There is no bot on this server.",
+
+	// Components V2 cards: /unbanall, /media-only, /nick-kicker, /sync, /wlroles
+	unbanall_card_progress: "Unbanning `${count}` members…",
+	unbanall_card_undo_progress: "Banning `${count}` members again…",
+	unbanall_card_title: "Unban all",
+	unbanall_card_undo_title: "Unban all undone",
+	unbanall_label_unbanned: "Unbanned",
+	unbanall_label_banned: "Banned again",
+	unbanall_label_failed: "Failed",
+	sync_card_title: "Permissions synchronized",
+	sync_card_desc: "These channels now follow the permissions of ${category}:",
+	media_only_card_title: "Media-only channels",
+	utils_label_save: "Save",
+	nick_kicker_card_title: "Nickname kicker",
+	nick_kicker_label_status: "Status",
+	nick_kicker_label_words: "Words",
+	wlroles_card_title: "Whitelisted roles",
+	wlroles_card_warn_title: "Dangerous permissions",
+	wlroles_card_high_title: "Roles above mine",
+
+	// Components V2 cards: /userinfo, /banner, /inviteinfo, /serverpic, /where, /vc, /snipe
+	userinfo_label_badges: "Badges",
+	userinfo_label_username: "Username",
+	userinfo_label_created: "Account created",
+	userinfo_label_joined: "Joined the server",
+	userinfo_label_nitro: "Nitro",
+	userinfo_label_roles: "Roles",
+	userinfo_label_id: "ID",
+	userinfo_card_loading: "Loading the profile…",
+	banner_card_guild_title: "${guild}'s banner",
+	banner_card_user_title: "${user}'s banner",
+	inviteinfo_label_channel: "Channel",
+	inviteinfo_label_inviter: "Invited by",
+	inviteinfo_label_created: "Server created",
+	inviteinfo_label_expires: "Expires",
+	inviteinfo_label_members: "Members",
+	inviteinfo_label_online: "Online",
+	inviteinfo_label_boosts: "Boosts",
+	inviteinfo_label_features: "Features",
+	serverpic_card_title: "${guild}'s icon",
+	serverpic_card_no_icon: "This server has no icon.",
+	where_card_title: "Where is ${member}",
+	where_label_member: "Member",
+	where_label_channel: "Voice channel",
+	where_label_stream: "Streaming",
+	where_label_video: "Camera",
+	where_label_mute: "Self mute",
+	where_label_deaf: "Self deaf",
+	vc_card_title: "Voice activity",
+	vc_label_members: "Members",
+	vc_label_online: "Online",
+	vc_label_in_voice: "In voice",
+	vc_label_streaming: "Streaming",
+	vc_label_boosts: "Boosts",
+	vc_label_camera: "Camera on",
+	vc_label_muted: "Muted",
+	snipe_card_title: "Last deleted message",
+	snipe_label_author: "Author",
+	snipe_label_sent: "Sent",
+
+	// Components V2 cards: /delrole, /derank, /massiverole, /massmove, /nickrole, /setmentionrole, /util bringall, /util move
+	utils_label_member: "Member",
+	utils_label_role: "Role",
+	utils_label_by: "By",
+	utils_label_failed: "Failed",
+	utils_label_from: "From",
+	utils_label_to: "To",
+	utils_label_moved: "Moved",
+	utils_label_name_filter: "Name contains",
+	derank_card_progress: "Removing ${count} roles from ${member}…",
+	derank_card_title: "Member deranked",
+	derank_label_removed: "Roles removed",
+	massiverole_card_progress_add: "Adding the role to ${count} members…",
+	massiverole_card_progress_sub: "Removing the role from ${count} members…",
+	massiverole_card_title_add: "Role given to members",
+	massiverole_card_title_sub: "Role removed from members",
+	massiverole_label_added: "Received it",
+	massiverole_label_already: "Already had it",
+	massiverole_label_removed: "Lost it",
+	massiverole_label_without: "Did not have it",
+	nickrole_label_skipped: "Skipped",
+	massmove_card_title: "Members moved",
+	bringall_card_title: "Members spread out",
+	bringall_label_category: "Category",
+	bringall_label_channels: "Voice channels",
+	setmentionrole_card_title: "Mention role enabled",
+	setmentionrole_card_desc:
+		"When a member mentions me, I give them this role.",
+	setmentionrole_card_note:
+		"Only members whose username or display name contains this text get the role. If they remove it, the role is removed, and given back when they add it again.",
+
+	// Components V2 cards: /admin-users, /admin-roles, /allwebhooks, /role-members, /prevnames, /emojis, /leashlist, /locknamelist
+	card_bot: "Bot",
+	card_working: "Working on it…",
+	card_label_requested_by: "Requested by",
+	card_label_failed: "Failed",
+	admin_users_card_title: "Administrators",
+	admin_users_card_count:
+		"${count} members with the Administrator permission",
+	admin_users_card_only_bots: "Only bots have this permission.",
+	admin_users_button_hide_bots: "Hide bots",
+	admin_users_button_show_bots: "Show bots",
+	admin_users_card_done_title: "Administrators unranked",
+	admin_users_label_unranked: "Members unranked",
+	admin_roles_card_title: "Administrator roles",
+	admin_roles_card_count: "${count} roles with the Administrator permission",
+	admin_roles_card_managed: "Managed by an integration",
+	admin_roles_card_done_title: "Admin permission removed",
+	admin_roles_label_modified: "Roles modified",
+	allwebhooks_card_count: "${count} webhooks",
+	allwebhooks_button_delete: "Delete all",
+	role_members_card_title: "Members of ${role}",
+	role_members_card_count: "${count} members",
+	prevnames_card_title: "${user}'s previous names",
+	prevnames_card_count: "${count} names recorded",
+	prevnames_button_erase: "Erase my history",
+	prevnames_label_username: "Username",
+	prevnames_label_display_name: "Display name",
+	prevnames_label_nickname: "Nickname in ${guild}",
+	emoji_card_title: "Emojis added",
+	emoji_card_count: "${count} emojis created in ${guild}",
+	util_leashlist_card_count: "${count} active leashes",
+	util_leashlist_card_expires: "Expires",
+	util_locknamelist_card_count: "${count} locked nicknames",
+	util_locknamelist_card_by: "Locked by ${user}"
 };
 
 export default enUS;

@@ -19,15 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -45,36 +46,48 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (!interaction.guild.banner) {
+		const guild = interaction.guild;
+		if (!guild.banner) {
 			client.func.method.interactionSend(interaction, {
 				content: lang.banner_guild_no_banner
 			});
 			return;
 		}
 
-		const embed = new EmbedBuilder()
-			.setColor("#c4afed")
-			.setTitle(lang.banner_guild_embed)
-			.setImage(
-				await client.func.bannerURL(interaction.guild, {
-					extension: "png",
-					size: 4096
-				})
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		// Static links must force a still image, or animated banners stay GIFs.
+		const url = (extension: "png" | "webp" | "gif") =>
+			client.func.bannerURL(guild, {
+				extension,
+				size: 4096,
+				forceStatic: extension !== "gif"
+			});
+		const formats = [
+			`[PNG](${await url("png")})`,
+			`[WEBP](${await url("webp")})`,
+			guild.banner.startsWith("a_") ? `[GIF](${await url("gif")})` : null
+		].filter(Boolean);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Camera,
+				title: lang.banner_card_guild_title.replace(
+					"${guild}",
+					guild.name
+				),
+				description: `-# ${lang.card_download} : ${formats.join(" · ")}`,
+				thumbnail: guild.iconURL({ size: 256 }),
+				images: [
+					await client.func.bannerURL(guild, {
+						size: 4096,
+						forceStatic: false
+					})
+				],
+				signature: await botSignature(client, guild.id)
+			})
+		);
 		return;
 	}
 };

@@ -19,26 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	pageLabel,
+	sendCard,
+	sendPaginatedCard
+} from "../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -49,104 +51,58 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const all_bots =
-			Array.from(
-				interaction.guild.members.cache
-					.filter((x) => x.user.bot)
-					.values()
-			) || [];
+		const guild = interaction.guild;
+		const e = client.iHorizon_Emojis;
+		const bots = [
+			...guild.members.cache.filter((m) => m.user.bot).values()
+		].sort((a, b) => (a.joinedTimestamp ?? 0) - (b.joinedTimestamp ?? 0));
 
-		if (all_bots.length == 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.all_admins_nobody_admins
-			});
+		if (bots.length === 0) {
+			await sendCard(
+				client,
+				interaction,
+				notice("info", `${e.No} ${lang.all_bots_none}`)
+			);
 			return;
 		}
 
-		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
+		const pages = Math.ceil(bots.length / PER_PAGE);
+		const signature = await botSignature(client, guild.id);
 
-		for (let i = 0; i < all_bots.length; i += usersPerPage) {
-			const pageUsers = all_bots.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((userId) => userId).join("\n");
-			pages.push({
-				title: lang.all_bots_embed_title.replace(
-					"${page}",
-					String(i / usersPerPage + 1)
-				),
-				description: pageContent
-			});
-		}
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary)
-		);
-
-		const messageEmbed = await client.func.method.interactionSend(
+		await sendPaginatedCard({
+			client,
 			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
-
-		const collector = messageEmbed.createMessageComponentCollector({
-			time: 60_000
+			lang,
+			pages,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.neutral,
+					emoji: e.Slash_Bot_Badge,
+					title: lang.all_bots_card_title.replace(
+						"${guild}",
+						guild.name
+					),
+					description: `-# ${lang.all_bots_card_count.replace("${count}", String(bots.length))}`,
+					thumbnail: guild.iconURL({ size: 128 }),
+					blocks: [
+						bots
+							.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+							.map((m) => {
+								const verified = m.user.flags?.has(
+									"VerifiedBot"
+								)
+									? ` ${e.Verified_App_1}`
+									: "";
+								const joined = m.joinedTimestamp
+									? ` · <t:${Math.floor(m.joinedTimestamp / 1000)}:R>`
+									: "";
+								return `${m}${verified}\n-# \`${m.user.tag}\`${joined}`;
+							})
+							.join("\n")
+					],
+					footer: pageLabel(lang, page, pages),
+					signature
+				})
 		});
-
-		collector.on("collect", async (interaction_2) => {
-			if (interaction_2.user.id !== interaction.member?.user.id) {
-				await interaction_2.reply({
-					content: lang.help_not_for_you,
-					flags: [1 << 6]
-				});
-				return;
-			}
-
-			if (interaction_2.customId === "previousPage") {
-				await interaction_2.deferUpdate();
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				await interaction_2.deferUpdate();
-				currentPage = (currentPage + 1) % pages.length;
-			}
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
-		});
-
-		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
-		});
-
-		return;
 	}
 };

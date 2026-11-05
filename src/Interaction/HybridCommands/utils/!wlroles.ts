@@ -26,7 +26,6 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	PermissionsBitField,
 	RoleSelectMenuBuilder,
 	RoleSelectMenuInteraction,
@@ -34,13 +33,22 @@ import {
 	Role,
 	PermissionFlagsBits,
 	Message,
-	BaseGuildTextChannel
+	MessageFlags,
+	BaseGuildTextChannel,
+	ContainerBuilder
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -62,17 +70,8 @@ export const subCommand: SubCommand = {
 		let all_roles: DatabaseStructure.UtilsData["wlRoles"] =
 			(await client.db.get(`${interaction.guildId}.UTILS.wlRoles`)) || [];
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.utils_wlroles_embed_title)
-			.setColor("#475387")
-			.setDescription(lang.utils_wlroles_embed_desc)
-			.addFields({
-				name: lang.setjoinroles_help_embed_fields_1_name,
-				value:
-					Array.isArray(all_roles) && all_roles.length > 0
-						? all_roles.map((x) => `<@&${x}>`).join(", ")
-						: lang.setjoinroles_var_none
-			});
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
 
 		const roleSelectMenu = new RoleSelectMenuBuilder()
 			.setCustomId("utils-wlRoles-role-selecter")
@@ -89,7 +88,8 @@ export const subCommand: SubCommand = {
 		const saveButton = new ButtonBuilder()
 			.setCustomId("utils-wlRoles-save-button")
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji("💾");
+			.setLabel(lang.utils_label_save)
+			.setEmoji(e.Save_Clip);
 
 		const comp =
 			new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
@@ -99,13 +99,40 @@ export const subCommand: SubCommand = {
 			saveButton
 		);
 
-		const og_response = await client.func.method.interactionSend(
-			interaction,
-			{
-				embeds: [embed],
-				components: [comp, comp_2]
-			}
-		);
+		// Role ids shown on the card (the saved list, then the selection).
+		let shownRoles: string[] = Array.isArray(all_roles) ? all_roles : [];
+		// Once saved, only the (disabled) save button stays under the card.
+		let saved = false;
+
+		function render(): ContainerBuilder {
+			const container = buildCard({
+				accent: ACCENT.info,
+				emoji: e.Ticket_Role,
+				title: lang.wlroles_card_title,
+				description: lang.utils_wlroles_embed_desc,
+				fields: [
+					{
+						emoji: e.Ticket_Role,
+						label: lang.setjoinroles_help_embed_fields_1_name,
+						value:
+							shownRoles.map((x) => `<@&${x}>`).join(", ") ||
+							lang.setjoinroles_var_none
+					}
+				],
+				signature
+			});
+			if (saved) container.addActionRowComponents(comp_2);
+			else
+				container
+					.addActionRowComponents(comp)
+					.addActionRowComponents(comp_2);
+			return container;
+		}
+
+		const refresh = () =>
+			og_response.edit({ components: [render()] }).catch(() => undefined);
+
+		const og_response = await sendCard(client, interaction, render());
 
 		const confirmedDangerousRoles = new Set<string>();
 		const tooHighterRoles = new Set<string>();
@@ -147,9 +174,11 @@ export const subCommand: SubCommand = {
 					)
 				) {
 					await roleInteraction.deferUpdate();
-					await client.func.method.interactionSend(interaction, {
+					// The panel is a Components V2 message: it cannot take a
+					// plain text edit, so the warning goes in an ephemeral reply.
+					await roleInteraction.followUp({
 						content: lang.setjoinroles_var_perm_issue,
-						flags: [1 << 6]
+						flags: [MessageFlags.Ephemeral]
 					});
 					return;
 				}
@@ -201,8 +230,6 @@ export const subCommand: SubCommand = {
 						roleInteraction,
 						dangerous_roles,
 						confirmedDangerousRoles,
-						embed,
-						og_response,
 						lang
 					);
 				} else if (too_highter_roles.length > 0) {
@@ -212,8 +239,8 @@ export const subCommand: SubCommand = {
 					);
 				} else {
 					await roleInteraction.deferUpdate();
-					updateEmbed(embed, selectedRoles, lang);
-					await og_response.edit({ embeds: [embed] });
+					showSelection(selectedRoles);
+					await refresh();
 				}
 			}
 		);
@@ -225,15 +252,13 @@ export const subCommand: SubCommand = {
 				if (
 					buttonInteraction.customId === "utils-wlRoles-save-button"
 				) {
-					const newComp_2 =
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							saveButton
-								.setStyle(ButtonStyle.Success)
-								.setEmoji(client.iHorizon_Emojis.Yes)
-								.setDisabled(true)
-						);
+					saveButton
+						.setStyle(ButtonStyle.Success)
+						.setEmoji(e.Yes)
+						.setDisabled(true);
+					saved = true;
 
-					await og_response.edit({ components: [newComp_2] });
+					await refresh();
 
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.utils_wlRoles_logsEmbed_title,
@@ -262,21 +287,11 @@ export const subCommand: SubCommand = {
 				x.setDisabled(true);
 			});
 
-			await og_response.edit({ components: [comp, comp_2] });
+			await refresh();
 		});
 
-		function updateEmbed(
-			embed: EmbedBuilder,
-			roles: Role[],
-			lang: LanguageData
-		) {
-			const roleValues =
-				roles.map((role) => `<@&${role.id}>`).join(", ") ||
-				lang.setjoinroles_var_none;
-			embed.setFields({
-				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: roleValues
-			});
+		function showSelection(roles: Role[]) {
+			shownRoles = roles.map((role) => role.id);
 		}
 
 		async function handleDangerousRolesConfirmation(
@@ -287,20 +302,8 @@ export const subCommand: SubCommand = {
 				permissions: string[];
 			}[],
 			confirmedDangerousRoles: Set<string>,
-			embed: EmbedBuilder,
-			og_response: Message,
 			lang: LanguageData
 		) {
-			const dangerous_fields = dangerous_roles.map((role) => ({
-				name: `@${role.name} (${role.id})`,
-				value: role.permissions.map((p) => `\`${p}\``).join(", ")
-			}));
-
-			const dangerous_embed = new EmbedBuilder()
-				.setTitle(lang.setjoinroles_warn_title)
-				.setDescription(lang.setjoinroles_warn_dangerous_perm)
-				.addFields(dangerous_fields);
-
 			const confirm_buttons =
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
@@ -313,11 +316,38 @@ export const subCommand: SubCommand = {
 						.setLabel(lang.var_no)
 				);
 
+			const warnCard = (
+				row: ActionRowBuilder<ButtonBuilder>
+			): ContainerBuilder =>
+				buildCard({
+					accent: ACCENT.warning,
+					emoji: e.Warn,
+					title: lang.wlroles_card_warn_title,
+					description: lang.setjoinroles_warn_dangerous_perm,
+					blocks: [
+						dangerous_roles
+							.map(
+								(role) =>
+									`<@&${role.id}> \`${role.id}\`\n-# ${role.permissions.join(", ")}`
+							)
+							.join("\n")
+					],
+					signature
+				}).addActionRowComponents(row);
+
 			const warn_msg = await roleInteraction.reply({
-				embeds: [dangerous_embed],
-				components: [confirm_buttons],
-				flags: [1 << 6]
+				...cardPayload(warnCard(confirm_buttons)),
+				flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
 			});
+
+			const disabledRow = (label: string) =>
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setDisabled(true)
+						.setStyle(ButtonStyle.Secondary)
+						.setCustomId("utils-wlRoles-choice-timeOut")
+						.setLabel(label)
+				);
 
 			try {
 				const buttonInteraction = await (
@@ -340,37 +370,33 @@ export const subCommand: SubCommand = {
 					confirm_buttons.components.forEach((x) =>
 						x.setDisabled(true)
 					);
-					await warn_msg.edit({ components: [confirm_buttons] });
+					await warn_msg.edit({
+						components: [warnCard(confirm_buttons)]
+					});
 
-					updateEmbed(embed, selectedRoles, lang);
-					await og_response.edit({ embeds: [embed] });
+					showSelection(selectedRoles);
+					await refresh();
 				} else if (
 					buttonInteraction?.customId === "dangerous_roles_confirm_no"
 				) {
 					await warn_msg.edit({
 						components: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								new ButtonBuilder()
-									.setDisabled(true)
-									.setStyle(ButtonStyle.Secondary)
-									.setCustomId("utils-wlRoles-choice-timeOut")
-									.setLabel(lang.setjoinroles_action_canceled)
+							warnCard(
+								disabledRow(lang.setjoinroles_action_canceled)
 							)
 						]
 					});
 				}
 			} catch (err) {
-				await warn_msg.edit({
-					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setDisabled(true)
-								.setStyle(ButtonStyle.Secondary)
-								.setCustomId("utils-wlRoles-choice-timeOut")
-								.setLabel(lang.setjoinroles_timesup_button)
-						)
-					]
-				});
+				await warn_msg
+					.edit({
+						components: [
+							warnCard(
+								disabledRow(lang.setjoinroles_timesup_button)
+							)
+						]
+					})
+					.catch(() => undefined);
 			}
 		}
 
@@ -382,19 +408,27 @@ export const subCommand: SubCommand = {
 				position: string;
 			}[]
 		) {
-			const too_highter_fields = too_highter_roles.map((role) => ({
-				name: `@${role.name} (${role.id})`,
-				value: `<@&${role.id}>: \`${role.position}\` vs ${interaction.client.user.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
-			}));
-
-			const too_highter_embed = new EmbedBuilder()
-				.setTitle(lang.setjoinroles_warn_title)
-				.setDescription(lang.setjoinroles_too_highter_roles)
-				.addFields(too_highter_fields);
+			const myPosition =
+				interaction.guild?.members.me?.roles.highest.position;
+			const card = buildCard({
+				accent: ACCENT.danger,
+				emoji: e.Warn,
+				title: lang.wlroles_card_high_title,
+				description: lang.setjoinroles_too_highter_roles,
+				blocks: [
+					too_highter_roles
+						.map(
+							(role) =>
+								`<@&${role.id}> \`${role.position}\` · ${interaction.client.user.toString()} \`${myPosition}\``
+						)
+						.join("\n")
+				],
+				signature
+			});
 
 			await roleInteraction.reply({
-				embeds: [too_highter_embed],
-				flags: [1 << 6]
+				...cardPayload(card),
+				flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
 			});
 		}
 	}

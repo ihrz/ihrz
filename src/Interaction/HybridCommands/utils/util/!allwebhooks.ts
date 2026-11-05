@@ -26,11 +26,29 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
-	Message
+	ContainerBuilder,
+	Message,
+	MessageFlags,
+	escapeMarkdown
 } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	pageLabel,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
+
+const ID = {
+	previous: "allwebhooks_previous",
+	next: "allwebhooks_next",
+	delete: "allwebhooks_delete"
+} as const;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,62 +67,66 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
+		const pages = Math.ceil(webhookArray.length / PER_PAGE);
 		let currentPage = 0;
-		const usersPerPage = 5;
-		const pages: { title: string; description: string }[] = [];
 
-		for (let i = 0; i < webhookArray.length; i += usersPerPage) {
-			const page = webhookArray.slice(i, i + usersPerPage);
-			const description = page
+		const render = (disabled: boolean): ContainerBuilder => {
+			const list = webhookArray
+				.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE)
 				.map((webhook) => {
-					const maskedToken = webhook.token
-						?.split("")
-						.map(() => "◯")
-						.join("");
-					return `[${webhook.name}](https://discord.com/api/webhooks/${webhook.id}/${maskedToken}) (${webhook.channel?.toString()})`;
+					const sub = [
+						`\`${webhook.id}\``,
+						webhook.owner ? `<@${webhook.owner.id}>` : null,
+						`<t:${Math.floor(webhook.createdTimestamp / 1000)}:R>`
+					]
+						.filter(Boolean)
+						.join(" · ");
+					const channel = webhook.channelId
+						? ` · <#${webhook.channelId}>`
+						: "";
+					return `**${escapeMarkdown(webhook.name)}**${channel}\n-# ${sub}`;
 				})
 				.join("\n");
 
-			pages.push({
+			const container = buildCard({
+				accent: ACCENT.info,
+				emoji: e.Link_Icon,
 				title: lang.util_allwebhooks_embed_title,
-				description: description
+				description: `-# ${lang.allwebhooks_card_count.replace("${count}", String(webhookArray.length))}`,
+				blocks: [list],
+				footer: pageLabel(lang, currentPage, pages),
+				signature
 			});
-		}
 
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setColor("#72f3f3");
+			const row = new ActionRowBuilder<ButtonBuilder>();
+			if (pages > 1) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId(ID.previous)
+						.setLabel(lang.var_previous)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled),
+					new ButtonBuilder()
+						.setCustomId(ID.next)
+						.setLabel(lang.var_next)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled)
+				);
+			}
+			row.addComponents(
+				new ButtonBuilder()
+					.setCustomId(ID.delete)
+					.setEmoji(e.Ticket_Trash)
+					.setLabel(lang.allwebhooks_button_delete)
+					.setStyle(ButtonStyle.Danger)
+					.setDisabled(disabled)
+			);
+			return container.addActionRowComponents(row);
 		};
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previous")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("next")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("delete")
-				.setEmoji("🗑️")
-				.setStyle(ButtonStyle.Danger)
-		);
-
-		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [await createEmbed()],
-			components: [row]
-		});
+		const message = await sendCard(client, interaction, render(false));
 
 		const collector = message.createMessageComponentCollector({
 			time: 60_000 * 15,
@@ -115,32 +137,26 @@ export const subCommand: SubCommand = {
 			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({
 					content: lang.help_not_for_you,
-					flags: [1 << 6]
+					flags: [MessageFlags.Ephemeral]
 				});
 				return;
 			}
 
-			if (i.customId === "previous") {
-				i.deferUpdate();
-				if (currentPage == 0) return;
-				currentPage--;
-				await message.edit({
-					embeds: [await createEmbed()],
-					components: [row]
-				});
-			} else if (i.customId === "next") {
-				i.deferUpdate();
-				if (currentPage == pages.length - 1) return;
-				currentPage++;
-				await message.edit({
-					embeds: [await createEmbed()],
-					components: [row]
-				});
-			} else if (i.customId === "delete") {
-				i.deferUpdate();
-				await message.edit({
-					content: lang.util_allwebhooks_deleting,
-					components: []
+			if (i.customId === ID.previous) {
+				currentPage = (currentPage - 1 + pages) % pages;
+				await i.update({ components: [render(false)] });
+			} else if (i.customId === ID.next) {
+				currentPage = (currentPage + 1) % pages;
+				await i.update({ components: [render(false)] });
+			} else if (i.customId === ID.delete) {
+				collector.stop("deleted");
+				await i.update({
+					components: [
+						notice(
+							"info",
+							`${e.Discord_Loading} ${lang.util_allwebhooks_deleting}`
+						)
+					]
 				});
 
 				let u = 0;
@@ -150,21 +166,24 @@ export const subCommand: SubCommand = {
 					u++;
 				}
 
-				await message.edit({
-					content: lang.util_allwebhooks_deleted.replace(
-						"${u}",
-						String(u)
-					),
-					components: [],
-					embeds: []
-				});
+				await message
+					.edit({
+						components: [
+							notice(
+								"success",
+								`${e.Yes} ${lang.util_allwebhooks_deleted.replace("${u}", String(u))}`
+							)
+						]
+					})
+					.catch(() => undefined);
 			}
 		});
 
-		collector.on("end", async () => {
-			await message.edit({
-				components: []
-			});
+		collector.on("end", async (_collected, reason) => {
+			if (reason === "deleted") return;
+			await message
+				.edit({ components: [render(true)] })
+				.catch(() => undefined);
 		});
 
 		return;

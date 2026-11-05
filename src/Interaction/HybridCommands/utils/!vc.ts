@@ -21,17 +21,21 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
 	GuildMember,
 	Collection,
 	VoiceState,
-	ColorResolvable,
 	BaseGuildTextChannel
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 
 interface StatEntry {
 	emoji: string;
@@ -75,73 +79,77 @@ export const subCommand = {
 		const totalOnline =
 			memberStats.dnd + memberStats.online + memberStats.idle;
 
-		let dominant_color = "#010101";
+		// The icon's dominant colour, as before; the default accent otherwise.
+		let accent: number = ACCENT.info;
 		try {
-			dominant_color = (
+			const color = (
 				await client.func.image_dominant_color(
 					guild.iconURL({ size: 4096, extension: "png" }) || ""
 				)
 			).color1;
+			const parsed = parseInt(String(color).replace("#", ""), 16);
+			if (!Number.isNaN(parsed)) accent = parsed;
 		} catch {}
 
 		const stats: StatEntry[] = [
 			{
 				emoji: client.iHorizon_Emojis.Server_Stats,
-				label: lang.var_member,
+				label: lang.vc_label_members,
 				value: guild.memberCount.toString()
 			},
 			{
 				emoji: client.iHorizon_Emojis.VC_Limit,
-				label: lang.var_online,
+				label: lang.vc_label_online,
 				value: totalOnline
 			},
 			{
 				emoji: client.iHorizon_Emojis.Desktop_Online,
-				label: lang.var_online_call,
+				label: lang.vc_label_in_voice,
 				value: voiceStats.total
 			},
 			{
 				emoji: client.iHorizon_Emojis.Streaming,
-				label: lang.var_stream,
+				label: lang.vc_label_streaming,
 				value: voiceStats.streaming
 			},
 			{
 				emoji: client.iHorizon_Emojis.Server_Booster,
-				label: lang.var_boosts,
+				label: lang.vc_label_boosts,
 				value: guild.premiumSubscriptionCount?.toString() || "0"
 			},
 			{
 				emoji: client.iHorizon_Emojis.Camera,
-				label: lang.var_camera,
+				label: lang.vc_label_camera,
 				value: voiceStats.selfVideo,
 				largeOnly: true
 			},
 			{
 				emoji: client.iHorizon_Emojis.Mute,
-				label: lang.var_muted,
-				value: voiceStats.selfDeaf,
+				label: lang.vc_label_muted,
+				value: voiceStats.selfMute,
 				largeOnly: true
 			}
 		];
 
-		let description = "";
-		stats.forEach((stat) => {
-			if (stat.largeOnly && !isLarge) return;
-
-			description += isLarge
-				? `${stat.emoji}  ${stat.label} : **${stat.value}**\n`
-				: `${stat.label} : **${stat.value}**\n`;
+		const container = buildCard({
+			accent,
+			emoji: client.iHorizon_Emojis.Voice_Channel,
+			title: lang.vc_card_title,
+			description: `-# ${guild.name}`,
+			thumbnail: guild.iconURL({ size: 256 }),
+			fields: stats
+				.filter((stat) => isLarge || !stat.largeOnly)
+				.map((stat) => ({
+					emoji: stat.emoji,
+					label: stat.label,
+					value: `\`${stat.value}\``
+				})),
+			signature: await botSignature(client, guild.id)
 		});
 
-		const embed = new EmbedBuilder()
-			.setTitle(`${guild.name} ${lang.var_vc_stats} !`)
-			.setColor(dominant_color as ColorResolvable)
-			.setDescription(description.trim())
-			.setThumbnail(guild.iconURL({ size: 4096 }));
-
-		await (interaction.channel as BaseGuildTextChannel).send({
-			embeds: [embed]
-		});
+		await (interaction.channel as BaseGuildTextChannel).send(
+			cardPayload(container)
+		);
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			await interaction.reply({

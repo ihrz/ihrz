@@ -73,6 +73,8 @@ export default {
 	var_confirm: "Подтвердить",
 	var_succes: "Успех",
 	var_page: "Страница",
+	var_previous: "Назад",
+	var_next: "Вперёд",
 	var_permission: "Разрешение",
 	var_usage: "Использование",
 	var_aliases: "Псевдонимы",
@@ -1178,23 +1180,6 @@ export default {
 	// /serverinfo, /snipe, /userinfo, /renew
 
 	// /serverinfo
-	serverinfo_verlvl_NONE: "Нет",
-	serverinfo_verlvl_LOW: "Низкий",
-	serverinfo_verlvl_MEDIUM: "Средний",
-	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
-	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ ",
-	serverinfo_embed_author: "🚩 -> ${guildName}",
-	serverinfo_embed_description: "**Описание**: ${guildDescription}",
-	serverinfo_embed_fields_name: "🏷・**Название:**",
-	serverinfo_embed_fields_members: "🧔・**Участники:**",
-	serverinfo_embed_fields_id: "🆔・**ID:**",
-	serverinfo_embed_fields_owner: "👑・**Владелец:**",
-	serverinfo_embed_fields_verlvl: "🎚 ・**Уровень верификации:**",
-	serverinfo_embed_fields_region: "🌍・**Регион:**",
-	serverinfo_embed_fields_roles: "📇・**Количество ролей:**",
-	serverinfo_embed_fields_channels: "✍・**Количество каналов:**",
-	serverinfo_embed_fields_joinat: "🚲・**Присоединился:**",
-	serverinfo_embed_fields_createat: "⚓・**Создан:**",
 
 	// /setrankroles
 	setrankroles_not_admin:
@@ -1203,8 +1188,6 @@ export default {
 		"${emoji_No} Роли рангов уже есть в базе данных для этого сервера. ",
 	setrankroles_not_roles_typed:
 		"${emoji_No} Вы не включили ни одной роли в вашей команде!",
-	setrankroles_command_work:
-		"Теперь, когда вы упоминаете меня `@iHorizon`, я добавлю следующие роли: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
 		"<@${authorId}> установил роли рангов на <@&${argsid}>",
 	setrankroles_logs_embed_title_enable: "Установить роли рангов",
@@ -1215,21 +1198,12 @@ export default {
 		"<@${authorId}>, вы удалили роль рангов!",
 	setrankroles_command_error:
 		"${emoji_No} Команда столкнулась с ошибкой! Попробуйте еще раз позже.",
-	setrankroles_command_work_with_nicknames:
-		"Теперь, когда вы упоминаете меня с `@iHorizon`, я добавлю следующие роли: <@&${argsid}> **Только если у пользователя в имени пользователя или глобальном имени есть** `${nicknames}`",
-	setrankroles_command_work_with_nicknames_2:
-		"\n**Примечание**:\nЕсли пользователь удалит часть никнейма, роль будет автоматически снята. Когда он его вернет, я верну ему роль.",
 
 	// /snipe
 	snipe_no_previous_message_deleted: "В этом канале нет удаленных сообщений!",
 
 	// /userinfo
 	userinfo_wait_please: "${emoji_Timer} Пожалуйста, подождите...",
-	userinfo_embed_fields_1_name: "Значок",
-	userinfo_embed_fields_2_name: "Имя пользователя",
-	userinfo_embed_fields_3_name: "Отображаемое имя",
-	userinfo_embed_fields_4_name: "Дата создания",
-	userinfo_embed_fields_5_name: "Статус Nitro",
 	userinfo_var_notfound: "`Не найдено`",
 	userinfo_button_label: "Профиль пользователя",
 
@@ -1247,7 +1221,6 @@ export default {
 	renewvc_dont_have_permission: ":x: **Нельзя** `Нет разрешения!`",
 
 	// /prevnames
-	prevnames_embed_title: "Список всех никнеймов ${userUsername}",
 	prevnames_undetected: "Данных не найдено!",
 	prevnames_not_admin:
 		"У вас нет разрешения `АДМИНИСТРАТОР` для выполнения этой команды!",
@@ -1269,24 +1242,14 @@ export default {
 		"${author} (Владелец сервера) __выключил__ `BlockBot`. Теперь бот **может** быть добавлен на этот сервер!",
 
 	// /banner
-	banner_guild_embed: "**Это баннер сервера!**",
-	banner_user_embed: "**Это баннер ${userUsername}!**",
 	banner_guild_no_banner: "На сервере нет баннера.",
 	banner_user_no_banner: "У этого пользователя нет баннера.",
 
 	// /massiverole
-	massiverole_add_command_work:
-		"${author}, iHorizon выполнил команду массовой выдачи роли.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователю(ям) уже имеют роль ${role}\niHorizon не смог выдать роль **${e}** пользователю(ям).",
-	massiverole_sub_command_work:
-		"${author}, iHorizon выполнил команду массовой снятия роли.\n\n**${a}** пользователю(ям) снята роль ${role}\n**${s}** пользователю(ям) больше не имеют роль ${role}\niHorizon не смог снять роль у **${e}** пользователю(ям).",
 	massiverole_too_much_member:
 		"Слишком много участников, операция не может быть выполнена из-за возможных ограничений скорости!",
 
 	// /nickrole
-	nickrole_add_command_work:
-		"${author}, iHorizon выполнил команду nickrole.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователь(и) не имели `${part_of_nickname}` в нике\niHorizon не смог выдать роль **${e}** пользователю(ям).",
-	nickrole_sub_command_work:
-		"${author}, iHorizon выполнил команду nickrole.\n\n**${a}** пользователю(ям) снята роль ${role}\n**${s}** пользователь(и) больше не имеют `${part_of_nickname}` в нике\niHorizon не смог снять роль у **${e}** пользователю(ям).",
 	nickrole_too_much_member:
 		"Слишком много участников, операция не может быть выполнена из-за возможных ограничений скорости!",
 
@@ -1295,23 +1258,15 @@ export default {
 		"__Создан новый смайлик__ с именем **${emojiName}** ! (${emoji})",
 	emoji_send_err_emoji:
 		"__Ошибка при создании нового смайлика__ с именем **${emojiName}** !",
-	emoji_embed_desc_work:
-		"__Созданы **${cnt}** смайликов в сервере `${guildName}`__\n(${nemj})",
 
 	// /derank
-	derank_msg_desc_embed:
-		"## Я успешно удалил **${good}** ролей у <@${memberId}>.\n## Однако, не удалось удалить **${bad}** ролей.",
 	derank_msg_failed: "При удалении ролей произошла ошибка.",
 	derank_no_role: "У этого участника нет ролей для удаления.",
 
 	// /действие разблокировать все
-	action_unban_all_embed_desc:
-		"## Разблокировать всех членов гильдии\n${emoji_Yes} | Я успешно убрал запрет на `${unbannedMemberCount}` участника(ов) в гильдии!\n${emoji_No} | Я не могу разблокировать `${cannot_unban}` участника(ов)!",
 	action_unban_all_no_banned_members: "Заблокированных участников нет.",
 
 	// /действие отменить разблокировку
-	action_unban_undo_embed_desc:
-		"## Отменить все разблокировки\n${emoji_Yes} | Я успешно забанил `${bannedMemberCount}` участника(ов) в гильдии!\n${emoji_No} | Я не могу разблокировать `${cannot_ban}` участника(ов)!",
 
 	// /vc
 	vc_embed_desc:
@@ -1325,22 +1280,16 @@ export default {
 		"## Голосовые Состояния\n`${voiceCount}` участник(ов) в голосовом канале:\n${emoji_iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${emoji_iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${emoji_iHorizon_Mute} **=>** ${total_members_vc_mute}\n${emoji_iHorizon_Camera} **=>** ${total_members_vc_video}\n## Состояния Участников\n`${total_members_size}` участник(ов) в гильдии:\n${emoji_DND} **=>** ${total_members_states_dnd}\n${emoji_Online} **=>** ${total_members_states_online}\n${emoji_Idle} **=>** ${total_members_states_idle}",
 
 	// /massmove
-	massmove_results:
-		"${author}, iHorizon переместил участников между голосовыми каналами.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${toChannel}.\n**${errorCount}** участник(ов) не удалось переместить (подробнее см. в журналах сервера).",
 	massmove_too_much_member:
 		"Слишком много участников, не могу сделать это из-за возможного ограничения скорости!",
 
 	// /all-admins
 	all_admins_nobody_admins: "В этом сервере нет администраторов!",
-	all_admins_embed_title: "Список всех администраторов | Страница ${page}",
 	all_admins_unrank_button_label: "Разжаловать всех",
-	all_admins_unrank_embed_desc:
-		"${author}, iHorizon выполнил разжалование всех для модуля AllAdmins.\n\n**${good}** Пользователь(и) __успешно__ разжалованы\niHorizon __не смог__ разжаловать **${bad}** Пользователь(и).",
 	all_admins_unrank_not_owner:
 		"Только владелец сервера может разжаловать всех администраторов сервера",
 
 	// /allbots
-	all_bots_embed_title: "Список всех бот(ов) | Страница ${page}",
 
 	// /addrole
 	utils_addrole_highter_or_egal_roles_msg:
@@ -1422,7 +1371,6 @@ export default {
 		"Пожалуйста, ответьте на сообщение, содержащее стикер.",
 
 	// /util nick-kicker
-	util_nick_kicker_embed_title: "Кикер никнеймов",
 	util_nick_kicker_embed_desc:
 		"Когда участник присоединяется, если его никнейм содержит определенное слово, он будет исключен",
 	util_nick_kicker_words: "слова",
@@ -1525,8 +1473,6 @@ export default {
 	util_leashlist_no_data:
 		"${emoji_No} | На этом сервере нет активных привязок.",
 	util_leashlist_embed_title: "Активные привязки",
-	util_leashlist_embed_desc:
-		"${dom} -> ${sub} (истекает через `${remaining}`)",
 
 	// /util lockname, /util unlockname
 	util_lockname_not_in_guild: "${emoji_No} | Этого участника нет на сервере!",
@@ -1550,10 +1496,6 @@ export default {
 	util_locknamelist_empty:
 		"${emoji_No} | На этом сервере нет заблокированных ников! `/utilss lockname`, чтобы создать.",
 	util_locknamelist_embed_title: "Заблокированные ники",
-	util_locknamelist_embed_count: "**${count}** заблокир. ник(ов):",
-	util_locknamelist_embed_line:
-		"> <@${memberId}> • **${nick}** • заблокировал ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)",
-	util_locknamelist_embed_line_short: "> <@${memberId}> • **${nick}**",
 
 	// /util autorenew
 	util_autorenew_time_too_short:
@@ -1567,8 +1509,6 @@ export default {
 		"Модуль AutoRenew настроен на обновление этого канала. Следующее обновление через ${time}.",
 
 	// /util where
-	util_where_deaf: "Самозаглушение звука",
-	util_where_mute: "Самозаглушение микрофона",
 	var_video: "Видео",
 	var_whereis: "Где находится",
 	util_not_in_vc: "Участники не находятся в голосовом канале",
@@ -1598,8 +1538,6 @@ export default {
 		"${author}, вы успешно отключили ${member} от ${voiceChannel}.",
 
 	// /util sync
-	util_sync_embed_description_1:
-		"Следующие каналы теперь синхронизированы с категорией `#${categoryName}`:\n\n${changes}",
 	util_sync_embed_description_0:
 		"Все каналы в категории уже имеют синхронизированные разрешения.",
 
@@ -1618,11 +1556,7 @@ export default {
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "В этом сервере нет роли администратора!",
-	admin_roles_embed_title:
-		"Список всех ролей администратора | Страница ${page}",
 	admin_roles_remove_button_label: "Снять права админа у всех",
-	admin_roles_remove_embed_desc:
-		"${author}, iHorizon выполнил удаление прав администратора для модуля AdminRoles.\n\n**${good}** роль(и) успешно __изменены__\nНе удалось изменить **${bad}** роль(ей) в iHorizon.",
 	admin_roles_remove_not_owner: "Вы не владелец сервера!",
 
 	// /util rolelimit
@@ -1640,7 +1574,6 @@ export default {
 		"Медленный режим канала установлен на ${duration_in_string}.",
 
 	// /util role-members
-	util_role_members: "Список пользователей с этими ролями",
 	util_role_members_no_one: "На сервере нет никого с этой ролью",
 
 	// /util vanity-generator
@@ -1662,8 +1595,6 @@ export default {
 	bringall_no_voice_channels:
 		"Указанная категория не содержит голосовых каналов.",
 	bringall_no_members: "В исходном голосовом канале нет участников.",
-	bringall_results:
-		"${author}, iHorizon распределил участников по голосовым каналам.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${channelCount} каналов в ${category}.\n**${errorCount}** участник(ов) не удалось переместить (подробности см. в журналах сервера).",
 
 	// /util move
 	util_move_not_in_vc:
@@ -2512,8 +2443,6 @@ export default {
 	// /unban, /tempmute, /unmute
 
 	// /avatar
-	avatar_embed_description: "Посмотрите на этот удивительный аватар! :D",
-	avatar_embed_title: "__**Аватар**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission: "${emoji_No} | У вас нет разрешения на бан участников.",
@@ -3707,15 +3636,6 @@ export default {
 	batch_unban_process: "🔄 Разбаниваю ${bannedMemberCount} участников...",
 	batch_unblacklist_process:
 		"🔄 Удаляю ${bannedMemberUsername} из чёрного списка на ${guildObjectCount} серверах...",
-	batch_unbanall_process: "🔄 Разбаниваю ${bannedMemberCount} участников...",
-	batch_massiverole_process:
-		"🔄 Добавляю роль ${membersToProcessCount} участникам...",
-	batch_unmassiverole_process:
-		"🔄 Удаляю роль у ${membersToProcessCount} участников...",
-	batch_undo_unban:
-		"🔄 Повторно разбаниваю ${unbannedMemberCount} участников...",
-	batch_derank_process:
-		"🔄 Удаляю ${rolesToRemoveCount} ролей у ${memberUsername}...",
 	unbanall_undo_command_err:
 		"Нет участников для повторного бана. Сначала используйте команду разбана всех.",
 
@@ -4506,5 +4426,153 @@ export default {
 	// /tts join
 	h247_tts_refused:
 		"${emoji_No} На этом сервере активен модуль H24/7. Зайдите в голосовой канал H24/7, чтобы включить TTS!",
-	gw_go_duration_too_low: "${emoji_No} | Минимальная длительность — 3 минуты!"
+	gw_go_duration_too_low:
+		"${emoji_No} | Минимальная длительность — 3 минуты!",
+
+	// Components V2 cards: /avatar, /serverinfo, /allbots
+	avatar_card_title: "Аватар ${user}",
+	card_download: "Скачать",
+	serverinfo_label_owner: "Владелец",
+	serverinfo_label_members: "Участники",
+	serverinfo_label_created: "Создан",
+	serverinfo_label_joined: "Вы вступили",
+	serverinfo_label_roles: "Роли",
+	serverinfo_label_channels: "Каналы",
+	serverinfo_label_boosts: "Бусты",
+	serverinfo_boost_value: "${count} (уровень ${tier})",
+	serverinfo_label_verification: "Проверка",
+	serverinfo_label_language: "Язык",
+	serverinfo_label_id: "ID",
+	serverinfo_verif_none: "Нет",
+	serverinfo_verif_low: "Низкий",
+	serverinfo_verif_medium: "Средний",
+	serverinfo_verif_high: "Высокий",
+	serverinfo_verif_highest: "Максимальный",
+	all_bots_card_title: "Боты на ${guild}",
+	all_bots_card_count: "Ботов: ${count}",
+	all_bots_none: "На этом сервере нет ботов.",
+
+	// Components V2 cards: /unbanall, /media-only, /nick-kicker, /sync, /wlroles
+	unbanall_card_progress: "Разбан `${count}` участников…",
+	unbanall_card_undo_progress: "Повторный бан `${count}` участников…",
+	unbanall_card_title: "Разбанить всех",
+	unbanall_card_undo_title: "Разбан отменён",
+	unbanall_label_unbanned: "Разбанено",
+	unbanall_label_banned: "Забанено снова",
+	unbanall_label_failed: "Не удалось",
+	sync_card_title: "Права синхронизированы",
+	sync_card_desc: "Эти каналы теперь используют права ${category}:",
+	media_only_card_title: "Каналы только для медиа",
+	utils_label_save: "Сохранить",
+	nick_kicker_card_title: "Кик по никнейму",
+	nick_kicker_label_status: "Статус",
+	nick_kicker_label_words: "Слова",
+	wlroles_card_title: "Разрешённые роли",
+	wlroles_card_warn_title: "Опасные права",
+	wlroles_card_high_title: "Роли выше моей",
+
+	// Components V2 cards: /userinfo, /banner, /inviteinfo, /serverpic, /where, /vc, /snipe
+	userinfo_label_badges: "Значки",
+	userinfo_label_username: "Имя пользователя",
+	userinfo_label_created: "Аккаунт создан",
+	userinfo_label_joined: "Вступил на сервер",
+	userinfo_label_nitro: "Nitro",
+	userinfo_label_roles: "Роли",
+	userinfo_label_id: "ID",
+	userinfo_card_loading: "Загрузка профиля…",
+	banner_card_guild_title: "Баннер ${guild}",
+	banner_card_user_title: "Баннер ${user}",
+	inviteinfo_label_channel: "Канал",
+	inviteinfo_label_inviter: "Пригласил",
+	inviteinfo_label_created: "Сервер создан",
+	inviteinfo_label_expires: "Истекает",
+	inviteinfo_label_members: "Участники",
+	inviteinfo_label_online: "В сети",
+	inviteinfo_label_boosts: "Бусты",
+	inviteinfo_label_features: "Функции",
+	serverpic_card_title: "Значок ${guild}",
+	serverpic_card_no_icon: "У этого сервера нет значка.",
+	where_card_title: "Где ${member}",
+	where_label_member: "Участник",
+	where_label_channel: "Голосовой канал",
+	where_label_stream: "Трансляция",
+	where_label_video: "Камера",
+	where_label_mute: "Микрофон выключен",
+	where_label_deaf: "Звук выключен",
+	vc_card_title: "Голосовая активность",
+	vc_label_members: "Участники",
+	vc_label_online: "В сети",
+	vc_label_in_voice: "В голосовых",
+	vc_label_streaming: "Трансляции",
+	vc_label_boosts: "Бусты",
+	vc_label_camera: "Камера включена",
+	vc_label_muted: "Без микрофона",
+	snipe_card_title: "Последнее удалённое сообщение",
+	snipe_label_author: "Автор",
+	snipe_label_sent: "Отправлено",
+
+	// Components V2 cards: /delrole, /derank, /massiverole, /massmove, /nickrole, /setmentionrole, /util bringall, /util move
+	utils_label_member: "Участник",
+	utils_label_role: "Роль",
+	utils_label_by: "Кем",
+	utils_label_failed: "Ошибки",
+	utils_label_from: "Откуда",
+	utils_label_to: "Куда",
+	utils_label_moved: "Перемещено",
+	utils_label_name_filter: "Имя содержит",
+	derank_card_progress: "Снимаю ${count} ролей с ${member}…",
+	derank_card_title: "Роли участника сняты",
+	derank_label_removed: "Снято ролей",
+	massiverole_card_progress_add: "Выдаю роль ${count} участникам…",
+	massiverole_card_progress_sub: "Снимаю роль с ${count} участников…",
+	massiverole_card_title_add: "Роль выдана участникам",
+	massiverole_card_title_sub: "Роль снята с участников",
+	massiverole_label_added: "Получили",
+	massiverole_label_already: "Уже была",
+	massiverole_label_removed: "Лишились",
+	massiverole_label_without: "Не было",
+	nickrole_label_skipped: "Пропущено",
+	massmove_card_title: "Участники перемещены",
+	bringall_card_title: "Участники распределены",
+	bringall_label_category: "Категория",
+	bringall_label_channels: "Голосовые каналы",
+	setmentionrole_card_title: "Роль за упоминание включена",
+	setmentionrole_card_desc:
+		"Когда участник упоминает меня, я выдаю ему эту роль.",
+	setmentionrole_card_note:
+		"Роль получают только участники, чьё имя пользователя или отображаемое имя содержит этот текст. Если они уберут его, роль будет снята и возвращена, когда они добавят его снова.",
+
+	// Components V2 cards: /admin-users, /admin-roles, /allwebhooks, /role-members, /prevnames, /emojis, /leashlist, /locknamelist
+	card_bot: "Бот",
+	card_working: "Выполняется…",
+	card_label_requested_by: "Запросил",
+	card_label_failed: "Ошибки",
+	admin_users_card_title: "Администраторы",
+	admin_users_card_count: "Участников с правом администратора: ${count}",
+	admin_users_card_only_bots: "Это право есть только у ботов.",
+	admin_users_button_hide_bots: "Скрыть ботов",
+	admin_users_button_show_bots: "Показать ботов",
+	admin_users_card_done_title: "Администраторы понижены",
+	admin_users_label_unranked: "Понижено участников",
+	admin_roles_card_title: "Роли администратора",
+	admin_roles_card_count: "Ролей с правом администратора: ${count}",
+	admin_roles_card_managed: "Управляется интеграцией",
+	admin_roles_card_done_title: "Право администратора снято",
+	admin_roles_label_modified: "Изменено ролей",
+	allwebhooks_card_count: "Вебхуков: ${count}",
+	allwebhooks_button_delete: "Удалить все",
+	role_members_card_title: "Участники ${role}",
+	role_members_card_count: "Участников: ${count}",
+	prevnames_card_title: "Прежние имена ${user}",
+	prevnames_card_count: "Сохранено имён: ${count}",
+	prevnames_button_erase: "Стереть мою историю",
+	prevnames_label_username: "Имя пользователя",
+	prevnames_label_display_name: "Отображаемое имя",
+	prevnames_label_nickname: "Ник на ${guild}",
+	emoji_card_title: "Эмодзи добавлены",
+	emoji_card_count: "Создано эмодзи в ${guild}: ${count}",
+	util_leashlist_card_count: "Активных поводков: ${count}",
+	util_leashlist_card_expires: "Истекает",
+	util_locknamelist_card_count: "Заблокированных ников: ${count}",
+	util_locknamelist_card_by: "Заблокировал ${user}"
 } satisfies LanguageData;

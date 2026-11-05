@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Role,
 	Guild,
@@ -32,6 +31,13 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -68,29 +74,90 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const ogInteraction = await client.func.method.interactionSend(
+		const emojis = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+		const author = interaction.member;
+
+		// The progress line and the result are both Components V2, so the
+		// message can be edited from one to the other.
+		const ogInteraction = await sendCard(
+			client,
 			interaction,
-			{
-				content: client.iHorizon_Emojis.Discord_Loading
-			}
+			notice("info", emojis.Discord_Loading)
 		);
 
-		if (action === "add") {
+		const resultCard = async (adding: boolean) =>
+			buildCard({
+				accent: e > 0 ? ACCENT.warning : role?.color || ACCENT.success,
+				emoji: adding ? emojis.Plus : emojis.Minus,
+				title: adding
+					? lang.massiverole_card_title_add
+					: lang.massiverole_card_title_sub,
+				thumbnail: guild.iconURL(),
+				fields: [
+					{
+						emoji: emojis.Ticket_Role,
+						label: lang.utils_label_role,
+						value: role?.toString()!
+					},
+					{
+						emoji: emojis.Yes,
+						label: adding
+							? lang.massiverole_label_added
+							: lang.massiverole_label_removed,
+						value: `\`${a}\``
+					},
+					{
+						emoji: emojis.Ticket_User,
+						label: adding
+							? lang.massiverole_label_already
+							: lang.massiverole_label_without,
+						value: `\`${s}\``
+					},
+					{
+						emoji: emojis.No,
+						label: lang.utils_label_failed,
+						value: `\`${e}\``
+					},
+					{
+						emoji: emojis.Crown,
+						label: lang.utils_label_by,
+						value: author.toString()
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			});
+
+		const showResult = async (adding: boolean) => {
+			await ogInteraction.edit({
+				components: [await resultCard(adding)]
+			});
+		};
+
+		if (action === "add" || action === "sub") {
+			const adding = action === "add";
 			try {
-				const members = await interaction.guild.members.fetch();
+				const members = await guild.members.fetch();
 				const membersToProcess = Array.from(members.values()).filter(
-					(member) => !member.roles.cache.has(role?.id!)
+					(member) => member.roles.cache.has(role?.id!) !== adding
 				);
 
-				// Count members that already have the role
+				// Members that already have the role (add) or never had it (sub)
 				s = members.size - membersToProcess.length;
 
-				// Send immediate response
 				await ogInteraction.edit({
-					content: lang.batch_massiverole_process.replace(
-						"${membersToProcessCount}",
-						membersToProcess.length.toString()
-					)
+					components: [
+						notice(
+							"info",
+							`${emojis.Discord_Loading} ${(adding
+								? lang.massiverole_card_progress_add
+								: lang.massiverole_card_progress_sub
+							).replace(
+								"${count}",
+								membersToProcess.length.toString()
+							)}`
+						)
+					]
 				});
 
 				// Process in batches asynchronously
@@ -98,10 +165,17 @@ export const subCommand: SubCommand = {
 					membersToProcess,
 					async (member) => {
 						try {
-							await member.roles.add(
-								role as Role,
-								"[Massrole] Module"
-							);
+							if (adding) {
+								await member.roles.add(
+									role as Role,
+									"[Massrole] Module"
+								);
+							} else {
+								await member.roles.remove(
+									role as Role,
+									"[MassiveRole] Command"
+								);
+							}
 							a++;
 							return true;
 						} catch {
@@ -110,176 +184,15 @@ export const subCommand: SubCommand = {
 						}
 					},
 					{ batchSize: 10, delay: 150 },
-					async (result) => {
+					async () => {
 						// Send final result when processing is complete
-						const embed = new EmbedBuilder()
-							.setFooter(
-								await client.func.displayBotName.footerBuilder(
-									interaction.guildId!
-								)
-							)
-							.setColor("#007fff")
-							.setTimestamp()
-							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(
-								lang.massiverole_add_command_work
-									.replace(
-										"${author}",
-										interaction.member!.user.toString()
-									)
-									.replace("${a}", a.toString())
-									.replace("${s}", s.toString())
-									.replace("${e}", e.toString())
-									.replaceAll("${role}", role?.toString()!)
-							);
-
-						await ogInteraction.edit({
-							content: null,
-							embeds: [embed],
-							files: [
-								await interaction.client.func.displayBotName.footerAttachmentBuilder(
-									interaction
-								)
-							]
-						});
+						await showResult(adding);
 					}
 				);
 				return;
 			} catch (error) {}
 
-			const embed = new EmbedBuilder()
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setColor("#007fff")
-				.setTimestamp()
-				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(
-					lang.massiverole_add_command_work
-						.replace(
-							"${author}",
-							interaction.member.user.toString()
-						)
-						.replace("${a}", a.toString())
-						.replace("${s}", s.toString())
-						.replace("${e}", e.toString())
-						.replaceAll("${role}", role?.toString()!)
-				);
-
-			await ogInteraction.edit({
-				content: null,
-				embeds: [embed],
-				files: [
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
-			return;
-		} else if (action === "sub") {
-			try {
-				const members = await interaction.guild.members.fetch();
-				const membersToProcess = Array.from(members.values()).filter(
-					(member) => member.roles.cache.has(role?.id!)
-				);
-
-				// Count members that don't have the role
-				s = members.size - membersToProcess.length;
-
-				// Send immediate response
-				await ogInteraction.edit({
-					content: lang.batch_unmassiverole_process.replace(
-						"${membersToProcessCount}",
-						membersToProcess.length.toString()
-					)
-				});
-
-				// Process in batches asynchronously
-				processBatchAsync(
-					membersToProcess,
-					async (member) => {
-						try {
-							await member.roles.remove(
-								role as Role,
-								"[MassiveRole] Command"
-							);
-							a++;
-							return true;
-						} catch {
-							e++;
-							return false;
-						}
-					},
-					{ batchSize: 10, delay: 150 },
-					async (result) => {
-						// Send final result when processing is complete
-						const embed = new EmbedBuilder()
-							.setFooter(
-								await client.func.displayBotName.footerBuilder(
-									interaction.guildId!
-								)
-							)
-							.setColor("#007fff")
-							.setTimestamp()
-							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(
-								lang.massiverole_sub_command_work
-									.replace(
-										"${author}",
-										interaction.member!.user.toString()
-									)
-									.replace("${a}", a.toString())
-									.replace("${s}", s.toString())
-									.replace("${e}", e.toString())
-									.replaceAll("${role}", role?.toString()!)
-							);
-
-						await ogInteraction.edit({
-							content: null,
-							embeds: [embed],
-							files: [
-								await interaction.client.func.displayBotName.footerAttachmentBuilder(
-									interaction
-								)
-							]
-						});
-					}
-				);
-				return;
-			} catch (error) {}
-
-			const embed = new EmbedBuilder()
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setColor("#007fff")
-				.setTimestamp()
-				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(
-					lang.massiverole_sub_command_work
-						.replace(
-							"${author}",
-							interaction.member.user.toString()
-						)
-						.replace("${a}", a.toString())
-						.replace("${s}", s.toString())
-						.replace("${e}", e.toString())
-						.replaceAll("${role}", role?.toString()!)
-				);
-
-			await ogInteraction.edit({
-				content: null,
-				embeds: [embed],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			await showResult(adding);
 			return;
 		}
 

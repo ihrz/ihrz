@@ -73,6 +73,8 @@ export default {
 	var_confirm: "تأكيد",
 	var_succes: "نجاح",
 	var_page: "صفحة",
+	var_previous: "السابق",
+	var_next: "التالي",
 	var_permission: "إذن",
 	var_usage: "الاستخدام",
 	var_aliases: "الأسماء المستعارة",
@@ -1113,23 +1115,6 @@ export default {
 	// /serverinfo, /snipe, /userinfo, /renew
 
 	// /serverinfo
-	serverinfo_verlvl_NONE: "لا شيء",
-	serverinfo_verlvl_LOW: "منخفض",
-	serverinfo_verlvl_MEDIUM: "متوسط",
-	serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻",
-	serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻",
-	serverinfo_embed_author: "🚩 -> ${guildName}",
-	serverinfo_embed_description: "**الوصف**: ${guildDescription}",
-	serverinfo_embed_fields_name: "🏷・**الاسم:**",
-	serverinfo_embed_fields_members: "🧔・**الأعضاء:**",
-	serverinfo_embed_fields_id: "🆔・**الـ ID:**",
-	serverinfo_embed_fields_owner: "👑・**المالك:**",
-	serverinfo_embed_fields_verlvl: "🎚 ・**مستوى التحقق:**",
-	serverinfo_embed_fields_region: "🌍・**المنطقة:**",
-	serverinfo_embed_fields_roles: "📇・**عدد الأدوار:**",
-	serverinfo_embed_fields_channels: "✍・**عدد القنوات:**",
-	serverinfo_embed_fields_joinat: "🚲・**انضمام في:**",
-	serverinfo_embed_fields_createat: "⚓・**إنشاء في:**",
 
 	// /setrankroles
 	setrankroles_not_admin:
@@ -1138,8 +1123,6 @@ export default {
 		"${emoji_No} الأدوار التصنيفية موجودة بالفعل في قاعدة بيانات هذا الخادم.",
 	setrankroles_not_roles_typed:
 		"${emoji_No} لم تقم بإدراج أي أدوار في أوامرك!",
-	setrankroles_command_work:
-		"الآن، عندما تشير إليّ بـ `@iHorizon` سأضيف الأدوار التالية: <@&${argsid}>",
 	setrankroles_logs_embed_description_enable:
 		"<@${authorId}> قام بتعيين دور التصنيف إلى <@&${argsid}>",
 	setrankroles_logs_embed_title_enable: "تعيين دور التصنيف",
@@ -1150,21 +1133,12 @@ export default {
 		"<@${authorId}>, لقد قمت بحذف دور التصنيف!",
 	setrankroles_command_error:
 		"${emoji_No} حدث خطأ في الأمر! يرجى المحاولة مرة أخرى لاحقًا.",
-	setrankroles_command_work_with_nicknames:
-		"الآن، عندما تشير إليّ بـ `@iHorizon` سأضيف الأدوار التالية: <@&${argsid}> **فقط إذا كان المستخدم يحتوي على** `${nicknames}` في اسم المستخدم أو الاسم العالمي.",
-	setrankroles_command_work_with_nicknames_2:
-		"\n**ملاحظة**:\nإذا أزالت الشخص الجزء من اللقب، سيتم إزالة الدور تلقائيًا. عندما تعيده، سأعيد له الدور.",
 
 	// /snipe
 	snipe_no_previous_message_deleted: "لا توجد رسائل محذوفة في هذه القناة!",
 
 	// /userinfo
 	userinfo_wait_please: "${emoji_Timer} يرجى الانتظار...",
-	userinfo_embed_fields_1_name: "شعار",
-	userinfo_embed_fields_2_name: "اسم المستخدم",
-	userinfo_embed_fields_3_name: "الاسم المعروض",
-	userinfo_embed_fields_4_name: "تاريخ الإنشاء",
-	userinfo_embed_fields_5_name: "حالة Nitro",
 	userinfo_var_notfound: "`لم يتم العثور عليه`",
 	userinfo_button_label: "ملف المستخدم",
 
@@ -1181,7 +1155,6 @@ export default {
 	renewvc_dont_have_permission: ":x: **لا يمكن** `لا تملك الإذن!`",
 
 	// /prevnames
-	prevnames_embed_title: "قائمة جميع الألقاب السابقة لـ ${userUsername}",
 	prevnames_undetected: "لم يتم العثور على بيانات!",
 	prevnames_not_admin: "ليس لديك صلاحية `ADMINISTRATOR` لتنفيذ هذا الأمر!",
 	prevnames_data_erased:
@@ -1202,24 +1175,14 @@ export default {
 		"${author} (مالك الخادم) __قام بتعطيل__ `BlockBot`. الآن يمكن إضافة البوت إلى هذا الخادم!",
 
 	// /banner
-	banner_guild_embed: "**هذه هي لافتة خادم الغGuild!**",
-	banner_user_embed: "**هذه هي لافتة ${userUsername}!**",
 	banner_guild_no_banner: "الخادم ليس لديه راية.",
 	banner_user_no_banner: "هذا المستخدم ليس لديه راية.",
 
 	// /massiverole
-	massiverole_add_command_work:
-		"${author}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم __تلقى__ دور ${role}\n**${s}** مستخدم __كان لديهم بالفعل__ دور ${role}\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم.",
-	massiverole_sub_command_work:
-		"${author}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم __فقد__ دور ${role}\n**${s}** مستخدم __لم يكن لديهم بعد__ دور ${role}\nفشلت iHorizon في إزالة الدور من **${e}** مستخدم.",
 	massiverole_too_much_member:
 		"عدد كبير جدًا من الأعضاء، لا يمكن تنفيذ ذلك بسبب احتمالية وجود حد معدل!",
 
 	// /nickrole
-	nickrole_add_command_work:
-		"${author}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) حصلوا على دور ${role}\n**${s}** مستخدم(s) لم يكن لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم(s).",
-	nickrole_sub_command_work:
-		"${author}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) فقدوا دور ${role}\n**${s}** مستخدم(s) لم يعد لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إزالة الدور من **${e}** مستخدم(s).",
 	nickrole_too_much_member:
 		"عدد كبير جدًا من الأعضاء، لا يمكن متابعة التنفيذ بسبب احتمالية وجود حد معدل!",
 
@@ -1228,23 +1191,15 @@ export default {
 		"__تم إنشاء رمز تعبيري جديد__ بالاسم **${emojiName}**! (${emoji})",
 	emoji_send_err_emoji:
 		"__حدث خطأ عند إنشاء رمز تعبيري__ بالاسم **${emojiName}**!",
-	emoji_embed_desc_work:
-		"__تم إنشاء **${cnt}** رمز تعبيري في `${guildName}`__\n(${nemj})",
 
 	// /derank
-	derank_msg_desc_embed:
-		"## لقد قمت بنجاح بإزالة **${good}** دور(s) من <@${memberId}>.\n## ومع ذلك، فشلت في إزالة **${bad}** دور(s).",
 	derank_msg_failed: "حدث خطأ أثناء إزالة الأدوار.",
 	derank_no_role: "هذا العضو ليس لديه أدوار للإزالة.",
 
 	// /action unban all
-	action_unban_all_embed_desc:
-		"## إلغاء حظر جميع أعضاء الخادم\n${emoji_Yes} | لقد قمت بإلغاء حظر `${unbannedMemberCount}` عضو(s) في الخادم!\n${emoji_No} | لا يمكنني إلغاء حظر `${cannot_unban}` عضو(s)!",
 	action_unban_all_no_banned_members: "لا يوجد أعضاء محظورين.",
 
 	// /action unban undo
-	action_unban_undo_embed_desc:
-		"## التراجع عن إلغاء الحظر لجميع الأعضاء\n${emoji_Yes} | لقد قمت بنجاح بحظر `${bannedMemberCount}` عضو(s) في الخادم!\n${emoji_No} | لا يمكنني حظر `${cannot_ban}` عضو(s)!",
 
 	// /vc
 	vc_embed_desc:
@@ -1259,22 +1214,16 @@ export default {
 		"## حالات الصوت\n`${voiceCount}` عضو/أعضاء في قناة صوتية:\n${emoji_iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${emoji_iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${emoji_iHorizon_Mute} **=>** ${total_members_vc_mute}\n${emoji_iHorizon_Camera} **=>** ${total_members_vc_video}\n## حالات الأعضاء\n`${total_members_size}` عضو/أعضاء في الخادم:\n${emoji_DND} **=>** ${total_members_states_dnd}\n${emoji_Online} **=>** ${total_members_states_online}\n${emoji_Idle} **=>** ${total_members_states_idle}",
 
 	// /massmove
-	massmove_results:
-		"${author}, لقد قامت iHorizon بنقل الأعضاء بين القنوات الصوتية.\n\n**${movedCount}** عضو/أعضاء تم نقلهم بنجاح من ${fromChannel} إلى ${toChannel}.\n**${errorCount}** عضو/أعضاء لم يمكن نقلهم (راجع سجلات الخادم للحصول على التفاصيل).",
 	massmove_too_much_member:
 		"عدد كبير جدًا من الأعضاء، لا يمكن تنفيذ ذلك بسبب احتمالية وجود حد معدل!",
 
 	// /all-admins
 	all_admins_nobody_admins: "لا يوجد مشرفون في هذا الخادم!",
-	all_admins_embed_title: "قائمة جميع المستخدمين الإداريين | الصفحة ${page}",
 	all_admins_unrank_button_label: "إلغاء التصنيف لجميع",
-	all_admins_unrank_embed_desc:
-		"${author}, لقد قامت iHorizon بتنفيذ إلغاء التصنيف لجميع في وحدة AllAdmins.\n\n**${good}** مستخدم/مستخدمون __تم إلغاء تصنيفهم__ بنجاح\nفشلت iHorizon في إلغاء تصنيف **${bad}** مستخدم/مستخدمون.",
 	all_admins_unrank_not_owner:
 		"فقط مالك الخادم يمكنه إلغاء تصنيف جميع المشرفين في الخادم",
 
 	// /allbots
-	all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${page}",
 
 	// /addrole
 	utils_addrole_highter_or_egal_roles_msg:
@@ -1352,7 +1301,6 @@ export default {
 	sticket_command_error2: "يرجى الرد على رسالة تحتوي على ملصق.",
 
 	// /util nick-kicker
-	util_nick_kicker_embed_title: "طارد الألقاب",
 	util_nick_kicker_embed_desc:
 		"عندما ينضم العضو، إذا كان لقبه يحتوي على كلمة محددة، سيتم طرده",
 	util_nick_kicker_words: "الكلمات",
@@ -1448,7 +1396,6 @@ export default {
 	util_leashlist_no_data:
 		"${emoji_No} | لا توجد أي رباطة نشطة في هذا السيرفر.",
 	util_leashlist_embed_title: "الرباطات النشطة",
-	util_leashlist_embed_desc: "${dom} -> ${sub} (تنتهي خلال `${remaining}`)",
 
 	// /util lockname, /util unlockname
 	util_lockname_not_in_guild: "${emoji_No} | هذا العضو ليس في السيرفر!",
@@ -1469,10 +1416,6 @@ export default {
 	util_locknamelist_empty:
 		"${emoji_No} | لا يوجد لقب مقفل في هذا السيرفر! `/utilss lockname` لإنشاء واحد.",
 	util_locknamelist_embed_title: "الألقاب المقفلة",
-	util_locknamelist_embed_count: "**${count}** لقب مقفل:",
-	util_locknamelist_embed_line:
-		"> <@${memberId}> • **${nick}** • بواسطة ${lockedBy} • <t:${lockedAt}:f> (<t:${lockedAt}:R>)",
-	util_locknamelist_embed_line_short: "> <@${memberId}> • **${nick}**",
 
 	// /util autorenew
 	util_autorenew_time_too_short:
@@ -1486,8 +1429,6 @@ export default {
 		"تم تكوين وحدة AutoRenew لتجديد هذه القناة. التجديد التالي بعد ${time}.",
 
 	// /util where
-	util_where_deaf: "أصم",
-	util_where_mute: "صامت",
 	var_video: "فيديو",
 	var_whereis: "أين هو",
 	util_not_in_vc: "الأعضاء ليسوا في قناة صوتية",
@@ -1516,8 +1457,6 @@ export default {
 		"${author}، لقد نجحت في فصل ${member} من ${voiceChannel}.",
 
 	// /util sync
-	util_sync_embed_description_1:
-		"تم الآن مزامنة القنوات التالية مع فئة `#${categoryName}`:\n\n${changes}",
 	util_sync_embed_description_0:
 		"جميع القنوات في الفئة لديها بالفعل أذونات متزامنة.",
 
@@ -1534,10 +1473,7 @@ export default {
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "لا يوجد دور مسؤول في هذا الخادم!",
-	admin_roles_embed_title: "قائمة كل أدوار المسؤولين | الصفحة ${page}",
 	admin_roles_remove_button_label: "إزالة المسؤول من الجميع",
-	admin_roles_remove_embed_desc:
-		"${author}، قام iHorizon بتنفيذ إزالة صلاحيات المسؤول لوحدة AdminRoles.\n\n**${good}** دور/أدوار تم __تعديلها__ بنجاح\nفشل iHorizon في تعديل **${bad}** دور/أدوار.",
 	admin_roles_remove_not_owner: "أنت لست مالك الخادم!",
 
 	// /util rolelimit
@@ -1554,7 +1490,6 @@ export default {
 		"تم تغيير وضع البطء في القناة إلى ${duration_in_string}.",
 
 	// /util role-members
-	util_role_members: "قائمة المستخدمين الذين لديهم الأدوار",
 	util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم",
 
 	// /util vanity-generator
@@ -1574,8 +1509,6 @@ export default {
 	bringall_invalid_category: "الرجاء تحديد فئة صالحة.",
 	bringall_no_voice_channels: "الفئة المحددة لا تحتوي على قنوات صوتية.",
 	bringall_no_members: "لا يوجد أعضاء في القناة الصوتية المصدر.",
-	bringall_results:
-		"${author}، قام iHorizon بتوزيع الأعضاء عبر القنوات الصوتية.\n\n**${movedCount}** عضو تم نقلهم بنجاح من ${fromChannel} إلى ${channelCount} قنوات في ${category}.\n**${errorCount}** عضو لم يتمكن من نقلهم (راجع سجلات الخادم للحصول على التفاصيل).",
 
 	// /util move
 	util_move_not_in_vc: "العضو الذي تريد نقله غير متصل بأي قناة صوتية",
@@ -2383,8 +2316,6 @@ export default {
 	// /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 	// /unban, /tempmute, /unmute
 	// /avatar
-	avatar_embed_description: "شوف هذا الصورة الرائعة! :D",
-	avatar_embed_title: "__**الصورة الشخصية**__: `${mentionedUserUsername}`",
 
 	// /ban
 	ban_not_permission: "${emoji_No} | ليس لديك إذن لحظر الأعضاء.",
@@ -3521,14 +3452,6 @@ export default {
 	batch_unban_process: "🔄 جاري إلغاء حظر ${bannedMemberCount} عضو...",
 	batch_unblacklist_process:
 		"🔄 جاري إزالة ${bannedMemberUsername} من القائمة السوداء في ${guildObjectCount} خادم...",
-	batch_unbanall_process: "🔄 جاري إلغاء حظر ${bannedMemberCount} عضو...",
-	batch_massiverole_process:
-		"🔄 جاري إضافة دور لـ ${membersToProcessCount} عضو...",
-	batch_unmassiverole_process:
-		"🔄 جاري إزالة دور من ${membersToProcessCount} عضو...",
-	batch_undo_unban: "🔄 جاري إعادة إلغاء حظر ${unbannedMemberCount} عضو...",
-	batch_derank_process:
-		"🔄 إزالة ${rolesToRemoveCount} من ${memberUsername}...",
 	unbanall_undo_command_err:
 		"لا يوجد أعضاء لإعادة حظرهم. استخدم أمر إلغاء الحظر للجميع أولاً.",
 
@@ -4288,5 +4211,151 @@ export default {
 	// /tts join
 	h247_tts_refused:
 		"${emoji_No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتفعيل TTS!",
-	gw_go_duration_too_low: "${emoji_No} | المدة الدنيا هي 3 دقائق!"
+	gw_go_duration_too_low: "${emoji_No} | المدة الدنيا هي 3 دقائق!",
+
+	// Components V2 cards: /avatar, /serverinfo, /allbots
+	avatar_card_title: "صورة ${user}",
+	card_download: "تنزيل",
+	serverinfo_label_owner: "المالك",
+	serverinfo_label_members: "الأعضاء",
+	serverinfo_label_created: "تاريخ الإنشاء",
+	serverinfo_label_joined: "انضممت",
+	serverinfo_label_roles: "الرتب",
+	serverinfo_label_channels: "القنوات",
+	serverinfo_label_boosts: "التعزيزات",
+	serverinfo_boost_value: "${count} (المستوى ${tier})",
+	serverinfo_label_verification: "التحقق",
+	serverinfo_label_language: "اللغة",
+	serverinfo_label_id: "المعرّف",
+	serverinfo_verif_none: "بدون",
+	serverinfo_verif_low: "منخفض",
+	serverinfo_verif_medium: "متوسط",
+	serverinfo_verif_high: "مرتفع",
+	serverinfo_verif_highest: "الأعلى",
+	all_bots_card_title: "البوتات في ${guild}",
+	all_bots_card_count: "${count} بوت",
+	all_bots_none: "لا يوجد أي بوت في هذا السيرفر.",
+
+	// Components V2 cards: /unbanall, /media-only, /nick-kicker, /sync, /wlroles
+	unbanall_card_progress: "جارٍ فك حظر `${count}` عضو…",
+	unbanall_card_undo_progress: "جارٍ إعادة حظر `${count}` عضو…",
+	unbanall_card_title: "فك حظر الجميع",
+	unbanall_card_undo_title: "تم التراجع عن فك الحظر",
+	unbanall_label_unbanned: "تم فك حظرهم",
+	unbanall_label_banned: "أعيد حظرهم",
+	unbanall_label_failed: "فشل",
+	sync_card_title: "تمت مزامنة الصلاحيات",
+	sync_card_desc: "هذه القنوات تتبع الآن صلاحيات ${category}:",
+	media_only_card_title: "قنوات الوسائط فقط",
+	utils_label_save: "حفظ",
+	nick_kicker_card_title: "الطرد بسبب الاسم المستعار",
+	nick_kicker_label_status: "الحالة",
+	nick_kicker_label_words: "الكلمات",
+	wlroles_card_title: "الرتب المسموح بها",
+	wlroles_card_warn_title: "صلاحيات خطيرة",
+	wlroles_card_high_title: "رتب أعلى من رتبتي",
+
+	// Components V2 cards: /userinfo, /banner, /inviteinfo, /serverpic, /where, /vc, /snipe
+	userinfo_label_badges: "الشارات",
+	userinfo_label_username: "اسم المستخدم",
+	userinfo_label_created: "تاريخ إنشاء الحساب",
+	userinfo_label_joined: "انضم إلى الخادم",
+	userinfo_label_nitro: "Nitro",
+	userinfo_label_roles: "الأدوار",
+	userinfo_label_id: "المعرّف",
+	userinfo_card_loading: "جارٍ تحميل الملف الشخصي…",
+	banner_card_guild_title: "لافتة ${guild}",
+	banner_card_user_title: "لافتة ${user}",
+	inviteinfo_label_channel: "القناة",
+	inviteinfo_label_inviter: "الداعي",
+	inviteinfo_label_created: "تاريخ إنشاء الخادم",
+	inviteinfo_label_expires: "تنتهي",
+	inviteinfo_label_members: "الأعضاء",
+	inviteinfo_label_online: "متصل",
+	inviteinfo_label_boosts: "التعزيزات",
+	inviteinfo_label_features: "الميزات",
+	serverpic_card_title: "أيقونة ${guild}",
+	serverpic_card_no_icon: "لا يملك هذا الخادم أيقونة.",
+	where_card_title: "أين ${member}",
+	where_label_member: "العضو",
+	where_label_channel: "القناة الصوتية",
+	where_label_stream: "يبث",
+	where_label_video: "الكاميرا",
+	where_label_mute: "كتم الميكروفون",
+	where_label_deaf: "كتم الصوت",
+	vc_card_title: "النشاط الصوتي",
+	vc_label_members: "الأعضاء",
+	vc_label_online: "متصلون",
+	vc_label_in_voice: "في الصوت",
+	vc_label_streaming: "يبثون",
+	vc_label_boosts: "التعزيزات",
+	vc_label_camera: "الكاميرا مفعّلة",
+	vc_label_muted: "مكتومون",
+	snipe_card_title: "آخر رسالة محذوفة",
+	snipe_label_author: "الكاتب",
+	snipe_label_sent: "أُرسلت",
+
+	// Components V2 cards: /delrole, /derank, /massiverole, /massmove, /nickrole, /setmentionrole, /util bringall, /util move
+	utils_label_member: "العضو",
+	utils_label_role: "الرتبة",
+	utils_label_by: "بواسطة",
+	utils_label_failed: "فشل",
+	utils_label_from: "من",
+	utils_label_to: "إلى",
+	utils_label_moved: "تم نقلهم",
+	utils_label_name_filter: "الاسم يحتوي على",
+	derank_card_progress: "جارٍ إزالة ${count} رتب من ${member}…",
+	derank_card_title: "تمت إزالة رتب العضو",
+	derank_label_removed: "الرتب المُزالة",
+	massiverole_card_progress_add: "جارٍ إضافة الرتبة إلى ${count} أعضاء…",
+	massiverole_card_progress_sub: "جارٍ إزالة الرتبة من ${count} أعضاء…",
+	massiverole_card_title_add: "تم منح الرتبة للأعضاء",
+	massiverole_card_title_sub: "تمت إزالة الرتبة من الأعضاء",
+	massiverole_label_added: "حصلوا عليها",
+	massiverole_label_already: "كانت لديهم مسبقًا",
+	massiverole_label_removed: "فقدوها",
+	massiverole_label_without: "لم تكن لديهم",
+	nickrole_label_skipped: "تم تخطيهم",
+	massmove_card_title: "تم نقل الأعضاء",
+	bringall_card_title: "تم توزيع الأعضاء",
+	bringall_label_category: "الفئة",
+	bringall_label_channels: "القنوات الصوتية",
+	setmentionrole_card_title: "تم تفعيل رتبة الإشارة",
+	setmentionrole_card_desc: "عندما يشير إليّ عضو، أمنحه هذه الرتبة.",
+	setmentionrole_card_note:
+		"يحصل على الرتبة فقط الأعضاء الذين يحتوي اسم المستخدم أو الاسم المعروض لديهم على هذا النص. إذا أزالوه تُزال الرتبة، وتُعاد عندما يضيفونه مجددًا.",
+
+	// Components V2 cards: /admin-users, /admin-roles, /allwebhooks, /role-members, /prevnames, /emojis, /leashlist, /locknamelist
+	card_bot: "بوت",
+	card_working: "جارٍ التنفيذ…",
+	card_label_requested_by: "بطلب من",
+	card_label_failed: "فشل",
+	admin_users_card_title: "المسؤولون",
+	admin_users_card_count: "${count} عضو لديهم صلاحية المسؤول",
+	admin_users_card_only_bots: "البوتات فقط لديها هذه الصلاحية.",
+	admin_users_button_hide_bots: "إخفاء البوتات",
+	admin_users_button_show_bots: "إظهار البوتات",
+	admin_users_card_done_title: "تم تخفيض رتب المسؤولين",
+	admin_users_label_unranked: "الأعضاء المخفّضون",
+	admin_roles_card_title: "رتب المسؤول",
+	admin_roles_card_count: "${count} رتبة لديها صلاحية المسؤول",
+	admin_roles_card_managed: "تديرها إضافة",
+	admin_roles_card_done_title: "تمت إزالة صلاحية المسؤول",
+	admin_roles_label_modified: "الرتب المعدّلة",
+	allwebhooks_card_count: "${count} ويب هوك",
+	allwebhooks_button_delete: "حذف الكل",
+	role_members_card_title: "أعضاء ${role}",
+	role_members_card_count: "${count} عضو",
+	prevnames_card_title: "الأسماء السابقة لـ ${user}",
+	prevnames_card_count: "${count} اسم مسجّل",
+	prevnames_button_erase: "مسح سجلي",
+	prevnames_label_username: "اسم المستخدم",
+	prevnames_label_display_name: "الاسم المعروض",
+	prevnames_label_nickname: "اللقب في ${guild}",
+	emoji_card_title: "تمت إضافة الرموز التعبيرية",
+	emoji_card_count: "تم إنشاء ${count} رمز تعبيري في ${guild}",
+	util_leashlist_card_count: "${count} مقود نشط",
+	util_leashlist_card_expires: "ينتهي",
+	util_locknamelist_card_count: "${count} لقب مقفل",
+	util_locknamelist_card_by: "أقفله ${user}"
 } satisfies LanguageData;

@@ -19,17 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	Message
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { sleep } from "bun";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -93,29 +94,21 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		const embed = new EmbedBuilder()
-			.setColor("#bea9de")
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp()
-			.setDescription(
-				lang.emoji_embed_desc_work
-					.replace("${cnt}", cnt.toString())
-					.replace("${guildName}", interaction.guild?.name!)
-					.replace("${nemj}", nemj)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: cnt ? ACCENT.success : ACCENT.warning,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.emoji_card_title,
+				description: `-# ${lang.emoji_card_count
+					.replace("${count}", cnt.toString())
+					.replace("${guild}", interaction.guild.name)}`,
+				thumbnail: interaction.guild.iconURL({ size: 128 }),
+				blocks: [nemj],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

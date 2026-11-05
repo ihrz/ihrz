@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	GuildVerificationLevel,
 	Message
@@ -31,13 +30,18 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -47,100 +51,71 @@ export const subCommand: SubCommand = {
 			!interaction.channel
 		)
 			return;
-		const verlvl = {
-			0: lang.serverinfo_verlvl_NONE,
-			1: lang.serverinfo_verlvl_LOW,
-			2: lang.serverinfo_verlvl_MEDIUM,
-			3: lang.serverinfo_verlvl_HIGHT,
-			4: lang.serverinfo_verlvl_VERY_HIGHT
+
+		const guild = interaction.guild;
+		const e = client.iHorizon_Emojis;
+		const verification: Record<GuildVerificationLevel, string> = {
+			[GuildVerificationLevel.None]: lang.serverinfo_verif_none,
+			[GuildVerificationLevel.Low]: lang.serverinfo_verif_low,
+			[GuildVerificationLevel.Medium]: lang.serverinfo_verif_medium,
+			[GuildVerificationLevel.High]: lang.serverinfo_verif_high,
+			[GuildVerificationLevel.VeryHigh]: lang.serverinfo_verif_highest
 		};
+		const ts = (date: Date | null | undefined) =>
+			date
+				? `<t:${Math.floor(date.getTime() / 1000)}:D> (<t:${Math.floor(date.getTime() / 1000)}:R>)`
+				: "";
+		const joinedAt = (interaction.member as GuildMember).joinedAt;
 
-		const embeds = new EmbedBuilder()
-			.setColor("#C3B2A1")
-			.setAuthor({
-				name: lang.serverinfo_embed_author.replaceAll(
-					"${guildName}",
-					interaction.guild.name
-				),
-				iconURL: interaction.guild?.iconURL() as string
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: e.Server_Stats,
+				title: guild.name,
+				description: guild.description,
+				thumbnail: guild.iconURL({ size: 256 }),
+				fields: [
+					{
+						emoji: e.Crown,
+						label: lang.serverinfo_label_owner,
+						value: `<@${guild.ownerId}>`
+					},
+					{
+						emoji: e.Stats,
+						label: lang.serverinfo_label_members,
+						value: `\`${guild.memberCount.toLocaleString()}\``
+					},
+					{
+						emoji: e.Schedule,
+						label: lang.serverinfo_label_created,
+						value: ts(guild.createdAt)
+					},
+					{
+						emoji: e.Home,
+						label: lang.serverinfo_label_joined,
+						value: ts(joinedAt)
+					}
+				],
+				blocks: [
+					[
+						`${e.Ticket_Role} **${lang.serverinfo_label_roles}** : \`${guild.roles.cache.size}\``,
+						`${e.Ticket_Hash} **${lang.serverinfo_label_channels}** : \`${guild.channels.cache.size}\``,
+						`${e.Boost_Gem} **${lang.serverinfo_label_boosts}** : ${lang.serverinfo_boost_value
+							.replace(
+								"${count}",
+								String(guild.premiumSubscriptionCount ?? 0)
+							)
+							.replace("${tier}", String(guild.premiumTier))}`,
+						`${e.Security} **${lang.serverinfo_label_verification}** : ${verification[guild.verificationLevel]}`,
+						`${e.Notification_Bell} **${lang.serverinfo_label_language}** : \`${guild.preferredLocale}\``
+					].join("\n"),
+					`-# ${lang.serverinfo_label_id} \`${guild.id}\``
+				],
+				images: [guild.bannerURL({ size: 1024 })],
+				signature: await botSignature(client, guild.id)
 			})
-			.setDescription(
-				lang.serverinfo_embed_description.replaceAll(
-					"${guildDescription}",
-					interaction.guild.description || "None"
-				)
-			)
-			.addFields(
-				{
-					name: lang.serverinfo_embed_fields_name,
-					value: `\`${interaction.guild.name}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_members,
-					value: `\`${interaction.guild.memberCount}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_id,
-					value: `\`${interaction.guildId}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_owner,
-					value: `\<@${interaction.guild.ownerId}>`,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_verlvl,
-					value: `\`${verlvl[interaction.guild.verificationLevel as GuildVerificationLevel]}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_region,
-					value: `\`${interaction.guild.preferredLocale}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_roles,
-					value: `\`${interaction.guild.roles.cache.size}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_channels,
-					value: `\`${interaction.guild.channels.cache.size}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_joinat,
-					value: `\`${(interaction.member as GuildMember)?.joinedAt}\``,
-					inline: true
-				},
-				{
-					name: lang.serverinfo_embed_fields_createat,
-					value: `\`${interaction.guild.createdAt}\``,
-					inline: true
-				}
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp()
-			.setThumbnail(interaction.guild.iconURL())
-			.setImage(
-				`https://cdn.discordapp.com/icons/${interaction.guildId}/${interaction.guild?.banner}.png`
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embeds],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
-		return;
+		);
 	}
 };

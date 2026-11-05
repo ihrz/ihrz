@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -53,33 +53,33 @@ export const subCommand: SubCommand = {
 
 		const mentionedUser = member || (interaction.member.user as User);
 
-		const embed = new EmbedBuilder()
-			.setImage(
-				mentionedUser.displayAvatarURL({ extension: "png", size: 512 })
-			)
-			.setColor("#add5ff")
-			.setTitle(
-				lang.avatar_embed_title.replace(
-					"${mentionedUserUsername}",
-					mentionedUser.displayName
-				)
-			)
-			.setDescription(lang.avatar_embed_description)
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		// The profile's accent colour when Discord has it.
+		const user = await mentionedUser.fetch().catch(() => mentionedUser);
+		const url = (extension: "png" | "webp" | "gif") =>
+			user.displayAvatarURL({ extension, size: 1024 });
+		const formats = [
+			`[PNG](${url("png")})`,
+			`[WEBP](${url("webp")})`,
+			user.avatar?.startsWith("a_") ? `[GIF](${url("gif")})` : null
+		].filter(Boolean);
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: user.accentColor ?? ACCENT.info,
+				emoji: client.iHorizon_Emojis.Camera,
+				title: lang.avatar_card_title.replace(
+					"${user}",
+					user.displayName
+				),
+				description: `${user}\n-# ${lang.card_download} : ${formats.join(" · ")}`,
+				images: [
+					user.displayAvatarURL({ size: 1024, forceStatic: false })
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

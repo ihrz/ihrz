@@ -19,20 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel,
+	sendPaginatedCard
+} from "../../../../core/modules/uiCard.js";
+
+const PER_PAGE = 10;
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -85,97 +86,36 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let currentPage = 0;
-		const leashesPerPage = 5;
-		const pages: { description: string }[] = [];
+		const e = client.iHorizon_Emojis;
+		const pages = Math.ceil(activeLeashes.length / PER_PAGE);
+		const signature = await botSignature(client, interaction.guildId);
 
-		for (let i = 0; i < activeLeashes.length; i += leashesPerPage) {
-			const pageLeashes = activeLeashes.slice(i, i + leashesPerPage);
-			const pageContent = pageLeashes
-				.map((leash) => {
-					const dom =
-						interaction.guild?.members.cache
-							.get(leash.dom)
-							?.toString() ?? `<@${leash.dom}>`;
-					const sub =
-						interaction.guild?.members.cache
-							.get(leash.sub)
-							?.toString() ?? `<@${leash.sub}>`;
-					const remaining = client.timeCalculator.to_beautiful_string(
-						maxLeashTime - (now - leash.timestamp),
-						lang
-					);
-
-					return lang.util_leashlist_embed_desc
-						.replace("${dom}", dom)
-						.replace("${sub}", sub)
-						.replace("${remaining}", remaining);
-				})
-				.join("\n");
-
-			pages.push({ description: pageContent });
-		}
-
-		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setTitle(lang.util_leashlist_embed_title)
-				.setDescription(pages[currentPage].description)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
-		};
-
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setCustomId("previousPage")
-				.setLabel("<<<")
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("nextPage")
-				.setLabel(">>>")
-				.setStyle(ButtonStyle.Secondary)
-		);
-
-		const messageEmbed = await client.func.method.interactionSend(
+		await sendPaginatedCard({
+			client,
 			interaction,
-			{
-				embeds: [await createEmbed()],
-				components: [row],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
-		);
-
-		const collector = messageEmbed.createMessageComponentCollector({
-			filter: async (i) => {
-				await i.deferUpdate();
-				return interaction.member?.user.id === i.user.id;
-			},
-			time: 60_000 * 15
-		});
-
-		collector.on("collect", async (interaction_2) => {
-			if (interaction_2.customId === "previousPage") {
-				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction_2.customId === "nextPage") {
-				currentPage = (currentPage + 1) % pages.length;
-			}
-
-			await messageEmbed.edit({ embeds: [await createEmbed()] });
-		});
-
-		collector.on("end", async () => {
-			await messageEmbed.edit({ components: [] });
+			lang,
+			pages,
+			timeoutMs: 60_000 * 15,
+			render: (page) =>
+				buildCard({
+					accent: ACCENT.info,
+					emoji: e.Link_Icon,
+					title: lang.util_leashlist_embed_title,
+					description: `-# ${lang.util_leashlist_card_count.replace("${count}", String(activeLeashes.length))}`,
+					blocks: [
+						activeLeashes
+							.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+							.map((leash) => {
+								const expires = Math.floor(
+									(leash.timestamp + maxLeashTime) / 1000
+								);
+								return `<@${leash.dom}> → <@${leash.sub}>\n-# ${lang.util_leashlist_card_expires} <t:${expires}:R>`;
+							})
+							.join("\n")
+					],
+					footer: pageLabel(lang, page, pages),
+					signature
+				})
 		});
 	}
 };
