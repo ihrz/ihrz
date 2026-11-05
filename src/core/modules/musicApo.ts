@@ -19,43 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-// Server-wide Equalizer APO filter (/music apo). The configuration text is
-// stored per guild and sent to Wavyzon's `apo` plugin filter
+// Equalizer APO on a server (/music apo panel). The saved configs and the
+// one applied by default live in `{guildId}.MUSIC_APO` (rules in
+// musicApoState.ts); the applied text goes to Wavyzon's `apo` plugin filter
 // (`filters.pluginFilters.apo.config`) on the guild's player, now and on
 // every player created later. Only Wavyzon nodes know this filter.
 
 import type { LavalinkNode, Player } from "lavalink-client";
 
-import { DatabaseStructure } from "../../../types/database_structure.js";
 import logger from "../logger.js";
-
-// Largest APO file accepted (Wavyzon accepts up to 256 KiB; real configs,
-// even long AutoEQ GraphicEQ lines, are a few KiB).
-export const APO_MAX_BYTES = 64 * 1024;
+import { ApoState, activeConfig, migrate } from "./musicApoState.js";
 
 // Time allowed to Wavyzon to validate a configuration.
 const CHECK_TIMEOUT_MS = 5_000;
 
 const dbPath = (guildId: string) => `${guildId}.MUSIC_APO`;
 
-export async function getGuildApo(
-	guildId: string
-): Promise<DatabaseStructure.MusicApoSchema | null> {
-	const stored = (await client.db.get(
-		dbPath(guildId)
-	)) as DatabaseStructure.MusicApoSchema | null;
-	return stored && typeof stored.config === "string" ? stored : null;
+/** The server's state; the first single-config format is converted. */
+export async function loadApoState(guildId: string): Promise<ApoState> {
+	return migrate(await client.db.get(dbPath(guildId)));
 }
 
-export async function setGuildApo(
+export async function saveApoState(
 	guildId: string,
-	apo: DatabaseStructure.MusicApoSchema | null
+	state: ApoState
 ): Promise<void> {
-	if (apo) {
-		await client.db.set(dbPath(guildId), apo);
-	} else {
-		await client.db.delete(dbPath(guildId));
-	}
+	await client.db.set(dbPath(guildId), state);
 }
 
 export type ApoCheck =
@@ -131,16 +120,16 @@ export async function applyApoFilter(
 	await player.filterManager.applyPlayerFilters();
 }
 
-// Apply the guild's stored APO filter to a new player. Never throws: a node
-// that refuses it (not Wavyzon, file edited since) must not stop playback.
+// Apply the guild's default APO config to a player (or remove the filter
+// when the module is off or nothing is applied). Never throws: a node that
+// refuses it (not Wavyzon, file edited since) must not stop playback.
 export async function applyGuildApo(player: Player): Promise<void> {
 	try {
-		const apo = await getGuildApo(player.guildId);
-		if (!apo) return;
-		await applyApoFilter(player, apo.config);
+		const active = activeConfig(await loadApoState(player.guildId));
+		await applyApoFilter(player, active?.config ?? null);
 	} catch (e) {
 		logger.warn(
-			`[music apo] guild ${player.guildId}: the stored APO filter was not applied (${(e as Error).message})`
+			`[music apo] guild ${player.guildId}: the APO filter was not applied (${(e as Error).message})`
 		);
 	}
 }

@@ -2141,10 +2141,6 @@ export default {
 		"${emoji_Yes} **تم ضبط مستوى الصوت إلى** `${query}`%",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | مالك البوت فقط يمكنه تغيير فلتر APO الخاص بالسيرفر.",
-	music_apo_bad_file:
-		"${emoji_No} | أرفق إعدادات Equalizer APO في ملف `.txt` بحجم ${max} كيلوبايت كحد أقصى.",
 	music_apo_download_failed:
 		"${emoji_No} | تعذّر تنزيل الملف، حاول مرة أخرى.",
 	music_apo_no_node: "${emoji_No} | لا توجد عقدة صوت متصلة حاليًا.",
@@ -2152,13 +2148,7 @@ export default {
 		"${emoji_No} | عقدة الصوت هذه لا تدعم فلاتر APO (تحتاج Wavyzon مع إضافة `apo`).",
 	music_apo_invalid:
 		"${emoji_No} | رفضت عقدة الصوت هذه الإعدادات: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | تم ضبط فلتر APO **${name}** لهذا السيرفر (${stages} مرحلة).",
-	music_apo_applied_now: "يُطبَّق على الموسيقى التي تُشغَّل الآن.",
-	music_apo_applied_next: "سيُطبَّق بمجرد تشغيل الموسيقى.",
 	music_apo_warnings: "الأسطر المتجاهلة (${count}):",
-	music_apo_removed: "${emoji_Yes} | تمت إزالة فلتر APO الخاص بالسيرفر.",
-	music_apo_none: "${emoji_No} | لا يوجد فلتر APO لهذا السيرفر.",
 
 	// Giveaway commands
 	// /end, /start, /reroll
@@ -4442,5 +4432,59 @@ export default {
 	stats_wrong_channel: "اختر قناة نصية أو صوتية.",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "لم يُسجَّل أي نشاط خلال آخر 30 يومًا."
+	stats_card_no_data: "لم يُسجَّل أي نشاط خلال آخر 30 يومًا.",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "الوحدة مفعّلة",
+	music_apo_panel_off: "الوحدة معطّلة",
+	music_apo_panel_applied: "مطبّق افتراضيًا: **${name}**",
+	music_apo_panel_nothing_applied: "لا يوجد إعداد مطبّق افتراضيًا",
+	music_apo_panel_count:
+		"${count}/${max} إعدادات · الإعداد المطبّق يشكّل كل ما يشغّله السيرفر",
+	music_apo_panel_empty:
+		"لا توجد إعدادات بعد. أضف ملف Equalizer APO بصيغة .txt بالزر أدناه.",
+	music_apo_badge_applied: "مطبّق",
+	music_apo_badge_frozen: "مجمّد",
+	music_apo_config_meta:
+		"بواسطة ${user} · عُدّل ${time} · ${lines} سطر · ${size}",
+	music_apo_button_manage: "إدارة",
+	music_apo_button_add: "إضافة إعداد",
+	music_apo_button_enable: "تفعيل",
+	music_apo_button_disable: "تعطيل",
+	music_apo_button_apply: "تطبيق افتراضيًا",
+	music_apo_button_unapply: "إيقاف التطبيق",
+	music_apo_button_rename: "إعادة التسمية",
+	music_apo_button_replace: "استبدال الملف",
+	music_apo_button_freeze: "تجميد",
+	music_apo_button_unfreeze: "إلغاء التجميد",
+	music_apo_button_delete: "حذف",
+	music_apo_button_confirm_delete: "حذف نهائي",
+	music_apo_button_cancel: "إلغاء",
+	music_apo_frozen_note:
+		"جمّده ${user}: يمكن تطبيقه، لكن لا يمكن إعادة تسميته أو استبداله أو حذفه.",
+	music_apo_confirm_delete: "حذف **${name}**؟ لا يمكن التراجع.",
+	music_apo_modal_add_title: "إضافة إعداد APO",
+	music_apo_modal_replace_title: "استبدال الملف",
+	music_apo_modal_rename_title: "إعادة تسمية الإعداد",
+	music_apo_field_name: "الاسم",
+	music_apo_field_name_desc: "يظهر في اللوحة، ${max} حرفًا كحد أقصى",
+	music_apo_field_file: "ملف Equalizer APO",
+	music_apo_field_file_desc:
+		"ملف .txt بحد أقصى ${kb} كيلوبايت و${lines} سطر أوامر",
+	music_apo_no_permission:
+		"${emoji} يمكن فقط لمشرفي السيرفر ومالكيه إدارة إعدادات APO الخاصة به.",
+	music_apo_full:
+		"${emoji} لدى هذا السيرفر ${max} إعدادات بالفعل. احذف واحدًا أولًا.",
+	music_apo_name_taken: "${emoji} يوجد إعداد باسم **${name}** بالفعل.",
+	music_apo_name_empty: "${emoji} أعطِ الإعداد اسمًا.",
+	music_apo_not_txt: "${emoji} أرسل ملفًا بصيغة .txt.",
+	music_apo_too_big: "${emoji} حجم الملف يتجاوز ${kb} كيلوبايت.",
+	music_apo_too_many_lines:
+		"${emoji} يحتوي الملف على أكثر من ${lines} سطر أوامر.",
+	music_apo_empty_file: "${emoji} الملف فارغ.",
+	music_apo_frozen: "${emoji} **${name}** مجمّد: ألغِ تجميده أولًا.",
+	music_apo_cannot_unfreeze:
+		"${emoji} يمكن فقط لـ ${user} أو مالكي السيرفر أو البوت إلغاء تجميده.",
+	music_apo_saved: "${emoji} تم حفظ **${name}** (${stages} مراحل)."
 } satisfies LanguageData;

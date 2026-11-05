@@ -2261,10 +2261,6 @@ export default {
 		"${emoji_Yes} **громкость установлена на** `${query}`%",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | Только владелец бота может менять APO-фильтр сервера.",
-	music_apo_bad_file:
-		"${emoji_No} | Прикрепите конфигурацию Equalizer APO в файле `.txt` размером не больше ${max} КиБ.",
 	music_apo_download_failed:
 		"${emoji_No} | Не удалось скачать файл, попробуйте ещё раз.",
 	music_apo_no_node: "${emoji_No} | Сейчас нет подключённого аудиоузла.",
@@ -2272,13 +2268,7 @@ export default {
 		"${emoji_No} | Этот аудиоузел не поддерживает APO-фильтры (нужен Wavyzon с плагином `apo`).",
 	music_apo_invalid:
 		"${emoji_No} | Аудиоузел отклонил эту конфигурацию: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | APO-фильтр **${name}** установлен для этого сервера (этапов: ${stages}).",
-	music_apo_applied_now: "Он применяется к музыке, которая играет сейчас.",
-	music_apo_applied_next: "Он применится, как только заиграет музыка.",
 	music_apo_warnings: "Пропущенные строки (${count}):",
-	music_apo_removed: "${emoji_Yes} | APO-фильтр сервера удалён.",
-	music_apo_none: "${emoji_No} | У этого сервера нет APO-фильтра.",
 
 	// Команды раздачи призов
 	// /end, /start, /reroll
@@ -4659,5 +4649,60 @@ export default {
 	stats_wrong_channel: "Выберите текстовый или голосовой канал.",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "За последние 30 дней активность не записана."
+	stats_card_no_data: "За последние 30 дней активность не записана.",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "Модуль включён",
+	music_apo_panel_off: "Модуль выключен",
+	music_apo_panel_applied: "Применяется по умолчанию: **${name}**",
+	music_apo_panel_nothing_applied: "Конфигурация по умолчанию не выбрана",
+	music_apo_panel_count:
+		"${count}/${max} конфигураций · применённая влияет на всё, что играет сервер",
+	music_apo_panel_empty:
+		"Конфигураций пока нет. Добавьте .txt-файл Equalizer APO кнопкой ниже.",
+	music_apo_badge_applied: "Применена",
+	music_apo_badge_frozen: "Заморожена",
+	music_apo_config_meta:
+		"от ${user} · изменена ${time} · строк: ${lines} · ${size}",
+	music_apo_button_manage: "Управлять",
+	music_apo_button_add: "Добавить конфигурацию",
+	music_apo_button_enable: "Включить",
+	music_apo_button_disable: "Выключить",
+	music_apo_button_apply: "Применять по умолчанию",
+	music_apo_button_unapply: "Перестать применять",
+	music_apo_button_rename: "Переименовать",
+	music_apo_button_replace: "Заменить файл",
+	music_apo_button_freeze: "Заморозить",
+	music_apo_button_unfreeze: "Разморозить",
+	music_apo_button_delete: "Удалить",
+	music_apo_button_confirm_delete: "Удалить навсегда",
+	music_apo_button_cancel: "Отмена",
+	music_apo_frozen_note:
+		"Заморожена ${user}: её можно применять, но нельзя переименовать, заменить или удалить.",
+	music_apo_confirm_delete: "Удалить **${name}**? Это нельзя отменить.",
+	music_apo_modal_add_title: "Добавить конфигурацию APO",
+	music_apo_modal_replace_title: "Заменить файл",
+	music_apo_modal_rename_title: "Переименовать конфигурацию",
+	music_apo_field_name: "Название",
+	music_apo_field_name_desc:
+		"Показывается в панели, не больше ${max} символов",
+	music_apo_field_file: "Файл Equalizer APO",
+	music_apo_field_file_desc:
+		"Файл .txt, не больше ${kb} КиБ и ${lines} строк команд",
+	music_apo_no_permission:
+		"${emoji} Управлять конфигурациями APO могут только администраторы и владельцы сервера.",
+	music_apo_full:
+		"${emoji} На этом сервере уже ${max} конфигураций. Сначала удалите одну.",
+	music_apo_name_taken: "${emoji} Конфигурация **${name}** уже существует.",
+	music_apo_name_empty: "${emoji} Дайте конфигурации название.",
+	music_apo_not_txt: "${emoji} Отправьте файл .txt.",
+	music_apo_too_big: "${emoji} Файл больше ${kb} КиБ.",
+	music_apo_too_many_lines: "${emoji} В файле больше ${lines} строк команд.",
+	music_apo_empty_file: "${emoji} Файл пуст.",
+	music_apo_frozen:
+		"${emoji} **${name}** заморожена: сначала разморозьте её.",
+	music_apo_cannot_unfreeze:
+		"${emoji} Разморозить могут только ${user}, владельцы сервера или бота.",
+	music_apo_saved: "${emoji} **${name}** сохранена (этапов: ${stages})."
 } satisfies LanguageData;

@@ -2233,10 +2233,6 @@ const enUS = {
 	music_volume_command_ok: "${emoji_Yes} **volume set to** `${query}`%",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | Only the bot owner can change the server's APO filter.",
-	music_apo_bad_file:
-		"${emoji_No} | Attach an Equalizer APO configuration as a `.txt` file of at most ${max} KiB.",
 	music_apo_download_failed:
 		"${emoji_No} | The file could not be downloaded, try again.",
 	music_apo_no_node: "${emoji_No} | No audio node is connected right now.",
@@ -2244,13 +2240,7 @@ const enUS = {
 		"${emoji_No} | This audio node does not support APO filters (it needs Wavyzon with the `apo` plugin).",
 	music_apo_invalid:
 		"${emoji_No} | The audio node refused this configuration: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | APO filter **${name}** set for this server (${stages} stage(s)).",
-	music_apo_applied_now: "It applies to the music playing now.",
-	music_apo_applied_next: "It will apply as soon as music plays.",
 	music_apo_warnings: "Skipped lines (${count}):",
-	music_apo_removed: "${emoji_Yes} | The server's APO filter is removed.",
-	music_apo_none: "${emoji_No} | This server has no APO filter.",
 
 	// Giveaway commands
 	// /end, /start, /reroll
@@ -4630,7 +4620,61 @@ const enUS = {
 	stats_wrong_channel: "Pick a text or voice channel.",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "No activity recorded in the last 30 days."
+	stats_card_no_data: "No activity recorded in the last 30 days.",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "Module on",
+	music_apo_panel_off: "Module off",
+	music_apo_panel_applied: "Applied by default: **${name}**",
+	music_apo_panel_nothing_applied: "No config applied by default",
+	music_apo_panel_count:
+		"${count}/${max} configs · the applied one shapes everything the server plays",
+	music_apo_panel_empty:
+		"No config yet. Add an Equalizer APO .txt file with the button below.",
+	music_apo_badge_applied: "Applied",
+	music_apo_badge_frozen: "Frozen",
+	music_apo_config_meta:
+		"by ${user} · updated ${time} · ${lines} lines · ${size}",
+	music_apo_button_manage: "Manage",
+	music_apo_button_add: "Add a config",
+	music_apo_button_enable: "Turn on",
+	music_apo_button_disable: "Turn off",
+	music_apo_button_apply: "Apply by default",
+	music_apo_button_unapply: "Stop applying",
+	music_apo_button_rename: "Rename",
+	music_apo_button_replace: "Replace file",
+	music_apo_button_freeze: "Freeze",
+	music_apo_button_unfreeze: "Unfreeze",
+	music_apo_button_delete: "Delete",
+	music_apo_button_confirm_delete: "Delete for good",
+	music_apo_button_cancel: "Cancel",
+	music_apo_frozen_note:
+		"Frozen by ${user}: it can be applied, not renamed, replaced or deleted.",
+	music_apo_confirm_delete: "Delete **${name}**? This can't be undone.",
+	music_apo_modal_add_title: "Add an APO config",
+	music_apo_modal_replace_title: "Replace the file",
+	music_apo_modal_rename_title: "Rename the config",
+	music_apo_field_name: "Name",
+	music_apo_field_name_desc: "Shown in the panel, ${max} characters at most",
+	music_apo_field_file: "Equalizer APO file",
+	music_apo_field_file_desc:
+		"A .txt file, ${kb} KiB and ${lines} command lines at most",
+	music_apo_no_permission:
+		"${emoji} Only the server's administrators and owners can manage its APO configs.",
+	music_apo_full:
+		"${emoji} This server already has ${max} configs. Delete one first.",
+	music_apo_name_taken: "${emoji} A config is already called **${name}**.",
+	music_apo_name_empty: "${emoji} Give the config a name.",
+	music_apo_not_txt: "${emoji} Send a .txt file.",
+	music_apo_too_big: "${emoji} The file is over ${kb} KiB.",
+	music_apo_too_many_lines:
+		"${emoji} The file has more than ${lines} command lines.",
+	music_apo_empty_file: "${emoji} The file is empty.",
+	music_apo_frozen: "${emoji} **${name}** is frozen: unfreeze it first.",
+	music_apo_cannot_unfreeze:
+		"${emoji} Only ${user}, the server owners or the bot owners can unfreeze it.",
+	music_apo_saved: "${emoji} **${name}** saved (${stages} stages)."
 };
 
 export default enUS;

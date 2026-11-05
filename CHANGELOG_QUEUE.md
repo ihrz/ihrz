@@ -32,9 +32,9 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 ---
 
-## 🎛️ Music — an Equalizer APO filter for the whole server
+## 🎛️ Music — Equalizer APO configs for each server
 
-Bot owners can now attach an **Equalizer APO** configuration (`.txt`: AutoEQ headphone profiles, REW exports, parametric or graphic EQ, convolution and reverb) with `/music apo`; the music node checks it, then it applies to everything the server plays, right away and for every next track. `/music apo` without a file removes it. Lines the node skips are listed in the reply. Needs Wavyzon with its `apo` plugin.
+`/music apo` opens a panel where the server's administrators and owners keep up to **5 Equalizer APO configurations** (`.txt` files of 15 KiB and 50 command lines at most: AutoEQ headphone profiles, REW exports, parametric or graphic EQ, convolution and reverb). Each config can be added, renamed, replaced, deleted and **frozen**: a frozen config can still be applied but not changed or deleted, until the person who froze it, a server owner or a bot owner unfreezes it. One config is **applied by default** to everything the server plays, right away and for every next track, and the whole module can be switched off. The music node checks each file before it is saved, and the lines it skips are listed. A file attached to `/music apo` is added as a new config. Needs Wavyzon with its `apo` plugin.
 
 ---
 

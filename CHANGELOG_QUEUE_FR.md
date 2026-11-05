@@ -32,9 +32,9 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 
 ---
 
-## 🎛️ Musique — un filtre Equalizer APO pour tout le serveur
+## 🎛️ Musique — des configs Equalizer APO par serveur
 
-Les propriétaires du bot peuvent maintenant joindre une configuration **Equalizer APO** (`.txt` : profils AutoEQ de casques, exports REW, EQ paramétrique ou graphique, convolution et reverb) avec `/music apo` ; le nœud musical la vérifie, puis elle s'applique à tout ce que joue le serveur, tout de suite et pour chaque morceau suivant. `/music apo` sans fichier la retire. Les lignes ignorées par le nœud sont listées dans la réponse. Nécessite Wavyzon avec son plugin `apo`.
+`/music apo` ouvre un panneau où les administrateurs et propriétaires du serveur gardent jusqu'à **5 configurations Equalizer APO** (fichiers `.txt` de 15 Kio et 50 lignes de commandes maximum : profils AutoEQ de casques, exports REW, EQ paramétrique ou graphique, convolution et reverb). Chaque config peut être ajoutée, renommée, remplacée, supprimée et **gelée** : une config gelée reste applicable mais ne peut plus être modifiée ni supprimée, jusqu'à ce que la personne qui l'a gelée, un propriétaire du serveur ou du bot la dégèle. Une config est **appliquée par défaut** à tout ce que joue le serveur, tout de suite et pour chaque morceau suivant, et le module entier peut être désactivé. Le nœud musical vérifie chaque fichier avant l'enregistrement et les lignes ignorées sont listées. Un fichier joint à `/music apo` est ajouté comme nouvelle config. Nécessite Wavyzon avec son plugin `apo`.
 
 ---
 

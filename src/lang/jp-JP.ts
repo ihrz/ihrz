@@ -2246,10 +2246,6 @@ export default {
 		"${emoji_Yes} **音量を** `${query}`% **に設定しました**",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | サーバーのAPOフィルターを変更できるのはボットの所有者だけです。",
-	music_apo_bad_file:
-		"${emoji_No} | Equalizer APOの設定を${max} KiB以下の`.txt`ファイルで添付してください。",
 	music_apo_download_failed:
 		"${emoji_No} | ファイルをダウンロードできませんでした。もう一度お試しください。",
 	music_apo_no_node:
@@ -2258,13 +2254,7 @@ export default {
 		"${emoji_No} | このオーディオノードはAPOフィルターに対応していません（`apo`プラグイン付きのWavyzonが必要です）。",
 	music_apo_invalid:
 		"${emoji_No} | オーディオノードがこの設定を拒否しました: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | このサーバーにAPOフィルター **${name}** を設定しました（${stages} ステージ）。",
-	music_apo_applied_now: "再生中の音楽に適用されます。",
-	music_apo_applied_next: "音楽が再生されるとすぐに適用されます。",
 	music_apo_warnings: "スキップされた行（${count}）:",
-	music_apo_removed: "${emoji_Yes} | サーバーのAPOフィルターを解除しました。",
-	music_apo_none: "${emoji_No} | このサーバーにはAPOフィルターがありません。",
 
 	// Giveaway commands
 	// /end, /start, /reroll
@@ -4662,5 +4652,61 @@ export default {
 	stats_wrong_channel: "テキストかボイスのチャンネルを選んでください。",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "過去30日間のアクティビティはありません。"
+	stats_card_no_data: "過去30日間のアクティビティはありません。",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "モジュール：オン",
+	music_apo_panel_off: "モジュール：オフ",
+	music_apo_panel_applied: "デフォルトで適用：**${name}**",
+	music_apo_panel_nothing_applied: "デフォルトで適用中の設定はありません",
+	music_apo_panel_count:
+		"${count}/${max} 件の設定・適用中の設定がサーバーの再生音すべてに反映されます",
+	music_apo_panel_empty:
+		"まだ設定がありません。下のボタンから Equalizer APO の .txt ファイルを追加してください。",
+	music_apo_badge_applied: "適用中",
+	music_apo_badge_frozen: "凍結中",
+	music_apo_config_meta: "${user}・更新 ${time}・${lines} 行・${size}",
+	music_apo_button_manage: "管理",
+	music_apo_button_add: "設定を追加",
+	music_apo_button_enable: "オンにする",
+	music_apo_button_disable: "オフにする",
+	music_apo_button_apply: "デフォルトで適用",
+	music_apo_button_unapply: "適用をやめる",
+	music_apo_button_rename: "名前を変更",
+	music_apo_button_replace: "ファイルを差し替え",
+	music_apo_button_freeze: "凍結",
+	music_apo_button_unfreeze: "凍結解除",
+	music_apo_button_delete: "削除",
+	music_apo_button_confirm_delete: "完全に削除",
+	music_apo_button_cancel: "キャンセル",
+	music_apo_frozen_note:
+		"${user} が凍結：適用はできますが、名前の変更・差し替え・削除はできません。",
+	music_apo_confirm_delete: "**${name}** を削除しますか？元に戻せません。",
+	music_apo_modal_add_title: "APO 設定を追加",
+	music_apo_modal_replace_title: "ファイルを差し替え",
+	music_apo_modal_rename_title: "設定の名前を変更",
+	music_apo_field_name: "名前",
+	music_apo_field_name_desc: "パネルに表示されます（最大 ${max} 文字）",
+	music_apo_field_file: "Equalizer APO ファイル",
+	music_apo_field_file_desc:
+		".txt ファイル（最大 ${kb} KiB・コマンド ${lines} 行）",
+	music_apo_no_permission:
+		"${emoji} APO 設定を管理できるのはサーバーの管理者とオーナーだけです。",
+	music_apo_full:
+		"${emoji} このサーバーにはすでに ${max} 件の設定があります。先にどれかを削除してください。",
+	music_apo_name_taken:
+		"${emoji} **${name}** という名前の設定がすでにあります。",
+	music_apo_name_empty: "${emoji} 設定に名前を付けてください。",
+	music_apo_not_txt: "${emoji} .txt ファイルを送ってください。",
+	music_apo_too_big: "${emoji} ファイルが ${kb} KiB を超えています。",
+	music_apo_too_many_lines:
+		"${emoji} ファイルのコマンド行が ${lines} 行を超えています。",
+	music_apo_empty_file: "${emoji} ファイルが空です。",
+	music_apo_frozen:
+		"${emoji} **${name}** は凍結中です。先に凍結を解除してください。",
+	music_apo_cannot_unfreeze:
+		"${emoji} 凍結を解除できるのは ${user}、サーバーのオーナー、ボットのオーナーだけです。",
+	music_apo_saved:
+		"${emoji} **${name}** を保存しました（${stages} ステージ）。"
 } satisfies LanguageData;

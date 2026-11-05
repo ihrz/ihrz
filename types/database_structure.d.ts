@@ -722,13 +722,28 @@ export namespace DatabaseStructure {
 		MUSIC_APO?: MusicApoSchema;
 	}
 
-	// Server-wide Equalizer APO filter set by a bot owner with /music apo
-	// (`{guildId}.MUSIC_APO`), sent to Wavyzon's `apo` plugin filter.
-	export interface MusicApoSchema {
-		config: string;
+	// Equalizer APO configs of a server (/music apo panel,
+	// `{guildId}.MUSIC_APO`): up to five, one applied by default through
+	// Wavyzon's `apo` plugin filter. Older servers stored a single
+	// `{ config, name, by, at }`; musicApoState.migrate() reads both.
+	export interface MusicApoConfig {
+		id: string;
 		name: string;
+		/** Equalizer APO text, at most 15 KiB / 50 command lines. */
+		config: string;
 		by: string;
 		at: number;
+		updatedBy?: string;
+		updatedAt?: number;
+		/** Frozen configs can be applied but not renamed, replaced or deleted. */
+		frozen: { by: string; at: number } | null;
+	}
+
+	export interface MusicApoSchema {
+		enabled: boolean;
+		/** Id of the config applied by default, or null. */
+		active: string | null;
+		configs: MusicApoConfig[];
 	}
 
 	// Public community server listed on ihorizon.org (`BOT.community.servers`).

@@ -2307,10 +2307,6 @@ export default {
 		"${emoji_Yes} **volumen establecido en** `${query}`%",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | Solo el dueño del bot puede cambiar el filtro APO del servidor.",
-	music_apo_bad_file:
-		"${emoji_No} | Adjunta una configuración de Equalizer APO en un archivo `.txt` de ${max} KiB como máximo.",
 	music_apo_download_failed:
 		"${emoji_No} | No se pudo descargar el archivo, inténtalo de nuevo.",
 	music_apo_no_node:
@@ -2319,13 +2315,7 @@ export default {
 		"${emoji_No} | Este nodo de audio no admite filtros APO (necesita Wavyzon con el plugin `apo`).",
 	music_apo_invalid:
 		"${emoji_No} | El nodo de audio rechazó esta configuración: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | Filtro APO **${name}** establecido para este servidor (${stages} etapa(s)).",
-	music_apo_applied_now: "Se aplica a la música que suena ahora.",
-	music_apo_applied_next: "Se aplicará en cuanto suene música.",
 	music_apo_warnings: "Líneas omitidas (${count}):",
-	music_apo_removed: "${emoji_Yes} | Se quitó el filtro APO del servidor.",
-	music_apo_none: "${emoji_No} | Este servidor no tiene filtro APO.",
 
 	// Giveaway commands
 	// /end, /start, /reroll
@@ -4758,5 +4748,63 @@ export default {
 	stats_wrong_channel: "Elige un canal de texto o de voz.",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "No hay actividad registrada en los últimos 30 días."
+	stats_card_no_data: "No hay actividad registrada en los últimos 30 días.",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "Módulo activado",
+	music_apo_panel_off: "Módulo desactivado",
+	music_apo_panel_applied: "Aplicada por defecto: **${name}**",
+	music_apo_panel_nothing_applied:
+		"Ninguna configuración aplicada por defecto",
+	music_apo_panel_count:
+		"${count}/${max} configuraciones · la aplicada moldea todo lo que suena en el servidor",
+	music_apo_panel_empty:
+		"Aún no hay configuraciones. Añade un archivo .txt de Equalizer APO con el botón de abajo.",
+	music_apo_badge_applied: "Aplicada",
+	music_apo_badge_frozen: "Congelada",
+	music_apo_config_meta:
+		"por ${user} · cambiada ${time} · ${lines} líneas · ${size}",
+	music_apo_button_manage: "Gestionar",
+	music_apo_button_add: "Añadir configuración",
+	music_apo_button_enable: "Activar",
+	music_apo_button_disable: "Desactivar",
+	music_apo_button_apply: "Aplicar por defecto",
+	music_apo_button_unapply: "Dejar de aplicar",
+	music_apo_button_rename: "Renombrar",
+	music_apo_button_replace: "Reemplazar archivo",
+	music_apo_button_freeze: "Congelar",
+	music_apo_button_unfreeze: "Descongelar",
+	music_apo_button_delete: "Eliminar",
+	music_apo_button_confirm_delete: "Eliminar definitivamente",
+	music_apo_button_cancel: "Cancelar",
+	music_apo_frozen_note:
+		"Congelada por ${user}: se puede aplicar, pero no renombrar, reemplazar ni eliminar.",
+	music_apo_confirm_delete: "¿Eliminar **${name}**? No se puede deshacer.",
+	music_apo_modal_add_title: "Añadir configuración APO",
+	music_apo_modal_replace_title: "Reemplazar el archivo",
+	music_apo_modal_rename_title: "Renombrar la configuración",
+	music_apo_field_name: "Nombre",
+	music_apo_field_name_desc:
+		"Se muestra en el panel, ${max} caracteres como máximo",
+	music_apo_field_file: "Archivo de Equalizer APO",
+	music_apo_field_file_desc:
+		"Un archivo .txt, de ${kb} KiB y ${lines} líneas de comandos como máximo",
+	music_apo_no_permission:
+		"${emoji} Solo los administradores y dueños del servidor pueden gestionar sus configuraciones APO.",
+	music_apo_full:
+		"${emoji} Este servidor ya tiene ${max} configuraciones. Elimina una primero.",
+	music_apo_name_taken:
+		"${emoji} Ya hay una configuración llamada **${name}**.",
+	music_apo_name_empty: "${emoji} Ponle un nombre a la configuración.",
+	music_apo_not_txt: "${emoji} Envía un archivo .txt.",
+	music_apo_too_big: "${emoji} El archivo supera los ${kb} KiB.",
+	music_apo_too_many_lines:
+		"${emoji} El archivo tiene más de ${lines} líneas de comandos.",
+	music_apo_empty_file: "${emoji} El archivo está vacío.",
+	music_apo_frozen:
+		"${emoji} **${name}** está congelada: descongélala primero.",
+	music_apo_cannot_unfreeze:
+		"${emoji} Solo ${user}, los dueños del servidor o del bot pueden descongelarla.",
+	music_apo_saved: "${emoji} **${name}** guardada (${stages} etapas)."
 } satisfies LanguageData;

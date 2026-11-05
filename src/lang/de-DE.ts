@@ -2320,10 +2320,6 @@ export default {
 		"${emoji_Yes} **Lautstärke auf** `${query}`% **gesetzt**",
 
 	// /music apo
-	music_apo_not_owner:
-		"${emoji_No} | Nur der Bot-Besitzer kann den APO-Filter des Servers ändern.",
-	music_apo_bad_file:
-		"${emoji_No} | Hänge eine Equalizer-APO-Konfiguration als `.txt`-Datei mit höchstens ${max} KiB an.",
 	music_apo_download_failed:
 		"${emoji_No} | Die Datei konnte nicht heruntergeladen werden, versuche es erneut.",
 	music_apo_no_node: "${emoji_No} | Gerade ist kein Audio-Node verbunden.",
@@ -2331,14 +2327,7 @@ export default {
 		"${emoji_No} | Dieser Audio-Node unterstützt keine APO-Filter (er braucht Wavyzon mit dem `apo`-Plugin).",
 	music_apo_invalid:
 		"${emoji_No} | Der Audio-Node hat diese Konfiguration abgelehnt: `${error}`",
-	music_apo_set:
-		"${emoji_Yes} | APO-Filter **${name}** für diesen Server gesetzt (${stages} Stufe(n)).",
-	music_apo_applied_now: "Er wirkt auf die Musik, die gerade läuft.",
-	music_apo_applied_next: "Er wirkt, sobald Musik läuft.",
 	music_apo_warnings: "Übersprungene Zeilen (${count}):",
-	music_apo_removed:
-		"${emoji_Yes} | Der APO-Filter des Servers ist entfernt.",
-	music_apo_none: "${emoji_No} | Dieser Server hat keinen APO-Filter.",
 
 	// Giveaway commands
 	// /end, /start, /reroll
@@ -4799,5 +4788,64 @@ export default {
 	stats_wrong_channel: "Wähle einen Text- oder Sprachkanal.",
 
 	// /stats rebuilt: Components V2 card and resvg pages
-	stats_card_no_data: "In den letzten 30 Tagen wurde keine Aktivität erfasst."
+	stats_card_no_data:
+		"In den letzten 30 Tagen wurde keine Aktivität erfasst.",
+
+	// /music apo panel
+	music_apo_panel_title: "Equalizer APO",
+	music_apo_panel_on: "Modul an",
+	music_apo_panel_off: "Modul aus",
+	music_apo_panel_applied: "Standardmäßig angewendet: **${name}**",
+	music_apo_panel_nothing_applied:
+		"Keine Konfiguration standardmäßig angewendet",
+	music_apo_panel_count:
+		"${count}/${max} Konfigurationen · die angewendete formt alles, was der Server spielt",
+	music_apo_panel_empty:
+		"Noch keine Konfiguration. Füge mit dem Knopf unten eine Equalizer-APO-.txt-Datei hinzu.",
+	music_apo_badge_applied: "Angewendet",
+	music_apo_badge_frozen: "Eingefroren",
+	music_apo_config_meta:
+		"von ${user} · geändert ${time} · ${lines} Zeilen · ${size}",
+	music_apo_button_manage: "Verwalten",
+	music_apo_button_add: "Konfiguration hinzufügen",
+	music_apo_button_enable: "Einschalten",
+	music_apo_button_disable: "Ausschalten",
+	music_apo_button_apply: "Standardmäßig anwenden",
+	music_apo_button_unapply: "Nicht mehr anwenden",
+	music_apo_button_rename: "Umbenennen",
+	music_apo_button_replace: "Datei ersetzen",
+	music_apo_button_freeze: "Einfrieren",
+	music_apo_button_unfreeze: "Auftauen",
+	music_apo_button_delete: "Löschen",
+	music_apo_button_confirm_delete: "Endgültig löschen",
+	music_apo_button_cancel: "Abbrechen",
+	music_apo_frozen_note:
+		"Eingefroren von ${user}: sie kann angewendet, aber nicht umbenannt, ersetzt oder gelöscht werden.",
+	music_apo_confirm_delete:
+		"**${name}** löschen? Das lässt sich nicht rückgängig machen.",
+	music_apo_modal_add_title: "APO-Konfiguration hinzufügen",
+	music_apo_modal_replace_title: "Datei ersetzen",
+	music_apo_modal_rename_title: "Konfiguration umbenennen",
+	music_apo_field_name: "Name",
+	music_apo_field_name_desc: "Im Panel angezeigt, höchstens ${max} Zeichen",
+	music_apo_field_file: "Equalizer-APO-Datei",
+	music_apo_field_file_desc:
+		"Eine .txt-Datei, höchstens ${kb} KiB und ${lines} Befehlszeilen",
+	music_apo_no_permission:
+		"${emoji} Nur Administratoren und Besitzer des Servers können seine APO-Konfigurationen verwalten.",
+	music_apo_full:
+		"${emoji} Dieser Server hat bereits ${max} Konfigurationen. Lösche zuerst eine.",
+	music_apo_name_taken:
+		"${emoji} Eine Konfiguration heißt bereits **${name}**.",
+	music_apo_name_empty: "${emoji} Gib der Konfiguration einen Namen.",
+	music_apo_not_txt: "${emoji} Sende eine .txt-Datei.",
+	music_apo_too_big: "${emoji} Die Datei ist größer als ${kb} KiB.",
+	music_apo_too_many_lines:
+		"${emoji} Die Datei hat mehr als ${lines} Befehlszeilen.",
+	music_apo_empty_file: "${emoji} Die Datei ist leer.",
+	music_apo_frozen:
+		"${emoji} **${name}** ist eingefroren: taue sie zuerst auf.",
+	music_apo_cannot_unfreeze:
+		"${emoji} Nur ${user}, die Serverbesitzer oder die Bot-Besitzer können sie auftauen.",
+	music_apo_saved: "${emoji} **${name}** gespeichert (${stages} Stufen)."
 } satisfies LanguageData;

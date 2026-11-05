@@ -67,13 +67,13 @@ export const command: Command = {
 			name: "apo",
 
 			description:
-				"Set the server's Equalizer APO filter (bot owner only)!",
+				"Manage the server's Equalizer APO configs (administrators)!",
 			description_localizations: {
-				fr: "Définir le filtre Equalizer APO du serveur (propriétaire du bot)",
-				ja: "サーバーのEqualizer APOフィルターを設定（ボット所有者のみ）！",
-				ru: "Задать фильтр Equalizer APO сервера (только владелец бота)!",
+				fr: "Gérer les configs Equalizer APO du serveur (administrateurs)",
+				ja: "サーバーのEqualizer APO設定を管理（管理者）！",
+				ru: "Управлять конфигурациями Equalizer APO сервера (администраторы)!",
 				"es-ES":
-					"Establecer el filtro Equalizer APO del servidor (solo el dueño del bot)!"
+					"Gestionar las configuraciones Equalizer APO del servidor (administradores)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -89,13 +89,13 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.Attachment,
 
 					description:
-						"Equalizer APO configuration (.txt). Leave empty to remove the filter",
+						"Equalizer APO configuration (.txt) to add to the server's configs",
 					description_localizations: {
-						fr: "Configuration Equalizer APO (.txt). Laisser vide pour retirer le filtre",
-						ja: "Equalizer APOの設定（.txt）。空にするとフィルターを解除",
-						ru: "Конфигурация Equalizer APO (.txt). Оставьте пустым, чтобы убрать фильтр",
+						fr: "Configuration Equalizer APO (.txt) à ajouter aux configs du serveur",
+						ja: "サーバーの設定に追加するEqualizer APOファイル（.txt）",
+						ru: "Конфигурация Equalizer APO (.txt) для добавления на сервер",
 						"es-ES":
-							"Configuración de Equalizer APO (.txt). Déjalo vacío para quitar el filtro"
+							"Configuración de Equalizer APO (.txt) para añadir al servidor"
 					},
 
 					required: false,
