@@ -46,7 +46,7 @@ type Player = NonNullable<ReturnType<Client["player"]["getPlayer"]>>;
 /** Player data key: the encoded track last sent as `nextTrack`. */
 const SENT = "internal_wavyzon_next_track";
 
-function isWavyzonNode(node?: LavalinkNode | null): boolean {
+export function isWavyzonNode(node?: LavalinkNode | null): boolean {
 	return !!(node?.info as { wavyzon?: string } | null | undefined)?.wavyzon;
 }
 

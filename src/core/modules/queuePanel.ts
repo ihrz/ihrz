@@ -33,6 +33,7 @@
  *   state when it expires or the player is gone.
  */
 
+import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import {
 	ActionRowBuilder,
 	BaseGuildTextChannel,
@@ -415,7 +416,7 @@ export async function openQueuePanel(
 						await i.update(payload(p));
 						return;
 					}
-					await p.skip(index + 1);
+					await crossfadeSkip(p, index + 1);
 					page = 0;
 					announce(
 						lang.queue_jumped

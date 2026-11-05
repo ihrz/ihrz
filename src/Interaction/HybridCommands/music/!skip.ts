@@ -31,6 +31,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import logger from "../../../core/logger.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { crossfadeSkip } from "../../../core/modules/musicCrossfadeSkip.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -91,7 +92,7 @@ export const subCommand: SubCommand = {
 			}
 
 			if (player.queue.tracks.length >= 1) {
-				player.skip();
+				await crossfadeSkip(player);
 			} else {
 				player.stopPlaying();
 			}

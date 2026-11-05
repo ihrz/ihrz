@@ -32,6 +32,10 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 
 ---
 
+## 🎚️ Musique — les skips passent en fondu
+
+`/music skip`, le bouton skip du panneau de lecture et les sauts depuis le panneau de file font maintenant un fondu de 3 s vers le morceau suivant sur un nœud Wavyzon, au lieu de couper. Le nouveau morceau démarre tout de suite ; il est annoncé à la fin du fondu. Les autres nœuds, un lecteur en pause et les dernières secondes d'un morceau gardent le skip classique.
+
 ## 🎛️ Musique — des configs Equalizer APO par serveur
 
 `/music apo` ouvre un panneau où les administrateurs et propriétaires du serveur gardent jusqu'à **5 configurations Equalizer APO** (fichiers `.txt` de 15 Kio et 50 lignes de commandes maximum : profils AutoEQ de casques, exports REW, EQ paramétrique ou graphique, convolution et reverb). Chaque config peut être ajoutée, renommée, remplacée, supprimée et **gelée** : une config gelée reste applicable mais ne peut plus être modifiée ni supprimée, jusqu'à ce que la personne qui l'a gelée, un propriétaire du serveur ou du bot la dégèle. Une config est **appliquée par défaut** à tout ce que joue le serveur, tout de suite et pour chaque morceau suivant, et le module entier peut être désactivé. Le nœud musical vérifie chaque fichier avant l'enregistrement et les lignes ignorées sont listées. Un fichier joint à `/music apo` est ajouté comme nouvelle config. Les mêmes configs, avec les mêmes règles, se gèrent aussi depuis le dashboard (module **Equalizer APO**, administrateurs). Nécessite Wavyzon avec son plugin `apo`.

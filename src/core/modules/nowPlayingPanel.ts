@@ -38,6 +38,7 @@
  * Stop are drawn to match their Pause.
  */
 
+import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import {
 	ActionRowBuilder,
 	AttachmentBuilder,
@@ -601,7 +602,7 @@ export async function openNowPlayingPanel(
 						lang.nowplaying_skip_button.replace("${author}", user)
 					);
 					if (live.queue.tracks.length >= 1) {
-						await live.skip();
+						await crossfadeSkip(live);
 						// The panel moves on to the next track.
 						await update();
 					} else {
