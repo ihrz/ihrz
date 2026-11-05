@@ -32,6 +32,12 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 ---
 
+## 🎛️ Music — an Equalizer APO filter for the whole server
+
+Bot owners can now attach an **Equalizer APO** configuration (`.txt`: AutoEQ headphone profiles, REW exports, parametric or graphic EQ, convolution and reverb) with `/music apo`; the music node checks it, then it applies to everything the server plays, right away and for every next track. `/music apo` without a file removes it. Lines the node skips are listed in the reply. Needs Wavyzon with its `apo` plugin.
+
+---
+
 ## 🖥️ Dashboard — changes apply instantly
 
 Settings saved on the dashboard are now applied right away by the bot, with the same checks as the matching commands: H24/7, the server language bio, the bot's name and avatar, member counters, sticky messages, reaction roles (buttons and select menus), the honeypot trap, the confession panel, temporary bans and roles, TTS join/leave and the AuthRestore verify button. A change the bot refuses is reverted and reported. The music history now keeps each track's artwork for the dashboard.

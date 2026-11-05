@@ -2342,6 +2342,27 @@ export default {
 	music_volume_command_ok:
 		"${emoji_Yes} **音量を** `${query}`% **に設定しました**",
 
+	// /music apo
+	music_apo_not_owner:
+		"${emoji_No} | サーバーのAPOフィルターを変更できるのはボットの所有者だけです。",
+	music_apo_bad_file:
+		"${emoji_No} | Equalizer APOの設定を${max} KiB以下の`.txt`ファイルで添付してください。",
+	music_apo_download_failed:
+		"${emoji_No} | ファイルをダウンロードできませんでした。もう一度お試しください。",
+	music_apo_no_node:
+		"${emoji_No} | 現在接続されているオーディオノードがありません。",
+	music_apo_unsupported:
+		"${emoji_No} | このオーディオノードはAPOフィルターに対応していません（`apo`プラグイン付きのWavyzonが必要です）。",
+	music_apo_invalid:
+		"${emoji_No} | オーディオノードがこの設定を拒否しました: `${error}`",
+	music_apo_set:
+		"${emoji_Yes} | このサーバーにAPOフィルター **${name}** を設定しました（${stages} ステージ）。",
+	music_apo_applied_now: "再生中の音楽に適用されます。",
+	music_apo_applied_next: "音楽が再生されるとすぐに適用されます。",
+	music_apo_warnings: "スキップされた行（${count}）:",
+	music_apo_removed: "${emoji_Yes} | サーバーのAPOフィルターを解除しました。",
+	music_apo_none: "${emoji_No} | このサーバーにはAPOフィルターがありません。",
+
 	// Giveaway commands
 	// /end, /start, /reroll
 

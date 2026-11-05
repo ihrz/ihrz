@@ -2330,6 +2330,26 @@ const enUS = {
 	// /music volume
 	music_volume_command_ok: "${emoji_Yes} **volume set to** `${query}`%",
 
+	// /music apo
+	music_apo_not_owner:
+		"${emoji_No} | Only the bot owner can change the server's APO filter.",
+	music_apo_bad_file:
+		"${emoji_No} | Attach an Equalizer APO configuration as a `.txt` file of at most ${max} KiB.",
+	music_apo_download_failed:
+		"${emoji_No} | The file could not be downloaded, try again.",
+	music_apo_no_node: "${emoji_No} | No audio node is connected right now.",
+	music_apo_unsupported:
+		"${emoji_No} | This audio node does not support APO filters (it needs Wavyzon with the `apo` plugin).",
+	music_apo_invalid:
+		"${emoji_No} | The audio node refused this configuration: `${error}`",
+	music_apo_set:
+		"${emoji_Yes} | APO filter **${name}** set for this server (${stages} stage(s)).",
+	music_apo_applied_now: "It applies to the music playing now.",
+	music_apo_applied_next: "It will apply as soon as music plays.",
+	music_apo_warnings: "Skipped lines (${count}):",
+	music_apo_removed: "${emoji_Yes} | The server's APO filter is removed.",
+	music_apo_none: "${emoji_No} | This server has no APO filter.",
+
 	// Giveaway commands
 	// /end, /start, /reroll
 

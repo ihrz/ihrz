@@ -719,6 +719,16 @@ export namespace DatabaseStructure {
 		TTS?: TTSData;
 		H247?: H247Schema;
 		H247_TAKEOVER?: H247TakeoverSchema;
+		MUSIC_APO?: MusicApoSchema;
+	}
+
+	// Server-wide Equalizer APO filter set by a bot owner with /music apo
+	// (`{guildId}.MUSIC_APO`), sent to Wavyzon's `apo` plugin filter.
+	export interface MusicApoSchema {
+		config: string;
+		name: string;
+		by: string;
+		at: number;
 	}
 
 	// Public community server listed on ihorizon.org (`BOT.community.servers`).

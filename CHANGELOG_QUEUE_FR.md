@@ -32,6 +32,12 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 
 ---
 
+## 🎛️ Musique — un filtre Equalizer APO pour tout le serveur
+
+Les propriétaires du bot peuvent maintenant joindre une configuration **Equalizer APO** (`.txt` : profils AutoEQ de casques, exports REW, EQ paramétrique ou graphique, convolution et reverb) avec `/music apo` ; le nœud musical la vérifie, puis elle s'applique à tout ce que joue le serveur, tout de suite et pour chaque morceau suivant. `/music apo` sans fichier la retire. Les lignes ignorées par le nœud sont listées dans la réponse. Nécessite Wavyzon avec son plugin `apo`.
+
+---
+
 ## 🖥️ Dashboard — les changements s'appliquent tout de suite
 
 Les réglages enregistrés sur le dashboard sont maintenant appliqués immédiatement par le bot, avec les mêmes vérifications que les commandes correspondantes : H24/7, la bio de langue du serveur, le nom et l'avatar du bot, les compteurs de membres, les messages épinglés (sticky), les rôles-réactions (boutons et menus déroulants), le piège honeypot, le panneau de confessions, les bans et rôles temporaires, l'arrivée et le départ du TTS et le bouton de vérification AuthRestore. Un changement refusé par le bot est annulé et signalé. L'historique musical garde désormais la pochette de chaque morceau pour le dashboard.

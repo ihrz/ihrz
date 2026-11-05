@@ -2405,6 +2405,27 @@ export default {
 	music_volume_command_ok:
 		"${emoji_Yes} **volumen establecido en** `${query}`%",
 
+	// /music apo
+	music_apo_not_owner:
+		"${emoji_No} | Solo el dueño del bot puede cambiar el filtro APO del servidor.",
+	music_apo_bad_file:
+		"${emoji_No} | Adjunta una configuración de Equalizer APO en un archivo `.txt` de ${max} KiB como máximo.",
+	music_apo_download_failed:
+		"${emoji_No} | No se pudo descargar el archivo, inténtalo de nuevo.",
+	music_apo_no_node:
+		"${emoji_No} | No hay ningún nodo de audio conectado ahora mismo.",
+	music_apo_unsupported:
+		"${emoji_No} | Este nodo de audio no admite filtros APO (necesita Wavyzon con el plugin `apo`).",
+	music_apo_invalid:
+		"${emoji_No} | El nodo de audio rechazó esta configuración: `${error}`",
+	music_apo_set:
+		"${emoji_Yes} | Filtro APO **${name}** establecido para este servidor (${stages} etapa(s)).",
+	music_apo_applied_now: "Se aplica a la música que suena ahora.",
+	music_apo_applied_next: "Se aplicará en cuanto suene música.",
+	music_apo_warnings: "Líneas omitidas (${count}):",
+	music_apo_removed: "${emoji_Yes} | Se quitó el filtro APO del servidor.",
+	music_apo_none: "${emoji_No} | Este servidor no tiene filtro APO.",
+
 	// Giveaway commands
 	// /end, /start, /reroll
 

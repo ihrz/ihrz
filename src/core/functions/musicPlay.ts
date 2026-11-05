@@ -47,6 +47,7 @@ import appleMusic from "../extractors/apple-music/index.js";
 import amazonMusic from "../extractors/amazon-music/index.js";
 import tidalMusic from "../extractors/tidal/index.js";
 import { recordPlayedTrack } from "../modules/musicHistory.js";
+import { applyGuildApo } from "../modules/musicApo.js";
 import {
 	NowPlayingPayload,
 	openNowPlayingPanel
@@ -861,6 +862,9 @@ export async function handleMusicPlay({
 			if (player.customVolume) {
 				player.setVolume(player.customVolume || DEFAULT_VOLUME);
 			}
+
+			// The server-wide APO filter (/music apo), if any. Never throws.
+			await applyGuildApo(player);
 		}
 
 		if (!player.connected) {

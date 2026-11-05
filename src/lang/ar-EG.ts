@@ -2240,6 +2240,26 @@ export default {
 	music_volume_command_ok:
 		"${emoji_Yes} **تم ضبط مستوى الصوت إلى** `${query}`%",
 
+	// /music apo
+	music_apo_not_owner:
+		"${emoji_No} | مالك البوت فقط يمكنه تغيير فلتر APO الخاص بالسيرفر.",
+	music_apo_bad_file:
+		"${emoji_No} | أرفق إعدادات Equalizer APO في ملف `.txt` بحجم ${max} كيلوبايت كحد أقصى.",
+	music_apo_download_failed:
+		"${emoji_No} | تعذّر تنزيل الملف، حاول مرة أخرى.",
+	music_apo_no_node: "${emoji_No} | لا توجد عقدة صوت متصلة حاليًا.",
+	music_apo_unsupported:
+		"${emoji_No} | عقدة الصوت هذه لا تدعم فلاتر APO (تحتاج Wavyzon مع إضافة `apo`).",
+	music_apo_invalid:
+		"${emoji_No} | رفضت عقدة الصوت هذه الإعدادات: `${error}`",
+	music_apo_set:
+		"${emoji_Yes} | تم ضبط فلتر APO **${name}** لهذا السيرفر (${stages} مرحلة).",
+	music_apo_applied_now: "يُطبَّق على الموسيقى التي تُشغَّل الآن.",
+	music_apo_applied_next: "سيُطبَّق بمجرد تشغيل الموسيقى.",
+	music_apo_warnings: "الأسطر المتجاهلة (${count}):",
+	music_apo_removed: "${emoji_Yes} | تمت إزالة فلتر APO الخاص بالسيرفر.",
+	music_apo_none: "${emoji_No} | لا يوجد فلتر APO لهذا السيرفر.",
+
 	// Giveaway commands
 	// /end, /start, /reroll
 

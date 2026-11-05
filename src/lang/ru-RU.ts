@@ -2359,6 +2359,26 @@ export default {
 	music_volume_command_ok:
 		"${emoji_Yes} **громкость установлена на** `${query}`%",
 
+	// /music apo
+	music_apo_not_owner:
+		"${emoji_No} | Только владелец бота может менять APO-фильтр сервера.",
+	music_apo_bad_file:
+		"${emoji_No} | Прикрепите конфигурацию Equalizer APO в файле `.txt` размером не больше ${max} КиБ.",
+	music_apo_download_failed:
+		"${emoji_No} | Не удалось скачать файл, попробуйте ещё раз.",
+	music_apo_no_node: "${emoji_No} | Сейчас нет подключённого аудиоузла.",
+	music_apo_unsupported:
+		"${emoji_No} | Этот аудиоузел не поддерживает APO-фильтры (нужен Wavyzon с плагином `apo`).",
+	music_apo_invalid:
+		"${emoji_No} | Аудиоузел отклонил эту конфигурацию: `${error}`",
+	music_apo_set:
+		"${emoji_Yes} | APO-фильтр **${name}** установлен для этого сервера (этапов: ${stages}).",
+	music_apo_applied_now: "Он применяется к музыке, которая играет сейчас.",
+	music_apo_applied_next: "Он применится, как только заиграет музыка.",
+	music_apo_warnings: "Пропущенные строки (${count}):",
+	music_apo_removed: "${emoji_Yes} | APO-фильтр сервера удалён.",
+	music_apo_none: "${emoji_No} | У этого сервера нет APO-фильтра.",
+
 	// Команды раздачи призов
 	// /end, /start, /reroll
 

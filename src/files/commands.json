@@ -5905,6 +5905,39 @@
         "category": "music",
         "options": [
             {
+                "name": "apo",
+                "description": "Set the server's Equalizer APO filter (bot owner only)!",
+                "description_localizations": {
+                    "fr": "Définir le filtre Equalizer APO du serveur (propriétaire du bot)",
+                    "ja": "サーバーのEqualizer APOフィルターを設定（ボット所有者のみ）！",
+                    "ru": "Задать фильтр Equalizer APO сервера (только владелец бота)!",
+                    "es-ES": "Establecer el filtro Equalizer APO del servidor (solo el dueño del bot)!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "file",
+                        "name_localizations": {
+                            "fr": "fichier",
+                            "ja": "file",
+                            "ru": "file",
+                            "es-ES": "archivo"
+                        },
+                        "type": 11,
+                        "description": "Equalizer APO configuration (.txt). Leave empty to remove the filter",
+                        "description_localizations": {
+                            "fr": "Configuration Equalizer APO (.txt). Laisser vide pour retirer le filtre",
+                            "ja": "Equalizer APOの設定（.txt）。空にするとフィルターを解除",
+                            "ru": "Конфигурация Equalizer APO (.txt). Оставьте пустым, чтобы убрать фильтр",
+                            "es-ES": "Configuración de Equalizer APO (.txt). Déjalo vacío para quitar el filtro"
+                        },
+                        "required": false,
+                        "commandFullName": "music apo file"
+                    }
+                ],
+                "commandFullName": "music apo"
+            },
+            {
                 "name": "loop",
                 "name_localizations": {
                     "fr": "boucle",
