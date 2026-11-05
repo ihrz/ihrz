@@ -56,6 +56,8 @@ import { sendConfessionPanel } from "./confessionManager.js";
 import { generateSelectMenu } from "../functions/roleSelectMenu.js";
 import { createOauth2LinkWithGuild } from "../functions/authRestoreHelper.js";
 import { authRestoreTable } from "../../Events/client/ready.js";
+import { applyApoFilter, checkApo } from "./musicApo.js";
+import { activeConfig, migrate } from "./musicApoState.js";
 
 type Schema = DatabaseStructure.DbGuildObject;
 
@@ -712,6 +714,45 @@ const handlers: Record<string, ChangeHandler> = {
 				)
 			]
 		});
+	},
+
+	// /music apo panel: the gateway already applied the panel's rules (limits,
+	// frozen configs, stamped authors). New or replaced files are checked by
+	// the music node like in the panel; a refused file reverts the write.
+	// Then the playing music follows the applied config.
+	MUSIC_APO: async (client, guild, change) => {
+		const prev = migrate(change.old);
+		const next = migrate(change.new);
+		const path = `${guild.id}.MUSIC_APO`;
+		const revert = async (why: string) => {
+			if (change.old) await client.db.set(path, change.old);
+			else await client.db.delete(path);
+			throw `${why}, Equalizer APO configs not changed`;
+		};
+
+		const player = client.player.getPlayer(guild.id);
+		const changed = next.configs.filter(
+			(c) => prev.configs.find((p) => p.id === c.id)?.config !== c.config
+		);
+		if (changed.length) {
+			const node =
+				player?.node ??
+				client.player.nodeManager.leastUsedNodes("playingPlayers")[0];
+			if (!node) return revert("no audio node is connected");
+			for (const config of changed) {
+				const check = await checkApo(node, config.config);
+				if (check.ok) continue;
+				return revert(
+					check.unsupported
+						? "the music node does not support Equalizer APO"
+						: `"${config.name}": ${check.error.slice(0, 300)}`
+				);
+			}
+		}
+
+		const was = activeConfig(prev)?.config ?? null;
+		const now = activeConfig(next)?.config ?? null;
+		if (player && was !== now) await applyApoFilter(player, now);
 	},
 
 	// /setserverlang
