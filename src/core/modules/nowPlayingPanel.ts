@@ -106,7 +106,7 @@ const BUTTON = {
 } as const;
 
 // Lavalink source name -> display name and bot emoji (when there is one).
-const SOURCES: Record<string, { name: string; emoji?: string }> = {
+export const SOURCES: Record<string, { name: string; emoji?: string }> = {
 	deezer: { name: "Deezer", emoji: "Deezer" },
 	soundcloud: { name: "SoundCloud", emoji: "SoundCloud" },
 	youtube: { name: "YouTube" },
@@ -490,9 +490,7 @@ export async function openNowPlayingPanel(
 		const { track, artwork, artworkName, accent } = view;
 		await i.deferReply({ flags: [MessageFlags.Ephemeral] });
 
-		const lyrics = await client.func
-			.searchLyrics(track)
-			.catch(() => null);
+		const lyrics = await client.func.searchLyrics(track).catch(() => null);
 		const content = lyrics?.res?.text?.trim();
 
 		if (!content) {

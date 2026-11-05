@@ -38,6 +38,12 @@ Les propriétaires du bot peuvent maintenant joindre une configuration **Equaliz
 
 ---
 
+## 📜 Musique — un nouvel historique musical
+
+`/music history` est refait en carte **Components V2**, aux couleurs de la dernière pochette : ce que le serveur a écouté ces 30 derniers jours, le nombre de morceaux et le temps d'écoute, l'artiste le plus écouté et qui a fait le plus de demandes, une mosaïque des dernières pochettes, puis cinq morceaux par page avec leur pochette, leur lien, leur durée, leur source, qui l'a demandé et quand (dans le fuseau horaire de chacun). **Exporter** envoie l'historique complet en fichier texte, visible par toi seul. **Vider** demande maintenant la permission Gérer le serveur et une confirmation ; les autres personnes qui cliquent sur les boutons savent pourquoi rien ne se passe.
+
+---
+
 ## 🖥️ Dashboard — les changements s'appliquent tout de suite
 
 Les réglages enregistrés sur le dashboard sont maintenant appliqués immédiatement par le bot, avec les mêmes vérifications que les commandes correspondantes : H24/7, la bio de langue du serveur, le nom et l'avatar du bot, les compteurs de membres, les messages épinglés (sticky), les rôles-réactions (boutons et menus déroulants), le piège honeypot, le panneau de confessions, les bans et rôles temporaires, l'arrivée et le départ du TTS et le bouton de vérification AuthRestore. Un changement refusé par le bot est annulé et signalé. L'historique musical garde désormais la pochette de chaque morceau pour le dashboard.

@@ -2375,11 +2375,31 @@ export default {
 
 	// /music history
 	history_no_entries: "Non ci sono voci in questa competizione.",
-	history_embed_title: "Storia della Musica di ${guildName} | Pagina ${page}",
-	history_embed_footer_text: "iHorizon | Pagina ${page}/${pageCount}",
-	history_delete_embed_title: "✅ Cronologia eliminata",
-	history_delete_embed_desc:
-		"La cronologia musicale è stata eliminata con successo.",
+	history_title: "Ascoltato di recente su ${guild}",
+	history_summary:
+		"${count} brani, ${duration} di musica negli ultimi 30 giorni",
+	history_top_artist:
+		"Artista più ascoltato: **${artist}** (${count} ascolti)",
+	history_top_listener: "Più richieste: ${user} (${count})",
+	history_legacy_note:
+		"Registrato prima che i dettagli dei brani venissero salvati:",
+	history_page: "Pagina ${page} di ${pages}",
+	history_kept: "Conservato per 30 giorni",
+	history_button_previous: "Precedente",
+	history_button_next: "Successiva",
+	history_button_export: "Esporta",
+	history_button_clear: "Svuota",
+	history_clear_confirm:
+		"${emoji} Svuotare tutta la cronologia musicale di questo server? Non si può annullare.",
+	history_button_confirm_clear: "Svuota cronologia",
+	history_button_cancel: "Annulla",
+	history_cleared:
+		"${emoji} La cronologia musicale di questo server è stata svuotata.",
+	history_clear_forbidden:
+		"${emoji} Serve il permesso Gestisci server per svuotare la cronologia.",
+	history_not_yours:
+		"${emoji} Questi pulsanti appartengono a chi ha aperto questa cronologia. Usa /music history per la tua.",
+	history_export_ready: "${emoji} La cronologia completa, dalla più recente:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Titolo sconosciuto",

@@ -2220,10 +2220,26 @@ export default {
 
 	// /music history
 	history_no_entries: "لا توجد إدخالات في هذه المسابقة.",
-	history_embed_title: "${guildName} تاريخ الموسيقى | الصفحة ${page}",
-	history_embed_footer_text: "iHorizon | الصفحة ${page}/${pageCount}",
-	history_delete_embed_title: "✅ تم حذف السجل",
-	history_delete_embed_desc: "تم حذف سجل الموسيقى بنجاح.",
+	history_title: "ما تم تشغيله مؤخرًا على ${guild}",
+	history_summary: "${count} مقطع، ${duration} من الموسيقى خلال آخر 30 يومًا",
+	history_top_artist: "الفنان الأكثر تشغيلًا: **${artist}** (${count})",
+	history_top_listener: "أكثر الطلبات: ${user} (${count})",
+	history_legacy_note: "سُجّل قبل حفظ تفاصيل المقاطع:",
+	history_page: "الصفحة ${page} من ${pages}",
+	history_kept: "يُحفظ لمدة 30 يومًا",
+	history_button_previous: "السابق",
+	history_button_next: "التالي",
+	history_button_export: "تصدير",
+	history_button_clear: "مسح",
+	history_clear_confirm:
+		"${emoji} مسح سجل الموسيقى بالكامل لهذا السيرفر؟ لا يمكن التراجع.",
+	history_button_confirm_clear: "مسح السجل",
+	history_button_cancel: "إلغاء",
+	history_cleared: "${emoji} تم مسح سجل الموسيقى لهذا السيرفر.",
+	history_clear_forbidden: "${emoji} تحتاج صلاحية إدارة السيرفر لمسح السجل.",
+	history_not_yours:
+		"${emoji} هذه الأزرار لمن فتح هذا السجل. استخدم /music history لفتح سجلك.",
+	history_export_ready: "${emoji} السجل الكامل، الأحدث أولًا:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "العنوان غير معروف",

@@ -2427,11 +2427,31 @@ export default {
 
 	// /music history
 	history_no_entries: "Il n'y a aucune entrée dans cette compétition.",
-	history_embed_title: "Historique Musical de ${guildName} | Page ${page}",
-	history_embed_footer_text: "iHorizon | Page ${page}/${pageCount}",
-	history_delete_embed_title: "✅ Historique supprimé",
-	history_delete_embed_desc:
-		"L’historique de musique a été supprimé avec succès.",
+	history_title: "Écouté récemment sur ${guild}",
+	history_summary:
+		"${count} morceaux, ${duration} de musique ces 30 derniers jours",
+	history_top_artist:
+		"Artiste le plus écouté : **${artist}** (${count} écoutes)",
+	history_top_listener: "Le plus de demandes : ${user} (${count})",
+	history_legacy_note:
+		"Enregistré avant que les détails des morceaux soient conservés :",
+	history_page: "Page ${page} sur ${pages}",
+	history_kept: "Conservé 30 jours",
+	history_button_previous: "Précédent",
+	history_button_next: "Suivant",
+	history_button_export: "Exporter",
+	history_button_clear: "Vider",
+	history_clear_confirm:
+		"${emoji} Vider tout l'historique musical de ce serveur ? C'est définitif.",
+	history_button_confirm_clear: "Vider l'historique",
+	history_button_cancel: "Annuler",
+	history_cleared: "${emoji} L'historique musical de ce serveur est vidé.",
+	history_clear_forbidden:
+		"${emoji} Il faut la permission Gérer le serveur pour vider l'historique.",
+	history_not_yours:
+		"${emoji} Ces boutons appartiennent à la personne qui a ouvert cet historique. Lance /music history pour avoir le tien.",
+	history_export_ready:
+		"${emoji} L'historique complet, du plus récent au plus ancien :",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Titre inconnu",

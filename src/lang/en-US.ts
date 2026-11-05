@@ -2309,11 +2309,28 @@ const enUS = {
 
 	// /music history
 	history_no_entries: "There are no entries in the music history.",
-	history_embed_title: "${guildName} Music's History | Page ${page}",
-	history_embed_footer_text: "iHorizon | Page ${page}/${pageCount}",
-	history_delete_embed_title: "✅ History Deleted",
-	history_delete_embed_desc:
-		"The music history has been successfully deleted.",
+	history_title: "Recently played on ${guild}",
+	history_summary:
+		"${count} tracks, ${duration} of music over the last 30 days",
+	history_top_artist: "Most played artist: **${artist}** (${count} plays)",
+	history_top_listener: "Most requests: ${user} (${count})",
+	history_legacy_note: "Recorded before track details were kept:",
+	history_page: "Page ${page} of ${pages}",
+	history_kept: "Kept for 30 days",
+	history_button_previous: "Previous",
+	history_button_next: "Next",
+	history_button_export: "Export",
+	history_button_clear: "Clear",
+	history_clear_confirm:
+		"${emoji} Clear the whole music history of this server? This can't be undone.",
+	history_button_confirm_clear: "Clear history",
+	history_button_cancel: "Cancel",
+	history_cleared: "${emoji} The music history of this server is cleared.",
+	history_clear_forbidden:
+		"${emoji} You need the Manage Server permission to clear the history.",
+	history_not_yours:
+		"${emoji} These buttons belong to whoever opened this history. Run /music history to get your own.",
+	history_export_ready: "${emoji} The full history, newest first:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Unknown title",

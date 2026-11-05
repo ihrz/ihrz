@@ -2339,10 +2339,29 @@ export default {
 
 	// /music history
 	history_no_entries: "В этом конкурсе нет записей.",
-	history_embed_title: "История Музыки ${guildName} | Страница ${page}",
-	history_embed_footer_text: "iHorizon | Страница ${page}/${pageCount}",
-	history_delete_embed_title: "✅ История удалена",
-	history_delete_embed_desc: "История музыки была успешно удалена.",
+	history_title: "Недавно играло на ${guild}",
+	history_summary:
+		"Треков: ${count}, музыки: ${duration} за последние 30 дней",
+	history_top_artist: "Самый частый исполнитель: **${artist}** (${count})",
+	history_top_listener: "Больше всего заказов: ${user} (${count})",
+	history_legacy_note:
+		"Записано до того, как начали сохраняться детали треков:",
+	history_page: "Страница ${page} из ${pages}",
+	history_kept: "Хранится 30 дней",
+	history_button_previous: "Назад",
+	history_button_next: "Вперёд",
+	history_button_export: "Экспорт",
+	history_button_clear: "Очистить",
+	history_clear_confirm:
+		"${emoji} Очистить всю музыкальную историю этого сервера? Это нельзя отменить.",
+	history_button_confirm_clear: "Очистить историю",
+	history_button_cancel: "Отмена",
+	history_cleared: "${emoji} Музыкальная история этого сервера очищена.",
+	history_clear_forbidden:
+		"${emoji} Чтобы очистить историю, нужно право «Управлять сервером».",
+	history_not_yours:
+		"${emoji} Эти кнопки принадлежат тому, кто открыл эту историю. Используйте /music history, чтобы открыть свою.",
+	history_export_ready: "${emoji} Полная история, сначала новые:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Неизвестный заголовок",

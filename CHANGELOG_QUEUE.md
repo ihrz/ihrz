@@ -38,6 +38,12 @@ Bot owners can now attach an **Equalizer APO** configuration (`.txt`: AutoEQ hea
 
 ---
 
+## 📜 Music — a new music history
+
+`/music history` is rebuilt as a **Components V2** card in the colours of the latest artwork: what the server played over the last 30 days, the number of tracks and the listening time, the most played artist and who requested the most, a mosaic of the latest artworks, then five plays per page with their artwork, link, length, source, who asked for it and when (in each reader's own time zone). **Export** sends the full history as a text file, only to you. **Clear** now needs the Manage Server permission and a confirmation; anyone else pressing the buttons is told why nothing happens.
+
+---
+
 ## 🖥️ Dashboard — changes apply instantly
 
 Settings saved on the dashboard are now applied right away by the bot, with the same checks as the matching commands: H24/7, the server language bio, the bot's name and avatar, member counters, sticky messages, reaction roles (buttons and select menus), the honeypot trap, the confession panel, temporary bans and roles, TTS join/leave and the AuthRestore verify button. A change the bot refuses is reverted and reported. The music history now keeps each track's artwork for the dashboard.

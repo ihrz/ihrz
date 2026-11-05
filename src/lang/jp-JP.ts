@@ -2322,10 +2322,28 @@ export default {
 
 	// /music history
 	history_no_entries: "このコンペティションにはエントリーがありません。",
-	history_embed_title: "${guildName}の音楽履歴 | ページ ${page}",
-	history_embed_footer_text: "iHorizon | ページ ${page}/${pageCount}",
-	history_delete_embed_title: "✅ 履歴を削除しました",
-	history_delete_embed_desc: "音楽の履歴が正常に削除されました。",
+	history_title: "${guild} で最近再生された曲",
+	history_summary: "過去30日間で ${count} 曲、合計 ${duration}",
+	history_top_artist:
+		"よく再生されたアーティスト: **${artist}**（${count} 回）",
+	history_top_listener: "リクエスト数トップ: ${user}（${count}）",
+	history_legacy_note: "曲の詳細を保存する前に記録された履歴:",
+	history_page: "${page} / ${pages} ページ",
+	history_kept: "30日間保存されます",
+	history_button_previous: "前へ",
+	history_button_next: "次へ",
+	history_button_export: "エクスポート",
+	history_button_clear: "削除",
+	history_clear_confirm:
+		"${emoji} このサーバーの音楽履歴をすべて削除しますか？元に戻せません。",
+	history_button_confirm_clear: "履歴を削除",
+	history_button_cancel: "キャンセル",
+	history_cleared: "${emoji} このサーバーの音楽履歴を削除しました。",
+	history_clear_forbidden:
+		"${emoji} 履歴を削除するには「サーバー管理」権限が必要です。",
+	history_not_yours:
+		"${emoji} このボタンは履歴を開いた人だけが使えます。自分用には /music history を使ってください。",
+	history_export_ready: "${emoji} すべての履歴（新しい順）:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "不明なタイトル",

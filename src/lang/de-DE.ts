@@ -2395,10 +2395,30 @@ export default {
 
 	// /music history
 	history_no_entries: "Es gibt keinen Eintrag in diesem Wettbewerb.",
-	history_embed_title: "Musikgeschichte von ${guildName} | Seite ${page}",
-	history_embed_footer_text: "iHorizon | Seite ${page}/${pageCount}",
-	history_delete_embed_title: "✅ Verlauf gelöscht",
-	history_delete_embed_desc: "Der Musikverlauf wurde erfolgreich gelöscht.",
+	history_title: "Zuletzt gespielt auf ${guild}",
+	history_summary:
+		"${count} Titel, ${duration} Musik in den letzten 30 Tagen",
+	history_top_artist:
+		"Meistgespielter Künstler: **${artist}** (${count}× gespielt)",
+	history_top_listener: "Die meisten Wünsche: ${user} (${count})",
+	history_legacy_note:
+		"Aufgezeichnet, bevor Titeldetails gespeichert wurden:",
+	history_page: "Seite ${page} von ${pages}",
+	history_kept: "30 Tage gespeichert",
+	history_button_previous: "Zurück",
+	history_button_next: "Weiter",
+	history_button_export: "Exportieren",
+	history_button_clear: "Leeren",
+	history_clear_confirm:
+		"${emoji} Den gesamten Musikverlauf dieses Servers leeren? Das lässt sich nicht rückgängig machen.",
+	history_button_confirm_clear: "Verlauf leeren",
+	history_button_cancel: "Abbrechen",
+	history_cleared: "${emoji} Der Musikverlauf dieses Servers ist geleert.",
+	history_clear_forbidden:
+		"${emoji} Zum Leeren des Verlaufs brauchst du die Berechtigung Server verwalten.",
+	history_not_yours:
+		"${emoji} Diese Knöpfe gehören der Person, die diesen Verlauf geöffnet hat. Nutze /music history für deinen eigenen.",
+	history_export_ready: "${emoji} Der vollständige Verlauf, neueste zuerst:",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Unbekannter Titel",

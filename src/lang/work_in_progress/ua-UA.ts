@@ -1092,8 +1092,6 @@ export default {
 
 	// /music history
 	history_no_entries: "У цьому конкурсі немає записів.",
-	history_embed_title: "Історія Музики ${guildName} | Сторінка ${page}",
-	history_embed_footer_text: "iHorizon | Сторінка ${page}/${pageCount}",
 
 	// /music lyrics
 	lyrics_embed_title_unknown: "Невідомий заголовок",
