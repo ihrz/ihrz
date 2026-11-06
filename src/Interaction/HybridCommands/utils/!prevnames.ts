@@ -27,14 +27,19 @@ import {
 	Client,
 	ContainerBuilder,
 	Message,
-	MessageFlags,
-	escapeMarkdown
+	MessageFlags
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { prevnamesTable } from "../../../Events/client/ready.js";
+import {
+	cleanHistory,
+	displayName,
+	parseEntry,
+	sanitizeName
+} from "../../../core/modules/prevnamesHistory.js";
 import {
 	ACCENT,
 	botSignature,
@@ -53,23 +58,24 @@ const ID = {
 } as const;
 
 /**
- * Entries are stored as `<t:SECONDS:d> - [type] value` (see prevnamesModule):
+ * Entries are stored as `<t:SECONDS:d> - [type] value` (see prevnamesHistory):
  * show the name first and the kind of name and date on the sub-line.
  */
 function formatEntry(entry: string, lang: LanguageData): string {
-	const match = entry.match(/^<t:(\d+):\w>\s*-\s*\[([^\]]+)\]\s*([\s\S]*)$/);
-	if (!match) return entry;
-	const [, seconds, type, value] = match;
-	let kind: string;
-	if (type === "username") kind = lang.prevnames_label_username;
-	else if (type === "globalName") kind = lang.prevnames_label_display_name;
-	else if (type.startsWith("nickname:"))
-		kind = lang.prevnames_label_nickname.replace(
-			"${guild}",
-			escapeMarkdown(type.slice("nickname:".length))
+	const { seconds, tag, value } = parseEntry(entry);
+	const meta: string[] = [];
+	if (tag === "username") meta.push(lang.prevnames_label_username);
+	else if (tag === "globalName") meta.push(lang.prevnames_label_display_name);
+	else if (tag?.startsWith("nickname:")) {
+		const guild = displayName(tag.slice("nickname:".length));
+		// A function: `$&` in a server name is not a replacement pattern.
+		meta.push(
+			lang.prevnames_label_nickname.replace("${guild}", () => guild)
 		);
-	else kind = type;
-	return `**${escapeMarkdown(value)}**\n-# ${kind} · <t:${seconds}:D> · <t:${seconds}:R>`;
+	}
+	if (seconds !== null) meta.push(`<t:${seconds}:D>`, `<t:${seconds}:R>`);
+	const name = `**${displayName(value)}**`;
+	return meta.length ? `${name}\n-# ${meta.join(" · ")}` : name;
 }
 
 export const subCommand: SubCommand = {
@@ -95,8 +101,20 @@ export const subCommand: SubCommand = {
 				interaction.member.user;
 		}
 
-		const char: Array<string> =
-			(await prevnamesTable.get(`${user.id}`)) || [];
+		const stored = await prevnamesTable.get(`${user.id}`);
+		const char = cleanHistory(stored);
+
+		// Repair what older versions stored (nulls, duplicates), so the
+		// public API serves the clean history too.
+		if (stored && JSON.stringify(stored) !== JSON.stringify(char)) {
+			await (
+				char.length
+					? prevnamesTable.set(`${user.id}`, char)
+					: prevnamesTable.delete(`${user.id}`)
+			).catch((error: unknown) =>
+				logger.warn(`prevnames repair failed: ${String(error)}`)
+			);
+		}
 
 		if (char.length == 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -118,9 +136,12 @@ export const subCommand: SubCommand = {
 			const container = buildCard({
 				accent: user.accentColor ?? ACCENT.info,
 				emoji: e.Nametag,
-				title: lang.prevnames_card_title.replace(
-					"${user}",
-					user.globalName ?? user.username
+				title: lang.prevnames_card_title.replace("${user}", () =>
+					displayName(
+						sanitizeName(user.globalName) ??
+							sanitizeName(user.username) ??
+							user.id
+					)
 				),
 				description: `-# ${lang.prevnames_card_count.replace("${count}", String(entries.length))}`,
 				thumbnail: user.displayAvatarURL({ size: 128 }),

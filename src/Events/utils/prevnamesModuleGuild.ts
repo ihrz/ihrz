@@ -19,14 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildMember, time } from "discord.js";
+import { Client, GuildMember } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
-import {
-	prevnamesMap,
-	usersNamesMap,
-	usersNicknamesMap
-} from "../../core/prevnamesModule.ts";
+import { prevnamesMap, usersNicknamesMap } from "../../core/prevnamesModule.ts";
+import { recordPrevname } from "../../core/modules/prevnamesHistory.ts";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -52,10 +49,11 @@ export const event: BotEvent = {
 
 		if (previousNickname === null || previousNickname === undefined) return;
 
-		await prevnamesTable.push(
-			newMember.id,
-			`${time(new Date(), "d")} - [nickname:${newMember.guild.name}] ${previousNickname}`
-		);
+		await recordPrevname(prevnamesTable, newMember.id, {
+			kind: "nickname",
+			guild: newMember.guild.name,
+			value: previousNickname
+		});
 
 		const history = prevnamesMap.get(newMember.id) ?? [];
 		history.push({

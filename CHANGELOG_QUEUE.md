@@ -129,6 +129,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **`/automod`**: the panel opens again when a bypass role or the log channel was deleted
 - **Captcha**: members who fail it are now actually kicked
 - **Role saver**: gives back only roles the bot can assign, merged with the join roles; a protection kick deranks first so roles cannot come back on rejoin
+- **`/utils prevnames`**: no more `null` entries or names listed several times (old histories are repaired when viewed), and names are cleaned: no invisible characters or line breaks, and a name like `<@id>` is no longer shown as a mention
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

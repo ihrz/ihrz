@@ -129,6 +129,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **`/automod`** : le panneau s'ouvre de nouveau quand un rôle exempté ou le salon de logs a été supprimé
 - **Captcha** : les membres qui l'échouent sont maintenant réellement expulsés
 - **Role saver** : ne rend que les rôles que le bot peut attribuer, fusionnés avec les rôles d'arrivée ; une expulsion par la protection retire d'abord les rôles pour qu'ils ne reviennent pas au retour du membre
+- **`/utils prevnames`** : plus d'entrées `null` ni de noms listés plusieurs fois (les anciens historiques sont réparés à l'affichage), et les noms sont nettoyés : plus de caractères invisibles ni de retours à la ligne, et un nom comme `<@id>` ne s'affiche plus comme une mention
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

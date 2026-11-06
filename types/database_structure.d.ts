@@ -834,6 +834,13 @@ export namespace DatabaseStructure {
 	}
 
 	/**
+	 * `prevnames` table, keyed by user id, oldest first: entries are
+	 * `<t:SECONDS:d> - [username|globalName|nickname:GUILD] VALUE`
+	 * (src/core/modules/prevnamesHistory.ts). HorizonGateway serves them as is.
+	 */
+	export type PrevnamesHistory = string[];
+
+	/**
 	 * `lyrics` table, keyed by ISRC: lyrics served by the Wavyzon node
 	 * (lyrics.ovh). An entry that does not match this shape is refetched.
 	 */

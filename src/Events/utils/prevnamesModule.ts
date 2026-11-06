@@ -19,23 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, User, time } from "discord.js";
+import { Client, User } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
 import { prevnamesMap, usersNamesMap } from "../../core/prevnamesModule.ts";
+import { recordPrevname } from "../../core/modules/prevnamesHistory.ts";
 
 export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (_client: Client, oldUser: User, newUser: User) => {
 		const cached = usersNamesMap.get(newUser.id);
 
+		// A partial old user (not cached) has a null username: nothing to record.
 		const previousUsername = cached?.username ?? oldUser.username;
 		const previousGlobalName = cached?.globalName ?? oldUser.globalName;
 
 		const changes: { type: "username" | "globalName"; oldValue: string }[] =
 			[];
 
-		if (previousUsername !== newUser.username) {
+		if (
+			typeof previousUsername === "string" &&
+			previousUsername !== newUser.username
+		) {
 			changes.push({ type: "username", oldValue: previousUsername });
 		}
 
@@ -48,10 +53,10 @@ export const event: BotEvent = {
 		}
 
 		for (const change of changes) {
-			await prevnamesTable.push(
-				newUser.id,
-				`${time(new Date(), "d")} - [${change.type}] ${change.oldValue}`
-			);
+			await recordPrevname(prevnamesTable, newUser.id, {
+				kind: change.type,
+				value: change.oldValue
+			});
 
 			const history = prevnamesMap.get(newUser.id) ?? [];
 			history.push({
