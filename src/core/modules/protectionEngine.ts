@@ -182,6 +182,8 @@ const REMAP_WAIT_MS = 3_000;
 const SWEEP_INTERVAL_MS = 60_000;
 // Reused by every role deleted in the same burst (see roleIndexOf).
 const ROLE_INDEX_TTL_MS = 10_000;
+// Also dropped as soon as the audit log reports an onboarding change.
+const ONBOARDING_ROLES_TTL_MS = 5 * 60_000;
 // Max parallel bulk requests (member role re-adds, overwrites) per guild,
 // so one restore can never monopolise the bot-wide REST rate limit.
 const BULK_CONCURRENCY = 4;
@@ -269,6 +271,9 @@ const orphans = new ExpiringStore<Set<string>>(SNAPSHOT_TTL_MS);
 const recreated = new ExpiringStore<string | null>(SNAPSHOT_TTL_MS);
 const restoring = new ExpiringStore<true>(SNAPSHOT_TTL_MS);
 const roleIndexes = new ExpiringStore<RoleIndex>(ROLE_INDEX_TTL_MS);
+const onboardingRoles = new ExpiringStore<Promise<Set<string>>>(
+	ONBOARDING_ROLES_TTL_MS
+);
 
 setInterval(() => {
 	const now = Date.now();
@@ -280,7 +285,8 @@ setInterval(() => {
 		orphans,
 		recreated,
 		restoring,
-		roleIndexes
+		roleIndexes,
+		onboardingRoles
 	]) {
 		store.sweep(now);
 	}
@@ -569,6 +575,69 @@ function findBrokenRule(
 		if (!breaksRule(rule, executorId, context)) return false;
 		return key !== "add_admin_roles" || grantsAdministrator(entry, guild);
 	});
+}
+
+const ONBOARDING_ACTIONS = new Set<AuditLogEvent>([
+	AuditLogEvent.OnboardingPromptCreate,
+	AuditLogEvent.OnboardingPromptUpdate,
+	AuditLogEvent.OnboardingPromptDelete,
+	AuditLogEvent.OnboardingCreate,
+	AuditLogEvent.OnboardingUpdate
+]);
+
+async function fetchOnboardingRoles(guild: Guild): Promise<Set<string>> {
+	const onboarding = await guild.fetchOnboarding();
+	const roleIds = new Set<string>();
+
+	for (const prompt of onboarding.prompts.values()) {
+		for (const option of prompt.options.values()) {
+			for (const roleId of option.roles.keys()) roleIds.add(roleId);
+		}
+	}
+
+	return roleIds;
+}
+
+function getOnboardingRoles(guild: Guild): Promise<Set<string>> {
+	let roleIds = onboardingRoles.get(guild.id);
+	if (!roleIds) {
+		// A failed read keeps the protection active and is not remembered.
+		roleIds = fetchOnboardingRoles(guild).catch((error) => {
+			onboardingRoles.delete(guild.id);
+			logger.warn(
+				`[Protect] ${guild.id}: could not read the onboarding roles: ${String((error as Error)?.message ?? error)}`
+			);
+			return new Set<string>();
+		});
+		onboardingRoles.set(guild.id, roleIds);
+	}
+	return roleIds;
+}
+
+/**
+ * Onboarding and Channels & Roles picks reach the audit log as ordinary member
+ * role updates. Only a member changing their own roles, within the roles the
+ * guild offers to everyone that way, is left alone: anything else, including
+ * an offered role that grants Administrator, stays a broken rule.
+ */
+async function isOnboardingRoleChange(
+	entry: GuildAuditLogsEntry,
+	guild: Guild,
+	executorId: string
+): Promise<boolean> {
+	if (entry.targetId !== executorId) return false;
+	if (grantsAdministrator(entry, guild)) return false;
+
+	const changes = changesOf(entry);
+	const changed = [
+		...roleIdsOf(changes, "$add"),
+		...roleIdsOf(changes, "$remove")
+	];
+	if (changed.length === 0) return false;
+
+	const offered = await getOnboardingRoles(guild);
+
+	return changed.every((id) => offered.has(id));
 }
 
 /* ------------------------------------------------------------------ */
@@ -1184,6 +1253,8 @@ export async function handleProtectionEntry(
 	entry: GuildAuditLogsEntry,
 	guild: Guild
 ): Promise<void> {
+	if (ONBOARDING_ACTIONS.has(entry.action)) onboardingRoles.delete(guild.id);
+
 	const executorId = entry.executorId;
 	if (!executorId || executorId === client.user?.id) return;
 	if (!RULES_BY_ACTION[entry.action]) return;
@@ -1196,6 +1267,13 @@ export async function handleProtectionEntry(
 
 	const ruleKey = findBrokenRule(entry, guild, executorId, context);
 	if (!ruleKey) return;
+
+	if (
+		ruleKey === "updatemember" &&
+		(await isOnboardingRoleChange(entry, guild, executorId))
+	) {
+		return;
+	}
 
 	logger.debug(
 		`[Protect] ${guild.id}: ${executorId} broke "${ruleKey}" (action ${entry.action}, target ${entry.targetId})`
