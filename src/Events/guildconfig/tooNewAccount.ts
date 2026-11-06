@@ -33,7 +33,9 @@ export const event: BotEvent = {
 			`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`
 		)) as DatabaseStructure.BlockNewAccountSchema;
 
-		if (!baseData?.state) return;
+		// No age set (a dashboard save can enable it alone): `accountAge >=
+		// undefined` is false, and every new member would be kicked.
+		if (!baseData?.state || !baseData.req) return;
 
 		const accountCreationDate = member.user.createdAt;
 		const currentTime = Date.now();
