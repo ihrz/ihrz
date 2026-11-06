@@ -152,7 +152,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Member count**: `{ChannelCount}` shows the channels (it showed the roles on refresh)
 - **Tags**: a tag without an embed can be used and shown
 - **Ticket panels**: removing a question no longer gives the next one a duplicate id, which broke the form; a simple panel can be published from the dashboard without an embed, like with `/ticket panel`
-- **Dashboard blacklist**: adding a user bans them and removing one unbans them, like the commands
+- **Dashboard blacklist**: adding a user bans them with the reason you give, and removing one unbans them, like the commands
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

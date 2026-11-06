@@ -152,7 +152,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Compteur de membres** : `{ChannelCount}` affiche les salons (il affichait les rôles à l'actualisation)
 - **Tags** : un tag sans embed peut être utilisé et affiché
 - **Panneaux de tickets** : retirer une question ne donne plus un id en double à la suivante, ce qui cassait le formulaire ; un panneau simple se publie depuis le dashboard sans embed, comme avec `/ticket panel`
-- **Blacklist du dashboard** : ajouter un utilisateur le bannit et le retirer le débannit, comme les commandes
+- **Blacklist du dashboard** : ajouter un utilisateur le bannit avec la raison indiquée et le retirer le débannit, comme les commandes
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits
