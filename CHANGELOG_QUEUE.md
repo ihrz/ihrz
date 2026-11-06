@@ -144,6 +144,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **`/punishpub`**: the sanction comes at the chosen number of flags (one too early before, and never with 1)
 - **Starboard / skullboard**: at least 2 reactions, even with an empty threshold
 - **Self-hosting**: `tools/MigrateDashboardUnits.ts --apply` repairs the values saved in the wrong unit
+- **Dashboard**: saving no longer undoes what happened since the page was read: only the saved sections are written, and only what you changed goes over them. "Delete module" on welcome and utilities no longer wipes the role saver, permissions, limits and other settings stored alongside. Long bot-kept lists (notifier, blogger, confessions) no longer block a save. The server tooltip shows the member total
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

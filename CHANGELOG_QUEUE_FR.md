@@ -144,6 +144,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **`/punishpub`** : la sanction tombe au nombre de signalements choisi (un trop tôt avant, et jamais avec 1)
 - **Starboard / skullboard** : au moins 2 réactions, même avec un seuil vide
 - **Auto-hébergement** : `tools/MigrateDashboardUnits.ts --apply` répare les valeurs enregistrées dans la mauvaise unité
+- **Dashboard** : enregistrer n'annule plus ce qui s'est passé depuis l'ouverture de la page : seules les sections enregistrées sont écrites, et seul ce que vous avez modifié les remplace. « Supprimer le module » sur la bienvenue et les utilitaires n'efface plus le role saver, les permissions, les limites et les autres réglages stockés au même endroit. Les longues listes tenues par le bot (notifier, blog, confessions) ne bloquent plus l'enregistrement. L'infobulle des serveurs affiche le total des membres
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits
