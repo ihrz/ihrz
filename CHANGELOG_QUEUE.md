@@ -36,6 +36,8 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 `/music skip`, the now playing panel's skip button and jumps from the queue panel now fade into the next track over 3 s on a Wavyzon node, instead of cutting. The new track starts immediately; it is announced when the fade ends. Other nodes, a paused player and the last seconds of a track keep the plain skip.
 
+---
+
 ## 🎛️ Music — Equalizer APO configs for each server
 
 `/music apo` opens a panel where the server's administrators and owners keep up to **5 Equalizer APO configurations** (`.txt` files of 15 KiB and 50 command lines at most: AutoEQ headphone profiles, REW exports, parametric or graphic EQ, convolution and reverb). Each config can be added, renamed, replaced, deleted and **frozen**: a frozen config can still be applied but not changed or deleted, until the person who froze it, a server owner or a bot owner unfreezes it. One config is **applied by default** to everything the server plays, right away and for every next track, and the whole module can be switched off. The music node checks each file before it is saved, and the lines it skips are listed. A file attached to `/music apo` is added as a new config. The same configs, with the same rules, can be managed from the dashboard (**Equalizer APO** module, administrators). Needs Wavyzon with its `apo` plugin.
@@ -50,7 +52,7 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 ## 🧰 Utilities — new cards everywhere
 
-Every utility command answers with a **Components V2** card instead of an embed: one clear title with an emoji from the bot's pack, one detail per line, dates shown in each reader's own time zone, the server's bot name as a quiet signature, and colours that say what happened (green when done, red when destructive, orange when something failed). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (one card now, with the inviter and the expiry), `/serverpic`, `/where`, `/vc` and `/snipe` get richer cards; the lists (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) turn pages with Previous / Next that only the author can use; mass actions (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) show what they did and what failed; the media-only, nick-kicker and whitelisted-roles panels keep their menus inside the card. Fixes on the way: `/vc` counted deafened members as muted, `/locknamelist` showed wrong dates, `/util move` tried to move members who weren't in a voice channel, and `/admin-users` can really hide bots now.
+Every utility command answers with a **Components V2** card instead of an embed: one clear title with an emoji from the bot's pack, one detail per line, dates shown in each reader's own time zone, the server's bot name as a quiet signature, and colours that say what happened (green when done, red when destructive, orange when something failed). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (one card now, with the inviter and the expiry), `/serverpic`, `/where`, `/vc` and `/snipe` get richer cards; the lists (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) turn pages with Previous / Next that only the author can use; mass actions (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) show what they did and what failed; the media-only, nick-kicker and whitelisted-roles panels keep their menus inside the card. Fixes on the way: `/vc` counted deafened members as muted, `/locknamelist` showed wrong dates, `/util move` tried to move members who weren't in a voice channel, `/admin-users` can really hide bots now, and `/prevnames` only offers to erase your own history.
 
 The same cards reach **moderation**, **fun** and the **invites manager**. `/ban` and `/kick` say who was sanctioned, by whom and why; `/baninfo` shows the real ban date (or that it's unknown); `/banlist`, `/mutelist` and `/warnlist` turn pages, with timeouts and warns dated in your own time zone; `/unwarn` and `/rolepanel` show what changed. The animal pictures share one card, the random results (`/dice`, `/heads-tails`, `/number`, `/gay`, `/rate`…) show a score bar, `/love`, `/tweet`, `/youtube` and `/catsay` keep their images inside the card, and `/poll` still collects its reactions. `/invites` details regular, left and bonus invites and who invited the member; `/leaderboard` turns pages and shows your own rank. Fix on the way: `/kick` no longer announces a kick that failed.
 
@@ -106,7 +108,7 @@ Protection now reacts to Discord's audit log events as they happen, instead of f
 
 ## 🖼️ Images — a new renderer
 
-Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `/youtube` cards, stats pages, podiums, latency monitoring, the music player card) moved to a new renderer: much faster, with emojis, **Arabic, Japanese and Korean** text and long names cut cleanly. Stats pages grow with their content, `/stats ustats` keeps its 1920×1200 format, the captcha draws new noise on every render, and the economy podium now draws its coin.
+Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `/youtube` cards, stats pages, podiums, latency monitoring, the music player card) moved to a new renderer: much faster, with emojis, **Arabic, Japanese and Korean** text and long names cut cleanly. The captcha draws new noise on every render, and the economy podium now draws its coin.
 
 ---
 
@@ -122,11 +124,13 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Music**: a connection to the music provider that drops mid-track (after a long pause, for example) no longer stops the track: it resumes where it stopped
 - **H24/7**: a voice connection that fails 3 times in a row is now reset on its own: the bot drops its stored connection and joins its channel again, the H24/7 setting stays on
 - **Music**: the player is no longer destroyed when its text channel is missing
+- **Music**: the **Lyrics** button of the player is disabled too once its panel has ended
 - **`+helpall`**: paginated by category with a select menu, like `+h`
 - **`/automod`**: the panel opens again when a bypass role or the log channel was deleted
 - **Captcha**: members who fail it are now actually kicked
 - **Role saver**: gives back only roles the bot can assign, merged with the join roles; a protection kick deranks first so roles cannot come back on rejoin
 - **Honeypot**: bans a spammer who already left the server
+- **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated
 - **Languages**: raw placeholders fixed in `/perm create-roles` (Japanese), `/daily`, `/schedule`, profile pictures and the blacklist summary; missing emojis now show in sticky messages, Last.fm errors, the welcomer leave message, the TempVoice panel and the empty-channel music notice; French texts fixed
 - **Performance**: server settings are cached, so busy servers get faster answers
