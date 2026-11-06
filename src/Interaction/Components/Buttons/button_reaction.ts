@@ -34,6 +34,15 @@ export default async function (
 
 	const filtered_res = res[interaction.customId];
 
+	// Removed or switched off from the dashboard, on a message still showing it.
+	if (!filtered_res || filtered_res.enable === false) {
+		await interaction.reply({
+			content: lang.buttonreaction_role_doesnt_exit,
+			flags: [1 << 6]
+		});
+		return;
+	}
+
 	const fetched_role =
 		interaction.guild.roles.cache.get(filtered_res.rolesID) ||
 		(await interaction.guild.roles

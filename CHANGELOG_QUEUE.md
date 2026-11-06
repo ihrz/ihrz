@@ -145,6 +145,9 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Starboard / skullboard**: at least 2 reactions, even with an empty threshold
 - **Self-hosting**: `tools/MigrateDashboardUnits.ts --apply` repairs the values saved in the wrong unit
 - **Dashboard**: saving no longer undoes what happened since the page was read: only the saved sections are written, and only what you changed goes over them. "Delete module" on welcome and utilities no longer wipes the role saver, permissions, limits and other settings stored alongside. Long bot-kept lists (notifier, blogger, confessions) no longer block a save. The server tooltip shows the member total
+- **Reaction roles**: the dashboard can save them again (every emoji or button key was refused), and its switch really turns a role on or off
+- **Tickets**: when turned off, panels already posted stop opening tickets too
+- **Dashboard**: removed settings that did nothing: spam, mass mention and media shortcuts (they created no AutoMod rule and overwrote what `/automod` recorded), the allowlist switch (the list always applies in allowlist mode) and the notifier timestamp
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

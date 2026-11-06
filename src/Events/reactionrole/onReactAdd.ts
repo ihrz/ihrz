@@ -32,7 +32,7 @@ export const event: BotEvent = {
 				`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
 			);
 
-			if (fetched) {
+			if (fetched && fetched.enable !== false) {
 				const role =
 					reaction.message.guild.roles.cache.get(fetched.rolesID) ||
 					(await reaction.message.guild.roles
@@ -66,7 +66,7 @@ export const event: BotEvent = {
 				`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`
 			);
 
-			if (fetchedForNitro) {
+			if (fetchedForNitro && fetchedForNitro.enable !== false) {
 				const role =
 					reaction.message.guild.roles.cache.get(
 						fetchedForNitro.rolesID

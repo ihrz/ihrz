@@ -72,10 +72,31 @@ export interface CaseList {
 	categoryId?: string;
 }
 
+/** /ticket config off and the dashboard stop the commands; panels already posted must stop too. */
+async function refuseIfDisabled(
+	interaction:
+		ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">
+): Promise<boolean> {
+	const disabled = await interaction.client.db.get(
+		`${interaction.guildId}.GUILD.TICKET.disable`
+	);
+	if (!disabled) return false;
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	await interaction.reply({
+		content: lang.open_disabled_command,
+		flags: [1 << 6]
+	});
+	return true;
+}
+
 async function CreateTicketChannel(
 	interaction:
 		ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">
 ) {
+	if (await refuseIfDisabled(interaction)) return;
+
 	if (interaction instanceof ButtonInteraction) {
 		const result = await interaction.client.db.get(
 			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
@@ -178,6 +199,8 @@ async function CreateTicketChannelV2(
 	interaction:
 		StringSelectMenuInteraction<"cached"> | ButtonInteraction<"cached">
 ) {
+	if (await refuseIfDisabled(interaction)) return;
+
 	const panelCode = (await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
 	)) as string | null;

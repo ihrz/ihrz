@@ -34,7 +34,7 @@ export const event: BotEvent = {
 				)
 				.catch(() => null);
 
-			if (fetched) {
+			if (fetched && fetched.enable !== false) {
 				const role =
 					reaction.message.guild!.roles.cache.get(fetched.rolesID) ||
 					(await reaction.message.guild.roles.fetch(fetched.rolesID));
@@ -55,7 +55,7 @@ export const event: BotEvent = {
 				)
 				.catch(() => null);
 
-			if (fetchedForNitro) {
+			if (fetchedForNitro && fetchedForNitro.enable !== false) {
 				const role =
 					reaction.message.guild!.roles.cache.get(
 						fetchedForNitro.rolesID
