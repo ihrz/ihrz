@@ -34,10 +34,10 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { prevnamesTable } from "../../../Events/client/ready.js";
+import type { DatabaseStructure } from "../../../../types/database_structure.js";
 import {
-	cleanHistory,
 	displayName,
-	parseEntry,
+	loadHistory,
 	sanitizeName
 } from "../../../core/modules/prevnamesHistory.js";
 import {
@@ -57,24 +57,27 @@ const ID = {
 	erase: "prevnames_erase"
 } as const;
 
-/**
- * Entries are stored as `<t:SECONDS:d> - [type] value` (see prevnamesHistory):
- * show the name first and the kind of name and date on the sub-line.
- */
-function formatEntry(entry: string, lang: LanguageData): string {
-	const { seconds, tag, value } = parseEntry(entry);
+/** The name first, then its type and date on the sub-line. */
+function formatEntry(
+	entry: DatabaseStructure.PrevnameEntry,
+	lang: LanguageData
+): string {
 	const meta: string[] = [];
-	if (tag === "username") meta.push(lang.prevnames_label_username);
-	else if (tag === "globalName") meta.push(lang.prevnames_label_display_name);
-	else if (tag?.startsWith("nickname:")) {
-		const guild = displayName(tag.slice("nickname:".length));
+	if (entry.type === "username") meta.push(lang.prevnames_label_username);
+	else if (entry.type === "displayname")
+		meta.push(lang.prevnames_label_display_name);
+	else if (entry.type === "nickname") {
+		const guild = displayName(entry.guild.name);
 		// A function: `$&` in a server name is not a replacement pattern.
 		meta.push(
 			lang.prevnames_label_nickname.replace("${guild}", () => guild)
 		);
 	}
-	if (seconds !== null) meta.push(`<t:${seconds}:D>`, `<t:${seconds}:R>`);
-	const name = `**${displayName(value)}**`;
+	if (entry.at !== null) {
+		const seconds = Math.floor(entry.at / 1000);
+		meta.push(`<t:${seconds}:D>`, `<t:${seconds}:R>`);
+	}
+	const name = `**${displayName(entry.name)}**`;
 	return meta.length ? `${name}\n-# ${meta.join(" · ")}` : name;
 }
 
@@ -102,10 +105,10 @@ export const subCommand: SubCommand = {
 		}
 
 		const stored = await prevnamesTable.get(`${user.id}`);
-		const char = cleanHistory(stored);
+		const char = loadHistory(stored);
 
-		// Repair what older versions stored (nulls, duplicates), so the
-		// public API serves the clean history too.
+		// Store what was loaded when it differs (old strings, nulls,
+		// duplicates), so the public API serves the same history.
 		if (stored && JSON.stringify(stored) !== JSON.stringify(char)) {
 			await (
 				char.length

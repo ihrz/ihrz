@@ -834,11 +834,28 @@ export namespace DatabaseStructure {
 	}
 
 	/**
-	 * `prevnames` table, keyed by user id, oldest first: entries are
-	 * `<t:SECONDS:d> - [username|globalName|nickname:GUILD] VALUE`
-	 * (src/core/modules/prevnamesHistory.ts). HorizonGateway serves them as is.
+	 * One previous name. `at` is in Unix ms, null when unknown; `unknown` is
+	 * an old entry stored without its type. Old histories hold strings until
+	 * they are loaded: read them with src/core/modules/prevnamesHistory.ts.
 	 */
-	export type PrevnamesHistory = string[];
+	export type PrevnameEntry =
+		| {
+				type: "username" | "displayname" | "unknown";
+				name: string;
+				at: number | null;
+		  }
+		| {
+				type: "nickname";
+				name: string;
+				at: number | null;
+				guild: { id: string | null; name: string };
+		  };
+
+	/**
+	 * `prevnames` table, keyed by user id, oldest first. HorizonGateway's
+	 * public API serves it as is, in `data`.
+	 */
+	export type PrevnamesHistory = PrevnameEntry[];
 
 	/**
 	 * `lyrics` table, keyed by ISRC: lyrics served by the Wavyzon node

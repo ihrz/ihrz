@@ -54,8 +54,8 @@ export const event: BotEvent = {
 
 		for (const change of changes) {
 			await recordPrevname(prevnamesTable, newUser.id, {
-				kind: change.type,
-				value: change.oldValue
+				type: change.type === "globalName" ? "displayname" : "username",
+				name: change.oldValue
 			});
 
 			const history = prevnamesMap.get(newUser.id) ?? [];

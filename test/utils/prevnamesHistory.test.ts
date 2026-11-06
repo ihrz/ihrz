@@ -22,9 +22,9 @@
 import { expect, test } from "bun:test";
 
 import {
-	cleanHistory,
 	displayName,
-	parseEntry,
+	loadHistory,
+	parseLegacyEntry,
 	recordPrevname,
 	sanitizeName
 } from "../../src/core/modules/prevnamesHistory.ts";
@@ -44,6 +44,7 @@ function fakeTable(initial?: unknown) {
 }
 
 const AT = new Date(1_700_000_000_000);
+const GUILD = { id: "999449972615413861", name: "My Server" };
 
 test("sanitizeName keeps real names, emojis and scripts", () => {
 	expect(sanitizeName("kisakay")).toBe("kisakay");
@@ -76,110 +77,164 @@ test("sanitizeName refuses nulls and names with nothing visible", () => {
 	}
 });
 
-test("cleanHistory drops null entries and non-strings", () => {
+test("the legacy parser turns every old format into typed entries", () => {
+	expect(parseLegacyEntry("<t:5:d> - [username] kisa")).toEqual({
+		type: "username",
+		name: "kisa",
+		at: 5000
+	});
+	expect(parseLegacyEntry("<t:5:d> - [globalName] Kisa")).toEqual({
+		type: "displayname",
+		name: "Kisa",
+		at: 5000
+	});
 	expect(
-		cleanHistory([
-			"<t:1:d> - [username] null",
-			"<t:2:d> - [globalName] undefined",
+		parseLegacyEntry("<t:5:d> - [nickname:My [cool] server] nick")
+	).toEqual({
+		type: "nickname",
+		name: "server] nick",
+		at: 5000,
+		guild: { id: null, name: "My [cool" }
+	});
+	expect(parseLegacyEntry("<t:5:d> - [nickname:Serv] nick")).toEqual({
+		type: "nickname",
+		name: "nick",
+		at: 5000,
+		guild: { id: null, name: "Serv" }
+	});
+	expect(parseLegacyEntry("<t:5:d> - old name")).toEqual({
+		type: "unknown",
+		name: "old name",
+		at: 5000
+	});
+	expect(parseLegacyEntry("plain")).toEqual({
+		type: "unknown",
+		name: "plain",
+		at: null
+	});
+	expect(parseLegacyEntry("<t:5:d> - [username] null")).toBeNull();
+});
+
+test("loadHistory converts strings on load, alone or mixed with objects", () => {
+	expect(
+		loadHistory([
+			"<t:1:d> - [username] a",
+			{ type: "displayname", name: "B", at: 2000 },
 			null,
 			7,
-			"<t:3:d> - [username] kisa"
+			{ type: "username" },
+			"<t:3:d> - [globalName] undefined"
 		])
-	).toEqual(["<t:3:d> - [username] kisa"]);
-	expect(cleanHistory(null)).toEqual([]);
-	expect(cleanHistory("nope")).toEqual([]);
+	).toEqual([
+		{ type: "username", name: "a", at: 1000 },
+		{ type: "displayname", name: "B", at: 2000 }
+	]);
+	expect(loadHistory(null)).toEqual([]);
+	expect(loadHistory("nope")).toEqual([]);
 });
 
-test("cleanHistory keeps a name once, at its latest date", () => {
+test("loadHistory validates stored objects", () => {
 	expect(
-		cleanHistory([
+		loadHistory([
+			{ type: "hacked", name: "a\nb", at: "soon" },
+			{
+				type: "nickname",
+				name: "n",
+				at: 1,
+				guild: { id: "x", name: "\n" }
+			}
+		])
+	).toEqual([
+		{ type: "unknown", name: "a b", at: null },
+		{ type: "nickname", name: "n", at: 1, guild: { id: null, name: "?" } }
+	]);
+});
+
+test("loadHistory keeps a name once, at its latest date", () => {
+	expect(
+		loadHistory([
 			"<t:1:d> - [username] a",
 			"<t:2:d> - [username] b",
-			"<t:3:d> - [username] a"
+			{ type: "username", name: "a", at: 3000 }
 		])
-	).toEqual(["<t:2:d> - [username] b", "<t:3:d> - [username] a"]);
-});
-
-test("cleanHistory removes the copies written by several shards", () => {
-	expect(
-		cleanHistory([
-			"<t:5:d> - [username] a",
-			"<t:5:d> - [globalName] A",
-			"<t:5:d> - [username] a",
-			"<t:6:d> - [globalName] A"
-		])
-	).toEqual(["<t:5:d> - [username] a", "<t:6:d> - [globalName] A"]);
-});
-
-test("the same name of another kind or server is not a duplicate", () => {
-	const history = [
-		"<t:1:d> - [username] a",
-		"<t:2:d> - [globalName] a",
-		"<t:3:d> - [nickname:One] a",
-		"<t:4:d> - [nickname:Two] a"
-	];
-	expect(cleanHistory(history)).toEqual(history);
-});
-
-test("cleanHistory keeps old entries without a type or a date", () => {
-	expect(cleanHistory(["<t:1:d> - old name", "plain"])).toEqual([
-		"<t:1:d> - old name",
-		"plain"
+	).toEqual([
+		{ type: "username", name: "b", at: 2000 },
+		{ type: "username", name: "a", at: 3000 }
 	]);
-	expect(parseEntry("<t:1:d> - old name")).toEqual({
-		seconds: 1,
-		tag: null,
-		value: "old name"
+});
+
+test("the same name of another type or server is not a duplicate", () => {
+	expect(
+		loadHistory([
+			"<t:1:d> - [username] a",
+			"<t:2:d> - [globalName] a",
+			"<t:3:d> - [nickname:One] a",
+			"<t:4:d> - [nickname:Two] a"
+		]).length
+	).toBe(4);
+});
+
+test("a guild id survives an old string of the same nickname", () => {
+	const [entry] = loadHistory([
+		{ type: "nickname", name: "n", at: 1000, guild: GUILD },
+		"<t:2:d> - [nickname:My Server] n"
+	]);
+	expect(entry).toEqual({
+		type: "nickname",
+		name: "n",
+		at: 2000,
+		guild: GUILD
 	});
 });
 
-test("cleanHistory is stable: a clean history is left as it is", () => {
-	const once = cleanHistory([
+test("loadHistory is stable: what it stores loads the same", () => {
+	const once = loadHistory([
 		"<t:1:d> - [nickname:Serv] a\nb",
-		"<t:2:d> - [username] c"
+		"<t:2:d> - [username] c",
+		"plain"
 	]);
-	expect(cleanHistory(once)).toEqual(once);
+	expect(loadHistory(once)).toEqual(once);
+	expect(loadHistory(JSON.parse(JSON.stringify(once)))).toEqual(once);
 });
 
-test("recordPrevname appends a clean entry", async () => {
+test("recordPrevname converts the history and appends an object", async () => {
 	const table = fakeTable(["<t:1:d> - [username] old"]);
-	await recordPrevname(table, "1", { kind: "username", value: "new\n" }, AT);
+	await recordPrevname(table, "1", { type: "username", name: "new\n" }, AT);
 	expect(table.data.get("1")).toEqual([
-		"<t:1:d> - [username] old",
-		"<t:1700000000:d> - [username] new"
+		{ type: "username", name: "old", at: 1000 },
+		{ type: "username", name: "new", at: AT.getTime() }
+	]);
+});
+
+test("recordPrevname stores the server of a nickname", async () => {
+	const table = fakeTable();
+	await recordPrevname(
+		table,
+		"1",
+		{ type: "nickname", name: "nick", guild: GUILD },
+		AT
+	);
+	expect(table.data.get("1")).toEqual([
+		{ type: "nickname", name: "nick", at: AT.getTime(), guild: GUILD }
 	]);
 });
 
 test("recordPrevname ignores a null name", async () => {
 	const table = fakeTable();
-	await recordPrevname(table, "1", { kind: "username", value: null }, AT);
+	await recordPrevname(table, "1", { type: "username", name: null }, AT);
 	expect(table.data.has("1")).toBe(false);
 });
 
 test("two shards recording one change store it once", async () => {
 	const table = fakeTable();
-	const change = { kind: "username", value: "a" } as const;
+	const change = { type: "username", name: "a" } as const;
 	await Promise.all([
 		recordPrevname(table, "1", change, AT),
 		recordPrevname(table, "1", change, AT)
 	]);
-	expect(table.data.get("1")).toEqual(["<t:1700000000:d> - [username] a"]);
-});
-
-test("a bracket in a server name cannot break the entry", async () => {
-	const table = fakeTable();
-	await recordPrevname(
-		table,
-		"1",
-		{ kind: "nickname", guild: "My [cool] server", value: "nick" },
-		AT
-	);
-	const [entry] = table.data.get("1");
-	expect(parseEntry(entry)).toEqual({
-		seconds: 1700000000,
-		tag: "nickname:My (cool) server",
-		value: "nick"
-	});
+	expect(table.data.get("1")).toEqual([
+		{ type: "username", name: "a", at: AT.getTime() }
+	]);
 });
 
 test("displayName shows names literally", () => {

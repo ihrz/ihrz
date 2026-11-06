@@ -19,26 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+/*
+ * Converts the whole `prevnames` table to typed entries, dropping nulls and
+ * duplicates (the bot does the same, one history at a time, when it loads one).
+ *
+ * Usage: bun run tools/ClearNullPrevnames.ts [--apply]   (dry run by default)
+ */
+
+import { loadHistory } from "../src/core/modules/prevnamesHistory.js";
 import { initializeDatabase } from "../src/core/database/index.js";
 import logger from "../src/core/logger.js";
 import config from "../src/files/config.js";
 
-type PrevnameEntry = string | null;
-type PrevnameValue = PrevnameEntry[] | null | undefined;
-
 const isDryRun = !process.argv.includes("--apply");
-
-const normalizePrevnames = (value: PrevnameValue): string[] => {
-	if (!Array.isArray(value)) return [];
-
-	return value.filter((entry): entry is string => {
-		if (typeof entry !== "string") return false;
-
-		// Format: "<t:TIMESTAMP:d> - NAME"
-		const name = entry.split(" - ").slice(1).join(" - ").trim();
-		return name.toLowerCase() !== "null" && name.length > 0;
-	});
-};
 
 const run = async () => {
 	const database = await initializeDatabase(config.database);
@@ -46,66 +39,41 @@ const run = async () => {
 	const rows = await prevnamesTable.all();
 
 	logger.log(
-		`Starting prevnames cleanup in ${isDryRun ? "dry-run" : "apply"} mode.`
+		`Starting prevnames conversion in ${isDryRun ? "dry-run" : "apply"} mode.`
 	);
 	logger.log(
 		`Loaded ${rows.length} prevnames records from official bot database.`
 	);
 
-	let scanned = 0;
 	let changed = 0;
 	let removedEntries = 0;
 	let deletedRows = 0;
 
 	for (const row of rows) {
-		scanned++;
+		const history = loadHistory(row.value);
+		if (JSON.stringify(row.value) === JSON.stringify(history)) continue;
 
-		const currentValue = row.value as PrevnameValue;
-		const currentEntries = Array.isArray(currentValue) ? currentValue : [];
-		const cleanedEntries = normalizePrevnames(currentValue);
-		const removedForRow = currentEntries.length - cleanedEntries.length;
-
-		if (removedForRow <= 0) {
-			continue;
-		}
-
+		const before = Array.isArray(row.value) ? row.value.length : 0;
 		changed++;
-		removedEntries += removedForRow;
+		removedEntries += before - history.length;
 
 		logger.legacy(
-			`[${isDryRun ? "DRY-RUN" : "APPLY"}] ${row.id} | before=${currentEntries.length} | after=${cleanedEntries.length} | removed=${removedForRow}`
+			`[${isDryRun ? "DRY-RUN" : "APPLY"}] ${row.id} | before=${before} | after=${history.length}`
 		);
 
-		for (const [index, entry] of currentEntries.entries()) {
-			if (
-				typeof entry !== "string" ||
-				entry.trim().toLowerCase() === "null"
-			) {
-				logger.legacy(
-					`  - removed entry #${index + 1}: ${JSON.stringify(entry)}`
-				);
-			}
-		}
+		if (isDryRun) continue;
 
-		if (isDryRun) {
-			continue;
-		}
-
-		if (cleanedEntries.length === 0) {
+		if (history.length === 0) {
 			await prevnamesTable.delete(row.id);
 			deletedRows++;
-			logger.legacy(
-				`  -> deleted row ${row.id} because no valid prevnames remain.`
-			);
 			continue;
 		}
 
-		await prevnamesTable.set(row.id, cleanedEntries);
-		logger.legacy(`  -> updated row ${row.id}.`);
+		await prevnamesTable.set(row.id, history);
 	}
 
 	logger.log(
-		`Cleanup finished. scanned=${scanned} changed=${changed} removedEntries=${removedEntries} deletedRows=${deletedRows} mode=${isDryRun ? "dry-run" : "apply"}`
+		`Conversion finished. scanned=${rows.length} changed=${changed} removedEntries=${removedEntries} deletedRows=${deletedRows}`
 	);
 
 	if (isDryRun) {

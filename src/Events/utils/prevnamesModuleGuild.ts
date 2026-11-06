@@ -50,9 +50,9 @@ export const event: BotEvent = {
 		if (previousNickname === null || previousNickname === undefined) return;
 
 		await recordPrevname(prevnamesTable, newMember.id, {
-			kind: "nickname",
-			guild: newMember.guild.name,
-			value: previousNickname
+			type: "nickname",
+			guild: { id: guildId, name: newMember.guild.name },
+			name: previousNickname
 		});
 
 		const history = prevnamesMap.get(newMember.id) ?? [];

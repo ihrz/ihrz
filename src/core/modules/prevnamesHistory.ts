@@ -20,38 +20,41 @@
 */
 
 /*
- * The previous names of a user (`prevnames` table): an array of strings,
- * oldest first, in the format HorizonGateway's public API also serves:
+ * The previous names of a user (`prevnames` table): typed entries, oldest
+ * first (DatabaseStructure.PrevnameEntry).
  *
- *     <t:SECONDS:d> - [username|globalName|nickname:GUILD] VALUE
+ * Histories used to be strings, `<t:SECONDS:d> - [TYPE] NAME`, and may still
+ * be: loadHistory reads both, alone or mixed, and whoever writes the history
+ * back stores objects. tools/ClearNullPrevnames.ts converts a whole table.
  *
  * Writers read, clean and write the whole array rather than pushing:
  * userUpdate fires on every shard that sees the user, and a push per shard
  * stored the same change several times. Two shards racing now write the same
- * content. Partial users used to store a literal "null" as well: cleaning
- * drops those, and repairs histories stored before this module.
+ * content. Partial users used to store a literal "null" as well: loading
+ * drops those.
  */
 
-import { escapeMarkdown, time } from "discord.js";
+import { escapeMarkdown } from "discord.js";
 
 import type { DatabaseStructure } from "../../../types/database_structure.js";
 import type { UnifiedDatabase } from "../database/types.js";
 
-export type PrevnameChange =
-	| { kind: "username" | "globalName"; value: unknown }
-	| { kind: "nickname"; value: unknown; guild: string };
+type PrevnameEntry = DatabaseStructure.PrevnameEntry;
+type PrevnamesHistory = DatabaseStructure.PrevnamesHistory;
 
-export interface ParsedPrevname {
-	/** Unix seconds; null on an entry stored without a date. */
-	seconds: number | null;
-	/** `username`, `globalName`, `nickname:GUILD`; null on old plain entries. */
-	tag: string | null;
-	value: string;
-}
+export type PrevnameChange =
+	| { type: "username" | "displayname"; name: unknown }
+	| {
+			type: "nickname";
+			name: unknown;
+			guild: { id: string; name: unknown };
+	  };
 
 // Discord names are 32 characters at most, guild names 100.
 const NAME_MAX = 100;
-const ENTRY =
+const UNKNOWN_GUILD = "?";
+const SNOWFLAKE = /^\d{5,25}$/;
+const LEGACY_ENTRY =
 	/^<t:(\d+):\w>\s*-\s*(?:\[(username|globalName|nickname:.*?)\]\s*)?([\s\S]*)$/;
 const LINE_BREAKING = /[\p{Cc}\p{Zl}\p{Zp}]/gu;
 // Bidi overrides, zero-width spaces, soft hyphens, lone surrogates. The
@@ -74,52 +77,89 @@ export function sanitizeName(value: unknown): string | null {
 	return Array.from(clean).slice(0, NAME_MAX).join("");
 }
 
-/** The guild name inside a `[nickname:GUILD]` tag: no bracket can close it. */
-function sanitizeTagName(value: unknown): string | null {
-	return sanitizeName(value)?.replace(/\[/g, "(").replace(/\]/g, ")") ?? null;
+function toEntry(
+	type: unknown,
+	name: unknown,
+	at: unknown,
+	guild?: { id?: unknown; name?: unknown } | null
+): PrevnameEntry | null {
+	const clean = sanitizeName(name);
+	if (!clean) return null;
+	const date =
+		typeof at === "number" && Number.isFinite(at) && at >= 0 ? at : null;
+	if (type === "nickname") {
+		return {
+			type,
+			name: clean,
+			at: date,
+			guild: {
+				id:
+					typeof guild?.id === "string" && SNOWFLAKE.test(guild.id)
+						? guild.id
+						: null,
+				name: sanitizeName(guild?.name) ?? UNKNOWN_GUILD
+			}
+		};
+	}
+	if (type === "username" || type === "displayname") {
+		return { type, name: clean, at: date };
+	}
+	return { type: "unknown", name: clean, at: date };
 }
 
-export function parseEntry(entry: string): ParsedPrevname {
-	const match = entry.match(ENTRY);
-	if (!match) return { seconds: null, tag: null, value: entry };
-	return {
-		seconds: Number(match[1]),
-		tag: match[2] ?? null,
-		value: match[3]
-	};
+/** The parser of the old string format. */
+export function parseLegacyEntry(entry: string): PrevnameEntry | null {
+	const match = entry.match(LEGACY_ENTRY);
+	if (!match) return toEntry("unknown", entry, null);
+	const [, seconds, tag, name] = match;
+	const at = Number(seconds) * 1000;
+	if (tag?.startsWith("nickname:")) {
+		return toEntry("nickname", name, at, {
+			name: tag.slice("nickname:".length)
+		});
+	}
+	return toEntry(tag === "globalName" ? "displayname" : tag, name, at);
 }
 
-function serialize(parsed: ParsedPrevname): string {
-	if (parsed.seconds === null) return parsed.value;
-	const tag = parsed.tag ? `[${parsed.tag}] ` : "";
-	return `<t:${parsed.seconds}:d> - ${tag}${parsed.value}`;
+function parseEntry(entry: unknown): PrevnameEntry | null {
+	if (typeof entry === "string") return parseLegacyEntry(entry);
+	if (!entry || typeof entry !== "object") return null;
+	const e = entry as Record<string, unknown>;
+	return toEntry(
+		e.type,
+		e.name,
+		e.at,
+		e.guild as { id?: unknown; name?: unknown } | null | undefined
+	);
 }
 
 /**
- * A stored history without unusable entries and duplicates, oldest first. The
- * same name of the same kind (and the same server, for a nickname) is kept
- * once, at its latest date.
+ * A stored history as typed entries, oldest first, whatever format it is in,
+ * without unusable entries and duplicates: the same name of the same type
+ * (and the same server, for a nickname) is kept once, at its latest date.
  */
-export function cleanHistory(
-	stored: unknown
-): DatabaseStructure.PrevnamesHistory {
+export function loadHistory(stored: unknown): PrevnamesHistory {
 	if (!Array.isArray(stored)) return [];
-	const latest = new Map<string, ParsedPrevname>();
-	for (const entry of stored) {
-		if (typeof entry !== "string") continue;
-		const parsed = parseEntry(entry);
-		const value = sanitizeName(parsed.value);
-		if (!value) continue;
-		let tag = parsed.tag;
-		if (tag?.startsWith("nickname:")) {
-			tag = `nickname:${sanitizeTagName(tag.slice("nickname:".length)) ?? "?"}`;
+	const latest = new Map<string, PrevnameEntry>();
+	for (const raw of stored) {
+		const entry = parseEntry(raw);
+		if (!entry) continue;
+		const guild = entry.type === "nickname" ? entry.guild.name : "";
+		const key = `${entry.type}\u0000${guild}\u0000${entry.name}`;
+		const previous = latest.get(key);
+		// An old string knows the server's name only: keep a known id.
+		if (
+			entry.type === "nickname" &&
+			previous?.type === "nickname" &&
+			!entry.guild.id
+		) {
+			entry.guild.id = previous.guild.id;
 		}
-		const key = `${tag ?? ""}\u0000${value}`;
 		// Delete first: a Map keeps the first insertion's place.
 		latest.delete(key);
-		latest.set(key, { seconds: parsed.seconds, tag, value });
+		latest.set(key, entry);
 	}
-	return [...latest.values()].map(serialize);
+	return [...latest.values()];
 }
 
 /** Add a name change to a user's history. A null or empty name is ignored. */
@@ -129,17 +169,12 @@ export async function recordPrevname(
 	change: PrevnameChange,
 	at: Date = new Date()
 ): Promise<void> {
-	const value = sanitizeName(change.value);
-	if (!value) return;
-	const tag =
-		change.kind === "nickname"
-			? `nickname:${sanitizeTagName(change.guild) ?? "?"}`
-			: change.kind;
+	if (!sanitizeName(change.name)) return;
 	const stored = await table.get(userId);
 	const history = Array.isArray(stored) ? stored : [];
 	await table.set(
 		userId,
-		cleanHistory([...history, `${time(at, "d")} - [${tag}] ${value}`])
+		loadHistory([...history, { ...change, at: at.getTime() }])
 	);
 }
 
