@@ -5,13 +5,15 @@
  * - loaded by the pm2 CLI, it only exports the app config below;
  * - run by pm2 as the app (IHORIZON_PM2_LAUNCH=1), it prepares and starts
  *   the bot, on every start and every automatic restart:
- *     1. a project-local Bun in ./.bun (gitignored): downloaded when
+ *     1. stop the bot processes left over from a previous run of this
+ *        checkout (scripts/killPhantoms.cjs);
+ *     2. a project-local Bun in ./.bun (gitignored): downloaded when
  *        missing, `bun upgrade`d otherwise;
- *     2. `git pull` to the latest commit of the checked-out branch;
- *     3. `bun install --production` (new dependencies of the pull);
- *     4. `bun src/index.ts` with that Bun, signals forwarded.
- * A failed upgrade, pull or install is logged and the bot starts with what
- * is already there.
+ *     3. `git pull` to the latest commit of the checked-out branch;
+ *     4. `bun install --production` (new dependencies of the pull);
+ *     5. `bun src/index.ts` with that Bun, signals forwarded.
+ * A failed cleanup, upgrade, pull or install is logged and the bot starts with
+ * what is already there.
  */
 
 const { execFileSync, spawn } = require("node:child_process");
@@ -87,6 +89,14 @@ function step(label, action) {
 }
 
 function launch() {
+	step("phantom cleanup", () => {
+		const { killPhantoms } = require("./scripts/killPhantoms.cjs");
+		const stopped = killPhantoms(ROOT);
+		if (stopped.length > 0) {
+			log(`stopped ${stopped.length} leftover bot process(es): ${stopped.join(", ")}`);
+		}
+	});
+
 	if (fs.existsSync(BUN)) {
 		step("bun upgrade", () => run(BUN, ["upgrade"], { timeout: 120_000 }));
 	} else {

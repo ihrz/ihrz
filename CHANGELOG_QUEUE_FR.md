@@ -114,6 +114,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
 - **Auto-hébergement** : `pm2 start pm2.config.cjs` installe et met à jour son propre Bun, récupère le dernier code et installe les nouvelles dépendances à chaque démarrage ; les images peuvent être rendues par HorizonGateway pour économiser la mémoire de chaque shard
+- **Auto-hébergement** : arrêter ou redémarrer le bot arrête maintenant aussi ses shards, et `pm2 start pm2.config.cjs` arrête tout processus resté d'une exécution précédente du même dossier : d'anciens shards ne peuvent plus répondre une seconde fois à chaque commande
 - **Sécurité** : les DM de rappel pouvaient contenir les rappels d'autres utilisateurs, et le message de passage de niveau pouvait mentionner `@everyone` ou des rôles — les deux sont corrigés ; le texte des utilisateurs dans les images générées est toujours affiché comme du texte
 - **Musique** : certains morceaux SoundCloud échouaient avec « not found at source » ; ils se lancent maintenant
 - **Musique** : une connexion au fournisseur musical qui coupe en plein morceau (après une longue pause, par exemple) n'arrête plus le morceau : il reprend là où il s'était arrêté

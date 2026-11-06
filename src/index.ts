@@ -26,6 +26,7 @@ import logger from "./core/logger.js";
 
 import { ShardingManager, REST, Routes } from "discord.js";
 import { writeVersionFile } from "./core/modules/releaseNotifier.js";
+import { installShardShutdown } from "./core/modules/shardShutdown.js";
 import pkg from "../package.json";
 
 const token = process.env.BOT_TOKEN || config.discord.token;
@@ -112,6 +113,8 @@ const manager = new ShardingManager("./src/core/bot.ts", {
 	token,
 	respawn: true
 });
+
+installShardShutdown(manager);
 
 await writeVersionFile(pkg.version);
 

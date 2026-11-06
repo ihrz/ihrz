@@ -114,6 +114,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
 - **Self-hosting**: `pm2 start pm2.config.cjs` now installs and upgrades its own Bun, pulls the latest code and installs new dependencies on every start; images can be rendered by HorizonGateway to save memory on every shard
+- **Self-hosting**: stopping or restarting the bot now also stops its shards, and `pm2 start pm2.config.cjs` stops any process left over from a previous run of the same folder, so old shards can no longer answer every command a second time
 - **Security**: reminder DMs could contain other users' reminders, and the level-up message could ping `@everyone` or roles — both fixed; user text in generated images is always shown as text
 - **Music**: some SoundCloud tracks failed with "not found at source"; they play now
 - **Music**: a connection to the music provider that drops mid-track (after a long pause, for example) no longer stops the track: it resumes where it stopped
