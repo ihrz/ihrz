@@ -30,10 +30,13 @@
  */
 
 import {
+	canStayInRun,
 	FontFamily,
 	FontWeight,
+	isGlyphFallback,
 	Measurer,
 	measurer,
+	prepareGlyphFallbacks,
 	scriptFamilyOf
 } from "../svg/fontMetrics.js";
 import { emojiImage, Grapheme, graphemes } from "../svg/emoji.js";
@@ -146,10 +149,20 @@ function runsOf(parts: Grapheme[], base: FontFamily): Run[] {
 		const lastIsScript =
 			!!last && last.kind !== "emoji" && last.kind !== base;
 		let kind: RunKind;
+		const stays =
+			neutral &&
+			!!last &&
+			last.kind !== "emoji" &&
+			canStayInRun(last.kind, part.value);
 		if (part.emoji) kind = "emoji";
-		// Shared punctuation stays in the script run it belongs to.
-		else if (family) kind = neutral && lastIsScript ? last!.kind : family;
-		else kind = neutral && last && last.kind !== "emoji" ? last.kind : base;
+		// Shared punctuation stays in the script run it belongs to, unless
+		// it needs a font of its own (a star after Arabic text).
+		else if (family)
+			kind =
+				stays && lastIsScript && !isGlyphFallback(family)
+					? (last!.kind as FontFamily)
+					: family;
+		else kind = stays ? (last!.kind as FontFamily) : base;
 
 		if (last && last.kind === kind && kind !== "emoji")
 			last.value += part.value;
@@ -164,6 +177,7 @@ function runsOf(parts: Grapheme[], base: FontFamily): Run[] {
  */
 async function widthOf(style: TextStyle, sample: Grapheme[]) {
 	const base = style.family ?? "Noto Sans";
+	await prepareGlyphFallbacks();
 	const families = new Set<FontFamily>([base]);
 	for (const run of runsOf(sample, base)) {
 		if (run.kind !== "emoji") families.add(run.kind);
@@ -337,7 +351,18 @@ export async function text(
 	const runs = runsOf(parts, base);
 	const anchor = options.anchor ?? "start";
 
-	if (runs.length <= 1 && runs[0]?.kind !== "emoji") {
+	// Local resvg (rustybuzz 0.7) aborts the whole process when some Brahmic
+	// clusters reach the end of the text: its syllable machine reads past the
+	// buffer. A trailing space closes the cluster first, so these runs are
+	// positioned from the metrics, where that space changes nothing.
+	const closesCluster = (kind: RunKind) =>
+		kind !== "emoji" && kind !== base && isGlyphFallback(kind);
+
+	if (
+		runs.length <= 1 &&
+		runs[0]?.kind !== "emoji" &&
+		!(runs[0] && closesCluster(runs[0].kind))
+	) {
 		const family = (runs[0]?.kind as FontFamily | undefined) ?? base;
 		return raw(
 			`<text x="${options.x}" y="${options.y}" text-anchor="${anchor}" ${textAttributes(options, family)}>${escape(runs[0]?.value ?? "")}</text>`
@@ -371,7 +396,7 @@ export async function text(
 			}
 		} else {
 			elements.push(
-				`<text x="${x.toFixed(2)}" y="${options.y}" ${textAttributes(options, run.kind)}>${escape(run.value)}</text>`
+				`<text x="${x.toFixed(2)}" y="${options.y}" ${textAttributes(options, run.kind)}>${escape(closesCluster(run.kind) ? `${run.value} ` : run.value)}</text>`
 			);
 		}
 		x += width.runWidth(run);

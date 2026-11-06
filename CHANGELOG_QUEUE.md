@@ -115,6 +115,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
 - **Self-hosting**: `pm2 start pm2.config.cjs` now installs and upgrades its own Bun, pulls the latest code and installs new dependencies on every start; images can be rendered by HorizonGateway to save memory on every shard
 - **Protection**: members picking or dropping their roles through Onboarding or Channels & Roles are no longer treated as a role update and sanctioned
+- **Images**: styled nicknames and special characters (`𝓕𝓪𝓷𝓬𝔂`, `★`, `ᯓ𓂃`, `༄`, runes, Hebrew, Thai, Hindi and many more alphabets) now show up on every generated image instead of empty boxes
 - **Self-hosting**: stopping or restarting the bot now also stops its shards, and `pm2 start pm2.config.cjs` stops any process left over from a previous run of the same folder, so old shards can no longer answer every command a second time
 - **Security**: reminder DMs could contain other users' reminders, and the level-up message could ping `@everyone` or roles — both fixed; user text in generated images is always shown as text
 - **Music**: some SoundCloud tracks failed with "not found at source"; they play now

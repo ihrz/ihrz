@@ -134,6 +134,7 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - Fill with `client.func.svgKit.fill`: plain values are escaped; generated markup comes from `svgKit.text` / `paragraph` / `image` / `raw`. Never `raw()` user input.
 - User text goes through `svgKit.text` (emoji via Twemoji, `maxWidth` ellipsis). Images are embedded buffers: avatars via `image64`, any other URL via `svgKit.fetchImage` (public hosts only).
 - Never call `new Resvg(...).render()` (leaks under Bun): always `svg2png`.
+- Characters missing from the base fonts are drawn from `src/assets/fonts/fallback` (static Regular Noto fonts), routed by `src/core/svg/glyphFallbacks.json`. After changing that folder run `tools/Font_Fallback_Import.py`, then `bun run tools/Font_Fallback_Generator.ts`, then restart HorizonGateway (it reads the fonts once at boot). A font must be checked with `bun test test/svg`: some marks abort local resvg when they end a text (see `svgKit.text`).
 - No WebP decoding anywhere (resvg-js cannot, and there is no browser at runtime): download Discord media with `svgKit.fetchImage` (asks the CDN / media proxy for PNG) or request `extension: "png"`. Puppeteer is a devDependency for `tools/ChangelogPdf.ts` only, never import it from `src/`.
 
 ## Components V2 (STRICT)
