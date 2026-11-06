@@ -148,6 +148,11 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Reaction roles**: the dashboard can save them again (every emoji or button key was refused), and its switch really turns a role on or off
 - **Tickets**: when turned off, panels already posted stop opening tickets too
 - **Dashboard**: removed settings that did nothing: spam, mass mention and media shortcuts (they created no AutoMod rule and overwrote what `/automod` recorded), the allowlist switch (the list always applies in allowlist mode) and the notifier timestamp
+- **`/setlogschannel`**: the `boost` and `ticket` choices now work (they stored a key nothing reads)
+- **Member count**: `{ChannelCount}` shows the channels (it showed the roles on refresh)
+- **Tags**: a tag without an embed can be used and shown
+- **Ticket panels**: removing a question no longer gives the next one a duplicate id, which broke the form; a simple panel can be published from the dashboard without an embed, like with `/ticket panel`
+- **Dashboard blacklist**: adding a user bans them and removing one unbans them, like the commands
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

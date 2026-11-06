@@ -449,6 +449,32 @@ const handlers: Record<string, ChangeHandler> = {
 		if (failed.length) throw failed.join(", ");
 	},
 
+	// /blacklist · /unblacklist. An absent user is banned too: same outcome as
+	// the ban on join, without waiting for it.
+	BLACKLIST: async (client, guild, change) => {
+		type Entry = { blacklisted?: boolean; reason?: string };
+		const prev = (change.old ?? {}) as Record<string, Entry>;
+		const next = (change.new ?? {}) as Record<string, Entry>;
+		const listed = (entry?: Entry) => entry?.blacklisted === true;
+		const failed: string[] = [];
+
+		for (const id of new Set([
+			...Object.keys(prev),
+			...Object.keys(next)
+		])) {
+			if (listed(next[id]) && !listed(prev[id])) {
+				if (id === client.user?.id) continue;
+				await guild.members
+					.ban(id, { reason: next[id].reason || "blacklisted!" })
+					.catch(() => failed.push(`cannot ban ${id}`));
+			} else if (listed(prev[id]) && !listed(next[id])) {
+				await guild.members.unban(id).catch(() => {});
+			}
+		}
+
+		if (failed.length) throw failed.join(", ");
+	},
+
 	// /honeypot config (toggle on / trap channel change → trap message)
 	"GUILD.HONEYPOT": async (client, guild, change) => {
 		const prev = change.old as DatabaseStructure.HoneypotSchema | null;

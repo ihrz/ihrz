@@ -148,6 +148,11 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Rôles-réactions** : le dashboard peut de nouveau les enregistrer (toute clé d'émoji ou de bouton était refusée), et son interrupteur active ou coupe vraiment un rôle
 - **Tickets** : une fois désactivés, les panneaux déjà publiés n'ouvrent plus de ticket non plus
 - **Dashboard** : retrait des réglages sans effet : raccourcis spam, mentions de masse et médias (ils ne créaient aucune règle AutoMod et écrasaient ce que `/automod` enregistre), interrupteur de l'allowlist (la liste s'applique toujours en mode allowlist) et horodatage du notifier
+- **`/setlogschannel`** : les choix `boost` et `ticket` fonctionnent (ils enregistraient une clé que rien ne lit)
+- **Compteur de membres** : `{ChannelCount}` affiche les salons (il affichait les rôles à l'actualisation)
+- **Tags** : un tag sans embed peut être utilisé et affiché
+- **Panneaux de tickets** : retirer une question ne donne plus un id en double à la suivante, ce qui cassait le formulaire ; un panneau simple se publie depuis le dashboard sans embed, comme avec `/ticket panel`
+- **Blacklist du dashboard** : ajouter un utilisateur le bannit et le retirer le débannit, comme les commandes
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

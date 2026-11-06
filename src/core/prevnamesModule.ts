@@ -19,17 +19,6 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export type PrevNameType = "username" | "globalName" | "nickname";
-
-export type PrevName = {
-	timestamp: Date;
-	type: PrevNameType;
-	value: string;
-	guildId?: string;
-};
-
-export const prevnamesMap = new Map<string, PrevName[]>();
-
 export const usersNamesMap = new Map<
 	string,
 	{

@@ -110,7 +110,7 @@ class MemberCountModule {
 					{ key: "member", count: formatNumber(guild.memberCount) },
 					{ key: "roles", count: rolesCount },
 					{ key: "boost", count: boostsCount },
-					{ key: "channel", count: rolesCount },
+					{ key: "channel", count: guild.channels.cache.size },
 					{ key: "voice", count: voiceCount },
 					{ key: "online", count: onlineCount }
 				];

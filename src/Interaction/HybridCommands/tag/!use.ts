@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 							? mention.toString()
 							: baseData?.storedTags?.[tag_name].content ||
 								undefined,
-						embeds: [embed?.embedSource]
+						embeds: embed?.embedSource ? [embed.embedSource] : []
 					});
 				}
 			} else {
@@ -114,7 +114,7 @@ export const subCommand: SubCommand = {
 					content: mention
 						? mention.toString()
 						: baseData?.storedTags?.[tag_name].content || undefined,
-					embeds: [embed?.embedSource]
+					embeds: embed?.embedSource ? [embed.embedSource] : []
 				});
 			}
 		}

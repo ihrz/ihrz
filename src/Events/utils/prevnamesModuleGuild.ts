@@ -22,7 +22,7 @@
 import { Client, GuildMember } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
-import { prevnamesMap, usersNicknamesMap } from "../../core/prevnamesModule.ts";
+import { usersNicknamesMap } from "../../core/prevnamesModule.ts";
 import { recordPrevname } from "../../core/modules/prevnamesHistory.ts";
 
 export const event: BotEvent = {
@@ -54,14 +54,5 @@ export const event: BotEvent = {
 			guild: { id: guildId, name: newMember.guild.name },
 			name: previousNickname
 		});
-
-		const history = prevnamesMap.get(newMember.id) ?? [];
-		history.push({
-			timestamp: new Date(),
-			type: "nickname",
-			guildId,
-			value: previousNickname
-		});
-		prevnamesMap.set(newMember.id, history);
 	}
 };

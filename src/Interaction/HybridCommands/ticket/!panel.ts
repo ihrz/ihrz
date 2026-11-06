@@ -97,6 +97,10 @@ export interface TicketForms {
 	questionPlaceholder?: string;
 }
 
+/** Question ids are modal field ids: a removal must not make the next one a duplicate. */
+const nextQuestionId = (form: { questionId: number }[]) =>
+	Math.max(-1, ...form.map((question) => question.questionId)) + 1;
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -1022,7 +1026,7 @@ export const subCommand: SubCommand = {
 						modal.fields.getTextInputValue("placeholder");
 
 					option.form.push({
-						questionId: option.form.length,
+						questionId: nextQuestionId(option.form),
 						questionTitle: title,
 						questionPlaceholder: placeholder
 					});
@@ -1653,7 +1657,7 @@ export const subCommand: SubCommand = {
 			);
 
 			baseData.config.form.push({
-				questionId: baseData.config.form.length,
+				questionId: nextQuestionId(baseData.config.form),
 				questionTitle,
 				questionPlaceholder
 			});

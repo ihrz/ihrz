@@ -22,7 +22,7 @@
 import { Client, User } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
-import { prevnamesMap, usersNamesMap } from "../../core/prevnamesModule.ts";
+import { usersNamesMap } from "../../core/prevnamesModule.ts";
 import { recordPrevname } from "../../core/modules/prevnamesHistory.ts";
 
 export const event: BotEvent = {
@@ -57,14 +57,6 @@ export const event: BotEvent = {
 				type: change.type === "globalName" ? "displayname" : "username",
 				name: change.oldValue
 			});
-
-			const history = prevnamesMap.get(newUser.id) ?? [];
-			history.push({
-				timestamp: new Date(),
-				type: change.type,
-				value: change.oldValue
-			});
-			prevnamesMap.set(newUser.id, history);
 		}
 
 		usersNamesMap.set(newUser.id, {

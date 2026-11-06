@@ -253,6 +253,14 @@ export const command: Command = {
 		}
 
 		const createLogsChannel = async (name: string, typeOfLogs: string) => {
+			// The command's choices are not the keys read by the events: `boost`
+			// was never read (they read `boosts`), nor `ticket` (TICKET.logs).
+			const logKey =
+				type === "boost"
+					? "boosts"
+					: type === "ticket"
+						? "ticket-log-channel"
+						: type;
 			if (!channel) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.guildprofil_not_logs_set
@@ -262,13 +270,13 @@ export const command: Command = {
 
 			try {
 				let already = null;
-				if (type === "ticket-log-channel") {
+				if (logKey === "ticket-log-channel") {
 					already = await client.db.get(
 						`${interaction.guildId}.GUILD.TICKET.logs`
 					);
 				} else {
 					already = await client.db.get(
-						`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`
+						`${interaction.guildId}.GUILD.SERVER_LOGS.${logKey}`
 					);
 				}
 
@@ -303,14 +311,14 @@ export const command: Command = {
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
 
-				if (type === "ticket-log-channel") {
+				if (logKey === "ticket-log-channel") {
 					await client.db.set(
 						`${interaction.guildId}.GUILD.TICKET.logs`,
 						channel.id
 					);
 				} else {
 					await client.db.set(
-						`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`,
+						`${interaction.guildId}.GUILD.SERVER_LOGS.${logKey}`,
 						channel.id
 					);
 				}

@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 		const embed2 = await metasTable.get(`EMBED.${baseData.embedId}`);
 
 		await client.func.method.interactionSend(interaction, {
-			embeds: [embed, embed2?.embedSource]
+			embeds: embed2?.embedSource ? [embed, embed2.embedSource] : [embed]
 		});
 		return;
 	}

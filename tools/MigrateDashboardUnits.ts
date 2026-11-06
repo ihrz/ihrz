@@ -28,6 +28,8 @@
  *   seconds, or 86 s from a command): listed, never changed.
  * - Any economy save wrote 0 for what was unset, which means no cooldown and no
  *   reward for the bot: those go back to unset.
+ * - /setlogschannel stored `boost` and `ticket`, which nothing reads: moved to
+ *   `boosts` and GUILD.TICKET.logs, unless those are already set.
  * It also lists what can't be guessed: a new account policy that is on with a
  * required age of 0 (a duration typed in words used to save that).
  *
@@ -42,7 +44,7 @@ const isDryRun = !process.argv.includes("--apply");
 const COOLDOWNS = ["daily", "weekly", "monthly", "work", "rob"];
 const AMOUNTS = ["daily", "weekly", "monthly"];
 
-type Change = { path: string; from: unknown; to: number | null };
+type Change = { path: string; from: unknown; to: unknown };
 
 const positive = (v: unknown): v is number =>
 	typeof v === "number" && Number.isFinite(v) && v > 0;
@@ -86,6 +88,21 @@ const run = async () => {
 					to: null
 				});
 			}
+		}
+
+		const logs = doc.GUILD?.SERVER_LOGS ?? {};
+		for (const [key, target, current] of [
+			["boost", "GUILD.SERVER_LOGS.boosts", logs.boosts],
+			["ticket", "GUILD.TICKET.logs", doc.GUILD?.TICKET?.logs]
+		] as const) {
+			if (!logs[key]) continue;
+			if (!current)
+				changes.push({ path: target, from: undefined, to: logs[key] });
+			changes.push({
+				path: `GUILD.SERVER_LOGS.${key}`,
+				from: logs[key],
+				to: null
+			});
 		}
 
 		const blockNew = doc.GUILD?.BLOCK_NEW_ACCOUNT;

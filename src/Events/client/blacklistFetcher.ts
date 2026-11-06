@@ -65,7 +65,7 @@ export const event: BotEvent = {
 					.send({
 						content: lang.server_blacklist_msg_to_send.replace(
 							"${data2Reason}",
-							data2?.reason
+							data2.reason || "blacklisted!"
 						)
 					})
 					.catch(() => {});
@@ -73,7 +73,7 @@ export const event: BotEvent = {
 					.ban({
 						reason: lang.server_blacklist_reason.replace(
 							"${data2Reason}",
-							data2?.reason
+							data2.reason || "blacklisted!"
 						)
 					})
 					.catch(() => {})
