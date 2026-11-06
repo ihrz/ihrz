@@ -131,6 +131,12 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Role saver** : ne rend que les rôles que le bot peut attribuer, fusionnés avec les rôles d'arrivée ; une expulsion par la protection retire d'abord les rôles pour qu'ils ne reviennent pas au retour du membre
 - **`/utils prevnames`** : plus d'entrées `null` ni de noms listés plusieurs fois (les anciens historiques sont réparés à l'affichage), et les noms sont nettoyés : plus de caractères invisibles ni de retours à la ligne, et un nom comme `<@id>` ne s'affiche plus comme une mention. Les historiques sont maintenant stockés en objets typés (`{ type, name, at }`, avec `guild` pour les pseudos), convertis au chargement : le `data` de l'API publique prevnames suit, et `tools/ClearNullPrevnames.ts --apply` convertit toute une table
 - **Dashboard** : l'âge de compte requis de la politique des nouveaux comptes accepte les durées en toutes lettres (`2 semaines`, `1 mois`) ; en taper une enregistrait 0, ce qui désactivait la politique sans prévenir. Le bot n'expulse plus tous les nouveaux membres quand la politique est activée sans âge défini
+- **Dashboard** : une section contenant une date (bans et rôles temporaires, tags, blacklist, honeypot déclenché) peut de nouveau être enregistrée ; les images d'embed et les fonds de bienvenue hébergés sur Discord ne sont plus refusés ; enregistrer les niveaux, la bienvenue ou les utilitaires ne coupe plus les messages de niveau, les réactions « hey », `autoFeur` ni les liens GitHub ; changer le mode d'une règle de `/protect` garde sa sanction
+- **Anti-exe** : désactivé veut vraiment dire désactivé (il restait actif)
+- **Role saver** : les rôles admin ne sont rendus que si c'est demandé
+- **Rôles d'arrivée** : ils ne retirent plus les rôles rendus par le role saver
+- **`/schedule`** : les rappels sont envoyés même si l'utilisateur n'est pas en cache, au lieu d'être perdus
+- **`/confession config`, `/starboard threshold`, `/skullboard threshold`** : s'appliquent maintenant vraiment
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

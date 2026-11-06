@@ -72,7 +72,7 @@ export const event: BotEvent = {
 		let config = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.antiExe`
 		)) as DatabaseStructure.UtilsData["antiExe"];
-		if (!config && config !== "on") return;
+		if (config !== "on") return;
 
 		const toDelete = [...message.attachments.values()].some((atc) =>
 			ilegalFile(atc.name)

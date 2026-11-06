@@ -45,7 +45,9 @@ export const event: BotEvent = {
 					role.permissions.has(
 						PermissionsBitField.Flags.Administrator
 					) &&
-					admin === "no"
+					// Admin roles come back only when asked for: /rolesaver can store
+					// "None" and the dashboard nothing, and a raider rejoins.
+					admin !== "yes"
 				) {
 					return;
 				}

@@ -206,15 +206,27 @@ export const event: BotEvent = {
 		}
 
 		async function refreshSchedule() {
+			// Users are fetched below, so one shard sends: it would be one DM
+			// per shard otherwise.
+			if (!client.isMainShard()) return;
+
 			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
 
 			Object.entries(listAll).forEach(async ([userId, array]) => {
-				const member = client.users.cache.get(array.id) as User;
-
 				for (const ScheduleId in array.value) {
 					if (array.value[ScheduleId]?.expired <= dateNow) {
+						// A reminder is removed once sent, or when it can never
+						// be (unknown user, DMs closed); anything else retries
+						// on the next tick. The cache misses most users.
+						let member: User | null = null;
+						try {
+							member = await client.users.fetch(array.id);
+						} catch (error: any) {
+							if (error?.code !== 10013) continue;
+						}
+
 						// Une description PAR rappel : un accumulateur partagé
 						// envoyait le contenu des rappels d'autres utilisateurs
 						// dans le DM de chacun (fuite + injection inter-users).
@@ -235,15 +247,17 @@ export const event: BotEvent = {
 								iconURL: "attachment://footer_icon.png"
 							});
 
-						member
-							?.send({
+						try {
+							await member?.send({
 								content: member.toString(),
 								embeds: [embed],
 								files: [
 									await client.func.displayBotName.footerAttachmentBuilder()
 								]
-							})
-							.catch(() => {});
+							});
+						} catch (error: any) {
+							if (error?.code !== 50007) continue;
+						}
 
 						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					}

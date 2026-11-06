@@ -62,13 +62,8 @@ export const subCommand: SubCommand = {
 				threshold: 2
 			};
 
-		if (amount > 10) {
-			baseData.threshold = 10;
-			amount = 10;
-		} else if (amount < 2) {
-			baseData.threshold = 2;
-			amount = 2;
-		}
+		amount = Math.min(10, Math.max(2, amount));
+		baseData.threshold = amount;
 
 		await client.db.set(
 			`${interaction.guildId}.GUILD.SKULLBOARD`,

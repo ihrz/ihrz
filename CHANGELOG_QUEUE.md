@@ -131,6 +131,12 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Role saver**: gives back only roles the bot can assign, merged with the join roles; a protection kick deranks first so roles cannot come back on rejoin
 - **`/utils prevnames`**: no more `null` entries or names listed several times (old histories are repaired when viewed), and names are cleaned: no invisible characters or line breaks, and a name like `<@id>` is no longer shown as a mention. Histories are now stored as typed objects (`{ type, name, at }`, with `guild` for nicknames), converted when loaded: the `data` of the public prevnames API follows, and `tools/ClearNullPrevnames.ts --apply` converts a whole table
 - **Dashboard**: the required account age of the new account policy takes durations in words (`2 weeks`, `1 month`); typing one used to save 0, which silently turned the policy off. The bot no longer kicks every new member when the policy is on with no age set
+- **Dashboard**: a section holding a date (temporary bans and roles, tags, blacklist, a triggered honeypot) can be saved again; embed images and welcome backgrounds hosted on Discord no longer get refused; saving leveling, welcome or utility settings no longer turns off level-up messages, hey reactions, `autoFeur` or GitHub lines; changing a `/protect` rule's mode keeps its sanction
+- **Anti-exe**: turned off really means off (it stayed active)
+- **Role saver**: admin roles are only given back when asked for
+- **Join roles**: no longer remove the roles the role saver gives back
+- **`/schedule`**: reminders are sent even when the user isn't cached, instead of being dropped
+- **`/confession config`, `/starboard threshold`, `/skullboard threshold`**: they now really apply
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

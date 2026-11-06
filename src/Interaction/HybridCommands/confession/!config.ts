@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
 
 		if (action === "on") {
 			await client.db.set(
-				`${interaction.guildId}.CONFESSION.disable`,
+				`${interaction.guildId}.GUILD.CONFESSION.disable`,
 				false
 			);
 			await client.func.method.interactionSend(interaction, {
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 			return;
 		} else if (action === "off") {
 			await client.db.set(
-				`${interaction.guildId}.CONFESSION.disable`,
+				`${interaction.guildId}.GUILD.CONFESSION.disable`,
 				true
 			);
 			await client.func.method.interactionSend(interaction, {

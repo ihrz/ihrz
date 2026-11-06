@@ -37,12 +37,13 @@ export const event: BotEvent = {
 			const roleid = (await client.db.get(
 				`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`
 			)) as DatabaseStructure.GuildConfigSchema["joinroles"];
-			if (!roleid) return;
+			if (!roleid?.length) return;
 
 			await Promise.resolve().then(async () => {
 				if (Array.isArray(roleid)) {
+					// `add`, not `set`: the role saver gives roles back on the same event.
 					await member.roles
-						.set(roleid, "[AutoRole] Assign role for new member")
+						.add(roleid, "[AutoRole] Assign role for new member")
 						.catch(() => null);
 				} else {
 					const role = member.guild.roles.cache.get(roleid);
