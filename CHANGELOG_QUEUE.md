@@ -137,6 +137,13 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Join roles**: no longer remove the roles the role saver gives back
 - **`/schedule`**: reminders are sent even when the user isn't cached, instead of being dropped
 - **`/confession config`, `/starboard threshold`, `/skullboard threshold`**: they now really apply
+- **Dashboard**: the anti-spam mute and economy cooldowns were read in milliseconds while the fields said seconds (a 600 mute lasted 0.6 s, an 86400 cooldown 86 s): they now take durations like `15min` or `2h`. Number fields refuse what isn't a number instead of saving nothing or 0, unset economy values stay unset, and a config missing what it needs (captcha role, blog feed, notifier or voice channel, punishment type) is refused with a message
+- **Anti-spam**: enabled with a missing threshold or interval, it detected nothing; it now uses the defaults of `/antispam`
+- **Pictures only**: the warning threshold is applied (it was always 3)
+- **Night mode**: UTC+8 is available, and the dashboard only offers offsets the bot knows
+- **`/punishpub`**: the sanction comes at the chosen number of flags (one too early before, and never with 1)
+- **Starboard / skullboard**: at least 2 reactions, even with an empty threshold
+- **Self-hosting**: `tools/MigrateDashboardUnits.ts --apply` repairs the values saved in the wrong unit
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

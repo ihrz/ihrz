@@ -96,7 +96,7 @@ export const event: BotEvent = {
 
 				const threshold = picOnlyConfig.threshold || 3;
 
-				if (userWarnings.length >= 3) {
+				if (userWarnings.length >= threshold) {
 					warnings.delete(userId);
 
 					try {

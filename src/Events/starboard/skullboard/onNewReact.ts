@@ -49,7 +49,11 @@ export const event: BotEvent = {
 			// Check if skullboard is enabled and configured
 			if (!baseData || baseData.enabled === "no" || !baseData.channel)
 				return;
-			if (!reaction.count || reaction.count < baseData.threshold) return;
+			if (
+				!reaction.count ||
+				reaction.count < Math.max(2, baseData.threshold || 2)
+			)
+				return;
 
 			// Get skullboard channel
 			const skullboardChannel =

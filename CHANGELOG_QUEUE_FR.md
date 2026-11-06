@@ -137,6 +137,13 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Rôles d'arrivée** : ils ne retirent plus les rôles rendus par le role saver
 - **`/schedule`** : les rappels sont envoyés même si l'utilisateur n'est pas en cache, au lieu d'être perdus
 - **`/confession config`, `/starboard threshold`, `/skullboard threshold`** : s'appliquent maintenant vraiment
+- **Dashboard** : le mute de l'anti-spam et les délais de l'économie étaient lus en millisecondes alors que les champs disaient secondes (un mute de 600 durait 0,6 s, un délai de 86400 durait 86 s) : ils acceptent maintenant des durées comme `15min` ou `2h`. Les champs numériques refusent ce qui n'est pas un nombre au lieu d'enregistrer rien ou 0, les valeurs d'économie non renseignées le restent, et une config à laquelle il manque l'essentiel (rôle du captcha, flux de blog, salon du notifier ou salon vocal, type de sanction) est refusée avec un message
+- **Anti-spam** : activé sans seuil ou sans intervalle, il ne détectait rien ; il utilise maintenant les valeurs par défaut de `/antispam`
+- **Images uniquement** : le seuil d'avertissements est appliqué (il valait toujours 3)
+- **Mode nuit** : UTC+8 est disponible, et le dashboard ne propose que les décalages connus du bot
+- **`/punishpub`** : la sanction tombe au nombre de signalements choisi (un trop tôt avant, et jamais avec 1)
+- **Starboard / skullboard** : au moins 2 réactions, même avec un seuil vide
+- **Auto-hébergement** : `tools/MigrateDashboardUnits.ts --apply` répare les valeurs enregistrées dans la mauvaise unité
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

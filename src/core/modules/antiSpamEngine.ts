@@ -112,6 +112,23 @@ setInterval(() => {
 /* Config                                                             */
 /* ------------------------------------------------------------------ */
 
+/** /antispam's defaults, for what a config leaves out or sets to nothing: an
+ * undefined threshold makes every comparison false, so nothing is ever detected. */
+function withDefaults(
+	options: AntiSpam.AntiSpamOptions | null
+): AntiSpam.AntiSpamOptions | null {
+	if (!options) return null;
+	const positive = (v: unknown, fallback: number) =>
+		typeof v === "number" && v > 0 ? v : fallback;
+	return {
+		...options,
+		Threshold: positive(options.Threshold, 3),
+		maxInterval: positive(options.maxInterval, 1900),
+		punishTime: positive(options.punishTime, 15 * 60 * 1000),
+		punishment_type: options.punishment_type || "mute"
+	};
+}
+
 function getOptions(guildId: string): Promise<AntiSpam.AntiSpamOptions | null> {
 	const cached = configs.get(guildId);
 	if (cached && cached.expiresAt > Date.now()) return cached.value;
@@ -120,7 +137,9 @@ function getOptions(guildId: string): Promise<AntiSpam.AntiSpamOptions | null> {
 		client.db.get(
 			`${guildId}.GUILD.ANTISPAM`
 		) as Promise<AntiSpam.AntiSpamOptions | null>
-	).catch(() => null);
+	)
+		.then(withDefaults)
+		.catch(() => null);
 	configs.set(guildId, { value, expiresAt: Date.now() + CONFIG_TTL_MS });
 	return value;
 }

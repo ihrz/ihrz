@@ -58,7 +58,11 @@ export const event: BotEvent = {
 			// Check if starboard is enabled and configured
 			if (!baseData || baseData.enabled === "no" || !baseData.channel)
 				return;
-			if (!reaction.count || reaction.count < baseData.threshold) return;
+			if (
+				!reaction.count ||
+				reaction.count < Math.max(2, baseData.threshold || 2)
+			)
+				return;
 
 			// Get starboard data
 			const starboardDataPath = `${guildId}.GUILD.STARBOARD_DATA`;

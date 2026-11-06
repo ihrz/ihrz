@@ -190,7 +190,9 @@ export const command: Command = {
 			await client.db.set(
 				`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`,
 				{
-					amountMax: amount - 1,
+					// The Nth flag sanctions (blockSpam compares with >=): amount - 1
+					// sanctioned one early, and amount 1 stored 0, which never does.
+					amountMax: amount,
 					punishementType: punishment,
 					state: action
 				}

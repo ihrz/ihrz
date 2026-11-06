@@ -98,6 +98,7 @@ export const utcTimezones: Record<number, string> = {
 	[5]: "Asia/Karachi", // Pakistan Standard Time
 	[6]: "Asia/Dhaka", // Bangladesh Standard Time
 	[7]: "Asia/Bangkok", // Indochina Time
+	[8]: "Asia/Shanghai", // China Standard Time
 	[9]: "Asia/Tokyo", // Japan Standard Time
 	[10]: "Australia/Sydney", // Australian Eastern Standard Time
 	[11]: "Pacific/Noumea", // New Caledonia Time
