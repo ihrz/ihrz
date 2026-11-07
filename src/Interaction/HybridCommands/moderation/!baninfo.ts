@@ -41,11 +41,8 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getUser("user");
-		} else {
-			var user = await client.func.method.user(interaction, args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = await opts.user("user", 0);
 
 		if (!user) {
 			await client.func.method.interactionSend(interaction, {

@@ -47,19 +47,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var userToBan = interaction.options.getUser("user");
-			var banTime = interaction.options.getString("duration");
-			var reason = interaction.options.getString("reason");
-		} else {
-			var userToBan = await client.func.method.user(
-				interaction,
-				args!,
-				0
-			);
-			var banTime = client.func.method.string(args!, 1);
-			var reason = client.func.method.longString(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const userToBan = await opts.user("user", 0);
+		const banTime = opts.string("duration", 1);
+		const reason = opts.longString("reason", 2);
 
 		if (!banTime || !userToBan) {
 			return;

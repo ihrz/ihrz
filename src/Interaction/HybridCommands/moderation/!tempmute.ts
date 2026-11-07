@@ -47,21 +47,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var tomute = interaction.options.getMember(
-				"user"
-			) as GuildMember | null;
-			var mutetime = interaction.options.getString("time");
-			var reason = interaction.options.getString("reason");
-		} else {
-			var tomute = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-			var mutetime = client.func.method.string(args!, 1) as string | null;
-			var reason = client.func.method.longString(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const tomute = opts.member("user", 0) as GuildMember | null;
+		const mutetime = opts.string("time", 1) as string | null;
+		const reason = opts.longString("reason", 2);
 
 		if (!mutetime || !tomute || !mutetime) {
 			return;

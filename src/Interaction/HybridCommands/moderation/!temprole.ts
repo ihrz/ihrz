@@ -47,27 +47,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var memberToAdd = interaction.options.getMember(
-				"member"
-			) as GuildMember | null;
-			var roleToAdd = interaction.options.getRole("role") as Role | null;
-			var roleTime = interaction.options.getString("time");
-			var reason = interaction.options.getString("reason");
-		} else {
-			var memberToAdd = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-			var roleToAdd = client.func.method.role(
-				interaction,
-				args!,
-				1
-			) as Role | null;
-			var roleTime = client.func.method.string(args!, 2);
-			var reason = client.func.method.longString(args!, 3);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const memberToAdd = opts.member("member", 0) as GuildMember | null;
+		const roleToAdd = opts.role("role", 1) as Role | null;
+		const roleTime = opts.string("time", 2);
+		const reason = opts.longString("reason", 3);
 
 		if (!roleTime || !memberToAdd || !roleToAdd) {
 			return;

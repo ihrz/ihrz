@@ -146,15 +146,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const amount =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getNumber("number", true) + 1
-				: client.func.method.number(args!, 0) + 1;
-
-		const member =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getMember("member")
-				: client.func.method.member(interaction, args!, 1);
+		const opts = client.func.method.options(interaction, args);
+		const amount = opts.number("number", 0, true) + 1;
+		const member = opts.member("member", 1);
 
 		const channel = interaction.channel as BaseGuildTextChannel;
 
