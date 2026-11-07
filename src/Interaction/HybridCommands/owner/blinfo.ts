@@ -112,11 +112,8 @@ export async function run_for_bot_owner(
 	)
 		return;
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser("user", true);
-	} else {
-		var user = (await client.func.method.user(interaction, args!, 0))!;
-	}
+	const opts = client.func.method.options(interaction, args);
+	const user = (await opts.user("user", 0))!;
 
 	if (
 		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id))
@@ -189,11 +186,8 @@ export async function run_for_guild_owner(
 	)
 		return;
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser("user", true);
-	} else {
-		var user = (await client.func.method.user(interaction, args!, 0))!;
-	}
+	const opts = client.func.method.options(interaction, args);
+	const user = (await opts.user("user", 0))!;
 
 	if (
 		!(await client.func.ownerHelper.isGuildOwner(

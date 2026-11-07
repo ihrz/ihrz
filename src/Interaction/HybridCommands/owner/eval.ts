@@ -89,11 +89,8 @@ export const command: Command = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var code = interaction.options.getString("code")!;
-		} else {
-			var code = args?.join(" ") || "";
-		}
+		const opts = client.func.method.options(interaction, args);
+		const code = opts.longString("code", 0) || "";
 
 		try {
 			const customEval = new Function(

@@ -118,11 +118,8 @@ export async function run_for_bot_owner(
 		return;
 	}
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser("user");
-	} else {
-		var member = await client.func.method.user(interaction, args!, 0);
-	}
+	const opts = client.func.method.options(interaction, args);
+	const member = await opts.user("user", 0);
 
 	const fetched = await blacklistTable.get(`${member?.id}`);
 
@@ -293,11 +290,8 @@ export async function run_for_guild_owner(
 		return;
 	}
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser("user");
-	} else {
-		var member = await client.func.method.user(interaction, args!, 0);
-	}
+	const opts = client.func.method.options(interaction, args);
+	const member = await opts.user("user", 0);
 
 	const fetched = await client.db.delete(
 		`${interaction.guildId}.BLACKLIST.${member?.id}`

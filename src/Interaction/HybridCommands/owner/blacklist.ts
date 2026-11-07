@@ -142,17 +142,11 @@ export async function run_for_bot_owner(
 
 	const blacklistedUsers = await blacklistTable.all();
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var targetUser = interaction.options.getUser("user", false);
-		var reason =
-			"iHorizon Project Blacklist - " +
-			(interaction.options.getString("reason") || "blacklisted!");
-	} else {
-		var targetUser = await client.func.method.user(interaction, args!, 0);
-		var reason =
-			"iHorizon Project Blacklist - " +
-			(client.func.method.longString(args!, 1) || "blacklisted!");
-	}
+	const opts = client.func.method.options(interaction, args);
+	const targetUser = await opts.user("user", 0);
+	const reason =
+		"iHorizon Project Blacklist - " +
+		(opts.longString("reason", 1) || "blacklisted!");
 
 	const member = targetUser
 		? interaction.guild.members.cache.get(targetUser?.id)
@@ -488,17 +482,10 @@ export async function run_for_guild_owner(
 		? Object.entries(blacklistedUsers).map(([id, value]) => ({ id, value }))
 		: [];
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var targetUser = interaction.options.getUser("user", false);
-		var reason =
-			"Blacklist - " +
-			(interaction.options.getString("reason") || "blacklisted!");
-	} else {
-		var targetUser = await client.func.method.user(interaction, args!, 0);
-		var reason =
-			"Blacklist - " +
-			(client.func.method.longString(args!, 1) || "blacklisted!");
-	}
+	const opts = client.func.method.options(interaction, args);
+	const targetUser = await opts.user("user", 0);
+	const reason =
+		"Blacklist - " + (opts.longString("reason", 1) || "blacklisted!");
 
 	const member = targetUser
 		? interaction.guild.members.cache.get(targetUser?.id)

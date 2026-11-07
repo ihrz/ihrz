@@ -131,11 +131,8 @@ export async function run_for_bot_owner(
 			await client.func.displayBotName.footerBuilder(interaction.guildId!)
 		);
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser("member");
-	} else {
-		var member = await client.func.method.user(interaction, args!, 0);
-	}
+	const opts = client.func.method.options(interaction, args);
+	const member = await opts.user("member", 0);
 
 	if (!member) {
 		await client.func.method.interactionSend(interaction, {
@@ -211,11 +208,8 @@ export async function run_for_guild_owner(
 			await client.func.displayBotName.footerBuilder(interaction.guildId!)
 		);
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser("member");
-	} else {
-		var member = await client.func.method.user(interaction, args!, 0);
-	}
+	const opts = client.func.method.options(interaction, args);
+	const member = await opts.user("member", 0);
 
 	if (!member) {
 		await client.func.method.interactionSend(interaction, {
