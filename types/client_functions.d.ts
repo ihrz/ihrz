@@ -756,6 +756,7 @@ declare namespace Client_Functions {
 			client: Client<boolean>,
 			track: Track
 		): Promise<void>;
+		export function stripChoiceDuration(query: string): string;
 	}
 
 	// From music_proximity.ts
