@@ -60,7 +60,30 @@ interface TwitchResponse {
 	id: string;
 }
 
+const MAX_NOTIFIED_MEDIAS_PER_USER = 50;
+
+/**
+ * Keep only the last notified medias of each followed user.
+ * The order of the list is preserved, the oldest entries are dropped.
+ */
+export function trimLastMediaNotified(
+	medias: DatabaseStructure.NotifierLastNotifiedMedias[],
+	max: number = MAX_NOTIFIED_MEDIAS_PER_USER
+): DatabaseStructure.NotifierLastNotifiedMedias[] {
+	const seen = new Map<string, number>();
+	const keep = new Array<boolean>(medias.length).fill(false);
+
+	for (let i = medias.length - 1; i >= 0; i--) {
+		const count = (seen.get(medias[i].userId) || 0) + 1;
+		seen.set(medias[i].userId, count);
+		keep[i] = count <= max;
+	}
+
+	return medias.filter((_, i) => keep[i]);
+}
+
 export class StreamNotifier {
+	private isRefreshing = false;
 	private twitchClientID: string;
 	private twitchAccessToken: string | null;
 	private twitchAccessTokenExpireIn: number | null;
@@ -468,6 +491,22 @@ export class StreamNotifier {
 	}
 
 	private async refresh() {
+		if (this.isRefreshing) {
+			return;
+		}
+
+		this.isRefreshing = true;
+
+		try {
+			await this.runRefresh();
+		} catch (error) {
+			logger.err(`notifier: refresh failed: ${error}`);
+		} finally {
+			this.isRefreshing = false;
+		}
+	}
+
+	private async runRefresh() {
 		await this.ensureValidAccessToken();
 		const guildsData = await this.getGuildsData();
 
@@ -509,14 +548,20 @@ export class StreamNotifier {
 						);
 
 					if (channel) {
-						await client.db.push(
-							`${entry.guildId}.NOTIFIER.lastMediaNotified`,
-							{
-								userId: media.user.id_or_username,
-								mediaId: media.content.id,
-								timestamp: media.content.pubDate.toISOString()
-							}
-						);
+						const notifiedPath = `${entry.guildId}.NOTIFIER.lastMediaNotified`;
+						await client.db.push(notifiedPath, {
+							userId: media.user.id_or_username,
+							mediaId: media.content.id,
+							timestamp: media.content.pubDate.toISOString()
+						});
+
+						const notified = ((await client.db.get(notifiedPath)) ||
+							[]) as DatabaseStructure.NotifierLastNotifiedMedias[];
+						const trimmed = trimLastMediaNotified(notified);
+
+						if (trimmed.length !== notified.length) {
+							await client.db.set(notifiedPath, trimmed);
+						}
 						await channel.send({
 							content: message,
 							components: [
