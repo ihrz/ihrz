@@ -23,6 +23,7 @@ import { Client, PermissionsBitField, Presence } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 export const event: BotEvent = {
 	name: "presenceUpdate",
@@ -40,7 +41,7 @@ export const event: BotEvent = {
 		if (!newPresence || !newPresence.guild) return;
 
 		const someinfo: DatabaseStructure.SupportSchema | null =
-			await client.db.get(`${newPresence.guild.id}.GUILD.SUPPORT`);
+			await getCachedGuildValue(`${newPresence.guild.id}.GUILD.SUPPORT`);
 
 		if (!someinfo || !someinfo.rolesId) {
 			return;
@@ -71,20 +72,18 @@ export const event: BotEvent = {
 
 		if (someinfo?.type === "bio" && !bio.state) {
 			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles.remove(
-					someinfo.rolesId,
-					"[Support] Module"
-				);
+				return fetchedUser.roles
+					.remove(someinfo.rolesId, "[Support] Module")
+					.catch(() => {});
 			return;
 		} else if (
 			someinfo.type === "tag" &&
 			!fetchedUser.user.primaryGuild?.identityGuildId
 		) {
 			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles.remove(
-					someinfo.rolesId,
-					"[Support] Module"
-				);
+				return fetchedUser.roles
+					.remove(someinfo.rolesId, "[Support] Module")
+					.catch(() => {});
 			return;
 		}
 
@@ -100,11 +99,13 @@ export const event: BotEvent = {
 				fetchedUser.user.primaryGuild?.identityGuildId ===
 					newPresence.guild.id)
 		) {
-			return fetchedUser?.roles
+			if (fetchedUser.roles.cache.has(someinfo.rolesId)) return;
+			return fetchedUser.roles
 				.add(someinfo.rolesId, "[Support] Module")
 				.catch(() => {});
 		} else {
-			return fetchedUser?.roles
+			if (!fetchedUser.roles.cache.has(someinfo.rolesId)) return;
+			return fetchedUser.roles
 				.remove(someinfo.rolesId, "[Support] Module")
 				.catch(() => {});
 		}
