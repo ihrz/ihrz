@@ -117,10 +117,13 @@ export class FunctionAnalyzer {
 
 				const isNotNodeModules =
 					!sourceFile.fileName.includes("node_modules");
-				const isInRootDir =
-					normalizedFileName.startsWith(normalizedRootDir);
+				// client.func only exposes the top-level files (see the
+				// `functions` entry of src/core/modules/exportsManifest.ts):
+				// a subfolder holds modules re-exported by one of them.
+				const isTopLevel =
+					path.dirname(normalizedFileName) === normalizedRootDir;
 
-				return isNotNodeModules && isInRootDir;
+				return isNotNodeModules && isTopLevel;
 			});
 
 		// Sorted a-z (plain code point order, locale independent): the
@@ -158,6 +161,13 @@ export class FunctionAnalyzer {
 			}
 
 			if (ts.isExportDeclaration(node)) {
+				// `export * from "./x.js"`: every function the target exports.
+				if (!node.exportClause && node.moduleSpecifier) {
+					functions.push(
+						...this.analyzeReExportedModule(node.moduleSpecifier)
+					);
+				}
+
 				if (node.exportClause && ts.isNamedExports(node.exportClause)) {
 					node.exportClause.elements.forEach((element) => {
 						const symbol = this.typeChecker.getSymbolAtLocation(
@@ -192,6 +202,33 @@ export class FunctionAnalyzer {
 			fileName: relativePath,
 			functions
 		};
+	}
+
+	private analyzeReExportedModule(
+		moduleSpecifier: ts.Expression
+	): FunctionMetadata[] {
+		const moduleSymbol =
+			this.typeChecker.getSymbolAtLocation(moduleSpecifier);
+		if (!moduleSymbol) return [];
+
+		const functions: FunctionMetadata[] = [];
+		for (const exported of this.typeChecker.getExportsOfModule(
+			moduleSymbol
+		)) {
+			const symbol =
+				exported.flags & ts.SymbolFlags.Alias
+					? this.typeChecker.getAliasedSymbol(exported)
+					: exported;
+
+			for (const decl of symbol.declarations ?? []) {
+				if (!ts.isFunctionDeclaration(decl)) continue;
+				const functionMetadata = this.analyzeFunctionNode(decl);
+				if (functionMetadata) {
+					functions.push(functionMetadata);
+				}
+			}
+		}
+		return functions;
 	}
 
 	private collectParameterImports(

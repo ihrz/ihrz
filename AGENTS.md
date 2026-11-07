@@ -82,6 +82,7 @@ bun run type:func
 ```
 
 - Generator: `tools/Client_Func_Typator.ts`. If you add a function file, run it.
+- Only the top-level files of `src/core/functions/` become `client.func` entries (`gen:exports` and `type:func` skip subfolders). A large file may be split into a subfolder of themed modules that its top-level file re-exports with `export * from "./<name>/<module>.js"` (e.g. `method.ts` -> `method/*.ts`): the typator follows those re-exports, so `client.func.<name>.*` keeps every function. A new `method.*` function goes in the module of its theme.
 
 ## Commands
 
