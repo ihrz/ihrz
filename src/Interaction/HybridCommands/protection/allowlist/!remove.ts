@@ -45,14 +45,9 @@ export const subCommand: SubCommand = {
 		const baseData = ((await client.db.get(
 			`${interaction.guildId}.ALLOWLIST`
 		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
-		const member: User | null =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getUser("member") as User)
-				: ((await client.func.method.user(
-						interaction,
-						args!,
-						0
-					)) as User);
+		const member: User | null = await client.func.method
+			.options(interaction, args)
+			.user("member", 0);
 
 		if (interaction.member.user.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {

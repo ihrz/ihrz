@@ -51,10 +51,9 @@ export const subCommand: SubCommand = {
 		const baseData = ((await client.db.get(
 			`${interaction.guildId}.ALLOWLIST`
 		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
-		const member: GuildMember | null =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getMember("member") as GuildMember)
-				: client.func.method.member(interaction, args!, 0);
+		const member: GuildMember | null = client.func.method
+			.options(interaction, args)
+			.member("member", 0);
 
 		// Without any resolvable target the ownerlist is displayed,
 		// in slash as well as with the "+wl" prefix.
