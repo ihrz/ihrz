@@ -230,9 +230,19 @@ export const event: BotEvent = {
 						// Une description PAR rappel : un accumulateur partagé
 						// envoyait le contenu des rappels d'autres utilisateurs
 						// dans le DM de chacun (fuite + injection inter-users).
-						let desc = `${format(new Date(array.value[ScheduleId]?.expired), "YYYY/MM/DD HH:mm:ss")}`;
-						desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
-						desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
+						// Each block on its own lines: glued to the date and to each
+						// other, the fences broke and showed up as backticks. A fence
+						// typed in the text would close the block, so it is split.
+						const block = (text: unknown) =>
+							`\`\`\`\n${String(text ?? "").replaceAll("```", "`\u200b``")}\n\`\`\``;
+						const desc = [
+							format(
+								new Date(array.value[ScheduleId]?.expired),
+								"YYYY/MM/DD HH:mm:ss"
+							),
+							block(array.value[ScheduleId]?.title),
+							block(array.value[ScheduleId]?.description)
+						].join("\n");
 
 						const embed = new EmbedBuilder()
 							.setColor("#56a0d3")
