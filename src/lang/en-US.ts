@@ -1965,6 +1965,8 @@ const enUS = {
 	guildconfig_config_restore_err_msg:
 		"There was an error downloading the file.",
 	guildconfig_config_restore_msg: "The data has been set in my database.",
+	guildconfig_config_restore_wrong_guild:
+		"This backup does not belong to this server or is not valid, so it was not restored.",
 
 	// /perm add
 	perm_add_args_error:

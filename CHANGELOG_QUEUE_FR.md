@@ -112,6 +112,21 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 
 ---
 
+## 🔒 Sécurité — mettez votre instance à jour
+
+Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez votre propre instance d'iHorizon, mettez-la à jour au plus vite.**
+
+- Les réglages enregistrés refusent les noms de clé réservés, et les noms de tag et mots de réaction automatique n'acceptent que les lettres, chiffres, `_` et `-`
+- Les commandes média ne téléchargent que des images d'hôtes publics, avec des limites de taille et de temps
+- `/util unzip-emojis` importe au plus 50 emojis et ignore les fichiers trop lourds
+- `/guildconfig config restore` ne restaure qu'une sauvegarde faite sur le même serveur et ne change jamais les owners du bot sur ce serveur ; les sauvegardes faites avant cette version ne peuvent plus être restaurées
+- Les commandes réservées aux owners du bot vérifient toujours l'owner
+- Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps
+- Les commandes de giveaway n'agissent que sur les giveaways du serveur actuel
+- `/mod tempban` et `/mod ban` refusent d'agir sur un membre dont le rôle le plus haut est égal ou supérieur au vôtre
+
+---
+
 ## ⚙️ Auto-hébergement — configuration en `.env` et binaire autonome
 
 Le bot se configure avec des variables d'environnement, lues depuis un fichier `.env` (`cp .env.example .env`), au lieu de `src/files/config.ts`. Chaque connexion tient en une URL : `LAVALINK_URL=ws://motdepasse@hote:2333` (plusieurs nodes séparés par des virgules, `wss://` pour le TLS) et `DATABASE_URL` (`sqlite`, `json`, `memory`, `postgres://...` ou `ws://...` pour HorizonDB). Les listes sont séparées par des virgules (`OWNERS=id1,id2`), et une faute de frappe dans une valeur arrête le bot au démarrage avec un message clair au lieu d'être devinée. Plus rien n'est compilé dans le code : le même build fait tourner n'importe quel bot.

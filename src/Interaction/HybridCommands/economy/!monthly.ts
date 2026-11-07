@@ -29,6 +29,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -46,68 +47,82 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const timeout =
-			(await client.db.get(
-				`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`
-			)) ?? 2592000000;
-		const amount =
-			((await client.db.get(
-				`${interaction.guildId}.ECONOMY.settings.monthly.amount`
-			)) ?? 5000) *
-			(await client.func.economyHelper.getMemberBoost(
-				interaction.member
-			));
-
-		const monthly = await client.db.get(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
+		if (!releaseLock) return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
+		try {
+			const timeout =
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`
+				)) ?? 2592000000;
+			const amount =
+				((await client.db.get(
+					`${interaction.guildId}.ECONOMY.settings.monthly.amount`
+				)) ?? 5000) *
+				(await client.func.economyHelper.getMemberBoost(
+					interaction.member
+				));
 
-		if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(
-				timeout - (Date.now() - monthly),
-				lang
+			const monthly = await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.monthly_cooldown_error.replaceAll("${time}", time)
-			});
-			return;
-		} else {
-			const embed = new EmbedBuilder()
-				.setAuthor({
-					name: lang.monthly_embed_title,
-					iconURL: (
-						interaction.member.user as User
-					).displayAvatarURL()
-				})
-				.setColor("#a4cb80")
-				.setDescription(lang.monthly_embed_description)
-				.addFields({
-					name: lang.monthly_embed_fields,
-					value: `${amount}${client.iHorizon_Emojis.Coin}`
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
 				});
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed]
-			});
-			await client.func.method.addCoins(interaction.member, amount);
-			await client.db.set(
-				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`,
-				Date.now()
-			);
-			return;
+				return;
+			}
+
+			if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
+				const time = client.timeCalculator.to_beautiful_string(
+					timeout - (Date.now() - monthly),
+					lang
+				);
+
+				await client.func.method.interactionSend(interaction, {
+					content: lang.monthly_cooldown_error.replaceAll(
+						"${time}",
+						time
+					)
+				});
+				return;
+			} else {
+				const embed = new EmbedBuilder()
+					.setAuthor({
+						name: lang.monthly_embed_title,
+						iconURL: (
+							interaction.member.user as User
+						).displayAvatarURL()
+					})
+					.setColor("#a4cb80")
+					.setDescription(lang.monthly_embed_description)
+					.addFields({
+						name: lang.monthly_embed_fields,
+						value: `${amount}${client.iHorizon_Emojis.Coin}`
+					});
+				await client.db.set(
+					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`,
+					Date.now()
+				);
+				await client.func.method.addCoins(interaction.member, amount);
+				await client.func.method.interactionSend(interaction, {
+					embeds: [embed]
+				});
+				return;
+			}
+		} finally {
+			releaseLock();
 		}
 	}
 };

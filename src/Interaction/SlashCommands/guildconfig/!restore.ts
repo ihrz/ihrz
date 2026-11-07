@@ -24,6 +24,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { decrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
+import { invalidateProtectionContext } from "../../../core/modules/protectionEngine.js";
 import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
@@ -54,12 +55,32 @@ export const subCommand: SubCommand = {
 						await response.text()
 					) || "{}"
 				);
-				if (!res) throw "";
 
-				await client.db.set(`${interaction.guildId}`, res);
+				if (
+					!res ||
+					typeof res !== "object" ||
+					Array.isArray(res) ||
+					res.guildId !== interaction.guildId
+				) {
+					await interaction.editReply({
+						content: lang.guildconfig_config_restore_wrong_guild
+					});
+					return;
+				}
+
+				const { guildId: _sourceGuildId, OWNER: _owner, ...data } = res;
+				const currentOwner = await client.db.get(
+					`${interaction.guildId}.OWNER`
+				);
+
+				await client.db.set(`${interaction.guildId}`, {
+					...data,
+					...(currentOwner ? { OWNER: currentOwner } : {})
+				});
+				invalidateProtectionContext(interaction.guildId);
 			} catch (error) {
 				await interaction.editReply({
-					content: lang.guildconfig_config_restore_msg
+					content: lang.guildconfig_config_restore_err_msg
 				});
 				return;
 			}

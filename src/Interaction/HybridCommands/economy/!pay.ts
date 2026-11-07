@@ -29,6 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -46,78 +47,91 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var amount = interaction.options.getNumber("amount") as number;
-			var user = interaction.options.getMember("member") as GuildMember;
-		} else {
-			var amount = client.func.method.number(args!, 0) as number;
-			var user = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember;
-		}
-
-		const member = await client.db.get(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
+		if (!releaseLock) return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
+		try {
+			if (interaction instanceof ChatInputCommandInteraction) {
+				var amount = interaction.options.getNumber("amount") as number;
+				var user = interaction.options.getMember(
+					"member"
+				) as GuildMember;
+			} else {
+				var amount = client.func.method.number(args!, 0) as number;
+				var user = client.func.method.member(
+					interaction,
+					args!,
+					0
+				) as GuildMember;
+			}
+
+			const member = await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
+			);
+
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
+				});
+				return;
+			}
+
+			if (amount.toString().includes("-")) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.pay_negative_number_error
+				});
+				return;
+			}
+
+			if (amount && (member ?? 0) < amount) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.pay_dont_have_enought_to_give
+				});
+				return;
+			}
+
+			await client.db.add(
+				`${interaction.guildId}.USER.${user.id}.ECONOMY.money`,
+				amount!
+			);
+			await client.db.sub(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+				amount!
+			);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
+				content: lang.pay_command_work
+					.replaceAll(
+						"${authorUsername}",
+						(interaction.member.user as User).globalName ||
+							interaction.member.user.username
+					)
+					.replaceAll(
+						"${userUsername}",
+						user.user.globalName || user.user.displayName
+					)
+					.replaceAll("${amount}", amount.toString())
 			});
+
+			await client.func.economyLogs.pay(
+				interaction.guild,
+				interaction.member.user.id,
+				user.id,
+				amount,
+				lang
+			);
 			return;
+		} finally {
+			releaseLock();
 		}
-
-		if (amount.toString().includes("-")) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.pay_negative_number_error
-			});
-			return;
-		}
-
-		if (amount && member < amount) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.pay_dont_have_enought_to_give
-			});
-			return;
-		}
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.pay_command_work
-				.replaceAll(
-					"${authorUsername}",
-					(interaction.member.user as User).globalName ||
-						interaction.member.user.username
-				)
-				.replaceAll(
-					"${userUsername}",
-					user.user.globalName || user.user.displayName
-				)
-				.replaceAll("${amount}", amount.toString())
-		});
-
-		await client.db.add(
-			`${interaction.guildId}.USER.${user.id}.ECONOMY.money`,
-			amount!
-		);
-		await client.db.sub(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-			amount!
-		);
-		await client.func.economyLogs.pay(
-			interaction.guild,
-			interaction.member.user.id,
-			user.id,
-			amount,
-			lang
-		);
-		return;
 	}
 };

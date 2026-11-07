@@ -91,7 +91,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const guildMember = interaction.guild.members.cache.get(member.id);
+		const guildMember = await interaction.guild.members
+			.fetch(member.id)
+			.catch(() => null);
 
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {

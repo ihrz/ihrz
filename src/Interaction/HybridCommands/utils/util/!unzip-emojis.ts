@@ -29,6 +29,27 @@ import JSZip from "jszip";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 
+const MAX_ZIP_BYTES = 8 * 1024 * 1024;
+const MAX_EMOJI_BYTES = 256 * 1024;
+const MAX_EMOJIS = 50;
+
+async function readCapped(
+	response: Response,
+	maxBytes: number
+): Promise<Buffer | null> {
+	const declared = Number(response.headers.get("content-length"));
+	if (declared > maxBytes || !response.body) return null;
+
+	const chunks: Uint8Array[] = [];
+	let total = 0;
+	for await (const chunk of response.body as any as AsyncIterable<Uint8Array>) {
+		total += chunk.byteLength;
+		if (total > maxBytes) return null;
+		chunks.push(chunk);
+	}
+	return Buffer.concat(chunks);
+}
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -58,38 +79,63 @@ export const subCommand: SubCommand = {
 		const time = Date.now();
 
 		try {
-			const response = await fetch(zipAttachment.url);
-			const zipBuffer = await response.arrayBuffer();
+			if (zipAttachment.size > MAX_ZIP_BYTES) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.util_unzip_emojis_command_error,
+					flags: [1 << 6]
+				});
+				return;
+			}
+
+			const response = await fetch(zipAttachment.url, {
+				signal: AbortSignal.timeout(30_000)
+			});
+			const zipBuffer = await readCapped(response, MAX_ZIP_BYTES);
+
+			if (!zipBuffer) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.util_unzip_emojis_command_error,
+					flags: [1 << 6]
+				});
+				return;
+			}
 
 			const zip = new JSZip();
 			const zipContents = await zip.loadAsync(zipBuffer);
 
 			const emojis: [string, JSZip.JSZipObject][] = [];
 
-			Object.entries(zipContents.files)
-				.filter(([filename, file]) => {
-					// Extract just the filename by splitting on '/' and taking the last part
-					const bareFileName = filename.split("/").pop() || "";
+			Object.entries(zipContents.files).filter(([filename, file]) => {
+				// Extract just the filename by splitting on '/' and taking the last part
+				const bareFileName = filename.split("/").pop() || "";
 
-					const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
-					if (!match) return false;
+				if (emojis.length >= MAX_EMOJIS) return false;
 
-					const [, name, id, extension] = match;
-					const cleanedName = name.replace(/_/g, " ");
-					const emojiName = cleanedName
-						.replace(/[^\w\s]/g, "")
-						.slice(0, 32);
+				const declaredSize = (file as any)._data?.uncompressedSize;
+				if (
+					typeof declaredSize !== "number" ||
+					declaredSize > MAX_EMOJI_BYTES
+				)
+					return false;
 
-					if (
-						interaction.guild!.emojis.cache.some(
-							(emoji) => emoji.name === emojiName
-						)
+				const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
+				if (!match) return false;
+
+				const [, name, id, extension] = match;
+				const cleanedName = name.replace(/_/g, " ");
+				const emojiName = cleanedName
+					.replace(/[^\w\s]/g, "")
+					.slice(0, 32);
+
+				if (
+					interaction.guild!.emojis.cache.some(
+						(emoji) => emoji.name === emojiName
 					)
-						return false;
-					emojis.push([emojiName, file]);
-					return true;
-				})
-				.slice(0, 50);
+				)
+					return false;
+				emojis.push([emojiName, file]);
+				return true;
+			});
 
 			const emojiCreationPromises = emojis.map(
 				async ([emojiName, file]) => {

@@ -51,7 +51,7 @@ export const command: Command = {
 		lang: LanguageData,
 		options?: string[]
 	) => {
-		if (!client.func.ownerHelper.isBotOwner(message.author.id)) {
+		if (!(await client.func.ownerHelper.isBotOwner(message.author.id))) {
 			await client.func.method.interactionSend(message, {
 				content: lang.blacklist_not_owner
 			});

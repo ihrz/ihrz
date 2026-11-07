@@ -47,7 +47,11 @@ export const subCommand: SubCommand = {
 			var inputData = client.func.method.string(args!, 0);
 		}
 
-		if (!(await client.giveawaysManager.isValid(inputData as string))) {
+		const giveaway = await client.giveawaysManager
+			.getGiveawayData(inputData as string)
+			.catch(() => null);
+
+		if (!giveaway || giveaway.guildId !== interaction.guildId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.reroll_dont_find_giveaway.replace(
 					"{args}",

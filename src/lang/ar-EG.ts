@@ -1886,6 +1886,8 @@ export default {
 	// /guildconfig config restore
 	guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف.",
 	guildconfig_config_restore_msg: "تم تعيين البيانات في قاعدة بياناتي.",
+	guildconfig_config_restore_wrong_guild:
+		"هذه النسخة الاحتياطية لا تخص هذا الخادم أو غير صالحة، لذلك لم تتم استعادتها.",
 
 	// /perm add
 	perm_add_args_error:

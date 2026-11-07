@@ -2012,6 +2012,8 @@ export default {
 	guildconfig_config_restore_err_msg: "Ocorreu um erro ao baixar o arquivo.",
 	guildconfig_config_restore_msg:
 		"Os dados foram salvos no meu banco de dados.",
+	guildconfig_config_restore_wrong_guild:
+		"Esta cópia de segurança não pertence a este servidor ou não é válida, por isso não foi restaurada.",
 
 	// /perm add
 	perm_add_args_error:

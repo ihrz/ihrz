@@ -68,7 +68,13 @@ export const subCommand: SubCommand = {
 			const dbGuild = await client.db.get(`${interaction.guildId}`);
 
 			const buffer = Buffer.from(
-				encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)),
+				encrypt(
+					client.config.api.apiToken,
+					JSON.stringify({
+						...dbGuild,
+						guildId: interaction.guildId
+					})
+				),
 				"utf-8"
 			);
 			const attachment = new AttachmentBuilder(buffer, {

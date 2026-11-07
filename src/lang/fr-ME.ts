@@ -2061,6 +2061,8 @@ export default {
 		"Il y a eu une erreur lors du téléchargement du fichier.",
 	guildconfig_config_restore_msg:
 		"Les données ont été enregistrées dans ma base de données.",
+	guildconfig_config_restore_wrong_guild:
+		"Cette sauvegarde n'appartient pas à ce serveur ou n'est pas valide, elle n'a donc pas été restaurée.",
 
 	// /perm add
 	perm_add_args_error:

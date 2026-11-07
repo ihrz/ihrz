@@ -112,6 +112,21 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 
 ---
 
+## 🔒 Security — update your instance
+
+This release fixes several security issues. **If you host your own iHorizon instance, update as soon as possible.**
+
+- Stored settings reject reserved key names, and tag names and auto-react words only accept letters, digits, `_` and `-`
+- Media commands only download images from public hosts, with size and time limits
+- `/util unzip-emojis` imports at most 50 emojis and skips oversized files
+- `/guildconfig config restore` only restores a backup saved on the same server and never changes the bot owners of the server; backups made before this release can no longer be restored
+- Bot-owner commands always check the owner
+- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once
+- Giveaway commands only act on giveaways of the current server
+- `/mod tempban` and `/mod ban` refuse to act on a member whose highest role is equal to or above yours
+
+---
+
 ## ⚙️ Self-hosting — `.env` configuration and a standalone binary
 
 The bot is configured with environment variables, read from a `.env` file (`cp .env.example .env`), instead of `src/files/config.ts`. Connections are a single URL each: `LAVALINK_URL=ws://password@host:2333` (several nodes comma-separated, `wss://` for TLS) and `DATABASE_URL` (`sqlite`, `json`, `memory`, `postgres://...` or `ws://...` for HorizonDB). Lists are comma-separated (`OWNERS=id1,id2`), and a typo in a value stops the bot at startup with a clear message instead of being guessed. Nothing is compiled into the code anymore, so the same build runs any bot.

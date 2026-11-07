@@ -29,6 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -46,109 +47,129 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var toDeposit = interaction.options.getString("how-much") as string;
-		} else {
-			var toDeposit = client.func.method.string(args!, 0) as string;
-		}
-
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
-		const balance =
-			(await client.db.get(
-				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
-			)) || 0;
-
-		if (toDeposit === "all") toDeposit = balance;
-
-		if (isNaN(Number(toDeposit))) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (Number(toDeposit) <= 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (toDeposit && toDeposit > balance) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.deposit_cannot_abuse.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		await client.db.add(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
-			parseInt(toDeposit)
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
-		await client.db.sub(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-			parseInt(toDeposit)
-		);
+		if (!releaseLock) return;
 
-		const embed = new EmbedBuilder()
-			.setAuthor({
-				name: lang.daily_embed_title,
-				iconURL: (interaction.member.user as User).displayAvatarURL()
-			})
-			.setColor("#a4cb80")
-			.setTitle(lang.deposit_embed_title)
-			.setDescription(
-				lang.deposit_embed_desc
-					.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
-					.replace("${author}", interaction.member.user.toString())
-					.replace("${toDeposit}", toDeposit.toString())
-			)
-			.addFields({
-				name: lang.deposit_embed_fields1_name,
-				value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
-			})
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp();
+		try {
+			if (interaction instanceof ChatInputCommandInteraction) {
+				var toDeposit = interaction.options.getString(
+					"how-much"
+				) as string;
+			} else {
+				var toDeposit = client.func.method.string(args!, 0) as string;
+			}
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
+				});
+				return;
+			}
+
+			const balance =
+				(await client.db.get(
+					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
+				)) || 0;
+
+			if (toDeposit === "all") toDeposit = balance;
+
+			if (isNaN(Number(toDeposit))) {
+				await client.func.method.interactionSend(interaction, {
+					content:
+						lang.temporary_voice_limit_button_not_integer.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
+				});
+				return;
+			}
+
+			if (Number(toDeposit) <= 0) {
+				await client.func.method.interactionSend(interaction, {
+					content:
+						lang.temporary_voice_limit_button_not_integer.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
+				});
+				return;
+			}
+
+			if (toDeposit && toDeposit > balance) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.deposit_cannot_abuse.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+				return;
+			}
+
+			await client.db.add(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
+				parseInt(toDeposit)
+			);
+			await client.db.sub(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+				parseInt(toDeposit)
+			);
+
+			const embed = new EmbedBuilder()
+				.setAuthor({
+					name: lang.daily_embed_title,
+					iconURL: (
+						interaction.member.user as User
+					).displayAvatarURL()
+				})
+				.setColor("#a4cb80")
+				.setTitle(lang.deposit_embed_title)
+				.setDescription(
+					lang.deposit_embed_desc
+						.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
+						.replace(
+							"${author}",
+							interaction.member.user.toString()
+						)
+						.replace("${toDeposit}", toDeposit.toString())
 				)
-			]
-		});
-		await client.func.economyLogs.deposit(
-			interaction.guild,
-			interaction.member.user.id,
-			Number(toDeposit),
-			lang
-		);
-		return;
+				.addFields({
+					name: lang.deposit_embed_fields1_name,
+					value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
+				})
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
+				.setTimestamp();
+
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			});
+			await client.func.economyLogs.deposit(
+				interaction.guild,
+				interaction.member.user.id,
+				Number(toDeposit),
+				lang
+			);
+			return;
+		} finally {
+			releaseLock();
+		}
 	}
 };
