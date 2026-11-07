@@ -27,6 +27,7 @@ import {
 	GuildChannel,
 	PermissionFlagsBits
 } from "discord.js";
+import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 import { BotEvent } from "../../../types/event.js";
 import { LanguageData } from "../../../types/languageData.js";
 import {
@@ -133,18 +134,25 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const relevantLog = await getLogs({
-			guild: newChannel.guild,
-			target: newChannel.id,
-			actionType: AuditLogEvent.ChannelUpdate,
-			type: "LOGS"
-		});
-		const relevantLog_2 = await getLogs({
-			guild: newChannel.guild,
-			target: newChannel.id,
-			actionType: AuditLogEvent.ChannelOverwriteUpdate,
-			type: "LOGS"
-		});
+		const someinfo = await getCachedGuildValue<string>(
+			`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`
+		);
+		if (!someinfo) return;
+
+		const [relevantLog, relevantLog_2] = await Promise.all([
+			getLogs({
+				guild: newChannel.guild,
+				target: newChannel.id,
+				actionType: AuditLogEvent.ChannelUpdate,
+				type: "LOGS"
+			}).catch(() => undefined),
+			getLogs({
+				guild: newChannel.guild,
+				target: newChannel.id,
+				actionType: AuditLogEvent.ChannelOverwriteUpdate,
+				type: "LOGS"
+			}).catch(() => undefined)
+		]);
 
 		// if (oldChannel.position !== newChannel.position) return;
 
@@ -154,11 +162,6 @@ export const event: BotEvent = {
 			relevantLog_2?.executor?.id === client.user?.id
 		)
 			return;
-
-		const someinfo = await client.db.get(
-			`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`
-		);
-		if (!someinfo) return;
 
 		const Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;

@@ -165,6 +165,7 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **`/schedule`**: reminders are sent even when the user isn't cached, instead of being dropped
 - **`/confession config`, `/starboard threshold`, `/skullboard threshold`**: they now really apply
 - **Dashboard**: the anti-spam mute and economy cooldowns were read in milliseconds while the fields said seconds (a 600 mute lasted 0.6 s, an 86400 cooldown 86 s): they now take durations like `15min` or `2h`. Number fields refuse what isn't a number instead of saving nothing or 0, unset economy values stay unset, and a config missing what it needs (captcha role, blog feed, notifier or voice channel, punishment type) is refused with a message
+- **Performance**: fewer needless Discord requests and database reads on busy servers (support role, channel update logs, starboard and skullboard, picture-only channels, levels, TTS); a starboard post is no longer created twice when two stars arrive at the same time, and two quick messages no longer give a double level-up
 - **Anti-spam**: enabled with a missing threshold or interval, it detected nothing; it now uses the defaults of `/antispam`
 - **Pictures only**: the warning threshold is applied (it was always 3)
 - **Night mode**: UTC+8 is available, and the dashboard only offers offsets the bot knows

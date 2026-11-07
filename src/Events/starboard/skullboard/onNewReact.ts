@@ -31,9 +31,15 @@ import {
 import { BotEvent } from "../../../../types/event.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
+// Messages being posted or updated right now: concurrent reactions at the
+// threshold would otherwise both read the data before either writes it.
+const inFlight = new Set<string>();
+
 export const event: BotEvent = {
 	name: "messageReactionAdd",
 	run: async (client: Client, reaction: MessageReaction, user: User) => {
+		let flightKey: string | null = null;
+
 		try {
 			// Guard clauses
 			if (!reaction.message.guild || user.bot) return;
@@ -54,6 +60,13 @@ export const event: BotEvent = {
 				reaction.count < Math.max(2, baseData.threshold || 2)
 			)
 				return;
+
+			flightKey = `${guildId}.${reaction.message.channelId}.${reaction.message.id}`;
+			if (inFlight.has(flightKey)) {
+				flightKey = null;
+				return;
+			}
+			inFlight.add(flightKey);
 
 			// Get skullboard channel
 			const skullboardChannel =
@@ -213,6 +226,8 @@ export const event: BotEvent = {
 			}
 		} catch (error) {
 			logger.err("Error in messageReactionAdd skullboard event:", error);
+		} finally {
+			if (flightKey) inFlight.delete(flightKey);
 		}
 	}
 };

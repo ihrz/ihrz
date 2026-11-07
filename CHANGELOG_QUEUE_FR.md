@@ -165,6 +165,7 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **`/schedule`** : les rappels sont envoyés même si l'utilisateur n'est pas en cache, au lieu d'être perdus
 - **`/confession config`, `/starboard threshold`, `/skullboard threshold`** : s'appliquent maintenant vraiment
 - **Dashboard** : le mute de l'anti-spam et les délais de l'économie étaient lus en millisecondes alors que les champs disaient secondes (un mute de 600 durait 0,6 s, un délai de 86400 durait 86 s) : ils acceptent maintenant des durées comme `15min` ou `2h`. Les champs numériques refusent ce qui n'est pas un nombre au lieu d'enregistrer rien ou 0, les valeurs d'économie non renseignées le restent, et une config à laquelle il manque l'essentiel (rôle du captcha, flux de blog, salon du notifier ou salon vocal, type de sanction) est refusée avec un message
+- **Performances** : moins de requêtes Discord et de lectures en base inutiles sur les serveurs actifs (rôle de support, logs de mise à jour des salons, starboard et skullboard, salons images seulement, niveaux, TTS) ; un post du starboard n'est plus créé deux fois quand deux étoiles arrivent en même temps, et deux messages rapprochés ne donnent plus un double passage de niveau
 - **Anti-spam** : activé sans seuil ou sans intervalle, il ne détectait rien ; il utilise maintenant les valeurs par défaut de `/antispam`
 - **Images uniquement** : le seuil d'avertissements est appliqué (il valait toujours 3)
 - **Mode nuit** : UTC+8 est disponible, et le dashboard ne propose que les décalages connus du bot
