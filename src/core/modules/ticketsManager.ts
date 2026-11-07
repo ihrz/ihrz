@@ -63,6 +63,36 @@ import { metasTable } from "../../Events/client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 
+/**
+ * Fills placeholders in the text fields of an embed object.
+ * Done per field (never on the JSON string) so quotes or backslashes
+ * in a guild name or username cannot break the embed.
+ */
+export function fillEmbedText(
+	embed: APIEmbed | null | undefined,
+	fill: (text: string) => string
+): APIEmbed | null {
+	if (!embed) return null;
+
+	const result: APIEmbed = { ...embed };
+
+	if (typeof result.title === "string") result.title = fill(result.title);
+	if (typeof result.description === "string")
+		result.description = fill(result.description);
+	if (result.footer && typeof result.footer.text === "string")
+		result.footer = { ...result.footer, text: fill(result.footer.text) };
+	if (result.author && typeof result.author.name === "string")
+		result.author = { ...result.author, name: fill(result.author.name) };
+	if (Array.isArray(result.fields))
+		result.fields = result.fields.map((field) => ({
+			...field,
+			name: fill(field.name),
+			value: fill(field.value)
+		}));
+
+	return result;
+}
+
 export interface CaseList {
 	id: number;
 
@@ -709,18 +739,15 @@ async function CreateChannelV2(
 					`EMBED.${chosenCategory?.panelId}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = JSON.parse(
+				embed_from_db = fillEmbedText(embed_from_db as APIEmbed | null, (text) =>
 					client.func.method
-						.generateCustomMessagePreview(
-							JSON.stringify(embed_from_db),
-							{
-								user: interaction.user,
-								guild: interaction.guild,
-								guildLocal: interaction.guildLocale
-							}
-						)
+						.generateCustomMessagePreview(text, {
+							user: interaction.user,
+							guild: interaction.guild!,
+							guildLocal: interaction.guildLocale
+						})
 						.replaceAll("{category}", chosenCategory?.name ?? "")
-				) as APIEmbed | null;
+				);
 
 				if (embed_from_db) {
 					embeds.push(EmbedBuilder.from(embed_from_db));
@@ -737,18 +764,15 @@ async function CreateChannelV2(
 					`EMBED.${result.ticketChannelPanel}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = JSON.parse(
+				embed_from_db = fillEmbedText(embed_from_db as APIEmbed | null, (text) =>
 					client.func.method
-						.generateCustomMessagePreview(
-							JSON.stringify(embed_from_db),
-							{
-								user: interaction.user,
-								guild: interaction.guild,
-								guildLocal: interaction.guildLocale
-							}
-						)
+						.generateCustomMessagePreview(text, {
+							user: interaction.user,
+							guild: interaction.guild!,
+							guildLocal: interaction.guildLocale
+						})
 						.replaceAll("{category}", chosenCategory?.name ?? "")
-				) as APIEmbed | null;
+				);
 
 				if (embed_from_db) {
 					embeds.push(EmbedBuilder.from(embed_from_db));
