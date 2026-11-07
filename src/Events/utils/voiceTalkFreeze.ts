@@ -28,6 +28,10 @@ import {
 import logger from "../../core/logger.js";
 import { BotEvent } from "../../../types/event.js";
 
+// Members muted by this module itself, keyed `${guildId}.${userId}`.
+// Only these are unmuted on leave, so moderator mutes are left alone.
+const mutedByTalk = new Set<string>();
+
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
 	run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
@@ -47,13 +51,15 @@ export const event: BotEvent = {
 				newState.channelId !== talkData.channelId &&
 				oldState.member &&
 				!oldState.member.user.bot &&
-				oldState.serverMute
+				oldState.serverMute &&
+				mutedByTalk.has(`${guildId}.${oldState.member.id}`)
 			) {
 				try {
 					await oldState.member.voice.setMute(
 						false,
 						"talk leave cleanup"
 					);
+					mutedByTalk.delete(`${guildId}.${oldState.member.id}`);
 				} catch (error) {
 					logger.err(error);
 				}
@@ -73,6 +79,7 @@ export const event: BotEvent = {
 				if (!canBypass && !newState.serverMute) {
 					try {
 						await member.voice.setMute(true, "talk join auto mute");
+						mutedByTalk.add(`${guildId}.${member.id}`);
 					} catch (error) {
 						logger.err(error);
 					}
