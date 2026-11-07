@@ -40,6 +40,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { tempTable } from "../client/ready.js";
 import maskLink from "../../core/functions/maskLink.js";
+import { isTempVoiceCandidate } from "../../core/functions/tempVoiceCandidate.js";
 
 /**
  * Builds the Components V2 control panel sent inside every created temporary
@@ -291,7 +292,11 @@ export const event: BotEvent = {
 			ownedChannel = null;
 		}
 
-		if (newState.channelId === baseData.voice_channel && ownedChannel) {
+		if (
+			newState.channelId === baseData.voice_channel &&
+			ownedChannel &&
+			isTempVoiceCandidate(newState.member)
+		) {
 			await newState.member?.voice
 				.setChannel(ownedChannel.id)
 				.catch(() => {});
@@ -329,6 +334,9 @@ export const event: BotEvent = {
 				}
 			}
 		}
+
+		// The cleanups above still run for bots; a channel is only ever created for people.
+		if (!isTempVoiceCandidate(newState.member)) return;
 
 		const lang = await client.func.getLanguageData(newState.guild.id);
 

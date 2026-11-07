@@ -154,6 +154,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Ticket panels**: removing a question no longer gives the next one a duplicate id, which broke the form; a simple panel can be published from the dashboard without an embed, like with `/ticket panel`
 - **Dashboard blacklist**: adding a user bans them with the reason you give, and removing one unbans them, like the commands
 - **Dashboard automod**: the spam, mass mention, links and Discord invites switches now turn the same native AutoMod rules on and off as `/automod`, keeping their roles and logs. A rule Discord refuses is reported and its switch goes back
+- **Temporary voice channels**: a bot no longer gets one. When the 24/7 channel was also the join-to-create hub, iHorizon created a new "Channel of <bot>" for itself every minute
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated
