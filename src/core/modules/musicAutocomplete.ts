@@ -31,7 +31,11 @@
 import { AutocompleteInteraction, Client } from "discord.js";
 import type { SearchResult, Track } from "lavalink-client";
 
-import { isUrlQuery, responseExist } from "../functions/musicPlay.js";
+import {
+	isUrlQuery,
+	responseExist,
+	stripChoiceDuration
+} from "../functions/musicPlay.js";
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_QUERY_LENGTH = 100;
@@ -145,9 +149,9 @@ export async function musicTrackAutocomplete(
 	client: Client,
 	interaction: AutocompleteInteraction
 ): Promise<void> {
-	const query = String(interaction.options.getFocused() ?? "")
-		.trim()
-		.slice(0, MAX_QUERY_LENGTH);
+	const query = stripChoiceDuration(
+		String(interaction.options.getFocused() ?? "").trim()
+	).slice(0, MAX_QUERY_LENGTH);
 
 	let choices: Choice[] = [];
 	if (isUrlQuery(query)) {

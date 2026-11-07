@@ -92,6 +92,20 @@ export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder {
 		.setTimestamp();
 }
 
+// The track suggestions of /music play and /music lyrics are labelled
+// "Title - Artist (2:58)" (musicAutocomplete.ts). Their value is the track
+// URL, but a member who edits the picked text sends the label back, and the
+// duration makes the search find nothing. Removed here, whole or half typed
+// ("(2:58", "(2:"); a closed parenthesis must hold a duration, so a title
+// like "Song (2)" or "Song (Live)" is kept.
+const CHOICE_DURATION_SUFFIX =
+	/\s+\((?:\d{1,2}(?::\d{2}){1,2}\)|\d{1,2}(?::\d{0,2}){0,2})$/;
+
+export function stripChoiceDuration(query: string): string {
+	if (isUrlQuery(query)) return query;
+	return query.replace(CHOICE_DURATION_SUFFIX, "").trim() || query;
+}
+
 export function isUrlQuery(query: string): boolean {
 	try {
 		new URL(query);
@@ -811,7 +825,7 @@ export async function handleMusicPlay({
 	}
 
 	const normalizedQueries = queries
-		.map((query) => query.trim())
+		.map((query) => stripChoiceDuration(query.trim()))
 		.filter(Boolean);
 
 	if (normalizedQueries.length === 0) {
