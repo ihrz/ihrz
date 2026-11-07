@@ -32,11 +32,11 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
+		const opts = client.func.method.options(interaction, args);
+		const age = opts.number("age", 0)!;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var age = interaction.options.getNumber("age")!;
 			var user = interaction.user;
 		} else {
-			var age = client.func.method.number(args!, 0);
 			var user = interaction.author;
 		}
 
