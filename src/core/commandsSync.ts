@@ -74,6 +74,14 @@ export function readablePermissionNames(permission: unknown): string[] {
 	return [...names];
 }
 
+// Spreadable fragment: { permissions } when at least one bit is set, else {}.
+export function readablePermissionField(permission: unknown): {
+	permissions?: string[];
+} {
+	const names = readablePermissionNames(permission);
+	return names.length > 0 ? { permissions: names } : {};
+}
+
 // Same walk as removePermissionProperties, but a "permission" is exported as
 // a readable "permissions" array of PermissionFlagsBits names (never a bigint).
 // Only meant for the commands.json export, never for the Discord sync.
@@ -92,8 +100,7 @@ export function withReadablePermissions(obj: any): any {
 		if (key === "perm") continue;
 
 		if (key === "permission") {
-			const names = readablePermissionNames(value);
-			if (names.length > 0) cleanedObj.permissions = names;
+			Object.assign(cleanedObj, readablePermissionField(value));
 			continue;
 		}
 

@@ -40,7 +40,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { recoverActiveSessions } from "../stats/onVoiceUpdate.js";
 import { writeFileSync } from "node:fs";
 import {
-	readablePermissionNames,
+	readablePermissionField,
 	withReadablePermissions
 } from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
@@ -538,9 +538,7 @@ export const event: BotEvent = {
 									x.description_localizations,
 
 								category: x.category,
-								permissions: readablePermissionNames(
-									x.permission
-								),
+								...readablePermissionField(x.permission),
 								options: withReadablePermissions(x.options),
 								aliases: x.aliases,
 								thinking: x.thinking,

@@ -22,6 +22,7 @@
 import { describe, expect, test } from "bun:test";
 import { PermissionFlagsBits } from "discord.js";
 import {
+	readablePermissionField,
 	removePermissionProperties,
 	withReadablePermissions
 } from "../../src/core/commandsSync.ts";
@@ -101,5 +102,23 @@ describe("removePermissionProperties", () => {
 				]
 			}
 		]);
+	});
+});
+
+describe("readablePermissionField", () => {
+	test("returns permissions for a set permission", () => {
+		expect(
+			readablePermissionField(PermissionFlagsBits.Administrator)
+		).toEqual({
+			permissions: ["Administrator"]
+		});
+	});
+
+	test("returns no key for null, 0 or undefined", () => {
+		for (const value of [null, 0, undefined, []]) {
+			const field = readablePermissionField(value);
+			expect("permissions" in field).toBe(false);
+			expect({ name: "x", ...field }).toEqual({ name: "x" });
+		}
 	});
 });
