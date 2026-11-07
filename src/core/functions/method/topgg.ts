@@ -30,7 +30,6 @@ import {
 	MessageActionRowComponentData,
 	TopLevelComponentData
 } from "discord.js";
-import { apiTable } from "../../../Events/client/ready.js";
 
 export async function shouldAdvertiseTheTopggVoteButton(
 	authorId: string
