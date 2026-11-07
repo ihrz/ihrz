@@ -32,6 +32,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -205,47 +206,67 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			// check if the user already owns the role
-			if (baseData.ownedRoles?.includes(role.roleId)) {
-				if (!interaction.member.roles.cache.has(role.roleId)) {
-					await interaction.member.roles
-						.add(
-							role.roleId,
-							"[Economy Shop] Restored previously owned role."
-						)
-						.catch(() => {});
+			const releaseLock = acquireEconomyLock(
+				interaction.guildId!,
+				interaction.member.id
+			);
+			if (!releaseLock) {
+				await i.deferUpdate().catch(() => {});
+				return;
+			}
+
+			try {
+				// read the live account, the data loaded at open time may be stale
+				const liveData = (await client.db.get(
+					`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY`
+				)) as DatabaseStructure.EconomyUserSchema | null;
+				const liveMoney = liveData?.money ?? 0;
+				const liveOwnedRoles = liveData?.ownedRoles ?? [];
+
+				// check if the user already owns the role
+				if (liveOwnedRoles.includes(role.roleId)) {
+					if (!interaction.member.roles.cache.has(role.roleId)) {
+						await interaction.member.roles
+							.add(
+								role.roleId,
+								"[Economy Shop] Restored previously owned role."
+							)
+							.catch(() => {});
+					}
+
+					await i.reply({
+						content: lang.economy_shop_already_own_role,
+						flags: [1 << 6]
+					});
+					return;
 				}
 
-				await i.reply({
-					content: lang.economy_shop_already_own_role,
-					flags: [1 << 6]
-				});
-				return;
+				// check if the user has enough money to purchase the role
+				if (liveMoney < role.price) {
+					await i.reply({
+						content: lang.economy_shop_not_enough_money,
+						flags: [1 << 6]
+					});
+					return;
+				}
+
+				await client.db.sub(
+					`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`,
+					role.price
+				);
+				await client.db.set(
+					`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.ownedRoles`,
+					[...liveOwnedRoles, role.roleId]
+				);
+				baseData.ownedRoles = [...liveOwnedRoles, role.roleId];
+
+				await interaction.member?.roles.add(
+					role.roleId,
+					"[Economy Module] Purchased from the shop"
+				);
+			} finally {
+				releaseLock();
 			}
-
-			// check if the user has enough money to purchase the role
-			if (baseData.money! < role.price) {
-				await i.reply({
-					content: lang.economy_shop_not_enough_money,
-					flags: [1 << 6]
-				});
-				return;
-			}
-
-			baseData.ownedRoles?.push(role.roleId);
-
-			await interaction.member?.roles.add(
-				role.roleId,
-				"[Economy Module] Purchased from the shop"
-			);
-			await client.db.set(
-				`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`,
-				(baseData.money ?? 0) - role.price
-			);
-			await client.db.set(
-				`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.ownedRoles`,
-				[...(baseData.ownedRoles || []), role.roleId]
-			);
 
 			const string_role_name =
 				interaction.guild?.roles.cache.get(role.roleId)?.name ||
