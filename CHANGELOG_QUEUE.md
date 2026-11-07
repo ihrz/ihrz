@@ -167,3 +167,4 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - The `+fexini` partner command is removed
 - **Self-hosting**: every remaining error and warning now goes through the bot logger (timestamp, shard, level), and errors are logged with their full stack instead of `{}`, once (on stderr) instead of twice
 - **Self-hosting**: the `[DEP0169] url.parse()` deprecation warning no longer shows in the logs when a music link is checked
+- **H24/7**: when its voice channel is deleted, the H24/7 setting is cleared instead of being retried forever (and warned about in the logs)

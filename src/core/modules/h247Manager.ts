@@ -23,8 +23,10 @@ import {
 	BaseGuildVoiceChannel,
 	ChannelType,
 	Client,
+	DiscordAPIError,
 	Guild,
-	PermissionFlagsBits
+	PermissionFlagsBits,
+	RESTJSONErrorCodes
 } from "discord.js";
 
 import {
@@ -378,6 +380,59 @@ async function fetchH247VoiceChannel(
 	return channel as BaseGuildVoiceChannel;
 }
 
+// True only when Discord confirms the channel no longer exists. Missing
+// access, outages and timeouts keep the entry: the channel may come back.
+async function isH247VoiceChannelDeleted(
+	guild: Guild,
+	voiceChannelId: string
+): Promise<boolean> {
+	if (guild.channels.cache.has(voiceChannelId)) return false;
+
+	try {
+		await guild.channels.fetch(voiceChannelId);
+		return false;
+	} catch (error) {
+		return (
+			error instanceof DiscordAPIError &&
+			error.code === RESTJSONErrorCodes.UnknownChannel
+		);
+	}
+}
+
+// Drops the persisted H24/7 entry when its channel was deleted, so the
+// watchdog and the boot recovery stop retrying it forever.
+async function clearH247IfChannelDeleted(
+	client: Client,
+	guild: Guild,
+	voiceChannelId: string
+): Promise<boolean> {
+	if (!(await isH247VoiceChannelDeleted(guild, voiceChannelId))) {
+		return false;
+	}
+
+	await deleteH247Data(client, guild.id);
+	logger.log(
+		`Cleared the H24/7 entry of guild ${guild.id}: channel ${voiceChannelId} no longer exists`
+	);
+
+	return true;
+}
+
+export async function handleH247ChannelDelete(
+	client: Client,
+	guildId: string,
+	channelId: string
+): Promise<void> {
+	const data = await getH247Data(client, guildId);
+
+	if (data?.voiceChannelId !== channelId) return;
+
+	await deleteH247Data(client, guildId);
+	logger.log(
+		`Cleared the H24/7 entry of guild ${guildId}: channel ${channelId} was deleted`
+	);
+}
+
 async function waitForH247VoiceConnection(
 	guild: Guild,
 	voiceChannelId: string
@@ -638,6 +693,16 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 		);
 
 		if (!joined) {
+			if (
+				await clearH247IfChannelDeleted(
+					client,
+					guild,
+					data.voiceChannelId
+				)
+			) {
+				continue;
+			}
+
 			logger.debug(
 				`H24/7 recovery join failed for guild ${guild.id} (channel ${data.voiceChannelId})`
 			);
@@ -716,6 +781,10 @@ export async function handleH247PlayerDestroyed(
 		if (joined) return;
 	}
 
+	if (await clearH247IfChannelDeleted(client, guild, data.voiceChannelId)) {
+		return;
+	}
+
 	logger.warn(
 		`Unable to restore the H24/7 voice connection for guild ${guildId} after the player was destroyed`
 	);
@@ -752,6 +821,12 @@ export async function ensureH247VoicePresence(
 	const joined = await joinH247VoiceChannel(guild, data.voiceChannelId);
 
 	if (!joined) {
+		if (
+			await clearH247IfChannelDeleted(client, guild, data.voiceChannelId)
+		) {
+			return false;
+		}
+
 		const now = Date.now();
 		const lastWarn = h247WatchdogWarns.get(guildId) ?? 0;
 
