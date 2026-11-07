@@ -43,11 +43,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var tag_name = interaction.options.getString("tag_name", true);
-		} else {
-			var tag_name = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const tag_name = opts.string("tag_name", 0, true);
 
 		const baseData = (await client.db.get(
 			`${interaction.guildId}.GUILD.TAGS.storedTags.${tag_name}`

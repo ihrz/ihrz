@@ -54,18 +54,10 @@ export const subCommand: SubCommand = {
 			`${interaction.guildId}.GUILD.TAGS`
 		)) as DatabaseStructure.GuildTagsStructure | undefined;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var tag_name = interaction.options.getString("tag_name", true);
-			var embed_id = interaction.options.getString("embed_id", true);
-			var message_content = interaction.options.getString(
-				"message_content",
-				false
-			);
-		} else {
-			var tag_name = client.func.method.string(args!, 0)!;
-			var embed_id = client.func.method.string(args!, 1)!;
-			var message_content = client.func.method.string(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		let tag_name = opts.string("tag_name", 0, true);
+		const embed_id = opts.string("embed_id", 1, true);
+		const message_content = opts.string("message_content", 2);
 
 		tag_name = tag_name.trim();
 
