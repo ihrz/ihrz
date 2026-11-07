@@ -50,7 +50,8 @@ import {
 	TopLevelComponentData,
 	Message,
 	MessageFlags,
-	Collection
+	Collection,
+	PermissionFlagsBits
 } from "discord.js";
 
 import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
@@ -739,14 +740,19 @@ async function CreateChannelV2(
 					`EMBED.${chosenCategory?.panelId}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = fillEmbedText(embed_from_db as APIEmbed | null, (text) =>
-					client.func.method
-						.generateCustomMessagePreview(text, {
-							user: interaction.user,
-							guild: interaction.guild!,
-							guildLocal: interaction.guildLocale
-						})
-						.replaceAll("{category}", chosenCategory?.name ?? "")
+				embed_from_db = fillEmbedText(
+					embed_from_db as APIEmbed | null,
+					(text) =>
+						client.func.method
+							.generateCustomMessagePreview(text, {
+								user: interaction.user,
+								guild: interaction.guild!,
+								guildLocal: interaction.guildLocale
+							})
+							.replaceAll(
+								"{category}",
+								chosenCategory?.name ?? ""
+							)
 				);
 
 				if (embed_from_db) {
@@ -764,14 +770,19 @@ async function CreateChannelV2(
 					`EMBED.${result.ticketChannelPanel}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = fillEmbedText(embed_from_db as APIEmbed | null, (text) =>
-					client.func.method
-						.generateCustomMessagePreview(text, {
-							user: interaction.user,
-							guild: interaction.guild!,
-							guildLocal: interaction.guildLocale
-						})
-						.replaceAll("{category}", chosenCategory?.name ?? "")
+				embed_from_db = fillEmbedText(
+					embed_from_db as APIEmbed | null,
+					(text) =>
+						client.func.method
+							.generateCustomMessagePreview(text, {
+								user: interaction.user,
+								guild: interaction.guild!,
+								guildLocal: interaction.guildLocale
+							})
+							.replaceAll(
+								"{category}",
+								chosenCategory?.name ?? ""
+							)
 				);
 
 				if (embed_from_db) {
@@ -1037,6 +1048,37 @@ async function CloseTicket(
 	}
 }
 
+/**
+ * Delete and transcript buttons: ticket author, administrators and staff
+ * (anyone who can manage the ticket channel) only.
+ * Replies with the permission-denied message and returns false otherwise.
+ */
+async function denyUnlessTicketStaff(
+	interaction: ButtonInteraction<"cached">,
+	authorId: string | undefined,
+	lang: LanguageData
+): Promise<boolean> {
+	const channel = interaction.channel;
+	const allowed =
+		interaction.user.id === authorId ||
+		interaction.memberPermissions.has(PermissionFlagsBits.Administrator) ||
+		(!!channel &&
+			interaction.member
+				.permissionsIn(channel.id)
+				.has(PermissionFlagsBits.ManageChannels));
+
+	if (allowed) return true;
+
+	await interaction.reply({
+		content: lang.var_doesnt_have_permissions.replace(
+			"{permission}",
+			"ManageChannels"
+		),
+		flags: MessageFlags.Ephemeral
+	});
+	return false;
+}
+
 async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	const data = await interaction.client.func.getLanguageData(
 		interaction.guildId
@@ -1052,6 +1094,15 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
+				if (
+					!(await denyUnlessTicketStaff(
+						interaction,
+						fetch[user][channel]?.author,
+						data
+					))
+				)
+					return;
+
 				const attachment = await DiscordJSTranscript.create({
 					channel: interactionChannel as TextBasedChannel,
 					limit: -1,
@@ -1359,6 +1410,17 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					: null;
 				const ticketOwnerMention =
 					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
+				if (
+					"isButton" in interaction &&
+					interaction.isButton() &&
+					!(await denyUnlessTicketStaff(
+						interaction,
+						ticketOwnerId,
+						lang
+					))
+				)
+					return;
+
 				const deletedByUserId = interaction.member?.user.id;
 				const shouldSendOwnerDm =
 					!!ticketOwner &&

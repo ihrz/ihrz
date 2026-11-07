@@ -497,7 +497,7 @@ class GiveawayManager {
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
 		if (fetch.entries.length === 0) return [];
 
-		const availableMembers = dedupeEntries(fetch.entries).filter(
+		const availableMembers = dedupeEntries(fetch.entries as string[]).filter(
 			(entry) => !fetch.winners.includes(entry)
 		);
 
