@@ -876,4 +876,47 @@ export namespace DatabaseStructure {
 		/** Source of the track they were looked up for. */
 		sourceName?: string;
 	}
+
+	// Slash command logs, table `slash_logs` (src/core/modules/slashLogStore.ts).
+	// Read by HorizonGateway (owner-only explorer). Keys have no dot: in
+	// HorizonDB the first key segment is the stored document, so each hour
+	// and each shard is its own row, written by that shard only.
+	//   h{YYYYMMDDHH}_s{shard} -> SlashLogEntry[]   (UTC hour, oldest first)
+	//   d{YYYYMMDD}_s{shard}   -> SlashLogDayStats  (UTC day)
+	//   shards                 -> SlashLogShards
+	// Kept 90 days (SLASH_LOG_RETENTION_DAYS).
+	export interface SlashLogEntry {
+		/** Unix ms. */
+		at: number;
+		guildId: string;
+		guildName: string;
+		channelId: string;
+		channelName: string;
+		userId: string;
+		username: string;
+		/** Full path without options: "music play", "ping", context menu name. */
+		command: string;
+		/**
+		 * Slash: `name:"value"` pairs, sanitized (sanitizeInteractionOptionValue).
+		 * Prefix: the arguments as typed after the command, 500 chars at most.
+		 */
+		options: string;
+		/** "chat" (slash), "user" / "message" (context menus), "prefix" (message command). */
+		type: "chat" | "user" | "message" | "prefix";
+	}
+
+	export interface SlashLogDayStats {
+		total: number;
+		/** Per UTC hour, 24 entries. */
+		hours: number[];
+		commands: Record<string, number>;
+		guilds: Record<string, number>;
+		users: Record<string, number>;
+		/** Last known names of the ids above. */
+		guildNames: Record<string, string>;
+		userNames: Record<string, string>;
+	}
+
+	/** Shard ids that wrote logs, with their last write (Unix ms). */
+	export type SlashLogShards = Record<string, number>;
 }

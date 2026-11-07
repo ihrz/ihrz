@@ -29,7 +29,7 @@ import {
 import { Command } from "../../../types/command.js";
 import { BotEvent } from "../../../types/event.js";
 import { blacklistTable } from "../client/ready.js";
-import { loggerX } from "../logs/slashCommandLogger.js";
+import { logPrefixCommand } from "../logs/slashCommandLogger.js";
 import {
 	preExecutionCooldown,
 	runCommand
@@ -188,14 +188,15 @@ export const event: BotEvent = {
 
 		const lang = await client.func.getLanguageData(message.guildId);
 
-		loggerX.addCommand({
-			channelName: (message.channel as any).name,
-			command: message.content.trim(),
-			executorUsername: message.author.username,
-			guildName: message.guild.name,
+		logPrefixCommand(client, {
 			guildId: message.guildId!,
-			timestamp: Date.now(),
-			channelId: message.channelId
+			guildName: message.guild.name,
+			channelId: message.channelId,
+			channelName: (message.channel as { name?: string }).name ?? "",
+			userId: message.author.id,
+			username: message.author.username,
+			command: result.commandPath ?? result.command.name,
+			args: result.args ?? []
 		});
 
 		await runCommand({

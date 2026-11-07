@@ -52,6 +52,7 @@ import {
 	cleanupOrphanedTTS
 } from "../../core/modules/ttsManager.js";
 import { checkAndNotifyRelease } from "../../core/modules/releaseNotifier.js";
+import { commandLogs } from "../logs/slashCommandLogger.js";
 import {
 	recoverH247Sessions,
 	watchdogH247Sessions
@@ -448,6 +449,9 @@ export const event: BotEvent = {
 		});
 		client.memberCountManager.init().then(() => {});
 		client.gatewayLink.start();
+		// Command logs: boot purge, and on shard 0 the old log file moved
+		// into the database, without waiting for the first command.
+		commandLogs(client);
 		client.autoRenewManager.init().then(() => {});
 		client.nightmodeManager.init().then(() => {});
 		client.notifier.start().then(() => {});

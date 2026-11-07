@@ -176,6 +176,7 @@ commands.json
 quick-db.json
 todo
 src/files/slash.log.json
+src/files/slash.log.json.migrated
 src/files/.bash_history
 try.ts
 .codex

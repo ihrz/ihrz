@@ -161,6 +161,11 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - `client.config` (`ConfigData`, `types/configDatad.d.ts`) is built at runtime from environment variables by `loadConfig()` in `src/core/modules/envConfig.ts` (Bun loads `.env`). Never import `src/files/config.ts`: it is only a legacy fallback, migrated with `bun run config:env`.
 - New option: add the variable to `configFromEnv` and `configToEnv`, document it in `.env.example` and in the docs configuration page (EN + FR), cover it in `test/config/envConfig.test.ts`. Connection settings are one URL each (`LAVALINK_URL`, `DATABASE_URL`), lists comma-separated, booleans strict.
 
+## Command logs (`slash_logs`)
+
+- Every slash, context-menu and prefix command is logged through `commandLogs(client)` / `logPrefixCommand` (`src/Events/logs/slashCommandLogger.ts`) into the `slash_logs` table (`src/core/modules/slashLogStore.ts`, schema `DatabaseStructure.SlashLogEntry`). HorizonGateway reads it for the owner-only explorer of the dashboard: changing a field or a key breaks it, update both sides.
+- Keys never contain a dot (HorizonDB stores the first dotted segment as one document): `h{YYYYMMDDHH}_s{shard}`, `d{YYYYMMDD}_s{shard}`, `shards`. A shard only writes its own keys. Kept 90 days (`SLASH_LOG_RETENTION_DAYS`).
+
 ## Database
 
 - Access via `client.db.get()` / `client.db.set()`.

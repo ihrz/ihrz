@@ -20,187 +20,141 @@
 */
 
 import {
+	ApplicationCommandType,
+	BaseGuildTextChannel,
+	ChatInputCommandInteraction,
 	Client,
 	CommandInteractionOptionResolver,
-	Interaction,
-	ChatInputCommandInteraction,
-	BaseGuildTextChannel
+	Interaction
 } from "discord.js";
-import { promises as fs } from "node:fs";
-import path from "path";
+import path from "node:path";
+import { rename } from "node:fs/promises";
+
 import { BotEvent } from "../../../types/event.js";
-import { ParsedSavedCommand } from "../../core/converters/slashLog.js";
-import logger from "../../core/logger.js";
 import { sanitizeInteractionOptionValue } from "../../core/functions/sanitizeInteractionOptionValue.js";
+import {
+	SLASH_LOG_TABLE,
+	SlashLogEntry,
+	SlashLogStore,
+	SlashLogTable
+} from "../../core/modules/slashLogStore.js";
 
-/**
- * Safe JSON logger that handles concurrent writes without blocking the event loop
- */
-class SafeJSONLogger {
-	private logPath: string;
-	private writeQueue: ParsedSavedCommand[] = [];
-	private isWriting: boolean = false;
-	private writeTimer: NodeJS.Timeout | null = null;
-	private readonly BATCH_SIZE = 10; // Write in batches of 10 commands
-	private readonly WRITE_DELAY = 1000; // Wait 1 second before writing (batching)
+// The pre-database log file (one per machine, rewritten by every shard).
+const LEGACY_LOG_FILE = path.join(
+	process.cwd(),
+	"src",
+	"files",
+	"slash.log.json"
+);
+const MAX_PREFIX_ARGS = 500;
 
-	constructor(logPath: string) {
-		this.logPath = logPath;
-		this.ensureFileExists();
-	}
+let store: SlashLogStore | null = null;
 
-	/**
-	 * Ensure the log file exists and has valid JSON structure
-	 */
-	private async ensureFileExists(): Promise<void> {
-		try {
-			await fs.access(this.logPath);
-			// Check if file is valid JSON
-			const content = await fs.readFile(this.logPath, "utf-8");
-			if (content.trim() === "") {
-				await fs.writeFile(this.logPath, "[]", "utf-8");
-			} else {
-				JSON.parse(content); // Validate JSON
-			}
-		} catch (error) {
-			// File doesn't exist or is invalid, create it
-			await fs.mkdir(path.dirname(this.logPath), { recursive: true });
-			await fs.writeFile(this.logPath, "[]", "utf-8");
-		}
-	}
+function shardId(client: Client): string {
+	return String(client.shard?.ids[0] ?? 0);
+}
 
-	/**
-	 * Add a command to the write queue (non-blocking)
-	 * @param command - Command to log
-	 */
-	public addCommand(command: ParsedSavedCommand): void {
-		this.writeQueue.push(command);
-
-		// Schedule a write if not already scheduled
-		if (!this.writeTimer) {
-			this.writeTimer = setTimeout(() => {
-				this.flushQueue();
-			}, this.WRITE_DELAY);
-		}
-
-		// Force write if queue gets too large
-		if (this.writeQueue.length >= this.BATCH_SIZE) {
-			this.flushQueue();
-		}
-	}
-
-	/**
-	 * Flush the queue and write to file (async, non-blocking)
-	 */
-	private async flushQueue(): Promise<void> {
-		if (this.isWriting || this.writeQueue.length === 0) {
-			return;
-		}
-
-		this.isWriting = true;
-
-		// Clear the timer
-		if (this.writeTimer) {
-			clearTimeout(this.writeTimer);
-			this.writeTimer = null;
-		}
-
-		// Get commands to write and clear the queue
-		const commandsToWrite = [...this.writeQueue];
-		this.writeQueue = [];
-
-		try {
-			await this.writeCommandsToFile(commandsToWrite);
-		} catch (error) {
-			logger.err("Error writing commands to log file:", error);
-			// Re-add commands to queue on error
-			this.writeQueue.unshift(...commandsToWrite);
-		} finally {
-			this.isWriting = false;
-
-			// If more commands were added while writing, schedule another write
-			if (this.writeQueue.length > 0) {
-				this.writeTimer = setTimeout(() => {
-					this.flushQueue();
-				}, this.WRITE_DELAY);
-			}
-		}
-	}
-
-	/**
-	 * Write commands to file safely
-	 * @param commands - Commands to write
-	 */
-	private async writeCommandsToFile(
-		commands: ParsedSavedCommand[]
-	): Promise<void> {
-		let existingData: ParsedSavedCommand[] = [];
-
-		try {
-			const fileContent = await fs.readFile(this.logPath, "utf-8");
-			if (fileContent.trim()) {
-				existingData = JSON.parse(fileContent);
-			}
-		} catch (error) {
-			logger.warn(
-				"Could not read existing log file, starting fresh:",
-				error
-			);
-			existingData = [];
-		}
-
-		// Add new commands
-		existingData.push(...commands);
-
-		// Optional: Keep only last 10000 commands to prevent file from growing too large
-		if (existingData.length > 10000) {
-			existingData = existingData.slice(-10000);
-		}
-
-		// Write atomically
-		const tempPath = this.logPath + ".tmp";
-		await fs.writeFile(
-			tempPath,
-			JSON.stringify(existingData, null, 2),
-			"utf-8"
+// One store per shard process, created on the first logged command.
+export function commandLogs(client: Client): SlashLogStore {
+	if (!store) {
+		let table: Promise<SlashLogTable> | null = null;
+		store = new SlashLogStore(
+			() =>
+				(table ??= client.db.table(
+					SLASH_LOG_TABLE
+				) as unknown as Promise<SlashLogTable>),
+			shardId(client)
 		);
-		await fs.rename(tempPath, this.logPath);
+		store.start();
+		if (shardId(client) === "0") void migrateLegacyLog(store);
+	}
+	return store;
+}
+
+// Old entries: `command` was "/sub options" (the root name was missing) and
+// no user id was kept. Moved once into the database, as shard 0's.
+export function legacyEntry(raw: unknown): SlashLogEntry | null {
+	if (!raw || typeof raw !== "object") return null;
+	const old = raw as Record<string, unknown>;
+	if (typeof old.timestamp !== "number" || typeof old.command !== "string") {
+		return null;
 	}
 
-	public async forceFlush(): Promise<void> {
-		if (this.writeTimer) {
-			clearTimeout(this.writeTimer);
-			this.writeTimer = null;
-		}
+	const text = old.command.trim();
+	const prefix = !text.startsWith("/");
+	const tokens = text.replace(/^\//, "").split(" ");
+	const firstOption = tokens.findIndex((token) => /^[\w-]+:"/.test(token));
+	const split = firstOption === -1 ? tokens.length : firstOption;
 
-		for (
-			let attempts = 0;
-			attempts < 100 && (this.writeQueue.length > 0 || this.isWriting);
-			attempts++
-		) {
-			await this.flushQueue();
-			if (this.writeQueue.length > 0 || this.isWriting) {
-				await new Promise((resolve) => setTimeout(resolve, 10));
-			}
-		}
+	return {
+		at: old.timestamp,
+		guildId: String(old.guildId ?? ""),
+		guildName: String(old.guildName ?? ""),
+		channelId: String(old.channelId ?? ""),
+		channelName: String(old.channelName ?? ""),
+		userId: "",
+		username: String(old.executorUsername ?? ""),
+		command: prefix ? tokens[0] : tokens.slice(0, split).join(" "),
+		options: (prefix ? tokens.slice(1) : tokens.slice(split))
+			.join(" ")
+			.slice(0, MAX_PREFIX_ARGS),
+		type: prefix ? "prefix" : "chat"
+	};
+}
+
+async function migrateLegacyLog(target: SlashLogStore): Promise<void> {
+	const file = Bun.file(LEGACY_LOG_FILE);
+	if (!(await file.exists())) return;
+
+	try {
+		const entries = ((await file.json()) as unknown[])
+			.map(legacyEntry)
+			.filter((entry): entry is SlashLogEntry => entry !== null);
+
+		for (const entry of entries) target.add(entry);
+		await target.forceFlush();
+		await rename(LEGACY_LOG_FILE, `${LEGACY_LOG_FILE}.migrated`);
+		logger.log(
+			`Moved ${entries.length} command logs from src/files/slash.log.json to the database`
+		);
+	} catch (error) {
+		logger.err(
+			"Unable to move the old command logs to the database:",
+			error
+		);
 	}
 }
 
-export const loggerX = new SafeJSONLogger(
-	path.join(process.cwd(), "src", "files", "slash.log.json")
-);
+export function logPrefixCommand(
+	client: Client,
+	entry: Omit<SlashLogEntry, "type" | "at" | "options"> & { args: string[] }
+): void {
+	const { args, ...rest } = entry;
+	commandLogs(client).add({
+		...rest,
+		at: Date.now(),
+		options: args.join(" ").slice(0, MAX_PREFIX_ARGS),
+		type: "prefix"
+	});
+}
 
-process.on("SIGINT", async () => {
-	logger.log("Flushing command logs before shutdown...");
-	await loggerX.forceFlush();
+// Last logs saved before exiting, but a database that does not answer must
+// never hold the shutdown back.
+const flushAndExit = async () => {
+	await Promise.race([
+		store?.forceFlush().catch(() => {}),
+		new Promise((resolve) => setTimeout(resolve, 3_000))
+	]);
 	process.exit(0);
-});
+};
+process.on("SIGINT", flushAndExit);
+process.on("SIGTERM", flushAndExit);
 
-process.on("SIGTERM", async () => {
-	logger.log("Flushing command logs before shutdown...");
-	await loggerX.forceFlush();
-	process.exit(0);
-});
+const TYPES: Record<number, SlashLogEntry["type"]> = {
+	[ApplicationCommandType.ChatInput]: "chat",
+	[ApplicationCommandType.User]: "user",
+	[ApplicationCommandType.Message]: "message"
+};
 
 export const event: BotEvent = {
 	name: "interactionCreate",
@@ -212,48 +166,36 @@ export const event: BotEvent = {
 		)
 			return;
 
+		const options = (interaction as ChatInputCommandInteraction)
+			.options as CommandInteractionOptionResolver;
 		const optionsList: string[] = (
-			(interaction as ChatInputCommandInteraction)
-				.options as CommandInteractionOptionResolver
-		)["_hoistedOptions"].map(
-			(element) =>
+			(options as any)["_hoistedOptions"] ?? []
+		).map(
+			(element: { name: string; value: unknown }) =>
 				`${element.name}:"${sanitizeInteractionOptionValue(element.name, element.value)}"`
 		);
-		let subCmd: string = "";
 
-		if (
-			(
-				(interaction as ChatInputCommandInteraction)
-					.options as CommandInteractionOptionResolver
-			)["_subcommand"]
-		) {
-			if (
-				(
-					(interaction as ChatInputCommandInteraction)
-						.options as CommandInteractionOptionResolver
-				).getSubcommandGroup()
-			)
-				subCmd +=
-					(
-						(interaction as ChatInputCommandInteraction)
-							.options as CommandInteractionOptionResolver
-					).getSubcommandGroup()! + " ";
-			subCmd += (
-				(interaction as ChatInputCommandInteraction)
-					.options as CommandInteractionOptionResolver
-			).getSubcommand();
+		const path = [interaction.commandName];
+		if (interaction.isChatInputCommand()) {
+			const group = interaction.options.getSubcommandGroup(false);
+			const sub = interaction.options.getSubcommand(false);
+			if (group) path.push(group);
+			if (sub) path.push(sub);
 		}
 
-		const commandLog: ParsedSavedCommand = {
-			channelName: (interaction.channel as BaseGuildTextChannel).name,
-			command: `/${subCmd} ${optionsList?.join(" ")}`.trim(),
-			executorUsername: interaction.user.username,
-			guildName: interaction.guild.name,
+		commandLogs(client).add({
+			at: Date.now(),
 			guildId: interaction.guildId!,
-			timestamp: Date.now(),
-			channelId: interaction.channelId
-		};
-
-		loggerX.addCommand(commandLog);
+			guildName: interaction.guild.name,
+			channelId: interaction.channelId,
+			channelName:
+				(interaction.channel as BaseGuildTextChannel | null)?.name ??
+				"",
+			userId: interaction.user.id,
+			username: interaction.user.username,
+			command: path.join(" "),
+			options: optionsList.join(" "),
+			type: TYPES[interaction.commandType] ?? "chat"
+		});
 	}
 };
