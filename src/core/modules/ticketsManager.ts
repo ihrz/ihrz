@@ -1095,6 +1095,8 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
 				if (
+					"isButton" in interaction &&
+					interaction.isButton() &&
 					!(await denyUnlessTicketStaff(
 						interaction,
 						fetch[user][channel]?.author,
