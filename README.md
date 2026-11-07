@@ -270,6 +270,14 @@ That's it! The script handles everything for you: dependencies (Bun), configurat
     <a href="https://gitlab.com/82hw">GitLab</a>
   </td>
 
+  <td align="center" width="33%">
+    <img src="https://gitlab.com/uploads/-/system/user/avatar/9658266/avatar.png" width="100px" style="border-radius:50%"/><br/>
+    <b>simnJS</b><br/>
+    <i>Contributor</i><br/>
+    <sub>He/Him/Femboy</sub><br/>
+    <a href="https://simnjs.fr">Website</a> / <a href="https://github.com/simnJS">GitHub</a>
+  </td>
+
 </tr>
 </table>
 
