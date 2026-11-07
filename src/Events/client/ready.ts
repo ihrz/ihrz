@@ -42,7 +42,6 @@ import { writeFileSync } from "node:fs";
 import { removePermissionProperties } from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
-import { UnifiedDatabase } from "../../core/database/types.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 import { recoverPendingGuildDataDeletions } from "./deleteDatabaseDataOnGuildLeave.js";
@@ -57,46 +56,47 @@ import {
 	watchdogH247Sessions
 } from "../../core/modules/h247Manager.js";
 import path from "node:path";
+import {
+	ownerTable,
+	scheduleTable,
+	metasTable,
+	initTables
+} from "../../core/database/tables.js";
 import { Team } from "../../../types/teams.js";
 
-// @ts-ignore
-export let tempTable: UnifiedDatabase = null;
-// @ts-ignore
-export let blacklistTable: UnifiedDatabase = null;
-// @ts-ignore
-export let ownerTable: UnifiedDatabase = null;
-// @ts-ignore
-export let profilTable: UnifiedDatabase = null;
-// @ts-ignore
-export let authRestoreTable: UnifiedDatabase = null;
-// @ts-ignore
-export let prevnamesTable: UnifiedDatabase = null;
-// @ts-ignore
-export let apiTable: UnifiedDatabase = null;
-// @ts-ignore
-export let scheduleTable: UnifiedDatabase = null;
-// @ts-ignore
-export let metasTable: UnifiedDatabase = null;
-// @ts-ignore
-export let giveawaysTable: UnifiedDatabase = null;
-// @ts-ignore
-export let backupsTable: UnifiedDatabase = null;
+export {
+	tempTable,
+	blacklistTable,
+	ownerTable,
+	profilTable,
+	authRestoreTable,
+	prevnamesTable,
+	apiTable,
+	scheduleTable,
+	metasTable,
+	giveawaysTable,
+	backupsTable
+} from "../../core/database/tables.js";
 
 export const event: BotEvent = {
 	name: "clientReady",
 	run: async (client: Client) => {
-		tempTable = await client.db.table("temp");
-		blacklistTable = await client.db.table("blacklist");
-		ownerTable = await client.db.table("owner");
-		profilTable = await client.db.table("user_profil");
-		authRestoreTable = await client.db.table("authrestore");
-		prevnamesTable = await client.db.table("prevnames");
+		await initTables(client, [
+			"tempTable",
+			"blacklistTable",
+			"ownerTable",
+			"profilTable",
+			"authRestoreTable",
+			"prevnamesTable"
+		]);
 		await recoverPendingGuildDataDeletions(client);
-		apiTable = await client.db.table("api");
-		scheduleTable = await client.db.table("schedule");
-		metasTable = await client.db.table("metas");
-		giveawaysTable = await client.db.table("giveaways");
-		backupsTable = await client.db.table("backups");
+		await initTables(client, [
+			"apiTable",
+			"scheduleTable",
+			"metasTable",
+			"giveawaysTable",
+			"backupsTable"
+		]);
 
 		await client.emojisManager.startSync();
 
