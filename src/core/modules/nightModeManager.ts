@@ -185,16 +185,25 @@ class NightModeManager {
 				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
 			)) || [];
 		let changed_roles: string[] = [];
+		// Roles whose update failed stay saved, to be given back next time.
+		const failed_roles: string[] = [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
 			const roleObject = await guild.roles.fetch(role).catch(() => null);
 			if (!roleObject) continue;
-			changed_roles.push(roleObject.name);
-			await roleObject.setPermissions(
-				new PermissionsBitField(roleObject.permissions).add(
-					PermissionFlagsBits.Administrator
-				)
-			);
+			try {
+				await roleObject.setPermissions(
+					new PermissionsBitField(roleObject.permissions).add(
+						PermissionFlagsBits.Administrator
+					)
+				);
+				changed_roles.push(roleObject.name);
+			} catch (error) {
+				failed_roles.push(role);
+				logger.err(
+					`nightmode: unable to restore the role ${role} in ${guild.id}: ${error}`
+				);
+			}
 		}
 
 		let msg = "";
@@ -214,9 +223,16 @@ class NightModeManager {
 			lang
 		});
 
-		await guild.client.db.delete(
-			`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
-		);
+		if (failed_roles.length > 0) {
+			await guild.client.db.set(
+				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
+				failed_roles
+			);
+		} else {
+			await guild.client.db.delete(
+				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
+			);
+		}
 	}
 
 	public Basics_Check(guild: Guild) {
@@ -321,10 +337,11 @@ class NightModeManager {
 		}
 
 		const changed_roles: Role[] = [];
-
-		await guild.client.db.set(
-			`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
-			[]
+		// Roles still waiting to be given back from an earlier night are kept.
+		const saved_role_ids = new Set<string>(
+			((await guild.client.db.get(
+				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
+			)) as DatabaseStructure.NightMode["changed_roles"]) || []
 		);
 
 		for (let role of filtered_pa_roles) {
@@ -335,9 +352,10 @@ class NightModeManager {
 			try {
 				await role.setPermissions(newPermissions);
 				changed_roles.push(role);
+				saved_role_ids.add(role.id);
 				await guild.client.db.set(
 					`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
-					changed_roles.map((x) => x.id)
+					[...saved_role_ids]
 				);
 			} catch (error) {
 				logger.err(

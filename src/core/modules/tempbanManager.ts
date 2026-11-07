@@ -39,6 +39,9 @@ export class TempbanManager {
 	private client: Client;
 	private checkInterval: NodeJS.Timeout | null = null;
 	private isRunning = false;
+	// Entries whose last unban failed: logged once, retried silently every
+	// pass (a missing Ban Members permission would log every 30 s forever).
+	private failing = new Set<string>();
 	private readonly CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 
 	constructor() {
@@ -167,12 +170,18 @@ export class TempbanManager {
 			} catch (error) {
 				// Unknown Ban (10026): the user is already unbanned
 				if (!isDiscordErrorCode(error, UNKNOWN_BAN_CODE)) {
-					logger.err(
-						`tempban: unable to unban ${userId} in ${guild.id}: ${error}`
-					);
+					const key = `${guild.id}.${userId}`;
+					if (!this.failing.has(key)) {
+						this.failing.add(key);
+						logger.err(
+							`tempban: unable to unban ${userId} in ${guild.id}, retrying silently: ${error}`
+						);
+					}
 					continue;
 				}
 			}
+
+			this.failing.delete(`${guild.id}.${userId}`);
 
 			// Remove only this entry, so a ban added meanwhile is kept
 			await this.client.db.delete(`${dbPath}.${userId}`);

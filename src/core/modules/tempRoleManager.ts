@@ -33,6 +33,15 @@ export class TemproleManager {
 	private client: Client;
 	private checkInterval: NodeJS.Timeout | null = null;
 	private isRunning = false;
+	// Failures already logged: retried silently every pass (a role above the
+	// bot's own would log every 30 s forever).
+	private failing = new Set<string>();
+
+	private logOnce(key: string, message: string): void {
+		if (this.failing.has(key)) return;
+		this.failing.add(key);
+		logger.err(`${message}, retrying silently`);
+	}
 	private readonly CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 
 	constructor() {
@@ -203,12 +212,15 @@ export class TemproleManager {
 					await this.client.db.delete(`${dbPath}.${memberId}`);
 				} else {
 					// Transient error: keep the entry and retry on the next pass
-					logger.err(
+					this.logOnce(
+						`${guild.id}.${memberId}`,
 						`temprole: unable to fetch ${memberId} in ${guild.id}: ${error}`
 					);
 				}
 				continue;
 			}
+
+			this.failing.delete(`${guild.id}.${memberId}`);
 
 			const removedIds = new Set<string>();
 
@@ -219,13 +231,17 @@ export class TemproleManager {
 					try {
 						await member.roles.remove(role);
 					} catch (error) {
-						logger.err(
+						this.logOnce(
+							`${guild.id}.${memberId}.${role.id}`,
 							`temprole: unable to remove ${role.id} from ${memberId} in ${guild.id}: ${error}`
 						);
 						continue;
 					}
 				}
 
+				this.failing.delete(
+					`${guild.id}.${memberId}.${expiredRole.roleId}`
+				);
 				removedIds.add(expiredRole.roleId);
 			}
 
