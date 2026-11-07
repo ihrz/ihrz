@@ -42,13 +42,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action");
-			var banner = interaction.options.getAttachment("banner")!;
-		} else {
-			var action = client.func.method.string(args!, 0);
-			var banner = interaction.attachments.first()!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0);
+		const banner = opts.attachment("banner")!;
 
 		if (action === "reset") {
 			await client.func.method.interactionSend(interaction, {

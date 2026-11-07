@@ -43,13 +43,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action");
-			var desc = interaction.options.getString("bio");
-		} else {
-			var action = client.func.method.string(args!, 0);
-			var desc = client.func.method.longString(args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0);
+		const desc = opts.longString("bio", 1);
 
 		if (action === "reset") {
 			await client.func.method.interactionSend(interaction, {
