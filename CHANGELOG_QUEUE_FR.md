@@ -157,6 +157,7 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **`/schedule`** : le rappel en MP affiche son titre et sa description dans des blocs corrects (des backticks traînaient à la fin)
 - **Salons vocaux temporaires** : un bot n'en reçoit plus. Quand le salon 24/7 était aussi le salon de création, iHorizon se créait un nouveau « Salon de <bot> » chaque minute
 - **`/tempvoice`** : le salon de création peut être retiré (un bouton, ou en vidant le menu), et le panneau ne casse plus quand ce salon a été supprimé
+- **Commandes hors serveur** (`/fun` en MP ou en application utilisateur) : plus d'erreur « malformed key » en cherchant la signature de la carte
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

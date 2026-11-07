@@ -32,13 +32,19 @@ import {
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
-export async function footerBuilder(guildId: string = ""): Promise<{
+export async function footerBuilder(
+	guildId: string | null | undefined = ""
+): Promise<{
 	text: string;
 	iconURL: string;
 }> {
-	let botName = (await global.client.db.get(
-		`${guildId}.BOT.botName`
-	)) as DatabaseStructure.DbGuildBotObject["botName"];
+	// Outside a server (DMs, user-installed commands) there is no custom name, and the key
+	// would start with an empty segment: HorizonDB rejects it as "malformed key".
+	let botName = guildId
+		? ((await global.client.db.get(
+				`${guildId}.BOT.botName`
+			)) as DatabaseStructure.DbGuildBotObject["botName"])
+		: undefined;
 
 	if (!botName) {
 		botName = "iHorizon";

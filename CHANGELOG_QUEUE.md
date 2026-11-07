@@ -157,6 +157,7 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **`/schedule`**: the reminder DM shows its title and description in proper blocks (stray backticks showed at the end)
 - **Temporary voice channels**: a bot no longer gets one. When the 24/7 channel was also the join-to-create hub, iHorizon created a new "Channel of <bot>" for itself every minute
 - **`/tempvoice`**: the join-to-create channel can be removed (a button, or by emptying the menu), and the panel no longer breaks when that channel was deleted
+- **Commands outside a server** (`/fun` in DMs or as a user app): no more "malformed key" error when the card signature was looked up
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

@@ -222,7 +222,7 @@ declare namespace Client_Functions {
 				| Guild
 		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string }>;
 		export function footerBuilder(
-			guildId?: string
+			guildId?: string | null
 		): Promise<{ text: string; iconURL: string }>;
 		export function footerPaginationBuilder(
 			guildId: string,

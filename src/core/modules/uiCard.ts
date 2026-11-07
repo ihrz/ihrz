@@ -100,9 +100,7 @@ export async function botSignature(
 	client: Client,
 	guildId: string | null | undefined
 ): Promise<string> {
-	const footer = await client.func.displayBotName.footerBuilder(
-		guildId ?? ""
-	);
+	const footer = await client.func.displayBotName.footerBuilder(guildId);
 	return footer.text;
 }
 
