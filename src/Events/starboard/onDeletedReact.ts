@@ -35,6 +35,9 @@ export const event: BotEvent = {
 	name: "messageReactionRemove",
 	run: async (client: Client, reaction: MessageReaction, user: User) => {
 		try {
+			// Guard clauses
+			if (user.bot || reaction.emoji.name !== "⭐") return;
+
 			// Fetch partial reaction and message if needed
 			if (reaction.partial) {
 				await reaction.fetch().catch(() => null);
@@ -44,9 +47,7 @@ export const event: BotEvent = {
 				await reaction.message.fetch().catch(() => null);
 			}
 
-			// Guard clauses
-			if (!reaction.message.guild || user.bot) return;
-			if (reaction.emoji.name !== "⭐") return;
+			if (!reaction.message.guild) return;
 
 			// Avoid to handle bot's message
 			if (reaction.message.author?.bot) return;

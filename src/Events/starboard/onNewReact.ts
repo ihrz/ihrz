@@ -31,10 +31,19 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
+// Messages being posted or updated right now: concurrent reactions at the
+// threshold would otherwise both read the data before either writes it.
+const inFlight = new Set<string>();
+
 export const event: BotEvent = {
 	name: "messageReactionAdd",
 	run: async (client: Client, reaction: MessageReaction, user: User) => {
+		let flightKey: string | null = null;
+
 		try {
+			// Guard clauses
+			if (user.bot || reaction.emoji.name !== "⭐") return;
+
 			// Fetch partial reaction and message if needed
 			if (reaction.partial) {
 				await reaction.fetch().catch(() => null);
@@ -44,9 +53,7 @@ export const event: BotEvent = {
 				await reaction.message.fetch().catch(() => null);
 			}
 
-			// Guard clauses
-			if (!reaction.message.guild || user.bot) return;
-			if (reaction.emoji.name !== "⭐") return;
+			if (!reaction.message.guild) return;
 
 			// Avoid to handle bot's message
 			if (reaction.message.author?.bot) return;
@@ -63,6 +70,13 @@ export const event: BotEvent = {
 				reaction.count < Math.max(2, baseData.threshold || 2)
 			)
 				return;
+
+			flightKey = `${guildId}.${reaction.message.channelId}.${reaction.message.id}`;
+			if (inFlight.has(flightKey)) {
+				flightKey = null;
+				return;
+			}
+			inFlight.add(flightKey);
 
 			// Get starboard data
 			const starboardDataPath = `${guildId}.GUILD.STARBOARD_DATA`;
@@ -214,6 +228,8 @@ export const event: BotEvent = {
 			}
 		} catch (error) {
 			logger.err("Error in messageReactionAdd starboard event:", error);
+		} finally {
+			if (flightKey) inFlight.delete(flightKey);
 		}
 	}
 };
