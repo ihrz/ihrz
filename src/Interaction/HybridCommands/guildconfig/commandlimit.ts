@@ -229,15 +229,10 @@ export const command: Command = {
 		lang: LanguageData,
 		args
 	) => {
-		const action =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("action", true)
-				: client.func.method.string(args!, 0);
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0, true);
 
-		const requestedCommand =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("command")
-				: client.func.method.string(args!, 1);
+		const requestedCommand = opts.string("command", 1);
 
 		if (action === "list") {
 			const limits = (await client.db.get(
@@ -301,15 +296,9 @@ export const command: Command = {
 			return;
 		}
 
-		const count =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getInteger("count")
-				: client.func.method.number(args!, 2);
+		const count = opts.integer("count", 2);
 
-		const windowTimeInput =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("window-time")
-				: client.func.method.string(args!, 3);
+		const windowTimeInput = opts.string("window-time", 3);
 
 		const windowMs = parseWindowTime(client, windowTimeInput);
 

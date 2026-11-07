@@ -53,11 +53,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const member = (
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getMember("member")
-				: client.func.method.member(interaction, args!, 0)
-		) as GuildMember | null;
+		const opts = client.func.method.options(interaction, args);
+		const member = opts.member("member", 0);
 		const target = member ?? (interaction.member as GuildMember);
 
 		const ctx = await statsContext(client, interaction, lang);

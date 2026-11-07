@@ -55,13 +55,9 @@ export const subCommand: SubCommand = {
 
 		let a: User | null;
 		let b: User | null;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			a = interaction.options.getUser("user1", true);
-			b = interaction.options.getUser("user2", true);
-		} else {
-			a = (await client.func.method.user(interaction, args!, 0)) ?? null;
-			b = (await client.func.method.user(interaction, args!, 1)) ?? null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		a = (await opts.user("user1", 0)) ?? null;
+		b = (await opts.user("user2", 1)) ?? null;
 		if (!a || !b || a.id === b.id) {
 			await sendCard(
 				client,

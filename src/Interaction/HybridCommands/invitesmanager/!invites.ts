@@ -52,15 +52,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member =
-				(interaction.options.getMember("member") as GuildMember) ||
-				interaction.member;
-		} else {
-			var member =
-				client.func.method.member(interaction, args!, 0) ||
-				interaction.member;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member =
+			(opts.member("member", 0) as GuildMember) || interaction.member;
 
 		const baseData = (await client.db.get(
 			`${interaction.guildId}.USER.${member.id}.INVITES`

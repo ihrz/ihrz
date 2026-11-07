@@ -141,21 +141,13 @@ export const command: Command = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("action");
-			var messagei = interaction.options.getString("name");
-			var channel = interaction.options.getChannel(
-				"channel"
-			) as BaseGuildVoiceChannel;
-		} else {
-			var type = client.func.method.string(args!, 0);
-			var channel = (await client.func.method.voiceChannel(
-				interaction,
-				args!,
-				1
-			)) as BaseGuildVoiceChannel;
-			var messagei = client.func.method.string(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("action", 0);
+		const channel = (await opts.voiceChannel(
+			"channel",
+			1
+		)) as BaseGuildVoiceChannel;
+		const messagei = opts.string("name", 2);
 
 		const help_embed = new EmbedBuilder()
 			.setColor("#0014a8")

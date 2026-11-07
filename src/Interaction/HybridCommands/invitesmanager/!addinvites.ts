@@ -46,13 +46,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("member") as GuildMember;
-			var amount = interaction.options.getNumber("amount")!;
-		} else {
-			var user = client.func.method.member(interaction, args!, 0)!;
-			var amount = client.func.method.number(args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = opts.member("member", 0) as GuildMember;
+		const amount = opts.number("amount", 1)!;
 
 		const check = await client.db.get(
 			`${interaction?.guild?.id}.USER.${user.id}.INVITES`

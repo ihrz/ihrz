@@ -46,17 +46,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var channel = interaction.options.getChannel(
-				"channel"
-			) as BaseGuildTextChannel | null;
-		} else {
-			var channel = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as BaseGuildTextChannel | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const channel = (await opts.channel(
+			"channel",
+			0
+		)) as BaseGuildTextChannel | null;
 
 		const fetch = await client.db.get(
 			`${interaction.guildId}.PFPS.disable`

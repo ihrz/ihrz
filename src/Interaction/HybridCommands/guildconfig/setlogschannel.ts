@@ -238,19 +238,9 @@ export const command: Command = {
 			{ id: "economy", value: lang.setlogschannel_var_economy }
 		];
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("type")!;
-			var channel = interaction.options.getChannel(
-				"channel"
-			) as Channel | null;
-		} else {
-			var type = client.func.method.string(args!, 0)!;
-			var channel = await client.func.method.channel(
-				interaction,
-				args!,
-				1
-			);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("type", 0, true);
+		const channel = (await opts.channel("channel", 1)) as Channel | null;
 
 		const createLogsChannel = async (name: string, typeOfLogs: string) => {
 			// The command's choices are not the keys read by the events: `boost`
