@@ -56,6 +56,10 @@ export const subCommand: SubCommand = {
 		client.giveawaysManager
 			.getGiveawayData(giveawayId)
 			.then(async (giveawayData) => {
+				if (giveawayData.guildId !== interaction.guildId) {
+					throw new Error("Giveaway not found");
+				}
+
 				const embed = new EmbedBuilder()
 					.setAuthor({
 						name: interaction.guild?.name as string,

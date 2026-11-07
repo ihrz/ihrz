@@ -49,7 +49,11 @@ export const subCommand: SubCommand = {
 			var inputData = client.func.method.string(args!, 0) as string;
 		}
 
-		if (!(await client.giveawaysManager.isValid(inputData))) {
+		const giveaway = await client.giveawaysManager
+			.getGiveawayData(inputData)
+			.catch(() => null);
+
+		if (!giveaway || giveaway.guildId !== interaction.guildId) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.end_not_find_giveaway.replaceAll(
 					"${gw}",
