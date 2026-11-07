@@ -216,13 +216,13 @@ declare namespace Client_Functions {
 		export function footerAttachmentBuilder(
 			entry?:
 				| Interaction
+				| GuildMember
 				| ChatInputCommandInteraction<"cached">
 				| Message<boolean>
-				| GuildMember
 				| Guild
 		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string }>;
 		export function footerBuilder(
-			guildId?: string | null
+			guildId?: string | null | undefined
 		): Promise<{ text: string; iconURL: string }>;
 		export function footerPaginationBuilder(
 			guildId: string,
@@ -585,6 +585,11 @@ declare namespace Client_Functions {
 			argsNumber: number
 		): GuildMember | null;
 		export function number(args: Array<string>, argsNumber: number): number;
+		export function options(
+			interaction:
+				ChatInputCommandInteraction<CacheType> | Message<boolean>,
+			args?: Array<string>
+		): any;
 		export function punish(
 			data: DatabaseStructure.ProtectionData,
 			user: GuildMember | { guild: Guild; id: string },
@@ -978,6 +983,11 @@ declare namespace Client_Functions {
 		tag_id: string,
 		tag: DatabaseStructure.TagInfo
 	): EmbedBuilder;
+
+	// From tempVoiceCandidate.ts
+	export function tempVoiceCandidate(
+		member: GuildMember | null | undefined
+	): boolean;
 
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {

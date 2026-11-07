@@ -253,6 +253,107 @@ export function number(args: string[], argsNumber: number): number {
 	return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
+export function options(
+	interaction: ChatInputCommandInteraction | Message,
+	args: string[] = []
+) {
+	const slash = interaction instanceof ChatInputCommandInteraction;
+
+	function read_string(name: string, index: number, required: true): string;
+	function read_string(
+		name: string,
+		index: number,
+		required?: boolean
+	): string | null;
+	function read_string(name: string, index: number, required?: boolean) {
+		return slash
+			? interaction.options.getString(name, required ?? false)
+			: string(args, index);
+	}
+
+	function read_longString(
+		name: string,
+		index: number,
+		required: true
+	): string;
+	function read_longString(
+		name: string,
+		index: number,
+		required?: boolean
+	): string | null;
+	function read_longString(name: string, index: number, required?: boolean) {
+		return slash
+			? interaction.options.getString(name, required ?? false)
+			: longString(args, index);
+	}
+
+	function read_number(name: string, index: number, required: true): number;
+	function read_number(
+		name: string,
+		index: number,
+		required?: boolean
+	): number | null;
+	function read_number(name: string, index: number, required?: boolean) {
+		return slash
+			? interaction.options.getNumber(name, required ?? false)
+			: number(args, index);
+	}
+
+	function read_integer(name: string, index: number, required: true): number;
+	function read_integer(
+		name: string,
+		index: number,
+		required?: boolean
+	): number | null;
+	function read_integer(name: string, index: number, required?: boolean) {
+		return slash
+			? interaction.options.getInteger(name, required ?? false)
+			: number(args, index);
+	}
+
+	return {
+		string: read_string,
+		longString: read_longString,
+		number: read_number,
+		integer: read_integer,
+		member(name: string, index: number): GuildMember | null {
+			return slash
+				? (interaction.options.getMember(name) as GuildMember | null)
+				: member(interaction, args, index);
+		},
+		async user(name: string, index: number): Promise<User | null> {
+			return slash
+				? interaction.options.getUser(name)
+				: await user(interaction, args, index);
+		},
+		async channel(name: string, index: number): Promise<Channel | null> {
+			return slash
+				? (interaction.options.getChannel(name) as Channel | null)
+				: await channel(interaction, args, index);
+		},
+		async voiceChannel(
+			name: string,
+			index: number
+		): Promise<BaseGuildVoiceChannel | null> {
+			return slash
+				? (interaction.options.getChannel(
+						name
+					) as BaseGuildVoiceChannel | null)
+				: await voiceChannel(interaction, args, index);
+		},
+		role(name: string, index: number): Role | null {
+			return slash
+				? (interaction.options.getRole(name) as Role | null)
+				: role(interaction, args, index);
+		},
+		attachment(name: string): Attachment | null {
+			return slash
+				? interaction.options.getAttachment(name)
+				: (interaction.attachments.first() ?? null);
+		}
+	};
+}
+
 export function getArgumentOptionNameWithOptions(o: Option): string {
 	if (o.choices) {
 		return o.choices.map((x) => x.value).join("/");
