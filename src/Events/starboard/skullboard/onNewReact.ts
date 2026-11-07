@@ -34,6 +34,9 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 // Messages being posted or updated right now: concurrent reactions at the
 // threshold would otherwise both read the data before either writes it.
 const inFlight = new Set<string>();
+// A reaction that arrived during a pass: one more pass runs right after it,
+// so the posted count always ends up right (several reactions, one pass).
+const pending = new Set<string>();
 
 export const event: BotEvent = {
 	name: "messageReactionAdd",
@@ -63,6 +66,7 @@ export const event: BotEvent = {
 
 			flightKey = `${guildId}.${reaction.message.channelId}.${reaction.message.id}`;
 			if (inFlight.has(flightKey)) {
+				pending.add(flightKey);
 				flightKey = null;
 				return;
 			}
@@ -227,7 +231,12 @@ export const event: BotEvent = {
 		} catch (error) {
 			logger.err("Error in messageReactionAdd skullboard event:", error);
 		} finally {
-			if (flightKey) inFlight.delete(flightKey);
+			if (flightKey) {
+				inFlight.delete(flightKey);
+				if (pending.delete(flightKey)) {
+					void event.run(client, reaction, user);
+				}
+			}
 		}
 	}
 };
