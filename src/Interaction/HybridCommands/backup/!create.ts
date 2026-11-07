@@ -44,11 +44,8 @@ export const subCommand: SubCommand = {
 		let i: number = 0;
 		let j: number = 0;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var svMsg = interaction.options.getString("save-message")!;
-		} else {
-			var svMsg = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const svMsg = opts.string("save-message", 0)!;
 
 		const state = await client.db.get(
 			`${interaction.guildId}.GUILD.BACKUP.onlyOwner`
