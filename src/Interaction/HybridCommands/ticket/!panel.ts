@@ -127,10 +127,8 @@ export const subCommand: SubCommand = {
 		}
 
 		// Récupération de l'ID du panel
-		const panel_id =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("panel_id")
-				: client.func.method.string(args!, 0);
+		const opts = client.func.method.options(interaction, args);
+		const panel_id = opts.string("panel_id", 0);
 
 		// Chargement ou creation du panel
 		const rawData = await client.db.get(

@@ -56,15 +56,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getUser("user", true);
-		} else {
-			var member = (await client.func.method.user(
-				interaction,
-				args!,
-				1
-			))!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member = (await opts.user("user", 1))!;
 
 		if (
 			!(await client.func.method.isTicketChannel(

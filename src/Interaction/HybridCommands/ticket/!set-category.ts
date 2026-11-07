@@ -47,18 +47,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel(
-				"category-name",
-				true
-			) as Channel;
-		} else {
-			var category = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as Channel;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const category = (await opts.channel("category-name", 0)) as Channel;
 
 		if (
 			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
