@@ -505,10 +505,9 @@ export const subCommand: SubCommand = {
 
 		// Shortcut: a file attached to the command becomes a new config.
 		let state = await loadApoState(guild.id);
-		const attachment: Attachment | null =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getAttachment("file")
-				: (interaction.attachments.first() ?? null);
+		const attachment: Attachment | null = client.func.method
+			.options(interaction)
+			.attachment("file");
 		if (attachment) {
 			const name = cleanName(attachment.name);
 			const read = await readFile(attachment);

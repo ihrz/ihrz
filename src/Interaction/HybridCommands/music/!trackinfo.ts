@@ -91,11 +91,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const query = (
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("title")
-				: client.func.method.longString(args ?? [], 0)
-		)?.trim();
+		const opts = client.func.method.options(interaction, args);
+		const query = opts.longString("title", 0)?.trim();
 
 		// No title: the track playing in this server.
 		let track = query

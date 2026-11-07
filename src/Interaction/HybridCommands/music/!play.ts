@@ -40,10 +40,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const query =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("title")!
-				: client.func.method.longString(args!, 0)! || "";
+		const opts = client.func.method.options(interaction, args);
+		const query = opts.longString("title", 0)! || "";
 
 		await client.func.musicPlay.handleMusicPlay({
 			client,

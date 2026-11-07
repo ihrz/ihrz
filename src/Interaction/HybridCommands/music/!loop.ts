@@ -54,11 +54,8 @@ export const subCommand: SubCommand = {
 				interaction.guildId as string
 			);
 
-			if (interaction instanceof ChatInputCommandInteraction) {
-				var mode = interaction.options.getString("mode");
-			} else {
-				var mode = client.func.method.string(args!, 0);
-			}
+			const opts = client.func.method.options(interaction, args);
+			const mode = opts.string("mode", 0);
 
 			if (!player || !player.playing || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, {
