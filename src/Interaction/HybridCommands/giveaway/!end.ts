@@ -41,11 +41,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var inputData = interaction.options.getString("giveaway-id");
-		} else {
-			var inputData = client.func.method.string(args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const inputData = opts.string("giveaway-id", 0);
 
 		const giveaway = await client.giveawaysManager
 			.getGiveawayData(inputData as string)
