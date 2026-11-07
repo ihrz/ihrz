@@ -19,7 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { REST, Routes, Client, ApplicationCommand } from "discord.js";
+import {
+	REST,
+	Routes,
+	Client,
+	ApplicationCommand,
+	PermissionFlagsBits
+} from "discord.js";
 import logger from "./logger.js";
 
 export function removePermissionProperties(obj: any): any {
@@ -45,6 +51,53 @@ export function removePermissionProperties(obj: any): any {
 
 		// Recursively clean nested objects/arrays
 		cleanedObj[key] = removePermissionProperties(value);
+	}
+
+	return cleanedObj;
+}
+
+export function readablePermissionNames(permission: unknown): string[] {
+	const values = Array.isArray(permission) ? permission : [permission];
+	const names = new Set<string>();
+
+	for (const value of values) {
+		if (typeof value !== "bigint" && typeof value !== "number") continue;
+
+		const bits = BigInt(value);
+		if (bits === 0n) continue;
+
+		for (const [name, flag] of Object.entries(PermissionFlagsBits)) {
+			if ((bits & flag) === flag) names.add(name);
+		}
+	}
+
+	return [...names];
+}
+
+// Same walk as removePermissionProperties, but a "permission" is exported as
+// a readable "permissions" array of PermissionFlagsBits names (never a bigint).
+// Only meant for the commands.json export, never for the Discord sync.
+export function withReadablePermissions(obj: any): any {
+	if (Array.isArray(obj)) {
+		return obj.map((item) => withReadablePermissions(item));
+	}
+
+	if (typeof obj !== "object" || obj === null) {
+		return obj;
+	}
+
+	const cleanedObj: any = {};
+
+	for (const [key, value] of Object.entries(obj)) {
+		if (key === "perm") continue;
+
+		if (key === "permission") {
+			const names = readablePermissionNames(value);
+			if (names.length > 0) cleanedObj.permissions = names;
+			continue;
+		}
+
+		cleanedObj[key] = withReadablePermissions(value);
 	}
 
 	return cleanedObj;

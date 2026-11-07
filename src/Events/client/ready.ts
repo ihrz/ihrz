@@ -39,7 +39,10 @@ import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { recoverActiveSessions } from "../stats/onVoiceUpdate.js";
 import { writeFileSync } from "node:fs";
-import { removePermissionProperties } from "../../core/commandsSync.js";
+import {
+	readablePermissionNames,
+	withReadablePermissions
+} from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
@@ -535,7 +538,10 @@ export const event: BotEvent = {
 									x.description_localizations,
 
 								category: x.category,
-								options: removePermissionProperties(x.options),
+								permissions: readablePermissionNames(
+									x.permission
+								),
+								options: withReadablePermissions(x.options),
 								aliases: x.aliases,
 								thinking: x.thinking,
 								ephemeral: x.ephemeral
