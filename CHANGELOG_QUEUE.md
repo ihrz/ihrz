@@ -168,3 +168,4 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Self-hosting**: every remaining error and warning now goes through the bot logger (timestamp, shard, level), and errors are logged with their full stack instead of `{}`, once (on stderr) instead of twice
 - **Self-hosting**: the `[DEP0169] url.parse()` deprecation warning no longer shows in the logs when a music link is checked
 - **H24/7**: when its voice channel is deleted, the H24/7 setting is cleared instead of being retried forever (and warned about in the logs)
+- **Self-hosting**: the sqlite database runs in WAL mode with a busy timeout, so several shards no longer fail with "database is locked"; with Postgres, a failed read no longer overwrites a server's whole configuration

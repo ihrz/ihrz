@@ -168,3 +168,4 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Auto-hébergement** : toutes les erreurs et alertes restantes passent maintenant par le logger du bot (horodatage, shard, niveau), et les erreurs sont journalisées avec leur pile complète au lieu de `{}`, une seule fois (sur stderr) au lieu de deux
 - **Auto-hébergement** : l'alerte de dépréciation `[DEP0169] url.parse()` n'apparaît plus dans les logs quand un lien musical est vérifié
 - **H24/7** : quand son salon vocal est supprimé, le réglage H24/7 est effacé au lieu d'être retenté indéfiniment (avec une alerte dans les logs)
+- **Auto-hébergement** : la base sqlite tourne en mode WAL avec un délai d'attente, plusieurs shards n'échouent plus avec « database is locked » ; avec Postgres, une lecture en échec n'écrase plus toute la configuration d'un serveur
