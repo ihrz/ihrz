@@ -25,11 +25,21 @@
  * The extractors use the global `logger` (set up by the bot bootstrap at
  * runtime). Tests run outside the bot, so a no-op stand-in is registered
  * once here, before any extractor module is imported.
+ *
+ * Importing a module that pulls the real logger (src/core/logger.ts sets
+ * `global.logger` when it loads) must not replace the stand-in for the
+ * other test files, so the global ignores later assignments.
  */
 
-(globalThis as any).logger = {
+const loggerStandIn = {
 	log: () => {},
 	warn: () => {},
 	err: () => {},
 	debug: () => {}
 };
+
+Object.defineProperty(globalThis, "logger", {
+	configurable: true,
+	get: () => loggerStandIn,
+	set: () => {}
+});
