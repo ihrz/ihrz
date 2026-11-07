@@ -29,6 +29,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -46,77 +47,93 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const timeout =
-			(await client.db.get(
-				`${interaction.guildId}.ECONOMY.settings.work.cooldown`
-			)) ?? 3_600_000;
-		const work = await client.db.get(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
+		if (!releaseLock) return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
-		if (work !== null && timeout - (Date.now() - work) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(
-				timeout - (Date.now() - work),
-				lang
+		try {
+			const timeout =
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.settings.work.cooldown`
+				)) ?? 3_600_000;
+			const work = await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_cooldown_error.replace("${time}", time),
-				flags: [1 << 6]
-			});
-			return;
-		}
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
+				});
+				return;
+			}
 
-		const amount =
-			client.func.random.secureRandomInt(1, 1024) *
-			(await client.func.economyHelper.getMemberBoost(
-				interaction.member
-			));
+			if (work !== null && timeout - (Date.now() - work) > 0) {
+				const time = client.timeCalculator.to_beautiful_string(
+					timeout - (Date.now() - work),
+					lang
+				);
 
-		const embed = new EmbedBuilder()
-			.setAuthor({
-				name: lang.work_embed_author.replaceAll(
-					"${authorUsername}",
-					(interaction.member.user as User).globalName ||
-						interaction.member.user.username
-				),
-				iconURL: (interaction.member.user as User).displayAvatarURL()
-			})
-			.setDescription(
-				lang.work_embed_description
-					.replaceAll(
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_cooldown_error.replace(
+						"${time}",
+						time
+					),
+					flags: [1 << 6]
+				});
+				return;
+			}
+
+			const amount =
+				client.func.random.secureRandomInt(1, 1024) *
+				(await client.func.economyHelper.getMemberBoost(
+					interaction.member
+				));
+
+			const embed = new EmbedBuilder()
+				.setAuthor({
+					name: lang.work_embed_author.replaceAll(
 						"${authorUsername}",
 						(interaction.member.user as User).globalName ||
 							interaction.member.user.username
-					)
-					.replaceAll("${amount}", amount.toString())
-			)
-			.setColor("#f1d488");
+					),
+					iconURL: (
+						interaction.member.user as User
+					).displayAvatarURL()
+				})
+				.setDescription(
+					lang.work_embed_description
+						.replaceAll(
+							"${authorUsername}",
+							(interaction.member.user as User).globalName ||
+								interaction.member.user.username
+						)
+						.replaceAll("${amount}", amount.toString())
+				)
+				.setColor("#f1d488");
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+			await client.db.set(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`,
+				Date.now()
+			);
+			await client.db.add(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+				amount
+			);
 
-		await client.db.add(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-			amount
-		);
-		await client.db.set(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`,
-			Date.now()
-		);
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed]
+			});
+		} finally {
+			releaseLock();
+		}
 	}
 };

@@ -30,6 +30,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -47,71 +48,85 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const timeout =
-			(await client.db.get(
-				`${interaction.guildId}.ECONOMY.settings.daily.cooldown`
-			)) ?? 86400000;
-		const amount =
-			((await client.db.get(
-				`${interaction.guildId}.ECONOMY.settings.daily.amount`
-			)) ?? 500) *
-			(await client.func.economyHelper.getMemberBoost(
-				interaction.member
-			));
-		const daily = await client.db.get(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
+		if (!releaseLock) return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
-		if (daily !== null && timeout - (Date.now() - daily) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(
-				timeout - (Date.now() - daily),
-				lang
+		try {
+			const timeout =
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.settings.daily.cooldown`
+				)) ?? 86400000;
+			const amount =
+				((await client.db.get(
+					`${interaction.guildId}.ECONOMY.settings.daily.amount`
+				)) ?? 500) *
+				(await client.func.economyHelper.getMemberBoost(
+					interaction.member
+				));
+			const daily = await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.daily_cooldown_error.replaceAll("${time}", time)
-			});
-			return;
-		} else {
-			const embed = new EmbedBuilder()
-				.setAuthor({
-					name: lang.daily_embed_title,
-					iconURL: (
-						interaction.member.user as User
-					).displayAvatarURL()
-				})
-				.setColor("#a4cb80")
-				.setDescription(lang.daily_embed_description)
-				.addFields({
-					name: lang.daily_embed_fields,
-					value: `${amount}${client.iHorizon_Emojis.Coin}`
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
 				});
+				return;
+			}
 
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed]
-			});
-			await client.db.add(
-				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-				amount
-			);
-			await client.db.set(
-				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`,
-				Date.now()
-			);
-			return;
+			if (daily !== null && timeout - (Date.now() - daily) > 0) {
+				const time = client.timeCalculator.to_beautiful_string(
+					timeout - (Date.now() - daily),
+					lang
+				);
+
+				await client.func.method.interactionSend(interaction, {
+					content: lang.daily_cooldown_error.replaceAll(
+						"${time}",
+						time
+					)
+				});
+				return;
+			} else {
+				const embed = new EmbedBuilder()
+					.setAuthor({
+						name: lang.daily_embed_title,
+						iconURL: (
+							interaction.member.user as User
+						).displayAvatarURL()
+					})
+					.setColor("#a4cb80")
+					.setDescription(lang.daily_embed_description)
+					.addFields({
+						name: lang.daily_embed_fields,
+						value: `${amount}${client.iHorizon_Emojis.Coin}`
+					});
+
+				await client.db.set(
+					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`,
+					Date.now()
+				);
+				await client.db.add(
+					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+					amount
+				);
+				await client.func.method.interactionSend(interaction, {
+					embeds: [embed]
+				});
+				return;
+			}
+		} finally {
+			releaseLock();
 		}
 	}
 };

@@ -31,6 +31,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { acquireEconomyLock } from "./economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,112 +49,132 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const dataAccount = (await client.db.get(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`
-		)) as DatabaseStructure.EconomyUserSchema;
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var toWithdraw = interaction.options.getString(
-				"how-much"
-			) as string;
-		} else {
-			var toWithdraw = client.func.method.string(args!, 0) as string;
-		}
-
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
-		if (toWithdraw === "all") toWithdraw = dataAccount.bank?.toString()!;
-
-		if (isNaN(Number(toWithdraw))) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		const clean_to_withdraw = parseInt(toWithdraw);
-
-		if (clean_to_withdraw <= 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.temporary_voice_limit_button_not_integer.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.withdraw_cannot_abuse.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		await client.db.sub(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
-			parseInt(toWithdraw)
+		const releaseLock = acquireEconomyLock(
+			interaction.guildId!,
+			interaction.member.user.id
 		);
-		await client.db.add(
-			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-			parseInt(toWithdraw)
-		);
+		if (!releaseLock) return;
 
-		const embed = new EmbedBuilder()
-			.setAuthor({
-				name: lang.daily_embed_title,
-				iconURL: (interaction.member.user as User).displayAvatarURL()
-			})
-			.setColor("#a4cb80")
-			.setTitle(lang.withdraw_embed_title)
-			.setDescription(
-				lang.withdraw_embed_desc
-					.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
-					.replace("${author}", interaction.member.user.toString())
-					.replace("${toWithdraw}", toWithdraw.toString())
-			)
-			.addFields({
-				name: lang.withdraw_embed_fields1_name,
-				value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
-			})
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp();
+		try {
+			const dataAccount = (await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`
+			)) as DatabaseStructure.EconomyUserSchema;
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
+			if (interaction instanceof ChatInputCommandInteraction) {
+				var toWithdraw = interaction.options.getString(
+					"how-much"
+				) as string;
+			} else {
+				var toWithdraw = client.func.method.string(args!, 0) as string;
+			}
+
+			if (
+				(await client.db.get(
+					`${interaction.guildId}.ECONOMY.disabled`
+				)) === true
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.economy_disable_msg.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)
+				});
+				return;
+			}
+
+			const bank = dataAccount?.bank ?? 0;
+
+			if (toWithdraw === "all") toWithdraw = bank.toString();
+
+			if (isNaN(Number(toWithdraw))) {
+				await client.func.method.interactionSend(interaction, {
+					content:
+						lang.temporary_voice_limit_button_not_integer.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
+				});
+				return;
+			}
+
+			const clean_to_withdraw = parseInt(toWithdraw);
+
+			if (isNaN(clean_to_withdraw) || clean_to_withdraw <= 0) {
+				await client.func.method.interactionSend(interaction, {
+					content:
+						lang.temporary_voice_limit_button_not_integer.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
+				});
+				return;
+			}
+
+			if (clean_to_withdraw > bank) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.withdraw_cannot_abuse.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+				return;
+			}
+
+			await client.db.sub(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
+				parseInt(toWithdraw)
+			);
+			await client.db.add(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+				parseInt(toWithdraw)
+			);
+
+			const embed = new EmbedBuilder()
+				.setAuthor({
+					name: lang.daily_embed_title,
+					iconURL: (
+						interaction.member.user as User
+					).displayAvatarURL()
+				})
+				.setColor("#a4cb80")
+				.setTitle(lang.withdraw_embed_title)
+				.setDescription(
+					lang.withdraw_embed_desc
+						.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
+						.replace(
+							"${author}",
+							interaction.member.user.toString()
+						)
+						.replace("${toWithdraw}", toWithdraw.toString())
 				)
-			]
-		});
-		await client.func.economyLogs.withdraw(
-			interaction.guild,
-			interaction.member.user.id,
-			Number(clean_to_withdraw),
-			lang
-		);
-		return;
+				.addFields({
+					name: lang.withdraw_embed_fields1_name,
+					value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
+				})
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
+				.setTimestamp();
+
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			});
+			await client.func.economyLogs.withdraw(
+				interaction.guild,
+				interaction.member.user.id,
+				Number(clean_to_withdraw),
+				lang
+			);
+			return;
+		} finally {
+			releaseLock();
+		}
 	}
 };
