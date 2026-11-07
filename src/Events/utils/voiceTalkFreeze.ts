@@ -28,9 +28,10 @@ import {
 import logger from "../../core/logger.js";
 import { BotEvent } from "../../../types/event.js";
 
-// Members muted by this module itself, keyed `${guildId}.${userId}`.
-// Only these are unmuted on leave, so moderator mutes are left alone.
-const mutedByTalk = new Set<string>();
+// Members muted by the talk mode are recorded in UTILS.VOICE_TALK_MUTED
+// (kept across restarts): only they are unmuted, so a moderator mute is left
+// alone. Discord refuses to unmute someone outside voice, so the unmute
+// happens as soon as a recorded member is in any channel but the talk one.
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -45,26 +46,35 @@ export const event: BotEvent = {
 			`${guildId}.UTILS.VOICE_FREEZE`
 		)) as { channelId?: string; allowedUsers?: string[] } | null;
 
-		if (talkData?.channelId) {
-			if (
-				oldState.channelId === talkData.channelId &&
-				newState.channelId !== talkData.channelId &&
-				oldState.member &&
-				!oldState.member.user.bot &&
-				oldState.serverMute &&
-				mutedByTalk.has(`${guildId}.${oldState.member.id}`)
-			) {
+		const voiceMember = newState.member;
+		if (
+			voiceMember &&
+			!voiceMember.user.bot &&
+			newState.channelId &&
+			newState.channelId !== talkData?.channelId
+		) {
+			const mutedKey = `${guildId}.UTILS.VOICE_TALK_MUTED.${voiceMember.id}`;
+
+			if (!(await client.db.get(mutedKey))) {
+				// Not muted by the talk mode: nothing to undo.
+			} else if (!newState.serverMute) {
+				// Unmuted by someone else meanwhile: a later moderator mute
+				// must not be undone because of this stale record.
+				await client.db.delete(mutedKey);
+			} else {
 				try {
-					await oldState.member.voice.setMute(
+					await voiceMember.voice.setMute(
 						false,
 						"talk leave cleanup"
 					);
-					mutedByTalk.delete(`${guildId}.${oldState.member.id}`);
+					await client.db.delete(mutedKey);
 				} catch (error) {
 					logger.err(error);
 				}
 			}
+		}
 
+		if (talkData?.channelId) {
 			if (
 				newState.channelId === talkData.channelId &&
 				oldState.channelId !== talkData.channelId &&
@@ -79,7 +89,10 @@ export const event: BotEvent = {
 				if (!canBypass && !newState.serverMute) {
 					try {
 						await member.voice.setMute(true, "talk join auto mute");
-						mutedByTalk.add(`${guildId}.${member.id}`);
+						await client.db.set(
+							`${guildId}.UTILS.VOICE_TALK_MUTED.${member.id}`,
+							true
+						);
 					} catch (error) {
 						logger.err(error);
 					}

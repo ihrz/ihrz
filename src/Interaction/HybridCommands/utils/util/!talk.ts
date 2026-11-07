@@ -87,6 +87,9 @@ export const subCommand: SubCommand = {
 					false,
 					lang.util_untalk_audit_reason
 				);
+				await client.db.delete(
+					`${interaction.guildId}.UTILS.VOICE_TALK_MUTED.${target.id}`
+				);
 				unmutedCount++;
 			} catch (error) {
 				logger.err(error);

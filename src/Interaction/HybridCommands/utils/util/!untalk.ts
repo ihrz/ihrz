@@ -75,6 +75,10 @@ export const subCommand: SubCommand = {
 
 			try {
 				await target.voice.setMute(true, lang.util_talk_audit_reason);
+				await client.db.set(
+					`${interaction.guildId}.UTILS.VOICE_TALK_MUTED.${target.id}`,
+					true
+				);
 				mutedCount++;
 			} catch (error) {
 				logger.err(error);

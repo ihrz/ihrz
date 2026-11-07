@@ -477,6 +477,9 @@ export namespace DatabaseStructure {
 		NIGHT_MODE: NightMode;
 		DEROGATION: Derogation;
 		antiExe?: "on" | "off";
+		// Members server-muted by the talk mode (/util untalk and joining the
+		// talk channel), unmuted as soon as they are in another channel.
+		VOICE_TALK_MUTED?: Record<string, true>;
 	}
 
 	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
