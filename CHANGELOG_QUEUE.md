@@ -147,12 +147,13 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Dashboard**: saving no longer undoes what happened since the page was read: only the saved sections are written, and only what you changed goes over them. "Delete module" on welcome and utilities no longer wipes the role saver, permissions, limits and other settings stored alongside. Long bot-kept lists (notifier, blogger, confessions) no longer block a save. The server tooltip shows the member total
 - **Reaction roles**: the dashboard can save them again (every emoji or button key was refused), and its switch really turns a role on or off
 - **Tickets**: when turned off, panels already posted stop opening tickets too
-- **Dashboard**: removed settings that did nothing: spam, mass mention and media shortcuts (they created no AutoMod rule and overwrote what `/automod` recorded), the allowlist switch (the list always applies in allowlist mode) and the notifier timestamp
+- **Dashboard**: removed settings that did nothing: the allowlist switch (the list always applies in allowlist mode) and the notifier timestamp
 - **`/setlogschannel`**: the `boost` and `ticket` choices now work (they stored a key nothing reads)
 - **Member count**: `{ChannelCount}` shows the channels (it showed the roles on refresh)
 - **Tags**: a tag without an embed can be used and shown
 - **Ticket panels**: removing a question no longer gives the next one a duplicate id, which broke the form; a simple panel can be published from the dashboard without an embed, like with `/ticket panel`
 - **Dashboard blacklist**: adding a user bans them with the reason you give, and removing one unbans them, like the commands
+- **Dashboard automod**: the spam, mass mention, links and Discord invites switches now turn the same native AutoMod rules on and off as `/automod`, keeping their roles and logs. A rule Discord refuses is reported and its switch goes back
 - **Honeypot**: bans a spammer who already left the server
 - **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated

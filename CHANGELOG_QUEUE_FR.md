@@ -147,12 +147,13 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Dashboard** : enregistrer n'annule plus ce qui s'est passé depuis l'ouverture de la page : seules les sections enregistrées sont écrites, et seul ce que vous avez modifié les remplace. « Supprimer le module » sur la bienvenue et les utilitaires n'efface plus le role saver, les permissions, les limites et les autres réglages stockés au même endroit. Les longues listes tenues par le bot (notifier, blog, confessions) ne bloquent plus l'enregistrement. L'infobulle des serveurs affiche le total des membres
 - **Rôles-réactions** : le dashboard peut de nouveau les enregistrer (toute clé d'émoji ou de bouton était refusée), et son interrupteur active ou coupe vraiment un rôle
 - **Tickets** : une fois désactivés, les panneaux déjà publiés n'ouvrent plus de ticket non plus
-- **Dashboard** : retrait des réglages sans effet : raccourcis spam, mentions de masse et médias (ils ne créaient aucune règle AutoMod et écrasaient ce que `/automod` enregistre), interrupteur de l'allowlist (la liste s'applique toujours en mode allowlist) et horodatage du notifier
+- **Dashboard** : retrait des réglages sans effet : interrupteur de l'allowlist (la liste s'applique toujours en mode allowlist) et horodatage du notifier
 - **`/setlogschannel`** : les choix `boost` et `ticket` fonctionnent (ils enregistraient une clé que rien ne lit)
 - **Compteur de membres** : `{ChannelCount}` affiche les salons (il affichait les rôles à l'actualisation)
 - **Tags** : un tag sans embed peut être utilisé et affiché
 - **Panneaux de tickets** : retirer une question ne donne plus un id en double à la suivante, ce qui cassait le formulaire ; un panneau simple se publie depuis le dashboard sans embed, comme avec `/ticket panel`
 - **Blacklist du dashboard** : ajouter un utilisateur le bannit avec la raison indiquée et le retirer le débannit, comme les commandes
+- **Automod du dashboard** : les interrupteurs spam, mentions de masse, liens et invitations Discord activent et coupent les mêmes règles AutoMod natives que `/automod`, en gardant leurs rôles et leurs logs. Une règle refusée par Discord est signalée et son interrupteur revient en arrière
 - **Honeypot** : bannit un spammeur déjà parti du serveur
 - **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits

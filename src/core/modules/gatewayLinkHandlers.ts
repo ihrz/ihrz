@@ -33,6 +33,7 @@ import {
 	VoiceChannel
 } from "discord.js";
 
+import { automodToggles, setNativeRuleEnabled } from "./automodRules.js";
 import { GatewayLink } from "../../../types/gateway_link.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import {
@@ -444,6 +445,37 @@ const handlers: Record<string, ChangeHandler> = {
 				.catch(() =>
 					failed.push(`cannot update the menu of ${messageId}`)
 				);
+		}
+
+		if (failed.length) throw failed.join(", ");
+	},
+
+	// /automod: the switches of the welcome page. A rule that can't be set puts
+	// its flag back: the page must not say on while Discord says off.
+	"GUILD.GUILD_CONFIG": async (client, guild, change) => {
+		type Config = DatabaseStructure.GuildConfigSchema &
+			Record<string, unknown>;
+		const before = change.old as Config | null;
+		const toggles = automodToggles(before, change.new as Config | null);
+		if (!toggles.length) return;
+
+		const panel = (await client.db.get(
+			`${guild.id}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL`
+		)) as DatabaseStructure.AutomodPanelSchema | null;
+		const failed: string[] = [];
+
+		for (const { key, enabled } of toggles) {
+			try {
+				await setNativeRuleEnabled(guild, key, enabled, panel);
+			} catch (error) {
+				failed.push(
+					`AutoMod ${key}: ${error instanceof Error ? error.message : error}`
+				);
+				const path = `${guild.id}.GUILD.GUILD_CONFIG.${key}`;
+				const previous = before?.[key];
+				if (previous === undefined) await client.db.delete(path);
+				else await client.db.set(path, previous);
+			}
 		}
 
 		if (failed.length) throw failed.join(", ");
