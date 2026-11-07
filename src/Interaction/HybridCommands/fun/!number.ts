@@ -37,13 +37,9 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var min = interaction.options.getNumber("min", false) || 0;
-			var max = interaction.options.getNumber("max", false) || 100;
-		} else {
-			var min = client.func.method.number(args!, 0) || 0;
-			var max = client.func.method.number(args!, 1) || 100;
-		}
+		const opts = client.func.method.options(interaction, args);
+		let min = opts.number("min", 0) || 0;
+		let max = opts.number("max", 1) || 100;
 
 		// security
 		if (min > max) [min, max] = [max, min];

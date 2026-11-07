@@ -49,17 +49,12 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var slap = interaction.options.getUser("user") as User;
-			var user = interaction.user;
-		} else {
-			var slap = (await client.func.method.user(
-				interaction,
-				args!,
-				0
-			)) as User;
-			var user = interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const slap = (await opts.user("user", 0)) as User;
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
 
 		const url = apiUrlParser.assetsFinder(client.assets, "slap");
 

@@ -85,11 +85,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing (DM-compatible: no guild/member requirement)
 		if (!client.user || !interaction.channel) return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var image = interaction.options.getAttachment("image", true);
-		} else {
-			var image = interaction.attachments.first()!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const image = opts.attachment("image")!;
 
 		if (!image?.url || !client.func.validImageType(image.contentType)) {
 			await client.func.method.interactionSend(interaction, {

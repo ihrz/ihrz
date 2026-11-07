@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import crypto from "crypto";
 
@@ -48,15 +48,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var victim = interaction.options.getUser("user") as User;
-			var user = interaction.user;
-		} else {
-			var victim =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-			var user = interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
+		const victim = (await opts.user("user", 0)) || user;
 
 		const ip = [
 			"01",

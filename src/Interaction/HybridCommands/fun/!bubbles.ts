@@ -32,11 +32,8 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var image = interaction.options.getAttachment("image", true);
-		} else {
-			var image = interaction.attachments.first()!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const image = opts.attachment("image")!;
 
 		if (!client.func.validImageType(image.contentType)) {
 			client.func.method.interactionSend(interaction, {

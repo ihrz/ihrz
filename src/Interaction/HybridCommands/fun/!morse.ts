@@ -49,15 +49,8 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var text = interaction.options
-				.getString("input")
-				?.toUpperCase() as string;
-		} else {
-			var text = client.func.method
-				.longString(args!, 0)
-				?.toUpperCase() as string;
-		}
+		const opts = client.func.method.options(interaction, args);
+		let text = opts.longString("input", 0)?.toUpperCase() as string;
 
 		text = text.replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE");
 
