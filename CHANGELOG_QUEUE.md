@@ -112,6 +112,21 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 
 ---
 
+## 🔒 Security — update your instance
+
+This release fixes several security issues. **If you host your own iHorizon instance, update as soon as possible.**
+
+- Stored settings reject reserved key names, and tag names and auto-react words only accept letters, digits, `_` and `-`
+- Media commands only download images from public hosts, with size and time limits
+- `/util unzip-emojis` imports at most 50 emojis and skips oversized files
+- `/guildconfig config restore` only restores a backup saved on the same server and never changes the bot owners of the server; backups made before this release can no longer be restored
+- Bot-owner commands always check the owner
+- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once
+- Giveaway commands only act on giveaways of the current server
+- `/mod tempban` and `/mod ban` refuse to act on a member whose highest role is equal to or above yours
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
