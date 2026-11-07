@@ -1366,7 +1366,7 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					ticketOwnerId !== deletedByUserId;
 
 				await interaction.client.db.delete(
-					`${interaction.guildId}.TICKET_ALL.${user}`
+					`${interaction.guildId}.TICKET_ALL.${user}.${channel}`
 				);
 
 				try {
