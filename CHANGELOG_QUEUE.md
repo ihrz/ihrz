@@ -166,3 +166,4 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - Fewer error-log entries: Discord refusals for missing access or permissions are expected and no longer logged
 - The `+fexini` partner command is removed
 - **Self-hosting**: every remaining error and warning now goes through the bot logger (timestamp, shard, level), and errors are logged with their full stack instead of `{}`, once (on stderr) instead of twice
+- **Self-hosting**: the `[DEP0169] url.parse()` deprecation warning no longer shows in the logs when a music link is checked

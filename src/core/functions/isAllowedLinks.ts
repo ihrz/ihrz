@@ -19,8 +19,6 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as url from "url";
-
 const allowedDomains: string[] = [
 	"open.spotify.com",
 	"play.spotify.com",
@@ -85,12 +83,10 @@ const allowedDomains: string[] = [
 ];
 
 export default function isAllowedLinks(link: string): boolean {
-	if (link !== null) {
-		const parsedUrl = url.parse(link);
+	if (!link || !URL.canParse(link)) return true;
 
-		if (parsedUrl.hostname !== null) {
-			return allowedDomains.includes(parsedUrl.hostname);
-		}
-	}
-	return true;
+	const { hostname } = new URL(link);
+	if (!hostname) return true;
+
+	return allowedDomains.includes(hostname);
 }

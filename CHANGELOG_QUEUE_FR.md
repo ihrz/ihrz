@@ -166,3 +166,4 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - Moins de bruit dans les logs d'erreurs : les refus de Discord pour accès ou permissions manquants sont attendus et ne sont plus enregistrés
 - La commande partenaire `+fexini` est supprimée
 - **Auto-hébergement** : toutes les erreurs et alertes restantes passent maintenant par le logger du bot (horodatage, shard, niveau), et les erreurs sont journalisées avec leur pile complète au lieu de `{}`, une seule fois (sur stderr) au lieu de deux
+- **Auto-hébergement** : l'alerte de dépréciation `[DEP0169] url.parse()` n'apparaît plus dans les logs quand un lien musical est vérifié
