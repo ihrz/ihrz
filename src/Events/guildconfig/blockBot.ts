@@ -52,18 +52,40 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const filteredLog = await getLogs({
-			guild: member.guild,
-			target: member.id,
-			type: "NONE",
-			actionType: AuditLogEvent.BotAdd
-		});
+		const fetchLog = () =>
+			getLogs({
+				guild: member.guild,
+				target: member.id,
+				type: "NONE",
+				actionType: AuditLogEvent.BotAdd
+			});
 
-		if (data === true && filteredLog?.executorId !== member.guild.ownerId) {
-			await member.ban({ reason: "The BlockBot function is enabled!" });
-			const executor = filteredLog
-				? member.guild.members.cache.get(filteredLog?.executorId!)
-				: undefined;
+		let filteredLog = await fetchLog();
+
+		// The audit log entry can be written after the member add event
+		if (!filteredLog) {
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+			filteredLog = await fetchLog();
+		}
+
+		if (!filteredLog) {
+			logger.warn(
+				`[BlockBot] No audit log entry for bot ${member.id} in ${member.guild.id}, not banned`
+			);
+			return;
+		}
+
+		if (filteredLog.executorId !== member.guild.ownerId) {
+			await member
+				.ban({ reason: "The BlockBot function is enabled!" })
+				.catch((error: unknown) => {
+					logger.warn(
+						`[BlockBot] Ban failed in ${member.guild.id}: ${String(error)}`
+					);
+				});
+			const executor = member.guild.members.cache.get(
+				filteredLog.executorId!
+			);
 
 			executor &&
 				(await client.func.method.punish(
