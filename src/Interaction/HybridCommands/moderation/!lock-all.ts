@@ -19,16 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChannelType,
-	ChatInputCommandInteraction,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { setAllChannelsLock } from "../../../core/modules/channelLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -37,44 +33,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		// Guard's Typing
-		if (
-			!client.user ||
-			!interaction.member ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var role = interaction.options.getRole("role");
-		} else {
-			var role = client.func.method.role(interaction, args!, 0);
-		}
-
-		interaction.guild.channels.cache.forEach((c) => {
-			if (c.type === ChannelType.GuildText) {
-				c.permissionOverwrites.create(
-					role?.id || interaction.guild?.roles.everyone.id!,
-					{ SendMessages: false }
-				);
-			}
-		});
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.lockall_logs_embed_title,
-			description: lang.lockall_logs_embed_description.replaceAll(
-				"${authorId}",
-				interaction.member.user.id
-			)
-		});
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.lockall_embed_message_description.replaceAll(
-				"${authorId}",
-				interaction.member.user.id
-			)
-		});
-		return;
+		await setAllChannelsLock(client, interaction, lang, args, "lock");
 	}
 };
