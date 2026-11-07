@@ -22,9 +22,23 @@
 import { Client, Guild, User } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure";
 
+const UNKNOWN_BAN_CODE = 10026;
+
+/**
+ * Check if an error is a Discord API error with the given code
+ */
+export function isDiscordErrorCode(error: unknown, code: number): boolean {
+	return (
+		typeof error === "object" &&
+		error !== null &&
+		(error as { code?: unknown }).code === code
+	);
+}
+
 export class TempbanManager {
 	private client: Client;
 	private checkInterval: NodeJS.Timeout | null = null;
+	private isRunning = false;
 	private readonly CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 
 	constructor() {
@@ -55,19 +69,11 @@ export class TempbanManager {
 			const userId = user.id;
 			const expirationTime = Date.now() + time;
 
-			// Get current data
-			const dbPath = `${guildId}.GUILD.TEMPBAN`;
-			let tempBans: DatabaseStructure.TempbanSchema =
-				(await this.client.db.get(dbPath)) || {};
-
-			// Add the new temporary ban
-			tempBans[userId] = {
+			// Save only this entry, so the other bans are left untouched
+			await this.client.db.set(`${guildId}.GUILD.TEMPBAN.${userId}`, {
 				reason: reason || "No reason provided",
 				time: expirationTime
-			};
-
-			// Save to database
-			await this.client.db.set(dbPath, tempBans);
+			});
 
 			return true;
 		} catch (error) {
@@ -108,16 +114,9 @@ export class TempbanManager {
 			await guild.members.unban(userId);
 
 			const guildId = guild.id;
-			const dbPath = `${guildId}.GUILD.TEMPBAN`;
 
-			let tempBans: DatabaseStructure.TempbanSchema =
-				(await this.client.db.get(dbPath)) || {};
-
-			// Remove the ban entry
-			if (tempBans[userId]) {
-				delete tempBans[userId];
-				await this.client.db.set(dbPath, tempBans);
-			}
+			// Remove only this ban entry
+			await this.client.db.delete(`${guildId}.GUILD.TEMPBAN.${userId}`);
 
 			return true;
 		} catch (error) {
@@ -129,38 +128,54 @@ export class TempbanManager {
 	 * Check and remove expired temporary bans
 	 */
 	private async checkExpiredBans(): Promise<void> {
-		try {
-			const currentTime = Date.now();
+		if (this.isRunning) {
+			return;
+		}
 
+		this.isRunning = true;
+
+		try {
 			// Loop through all guilds
 			for (const guild of this.client.guilds.cache.values()) {
-				const dbPath = `${guild.id}.GUILD.TEMPBAN`;
-				let tempBans: DatabaseStructure.TempbanSchema =
-					(await this.client.db.get(dbPath)) || {};
-				let hasChanges = false;
-
-				// Loop through all users with temporary bans
-				for (const [userId, banData] of Object.entries(tempBans)) {
-					// Check if the ban has expired
-					if (banData.time <= currentTime) {
-						// Unban the user
-						await guild.members.unban(userId).catch(() => {
-							// User might already be unbanned or ban doesn't exist
-						});
-
-						// Remove from database
-						delete tempBans[userId];
-						hasChanges = true;
-					}
-				}
-
-				// Save changes if necessary
-				if (hasChanges) {
-					await this.client.db.set(dbPath, tempBans);
+				try {
+					await this.checkGuild(guild);
+				} catch (error) {
+					logger.err(
+						`tempban: unable to check the guild ${guild.id}: ${error}`
+					);
 				}
 			}
-		} catch (error) {
-			throw new Error(`Error checking expired bans: ${error}`);
+		} finally {
+			this.isRunning = false;
+		}
+	}
+
+	private async checkGuild(guild: Guild): Promise<void> {
+		const dbPath = `${guild.id}.GUILD.TEMPBAN`;
+		const tempBans: DatabaseStructure.TempbanSchema =
+			(await this.client.db.get(dbPath)) || {};
+
+		// Loop through all users with temporary bans
+		for (const [userId, banData] of Object.entries(tempBans)) {
+			// Check if the ban has expired
+			if (banData.time > Date.now()) {
+				continue;
+			}
+
+			try {
+				await guild.members.unban(userId);
+			} catch (error) {
+				// Unknown Ban (10026): the user is already unbanned
+				if (!isDiscordErrorCode(error, UNKNOWN_BAN_CODE)) {
+					logger.err(
+						`tempban: unable to unban ${userId} in ${guild.id}: ${error}`
+					);
+					continue;
+				}
+			}
+
+			// Remove only this entry, so a ban added meanwhile is kept
+			await this.client.db.delete(`${dbPath}.${userId}`);
 		}
 	}
 

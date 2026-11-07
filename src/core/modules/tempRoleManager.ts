@@ -19,7 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildMember, Role } from "discord.js";
+import { Client, Guild, GuildMember, Role } from "discord.js";
+import { isDiscordErrorCode } from "./tempbanManager.ts";
+
+const UNKNOWN_MEMBER_CODE = 10007;
 
 export type TempRoleSchema = Record<
 	string,
@@ -29,6 +32,7 @@ export type TempRoleSchema = Record<
 export class TemproleManager {
 	private client: Client;
 	private checkInterval: NodeJS.Timeout | null = null;
+	private isRunning = false;
 	private readonly CHECK_INTERVAL_MS = 30000; // Check every 30 seconds
 
 	constructor() {
@@ -56,24 +60,17 @@ export class TemproleManager {
 			const memberId = member.id;
 			const expirationTime = Date.now() + time;
 
-			// Get current data
-			const dbPath = `${guildId}.GUILD.TEMPROLE`;
-			let tempRoles: TempRoleSchema =
-				(await this.client.db.get(dbPath)) || {};
+			// Save only this member entry, so the others are left untouched
+			const memberPath = `${guildId}.GUILD.TEMPROLE.${memberId}`;
+			const memberRoles: TempRoleSchema[string] =
+				(await this.client.db.get(memberPath)) || [];
 
-			// Initialize array for this member if necessary
-			if (!tempRoles[memberId]) {
-				tempRoles[memberId] = [];
-			}
-
-			// Add the new temporary role
-			tempRoles[memberId].push({
+			memberRoles.push({
 				roleId: role.id,
 				time: expirationTime
 			});
 
-			// Save to database
-			await this.client.db.set(dbPath, tempRoles);
+			await this.client.db.set(memberPath, memberRoles);
 
 			return true;
 		} catch (error) {
@@ -128,24 +125,23 @@ export class TemproleManager {
 
 			const guildId = member.guild.id;
 			const memberId = member.id;
-			const dbPath = `${guildId}.GUILD.TEMPROLE`;
+			const memberPath = `${guildId}.GUILD.TEMPROLE.${memberId}`;
 
-			let tempRoles: TempRoleSchema =
-				(await this.client.db.get(dbPath)) || {};
+			const memberRoles: TempRoleSchema[string] | null =
+				await this.client.db.get(memberPath);
 
-			if (tempRoles[memberId]) {
+			if (memberRoles) {
 				// Filter to remove the role from the list
-				tempRoles[memberId] = tempRoles[memberId].filter(
+				const remaining = memberRoles.filter(
 					(tempRole) => tempRole.roleId !== role.id
 				);
 
 				// Delete the member entry if they have no more temporary roles
-				if (tempRoles[memberId].length === 0) {
-					delete tempRoles[memberId];
+				if (remaining.length === 0) {
+					await this.client.db.delete(memberPath);
+				} else {
+					await this.client.db.set(memberPath, remaining);
 				}
-
-				// Save to database
-				await this.client.db.set(dbPath, tempRoles);
 			}
 
 			return true;
@@ -158,62 +154,102 @@ export class TemproleManager {
 	 * Check and remove expired temporary roles
 	 */
 	private async checkExpiredRoles(): Promise<void> {
-		try {
-			const currentTime = Date.now();
+		if (this.isRunning) {
+			return;
+		}
 
+		this.isRunning = true;
+
+		try {
 			// Loop through all guilds
 			for (const guild of this.client.guilds.cache.values()) {
-				const dbPath = `${guild.id}.GUILD.TEMPROLE`;
-				let tempRoles: TempRoleSchema =
-					(await this.client.db.get(dbPath)) || {};
-				let hasChanges = false;
-
-				// Loop through all members with temporary roles
-				for (const [memberId, roles] of Object.entries(tempRoles)) {
-					const member = await guild.members
-						.fetch(memberId)
-						.catch(() => null);
-
-					if (!member) {
-						// The member is no longer in the server, clean up the entry
-						delete tempRoles[memberId];
-						hasChanges = true;
-						continue;
-					}
-
-					// Filter expired roles
-					const expiredRoles = roles.filter(
-						(tempRole) => tempRole.time <= currentTime
+				try {
+					await this.checkGuild(guild);
+				} catch (error) {
+					logger.err(
+						`temprole: unable to check the guild ${guild.id}: ${error}`
 					);
-					const remainingRoles = roles.filter(
-						(tempRole) => tempRole.time > currentTime
-					);
-
-					// Remove expired roles
-					for (const expiredRole of expiredRoles) {
-						const role = guild.roles.cache.get(expiredRole.roleId);
-						if (role && member.roles.cache.has(role.id)) {
-							await member.roles.remove(role).catch((err) => {});
-						}
-					}
-
-					// Update the roles list
-					if (remainingRoles.length === 0) {
-						delete tempRoles[memberId];
-						hasChanges = true;
-					} else if (remainingRoles.length !== roles.length) {
-						tempRoles[memberId] = remainingRoles;
-						hasChanges = true;
-					}
-				}
-
-				// Save changes if necessary
-				if (hasChanges) {
-					await this.client.db.set(dbPath, tempRoles);
 				}
 			}
-		} catch (error) {
-			throw new Error(error);
+		} finally {
+			this.isRunning = false;
+		}
+	}
+
+	private async checkGuild(guild: Guild): Promise<void> {
+		const dbPath = `${guild.id}.GUILD.TEMPROLE`;
+		const tempRoles: TempRoleSchema =
+			(await this.client.db.get(dbPath)) || {};
+
+		// Loop through all members with temporary roles
+		for (const [memberId, roles] of Object.entries(tempRoles)) {
+			const currentTime = Date.now();
+
+			const expiredRoles = roles.filter(
+				(tempRole) => tempRole.time <= currentTime
+			);
+
+			if (expiredRoles.length === 0) {
+				continue;
+			}
+
+			let member: GuildMember;
+
+			try {
+				member = await guild.members.fetch(memberId);
+			} catch (error) {
+				if (isDiscordErrorCode(error, UNKNOWN_MEMBER_CODE)) {
+					// The member is no longer in the server, clean up the entry
+					await this.client.db.delete(`${dbPath}.${memberId}`);
+				} else {
+					// Transient error: keep the entry and retry on the next pass
+					logger.err(
+						`temprole: unable to fetch ${memberId} in ${guild.id}: ${error}`
+					);
+				}
+				continue;
+			}
+
+			const removedIds = new Set<string>();
+
+			for (const expiredRole of expiredRoles) {
+				const role = guild.roles.cache.get(expiredRole.roleId);
+
+				if (role && member.roles.cache.has(role.id)) {
+					try {
+						await member.roles.remove(role);
+					} catch (error) {
+						logger.err(
+							`temprole: unable to remove ${role.id} from ${memberId} in ${guild.id}: ${error}`
+						);
+						continue;
+					}
+				}
+
+				removedIds.add(expiredRole.roleId);
+			}
+
+			if (removedIds.size === 0) {
+				continue;
+			}
+
+			// Read the member entry again: a role may have been added meanwhile
+			const memberPath = `${dbPath}.${memberId}`;
+			const latest: TempRoleSchema[string] =
+				(await this.client.db.get(memberPath)) || [];
+			const remainingRoles = latest.filter(
+				(tempRole) =>
+					!(
+						removedIds.has(tempRole.roleId) &&
+						tempRole.time <= currentTime
+					)
+			);
+
+			if (remainingRoles.length === 0) {
+				await this.client.db.delete(memberPath);
+			} else if (remainingRoles.length !== latest.length) {
+				await this.client.db.set(memberPath, remainingRoles);
+			}
 		}
 	}
 

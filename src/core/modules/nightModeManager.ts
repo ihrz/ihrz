@@ -320,20 +320,39 @@ class NightModeManager {
 			);
 		}
 
+		const changed_roles: Role[] = [];
+
+		await guild.client.db.set(
+			`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
+			[]
+		);
+
 		for (let role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(
 				role.permissions
 			).remove(PermissionFlagsBits.Administrator);
-			await role.setPermissions(newPermissions);
+
+			try {
+				await role.setPermissions(newPermissions);
+				changed_roles.push(role);
+				await guild.client.db.set(
+					`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
+					changed_roles.map((x) => x.id)
+				);
+			} catch (error) {
+				logger.err(
+					`nightmode: unable to edit the role ${role.id} in ${guild.id}: ${error}`
+				);
+			}
 		}
 
 		let msg = "";
 		msg += lang.var_nm_start_main;
 
-		if (filtered_pa_roles.length > 0) {
+		if (changed_roles.length > 0) {
 			msg +=
 				lang.var_nm_edited_roles +
-				`\n>>> ${filtered_pa_roles.map((x) => "@" + x.name + "").join("\n")}`;
+				`\n>>> ${changed_roles.map((x) => "@" + x.name + "").join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -343,11 +362,6 @@ class NightModeManager {
 			},
 			lang
 		});
-
-		await guild.client.db.set(
-			`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
-			filtered_pa_roles.map((x) => x.id)
-		);
 	}
 
 	private async Notify_Server_Owner(
