@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 		const boost =
 			interaction instanceof ChatInputCommandInteraction
 				? parseInt(opts.string("boost", 1)!)
-				: opts.number("boost", 1);
+				: opts.number("boost", 1, true);
 
 		let roleData = (await client.db.get(
 			`${interaction.guildId}.ECONOMY.buyableRoles`

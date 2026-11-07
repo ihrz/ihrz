@@ -253,10 +253,30 @@ export function number(args: string[], argsNumber: number): number {
 	return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
+export type HybridOptions = {
+	string(name: string, index: number, required: true): string;
+	string(name: string, index: number, required?: boolean): string | null;
+	longString(name: string, index: number, required: true): string;
+	longString(name: string, index: number, required?: boolean): string | null;
+	number(name: string, index: number, required: true): number;
+	number(name: string, index: number, required?: boolean): number | null;
+	integer(name: string, index: number, required: true): number;
+	integer(name: string, index: number, required?: boolean): number | null;
+	member(name: string, index: number): GuildMember | null;
+	user(name: string, index: number): Promise<User | null>;
+	channel(name: string, index: number): Promise<Channel | null>;
+	voiceChannel(
+		name: string,
+		index: number
+	): Promise<BaseGuildVoiceChannel | null>;
+	role(name: string, index: number): Role | null;
+	attachment(name: string): Attachment | null;
+};
+
 export function options(
 	interaction: ChatInputCommandInteraction | Message,
 	args: string[] = []
-) {
+): HybridOptions {
 	const slash = interaction instanceof ChatInputCommandInteraction;
 
 	function read_string(name: string, index: number, required: true): string;
