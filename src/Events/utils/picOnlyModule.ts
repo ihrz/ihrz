@@ -46,6 +46,7 @@ export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		if (message.author.bot || message.webhookId) return;
+		if (!message.inGuild()) return;
 
 		const picOnlyChannels = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.picOnly`
@@ -85,7 +86,7 @@ export const event: BotEvent = {
 					PermissionFlagsBits.ModerateMembers
 				)
 			) {
-				await message.delete();
+				await message.delete().catch(() => {});
 
 				const userId = message.author.id;
 				cleanOldWarnings(userId);
@@ -94,14 +95,14 @@ export const event: BotEvent = {
 				userWarnings.push(Date.now());
 				warnings.set(userId, userWarnings);
 
-				const threshold = picOnlyConfig.threshold || 3;
+				const threshold = picOnlyConfig?.threshold || 3;
 
 				if (userWarnings.length >= threshold) {
 					warnings.delete(userId);
 
 					try {
 						await message.member?.timeout(
-							picOnlyConfig.muteTime || 10 * 60 * 1000,
+							picOnlyConfig?.muteTime || 10 * 60 * 1000,
 							lang.piconly_module_timeout_reason
 						);
 						await client.func.method
@@ -138,6 +139,8 @@ export const event: BotEvent = {
 						})
 						.catch(() => false);
 				}
+
+				return;
 			}
 
 			if (picOnlyConfig?.createThread === "yes") {
@@ -158,7 +161,8 @@ export const event: BotEvent = {
 							locked: false,
 							archived: false
 						})
-					);
+					)
+					.catch(() => {});
 			}
 		}
 	}
