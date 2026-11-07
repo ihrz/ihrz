@@ -625,35 +625,31 @@ export async function loadChannel(
  */
 export async function clearGuild(guild: Guild) {
 	// Delete roles
-	guild.roles.cache
+	for (const role of guild.roles.cache
 		.filter((role) => role.editable && role.id !== guild.id)
-		.forEach(async (role) => {
-			try {
-				await role.delete();
-			} catch {}
-		});
+		.values()) {
+		await role.delete().catch((e) => logger.err(String(e)));
+	}
 	// Delete channels
-	guild.channels.cache.forEach(async (channel) => {
-		try {
-			await channel.delete();
-		} catch {}
-	});
+	for (const channel of guild.channels.cache.values()) {
+		await channel.delete().catch((e) => logger.err(String(e)));
+	}
 	// Delete emojis
-	guild.emojis.cache.forEach(async (emoji) => {
-		try {
-			await emoji.delete();
-		} catch {}
-	});
+	for (const emoji of guild.emojis.cache.values()) {
+		await emoji.delete().catch((e) => logger.err(String(e)));
+	}
 	// Delete webhooks
 	const webhooks = await guild.fetchWebhooks();
-	webhooks.forEach(async (webhook) => {
-		await webhook.delete();
-	});
+	for (const webhook of webhooks.values()) {
+		await webhook.delete().catch((e) => logger.err(String(e)));
+	}
 	// Unban members
 	const bans = await guild.bans.fetch();
-	bans.forEach(async (ban) => {
-		await guild.members.unban(ban.user.id);
-	});
+	for (const ban of bans.values()) {
+		await guild.members
+			.unban(ban.user.id)
+			.catch((e) => logger.err(String(e)));
+	}
 	guild.setAFKChannel(null);
 	guild.setAFKTimeout(60 * 5);
 	guild.setIcon(null);
