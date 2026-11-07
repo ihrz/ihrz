@@ -104,8 +104,13 @@ interface ProtectRuleState {
 	sanction: ProtectSanction | null;
 }
 
+// "All rules" in the rule select: the mode, sanction and on/off controls then
+// apply to every rule at once.
+const ALL_RULES = "all";
+type PanelRule = ProtectRuleKey | typeof ALL_RULES;
+
 interface ProtectPanelState {
-	rule: ProtectRuleKey | null;
+	rule: PanelRule | null;
 	globalSanction: ProtectSanction | null;
 	rules: Record<ProtectRuleKey, ProtectRuleState>;
 }
@@ -333,6 +338,15 @@ export async function openProtectPanel(
 			.setMaxValues(1)
 			.setDisabled(disabled);
 
+		select.addOptions(
+			new StringSelectMenuOptionBuilder()
+				.setLabel(lang.protect_panel_all_rules)
+				.setValue(ALL_RULES)
+				.setDescription(lang.protect_panel_all_rules_desc)
+				.setEmoji(client.iHorizon_Emojis.Security)
+				.setDefault(state.rule === ALL_RULES)
+		);
+
 		for (const key of RULE_ORDER) {
 			select.addOptions(
 				new StringSelectMenuOptionBuilder()
@@ -382,22 +396,31 @@ export async function openProtectPanel(
 	function buildModeSelectRow(
 		disabled: boolean
 	): ActionRowBuilder<StringSelectMenuBuilder> {
-		const key = state.rule as ProtectRuleKey;
-		const ruleState = state.rules[key];
+		// All rules: the shared mode is preselected, none when they differ.
+		const all = state.rule === ALL_RULES;
+		const ruleState = all
+			? null
+			: state.rules[state.rule as ProtectRuleKey];
+		const current = ruleState ? ruleState.mode : sharedValue((r) => r.mode);
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId("protect-panel-mode")
 			.setPlaceholder(lang.protect_panel_mode_placeholder)
 			.setMinValues(1)
 			.setMaxValues(1)
-			.setDisabled(disabled || !ruleState.enabled);
+			.setDisabled(
+				disabled ||
+					(ruleState
+						? !ruleState.enabled
+						: enabledRules().length === 0)
+			);
 
 		for (const value of MODE_ORDER) {
 			select.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel(modeLabel(value))
 					.setValue(value)
-					.setDefault(value === ruleState.mode)
+					.setDefault(value === current)
 			);
 		}
 
@@ -409,20 +432,31 @@ export async function openProtectPanel(
 	function buildSanctionSelectRow(
 		disabled: boolean
 	): ActionRowBuilder<StringSelectMenuBuilder> {
-		const key = state.rule as ProtectRuleKey;
-		const ruleState = state.rules[key];
+		const all = state.rule === ALL_RULES;
+		const ruleState = all
+			? null
+			: state.rules[state.rule as ProtectRuleKey];
+		// `undefined` = the rules differ: nothing preselected.
+		const current = ruleState
+			? ruleState.sanction
+			: sharedValue((r) => r.sanction);
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId("protect-panel-sanction")
 			.setPlaceholder(lang.protect_panel_sanction_placeholder)
 			.setMinValues(1)
 			.setMaxValues(1)
-			.setDisabled(disabled || !ruleState.enabled)
+			.setDisabled(
+				disabled ||
+					(ruleState
+						? !ruleState.enabled
+						: enabledRules().length === 0)
+			)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.protect_panel_sanction_global)
 					.setValue("global")
-					.setDefault(ruleState.sanction === null)
+					.setDefault(current === null)
 			);
 
 		for (const value of SANCTION_ORDER) {
@@ -430,12 +464,81 @@ export async function openProtectPanel(
 				new StringSelectMenuOptionBuilder()
 					.setLabel(sanctionLabel(value))
 					.setValue(value)
-					.setDefault(value === ruleState.sanction)
+					.setDefault(value === current)
 			);
 		}
 
 		return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 			select
+		);
+	}
+
+	// The value every rule shares, `undefined` when they differ.
+	// Only enabled rules are stored, so bulk changes apply to them alone.
+	function enabledRules(): ProtectRuleKey[] {
+		return RULE_ORDER.filter((key) => state.rules[key].enabled);
+	}
+
+	function sharedValue<T>(
+		pick: (rule: ProtectRuleState) => T
+	): T | undefined {
+		const values = enabledRules().map((key) => pick(state.rules[key]));
+		return values.every((value) => value === values[0])
+			? values[0]
+			: undefined;
+	}
+
+	function buildAllContent(): TextDisplayBuilder {
+		const enabledCount = RULE_ORDER.filter(
+			(key) => state.rules[key].enabled
+		).length;
+		const mode = sharedValue((r) => r.mode);
+		const sanction = sharedValue((r) => r.sanction);
+
+		const lines = [
+			`## ${client.iHorizon_Emojis.Security} ${lang.protect_panel_all_rules}`,
+			lang.protect_panel_all_status
+				.replace("${enabledCount}", String(enabledCount))
+				.replace("${ruleCount}", String(RULE_ORDER.length)),
+			lang.protect_panel_all_help
+		];
+		if (enabledCount === 0)
+			return new TextDisplayBuilder().setContent(lines.join("\n"));
+
+		lines.push(
+			"",
+			`**${lang.protect_panel_bypass_label}:** ${mode === undefined ? lang.protect_panel_all_mixed : modeLabel(mode)}`,
+			`**${lang.protect_panel_sanction_label}:** ${
+				sanction === undefined
+					? lang.protect_panel_all_mixed
+					: sanction === null
+						? lang.protect_panel_sanction_global
+						: sanctionLabel(sanction)
+			}`
+		);
+		return new TextDisplayBuilder().setContent(lines.join("\n"));
+	}
+
+	function buildAllToggleRow(
+		disabled: boolean
+	): ActionRowBuilder<ButtonBuilder> {
+		const enabledCount = RULE_ORDER.filter(
+			(key) => state.rules[key].enabled
+		).length;
+
+		return new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId("protect-panel-enable-all")
+				.setLabel(lang.protect_panel_enable_all_button)
+				.setStyle(ButtonStyle.Success)
+				.setEmoji(client.iHorizon_Emojis.Yes)
+				.setDisabled(disabled || enabledCount === RULE_ORDER.length),
+			new ButtonBuilder()
+				.setCustomId("protect-panel-disable-all")
+				.setLabel(lang.protect_panel_disable_all_button)
+				.setStyle(ButtonStyle.Danger)
+				.setEmoji(client.iHorizon_Emojis.No)
+				.setDisabled(disabled || enabledCount === 0)
 		);
 	}
 
@@ -547,6 +650,11 @@ export async function openProtectPanel(
 		if (state.rule === null) {
 			container.addTextDisplayComponents(buildOverviewContent());
 			container.addActionRowComponents(buildGlobalSelectRow(disabled));
+		} else if (state.rule === ALL_RULES) {
+			container.addTextDisplayComponents(buildAllContent());
+			container.addActionRowComponents(buildModeSelectRow(disabled));
+			container.addActionRowComponents(buildSanctionSelectRow(disabled));
+			container.addActionRowComponents(buildAllToggleRow(disabled));
 		} else {
 			container.addTextDisplayComponents(buildDetailContent(state.rule));
 			container.addActionRowComponents(buildModeSelectRow(disabled));
@@ -578,6 +686,31 @@ export async function openProtectPanel(
 
 	function apiErrorMessage(): string {
 		return `${client.iHorizon_Emojis.Warning_Icon} ${lang.protect_panel_api_error}`;
+	}
+
+	// "All rules": changes every rule and saves the enabled ones. A disabled
+	// rule has no entry in the database: it gets these values when it is
+	// turned on, as with a single rule.
+	async function applyToAll(
+		source: StringSelectMenuInteraction<"cached">,
+		change: (rule: ProtectRuleState) => void,
+		message: string
+	): Promise<void> {
+		try {
+			const keys = enabledRules();
+			for (const key of keys) {
+				change(state.rules[key]);
+				await saveRuleObject(key);
+			}
+			await feedback(
+				source,
+				message.replace("${ruleCount}", String(keys.length))
+			);
+		} catch (error) {
+			logger.err(error);
+			await feedback(source, apiErrorMessage());
+		}
+		await render(placeholder);
 	}
 
 	if (!guild.members.me?.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -633,7 +766,7 @@ export async function openProtectPanel(
 				switch (source.customId) {
 					case "protect-panel-rule-select": {
 						await source.deferUpdate();
-						state.rule = source.values[0] as ProtectRuleKey;
+						state.rule = source.values[0] as PanelRule;
 						await render(placeholder);
 						break;
 					}
@@ -659,10 +792,25 @@ export async function openProtectPanel(
 						break;
 					}
 					case "protect-panel-mode": {
-						const key = state.rule as ProtectRuleKey;
 						const value = source.values[0];
 						if (!isProtectMode(value)) return;
 
+						if (state.rule === ALL_RULES) {
+							await source.deferUpdate().catch(() => null);
+							await applyToAll(
+								source,
+								(rule) => {
+									rule.mode = value;
+								},
+								lang.protect_panel_all_mode_saved.replace(
+									"${mode}",
+									modeLabel(value)
+								)
+							);
+							break;
+						}
+
+						const key = state.rule as ProtectRuleKey;
 						await source.deferUpdate().catch(() => null);
 						state.rules[key].mode = value;
 						await saveRuleObject(key);
@@ -676,13 +824,30 @@ export async function openProtectPanel(
 						break;
 					}
 					case "protect-panel-sanction": {
-						const key = state.rule as ProtectRuleKey;
 						const value =
 							source.values[0] === "global"
 								? null
 								: toProtectSanction(source.values[0]);
 						if (source.values[0] !== "global" && !value) return;
 
+						if (state.rule === ALL_RULES) {
+							await source.deferUpdate().catch(() => null);
+							await applyToAll(
+								source,
+								(rule) => {
+									rule.sanction = value;
+								},
+								lang.protect_panel_all_sanction_saved.replace(
+									"${sanction}",
+									value
+										? sanctionLabel(value)
+										: lang.protect_panel_sanction_global
+								)
+							);
+							break;
+						}
+
+						const key = state.rule as ProtectRuleKey;
 						await source.deferUpdate().catch(() => null);
 						state.rules[key].sanction = value;
 						await saveRuleObject(key);
@@ -739,6 +904,43 @@ export async function openProtectPanel(
 									)
 								);
 							}
+						} catch (error) {
+							logger.err(error);
+							await feedback(source, apiErrorMessage());
+						}
+
+						await render(placeholder);
+						break;
+					}
+					case "protect-panel-enable-all":
+					case "protect-panel-disable-all": {
+						const enable =
+							source.customId === "protect-panel-enable-all";
+						await source.deferUpdate().catch(() => null);
+
+						let changed = 0;
+						try {
+							for (const key of RULE_ORDER) {
+								const ruleState = state.rules[key];
+								if (ruleState.enabled === enable) continue;
+								if (enable) {
+									await saveRuleObject(key);
+								} else {
+									await client.db.delete(
+										`${guildId}.PROTECTION.${key}`
+									);
+								}
+								ruleState.enabled = enable;
+								changed++;
+							}
+							invalidateProtectionContext(guild.id);
+							await feedback(
+								source,
+								(enable
+									? lang.protect_panel_all_enabled
+									: lang.protect_panel_all_disabled
+								).replace("${ruleCount}", String(changed))
+							);
 						} catch (error) {
 							logger.err(error);
 							await feedback(source, apiErrorMessage());

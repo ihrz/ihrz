@@ -3212,6 +3212,20 @@ export default {
 		"Quando questa regola viene attivata, l'azione viene annullata automaticamente e la sanzione viene applicata al membro responsabile.",
 	protect_panel_enable_button: "Attiva",
 	protect_panel_disable_button: "Disattiva",
+	protect_panel_all_rules: "Tutte le regole",
+	protect_panel_all_rules_desc: "Modifica tutte le regole in una volta",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} regole attivate",
+	protect_panel_all_help:
+		"L'esclusione e la sanzione valgono per tutte le regole attive in una volta.",
+	protect_panel_all_mixed: "Misto",
+	protect_panel_enable_all_button: "Attiva tutte",
+	protect_panel_disable_all_button: "Disattiva tutte",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** regole ora lasciano passare: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"La sanzione di **${ruleCount}** regole è ora: **${sanction}**.",
+	protect_panel_all_enabled: "**${ruleCount}** regole sono ora attivate!",
+	protect_panel_all_disabled: "**${ruleCount}** regole sono ora disattivate!",
 	protect_panel_back_button: "Indietro",
 	protect_panel_refresh_button: "Aggiorna",
 	protect_panel_close_button: "Chiudi pannello",

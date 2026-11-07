@@ -3219,6 +3219,22 @@ export default {
 		"Cuando se activa esta regla, la acción se deshace automáticamente y la sanción se aplica al miembro responsable.",
 	protect_panel_enable_button: "Activar",
 	protect_panel_disable_button: "Desactivar",
+	protect_panel_all_rules: "Todas las reglas",
+	protect_panel_all_rules_desc: "Cambiar todas las reglas a la vez",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} reglas activadas",
+	protect_panel_all_help:
+		"La omisión y la sanción se aplican a todas las reglas activas a la vez.",
+	protect_panel_all_mixed: "Variado",
+	protect_panel_enable_all_button: "Activar todas",
+	protect_panel_disable_all_button: "Desactivar todas",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** reglas ahora dejan pasar: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"La sanción de **${ruleCount}** reglas es ahora: **${sanction}**.",
+	protect_panel_all_enabled:
+		"¡**${ruleCount}** reglas están ahora activadas!",
+	protect_panel_all_disabled:
+		"¡**${ruleCount}** reglas están ahora desactivadas!",
 	protect_panel_back_button: "Atrás",
 	protect_panel_refresh_button: "Actualizar",
 	protect_panel_close_button: "Cerrar panel",

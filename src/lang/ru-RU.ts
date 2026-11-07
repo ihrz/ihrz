@@ -3143,6 +3143,20 @@ export default {
 		"Когда это правило срабатывает, действие автоматически отменяется, а санкция применяется к ответственному участнику.",
 	protect_panel_enable_button: "Включить",
 	protect_panel_disable_button: "Выключить",
+	protect_panel_all_rules: "Все правила",
+	protect_panel_all_rules_desc: "Изменить все правила сразу",
+	protect_panel_all_status: "Включено правил: ${enabledCount}/${ruleCount}",
+	protect_panel_all_help:
+		"Обход и наказание применяются сразу ко всем включённым правилам.",
+	protect_panel_all_mixed: "Разные",
+	protect_panel_enable_all_button: "Включить все",
+	protect_panel_disable_all_button: "Отключить все",
+	protect_panel_all_mode_saved:
+		"Правила (**${ruleCount}**) теперь пропускают: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"Наказание для правил (**${ruleCount}**) теперь: **${sanction}**.",
+	protect_panel_all_enabled: "Включено правил: **${ruleCount}**!",
+	protect_panel_all_disabled: "Отключено правил: **${ruleCount}**!",
 	protect_panel_back_button: "Назад",
 	protect_panel_refresh_button: "Обновить",
 	protect_panel_close_button: "Закрыть панель",

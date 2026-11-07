@@ -3244,6 +3244,21 @@ export default {
 		"Wenn diese Regel ausgelöst wird, wird die Aktion automatisch rückgängig gemacht und die Sanktion auf das verantwortliche Mitglied angewendet.",
 	protect_panel_enable_button: "Aktivieren",
 	protect_panel_disable_button: "Deaktivieren",
+	protect_panel_all_rules: "Alle Regeln",
+	protect_panel_all_rules_desc: "Alle Regeln auf einmal ändern",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} Regeln aktiviert",
+	protect_panel_all_help:
+		"Umgehung und Sanktion gelten für alle aktivierten Regeln auf einmal.",
+	protect_panel_all_mixed: "Gemischt",
+	protect_panel_enable_all_button: "Alle aktivieren",
+	protect_panel_disable_all_button: "Alle deaktivieren",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** Regeln lassen jetzt durch: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"Die Sanktion von **${ruleCount}** Regeln ist jetzt: **${sanction}**.",
+	protect_panel_all_enabled: "**${ruleCount}** Regeln sind jetzt aktiviert!",
+	protect_panel_all_disabled:
+		"**${ruleCount}** Regeln sind jetzt deaktiviert!",
 	protect_panel_back_button: "Zurück",
 	protect_panel_refresh_button: "Aktualisieren",
 	protect_panel_close_button: "Panel schließen",

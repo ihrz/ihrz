@@ -3265,6 +3265,20 @@ export default {
 		"Quand cette règle est déclenchée, l'action est automatiquement annulée et la sanction est appliquée au membre responsable.",
 	protect_panel_enable_button: "Activer",
 	protect_panel_disable_button: "Désactiver",
+	protect_panel_all_rules: "Toutes les règles",
+	protect_panel_all_rules_desc: "Change toutes les règles d'un coup",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} règles activées",
+	protect_panel_all_help:
+		"Le contournement et la sanction s'appliquent à toutes les règles actives d'un coup.",
+	protect_panel_all_mixed: "Variable",
+	protect_panel_enable_all_button: "Tout activer",
+	protect_panel_disable_all_button: "Tout désactiver",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** règles laissent maintenant passer : **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"La sanction de **${ruleCount}** règles est maintenant : **${sanction}**.",
+	protect_panel_all_enabled: "**${ruleCount}** règles sont activées !",
+	protect_panel_all_disabled: "**${ruleCount}** règles sont désactivées !",
 	protect_panel_back_button: "Retour",
 	protect_panel_refresh_button: "Rafraîchir",
 	protect_panel_close_button: "Fermer le panneau",

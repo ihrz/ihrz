@@ -2979,6 +2979,20 @@ export default {
 		"عند تفعيل هذه القاعدة، يُلغى الإجراء تلقائيًا وتُطبَّق العقوبة على العضو المسؤول.",
 	protect_panel_enable_button: "تفعيل",
 	protect_panel_disable_button: "تعطيل",
+	protect_panel_all_rules: "كل القواعد",
+	protect_panel_all_rules_desc: "تعديل كل القواعد مرة واحدة",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} قواعد مفعّلة",
+	protect_panel_all_help:
+		"ينطبق التجاوز والعقوبة على كل القواعد المفعّلة مرة واحدة.",
+	protect_panel_all_mixed: "مختلط",
+	protect_panel_enable_all_button: "تفعيل الكل",
+	protect_panel_disable_all_button: "تعطيل الكل",
+	protect_panel_all_mode_saved:
+		"أصبحت **${ruleCount}** قواعد تسمح بمرور: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"أصبحت عقوبة **${ruleCount}** قواعد: **${sanction}**.",
+	protect_panel_all_enabled: "تم تفعيل **${ruleCount}** قواعد!",
+	protect_panel_all_disabled: "تم تعطيل **${ruleCount}** قواعد!",
 	protect_panel_back_button: "رجوع",
 	protect_panel_refresh_button: "تحديث",
 	protect_panel_close_button: "إغلاق اللوحة",

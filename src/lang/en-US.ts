@@ -3115,6 +3115,20 @@ const enUS = {
 		"When this rule is triggered, the action is automatically undone and the sanction is applied to the member responsible.",
 	protect_panel_enable_button: "Enable",
 	protect_panel_disable_button: "Disable",
+	protect_panel_all_rules: "All rules",
+	protect_panel_all_rules_desc: "Change every rule at once",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} rules enabled",
+	protect_panel_all_help:
+		"The bypass and the sanction apply to every enabled rule at once.",
+	protect_panel_all_mixed: "Mixed",
+	protect_panel_enable_all_button: "Enable all",
+	protect_panel_disable_all_button: "Disable all",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** rules now bypass: **${mode}**.",
+	protect_panel_all_sanction_saved:
+		"The sanction of **${ruleCount}** rules is now: **${sanction}**.",
+	protect_panel_all_enabled: "**${ruleCount}** rules are now enabled!",
+	protect_panel_all_disabled: "**${ruleCount}** rules are now disabled!",
 	protect_panel_back_button: "Back",
 	protect_panel_refresh_button: "Refresh",
 	protect_panel_close_button: "Close panel",

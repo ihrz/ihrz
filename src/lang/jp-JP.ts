@@ -3146,6 +3146,20 @@ export default {
 		"このルールが発動すると、操作は自動的に元に戻され、責任者に制裁が適用されます。",
 	protect_panel_enable_button: "有効化",
 	protect_panel_disable_button: "無効化",
+	protect_panel_all_rules: "すべてのルール",
+	protect_panel_all_rules_desc: "すべてのルールを一度に変更",
+	protect_panel_all_status: "${enabledCount}/${ruleCount} 件のルールが有効",
+	protect_panel_all_help:
+		"バイパスと制裁は有効なすべてのルールに一度に適用されます。",
+	protect_panel_all_mixed: "混在",
+	protect_panel_enable_all_button: "すべて有効化",
+	protect_panel_disable_all_button: "すべて無効化",
+	protect_panel_all_mode_saved:
+		"**${ruleCount}** 件のルールのバイパス対象: **${mode}**。",
+	protect_panel_all_sanction_saved:
+		"**${ruleCount}** 件のルールの制裁: **${sanction}**。",
+	protect_panel_all_enabled: "**${ruleCount}** 件のルールを有効化しました！",
+	protect_panel_all_disabled: "**${ruleCount}** 件のルールを無効化しました！",
 	protect_panel_back_button: "戻る",
 	protect_panel_refresh_button: "更新",
 	protect_panel_close_button: "パネルを閉じる",

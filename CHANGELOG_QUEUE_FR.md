@@ -93,6 +93,7 @@ La protection réagit maintenant aux événements du journal d'audit de Discord 
 - Nouveaux cas couverts : permissions des salons, élagage des membres, modification et suppression de webhooks
 - L'**Administrateur** donné en modifiant un rôle (@everyone compris) ou en créant un rôle avec est maintenant détecté
 - Un attaquant ne peut plus récupérer ses rôles retirés, et une suppression massive de rôles ne ralentit plus le bot sur les autres serveurs
+- Le panneau `/protect` propose un choix **Toutes les règles** : il indique combien de règles sont activées, règle d'un coup le contournement et la sanction de toutes les règles actives, et allume ou éteint toutes les règles avec **Tout activer** / **Tout désactiver**
 
 ---
 

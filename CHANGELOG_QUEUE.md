@@ -93,6 +93,7 @@ Protection now reacts to Discord's audit log events as they happen, instead of f
 - New coverage: permission overwrites, member prune, webhook updates and deletions
 - **Administrator** granted by editing a role (including @everyone) or by creating one with it is now caught
 - An attacker can no longer get their removed roles back, and a mass role deletion no longer slows the bot down for other servers
+- The `/protect` panel gets an **All rules** choice: it shows how many rules are enabled, sets the bypass and the sanction of every enabled rule at once, and turns every rule on or off with **Enable all** / **Disable all**
 
 ---
 
