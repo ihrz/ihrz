@@ -121,6 +121,20 @@ export const subCommand: SubCommand = {
 			}
 
 			if (
+				interaction.guild.ownerId !== interaction.member.user.id &&
+				memberToBan.roles.highest.position >=
+					(interaction.member as GuildMember).roles.highest.position
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.ban_attempt_ban_higter_member.replace(
+						"${emoji_Stop}",
+						client.iHorizon_Emojis.Stop
+					)
+				});
+				return;
+			}
+
+			if (
 				memberToBan.permissions.has(
 					PermissionsBitField.Flags.Administrator
 				)
