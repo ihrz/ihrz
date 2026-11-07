@@ -19,7 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { REST, Routes, Client, ApplicationCommand } from "discord.js";
+import {
+	REST,
+	Routes,
+	Client,
+	ApplicationCommand,
+	PermissionFlagsBits
+} from "discord.js";
 import logger from "./logger.js";
 
 export function removePermissionProperties(obj: any): any {
@@ -45,6 +51,67 @@ export function removePermissionProperties(obj: any): any {
 
 		// Recursively clean nested objects/arrays
 		cleanedObj[key] = removePermissionProperties(value);
+	}
+
+	return cleanedObj;
+}
+
+// One name per bit: discord.js keeps deprecated aliases (for example
+// ManageEmojisAndStickers and ManageGuildExpressions share a bit), and the
+// later entry is the current name.
+const PERMISSION_NAMES_BY_BIT = new Map<bigint, string>(
+	Object.entries(PermissionFlagsBits).map(([name, flag]) => [flag, name])
+);
+
+export function readablePermissionNames(permission: unknown): string[] {
+	const values = Array.isArray(permission) ? permission : [permission];
+	const names = new Set<string>();
+
+	for (const value of values) {
+		if (typeof value !== "bigint" && typeof value !== "number") continue;
+
+		const bits = BigInt(value);
+		if (bits === 0n) continue;
+
+		for (const [flag, name] of PERMISSION_NAMES_BY_BIT) {
+			if ((bits & flag) === flag) names.add(name);
+		}
+	}
+
+	return [...names];
+}
+
+// Spreadable fragment: { permissions } when at least one bit is set, else {}.
+export function readablePermissionField(permission: unknown): {
+	permissions?: string[];
+} {
+	const names = readablePermissionNames(permission);
+	return names.length > 0 ? { permissions: names } : {};
+}
+
+// Same walk as removePermissionProperties, but a "permission" is exported as
+// a readable "permissions" array of PermissionFlagsBits names (never a bigint).
+// Only meant for the commands.json export, never for the Discord sync.
+export function withReadablePermissions(obj: any): any {
+	if (Array.isArray(obj)) {
+		return obj.map((item) => withReadablePermissions(item));
+	}
+
+	if (typeof obj !== "object" || obj === null) {
+		return obj;
+	}
+
+	const cleanedObj: any = {};
+
+	for (const [key, value] of Object.entries(obj)) {
+		if (key === "perm") continue;
+
+		if (key === "permission") {
+			Object.assign(cleanedObj, readablePermissionField(value));
+			continue;
+		}
+
+		cleanedObj[key] = withReadablePermissions(value);
 	}
 
 	return cleanedObj;
