@@ -129,9 +129,7 @@ export const subCommand: SubCommand = {
 		// unreadable image only drops the thumbnail and the accent colour.
 		const [artwork, lyrics] = await Promise.all([
 			loadArtwork(info.artworkUrl).catch(() => null),
-			client.func
-				.searchLyrics(track)
-				.catch(() => null)
+			client.func.searchLyrics(track).catch(() => null)
 		]);
 		const colors = artwork
 			? await client.func.image_dominant_color(artwork).catch(() => null)

@@ -193,7 +193,9 @@ test("marks that end a text do not abort the renderer", async () => {
 		const char = String.fromCodePoint(mark);
 
 		for (const content of [char, char + char]) {
-			expect((await svg2png(image(await draw(content)))).length).toBeGreaterThan(0);
+			expect(
+				(await svg2png(image(await draw(content)))).length
+			).toBeGreaterThan(0);
 		}
 	}
 });

@@ -38,7 +38,12 @@ const NOT_FALLBACKS = ["NotoSansHebrew.ttf"];
 
 // Several script fonts carry a few shared symbols (the dotted circle of
 // combining marks): these fonts draw them first, so one symbol has one look.
-const FIRST = ["NotoSansSymbols", "NotoSansSymbols2", "NotoSansMath", "NotoMusic"];
+const FIRST = [
+	"NotoSansSymbols",
+	"NotoSansSymbols2",
+	"NotoSansMath",
+	"NotoMusic"
+];
 
 const rank = (file: string) => {
 	const index = FIRST.indexOf(file.replace(/(-Regular)?\.(ttf|otf)$/, ""));
@@ -60,9 +65,7 @@ function familyOf(buffer: ArrayBuffer): string {
 	let name = -1;
 	for (let i = 0; i < view.getUint16(4); i++) {
 		const record = 12 + i * 16;
-		const tag = String.fromCharCode(
-			...new Uint8Array(buffer, record, 4)
-		);
+		const tag = String.fromCharCode(...new Uint8Array(buffer, record, 4));
 		if (tag === "name") name = view.getUint32(record + 8);
 	}
 	const count = view.getUint16(name + 2);
@@ -89,7 +92,9 @@ function familyOf(buffer: ArrayBuffer): string {
 }
 
 const files = readdirSync(FALLBACK_DIR)
-	.filter((file) => /\.(ttf|otf)$/.test(file) && !NOT_FALLBACKS.includes(file))
+	.filter(
+		(file) => /\.(ttf|otf)$/.test(file) && !NOT_FALLBACKS.includes(file)
+	)
 	.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 
 const fonts = files.map((file) => {
@@ -110,13 +115,15 @@ for (let codePoint = 0; codePoint <= 0x10ffff; codePoint++) {
 
 	if (base.some((font) => font.glyphOf(codePoint) !== 0)) continue;
 
-	const index = fonts.findIndex(
-		({ font }) => font.glyphOf(codePoint) !== 0
-	);
+	const index = fonts.findIndex(({ font }) => font.glyphOf(codePoint) !== 0);
 	if (index === -1) continue;
 
 	const last = ranges.length - 3;
-	if (last >= 0 && ranges[last + 1] === codePoint - 1 && ranges[last + 2] === index) {
+	if (
+		last >= 0 &&
+		ranges[last + 1] === codePoint - 1 &&
+		ranges[last + 2] === index
+	) {
 		ranges[last + 1] = codePoint;
 	} else {
 		ranges.push(codePoint, codePoint, index);

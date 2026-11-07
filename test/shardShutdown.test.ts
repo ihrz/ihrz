@@ -40,7 +40,10 @@ function isRunning(pid: number): boolean {
 		const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
 
 		// The state follows the parenthesised command name; a zombie is dead.
-		return stat.slice(stat.lastIndexOf(")") + 2, stat.lastIndexOf(")") + 3) !== "Z";
+		return (
+			stat.slice(stat.lastIndexOf(")") + 2, stat.lastIndexOf(")") + 3) !==
+			"Z"
+		);
 	} catch {
 		return false;
 	}
@@ -56,7 +59,9 @@ function runningFixtureShards(): number[] {
 		if (!/^\d+$/.test(entry)) continue;
 
 		try {
-			const argv = readFileSync(`/proc/${entry}/cmdline`, "utf8").split("\0");
+			const argv = readFileSync(`/proc/${entry}/cmdline`, "utf8").split(
+				"\0"
+			);
 
 			if (argv[1] === SHARD && isRunning(Number(entry))) {
 				pids.push(Number(entry));

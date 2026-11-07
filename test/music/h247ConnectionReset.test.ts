@@ -107,10 +107,7 @@ const socketClosed = () =>
 afterEach(async () => {
 	for (const id of usedGuildIds.splice(0)) {
 		getVoiceConnection(id)?.destroy();
-		await deleteH247Data(
-			{ db: { delete: async () => {} } } as any,
-			id
-		);
+		await deleteH247Data({ db: { delete: async () => {} } } as any, id);
 	}
 });
 
