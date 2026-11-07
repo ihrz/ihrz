@@ -29,6 +29,7 @@ import {
 	AnySelectMenuInteraction,
 	APIMessageTopLevelComponent,
 	APIModalInteractionResponseCallbackData,
+	Attachment,
 	AutocompleteInteraction,
 	BaseGuildTextChannel,
 	BaseGuildVoiceChannel,
@@ -216,13 +217,13 @@ declare namespace Client_Functions {
 		export function footerAttachmentBuilder(
 			entry?:
 				| Interaction
+				| GuildMember
 				| ChatInputCommandInteraction<"cached">
 				| Message<boolean>
-				| GuildMember
 				| Guild
 		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string }>;
 		export function footerBuilder(
-			guildId?: string | null
+			guildId?: string | null | undefined
 		): Promise<{ text: string; iconURL: string }>;
 		export function footerPaginationBuilder(
 			guildId: string,
@@ -585,6 +586,45 @@ declare namespace Client_Functions {
 			argsNumber: number
 		): GuildMember | null;
 		export function number(args: Array<string>, argsNumber: number): number;
+		export function options(
+			interaction:
+				ChatInputCommandInteraction<CacheType> | Message<boolean>,
+			args?: Array<string>
+		): {
+			string(name: string, index: number, required: true): string;
+			string(
+				name: string,
+				index: number,
+				required?: boolean
+			): string | null;
+			longString(name: string, index: number, required: true): string;
+			longString(
+				name: string,
+				index: number,
+				required?: boolean
+			): string | null;
+			number(name: string, index: number, required: true): number;
+			number(
+				name: string,
+				index: number,
+				required?: boolean
+			): number | null;
+			integer(name: string, index: number, required: true): number;
+			integer(
+				name: string,
+				index: number,
+				required?: boolean
+			): number | null;
+			member(name: string, index: number): GuildMember | null;
+			user(name: string, index: number): Promise<User | null>;
+			channel(name: string, index: number): Promise<Channel | null>;
+			voiceChannel(
+				name: string,
+				index: number
+			): Promise<BaseGuildVoiceChannel | null>;
+			role(name: string, index: number): Role | null;
+			attachment(name: string): Attachment | null;
+		};
 		export function punish(
 			data: DatabaseStructure.ProtectionData,
 			user: GuildMember | { guild: Guild; id: string },
@@ -716,6 +756,7 @@ declare namespace Client_Functions {
 			client: Client<boolean>,
 			track: Track
 		): Promise<void>;
+		export function stripChoiceDuration(query: string): string;
 	}
 
 	// From music_proximity.ts
@@ -978,6 +1019,11 @@ declare namespace Client_Functions {
 		tag_id: string,
 		tag: DatabaseStructure.TagInfo
 	): EmbedBuilder;
+
+	// From tempVoiceCandidate.ts
+	export function tempVoiceCandidate(
+		member: GuildMember | null | undefined
+	): boolean;
 
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {

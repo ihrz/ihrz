@@ -41,14 +41,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var only_guild_owner = interaction.options.getString(
-				"only_guild_owner",
-				true
-			);
-		} else {
-			var only_guild_owner = client.func.method.string(args!, 1)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const only_guild_owner = opts.string("only_guild_owner", 1, true);
 
 		if (interaction.member.user.id !== interaction.guild.ownerId) {
 			client.func.method.interactionSend(interaction, {

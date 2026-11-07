@@ -178,25 +178,12 @@ export const command: Command = {
 
 		const regex = /<a?:\w+:(\d+)>/;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("value");
-			var channel = interaction.options.getChannel(
-				"channel"
-			)! as Channel | null;
-			var messagei = interaction.options.getString("message_id");
-			var reaction = interaction.options.getString("reaction");
-			var role = interaction.options.getRole("role");
-		} else {
-			var type = client.func.method.string(args!, 0);
-			var channel = await client.func.method.channel(
-				interaction,
-				args!,
-				1
-			);
-			var messagei = client.func.method.string(args!, 2);
-			var reaction = client.func.method.string(args!, 3);
-			var role = client.func.method.role(interaction, args!, 4);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("value", 0);
+		const channel = (await opts.channel("channel", 1)) as Channel | null;
+		const messagei = opts.string("message_id", 2);
+		let reaction = opts.string("reaction", 3);
+		const role = opts.role("role", 4);
 
 		const match = reaction?.match(regex);
 		reaction = match ? match[1] : reaction;

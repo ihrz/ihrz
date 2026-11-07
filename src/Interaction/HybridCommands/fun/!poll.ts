@@ -46,13 +46,12 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var pollMessage = interaction.options.getString("message");
-			var user = interaction.user;
-		} else {
-			var pollMessage = client.func.method.longString(args!, 0);
-			var user = interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const pollMessage = opts.longString("message", 0);
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
 
 		// The reactions are the votes; they work on a Components V2 message too.
 		const msg = await sendCard(

@@ -47,11 +47,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var giveawayId = interaction.options.getString("giveaway-id")!;
-		} else {
-			var giveawayId = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const giveawayId = opts.string("giveaway-id", 0)!;
 
 		client.giveawaysManager
 			.getGiveawayData(giveawayId)

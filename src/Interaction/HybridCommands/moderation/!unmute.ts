@@ -47,17 +47,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var tomute = interaction.options.getMember(
-				"user"
-			) as GuildMember | null;
-		} else {
-			var tomute = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const tomute = opts.member("user", 0) as GuildMember | null;
 
 		if (!tomute) return;
 

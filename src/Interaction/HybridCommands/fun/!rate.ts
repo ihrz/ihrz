@@ -48,10 +48,8 @@ export const subCommand: SubCommand = {
 		// Nombre entre 0 et 10
 		const random = client.func.random.secureRandomInt(0, 9);
 
-		const string =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("the_things")
-				: client.func.method.longString(args!, 0);
+		const opts = client.func.method.options(interaction, args);
+		const string = opts.longString("the_things", 0);
 
 		const the_things = maskLink(string || "nothing");
 

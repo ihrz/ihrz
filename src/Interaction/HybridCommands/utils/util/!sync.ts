@@ -51,17 +51,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel(
-				"category"
-			) as CategoryChannel | null;
-		} else {
-			var category = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as CategoryChannel | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const category = (await opts.channel(
+			"category",
+			0
+		)) as CategoryChannel | null;
 
 		const child_channels = category?.children.cache.values()!;
 

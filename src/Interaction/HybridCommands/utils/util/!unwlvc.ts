@@ -44,10 +44,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const target =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getMember("member")
-				: client.func.method.member(interaction, args!, 0);
+		const opts = client.func.method.options(interaction, args);
+		const target = opts.member("member", 0);
 
 		if (!target) {
 			await client.func.method.interactionSend(interaction, {

@@ -41,11 +41,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var types = interaction.options.getString("action");
-		} else {
-			var types = client.func.method.string(args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const types = opts.string("action", 0);
 
 		if (types == "off") {
 			await client.func.ihorizon_logs(interaction, {

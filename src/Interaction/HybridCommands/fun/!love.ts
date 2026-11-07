@@ -47,20 +47,15 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user1 =
-				interaction.options.getUser("user1") || interaction.user;
-			var user2 =
-				interaction.options.getUser("user2") ||
-				(interaction.guild?.members.cache.random()?.user as User);
-		} else {
-			var user1 =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-			var user2 =
-				(await client.func.method.user(interaction, args!, 1)) ||
-				(interaction.guild?.members.cache.random()?.user as User);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user1 =
+			(await opts.user("user1", 0)) ||
+			(interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author);
+		const user2 =
+			(await opts.user("user2", 1)) ||
+			(interaction.guild?.members.cache.random()?.user as User);
 
 		try {
 			const loveResult = await love(

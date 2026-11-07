@@ -54,17 +54,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getUser("member")!;
-			var reason = interaction.options.getString("reason");
-		} else {
-			var member = (await client.func.method.user(
-				interaction,
-				args!,
-				0
-			)) as User;
-			var reason = client.func.method.longString(args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member = (await opts.user("member", 0)) as User;
+		let reason = opts.longString("reason", 1);
 
 		if (!reason) {
 			reason = lang.guildprofil_not_set_punishPub;

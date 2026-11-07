@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -49,15 +49,12 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var hug = interaction.options.getUser("user") as User;
-			var user = interaction.user;
-		} else {
-			var hug =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-			var user = interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
+		const hug = (await opts.user("user", 0)) || user;
 
 		const url = apiUrlParser.assetsFinder(client.assets, "hug");
 

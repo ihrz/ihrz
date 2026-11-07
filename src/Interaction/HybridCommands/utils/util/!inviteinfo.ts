@@ -54,12 +54,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let invite: string;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			invite = interaction.options.getString("discord_invite")!;
-		} else {
-			invite = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const invite = opts.string("discord_invite", 0)!;
 
 		if (!isValidDiscordInvite(invite)) {
 			await client.func.method.interactionSend(interaction, {

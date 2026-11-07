@@ -60,11 +60,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var role = interaction.options.getRole("role") as Role;
-		} else {
-			var role = client.func.method.role(interaction, args!, 0) as Role;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const role = opts.role("role", 0) as Role;
 
 		let roleData = (await client.db.get(
 			`${interaction.guildId}.ECONOMY.buyableRoles`

@@ -24,8 +24,7 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	time,
-	User
+	time
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -39,15 +38,12 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member =
-				(interaction.options.getUser("user") as User) ||
-				interaction.user;
-		} else {
-			var member =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member =
+			(await opts.user("user", 0)) ||
+			(interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author);
 
 		let description = await profilTable.get(`${member.id}.desc`);
 		if (!description) description = lang.profil_not_description_set;

@@ -63,11 +63,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var duration = interaction.options.getString("duration", true);
-		} else {
-			var duration = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const duration = opts.string("duration", 0, true);
 
 		let channel = interaction.channel;
 		let duration_in_string = client.timeCalculator.to_beautiful_string(

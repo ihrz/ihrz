@@ -127,17 +127,11 @@ export async function run_for_bot_owner(
 	)
 		return;
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser("user", true);
-		var newReason =
-			"iHorizon Project Blacklist - " +
-			interaction.options.getString("new_reason", true);
-	} else {
-		var user = (await client.func.method.user(interaction, args!, 0))!;
-		var newReason =
-			"iHorizon Project Blacklist - " +
-			client.func.method.longString(args!, 1)!;
-	}
+	const opts = client.func.method.options(interaction, args);
+	const user = (await opts.user("user", 0))!;
+	const newReason =
+		"iHorizon Project Blacklist - " +
+		opts.longString("new_reason", 1, true);
 
 	if (
 		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id))
@@ -212,17 +206,11 @@ export async function run_for_guild_owner(
 	)
 		return;
 
-	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser("user", true);
-		var newReason =
-			"iHorizon Project Blacklist - " +
-			interaction.options.getString("new_reason", true);
-	} else {
-		var user = (await client.func.method.user(interaction, args!, 0))!;
-		var newReason =
-			"iHorizon Project Blacklist - " +
-			client.func.method.longString(args!, 1)!;
-	}
+	const opts = client.func.method.options(interaction, args);
+	const user = (await opts.user("user", 0))!;
+	const newReason =
+		"iHorizon Project Blacklist - " +
+		opts.longString("new_reason", 1, true);
 
 	if (
 		!client.func.ownerHelper.isGuildOwner(

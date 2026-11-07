@@ -41,11 +41,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var state = interaction.options.getString("action") as string;
-		} else {
-			var state = client.func.method.longString(args!, 0) as string;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const state = opts.longString("action", 0) as string;
 
 		const current_state = await client.db.get(
 			`${interaction.guildId}.ECONOMY.disabled`

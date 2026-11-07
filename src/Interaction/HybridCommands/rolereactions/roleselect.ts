@@ -118,19 +118,10 @@ export const command: Command = {
 			return;
 		}
 
-		const channel =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getChannel("channel") as Channel)
-				: ((await client.func.method.channel(
-						interaction,
-						args!,
-						0
-					)) as Channel);
+		const opts = client.func.method.options(interaction, args);
+		const channel = (await opts.channel("channel", 0)) as Channel;
 
-		const messageId =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getString("message_id") as string)
-				: (client.func.method.string(args!, 1) as string);
+		const messageId = opts.string("message_id", 1) as string;
 
 		// Validate message ID
 		if (!messageId || messageId.length < 9) {

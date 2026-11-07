@@ -32,13 +32,9 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var image = interaction.options.getAttachment("image", true);
-			var query = interaction.options.getString("query", true);
-		} else {
-			var image = interaction.attachments.first()!;
-			var query = client.func.method.longString(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const image = opts.attachment("image")!;
+		const query = opts.longString("query", 0, true);
 
 		if (!client.func.validImageType(image.contentType)) {
 			client.func.method.interactionSend(interaction, {

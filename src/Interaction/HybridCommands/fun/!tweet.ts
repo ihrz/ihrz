@@ -55,19 +55,14 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user: User =
-				(interaction.options.getUser("user") as User) ||
-				interaction.user;
-			var entry = interaction.options.getString("comment");
-			var messageArgs = entry!.split(" ");
-		} else {
-			var user: User =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-			var entry = client.func.method.longString(args!, 1);
-			var messageArgs = entry!.split(" ");
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user: User =
+			(await opts.user("user", 0)) ||
+			(interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author);
+		const entry = opts.longString("comment", 1);
+		const messageArgs = entry!.split(" ");
 
 		if (messageArgs.length < 1) {
 			await client.func.method.interactionSend(interaction, {

@@ -61,13 +61,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var userID = interaction.options.getString("userid");
-			var reason = interaction.options.getString("reason");
-		} else {
-			var userID = client.func.method.string(args!, 0);
-			var reason = client.func.method.longString(args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const userID = opts.string("userid", 0);
+		let reason = opts.longString("reason", 1);
 
 		if (!reason) reason = lang.unban_reason;
 

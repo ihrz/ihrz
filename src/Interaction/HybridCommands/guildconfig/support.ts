@@ -184,21 +184,11 @@ export const command: Command = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action", true);
-			var type = interaction.options.getString("type", false);
-			var roles = interaction.options.getRole("roles", false);
-			var input = interaction.options.getString("input", false);
-		} else {
-			var action = client.func.method.string(args!, 0)!;
-			var type = client.func.method.string(args!, 1);
-			var roles = client.func.method.role(
-				interaction,
-				args!,
-				2
-			) as Role | null;
-			var input = client.func.method.longString(args!, 3);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0, true);
+		const type = opts.string("type", 1);
+		const roles = opts.role("roles", 2) as Role | null;
+		let input = opts.longString("input", 3);
 
 		if (action == "on") {
 			if (!roles) {

@@ -157,12 +157,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let inputText: string;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			inputText = interaction.options.getString("nickname") || "";
-		} else {
-			inputText = client.func.method.longString(args!, 0) || "";
-		}
+		const opts = client.func.method.options(interaction, args);
+		const inputText = opts.longString("nickname", 0) || "";
 
 		if (!inputText) {
 			await client.func.method.interactionSend(interaction, {

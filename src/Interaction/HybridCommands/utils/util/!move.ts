@@ -20,7 +20,6 @@
 */
 
 import {
-	BaseGuildVoiceChannel,
 	ChatInputCommandInteraction,
 	Client,
 	Message,
@@ -46,20 +45,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member");
-			var channel = interaction.options.getChannel(
-				"channel",
-				true
-			) as BaseGuildVoiceChannel;
-		} else {
-			var member = client.func.method.member(interaction, args!, 0);
-			var channel = (await client.func.method.voiceChannel(
-				interaction,
-				args!,
-				1
-			))!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member = opts.member("member", 0);
+		const channel = (await opts.voiceChannel("channel", 1))!;
 
 		// Check if member is in a voice channel
 		if (!member?.voice.channelId) {

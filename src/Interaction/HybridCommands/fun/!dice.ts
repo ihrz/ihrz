@@ -37,13 +37,9 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var number = interaction.options.getNumber("number", false) || 1;
-			var faces = interaction.options.getNumber("faces", false) || 6;
-		} else {
-			var number = client.func.method.number(args!, 0) || 1;
-			var faces = client.func.method.number(args!, 1) || 6;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const number = opts.number("number", 0) || 1;
+		const faces = opts.number("faces", 1) || 6;
 
 		const results: number[] = [];
 		for (let i = 0; i < number; i++) {

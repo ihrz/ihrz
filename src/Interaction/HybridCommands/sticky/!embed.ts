@@ -57,21 +57,13 @@ export const subCommand: SubCommand = {
 		let embedId: string | null = null;
 		let stickyMessage: string | null = null;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			channel = interaction.options.getChannel(
-				"channel"
-			) as BaseGuildTextChannel | null;
-			embedId = interaction.options.getString("embed_id", true);
-			stickyMessage = interaction.options.getString("message_content");
-		} else {
-			channel = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as BaseGuildTextChannel | null;
-			embedId = client.func.method.string(args!, 1);
-			stickyMessage = client.func.method.longString(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		channel = (await opts.channel(
+			"channel",
+			0
+		)) as BaseGuildTextChannel | null;
+		embedId = opts.string("embed_id", 1, true);
+		stickyMessage = opts.longString("message_content", 2);
 
 		if (!channel || channel.type !== ChannelType.GuildText) {
 			await client.func.method.interactionSend(interaction, {

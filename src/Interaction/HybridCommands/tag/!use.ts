@@ -48,15 +48,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var tag_name = interaction.options.getString("tag_name", true);
-			var mention = interaction.options.getMember("mention");
-			var message_id = interaction.options.getString("message_id");
-		} else {
-			var tag_name = client.func.method.string(args!, 0)!;
-			var mention = client.func.method.member(interaction, args!, 1);
-			var message_id = client.func.method.string(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		let tag_name = opts.string("tag_name", 0, true);
+		const mention = opts.member("mention", 1);
+		const message_id = opts.string("message_id", 2);
 
 		tag_name = tag_name.trim();
 

@@ -55,19 +55,14 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
+		const opts = client.func.method.options(interaction, args);
+		const fromChannel = await opts.voiceChannel("from", 0);
+
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var fromChannel = interaction.options.getChannel(
-				"from"
-			) as BaseGuildVoiceChannel | null;
 			var category = interaction.options.getChannel(
 				"category"
 			) as CategoryChannel | null;
 		} else {
-			var fromChannel = await client.func.method.voiceChannel(
-				interaction,
-				args!,
-				0
-			);
 			var categoryId = client.func.method.string(args!, 1);
 			var category = categoryId
 				? (interaction.guild.channels.cache.get(

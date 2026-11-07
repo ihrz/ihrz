@@ -50,26 +50,17 @@ export const subCommand: SubCommand = {
 
 		const giveawayChannel = interaction.channel! as Channel;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var giveawayRequirement = interaction.options.getString(
-				"requirement"
-			) as "none" | "invites" | "messages" | "roles";
-			var giveawayRequirementValue =
-				interaction.options.getString("requirement-value");
-			var giveawayDuration = interaction.options.getString("time");
-			var giveawayNumberWinners =
-				interaction.options.getNumber("winner")!;
-			var imageUrl = interaction.options.getString("image") as string;
-			var giveawayPrize = interaction.options.getString("prize");
-		} else {
-			var giveawayNumberWinners = client.func.method.number(args!, 0);
-			var giveawayDuration = client.func.method.string(args!, 1);
-			var giveawayRequirement = client.func.method.string(args!, 2) as
-				"none" | "invites" | "messages" | "roles";
-			var giveawayPrize = client.func.method.string(args!, 3);
-			var giveawayRequirementValue = client.func.method.string(args!, 4);
-			var imageUrl = "";
-		}
+		const opts = client.func.method.options(interaction, args);
+		const giveawayNumberWinners = opts.number("winner", 0)!;
+		const giveawayDuration = opts.string("time", 1);
+		const giveawayRequirement = opts.string("requirement", 2) as
+			"none" | "invites" | "messages" | "roles";
+		const giveawayPrize = opts.string("prize", 3);
+		const giveawayRequirementValue = opts.string("requirement-value", 4);
+		const imageUrl =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getString("image") as string)
+				: "";
 
 		if (
 			isNaN(giveawayNumberWinners as number) ||

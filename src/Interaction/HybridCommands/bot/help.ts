@@ -403,11 +403,8 @@ export const command: Command = {
 
 		const categories: CategoryData[] = [];
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var targetCommand = interaction.options.getString("command-name");
-		} else {
-			var targetCommand = client.func.method.string(args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const targetCommand = opts.string("command-name", 0);
 
 		if (!targetCommand) {
 			for (const cat of client.category) {

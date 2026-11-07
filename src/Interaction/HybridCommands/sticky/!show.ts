@@ -66,17 +66,11 @@ export const subCommand: SubCommand = {
 
 		let channel: BaseGuildTextChannel | null = null;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			channel = interaction.options.getChannel(
-				"channel"
-			) as BaseGuildTextChannel | null;
-		} else {
-			channel = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as BaseGuildTextChannel | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		channel = (await opts.channel(
+			"channel",
+			0
+		)) as BaseGuildTextChannel | null;
 
 		if (!channel || channel.type !== ChannelType.GuildText) {
 			await client.func.method.interactionSend(interaction, {

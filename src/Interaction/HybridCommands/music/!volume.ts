@@ -52,11 +52,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var query = interaction.options.getString("level");
-		} else {
-			var query = client.func.method.string(args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const query = opts.string("level", 0);
 
 		const voiceChannel = (interaction.member as GuildMember).voice.channel;
 		const player = client.player.getPlayer(interaction.guildId as string);

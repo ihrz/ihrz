@@ -46,13 +46,12 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var question = interaction.options.getString("question") as string;
-			var user = interaction.user;
-		} else {
-			var question = client.func.method.longString(args!, 0) as string;
-			var user = interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const question = opts.longString("question", 0) as string;
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
 
 		const text = question?.split(" ");
 

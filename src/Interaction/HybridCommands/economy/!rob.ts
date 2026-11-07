@@ -82,17 +82,8 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`
 			);
 
-			if (interaction instanceof ChatInputCommandInteraction) {
-				var user = interaction.options.getMember(
-					"member"
-				) as GuildMember;
-			} else {
-				var user = client.func.method.member(
-					interaction,
-					args!,
-					0
-				) as GuildMember;
-			}
+			const opts = client.func.method.options(interaction, args);
+			const user = opts.member("member", 0) as GuildMember;
 
 			if (rob !== null && timeout - (Date.now() - rob) > 0) {
 				const time = client.timeCalculator.to_beautiful_string(

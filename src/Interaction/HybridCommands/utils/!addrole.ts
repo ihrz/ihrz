@@ -51,19 +51,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("user")! as GuildMember;
-			var role = interaction.options.getRole("role");
-			var author = interaction.member as GuildMember;
-		} else {
-			var user = client.func.method.member(
-				interaction,
-				args!,
-				0
-			)! as GuildMember;
-			var role = client.func.method.role(interaction, args!, 1);
-			var author = interaction.member as GuildMember;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = opts.member("user", 0)! as GuildMember;
+		const role = opts.role("role", 1);
+		const author = interaction.member as GuildMember;
 
 		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] =
 			(await client.db.get(`${interaction.guildId}.UTILS.wlRoles`)) || [];

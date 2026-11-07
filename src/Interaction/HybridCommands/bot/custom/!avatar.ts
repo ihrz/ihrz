@@ -42,13 +42,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action");
-			var avatar = interaction.options.getAttachment("avatar")!;
-		} else {
-			var action = client.func.method.string(args!, 0);
-			var avatar = interaction.attachments.first()!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0);
+		const avatar = opts.attachment("avatar")!;
 
 		if (action === "reset") {
 			await client.db.delete(`${interaction.guildId}.BOT.botPFP`);

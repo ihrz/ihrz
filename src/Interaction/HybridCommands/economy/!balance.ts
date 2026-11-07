@@ -59,15 +59,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member: GuildMember =
-				(interaction.options.getMember("user") as GuildMember) ||
-				interaction.member;
-		} else {
-			var member: GuildMember =
-				client.func.method.member(interaction, args!, 0) ||
-				interaction.member;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member: GuildMember =
+			opts.member("user", 0) || interaction.member;
 
 		const baseData: DatabaseStructure.EconomyUserSchema =
 			(await client.db.get(

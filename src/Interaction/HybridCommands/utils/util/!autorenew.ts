@@ -45,17 +45,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var channel = interaction.options.getChannel("channel") as Channel;
-			var time = interaction.options.getString("time");
-		} else {
-			var channel = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as Channel;
-			var time = client.func.method.string(args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const channel = (await opts.channel("channel", 0)) as Channel;
+		const time = opts.string("time", 1);
 
 		const parseTime = client.timeCalculator.to_ms(time || "");
 

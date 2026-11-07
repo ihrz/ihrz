@@ -60,11 +60,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var text = interaction.options.getString("text")?.slice(0, 70);
-		} else {
-			var text = client.func.method.longString(args!, 0)?.slice(0, 70);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const text = opts.longString("text", 0)?.slice(0, 70);
 
 		let imgs: AttachmentBuilder | undefined;
 

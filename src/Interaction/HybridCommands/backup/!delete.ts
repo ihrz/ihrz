@@ -49,11 +49,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var backupID = interaction.options.getString("backup-id") as string;
-		} else {
-			var backupID = client.func.method.string(args!, 0) as string;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const backupID = opts.string("backup-id", 0) as string;
 
 		if (
 			backupID &&

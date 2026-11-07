@@ -57,17 +57,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember(
-				"member"
-			) as GuildMember | null;
-		} else {
-			var member = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member = opts.member("member", 0) as GuildMember | null;
 
 		const allWarns: DatabaseStructure.WarnsData[] | null =
 			await client.db.get(

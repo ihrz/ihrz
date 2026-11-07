@@ -849,10 +849,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const arg =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("id")
-				: client.func.method.string(args!, 0);
+		const opts = client.func.method.options(interaction, args);
+		const arg = opts.string("id", 0);
 
 		const embedManager = new EmbedManager(interaction, lang);
 		await embedManager.run(arg || undefined);

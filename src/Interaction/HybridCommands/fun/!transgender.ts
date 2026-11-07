@@ -23,8 +23,7 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import { AxiosResponse, axios } from "../../../core/functions/axios.js";
@@ -54,15 +53,12 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member1 =
-				(interaction.options.getUser("user") as User) ||
-				interaction.user;
-		} else {
-			var member1 =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.author;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const member1 =
+			(await opts.user("user", 0)) ||
+			(interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author);
 
 		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: "png", size: 1024 }))}`;
 

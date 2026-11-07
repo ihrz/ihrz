@@ -53,13 +53,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("type")!;
-			var cooldown = interaction.options.getString("time")!;
-		} else {
-			var type = client.func.method.string(args!, 0)!;
-			var cooldown = client.func.method.longString(args!, 1)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("type", 0)!;
+		const cooldown = opts.longString("time", 1)!;
 
 		const time = client.timeCalculator.to_ms(cooldown);
 
