@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (tag_name.length > 16 || tag_name.includes(" ")) {
+		if (tag_name.length > 16 || !/^[A-Za-z0-9_-]+$/.test(tag_name)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tag_create_not_good_name
 			});

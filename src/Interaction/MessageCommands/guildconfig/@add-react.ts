@@ -68,7 +68,7 @@ export const command: Command = {
 
 		const message = options![1];
 
-		if (!message?.trim()) {
+		if (!message?.trim() || !/^[A-Za-z0-9_-]+$/.test(message.trim())) {
 			await interaction.reply({
 				content: lang.add_react_command_err_message,
 				allowedMentions: { repliedUser: false }
