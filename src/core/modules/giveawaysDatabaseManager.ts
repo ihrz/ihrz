@@ -24,10 +24,17 @@ import { GiveawayEndedStatus } from "./giveawaysManager.js";
 import logger from "../logger.js";
 import { giveawaysTable } from "../../Events/client/ready.js";
 
+/** Entries without duplicates, first occurrence order kept. */
+export function dedupeEntries(entries: string[] | undefined): string[] {
+	return Array.from(new Set(entries || []));
+}
+
 class db {
 	public async AddEntries(giveawayId: string, user: string) {
 		const giveaway = await this.GetGiveawayData(giveawayId);
 		if (giveaway) {
+			giveaway.entries = giveaway.entries || [];
+			if (giveaway.entries.includes(user)) return;
 			giveaway.entries.push(user);
 			await giveawaysTable.set(giveawayId, giveaway);
 		}
@@ -93,8 +100,11 @@ class db {
 	}
 
 	public async AvoidDoubleEntries(giveawayId: string) {
-		const giveaway = (await this.GetGiveawayData(giveawayId))!;
-		const uniqueEntries = Array.from(new Set(giveaway.entries || []));
+		const giveaway = await this.GetGiveawayData(giveawayId);
+		if (!giveaway) return;
+
+		const uniqueEntries = dedupeEntries(giveaway.entries);
+		if (uniqueEntries.length === (giveaway.entries || []).length) return;
 
 		giveaway.entries = uniqueEntries;
 
