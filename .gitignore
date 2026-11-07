@@ -71,6 +71,14 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+# Backups that still hold secrets: the installer's .env backups, the
+# migration's temporary file and the old src/files/config.ts (any folder).
+.env.bak.*
+.env.migrating
+.env.tmp
+config.ts.migrated
+config.ts.migrated.*
+config.ts.bak.*
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

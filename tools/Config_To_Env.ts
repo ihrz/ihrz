@@ -24,7 +24,8 @@
 // Keys already set in .env are kept (BOT_TOKEN and LASTFM_* there already
 // won over config.ts), the others are added or filled in, comments and the
 // remaining lines are left untouched. The result is read back by Bun and
-// compared before config.ts is renamed to config.ts.migrated. No value is
+// compared before config.ts is moved to ./config.ts.migrated (project root,
+// gitignored: it still holds the secrets). No value is
 // ever printed.
 
 import path from "node:path";
@@ -39,6 +40,9 @@ import {
 import { ConfigData } from "../types/configDatad.js";
 
 const ENV_PATH = path.join(process.cwd(), ".env");
+// Out of src (nothing loads it there) and gitignored. An earlier migration is
+// never overwritten: the new copy gets a timestamp.
+const MIGRATED_BASE = path.join(process.cwd(), "config.ts.migrated");
 
 // Bun's .env double quotes expand `$NAME` (escaped as `\$`) and keep every
 // other backslash sequence as written except `\n`: a `"`, a backslash or a
@@ -115,8 +119,12 @@ if (check.exitCode !== 0 || mismatched.length) {
 configFromEnv(reread);
 
 await rename(candidate, ENV_PATH);
-await rename(LEGACY_CONFIG_PATH, LEGACY_CONFIG_PATH + ".migrated");
+const migratedPath = (await Bun.file(MIGRATED_BASE).exists())
+	? `${MIGRATED_BASE}.${new Date().toISOString().replace(/[:.]/g, "-")}`
+	: MIGRATED_BASE;
+
+await rename(LEGACY_CONFIG_PATH, migratedPath);
 
 logger.log(
-	`Migrated config.ts into .env: ${added.length} added, ${filled.length} filled, ${Object.keys(wanted).length - added.length - filled.length} kept from .env. src/files/config.ts renamed to config.ts.migrated.`
+	`Migrated config.ts into .env: ${added.length} added, ${filled.length} filled, ${Object.keys(wanted).length - added.length - filled.length} kept from .env. src/files/config.ts moved to ${path.basename(migratedPath)} (project root, gitignored).`
 );
