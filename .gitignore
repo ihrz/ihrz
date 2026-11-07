@@ -105,6 +105,8 @@ typings/
 
 # Sqlite Database
 *.sqlite
+*.sqlite-wal
+*.sqlite-shm
 
 # Obsidian
 .obsidian

@@ -141,7 +141,7 @@ export class Postgres<D = any> {
 				`Error getting row by key ${key} from ${table.toLowerCase()}:`,
 				err
 			);
-			return [null, false];
+			throw err;
 		}
 	}
 

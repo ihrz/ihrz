@@ -40,6 +40,7 @@ export class Sqlite<D = any> {
 		this.tableName = options.table;
 		this.path = options.filePath;
 		this.db = new Database(this.path);
+		this.db.exec("PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;");
 		this.initDatabase();
 	}
 
