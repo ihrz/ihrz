@@ -1,0 +1,187 @@
+/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
+
+	・   Under the following terms:
+
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+		・ NonCommercial — You may not use the material for commercial purposes.
+
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2026 iHorizon
+*/
+
+import {
+	ActionRowBuilder,
+	BaseGuildVoiceChannel,
+	ButtonInteraction,
+	ComponentType,
+	EmbedBuilder,
+	GuildMember,
+	UserSelectMenuBuilder
+} from "discord.js";
+import { tempTable } from "../../Events/client/ready.ts";
+
+/**
+ * Shared body of the temporary voice block and unblock buttons. The two
+ * differ only by the placeholder of the user select menu.
+ */
+export async function runTempVoiceBlock(
+	interaction: ButtonInteraction<"cached">,
+	placeholderKey:
+		| "temporary_voice_block_button_menu_placeholder"
+		| "temporary_voice_transfer_unblocked_placeholder"
+) {
+	const result = await interaction.client.db.get(
+		`${interaction.guildId}.VOICE_INTERFACE.interface`
+	);
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const member = interaction.member as GuildMember;
+
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const getChannelOwner = await tempTable.get(
+		`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
+	);
+
+	if (!getChannelOwner) return await interaction.deferUpdate();
+	if (
+		getChannelOwner !== targetedChannel?.id ||
+		(interaction.channelId !== targetedChannel?.id &&
+			interaction.channelId !== result?.channelId)
+	)
+		return await interaction.deferUpdate();
+
+	if (!member.voice.channel) {
+		await interaction.deferUpdate();
+		return;
+	} else {
+		const response = await interaction.reply({
+			flags: [1 << 6],
+			components: [
+				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
+					new UserSelectMenuBuilder()
+						.setCustomId("temporary_voice_trust_selectmenue")
+						.setPlaceholder(lang[placeholderKey])
+						.setMinValues(0)
+						.setMaxValues(10)
+				)
+			]
+		});
+
+		const collector = interaction.channel?.createMessageComponentCollector({
+			componentType: ComponentType.UserSelect,
+			filter: (u) => u.user.id === interaction.user.id,
+			time: 200_000
+		});
+
+		collector?.on("collect", async (i) => {
+			const membersArray: string[] = [];
+			const listmembersArray: string[] = [];
+
+			// Push all the member of the Selection on the Array
+			i.members.each(async (i) => {
+				membersArray.push(i.user?.id as string);
+			});
+
+			// Push all current Allowed users into the Array
+			targetedChannel?.permissionOverwrites.cache
+				.filter((i) => i.type === 1)
+				.each((i) => {
+					listmembersArray.push(i.id);
+				});
+
+			// Declare the array
+			const addedMembers: string[] = [];
+			const removedMembers: string[] = [];
+
+			// Remove member if are delete from the SelectMenu
+			listmembersArray.forEach(async (overwriteId) => {
+				if (
+					!membersArray.includes(overwriteId) &&
+					i.user.id !== overwriteId
+				) {
+					removedMembers.push(overwriteId);
+					await (
+						targetedChannel as BaseGuildVoiceChannel
+					).permissionOverwrites.delete(overwriteId);
+				}
+			});
+
+			// Add member if are added from the SelectMenu
+			membersArray.forEach(async (memberId) => {
+				if (!listmembersArray.includes(memberId)) {
+					(
+						targetedChannel as BaseGuildVoiceChannel
+					).permissionOverwrites.edit(memberId, {
+						ViewChannel: true,
+
+						SendMessages: false,
+						AddReactions: false,
+
+						Connect: false,
+						Speak: false
+					});
+					addedMembers.push(memberId);
+				}
+			});
+
+			await i.reply({
+				embeds: [
+					new EmbedBuilder()
+						.setDescription(lang.temporary_voice_title_embec)
+						.setColor(2829617)
+						.setFields(
+							{
+								name: lang.temporary_voice_unblocked_member,
+								value:
+									addedMembers
+										.map((memberId) => `<@${memberId}>`)
+										.join(" ") ||
+									lang.temporary_voice_no_one
+							},
+							{
+								name: lang.temporary_voice_blocked_mmeber,
+								value:
+									removedMembers
+										.map((memberId) => `<@${memberId}>`)
+										.join(" ") ||
+									lang.temporary_voice_no_one
+							}
+						)
+						.setImage(
+							await client.func.bannerGenerator(
+								interaction.guildId
+							)
+						)
+						.setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
+				],
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				],
+				flags: [1 << 6]
+			});
+
+			collector?.stop();
+		});
+
+		collector?.on("end", (i) => {
+			response.delete();
+		});
+	}
+}
