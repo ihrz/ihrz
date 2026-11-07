@@ -25,6 +25,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 import logger from "../logger.js";
 import { getH247Data } from "./h247Manager.js";
+import { getCachedGuildValue } from "./guildConfigCache.js";
 
 type FloweryVoice = {
 	id: string;
@@ -142,9 +143,10 @@ export async function getTTSData(
 	client: Client,
 	guildId: string
 ): Promise<DatabaseStructure.TTSData | null> {
-	const data = (await client.db.get(
+	// Writes go through client.db, which invalidates the cached key.
+	const data = await getCachedGuildValue<DatabaseStructure.TTSData>(
 		getTTSDataPath(guildId)
-	)) as DatabaseStructure.TTSData | null;
+	);
 	if (!data || !data.enabled) return null;
 	return data;
 }
