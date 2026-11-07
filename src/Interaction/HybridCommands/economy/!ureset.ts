@@ -23,7 +23,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -48,15 +47,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user =
-				(interaction.options.getMember("user") as GuildMember) ||
-				interaction.member;
-		} else {
-			var user =
-				client.func.method.member(interaction, args!, 0) ||
-				interaction.member;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = opts.member("user", 0) || interaction.member;
 
 		const a = new EmbedBuilder()
 			.setColor("#FF0000")

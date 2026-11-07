@@ -53,13 +53,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var amount = interaction.options.getNumber("amount") as number;
-			var user = interaction.options.getUser("member");
-		} else {
-			var amount = client.func.method.number(args!, 0) as number;
-			var user = await client.func.method.user(interaction, args!, 1);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const amount = opts.number("amount", 0) as number;
+		const user = await opts.user("member", 1);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.addmoney_command_work

@@ -60,17 +60,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var amount = interaction.options.getNumber("amount") as number;
-			var user = interaction.options.getMember("member") as GuildMember;
-		} else {
-			var amount = client.func.method.number(args!, 0) as number;
-			var user = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const amount = opts.number("amount", 0) as number;
+		const user = opts.member("member", 0) as GuildMember;
 
 		await client.db.sub(
 			`${interaction.guildId}.USER.${user.id}.ECONOMY.money`,

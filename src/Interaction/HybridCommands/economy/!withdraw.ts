@@ -66,13 +66,8 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`
 			)) as DatabaseStructure.EconomyUserSchema;
 
-			if (interaction instanceof ChatInputCommandInteraction) {
-				var toWithdraw = interaction.options.getString(
-					"how-much"
-				) as string;
-			} else {
-				var toWithdraw = client.func.method.string(args!, 0) as string;
-			}
+			const opts = client.func.method.options(interaction, args);
+			let toWithdraw = opts.string("how-much", 0) as string;
 
 			if (
 				(await client.db.get(

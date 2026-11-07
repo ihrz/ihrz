@@ -53,13 +53,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("type")!;
-			var money = interaction.options.getNumber("how-much")!;
-		} else {
-			var type = client.func.method.string(args!, 0)!;
-			var money = client.func.method.number(args!, 1)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("type", 0)!;
+		const money = opts.number("how-much", 1)!;
 
 		await client.db.set(
 			`${interaction.guildId}.ECONOMY.settings.${type}.amount`,

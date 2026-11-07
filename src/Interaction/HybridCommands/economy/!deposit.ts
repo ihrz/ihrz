@@ -60,13 +60,8 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			if (interaction instanceof ChatInputCommandInteraction) {
-				var toDeposit = interaction.options.getString(
-					"how-much"
-				) as string;
-			} else {
-				var toDeposit = client.func.method.string(args!, 0) as string;
-			}
+			const opts = client.func.method.options(interaction, args);
+			let toDeposit = opts.string("how-much", 0) as string;
 
 			if (
 				(await client.db.get(
