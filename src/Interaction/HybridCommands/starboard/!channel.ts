@@ -46,18 +46,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var channel = interaction.options.getChannel(
-				"to",
-				true
-			) as BaseGuildTextChannel;
-		} else {
-			var channel = (await client.func.method.channel(
-				interaction,
-				args!,
-				0
-			)) as BaseGuildTextChannel;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const channel = (await opts.channel("to", 0)) as BaseGuildTextChannel;
 
 		let baseData: DatabaseStructure.StarboardConfigSchema =
 			(await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`)) || {

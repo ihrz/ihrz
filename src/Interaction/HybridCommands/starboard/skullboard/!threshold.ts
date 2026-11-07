@@ -46,11 +46,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var amount = interaction.options.getNumber("amount", true);
-		} else {
-			var amount = client.func.method.number(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		let amount = opts.number("amount", 0, true);
 
 		let baseData: DatabaseStructure.SkullboardConfigSchema =
 			(await client.db.get(

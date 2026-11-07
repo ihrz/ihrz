@@ -46,11 +46,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action", true);
-		} else {
-			var action = client.func.method.string(args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const action = opts.string("action", 0, true);
 
 		let baseData: DatabaseStructure.StarboardConfigSchema =
 			(await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`)) || {
