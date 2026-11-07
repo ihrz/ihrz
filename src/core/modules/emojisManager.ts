@@ -54,7 +54,16 @@ class EmojisManager {
 		this.applicationId = options.applicationId;
 	}
 
-	public async startSync() {
+	/**
+	 * `create: true` (main shard only): creates the missing application
+	 * emojis and writes src/files/emojis.json. The other shards only read
+	 * the application emojis to build their mapping: several shards creating
+	 * the same emojis at once gave duplicates and errors on a first install.
+	 * An emoji not created yet (the main shard is still at it) is looked for
+	 * again in the background, without delaying the shard's start.
+	 */
+	public async startSync(options: { create?: boolean } = { create: true }) {
+		const create = options.create !== false;
 		const appEmojis = await this.fetchCurrentApplicationEmojis();
 		const local_emojis = this.loadLocalEmojis();
 
@@ -63,6 +72,7 @@ class EmojisManager {
 			writed: 0,
 			cant: 0
 		};
+		const missing: LocalEmoji[] = [];
 
 		for (const local_emoji of local_emojis) {
 			// Check if the local emoji exist on the Application Emoji
@@ -72,6 +82,8 @@ class EmojisManager {
 					local_emoji.Name.replace("iHorizon_", "")
 				] = appEmoji.FormatedName;
 				result.skiped++;
+			} else if (!create) {
+				missing.push(local_emoji);
 			} else {
 				try {
 					const res = await this.createApplicationEmoji(local_emoji);
@@ -89,14 +101,53 @@ class EmojisManager {
 			}
 		}
 
+		this.writeInClient();
+		if (!create) {
+			if (missing.length) void this.waitForMissing(missing);
+			return;
+		}
+
 		logger.log(
 			`${this.getLogEmoji("OK")} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`
 		);
 		result.cant >= 1
 			? logger.warn(`I got issue with ${result.cant} emoji(s)!`)
 			: null;
-		this.writeInClient();
 		this.writeFinalJSON();
+	}
+
+	// Secondary shards: the main shard creates these, look for them again.
+	private async waitForMissing(
+		missing: LocalEmoji[],
+		attempts = 6,
+		delayMs = 10_000
+	): Promise<void> {
+		let left = missing;
+		for (let attempt = 0; attempt < attempts && left.length; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, delayMs));
+			const appEmojis = await this.fetchCurrentApplicationEmojis().catch(
+				() => null
+			);
+			if (!appEmojis) continue;
+
+			left = left.filter((local_emoji) => {
+				const appEmoji = appEmojis.find(
+					(x) => x.Name === local_emoji.Name
+				);
+				if (!appEmoji) return true;
+				this.final_appEmojis[
+					local_emoji.Name.replace("iHorizon_", "")
+				] = appEmoji.FormatedName;
+				return false;
+			});
+			this.writeInClient();
+		}
+
+		if (left.length) {
+			logger.warn(
+				`${left.length} application emoji(s) still missing (created by the main shard): ${left.map((x) => x.Name).join(", ")}`
+			);
+		}
 	}
 
 	private loadLocalEmojis(): LocalEmoji[] {

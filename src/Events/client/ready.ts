@@ -99,7 +99,8 @@ export const event: BotEvent = {
 			"backupsTable"
 		]);
 
-		await client.emojisManager.startSync();
+		// Only the main shard creates application emojis; the others read them.
+		await client.emojisManager.startSync({ create: client.isMainShard() });
 
 		prefetchFloweryVoices();
 		cleanupOrphanedTTS(client);
