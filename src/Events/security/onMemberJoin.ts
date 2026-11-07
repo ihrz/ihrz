@@ -39,7 +39,7 @@ const COLLECTOR_TIMEOUT_MS = 60_000 * 2 + 30_000; // 2 min 30 s
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		if (!member.guild) return;
+		if (!member.guild || member.user.bot) return;
 
 		const baseData = await client.db.get(`${member.guild.id}.SECURITY`);
 		if (!baseData || baseData?.disable === true) return;
