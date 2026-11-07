@@ -226,7 +226,14 @@ function login() {
 				process.stdout.write("\x1b]2;" + title + "\x1b\x5c");
 			}
 
-			synchronizeCommands(client).then(async () => {
+			// The application commands are global: one shard publishing them is
+			// enough (every shard used to PUT the same list to Discord at boot).
+			// A failed sync must not skip what follows (client.creator).
+			const sync = client.isMainShard()
+				? synchronizeCommands(client).catch(() => {})
+				: Promise.resolve();
+
+			sync.then(async () => {
 				logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
 				logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
 				logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
