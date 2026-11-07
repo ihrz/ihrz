@@ -120,7 +120,8 @@ export async function main(client: Client) {
 			embedColor: "#9a5af2",
 			embedColorEnd: "#2f3136",
 			reaction: "🎉",
-			forceUpdateEvery: 3600,
+			// Refresh interval in milliseconds
+			forceUpdateEvery: 60_000,
 			endedGiveawaysLifetime: 345_600_000
 		}
 	});

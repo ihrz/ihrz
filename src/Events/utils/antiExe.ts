@@ -49,7 +49,9 @@ const binaryExtensions: string[] = [
 ];
 
 export function ilegalFile(str: string): boolean {
-	return binaryExtensions.some((x) => str.includes(`.${x}`));
+	if (!str.includes(".")) return false;
+	const extension = str.split(".").pop()?.toLowerCase();
+	return binaryExtensions.some((x) => x.toLowerCase() === extension);
 }
 
 export const event: BotEvent = {
@@ -61,10 +63,10 @@ export const event: BotEvent = {
 			message.webhookId ||
 			message.channel.type === ChannelType.DM ||
 			message.author.id === client.user?.id ||
-			message.member?.permissions.has(
-				PermissionFlagsBits.Administrator |
-					PermissionFlagsBits.ModerateMembers
-			)
+			message.member?.permissions.any([
+				PermissionFlagsBits.Administrator,
+				PermissionFlagsBits.ModerateMembers
+			])
 		) {
 			return;
 		}
@@ -80,19 +82,24 @@ export const event: BotEvent = {
 
 		if (toDelete) {
 			if (message.member?.moderatable) {
-				message.member?.timeout(client.timeCalculator.to_ms("15m"));
+				message.member
+					?.timeout(client.timeCalculator.to_ms("15m"))
+					.catch(() => {});
 			}
 
 			if (message.deletable) {
-				message.delete();
+				message.delete().catch(() => {});
 			}
 
-			client.func.method.warnMember(
-				message.guild!.members.me!,
-				message.member!,
-				"[Anti-Exe] sending binary file",
-				await client.func.getLanguageData(message.guildId)
-			);
+			const lang = await client.func.getLanguageData(message.guildId);
+			Promise.resolve(
+				client.func.method.warnMember(
+					message.guild!.members.me!,
+					message.member!,
+					"[Anti-Exe] sending binary file",
+					lang
+				)
+			).catch(() => {});
 		}
 	}
 };

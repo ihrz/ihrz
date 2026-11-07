@@ -42,7 +42,7 @@ import {
 } from "../../../types/giveaways.js";
 import getLanguageData from "../functions/getLanguageData.js";
 import { secureRandomInt } from "../functions/random.js";
-import db from "./giveawaysDatabaseManager.js";
+import db, { dedupeEntries } from "./giveawaysDatabaseManager.js";
 
 export enum GiveawayEndedStatus {
 	ENDED = 1,
@@ -74,6 +74,8 @@ class GiveawayManager {
 			}
 		});
 	}
+
+	private isRefreshing = false;
 
 	public init() {
 		this.refresh(client);
@@ -370,7 +372,7 @@ class GiveawayManager {
 					giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
 				) {
 					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
-					this.finish(
+					await this.finish(
 						client,
 						giveawayId,
 						giveawayData.guildId,
@@ -495,9 +497,9 @@ class GiveawayManager {
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
 		if (fetch.entries.length === 0) return [];
 
-		const availableMembers = [...fetch.entries].filter(
-			(entry) => !fetch.winners.includes(entry)
-		);
+		const availableMembers = dedupeEntries(
+			fetch.entries as string[]
+		).filter((entry) => !fetch.winners.includes(entry));
 
 		const winners: string[] = [];
 
@@ -727,6 +729,20 @@ class GiveawayManager {
 	}
 
 	private async refresh(client: Client) {
+		// Passes never overlap: a slow pass would announce winners twice
+		if (this.isRefreshing) return;
+		this.isRefreshing = true;
+
+		try {
+			await this.refreshAll(client);
+		} catch (error) {
+			logger.err(error);
+		} finally {
+			this.isRefreshing = false;
+		}
+	}
+
+	private async refreshAll(client: Client) {
 		const drop_all_db = await db.GetAllGiveawaysData();
 
 		for (const giveawayId in drop_all_db) {
@@ -744,7 +760,7 @@ class GiveawayManager {
 				now >= gwExp &&
 				giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
 			) {
-				this.finish(
+				await this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,
 					giveawayData.guildId,

@@ -34,18 +34,18 @@ const ADMIN = PermissionFlagsBits.Administrator;
 const lang = new Proxy({}, { get: () => "text" }) as any;
 
 let errors: string[];
-const realLogger = (globalThis as any).logger;
+// test/preload.ts pins the logger stand-in (assignments are ignored): spy on
+// its err method instead of replacing it.
+const standIn = (globalThis as any).logger;
+const standInErr = standIn.err;
 
 beforeEach(() => {
 	errors = [];
-	(globalThis as any).logger = {
-		...realLogger,
-		err: (message: string) => errors.push(String(message))
-	};
+	standIn.err = (message: string) => errors.push(String(message));
 });
 
 afterEach(() => {
-	(globalThis as any).logger = realLogger;
+	standIn.err = standInErr;
 	delete (globalThis as any).client;
 });
 

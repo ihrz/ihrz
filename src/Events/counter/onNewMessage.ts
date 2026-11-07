@@ -25,6 +25,10 @@ import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
+// Discord allows two topic changes per ten minutes and per channel
+const TOPIC_UPDATE_INTERVAL_MS = 5 * 60_000;
+const lastTopicUpdate = new Map<string, number>();
+
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
@@ -74,12 +78,20 @@ export const event: BotEvent = {
 				});
 				message.react("✅");
 
-				(message.channel as BaseGuildTextChannel).setTopic(
-					lang.counter_actual_number.replace(
-						"{number}",
-						number.toString()
-					)
-				);
+				const now = Date.now();
+				const lastUpdate = lastTopicUpdate.get(message.channelId) ?? 0;
+
+				if (now - lastUpdate >= TOPIC_UPDATE_INTERVAL_MS) {
+					lastTopicUpdate.set(message.channelId, now);
+					(message.channel as BaseGuildTextChannel)
+						.setTopic(
+							lang.counter_actual_number.replace(
+								"{number}",
+								number.toString()
+							)
+						)
+						.catch(() => {});
+				}
 			} else {
 				message.react("❌");
 				await client.db.set(`${message.guild.id}.COUNTER_DATA`, {

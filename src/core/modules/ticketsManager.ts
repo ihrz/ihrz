@@ -50,7 +50,8 @@ import {
 	TopLevelComponentData,
 	Message,
 	MessageFlags,
-	Collection
+	Collection,
+	PermissionFlagsBits
 } from "discord.js";
 
 import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
@@ -62,6 +63,36 @@ import getLanguageData from "../functions/getLanguageData.js";
 import { metasTable } from "../../Events/client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
+
+/**
+ * Fills placeholders in the text fields of an embed object.
+ * Done per field (never on the JSON string) so quotes or backslashes
+ * in a guild name or username cannot break the embed.
+ */
+export function fillEmbedText(
+	embed: APIEmbed | null | undefined,
+	fill: (text: string) => string
+): APIEmbed | null {
+	if (!embed) return null;
+
+	const result: APIEmbed = { ...embed };
+
+	if (typeof result.title === "string") result.title = fill(result.title);
+	if (typeof result.description === "string")
+		result.description = fill(result.description);
+	if (result.footer && typeof result.footer.text === "string")
+		result.footer = { ...result.footer, text: fill(result.footer.text) };
+	if (result.author && typeof result.author.name === "string")
+		result.author = { ...result.author, name: fill(result.author.name) };
+	if (Array.isArray(result.fields))
+		result.fields = result.fields.map((field) => ({
+			...field,
+			name: fill(field.name),
+			value: fill(field.value)
+		}));
+
+	return result;
+}
 
 export interface CaseList {
 	id: number;
@@ -709,18 +740,20 @@ async function CreateChannelV2(
 					`EMBED.${chosenCategory?.panelId}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = JSON.parse(
-					client.func.method
-						.generateCustomMessagePreview(
-							JSON.stringify(embed_from_db),
-							{
+				embed_from_db = fillEmbedText(
+					embed_from_db as APIEmbed | null,
+					(text) =>
+						client.func.method
+							.generateCustomMessagePreview(text, {
 								user: interaction.user,
-								guild: interaction.guild,
+								guild: interaction.guild!,
 								guildLocal: interaction.guildLocale
-							}
-						)
-						.replaceAll("{category}", chosenCategory?.name ?? "")
-				) as APIEmbed | null;
+							})
+							.replaceAll(
+								"{category}",
+								chosenCategory?.name ?? ""
+							)
+				);
 
 				if (embed_from_db) {
 					embeds.push(EmbedBuilder.from(embed_from_db));
@@ -737,18 +770,20 @@ async function CreateChannelV2(
 					`EMBED.${result.ticketChannelPanel}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
-				embed_from_db = JSON.parse(
-					client.func.method
-						.generateCustomMessagePreview(
-							JSON.stringify(embed_from_db),
-							{
+				embed_from_db = fillEmbedText(
+					embed_from_db as APIEmbed | null,
+					(text) =>
+						client.func.method
+							.generateCustomMessagePreview(text, {
 								user: interaction.user,
-								guild: interaction.guild,
+								guild: interaction.guild!,
 								guildLocal: interaction.guildLocale
-							}
-						)
-						.replaceAll("{category}", chosenCategory?.name ?? "")
-				) as APIEmbed | null;
+							})
+							.replaceAll(
+								"{category}",
+								chosenCategory?.name ?? ""
+							)
+				);
 
 				if (embed_from_db) {
 					embeds.push(EmbedBuilder.from(embed_from_db));
@@ -1013,6 +1048,37 @@ async function CloseTicket(
 	}
 }
 
+/**
+ * Delete and transcript buttons: ticket author, administrators and staff
+ * (anyone who can manage the ticket channel) only.
+ * Replies with the permission-denied message and returns false otherwise.
+ */
+async function denyUnlessTicketStaff(
+	interaction: ButtonInteraction<"cached">,
+	authorId: string | undefined,
+	lang: LanguageData
+): Promise<boolean> {
+	const channel = interaction.channel;
+	const allowed =
+		interaction.user.id === authorId ||
+		interaction.memberPermissions.has(PermissionFlagsBits.Administrator) ||
+		(!!channel &&
+			interaction.member
+				.permissionsIn(channel.id)
+				.has(PermissionFlagsBits.ManageChannels));
+
+	if (allowed) return true;
+
+	await interaction.reply({
+		content: lang.var_doesnt_have_permissions.replace(
+			"{permission}",
+			"ManageChannels"
+		),
+		flags: MessageFlags.Ephemeral
+	});
+	return false;
+}
+
 async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	const data = await interaction.client.func.getLanguageData(
 		interaction.guildId
@@ -1028,6 +1094,17 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
+				if (
+					"isButton" in interaction &&
+					interaction.isButton() &&
+					!(await denyUnlessTicketStaff(
+						interaction,
+						fetch[user][channel]?.author,
+						data
+					))
+				)
+					return;
+
 				const attachment = await DiscordJSTranscript.create({
 					channel: interactionChannel as TextBasedChannel,
 					limit: -1,
@@ -1335,6 +1412,17 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					: null;
 				const ticketOwnerMention =
 					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
+				if (
+					"isButton" in interaction &&
+					interaction.isButton() &&
+					!(await denyUnlessTicketStaff(
+						interaction,
+						ticketOwnerId,
+						lang
+					))
+				)
+					return;
+
 				const deletedByUserId = interaction.member?.user.id;
 				const shouldSendOwnerDm =
 					!!ticketOwner &&
@@ -1342,7 +1430,7 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					ticketOwnerId !== deletedByUserId;
 
 				await interaction.client.db.delete(
-					`${interaction.guildId}.TICKET_ALL.${user}`
+					`${interaction.guildId}.TICKET_ALL.${user}.${channel}`
 				);
 
 				try {
