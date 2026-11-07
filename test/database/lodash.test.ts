@@ -23,7 +23,7 @@ import { describe, expect, test } from "bun:test";
 import {
 	get_property,
 	set_property,
-	unset_property,
+	unset_property
 } from "../../src/core/database/lodash";
 
 describe("database lodash helpers", () => {
@@ -42,7 +42,9 @@ describe("database lodash helpers", () => {
 		(Object.prototype as any).keep = 1;
 		try {
 			expect(unset_property({}, "__proto__.keep")).toBe(false);
-			expect(unset_property({}, "constructor.prototype.keep")).toBe(false);
+			expect(unset_property({}, "constructor.prototype.keep")).toBe(
+				false
+			);
 			expect(({} as any).keep).toBe(1);
 		} finally {
 			delete (Object.prototype as any).keep;

@@ -139,7 +139,9 @@ export async function run_for_bot_owner(
 			client.func.method.longString(args!, 1)!;
 	}
 
-	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
+	if (
+		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id))
+	) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
 				"${memberId}",

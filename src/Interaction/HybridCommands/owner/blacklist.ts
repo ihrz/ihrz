@@ -131,7 +131,9 @@ export async function run_for_bot_owner(
 	)
 		return;
 
-	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
+	if (
+		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id))
+	) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.blacklist_not_owner
 		});
