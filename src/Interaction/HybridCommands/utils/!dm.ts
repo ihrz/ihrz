@@ -48,23 +48,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var isPrivate =
-				interaction.options.getString("private") === "yes"
-					? true
-					: false;
-			var msg = interaction.options.getString("message")!;
-			var targetMember = interaction.options.getMember("member")!;
-		} else {
-			var isPrivate =
-				client.func.method.string(args!, 0) === "yes" ? true : false;
-			var targetMember = client.func.method.member(
-				interaction,
-				args!,
-				1
-			)!;
-			var msg = client.func.method.longString(args!, 2)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const isPrivate = opts.string("private", 0) === "yes" ? true : false;
+		const targetMember = opts.member("member", 1)!;
+		const msg = opts.longString("message", 2)!;
 
 		const buttons = [
 			new ButtonBuilder()

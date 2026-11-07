@@ -46,11 +46,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("member")!;
-		} else {
-			var user = client.func.method.member(interaction, args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = opts.member("member", 0)!;
 
 		// Check if member is in the guild
 		if (!interaction.guild.members.cache.get(user.id)) {

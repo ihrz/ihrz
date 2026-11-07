@@ -45,19 +45,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let targetMember: GuildMember | null;
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			targetMember = interaction.options.getMember(
-				"member"
-			) as GuildMember | null;
-		} else {
-			targetMember = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const targetMember = opts.member("member", 0) as GuildMember | null;
 
 		if (!targetMember) {
 			await client.func.method.interactionSend(interaction, {

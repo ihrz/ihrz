@@ -49,19 +49,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("action");
-			var argsid = interaction.options.getRole("roles");
-			var nickname = interaction.options.getString("part-of-nickname");
-		} else {
-			var type = client.func.method.string(args!, 0);
-			var argsid = client.func.method.role(
-				interaction,
-				args!,
-				1
-			) as Role | null;
-			var nickname = client.func.method.longString(args!, 2);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("action", 0);
+		const argsid = opts.role("roles", 1) as Role | null;
+		const nickname = opts.longString("part-of-nickname", 2);
 
 		if (type === "on") {
 			if (!argsid) {

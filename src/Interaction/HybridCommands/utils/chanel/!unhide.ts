@@ -46,11 +46,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var role = interaction.options.getRole("role");
-		} else {
-			var role = client.func.method.role(interaction, args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		const role = opts.role("role", 0);
 
 		let role_to_edit = role?.id || interaction.guild.id;
 		let channel = interaction.channel as BaseGuildTextChannel;

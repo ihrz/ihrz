@@ -41,20 +41,9 @@ export const subCommand: SubCommand = {
 			if (!client.user || !interaction.guild || !interaction.channel)
 				return;
 
-			if (interaction instanceof ChatInputCommandInteraction) {
-				var messageId = interaction.options.getString(
-					"message_id",
-					true
-				);
-				var roleId = interaction.options.getRole("role", true).id;
-			} else {
-				var messageId = client.func.method.string(args!, 0)!;
-				var roleId = client.func.method.role(
-					interaction,
-					args!,
-					1
-				)?.id!;
-			}
+			const opts = client.func.method.options(interaction, args);
+			const messageId = opts.string("message_id", 0, true);
+			const roleId = opts.role("role", 1)?.id!;
 
 			const guild = interaction.guild;
 			const role = guild.roles.cache.get(roleId);

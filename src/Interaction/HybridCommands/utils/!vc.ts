@@ -64,10 +64,8 @@ export const subCommand = {
 
 		const voiceStates = guild.voiceStates.cache;
 
-		const mode =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("show-mode") || "short"
-				: client.func.method.string(args!, 0) || "short";
+		const opts = client.func.method.options(interaction, args);
+		const mode = opts.string("show-mode", 0) || "short";
 
 		const isLarge = mode === "large";
 

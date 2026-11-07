@@ -59,11 +59,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var VanityCode = interaction.options.getString("code") as string;
-		} else {
-			var VanityCode = client.func.method.string(args!, 0) as string;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const VanityCode = opts.string("code", 0) as string;
 
 		const get = await apiTable.get("VANITY");
 

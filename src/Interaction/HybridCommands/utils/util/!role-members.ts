@@ -50,11 +50,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var role = interaction.options.getRole("role", true);
-		} else {
-			var role = client.func.method.role(interaction, args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const role = opts.role("role", 0)!;
 
 		if (!role) {
 			return await client.func.method.interactionSend(interaction, {

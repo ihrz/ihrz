@@ -40,17 +40,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let role;
-		let limit_count: number;
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			role = interaction.options.getRole("role", false);
-			limit_count =
-				interaction.options.getNumber("members-limit", false) || 0;
-		} else {
-			role = client.func.method.role(interaction, args!, 0);
-			limit_count = client.func.method.number(args!, 1) || 0;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const role = opts.role("role", 0);
+		const limit_count = opts.number("members-limit", 1) || 0;
 
 		if (!role || !limit_count) {
 			await client.func.method.interactionSend(interaction, {

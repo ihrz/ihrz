@@ -20,7 +20,6 @@
 */
 
 import {
-	Attachment,
 	ChatInputCommandInteraction,
 	Client,
 	GuildEmoji,
@@ -101,14 +100,8 @@ export const subCommand: SubCommand = {
 	) => {
 		if (!interaction.guild) return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var zipAttachment = interaction.options.getAttachment(
-				"zip_file",
-				true
-			);
-		} else {
-			var zipAttachment = interaction.attachments.first()!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const zipAttachment = opts.attachment("zip_file")!;
 
 		if (!zipAttachment) {
 			await client.func.method.interactionSend(interaction, {

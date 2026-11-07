@@ -45,11 +45,8 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("member")!;
-		} else {
-			var user = client.func.method.member(interaction, args!, 0)!;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const user = opts.member("member", 0)!;
 
 		const baseData =
 			(await client.db.get(
