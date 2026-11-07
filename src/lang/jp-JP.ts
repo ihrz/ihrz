@@ -989,6 +989,10 @@ export default {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - 銀行: `${bank}`${emoji_Coin} | バランス: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | 前のエコノミーコマンドがまだ実行中です。少し待ってからもう一度お試しください。",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！",
@@ -2061,6 +2065,8 @@ export default {
 		"リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！",
 	add_react_command_err_message:
 		"リアクションを発動させるメッセージを指定してください！",
+	add_react_command_bad_word:
+		"この単語は自動リアクションに使用できません。ピリオドを含めることはできません。",
 	add_react_command_work:
 		"<@${authorId}>, メンバーが `${message}` を送信すると、ボットは **{emoji} で反応します**.",
 
@@ -3212,7 +3218,7 @@ export default {
 	tag_create_not_permited:
 		"タグを作成する権限がありません。\n管理者権限またはホワイトリストに登録される必要があります（`tag wlroles-create`）。",
 	tag_create_not_good_name:
-		"タグ名にスペースを含めることはできず、16文字を超えることはできません。",
+		"タグ名にスペースやピリオドを含めることはできず、16文字を超えることはできません。",
 	tag_create_command_work: "タグ `${tag_name}` が作成されました。",
 	tag_create_already_exist: "タグは既に存在します。",
 	tag_create_embed_doesnt_exist: "埋め込みが存在しません。",

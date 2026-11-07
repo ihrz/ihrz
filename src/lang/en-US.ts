@@ -977,6 +977,10 @@ const enUS = {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - Bank: `${bank}`${emoji_Coin} | Balance: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | Your previous economy command is still running, try again in a moment.",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | You must be an administrator of this server to use this command!",
@@ -2051,6 +2055,8 @@ const enUS = {
 		"The emoji `{emoji}` for the reaction is not a valid emoji!",
 	add_react_command_err_message:
 		"You must specify the message that will trigger the reaction!",
+	add_react_command_bad_word:
+		"This word can't be used for an automatic reaction: it must not contain a dot.",
 	add_react_command_work:
 		"<@${authorId}>, now when a member sends `${message}`, the bot will **react** with {emoji}",
 
@@ -3183,7 +3189,7 @@ const enUS = {
 	tag_create_not_permited:
 		"You are not allowed to create a tag.\nYou need the Administrator permission or you need to be in the whitelist (`/tag wlroles-create`).",
 	tag_create_not_good_name:
-		"The tag name must not include spaces and must not exceed 16 characters.",
+		"The tag name must not include spaces or dots and must not exceed 16 characters.",
 	tag_create_command_work: "The tag `${tag_name}` has been created.",
 	tag_create_already_exist: "The tag already exists.",
 	tag_create_embed_doesnt_exist: "The embed doesn't exist.",

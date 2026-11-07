@@ -29,7 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { acquireEconomyLock } from "./economyLock.js";
+import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,7 +51,13 @@ export const subCommand: SubCommand = {
 			interaction.guildId!,
 			interaction.member.user.id
 		);
-		if (!releaseLock) return;
+		if (!releaseLock) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.economy_action_in_progress,
+				flags: [1 << 6]
+			});
+			return;
+		}
 
 		try {
 			if (interaction instanceof ChatInputCommandInteraction) {

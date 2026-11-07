@@ -1014,6 +1014,10 @@ export default {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - Banco: `${bank}`${emoji_Coin} | Saldo: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | Tu comando de economía anterior todavía se está ejecutando, inténtalo de nuevo en un momento.",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | Debes ser un administrador de este servidor para ejecutar este comando.",
@@ -2114,6 +2118,8 @@ export default {
 		"L'emoji `{emoji}` della reazione non è valido!",
 	add_react_command_err_message:
 		"¡Debes especificar el mensaje que activará la reacción!",
+	add_react_command_bad_word:
+		"Esta palabra no se puede usar para una reacción automática: no debe contener un punto.",
 	add_react_command_work:
 		"<@${authorId}>, ora quando un membro invia `${message}`, il bot **reagirà** con {emoji}",
 
@@ -3290,7 +3296,7 @@ export default {
 	tag_create_not_permited:
 		"No tienes permiso para crear una etiqueta.\nNecesitas permisos de administrador o estar en la lista blanca (`tag wlroles-create`).",
 	tag_create_not_good_name:
-		"El nombre de la etiqueta no debe incluir espacios y no debe exceder 16 caracteres.",
+		"El nombre de la etiqueta no debe incluir espacios ni puntos y no debe exceder 16 caracteres.",
 	tag_create_command_work: "La etiqueta `${tag_name}` ha sido creada.",
 	tag_create_already_exist: "La etiqueta ya existe.",
 	tag_create_embed_doesnt_exist: "El embed no existe.",

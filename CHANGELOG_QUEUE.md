@@ -116,12 +116,12 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 
 This release fixes several security issues. **If you host your own iHorizon instance, update as soon as possible.**
 
-- Stored settings reject reserved key names, and tag names and auto-react words only accept letters, digits, `_` and `-`
+- Stored settings reject reserved key names, and tag names and auto-react words can no longer contain a dot (letters of every language still work)
 - Media commands only download images from public hosts, with size and time limits
-- `/util unzip-emojis` imports at most 50 emojis and skips oversized files
+- `/util unzip-emojis` imports at most 50 emojis, one at a time, skips oversized files and stops reading a file that lies about its size
 - `/guildconfig config restore` only restores a backup saved on the same server and never changes the bot owners of the server; backups made before this release can no longer be restored
 - Bot-owner commands always check the owner
-- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once
+- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once (a second one sent too fast gets a short notice)
 - Giveaway commands only act on giveaways of the current server
 - `/mod tempban` and `/mod ban` refuse to act on a member whose highest role is equal to or above yours
 

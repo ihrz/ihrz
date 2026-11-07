@@ -27,10 +27,18 @@ function has_reserved_key(keys: string[]): boolean {
 	return keys.some((key) => RESERVED_KEYS.has(key));
 }
 
+// A user-chosen value stored as one key of a nested path (tag names,
+// auto-react words): no `.` (it would split the path) and no reserved name.
+function is_safe_key_segment(value: string): boolean {
+	return (
+		value.length > 0 && !value.includes(".") && !RESERVED_KEYS.has(value)
+	);
+}
+
 function get_property(obj: any, path: string, defaultValue: any = null): any {
 	if (!obj) return defaultValue;
 	const keys = path.split(".");
-	if (has_reserved_key(keys)) return undefined;
+	if (has_reserved_key(keys)) return defaultValue;
 	let current = obj;
 
 	for (const key of keys) {
@@ -78,7 +86,11 @@ function unset_property(obj: any, path: string): boolean {
 
 	for (let i = 0; i < keys.length - 1; i++) {
 		const key = keys[i];
-		if (!Object.hasOwn(current, key) || typeof current[key] !== "object") {
+		if (
+			!Object.hasOwn(current, key) ||
+			!current[key] ||
+			typeof current[key] !== "object"
+		) {
 			return false;
 		}
 		current = current[key];
@@ -87,4 +99,4 @@ function unset_property(obj: any, path: string): boolean {
 	return delete current[keys[keys.length - 1]];
 }
 
-export { unset_property, get_property, set_property };
+export { unset_property, get_property, set_property, is_safe_key_segment };

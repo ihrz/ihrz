@@ -32,7 +32,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { acquireEconomyLock } from "./economyLock.js";
+import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
 
 export const subCommand: SubCommand = {
 	run: async (

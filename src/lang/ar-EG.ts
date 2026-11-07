@@ -941,6 +941,10 @@ export default {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - البنك: `${bank}`${emoji_Coin} | الرصيد: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | لا يزال أمر الاقتصاد السابق قيد التنفيذ، حاول مرة أخرى بعد لحظة.",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | يجب أن تكون مشرفًا في هذا الخادم لتنفيذ هذا الأمر!",
@@ -1961,6 +1965,8 @@ export default {
 	add_react_command_err_emojis: "الرمز التعبيري `{emoji}` للتفاعل غير صحيح!",
 	add_react_command_err_message:
 		"يجب عليك تحديد الرسالة التي ستؤدي إلى التفاعل!",
+	add_react_command_bad_word:
+		"لا يمكن استخدام هذه الكلمة كتفاعل تلقائي: يجب ألا تحتوي على نقطة.",
 	add_react_command_work:
 		"<@${authorId}>, الآن عندما يرسل أحد الأعضاء `${message}`، البوت **سيتفاعل** بـ {emoji}",
 
@@ -3046,7 +3052,7 @@ export default {
 	tag_create_not_permited:
 		"غير مسموح لك بإنشاء وسم.\nتحتاج إلى صلاحيات المسؤول أو يجب أن تكون في القائمة البيضاء (`tag wlroles-create`).",
 	tag_create_not_good_name:
-		"يجب ألا يحتوي اسم الوسم على مسافات وألا يتجاوز 16 حرفًا.",
+		"يجب ألا يحتوي اسم الوسم على مسافات أو نقاط وألا يتجاوز 16 حرفًا.",
 	tag_create_command_work: "تم إنشاء الوسم `${tag_name}`.",
 	tag_create_already_exist: "الوسم موجود بالفعل.",
 	tag_create_embed_doesnt_exist: "الإطار المضمن غير موجود.",

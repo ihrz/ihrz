@@ -1023,6 +1023,10 @@ export default {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - Bank: `${bank}`${emoji_Coin} | Guthaben: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | Dein vorheriger Economy-Befehl läuft noch, versuche es gleich noch einmal.",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!",
@@ -2129,6 +2133,8 @@ export default {
 		"Das Emoji `{emoji}` für die Reaktion ist kein gültiges Emoji!",
 	add_react_command_err_message:
 		"Du musst die Nachricht angeben, die die Reaktion auslösen soll!",
+	add_react_command_bad_word:
+		"Dieses Wort kann nicht für eine automatische Reaktion verwendet werden: Es darf keinen Punkt enthalten.",
 	add_react_command_work:
 		"<@${authorId}>, jetzt wenn ein Mitglied `${message}` sendet, wird der Bot **mit {emoji} reagieren**.",
 
@@ -3314,7 +3320,7 @@ export default {
 	tag_create_not_permited:
 		"Sie dürfen keinen Tag erstellen.\nSie benötigen Administratorrechte oder müssen auf der Whitelist stehen (`tag wlroles-create`).",
 	tag_create_not_good_name:
-		"Der Tag-Name darf keine Leerzeichen enthalten und nicht länger als 16 Zeichen sein.",
+		"Der Tag-Name darf weder Leerzeichen noch Punkte enthalten und nicht länger als 16 Zeichen sein.",
 	tag_create_command_work: "Der Tag `${tag_name}` wurde erstellt.",
 	tag_create_already_exist: "Der Tag existiert bereits.",
 	tag_create_embed_doesnt_exist: "Der Embed existiert nicht.",

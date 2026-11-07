@@ -27,6 +27,7 @@ import {
 } from "../../../core/functions/emojiChecker.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
+import { is_safe_key_segment } from "../../../core/database/lodash.js";
 
 export const command: Command = {
 	name: "add-react",
@@ -68,9 +69,17 @@ export const command: Command = {
 
 		const message = options![1];
 
-		if (!message?.trim() || !/^[A-Za-z0-9_-]+$/.test(message.trim())) {
+		if (!message?.trim()) {
 			await interaction.reply({
 				content: lang.add_react_command_err_message,
+				allowedMentions: { repliedUser: false }
+			});
+			return;
+		}
+
+		if (!is_safe_key_segment(message.trim())) {
+			await interaction.reply({
+				content: lang.add_react_command_bad_word,
 				allowedMentions: { repliedUser: false }
 			});
 			return;

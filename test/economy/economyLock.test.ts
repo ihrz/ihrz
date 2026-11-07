@@ -20,7 +20,7 @@
 */
 
 import { describe, expect, test } from "bun:test";
-import { acquireEconomyLock } from "../../src/Interaction/HybridCommands/economy/economyLock.js";
+import { acquireEconomyLock } from "../../src/core/modules/economyLock.js";
 
 describe("acquireEconomyLock", () => {
 	test("refuses a second acquire for the same member", () => {

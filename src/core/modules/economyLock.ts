@@ -19,6 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+// Per-member lock for the economy commands: a second command of the same
+// member, sent while the first one is still running, is refused instead of
+// reading the same balance twice. In memory: a guild lives on one shard.
 const held = new Set<string>();
 
 /**

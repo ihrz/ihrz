@@ -116,12 +116,12 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 
 Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez votre propre instance d'iHorizon, mettez-la à jour au plus vite.**
 
-- Les réglages enregistrés refusent les noms de clé réservés, et les noms de tag et mots de réaction automatique n'acceptent que les lettres, chiffres, `_` et `-`
+- Les réglages enregistrés refusent les noms de clé réservés, et les noms de tag et mots de réaction automatique ne peuvent plus contenir de point (les lettres de toutes les langues restent acceptées)
 - Les commandes média ne téléchargent que des images d'hôtes publics, avec des limites de taille et de temps
-- `/util unzip-emojis` importe au plus 50 emojis et ignore les fichiers trop lourds
+- `/util unzip-emojis` importe au plus 50 emojis, un par un, ignore les fichiers trop lourds et arrête de lire un fichier qui ment sur sa taille
 - `/guildconfig config restore` ne restaure qu'une sauvegarde faite sur le même serveur et ne change jamais les owners du bot sur ce serveur ; les sauvegardes faites avant cette version ne peuvent plus être restaurées
 - Les commandes réservées aux owners du bot vérifient toujours l'owner
-- Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps
+- Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps (une deuxième envoyée trop vite reçoit un court message)
 - Les commandes de giveaway n'agissent que sur les giveaways du serveur actuel
 - `/mod tempban` et `/mod ban` refusent d'agir sur un membre dont le rôle le plus haut est égal ou supérieur au vôtre
 

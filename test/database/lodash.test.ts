@@ -22,6 +22,7 @@
 import { describe, expect, test } from "bun:test";
 import {
 	get_property,
+	is_safe_key_segment,
 	set_property,
 	unset_property
 } from "../../src/core/database/lodash";
@@ -51,10 +52,38 @@ describe("database lodash helpers", () => {
 		}
 	});
 
-	test("get_property does not return inherited values", () => {
-		expect(get_property({}, "__proto__", "d")).toBeUndefined();
-		expect(get_property({}, "constructor.name", "d")).toBeUndefined();
+	test("get_property treats reserved and inherited keys as missing", () => {
+		expect(get_property({}, "__proto__", "d")).toBe("d");
+		expect(get_property({}, "constructor.name", "d")).toBe("d");
 		expect(get_property({ a: 1 }, "toString", "d")).toBe("d");
+	});
+
+	test("unset_property stops on a null or non-object segment", () => {
+		expect(unset_property({ a: { b: null } }, "a.b.c")).toBe(false);
+		expect(unset_property({ a: 1 }, "a.b")).toBe(false);
+	});
+
+	test("is_safe_key_segment", () => {
+		for (const ok of [
+			"règles",
+			"café",
+			"ルール",
+			"правила",
+			"gg!",
+			"a_b-c"
+		]) {
+			expect(is_safe_key_segment(ok)).toBe(true);
+		}
+		for (const bad of [
+			"",
+			"a.b",
+			".",
+			"__proto__",
+			"constructor",
+			"prototype"
+		]) {
+			expect(is_safe_key_segment(bad)).toBe(false);
+		}
 	});
 
 	test("nested paths still work", () => {

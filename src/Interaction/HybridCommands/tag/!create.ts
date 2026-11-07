@@ -30,6 +30,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { is_safe_key_segment } from "../../../core/database/lodash.js";
 import { metasTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
@@ -84,7 +85,11 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (tag_name.length > 16 || !/^[A-Za-z0-9_-]+$/.test(tag_name)) {
+		if (
+			tag_name.length > 16 ||
+			/\s/.test(tag_name) ||
+			!is_safe_key_segment(tag_name)
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tag_create_not_good_name
 			});

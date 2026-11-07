@@ -23,6 +23,7 @@ import {
 	Attachment,
 	ChatInputCommandInteraction,
 	Client,
+	GuildEmoji,
 	Message
 } from "discord.js";
 import JSZip from "jszip";
@@ -48,6 +49,47 @@ async function readCapped(
 		chunks.push(chunk);
 	}
 	return Buffer.concat(chunks);
+}
+
+// Decompresses one entry, giving up as soon as it exceeds maxBytes: the size
+// declared in the zip can lie (zip bomb), and async() would inflate it all.
+export function readZipEntryCapped(
+	file: JSZip.JSZipObject,
+	maxBytes: number
+): Promise<Buffer | null> {
+	const stream = (
+		file as unknown as {
+			internalStream(
+				type: "uint8array"
+			): JSZip.JSZipStreamHelper<Uint8Array>;
+		}
+	).internalStream("uint8array");
+
+	return new Promise((resolve) => {
+		const chunks: Uint8Array[] = [];
+		let total = 0;
+		let settled = false;
+		const settle = (value: Buffer | null) => {
+			if (settled) return;
+			settled = true;
+			resolve(value);
+		};
+
+		stream
+			.on("data", (chunk) => {
+				if (settled) return;
+				total += chunk.byteLength;
+				if (total > maxBytes) {
+					stream.pause();
+					settle(null);
+					return;
+				}
+				chunks.push(chunk);
+			})
+			.on("error", () => settle(null))
+			.on("end", () => settle(Buffer.concat(chunks)))
+			.resume();
+	});
 }
 
 export const subCommand: SubCommand = {
@@ -137,26 +179,24 @@ export const subCommand: SubCommand = {
 				return true;
 			});
 
-			const emojiCreationPromises = emojis.map(
-				async ([emojiName, file]) => {
-					const fileBuffer = await file.async("arraybuffer");
+			// One entry at a time: each one can inflate up to ~17 MB before
+			// readZipEntryCapped stops it (one 16 KB deflate block).
+			const createdEmojis: GuildEmoji[] = [];
+			for (const [emojiName, file] of emojis) {
+				const fileBuffer = await readZipEntryCapped(
+					file,
+					MAX_EMOJI_BYTES
+				);
+				if (!fileBuffer) continue;
 
-					// Create emoji
-					try {
-						const emoji = await interaction.guild!.emojis.create({
-							name: emojiName,
-							attachment: Buffer.from(fileBuffer)
-						});
-						return emoji;
-					} catch (createError) {
-						return null;
-					}
-				}
-			);
-
-			const createdEmojis = (
-				await Promise.all(emojiCreationPromises)
-			).filter((emoji) => emoji !== null);
+				const emoji = await interaction
+					.guild!.emojis.create({
+						name: emojiName,
+						attachment: fileBuffer
+					})
+					.catch(() => null);
+				if (emoji) createdEmojis.push(emoji);
+			}
 
 			// Respond with results
 			const calcTime = Date.now() - time;

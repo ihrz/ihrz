@@ -998,6 +998,10 @@ export default {
 	economy_leaderboard_embed_fields_value:
 		"<@${userId}> - Банк: `${bank}`${emoji_Coin} | Баланс: `${money}`${emoji_Coin}",
 
+	// /economy (money and cooldown commands)
+	economy_action_in_progress:
+		"${emoji_No} | Ваша предыдущая команда экономики ещё выполняется, попробуйте снова через мгновение.",
+
 	// /economy disable
 	economy_disable_not_admin:
 		":x: | Вы должны быть администратором этого сервера, чтобы выполнить эту команду!",
@@ -2075,6 +2079,8 @@ export default {
 		"Эмодзи `{emoji}` для реакции недействителен!",
 	add_react_command_err_message:
 		"Необходимо указать сообщение, которое будет вызывать реакцию!",
+	add_react_command_bad_word:
+		"Это слово нельзя использовать для автоматической реакции: оно не должно содержать точку.",
 	add_react_command_work:
 		"<@${authorId}>, теперь, когда участник отправляет `${message}`, бот **будет реагировать** с {emoji}",
 
@@ -3211,7 +3217,7 @@ export default {
 	tag_create_not_permited:
 		"У вас нет разрешения на создание тега.\nНеобходимы права администратора или нахождение в белом списке (`tag wlroles-create`).",
 	tag_create_not_good_name:
-		"Имя тега не должно содержать пробелов и не должно превышать 16 символов.",
+		"Имя тега не должно содержать пробелов и точек и не должно превышать 16 символов.",
 	tag_create_command_work: "Тег `${tag_name}` был создан.",
 	tag_create_already_exist: "Тег уже существует.",
 	tag_create_embed_doesnt_exist: "Встраивание не существует.",
