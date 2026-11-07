@@ -33,8 +33,13 @@
  * It also lists what can't be guessed: a new account policy that is on with a
  * required age of 0 (a duration typed in words used to save that).
  *
+ * Guilds are read one by one, listed from Discord with the bot token: the
+ * whole table in one reply is more than the database sends.
+ *
  * Usage: bun run tools/MigrateDashboardUnits.ts [--apply]   (dry run by default)
  */
+
+import { REST, Routes, type APIGuild } from "discord.js";
 
 import { initializeDatabase } from "../src/core/database/index.js";
 import logger from "../src/core/logger.js";
@@ -49,13 +54,33 @@ type Change = { path: string; from: unknown; to: unknown };
 const positive = (v: unknown): v is number =>
 	typeof v === "number" && Number.isFinite(v) && v > 0;
 
+/** Every guild the bot is in, 200 per request (Discord's maximum). */
+async function guildIds(): Promise<string[]> {
+	const rest = new REST({ version: "10" }).setToken(config.discord.token);
+	const ids: string[] = [];
+	for (;;) {
+		const query = new URLSearchParams({ limit: "200" });
+		if (ids.length) query.set("after", ids[ids.length - 1]);
+		const page = (await rest.get(Routes.userGuilds(), {
+			query
+		})) as APIGuild[];
+		ids.push(...page.map((guild) => guild.id));
+		if (page.length < 200) return ids;
+	}
+}
+
 const run = async () => {
 	const database = await initializeDatabase(config.database);
-	const rows = await database.all();
+	const ids = await guildIds();
+	logger.log(`${ids.length} guilds to check`);
 	let changedGuilds = 0;
+	let scanned = 0;
 
-	for (const row of rows) {
-		if (!/^\d{5,25}$/.test(row.id) || !row.value) continue;
+	for (const id of ids) {
+		const value = await database.get(id);
+		if (!value || typeof value !== "object") continue;
+		scanned++;
+		const row = { id, value };
 		const doc = row.value as Record<string, any>;
 		const changes: Change[] = [];
 		const toCheck: string[] = [];
@@ -123,9 +148,7 @@ const run = async () => {
 		}
 	}
 
-	logger.log(
-		`Finished. scanned=${rows.length} guildsChanged=${changedGuilds}`
-	);
+	logger.log(`Finished. scanned=${scanned} guildsChanged=${changedGuilds}`);
 	if (isDryRun) {
 		logger.warn(
 			"No database changes were written. Re-run with --apply to persist changes."
