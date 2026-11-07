@@ -26,7 +26,6 @@ import path from "path";
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 
-import { axios } from "../../../core/functions/axios.js";
 import {
 	convertToPng,
 	resizeImage,
@@ -91,9 +90,14 @@ export const command: Command = {
 		}
 
 		try {
-			const beforeSucksResponse = await axios.get(beforeSucksUrl, {
-				responseType: "arraybuffer"
-			});
+			const beforeSucksImage =
+				await client.func.svgKit.fetchImage(beforeSucksUrl);
+
+			if (!beforeSucksImage) {
+				return interaction.reply({
+					content: lang.media_gen_error_args
+				});
+			}
 
 			const beforeSucksResizedPath = path.join(
 				tempDir,
@@ -101,7 +105,7 @@ export const command: Command = {
 			);
 
 			await resizeImage(
-				await convertToPng(Buffer.from(beforeSucksResponse.data)),
+				await convertToPng(beforeSucksImage),
 				beforeSucksResizedPath,
 				1920,
 				1080
@@ -143,9 +147,8 @@ export const command: Command = {
 			await unlink(exported);
 			await unlink(beforeSucksResizedPath);
 		} catch (error) {
-			interaction.reply({
-				content: `An error occurred: ${error.message}`
-			});
+			logger.err(`media generation failed: ${error?.message}`);
+			interaction.reply({ content: lang.media_gen_error_args });
 		}
 	}
 };
