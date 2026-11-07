@@ -56,6 +56,13 @@ export function removePermissionProperties(obj: any): any {
 	return cleanedObj;
 }
 
+// One name per bit: discord.js keeps deprecated aliases (for example
+// ManageEmojisAndStickers and ManageGuildExpressions share a bit), and the
+// later entry is the current name.
+const PERMISSION_NAMES_BY_BIT = new Map<bigint, string>(
+	Object.entries(PermissionFlagsBits).map(([name, flag]) => [flag, name])
+);
+
 export function readablePermissionNames(permission: unknown): string[] {
 	const values = Array.isArray(permission) ? permission : [permission];
 	const names = new Set<string>();
@@ -66,7 +73,7 @@ export function readablePermissionNames(permission: unknown): string[] {
 		const bits = BigInt(value);
 		if (bits === 0n) continue;
 
-		for (const [name, flag] of Object.entries(PermissionFlagsBits)) {
+		for (const [flag, name] of PERMISSION_NAMES_BY_BIT) {
 			if ((bits & flag) === flag) names.add(name);
 		}
 	}

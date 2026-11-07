@@ -23,6 +23,7 @@ import { describe, expect, test } from "bun:test";
 import { PermissionFlagsBits } from "discord.js";
 import {
 	readablePermissionField,
+	readablePermissionNames,
 	removePermissionProperties,
 	withReadablePermissions
 } from "../../src/core/commandsSync.ts";
@@ -121,4 +122,10 @@ describe("readablePermissionField", () => {
 			expect({ name: "x", ...field }).toEqual({ name: "x" });
 		}
 	});
+});
+
+test("an aliased permission bit is exported under one name", () => {
+	expect(
+		readablePermissionNames(PermissionFlagsBits.ManageGuildExpressions)
+	).toEqual(["ManageGuildExpressions"]);
 });
