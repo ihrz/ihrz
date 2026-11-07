@@ -151,9 +151,12 @@ export async function tempvoiceConfigPanel(
 		const select = new ChannelSelectMenuBuilder()
 			.setCustomId("tempvoice_cfg_hub_select")
 			.setChannelTypes(ChannelType.GuildVoice)
-			.setPlaceholder(lang.tempvoice_cfg_hub);
+			.setPlaceholder(lang.tempvoice_cfg_hub)
+			.setMinValues(0)
+			.setMaxValues(1);
 
-		if (state.voice_channel)
+		// A deleted channel stays in the config: offering it again broke the panel.
+		if (state.voice_channel && channelExists(state.voice_channel))
 			select.setDefaultChannels([state.voice_channel]);
 		return select;
 	}
@@ -162,9 +165,14 @@ export async function tempvoiceConfigPanel(
 		const select = new ChannelSelectMenuBuilder()
 			.setCustomId("tempvoice_cfg_category_select")
 			.setChannelTypes(ChannelType.GuildCategory)
-			.setPlaceholder(lang.tempvoice_cfg_category);
+			.setPlaceholder(lang.tempvoice_cfg_category)
+			.setMinValues(0)
+			.setMaxValues(1);
 
-		if (state.voice_channel_category)
+		if (
+			state.voice_channel_category &&
+			channelExists(state.voice_channel_category)
+		)
 			select.setDefaultChannels([state.voice_channel_category]);
 		return select;
 	}
@@ -176,8 +184,10 @@ export async function tempvoiceConfigPanel(
 			.setMinValues(0)
 			.setMaxValues(5);
 
-		if (state.staff_role.length > 0)
-			select.setDefaultRoles(state.staff_role);
+		const roles = state.staff_role.filter((id) =>
+			interaction.guild.roles.cache.has(id)
+		);
+		if (roles.length > 0) select.setDefaultRoles(roles);
 		return select;
 	}
 
@@ -201,13 +211,23 @@ export async function tempvoiceConfigPanel(
 			]);
 	}
 
+	function channelExists(id: string): boolean {
+		return interaction.guild.channels.cache.has(id);
+	}
+
 	function buildButtons() {
 		return [
 			new ButtonBuilder()
 				.setCustomId("tempvoice_cfg_done")
 				.setLabel(lang.tempvoice_cfg_done)
 				.setStyle(ButtonStyle.Primary)
-				.setEmoji(client.iHorizon_Emojis.Yes)
+				.setEmoji(client.iHorizon_Emojis.Yes),
+			// Without it the hub could only be replaced, never removed.
+			new ButtonBuilder()
+				.setCustomId("tempvoice_cfg_remove_hub")
+				.setLabel(lang.tempvoice_cfg_remove_hub)
+				.setStyle(ButtonStyle.Danger)
+				.setDisabled(!state.voice_channel)
 		];
 	}
 
@@ -262,17 +282,21 @@ export async function tempvoiceConfigPanel(
 
 		await i.deferUpdate();
 
-		if (i.customId === "tempvoice_cfg_hub_select") {
-			state.voice_channel = i.values[0];
+		// An emptied menu removes the setting.
+		const value = i.values[0] ?? null;
+		const key =
+			i.customId === "tempvoice_cfg_hub_select"
+				? "voice_channel"
+				: "voice_channel_category";
+		state[key] = value;
+		if (value) {
 			await client.db.set(
-				`${interaction.guildId}.VOICE_INTERFACE.voice_channel`,
-				i.values[0]
+				`${interaction.guildId}.VOICE_INTERFACE.${key}`,
+				value
 			);
 		} else {
-			state.voice_channel_category = i.values[0];
-			await client.db.set(
-				`${interaction.guildId}.VOICE_INTERFACE.voice_channel_category`,
-				i.values[0]
+			await client.db.delete(
+				`${interaction.guildId}.VOICE_INTERFACE.${key}`
 			);
 		}
 
@@ -376,6 +400,16 @@ export async function tempvoiceConfigPanel(
 		}
 
 		await i.deferUpdate();
+
+		if (i.customId === "tempvoice_cfg_remove_hub") {
+			// No hub, no temporary channels: the voice state handler stops there.
+			state.voice_channel = null;
+			await client.db.delete(
+				`${interaction.guildId}.VOICE_INTERFACE.voice_channel`
+			);
+			await refreshPanelMessage(panelMessage);
+			return;
+		}
 
 		await prompt(
 			panelMessage,

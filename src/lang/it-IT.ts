@@ -3939,6 +3939,7 @@ export default {
 	tempvoice_cfg_opt_position_top: "Set position: Top",
 	tempvoice_cfg_opt_position_bottom: "Set position: Bottom",
 	tempvoice_cfg_done: "Done",
+	tempvoice_cfg_remove_hub: "Rimuovi il canale di creazione",
 	tempvoice_cfg_saved: "TempVoice settings saved!",
 	tempvoice_cfg_expired: "Configuration panel expired. Run /tempvoice again.",
 	tempvoice_cfg_modal_title: "Set the channel name",
