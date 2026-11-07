@@ -1990,6 +1990,8 @@ export default {
 	// /guildconfig config restore
 	guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла.",
 	guildconfig_config_restore_msg: "Данные были сохранены в моей базе данных.",
+	guildconfig_config_restore_wrong_guild:
+		"Эта резервная копия не принадлежит этому серверу или недействительна, поэтому она не была восстановлена.",
 
 	// /perm add
 	perm_add_args_error:

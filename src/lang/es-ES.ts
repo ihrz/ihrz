@@ -2026,6 +2026,8 @@ export default {
 		"Hubo un error al descargar el archivo.",
 	guildconfig_config_restore_msg:
 		"Los datos han sido guardados en mi base de datos.",
+	guildconfig_config_restore_wrong_guild:
+		"Esta copia de seguridad no pertenece a este servidor o no es válida, por lo que no se ha restaurado.",
 
 	// /perm add
 	perm_add_args_error:

@@ -2022,6 +2022,8 @@ export default {
 		"Si è verificato un errore durante il download del file.",
 	guildconfig_config_restore_msg:
 		"I dati sono stati salvati nel mio database.",
+	guildconfig_config_restore_wrong_guild:
+		"Questo backup non appartiene a questo server o non è valido, quindi non è stato ripristinato.",
 
 	// /perm add
 	perm_add_args_error:

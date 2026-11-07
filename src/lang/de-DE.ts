@@ -2041,6 +2041,8 @@ export default {
 		"Es gab einen Fehler beim Herunterladen der Datei.",
 	guildconfig_config_restore_msg:
 		"Die Daten wurden in meiner Datenbank gespeichert.",
+	guildconfig_config_restore_wrong_guild:
+		"Dieses Backup gehört nicht zu diesem Server oder ist ungültig und wurde daher nicht wiederhergestellt.",
 
 	// /perm add
 	perm_add_args_error:

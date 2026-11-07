@@ -1976,6 +1976,8 @@ export default {
 	guildconfig_config_restore_err_msg:
 		"ファイルのダウンロード中にエラーが発生しました。",
 	guildconfig_config_restore_msg: "データがデータベースに保存されました。",
+	guildconfig_config_restore_wrong_guild:
+		"このバックアップはこのサーバーのものではないか無効なため、復元されませんでした。",
 
 	// /perm add
 	perm_add_args_error: "変更するコマンドや設定する権限を指定していません。",
