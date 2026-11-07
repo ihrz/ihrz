@@ -31,8 +31,6 @@
 
 import path from "node:path";
 
-import logger from "../logger.js";
-
 export const SHARD_SOURCE_ENTRY = "./src/core/bot.ts";
 export const SHARD_BUNDLE_DIR = path.join("dist", "shard");
 export const SHARD_BUNDLE_ENTRY = "./" + path.join(SHARD_BUNDLE_DIR, "bot.js");

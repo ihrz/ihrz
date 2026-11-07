@@ -37,7 +37,6 @@
 import path from "node:path";
 
 import { ConfigData, LavalinkNodeOptions } from "../../../types/configDatad.js";
-import logger from "../logger.js";
 
 export const LEGACY_CONFIG_PATH = path.join(
 	process.cwd(),

@@ -141,7 +141,9 @@ const logger: Logger = {
 	},
 
 	debug(message: any, ...optionalParams: any[]): void {
-		if (global?.client && !global.client.config.core.devMode) return;
+		// A client without config (tests, tools) counts as not in dev mode:
+		// a debug line must never throw in the code it describes.
+		if (global?.client && !global.client.config?.core?.devMode) return;
 		if (optionalParams.length > 0) {
 			_(message, ...optionalParams);
 		} else {

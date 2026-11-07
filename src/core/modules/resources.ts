@@ -28,8 +28,6 @@
 import path from "node:path";
 import { mkdir, readdir, rename, rm } from "node:fs/promises";
 
-import logger from "../logger.js";
-
 // Running from a `bun build --compile` binary (`B:/~BUN/` on Windows).
 export const IS_STANDALONE = /\/\$bunfs\/|~BUN/.test(Bun.main);
 
