@@ -3461,7 +3461,7 @@ export default {
 		"✅ ID `${blogId}` のRSSフィードを削除しました。",
 	blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。",
 	lastfm_module_not_configured:
-		"${emoji_No} | Bot 側で Last.fm モジュールが設定されていません。設定に `lastfm.apiKey` と `lastfm.sharedSecret` を追加するか、`LASTFM_API_KEY` と `LASTFM_SHARED_SECRET` を設定してください。",
+		"${emoji_No} | Bot 側で Last.fm モジュールが設定されていません。Bot の `.env` に `LASTFM_API_KEY` と `LASTFM_SHARED_SECRET` を設定してください。",
 	lastfm_config_login_required:
 		"${emoji_No} | モジュールを有効にする前に `/lastfm login` を使用する必要があります。",
 	lastfm_config_enabled:

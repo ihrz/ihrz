@@ -20,78 +20,24 @@
 */
 
 import { Client } from "discord.js";
-import { opendir } from "fs/promises";
-import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
 import { Command } from "../../../types/command.js";
-import { EltType } from "../../../types/eltType.js";
+import { ExportedFiles } from "../modules/exportsManifest.js";
 
-import { fileURLToPath } from "url";
-import path from "path";
 import { stringifyOption } from "../functions/method.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface CommandModule {
 	command: Command;
 }
 
-async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
-	const result = [];
-	const dir = await opendir(path);
-	for await (const dirent of dir) {
-		if (!dirent.name.startsWith("!")) {
-			if (dirent.isDirectory()) {
-				result.push({
-					name: dirent.name,
-					sub: await buildDirectoryTree(pathJoin(path, dirent.name))
-				});
-			} else {
-				result.push(dirent.name);
-			}
-		}
-	}
-	return result;
-}
-
-function buildPaths(
-	basePath: string,
-	directoryTree: (string | object)[]
-): string[] {
-	const paths = [];
-	for (const elt of directoryTree) {
-		switch (typeof elt) {
-			case "object":
-				for (const subElt of buildPaths(
-					(elt as EltType).name,
-					(elt as EltType).sub
-				)) {
-					paths.push(pathJoin(basePath, subElt));
-				}
-				break;
-			case "string":
-				paths.push(pathJoin(basePath, elt));
-				break;
-			default:
-				throw new Error("Invalid element type");
-		}
-	}
-	return paths;
-}
-
-const p = path.join(__dirname, "..", "..", "Interaction", "MessageCommands");
-
-async function loadCommands(client: Client, path: string = p): Promise<void> {
-	const directoryTree = await buildDirectoryTree(path);
-	const paths = buildPaths(path, directoryTree);
+async function loadCommands(client: Client): Promise<void> {
+	const { default: files } = await import("../../exports/messageCommands.ts");
 
 	let i = 0;
-	for (const path of paths) {
-		if (!path.endsWith(".ts")) continue;
+	for (const module of Object.values(files as ExportedFiles)) {
 		i++;
 
-		const { command } = (await import(path)) as CommandModule;
+		const { command } = module as CommandModule;
 		if (!command) continue;
 
 		client.content.push({

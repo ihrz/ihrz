@@ -22,6 +22,7 @@
 import path from "path";
 
 import svg2png from "./functions/svg2png.js";
+import { resourcePath } from "./modules/resources.js";
 import {
 	fetchImage,
 	fill,
@@ -38,7 +39,7 @@ const MEME_FONT_SIZE = 40;
 const MEME_LINE_HEIGHT = 46;
 const MEME_TEXT_WIDTH = MEME_WIDTH - 20;
 const MEME_MAX_LINES = 4;
-const HEART_PATH = path.join(process.cwd(), "src", "assets", "heart.png");
+const HEART_PATH = resourcePath("assets", "heart.png");
 
 const memeText = {
 	size: MEME_FONT_SIZE,

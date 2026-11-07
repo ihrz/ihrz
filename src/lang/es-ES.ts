@@ -3550,7 +3550,7 @@ export default {
 	blogger_blog_remove_not_found:
 		"❌ No se encontró ninguna fuente RSS con este ID.",
 	lastfm_module_not_configured:
-		"${emoji_No} | El módulo de Last.fm no está configurado en el bot. Añade `lastfm.apiKey` y `lastfm.sharedSecret` a la configuración o define `LASTFM_API_KEY` y `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | El módulo de Last.fm no está configurado en el bot. Define `LASTFM_API_KEY` y `LASTFM_SHARED_SECRET` en el `.env` del bot.",
 	lastfm_config_login_required:
 		"${emoji_No} | Debes usar `/lastfm login` antes de activar el módulo.",
 	lastfm_config_enabled:

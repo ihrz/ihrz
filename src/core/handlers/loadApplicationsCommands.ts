@@ -21,30 +21,11 @@
 
 import { Client } from "discord.js";
 
-import { fileURLToPath } from "url";
-import path from "path";
-import { readdir } from "node:fs/promises";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ExportedFiles } from "../modules/exportsManifest.js";
 
 export default async (client: Client) => {
-	const loadCommands = async (commandType: string) => {
-		const commandPath = path.join(
-			__dirname,
-			"..",
-			"..",
-			"Interaction",
-			commandType + "ApplicationCommands"
-		);
-
-		const files = await readdir(commandPath);
-
-		for (const file of files.filter((file: string) =>
-			file.endsWith(".ts")
-		)) {
-			const { command } = await import(`${commandPath}/${file}`);
-
+	const register = (files: ExportedFiles) => {
+		for (const { command } of Object.values(files)) {
 			client.applicationsCommands.set(command.name, {
 				type: command.type,
 				run: command.run,
@@ -58,8 +39,12 @@ export default async (client: Client) => {
 	};
 
 	/**  Load MessageApplicationCommands */
-	await loadCommands("Message");
+	register(
+		(await import("../../exports/messageApplicationCommands.ts")).default
+	);
 
 	/**  Load UserApplicationCommands */
-	await loadCommands("User");
+	register(
+		(await import("../../exports/userApplicationCommands.ts")).default
+	);
 };

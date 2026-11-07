@@ -19,15 +19,23 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-const pkg = await Bun.file(process.cwd() + "/package.json").json();
+import pkg from "../package.json" with { type: "json" };
 
+// Empty when git is missing or this is not a checkout (standalone binary).
 export function shell(str: string): string {
-	return Bun.spawnSync({
-		cmd: str.split(" ") || []
-	})
-		.stdout.toString()
-		.trim();
+	try {
+		return Bun.spawnSync({
+			cmd: str.split(" ") || []
+		})
+			.stdout.toString()
+			.trim();
+	} catch {
+		return "";
+	}
 }
+
+// Baked in by tools/Standalone_Build.ts: a binary has no git checkout.
+const build = typeof IHORIZON_BUILD === "undefined" ? null : IHORIZON_BUILD;
 
 export function parseGitRemote(remote: string): string {
 	return remote
@@ -36,13 +44,16 @@ export function parseGitRemote(remote: string): string {
 		.replace(/\.git$/, "");
 }
 
-export const env: string = shell("git branch --show-current");
+export const env: string = build?.branch ?? shell("git branch --show-current");
 
 export const version = pkg.version;
 export const djs = pkg.dependencies["discord.js"];
-export const git_remote = parseGitRemote(shell("git remote get-url origin"));
-export const short_commit_hex = shell("git rev-parse --short HEAD");
-export const long_commit_hex = shell("git rev-parse HEAD");
+export const git_remote = parseGitRemote(
+	build?.remote ?? shell("git remote get-url origin")
+);
+export const short_commit_hex =
+	build?.shortCommit ?? shell("git rev-parse --short HEAD");
+export const long_commit_hex = build?.longCommit ?? shell("git rev-parse HEAD");
 export const git_commit_url = `${git_remote}/commit/${long_commit_hex}`;
 
 export const ClientVersion = `${version} (${env}:${short_commit_hex}) discord.js@${djs}`;

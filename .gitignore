@@ -178,3 +178,6 @@ src/files/custom-enabled-guilds.json
 !src/files/commands.json
 # Project-local Bun installed and upgraded by pm2.config.cjs
 .bun/
+
+# Standalone binary resources (src/core/modules/resources.ts)
+.ihorizon/

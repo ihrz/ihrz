@@ -29,7 +29,9 @@
 import { loadHistory } from "../src/core/modules/prevnamesHistory.js";
 import { initializeDatabase } from "../src/core/database/index.js";
 import logger from "../src/core/logger.js";
-import config from "../src/files/config.js";
+import { loadConfig } from "../src/core/modules/envConfig.js";
+
+const config = await loadConfig();
 
 const isDryRun = !process.argv.includes("--apply");
 

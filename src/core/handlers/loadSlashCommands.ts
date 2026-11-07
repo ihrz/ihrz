@@ -22,20 +22,16 @@
 import { ApplicationCommandOptionType, Client } from "discord.js";
 
 import {
-	buildDirectoryTree,
-	buildPaths,
-	resolveCategoryInitializer
+	isCommandEntry,
+	resolveCategoryInitializer,
+	subCommandKey
 } from "../handlerHelper.js";
 import { Command, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
-import { fileURLToPath } from "url";
 
 import * as argsHelper from "../functions/method.js";
 import logger from "../logger.js";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ExportedFiles } from "../modules/exportsManifest.js";
 
 async function processOptions(
 	options: Option[],
@@ -64,25 +60,12 @@ async function processOptions(
 	}
 }
 
-const p = path.join(__dirname, "..", "..", "Interaction", "SlashCommands");
-
-export default async function loadCommands(
-	client: Client,
-	path: string = p
-): Promise<void> {
-	const directoryTree = await buildDirectoryTree(path);
-	const paths = buildPaths(path, directoryTree);
+export default async function loadCommands(client: Client): Promise<void> {
+	const { default: files } = await import("../../exports/slashCommands.ts");
 
 	let i = 0;
-	for (const path of paths) {
-		if (!path.endsWith(".ts") && !path.endsWith(".json")) continue;
-
-		let module;
-		if (path.endsWith(".ts")) {
-			module = await import(path);
-		} else if (path.endsWith("init.json")) {
-			module = await import(path, { with: { type: "json" } });
-		}
+	for (const [path, module] of Object.entries(files as ExportedFiles)) {
+		if (!isCommandEntry(path)) continue;
 
 		if (!module) continue;
 
@@ -91,7 +74,7 @@ export default async function loadCommands(
 			i++;
 
 			if (command.options) {
-				await processCommand(command, path, client);
+				await processCommand(command, path, client, files);
 			}
 
 			if (client.commands.has(command.name)) {
@@ -128,7 +111,8 @@ async function processCommandOptions(
 	category: string,
 	parentName: string = "",
 	client: Client,
-	directoryPath: string
+	files: ExportedFiles,
+	commandFile: string
 ): Promise<void> {
 	for (const option of options) {
 		const fullName = parentName
@@ -142,8 +126,9 @@ async function processCommandOptions(
 			await Promise.all(
 				option.options.map(async (subOption) => {
 					if (argsHelper.isSubCommand(subOption) && subOption.name) {
-						const commandModule = await loadSubCommandModule(
-							directoryPath,
+						const commandModule = loadSubCommandModule(
+							files,
+							commandFile,
 							subOption.name
 						);
 						if (commandModule) {
@@ -171,8 +156,9 @@ async function processCommandOptions(
 
 		if (option.type === ApplicationCommandOptionType.Subcommand) {
 			if (option.name) {
-				const commandModule = await loadSubCommandModule(
-					directoryPath,
+				const commandModule = loadSubCommandModule(
+					files,
+					commandFile,
 					option.name
 				);
 				if (commandModule) {
@@ -196,36 +182,34 @@ async function processCommandOptions(
 				category,
 				fullName,
 				client,
-				directoryPath
+				files,
+				commandFile
 			);
 		}
 	}
 }
 
-async function loadSubCommandModule(
-	directoryPath: string,
+function loadSubCommandModule(
+	files: ExportedFiles,
+	commandFile: string,
 	commandName: string
-): Promise<SubCommandModule | null> {
-	try {
-		// Use path.join for cross-platform compatibility and convert to file:// URL for Windows
-		const modulePath = path.join(directoryPath, `!${commandName}.ts`);
-		const moduleURL =
-			process.platform === "win32"
-				? `file:///${modulePath.replace(/\\/g, "/")}`
-				: `file://${modulePath}`;
+): SubCommandModule | null {
+	const module = files[subCommandKey(commandFile, commandName)] as
+		SubCommandModule | undefined;
 
-		return (await import(moduleURL)) as SubCommandModule;
-	} catch (error) {
+	if (!module) {
 		logger.err(`Failed to load subcommand module: ${commandName}`);
-		logger.err(error);
 		return null;
 	}
+
+	return module;
 }
 
 async function processCommand(
 	command: Command,
-	filePath: string,
-	client: Client
+	commandFile: string,
+	client: Client,
+	files: ExportedFiles
 ): Promise<void> {
 	if (!command.options) return;
 
@@ -240,14 +224,13 @@ async function processCommand(
 		argsHelper.hasSubCommand(command.options) ||
 		argsHelper.hasSubCommandGroup(command.options)
 	) {
-		// Use path.dirname for cross-platform directory extraction
-		const directoryPath = path.dirname(filePath);
 		await processCommandOptions(
 			command.options,
 			command.category,
 			command.name,
 			client,
-			directoryPath
+			files,
+			commandFile
 		);
 	}
 }

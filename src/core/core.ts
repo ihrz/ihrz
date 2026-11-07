@@ -35,15 +35,13 @@ import {
 	DefaultWebSocketManagerOptions,
 	User
 } from "discord.js";
-import { fileURLToPath } from "url";
-import path from "path";
 import fs from "node:fs";
 
 import assetsCalc from "./functions/assetsCalc.js";
 import { StreamNotifier } from "./StreamNotifier.js";
 import { KdenLive } from "./functions/kdenliveManipulator.js";
 import { Command } from "../../types/command.js";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { MemberCountModule } from "./modules/memberCountManager.js";
 import { GatewayLink } from "./modules/gatewayLink.js";
 import { AutoRenew } from "./modules/autorenewManager.js";
@@ -57,6 +55,8 @@ import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { InfrastructureMonitoring } from "./modules/infrastructureMonitoringManager.js";
 import { GiveawayManager } from "./modules/giveawaysManager.js";
 import { isNumber } from "./functions/method.js";
+import { writeExports } from "./modules/exportsManifest.js";
+import { extractResources, IS_STANDALONE } from "./modules/resources.js";
 import * as backup from "./backup/src";
 import * as discordTranscripts from "sweety-html-transcripts";
 import { BloggerNotifier } from "./Blogger.js";
@@ -64,9 +64,6 @@ import { TemproleManager } from "./modules/tempRoleManager.js";
 import { TempbanManager } from "./modules/tempbanManager.js";
 import { Mailer } from "./Mailer.js";
 import { LastFMScrobblerManager } from "./modules/lastFMScrobblerManager.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
@@ -144,18 +141,35 @@ export async function main(client: Client) {
 		if (isNumber(owner)) client.owners.push(owner);
 	});
 
-	const handlerPath = path.join(__dirname, "..", "core", "handlers");
-	const handlerFiles = (await readdir(handlerPath)).filter((file) =>
-		file.endsWith(".ts")
-	);
+	// Started by `bun run dev` (no ShardingManager): refresh the generated
+	// exports before the handlers import them. Shards never write them, and
+	// a standalone binary has no source tree (it only extracts its files,
+	// already done by its manager when sharded).
+	if (IS_STANDALONE) {
+		await extractResources();
+	} else if (!process.env.SHARDING_MANAGER) {
+		const written = await writeExports();
 
-	for (const file of handlerFiles) {
-		const { default: handlerFunction } = await import(
-			`${handlerPath}/${file}`
-		);
-		if (handlerFunction && typeof handlerFunction === "function") {
-			await handlerFunction(client);
+		if (written.length) {
+			logger.log(`Rewrote exports: ${written.join(", ")}`);
 		}
+	}
+
+	// Fixed order: message commands register before the hybrid ones, which
+	// refuse a name or alias already taken.
+	const handlers = [
+		() => import("./handlers/loadAnotherStuff.js"),
+		() => import("./handlers/loadApplicationsCommands.js"),
+		() => import("./handlers/loadEvent.js"),
+		() => import("./handlers/loadMessageCommands.js"),
+		() => import("./handlers/loadSvgFile.js"),
+		() => import("./handlers/loadHybridCommands.js"),
+		() => import("./handlers/loadSlashCommands.js")
+	];
+
+	for (const loadHandler of handlers) {
+		const { default: handlerFunction } = await loadHandler();
+		await handlerFunction(client);
 	}
 
 	login();

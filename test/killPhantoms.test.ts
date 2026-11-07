@@ -22,14 +22,24 @@
 import { afterEach, expect, test } from "bun:test";
 
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	realpathSync,
+	rmSync,
+	writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // A plain CommonJS helper of the pm2 launcher, which runs on Node before any
 // dependency is installed: it has no type declarations.
-const { findBotProcesses, isBotProcess, killPhantoms } =
-	require("../scripts/killPhantoms.cjs");
+const {
+	findBotProcesses,
+	isBotProcess,
+	killPhantoms
+} = require("../scripts/killPhantoms.cjs");
 
 const ROOT = "/srv/bot";
 
@@ -38,7 +48,8 @@ const dirs: string[] = [];
 
 afterEach(() => {
 	for (const child of children.splice(0)) child.kill("SIGKILL");
-	for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+	for (const dir of dirs.splice(0))
+		rmSync(dir, { recursive: true, force: true });
 });
 
 function makeCheckout(script: string): string {
@@ -75,7 +86,8 @@ test.each([
 	[["/srv/bot/.bun/bin/bun", "src/index.ts"]],
 	[["bun", "run", "src/core/bot.ts"]],
 	[["bun", "/srv/bot/src/core/bot.ts"]],
-	[["bun", "--smol", "src/index.ts"]]
+	[["bun", "--smol", "src/index.ts"]],
+	[["bun", "./dist/shard/bot.js"]]
 ])("%j is a bot process", (argv) => {
 	expect(isBotProcess(argv, ROOT, ROOT)).toBe(true);
 });

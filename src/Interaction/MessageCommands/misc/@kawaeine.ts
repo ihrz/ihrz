@@ -22,6 +22,7 @@
 import { ApplicationCommandOptionType, Message, Client } from "discord.js";
 
 import path from "path";
+import { resourcePath } from "../../../core/modules/resources.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
@@ -107,12 +108,7 @@ export const command: Command = {
 				1080
 			);
 
-			const rapRealityPath = path.join(
-				process.cwd(),
-				"src",
-				"assets",
-				"kawaeine"
-			);
+			const rapRealityPath = resourcePath("assets", "kawaeine");
 
 			let data = await client.kdenlive.open(
 				path.join(rapRealityPath, "meme3.kdenlive")

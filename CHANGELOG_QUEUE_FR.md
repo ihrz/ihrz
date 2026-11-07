@@ -112,6 +112,16 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 
 ---
 
+## ⚙️ Auto-hébergement — configuration en `.env` et binaire autonome
+
+Le bot se configure avec des variables d'environnement, lues depuis un fichier `.env` (`cp .env.example .env`), au lieu de `src/files/config.ts`. Chaque connexion tient en une URL : `LAVALINK_URL=ws://motdepasse@hote:2333` (plusieurs nodes séparés par des virgules, `wss://` pour le TLS) et `DATABASE_URL` (`sqlite`, `json`, `memory`, `postgres://...` ou `ws://...` pour HorizonDB). Les listes sont séparées par des virgules (`OWNERS=id1,id2`), et une faute de frappe dans une valeur arrête le bot au démarrage avec un message clair au lieu d'être devinée. Plus rien n'est compilé dans le code : le même build fait tourner n'importe quel bot.
+
+Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement) : `bun run config:env` le déplace dans `.env`, garde ce que `.env` contenait déjà, vérifie le résultat et renomme `config.ts` en `config.ts.migrated`. Le **script d'installation est reconstruit** : il écrit `.env` avec des secrets saisis masqués, des identifiants vérifiés et des URL de connexion construites pour vous (plusieurs nodes Lavalink, SQLite, PostgreSQL, HorizonDB ou JSON au lieu d'une option MySQL qu'aucun driver ne gérait), vérifie le résultat avec l'analyseur du bot avant de démarrer, peut lancer le bot depuis le clone ou en binaire autonome (voir ci-dessous), et ne laisse jamais deux copies du bot tourner. Il installe maintenant `ffmpeg` (nécessaire au son en vidéo) et ne met plus à jour tout le système.
+
+`bun run build:binary` compile iHorizon en **un seul exécutable** : code, langues, modèles SVG, polices, emojis et modèles vidéo sont dedans, il tourne donc avec juste un `.env` à côté, sans Bun, sans `node_modules` et sans le code source. Le même fichier fait tourner le gestionnaire de shards et chaque shard, extrait ses fichiers une fois par build dans `.ihorizon/resources/`, et les traces d'erreur pointent toujours vers les fichiers sources. Compilez-le sur la plateforme qui fait tourner le bot (`--target` pour les autres).
+
+---
+
 ## 🛠️ Corrections & améliorations
 
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
@@ -168,3 +178,4 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 - **Auto-hébergement** : toutes les erreurs et alertes restantes passent maintenant par le logger du bot (horodatage, shard, niveau), et les erreurs sont journalisées avec leur pile complète au lieu de `{}`, une seule fois (sur stderr) au lieu de deux
 - **Auto-hébergement** : l'alerte de dépréciation `[DEP0169] url.parse()` n'apparaît plus dans les logs quand un lien musical est vérifié
 - **H24/7** : quand son salon vocal est supprimé, le réglage H24/7 est effacé au lieu d'être retenté indéfiniment (avec une alerte dans les logs)
+- **Auto-hébergement** : les shards ne parcourent plus les dossiers sources au démarrage : commandes, events, composants, fonctions et modèles SVG sont chargés depuis les fichiers générés `src/exports/` `bun run dev` les tient à jour, `bun run gen:exports` les régénère à la main, et le bot prévient au démarrage quand ils ne sont plus à jour. À chaque démarrage, le gestionnaire de shards compile aussi une seule fois le code d'iHorizon dans `dist/shard/bot.js`, et chaque shard démarre depuis ce seul fichier au lieu de ~700 fichiers sources (les traces d'erreur pointent toujours vers `src/`). `IHORIZON_NO_BUNDLE=1` fait tourner les shards depuis `src` comme avant, et une compilation ratée y revient toute seule

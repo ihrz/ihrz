@@ -22,7 +22,9 @@
 import { REST, Routes, ShardingManager } from "discord.js";
 import { readFile } from "fs/promises";
 import path from "path";
-import config from "../src/files/config.js";
+import { loadConfig } from "../src/core/modules/envConfig.js";
+
+const config = await loadConfig();
 import logger from "../src/core/logger.js";
 
 const token = process.env.BOT_TOKEN || config.discord.token;

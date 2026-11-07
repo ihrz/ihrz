@@ -3432,7 +3432,7 @@ const enUS = {
 		"✅ RSS feed with ID `${blogId}` has been removed.",
 	blogger_blog_remove_not_found: "❌ No RSS feed found with this ID.",
 	lastfm_module_not_configured:
-		"${emoji_No} | The Last.fm module is not configured on the bot. Add `lastfm.apiKey` and `lastfm.sharedSecret` to the config, or set `LASTFM_API_KEY` and `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | The Last.fm module is not configured on the bot. Set `LASTFM_API_KEY` and `LASTFM_SHARED_SECRET` in the bot's `.env`.",
 	lastfm_config_login_required:
 		"${emoji_No} | You need to use `/lastfm login` before enabling the module.",
 	lastfm_config_enabled:

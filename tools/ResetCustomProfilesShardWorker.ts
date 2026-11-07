@@ -21,7 +21,9 @@
 
 import { Client } from "discord.js";
 import { initializeDatabase } from "../src/core/database/index.js";
-import config from "../src/files/config.js";
+import { loadConfig } from "../src/core/modules/envConfig.js";
+
+const config = await loadConfig();
 import * as ClientVersion from "../src/version.js";
 import { readFile } from "fs/promises";
 import path from "path";

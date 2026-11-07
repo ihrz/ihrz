@@ -3463,7 +3463,7 @@ export default {
 	blogger_blog_remove_success: "✅ RSS-лента с ID `${blogId}` была удалена.",
 	blogger_blog_remove_not_found: "❌ RSS-лента с таким ID не найдена.",
 	lastfm_module_not_configured:
-		"${emoji_No} | Модуль Last.fm не настроен на боте. Добавьте `lastfm.apiKey` и `lastfm.sharedSecret` в конфиг или задайте `LASTFM_API_KEY` и `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | Модуль Last.fm не настроен на боте. Задайте `LASTFM_API_KEY` и `LASTFM_SHARED_SECRET` в файле `.env` бота.",
 	lastfm_config_login_required:
 		"${emoji_No} | Сначала нужно использовать `/lastfm login`, прежде чем включать модуль.",
 	lastfm_config_enabled:

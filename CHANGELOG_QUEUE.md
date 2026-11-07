@@ -112,6 +112,16 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 
 ---
 
+## ⚙️ Self-hosting — `.env` configuration and a standalone binary
+
+The bot is configured with environment variables, read from a `.env` file (`cp .env.example .env`), instead of `src/files/config.ts`. Connections are a single URL each: `LAVALINK_URL=ws://password@host:2333` (several nodes comma-separated, `wss://` for TLS) and `DATABASE_URL` (`sqlite`, `json`, `memory`, `postgres://...` or `ws://...` for HorizonDB). Lists are comma-separated (`OWNERS=id1,id2`), and a typo in a value stops the bot at startup with a clear message instead of being guessed. Nothing is compiled into the code anymore, so the same build runs any bot.
+
+An existing `config.ts` keeps working for now (with a warning): `bun run config:env` moves it into `.env`, keeps what `.env` already had, checks the result and renames `config.ts` to `config.ts.migrated`. The **installation script is rebuilt**: it writes `.env` with hidden secrets, checked IDs and connection URLs built for you (several Lavalink nodes, SQLite, PostgreSQL, HorizonDB or JSON instead of a MySQL option that no driver supported), checks the result with the bot's own parser before starting, can run the bot from the checkout or as the standalone binary below, and never leaves two copies of the bot running. It now installs `ffmpeg` (needed by sound-to-video) and no longer upgrades the whole system.
+
+`bun run build:binary` builds iHorizon into **a single executable**: code, languages, SVG templates, fonts, emojis and video templates are inside, so it runs with just a `.env` next to it, without Bun, `node_modules` or the source code. The same file runs the shard manager and every shard, extracts its files once per build into `.ihorizon/resources/`, and error stack traces still point at the source files. Build it on the platform that runs the bot (`--target` for others).
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
@@ -168,3 +178,4 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 - **Self-hosting**: every remaining error and warning now goes through the bot logger (timestamp, shard, level), and errors are logged with their full stack instead of `{}`, once (on stderr) instead of twice
 - **Self-hosting**: the `[DEP0169] url.parse()` deprecation warning no longer shows in the logs when a music link is checked
 - **H24/7**: when its voice channel is deleted, the H24/7 setting is cleared instead of being retried forever (and warned about in the logs)
+- **Self-hosting**: shards no longer scan the source folders at boot: commands, events, components, functions and SVG templates are loaded from the generated `src/exports/` files `bun run dev` keeps them up to date, `bun run gen:exports` regenerates them by hand, and the bot warns at startup when they are stale. On every start, the shard manager also compiles iHorizon's code once into `dist/shard/bot.js`, and every shard starts from that single file instead of ~700 source files (error stack traces still point at `src/`). `IHORIZON_NO_BUNDLE=1` runs the shards from `src` as before, and a failed build falls back to it on its own

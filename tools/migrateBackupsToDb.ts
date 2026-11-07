@@ -22,7 +22,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { initializeDatabase } from "../src/core/database/index.js";
-import config from "../src/files/config.js";
+import { loadConfig } from "../src/core/modules/envConfig.js";
+
+const config = await loadConfig();
 import type { BackupData } from "../src/core/backup/src/types/index.js";
 
 const sourceDir = path.join(process.cwd(), "src", "files", "backups");

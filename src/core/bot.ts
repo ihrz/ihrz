@@ -25,7 +25,9 @@ import { initializeDatabase } from "./database";
 import * as ClientVersion from "../version.js";
 import * as core from "./core.js";
 
-import config from "../files/config.js";
+import { loadConfig } from "./modules/envConfig.js";
+
+const config = await loadConfig();
 import { setMaxListeners } from "events";
 import { getOS } from "./getOS.js";
 import { iHorizonTimeCalculator } from "./functions/ms.js";

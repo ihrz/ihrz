@@ -74,7 +74,8 @@ export default async function getLanguageDataByCode(
 	const cached = LangsData[code];
 	if (cached) return cached;
 
-	const raw = (await import(`../../lang/${code}.ts`)).default as LanguageData;
+	const { default: langFiles } = await import("../../exports/lang.ts");
+	const raw = (await langFiles[`${code}.ts`]()).default as LanguageData;
 	const emojis = globalThis.client?.iHorizon_Emojis as
 		Record<string, string> | undefined;
 	// Before the emoji sync (ready event) there is nothing to resolve yet:

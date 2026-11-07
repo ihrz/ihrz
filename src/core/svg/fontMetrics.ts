@@ -31,6 +31,7 @@
 import path from "path";
 
 import glyphFallbacks from "./glyphFallbacks.json";
+import { resourcePath } from "../modules/resources.js";
 
 export type FontFamily =
 	| "Noto Sans"
@@ -40,10 +41,7 @@ export type FontFamily =
 	| ScriptFamily
 	| GlyphFallbackFamily;
 export type ScriptFamily =
-	| "Noto Sans Arabic"
-	| "Noto Sans Hebrew"
-	| "Noto Sans JP"
-	| "Noto Sans KR";
+	"Noto Sans Arabic" | "Noto Sans Hebrew" | "Noto Sans JP" | "Noto Sans KR";
 /** One of the families listed in glyphFallbacks.json. */
 export type GlyphFallbackFamily = string & { readonly glyphFallback: true };
 export type FontWeight = 400 | 700;
@@ -60,7 +58,7 @@ const FALLBACK_FILES = new Map<string, string>(
 const FALLBACK_NAMES = glyphFallbacks.families.map(({ family }) => family);
 const FALLBACK_RANGES = glyphFallbacks.ranges;
 
-export const FONT_DIR = path.join(process.cwd(), "src", "assets", "fonts");
+export const FONT_DIR = resourcePath("assets", "fonts");
 
 // Family + weight -> file. Families are the names embedded in the files,
 // which is what resvg matches `font-family` against.

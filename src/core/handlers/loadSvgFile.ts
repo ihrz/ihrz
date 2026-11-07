@@ -21,21 +21,11 @@
 
 import { Client } from "discord.js";
 
-import path from "path";
-import { readdir } from "node:fs/promises";
-
 // SVG templates rendered by `client.func.svg2png` (see svgKit.fill).
 export default async (client: Client) => {
-	const directory = path.join(process.cwd(), "src", "assets", "svg");
-	const files = (await readdir(directory)).filter((file) =>
-		file.endsWith(".svg")
-	);
+	const { default: files } = await import("../../exports/svg.ts");
 
-	await Promise.all(
-		files.map(async (file) => {
-			client.svgfiles[file.slice(0, -".svg".length)] = await Bun.file(
-				path.join(directory, file)
-			).text();
-		})
-	);
+	for (const [file, content] of Object.entries(files)) {
+		client.svgfiles[file.slice(0, -".svg".length)] = content;
+	}
 };

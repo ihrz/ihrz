@@ -3286,7 +3286,7 @@ export default {
 	blogger_blog_remove_success: "✅ تم إزالة موجز RSS بالمعرف `${blogId}`.",
 	blogger_blog_remove_not_found: "❌ لم يتم العثور على موجز RSS بهذا المعرف.",
 	lastfm_module_not_configured:
-		"${emoji_No} | وحدة Last.fm غير مُعدّة على البوت. أضف `lastfm.apiKey` و `lastfm.sharedSecret` إلى الإعدادات أو عيّن `LASTFM_API_KEY` و `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | وحدة Last.fm غير مُعدّة على البوت. عيّن `LASTFM_API_KEY` و `LASTFM_SHARED_SECRET` في ملف `.env` الخاص بالبوت.",
 	lastfm_config_login_required:
 		"${emoji_No} | يجب عليك استخدام `/lastfm login` قبل تفعيل الوحدة.",
 	lastfm_config_enabled:

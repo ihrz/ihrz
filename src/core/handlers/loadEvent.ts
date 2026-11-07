@@ -19,101 +19,45 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { join as pathJoin } from "node:path";
-import { opendir } from "fs/promises";
 import { Client, ClientEvents, RestEvents } from "discord.js";
 
 import logger from "../logger.js";
 
 import { BotEvent } from "../../../types/event.js";
-
-import { fileURLToPath } from "url";
-import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ExportedFiles } from "../modules/exportsManifest.js";
 
 const loadedEvents = new Set<string>();
 
-interface DirectoryTreeItem {
-	name: string;
-	sub: DirectoryTreeItem[];
-}
+async function loadEvents(client: Client): Promise<void> {
+	const { default: files } = await import("../../exports/events.ts");
+	const entries = Object.entries(files as ExportedFiles);
 
-async function buildDirectoryTree(path: string): Promise<DirectoryTreeItem[]> {
-	const result: DirectoryTreeItem[] = [];
-	const dir = await opendir(path);
-	for await (const dirent of dir) {
-		if (dirent.isDirectory()) {
-			result.push({
-				name: dirent.name,
-				sub: await buildDirectoryTree(pathJoin(path, dirent.name))
-			});
-		} else if (dirent.name.endsWith(".ts")) {
-			result.push({ name: dirent.name, sub: [] });
+	for (const [filePath, imported] of entries) {
+		if (loadedEvents.has(filePath)) {
+			logger.warn(`Event ${filePath} already loaded. Skipping.`);
+			continue;
+		}
+		loadedEvents.add(filePath);
+
+		if (imported.event) {
+			client.on(
+				(imported.event as BotEvent).name as keyof ClientEvents,
+				(imported.event as BotEvent).run.bind(null, client) as (
+					...args: any[]
+				) => Promise<any>
+			);
+		} else if (imported.restEvent) {
+			client.rest.on(
+				(imported.restEvent as BotEvent).name as keyof RestEvents,
+				(imported.restEvent as BotEvent).run.bind(null, client) as (
+					...args: any[]
+				) => Promise<any>
+			);
 		}
 	}
-	return result;
-}
-
-function buildPaths(
-	basePath: string,
-	directoryTree: DirectoryTreeItem[]
-): string[] {
-	const paths: string[] = [];
-	for (const elt of directoryTree) {
-		if (elt.sub.length === 0) {
-			paths.push(pathJoin(basePath, elt.name));
-		} else {
-			paths.push(...buildPaths(pathJoin(basePath, elt.name), elt.sub));
-		}
-	}
-	return paths;
-}
-
-const p = path.join(__dirname, "..", "..", "Events");
-
-async function loadEvents(client: Client, pathDir = p): Promise<void> {
-	const directoryTree = await buildDirectoryTree(pathDir);
-	const paths = buildPaths(pathDir, directoryTree);
-
-	await Promise.all(
-		paths.map(async (filePath) => {
-			if (loadedEvents.has(filePath)) {
-				logger.warn(`Event ${filePath} already loaded. Skipping.`);
-				return;
-			}
-			loadedEvents.add(filePath);
-
-			try {
-				const imported = await import(filePath);
-
-				if (imported.event) {
-					client.on(
-						(imported.event as BotEvent).name as keyof ClientEvents,
-						(imported.event as BotEvent).run.bind(null, client) as (
-							...args: any[]
-						) => Promise<any>
-					);
-				} else if (imported.restEvent) {
-					client.rest.on(
-						(imported.restEvent as BotEvent)
-							.name as keyof RestEvents,
-						(imported.restEvent as BotEvent).run.bind(
-							null,
-							client
-						) as (...args: any[]) => Promise<any>
-					);
-				}
-			} catch (error) {
-				logger.err(`Error loading event from ${filePath}`);
-				throw error;
-			}
-		})
-	);
 
 	logger.log(
-		`${client.config.console.emojis.OK} >> Loaded ${paths.length} events.`
+		`${client.config.console.emojis.OK} >> Loaded ${entries.length} events.`
 	);
 }
 

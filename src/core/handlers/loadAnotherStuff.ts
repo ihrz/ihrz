@@ -21,93 +21,36 @@
 
 import { Client } from "discord.js";
 
-import { fileURLToPath } from "url";
-import path from "path";
-import { readdir } from "node:fs/promises";
 import { Client_Functions } from "../../../types/client_functions.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { ExportedFiles } from "../modules/exportsManifest.js";
 
 export type FunctionModule = {
 	[K in keyof typeof Client_Functions]: (typeof Client_Functions)[K];
 };
 
+// Export keys are file names: "name.ts" registers as "name".
+const baseName = (file: string) => file.slice(0, -".ts".length);
+
 export default async (client: Client) => {
-	(
-		await readdir(
-			path.join(
-				__dirname,
-				"..",
-				"..",
-				"Interaction",
-				"Components",
-				"Buttons"
-			)
-		)
-	)
-		.filter((file) => file.endsWith(".ts"))
-		.forEach(async (file) => {
-			const buttons = await import(
-				path.join(
-					__dirname,
-					"..",
-					"..",
-					"Interaction",
-					"Components",
-					"Buttons",
-					file
-				)
-			);
-			client.buttons.set(
-				file.split(".ts")[0],
-				buttons.default || buttons
-			);
-		});
+	const { default: buttons } = await import("../../exports/buttons.ts");
 
-	const functionsDir = path.join(__dirname, "..", "..", "core", "functions");
-	const functionFiles = (await readdir(functionsDir)).filter((file) =>
-		file.endsWith(".ts")
-	);
-
-	for (const file of functionFiles) {
-		const functionName = file.split(
-			".ts"
-		)[0] as keyof typeof Client_Functions;
-		const functionModule = await import(path.join(functionsDir, file));
-		const functionImplementation = functionModule.default || functionModule;
-
-		(client.func as FunctionModule)[functionName] = functionImplementation;
+	for (const [file, module] of Object.entries(buttons as ExportedFiles)) {
+		client.buttons.set(baseName(file), module.default || module);
 	}
 
-	(
-		await readdir(
-			path.join(
-				__dirname,
-				"..",
-				"..",
-				"Interaction",
-				"Components",
-				"SelectMenu"
-			)
-		)
-	)
-		.filter((file) => file.endsWith(".ts"))
-		.forEach(async (file) => {
-			const selectmenu = await import(
-				path.join(
-					__dirname,
-					"..",
-					"..",
-					"Interaction",
-					"Components",
-					"SelectMenu",
-					file
-				)
-			);
-			client.selectmenu.set(
-				file.split(".ts")[0],
-				selectmenu.default || selectmenu
-			);
-		});
+	const { default: functions } = await import("../../exports/functions.ts");
+
+	for (const [file, module] of Object.entries(functions as ExportedFiles)) {
+		const functionName = baseName(file) as keyof typeof Client_Functions;
+
+		(client.func as FunctionModule)[functionName] =
+			module.default || module;
+	}
+
+	const { default: selectMenus } =
+		await import("../../exports/selectMenus.ts");
+
+	for (const [file, module] of Object.entries(selectMenus as ExportedFiles)) {
+		client.selectmenu.set(baseName(file), module.default || module);
+	}
 };

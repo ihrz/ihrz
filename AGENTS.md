@@ -122,6 +122,13 @@ bun run type:func
 
 Rules: `categoryName` is lowercase, single glued word. `description` / `placeholder` are language keys, not raw text. `emoji` is the literal string `"${client.iHorizon_Emojis.<Name>}"` or a plain UTF-8 emoji.
 
+## Generated exports (`src/exports`)
+
+- Shards never scan the source tree: every handler in `src/core/handlers/` loads its generated `src/exports/<name>.ts` (static imports, keyed by path). Generator and rules (which files, `!name.ts` subcommands): `src/core/modules/exportsManifest.ts`.
+- Adding, renaming or deleting a command, subcommand, `init.json`, event, button, select menu, `src/core/functions` file or SVG template: run `bun run gen:exports` (or `bun run dev`, which rewrites the changed ones) and commit `src/exports` with the change. Never edit them by hand.
+- The ShardingManager (`src/index.ts`) only checks them (`checkExports`) and warns when stale, it never writes in prod.
+- It then builds the shard bundle once (`src/core/modules/shardBundle.ts`: `Bun.build` of `src/core/bot.ts`, packages external, linked sourcemap) into `dist/shard/bot.js`, which every shard runs. Inside the bundle `import.meta.dir` / `__dirname` point at `dist/shard`: resolve paths from `process.cwd()`, and never `import()` a computed path (add an export instead, like `src/exports/lang.ts`). `IHORIZON_NO_BUNDLE=1` runs `src` directly.
+
 ## Emojis
 
 - Mandatory namespace: `client.iHorizon_Emojis.<Pascal_Snake_Case>`, e.g. `client.iHorizon_Emojis.Save_Clip`.
@@ -142,6 +149,17 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - Welcomer (join/leave) messages MUST be sent via `client.func.welcomerMessage` (see `src/core/functions/welcomerMessage.ts`). Never rebuild the Container + Thumbnail manually in events.
 - Thumbnails: NEVER use a raw `displayAvatarURL()` CDN URL. Always snapshot the avatar via `client.func.image64.image64` and send it as an `attachment://` file, otherwise the thumbnail shows "media lost" when the user changes their avatar.
 - Same rule for SVG images: embed avatars as buffers (`svgKit.image(await image64(url))`), never as a remote URL.
+
+## Standalone binary and runtime files
+
+- `bun run build:binary` (`tools/Standalone_Build.ts`, entry `src/standalone.ts`) compiles one executable that is both the ShardingManager and every shard (forks itself). It embeds `src/exports` plus `src/assets` (`src/exports/assets.ts`, `type: "file"`), extracted once per build into `.ihorizon/resources/<build id>` (`src/core/modules/resources.ts`).
+- Any file shipped in `src/assets` is reached through `resourcePath("assets", ...)`, never `process.cwd() + "/src/assets"`: in the binary the source tree does not exist. Writable data stays under `process.cwd()` (`src/files`, `v.txt`).
+- `IS_STANDALONE` is true inside the binary. Build info (branch, commit) comes from the `IHORIZON_BUILD` define there, from git otherwise (`src/version.ts`). No runtime read of `package.json`: import it.
+
+## Configuration (`.env`)
+
+- `client.config` (`ConfigData`, `types/configDatad.d.ts`) is built at runtime from environment variables by `loadConfig()` in `src/core/modules/envConfig.ts` (Bun loads `.env`). Never import `src/files/config.ts`: it is only a legacy fallback, migrated with `bun run config:env`.
+- New option: add the variable to `configFromEnv` and `configToEnv`, document it in `.env.example` and in the docs configuration page (EN + FR), cover it in `test/config/envConfig.test.ts`. Connection settings are one URL each (`LAVALINK_URL`, `DATABASE_URL`), lists comma-separated, booleans strict.
 
 ## Database
 
@@ -195,6 +213,9 @@ bun run dev            # dev bot, bypasses ShardingManager (src/core/bot.ts)
 pm2 start pm2.config.cjs  # prod: local ./.bun Bun (installed/upgraded), git pull, bun install, then src/index.ts
 bun run check:lang     # language keys + placeholders vs en-US
 bun run type:func      # retype client.func
+bun run gen:exports    # regenerate src/exports (check:exports to verify)
+bun run config:env     # move a legacy src/files/config.ts into .env
+bun run build:binary   # standalone executable in dist/ (--target for other platforms)
 bun run check:licence  # licence headers
 bun run build          # tsc
 bun run format         # prettier --write "**/*.ts"

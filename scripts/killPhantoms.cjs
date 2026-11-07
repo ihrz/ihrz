@@ -16,7 +16,8 @@ const path = require("node:path");
 const TERM_WAIT_MS = 5000;
 const POLL_INTERVAL_MS = 200;
 
-const ENTRY_POINTS = ["src/index.ts", "src/core/bot.ts"];
+// dist/shard/bot.js: the shard bundle built by src/core/modules/shardBundle.ts.
+const ENTRY_POINTS = ["src/index.ts", "src/core/bot.ts", "dist/shard/bot.js"];
 
 function isBotProcess(argv, cwd, root) {
 	if (path.basename(argv[0] ?? "") !== "bun") return false;

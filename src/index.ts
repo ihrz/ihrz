@@ -21,12 +21,17 @@
 
 import "./core/functions/colors.js";
 
-import config from "./files/config.js";
+import { loadConfig } from "./core/modules/envConfig.js";
+
+const config = await loadConfig();
 import logger from "./core/logger.js";
 
 import { ShardingManager, REST, Routes } from "discord.js";
 import { writeVersionFile } from "./core/modules/releaseNotifier.js";
 import { installShardShutdown } from "./core/modules/shardShutdown.js";
+import { checkExports } from "./core/modules/exportsManifest.js";
+import { buildShardBundle } from "./core/modules/shardBundle.js";
+import { extractResources, IS_STANDALONE } from "./core/modules/resources.js";
 import pkg from "../package.json";
 
 const token = process.env.BOT_TOKEN || config.discord.token;
@@ -108,7 +113,33 @@ logger.legacy(
 		.gray
 );
 
-const manager = new ShardingManager("./src/core/bot.ts", {
+// Standalone binary: the shards are the binary itself, its resources are
+// extracted once here. From a checkout: check the exports, then build the
+// shard bundle from them.
+let shardEntry: string;
+
+if (IS_STANDALONE) {
+	await extractResources();
+	shardEntry = process.execPath;
+} else {
+	// Shards only load src/exports: warn (never write, the checkout must
+	// stay clean for the next git pull) when a file was added or removed
+	// without regenerating them.
+	const staleExports = await checkExports().catch((error) => {
+		logger.err("Unable to check the generated exports:", error);
+		return [];
+	});
+
+	if (staleExports.length) {
+		logger.warn(
+			`Stale exports (${staleExports.join(", ")}): new or removed commands, events or SVGs are not loaded. Run \`bun run gen:exports\` and commit src/exports.`
+		);
+	}
+
+	shardEntry = await buildShardBundle();
+}
+
+const manager = new ShardingManager(shardEntry, {
 	totalShards,
 	token,
 	respawn: true

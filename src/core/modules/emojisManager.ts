@@ -24,6 +24,7 @@ import { REST, Routes } from "discord.js";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import logger from "../logger.ts";
+import { resourcePath } from "./resources.js";
 
 type LocalEmoji = {
 	Name: string;
@@ -43,7 +44,7 @@ type EmojisManagerOptions = {
 };
 
 class EmojisManager {
-	private emojisPath = path.join(process.cwd(), "src", "assets", "emojis");
+	private emojisPath = resourcePath("assets", "emojis");
 	private final_appEmojis: Record<string, string> = {};
 	private rest?: REST;
 	private applicationId?: string;

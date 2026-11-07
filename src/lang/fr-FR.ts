@@ -3574,7 +3574,7 @@ export default {
 		"✅ Le flux RSS avec l’ID `${blogId}` a été supprimé.",
 	blogger_blog_remove_not_found: "❌ Aucun flux RSS trouvé avec cet ID.",
 	lastfm_module_not_configured:
-		"${emoji_No} | Le module Last.fm n'est pas configuré sur le bot. Ajoutez `lastfm.apiKey` et `lastfm.sharedSecret` dans la config, ou définissez `LASTFM_API_KEY` et `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | Le module Last.fm n'est pas configuré sur le bot. Définissez `LASTFM_API_KEY` et `LASTFM_SHARED_SECRET` dans le `.env` du bot.",
 	lastfm_config_login_required:
 		"${emoji_No} | Vous devez utiliser `/lastfm login` avant d'activer le module.",
 	lastfm_config_enabled:

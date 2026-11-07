@@ -22,7 +22,9 @@
 import { REST, Routes } from "discord.js";
 import logger from "../src/core/logger.ts";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
-import config from "../src/files/config.ts";
+import { loadConfig } from "../src/core/modules/envConfig.ts";
+
+const config = await loadConfig();
 
 logger.log("This automatic script will create all emojis for the discord bot.");
 

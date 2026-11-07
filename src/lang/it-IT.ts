@@ -3535,7 +3535,7 @@ export default {
 		"✅ Il feed RSS con ID `${blogId}` è stato rimosso.",
 	blogger_blog_remove_not_found: "❌ Nessun feed RSS trovato con questo ID.",
 	lastfm_module_not_configured:
-		"${emoji_No} | Il modulo Last.fm non è configurato sul bot. Aggiungi `lastfm.apiKey` e `lastfm.sharedSecret` alla configurazione oppure imposta `LASTFM_API_KEY` e `LASTFM_SHARED_SECRET`.",
+		"${emoji_No} | Il modulo Last.fm non è configurato sul bot. Imposta `LASTFM_API_KEY` e `LASTFM_SHARED_SECRET` nel file `.env` del bot.",
 	lastfm_config_login_required:
 		"${emoji_No} | Devi usare `/lastfm login` prima di attivare il modulo.",
 	lastfm_config_enabled:
