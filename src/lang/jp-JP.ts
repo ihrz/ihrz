@@ -4731,5 +4731,40 @@ export default {
 	music_apo_cannot_unfreeze:
 		"${emoji} 凍結を解除できるのは ${user}、サーバーのオーナー、ボットのオーナーだけです。",
 	music_apo_saved:
-		"${emoji} **${name}** を保存しました（${stages} ステージ）。"
+		"${emoji} **${name}** を保存しました（${stages} ステージ）。",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} iHorizon ステータス",
+	status_panel_headline:
+		"${state} **${label}** · オンラインのサービス: ${upCount}/${totalCount}",
+	status_panel_label_operational: "すべてのシステムは正常です",
+	status_panel_label_maintenance: "メンテナンス中",
+	status_panel_label_degraded: "一部障害",
+	status_panel_label_major: "重大な障害",
+	status_panel_button: "ステータスページ",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "主要サービス",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (音楽)",
+	status_panel_service_website: "iHorizon ウェブサイト",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "オフライン",
+	status_panel_row_maintenance: "メンテナンス中",
+	status_panel_row_pending: "確認中",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer: "-# ${emoji_Timer} ${time} に更新 · 毎分更新",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} Uptime Kuma に接続できないため、ボット自身のチェック結果を表示しています。",
+	status_panel_loading:
+		"${emoji_Discord_Loading} ステータスパネルを読み込み中...",
+	status_panel_card_title: "インフラの状態",
+	status_panel_card_summary: "オンラインのサービス: ${upCount}/${totalCount}",
+	status_panel_card_uptime_24h: "稼働率 24時間",
+	status_panel_card_uptime_30d: "稼働率 30日",
+	status_panel_card_response: "平均応答",
+	status_panel_card_ws: "Discord Ping",
+	status_panel_card_col_history: "直近60回のチェック",
+	status_panel_card_col_ping: "Ping",
+	status_panel_card_col_uptime: "30日",
+	status_panel_card_chart: "平均応答時間"
 } satisfies LanguageData;

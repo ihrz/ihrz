@@ -197,6 +197,8 @@ export function configFromEnv(env: Env): ConfigData {
 	const lastfmApiKey = text(env, "LASTFM_API_KEY");
 	const lastfmSharedSecret = text(env, "LASTFM_SHARED_SECRET");
 
+	const uptimeKumaUrl = optionalText(env, "UPTIME_KUMA_URL");
+
 	return {
 		discord: {
 			token,
@@ -229,6 +231,13 @@ export function configFromEnv(env: Env): ConfigData {
 			lastfmApiKey && lastfmSharedSecret
 				? { apiKey: lastfmApiKey, sharedSecret: lastfmSharedSecret }
 				: undefined,
+		uptimeKuma: uptimeKumaUrl
+			? {
+					url: uptimeKumaUrl,
+					apiKey: optionalText(env, "UPTIME_KUMA_API_KEY"),
+					groups: list(env, "UPTIME_KUMA_GROUPS")
+				}
+			: undefined,
 		console: { emojis: { ...CONSOLE_EMOJIS } },
 		database: parseDatabaseUrl(text(env, "DATABASE_URL"))
 	};
@@ -288,7 +297,10 @@ export function configToEnv(config: ConfigData): Record<string, string> {
 		HORIZON_GATEWAY_LOCAL_URL: config.api.HorizonGatewayLocal ?? "",
 		HORIZON_API_TOKEN: config.api.apiToken ?? "",
 		LASTFM_API_KEY: config.lastfm?.apiKey ?? "",
-		LASTFM_SHARED_SECRET: config.lastfm?.sharedSecret ?? ""
+		LASTFM_SHARED_SECRET: config.lastfm?.sharedSecret ?? "",
+		UPTIME_KUMA_URL: config.uptimeKuma?.url ?? "",
+		UPTIME_KUMA_API_KEY: config.uptimeKuma?.apiKey ?? "",
+		UPTIME_KUMA_GROUPS: config.uptimeKuma?.groups.join(",") ?? ""
 	};
 }
 

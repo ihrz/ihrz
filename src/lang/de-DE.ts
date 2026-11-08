@@ -4871,5 +4871,41 @@ export default {
 		"${emoji} **${name}** ist eingefroren: taue sie zuerst auf.",
 	music_apo_cannot_unfreeze:
 		"${emoji} Nur ${user}, die Serverbesitzer oder die Bot-Besitzer können sie auftauen.",
-	music_apo_saved: "${emoji} **${name}** gespeichert (${stages} Stufen)."
+	music_apo_saved: "${emoji} **${name}** gespeichert (${stages} Stufen).",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} iHorizon-Status",
+	status_panel_headline:
+		"${state} **${label}** · ${upCount}/${totalCount} Dienste online",
+	status_panel_label_operational: "Alle Systeme betriebsbereit",
+	status_panel_label_maintenance: "Wartung läuft",
+	status_panel_label_degraded: "Teilausfall",
+	status_panel_label_major: "Schwerer Ausfall",
+	status_panel_button: "Statusseite",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "Kerndienste",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (Musik)",
+	status_panel_service_website: "iHorizon-Webseite",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "Offline",
+	status_panel_row_maintenance: "In Wartung",
+	status_panel_row_pending: "Wird geprüft",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer:
+		"-# ${emoji_Timer} Aktualisiert ${time} · jede Minute erneuert",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} Uptime Kuma ist nicht erreichbar, es werden die Prüfungen des Bots angezeigt.",
+	status_panel_loading:
+		"${emoji_Discord_Loading} Statuspanel wird geladen...",
+	status_panel_card_title: "Infrastrukturstatus",
+	status_panel_card_summary: "${upCount}/${totalCount} Dienste online",
+	status_panel_card_uptime_24h: "Verfügbarkeit 24h",
+	status_panel_card_uptime_30d: "Verfügbarkeit 30T",
+	status_panel_card_response: "Mittlere Antwort",
+	status_panel_card_ws: "Discord-Ping",
+	status_panel_card_col_history: "Letzte 60 Prüfungen",
+	status_panel_card_col_ping: "Ping",
+	status_panel_card_col_uptime: "30T",
+	status_panel_card_chart: "Mittlere Antwortzeit"
 } satisfies LanguageData;

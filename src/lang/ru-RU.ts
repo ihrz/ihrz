@@ -4727,5 +4727,39 @@ export default {
 		"${emoji} **${name}** заморожена: сначала разморозьте её.",
 	music_apo_cannot_unfreeze:
 		"${emoji} Разморозить могут только ${user}, владельцы сервера или бота.",
-	music_apo_saved: "${emoji} **${name}** сохранена (этапов: ${stages})."
+	music_apo_saved: "${emoji} **${name}** сохранена (этапов: ${stages}).",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} Статус iHorizon",
+	status_panel_headline:
+		"${state} **${label}** · Сервисов онлайн: ${upCount}/${totalCount}",
+	status_panel_label_operational: "Все системы работают",
+	status_panel_label_maintenance: "Идёт обслуживание",
+	status_panel_label_degraded: "Частичный сбой",
+	status_panel_label_major: "Серьёзный сбой",
+	status_panel_button: "Страница статуса",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "Основные сервисы",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (музыка)",
+	status_panel_service_website: "Сайт iHorizon",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "Не в сети",
+	status_panel_row_maintenance: "На обслуживании",
+	status_panel_row_pending: "Проверка",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer: "-# ${emoji_Timer} Обновлено ${time} · каждую минуту",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} Uptime Kuma недоступен, показаны проверки самого бота.",
+	status_panel_loading: "${emoji_Discord_Loading} Загрузка панели статуса...",
+	status_panel_card_title: "Состояние инфраструктуры",
+	status_panel_card_summary: "Сервисов онлайн: ${upCount}/${totalCount}",
+	status_panel_card_uptime_24h: "Аптайм 24ч",
+	status_panel_card_uptime_30d: "Аптайм 30д",
+	status_panel_card_response: "Средний отклик",
+	status_panel_card_ws: "Пинг Discord",
+	status_panel_card_col_history: "Последние 60 проверок",
+	status_panel_card_col_ping: "Пинг",
+	status_panel_card_col_uptime: "30д",
+	status_panel_card_chart: "Среднее время отклика"
 } satisfies LanguageData;

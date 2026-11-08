@@ -22,13 +22,39 @@
 import {
 	AttachmentBuilder,
 	BaseGuildTextChannel,
-	EmbedBuilder,
-	MessageEditOptions,
+	ButtonBuilder,
+	ButtonStyle,
+	ContainerBuilder,
+	MediaGalleryBuilder,
+	MediaGalleryItemBuilder,
+	MessageFlags,
+	SectionBuilder,
+	SeparatorBuilder,
+	SeparatorSpacingSize,
+	TextDisplayBuilder,
+	escapeMarkdown,
 	time
 } from "discord.js";
 import net from "node:net";
 import { axios } from "../functions/axios.ts";
 import { metasTable } from "../../Events/client/ready.ts";
+import type { LanguageData } from "../../../types/languageData.js";
+import {
+	BEATS_SHOWN,
+	fetchKumaSnapshot,
+	type KumaSnapshot,
+	type ServiceBeat,
+	type ServiceGroup,
+	type ServiceState,
+	type ServiceView
+} from "./uptimeKuma.ts";
+import {
+	OVERALL_COLORS,
+	formatUptime,
+	renderStatusCard,
+	type OverallState,
+	type StatusReport
+} from "./statusPanelCard.ts";
 
 interface ResponseResult {
 	up: boolean;
@@ -40,14 +66,12 @@ interface PingHistoryEntry {
 	ping: number;
 }
 
+const CARD_NAME = "infrastructure-status.png";
+const INCIDENT_MAX_LENGTH = 300;
+const GROUPS_MAX_LENGTH = 3000;
+
 class InfrastructureMonitoring {
 	private timeout = 5000; // 5 seconds timeout for requests
-	private statusEmbed: EmbedBuilder;
-	private online: string;
-	private down: string;
-	private evaluating: string;
-	private lastResult: Record<string, ResponseResult>;
-
 	private pingHistory: PingHistoryEntry[] = [];
 	private readonly MAX_PING_HISTORY = 60;
 
@@ -202,27 +226,6 @@ class InfrastructureMonitoring {
 		}
 	}
 
-	private generatePingChartData(): {
-		pingData: (number | null)[];
-		timeLabels: string[];
-	} {
-		const pingData: (number | null)[] = new Array(
-			this.MAX_PING_HISTORY
-		).fill(null);
-		const timeLabels: string[] = [];
-
-		for (let i = this.MAX_PING_HISTORY - 1; i >= 0; i--) {
-			timeLabels.push(i === 0 ? "Now" : `${i}m`);
-		}
-
-		const startIndex = this.MAX_PING_HISTORY - this.pingHistory.length;
-		for (let i = 0; i < this.pingHistory.length; i++) {
-			pingData[startIndex + i] = this.pingHistory[i].ping;
-		}
-
-		return { pingData, timeLabels };
-	}
-
 	private calculatePingStats(): {
 		current: number;
 		avg: number;
@@ -253,118 +256,6 @@ class InfrastructureMonitoring {
 		return avg;
 	}
 
-	private buildPingChartSvg(
-		pingData: (number | null)[],
-		timeLabels: string[]
-	): string {
-		const W = 904;
-		const H = 190;
-		const PAD_L = 8;
-		const PAD_R = 8;
-		const PAD_T = 12;
-		const PAD_B = 24;
-		const innerW = W - PAD_L - PAD_R;
-		const innerH = H - PAD_T - PAD_B;
-
-		const valid = pingData.filter(
-			(v): v is number => typeof v === "number" && v > 0
-		);
-		const maxPing = valid.length > 0 ? Math.max(...valid) : 1;
-		const ceiling = Math.max(maxPing * 1.2, 10);
-
-		const n = pingData.length;
-		const xAt = (i: number) => PAD_L + (innerW * i) / Math.max(n - 1, 1);
-		const yAt = (ping: number) =>
-			PAD_T + innerH - (Math.min(ping, ceiling) / ceiling) * innerH;
-
-		let linePath = "";
-		let areaPath = "";
-		let segment: string[] = [];
-
-		const flushSegment = () => {
-			if (segment.length === 1) {
-				const [solo] = segment;
-				linePath += `${solo} `;
-			} else if (segment.length > 1) {
-				const d = "M" + segment.join(" L");
-				linePath += `${d} `;
-				const firstX = segment[0].split(",")[0];
-				const lastX = segment[segment.length - 1].split(",")[0];
-				areaPath += `M${firstX},${PAD_T + innerH} L${segment.join(" L")} L${lastX},${PAD_T + innerH} Z `;
-			}
-			segment = [];
-		};
-
-		for (let i = 0; i < n; i++) {
-			const v = pingData[i];
-			if (typeof v !== "number" || v <= 0) {
-				flushSegment();
-				continue;
-			}
-			segment.push(`${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`);
-		}
-		flushSegment();
-
-		if (!linePath.trim()) {
-			linePath = `M${PAD_L},${PAD_T + innerH} L${W - PAD_R},${PAD_T + innerH}`;
-		}
-
-		let grid = "";
-		for (let g = 0; g <= 3; g++) {
-			const gy = PAD_T + (innerH * g) / 3;
-			grid += `<line x1="${PAD_L}" y1="${gy.toFixed(1)}" x2="${W - PAD_R}" y2="${gy.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
-		}
-
-		let labels = "";
-		const tickEvery = 6;
-		for (let i = 0; i < n; i += tickEvery) {
-			if (i !== 0 && i + tickEvery >= n && i !== n - 1) continue;
-			const label = (timeLabels[i] ?? "")
-				.replace(/&/g, "&amp;")
-				.replace(/</g, "&lt;");
-			labels += `<text x="${xAt(i).toFixed(1)}" y="${(H - 8).toFixed(1)}" fill="#8B8E98" font-size="9" font-weight="600" text-anchor="middle" font-family="Inter, system-ui, sans-serif">${label}</text>`;
-		}
-
-		return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"><defs><linearGradient id="pingFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5865F2" stop-opacity="0.4"/><stop offset="0.5" stop-color="#5865F2" stop-opacity="0.2"/><stop offset="1" stop-color="#5865F2" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${areaPath.trim()}" fill="url(#pingFill)"/>${linePath
-			.trim()
-			.split(" M")
-			.map(
-				(d, idx) =>
-					`<path d="${idx === 0 ? d : "M" + d}" fill="none" stroke="#5865F2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
-			)
-			.join("")}${labels}</svg>`;
-	}
-
-	private async generatePingChart(): Promise<Buffer> {
-		const { pingData, timeLabels } = this.generatePingChartData();
-		const stats = this.calculatePingStats();
-		const kit = client.func.svgKit;
-
-		// The chart was already SVG: it is now rendered by resvg directly
-		// instead of being wrapped in an HTML page for Chromium.
-		const svg = kit.fill(client.svgfiles["botLatencyMonitoring"], {
-			title: await kit.text(
-				`WebSocket Ping - ${client.user?.username || "iHorizon"}`,
-				{ x: 30, y: 40, size: 22, weight: 700, maxWidth: 964 }
-			),
-			current_ping: stats.current,
-			avg_ping: stats.avg,
-			min_ping: stats.min,
-			max_ping: stats.max,
-			// A nested <svg> clips its content: let the edge labels overflow.
-			chart_svg: kit.raw(
-				this.buildPingChartSvg(pingData, timeLabels).replace(
-					"<svg ",
-					'<svg overflow="visible" '
-				)
-			)
-		});
-
-		const image = await client.func.svg2png(svg, { scale: 2 });
-
-		return image;
-	}
-
 	// Method to check all services at once
 	public async checkAllServices(): Promise<Record<string, ResponseResult>> {
 		const results = await Promise.all([
@@ -389,161 +280,417 @@ class InfrastructureMonitoring {
 		);
 	}
 
-	// Format status string based on result
-	private formatStatus(result: ResponseResult): string {
-		if (result.up) {
-			return `${this.online} Online | Latency: ${result.latency}ms`;
-		} else {
-			return `${this.down} Offline`;
+	private botService(result: ResponseResult): ServiceView {
+		const beats: (ServiceBeat | null)[] = this.pingHistory
+			.slice(-BEATS_SHOWN)
+			.map((entry) => ({ state: "up", ping: entry.ping }));
+
+		return {
+			name: client.user?.username ?? "iHorizon",
+			url: null,
+			state: result.up ? "up" : "down",
+			ping: result.up ? result.latency : null,
+			uptime24h: null,
+			uptime30d: null,
+			beats: [
+				...new Array<null>(BEATS_SHOWN - beats.length).fill(null),
+				...beats
+			]
+		};
+	}
+
+	// Without Uptime Kuma: one group fed by the checks of this process.
+	private localGroup(
+		local: Record<string, ResponseResult>,
+		lang: LanguageData
+	): ServiceGroup {
+		const service = (
+			name: string,
+			result: ResponseResult
+		): ServiceView => ({
+			name,
+			url: null,
+			state: result.up ? "up" : "down",
+			ping: result.up ? result.latency : null,
+			uptime24h: null,
+			uptime30d: null,
+			beats: new Array<null>(BEATS_SHOWN).fill(null)
+		});
+
+		return {
+			name: lang.status_panel_group_core,
+			services: [
+				service(
+					lang.status_panel_service_gateway,
+					local.HorizonGateway
+				),
+				service(lang.status_panel_service_lavalink, local.Lavalink),
+				service(
+					lang.status_panel_service_website,
+					local.iHorizonWebsite
+				)
+			]
+		};
+	}
+
+	private buildReport(
+		bot: ResponseResult,
+		kuma: KumaSnapshot | null,
+		local: Record<string, ResponseResult> | null,
+		lang: LanguageData
+	): StatusReport {
+		const baseGroups = kuma
+			? kuma.groups
+			: [this.localGroup(local as Record<string, ResponseResult>, lang)];
+		const measured = baseGroups.flatMap((group) => group.services);
+		const groups = baseGroups.map((group, index) =>
+			index === 0
+				? {
+						...group,
+						services: [this.botService(bot), ...group.services]
+					}
+				: group
+		);
+		const services = groups.flatMap((group) => group.services);
+		const count = (state: ServiceState) =>
+			services.filter((service) => service.state === state).length;
+		const down = count("down");
+
+		let overall: OverallState = "operational";
+		if (down * 2 >= services.length) overall = "major";
+		else if (down > 0) overall = "degraded";
+		else if (count("maintenance") > 0) overall = "maintenance";
+
+		const mean = (values: (number | null)[]): number | null => {
+			const known = values.filter(
+				(value): value is number => value !== null
+			);
+			return known.length === 0
+				? null
+				: known.reduce((sum, value) => sum + value, 0) / known.length;
+		};
+		const roundedMean = (values: (number | null)[]) => {
+			const value = mean(values);
+			return value === null ? null : Math.round(value);
+		};
+
+		const responseSeries = kuma
+			? Array.from({ length: BEATS_SHOWN }, (_, index) =>
+					roundedMean(
+						measured.map((service) => {
+							const beat = service.beats[index];
+							return beat?.state === "up" ? beat.ping : null;
+						})
+					)
+				)
+			: this.botService(bot).beats.map((beat) => beat?.ping ?? null);
+
+		return {
+			overall,
+			upCount: count("up"),
+			totalCount: services.length,
+			groups,
+			uptime24h: mean(measured.map((service) => service.uptime24h)),
+			uptime30d: mean(measured.map((service) => service.uptime30d)),
+			averageResponse: roundedMean(
+				measured.map((service) => service.ping)
+			),
+			websocketPing: bot.up ? bot.latency : null,
+			responseSeries
+		};
+	}
+
+	private stateEmoji(state: ServiceState | OverallState): string {
+		const emojis = client.iHorizon_Emojis;
+		switch (state) {
+			case "up":
+			case "operational":
+				return emojis.Online;
+			case "down":
+			case "major":
+				return emojis.DND;
+			case "maintenance":
+			case "degraded":
+				return emojis.Idle;
+			default:
+				return emojis.Invisible;
 		}
 	}
 
-	// Update embed fields based on monitoring results
-	private updateStatusEmbed(results: Record<string, ResponseResult>): void {
-		// Update each field in the embed based on results
-		this.statusEmbed.setFields(
-			{
-				name: "iHorizon (Public Bot)",
-				value: results.PublicBot
-					? this.formatStatus(results.PublicBot)
-					: this.evaluating,
-				inline: false
-			},
-			{
-				name: "HorizonGateway (Public/Private API)",
-				value: results.HorizonGateway
-					? this.formatStatus(results.HorizonGateway)
-					: this.evaluating,
-				inline: false
-			},
-			{
-				name: `Lavalink (Music Player)`,
-				value: results.Lavalink
-					? this.formatStatus(results.Lavalink)
-					: this.evaluating,
-				inline: false
-			},
-			{
-				name: `iHorizon Website`,
-				value: results.iHorizonWebsite
-					? this.formatStatus(results.iHorizonWebsite)
-					: this.evaluating,
-				inline: false
-			}
+	private serviceRow(
+		service: ServiceView,
+		lang: LanguageData,
+		withLink: boolean
+	): string {
+		let detail: string;
+		switch (service.state) {
+			case "up":
+				detail = lang.status_panel_row_detail
+					.replace(
+						"${ping}",
+						service.ping === null ? "-" : String(service.ping)
+					)
+					.replace(
+						"${uptime}",
+						formatUptime(service.uptime30d ?? service.uptime24h)
+					);
+				break;
+			case "down":
+				detail = lang.status_panel_row_offline;
+				break;
+			case "maintenance":
+				detail = lang.status_panel_row_maintenance;
+				break;
+			default:
+				detail = lang.status_panel_row_pending;
+		}
+
+		const name = escapeMarkdown(service.name);
+
+		return lang.status_panel_row
+			.replace("${status}", this.stateEmoji(service.state))
+			.replace(
+				"${name}",
+				withLink && service.url ? `[${name}](${service.url})` : name
+			)
+			.replace("${detail}", detail);
+	}
+
+	private buildPanel(
+		report: StatusReport,
+		kuma: KumaSnapshot | null,
+		lang: LanguageData,
+		hasCard: boolean
+	): ContainerBuilder {
+		const headline = new TextDisplayBuilder().setContent(
+			`${lang.status_panel_title}\n${lang.status_panel_headline
+				.replace("${state}", this.stateEmoji(report.overall))
+				.replace(
+					"${label}",
+					lang[`status_panel_label_${report.overall}`]
+				)
+				.replace("${upCount}", String(report.upCount))
+				.replace("${totalCount}", String(report.totalCount))}`
+		);
+		const container = new ContainerBuilder().setAccentColor(
+			parseInt(OVERALL_COLORS[report.overall].slice(1), 16)
 		);
 
-		// Set timestamp for last update
-		this.statusEmbed.setTimestamp(new Date());
+		if (kuma) {
+			container.addSectionComponents(
+				new SectionBuilder()
+					.addTextDisplayComponents(headline)
+					.setButtonAccessory(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Link)
+							.setLabel(lang.status_panel_button)
+							.setURL(kuma.pageUrl)
+					)
+			);
+		} else {
+			container.addTextDisplayComponents(headline);
+		}
+
+		if (hasCard) {
+			container.addMediaGalleryComponents(
+				new MediaGalleryBuilder().addItems(
+					new MediaGalleryItemBuilder().setURL(
+						`attachment://${CARD_NAME}`
+					)
+				)
+			);
+		}
+
+		for (const incident of kuma?.incidents ?? []) {
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					lang.status_panel_incident
+						.replace("${title}", escapeMarkdown(incident.title))
+						.replace(
+							"${content}",
+							incident.content.slice(0, INCIDENT_MAX_LENGTH)
+						)
+				)
+			);
+		}
+
+		const renderGroups = (withLink: boolean) =>
+			report.groups.map((group) =>
+				[
+					lang.status_panel_group.replace(
+						"${name}",
+						escapeMarkdown(group.name)
+					),
+					...group.services.map((service) =>
+						this.serviceRow(service, lang, withLink)
+					)
+				].join("\n")
+			);
+
+		// A Components V2 message holds 4000 characters at most.
+		let groupTexts = renderGroups(true);
+		if (groupTexts.join("").length > GROUPS_MAX_LENGTH) {
+			groupTexts = renderGroups(false);
+		}
+
+		container.addSeparatorComponents(
+			new SeparatorBuilder()
+				.setDivider(true)
+				.setSpacing(SeparatorSpacingSize.Small)
+		);
+		for (const content of groupTexts) {
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(content)
+			);
+		}
+		container.addSeparatorComponents(
+			new SeparatorBuilder()
+				.setDivider(true)
+				.setSpacing(SeparatorSpacingSize.Small)
+		);
+
+		let footer = lang.status_panel_footer.replace(
+			"${time}",
+			time(new Date(), "R")
+		);
+		if (!kuma && client.config.uptimeKuma) {
+			footer = `${lang.status_panel_kuma_unavailable}\n${footer}`;
+		}
+
+		return container.addTextDisplayComponents(
+			new TextDisplayBuilder().setContent(footer)
+		);
+	}
+
+	private async botAvatar(): Promise<Buffer | null> {
+		try {
+			const url = client.user?.displayAvatarURL({
+				size: 128,
+				extension: "png",
+				forceStatic: true
+			});
+			return url
+				? ((await client.func.image64.image64(url)) ?? null)
+				: null;
+		} catch {
+			return null;
+		}
+	}
+
+	private async updatePanel(
+		guildId: string,
+		channelData: {
+			channel_id?: string;
+			guild_id?: string;
+			message_id: string;
+		},
+		render: (
+			lang: LanguageData
+		) => Promise<{ container: ContainerBuilder; card: Buffer | null }>
+	): Promise<void> {
+		const channel = await client.channels
+			.fetch(channelData.channel_id || channelData.guild_id || "")
+			.catch(() => null);
+		if (!channel || !channel.isTextBased()) return;
+
+		const message = await (channel as BaseGuildTextChannel).messages
+			.fetch(channelData.message_id)
+			.catch(() => null);
+
+		if (!message) {
+			// The entry is kept at all costs: no delete, no new message.
+			logger.warn(
+				`[InfrastructureMonitoring] Message ${channelData.message_id} not found in channel ${channelData.channel_id} (guild ${guildId}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guildId)}), entry kept, retrying in 1 min.`
+			);
+			return;
+		}
+
+		const { container, card } = await render(
+			await client.func.getLanguageData(guildId)
+		);
+
+		// content and embeds are cleared so a legacy panel converts in place.
+		await message.edit({
+			content: null,
+			embeds: [],
+			components: [container],
+			files: card
+				? [new AttachmentBuilder(card, { name: CARD_NAME })]
+				: [],
+			attachments: [],
+			flags: MessageFlags.IsComponentsV2,
+			allowedMentions: { parse: [] }
+		});
 	}
 
 	public async refresh() {
-		this.online = client.iHorizon_Emojis.Online;
-		this.down = client.iHorizon_Emojis.DND;
-		this.evaluating = client.iHorizon_Emojis.Invisible;
-
-		this.statusEmbed = new EmbedBuilder()
-			.setColor("#ff40c4")
-			.setTitle("iHorizon Status Panel")
-			.setDescription(
-				"This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure"
-			)
-			// .setFooter(await client.func.displayBotName.footerBuilder(message))
-			.setFields(
-				{
-					name: "iHorizon (Public Bot)",
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: "HorizonGateway (Public/Private API)",
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `Lavalink (Music Player)`,
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `iHorizon Website`,
-					value: this.evaluating,
-					inline: false
-				}
-			);
-
 		try {
-			const all_guilds = (await metasTable.get("MISC.statusEmbed")) || {};
+			const bot = await this.PublicBot();
+			if (bot.up && bot.latency) this.addPingToHistory(bot.latency);
 
-			// Check all services and update the embed
-			this.lastResult = await this.checkAllServices();
-			this.updateStatusEmbed(this.lastResult);
-
-			if (this.lastResult.PublicBot?.latency) {
-				this.addPingToHistory(this.lastResult.PublicBot.latency);
-			}
-
-			let pingChartAttachment: AttachmentBuilder | null = null;
-			try {
-				const pingChartImage = await this.generatePingChart();
-				pingChartAttachment = new AttachmentBuilder(pingChartImage, {
-					name: "ping-chart.png"
-				});
-				this.statusEmbed.setImage("attachment://ping-chart.png");
-			} catch (error) {
-				logger.err(`Failed to generate ping chart: ${error}`);
-			}
-
-			// Update all status messages in configured channels
-			for (const [guild_id, data] of Object.entries(all_guilds)) {
-				if (!client.inShard(guild_id)) continue;
-
-				try {
-					const channelData = data as any;
-					const channel = await client.channels
-						.fetch(channelData.channel_id || channelData.guild_id)
-						.catch(() => null);
-
-					if (channel && channel.isTextBased()) {
-						const textChannel = channel as
-							BaseGuildTextChannel | undefined;
-						try {
-							const msg = await textChannel?.messages
-								.fetch(channelData.message_id)
-								.catch(() => null);
-
-							if (msg) {
-								const editOptions: MessageEditOptions = {
-									content: `**Last update:** ${time(new Date(), "R")}`,
-									embeds: [this.statusEmbed],
-									files: pingChartAttachment
-										? [pingChartAttachment]
-										: []
-								};
-
-								await msg.edit(editOptions);
-							} else {
-								// The entry is kept at all costs: no delete,
-								// no new message. Retry on the next minute.
-								logger.warn(
-									`[InfrastructureMonitoring] Message ${channelData.message_id} not found in channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}), entry kept, retrying in 1 min.`
-								);
-							}
-						} catch (msgError) {
-							const errorCode = (msgError as { code?: unknown })
-								?.code;
-							logger.err(
-								`[InfrastructureMonitoring] Failed to update message ${channelData.message_id} channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}, code: ${errorCode}): ${msgError} — entry kept, retrying in 1 min.`
-							);
-						}
+			const panels = Object.entries(
+				((await metasTable.get("MISC.statusEmbed")) || {}) as Record<
+					string,
+					{
+						channel_id?: string;
+						guild_id?: string;
+						message_id: string;
 					}
-				} catch (channelError) {
-					logger.err(
-						`Failed to process guild ${guild_id}: ${channelError}`
-					);
+				>
+			).filter(([guildId]) => client.inShard(guildId));
+			if (panels.length === 0) return;
+
+			const kuma = client.config.uptimeKuma
+				? await fetchKumaSnapshot(client.config.uptimeKuma)
+				: null;
+			const local = kuma ? null : await this.checkAllServices();
+			const avatar = await this.botAvatar();
+
+			// One render per language, shared by the panels using it.
+			const renders = new Map<
+				LanguageData,
+				Promise<{ container: ContainerBuilder; card: Buffer | null }>
+			>();
+			const render = (lang: LanguageData) => {
+				let result = renders.get(lang);
+				if (!result) {
+					result = (async () => {
+						const report = this.buildReport(bot, kuma, local, lang);
+						const card = await renderStatusCard(
+							report,
+							lang,
+							avatar
+						).catch((error) => {
+							logger.err(
+								`[InfrastructureMonitoring] Status card failed: ${error}`
+							);
+							return null;
+						});
+						return {
+							card,
+							container: this.buildPanel(
+								report,
+								kuma,
+								lang,
+								card !== null
+							)
+						};
+					})();
+					renders.set(lang, result);
 				}
+				return result;
+			};
+
+			for (const [guildId, channelData] of panels) {
+				await this.updatePanel(guildId, channelData, render).catch(
+					(error) =>
+						logger.err(
+							`[InfrastructureMonitoring] Failed to update message ${channelData.message_id} channel ${channelData.channel_id} (guild ${guildId}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guildId)}, code: ${(error as { code?: unknown })?.code}): ${error}, entry kept, retrying in 1 min.`
+						)
+				);
 			}
 		} catch (error) {
-			logger.err("Error in Infrastructure Monitoring init:", error);
+			logger.err(`Error in Infrastructure Monitoring refresh: ${error}`);
 		}
 	}
 

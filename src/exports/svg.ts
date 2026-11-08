@@ -22,8 +22,8 @@
 // Generated from src/assets/svg by src/core/modules/exportsManifest.ts.
 // Do not edit: `bun run dev` or `bun run gen:exports` rewrites it.
 
-import m0 from "../assets/svg/botLatencyMonitoring.svg" with { type: "text" };
-import m1 from "../assets/svg/captcha.svg" with { type: "text" };
+import m0 from "../assets/svg/captcha.svg" with { type: "text" };
+import m1 from "../assets/svg/infrastructureStatus.svg" with { type: "text" };
 import m2 from "../assets/svg/love.svg" with { type: "text" };
 import m3 from "../assets/svg/memeBubble.svg" with { type: "text" };
 import m4 from "../assets/svg/memeCaption.svg" with { type: "text" };
@@ -35,8 +35,8 @@ import m9 from "../assets/svg/welcomeCard.svg" with { type: "text" };
 import m10 from "../assets/svg/youtubeComment.svg" with { type: "text" };
 
 const files: Record<string, string> = {
-	"botLatencyMonitoring.svg": m0,
-	"captcha.svg": m1,
+	"captcha.svg": m0,
+	"infrastructureStatus.svg": m1,
 	"love.svg": m2,
 	"memeBubble.svg": m3,
 	"memeCaption.svg": m4,

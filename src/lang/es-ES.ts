@@ -4831,5 +4831,41 @@ export default {
 		"${emoji} **${name}** está congelada: descongélala primero.",
 	music_apo_cannot_unfreeze:
 		"${emoji} Solo ${user}, los dueños del servidor o del bot pueden descongelarla.",
-	music_apo_saved: "${emoji} **${name}** guardada (${stages} etapas)."
+	music_apo_saved: "${emoji} **${name}** guardada (${stages} etapas).",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} Estado de iHorizon",
+	status_panel_headline:
+		"${state} **${label}** · ${upCount}/${totalCount} servicios en línea",
+	status_panel_label_operational: "Todos los sistemas operativos",
+	status_panel_label_maintenance: "Mantenimiento en curso",
+	status_panel_label_degraded: "Interrupción parcial",
+	status_panel_label_major: "Interrupción grave",
+	status_panel_button: "Página de estado",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "Servicios principales",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (música)",
+	status_panel_service_website: "Sitio web de iHorizon",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "Sin conexión",
+	status_panel_row_maintenance: "En mantenimiento",
+	status_panel_row_pending: "Comprobando",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer:
+		"-# ${emoji_Timer} Actualizado ${time} · se renueva cada minuto",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} Uptime Kuma no responde, se muestran las comprobaciones del bot.",
+	status_panel_loading:
+		"${emoji_Discord_Loading} Cargando el panel de estado...",
+	status_panel_card_title: "Estado de la infraestructura",
+	status_panel_card_summary: "${upCount}/${totalCount} servicios en línea",
+	status_panel_card_uptime_24h: "Disponibilidad 24h",
+	status_panel_card_uptime_30d: "Disponibilidad 30d",
+	status_panel_card_response: "Respuesta media",
+	status_panel_card_ws: "Ping de Discord",
+	status_panel_card_col_history: "Últimas 60 comprobaciones",
+	status_panel_card_col_ping: "Ping",
+	status_panel_card_col_uptime: "30d",
+	status_panel_card_chart: "Tiempo de respuesta medio"
 } satisfies LanguageData;

@@ -22,9 +22,10 @@
 import {
 	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
+	ContainerBuilder,
 	Message,
-	time
+	MessageFlags,
+	TextDisplayBuilder
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -55,59 +56,29 @@ export const command: Command = {
 		options?: string[]
 	) => {
 		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
-			const online = client.iHorizon_Emojis.Online;
-			const down = client.iHorizon_Emojis.DND;
-			const evaluating = client.iHorizon_Emojis.Invisible;
-
-			const embed = new EmbedBuilder()
-				.setColor("#ff40c4")
-				.setTitle("iHorizon Status Panel")
-				.setDescription(
-					"This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure"
-				)
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						message.guildId
-					)
-				)
-				.setFields(
-					{
-						name: "iHorizon (Public Bot)",
-						value: online,
-						inline: false
-					},
-					{
-						name: "HorizonGateway (Public/Private API)",
-						value: online,
-						inline: false
-					},
-					{
-						name: `Lavalink (Music Player)`,
-						value: online,
-						inline: false
-					},
-					{
-						name: `iHorizon Website`,
-						value: online,
-						inline: false
-					}
-				);
-			const channelId = message.channelId;
-			const content = `**Last update:** ${time(new Date(), "R")}`;
-
 			const res = await client.func.method.channelSend(
 				message.channel as BaseGuildTextChannel,
 				{
-					content,
-					embeds: [embed]
+					components: [
+						new ContainerBuilder()
+							.setAccentColor(0xff40c4)
+							.addTextDisplayComponents(
+								new TextDisplayBuilder().setContent(
+									lang.status_panel_loading
+								)
+							)
+					],
+					flags: [MessageFlags.IsComponentsV2]
 				}
 			);
 
 			await metasTable.set(`MISC.statusEmbed.${message.guildId}`, {
 				message_id: res.id,
 				guild_id: res.guildId,
-				channel_id: channelId
+				channel_id: message.channelId
 			});
+
+			await client.infrastructureMonitoring.refresh();
 		} else return;
 	}
 };

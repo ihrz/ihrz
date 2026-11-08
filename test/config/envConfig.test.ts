@@ -164,6 +164,9 @@ describe("configFromEnv", () => {
 			DATABASE_URL: "postgres://u:p%3A@db:5432/ihrz",
 			LASTFM_API_KEY: "k",
 			LASTFM_SHARED_SECRET: "s",
+			UPTIME_KUMA_URL: "https://u.test/status/main",
+			UPTIME_KUMA_API_KEY: "key",
+			UPTIME_KUMA_GROUPS: "a,b",
 			DEV_MODE: "true"
 		};
 		const config = configFromEnv(env);

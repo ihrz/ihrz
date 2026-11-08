@@ -138,6 +138,14 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 
 ---
 
+## 📡 Status panel — rebuilt from scratch
+
+`+status-embed` is now a **Components V2 panel** with custom emojis, in the server's language, coloured by the overall state. A new image shows uptime over 24 hours and 30 days, the average response, the Discord ping, the last 60 checks of every service and a response time chart. Existing panels convert by themselves at the next refresh.
+
+**Self-hosting**: the panel can read an **Uptime Kuma** status page with `UPTIME_KUMA_URL`, `UPTIME_KUMA_API_KEY` (30 day uptime) and `UPTIME_KUMA_GROUPS`, and shows its incidents and a link to the page. Without it, or while it is unreachable, the panel uses the bot's own checks.
+
+---
+
 ## 🛠️ Fixes & improvements
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`

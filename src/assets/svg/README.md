@@ -112,7 +112,7 @@ gone.
 | /tweet, /youtube | `src/core/modules/socialCards.ts` |
 | top messages / voice, gstats, channel stats, ustats, authrestore | `src/core/modules/statsPage.ts` (block engine: lists, metric cards, columns, area charts) |
 | ranks / economy podiums | `src/core/modules/podiumCard.ts` |
-| latency monitoring | `src/assets/svg/botLatencyMonitoring.svg` |
+| infrastructure status panel | `src/core/modules/statusPanelCard.ts` + `src/assets/svg/infrastructureStatus.svg` |
 
 Puppeteer is no longer a runtime dependency: it is a devDependency used
 only by `tools/ChangelogPdf.ts` (release PDFs). `/togif` used it to decode

@@ -4697,7 +4697,43 @@ const enUS = {
 	music_apo_frozen: "${emoji} **${name}** is frozen: unfreeze it first.",
 	music_apo_cannot_unfreeze:
 		"${emoji} Only ${user}, the server owners or the bot owners can unfreeze it.",
-	music_apo_saved: "${emoji} **${name}** saved (${stages} stages)."
+	music_apo_saved: "${emoji} **${name}** saved (${stages} stages).",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} iHorizon Status",
+	status_panel_headline:
+		"${state} **${label}** · ${upCount}/${totalCount} services online",
+	status_panel_label_operational: "All systems operational",
+	status_panel_label_maintenance: "Maintenance in progress",
+	status_panel_label_degraded: "Partial outage",
+	status_panel_label_major: "Major outage",
+	status_panel_button: "Status page",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "Core services",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (music)",
+	status_panel_service_website: "iHorizon website",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "Offline",
+	status_panel_row_maintenance: "In maintenance",
+	status_panel_row_pending: "Checking",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer:
+		"-# ${emoji_Timer} Updated ${time} · refreshes every minute",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} Uptime Kuma is unreachable, showing the bot's own checks.",
+	status_panel_loading:
+		"${emoji_Discord_Loading} Loading the status panel...",
+	status_panel_card_title: "Infrastructure status",
+	status_panel_card_summary: "${upCount}/${totalCount} services online",
+	status_panel_card_uptime_24h: "Uptime 24h",
+	status_panel_card_uptime_30d: "Uptime 30d",
+	status_panel_card_response: "Average response",
+	status_panel_card_ws: "Discord ping",
+	status_panel_card_col_history: "Last 60 checks",
+	status_panel_card_col_ping: "Ping",
+	status_panel_card_col_uptime: "30d",
+	status_panel_card_chart: "Average response time"
 };
 
 export default enUS;

@@ -4509,5 +4509,39 @@ export default {
 	music_apo_frozen: "${emoji} **${name}** مجمّد: ألغِ تجميده أولًا.",
 	music_apo_cannot_unfreeze:
 		"${emoji} يمكن فقط لـ ${user} أو مالكي السيرفر أو البوت إلغاء تجميده.",
-	music_apo_saved: "${emoji} تم حفظ **${name}** (${stages} مراحل)."
+	music_apo_saved: "${emoji} تم حفظ **${name}** (${stages} مراحل).",
+	// ?status-embed
+	status_panel_title: "# ${emoji_Logo} حالة iHorizon",
+	status_panel_headline:
+		"${state} **${label}** · ${upCount}/${totalCount} خدمات متصلة",
+	status_panel_label_operational: "جميع الأنظمة تعمل",
+	status_panel_label_maintenance: "صيانة جارية",
+	status_panel_label_degraded: "عطل جزئي",
+	status_panel_label_major: "عطل كبير",
+	status_panel_button: "صفحة الحالة",
+	status_panel_group: "### ${emoji_Server_Stats} ${name}",
+	status_panel_group_core: "الخدمات الأساسية",
+	status_panel_service_gateway: "HorizonGateway (API)",
+	status_panel_service_lavalink: "Lavalink (موسيقى)",
+	status_panel_service_website: "موقع iHorizon",
+	status_panel_row: "${status} **${name}** · ${detail}",
+	status_panel_row_detail: "`${ping} ms` · `${uptime}`",
+	status_panel_row_offline: "غير متصل",
+	status_panel_row_maintenance: "قيد الصيانة",
+	status_panel_row_pending: "جار الفحص",
+	status_panel_incident: "### ${emoji_Warning_Icon} ${title}\n${content}",
+	status_panel_footer: "-# ${emoji_Timer} آخر تحديث ${time} · يتجدد كل دقيقة",
+	status_panel_kuma_unavailable:
+		"-# ${emoji_Warn} تعذر الوصول إلى Uptime Kuma، يتم عرض فحوصات البوت.",
+	status_panel_loading: "${emoji_Discord_Loading} جار تحميل لوحة الحالة...",
+	status_panel_card_title: "حالة البنية التحتية",
+	status_panel_card_summary: "${upCount}/${totalCount} خدمات متصلة",
+	status_panel_card_uptime_24h: "التوفر 24 ساعة",
+	status_panel_card_uptime_30d: "التوفر 30 يوما",
+	status_panel_card_response: "متوسط الاستجابة",
+	status_panel_card_ws: "Ping ديسكورد",
+	status_panel_card_col_history: "آخر 60 فحصا",
+	status_panel_card_col_ping: "Ping",
+	status_panel_card_col_uptime: "30 يوما",
+	status_panel_card_chart: "متوسط زمن الاستجابة"
 } satisfies LanguageData;

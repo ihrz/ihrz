@@ -129,6 +129,15 @@ export interface ConfigData {
 		apiToken: string;
 	};
 
+	uptimeKuma?: {
+		/** Public status page URL: https://host/status/<slug> */
+		url: string;
+		/** API key of /metrics, adds the 30 day uptime */
+		apiKey?: string;
+		/** Status page groups shown on the panel, empty for all */
+		groups: string[];
+	};
+
 	lastfm?: {
 		/**
 		 * @description The Last.fm application API key used for scrobbling requests.

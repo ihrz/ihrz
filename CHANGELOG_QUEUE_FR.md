@@ -138,6 +138,14 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 
 ---
 
+## 📡 Panneau de statut — refait de zéro
+
+`+status-embed` devient un **panneau Components V2** avec des emojis personnalisés, dans la langue du serveur et coloré selon l'état global. Une nouvelle image affiche la disponibilité sur 24 heures et 30 jours, la réponse moyenne, le ping Discord, les 60 derniers contrôles de chaque service et un graphique du temps de réponse. Les panneaux existants se convertissent seuls à la prochaine actualisation.
+
+**Auto-hébergement** : le panneau peut lire une page de statut **Uptime Kuma** avec `UPTIME_KUMA_URL`, `UPTIME_KUMA_API_KEY` (disponibilité sur 30 jours) et `UPTIME_KUMA_GROUPS`, et affiche ses incidents ainsi qu'un lien vers la page. Sans elle, ou tant qu'elle est injoignable, le panneau utilise les vérifications du bot.
+
+---
+
 ## 🛠️ Corrections & améliorations
 
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
