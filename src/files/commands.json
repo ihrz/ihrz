@@ -120,6 +120,9 @@
                     "antimng"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "antispam manage"
             },
             {
@@ -136,6 +139,9 @@
                     "bproles"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "antispam bypass-roles"
             },
             {
@@ -152,6 +158,9 @@
                     "channels"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "antispam ignore-channels"
             }
         ],
@@ -220,7 +229,10 @@
                 ],
                 "thinking": true,
                 "ephemeral": true,
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "delete",
@@ -231,7 +243,10 @@
                     "ru": "Удалить кнопку модуля AuthRestore",
                     "es-ES": "Eliminar el botón del módulo AuthRestore"
                 },
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "get",
@@ -256,7 +271,10 @@
                         "required": true
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "force-join",
@@ -281,7 +299,10 @@
                         "required": true
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "roles",
@@ -318,7 +339,10 @@
                         "required": true
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             }
         ],
         "aliases": [],
@@ -334,6 +358,9 @@
             "es-ES": "¡Abre el panel de configuración interactivo de AutoMod!"
         },
         "category": "guildconfig",
+        "permissions": [
+            "Administrator"
+        ],
         "aliases": [],
         "thinking": true
     },
@@ -347,6 +374,9 @@
             "es-ES": "Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado"
         },
         "category": "guildconfig",
+        "permissions": [
+            "Administrator"
+        ],
         "thinking": true
     },
     {
@@ -380,42 +410,8 @@
                     "es-ES": "Crear una copia de seguridad!"
                 },
                 "type": 1,
-                "options": [
-                    {
-                        "name": "save-message",
-                        "type": 3,
-                        "description": "Do you want to save message(s) ?",
-                        "description_localizations": {
-                            "fr": "Voulez-vous sauvegarder des message(s) ?",
-                            "ja": "メッセージを保存しますか？",
-                            "ru": "Сохранить сообщения?",
-                            "es-ES": "Quieres guardar los mensajes?"
-                        },
-                        "choices": [
-                            {
-                                "name": "Yes",
-                                "name_localizations": {
-                                    "fr": "Oui",
-                                    "ja": "yes",
-                                    "ru": "yes",
-                                    "es-ES": "yes"
-                                },
-                                "value": "yes"
-                            },
-                            {
-                                "name": "No",
-                                "name_localizations": {
-                                    "fr": "Non",
-                                    "ja": "no",
-                                    "ru": "no",
-                                    "es-ES": "no"
-                                },
-                                "value": "no"
-                            }
-                        ],
-                        "required": true,
-                        "commandFullName": "backup create save-message"
-                    }
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "backup create"
             },
@@ -470,6 +466,9 @@
                         "commandFullName": "backup load backup-id"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "backup load"
             },
             {
@@ -499,6 +498,22 @@
                 ],
                 "type": 1,
                 "commandFullName": "backup delete"
+            },
+            {
+                "name": "schedule",
+                "prefixName": "backup-schedule",
+                "description": "Back up this server automatically on a schedule",
+                "description_localizations": {
+                    "fr": "Sauvegarder ce serveur automatiquement selon un planning",
+                    "ja": "スケジュールでこのサーバーを自動バックアップ",
+                    "ru": "Автоматически создавать резервные копии по расписанию",
+                    "es-ES": "Hacer copias de este servidor automáticamente"
+                },
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
+                "commandFullName": "backup schedule"
             },
             {
                 "name": "manage",
@@ -790,6 +805,9 @@
                                 "type": 7,
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "ManageGuild"
                         ]
                     },
                     {
@@ -816,6 +834,9 @@
                                 "type": 3,
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "ManageGuild"
                         ]
                     },
                     {
@@ -828,7 +849,10 @@
                             "ru": "Показать все настроенные RSS-ленты блогов",
                             "es-ES": "Mostrar todos los feeds RSS de blog configurados"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ]
                     }
                 ]
             },
@@ -887,10 +911,16 @@
                                 "required": true
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ]
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "permissions": [
+                    "ManageGuild"
+                ]
             }
         ],
         "thinking": false
@@ -926,6 +956,9 @@
             "es-ES": "Comandos de operación de canales"
         },
         "category": "utils",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "hide",
@@ -955,6 +988,9 @@
                     "masquer"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "channel hide"
             },
             {
@@ -985,6 +1021,9 @@
                     "démasquer"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "channel unhide"
             },
             {
@@ -1015,6 +1054,9 @@
                     "démasquer-tout"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "channel unhideall"
             },
             {
@@ -1045,6 +1087,9 @@
                     "masquer-tout"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "channel hideall"
             }
         ],
@@ -1060,6 +1105,9 @@
             "es-ES": "Gestionar límites de velocidad de comandos"
         },
         "category": "guildconfig",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "action",
@@ -1198,6 +1246,9 @@
                         "commandFullName": "confession channel button-title"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "confession channel"
             },
             {
@@ -1247,6 +1298,9 @@
                         ],
                         "commandFullName": "confession config action"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "confession config"
             },
@@ -1298,6 +1352,9 @@
                         "commandFullName": "confession thread action"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "confession thread"
             },
             {
@@ -1325,6 +1382,9 @@
                         "required": true,
                         "commandFullName": "confession cooldown time"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "confession cooldown"
             }
@@ -1370,6 +1430,9 @@
                         "required": true,
                         "commandFullName": "counter channel channel"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "counter channel"
             },
@@ -1420,6 +1483,9 @@
                         ],
                         "commandFullName": "counter config action"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "counter config"
             }
@@ -1502,6 +1568,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "custom name"
             },
             {
@@ -1570,6 +1639,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "custom avatar"
             },
             {
@@ -1637,6 +1709,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "custom banner"
             },
             {
@@ -1704,6 +1779,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "custom bio"
             }
         ],
@@ -1765,6 +1843,9 @@
                         "commandFullName": "economy balance-add member"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "economy balance-add"
             },
             {
@@ -1805,6 +1886,9 @@
                         "required": true,
                         "commandFullName": "economy balance-remove member"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "economy balance-remove"
             },
@@ -1887,6 +1971,9 @@
                         "required": true,
                         "commandFullName": "economy config action"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "economy config"
             },
@@ -2129,6 +2216,9 @@
                                 "required": true
                             }
                         ],
+                        "permissions": [
+                            "ManageGuild"
+                        ],
                         "commandFullName": "economy role add"
                     },
                     {
@@ -2156,6 +2246,9 @@
                                 "required": true
                             }
                         ],
+                        "permissions": [
+                            "ManageGuild"
+                        ],
                         "commandFullName": "economy role delete"
                     },
                     {
@@ -2169,8 +2262,14 @@
                             "es-ES": "Listar todos los roles que puedes comprar!"
                         },
                         "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ],
                         "commandFullName": "economy role list"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "economy role"
             },
@@ -2265,6 +2364,9 @@
                         "commandFullName": "economy boost-set boost"
                     }
                 ],
+                "permissions": [
+                    "ManageGuild"
+                ],
                 "commandFullName": "economy boost-set"
             },
             {
@@ -2346,6 +2448,9 @@
                                 "required": true
                             }
                         ],
+                        "permissions": [
+                            "Administrator"
+                        ],
                         "commandFullName": "economy manage-rewards set-money"
                     },
                     {
@@ -2406,6 +2511,9 @@
                                 "required": true
                             }
                         ],
+                        "permissions": [
+                            "Administrator"
+                        ],
                         "commandFullName": "economy manage-rewards set-cooldown"
                     }
                 ],
@@ -2450,6 +2558,9 @@
                         "commandFullName": "economy ureset user"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "economy ureset"
             },
             {
@@ -2463,6 +2574,9 @@
                     "es-ES": "Restablecer el saldo de economía de todos los usuarios del servidor"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "economy greset"
             }
         ],
@@ -3066,6 +3180,9 @@
                                 },
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ],
                         "commandFullName": "fun interaction poll"
                     },
@@ -3754,6 +3871,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "fun config"
             }
         ],
@@ -3769,6 +3889,9 @@
             "es-ES": "⭐️ (VERY UHQ) Git Lines"
         },
         "category": "newfeatures",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "lines",
@@ -3779,6 +3902,9 @@
                     "ru": "Настроить модули Git Lines",
                     "es-ES": "Configurar los módulos de Git Lines"
                 },
+                "permissions": [
+                    "Administrator"
+                ],
                 "type": 1,
                 "commandFullName": "git lines"
             }
@@ -3805,7 +3931,10 @@
                     "ru": "Настроить канал логов бота!",
                     "es-ES": "Configurar el canal de registros sobre el bot!"
                 },
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "block",
@@ -3863,6 +3992,9 @@
                                     }
                                 ]
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ]
                     },
                     {
@@ -3940,6 +4072,9 @@
                                 },
                                 "required": false
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ]
                     }
                 ]
@@ -3964,7 +4099,10 @@
                             "ru": "Настроить модуль приветствия (сообщения, каналы, изображение)!",
                             "es-ES": "Configurar el módulo de bienvenida (mensajes, canales, imagen)!"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "Administrator"
+                        ]
                     }
                 ]
             },
@@ -4036,7 +4174,10 @@
                                 "required": false
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "Administrator"
+                        ]
                     }
                 ]
             },
@@ -4060,7 +4201,10 @@
                             "ru": "Получить конфигурацию сервера!",
                             "es-ES": "Obtener la configuración del servidor!"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "Administrator"
+                        ]
                     },
                     {
                         "name": "restore",
@@ -4085,6 +4229,9 @@
                                 "type": 11,
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ]
                     },
                     {
@@ -4096,8 +4243,14 @@
                             "ru": "Сохранить резервную копию",
                             "es-ES": "Guardar una copia de seguridad"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "Administrator"
+                        ]
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ]
             }
         ],
@@ -4275,6 +4428,9 @@
                         "commandFullName": "gw create image"
                     }
                 ],
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw create"
             },
             {
@@ -4297,6 +4453,9 @@
                     "es-ES": "Abrir un panel interactivo para configurar y lanzar un sorteo!"
                 },
                 "type": 1,
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw go"
             },
             {
@@ -4335,6 +4494,9 @@
                         "commandFullName": "gw end giveaway-id"
                     }
                 ],
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw end"
             },
             {
@@ -4370,6 +4532,9 @@
                         "required": true,
                         "commandFullName": "gw reroll giveaway-id"
                     }
+                ],
+                "permissions": [
+                    "ManageGuild"
                 ],
                 "commandFullName": "gw reroll"
             },
@@ -4407,6 +4572,9 @@
                         "commandFullName": "gw list-entries giveaway-id"
                     }
                 ],
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw list-entries"
             },
             {
@@ -4443,6 +4611,9 @@
                         "commandFullName": "gw get-data giveaway-id"
                     }
                 ],
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw get-data"
             },
             {
@@ -4464,6 +4635,9 @@
                     "gall"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "gw get-all"
             }
         ],
@@ -4485,6 +4659,9 @@
             "es-ES": "¡Mantén a iHorizon conectado 24/7 en un canal de voz!"
         },
         "category": "h247",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "join",
@@ -4526,6 +4703,9 @@
                         "commandFullName": "h247 join channel"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "h247 join"
             },
             {
@@ -4544,6 +4724,9 @@
                     "es-ES": "¡Desactivar la conexión 24/7 en este servidor!"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "h247 leave"
             },
             {
@@ -4662,6 +4845,9 @@
                         "commandFullName": "inv addinvites amount"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "inv addinvites"
             },
             {
@@ -4728,6 +4914,9 @@
                     "invreset"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "inv reset"
             },
             {
@@ -4771,6 +4960,9 @@
                         "required": true,
                         "commandFullName": "inv removeinvites amount"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "inv removeinvites"
             }
@@ -4853,6 +5045,9 @@
                                 },
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ]
                     },
                     {
@@ -4881,6 +5076,9 @@
                                 },
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "Administrator"
                         ]
                     }
                 ]
@@ -5032,6 +5230,9 @@
             "es-ES": "Establecer canales de conteo de miembros!"
         },
         "category": "membercount",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "action",
@@ -5150,6 +5351,9 @@
                     "addban",
                     "createban"
                 ],
+                "permissions": [
+                    "BanMembers"
+                ],
                 "commandFullName": "mod ban"
             },
             {
@@ -5177,6 +5381,9 @@
                         "commandFullName": "mod baninfo user"
                     }
                 ],
+                "permissions": [
+                    "BanMembers"
+                ],
                 "commandFullName": "mod baninfo"
             },
             {
@@ -5195,6 +5402,9 @@
                     "banlists"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuild"
+                ],
                 "commandFullName": "mod banlist"
             },
             {
@@ -5238,6 +5448,9 @@
                 "aliases": [
                     "cls"
                 ],
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "mod clear"
             },
             {
@@ -5256,6 +5469,9 @@
                     "es-ES": "Mostrar una lista con todos los miembros silenciados"
                 },
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod mutelist"
             },
             {
@@ -5296,6 +5512,9 @@
                         "commandFullName": "mod kick reason"
                     }
                 ],
+                "permissions": [
+                    "KickMembers"
+                ],
                 "commandFullName": "mod kick"
             },
             {
@@ -5321,6 +5540,9 @@
                         "type": 8,
                         "commandFullName": "mod lock role"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "type": 1,
                 "commandFullName": "mod lock"
@@ -5353,6 +5575,9 @@
                     "lockall"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "mod lock-all"
             },
             {
@@ -5383,6 +5608,9 @@
                     "unlockall"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "mod unlock-all"
             },
             {
@@ -5439,6 +5667,9 @@
                         "commandFullName": "mod tempmute reason"
                     }
                 ],
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod tempmute"
             },
             {
@@ -5485,6 +5716,9 @@
                     "deban",
                     "pardon"
                 ],
+                "permissions": [
+                    "BanMembers"
+                ],
                 "commandFullName": "mod unban"
             },
             {
@@ -5512,6 +5746,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "mod unlock"
             },
             {
@@ -5544,6 +5781,9 @@
                         "commandFullName": "mod unmute user"
                     }
                 ],
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod unmute"
             },
             {
@@ -5562,6 +5802,9 @@
                     "demuteall"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod unmuteall"
             },
             {
@@ -5602,6 +5845,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod warn"
             },
             {
@@ -5642,6 +5888,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod unwarn"
             },
             {
@@ -5676,6 +5925,9 @@
                     "sanctions"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "mod warnlist"
             },
             {
@@ -5709,6 +5961,9 @@
                     "clearsanction"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "mod clearwarn"
             },
             {
@@ -5726,6 +5981,9 @@
                     "clearallwarn",
                     "clearsanctionsall",
                     "clearsanctionall"
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "mod clear-all-warns"
             },
@@ -5798,6 +6056,9 @@
                     "temporaryrole",
                     "temproles"
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "mod temprole"
             },
             {
@@ -5825,6 +6086,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageRoles"
+                ],
                 "commandFullName": "mod rolepanel"
             },
             {
@@ -5881,6 +6145,9 @@
                 "aliases": [
                     "tban",
                     "temporaryban"
+                ],
+                "permissions": [
+                    "BanMembers"
                 ],
                 "commandFullName": "mod tempban"
             }
@@ -6036,6 +6303,9 @@
                     "es-ES": "Ver el historial de toda la música reproducida en este servidor!"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "music history"
             },
             {
@@ -6384,6 +6654,9 @@
             "es-ES": "⭐️ (VERY UHQ) NightMode"
         },
         "category": "newfeatures",
+        "permissions": [
+            "Administrator"
+        ],
         "aliases": [
             "modenuit",
             "nuit",
@@ -6489,6 +6762,9 @@
                                 "type": 3,
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "ManageGuild"
                         ]
                     },
                     {
@@ -6549,6 +6825,9 @@
                                 "type": 3,
                                 "required": true
                             }
+                        ],
+                        "permissions": [
+                            "ManageGuild"
                         ]
                     },
                     {
@@ -6561,7 +6840,10 @@
                             "ru": "Показать стримера/YouTube/Twitch",
                             "es-ES": "Mostrar Streamer/Youtuber/Twitcher"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ]
                     }
                 ]
             },
@@ -6602,7 +6884,10 @@
                                 "required": true
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ]
                     },
                     {
                         "name": "message",
@@ -6613,10 +6898,16 @@
                             "ru": "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение",
                             "es-ES": "Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje"
                         },
-                        "type": 1
+                        "type": 1,
+                        "permissions": [
+                            "ManageGuild"
+                        ]
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "permissions": [
+                    "ManageGuild"
+                ]
             }
         ],
         "thinking": false
@@ -6801,7 +7092,10 @@
                         "required": true
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "command",
@@ -7019,7 +7313,10 @@
                         "required": false
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "list",
@@ -7031,7 +7328,10 @@
                     "ru": "показать всех пользователей с правами",
                     "es-ES": "mostrar todos los usuarios con permisos en el servidor"
                 },
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "edit-roles",
@@ -7166,7 +7466,10 @@
                         "type": 8
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "create-roles",
@@ -7177,7 +7480,10 @@
                     "ru": "Создать роли для разрешений",
                     "es-ES": "Crear roles para los permisos"
                 },
-                "type": 1
+                "type": 1,
+                "permissions": [
+                    "Administrator"
+                ]
             }
         ],
         "thinking": true
@@ -7221,6 +7527,9 @@
                         "required": true,
                         "commandFullName": "pfps channel channel"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "pfps channel"
             },
@@ -7271,6 +7580,9 @@
                         ],
                         "commandFullName": "pfps config action"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "pfps config"
             }
@@ -7617,6 +7929,9 @@
             "es-ES": "¡Abre el panel de configuración interactivo de protección!"
         },
         "category": "protection",
+        "permissions": [
+            "Administrator"
+        ],
         "aliases": [],
         "thinking": true
     },
@@ -7630,6 +7945,9 @@
             "es-ES": "Castigar al usuario cuando envía demasiada publicidad!"
         },
         "category": "newfeatures",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "status",
@@ -7750,6 +8068,9 @@
                 ],
                 "type": 1,
                 "thinking": true,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks roles"
             },
             {
@@ -7809,6 +8130,9 @@
                         ],
                         "commandFullName": "ranks config action"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "ranks config"
             },
@@ -7878,6 +8202,9 @@
                         "commandFullName": "ranks ureset user"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks ureset"
             },
             {
@@ -7891,6 +8218,9 @@
                     "es-ES": "Restablecer el nivel de rango de cada usuario en el servidor"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks greset"
             },
             {
@@ -7966,6 +8296,9 @@
                         "commandFullName": "ranks channel channel"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks channel"
             },
             {
@@ -8004,6 +8337,9 @@
                     "ignore"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks ignore-channels"
             },
             {
@@ -8020,6 +8356,9 @@
                     "msg"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ranks message"
             }
         ],
@@ -8061,6 +8400,9 @@
             "es-ES": "Establecer roles cuando el usuario reacciona a un botón con emoji específico"
         },
         "category": "rolereactions",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "value",
@@ -8163,6 +8505,9 @@
             "es-ES": "Establecer roles cuando el usuario reacciona a un mensaje con emoji específico"
         },
         "category": "rolereactions",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "value",
@@ -8265,6 +8610,9 @@
             "es-ES": "Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
         },
         "category": "newfeatures",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "action",
@@ -8347,6 +8695,9 @@
             "es-ES": "Configurar la selección de roles para un mensaje específico"
         },
         "category": "rolereactions",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "channel",
@@ -8391,6 +8742,9 @@
             "es-ES": "Enviar un mensaje a través del bot!"
         },
         "category": "bot",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "content",
@@ -8477,6 +8831,9 @@
                         "commandFullName": "security channel id"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "security channel"
             },
             {
@@ -8533,6 +8890,9 @@
                         "commandFullName": "security config action"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "security config"
             },
             {
@@ -8565,6 +8925,9 @@
                         "required": true,
                         "commandFullName": "security role-to-give role"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "security role-to-give"
             },
@@ -8599,6 +8962,9 @@
                         "commandFullName": "security role-to-remove role"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "security role-to-remove"
             }
         ],
@@ -8620,6 +8986,9 @@
             "es-ES": "Establecer el idioma del servidor!"
         },
         "category": "bot",
+        "permissions": [
+            "Administrator"
+        ],
         "aliases": [
             "setsrvlang",
             "lang"
@@ -8636,6 +9005,9 @@
             "es-ES": "Establecer un canal de registros para los registros de auditoría!"
         },
         "category": "guildconfig",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "type",
@@ -8850,6 +9222,9 @@
                             }
                         ]
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ]
             },
             {
@@ -8879,6 +9254,9 @@
                         },
                         "required": true
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ]
             }
         ],
@@ -8894,6 +9272,9 @@
             "es-ES": "Grupo de subcomando para la categoría Starboard"
         },
         "category": "starboard",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "config",
@@ -8942,6 +9323,9 @@
                         "commandFullName": "skullboard config action"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "type": 1,
                 "commandFullName": "skullboard config"
             },
@@ -8975,6 +9359,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "skullboard channel"
             },
             {
@@ -9009,6 +9396,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "skullboard threshold"
             },
             {
@@ -9059,6 +9449,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "skullboard create-thread"
             }
         ],
@@ -9075,6 +9468,9 @@
             "es-ES": "Grupo de subcomando para la categoría Starboard"
         },
         "category": "starboard",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "config",
@@ -9123,6 +9519,9 @@
                         "commandFullName": "starboard config action"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "type": 1,
                 "commandFullName": "starboard config"
             },
@@ -9156,6 +9555,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "starboard channel"
             },
             {
@@ -9190,6 +9592,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "starboard threshold"
             },
             {
@@ -9240,6 +9645,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "starboard create-thread"
             }
         ],
@@ -9599,6 +10007,9 @@
                         "commandFullName": "sticky text message"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "sticky text"
             },
             {
@@ -9656,6 +10067,9 @@
                         "commandFullName": "sticky embed message_content"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "sticky embed"
             },
             {
@@ -9686,6 +10100,9 @@
                         "required": true,
                         "commandFullName": "sticky disable channel"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "sticky disable"
             },
@@ -9718,6 +10135,9 @@
                         "commandFullName": "sticky show channel"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "sticky show"
             },
             {
@@ -9731,6 +10151,9 @@
                     "es-ES": "Listar todos los canales fijos"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "sticky list"
             },
             {
@@ -9761,6 +10184,9 @@
                         "required": true,
                         "commandFullName": "sticky refresh channel"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "sticky refresh"
             }
@@ -9821,7 +10247,10 @@
                         "required": true
                     }
                 ],
-                "ephemeral": true
+                "ephemeral": true,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "deny",
@@ -9872,7 +10301,10 @@
                         "required": true
                     }
                 ],
-                "ephemeral": true
+                "ephemeral": true,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "accept",
@@ -9923,7 +10355,10 @@
                         "required": true
                     }
                 ],
-                "ephemeral": true
+                "ephemeral": true,
+                "permissions": [
+                    "Administrator"
+                ]
             },
             {
                 "name": "delete",
@@ -9956,7 +10391,10 @@
                         "required": true
                     }
                 ],
-                "ephemeral": true
+                "ephemeral": true,
+                "permissions": [
+                    "Administrator"
+                ]
             }
         ],
         "thinking": true
@@ -9977,6 +10415,9 @@
             "es-ES": "Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"
         },
         "category": "guildconfig",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "action",
@@ -10098,6 +10539,9 @@
                     "es-ES": "Roles de lista blanca para usar etiquetas"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "tag wlroles-use"
             },
             {
@@ -10111,6 +10555,9 @@
                     "es-ES": "Roles de lista blanca para crear etiquetas"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "tag wlroles-create"
             },
             {
@@ -10288,6 +10735,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "tag delete"
             },
             {
@@ -10301,6 +10751,9 @@
                     "es-ES": "Listar todas las etiquetas"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "tag list"
             },
             {
@@ -10345,6 +10798,9 @@
             "es-ES": "Abrir el panel de configuración de TempVoice!"
         },
         "category": "voicedashboard",
+        "permissions": [
+            "Administrator"
+        ],
         "thinking": true
     },
     {
@@ -10383,6 +10839,9 @@
                         "commandFullName": "ticket add-member user"
                     }
                 ],
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket add-member"
             },
             {
@@ -10395,6 +10854,9 @@
                     "es-ES": "Cerrar un ticket!"
                 },
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket close"
             },
             {
@@ -10422,6 +10884,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket rename"
             },
             {
@@ -10434,6 +10899,9 @@
                     "es-ES": "Recordar al propietario del ticket que no ha respondido desde hace tiempo!"
                 },
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket remind"
             },
             {
@@ -10500,6 +10968,9 @@
                         "commandFullName": "ticket config action"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ticket config"
             },
             {
@@ -10529,6 +11000,9 @@
                         "required": true,
                         "commandFullName": "ticket log-channel channel"
                     }
+                ],
+                "permissions": [
+                    "Administrator"
                 ],
                 "commandFullName": "ticket log-channel"
             },
@@ -10569,6 +11043,9 @@
                         "commandFullName": "ticket remove-member user"
                     }
                 ],
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket remove-member"
             },
             {
@@ -10596,6 +11073,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ticket panel"
             },
             {
@@ -10626,6 +11106,9 @@
                         "commandFullName": "ticket set-category category-name"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "ticket set-category"
             },
             {
@@ -10650,6 +11133,9 @@
                     "es-ES": "Desvincular un ticket!"
                 },
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "ticket unlink"
             }
         ],
@@ -10863,6 +11349,9 @@
             "es-ES": "Acción masiva sobre desbaneo"
         },
         "category": "utils",
+        "permissions": [
+            "Administrator"
+        ],
         "options": [
             {
                 "name": "all",
@@ -10875,6 +11364,9 @@
                     "es-ES": "Desbanear a todos los miembros del servidor"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "unban-all all"
             },
             {
@@ -10893,6 +11385,9 @@
                     "es-ES": "Deshacer el desbaneo masivo de todos los miembros"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "unban-all undo"
             }
         ],
@@ -10981,6 +11476,9 @@
                     "webhook"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util allwebhooks"
             },
             {
@@ -10997,6 +11495,9 @@
                     "nk"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util nick-kicker"
             },
             {
@@ -11013,6 +11514,9 @@
                     "zip2"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuildExpressions"
+                ],
                 "thinking": true,
                 "commandFullName": "util zip-stickers"
             },
@@ -11042,6 +11546,9 @@
                 ],
                 "thinking": false,
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "util vkick"
             },
             {
@@ -11072,6 +11579,10 @@
                         "commandFullName": "util wakeup member"
                     }
                 ],
+                "permissions": [
+                    "ModerateMembers",
+                    "MoveMembers"
+                ],
                 "commandFullName": "util wakeup"
             },
             {
@@ -11088,6 +11599,9 @@
                     "alldero"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util derogation"
             },
             {
@@ -11130,6 +11644,9 @@
                         "commandFullName": "util autorenew time"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "type": 1,
                 "commandFullName": "util autorenew"
             },
@@ -11149,6 +11666,9 @@
                     "allpa"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util admin-roles"
             },
             {
@@ -11330,6 +11850,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "util cooldown"
             },
             {
@@ -11374,6 +11897,9 @@
                         "commandFullName": "util rolelimit members-limit"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util rolelimit"
             },
             {
@@ -11405,6 +11931,9 @@
                         "commandFullName": "util where member"
                     }
                 ],
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "util where"
             },
             {
@@ -11418,6 +11947,9 @@
                 },
                 "thinking": false,
                 "type": 1,
+                "permissions": [
+                    "ModerateMembers"
+                ],
                 "commandFullName": "util serverpic"
             },
             {
@@ -11450,6 +11982,9 @@
                 ],
                 "type": 1,
                 "thinking": true,
+                "permissions": [
+                    "ManageGuildExpressions"
+                ],
                 "commandFullName": "util unzip-emojis"
             },
             {
@@ -11480,6 +12015,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "util sync"
             },
             {
@@ -11520,6 +12058,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageRoles"
+                ],
                 "commandFullName": "util addrolereact"
             },
             {
@@ -11549,6 +12090,9 @@
                 ],
                 "type": 1,
                 "thinking": true,
+                "permissions": [
+                    "ManageGuild"
+                ],
                 "commandFullName": "util inviteinfo"
             },
             {
@@ -11580,6 +12124,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageRoles"
+                ],
                 "commandFullName": "util role-members"
             },
             {
@@ -11593,6 +12140,10 @@
                 },
                 "thinking": false,
                 "type": 1,
+                "permissions": [
+                    "MoveMembers",
+                    "ModerateMembers"
+                ],
                 "options": [
                     {
                         "name": "from",
@@ -11644,6 +12195,10 @@
                     "mutetalk"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MuteMembers",
+                    "MoveMembers"
+                ],
                 "commandFullName": "util talk"
             },
             {
@@ -11660,6 +12215,10 @@
                     "unmutetalk"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MuteMembers",
+                    "MoveMembers"
+                ],
                 "commandFullName": "util untalk"
             },
             {
@@ -11678,6 +12237,9 @@
                     "pv"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MoveMembers"
+                ],
                 "commandFullName": "util freeze"
             },
             {
@@ -11709,6 +12271,9 @@
                     "allowvc"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MoveMembers"
+                ],
                 "commandFullName": "util wlvc"
             },
             {
@@ -11740,6 +12305,9 @@
                     "removevcwl"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MoveMembers"
+                ],
                 "commandFullName": "util unwlvc"
             },
             {
@@ -11756,6 +12324,9 @@
                     "defreeze"
                 ],
                 "type": 1,
+                "permissions": [
+                    "MoveMembers"
+                ],
                 "commandFullName": "util unfreeze"
             },
             {
@@ -11804,6 +12375,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "MoveMembers"
+                ],
                 "commandFullName": "util move"
             }
         ],
@@ -11899,6 +12473,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuild"
+                ],
                 "commandFullName": "utils vc"
             },
             {
@@ -11931,6 +12508,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuild"
+                ],
                 "cooldown": 86400000,
                 "commandFullName": "utils vanity-generator"
             },
@@ -12005,6 +12585,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils leash"
             },
             {
@@ -12032,6 +12615,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils unleash"
             },
             {
@@ -12112,6 +12698,9 @@
                         "commandFullName": "utils dm message"
                     }
                 ],
+                "permissions": [
+                    "Administrator"
+                ],
                 "type": 1,
                 "cooldown": 120000,
                 "commandFullName": "utils dm"
@@ -12129,6 +12718,9 @@
                     "wlrole"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils wlroles"
             },
             {
@@ -12145,6 +12737,9 @@
                     "mediaonly"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils media-only"
             },
             {
@@ -12225,6 +12820,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils setmentionrole"
             },
             {
@@ -12241,6 +12839,9 @@
                     "rnw"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "utils renew"
             },
             {
@@ -12348,6 +12949,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils nickrole"
             },
             {
@@ -12395,6 +12999,10 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "permissions": [
+                    "MoveMembers",
+                    "ModerateMembers"
+                ],
                 "cooldown": 300000,
                 "commandFullName": "utils massmove"
             },
@@ -12463,6 +13071,9 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "cooldown": 300000,
                 "commandFullName": "utils massiverole"
             },
@@ -12514,6 +13125,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuildExpressions"
+                ],
                 "commandFullName": "utils emojis"
             },
             {
@@ -12541,6 +13155,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageMessages"
+                ],
                 "commandFullName": "utils embed"
             },
             {
@@ -12568,6 +13185,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils derank"
             },
             {
@@ -12586,6 +13206,9 @@
                     "adminusers"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils admin-users"
             },
             {
@@ -12602,6 +13225,9 @@
                     "bots"
                 ],
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utils allbots"
             },
             {
@@ -12643,6 +13269,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageRoles"
+                ],
                 "commandFullName": "utils addrole"
             },
             {
@@ -12683,6 +13312,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageRoles"
+                ],
                 "commandFullName": "utils delrole"
             },
             {
@@ -12699,6 +13331,9 @@
                     "zip1"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageGuildExpressions"
+                ],
                 "thinking": true,
                 "commandFullName": "utils zip-emojis"
             }
@@ -12754,6 +13389,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageNicknames"
+                ],
                 "commandFullName": "utilss lockname"
             },
             {
@@ -12781,6 +13419,9 @@
                     }
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageNicknames"
+                ],
                 "commandFullName": "utilss unlockname"
             },
             {
@@ -12793,6 +13434,9 @@
                     "es-ES": "Mostrar la lista de apodos bloqueados!"
                 },
                 "type": 1,
+                "permissions": [
+                    "ManageNicknames"
+                ],
                 "commandFullName": "utilss locknamelist"
             },
             {
@@ -12805,6 +13449,9 @@
                     "es-ES": "Listar todas las ataduras activas del servidor"
                 },
                 "type": 1,
+                "permissions": [
+                    "Administrator"
+                ],
                 "commandFullName": "utilss leashlist"
             },
             {
@@ -12820,6 +13467,9 @@
                     "rvc"
                 ],
                 "type": 1,
+                "permissions": [
+                    "ManageChannels"
+                ],
                 "commandFullName": "utilss renewvc"
             }
         ],

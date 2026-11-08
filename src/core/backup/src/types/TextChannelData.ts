@@ -22,6 +22,19 @@
 import { BaseChannelData, MessageData, ThreadChannelData } from "./";
 
 export interface TextChannelData extends BaseChannelData {
+	communityRole?: "rules" | "publicUpdates" | "safetyAlerts";
+	defaultAutoArchiveDuration?: number;
+	defaultThreadRateLimitPerUser?: number;
+	forum?: {
+		availableTags: {
+			name: string;
+			moderated: boolean;
+			emojiName: string | null;
+		}[];
+		defaultSortOrder: number | null;
+		defaultForumLayout: number;
+		defaultReaction: string | null;
+	};
 	nsfw: boolean;
 	parent?: string | null;
 	topic?: string | null;

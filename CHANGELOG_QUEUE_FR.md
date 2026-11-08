@@ -4,6 +4,18 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 💾 Backups — entièrement refaites
+
+`/backup` passe en **panneaux Components V2** avec un jeu d'emojis dédié. **Choisissez ce qui entre dans une backup, et ce qui en ressort** : paramètres du serveur, rôles, salons, permissions des salons, emojis, autocollants, bannissements, règles AutoMod, événements, messages et membres. Une restauration n'efface que ce que vous avez sélectionné.
+
+**`/backup schedule`** (propriétaire du serveur) sauvegarde un serveur automatiquement, de tous les jours à tous les ans. Les 5 dernières backups automatiques de chaque serveur sont conservées. Chaque utilisateur peut détenir **20 backups** au maximum.
+
+Les backups enregistrent aussi les autocollants, les règles AutoMod, les événements, l'ordre, les icônes et les dégradés des rôles, les forums et leurs tags, les permissions par membre, les salons communautaires, l'écran d'accueil et plus encore. Les restaurations ne perdent plus les permissions des salons, ne transforment plus les forums en salons texte, ne peuvent plus rester bloquées et se terminent par un rapport par catégorie.
+
+L'option `save-message` de `/backup create` est remplacée par le panneau.
+
+---
+
 ## 🎶 Musique — un lecteur en direct
 
 `/music play` et `/music nowplaying` répondent désormais avec le même **lecteur en direct en Components V2** : une carte de lecteur compacte (pochette floutée en fond, pochette, titre, artiste et barre de progression avec le temps écoulé et la durée, en JetBrains Mono), le salon vocal, qui a demandé le morceau, ce qui vient ensuite, le volume, le mode de boucle et la taille de la file, la plateforme d'où vient le morceau et un bouton **Ouvrir**. **Pause/Reprendre**, **Passer**, **Boucle**, **Paroles** et **Arrêter** fonctionnent directement depuis le panneau pour les auditeurs du salon vocal du bot, et chaque action est annoncée dans le salon.

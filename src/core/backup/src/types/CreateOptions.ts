@@ -19,12 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import type { BackupComponent } from "../components";
+
 export interface CreateOptions {
+	components?: BackupComponent[];
+	/** Called when part of a component could not be read. */
+	onPartial?: (component: BackupComponent) => void;
 	backupID?: string | null;
 	maxMessagesPerChannel?: number | null;
 	jsonSave?: boolean | null;
 	jsonBeautify?: boolean | null;
-	doNotBackup?: string[] | null;
-	backupMembers?: boolean | null;
 	saveImages?: boolean | null;
 }

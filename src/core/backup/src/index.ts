@@ -26,355 +26,299 @@ import type {
 	LoadOptions
 } from "./types/";
 import type { Guild } from "discord.js";
-import { SnowflakeUtil, IntentsBitField } from "discord.js";
+import { SnowflakeUtil } from "discord.js";
 
 import * as createMaster from "./create";
 import * as loadMaster from "./load";
 import * as utilMaster from "./util";
-import { backupsTable } from "../../../Events/client/ready.js";
+import {
+	componentsOf,
+	DEFAULT_BACKUP_COMPONENTS,
+	MAX_BACKUPS_PER_USER,
+	MAX_MESSAGES_PER_CHANNEL,
+	normalizeComponents,
+	type BackupComponent
+} from "./components";
+import { backupsTable, metasTable } from "../../../Events/client/ready.js";
+import type { DatabaseStructure } from "../../../../types/database_structure.js";
 
-/**
- * Checks if a backup exists and returns its data
- */
-const getBackupData = async (backupID: string) => {
-	return new Promise<BackupData>(async (resolve, reject) => {
-		const backupData = await backupsTable.get(backupID);
+export * from "./components";
+export {
+	getSchedule,
+	removeSchedule,
+	runDueBackupSchedules,
+	saveSchedule
+} from "./schedule";
 
-		if (backupData) {
-			resolve(backupData as BackupData);
-		} else {
-			// If no backup was found, return an error message
-			reject("function:getBackupData : No backup found");
-		}
-	});
+export class BackupLimitError extends Error {
+	constructor() {
+		super("Backup limit reached");
+		this.name = "BackupLimitError";
+	}
+}
+
+export class BackupBusyError extends Error {
+	constructor() {
+		super("A backup operation is already running");
+		this.name = "BackupBusyError";
+	}
+}
+
+const creatingUsers = new Set<string>();
+const loadingGuilds = new Set<string>();
+const capturingGuilds = new Set<string>();
+
+export const isGuildBusy = (guildId: string) =>
+	loadingGuilds.has(guildId) || capturingGuilds.has(guildId);
+
+export const isUserCreating = (userId: string) => creatingUsers.has(userId);
+
+const getBackupData = async (backupID: string): Promise<BackupData> => {
+	const backupData = await backupsTable.get(backupID);
+	if (!backupData) throw new Error("No backup found");
+	return backupData as BackupData;
+};
+
+export const fetchBackup = async (backupID: string): Promise<BackupInfos> => {
+	const data = await getBackupData(backupID);
+	const size = Buffer.byteLength(JSON.stringify(data), "utf-8");
+	return { data, id: backupID, size: Number((size / 1024).toFixed(2)) };
 };
 
 /**
- * Fetches a backup and returns the information about it
- */
-export const fetchBackup = (backupID: string) => {
-	return new Promise<BackupInfos>(async (resolve, reject) => {
-		getBackupData(backupID)
-			.then((backupData) => {
-				const size = Buffer.byteLength(
-					JSON.stringify(backupData),
-					"utf-8"
-				);
-				const backupInfos: BackupInfos = {
-					data: backupData,
-					id: backupID,
-					size: Number((size / 1024).toFixed(2))
-				};
-				// Returns backup informations
-				resolve(backupInfos);
-			})
-			.catch(() => {
-				reject("function: fetch: No backup found");
-			});
-	});
-};
-
-/**
- * Creates a new backup and saves it to the storage
+ * Captures the selected parts of a guild. A part that cannot be read stays
+ * empty; only a failed save rejects.
  */
 export const create = async (
 	guild: Guild,
-	options: CreateOptions = {
-		backupID: null,
-		maxMessagesPerChannel: 10,
-		jsonSave: true,
-		jsonBeautify: true,
-		doNotBackup: [],
-		backupMembers: false,
-		saveImages: true
+	options: CreateOptions = {}
+): Promise<BackupData> => {
+	const components = normalizeComponents(
+		options.components ?? DEFAULT_BACKUP_COMPONENTS
+	);
+	const has = (c: BackupComponent) => components.includes(c);
+	const resolved: CreateOptions = {
+		saveImages: true,
+		...options,
+		components,
+		maxMessagesPerChannel: has("messages")
+			? (options.maxMessagesPerChannel ?? MAX_MESSAGES_PER_CHANNEL)
+			: 0
+	};
+
+	const backupData: BackupData = {
+		version: 2,
+		components,
+		name: guild.name || "Unknown Server",
+		verificationLevel: guild.verificationLevel,
+		explicitContentFilter: guild.explicitContentFilter,
+		defaultMessageNotifications: guild.defaultMessageNotifications,
+		afk: null,
+		widget: { enabled: false, channel: null },
+		channels: { categories: [], others: [] },
+		roles: [],
+		bans: [],
+		emojis: [],
+		stickers: [],
+		automod: [],
+		events: [],
+		members: [],
+		createdTimestamp: Date.now(),
+		guildID: guild.id,
+		id: options.backupID ?? SnowflakeUtil.generate().toString()
+	};
+
+	// A part that could not be read must not be listed as saved: restoring
+	// it would wipe the live data and put nothing back.
+	const failed = new Set<BackupComponent>();
+	resolved.onPartial = (component) => failed.add(component);
+	const capture = async <T>(
+		parts: BackupComponent[],
+		run: () => Promise<T>,
+		fallback: T
+	): Promise<T> => {
+		try {
+			return await run();
+		} catch (error) {
+			logger.err(`Backup: ${parts.join("+")} failed: ${error}`);
+			for (const part of parts) failed.add(part);
+			return fallback;
+		}
+	};
+
+	if (has("settings")) {
+		Object.assign(
+			backupData,
+			await capture(
+				["settings"],
+				() => createMaster.getSettings(guild, resolved),
+				{}
+			)
+		);
 	}
-) => {
-	return new Promise<BackupData>(async (resolve, reject) => {
-		// Initialize backup data with default values
-		const backupData: BackupData = {
-			name: "Unknown Server",
-			verificationLevel: 0,
-			explicitContentFilter: 0,
-			defaultMessageNotifications: 0,
-			afk: null,
-			widget: {
-				enabled: false,
-				channel: null
-			},
-			channels: { categories: [], others: [] },
-			roles: [],
-			bans: [],
-			emojis: [],
-			members: [],
-			createdTimestamp: Date.now(),
-			guildID: "",
-			id: options.backupID ?? SnowflakeUtil.generate().toString()
-		};
+	if (has("members")) {
+		backupData.members = await capture(
+			["members"],
+			() => createMaster.getMembers(guild),
+			[]
+		);
+	}
+	if (has("bans")) {
+		backupData.bans = await capture(
+			["bans"],
+			() => createMaster.getBans(guild),
+			[]
+		);
+	}
+	if (has("roles")) {
+		backupData.roles = await capture(
+			["roles"],
+			() => createMaster.getRoles(guild),
+			[]
+		);
+	}
+	if (has("emojis")) {
+		backupData.emojis = await capture(
+			["emojis"],
+			() => createMaster.getEmojis(guild, resolved),
+			[]
+		);
+	}
+	if (has("stickers")) {
+		backupData.stickers = await capture(
+			["stickers"],
+			() => createMaster.getStickers(guild),
+			[]
+		);
+	}
+	if (has("automod")) {
+		backupData.automod = await capture(
+			["automod"],
+			() => createMaster.getAutomod(guild),
+			[]
+		);
+	}
+	if (has("events")) {
+		backupData.events = await capture(
+			["events"],
+			() => createMaster.getEvents(guild),
+			[]
+		);
+	}
+	if (has("channels") || has("permissions")) {
+		backupData.channels = await capture(
+			["channels", "permissions", "messages"],
+			() => createMaster.getChannels(guild, resolved),
+			backupData.channels
+		);
+	}
 
-		// Retrieve basic server information
-		try {
-			backupData.name = guild.name || "Unknown Server";
-			backupData.verificationLevel = guild.verificationLevel;
-			backupData.explicitContentFilter = guild.explicitContentFilter;
-			backupData.defaultMessageNotifications =
-				guild.defaultMessageNotifications;
-			backupData.guildID = guild.id;
+	backupData.components = components.filter((c) => !failed.has(c));
+	backupData.incomplete = components.filter((c) => failed.has(c));
 
-			// Retrieve AFK information
-			if (guild.afkChannel) {
-				backupData.afk = {
-					name: guild.afkChannel.name,
-					timeout: guild.afkTimeout
-				};
-			}
-
-			// Retrieve widget information
-			try {
-				backupData.widget = {
-					enabled: guild.widgetEnabled || false,
-					channel: guild.widgetChannel
-						? guild.widgetChannel.name
-						: null
-				};
-			} catch (widgetError) {
-				logger.err(
-					`Error while retrieving widget information: ${widgetError}`
-				);
-				// Continue with default values
-			}
-		} catch (basicInfoError) {
-			logger.err(
-				`Error while retrieving basic server information: ${basicInfoError}`
-			);
-			// Continue with default values
-		}
-
-		// Retrieve server images
-		try {
-			if (guild.icon) {
-				backupData.iconURL = guild.icon;
-
-				if (options && options.saveImages) {
-					try {
-						let icon_url: string | null = guild.icon;
-						if ("iconURL" in guild) {
-							icon_url = guild.iconURL();
-						}
-
-						if (icon_url) {
-							const iconResponse = await fetch(icon_url);
-							const iconBuffer = await iconResponse.arrayBuffer();
-							backupData.iconBase64 =
-								Buffer.from(iconBuffer).toString("base64");
-						}
-					} catch (iconError) {
-						logger.err(
-							`Error while retrieving server icon: ${iconError}`
-						);
-					}
-				}
-			}
-
-			if (guild.splash) {
-				backupData.splashURL = guild.splash;
-				if (options && options.saveImages) {
-					try {
-						let splash_url: string | null = guild.splash;
-						if ("splashURL" in guild) {
-							splash_url = guild.splashURL({
-								size: 4096,
-								extension: "webp"
-							});
-						}
-
-						if (splash_url) {
-							const splashResponse = await fetch(splash_url);
-							const splashBuffer =
-								await splashResponse.arrayBuffer();
-							backupData.splashBase64 =
-								Buffer.from(splashBuffer).toString("base64");
-						}
-					} catch (splashError) {
-						logger.err(
-							`Error while retrieving server splash: ${splashError}`
-						);
-					}
-				}
-			}
-
-			if (guild.banner) {
-				backupData.bannerURL = guild.banner;
-				if (options && options.saveImages) {
-					try {
-						const banner_url = await client.func.bannerURL(guild, {
-							size: 4096,
-							extension: "webp",
-							forceStatic: false
-						});
-
-						if (banner_url) {
-							const bannerResponse = await fetch(banner_url);
-							const bannerBuffer =
-								await bannerResponse.arrayBuffer();
-							backupData.bannerBase64 =
-								Buffer.from(bannerBuffer).toString("base64");
-						}
-					} catch (bannerError) {
-						logger.err(
-							`Error while retrieving server banner: ${bannerError}`
-						);
-					}
-				}
-			}
-		} catch (imageError) {
-			logger.err(`Error while retrieving server images: ${imageError}`);
-			// Continue without images
-		}
-
-		// Backup members if requested
-		if (options && options.backupMembers) {
-			try {
-				backupData.members = await createMaster.getMembers(guild);
-			} catch (membersError) {
-				logger.err(`Error while retrieving members: ${membersError}`);
-				// Continue with empty array
-			}
-		}
-
-		// Backup bans if not excluded
-		if (!options || !(options.doNotBackup || []).includes("bans")) {
-			try {
-				backupData.bans = await createMaster.getBans(guild);
-			} catch (bansError) {
-				logger.err(`Error while retrieving bans: ${bansError}`);
-				// Continue with empty array
-			}
-		}
-
-		// Backup roles if not excluded
-		if (!options || !(options.doNotBackup || []).includes("roles")) {
-			try {
-				backupData.roles = await createMaster.getRoles(guild);
-			} catch (rolesError) {
-				logger.err(`Error while retrieving roles: ${rolesError}`);
-				// Continue with empty array
-			}
-		}
-
-		// Backup emojis if not excluded
-		if (!options || !(options.doNotBackup || []).includes("emojis")) {
-			try {
-				backupData.emojis = await createMaster.getEmojis(
-					guild,
-					options
-				);
-			} catch (emojisError) {
-				logger.err(`Error while retrieving emojis: ${emojisError}`);
-				// Continue with empty array
-			}
-		}
-
-		// Backup channels if not excluded
-		if (!options || !(options.doNotBackup || []).includes("channels")) {
-			try {
-				backupData.channels = await createMaster.getChannels(
-					guild,
-					options
-				);
-			} catch (channelsError) {
-				logger.err(`Error while retrieving channels: ${channelsError}`);
-				// Continue with empty arrays
-			}
-		}
-
-		try {
-			await backupsTable.set(backupData.id, backupData);
-		} catch (saveError) {
-			logger.err(`Error while saving backup: ${saveError}`);
-		}
-
-		// Return data even if some parts failed
-		resolve(backupData);
-	});
+	await backupsTable.set(backupData.id, backupData);
+	return backupData;
 };
 
-/**
- * Loads a backup for a guild
- */
+export type BackupIndex = DatabaseStructure.DbBackupsUserObject;
+
+export async function getUserBackups(userId: string): Promise<BackupIndex> {
+	return (
+		((await metasTable.get(`BACKUPS.${userId}`)) as BackupIndex | null) ??
+		{}
+	);
+}
+
+export function backupStats(data: BackupData) {
+	return {
+		categoryCount: data.channels.categories.length,
+		channelCount:
+			data.channels.others.length +
+			data.channels.categories.reduce((n, c) => n + c.children.length, 0)
+	};
+}
+
+/** Saves the backup and files it under the user. Enforces the per-user limit. */
+export async function createForUser(
+	guild: Guild,
+	userId: string,
+	components: readonly string[],
+	options: { auto?: boolean; bypassLimit?: boolean } = {}
+): Promise<{ data: BackupData; count: number }> {
+	if (
+		creatingUsers.has(userId) ||
+		loadingGuilds.has(guild.id) ||
+		capturingGuilds.has(guild.id)
+	) {
+		throw new BackupBusyError();
+	}
+	creatingUsers.add(userId);
+	capturingGuilds.add(guild.id);
+	try {
+		const before = Object.keys(await getUserBackups(userId)).length;
+		if (!options.bypassLimit && before >= MAX_BACKUPS_PER_USER) {
+			throw new BackupLimitError();
+		}
+
+		const data = await create(guild, {
+			components: normalizeComponents(components)
+		});
+		if (!data.components?.length) {
+			await remove(data.id);
+			throw new Error("Nothing could be read");
+		}
+		await metasTable.set(`BACKUPS.${userId}.${data.id}`, {
+			guildName: data.name,
+			guildId: guild.id,
+			createdTimestamp: data.createdTimestamp,
+			components: data.components ?? [],
+			auto: options.auto === true,
+			...backupStats(data)
+		});
+		return { data, count: before + 1 };
+	} finally {
+		creatingUsers.delete(userId);
+		capturingGuilds.delete(guild.id);
+	}
+}
+
+/** Restores the selected parts, in dependency order. */
 export const load = async (
 	backup: string | BackupData,
 	guild: Guild,
-	options: LoadOptions = {
-		clearGuildBeforeRestore: true,
-		maxMessagesPerChannel: 100 // Increased default value to 100 messages
-	}
+	options: LoadOptions = {}
 ) => {
-	return new Promise(async (resolve, reject) => {
-		if (!guild) {
-			return reject("Invalid guild");
+	if (isGuildBusy(guild.id)) throw new BackupBusyError();
+	loadingGuilds.add(guild.id);
+	try {
+		const backupData =
+			typeof backup === "string" ? await getBackupData(backup) : backup;
+		const stored = componentsOf(backupData);
+		const components = options.components
+			? normalizeComponents(options.components).filter((c) =>
+					stored.includes(c)
+				)
+			: stored;
+
+		if (options.clearGuildBeforeRestore !== false) {
+			await utilMaster.clearGuild(guild, components, backupData);
 		}
-		try {
-			const backupData: BackupData =
-				typeof backup === "string"
-					? await getBackupData(backup)
-					: backup;
-			try {
-				if (
-					options.clearGuildBeforeRestore === undefined ||
-					options.clearGuildBeforeRestore
-				) {
-					// Clear the guild
-					await utilMaster.clearGuild(guild);
-				}
-				await Promise.all([
-					// Restore guild configuration
-					loadMaster.loadConfig(guild, backupData),
-					// Restore guild roles
-					loadMaster.loadRoles(guild, backupData),
-					// Restore guild channels
-					loadMaster.loadChannels(guild, backupData, options),
-					// Restore afk channel and timeout
-					loadMaster.loadAFK(guild, backupData),
-					// Restore guild emojis
-					loadMaster.loadEmojis(guild, backupData),
-					// Restore guild bans
-					loadMaster.loadBans(guild, backupData),
-					// Restore embed channel
-					loadMaster.loadEmbedChannel(guild, backupData)
-				]);
-			} catch (e) {
-				return reject(e);
-			}
-			// Then return the backup data
-			return resolve(backupData);
-		} catch (e) {
-			return reject("function:load:No backup found");
-		}
-	});
+		return await loadMaster.restore(guild, backupData, components, options);
+	} finally {
+		loadingGuilds.delete(guild.id);
+	}
 };
 
-/**
- * Removes a backup
- */
 export const remove = async (backupID: string) => {
-	return new Promise<void>(async (resolve, reject) => {
-		try {
-			const exists = await backupsTable.get(backupID);
-			if (!exists) {
-				return reject("Backup not found");
-			}
-
-			await backupsTable.delete(backupID);
-			resolve();
-		} catch (error) {
-			reject("Backup not found");
-		}
-	});
+	await backupsTable.delete(backupID);
 };
 
-/**
- * Returns the list of all backup
- */
+/** Deletes the backup and its entry in the user's list. */
+export async function removeForUser(userId: string, backupID: string) {
+	await remove(backupID);
+	await metasTable.delete(`BACKUPS.${userId}.${backupID}`);
+}
+
 export const list = async () => {
 	const entries = await backupsTable.all();
 	return entries.map((entry) => entry.id);

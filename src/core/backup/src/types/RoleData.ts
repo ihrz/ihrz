@@ -20,6 +20,13 @@
 */
 
 export interface RoleData {
+	colors?: {
+		primaryColor: number;
+		secondaryColor: number | null;
+		tertiaryColor: number | null;
+	};
+	iconBase64?: string;
+	unicodeEmoji?: string | null;
 	name: string;
 	color: `#${string}`;
 	hoist: boolean;

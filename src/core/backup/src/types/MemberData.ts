@@ -20,6 +20,7 @@
 */
 
 export interface MemberData {
+	nickname?: string | null;
 	userId: string;
 	username: string;
 	discriminator: string;

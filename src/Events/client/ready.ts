@@ -79,7 +79,8 @@ export {
 	scheduleTable,
 	metasTable,
 	giveawaysTable,
-	backupsTable
+	backupsTable,
+	backupSchedulesTable
 } from "../../core/database/tables.js";
 
 export const event: BotEvent = {
@@ -99,7 +100,8 @@ export const event: BotEvent = {
 			"scheduleTable",
 			"metasTable",
 			"giveawaysTable",
-			"backupsTable"
+			"backupsTable",
+			"backupSchedulesTable"
 		]);
 
 		// Only the main shard creates application emojis; the others read them.
@@ -472,6 +474,11 @@ export const event: BotEvent = {
 
 		(setInterval(quotesPresence, 120_000),
 			setInterval(refreshSchedule, 50_000),
+			setInterval(() => {
+				client.backup.runDueBackupSchedules(client).catch((err) => {
+					logger.err("Scheduled backups failed:", err);
+				});
+			}, 300_000),
 			setInterval(() => recoverCustomVoiceChannels(client), 120_000),
 			setInterval(
 				() =>

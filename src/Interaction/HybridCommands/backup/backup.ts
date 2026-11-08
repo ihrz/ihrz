@@ -61,46 +61,6 @@ export const command: Command = {
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "save-message",
-					type: ApplicationCommandOptionType.String,
-
-					description: "Do you want to save message(s) ?",
-					description_localizations: {
-						fr: "Voulez-vous sauvegarder des message(s) ?",
-						ja: "メッセージを保存しますか？",
-						ru: "Сохранить сообщения?",
-						"es-ES": "Quieres guardar los mensajes?"
-					},
-
-					choices: [
-						{
-							name: "Yes",
-							name_localizations: {
-								fr: "Oui",
-								ja: "yes",
-								ru: "yes",
-								"es-ES": "yes"
-							},
-							value: "yes"
-						},
-						{
-							name: "No",
-							name_localizations: {
-								fr: "Non",
-								ja: "no",
-								ru: "no",
-								"es-ES": "no"
-							},
-							value: "no"
-						}
-					],
-					required: true,
-
-					permission: null
-				}
-			],
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
@@ -198,6 +158,21 @@ export const command: Command = {
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: null
+		},
+		{
+			name: "schedule",
+			prefixName: "backup-schedule",
+
+			description: "Back up this server automatically on a schedule",
+			description_localizations: {
+				fr: "Sauvegarder ce serveur automatiquement selon un planning",
+				ja: "スケジュールでこのサーバーを自動バックアップ",
+				ru: "Автоматически создавать резервные копии по расписанию",
+				"es-ES": "Hacer copias de este servidor automáticamente"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "manage",

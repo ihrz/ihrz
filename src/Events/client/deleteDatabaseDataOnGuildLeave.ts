@@ -78,6 +78,7 @@ async function clearGuildData(client: Client, guildId: string) {
 	if (client.guilds.cache.has(guildId)) return;
 
 	await client.db.delete(`${guildId}`);
+	await client.backup.removeSchedule(guildId);
 	await updatePendingGuildDeletionQueue(client, (queue) => {
 		if (!(guildId in queue)) return { changed: false, result: undefined };
 		delete queue[guildId];

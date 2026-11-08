@@ -27,6 +27,7 @@ import {
 import { MessageData } from "./MessageData";
 
 export interface ThreadChannelData {
+	invitable?: boolean | null;
 	type: ThreadChannelType;
 	name: string;
 	archived: boolean | null;

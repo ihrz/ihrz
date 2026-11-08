@@ -20,6 +20,9 @@
 */
 
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	Message,
@@ -27,10 +30,34 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
-
-import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 import { SubCommand } from "../../../../types/command.js";
-import { metasTable } from "../../../Events/client/ready.js";
+import { BackupBusyError } from "../../../core/backup/src/index.js";
+import {
+	componentsOf,
+	normalizeComponents,
+	type BackupComponent
+} from "../../../core/backup/src/components.js";
+import {
+	BACKUP_PANEL_TIMEOUT,
+	canUseBackups,
+	componentsLine,
+	componentsSelect,
+	isAuthor,
+	reportLines,
+	showCard
+} from "../../../core/modules/backupPanels.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+
+const SELECT = "backup-load-select";
+const CONFIRM = "backup-load-confirm";
+const CANCEL = "backup-load-cancel";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,103 +75,180 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const opts = client.func.method.options(interaction, args);
-		const backupID = opts.string("backup-id", 0)!;
+		const guild = interaction.guild;
+		const authorId = interaction.member.user.id;
+		const emojis = client.iHorizon_Emojis;
+		const refuse = (content: string) =>
+			sendCard(client, interaction, notice("danger", content));
 
-		const state = await client.db.get(
-			`${interaction.guildId}.GUILD.BACKUP.onlyOwner`
-		);
-		if (
-			(state &&
-				interaction.guild.ownerId !== interaction.member.user.id) ||
-			((state === undefined || state === null) &&
-				interaction.guild.ownerId !== interaction.member.user.id)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_manage_nique_tes_mort
-			});
+		const opts = client.func.method.options(interaction, args);
+		const backupID = opts.string("backup-id", 0);
+
+		if (!(await canUseBackups(client, guild, authorId))) {
+			await refuse(lang.backup_manage_nique_tes_mort);
 			return;
 		}
-
 		if (
-			!interaction.guild.members.me?.permissions.has(
+			!guild.members.me?.permissions.has(
 				PermissionsBitField.Flags.Administrator
 			)
 		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_i_dont_have_perm_on_load
-			});
+			await refuse(lang.backup_i_dont_have_perm_on_load);
 			return;
 		}
-
 		if (!backupID) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_unvalid_id_on_load
-			});
+			await refuse(lang.backup_unvalid_id_on_load);
 			return;
 		}
 
-		if (
-			backupID &&
-			!(await metasTable.get(
-				`BACKUPS.${interaction.member.user.id}.${backupID}`
-			))
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
+		const index = await client.backup.getUserBackups(authorId);
+		if (!Object.hasOwn(index, backupID)) {
+			await refuse(lang.backup_this_is_not_your_backup);
 			return;
 		}
 
-		const confirm = await promptYesOrNo(interaction, {
-			content: lang.backup_load_confirm.replace(
-				"${author}",
-				interaction.member.user.toString()
-			),
-			yesButton: lang.var_confirm,
-			noButton: lang.embed_btn_cancel,
-			dangerAction: true
-		});
-
-		if (!confirm)
-			return await client.func.method.interactionSend(interaction, {
-				content: lang.backup_not_load,
-				components: []
-			});
-
-		await client.func.method.channelSend(interaction, {
-			content: lang.backup_waiting_on_load.replace(
-				"${emoji_Yes}",
-				client.iHorizon_Emojis.Yes
-			),
-			components: []
-		});
-
-		client.backup
+		const backup = await client.backup
 			.fetchBackup(backupID)
-			.then(async () => {
-				client.backup
-					.load(backupID, interaction.guild!)
-					.then(() => false)
-					.catch((err) => {
-						client.func.method.channelSend(interaction, {
-							content: lang.backup_error_on_load.replace(
-								"${backupID}",
-								backupID
-							)
-						});
-						return;
-					});
+			.catch(() => null);
+		if (!backup) {
+			await refuse(lang.backup_backup_doesnt_exist);
+			return;
+		}
+
+		const available = componentsOf(backup.data);
+		if (!available.length) {
+			await refuse(lang.backup_backup_doesnt_exist);
+			return;
+		}
+		let selected: BackupComponent[] = [...available];
+		const signature = await botSignature(client, guild.id);
+
+		const render = () =>
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: emojis.Backup_Restore,
+				title: lang.backup_load_title,
+				description: lang.backup_load_desc
+					.replace("${guildName}", backup.data.name)
+					.replace(
+						"${date}",
+						`<t:${Math.floor(backup.data.createdTimestamp / 1000)}:f>`
+					),
+				blocks: [
+					componentsLine(client, lang, selected),
+					lang.backup_load_warning
+				],
+				signature
 			})
-			.catch((err) => {
-				logger.err(err);
-				client.func.method.channelSend(interaction, {
-					content: client.iHorizon_Emojis.No
+				.addActionRowComponents(
+					componentsSelect(client, lang, SELECT, selected, available)
+				)
+				.addActionRowComponents(
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId(CONFIRM)
+							.setLabel(lang.backup_btn_load)
+							.setEmoji(emojis.Backup_Restore)
+							.setStyle(ButtonStyle.Danger),
+						new ButtonBuilder()
+							.setCustomId(CANCEL)
+							.setLabel(lang.embed_btn_cancel)
+							.setStyle(ButtonStyle.Secondary)
+					)
+				);
+
+		const message = await sendCard(client, interaction, render());
+		const collector = message.createMessageComponentCollector({
+			time: BACKUP_PANEL_TIMEOUT
+		});
+		let settled = false;
+
+		collector.on("collect", async (i) => {
+			if (!(await isAuthor(i, authorId, lang))) return;
+
+			if (i.isStringSelectMenu() && i.customId === SELECT) {
+				selected = normalizeComponents(i.values);
+				await i.update({ components: [render()] });
+				return;
+			}
+
+			settled = true;
+			collector.stop();
+
+			if (i.customId === CANCEL) {
+				await i.update({
+					components: [notice("info", lang.backup_not_load)]
 				});
 				return;
+			}
+
+			await i.update({
+				components: [
+					notice(
+						"info",
+						lang.backup_load_progress.replace(
+							"${emoji}",
+							emojis.Backup_Restore
+						)
+					)
+				]
 			});
+
+			// Restoring channels deletes this one: the result goes by DM then.
+			const finish = async (card: ReturnType<typeof notice>) => {
+				if (message.channel && !selected.includes("channels")) {
+					await showCard(message, card);
+					return;
+				}
+				const user = await client.users
+					.fetch(authorId)
+					.catch(() => null);
+				await user
+					?.send(cardPayload(card) as never)
+					.catch(() => undefined);
+			};
+
+			try {
+				const report = await client.backup.load(backup.data, guild, {
+					components: selected
+				});
+				await finish(
+					buildCard({
+						accent: ACCENT.success,
+						emoji: emojis.Backup_Done,
+						title: lang.backup_load_done_title,
+						description: lang.backup_load_done_desc.replace(
+							"${guildName}",
+							guild.name
+						),
+						blocks: [reportLines(client, lang, report)],
+						signature
+					})
+				);
+			} catch (error) {
+				if (error instanceof BackupBusyError) {
+					await finish(notice("warning", lang.backup_busy));
+					return;
+				}
+				logger.err(`Backup load failed: ${error}`);
+				await finish(
+					notice(
+						"danger",
+						lang.backup_error_on_load.replace(
+							"${backupID}",
+							backupID
+						)
+					)
+				);
+			}
+		});
+
+		collector.on("end", async () => {
+			if (settled) return;
+			await showCard(
+				message,
+				notice("warning", lang.backup_panel_expired)
+			);
+		});
 	}
 };

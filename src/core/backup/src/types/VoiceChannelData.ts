@@ -22,6 +22,10 @@
 import { BaseChannelData } from "./";
 
 export interface VoiceChannelData extends BaseChannelData {
+	rtcRegion?: string | null;
+	videoQualityMode?: number | null;
+	nsfw?: boolean;
+	rateLimitPerUser?: number | null;
 	bitrate: number;
 	userLimit: number;
 }

@@ -33,7 +33,8 @@ const TABLE_NAMES = {
 	scheduleTable: "schedule",
 	metasTable: "metas",
 	giveawaysTable: "giveaways",
-	backupsTable: "backups"
+	backupsTable: "backups",
+	backupSchedulesTable: "backup_schedules"
 } as const;
 
 type TableKey = keyof typeof TABLE_NAMES;
@@ -78,6 +79,7 @@ export const scheduleTable = lazyTable("scheduleTable");
 export const metasTable = lazyTable("metasTable");
 export const giveawaysTable = lazyTable("giveawaysTable");
 export const backupsTable = lazyTable("backupsTable");
+export const backupSchedulesTable = lazyTable("backupSchedulesTable");
 
 /**
  * Opens the given tables, in the given order, and makes them usable through

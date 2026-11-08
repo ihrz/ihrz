@@ -4,6 +4,18 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 💾 Backups — rebuilt from the ground up
+
+`/backup` now runs on **Components V2 panels** with a dedicated emoji set. **Choose what goes in a backup, and what comes back out of it**: server settings, roles, channels, channel permissions, emojis, stickers, bans, AutoMod rules, events, messages and members. A restore only wipes what you selected.
+
+**`/backup schedule`** (server owner) backs a server up automatically, from every day to every year. The latest 5 automatic backups of each server are kept. Each user can hold **20 backups** at most.
+
+Backups now also save stickers, AutoMod rules, events, role order, icons and gradients, forums and their tags, member permission overrides, community channels, the welcome screen and more. Restores no longer lose channel permissions, no longer turn forums into text channels, can no longer hang, and end with a per-category report.
+
+The `save-message` option of `/backup create` is replaced by the panel.
+
+---
+
 ## 🎶 Music — a live player panel
 
 `/music play` and `/music nowplaying` now reply with the same **Components V2 live player**: a compact player card (blurred artwork backdrop, cover, title, artist and a progress bar with the elapsed and total time, set in JetBrains Mono), the voice channel, who asked for the track, what comes next, the volume, loop mode and queue size, the platform the track comes from and an **Open** button. **Pause/Resume**, **Skip**, **Loop**, **Lyrics** and **Stop** work right from the panel for listeners of the bot's voice channel, and each action is announced in the channel.

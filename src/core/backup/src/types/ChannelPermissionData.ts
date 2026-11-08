@@ -20,6 +20,7 @@
 */
 
 export interface ChannelPermissionsData {
+	userId?: string;
 	roleName: string;
 	allow: string;
 	deny: string;

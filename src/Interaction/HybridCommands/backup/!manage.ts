@@ -23,7 +23,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { metasTable } from "../../../Events/client/ready.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -45,9 +45,11 @@ export const subCommand: SubCommand = {
 		const only_guild_owner = opts.string("only_guild_owner", 1, true);
 
 		if (interaction.member.user.id !== interaction.guild.ownerId) {
-			client.func.method.interactionSend(interaction, {
-				content: lang.backup_manage_nique_tes_mort
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice("danger", lang.backup_manage_nique_tes_mort)
+			);
 			return;
 		}
 
@@ -67,11 +69,16 @@ export const subCommand: SubCommand = {
 			? lang.backup_manage_owner
 			: lang.backup_manage_admin;
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.backup_manage_command_ok.replace(
-				"${allowed_user_string}",
-				allowed_user_string
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				lang.backup_manage_command_ok.replace(
+					"${allowed_user_string}",
+					allowed_user_string
+				)
 			)
-		});
+		);
 	}
 };

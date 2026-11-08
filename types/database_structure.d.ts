@@ -47,7 +47,21 @@ export namespace DatabaseStructure {
 			guildName: string;
 			categoryCount: number;
 			channelCount: number;
+			guildId?: string;
+			createdTimestamp?: number;
+			components?: string[];
+			auto?: boolean;
 		};
+	}
+
+	export interface BackupSchedule {
+		ownerId: string;
+		every: number;
+		unit: "day" | "week" | "month";
+		components: string[];
+		nextRunAt: number;
+		lastRunAt?: number | null;
+		lastError?: "limit" | "failed" | null;
 	}
 
 	export type TicketData = Record<string, TicketUserData>;

@@ -20,9 +20,11 @@
 */
 
 import { MessageMentionOptions } from "discord.js";
+import type { BackupComponent } from "../components";
 
 export interface LoadOptions {
-	clearGuildBeforeRestore: boolean;
+	components?: BackupComponent[];
+	clearGuildBeforeRestore?: boolean;
 	maxMessagesPerChannel?: number;
 	allowedMentions?: MessageMentionOptions;
 	selfBot?: boolean;
