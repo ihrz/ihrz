@@ -159,6 +159,8 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 ---
 
 ## 🛠️ Corrections & améliorations
+- Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
+- Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.
 
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
 - **Auto-hébergement** : `pm2 start pm2.config.cjs` installe et met à jour son propre Bun, récupère le dernier code et installe les nouvelles dépendances à chaque démarrage ; les images peuvent être rendues par HorizonGateway pour économiser la mémoire de chaque shard

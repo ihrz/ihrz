@@ -3333,6 +3333,7 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"タグ `${tag_name}` を使用する権限がありません。\n管理者権限が必要か、タグの所有者 <@${createBy}> にホワイトリストへの追加を依頼してください（`tag wlroles-use`）。",
+	tag_use_empty: "タグ `${tag_name}` は空です。テキストも埋め込みもありません。",
 	tag_use_command_work: "タグ `${tag_name}` が送信されました。",
 
 	// /tag edit

@@ -25,6 +25,18 @@ import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
+/** An empty needle would match every status, so it never counts. */
+export function bioMatches(
+	bio: string | null | undefined,
+	input: string | null | undefined,
+	vanity: string | null | undefined
+): boolean {
+	const text = bio?.toLowerCase() ?? "";
+	return [input, vanity].some(
+		(needle) => !!needle?.trim() && text.includes(needle.toLowerCase())
+	);
+}
+
 export const event: BotEvent = {
 	name: "presenceUpdate",
 	run: async (
@@ -48,7 +60,7 @@ export const event: BotEvent = {
 		}
 
 		const bio = newPresence.activities[0] || "null";
-		const vanity = newPresence.guild.vanityURLCode || "null";
+		const vanity = newPresence.guild.vanityURLCode;
 
 		const fetchedUser = newPresence.guild.members.cache.get(
 			newPresence.userId
@@ -68,16 +80,16 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (!someinfo.type) someinfo.type === "bio";
+		const type = someinfo.type ?? "bio";
 
-		if (someinfo?.type === "bio" && !bio.state) {
+		if (type === "bio" && !bio.state) {
 			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
 				return fetchedUser.roles
 					.remove(someinfo.rolesId, "[Support] Module")
 					.catch(() => {});
 			return;
 		} else if (
-			someinfo.type === "tag" &&
+			type === "tag" &&
 			!fetchedUser.user.primaryGuild?.identityGuildId
 		) {
 			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
@@ -87,15 +99,9 @@ export const event: BotEvent = {
 			return;
 		}
 
-		const cleanBio = bio.state?.toString().toLowerCase() || "";
-		const cleanInput = someinfo?.input?.toString().toLowerCase() || "";
-		const cleanVanity = vanity.toString().toLowerCase();
-
 		if (
-			(someinfo.type === "bio" &&
-				(cleanBio.includes(cleanInput) ||
-					cleanBio.includes(cleanVanity))) ||
-			(someinfo.type === "tag" &&
+			(type === "bio" && bioMatches(bio.state, someinfo.input, vanity)) ||
+			(type === "tag" &&
 				fetchedUser.user.primaryGuild?.identityGuildId ===
 					newPresence.guild.id)
 		) {

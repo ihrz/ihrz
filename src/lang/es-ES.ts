@@ -3415,6 +3415,7 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"No tienes permiso para usar la etiqueta `${tag_name}`.\nNecesitas permisos de administrador o puedes pedirle al propietario de la etiqueta <@${createBy}> que te agregue a la lista blanca (`tag wlroles-use`).",
+	tag_use_empty: "La etiqueta `${tag_name}` está vacía: no tiene texto ni embed.",
 	tag_use_command_work: "La etiqueta `${tag_name}` ha sido enviada.",
 
 	// /tag edit

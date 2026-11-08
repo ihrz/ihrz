@@ -159,6 +159,8 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 ---
 
 ## 🛠️ Fixes & improvements
+- Support role: a status containing the word "null" or an empty configured text no longer grants the role.
+- Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
 - **Self-hosting**: `pm2 start pm2.config.cjs` now installs and upgrades its own Bun, pulls the latest code and installs new dependencies on every start; images can be rendered by HorizonGateway to save memory on every shard

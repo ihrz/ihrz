@@ -3402,6 +3402,7 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"Non hai il permesso di utilizzare il tag `${tag_name}`.\nHai bisogno dei permessi di amministratore o puoi chiedere al proprietario del tag <@${createBy}> di aggiungerti alla whitelist (`tag wlroles-use`).",
+	tag_use_empty: "Il tag `${tag_name}` è vuoto: non ha né testo né embed.",
 	tag_use_command_work: "Il tag `${tag_name}` è stato inviato.",
 
 	// /tag edit

@@ -3332,6 +3332,7 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"У вас нет разрешения на использование тега `${tag_name}`.\nНеобходимы права администратора или вы можете попросить владельца тега <@${createBy}> добавить вас в белый список (`tag wlroles-use`).",
+	tag_use_empty: "Тег `${tag_name}` пуст: в нём нет ни текста, ни эмбеда.",
 	tag_use_command_work: "Тег `${tag_name}` был отправлен.",
 
 	// /tag edit

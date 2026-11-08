@@ -3304,6 +3304,7 @@ const enUS = {
 	// /tag use
 	tag_use_not_allowed:
 		"You are not allowed to use the tag `${tag_name}`.\nYou need the Administrator permission, or you can ask the tag owner <@${createBy}> to add you to the whitelist (`tag wlroles-use`).",
+	tag_use_empty: "The tag `${tag_name}` is empty: it has no text and no embed.",
 	tag_use_command_work: "Tag `${tag_name}` has been sent.",
 
 	// /tag edit

@@ -89,6 +89,19 @@ export const subCommand: SubCommand = {
 
 		// send the tag content
 		const embed = await metasTable.get(`EMBED.${tag.embedId}`);
+		const tagContent = baseData?.storedTags?.[tag_name].content;
+		const content =
+			[mention?.toString(), tagContent]
+				.filter(Boolean)
+				.join(" ")
+				.slice(0, 2000) || undefined;
+
+		if (!tagContent && !embed?.embedSource) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tag_use_empty.replace("${tag_name}", tag_name)
+			});
+			return;
+		}
 
 		if (interaction.channel.isSendable()) {
 			if (message_id) {
@@ -97,18 +110,13 @@ export const subCommand: SubCommand = {
 					.catch(() => null);
 				if (message) {
 					await message.reply({
-						content: mention
-							? mention.toString()
-							: baseData?.storedTags?.[tag_name].content ||
-								undefined,
+						content,
 						embeds: embed?.embedSource ? [embed.embedSource] : []
 					});
 				}
 			} else {
 				await interaction.channel.send({
-					content: mention
-						? mention.toString()
-						: baseData?.storedTags?.[tag_name].content || undefined,
+					content,
 					embeds: embed?.embedSource ? [embed.embedSource] : []
 				});
 			}

@@ -3167,6 +3167,7 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"غير مسموح لك باستخدام الوسم `${tag_name}`.\nتحتاج إلى صلاحيات المسؤول أو يمكنك أن تطلب من مالك الوسم <@${createBy}> إضافتك إلى القائمة البيضاء (`tag wlroles-use`).",
+	tag_use_empty: "الوسم `${tag_name}` فارغ: لا يحتوي على نص أو تضمين.",
 	tag_use_command_work: "تم إرسال الوسم `${tag_name}`.",
 
 	// /tag edit
