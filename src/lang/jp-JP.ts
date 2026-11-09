@@ -3407,6 +3407,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author}が告白モジュールを無効にしました！",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"告白 **#${code}** を投稿しました。",
+	confession_not_found:
+		"コード **#${code}** の告白は見つかりません。",
+	confession_delete_command_work:
+		"告白 **#${code}** を削除しました。",
+	confession_delete_log_embed_title:
+		"告白の削除",
+	confession_delete_log_embed_desc:
+		"${author} が告白 **#${code}** を削除しました",
+
+	// /confession ban
+	confession_ban_command_work:
+		"告白 **#${code}** の投稿者は、このサーバーで告白できなくなりました。",
+	confession_ban_already:
+		"告白 **#${code}** の投稿者はすでに追放されています。",
+	confession_ban_author_expired:
+		"この告白は古すぎます。投稿者の情報は90日後に消去されます。",
+	confession_ban_log_embed_title:
+		"告白投稿者の追放",
+	confession_ban_log_embed_desc:
+		"${author} が告白 **#${code}** の投稿者を追放しました",
+	confession_banned_error:
+		"あなたはこのサーバーの告白モジュールから追放されています。",
+
+	// /confession unban
+	confession_unban_command_work:
+		"告白 **#${code}** に関連する追放を解除しました。",
+	confession_unban_not_found:
+		"告白 **#${code}** に関連する追放はありません。",
+	confession_unban_log_embed_title:
+		"告白投稿者の追放解除",
+	confession_unban_log_embed_desc:
+		"${author} が告白 **#${code}** に関連する追放を解除しました",
+
 	// /confession thread
 	confession_thread_enabled:
 		"今後、誰かが告白したとき、埋め込みの下にディスカッションスレッドを作成します。",

@@ -3477,6 +3477,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} ha disabilitato il modulo delle confessioni!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"La tua confessione **#${code}** è stata pubblicata.",
+	confession_not_found:
+		"Nessuna confessione trovata con il codice **#${code}**.",
+	confession_delete_command_work:
+		"La confessione **#${code}** è stata eliminata.",
+	confession_delete_log_embed_title:
+		"Confessione eliminata",
+	confession_delete_log_embed_desc:
+		"${author} ha eliminato la confessione **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"L'autore della confessione **#${code}** non può più confessarsi su questo server.",
+	confession_ban_already:
+		"L'autore della confessione **#${code}** è già bannato.",
+	confession_ban_author_expired:
+		"Questa confessione è troppo vecchia: il suo autore viene dimenticato dopo 90 giorni.",
+	confession_ban_log_embed_title:
+		"Autore di confessione bannato",
+	confession_ban_log_embed_desc:
+		"${author} ha bannato l'autore della confessione **#${code}**",
+	confession_banned_error:
+		"Sei bannato dal modulo confessioni su questo server.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"Il ban collegato alla confessione **#${code}** è stato revocato.",
+	confession_unban_not_found:
+		"Nessun ban è collegato alla confessione **#${code}**.",
+	confession_unban_log_embed_title:
+		"Autore di confessione sbannato",
+	confession_unban_log_embed_desc:
+		"${author} ha revocato il ban collegato alla confessione **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"D'ora in poi, quando qualcuno confessa, creo un thread di discussione sotto l'embed.",

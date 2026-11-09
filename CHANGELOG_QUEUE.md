@@ -158,6 +158,15 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 
 ---
 
+## 🕵️ Confessions — moderation tools
+
+- **`/confession delete`** removes a confession and its thread with its code
+- **`/confession ban`** and **`/confession unban`** block the author of a confession from the module without revealing who they are
+- Authors get a private confirmation with the code of their confession
+- The author of a confession is forgotten after 90 days, and only the latest 2000 confessions of a server are kept
+
+---
+
 ## 🛠️ Fixes & improvements
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
 - Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.

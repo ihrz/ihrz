@@ -3237,6 +3237,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} قام بتعطيل وحدة الاعترافات!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"تم نشر اعترافك **#${code}**.",
+	confession_not_found:
+		"لم يتم العثور على اعتراف بالرمز **#${code}**.",
+	confession_delete_command_work:
+		"تم حذف الاعتراف **#${code}**.",
+	confession_delete_log_embed_title:
+		"حذف اعتراف",
+	confession_delete_log_embed_desc:
+		"قام ${author} بحذف الاعتراف **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"لم يعد بإمكان صاحب الاعتراف **#${code}** الاعتراف في هذا الخادم.",
+	confession_ban_already:
+		"صاحب الاعتراف **#${code}** محظور بالفعل.",
+	confession_ban_author_expired:
+		"هذا الاعتراف قديم جدًا: يتم نسيان صاحبه بعد 90 يومًا.",
+	confession_ban_log_embed_title:
+		"حظر صاحب اعتراف",
+	confession_ban_log_embed_desc:
+		"قام ${author} بحظر صاحب الاعتراف **#${code}**",
+	confession_banned_error:
+		"أنت محظور من وحدة الاعترافات في هذا الخادم.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"تم رفع الحظر المرتبط بالاعتراف **#${code}**.",
+	confession_unban_not_found:
+		"لا يوجد حظر مرتبط بالاعتراف **#${code}**.",
+	confession_unban_log_embed_title:
+		"إلغاء حظر صاحب اعتراف",
+	confession_unban_log_embed_desc:
+		"قام ${author} برفع الحظر المرتبط بالاعتراف **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"من الآن فصاعداً، عندما يعترف شخص ما، سأقوم بإنشاء موضوع نقاش تحت الرسالة المضمنة.",

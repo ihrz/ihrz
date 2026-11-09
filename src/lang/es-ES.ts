@@ -3492,6 +3492,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} ha deshabilitado el módulo de confesión!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"Tu confesión **#${code}** ha sido publicada.",
+	confession_not_found:
+		"No se ha encontrado ninguna confesión con el código **#${code}**.",
+	confession_delete_command_work:
+		"La confesión **#${code}** ha sido eliminada.",
+	confession_delete_log_embed_title:
+		"Confesión eliminada",
+	confession_delete_log_embed_desc:
+		"${author} ha eliminado la confesión **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"El autor de la confesión **#${code}** ya no puede confesarse en este servidor.",
+	confession_ban_already:
+		"El autor de la confesión **#${code}** ya está baneado.",
+	confession_ban_author_expired:
+		"Esta confesión es demasiado antigua: su autor se olvida tras 90 días.",
+	confession_ban_log_embed_title:
+		"Autor de confesión baneado",
+	confession_ban_log_embed_desc:
+		"${author} ha baneado al autor de la confesión **#${code}**",
+	confession_banned_error:
+		"Estás baneado del módulo de confesiones en este servidor.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"Se ha levantado el baneo vinculado a la confesión **#${code}**.",
+	confession_unban_not_found:
+		"Ningún baneo está vinculado a la confesión **#${code}**.",
+	confession_unban_log_embed_title:
+		"Autor de confesión desbaneado",
+	confession_unban_log_embed_desc:
+		"${author} ha levantado el baneo vinculado a la confesión **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"A partir de ahora, cuando alguien confiese, creo un hilo de discusión debajo del embed.",

@@ -41,6 +41,10 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { generatePassword } from "../../../core/functions/random.js";
 import maskLink from "../../../core/functions/maskLink.js";
 import { tempTable } from "../../../Events/client/ready.js";
+import {
+	isConfessionBanned,
+	pruneConfessions
+} from "../../../core/modules/confessionManager.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 	/**
@@ -66,6 +70,14 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const lang = await interaction.client.func.getLanguageData(
 		interaction.guildId
 	);
+
+	if (isConfessionBanned(allDataConfession, interaction.user.id)) {
+		await interaction.reply({
+			content: lang.confession_banned_error,
+			flags: [1 << 6]
+		});
+		return;
+	}
 
 	const timeout =
 		allDataConfession?.cooldown || client.timeCalculator.to_ms("5min");
@@ -229,6 +241,15 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			messageId: msg.id
 		}
 	);
+
+	await pruneConfessions(interaction.client, interaction.guildId);
+
+	await submitInteraction
+		.followUp({
+			content: lang.confession_sent_confirmation.replace("${code}", code),
+			flags: [1 << 6]
+		})
+		.catch(() => {});
 
 	await tempTable.set(
 		`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`,

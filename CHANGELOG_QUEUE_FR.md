@@ -158,6 +158,15 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 
 ---
 
+## 🕵️ Confessions — des outils de modération
+
+- **`/confession delete`** supprime une confession et son fil à partir de son code
+- **`/confession ban`** et **`/confession unban`** bloquent l'auteur d'une confession dans le module sans révéler son identité
+- Les auteurs reçoivent une confirmation privée avec le code de leur confession
+- L'auteur d'une confession est oublié après 90 jours, et seules les 2000 dernières confessions d'un serveur sont conservées
+
+---
+
 ## 🛠️ Corrections & améliorations
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
 - Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.

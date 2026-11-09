@@ -3407,6 +3407,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} отключил модуль исповедей!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"Ваше признание **#${code}** опубликовано.",
+	confession_not_found:
+		"Признание с кодом **#${code}** не найдено.",
+	confession_delete_command_work:
+		"Признание **#${code}** удалено.",
+	confession_delete_log_embed_title:
+		"Удаление признания",
+	confession_delete_log_embed_desc:
+		"${author} удалил(а) признание **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"Автор признания **#${code}** больше не может оставлять признания на этом сервере.",
+	confession_ban_already:
+		"Автор признания **#${code}** уже заблокирован.",
+	confession_ban_author_expired:
+		"Это признание слишком старое: автор забывается через 90 дней.",
+	confession_ban_log_embed_title:
+		"Блокировка автора признания",
+	confession_ban_log_embed_desc:
+		"${author} заблокировал(а) автора признания **#${code}**",
+	confession_banned_error:
+		"Вы заблокированы в модуле признаний на этом сервере.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"Блокировка, связанная с признанием **#${code}**, снята.",
+	confession_unban_not_found:
+		"С признанием **#${code}** не связана ни одна блокировка.",
+	confession_unban_log_embed_title:
+		"Разблокировка автора признания",
+	confession_unban_log_embed_desc:
+		"${author} снял(а) блокировку, связанную с признанием **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"Отныне, когда кто-то признается, я создаю ветку обсуждения под встраиваемым сообщением.",

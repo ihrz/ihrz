@@ -3450,6 +3450,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} desativou o Módulo de Confissão!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"A tua confissão **#${code}** foi publicada.",
+	confession_not_found:
+		"Nenhuma confissão encontrada com o código **#${code}**.",
+	confession_delete_command_work:
+		"A confissão **#${code}** foi eliminada.",
+	confession_delete_log_embed_title:
+		"Confissão eliminada",
+	confession_delete_log_embed_desc:
+		"${author} eliminou a confissão **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"O autor da confissão **#${code}** já não pode confessar neste servidor.",
+	confession_ban_already:
+		"O autor da confissão **#${code}** já está banido.",
+	confession_ban_author_expired:
+		"Esta confissão é demasiado antiga: o autor é esquecido após 90 dias.",
+	confession_ban_log_embed_title:
+		"Autor de confissão banido",
+	confession_ban_log_embed_desc:
+		"${author} baniu o autor da confissão **#${code}**",
+	confession_banned_error:
+		"Estás banido do módulo de confissões neste servidor.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"O banimento ligado à confissão **#${code}** foi levantado.",
+	confession_unban_not_found:
+		"Nenhum banimento está ligado à confissão **#${code}**.",
+	confession_unban_log_embed_title:
+		"Autor de confissão desbanido",
+	confession_unban_log_embed_desc:
+		"${author} levantou o banimento ligado à confissão **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"A partir de agora, quando alguém confessar, crio uma discussão abaixo do embed.",

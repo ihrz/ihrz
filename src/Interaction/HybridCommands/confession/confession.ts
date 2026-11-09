@@ -237,6 +237,111 @@ export const command: Command = {
 			],
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "delete",
+			prefixName: "confess-delete",
+
+			description: "Delete a confession!",
+			description_localizations: {
+				fr: "Supprimer une confession",
+				ja: "告白を削除！",
+				ru: "Удалить признание!",
+				"es-ES": "Eliminar una confesión!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "code",
+					type: ApplicationCommandOptionType.String,
+
+					description: "The confession code",
+					description_localizations: {
+						fr: "Le code de la confession",
+						ja: "告白コード",
+						ru: "Код признания",
+						"es-ES": "El código de la confesión"
+					},
+
+					required: true,
+
+					permission: null
+				}
+			],
+
+			permission: PermissionFlagsBits.ManageMessages
+		},
+		{
+			name: "ban",
+			prefixName: "confess-ban",
+
+			description:
+				"Ban the author of a confession from the module, without revealing them!",
+			description_localizations: {
+				fr: "Bannir du module l'auteur d'une confession, sans le révéler",
+				ja: "告白の投稿者を明かさずにモジュールから追放！",
+				ru: "Заблокировать автора признания, не раскрывая его!",
+				"es-ES":
+					"Banear del módulo al autor de una confesión, sin revelarlo!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "code",
+					type: ApplicationCommandOptionType.String,
+
+					description: "The confession code",
+					description_localizations: {
+						fr: "Le code de la confession",
+						ja: "告白コード",
+						ru: "Код признания",
+						"es-ES": "El código de la confesión"
+					},
+
+					required: true,
+
+					permission: null
+				}
+			],
+
+			permission: PermissionFlagsBits.ModerateMembers
+		},
+		{
+			name: "unban",
+			prefixName: "confess-unban",
+
+			description:
+				"Lift a ban, using the code of the confession that caused it!",
+			description_localizations: {
+				fr: "Lever un bannissement, avec le code de la confession concernée",
+				ja: "原因となった告白コードで追放を解除！",
+				ru: "Снять блокировку по коду признания!",
+				"es-ES": "Levantar un baneo con el código de la confesión!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "code",
+					type: ApplicationCommandOptionType.String,
+
+					description: "The confession code",
+					description_localizations: {
+						fr: "Le code de la confession",
+						ja: "告白コード",
+						ru: "Код признания",
+						"es-ES": "El código de la confesión"
+					},
+
+					required: true,
+
+					permission: null
+				}
+			],
+
+			permission: PermissionFlagsBits.ModerateMembers
 		}
 	],
 	thinking: false,

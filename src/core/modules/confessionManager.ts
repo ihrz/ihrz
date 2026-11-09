@@ -33,6 +33,10 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+
+const CONFESSION_AUTHOR_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
+const CONFESSION_MAX_STORED = 2000;
 
 // Confession panel (embed + "new confession" button), shared by
 // /confession channel and the dashboard. The caller stores
@@ -69,4 +73,36 @@ export async function sendConfessionPanel(
 		enforceNonce: true,
 		nonce: SnowflakeUtil.generate().toString()
 	});
+}
+
+export function isConfessionBanned(
+	config: DatabaseStructure.ConfessionSchema | null | undefined,
+	userId: string
+): boolean {
+	return config?.banned?.some((ban) => ban.userId === userId) ?? false;
+}
+
+// Forgets the author of old confessions and caps the stored list, which is
+// read back in full on every click.
+export async function pruneConfessions(
+	client: Client,
+	guildId: string
+): Promise<void> {
+	const path = `${guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`;
+	const list = (await client.db.get(path)) as
+		DatabaseStructure.ConfessionSchema["ALL_CONFESSIONS"] | null;
+	if (!list) return;
+
+	const cutoff = Date.now() - CONFESSION_AUTHOR_RETENTION_MS;
+	let changed = list.length > CONFESSION_MAX_STORED;
+	const kept = list.slice(-CONFESSION_MAX_STORED).map((entry) => {
+		if (!entry.userId || !entry.timestamp || entry.timestamp >= cutoff)
+			return entry;
+
+		changed = true;
+		const { userId, ...anonymous } = entry;
+		return anonymous;
+	});
+
+	if (changed) await client.db.set(path, kept);
 }

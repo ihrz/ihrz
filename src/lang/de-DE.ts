@@ -3511,6 +3511,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} hat das Bekenntnismodul deaktiviert!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"Dein Geständnis **#${code}** wurde veröffentlicht.",
+	confession_not_found:
+		"Kein Geständnis mit dem Code **#${code}** gefunden.",
+	confession_delete_command_work:
+		"Das Geständnis **#${code}** wurde gelöscht.",
+	confession_delete_log_embed_title:
+		"Geständnis gelöscht",
+	confession_delete_log_embed_desc:
+		"${author} hat das Geständnis **#${code}** gelöscht",
+
+	// /confession ban
+	confession_ban_command_work:
+		"Der Autor des Geständnisses **#${code}** kann auf diesem Server nichts mehr gestehen.",
+	confession_ban_already:
+		"Der Autor des Geständnisses **#${code}** ist bereits gesperrt.",
+	confession_ban_author_expired:
+		"Dieses Geständnis ist zu alt: Sein Autor wird nach 90 Tagen vergessen.",
+	confession_ban_log_embed_title:
+		"Geständnis-Autor gesperrt",
+	confession_ban_log_embed_desc:
+		"${author} hat den Autor des Geständnisses **#${code}** gesperrt",
+	confession_banned_error:
+		"Du bist auf diesem Server vom Geständnis-Modul ausgeschlossen.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"Die mit dem Geständnis **#${code}** verbundene Sperre wurde aufgehoben.",
+	confession_unban_not_found:
+		"Mit dem Geständnis **#${code}** ist keine Sperre verbunden.",
+	confession_unban_log_embed_title:
+		"Geständnis-Autor entsperrt",
+	confession_unban_log_embed_desc:
+		"${author} hat die mit dem Geständnis **#${code}** verbundene Sperre aufgehoben",
+
 	// /confession thread
 	confession_thread_enabled:
 		"Von nun an erstelle ich einen Diskussionsthread unter dem Embed, wenn jemand beichtet.",

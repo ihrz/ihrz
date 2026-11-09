@@ -3513,6 +3513,42 @@ export default {
 	confession_log_embed_desc_on_disabled:
 		"${author} a désactivé le module de confession !",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"Votre confession **#${code}** a été publiée.",
+	confession_not_found:
+		"Aucune confession trouvée avec le code **#${code}**.",
+	confession_delete_command_work:
+		"La confession **#${code}** a été supprimée.",
+	confession_delete_log_embed_title:
+		"Suppression de confession",
+	confession_delete_log_embed_desc:
+		"${author} a supprimé la confession **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"L'auteur de la confession **#${code}** ne peut plus se confesser sur ce serveur.",
+	confession_ban_already:
+		"L'auteur de la confession **#${code}** est déjà banni.",
+	confession_ban_author_expired:
+		"Cette confession est trop ancienne : son auteur est oublié après 90 jours.",
+	confession_ban_log_embed_title:
+		"Bannissement d'un auteur de confession",
+	confession_ban_log_embed_desc:
+		"${author} a banni l'auteur de la confession **#${code}**",
+	confession_banned_error:
+		"Vous êtes banni du module de confessions sur ce serveur.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"Le bannissement lié à la confession **#${code}** a été levé.",
+	confession_unban_not_found:
+		"Aucun bannissement n'est lié à la confession **#${code}**.",
+	confession_unban_log_embed_title:
+		"Débannissement d'un auteur de confession",
+	confession_unban_log_embed_desc:
+		"${author} a levé le bannissement lié à la confession **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"Désormais, quand quelqu'un confesse, je crée un fil de discussion en dessous de l'Embed.",

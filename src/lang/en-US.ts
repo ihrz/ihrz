@@ -3376,6 +3376,42 @@ const enUS = {
 	confession_log_embed_desc_on_disabled:
 		"${author} has disabled the Confession Module!",
 
+	// /confession delete
+	confession_sent_confirmation:
+		"Your confession **#${code}** has been posted.",
+	confession_not_found:
+		"No confession found with the code **#${code}**.",
+	confession_delete_command_work:
+		"Confession **#${code}** has been deleted.",
+	confession_delete_log_embed_title:
+		"Delete Confession",
+	confession_delete_log_embed_desc:
+		"${author} deleted the confession **#${code}**",
+
+	// /confession ban
+	confession_ban_command_work:
+		"The author of confession **#${code}** can no longer confess on this server.",
+	confession_ban_already:
+		"The author of confession **#${code}** is already banned.",
+	confession_ban_author_expired:
+		"This confession is too old: its author is forgotten after 90 days.",
+	confession_ban_log_embed_title:
+		"Ban Confession Author",
+	confession_ban_log_embed_desc:
+		"${author} banned the author of the confession **#${code}**",
+	confession_banned_error:
+		"You are banned from the confession module on this server.",
+
+	// /confession unban
+	confession_unban_command_work:
+		"The ban linked to confession **#${code}** has been lifted.",
+	confession_unban_not_found:
+		"No ban is linked to the confession **#${code}**.",
+	confession_unban_log_embed_title:
+		"Unban Confession Author",
+	confession_unban_log_embed_desc:
+		"${author} lifted the ban linked to the confession **#${code}**",
+
 	// /confession thread
 	confession_thread_enabled:
 		"From now on, when someone confesses, I create a discussion thread below the embed.",

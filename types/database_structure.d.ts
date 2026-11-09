@@ -210,6 +210,14 @@ export namespace DatabaseStructure {
 		}>;
 		cooldown?: number;
 		thread?: "yes" | "no";
+		banned?: ConfessionBan[];
+	}
+
+	export interface ConfessionBan {
+		userId: string;
+		code: string;
+		moderatorId: string;
+		timestamp: number;
 	}
 
 	export interface MemberCountSchema {

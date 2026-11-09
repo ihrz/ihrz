@@ -38,6 +38,7 @@ import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import maskLink from "../../../core/functions/maskLink.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { tempTable } from "../../../Events/client/ready.js";
+import { isConfessionBanned } from "../../../core/modules/confessionManager.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 	const confessionId = interaction.customId.split("%")[1];
@@ -57,6 +58,14 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		`${interaction.guildId}.GUILD.CONFESSION`
 	)) as DatabaseStructure.ConfessionSchema;
 	if (allDataConfession?.disable) return;
+
+	if (isConfessionBanned(allDataConfession, interaction.user.id)) {
+		await interaction.reply({
+			content: lang.confession_banned_error,
+			flags: [1 << 6]
+		});
+		return;
+	}
 
 	const confessionTime = await tempTable.get(
 		`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`
