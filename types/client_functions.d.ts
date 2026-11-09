@@ -947,6 +947,10 @@ declare namespace Client_Functions {
 
 	// From shard_helper.ts
 	export namespace shard_helper {
+		export function collectShardProbes(
+			client: Client<boolean>,
+			timeoutMs?: number
+		): Promise<Array<ShardProbe>>;
 		export function getCommunityGuildsData(
 			client: Client<boolean>,
 			minMembers: number

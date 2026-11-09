@@ -252,3 +252,4 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **Suggestions**: a message under 5 words now gets an explanation and stays 10 seconds so it can be copied, and attachments are kept on the suggestion
 - **`/suggest accept`**: the error message is displayed correctly when the suggestion cannot be updated
 - **`/economy shop`**: if the role cannot be given, the member is told and no longer charged
+- `+shardinfo` (bot owners) now replies with an image covering every shard: servers and members per shard, status, ping, memory, voice sessions and uptime. A shard that does not answer is shown as offline instead of failing the command.

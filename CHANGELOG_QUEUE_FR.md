@@ -252,3 +252,4 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **Suggestions** : un message de moins de 5 mots reçoit désormais une explication et reste 10 secondes pour pouvoir être copié, et les pièces jointes sont conservées sur la suggestion
 - **`/suggest accept`** : le message d'erreur s'affiche correctement quand la suggestion ne peut pas être mise à jour
 - **`/economy shop`** : si le rôle ne peut pas être donné, le membre est prévenu et n'est plus débité
+- `+shardinfo` (propriétaires du bot) répond désormais avec une image couvrant tous les shards : serveurs et membres par shard, état, ping, mémoire, sessions vocales et uptime. Un shard qui ne répond pas apparaît hors ligne au lieu de faire échouer la commande.

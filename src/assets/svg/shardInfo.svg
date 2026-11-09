@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="{height}" viewBox="0 0 1000 {height}">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#14121f"/>
+			<stop offset="1" stop-color="#0b0c13"/>
+		</linearGradient>
+		<radialGradient id="glow" cx="0.92" cy="0" r="0.7">
+			<stop offset="0" stop-color="{state_color}" stop-opacity="0.24"/>
+			<stop offset="1" stop-color="{state_color}" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="brand" cx="0" cy="0" r="0.6">
+			<stop offset="0" stop-color="#ff40c4" stop-opacity="0.18"/>
+			<stop offset="1" stop-color="#ff40c4" stop-opacity="0"/>
+		</radialGradient>
+		<linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#ff40c4"/>
+			<stop offset="1" stop-color="#8b5cf6"/>
+		</linearGradient>
+		<linearGradient id="shareFill" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#8b5cf6"/>
+			<stop offset="1" stop-color="#ff40c4"/>
+		</linearGradient>
+	</defs>
+	<rect width="1000" height="{height}" rx="20" fill="url(#bg)"/>
+	<rect width="1000" height="{height}" rx="20" fill="url(#brand)"/>
+	<rect width="1000" height="{height}" rx="20" fill="url(#glow)"/>
+	{body}
+</svg>

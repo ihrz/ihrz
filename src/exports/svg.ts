@@ -30,9 +30,10 @@ import m4 from "../assets/svg/memeCaption.svg" with { type: "text" };
 import m5 from "../assets/svg/memeTopText.svg" with { type: "text" };
 import m6 from "../assets/svg/nowPlaying.svg" with { type: "text" };
 import m7 from "../assets/svg/ranksCard.svg" with { type: "text" };
-import m8 from "../assets/svg/tweetCard.svg" with { type: "text" };
-import m9 from "../assets/svg/welcomeCard.svg" with { type: "text" };
-import m10 from "../assets/svg/youtubeComment.svg" with { type: "text" };
+import m8 from "../assets/svg/shardInfo.svg" with { type: "text" };
+import m9 from "../assets/svg/tweetCard.svg" with { type: "text" };
+import m10 from "../assets/svg/welcomeCard.svg" with { type: "text" };
+import m11 from "../assets/svg/youtubeComment.svg" with { type: "text" };
 
 const files: Record<string, string> = {
 	"captcha.svg": m0,
@@ -43,9 +44,10 @@ const files: Record<string, string> = {
 	"memeTopText.svg": m5,
 	"nowPlaying.svg": m6,
 	"ranksCard.svg": m7,
-	"tweetCard.svg": m8,
-	"welcomeCard.svg": m9,
-	"youtubeComment.svg": m10
+	"shardInfo.svg": m8,
+	"tweetCard.svg": m9,
+	"welcomeCard.svg": m10,
+	"youtubeComment.svg": m11
 };
 
 export default files;

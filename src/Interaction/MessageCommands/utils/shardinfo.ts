@@ -19,16 +19,23 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	Client,
-	EmbedBuilder,
-	Message,
-	time
-} from "discord.js";
+import { AttachmentBuilder, Client, EmbedBuilder, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
+import type { ShardGuildSample } from "../../../core/functions/shard_helper.ts";
+import {
+	renderShardInfoCard,
+	summarizeShards
+} from "../../../core/modules/shardInfoCard.ts";
+
+function guildSection(title: string, guilds: ShardGuildSample[]): string {
+	if (guilds.length === 0) return "";
+	const lines = guilds
+		.slice(0, 3)
+		.map((guild) => `- ${guild.name} (${guild.id})`);
+	return `\n\n**${title}**\n${lines.join("\n")}`;
+}
 
 export const command: Command = {
 	name: "shardinfo",
@@ -53,138 +60,78 @@ export const command: Command = {
 		lang: LanguageData,
 		options?: string[]
 	) => {
-		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
-			// Comprehensive guild analysis with all 3 methods
-			const guildStats = {
-				total: client.guilds.cache.size,
-				available: 0,
-				unavailable: 0,
-				withMemberCount: 0,
-				withApproximateOnly: 0,
-				withNoMemberData: 0,
-				totalMembers: 0,
-				categorizedGuilds: {
-					unavailable: [] as Array<{
-						name: string;
-						id: string;
-						reason: string;
-					}>,
-					noMemberData: [] as Array<{
-						name: string;
-						id: string;
-						available: boolean;
-					}>,
-					usingApproximate: [] as Array<{
-						name: string;
-						id: string;
-						memberCount: number | null;
-						approximateMemberCount: number | null;
-					}>
-				}
-			};
+		if (!(await client.func.ownerHelper.isBotOwner(message.author.id))) {
+			return;
+		}
 
-			client.guilds.cache.forEach((guild) => {
-				// Method 3: Check if guild is available first
-				if (!guild.available) {
-					guildStats.unavailable++;
-					guildStats.categorizedGuilds.unavailable.push({
-						name: guild.name,
-						id: guild.id,
-						reason: "Guild unavailable"
-					});
-					return; // Skip unavailable guilds
-				}
+		const probes =
+			await client.func.shard_helper.collectShardProbes(client);
+		const totals = summarizeShards(probes);
+		const answered = probes.flatMap((probe) =>
+			probe.data ? [probe.data] : []
+		);
+		const currentShardId = client.shard?.ids[0] ?? 0;
+		const avatarUrl = client.user?.displayAvatarURL({
+			extension: "png",
+			size: 256
+		});
+		const avatar = avatarUrl
+			? ((await client.func.image64.image64(avatarUrl)) ?? null)
+			: null;
+		const card = await renderShardInfoCard(
+			probes,
+			currentShardId,
+			process.pid,
+			lang,
+			avatar
+		);
 
-				guildStats.available++;
+		let description = lang.shardinfo_location
+			.replace("${shardId}", String(message.guild.shardId))
+			.replace("${handlerShardId}", String(currentShardId))
+			.replace("${pid}", String(process.pid));
+		description += `\n${lang.shardinfo_member_data
+			.replace(
+				"${exactCount}",
+				totals.exactMembers.toLocaleString("en-US")
+			)
+			.replace(
+				"${approximateCount}",
+				totals.approximateMembers.toLocaleString("en-US")
+			)
+			.replace(
+				"${missingCount}",
+				totals.missingMembers.toLocaleString("en-US")
+			)}`;
+		if (totals.offlineIds.length > 0) {
+			description += `\n${lang.shardinfo_offline_shards.replace(
+				"${shards}",
+				totals.offlineIds.join(", ")
+			)}`;
+		}
+		description += guildSection(
+			lang.shardinfo_section_unavailable,
+			answered.flatMap((data) => data.samples.unavailable)
+		);
+		description += guildSection(
+			lang.shardinfo_section_approximate,
+			answered.flatMap((data) => data.samples.approximate)
+		);
+		description += guildSection(
+			lang.shardinfo_section_missing,
+			answered.flatMap((data) => data.samples.missing)
+		);
 
-				// Method 2: Use approximateMemberCount as fallback
-				let memberCount = 0;
-				if (
-					guild.memberCount &&
-					typeof guild.memberCount === "number" &&
-					!isNaN(guild.memberCount)
-				) {
-					memberCount = guild.memberCount;
-					guildStats.withMemberCount++;
-				} else if (
-					guild.approximateMemberCount &&
-					typeof guild.approximateMemberCount === "number" &&
-					!isNaN(guild.approximateMemberCount)
-				) {
-					memberCount = guild.approximateMemberCount;
-					guildStats.withApproximateOnly++;
-					guildStats.categorizedGuilds.usingApproximate.push({
-						name: guild.name,
-						id: guild.id,
-						memberCount: guild.memberCount,
-						approximateMemberCount: guild.approximateMemberCount
-					});
-				} else {
-					// Method 1: Filter out completely problematic guilds
-					guildStats.withNoMemberData++;
-					guildStats.categorizedGuilds.noMemberData.push({
-						name: guild.name,
-						id: guild.id,
-						available: guild.available
-					});
-					return; // Skip guilds with no member data
-				}
+		const embed = new EmbedBuilder()
+			.setTitle(lang.shardinfo_title)
+			.setDescription(description)
+			.setColor("#010101")
+			.setImage("attachment://shardinfo.png")
+			.setTimestamp();
 
-				guildStats.totalMembers += memberCount;
-			});
-
-			let msg = `**Shard Information (Advanced)**
-Process PID: ${process.pid}
-Server on this shard: ${client.inShard(message.guildId) ? "✅ Yes" : "❌ No"}
-Shard count: ${client.shard?.count}
-Shard IDs: ${client.shard?.ids}
-
-**Guild Statistics**
-Total guilds: ${guildStats.total}
-├─ Available: ${guildStats.available}
-├─ Unavailable: ${guildStats.unavailable}
-├─ With exact member count: ${guildStats.withMemberCount}
-├─ Using approximate count: ${guildStats.withApproximateOnly}
-└─ No member data: ${guildStats.withNoMemberData}
-
-**Member Count**
-Total members: ${guildStats.totalMembers.toLocaleString()}`;
-
-			// Add details for problematic cases
-			if (guildStats.categorizedGuilds.unavailable.length > 0) {
-				msg += `\n\n**Unavailable Guilds (first 3):**`;
-				guildStats.categorizedGuilds.unavailable
-					.slice(0, 3)
-					.forEach((guild) => {
-						msg += `\n- ${guild.name} (${guild.id})`;
-					});
-			}
-
-			if (guildStats.categorizedGuilds.usingApproximate.length > 0) {
-				msg += `\n\n**Using Approximate Count (first 3):**`;
-				guildStats.categorizedGuilds.usingApproximate
-					.slice(0, 3)
-					.forEach((guild) => {
-						msg += `\n- ${guild.name}: exact=${guild.memberCount}, approx=${guild.approximateMemberCount}`;
-					});
-			}
-
-			if (guildStats.categorizedGuilds.noMemberData.length > 0) {
-				msg += `\n\n**No Member Data (first 3):**`;
-				guildStats.categorizedGuilds.noMemberData
-					.slice(0, 3)
-					.forEach((guild) => {
-						msg += `\n- ${guild.name} (available: ${guild.available})`;
-					});
-			}
-
-			const embed = new EmbedBuilder()
-				.setTitle("Advanced Shard Information")
-				.setDescription(msg)
-				.setColor("#010101")
-				.setTimestamp();
-
-			message.reply({ embeds: [embed] });
-		} else return;
+		await message.reply({
+			embeds: [embed],
+			files: [new AttachmentBuilder(card, { name: "shardinfo.png" })]
+		});
 	}
 };
