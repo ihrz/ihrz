@@ -180,6 +180,7 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 ---
 
 ## 🛠️ Fixes & improvements
+- Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
 - Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.
 

@@ -180,6 +180,7 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 ---
 
 ## 🛠️ Corrections & améliorations
+- Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
 - Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.
 

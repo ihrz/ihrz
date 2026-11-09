@@ -63,11 +63,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const economy = (await client.db.get(
-			`${interaction.guildId}.ECONOMY`
-		)) as DatabaseStructure.EconomyModel;
 		const buyableRolesArray = Object.entries(
-			economy?.buyableRoles || {}
+			await client.func.economyHelper.pruneBuyableRoles(interaction.guild)
 		).map(([roleId, details]) => ({
 			roleId,
 			...details

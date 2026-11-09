@@ -28,7 +28,6 @@ import {
 	Role
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -52,12 +51,9 @@ export const subCommand: SubCommand = {
 		const role = opts.role("role", 0) as Role;
 		const amount = opts.number("amount", 1)!;
 
-		let roleData = (await client.db.get(
-			`${interaction.guildId}.ECONOMY.buyableRoles`
-		)) as DatabaseStructure.EconomyModel["buyableRoles"];
-		if (!roleData) {
-			roleData = {};
-		}
+		const roleData = await client.func.economyHelper.pruneBuyableRoles(
+			interaction.guild
+		);
 
 		// check if the roles has dangerous permissions
 		const rolePermissions = new PermissionsBitField(role.permissions);

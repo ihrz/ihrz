@@ -245,6 +245,9 @@ declare namespace Client_Functions {
 			inline: boolean;
 		}>;
 		export function getMemberBoost(member: GuildMember): Promise<number>;
+		export function pruneBuyableRoles(
+			guild: Guild
+		): Promise<Record<string, DatabaseStructure.EconomyRole>>;
 	}
 
 	// From economyLogs.ts

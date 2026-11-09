@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { GuildMember } from "discord.js";
+import { Guild, GuildMember } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure";
 import { LanguageData } from "../../../types/languageData";
 
@@ -44,6 +44,33 @@ export async function getMemberBoost(member: GuildMember): Promise<number> {
 	} catch {
 		return 1;
 	}
+}
+
+export async function pruneBuyableRoles(
+	guild: Guild
+): Promise<Record<string, DatabaseStructure.EconomyRole>> {
+	const key = `${guild.id}.ECONOMY.buyableRoles`;
+	const roleData = ((await guild.client.db.get(key)) || {}) as Record<
+		string,
+		DatabaseStructure.EconomyRole
+	>;
+
+	if (Object.keys(roleData).every((id) => guild.roles.cache.has(id))) {
+		return roleData;
+	}
+
+	// the cache can be incomplete: only trust a successful full fetch
+	const roles = await guild.roles.fetch().catch(() => null);
+	if (!roles) return roleData;
+
+	for (const roleId of Object.keys(roleData)) {
+		if (roles.has(roleId)) continue;
+
+		await guild.client.db.delete(`${key}.${roleId}`);
+		delete roleData[roleId];
+	}
+
+	return roleData;
 }
 
 export function generateRoleFields(

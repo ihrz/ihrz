@@ -28,7 +28,6 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
@@ -63,12 +62,9 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0) as Role;
 
-		let roleData = (await client.db.get(
-			`${interaction.guildId}.ECONOMY.buyableRoles`
-		)) as DatabaseStructure.EconomyModel["buyableRoles"];
-		if (!roleData) {
-			roleData = {};
-		}
+		const roleData = await client.func.economyHelper.pruneBuyableRoles(
+			interaction.guild
+		);
 
 		if (Object.keys(roleData).length === 0) {
 			await client.func.method.interactionSend(interaction, {
