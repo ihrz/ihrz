@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder
-} from "discord.js";
+import { ChatInputCommandInteraction, Client } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import {
+	canManageSuggestions,
+	suggestionOutcomeText,
+	updateSuggestion
+} from "../../../../core/modules/suggestionManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -47,105 +47,47 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const id = interaction.options.getString("id");
-		const message = interaction.options.getString("reason");
+		const id = interaction.options.getString("id", true).replace(/^#/, "");
+		const reason = interaction.options.getString("reason", true);
+		const baseData = (await client.db.get(
+			`${interaction.guildId}.SUGGEST`
+		)) as DatabaseStructure.SuggestSchema | null;
 
-		const baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
-		const fetchId = (await client.db.get(
-			`${interaction.guildId}.SUGGESTION.${id}`
-		)) as DatabaseStructure.Suggestion | undefined;
+		if (!canManageSuggestions(interaction.member, baseData)) {
+			await interaction.editReply({ content: lang.suggest_not_staff });
+			return;
+		}
 
 		if (
 			!baseData ||
-			baseData?.channel !== interaction.channel?.id ||
-			baseData?.disable === true
+			baseData.channel !== interaction.channel.id ||
+			baseData.disable === true
 		) {
 			await interaction.editReply({
 				content: lang.suggest_acceptnot_good_channel.replace(
 					"${channel}",
-					baseData?.channel
-				),
-				flags: [1 << 6]
-			});
-
-			return;
-		}
-
-		if (!fetchId) {
-			await interaction.editReply({
-				content: lang.suggest_accept_not_found_db,
-				flags: [1 << 6]
-			});
-			return;
-		} else if (fetchId?.replied) {
-			await interaction.editReply({
-				content: lang.suggest_accept_already_replied,
-				flags: [1 << 6]
+					baseData?.channel ?? ""
+				)
 			});
 			return;
 		}
 
-		const channel = interaction.guild.channels.cache.get(baseData?.channel);
+		const result = await updateSuggestion(
+			client,
+			interaction.guild,
+			id,
+			{ status: "accepted", reason, moderator: interaction.user },
+			lang
+		);
 
-		await (channel as BaseGuildTextChannel).messages
-			.fetch(fetchId?.msgId)
-			.then(async (msg) => {
-				const embed = new EmbedBuilder(msg.embeds[0].data);
-
-				embed.addFields({
-					name: lang.suggest_accept_embed_fields_to_put.replace(
-						"${authorUsername}",
-						interaction.user.globalName as string
-					),
-					value: message as string
-				});
-
-				embed.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				);
-				embed.setColor("#21744c");
-				embed.setTitle(
-					lang.suggest_acceptembed_title_to_put.replace(
-						"${title}",
-						msg.embeds[0].data?.title as string
-					)
-				);
-
-				await msg.edit({
-					embeds: [embed],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
-				});
-				await client.db.set(
-					`${interaction.guildId}.SUGGESTION.${id}.replied`,
-					true
-				);
-
-				await interaction.editReply({
-					content: lang.suggest_accept_command_work
-						.replace("${guildId}", interaction.guildId as string)
-						.replace(
-							"${channelId}",
-							interaction.channel?.id as string
-						)
-						.replace("${messageId}", fetchId?.msgId),
-					flags: [1 << 6]
-				});
-
-				msg.thread?.setLocked(true);
-				return;
-			})
-			.catch(async () => {
-				await interaction.editReply({
-					content: lang.suggest_accept_command_error,
-					flags: [1 << 6]
-				});
-				return;
-			});
+		await interaction.editReply({
+			content: suggestionOutcomeText(
+				lang,
+				interaction.guildId,
+				interaction.channel.id,
+				"accept",
+				result
+			)
+		});
 	}
 };

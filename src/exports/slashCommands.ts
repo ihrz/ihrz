@@ -76,15 +76,18 @@ import * as m50 from "../Interaction/SlashCommands/notifier/notifier.ts";
 import * as m51 from "../Interaction/SlashCommands/suggestion/init.json" with { type: "json" };
 import * as m52 from "../Interaction/SlashCommands/suggestion/setsuggest/!channel.ts";
 import * as m53 from "../Interaction/SlashCommands/suggestion/setsuggest/!config.ts";
-import * as m54 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
-import * as m55 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
-import * as m56 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
-import * as m57 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
-import * as m58 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
-import * as m59 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
-import * as m60 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
-import * as m61 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
-import * as m62 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
+import * as m54 from "../Interaction/SlashCommands/suggestion/setsuggest/!staff-role.ts";
+import * as m55 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
+import * as m56 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
+import * as m57 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
+import * as m58 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
+import * as m59 from "../Interaction/SlashCommands/suggestion/suggest/!list.ts";
+import * as m60 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
+import * as m61 from "../Interaction/SlashCommands/suggestion/suggest/!status.ts";
+import * as m62 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
+import * as m63 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
+import * as m64 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
+import * as m65 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
 
 const files: Record<string, any> = {
 	"authrestore/!delete.ts": m0,
@@ -141,15 +144,18 @@ const files: Record<string, any> = {
 	"suggestion/init.json": m51,
 	"suggestion/setsuggest/!channel.ts": m52,
 	"suggestion/setsuggest/!config.ts": m53,
-	"suggestion/setsuggest/setsuggest.ts": m54,
-	"suggestion/suggest/!accept.ts": m55,
-	"suggestion/suggest/!delete.ts": m56,
-	"suggestion/suggest/!deny.ts": m57,
-	"suggestion/suggest/!reply.ts": m58,
-	"suggestion/suggest/suggest.ts": m59,
-	"voicedashboard/!tempvoice.ts": m60,
-	"voicedashboard/init.json": m61,
-	"voicedashboard/voicedashboard.ts": m62
+	"suggestion/setsuggest/!staff-role.ts": m54,
+	"suggestion/setsuggest/setsuggest.ts": m55,
+	"suggestion/suggest/!accept.ts": m56,
+	"suggestion/suggest/!delete.ts": m57,
+	"suggestion/suggest/!deny.ts": m58,
+	"suggestion/suggest/!list.ts": m59,
+	"suggestion/suggest/!reply.ts": m60,
+	"suggestion/suggest/!status.ts": m61,
+	"suggestion/suggest/suggest.ts": m62,
+	"voicedashboard/!tempvoice.ts": m63,
+	"voicedashboard/init.json": m64,
+	"voicedashboard/voicedashboard.ts": m65
 };
 
 export default files;

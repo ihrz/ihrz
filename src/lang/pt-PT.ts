@@ -3094,7 +3094,6 @@ export default {
 	suggest_accept_already_replied: "Esta sugestão já foi respondida!",
 	suggest_accept_embed_fields_to_put:
 		"Resposta de ${authorUsername} (Aceitando)",
-	suggest_acceptembed_title_to_put: "[Aceitando] ${title}",
 	suggest_accept_command_work:
 		"Você aceitou a sugestão!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3108,7 +3107,6 @@ export default {
 		"A sugestão não foi encontrada no meu banco de dados!",
 	suggest_deny_already_replied: "Esta sugestão já foi respondida!",
 	suggest_deny_embed_fields_to_put: "Resposta de ${authorUsername} (Negando)",
-	suggest_deny_embed_title_to_put: "[Negando] ${title}",
 	suggest_deny_command_work:
 		"Você negou a sugestão!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3122,7 +3120,6 @@ export default {
 		"A sugestão não foi encontrada no meu banco de dados!",
 	suggest_reply_already_replied: "Esta sugestão já foi respondida!",
 	suggest_reply_embed_fields_to_put: "Resposta de ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Respondido] ${title}",
 	suggest_reply_command_work:
 		"Você enviou uma resposta para a sugestão!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3137,6 +3134,48 @@ export default {
 	suggest_delete_command_work: "Você deletou a sugestão!",
 	suggest_delete_command_error:
 		"A sugestão não foi encontrada no canal do Discord!",
+
+	// /suggest status
+	suggest_not_staff:
+		"Não tens permissão para gerir as sugestões.",
+	suggest_status_pending:
+		"Pendente",
+	suggest_status_reviewing:
+		"Em análise",
+	suggest_status_accepted:
+		"Aceite",
+	suggest_status_planned:
+		"Planeada",
+	suggest_status_implemented:
+		"Implementada",
+	suggest_status_denied:
+		"Recusada",
+	suggest_notify_status:
+		"<@${authorId}>, a tua sugestão está agora **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, o staff respondeu à tua sugestão.",
+	suggest_button_reply:
+		"Responder",
+	suggest_modal_title:
+		"Responder à sugestão",
+	suggest_modal_label:
+		"A tua mensagem",
+	suggest_status_command_work:
+		"A sugestão está agora **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Sugestões",
+	suggest_list_empty:
+		"Nenhuma sugestão para mostrar.",
+	suggest_list_footer:
+		"${shownCount} de ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, o cargo de staff das sugestões é agora ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, o cargo de staff das sugestões foi removido.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "Você não é administrador!",

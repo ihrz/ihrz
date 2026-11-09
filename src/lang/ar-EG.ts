@@ -2907,7 +2907,6 @@ export default {
 	suggest_accept_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!",
 	suggest_accept_already_replied: "تم الرد على هذا الاقتراح بالفعل!",
 	suggest_accept_embed_fields_to_put: "رد من ${authorUsername} (قبول)",
-	suggest_acceptembed_title_to_put: "[قبول] ${title}",
 	suggest_accept_command_work:
 		"لقد قمت بقبول الاقتراح!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error: "لم يتم العثور على الاقتراح في قناة Discord!",
@@ -2919,7 +2918,6 @@ export default {
 	suggest_deny_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!",
 	suggest_deny_already_replied: "تم الرد على هذا الاقتراح بالفعل!",
 	suggest_deny_embed_fields_to_put: "رد من ${authorUsername} (رفض)",
-	suggest_deny_embed_title_to_put: "[رفض] ${title}",
 	suggest_deny_command_work:
 		"لقد قمت برفض الاقتراح!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error: "لم يتم العثور على الاقتراح في قناة Discord!",
@@ -2931,7 +2929,6 @@ export default {
 	suggest_replynot_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!",
 	suggest_reply_already_replied: "تم الرد على هذا الاقتراح بالفعل!",
 	suggest_reply_embed_fields_to_put: "رد من ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[تم الرد] ${title}",
 	suggest_reply_command_work:
 		"لقد قمت بإرسال رد على الاقتراح!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error: "لم يتم العثور على الاقتراح في قناة Discord!",
@@ -2943,6 +2940,48 @@ export default {
 	suggest_delete_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!",
 	suggest_delete_command_work: "لقد قمت بحذف الاقتراح!",
 	suggest_delete_command_error: "لم يتم العثور على الاقتراح في قناة Discord!",
+
+	// /suggest status
+	suggest_not_staff:
+		"ليس لديك إذن لإدارة الاقتراحات.",
+	suggest_status_pending:
+		"قيد الانتظار",
+	suggest_status_reviewing:
+		"قيد المراجعة",
+	suggest_status_accepted:
+		"مقبول",
+	suggest_status_planned:
+		"مخطط له",
+	suggest_status_implemented:
+		"تم التنفيذ",
+	suggest_status_denied:
+		"مرفوض",
+	suggest_notify_status:
+		"<@${authorId}>، حالة اقتراحك الآن: **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>، رد فريق الإدارة على اقتراحك.",
+	suggest_button_reply:
+		"رد",
+	suggest_modal_title:
+		"الرد على الاقتراح",
+	suggest_modal_label:
+		"رسالتك",
+	suggest_status_command_work:
+		"حالة الاقتراح الآن: **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"الاقتراحات",
+	suggest_list_empty:
+		"لا توجد اقتراحات لعرضها.",
+	suggest_list_footer:
+		"${shownCount} من ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}، رتبة فريق الاقتراحات الآن هي ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}، تمت إزالة رتبة فريق الاقتراحات.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "أنت لست مشرفاً!",

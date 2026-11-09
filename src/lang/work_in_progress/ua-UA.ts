@@ -1413,7 +1413,6 @@ export default {
 	suggest_accept_already_replied: "На цю пропозицію вже було дано відповідь!",
 	suggest_accept_embed_fields_to_put:
 		"Відповідь від ${authorUsername} (Прийнято)",
-	suggest_acceptembed_title_to_put: "[Прийнято] ${title}",
 	suggest_accept_command_work:
 		"Ви прийняли пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error: "Пропозиція не знайдена на Discord-каналі!",
@@ -1426,7 +1425,6 @@ export default {
 	suggest_deny_already_replied: "На цю пропозицію вже було дано відповідь!",
 	suggest_deny_embed_fields_to_put:
 		"Відповідь від ${authorUsername} (Відхилено)",
-	suggest_deny_embed_title_to_put: "[Відхилено] ${title}",
 	suggest_deny_command_work:
 		"Ви відхилили пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error: "Пропозиція не знайдена на Discord-каналі!",
@@ -1438,7 +1436,6 @@ export default {
 	suggest_replynot_found_db: "Пропозиція не знайдена у моїй базі даних!",
 	suggest_reply_already_replied: "На цю пропозицію вже було дано відповідь!",
 	suggest_reply_embed_fields_to_put: "Відповідь від ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Відповідь] ${title}",
 	suggest_reply_command_work:
 		"Ви відправили відповідь на пропозицію!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error: "Пропозиція не знайдена на Discord-каналі!",

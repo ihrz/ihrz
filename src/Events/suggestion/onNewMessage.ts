@@ -24,6 +24,7 @@ import { generatePassword } from "../../core/functions/random.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
+import { suggestionComponents } from "../../core/modules/suggestionManager.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -90,7 +91,10 @@ export const event: BotEvent = {
 			await client.func.displayBotName.footerAttachmentBuilder(message);
 		const suggestionBody = {
 			content: message.author.toString(),
-			embeds: [suggestionEmbed]
+			embeds: [suggestionEmbed],
+			components: suggestionComponents(data, suggestCode, {
+				status: "pending"
+			})
 		};
 
 		// Attachments are re-uploaded, so the original must outlive the send.
@@ -124,13 +128,12 @@ export const event: BotEvent = {
 				x.edit({ invitable: true, locked: false, archived: false })
 			);
 
-		await msg.react(client.iHorizon_Emojis.Yes);
-		await msg.react(client.iHorizon_Emojis.No);
-
 		await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`, {
 			author: message.author.id,
 			msgId: msg.id,
-			threadId: thread.id
+			threadId: thread.id,
+			status: "pending",
+			timestamp: Date.now()
 		});
 
 		return;

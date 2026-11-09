@@ -106,16 +106,28 @@ export namespace DatabaseStructure {
 	export interface SuggestSchema {
 		channel: string;
 		disable?: boolean;
+		staffRole?: string | null;
 	}
+
+	export type SuggestionStatus =
+		| "pending"
+		| "reviewing"
+		| "accepted"
+		| "planned"
+		| "implemented"
+		| "denied";
 
 	export interface Suggestion {
 		author: string;
 		msgId: string;
 		replied?: boolean;
 		threadId: string;
+		status?: SuggestionStatus;
+		votes?: Record<string, "up" | "down">;
+		timestamp?: number;
 	}
 
-	export type SuggestionData = Suggestion[];
+	export type SuggestionData = Record<string, Suggestion>;
 
 	export interface VoiceData {
 		staff_role?: string[];

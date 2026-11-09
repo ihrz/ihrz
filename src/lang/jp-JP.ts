@@ -3060,7 +3060,6 @@ export default {
 	suggest_accept_not_found_db: "提案はデータベースで見つかりませんでした！",
 	suggest_accept_already_replied: "この提案はすでに回答されています！",
 	suggest_accept_embed_fields_to_put: "${authorUsername} の応答（承諾）",
-	suggest_acceptembed_title_to_put: "[承諾] ${title}",
 	suggest_accept_command_work:
 		"提案を受け入れました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3073,7 +3072,6 @@ export default {
 	suggest_deny_not_found_db: "提案はデータベースで見つかりませんでした！",
 	suggest_deny_already_replied: "この提案はすでに回答されています！",
 	suggest_deny_embed_fields_to_put: "${authorUsername} の応答（拒否）",
-	suggest_deny_embed_title_to_put: "[拒否] ${title}",
 	suggest_deny_command_work:
 		"提案を拒否しました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3086,7 +3084,6 @@ export default {
 	suggest_replynot_found_db: "提案はデータベースで見つかりませんでした！",
 	suggest_reply_already_replied: "この提案はすでに回答されています！",
 	suggest_reply_embed_fields_to_put: "${authorUsername} の応答",
-	suggest_reply_embed_title_to_put: "[回答済み] ${title}",
 	suggest_reply_command_work:
 		"提案に対する応答を送信しました！\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3100,6 +3097,48 @@ export default {
 	suggest_delete_command_work: "提案を削除しました！",
 	suggest_delete_command_error:
 		"提案はDiscordのチャンネルで見つかりませんでした！",
+
+	// /suggest status
+	suggest_not_staff:
+		"提案を管理する権限がありません。",
+	suggest_status_pending:
+		"保留中",
+	suggest_status_reviewing:
+		"検討中",
+	suggest_status_accepted:
+		"承認済み",
+	suggest_status_planned:
+		"計画済み",
+	suggest_status_implemented:
+		"実装済み",
+	suggest_status_denied:
+		"却下",
+	suggest_notify_status:
+		"<@${authorId}>、あなたの提案のステータス: **${status}**",
+	suggest_notify_reply:
+		"<@${authorId}>、スタッフがあなたの提案に返信しました。",
+	suggest_button_reply:
+		"返信",
+	suggest_modal_title:
+		"提案に返信",
+	suggest_modal_label:
+		"メッセージ",
+	suggest_status_command_work:
+		"提案のステータス: **${status}**\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"提案",
+	suggest_list_empty:
+		"表示する提案はありません。",
+	suggest_list_footer:
+		"${totalCount} 件中 ${shownCount} 件",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}、提案のスタッフロールを ${role} に設定しました。",
+	setsuggest_staff_role_removed:
+		"${author}、提案のスタッフロールを解除しました。",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "あなたは管理者ではありません！",

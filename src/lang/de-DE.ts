@@ -3152,7 +3152,6 @@ export default {
 		"Dieser Vorschlag wurde bereits beantwortet!",
 	suggest_accept_embed_fields_to_put:
 		"Antwort von ${authorUsername} (Akzeptieren)",
-	suggest_acceptembed_title_to_put: "[Akzeptieren] ${title}",
 	suggest_accept_command_work:
 		"Sie haben den Vorschlag akzeptiert!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3167,7 +3166,6 @@ export default {
 	suggest_deny_already_replied: "Dieser Vorschlag wurde bereits beantwortet!",
 	suggest_deny_embed_fields_to_put:
 		"Antwort von ${authorUsername} (Abweisen)",
-	suggest_deny_embed_title_to_put: "[Abweisen] ${title}",
 	suggest_deny_command_work:
 		"Sie haben den Vorschlag abgelehnt!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3182,7 +3180,6 @@ export default {
 	suggest_reply_already_replied:
 		"Dieser Vorschlag wurde bereits beantwortet!",
 	suggest_reply_embed_fields_to_put: "Antwort von ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Beantwortet] ${title}",
 	suggest_reply_command_work:
 		"Sie haben eine Antwort auf den Vorschlag gesendet!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3199,6 +3196,48 @@ export default {
 		"Der Vorschlag wurde nicht im Discord-Kanal gefunden!",
 
 	// /setsuggest deaktivieren
+	// /suggest status
+	suggest_not_staff:
+		"Du darfst keine Vorschläge verwalten.",
+	suggest_status_pending:
+		"Ausstehend",
+	suggest_status_reviewing:
+		"In Prüfung",
+	suggest_status_accepted:
+		"Angenommen",
+	suggest_status_planned:
+		"Geplant",
+	suggest_status_implemented:
+		"Umgesetzt",
+	suggest_status_denied:
+		"Abgelehnt",
+	suggest_notify_status:
+		"<@${authorId}>, dein Vorschlag ist jetzt **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, das Team hat auf deinen Vorschlag geantwortet.",
+	suggest_button_reply:
+		"Antworten",
+	suggest_modal_title:
+		"Auf den Vorschlag antworten",
+	suggest_modal_label:
+		"Deine Nachricht",
+	suggest_status_command_work:
+		"Der Vorschlag ist jetzt **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Vorschläge",
+	suggest_list_empty:
+		"Keine Vorschläge vorhanden.",
+	suggest_list_footer:
+		"${shownCount} von ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, die Team-Rolle für Vorschläge ist jetzt ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, die Team-Rolle für Vorschläge wurde entfernt.",
+
 	setsuggest_disable_not_admin: "Sie sind kein Administrator!",
 	setsuggest_disable_pw_on:
 		"${author}, Sie haben das Vorschlagsmodul aktiviert!",

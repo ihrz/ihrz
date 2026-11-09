@@ -3115,7 +3115,6 @@ export default {
 		"Questo suggerimento ha già ricevuto una risposta!",
 	suggest_accept_embed_fields_to_put:
 		"Risposta di ${authorUsername} (Accettazione)",
-	suggest_acceptembed_title_to_put: "[Accettazione] ${title}",
 	suggest_accept_command_work:
 		"Hai accettato il suggerimento !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3130,7 +3129,6 @@ export default {
 	suggest_deny_already_replied:
 		"Questo suggerimento ha già ricevuto una risposta!",
 	suggest_deny_embed_fields_to_put: "Risposta di ${authorUsername} (Rifiuto)",
-	suggest_deny_embed_title_to_put: "[Rifiuto] ${title}",
 	suggest_deny_command_work:
 		"Hai rifiutato il suggerimento !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3145,7 +3143,6 @@ export default {
 	suggest_reply_already_replied:
 		"Questo suggerimento ha già ricevuto una risposta!",
 	suggest_reply_embed_fields_to_put: "Risposta di ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Risposta] ${title}",
 	suggest_reply_command_work:
 		"Hai inviato una risposta al suggerimento !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3162,6 +3159,48 @@ export default {
 		"Il suggerimento non è stato trovato nel canale Discord!",
 
 	// /impostasuggerimento disattiva
+	// /suggest status
+	suggest_not_staff:
+		"Non hai il permesso di gestire i suggerimenti.",
+	suggest_status_pending:
+		"In attesa",
+	suggest_status_reviewing:
+		"In revisione",
+	suggest_status_accepted:
+		"Accettato",
+	suggest_status_planned:
+		"Pianificato",
+	suggest_status_implemented:
+		"Implementato",
+	suggest_status_denied:
+		"Rifiutato",
+	suggest_notify_status:
+		"<@${authorId}>, il tuo suggerimento ora è **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, lo staff ha risposto al tuo suggerimento.",
+	suggest_button_reply:
+		"Rispondi",
+	suggest_modal_title:
+		"Rispondi al suggerimento",
+	suggest_modal_label:
+		"Il tuo messaggio",
+	suggest_status_command_work:
+		"Il suggerimento ora è **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Suggerimenti",
+	suggest_list_empty:
+		"Nessun suggerimento da mostrare.",
+	suggest_list_footer:
+		"${shownCount} di ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, il ruolo staff dei suggerimenti ora è ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, il ruolo staff dei suggerimenti è stato rimosso.",
+
 	setsuggest_disable_not_admin: "Non sei un amministratore!",
 	setsuggest_disable_pw_on: "${author}, hai attivato il modulo suggerimenti!",
 	setsuggest_disable_pw_off:

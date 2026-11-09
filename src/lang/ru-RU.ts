@@ -3065,7 +3065,6 @@ export default {
 	suggest_accept_not_found_db: "Предложение не найдено в моей базе данных!",
 	suggest_accept_already_replied: "На это предложение уже был ответ!",
 	suggest_accept_embed_fields_to_put: "Ответ от ${authorUsername} (Принято)",
-	suggest_acceptembed_title_to_put: "[Принято] ${title}",
 	suggest_accept_command_work:
 		"Вы приняли предложение!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error: "Предложение не найдено в канале Discord!",
@@ -3077,7 +3076,6 @@ export default {
 	suggest_deny_not_found_db: "Предложение не найдено в моей базе данных!",
 	suggest_deny_already_replied: "На это предложение уже был ответ!",
 	suggest_deny_embed_fields_to_put: "Ответ от ${authorUsername} (Отклонено)",
-	suggest_deny_embed_title_to_put: "[Отклонено] ${title}",
 	suggest_deny_command_work:
 		"Вы отклонили предложение!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error: "Предложение не найдено в канале Discord!",
@@ -3089,7 +3087,6 @@ export default {
 	suggest_replynot_found_db: "Предложение не найдено в моей базе данных!",
 	suggest_reply_already_replied: "На это предложение уже был ответ!",
 	suggest_reply_embed_fields_to_put: "Ответ от ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Ответ] ${title}",
 	suggest_reply_command_work:
 		"Вы отправили ответ на предложение!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error: "Предложение не найдено в канале Discord!",
@@ -3101,6 +3098,48 @@ export default {
 	suggest_delete_not_found_db: "Предложение не найдено в моей базе данных!",
 	suggest_delete_command_work: "Вы удалили предложение!",
 	suggest_delete_command_error: "Предложение не найдено в канале Discord!",
+
+	// /suggest status
+	suggest_not_staff:
+		"У вас нет прав на управление предложениями.",
+	suggest_status_pending:
+		"Ожидает",
+	suggest_status_reviewing:
+		"На рассмотрении",
+	suggest_status_accepted:
+		"Принято",
+	suggest_status_planned:
+		"Запланировано",
+	suggest_status_implemented:
+		"Реализовано",
+	suggest_status_denied:
+		"Отклонено",
+	suggest_notify_status:
+		"<@${authorId}>, статус вашего предложения: **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, персонал ответил на ваше предложение.",
+	suggest_button_reply:
+		"Ответить",
+	suggest_modal_title:
+		"Ответить на предложение",
+	suggest_modal_label:
+		"Ваше сообщение",
+	suggest_status_command_work:
+		"Статус предложения: **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Предложения",
+	suggest_list_empty:
+		"Нет предложений для показа.",
+	suggest_list_footer:
+		"${shownCount} из ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, роль персонала для предложений теперь ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, роль персонала для предложений убрана.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "Вы не администратор!",

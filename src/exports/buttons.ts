@@ -28,20 +28,22 @@ import * as m2 from "../Interaction/Components/Buttons/confessionres.ts";
 import * as m3 from "../Interaction/Components/Buttons/new-confession-button.ts";
 import * as m4 from "../Interaction/Components/Buttons/newsletter-toggle.ts";
 import * as m5 from "../Interaction/Components/Buttons/open-new-ticket.ts";
-import * as m6 from "../Interaction/Components/Buttons/t-embed-delete-ticket.ts";
-import * as m7 from "../Interaction/Components/Buttons/t-embed-transcript-ticket.ts";
-import * as m8 from "../Interaction/Components/Buttons/temporary_voice_block_button.ts";
-import * as m9 from "../Interaction/Components/Buttons/temporary_voice_claim_button.ts";
-import * as m10 from "../Interaction/Components/Buttons/temporary_voice_delete_button.ts";
-import * as m11 from "../Interaction/Components/Buttons/temporary_voice_limit_button.ts";
-import * as m12 from "../Interaction/Components/Buttons/temporary_voice_name_button.ts";
-import * as m13 from "../Interaction/Components/Buttons/temporary_voice_privacy_button.ts";
-import * as m14 from "../Interaction/Components/Buttons/temporary_voice_region_button.ts";
-import * as m15 from "../Interaction/Components/Buttons/temporary_voice_transfer_button.ts";
-import * as m16 from "../Interaction/Components/Buttons/temporary_voice_trust_button.ts";
-import * as m17 from "../Interaction/Components/Buttons/temporary_voice_unblock_button.ts";
-import * as m18 from "../Interaction/Components/Buttons/temporary_voice_untrust_button.ts";
-import * as m19 from "../Interaction/Components/Buttons/ticket-open-button-v2.ts";
+import * as m6 from "../Interaction/Components/Buttons/suggestion-action.ts";
+import * as m7 from "../Interaction/Components/Buttons/suggestion-vote.ts";
+import * as m8 from "../Interaction/Components/Buttons/t-embed-delete-ticket.ts";
+import * as m9 from "../Interaction/Components/Buttons/t-embed-transcript-ticket.ts";
+import * as m10 from "../Interaction/Components/Buttons/temporary_voice_block_button.ts";
+import * as m11 from "../Interaction/Components/Buttons/temporary_voice_claim_button.ts";
+import * as m12 from "../Interaction/Components/Buttons/temporary_voice_delete_button.ts";
+import * as m13 from "../Interaction/Components/Buttons/temporary_voice_limit_button.ts";
+import * as m14 from "../Interaction/Components/Buttons/temporary_voice_name_button.ts";
+import * as m15 from "../Interaction/Components/Buttons/temporary_voice_privacy_button.ts";
+import * as m16 from "../Interaction/Components/Buttons/temporary_voice_region_button.ts";
+import * as m17 from "../Interaction/Components/Buttons/temporary_voice_transfer_button.ts";
+import * as m18 from "../Interaction/Components/Buttons/temporary_voice_trust_button.ts";
+import * as m19 from "../Interaction/Components/Buttons/temporary_voice_unblock_button.ts";
+import * as m20 from "../Interaction/Components/Buttons/temporary_voice_untrust_button.ts";
+import * as m21 from "../Interaction/Components/Buttons/ticket-open-button-v2.ts";
 
 const files: Record<string, any> = {
 	"button_reaction.ts": m0,
@@ -50,20 +52,22 @@ const files: Record<string, any> = {
 	"new-confession-button.ts": m3,
 	"newsletter-toggle.ts": m4,
 	"open-new-ticket.ts": m5,
-	"t-embed-delete-ticket.ts": m6,
-	"t-embed-transcript-ticket.ts": m7,
-	"temporary_voice_block_button.ts": m8,
-	"temporary_voice_claim_button.ts": m9,
-	"temporary_voice_delete_button.ts": m10,
-	"temporary_voice_limit_button.ts": m11,
-	"temporary_voice_name_button.ts": m12,
-	"temporary_voice_privacy_button.ts": m13,
-	"temporary_voice_region_button.ts": m14,
-	"temporary_voice_transfer_button.ts": m15,
-	"temporary_voice_trust_button.ts": m16,
-	"temporary_voice_unblock_button.ts": m17,
-	"temporary_voice_untrust_button.ts": m18,
-	"ticket-open-button-v2.ts": m19
+	"suggestion-action.ts": m6,
+	"suggestion-vote.ts": m7,
+	"t-embed-delete-ticket.ts": m8,
+	"t-embed-transcript-ticket.ts": m9,
+	"temporary_voice_block_button.ts": m10,
+	"temporary_voice_claim_button.ts": m11,
+	"temporary_voice_delete_button.ts": m12,
+	"temporary_voice_limit_button.ts": m13,
+	"temporary_voice_name_button.ts": m14,
+	"temporary_voice_privacy_button.ts": m15,
+	"temporary_voice_region_button.ts": m16,
+	"temporary_voice_transfer_button.ts": m17,
+	"temporary_voice_trust_button.ts": m18,
+	"temporary_voice_unblock_button.ts": m19,
+	"temporary_voice_untrust_button.ts": m20,
+	"ticket-open-button-v2.ts": m21
 };
 
 export default files;

@@ -167,6 +167,18 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 
 ---
 
+## 💡 Suggestions — a real workflow
+
+- Suggestions now have a status: pending, under review, accepted, planned, implemented or denied, with **`/suggest status`** to change it
+- Accept, deny and reply straight from buttons on the suggestion
+- One vote per member with live counters, and clicking your vote again removes it
+- **`/setsuggest staff-role`** lets a role manage suggestions without being administrator
+- The author is pinged in the thread when their suggestion changes or gets a reply
+- **`/suggest list`** shows the most popular suggestions, filterable by status
+- Replying no longer closes a suggestion: only denied and implemented ones are final
+
+---
+
 ## 🛠️ Fixes & improvements
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
 - Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.

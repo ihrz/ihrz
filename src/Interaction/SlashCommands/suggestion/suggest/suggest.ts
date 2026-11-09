@@ -21,8 +21,7 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	PermissionFlagsBits
+	ApplicationCommandType
 } from "discord.js";
 
 import { Command } from "../../../../../types/command.js";
@@ -49,13 +48,12 @@ export const command: Command = {
 			},
 			prefixName: "sug-reply",
 
-			description: "Reply to the suggestion (need admin permission)!",
+			description: "Reply to the suggestion!",
 			description_localizations: {
-				fr: "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)",
-				ja: "提案に返信（管理者権限が必要）！",
-				ru: "Ответить на предложение (требуются права администратора)!",
-				"es-ES":
-					"Responder a la sugerencia (requiere permiso de administrador)!"
+				fr: "Répondre à la suggestion",
+				ja: "提案に返信！",
+				ru: "Ответить на предложение!",
+				"es-ES": "Responder a la sugerencia!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -95,7 +93,7 @@ export const command: Command = {
 			],
 
 			ephemeral: true,
-			permission: PermissionFlagsBits.Administrator
+			permission: null
 		},
 		{
 			name: "deny",
@@ -107,13 +105,12 @@ export const command: Command = {
 			},
 			prefixName: "sug-deny",
 
-			description: "Deny an suggestion (need admin permission)!",
+			description: "Deny an suggestion!",
 			description_localizations: {
 				fr: "Refuser une suggestion (Requière les permission Admin)",
-				ja: "提案を拒否（管理者権限が必要）！",
-				ru: "Отклонить предложение (требуются права администратора)!",
-				"es-ES":
-					"Denegar una sugerencia (requiere permiso de administrador)!"
+				ja: "提案を拒否！",
+				ru: "Отклонить предложение!",
+				"es-ES": "Denegar una sugerencia!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -160,7 +157,7 @@ export const command: Command = {
 			],
 
 			ephemeral: true,
-			permission: PermissionFlagsBits.Administrator
+			permission: null
 		},
 		{
 			name: "accept",
@@ -172,13 +169,12 @@ export const command: Command = {
 			},
 			prefixName: "sug-accept",
 
-			description: "Accept an suggestion (need admin permission)!",
+			description: "Accept an suggestion!",
 			description_localizations: {
 				fr: "Accepter une suggestion (Requiert permissions Admin)",
-				ja: "提案を承認（管理者権限が必要）！",
-				ru: "Принять предложение (требуются права администратора)!",
-				"es-ES":
-					"Aceptar una sugerencia (requiere permiso de administrador)!"
+				ja: "提案を承認！",
+				ru: "Принять предложение!",
+				"es-ES": "Aceptar una sugerencia!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -224,7 +220,7 @@ export const command: Command = {
 				}
 			],
 			ephemeral: true,
-			permission: PermissionFlagsBits.Administrator
+			permission: null
 		},
 		{
 			name: "delete",
@@ -236,13 +232,12 @@ export const command: Command = {
 			},
 			prefixName: "sug-delete",
 
-			description: "Delete an suggestion (need admin permission)!",
+			description: "Delete an suggestion!",
 			description_localizations: {
 				fr: "Supprimer une suggestion (Requiert permissions Admin)",
-				ja: "提案を削除（管理者権限が必要）！",
-				ru: "Удалить предложение (требуются права администратора)!",
-				"es-ES":
-					"Eliminar una sugerencia (requiere permiso de administrador)!"
+				ja: "提案を削除！",
+				ru: "Удалить предложение!",
+				"es-ES": "Eliminar una sugerencia!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -266,7 +261,233 @@ export const command: Command = {
 			],
 
 			ephemeral: true,
-			permission: PermissionFlagsBits.Administrator
+			permission: null
+		},
+		{
+			name: "status",
+			prefixName: "sug-status",
+
+			description: "Change the status of a suggestion!",
+			description_localizations: {
+				fr: "Changer le statut d'une suggestion",
+				ja: "提案のステータスを変更！",
+				ru: "Изменить статус предложения!",
+				"es-ES": "Cambiar el estado de una sugerencia!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "id",
+					type: ApplicationCommandOptionType.String,
+
+					description: "What the id of the suggestion?",
+					description_localizations: {
+						fr: "Quelle est l'identifiant de la suggestion ?",
+						ja: "提案のIDは？",
+						ru: "Какой ID предложения?",
+						"es-ES": "Cual es el ID de la sugerencia?"
+					},
+
+					required: true,
+
+					permission: null
+				},
+				{
+					name: "status",
+					type: ApplicationCommandOptionType.String,
+
+					description: "The new status",
+					description_localizations: {
+						fr: "Le nouveau statut",
+						ja: "新しいステータス",
+						ru: "Новый статус",
+						"es-ES": "El nuevo estado"
+					},
+
+					required: true,
+					choices: [
+						{
+							name: "Pending",
+							name_localizations: {
+								fr: "En attente",
+								ja: "保留中",
+								ru: "Ожидает",
+								"es-ES": "Pendiente"
+							},
+							value: "pending"
+						},
+						{
+							name: "Under review",
+							name_localizations: {
+								fr: "À l'étude",
+								ja: "検討中",
+								ru: "На рассмотрении",
+								"es-ES": "En revisión"
+							},
+							value: "reviewing"
+						},
+						{
+							name: "Accepted",
+							name_localizations: {
+								fr: "Acceptée",
+								ja: "承認済み",
+								ru: "Принято",
+								"es-ES": "Aceptada"
+							},
+							value: "accepted"
+						},
+						{
+							name: "Planned",
+							name_localizations: {
+								fr: "Planifiée",
+								ja: "計画済み",
+								ru: "Запланировано",
+								"es-ES": "Planificada"
+							},
+							value: "planned"
+						},
+						{
+							name: "Implemented",
+							name_localizations: {
+								fr: "Implémentée",
+								ja: "実装済み",
+								ru: "Реализовано",
+								"es-ES": "Implementada"
+							},
+							value: "implemented"
+						},
+						{
+							name: "Denied",
+							name_localizations: {
+								fr: "Refusée",
+								ja: "却下",
+								ru: "Отклонено",
+								"es-ES": "Rechazada"
+							},
+							value: "denied"
+						}
+					],
+
+					permission: null
+				},
+				{
+					name: "reason",
+					type: ApplicationCommandOptionType.String,
+
+					description: "An optional message for the author",
+					description_localizations: {
+						fr: "Un message optionnel pour l'auteur",
+						ja: "投稿者への任意のメッセージ",
+						ru: "Необязательное сообщение для автора",
+						"es-ES": "Un mensaje opcional para el autor"
+					},
+
+					required: false,
+
+					permission: null
+				}
+			],
+
+			ephemeral: true,
+			permission: null
+		},
+		{
+			name: "list",
+			prefixName: "sug-list",
+
+			description: "List the most popular suggestions!",
+			description_localizations: {
+				fr: "Lister les suggestions les plus populaires",
+				ja: "人気の提案を一覧表示！",
+				ru: "Показать самые популярные предложения!",
+				"es-ES": "Listar las sugerencias más populares!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "status",
+					type: ApplicationCommandOptionType.String,
+
+					description: "Only show this status",
+					description_localizations: {
+						fr: "Afficher uniquement ce statut",
+						ja: "このステータスのみ表示",
+						ru: "Показывать только этот статус",
+						"es-ES": "Mostrar solo este estado"
+					},
+
+					required: false,
+					choices: [
+						{
+							name: "Pending",
+							name_localizations: {
+								fr: "En attente",
+								ja: "保留中",
+								ru: "Ожидает",
+								"es-ES": "Pendiente"
+							},
+							value: "pending"
+						},
+						{
+							name: "Under review",
+							name_localizations: {
+								fr: "À l'étude",
+								ja: "検討中",
+								ru: "На рассмотрении",
+								"es-ES": "En revisión"
+							},
+							value: "reviewing"
+						},
+						{
+							name: "Accepted",
+							name_localizations: {
+								fr: "Acceptée",
+								ja: "承認済み",
+								ru: "Принято",
+								"es-ES": "Aceptada"
+							},
+							value: "accepted"
+						},
+						{
+							name: "Planned",
+							name_localizations: {
+								fr: "Planifiée",
+								ja: "計画済み",
+								ru: "Запланировано",
+								"es-ES": "Planificada"
+							},
+							value: "planned"
+						},
+						{
+							name: "Implemented",
+							name_localizations: {
+								fr: "Implémentée",
+								ja: "実装済み",
+								ru: "Реализовано",
+								"es-ES": "Implementada"
+							},
+							value: "implemented"
+						},
+						{
+							name: "Denied",
+							name_localizations: {
+								fr: "Refusée",
+								ja: "却下",
+								ru: "Отклонено",
+								"es-ES": "Rechazada"
+							},
+							value: "denied"
+						}
+					],
+
+					permission: null
+				}
+			],
+
+			ephemeral: true,
+			permission: null
 		}
 	],
 	category: "suggestion",

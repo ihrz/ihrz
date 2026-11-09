@@ -135,6 +135,41 @@ export const command: Command = {
 			],
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "staff-role",
+			prefixName: "suggest-staff-role",
+
+			description:
+				"Set the role allowed to manage suggestions, or clear it!",
+			description_localizations: {
+				fr: "Définir le rôle autorisé à gérer les suggestions, ou le retirer",
+				ja: "提案を管理できるロールを設定または解除！",
+				ru: "Назначить или убрать роль для управления предложениями!",
+				"es-ES": "Definir o quitar el rol que gestiona las sugerencias!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "role",
+					type: ApplicationCommandOptionType.Role,
+
+					description: "The staff role, leave empty to clear it",
+					description_localizations: {
+						fr: "Le rôle staff, laisser vide pour le retirer",
+						ja: "スタッフロール（空欄で解除）",
+						ru: "Роль персонала, оставьте пустым, чтобы убрать",
+						"es-ES": "El rol de staff, déjalo vacío para quitarlo"
+					},
+
+					required: false,
+
+					permission: null
+				}
+			],
+
+			permission: PermissionFlagsBits.Administrator
 		}
 	],
 	thinking: false,

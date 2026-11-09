@@ -167,6 +167,18 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 
 ---
 
+## 💡 Suggestions — un vrai suivi
+
+- Les suggestions ont désormais un statut : en attente, à l'étude, acceptée, planifiée, implémentée ou refusée, avec **`/suggest status`** pour le changer
+- Acceptez, refusez et répondez directement avec les boutons de la suggestion
+- Un seul vote par membre avec compteurs en direct, et recliquer sur son vote l'annule
+- **`/setsuggest staff-role`** permet à un rôle de gérer les suggestions sans être administrateur
+- L'auteur est mentionné dans le fil quand sa suggestion change ou reçoit une réponse
+- **`/suggest list`** affiche les suggestions les plus populaires, filtrables par statut
+- Répondre ne ferme plus une suggestion : seules celles refusées ou implémentées sont définitives
+
+---
+
 ## 🛠️ Corrections & améliorations
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
 - Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.

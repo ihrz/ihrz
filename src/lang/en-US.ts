@@ -3027,7 +3027,6 @@ const enUS = {
 		"This suggestion has already been replied to!",
 	suggest_accept_embed_fields_to_put:
 		"Response of ${authorUsername} (Accepting)",
-	suggest_acceptembed_title_to_put: "[Accepting] ${title}",
 	suggest_accept_command_work:
 		"You have accepted the suggestion!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3041,7 +3040,6 @@ const enUS = {
 	suggest_deny_already_replied:
 		"This suggestion has already been replied to!",
 	suggest_deny_embed_fields_to_put: "Response of ${authorUsername} (Denying)",
-	suggest_deny_embed_title_to_put: "[Denying] ${title}",
 	suggest_deny_command_work:
 		"You denied the suggestion!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3055,7 +3053,6 @@ const enUS = {
 	suggest_reply_already_replied:
 		"This suggestion has already been replied to!",
 	suggest_reply_embed_fields_to_put: "Response of ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Replied] ${title}",
 	suggest_reply_command_work:
 		"You have sent a response to the suggestion!\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3069,6 +3066,48 @@ const enUS = {
 	suggest_delete_command_work: "You have deleted the suggestion!",
 	suggest_delete_command_error:
 		"The suggestion is not found in this Discord channel!",
+
+	// /suggest status
+	suggest_not_staff:
+		"You are not allowed to manage suggestions.",
+	suggest_status_pending:
+		"Pending",
+	suggest_status_reviewing:
+		"Under review",
+	suggest_status_accepted:
+		"Accepted",
+	suggest_status_planned:
+		"Planned",
+	suggest_status_implemented:
+		"Implemented",
+	suggest_status_denied:
+		"Denied",
+	suggest_notify_status:
+		"<@${authorId}>, your suggestion is now **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, the staff replied to your suggestion.",
+	suggest_button_reply:
+		"Reply",
+	suggest_modal_title:
+		"Respond to the suggestion",
+	suggest_modal_label:
+		"Your message",
+	suggest_status_command_work:
+		"The suggestion is now **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Suggestions",
+	suggest_list_empty:
+		"No suggestion to show.",
+	suggest_list_footer:
+		"${shownCount} of ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, the suggestion staff role is now ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, the suggestion staff role has been removed.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "You are not an admin!",

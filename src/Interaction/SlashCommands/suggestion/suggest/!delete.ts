@@ -27,6 +27,7 @@ import {
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import { canManageSuggestions } from "../../../../core/modules/suggestionManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,6 +52,11 @@ export const subCommand: SubCommand = {
 		const fetchId = await client.db.get(
 			`${interaction.guildId}.SUGGESTION.${id}`
 		);
+
+		if (!canManageSuggestions(interaction.member, baseData)) {
+			await interaction.editReply({ content: lang.suggest_not_staff });
+			return;
+		}
 
 		if (
 			!baseData ||

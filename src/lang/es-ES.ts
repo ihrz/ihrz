@@ -3124,7 +3124,6 @@ export default {
 	suggest_accept_already_replied: "Esta sugerencia ya ha sido respondida.",
 	suggest_accept_embed_fields_to_put:
 		"Respuesta de ${authorUsername} (Aceptando)",
-	suggest_acceptembed_title_to_put: "[Aceptando] ${title}",
 	suggest_accept_command_work:
 		"Has aceptado la sugerencia.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3139,7 +3138,6 @@ export default {
 	suggest_deny_already_replied: "Esta sugerencia ya ha sido respondida.",
 	suggest_deny_embed_fields_to_put:
 		"Respuesta de ${authorUsername} (Denegando)",
-	suggest_deny_embed_title_to_put: "[Denegando] ${title}",
 	suggest_deny_command_work:
 		"Has denegado la sugerencia.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3153,7 +3151,6 @@ export default {
 		"La sugerencia no se encontró en mi base de datos.",
 	suggest_reply_already_replied: "Esta sugerencia ya ha sido respondida.",
 	suggest_reply_embed_fields_to_put: "Respuesta de ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Respondida] ${title}",
 	suggest_reply_command_work:
 		"Has enviado una respuesta a la sugerencia.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3170,6 +3167,48 @@ export default {
 		"La sugerencia no se encontró en el canal de Discord.",
 
 	// /configurarsugerencia desactivar
+	// /suggest status
+	suggest_not_staff:
+		"No tienes permiso para gestionar las sugerencias.",
+	suggest_status_pending:
+		"Pendiente",
+	suggest_status_reviewing:
+		"En revisión",
+	suggest_status_accepted:
+		"Aceptada",
+	suggest_status_planned:
+		"Planificada",
+	suggest_status_implemented:
+		"Implementada",
+	suggest_status_denied:
+		"Rechazada",
+	suggest_notify_status:
+		"<@${authorId}>, tu sugerencia ahora está **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, el staff ha respondido a tu sugerencia.",
+	suggest_button_reply:
+		"Responder",
+	suggest_modal_title:
+		"Responder a la sugerencia",
+	suggest_modal_label:
+		"Tu mensaje",
+	suggest_status_command_work:
+		"La sugerencia ahora está **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Sugerencias",
+	suggest_list_empty:
+		"No hay sugerencias que mostrar.",
+	suggest_list_footer:
+		"${shownCount} de ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, el rol de staff de sugerencias ahora es ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, se ha quitado el rol de staff de sugerencias.",
+
 	setsuggest_disable_not_admin: "No eres un administrador.",
 	setsuggest_disable_pw_on:
 		"${author}, has habilitado el módulo de sugerencias.",

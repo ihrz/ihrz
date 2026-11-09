@@ -3146,7 +3146,6 @@ export default {
 		"Cette suggestion a déjà reçu une réponse !",
 	suggest_accept_embed_fields_to_put:
 		"Réponse de ${authorUsername} (Acceptation)",
-	suggest_acceptembed_title_to_put: "[Acceptation] ${title}",
 	suggest_accept_command_work:
 		"Vous avez accepté la suggestion !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_accept_command_error:
@@ -3160,7 +3159,6 @@ export default {
 		"La suggestion n'a pas été trouvée dans ma base de données !",
 	suggest_deny_already_replied: "Cette suggestion a déjà reçu une réponse !",
 	suggest_deny_embed_fields_to_put: "Réponse de ${authorUsername} (Refus)",
-	suggest_deny_embed_title_to_put: "[Refus] ${title}",
 	suggest_deny_command_work:
 		"Vous avez refusé la suggestion !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_deny_command_error:
@@ -3174,7 +3172,6 @@ export default {
 		"La suggestion n'a pas été trouvée dans ma base de données !",
 	suggest_reply_already_replied: "Cette suggestion a déjà reçu une réponse !",
 	suggest_reply_embed_fields_to_put: "Réponse de ${authorUsername}",
-	suggest_reply_embed_title_to_put: "[Réponse] ${title}",
 	suggest_reply_command_work:
 		"Vous avez envoyé une réponse à la suggestion !\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 	suggest_reply_command_error:
@@ -3189,6 +3186,48 @@ export default {
 	suggest_delete_command_work: "Vous avez supprimé la suggestion !",
 	suggest_delete_command_error:
 		"La suggestion n'a pas été trouvée dans le canal Discord !",
+
+	// /suggest status
+	suggest_not_staff:
+		"Vous n'êtes pas autorisé à gérer les suggestions.",
+	suggest_status_pending:
+		"En attente",
+	suggest_status_reviewing:
+		"À l'étude",
+	suggest_status_accepted:
+		"Acceptée",
+	suggest_status_planned:
+		"Planifiée",
+	suggest_status_implemented:
+		"Implémentée",
+	suggest_status_denied:
+		"Refusée",
+	suggest_notify_status:
+		"<@${authorId}>, votre suggestion est désormais **${status}**.",
+	suggest_notify_reply:
+		"<@${authorId}>, le staff a répondu à votre suggestion.",
+	suggest_button_reply:
+		"Répondre",
+	suggest_modal_title:
+		"Répondre à la suggestion",
+	suggest_modal_label:
+		"Votre message",
+	suggest_status_command_work:
+		"La suggestion est désormais **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
+
+	// /suggest list
+	suggest_list_title:
+		"Suggestions",
+	suggest_list_empty:
+		"Aucune suggestion à afficher.",
+	suggest_list_footer:
+		"${shownCount} sur ${totalCount}",
+
+	// /setsuggest staff-role
+	setsuggest_staff_role_set:
+		"${author}, le rôle staff des suggestions est désormais ${role}.",
+	setsuggest_staff_role_removed:
+		"${author}, le rôle staff des suggestions a été retiré.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "Vous n'êtes pas administrateur !",
