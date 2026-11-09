@@ -1032,6 +1032,8 @@ export default {
 	economy_shop_already_own_role: "このロールはすでに所有しています。",
 	economy_shop_not_enough_money:
 		"このロールを購入するのに十分なお金がありません。",
+	economy_shop_role_add_failed:
+		"このロールを付与できなかったため、料金は請求されていません。ロールが存在し、私の最上位ロールより下にあるか管理者に確認してください。",
 	economy_shop_role_purchased:
 		"ロール **{roleName}** を **${rolePrice}** 💰で購入しました。",
 	economy_shop_unknown_role: "不明なロール",
@@ -3782,6 +3784,8 @@ export default {
 		"<@${messageAuthorId}>さん、あなたは今、役職 <@&${id}> を持っています",
 
 	// 提案イベント
+	event_suggestion_too_short:
+		"<@${authorId}>、提案は5語以上で入力してください。メッセージは10秒後に削除されます。書き直す場合はコピーしてください。",
 	event_suggestion_embed_author: "${messageAuthorUsername} からの新しい提案",
 
 	// セキュリティイベント

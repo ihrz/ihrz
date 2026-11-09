@@ -19,48 +19,71 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ButtonInteraction, EmbedBuilder, MessageFlags } from "discord.js";
+import {
+	ButtonInteraction,
+	EmbedBuilder,
+	MessageFlags,
+	PermissionFlagsBits
+} from "discord.js";
 export default async function (interaction: ButtonInteraction<"cached">) {
+	if (
+		!interaction.memberPermissions.has(PermissionFlagsBits.ModerateMembers)
+	) {
+		const lang = await interaction.client.func.getLanguageData(
+			interaction.guildId
+		);
+
+		await interaction.reply({
+			content: lang.var_dont_have_perm.replace(
+				"{perm}",
+				"ModerateMembers"
+			),
+			flags: MessageFlags.Ephemeral
+		});
+		return;
+	}
+
 	const confessionAuthor = interaction.customId.split("%")[1];
 
-	if (confessionAuthor) {
-		let member =
-			interaction.guild.members.cache.get(confessionAuthor) ||
-			(await interaction.guild.members
+	// The author may have left the guild: look the account up, not the member.
+	const user = confessionAuthor
+		? await interaction.client.users
 				.fetch(confessionAuthor)
-				.catch(() => null));
+				.catch(() => null)
+		: null;
 
-		if (member) {
-			const embed = new EmbedBuilder()
-				.setColor("#010101")
-				.setAuthor({
-					name: member.user.username,
-					iconURL: member.user.displayAvatarURL({
-						forceStatic: false,
-						size: 4096
-					}),
-					url: `https://discordapp.com/users/${member.user.id}`
-				})
-				.setDescription(`<@${member.user.id}>`)
-				.setFooter(
-					await interaction.client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				);
-			interaction.reply({
-				files: [
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				],
-				flags: MessageFlags.Ephemeral,
-				embeds: [embed]
-			});
-		}
-	} else {
-		interaction.reply({
+	if (!user) {
+		await interaction.reply({
 			content: `❌`,
 			flags: MessageFlags.Ephemeral
 		});
+		return;
 	}
+
+	const embed = new EmbedBuilder()
+		.setColor("#010101")
+		.setAuthor({
+			name: user.username,
+			iconURL: user.displayAvatarURL({
+				forceStatic: false,
+				size: 4096
+			}),
+			url: `https://discordapp.com/users/${user.id}`
+		})
+		.setDescription(`<@${user.id}>`)
+		.setFooter(
+			await interaction.client.func.displayBotName.footerBuilder(
+				interaction.guildId!
+			)
+		);
+
+	await interaction.reply({
+		files: [
+			await interaction.client.func.displayBotName.footerAttachmentBuilder(
+				interaction
+			)
+		],
+		flags: MessageFlags.Ephemeral,
+		embeds: [embed]
+	});
 }

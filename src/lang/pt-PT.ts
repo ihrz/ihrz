@@ -1049,6 +1049,8 @@ export default {
 	economy_shop_already_own_role: "Você já possui este papel.",
 	economy_shop_not_enough_money:
 		"Você não tem dinheiro suficiente para comprar este papel.",
+	economy_shop_role_add_failed:
+		"Não consegui dar-te este cargo, por isso não foste cobrado. Pede a um admin para verificar se ainda existe e se está abaixo do meu cargo mais alto.",
 	economy_shop_role_purchased:
 		"Você comprou com sucesso o papel **{roleName}** por **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Papel desconhecido",
@@ -3835,6 +3837,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, agora você tem o cargo <@&${id}>",
 
 	// Evento de Sugestão
+	event_suggestion_too_short:
+		"<@${authorId}>, uma sugestão deve conter pelo menos 5 palavras. A tua mensagem será eliminada em 10 segundos, copia-a se quiseres reescrevê-la.",
 	event_suggestion_embed_author: "Nova sugestão de ${messageAuthorUsername}",
 
 	// Evento de Segurança

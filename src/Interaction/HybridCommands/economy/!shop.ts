@@ -250,6 +250,23 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
+				// give the role first: a failure must not charge the member
+				const roleAdded = await interaction.member.roles
+					.add(
+						role.roleId,
+						"[Economy Module] Purchased from the shop"
+					)
+					.then(() => true)
+					.catch(() => false);
+
+				if (!roleAdded) {
+					await i.reply({
+						content: lang.economy_shop_role_add_failed,
+						flags: [1 << 6]
+					});
+					return;
+				}
+
 				await client.db.sub(
 					`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`,
 					role.price
@@ -259,11 +276,6 @@ export const subCommand: SubCommand = {
 					[...liveOwnedRoles, role.roleId]
 				);
 				baseData.ownedRoles = [...liveOwnedRoles, role.roleId];
-
-				await interaction.member?.roles.add(
-					role.roleId,
-					"[Economy Module] Purchased from the shop"
-				);
 			} finally {
 				releaseLock();
 			}

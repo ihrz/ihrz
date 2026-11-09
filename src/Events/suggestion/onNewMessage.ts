@@ -49,6 +49,23 @@ export const event: BotEvent = {
 		)
 			return;
 
+		if (message.content.split(" ").length < 5) {
+			// Leave the author time to copy their text before it disappears.
+			const notice = await client.func.method
+				.channelSend(message, {
+					content: data.event_suggestion_too_short.replace(
+						"${authorId}",
+						message.author.id
+					)
+				})
+				.catch(() => null);
+
+			await Bun.sleep(10_000);
+			await message.delete().catch(() => {});
+			await notice?.delete().catch(() => {});
+			return;
+		}
+
 		const suggestionContent = "```" + message.content + "```";
 		const suggestCode = generatePassword({ length: 12 });
 
@@ -69,20 +86,34 @@ export const event: BotEvent = {
 			)
 			.setTimestamp();
 
-		message.delete();
-
-		const args = message.content.split(" ");
-		if (args.length < 5) return;
-
-		const msg = await client.func.method.channelSend(message, {
+		const footerFile =
+			await client.func.displayBotName.footerAttachmentBuilder(message);
+		const suggestionBody = {
 			content: message.author.toString(),
-			embeds: [suggestionEmbed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					message
-				)
-			]
-		});
+			embeds: [suggestionEmbed]
+		};
+
+		// Attachments are re-uploaded, so the original must outlive the send.
+		// Without them if they exceed the upload limit of the bot.
+		const msg = await client.func.method
+			.channelSend(message, {
+				...suggestionBody,
+				files: [
+					footerFile,
+					...message.attachments.map((attachment) => ({
+						attachment: attachment.url,
+						name: attachment.name
+					}))
+				]
+			})
+			.catch(() =>
+				client.func.method.channelSend(message, {
+					...suggestionBody,
+					files: [footerFile]
+				})
+			);
+
+		await message.delete().catch(() => {});
 
 		let thread = await msg
 			.startThread({

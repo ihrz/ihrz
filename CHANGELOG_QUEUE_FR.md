@@ -225,3 +225,9 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **Auto-hébergement** : seul le premier shard publie les commandes slash et crée les emojis d'application manquants au démarrage, au lieu que chaque shard le fasse (les autres ne font que lire les emojis, ce qui évite aussi des emojis en double à la première installation avec plusieurs shards)
 - **`/music play`** : une suggestion modifiée après avoir été choisie (« Titre - Artiste (2:58) ») est cherchée sans sa durée, qui faisait échouer la recherche
 - **Dashboard** : fini les erreurs « Dashboard rate limited » en naviguant : la limite de lectures est plus haute, la liste des serveurs et votre profil ne sont chargés qu'une fois pour toute la page, et un blocage ne se prolonge plus si vous continuez à cliquer
+- **Confessions** : une confession envoyée pendant la publication d'une autre ne perd plus son log staff, les confessions non anonymes fonctionnent pour les membres sans avatar personnalisé, et les fils de discussion sont bien enregistrés
+- **Confessions** : le cooldown s'applique désormais par serveur, couvre aussi les réponses, et les réponses s'arrêtent quand le module est désactivé
+- **Confessions** : le bouton **Profil utilisateur** des logs exige la permission Exclure temporairement des membres et fonctionne même si l'auteur a quitté le serveur
+- **Suggestions** : un message de moins de 5 mots reçoit désormais une explication et reste 10 secondes pour pouvoir être copié, et les pièces jointes sont conservées sur la suggestion
+- **`/suggest accept`** : le message d'erreur s'affiche correctement quand la suggestion ne peut pas être mise à jour
+- **`/economy shop`** : si le rôle ne peut pas être donné, le membre est prévenu et n'est plus débité

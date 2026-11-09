@@ -1066,6 +1066,8 @@ export default {
 	economy_shop_already_own_role: "Sie besitzen diese Rolle bereits.",
 	economy_shop_not_enough_money:
 		"Sie haben nicht genug Geld, um diese Rolle zu kaufen.",
+	economy_shop_role_add_failed:
+		"Ich konnte dir diese Rolle nicht geben, daher wurde dir nichts berechnet. Bitte einen Admin zu prüfen, ob sie noch existiert und unter meiner höchsten Rolle liegt.",
 	economy_shop_role_purchased:
 		"Sie haben die Rolle **{roleName}** erfolgreich für **${rolePrice}** 💰 gekauft.",
 	economy_shop_unknown_role: "Unbekannte Rolle",
@@ -3898,6 +3900,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, du hast jetzt die Rolle <@&${id}>",
 
 	// Vorschlagsereignis
+	event_suggestion_too_short:
+		"<@${authorId}>, ein Vorschlag muss mindestens 5 Wörter enthalten. Deine Nachricht wird in 10 Sekunden gelöscht, kopiere sie, wenn du sie neu schreiben möchtest.",
 	event_suggestion_embed_author:
 		"Neuer Vorschlag von ${messageAuthorUsername}",
 

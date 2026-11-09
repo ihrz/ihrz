@@ -141,7 +141,6 @@ export const subCommand: SubCommand = {
 				return;
 			})
 			.catch(async () => {
-				await interaction.deleteReply();
 				await interaction.editReply({
 					content: lang.suggest_accept_command_error,
 					flags: [1 << 6]

@@ -1057,6 +1057,8 @@ export default {
 	economy_shop_already_own_role: "Ya tienes este rol.",
 	economy_shop_not_enough_money:
 		"No tienes suficiente dinero para comprar este rol.",
+	economy_shop_role_add_failed:
+		"No he podido darte este rol, así que no se te ha cobrado. Pide a un administrador que compruebe que aún existe y que está por debajo de mi rol más alto.",
 	economy_shop_role_purchased:
 		"Has comprado con éxito el rol **{roleName}** por **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Rol desconocido",
@@ -3877,6 +3879,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, ahora tienes el rol <@&${id}>",
 
 	// Evento de sugerencia
+	event_suggestion_too_short:
+		"<@${authorId}>, una sugerencia debe contener al menos 5 palabras. Tu mensaje se eliminará en 10 segundos, cópialo si quieres reescribirlo.",
 	event_suggestion_embed_author:
 		"Nueva sugerencia de ${messageAuthorUsername}",
 

@@ -225,3 +225,9 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **Self-hosting**: only the first shard publishes the slash commands and creates the missing application emojis at boot, instead of every shard doing it (the others only read the emojis, which also avoids duplicate emojis on a first install with several shards)
 - **`/music play`**: a suggestion edited after being picked ("Title - Artist (2:58)") is searched without its duration, which made the search find nothing
 - **Dashboard**: no more "Dashboard rate limited" errors while browsing: the read limit is higher, the server list and your profile are loaded once for the whole page, and a blocked moment no longer lasts longer when you keep clicking
+- **Confessions**: a confession sent while another one is being posted no longer loses its staff log, non-anonymous confessions work for members without a custom avatar, and discussion threads are saved correctly
+- **Confessions**: the cooldown now applies per server, also covers replies, and replies stop when the module is disabled
+- **Confessions**: the **User Profile** button of the logs requires the Timeout Members permission and still works after the author has left the server
+- **Suggestions**: a message under 5 words now gets an explanation and stays 10 seconds so it can be copied, and attachments are kept on the suggestion
+- **`/suggest accept`**: the error message is displayed correctly when the suggestion cannot be updated
+- **`/economy shop`**: if the role cannot be given, the member is told and no longer charged

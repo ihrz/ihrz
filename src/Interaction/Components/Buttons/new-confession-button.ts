@@ -61,7 +61,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		`${interaction.guildId}.GUILD.CONFESSION`
 	)) as DatabaseStructure.ConfessionSchema;
 	const confessionTime = await tempTable.get(
-		`CONFESSION_COOLDOWN.${interaction.user.id}`
+		`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`
 	);
 	const lang = await interaction.client.func.getLanguageData(
 		interaction.guildId
@@ -167,7 +167,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		view = false;
 
 		body.files.push({
-			attachment: interaction.user.avatarURL({ size: 512 })!,
+			attachment: interaction.user.displayAvatarURL({
+				size: 512,
+				extension: "png"
+			}),
 			name: "user_icon.png"
 		});
 
@@ -200,13 +203,19 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	let threadChannel: string | null = null;
 
 	if (allDataConfession.thread === "yes") {
-		msg.startThread({
-			name: `${lang.help_confession_fields} #${code}`,
-			reason: "Pic Only"
-		}).then((x) => {
-			x.edit({ invitable: true, locked: false, archived: false });
-			threadChannel = x.id;
-		});
+		const thread = await msg
+			.startThread({
+				name: `${lang.help_confession_fields} #${code}`,
+				reason: "[Confession] Module"
+			})
+			.catch(() => null);
+
+		if (thread) {
+			threadChannel = thread.id;
+			thread
+				.edit({ invitable: true, locked: false, archived: false })
+				.catch(() => {});
+		}
 	}
 
 	await interaction.client.db.push(
@@ -222,48 +231,60 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	);
 
 	await tempTable.set(
-		`CONFESSION_COOLDOWN.${interaction.user.id}`,
+		`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`,
 		Date.now()
 	);
 
-	const panelMessage = await interaction.channel?.messages.fetch(
-		allDataConfession.panel?.messageId!
-	);
-	const embedFromPanelMessage = panelMessage?.embeds[0];
-	const compFromPanelMessage = panelMessage?.components[0];
+	// The panel may have been reposted while the modal was open: read its
+	// current id, and let only the confession that really deleted it repost it.
+	const currentPanel = (await interaction.client.db.get(
+		`${interaction.guildId}.GUILD.CONFESSION.panel`
+	)) as DatabaseStructure.ConfessionSchema["panel"] | null;
+	const panelMessage = currentPanel
+		? await interaction.channel?.messages
+				.fetch(currentPanel.messageId)
+				.catch(() => null)
+		: null;
+	const panelDeleted = await panelMessage
+		?.delete()
+		.then(() => true)
+		.catch(() => false);
 
-	await panelMessage?.delete();
-
-	const newPanelFromOldData: MessageReplyOptions = {
-		embeds: [
-			EmbedBuilder.from(embedFromPanelMessage!).setFooter(
-				await interaction.client.func.displayBotName.footerBuilder(
-					interaction.guildId!
+	if (panelMessage && panelDeleted) {
+		const newPanelFromOldData: MessageReplyOptions = {
+			embeds: [
+				EmbedBuilder.from(panelMessage.embeds[0]).setFooter(
+					await interaction.client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
 				)
-			)
-		],
-		components: [compFromPanelMessage!],
-		files: [
-			await interaction.client.func.displayBotName.footerAttachmentBuilder(
-				interaction
-			)
-		]
-	};
+			],
+			components: [panelMessage.components[0]],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		};
 
-	interaction.client.func.method
-		.channelSend(interaction.message, newPanelFromOldData)
-		.then(async (msg) => {
-			const messageId = msg.id;
-			const channelId = msg.channelId;
+		interaction.client.func.method
+			.channelSend(interaction.message, newPanelFromOldData)
+			.then(async (msg) => {
+				const messageId = msg.id;
+				const channelId = msg.channelId;
 
-			await msg.client.db.set(
-				`${interaction.guildId}.GUILD.CONFESSION.panel`,
-				{
-					channelId,
-					messageId
-				}
+				await msg.client.db.set(
+					`${interaction.guildId}.GUILD.CONFESSION.panel`,
+					{
+						channelId,
+						messageId
+					}
+				);
+			})
+			.catch((error) =>
+				logger.err(`[Confession] Panel repost failed: ${error}`)
 			);
-		});
+	}
 
 	const someinfo = await client.db.get(
 		`${interaction.guildId}.GUILD.SERVER_LOGS.confession`

@@ -1039,6 +1039,8 @@ export default {
 	economy_shop_already_own_role: "Вы уже владеете этой ролью.",
 	economy_shop_not_enough_money:
 		"У вас недостаточно денег для покупки этой роли.",
+	economy_shop_role_add_failed:
+		"Не удалось выдать вам эту роль, поэтому деньги не списаны. Попросите администратора проверить, что она существует и находится ниже моей высшей роли.",
 	economy_shop_role_purchased:
 		"Вы успешно купили роль **{roleName}** за **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Неизвестная роль",
@@ -3785,6 +3787,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, у вас теперь есть роль <@&${id}>",
 
 	// Событие предложения
+	event_suggestion_too_short:
+		"<@${authorId}>, предложение должно содержать не менее 5 слов. Ваше сообщение будет удалено через 10 секунд, скопируйте его, если хотите переписать.",
 	event_suggestion_embed_author:
 		"Новое предложение от ${messageAuthorUsername}",
 

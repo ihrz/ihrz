@@ -980,6 +980,8 @@ export default {
 	economy_shop_not_available: "الدور الذي اخترته غير متاح للشراء.",
 	economy_shop_already_own_role: "أنت تملك هذا الدور بالفعل.",
 	economy_shop_not_enough_money: "ليس لديك ما يكفي من المال لشراء هذا الدور.",
+	economy_shop_role_add_failed:
+		"لم أتمكن من منحك هذه الرتبة، لذلك لم يتم خصم أي مبلغ. اطلب من أحد المشرفين التحقق من أنها ما زالت موجودة وأنها أقل من أعلى رتبة لدي.",
 	economy_shop_role_purchased:
 		"لقد قمت بشراء الدور **{roleName}** بنجاح مقابل **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "دور غير معروف",
@@ -3600,6 +3602,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, لديك الآن الدور <@&${id}>",
 
 	// حدث الاقتراح
+	event_suggestion_too_short:
+		"<@${authorId}>، يجب أن يحتوي الاقتراح على 5 كلمات على الأقل. سيتم حذف رسالتك خلال 10 ثوانٍ، انسخها إذا أردت إعادة كتابتها.",
 	event_suggestion_embed_author: "اقتراح جديد من ${messageAuthorUsername}",
 
 	// حدث الأمان

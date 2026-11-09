@@ -1080,6 +1080,8 @@ export default {
 	economy_shop_already_own_role: "Mais trou dballe tu as déjà ce rôle !",
 	economy_shop_not_enough_money:
 		" t pas assez riche pour acheter ce rôle, va travailler un peu !",
+	economy_shop_role_add_failed:
+		"J'ai pas pu te donner ce rôle, donc t'as rien payé. Demande à un admin de vérifier qu'il existe encore et qu'il est sous mon rôle le plus haut.",
 	economy_shop_role_purchased:
 		"Vous avez acheté avec succès le rôle **{roleName}** pour **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Rôle inconnu",
@@ -3926,6 +3928,8 @@ export default {
 		"<@${messageAuthorId}>, tu as maintenant le rôle <@&${id}> tu la bien mérité a glander sur ton lit , sale modo discord",
 
 	// Événement de suggestion
+	event_suggestion_too_short:
+		"<@${authorId}>, une suggestion ça fait au moins 5 mots. Ton message sera supprimé dans 10 secondes, copie-le si tu veux le réécrire.",
 	event_suggestion_embed_author:
 		"Nouvelle suggestion de ${messageAuthorUsername} Merci mgl mais c la rue ici",
 

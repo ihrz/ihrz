@@ -56,8 +56,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const allDataConfession = (await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.CONFESSION`
 	)) as DatabaseStructure.ConfessionSchema;
+	if (allDataConfession?.disable) return;
+
 	const confessionTime = await tempTable.get(
-		`CONFESSION_COOLDOWN.${interaction.user.id}`
+		`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`
 	);
 
 	const timeout =
@@ -118,6 +120,11 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		message?.thread?.send({
 			embeds: [embed]
 		});
+
+		await tempTable.set(
+			`CONFESSION_COOLDOWN.${interaction.guildId}.${interaction.user.id}`,
+			Date.now()
+		);
 
 		const someinfo = await client.db.get(
 			`${interaction.guildId}.GUILD.SERVER_LOGS.confession`

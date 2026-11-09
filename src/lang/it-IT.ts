@@ -1051,6 +1051,8 @@ export default {
 	economy_shop_already_own_role: "Possiedi già questo ruolo.",
 	economy_shop_not_enough_money:
 		"Non hai abbastanza denaro per acquistare questo ruolo.",
+	economy_shop_role_add_failed:
+		"Non sono riuscito a darti questo ruolo, quindi non ti è stato addebitato nulla. Chiedi a un admin di verificare che esista ancora e che sia sotto il mio ruolo più alto.",
 	economy_shop_role_purchased:
 		"Hai acquistato con successo il ruolo **{roleName}** per **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Ruolo sconosciuto",
@@ -3858,6 +3860,8 @@ export default {
 	event_rank_role: "<@${messageAuthorId}>, ora hai il ruolo <@&${id}>",
 
 	// Evento suggerimento
+	event_suggestion_too_short:
+		"<@${authorId}>, un suggerimento deve contenere almeno 5 parole. Il tuo messaggio verrà eliminato tra 10 secondi, copialo se vuoi riscriverlo.",
 	event_suggestion_embed_author:
 		"Nuovo suggerimento da ${messageAuthorUsername}",
 

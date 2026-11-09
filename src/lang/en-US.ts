@@ -1018,6 +1018,8 @@ const enUS = {
 	economy_shop_already_own_role: "You already own this role.",
 	economy_shop_not_enough_money:
 		"You do not have enough money to purchase this role.",
+	economy_shop_role_add_failed:
+		"I could not give you this role, so you were not charged. Ask an admin to check that it still exists and is below my highest role.",
 	economy_shop_role_purchased:
 		"You have successfully purchased the role **{roleName}** for **${rolePrice}** 💰.",
 	economy_shop_unknown_role: "Unknown Role",
@@ -3757,6 +3759,8 @@ const enUS = {
 	event_rank_role: "<@${messageAuthorId}>, you now have the role <@&${id}>",
 
 	// Suggestion Event
+	event_suggestion_too_short:
+		"<@${authorId}>, a suggestion must contain at least 5 words. Your message will be deleted in 10 seconds, copy it if you want to rewrite it.",
 	event_suggestion_embed_author:
 		"New suggestion from ${messageAuthorUsername}",
 
