@@ -149,9 +149,6 @@ This release fixes several security issues. **If you host your own iHorizon inst
 - `/mod unmute`, `/mod unmuteall`, `/utils lockname` and `/utils unlockname` no longer act on the server owner or a member ranked equal or higher
 - Temporary voice buttons (name, limit, region) only change the channel you own, even if you move to another channel before submitting
 - `/utils embed` only copies from, sends to or replaces in channels where you have the matching permissions
-- `/utils prevnames` on someone else only shows their nicknames from the current server, no longer the names and nicknames of every server they are in
-- Confession logs no longer carry the author's id in the button: only a moderator clicking it can see who wrote it
-- `securewebhook` deletes the command message (it holds the webhook URL) and sends webhook URLs by DM only; webhook tokens are removed from the command logs
 - Only the iHorizon developers can add or remove bot owners and blacklist a bot owner (a co-owner could add more co-owners or network-ban another one)
 - Durations typed by members (`/schedule`, tempban, giveaways...) are refused past 64 characters: a long one could freeze a shard for seconds. `/schedule` refuses an invalid time and keeps at most 25 reminders per member, up to 10 years ahead
 - `/guildconfig show` pages only turn for the admin who ran it; `/authrestore roles` only accepts the key of the current server; `/status` no longer shows the host's kernel version

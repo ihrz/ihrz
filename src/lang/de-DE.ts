@@ -1554,10 +1554,6 @@ export default {
 		"Du bist nicht der Besitzer dieses Webhooks",
 	util_securewebhook_action_delete_error: "Fehler beim Löschen des Webhooks",
 	util_securewebhook_actiom_list_ok: ":star: __**Deine Webhooks**__:\n",
-	util_securewebhook_sent_in_dm:
-		"Ich habe dir die Webhook-Details per DM geschickt.",
-	util_securewebhook_dm_failed:
-		"Ich konnte dir keine DM senden: Öffne deine DMs und führe den Befehl erneut aus. Webhook-URLs werden nie in einem Kanal angezeigt.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:

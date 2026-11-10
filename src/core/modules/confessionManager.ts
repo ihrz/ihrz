@@ -32,67 +32,11 @@ import {
 	SnowflakeUtil
 } from "discord.js";
 
-import {
-	createCipheriv,
-	createDecipheriv,
-	createHash,
-	randomBytes
-} from "crypto";
-
 import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 const CONFESSION_AUTHOR_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 const CONFESSION_MAX_STORED = 2000;
-
-/**
- * The "author" button of a confession log carries who wrote it. The id is
- * sealed (AES-256-GCM, key derived from the bot secrets) so reading the
- * component payload of the log message does not reveal the author: only the
- * button handler, after its permission check, can open it.
- */
-function authorSealKey(client: Client): Buffer {
-	return createHash("sha256")
-		.update(
-			`confession-author:${client.config.api.apiToken}:${client.config.discord.token}`
-		)
-		.digest();
-}
-
-export function sealConfessionAuthor(client: Client, userId: string): string {
-	const iv = randomBytes(12);
-	const cipher = createCipheriv("aes-256-gcm", authorSealKey(client), iv);
-	const encrypted = Buffer.concat([
-		cipher.update(userId, "utf8"),
-		cipher.final()
-	]);
-	return Buffer.concat([iv, encrypted, cipher.getAuthTag()]).toString(
-		"base64url"
-	);
-}
-
-export function openConfessionAuthor(
-	client: Client,
-	sealed: string
-): string | null {
-	try {
-		const data = Buffer.from(sealed, "base64url");
-		if (data.length < 12 + 16 + 1) return null;
-		const decipher = createDecipheriv(
-			"aes-256-gcm",
-			authorSealKey(client),
-			data.subarray(0, 12)
-		);
-		decipher.setAuthTag(data.subarray(data.length - 16));
-		const userId = Buffer.concat([
-			decipher.update(data.subarray(12, data.length - 16)),
-			decipher.final()
-		]).toString("utf8");
-		return /^\d{17,20}$/.test(userId) ? userId : null;
-	} catch {
-		return null;
-	}
-}
 
 // Confession panel (embed + "new confession" button), shared by
 // /confession channel and the dashboard. The caller stores

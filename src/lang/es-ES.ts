@@ -1537,10 +1537,6 @@ export default {
 		"No eres el propietario de este webhook",
 	util_securewebhook_action_delete_error: "Error al eliminar el webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Tus webhooks**__:\n",
-	util_securewebhook_sent_in_dm:
-		"Te he enviado los datos del webhook por MD.",
-	util_securewebhook_dm_failed:
-		"No he podido enviarte un MD: abre tus MD y vuelve a ejecutar el comando. Las URL de webhook nunca se muestran en un canal.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:

@@ -149,9 +149,6 @@ Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez vo
 - `/mod unmute`, `/mod unmuteall`, `/utils lockname` et `/utils unlockname` n'agissent plus sur le propriétaire du serveur ni sur un membre de rang égal ou supérieur
 - Les boutons des salons vocaux temporaires (nom, limite, région) ne modifient que le salon dont vous êtes propriétaire, même si vous changez de salon avant de valider
 - `/utils embed` ne copie, n'envoie et ne remplace que dans les salons où vous avez les permissions correspondantes
-- `/utils prevnames` sur quelqu'un d'autre n'affiche plus que ses surnoms du serveur actuel, et non plus les noms et surnoms de tous les serveurs où il se trouve
-- Les logs de confessions ne contiennent plus l'identifiant de l'auteur dans le bouton : seul un modérateur qui clique dessus peut voir qui l'a écrite
-- `securewebhook` supprime le message de commande (il contient l'URL de la webhook) et n'envoie les URL de webhook qu'en MP ; les tokens de webhook sont retirés des logs de commandes
 - Seuls les développeurs d'iHorizon peuvent ajouter ou retirer des owners du bot et blacklister un owner du bot (un co-owner pouvait ajouter d'autres co-owners ou bannir un autre co-owner de tout le réseau)
 - Les durées tapées par les membres (`/schedule`, tempban, giveaways...) sont refusées au-delà de 64 caractères : une durée très longue pouvait figer un shard plusieurs secondes. `/schedule` refuse une heure invalide et garde au plus 25 rappels par membre, jusqu'à 10 ans à l'avance
 - Les pages de `/guildconfig show` ne tournent que pour l'admin qui l'a lancée ; `/authrestore roles` n'accepte que la clé du serveur actuel ; `/status` n'affiche plus la version du noyau de l'hôte

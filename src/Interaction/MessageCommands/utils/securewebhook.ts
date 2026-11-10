@@ -119,22 +119,6 @@ export const command: Command = {
 		const action = client.func.method.string(options!, 0);
 		const input = client.func.method.string(options!, 1) || "";
 
-		// The command carries a webhook URL (its token) or a proxy code:
-		// never leave it readable in the channel.
-		await message.delete().catch(() => {});
-
-		// Webhook URLs are secrets: they are only ever sent by DM.
-		const sendPrivately = async (content: string) => {
-			const sent = await message.author
-				.send({ content })
-				.catch(() => null);
-			await client.func.method.channelSend(message, {
-				content: sent
-					? lang.util_securewebhook_sent_in_dm
-					: lang.util_securewebhook_dm_failed
-			});
-		};
-
 		const matches = input.match(
 			/https?:\/\/(?:ptb\.|canary\.)?discord\.com\/api(?:\/v\d{1,2})?\/webhooks\/(\d{17,19})\/([\w-]{68})/i
 		);
@@ -178,11 +162,11 @@ export const command: Command = {
 				return;
 			}
 
-			await sendPrivately(
-				lang.util_securewebhook_action_create_ok
+			await client.func.method.channelSend(message, {
+				content: lang.util_securewebhook_action_create_ok
 					.replace("${url}", data.url)
 					.replace("${use}", String(0))
-			);
+			});
 		} else if (action == "delete") {
 			const data = (await apiTable.get("WH_SEC")) || {};
 
@@ -232,7 +216,9 @@ export const command: Command = {
 				return;
 			}
 
-			await client.func.method.channelSend(message, { content: "✅" });
+			message.react("✅").catch(() => {
+				client.func.method.interactionSend(message, { content: "✅" });
+			});
 		} else if (action == "list") {
 			const data = (await apiTable.get("WH_SEC")) || {};
 
@@ -249,9 +235,9 @@ export const command: Command = {
 				)
 				.join("\n");
 
-			await sendPrivately(
-				lang.util_securewebhook_actiom_list_ok + all_whs
-			);
+			await client.func.method.channelSend(message, {
+				content: lang.util_securewebhook_actiom_list_ok + all_whs
+			});
 		}
 	}
 };

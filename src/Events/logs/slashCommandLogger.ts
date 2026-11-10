@@ -125,15 +125,6 @@ async function migrateLegacyLog(target: SlashLogStore): Promise<void> {
 	}
 }
 
-// Webhook URLs (Discord or the HorizonGateway proxy) carry their secret in
-// the path: prefix arguments are logged as typed, so the token is dropped.
-const WEBHOOK_TOKEN_PATTERN =
-	/(\/api(?:\/v\d{1,2})?\/webhooks\/[\w-]+\/)[\w.-]+/gi;
-
-export function redactPrefixArgs(args: string): string {
-	return args.replace(WEBHOOK_TOKEN_PATTERN, "$1[redacted]");
-}
-
 export function logPrefixCommand(
 	client: Client,
 	entry: Omit<SlashLogEntry, "type" | "at" | "options"> & { args: string[] }
@@ -142,7 +133,7 @@ export function logPrefixCommand(
 	commandLogs(client).add({
 		...rest,
 		at: Date.now(),
-		options: redactPrefixArgs(args.join(" ")).slice(0, MAX_PREFIX_ARGS),
+		options: args.join(" ").slice(0, MAX_PREFIX_ARGS),
 		type: "prefix"
 	});
 }

@@ -1429,9 +1429,6 @@ export default {
 	util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا الويب هوك",
 	util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك",
 	util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n",
-	util_securewebhook_sent_in_dm: "أرسلت لك تفاصيل الويب هوك في رسالة خاصة.",
-	util_securewebhook_dm_failed:
-		"تعذر إرسال رسالة خاصة لك: افتح رسائلك الخاصة ثم أعد تشغيل الأمر. لا تظهر روابط الويب هوك في أي قناة أبدًا.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "لا يوجد دور مسؤول في هذا الخادم!",

@@ -1528,9 +1528,6 @@ export default {
 		"Não é o proprietário deste webhook",
 	util_securewebhook_action_delete_error: "Erro ao eliminar o webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Os seus webhooks**__:\n",
-	util_securewebhook_sent_in_dm: "Enviei-te os detalhes do webhook por MP.",
-	util_securewebhook_dm_failed:
-		"Não consegui enviar-te uma MP: abre as tuas MP e executa o comando novamente. Os URL de webhook nunca são mostrados num canal.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:

@@ -38,10 +38,7 @@ import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import maskLink from "../../../core/functions/maskLink.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { tempTable } from "../../../Events/client/ready.js";
-import {
-	isConfessionBanned,
-	sealConfessionAuthor
-} from "../../../core/modules/confessionManager.js";
+import { isConfessionBanned } from "../../../core/modules/confessionManager.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 	const confessionId = interaction.customId.split("%")[1];
@@ -172,9 +169,7 @@ ${name}`;
 					new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
 						.setLabel(lang.userinfo_button_label)
-						.setCustomId(
-							`confessionauthor%${sealConfessionAuthor(interaction.client, interaction.user.id)}`
-						)
+						.setCustomId(`confessionauthor%${interaction.user.id}`)
 				)
 			);
 

@@ -1512,9 +1512,6 @@ export default {
 		"Вы не являетесь владельцем этого вебхука",
 	util_securewebhook_action_delete_error: "Ошибка при удалении вебхука",
 	util_securewebhook_actiom_list_ok: ":star: __**Ваши вебхуки**__:\n",
-	util_securewebhook_sent_in_dm: "Я отправил данные вебхука вам в ЛС.",
-	util_securewebhook_dm_failed:
-		"Не удалось написать вам в ЛС: откройте личные сообщения и повторите команду. URL вебхуков никогда не показываются в канале.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "В этом сервере нет роли администратора!",

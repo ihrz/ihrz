@@ -1504,9 +1504,6 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Webhookの削除中にエラーが発生しました",
 	util_securewebhook_actiom_list_ok: ":star: __**あなたのWebhook**__：\n",
-	util_securewebhook_sent_in_dm: "Webhookの詳細をDMで送信しました。",
-	util_securewebhook_dm_failed:
-		"DMを送信できませんでした。DMを開いてからもう一度コマンドを実行してください。WebhookのURLはチャンネルには表示されません。",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "このサーバーには管理者ロールがありません！",

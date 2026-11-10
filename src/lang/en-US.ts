@@ -1490,9 +1490,6 @@ const enUS = {
 		"You are not the owner of this webhook",
 	util_securewebhook_action_delete_error: "Error while deleting the webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Your webhooks**__:\n",
-	util_securewebhook_sent_in_dm: "I sent you the webhook details by DM.",
-	util_securewebhook_dm_failed:
-		"I could not DM you: open your DMs, then run the command again. Webhook URLs are never shown in a channel.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "There is no administrator role in this guild!",

@@ -1567,10 +1567,6 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Erreur lors de la suppression du webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n",
-	util_securewebhook_sent_in_dm:
-		"Je t'ai envoyé les infos de la webhook en MP.",
-	util_securewebhook_dm_failed:
-		"J'ai pas pu t'envoyer de MP : ouvre tes MP puis relance la commande. Les URL de webhook sont jamais affichées dans un salon.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:

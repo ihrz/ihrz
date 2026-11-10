@@ -1535,10 +1535,6 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Errore durante l'eliminazione del webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**I tuoi webhook**__:\n",
-	util_securewebhook_sent_in_dm:
-		"Ti ho inviato i dettagli del webhook in DM.",
-	util_securewebhook_dm_failed:
-		"Non sono riuscito a inviarti un DM: apri i tuoi DM e riesegui il comando. Gli URL dei webhook non vengono mai mostrati in un canale.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
