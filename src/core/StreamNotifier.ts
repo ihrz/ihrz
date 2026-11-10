@@ -145,7 +145,7 @@ export class StreamNotifier {
 	private async getLatestYouTubeVideos(
 		channelId: string
 	): Promise<YoutubeRssResponse[]> {
-		const url = `https://www.googleapis.com/youtube/v3/search?key=${this.youtubeApiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`;
+		const url = `https://www.googleapis.com/youtube/v3/search?key=${this.youtubeApiKey}&channelId=${encodeURIComponent(channelId)}&part=snippet,id&order=date&maxResults=5`;
 		try {
 			const response = await axios.get(url);
 			if (response.data.error) {
@@ -225,7 +225,7 @@ export class StreamNotifier {
 	): Promise<TwitchResponse | null> {
 		try {
 			const { data } = await axios.get(
-				`https://api.twitch.tv/helix/streams?user_login=${userName}`,
+				`https://api.twitch.tv/helix/streams?user_login=${encodeURIComponent(userName)}`,
 				{
 					headers: {
 						"Client-ID": this.twitchClientID,
@@ -355,7 +355,7 @@ export class StreamNotifier {
 		channelId: string
 	): Promise<{ state: boolean; name?: string }> {
 		try {
-			const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${this.youtubeApiKey}`;
+			const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${encodeURIComponent(channelId)}&key=${this.youtubeApiKey}`;
 			const response = await axios.get(url);
 
 			if (response.data.items && response.data.items.length > 0) {
@@ -374,7 +374,7 @@ export class StreamNotifier {
 		userName: string
 	): Promise<{ state: boolean; name?: string }> {
 		try {
-			const url = `https://api.twitch.tv/helix/users?login=${userName}`;
+			const url = `https://api.twitch.tv/helix/users?login=${encodeURIComponent(userName)}`;
 			const response = await axios.get(url, {
 				headers: {
 					"Client-ID": this.twitchClientID,

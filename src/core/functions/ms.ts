@@ -23,8 +23,13 @@ import { LanguageData } from "../../../types/languageData.js";
 
 export class iHorizonTimeCalculator {
 	to_ms(timeString: string): number {
+		// Durations are user input (modals, prefix and slash options): a long
+		// value is refused before any regex runs on it.
+		if (typeof timeString !== "string" || timeString.length > 64) return 0;
 		timeString = timeString.replace(" ", "");
-		const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
+		// One way to read each number (no overlapping digit runs), so the
+		// match stays linear whatever the input.
+		const regex = /(-?(?:\d+(?:\.\d+)?|\.\d+))([a-zA-Z]+)/g;
 
 		const multipliers: Record<string, number> = {
 			ms: 1,

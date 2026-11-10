@@ -163,6 +163,8 @@ export function loadHistory(stored: unknown): PrevnamesHistory {
 }
 
 /** Add a name change to a user's history. A null or empty name is ignored. */
+const MAX_PREVNAMES_ENTRIES = 200;
+
 export async function recordPrevname(
 	table: UnifiedDatabase,
 	userId: string,
@@ -172,9 +174,12 @@ export async function recordPrevname(
 	if (!sanitizeName(change.name)) return;
 	const stored = await table.get(userId);
 	const history = Array.isArray(stored) ? stored : [];
+	// Names can be changed at will: only the newest entries are kept.
 	await table.set(
 		userId,
-		loadHistory([...history, { ...change, at: at.getTime() }])
+		loadHistory([...history, { ...change, at: at.getTime() }]).slice(
+			-MAX_PREVNAMES_ENTRIES
+		)
 	);
 }
 

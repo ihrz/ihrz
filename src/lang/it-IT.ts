@@ -577,6 +577,8 @@ export default {
 	blacklist_not_owner:
 		"Non sei il proprietario del progetto iHorizon. Non puoi usare questo comando.",
 	blacklist_bot_lol: "Non posso inserire me stesso nella lista nera x)",
+	blacklist_cant_blacklist_owner:
+		"Solo gli sviluppatori di iHorizon possono mettere in blacklist un proprietario del bot.",
 	blacklist_command_work:
 		"${memberUsername} è stato inserito nella lista nera",
 	blacklist_blacklisted_but_can_ban_him:
@@ -1533,6 +1535,10 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Errore durante l'eliminazione del webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**I tuoi webhook**__:\n",
+	util_securewebhook_sent_in_dm:
+		"Ti ho inviato i dettagli del webhook in DM.",
+	util_securewebhook_dm_failed:
+		"Non sono riuscito a inviarti un DM: apri i tuoi DM e riesegui il comando. Gli URL dei webhook non vengono mai mostrati in un canale.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
@@ -2544,6 +2550,8 @@ export default {
 		"${emoji_No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute}. Non posso moderare questo membro.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **Il ruolo di ${member} è superiore o uguale al tuo. Non puoi farlo a questo membro.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} Discord ha un limite di 28 giorni per un mute. Ho applicato 28 giorni.",
 
@@ -3280,6 +3288,8 @@ export default {
 		"Quando desideri ricevere una notifica per questa pianificazione? (Esempio: 6g = 6 giorni, 2h = 2 ore, 10m = 10 minuti, 10s = 10 secondi)",
 	schedule_create_not_number_time:
 		"${author}, la tua risposta (il tempo in cui desideri ricevere la notifica per questa pianificazione) non è un numero!",
+	schedule_create_limit_reached:
+		"${author}, hai già ${max} promemoria. Eliminane uno prima di crearne uno nuovo.",
 	schedule_create_embed_fields_name_confirm: "Data di Notifica",
 	schedule_create_embed_title_confirm:
 		"Pianificazione #${scheduleCode} creata!",

@@ -120,7 +120,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		});
 
 		collector?.on("collect", async (i) => {
-			const channel = (i.member as GuildMember).voice.channel;
+			// The channel checked before the menu: the member may have moved since.
+			const channel = targetedChannel;
 			const value = i.values[0];
 
 			await channel?.setRTCRegion(value);

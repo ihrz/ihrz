@@ -159,6 +159,19 @@ export async function run_for_bot_owner(
 		return;
 	}
 
+	// A co-owner cannot blacklist (and network-ban) another co-owner: only
+	// the developers from the config can.
+	if (
+		targetUser &&
+		!client.func.ownerHelper.isBotDev(interaction.member.user.id) &&
+		(await client.func.ownerHelper.isBotOwner(targetUser.id))
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.blacklist_cant_blacklist_owner
+		});
+		return;
+	}
+
 	if (!member && !targetUser) {
 		if (!blacklistedUsers.length) {
 			await client.func.method.interactionSend(interaction, {
@@ -464,10 +477,10 @@ export async function run_for_guild_owner(
 		return;
 
 	if (
-		!client.func.ownerHelper.isGuildOwner(
+		!(await client.func.ownerHelper.isGuildOwner(
 			interaction.member.user.id,
 			interaction.guild
-		)
+		))
 	) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.blacklist_not_owner

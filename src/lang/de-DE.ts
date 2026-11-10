@@ -586,6 +586,8 @@ export default {
 	blacklist_not_owner:
 		"Du bist nicht der Besitzer von iHorizon Projects. Du kannst diesen Befehl nicht verwenden.",
 	blacklist_bot_lol: "Ich kann mich nicht selbst auf die Blacklist setzen x)",
+	blacklist_cant_blacklist_owner:
+		"Nur die iHorizon-Entwickler können einen Bot-Besitzer auf die Blacklist setzen.",
 	blacklist_command_work: "${memberUsername} steht jetzt auf der Blacklist",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} Steht jetzt auf der Blacklist. Kann dieses Mitglied hier nicht bannen, fehlende Berechtigungen?",
@@ -1552,6 +1554,10 @@ export default {
 		"Du bist nicht der Besitzer dieses Webhooks",
 	util_securewebhook_action_delete_error: "Fehler beim Löschen des Webhooks",
 	util_securewebhook_actiom_list_ok: ":star: __**Deine Webhooks**__:\n",
+	util_securewebhook_sent_in_dm:
+		"Ich habe dir die Webhook-Details per DM geschickt.",
+	util_securewebhook_dm_failed:
+		"Ich konnte dir keine DM senden: Öffne deine DMs und führe den Befehl erneut aus. Webhook-URLs werden nie in einem Kanal angezeigt.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
@@ -2567,6 +2573,8 @@ export default {
 		"${emoji_No} | **Meine Rolle auf diesem Server ist niedriger oder gleich ${tomute}. Ich kann dieses Mitglied nicht moderieren.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **Die Rolle von ${member} ist höher oder gleich deiner. Du kannst das bei diesem Mitglied nicht tun.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} Discord hat ein Limit von 28 Tagen für einen Mute. Ich habe 28 Tage angewendet.",
 
@@ -3320,6 +3328,8 @@ export default {
 		"Wann möchten Sie über diesen Zeitplan benachrichtigt werden? (Beispiel: 6t = 6 Tage, 2s = 2 Stunden, 10m = 10 Minuten, 10s = 10 Sekunden)",
 	schedule_create_not_number_time:
 		"${author}, Ihre Antwort (die Zeit, zu der Sie über diesen Zeitplan benachrichtigt werden möchten) ist keine Zahl!",
+	schedule_create_limit_reached:
+		"${author}, du hast bereits ${max} Erinnerungen. Lösche eine, bevor du eine neue erstellst.",
 	schedule_create_embed_fields_name_confirm: "Benachrichtigungsdatum",
 	schedule_create_embed_title_confirm: "Zeitplan #${scheduleCode} erstellt!",
 	schedule_create_confirm_msg:

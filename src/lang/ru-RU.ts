@@ -571,6 +571,8 @@ export default {
 	blacklist_not_owner:
 		"Вы не являетесь владельцем проекта iHorizon. Вы не можете использовать эту команду.",
 	blacklist_bot_lol: "Не могу внести себя в черный список x)",
+	blacklist_cant_blacklist_owner:
+		"Только разработчики iHorizon могут добавить владельца бота в чёрный список.",
 	blacklist_command_work: "${memberUsername} теперь в черном списке",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} Теперь в черном списке, нельзя заблокировать этого участника здесь, отсутствуют разрешения?",
@@ -1510,6 +1512,9 @@ export default {
 		"Вы не являетесь владельцем этого вебхука",
 	util_securewebhook_action_delete_error: "Ошибка при удалении вебхука",
 	util_securewebhook_actiom_list_ok: ":star: __**Ваши вебхуки**__:\n",
+	util_securewebhook_sent_in_dm: "Я отправил данные вебхука вам в ЛС.",
+	util_securewebhook_dm_failed:
+		"Не удалось написать вам в ЛС: откройте личные сообщения и повторите команду. URL вебхуков никогда не показываются в канале.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "В этом сервере нет роли администратора!",
@@ -2505,6 +2510,8 @@ export default {
 		"${emoji_No} | **Моя роль на этом сервере ниже или равна ${tomute}. Я не могу модерировать этого участника.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **Роль ${member} выше или равна вашей. Вы не можете сделать это с этим участником.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} В Discord действует ограничение в 28 дней для мута. Я применил 28 дней.",
 
@@ -3217,6 +3224,8 @@ export default {
 		"Когда вы хотите получать уведомление об этом расписании? (Пример: 6d = 6 дней, 2h = 2 часа, 10m = 10 минут, 10s = 10 секунд)",
 	schedule_create_not_number_time:
 		"${author}, ваш ответ (время, когда вы хотите получать уведомление об этом расписании) не является числом!",
+	schedule_create_limit_reached:
+		"${author}, у вас уже ${max} напоминаний. Удалите одно, прежде чем создавать новое.",
 	schedule_create_embed_fields_name_confirm: "Дата уведомления",
 	schedule_create_embed_title_confirm: "Расписание #${scheduleCode} создано!",
 	schedule_create_confirm_msg:

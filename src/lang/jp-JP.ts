@@ -558,6 +558,8 @@ export default {
 	blacklist_not_owner:
 		"あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。",
 	blacklist_bot_lol: "自分自身をブラックリストにすることはできません x)",
+	blacklist_cant_blacklist_owner:
+		"ボットのオーナーをブラックリストに追加できるのは iHorizon の開発者だけです。",
 	blacklist_command_work:
 		"${memberUsername}は今、ブラックリストに登録されています。",
 	blacklist_blacklisted_but_can_ban_him:
@@ -1502,6 +1504,9 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Webhookの削除中にエラーが発生しました",
 	util_securewebhook_actiom_list_ok: ":star: __**あなたのWebhook**__：\n",
+	util_securewebhook_sent_in_dm: "Webhookの詳細をDMで送信しました。",
+	util_securewebhook_dm_failed:
+		"DMを送信できませんでした。DMを開いてからもう一度コマンドを実行してください。WebhookのURLはチャンネルには表示されません。",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "このサーバーには管理者ロールがありません！",
@@ -2499,6 +2504,8 @@ export default {
 		"${emoji_No} | **このサーバーでの私の役職は ${tomute} と同じかそれ以下です。このメンバーをモデレートできません。**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **${member} のロールはあなたと同じかそれ以上です。このメンバーにはこの操作を行えません。**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} Discordではミュートの制限は28日です。28日を適用しました。",
 
@@ -3218,6 +3225,8 @@ export default {
 		"このスケジュールについて通知を受けるタイミングはいつですか？ (例: 6d = 6日間、2h = 2時間、10m = 10分、10s = 10秒)",
 	schedule_create_not_number_time:
 		"${author}、あなたの回答（このスケジュールの通知タイミング）は数値ではありません！",
+	schedule_create_limit_reached:
+		"${author}、リマインダーはすでに ${max} 件あります。新しく作成する前に1つ削除してください。",
 	schedule_create_embed_fields_name_confirm: "通知日時",
 	schedule_create_embed_title_confirm:
 		"#${scheduleCode} スケジュールが作成されました！",

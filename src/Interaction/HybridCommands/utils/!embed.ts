@@ -36,7 +36,10 @@ import {
 	ChannelType,
 	ButtonInteraction,
 	ChannelSelectMenuInteraction,
+	GuildBasedChannel,
 	Message,
+	PermissionFlagsBits,
+	PermissionResolvable,
 	TextChannel
 } from "discord.js";
 
@@ -102,6 +105,24 @@ class EmbedManager {
 		this.lang = lang;
 		this.embed = new EmbedBuilder().setDescription("** **");
 		this.files = { footer: null, image: null, thumbnail: null };
+	}
+
+	/**
+	 * The bot reaches every channel: the author must hold the permissions
+	 * the action would need if they did it themselves in that channel.
+	 */
+	private authorCan(
+		channel: GuildBasedChannel,
+		permissions: PermissionResolvable[]
+	): boolean {
+		const member = this.interaction.member;
+		if (!member) return false;
+		return (
+			channel
+				.permissionsFor(member.user.id)
+				?.has([PermissionFlagsBits.ViewChannel, ...permissions]) ??
+			false
+		);
 	}
 
 	// Optimized file management
@@ -246,7 +267,10 @@ class EmbedManager {
 		const channel = this.interaction.guild?.channels.cache.get(
 			parts.channelId
 		) as TextChannel;
-		if (!channel) {
+		if (
+			!channel ||
+			!this.authorCan(channel, [PermissionFlagsBits.ReadMessageHistory])
+		) {
 			throw new Error(this.lang.embed_copy_bad_channel_msg);
 		}
 
@@ -481,6 +505,22 @@ class EmbedManager {
 				);
 				if (!channel) return;
 
+				if (
+					!this.authorCan(channel, [PermissionFlagsBits.SendMessages])
+				) {
+					await result
+						.reply({
+							content:
+								this.lang.var_doesnt_have_permissions.replace(
+									"{permission}",
+									"SendMessages"
+								),
+							flags: [1 << 6]
+						})
+						.catch(() => {});
+					return;
+				}
+
 				await (channel as BaseGuildTextChannel).send({
 					embeds: [this.embed],
 					files: this.getFilesArray()
@@ -542,7 +582,13 @@ class EmbedManager {
 			const channel = this.interaction.guild?.channels.cache.get(
 				parts.channelId
 			) as TextChannel;
-			if (!channel) {
+			if (
+				!channel ||
+				!this.authorCan(channel, [
+					PermissionFlagsBits.SendMessages,
+					PermissionFlagsBits.ManageMessages
+				])
+			) {
 				throw new Error(this.lang.embed_copy_bad_channel_msg);
 			}
 

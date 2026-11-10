@@ -21,6 +21,7 @@
 
 import { exec } from "child_process";
 import { promisify } from "util";
+import { randomUUID } from "crypto";
 import { tempDir } from "./mediaManipulation.js";
 import path from "path";
 import { readFile, rm, writeFile } from "fs/promises";
@@ -35,13 +36,16 @@ class KdenLive {
 	}
 
 	async tempSave(projectData: string): Promise<string> {
-		const savedFile = path.join(tempDir, `${Date.now()}.kdenlive`);
+		const savedFile = path.join(tempDir, `${randomUUID()}.kdenlive`);
 		await writeFile(savedFile, projectData, "utf8");
 		return savedFile;
 	}
 
 	async export(projectPath: string): Promise<string> {
-		const exportPath = path.join(tempDir, `merged_video_${Date.now()}.mp4`);
+		const exportPath = path.join(
+			tempDir,
+			`merged_video_${randomUUID()}.mp4`
+		);
 		try {
 			const command = `xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`;
 			await execAsync(command);

@@ -71,6 +71,19 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
+			const refusedReason =
+				client.func.permissonsCalculator.getRefusedRoleReason(
+					role,
+					member,
+					lang
+				);
+			if (refusedReason) {
+				await client.func.method.interactionSend(interaction, {
+					content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+				});
+				return;
+			}
+
 			const channel = interaction.channel;
 			if (!(channel instanceof TextChannel)) {
 				await client.func.method.interactionSend(interaction, {

@@ -43,7 +43,8 @@ import maskLink from "../../../core/functions/maskLink.js";
 import { tempTable } from "../../../Events/client/ready.js";
 import {
 	isConfessionBanned,
-	pruneConfessions
+	pruneConfessions,
+	sealConfessionAuthor
 } from "../../../core/modules/confessionManager.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
@@ -340,7 +341,9 @@ ${name}`;
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setStyle(ButtonStyle.Secondary)
-					.setCustomId(`confessionauthor%${interaction.user.id}`)
+					.setCustomId(
+						`confessionauthor%${sealConfessionAuthor(interaction.client, interaction.user.id)}`
+					)
 					.setLabel(lang.userinfo_button_label)
 			)
 		);

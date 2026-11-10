@@ -55,6 +55,23 @@ export const subCommand: SubCommand = {
 		const role = opts.role("role", 2);
 
 		if (!part_of_nickname || !role) return;
+
+		const author = interaction.member;
+		const refusedReason =
+			client.func.permissonsCalculator.getRefusedRoleReason(
+				role,
+				author,
+				lang
+			);
+		if (refusedReason) {
+			await client.func.method.interactionSend(interaction, {
+				content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+			});
+			return;
+		}
+		const guildOwnerId = interaction.guild.ownerId;
+		const authorIsOwner = guildOwnerId === author.id;
+
 		let a: number = 0;
 		let s: number = 0;
 		let e: number = 0;
@@ -73,7 +90,12 @@ export const subCommand: SubCommand = {
 								member.nickname
 									.toLowerCase()
 									.includes(part_of_nickname!))) &&
-						member.roles.cache.has(role?.id!) !== adding
+						member.roles.cache.has(role?.id!) !== adding &&
+						(adding ||
+							authorIsOwner ||
+							(member.id !== guildOwnerId &&
+								member.roles.highest.position <
+									author.roles.highest.position))
 				);
 
 				// Count members that were skipped

@@ -76,7 +76,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		if (!response) return;
 
-		const channel = (interaction.member as GuildMember).voice.channel;
+		// The channel checked before the modal: the member may have moved since.
+		const channel = targetedChannel;
 		const name = response.fields.getTextInputValue("name");
 		channel?.setName(maskLink(name));
 

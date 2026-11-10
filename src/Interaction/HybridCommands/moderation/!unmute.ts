@@ -76,6 +76,21 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		if (
+			interaction.guild.ownerId !== interaction.member.user.id &&
+			(tomute.id === interaction.guild.ownerId ||
+				tomute.roles.highest.position >=
+					(interaction.member as GuildMember).roles.highest.position)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.moderation_target_higher_role.replace(
+					"${member}",
+					tomute.toString()
+				)
+			});
+			return;
+		}
+
 		if (!tomute?.isCommunicationDisabled() === true) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unmute_not_muted

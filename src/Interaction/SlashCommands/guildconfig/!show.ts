@@ -314,7 +314,8 @@ export const subCommand: SubCommand = {
 
 		const collector = interaction.channel?.createMessageComponentCollector({
 			filter: (i) =>
-				originalResponse.id == i.message.id && i.user.id === i.user.id,
+				originalResponse.id == i.message.id &&
+				i.user.id === interaction.user.id,
 			time: 60_000 * 15
 		});
 

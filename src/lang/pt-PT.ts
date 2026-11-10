@@ -575,6 +575,8 @@ export default {
 	blacklist_not_owner:
 		"Você não é dono dos Projetos iHorizon. Você não pode usar este comando.",
 	blacklist_bot_lol: "Não posso me colocar na lista negra x)",
+	blacklist_cant_blacklist_owner:
+		"Só os programadores do iHorizon podem colocar um dono do bot na lista negra.",
 	blacklist_command_work: "${memberUsername} agora está na lista negra",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} Agora está na lista negra, não consigo banir este membro aqui, falta permissão?",
@@ -1526,6 +1528,9 @@ export default {
 		"Não é o proprietário deste webhook",
 	util_securewebhook_action_delete_error: "Erro ao eliminar o webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Os seus webhooks**__:\n",
+	util_securewebhook_sent_in_dm: "Enviei-te os detalhes do webhook por MP.",
+	util_securewebhook_dm_failed:
+		"Não consegui enviar-te uma MP: abre as tuas MP e executa o comando novamente. Os URL de webhook nunca são mostrados num canal.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
@@ -2530,6 +2535,8 @@ export default {
 		"${emoji_No} | **O meu cargo neste servidor é inferior ou igual a ${tomute}. Não consigo moderar este membro.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **O cargo de ${member} é superior ou igual ao teu. Não podes fazer isto a este membro.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} O Discord tem um limite de 28 dias para um mute. Apliquei 28 dias.",
 
@@ -3247,6 +3254,8 @@ export default {
 		"Quando você quer ser notificado sobre esta agenda? (Exemplo: 6d = 6 dias, 2h = 2 horas, 10m = 10 minutos, 10s = 10 segundos)",
 	schedule_create_not_number_time:
 		"${author}, sua resposta (o tempo que você quer ser notificado sobre esta agenda) não é um número!",
+	schedule_create_limit_reached:
+		"${author}, já tens ${max} lembretes. Elimina um antes de criares outro.",
 	schedule_create_embed_fields_name_confirm: "Data Notificada",
 	schedule_create_embed_title_confirm: "Agenda #${scheduleCode} Criada!",
 	schedule_create_confirm_msg:

@@ -533,6 +533,8 @@ export default {
 	blacklist_not_owner:
 		"أنت لست مالك مشاريع iHorizon. لا يمكنك استخدام هذا الأمر.",
 	blacklist_bot_lol: "لا يمكن حظر نفسي x)",
+	blacklist_cant_blacklist_owner:
+		"مطورو iHorizon فقط يمكنهم إضافة مالك البوت إلى القائمة السوداء.",
 	blacklist_command_work: "${memberUsername} تم حظره الآن",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} تم حظره الآن، لا يمكن حظر هذا العضو هنا، هل تفتقد الإذن؟",
@@ -1427,6 +1429,9 @@ export default {
 	util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا الويب هوك",
 	util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك",
 	util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n",
+	util_securewebhook_sent_in_dm: "أرسلت لك تفاصيل الويب هوك في رسالة خاصة.",
+	util_securewebhook_dm_failed:
+		"تعذر إرسال رسالة خاصة لك: افتح رسائلك الخاصة ثم أعد تشغيل الأمر. لا تظهر روابط الويب هوك في أي قناة أبدًا.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "لا يوجد دور مسؤول في هذا الخادم!",
@@ -2363,6 +2368,8 @@ export default {
 		"${emoji_No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute}. لا أستطيع معاقبة هذا العضو.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **رتبة ${member} أعلى من رتبتك أو مساوية لها. لا يمكنك تنفيذ هذا على هذا العضو.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} لدى ديسكورد حد أقصى قدره 28 يومًا للكتم. لقد قمت بتطبيق 28 يومًا.",
 
@@ -3048,6 +3055,8 @@ export default {
 		"متى تريد أن يتم إعلامك بهذا الجدول؟ (مثال: 6d = 6 أيام، 2h = 2 ساعات، 10m = 10 دقائق، 10s = 10 ثواني)",
 	schedule_create_not_number_time:
 		"${author}, ردك (الوقت الذي تريد أن يتم إعلامك به بهذا الجدول) ليس رقماً!",
+	schedule_create_limit_reached:
+		"${author}، لديك بالفعل ${max} تذكيرات. احذف واحدًا قبل إنشاء تذكير جديد.",
 	schedule_create_embed_fields_name_confirm: "تاريخ الإعلام",
 	schedule_create_embed_title_confirm: "#${scheduleCode} تم إنشاء الجدول!",
 	schedule_create_confirm_msg:

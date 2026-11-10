@@ -104,9 +104,8 @@ export async function run_for_bot_owner(
 	)
 		return;
 
-	if (
-		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id!))
-	) {
+	// Only the developers from the config can remove a bot co-owner.
+	if (!client.func.ownerHelper.isBotDev(interaction.member.user.id!)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_not_owner
 		});

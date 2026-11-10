@@ -19,7 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { StringSelectMenuInteraction } from "discord.js";
+import { PermissionFlagsBits, StringSelectMenuInteraction } from "discord.js";
+
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 export default async function (
 	interaction: StringSelectMenuInteraction<"cached">
@@ -27,9 +29,20 @@ export default async function (
 	const baseData = await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.ROLE_SELECT.${interaction.message.id}`
 	);
-	if (!baseData) return;
+	if (!Array.isArray(baseData)) return;
 
-	const role = interaction.values[0].split("_")[1];
+	const role = interaction.values[0]?.split("_")[1];
+
+	// Only a role configured on this menu can be picked.
+	if (
+		!role ||
+		!(baseData as DatabaseStructure.RoleReactData).some(
+			(entry) => entry.roleId === role
+		)
+	) {
+		await interaction.deferUpdate().catch(() => {});
+		return;
+	}
 
 	const lang = await interaction.client.func.getLanguageData(
 		interaction.guildId
@@ -63,6 +76,15 @@ export default async function (
 					"${role}",
 					fetched_role.toString()
 				),
+				flags: [1 << 6]
+			});
+		} else if (
+			// A self-assign panel never hands out Administrator, even when
+			// the role gained it after the panel was configured.
+			fetched_role.permissions.has(PermissionFlagsBits.Administrator)
+		) {
+			await interaction.reply({
+				content: lang.buttonreaction_role_too_high,
 				flags: [1 << 6]
 			});
 		} else {

@@ -45,7 +45,23 @@ const binaryExtensions: string[] = [
 	"gz",
 	"tar",
 	"rar",
-	"asar"
+	"asar",
+	"scr",
+	"com",
+	"pif",
+	"cpl",
+	"jar",
+	"lnk",
+	"hta",
+	"js",
+	"jse",
+	"vbe",
+	"wsf",
+	"reg",
+	"iso",
+	"img",
+	"msix",
+	"appx"
 ];
 
 export function ilegalFile(str: string): boolean {

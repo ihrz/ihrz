@@ -137,7 +137,7 @@ Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez vo
 - Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps (une deuxième envoyée trop vite reçoit un court message). `/economy rob` et `/economy pay` verrouillent aussi l'autre membre, et `/economy deposit` / `/economy withdraw` n'acceptent que des montants entiers positifs
 - Les commandes de giveaway n'agissent que sur les giveaways du serveur actuel
 - `/mod tempban`, `/mod ban` et `/mod kick` refusent d'agir sur un membre dont le rôle le plus haut est égal ou supérieur au vôtre
-- `/utils addrole`, `/utils delrole` et `/economy role add` refusent un rôle au-dessus de votre rôle le plus haut ou ayant des permissions que vous n'avez pas
+- `/utils addrole`, `/utils delrole`, `/economy role add`, `/mod temprole`, `/utils massiverole`, `/utils nickrole`, `/utils addrolereact`, les récompenses de niveau et les panneaux de rôles (boutons, réactions, menus) refusent un rôle au-dessus de votre rôle le plus haut ou ayant des permissions que vous n'avez pas ; le retrait de `massiverole`/`nickrole` ignore les membres de rang égal ou supérieur au vôtre, et les panneaux en libre-service ne donnent jamais un rôle Administrateur, seulement les rôles de leur propre menu
 - `/tag edit` est réservé à l'auteur du tag et aux administrateurs, et refuse les noms invalides ou déjà utilisés
 - `/ticket delete`, `/ticket transcript` et `/ticket open` exigent l'auteur du ticket ou le staff aussi depuis la commande, plus seulement depuis les boutons
 - Les messages du bot ne mentionnent plus `@everyone`, `@here` ou des rôles depuis du texte d'utilisateur (tags, options renvoyées, messages sticky) ; les notifications de stream et les pings du staff des tickets gardent leurs mentions configurées
@@ -146,6 +146,17 @@ Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez vo
 - Le choix du fuseau du mode nuit et le choix du rôle de role-select n'acceptent que la personne qui les a ouverts
 - Les codes de sécurité AuthRestore ne sont plus enregistrés dans les logs de commandes
 - « Convertir en MP4 » refuse tout de suite les fichiers de plus de 25 Mo ou l'audio de plus de 10 minutes
+- `/mod unmute`, `/mod unmuteall`, `/utils lockname` et `/utils unlockname` n'agissent plus sur le propriétaire du serveur ni sur un membre de rang égal ou supérieur
+- Les boutons des salons vocaux temporaires (nom, limite, région) ne modifient que le salon dont vous êtes propriétaire, même si vous changez de salon avant de valider
+- `/utils embed` ne copie, n'envoie et ne remplace que dans les salons où vous avez les permissions correspondantes
+- `/utils prevnames` sur quelqu'un d'autre n'affiche plus que ses surnoms du serveur actuel, et non plus les noms et surnoms de tous les serveurs où il se trouve
+- Les logs de confessions ne contiennent plus l'identifiant de l'auteur dans le bouton : seul un modérateur qui clique dessus peut voir qui l'a écrite
+- `securewebhook` supprime le message de commande (il contient l'URL de la webhook) et n'envoie les URL de webhook qu'en MP ; les tokens de webhook sont retirés des logs de commandes
+- Seuls les développeurs d'iHorizon peuvent ajouter ou retirer des owners du bot et blacklister un owner du bot (un co-owner pouvait ajouter d'autres co-owners ou bannir un autre co-owner de tout le réseau)
+- Les durées tapées par les membres (`/schedule`, tempban, giveaways...) sont refusées au-delà de 64 caractères : une durée très longue pouvait figer un shard plusieurs secondes. `/schedule` refuse une heure invalide et garde au plus 25 rappels par membre, jusqu'à 10 ans à l'avance
+- Les pages de `/guildconfig show` ne tournent que pour l'admin qui l'a lancée ; `/authrestore roles` n'accepte que la clé du serveur actuel ; `/status` n'affiche plus la version du noyau de l'hôte
+- L'anti-exe bloque aussi `.scr`, `.com`, `.pif`, `.cpl`, `.jar`, `.lnk`, `.hta`, `.js`, `.jse`, `.vbe`, `.wsf`, `.reg`, `.iso`, `.img`, `.msix` et `.appx`
+- Auto-hébergement : la génération de médias utilise un dossier privé (`.ihorizon/media-manipulation`) au lieu d'un dossier partagé dans `/tmp`, et l'historique des noms garde les 200 dernières entrées
 - Auto-hébergement : nodemailer passe en 10.4.0 et undici est corrigé ; les noms de serveur sont échappés dans les e-mails de notification de l'owner
 
 ---

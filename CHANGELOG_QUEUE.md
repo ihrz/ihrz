@@ -137,7 +137,7 @@ This release fixes several security issues. **If you host your own iHorizon inst
 - Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once (a second one sent too fast gets a short notice). `/economy rob` and `/economy pay` also lock the other member, and `/economy deposit` / `/economy withdraw` only accept whole positive amounts
 - Giveaway commands only act on giveaways of the current server
 - `/mod tempban`, `/mod ban` and `/mod kick` refuse to act on a member whose highest role is equal to or above yours
-- `/utils addrole`, `/utils delrole` and `/economy role add` refuse a role above your own highest role or carrying permissions you don't have
+- `/utils addrole`, `/utils delrole`, `/economy role add`, `/mod temprole`, `/utils massiverole`, `/utils nickrole`, `/utils addrolereact`, level rewards and role panels (buttons, reactions, select menus) refuse a role above your own highest role or carrying permissions you don't have; `massiverole`/`nickrole` removal skips members ranked at or above you, and self-assign panels never give an Administrator role, only the roles of their own menu
 - `/tag edit` is limited to the tag's author and administrators, and refuses invalid names or a name already in use
 - `/ticket delete`, `/ticket transcript` and `/ticket open` require the ticket author or staff from the command too, not only from the buttons
 - Bot messages no longer ping `@everyone`, `@here` or roles from user text (tags, echoed options, sticky messages); stream notifications and ticket staff pings keep their configured mentions
@@ -146,6 +146,17 @@ This release fixes several security issues. **If you host your own iHorizon inst
 - The night-mode timezone picker and the role-select role picker only accept the person who opened them
 - AuthRestore security keys are no longer stored in the command logs
 - "Convert to MP4" refuses files over 25 MB or audio longer than 10 minutes straight away
+- `/mod unmute`, `/mod unmuteall`, `/utils lockname` and `/utils unlockname` no longer act on the server owner or a member ranked equal or higher
+- Temporary voice buttons (name, limit, region) only change the channel you own, even if you move to another channel before submitting
+- `/utils embed` only copies from, sends to or replaces in channels where you have the matching permissions
+- `/utils prevnames` on someone else only shows their nicknames from the current server, no longer the names and nicknames of every server they are in
+- Confession logs no longer carry the author's id in the button: only a moderator clicking it can see who wrote it
+- `securewebhook` deletes the command message (it holds the webhook URL) and sends webhook URLs by DM only; webhook tokens are removed from the command logs
+- Only the iHorizon developers can add or remove bot owners and blacklist a bot owner (a co-owner could add more co-owners or network-ban another one)
+- Durations typed by members (`/schedule`, tempban, giveaways...) are refused past 64 characters: a long one could freeze a shard for seconds. `/schedule` refuses an invalid time and keeps at most 25 reminders per member, up to 10 years ahead
+- `/guildconfig show` pages only turn for the admin who ran it; `/authrestore roles` only accepts the key of the current server; `/status` no longer shows the host's kernel version
+- Anti-exe also blocks `.scr`, `.com`, `.pif`, `.cpl`, `.jar`, `.lnk`, `.hta`, `.js`, `.jse`, `.vbe`, `.wsf`, `.reg`, `.iso`, `.img`, `.msix` and `.appx`
+- Self-hosting: media generation uses a private folder (`.ihorizon/media-manipulation`) instead of a shared one in `/tmp`, and name histories keep the latest 200 entries
 - Self-hosting: nodemailer updated to 10.4.0 and undici patched; server names are escaped in owner notification emails
 
 ---

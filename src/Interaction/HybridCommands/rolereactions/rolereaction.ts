@@ -206,6 +206,18 @@ export const command: Command = {
 				});
 			}
 
+			const refusedReason =
+				client.func.permissonsCalculator.getRefusedRoleReason(
+					role,
+					interaction.member!,
+					lang
+				);
+			if (refusedReason) {
+				return await client.func.method.interactionSend(interaction, {
+					content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+				});
+			}
+
 			if (!channel || !messagei || !/^\d+$/.test(messagei)) {
 				return await client.func.method.interactionSend(interaction, {
 					content: lang.reactionroles_dont_message_found

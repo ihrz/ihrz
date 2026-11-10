@@ -119,6 +119,35 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		// Role and target are checked against the author too, not only the
+		// bot: nobody gives a role they could not give themselves.
+		const refusedReason =
+			client.func.permissonsCalculator.getRefusedRoleReason(
+				roleToAdd,
+				interaction.member,
+				lang
+			);
+		if (refusedReason) {
+			await client.func.method.interactionSend(interaction, {
+				content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+			});
+			return;
+		}
+
+		if (
+			interaction.guild.ownerId !== interaction.member.user.id &&
+			memberToAdd.id !== interaction.member.user.id &&
+			memberToAdd.roles.highest.position >=
+				interaction.member.roles.highest.position
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.temprole_tomute_highest_role_or_same
+					.replace("${emoji_No}", client.iHorizon_Emojis.No)
+					.replace("${tomute}", memberToAdd.toString())
+			});
+			return;
+		}
+
 		if (
 			(await client.temproleManager.isAlreadyWithThisRole(
 				memberToAdd,

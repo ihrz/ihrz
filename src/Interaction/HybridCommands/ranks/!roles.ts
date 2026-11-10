@@ -34,7 +34,8 @@ import {
 	TextInputStyle,
 	ComponentType,
 	Colors,
-	Role
+	Role,
+	GuildMember
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -267,6 +268,31 @@ export const subCommand: SubCommand = {
 
 				const selectedRole = response1.roles.first();
 				if (!selectedRole) return;
+
+				// A level reward is handed out by the bot: refuse a role the
+				// member configuring it could not give themselves.
+				const refusedReason = response1.member
+					? client.func.permissonsCalculator.getRefusedRoleReason(
+							selectedRole as Role,
+							response1.member as GuildMember,
+							lang
+						)
+					: lang.ranks_config_add_invalid_role.replace(
+							"{role}",
+							selectedRole.toString()
+						);
+				if (refusedReason) {
+					await response1.reply({
+						content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`,
+						flags: [1 << 6]
+					});
+					await message.edit({
+						content: null,
+						embeds: [createRankRolesEmbed(currentPage)],
+						components: [createActionRow()]
+					});
+					return;
+				}
 
 				const rolePermissions = new PermissionsBitField(
 					(selectedRole as Role).permissions

@@ -346,6 +346,24 @@ export const command: Command = {
 				.catch(() => null);
 
 			if (roleResponse) {
+				const pickedRole = roleResponse.roles.first();
+				const refusedReason = pickedRole
+					? client.func.permissonsCalculator.getRefusedRoleReason(
+							pickedRole,
+							roleResponse.member,
+							lang
+						)
+					: lang.buttonreaction_roles_not_found;
+				if (refusedReason) {
+					await roleResponse.reply({
+						content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`,
+						flags: [1 << 6]
+					});
+					roleSelectResponse?.delete();
+					updateConfiguration(baseData);
+					return;
+				}
+
 				if (baseData.find((x) => x.roleId === roleResponse.values[0])) {
 					await roleResponse.reply({
 						content: lang.roleselect_role_already_exist,

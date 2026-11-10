@@ -213,10 +213,10 @@ export async function run_for_guild_owner(
 		opts.longString("new_reason", 1, true);
 
 	if (
-		!client.func.ownerHelper.isGuildOwner(
+		!(await client.func.ownerHelper.isGuildOwner(
 			interaction.member.user.id,
 			interaction.guild
-		)
+		))
 	) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(

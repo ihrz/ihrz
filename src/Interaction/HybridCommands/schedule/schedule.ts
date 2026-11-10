@@ -45,6 +45,11 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { scheduleTable } from "../../../Events/client/ready.js";
 
+// A reminder list is shown in one embed (25 fields at most), and the delay is
+// bounded so entries cannot be parked in the shared table forever.
+const MAX_SCHEDULES_PER_USER = 25;
+const MAX_SCHEDULE_DELAY_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+
 export const command: Command = {
 	name: "schedule",
 	description: "Manager for schedule category!",
@@ -448,7 +453,11 @@ export const command: Command = {
 				async function __0(date0: number, collection: string[]) {
 					const scheduleCode = generatePassword({ length: 16 });
 
-					if (Number.isNaN(date0)) {
+					if (
+						!Number.isFinite(date0) ||
+						date0 <= 0 ||
+						date0 > MAX_SCHEDULE_DELAY_MS
+					) {
 						original_interaction.edit({
 							embeds: [],
 							content:
@@ -483,6 +492,27 @@ export const command: Command = {
 							.replace("${author}", user.toString())
 							.replace("${scheduleCode}", scheduleCode)
 					});
+
+					const existing =
+						((await scheduleTable.get(user.id)) as Record<
+							string,
+							unknown
+						> | null) || {};
+					if (
+						Object.keys(existing).length >= MAX_SCHEDULES_PER_USER
+					) {
+						original_interaction.edit({
+							embeds: [],
+							content: lang.schedule_create_limit_reached
+								.replace("${author}", user.toString())
+								.replace(
+									"${max}",
+									String(MAX_SCHEDULES_PER_USER)
+								),
+							files: []
+						});
+						return;
+					}
 
 					await scheduleTable.set(`${user.id}.${scheduleCode}`, {
 						title: collection[0],

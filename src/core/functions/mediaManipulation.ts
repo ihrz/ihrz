@@ -22,13 +22,21 @@
 import Jimp from "jimp";
 import path from "path";
 import fs from "node:fs";
-import os from "os";
 import { mkdir } from "fs/promises";
 import { fitsDecodeBudget } from "./svgKit.ts";
 import { isPublicImageUrl } from "../svg/remoteImage.ts";
 
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
-export const tempDir = path.join(os.tmpdir(), "media-manipulation");
+// Private to the bot (0700, under its own working directory): a shared /tmp
+// folder would let another local account plant symlinks or swap the
+// project files handed to melt.
+export const tempDir = path.join(
+	process.cwd(),
+	".ihorizon",
+	"media-manipulation"
+);
+fs.mkdirSync(tempDir, { recursive: true, mode: 0o700 });
+fs.chmodSync(tempDir, 0o700);
 
 export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 	if (!fs.existsSync(tempDir)) {

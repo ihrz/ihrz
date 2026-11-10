@@ -74,6 +74,22 @@ export const subCommand: SubCommand = {
 		const guild = interaction.guild;
 		const author = interaction.member;
 
+		if (role) {
+			const refusedReason =
+				client.func.permissonsCalculator.getRefusedRoleReason(
+					role,
+					author,
+					lang
+				);
+
+			if (refusedReason) {
+				await client.func.method.interactionSend(interaction, {
+					content: `${emojis.Stop} ${refusedReason}`
+				});
+				return;
+			}
+		}
+
 		// The progress line and the result are both Components V2, so the
 		// message can be edited from one to the other.
 		const ogInteraction = await sendCard(
@@ -134,8 +150,17 @@ export const subCommand: SubCommand = {
 			const adding = action === "add";
 			try {
 				const members = await guild.members.fetch();
+				const authorIsOwner = guild.ownerId === author.id;
 				const membersToProcess = Array.from(members.values()).filter(
-					(member) => member.roles.cache.has(role?.id!) !== adding
+					(member) =>
+						member.roles.cache.has(role?.id!) !== adding &&
+						// A role is never removed from someone ranked at or
+						// above the author.
+						(adding ||
+							authorIsOwner ||
+							(member.id !== guild.ownerId &&
+								member.roles.highest.position <
+									author.roles.highest.position))
 				);
 
 				// Members that already have the role (add) or never had it (sub)

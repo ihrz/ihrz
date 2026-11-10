@@ -20,7 +20,7 @@
 */
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
-import { ButtonInteraction } from "discord.js";
+import { ButtonInteraction, PermissionFlagsBits } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 export default async function (
@@ -73,6 +73,15 @@ export default async function (
 					"${role}",
 					fetched_role.toString()
 				),
+				flags: [1 << 6]
+			});
+		} else if (
+			// A self-assign panel never hands out Administrator, even when
+			// the role gained it after the panel was configured.
+			fetched_role.permissions.has(PermissionFlagsBits.Administrator)
+		) {
+			await interaction.reply({
+				content: lang.buttonreaction_role_too_high,
 				flags: [1 << 6]
 			});
 		} else {

@@ -99,7 +99,7 @@ export const command: Command = {
 				},
 				{
 					name: `${OS_INFO?.emojis} OS`,
-					value: `${OS_INFO?.name} ${os.platform()} ${os.release()}`,
+					value: `${OS_INFO?.name} ${os.platform()}`,
 					inline: false
 				},
 				{

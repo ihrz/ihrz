@@ -146,6 +146,15 @@ export async function run_for_bot_owner(
 		return;
 	}
 
+	// Only the developers from the config can grant bot ownership: a co-owner
+	// added here must not be able to add more co-owners.
+	if (!client.func.ownerHelper.isBotDev(interaction.member.user.id)) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.owner_not_owner
+		});
+		return;
+	}
+
 	const is_owner = await client.func.ownerHelper.isBotOwner(member.id);
 
 	if (is_owner) {

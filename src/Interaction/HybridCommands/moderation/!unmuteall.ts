@@ -22,6 +22,7 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
+	GuildMember,
 	Message,
 	PermissionsBitField
 } from "discord.js";
@@ -57,9 +58,20 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		const isOwner =
+			interaction.guild.ownerId === interaction.member.user.id;
+		const authorPosition = (interaction.member as GuildMember).roles.highest
+			.position;
 		const mutedMembers = Array.from(
 			interaction.guild.members.cache
-				.filter((member) => member.isCommunicationDisabled())
+				.filter(
+					(member) =>
+						member.isCommunicationDisabled() &&
+						// Only members below the author, like a single unmute.
+						(isOwner ||
+							(member.id !== interaction.guild!.ownerId &&
+								member.roles.highest.position < authorPosition))
+				)
 				.values()
 		);
 

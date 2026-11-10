@@ -25,6 +25,8 @@ import {
 	MessageFlags,
 	PermissionFlagsBits
 } from "discord.js";
+
+import { openConfessionAuthor } from "../../../core/modules/confessionManager.js";
 export default async function (interaction: ButtonInteraction<"cached">) {
 	if (
 		!interaction.memberPermissions.has(PermissionFlagsBits.ModerateMembers)
@@ -43,7 +45,11 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	}
 
-	const confessionAuthor = interaction.customId.split("%")[1];
+	const payload = interaction.customId.split("%")[1] || "";
+	// Buttons posted before the author id was sealed hold it in clear.
+	const confessionAuthor = /^\d{17,20}$/.test(payload)
+		? payload
+		: openConfessionAuthor(interaction.client, payload);
 
 	// The author may have left the guild: look the account up, not the member.
 	const user = confessionAuthor

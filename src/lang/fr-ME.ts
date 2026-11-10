@@ -592,6 +592,8 @@ export default {
 		"T'es pas le patron du projet iHorizon. Cette commande ne marche pas pour toi.",
 	blacklist_bot_lol:
 		"Je peux pas me blacklist moi meme trou dballe , réssaie t bl",
+	blacklist_cant_blacklist_owner:
+		"Y a que les développeurs d'iHorizon qui peuvent blacklister un proprio du bot.",
 	blacklist_command_work:
 		"${memberUsername} est maintenant blacklisté allez degage de la on veut pas de toi",
 	blacklist_blacklisted_but_can_ban_him:
@@ -1565,6 +1567,10 @@ export default {
 	util_securewebhook_action_delete_error:
 		"Erreur lors de la suppression du webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n",
+	util_securewebhook_sent_in_dm:
+		"Je t'ai envoyé les infos de la webhook en MP.",
+	util_securewebhook_dm_failed:
+		"J'ai pas pu t'envoyer de MP : ouvre tes MP puis relance la commande. Les URL de webhook sont jamais affichées dans un salon.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
@@ -2591,6 +2597,8 @@ export default {
 		"${emoji_No} | **Mon rôle sur ce serveur est plus bas ou égal à ${tomute}. Je ne peux pas modérer ce membre.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **Le rôle de ${tomute} est supérieur ou égal au vôtre. Vous ne pouvez pas le rendre muet.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **Le rôle de ${member} est au-dessus ou égal au tien. Tu peux pas lui faire ça.**",
 	tempmute_tomute_max_time_passed:
 		"\n-#  ${emoji_VC_OpenChat} Discord as une limite de 28 jours pour un mute. J'ai appliquer 28 jours.",
 
@@ -3339,6 +3347,8 @@ export default {
 		"Quand souhaite-tu être notifié de cette planification ? (Exemple : 6j = 6 jours, 2h = 2 heures, 10m = 10 minutes, 10s = 10 secondes)",
 	schedule_create_not_number_time:
 		"${author}, ton réponse (le temps pour lequel tu souhaitez être notifié de cette planification) n'est pas un nombre !",
+	schedule_create_limit_reached:
+		"${author}, t'as déjà ${max} rappels. Supprime-en un avant d'en créer un nouveau.",
 	schedule_create_embed_fields_name_confirm: "Date de Notification",
 	schedule_create_embed_title_confirm:
 		"Planification #${scheduleCode} créée !",

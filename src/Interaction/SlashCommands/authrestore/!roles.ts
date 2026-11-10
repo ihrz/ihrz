@@ -50,7 +50,8 @@ export const subCommand: SubCommand = {
 
 		const data = await getGuildDataPerSecretCode(secretCode);
 
-		if (!data)
+		// The key must be the one of this server, not of any server.
+		if (!data || data.id !== interaction.guildId)
 			return client.func.method.interactionSend(interaction, {
 				content: lang.rc_key_doesnt_exist
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)

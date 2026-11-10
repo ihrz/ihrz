@@ -579,6 +579,8 @@ export default {
 	blacklist_not_owner:
 		"No eres el dueño de iHorizon Projects. No puedes utilizar este comando.",
 	blacklist_bot_lol: "No puedo ponerme en la lista negra a mí mismo x)",
+	blacklist_cant_blacklist_owner:
+		"Solo los desarrolladores de iHorizon pueden añadir a un propietario del bot a la lista negra.",
 	blacklist_command_work: "${memberUsername} ahora está en la lista negra",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} Ahora está en la lista negra, no se puede expulsar a este miembro aquí, ¿faltan permisos?",
@@ -1535,6 +1537,10 @@ export default {
 		"No eres el propietario de este webhook",
 	util_securewebhook_action_delete_error: "Error al eliminar el webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Tus webhooks**__:\n",
+	util_securewebhook_sent_in_dm:
+		"Te he enviado los datos del webhook por MD.",
+	util_securewebhook_dm_failed:
+		"No he podido enviarte un MD: abre tus MD y vuelve a ejecutar el comando. Las URL de webhook nunca se muestran en un canal.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles:
@@ -2552,6 +2558,8 @@ export default {
 		"${emoji_No} | **Mi rol en este servidor es inferior o igual a ${tomute}. No puedo moderar a este miembro.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **El rol de ${member} es superior o igual al tuyo. No puedes hacer esto a este miembro.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} Discord tiene un límite de 28 días para un mute. He aplicado 28 días.",
 
@@ -3293,6 +3301,8 @@ export default {
 		"¿Cuándo deseas ser notificado acerca de esta programación? (Ejemplo: 6d = 6 días, 2h = 2 horas, 10m = 10 minutos, 10s = 10 segundos)",
 	schedule_create_not_number_time:
 		"${author}, tu respuesta (el tiempo en el que deseas ser notificado acerca de esta programación) no es un número.",
+	schedule_create_limit_reached:
+		"${author}, ya tienes ${max} recordatorios. Elimina uno antes de crear otro.",
 	schedule_create_embed_fields_name_confirm: "Fecha de Notificación",
 	schedule_create_embed_title_confirm:
 		"#${scheduleCode} ¡Programación Creada!",

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, MessageReaction, User } from "discord.js";
+import { Client, MessageReaction, PermissionFlagsBits, User } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 
@@ -53,7 +53,10 @@ export const event: BotEvent = {
 					await member?.roles
 						.remove(role.id, "[ReactionRoles] Module")
 						.catch(() => {});
-				} else {
+				} else if (
+					!role.permissions.has(PermissionFlagsBits.Administrator)
+				) {
+					// Never hands out Administrator through a reaction.
 					await member?.roles
 						.add(role.id, "[ReactionRoles] Module")
 						.catch(() => {});
@@ -88,7 +91,10 @@ export const event: BotEvent = {
 					await member?.roles
 						.remove(role.id, "[ReactionRoles] Module")
 						.catch(() => {});
-				} else {
+				} else if (
+					!role.permissions.has(PermissionFlagsBits.Administrator)
+				) {
+					// Never hands out Administrator through a reaction.
 					await member?.roles
 						.add(role.id, "[ReactionRoles] Module")
 						.catch(() => {});

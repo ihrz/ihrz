@@ -58,6 +58,21 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		if (
+			interaction.guild.ownerId !== interaction.member.user.id &&
+			(targetMember.id === interaction.guild.ownerId ||
+				targetMember.roles.highest.position >=
+					(interaction.member as GuildMember).roles.highest.position)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.moderation_target_higher_role.replace(
+					"${member}",
+					targetMember.toString()
+				)
+			});
+			return;
+		}
+
 		const lockedNameData = await client.db.get(
 			`${interaction.guildId}.LOCKNAME.${targetMember.id}`
 		);

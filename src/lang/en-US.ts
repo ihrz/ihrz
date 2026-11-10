@@ -555,6 +555,8 @@ const enUS = {
 	blacklist_not_owner:
 		"You are not an owner of the iHorizon Project. You can't use this command.",
 	blacklist_bot_lol: "Can't blacklist myself x)",
+	blacklist_cant_blacklist_owner:
+		"Only the iHorizon developers can blacklist a bot owner.",
 	blacklist_command_work: "${memberUsername} is now blacklisted",
 	blacklist_blacklisted_but_can_ban_him:
 		"${emoji_No} is now blacklisted. I can't ban this member here, missing permission?",
@@ -1488,6 +1490,9 @@ const enUS = {
 		"You are not the owner of this webhook",
 	util_securewebhook_action_delete_error: "Error while deleting the webhook",
 	util_securewebhook_actiom_list_ok: ":star: __**Your webhooks**__:\n",
+	util_securewebhook_sent_in_dm: "I sent you the webhook details by DM.",
+	util_securewebhook_dm_failed:
+		"I could not DM you: open your DMs, then run the command again. Webhook URLs are never shown in a channel.",
 
 	// /util admin-roles
 	admin_roles_nobody_roles: "There is no administrator role in this guild!",
@@ -2470,6 +2475,8 @@ const enUS = {
 		"${emoji_No} | **My role on this server is lower or equal to ${tomute}. I cannot moderate this member.**",
 	tempmute_cannot_mute_higher_role:
 		"${emoji_No} | **${tomute}'s role is higher than or equal to yours. You cannot timeout this member.**",
+	moderation_target_higher_role:
+		"${emoji_No} | **${member}'s role is higher than or equal to yours. You cannot do this to this member.**",
 	tempmute_tomute_max_time_passed:
 		"\n-# ${emoji_VC_OpenChat} Discord has a limit of 28 days for a mute. I have applied 28 days.",
 
@@ -3185,6 +3192,8 @@ const enUS = {
 		"When do you want to be notified about this schedule? (Example: 6d = 6 days, 2h = 2 hours, 10m = 10 minutes, 10s = 10 seconds)",
 	schedule_create_not_number_time:
 		"${author}, your response (the time you want to be notified about this schedule) is not a number!",
+	schedule_create_limit_reached:
+		"${author}, you already have ${max} reminders. Delete one before creating a new one.",
 	schedule_create_embed_fields_name_confirm: "Notified Date",
 	schedule_create_embed_title_confirm: "#${scheduleCode} Schedule Created!",
 	schedule_create_confirm_msg:

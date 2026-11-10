@@ -119,7 +119,18 @@ export const subCommand: SubCommand = {
 			);
 		}
 
-		if (char.length == 0) {
+		// Nicknames tell which servers someone is in: others only see the
+		// nicknames of the current server.
+		const isSubject = interaction.member.user.id === user.id;
+		const visible = isSubject
+			? char
+			: char.filter(
+					(entry) =>
+						entry.type !== "nickname" ||
+						entry.guild.id === interaction.guildId
+				);
+
+		if (visible.length == 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.prevnames_undetected
 			});
@@ -128,11 +139,11 @@ export const subCommand: SubCommand = {
 
 		const e = client.iHorizon_Emojis;
 		// Newest first.
-		const entries = [...char].reverse();
+		const entries = [...visible].reverse();
 		const pages = Math.ceil(entries.length / PER_PAGE);
 		const signature = await botSignature(client, interaction.guildId);
 		// Only the user can erase their own history.
-		const canErase = interaction.member.user.id === user.id;
+		const canErase = isSubject;
 		let currentPage = 0;
 
 		const render = (disabled: boolean): ContainerBuilder => {
