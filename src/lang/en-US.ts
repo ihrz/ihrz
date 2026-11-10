@@ -1201,7 +1201,8 @@ const enUS = {
 
 	// /action unban all
 	action_unban_all_no_banned_members: "There are no banned members.",
-	action_mass_job_running: "A mass action of this kind is already running on this server, wait for it to finish.",
+	action_mass_job_running:
+		"A mass action of this kind is already running on this server, wait for it to finish.",
 
 	// /action unban undo
 
@@ -1334,7 +1335,8 @@ const enUS = {
 
 	// /util talk
 	util_talk_not_in_vc: "You must be in a voice channel to use this command.",
-	util_talk_already_active: "Talk mode is already on in ${voiceChannel}: turn it off there first.",
+	util_talk_already_active:
+		"Talk mode is already on in ${voiceChannel}: turn it off there first.",
 	util_talk_audit_reason: "Voice talk mode enabled",
 	util_talk_logs_title: "Voice Talk",
 	util_talk_logs_description:

@@ -1214,8 +1214,10 @@ export default {
 
 	// /アクション全員の禁止解除
 	action_unban_all_no_banned_members: "禁止されているメンバーはいません。",
-	action_mass_job_running: "このサーバーでは同じ種類の一括操作が実行中です。終わるまでお待ちください。",
-	util_talk_already_active: "トークモードはすでに ${voiceChannel} で有効です。先にそちらで解除してください。",
+	action_mass_job_running:
+		"このサーバーでは同じ種類の一括操作が実行中です。終わるまでお待ちください。",
+	util_talk_already_active:
+		"トークモードはすでに ${voiceChannel} で有効です。先にそちらで解除してください。",
 
 	// /アクションの禁止解除を元に戻す
 

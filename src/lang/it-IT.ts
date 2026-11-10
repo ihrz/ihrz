@@ -1241,8 +1241,10 @@ export default {
 
 	// /azione sblocca tutto
 	action_unban_all_no_banned_members: "Non ci sono membri bannati.",
-	action_mass_job_running: "Un'azione di massa di questo tipo è già in corso su questo server, attendi che finisca.",
-	util_talk_already_active: "La modalità talk è già attiva in ${voiceChannel}: disattivala prima.",
+	action_mass_job_running:
+		"Un'azione di massa di questo tipo è già in corso su questo server, attendi che finisca.",
+	util_talk_already_active:
+		"La modalità talk è già attiva in ${voiceChannel}: disattivala prima.",
 
 	// /azione annulla sblocco
 

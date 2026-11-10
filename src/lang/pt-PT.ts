@@ -1237,8 +1237,10 @@ export default {
 
 	// /action unban all
 	action_unban_all_no_banned_members: "Não há membros banidos.",
-	action_mass_job_running: "Já está a decorrer uma ação em massa deste tipo neste servidor, aguarde que termine.",
-	util_talk_already_active: "O modo talk já está ativo em ${voiceChannel}: desative-o primeiro.",
+	action_mass_job_running:
+		"Já está a decorrer uma ação em massa deste tipo neste servidor, aguarde que termine.",
+	util_talk_already_active:
+		"O modo talk já está ativo em ${voiceChannel}: desative-o primeiro.",
 
 	// /action unban undo
 

@@ -1256,8 +1256,10 @@ export default {
 
 	// /Aktion Entbannen alle
 	action_unban_all_no_banned_members: "Es gibt keine gesperrten Mitglieder.",
-	action_mass_job_running: "Auf diesem Server läuft bereits eine Massenaktion dieser Art, warte, bis sie fertig ist.",
-	util_talk_already_active: "Der Talk-Modus ist bereits in ${voiceChannel} aktiv: schalte ihn dort zuerst aus.",
+	action_mass_job_running:
+		"Auf diesem Server läuft bereits eine Massenaktion dieser Art, warte, bis sie fertig ist.",
+	util_talk_already_active:
+		"Der Talk-Modus ist bereits in ${voiceChannel} aktiv: schalte ihn dort zuerst aus.",
 
 	// /Aktion Entbannen rückgängig machen
 

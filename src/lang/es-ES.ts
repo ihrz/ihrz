@@ -1244,8 +1244,10 @@ export default {
 
 	// /acción desbanear todo
 	action_unban_all_no_banned_members: "No hay miembros baneados.",
-	action_mass_job_running: "Ya hay una acción masiva de este tipo en curso en este servidor, espera a que termine.",
-	util_talk_already_active: "El modo talk ya está activo en ${voiceChannel}: desactívalo primero.",
+	action_mass_job_running:
+		"Ya hay una acción masiva de este tipo en curso en este servidor, espera a que termine.",
+	util_talk_already_active:
+		"El modo talk ya está activo en ${voiceChannel}: desactívalo primero.",
 
 	// /acción deshacer desbanear
 
