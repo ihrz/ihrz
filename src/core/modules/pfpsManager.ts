@@ -79,11 +79,14 @@ async function SendMessage(
 
 	// Prevent the same before and after
 	if (member.id === usr[data.guildId]) {
-		usr[data.guildId] = member.id;
-		member = guild.members.cache
-			.filter((user) => user.id !== usr[data.guildId])
-			.random()!;
-	} else usr[data.guildId] = member.id;
+		const previousId = member.id;
+		const other = guild.members.cache
+			.filter((user) => !user.user.bot && user.id !== previousId)
+			.random();
+		if (!other) return;
+		member = other;
+	}
+	usr[data.guildId] = member.id;
 
 	const actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
 	const ebds = [];
@@ -141,15 +144,17 @@ async function SendMessage(
 			)
 	);
 
-	(channel as BaseGuildTextChannel).send({
-		embeds: ebds,
-		components: [actRow],
-		files: [
-			await client.func.displayBotName.footerAttachmentBuilder(
-				channel.guild
-			)
-		]
-	});
+	await (channel as BaseGuildTextChannel)
+		.send({
+			embeds: ebds,
+			components: [actRow],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					channel.guild
+				)
+			]
+		})
+		.catch(() => null);
 	return;
 }
 

@@ -121,7 +121,7 @@ export namespace DatabaseStructure {
 		author: string;
 		msgId: string;
 		replied?: boolean;
-		threadId: string;
+		threadId: string | null;
 		status?: SuggestionStatus;
 		votes?: Record<string, "up" | "down">;
 		timestamp?: number;

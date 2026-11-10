@@ -29,6 +29,23 @@ import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 const TOPIC_UPDATE_INTERVAL_MS = 5 * 60_000;
 const lastTopicUpdate = new Map<string, number>();
 
+// Each count reads then writes COUNTER_DATA: messages of one guild are
+// handled one after the other, so two quick numbers cannot both read the
+// same previous value.
+const countQueue = new Map<string, Promise<void>>();
+
+function enqueueCount(guildId: string, task: () => Promise<void>) {
+	const previous = countQueue.get(guildId) || Promise.resolve();
+	const next = previous.then(task).catch((error: unknown) => {
+		logger.err(`[Counter] ${guildId}: ${error}`);
+	});
+	countQueue.set(guildId, next);
+	next.then(() => {
+		if (countQueue.get(guildId) === next) countQueue.delete(guildId);
+	});
+	return next;
+}
+
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
@@ -53,79 +70,93 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let lastNumber = ((await client.db.get(
-			`${message.guild.id}.COUNTER_DATA`
-		)) || {
-			amount: 0,
-			userId: client.user?.id
-		}) as DatabaseStructure.CounterData;
-		// BACKPORTABILITY
-		if (typeof lastNumber === "number")
-			lastNumber = { amount: lastNumber, userId: client.user?.id! };
+		const guildId = message.guild.id;
 
-		const lang = await client.func.getLanguageData(message.guildId);
+		await enqueueCount(guildId, async () => {
+			let lastNumber = ((await client.db.get(
+				`${guildId}.COUNTER_DATA`
+			)) || {
+				amount: 0,
+				userId: client.user?.id
+			}) as DatabaseStructure.CounterData;
+			// BACKPORTABILITY
+			if (typeof lastNumber === "number")
+				lastNumber = { amount: lastNumber, userId: client.user?.id! };
 
-		if (client.func.method.isNumber(message.content)) {
-			let number = Number(message.content);
+			const lang = await client.func.getLanguageData(message.guildId);
 
-			if (
-				number === lastNumber.amount + 1 &&
-				message.author.id !== lastNumber.userId
-			) {
-				await client.db.set(`${message.guild.id}.COUNTER_DATA`, {
-					amount: number,
-					userId: message.author.id
-				});
-				message.react("✅");
+			if (client.func.method.isNumber(message.content)) {
+				let number = Number(message.content);
 
-				const now = Date.now();
-				const lastUpdate = lastTopicUpdate.get(message.channelId) ?? 0;
+				if (
+					number === lastNumber.amount + 1 &&
+					message.author.id !== lastNumber.userId
+				) {
+					await client.db.set(`${guildId}.COUNTER_DATA`, {
+						amount: number,
+						userId: message.author.id
+					});
+					message.react("✅").catch(() => {});
 
-				if (now - lastUpdate >= TOPIC_UPDATE_INTERVAL_MS) {
-					lastTopicUpdate.set(message.channelId, now);
-					(message.channel as BaseGuildTextChannel)
-						.setTopic(
-							lang.counter_actual_number.replace(
-								"{number}",
-								number.toString()
+					const now = Date.now();
+					const lastUpdate =
+						lastTopicUpdate.get(message.channelId) ?? 0;
+
+					if (now - lastUpdate >= TOPIC_UPDATE_INTERVAL_MS) {
+						lastTopicUpdate.set(message.channelId, now);
+						(message.channel as BaseGuildTextChannel)
+							.setTopic(
+								lang.counter_actual_number.replace(
+									"{number}",
+									number.toString()
+								)
 							)
-						)
-						.catch(() => {});
+							.catch(() => {});
+					}
+				} else {
+					message.react("❌").catch(() => {});
+					await client.db.set(`${guildId}.COUNTER_DATA`, {
+						amount: 0,
+						userId: null
+					});
+
+					if (message.author.id === lastNumber.userId) {
+						message
+							.reply({
+								content: lang.counter_error_too_much_u
+									.replace(
+										"${messageAuthorId}",
+										message.author.id
+									)
+									.replace("${number}", number.toString())
+							})
+							.catch(() => {});
+					} else {
+						message
+							.reply({
+								content: lang.counter_error_syntaxic.replace(
+									"${messageAuthorId}",
+									message.author.id
+								)
+							})
+							.catch(() => {});
+					}
 				}
 			} else {
-				message.react("❌");
-				await client.db.set(`${message.guild.id}.COUNTER_DATA`, {
+				message.react("❌").catch(() => {});
+				await client.db.set(`${guildId}.COUNTER_DATA`, {
 					amount: 0,
 					userId: null
 				});
-
-				if (message.author.id === lastNumber.userId) {
-					message.reply({
-						content: lang.counter_error_too_much_u
-							.replace("${messageAuthorId}", message.author.id)
-							.replace("${number}", number.toString())
-					});
-				} else {
-					message.reply({
+				message
+					.reply({
 						content: lang.counter_error_syntaxic.replace(
 							"${messageAuthorId}",
 							message.author.id
 						)
-					});
-				}
+					})
+					.catch(() => {});
 			}
-		} else {
-			message.react("❌");
-			await client.db.set(`${message.guild.id}.COUNTER_DATA`, {
-				amount: 0,
-				userId: null
-			});
-			message.reply({
-				content: lang.counter_error_syntaxic.replace(
-					"${messageAuthorId}",
-					message.author.id
-				)
-			});
-		}
+		});
 	}
 };

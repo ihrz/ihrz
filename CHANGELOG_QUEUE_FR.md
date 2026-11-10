@@ -193,6 +193,19 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
 - Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.
+- **Giveaways** : deux membres qui participent au même moment sont bien inscrits tous les deux, un giveaway ne peut plus être annoncé deux fois, on ne peut plus participer une fois qu'il est fini, quitter un giveaway ne vous retire plus des autres du salon, et un reroll sans plus personne n'annonce plus de gagnant vide.
+- **Rôles-réactions** : retirer sa réaction sur un emoji personnalisé retire de nouveau le rôle.
+- **Skullboard** : les réactions sur les anciens messages (envoyés avant un redémarrage) comptent de nouveau, et un post sous le seuil est retiré avec la même règle que le starboard.
+- **Compteur** : deux nombres envoyés au même moment ne remettent plus un compte correct à zéro.
+- **Suggestions** : une suggestion est enregistrée même quand son fil ne peut pas être créé, ses boutons continuent donc de marcher.
+- **`/mod tempmute`** : un mute qui échoue le dit au lieu d'annoncer un succès, et l'avis « démuté » est envoyé à la fin du mute.
+- **`/mod tempban`** : l'erreur de rôle affiche le membre au lieu de `user_mention`.
+- **Salons vocaux temporaires** : une panne de Discord ou une limite de requêtes ne supprime plus un salon où il y a du monde.
+- **`/economy deposit all` et `withdraw all`** : fonctionnent de nouveau avec un solde à virgule.
+- **Lignes GitHub** : un lien vers plus de 50 lignes affiche de nouveau l'avertissement, et une plage qui dépasse la fin du fichier est raccourcie au lieu d'être ignorée.
+- **Tickets** : la réponse « pas la permission » de `/ticket delete`, `transcript` et `open` s'affiche de nouveau, et un rôle présent à la fois dans les pings du panneau et de la catégorie ne bloque plus le message du ticket.
+- **`/guildconfig config restore`** : sur un serveur qui n'a encore aucune donnée de protection, d'allowlist, de blacklist ou de membres, elles sont reprises de la sauvegarde au lieu d'être perdues.
+- **Photos de profil, auto-renew** : ne publient plus l'avatar d'un bot et ne recréent plus un salon deux fois.
 
 - **Auto-hébergement** : Chrome / Chromium n'est plus du tout nécessaire, les images sont rendues avec resvg. Le script d'installation ne télécharge plus Chrome, et `PUPPETEER_EXECUTABLE_PATH` peut être retiré du `.env`
 - **Auto-hébergement** : `pm2 start pm2.config.cjs` installe et met à jour son propre Bun, récupère le dernier code et installe les nouvelles dépendances à chaque démarrage ; les images peuvent être rendues par HorizonGateway pour économiser la mémoire de chaque shard
@@ -242,7 +255,7 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **`/tempvoice`** : le salon de création peut être retiré (un bouton, ou en vidant le menu), et le panneau ne casse plus quand ce salon a été supprimé
 - **Commandes hors serveur** (`/fun` en MP ou en application utilisateur) : plus d'erreur « malformed key » en cherchant la signature de la carte
 - **Honeypot** : bannit un spammeur déjà parti du serveur
-- **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage)
+- **Invitations** : les arrivées sont de nouveau comptées sur les serveurs qui n'ont rien configuré (une erreur les arrêtait avant le comptage), et les départs sont désormais déduits même sans salon d'au revoir (les compteurs ne faisaient que monter)
 - **Statistiques** : `/stats ustats` comptait chaque message deux fois, les titres de `/gstats` sont traduits
 - **Langues** : des variables brutes corrigées dans `/perm create-roles` (japonais), `/daily`, `/schedule`, les photos de profil et le résumé de la blacklist ; les emojis manquants s'affichent dans les messages épinglés, les erreurs Last.fm, le message de départ du welcomer, le panneau TempVoice et l'avis de salon vide de la musique ; textes français corrigés
 - **Performances** : les réglages des serveurs sont mis en cache, les serveurs actifs obtiennent des réponses plus rapides

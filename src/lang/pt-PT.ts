@@ -2628,7 +2628,7 @@ export default {
 	tempban_user_is_admin:
 		"O utilizador tem permissões de administrador, não posso bani-lo.",
 	tempban_user_highest_role_or_same:
-		"O meu cargo neste servidor é inferior ou igual ao de **user_mention**. Não posso moderar este membro.",
+		"O meu cargo neste servidor é inferior ou igual ao de **${user}**. Não posso moderar este membro.",
 	tempban_max_time_passed:
 		"\n*O tempo máximo para um banimento temporário é 1 ano. Apliquei 1 ano.*",
 	tempban_user_not_in_guild:
@@ -2690,13 +2690,15 @@ export default {
 		"O módulo de backup foi atualizado. A partir de agora, ${allowed_user_string} pode criar/carregar backups neste servidor.",
 	// /backup panels
 	backup_component_settings: "Definições do servidor",
-	backup_component_settings_desc: "Nome, imagens, níveis, canais de sistema, ecrã de boas-vindas",
+	backup_component_settings_desc:
+		"Nome, imagens, níveis, canais de sistema, ecrã de boas-vindas",
 	backup_component_roles: "Cargos",
 	backup_component_roles_desc: "Ordem, cores, ícones e permissões",
 	backup_component_channels: "Canais",
 	backup_component_channels_desc: "Categorias, texto, voz, fóruns e tópicos",
 	backup_component_permissions: "Permissões dos canais",
-	backup_component_permissions_desc: "Exceções de cargos e membros em cada canal",
+	backup_component_permissions_desc:
+		"Exceções de cargos e membros em cada canal",
 	backup_component_emojis: "Emojis",
 	backup_component_emojis_desc: "Todos os emojis personalizados do servidor",
 	backup_component_stickers: "Stickers",
@@ -2713,8 +2715,10 @@ export default {
 	backup_component_members_desc: "Alcunhas e cargos dos membros atuais",
 	backup_select_placeholder: "Escolhe o que incluir",
 	backup_usage: "${count}/${max} backups utilizados",
-	backup_limit_reached: "Atingiste o limite de **${max} backups**. Elimina um com `/backup delete` primeiro.",
-	backup_busy: "Já está a decorrer uma operação de backup, tenta novamente daqui a pouco.",
+	backup_limit_reached:
+		"Atingiste o limite de **${max} backups**. Elimina um com `/backup delete` primeiro.",
+	backup_busy:
+		"Já está a decorrer uma operação de backup, tenta novamente daqui a pouco.",
 	backup_panel_expired: "Este painel expirou, executa o comando novamente.",
 	backup_btn_create: "Criar o backup",
 	backup_btn_all: "Selecionar tudo",
@@ -2723,33 +2727,45 @@ export default {
 	backup_btn_schedule_disable: "Desativar",
 	backup_create_title: "Novo backup",
 	backup_create_desc: "Escolhe o que guardar de **${guildName}**.",
-	backup_create_progress: "${emoji} A criar o backup, isto pode demorar um pouco...",
+	backup_create_progress:
+		"${emoji} A criar o backup, isto pode demorar um pouco...",
 	backup_create_cancelled: "Backup cancelado.",
-	backup_create_failed: "Não foi possível guardar o backup. Nada foi adicionado à tua lista.",
+	backup_create_failed:
+		"Não foi possível guardar o backup. Nada foi adicionado à tua lista.",
 	backup_created_title: "Backup criado",
-	backup_created_desc: "O ID do teu backup é `${id}`. Usa-o com `/backup load`.",
-	backup_created_partial: "**Não foi possível guardar, por isso não será restaurado:** ${parts}",
+	backup_created_desc:
+		"O ID do teu backup é `${id}`. Usa-o com `/backup load`.",
+	backup_created_partial:
+		"**Não foi possível guardar, por isso não será restaurado:** ${parts}",
 	backup_load_title: "Restaurar um backup",
 	backup_load_desc: "Backup de **${guildName}**, feito em ${date}.",
-	backup_load_warning: "**Esta ação é irreversível.** Tudo o que for selecionado é eliminado deste servidor e depois restaurado. Os cargos são encontrados pelo nome e atualizados, por isso os membros mantêm-nos; os que não estão no backup só são removidos se os canais também forem restaurados.",
-	backup_load_progress: "${emoji} A restaurar, isto pode demorar vários minutos...",
+	backup_load_warning:
+		"**Esta ação é irreversível.** Tudo o que for selecionado é eliminado deste servidor e depois restaurado. Os cargos são encontrados pelo nome e atualizados, por isso os membros mantêm-nos; os que não estão no backup só são removidos se os canais também forem restaurados.",
+	backup_load_progress:
+		"${emoji} A restaurar, isto pode demorar vários minutos...",
 	backup_load_done_title: "Backup restaurado",
 	backup_load_done_desc: "**${guildName}** foi restaurado.",
 	backup_load_report_line: "${emoji} **${label}**: ${okCount} restaurados",
 	backup_load_report_failed: "(${failedCount} falharam)",
 	backup_list_title: "Os teus backups",
-	backup_list_empty: "Ainda não tens nenhum backup. Cria um com `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categorias, ${channelCount} canais",
+	backup_list_empty:
+		"Ainda não tens nenhum backup. Cria um com `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categorias, ${channelCount} canais",
 	backup_list_manual: "Manual",
 	backup_list_auto: "Automático",
 	backup_delete_title: "Eliminar este backup?",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} categorias, ${channelCount} canais",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} categorias, ${channelCount} canais",
 	backup_delete_done: "O backup foi eliminado.",
 	backup_delete_cancelled: "O backup foi mantido.",
 	backup_schedule_title: "Backups automáticos",
-	backup_schedule_desc: "São guardados na tua conta e contam para o teu limite. Apenas os últimos ${maxAuto} backups automáticos deste servidor são mantidos.",
-	backup_schedule_owner_only: "Apenas o dono do servidor pode agendar backups automáticos.",
-	backup_schedule_status_on: "Ativo: **${frequency}**, próximo backup ${next}",
+	backup_schedule_desc:
+		"São guardados na tua conta e contam para o teu limite. Apenas os últimos ${maxAuto} backups automáticos deste servidor são mantidos.",
+	backup_schedule_owner_only:
+		"Apenas o dono do servidor pode agendar backups automáticos.",
+	backup_schedule_status_on:
+		"Ativo: **${frequency}**, próximo backup ${next}",
 	backup_schedule_status_off: "Nenhum backup automático agendado.",
 	backup_schedule_frequency_placeholder: "Escolhe a frequência",
 	backup_frequency_1d: "Todos os dias",
@@ -2760,8 +2776,10 @@ export default {
 	backup_frequency_3m: "A cada 3 meses",
 	backup_frequency_6m: "A cada 6 meses",
 	backup_frequency_12m: "Todos os anos",
-	backup_schedule_dm_limit: "O backup automático de **${guildName}** foi ignorado: atingiste o limite de ${max} backups. Elimina um com `/backup delete`.",
-	backup_schedule_dm_failed: "O backup automático de **${guildName}** falhou. Será tentado novamente na próxima hora agendada.",
+	backup_schedule_dm_limit:
+		"O backup automático de **${guildName}** foi ignorado: atingiste o limite de ${max} backups. Elimina um com `/backup delete`.",
+	backup_schedule_dm_failed:
+		"O backup automático de **${guildName}** falhou. Será tentado novamente na próxima hora agendada.",
 
 	// Reações de Funções
 	// /reactionroles
@@ -3136,40 +3154,26 @@ export default {
 		"A sugestão não foi encontrada no canal do Discord!",
 
 	// /suggest status
-	suggest_not_staff:
-		"Não tens permissão para gerir as sugestões.",
-	suggest_status_pending:
-		"Pendente",
-	suggest_status_reviewing:
-		"Em análise",
-	suggest_status_accepted:
-		"Aceite",
-	suggest_status_planned:
-		"Planeada",
-	suggest_status_implemented:
-		"Implementada",
-	suggest_status_denied:
-		"Recusada",
+	suggest_not_staff: "Não tens permissão para gerir as sugestões.",
+	suggest_status_pending: "Pendente",
+	suggest_status_reviewing: "Em análise",
+	suggest_status_accepted: "Aceite",
+	suggest_status_planned: "Planeada",
+	suggest_status_implemented: "Implementada",
+	suggest_status_denied: "Recusada",
 	suggest_notify_status:
 		"<@${authorId}>, a tua sugestão está agora **${status}**.",
-	suggest_notify_reply:
-		"<@${authorId}>, o staff respondeu à tua sugestão.",
-	suggest_button_reply:
-		"Responder",
-	suggest_modal_title:
-		"Responder à sugestão",
-	suggest_modal_label:
-		"A tua mensagem",
+	suggest_notify_reply: "<@${authorId}>, o staff respondeu à tua sugestão.",
+	suggest_button_reply: "Responder",
+	suggest_modal_title: "Responder à sugestão",
+	suggest_modal_label: "A tua mensagem",
 	suggest_status_command_work:
 		"A sugestão está agora **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Sugestões",
-	suggest_list_empty:
-		"Nenhuma sugestão para mostrar.",
-	suggest_list_footer:
-		"${shownCount} de ${totalCount}",
+	suggest_list_title: "Sugestões",
+	suggest_list_empty: "Nenhuma sugestão para mostrar.",
+	suggest_list_footer: "${shownCount} de ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3490,26 +3494,21 @@ export default {
 		"${author} desativou o Módulo de Confissão!",
 
 	// /confession delete
-	confession_sent_confirmation:
-		"A tua confissão **#${code}** foi publicada.",
+	confession_sent_confirmation: "A tua confissão **#${code}** foi publicada.",
 	confession_not_found:
 		"Nenhuma confissão encontrada com o código **#${code}**.",
-	confession_delete_command_work:
-		"A confissão **#${code}** foi eliminada.",
-	confession_delete_log_embed_title:
-		"Confissão eliminada",
+	confession_delete_command_work: "A confissão **#${code}** foi eliminada.",
+	confession_delete_log_embed_title: "Confissão eliminada",
 	confession_delete_log_embed_desc:
 		"${author} eliminou a confissão **#${code}**",
 
 	// /confession ban
 	confession_ban_command_work:
 		"O autor da confissão **#${code}** já não pode confessar neste servidor.",
-	confession_ban_already:
-		"O autor da confissão **#${code}** já está banido.",
+	confession_ban_already: "O autor da confissão **#${code}** já está banido.",
 	confession_ban_author_expired:
 		"Esta confissão é demasiado antiga: o autor é esquecido após 90 dias.",
-	confession_ban_log_embed_title:
-		"Autor de confissão banido",
+	confession_ban_log_embed_title: "Autor de confissão banido",
 	confession_ban_log_embed_desc:
 		"${author} baniu o autor da confissão **#${code}**",
 	confession_banned_error:
@@ -3520,8 +3519,7 @@ export default {
 		"O banimento ligado à confissão **#${code}** foi levantado.",
 	confession_unban_not_found:
 		"Nenhum banimento está ligado à confissão **#${code}**.",
-	confession_unban_log_embed_title:
-		"Autor de confissão desbanido",
+	confession_unban_log_embed_title: "Autor de confissão desbanido",
 	confession_unban_log_embed_desc:
 		"${author} levantou o banimento ligado à confissão **#${code}**",
 
@@ -4938,8 +4936,10 @@ export default {
 	music_apo_saved: "${emoji} **${name}** guardada (${stages} etapas).",
 	// +shardinfo
 	shardinfo_title: "Informações dos shards",
-	shardinfo_location: "Este servidor está no shard **${shardId}**. Comando tratado pelo shard **${handlerShardId}**, processo `${pid}`.",
-	shardinfo_member_data: "Número de membros: **${exactCount}** exatos, **${approximateCount}** aproximados, **${missingCount}** em falta",
+	shardinfo_location:
+		"Este servidor está no shard **${shardId}**. Comando tratado pelo shard **${handlerShardId}**, processo `${pid}`.",
+	shardinfo_member_data:
+		"Número de membros: **${exactCount}** exatos, **${approximateCount}** aproximados, **${missingCount}** em falta",
 	shardinfo_offline_shards: "Shards sem resposta: ${shards}",
 	shardinfo_section_unavailable: "Servidores indisponíveis",
 	shardinfo_section_approximate: "Servidores com número aproximado",

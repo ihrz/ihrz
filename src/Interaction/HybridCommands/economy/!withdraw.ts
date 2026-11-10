@@ -87,7 +87,9 @@ export const subCommand: SubCommand = {
 
 			// Parsed once: the same integer is checked and moved.
 			const clean_to_withdraw =
-				toWithdraw === "all" ? Number(bank) : Number(toWithdraw);
+				toWithdraw === "all"
+					? Math.floor(Number(bank))
+					: Number(toWithdraw);
 
 			if (
 				!Number.isSafeInteger(clean_to_withdraw) ||

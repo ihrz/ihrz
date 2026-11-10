@@ -2671,7 +2671,7 @@ export default {
 	tempban_user_is_admin:
 		"Der Benutzer hat Administratorrechte, ich kann ihn nicht bannen.",
 	tempban_user_highest_role_or_same:
-		"Meine Rolle auf diesem Server ist niedriger oder gleich **user_mention**. Ich kann dieses Mitglied nicht moderieren.",
+		"Meine Rolle auf diesem Server ist niedriger oder gleich **${user}**. Ich kann dieses Mitglied nicht moderieren.",
 	tempban_max_time_passed:
 		"\n*Die maximale Zeit für einen temporären Bann beträgt 1 Jahr. Ich habe 1 Jahr angewendet.*",
 	tempban_user_not_in_guild:
@@ -2737,13 +2737,17 @@ export default {
 		"Das Backup-Modul wurde aktualisiert. Ab sofort kann ${allowed_user_string} Backups auf diesem Server erstellen oder laden.",
 	// /backup panels
 	backup_component_settings: "Servereinstellungen",
-	backup_component_settings_desc: "Name, Bilder, Stufen, Systemkanäle, Begrüßungsbildschirm",
+	backup_component_settings_desc:
+		"Name, Bilder, Stufen, Systemkanäle, Begrüßungsbildschirm",
 	backup_component_roles: "Rollen",
-	backup_component_roles_desc: "Reihenfolge, Farben, Symbole und Berechtigungen",
+	backup_component_roles_desc:
+		"Reihenfolge, Farben, Symbole und Berechtigungen",
 	backup_component_channels: "Kanäle",
-	backup_component_channels_desc: "Kategorien, Text, Sprache, Foren und Threads",
+	backup_component_channels_desc:
+		"Kategorien, Text, Sprache, Foren und Threads",
 	backup_component_permissions: "Kanalberechtigungen",
-	backup_component_permissions_desc: "Rollen- und Mitgliederausnahmen pro Kanal",
+	backup_component_permissions_desc:
+		"Rollen- und Mitgliederausnahmen pro Kanal",
 	backup_component_emojis: "Emojis",
 	backup_component_emojis_desc: "Alle benutzerdefinierten Emojis des Servers",
 	backup_component_stickers: "Sticker",
@@ -2757,46 +2761,64 @@ export default {
 	backup_component_messages: "Nachrichten",
 	backup_component_messages_desc: "Die letzten 100 Nachrichten jedes Kanals",
 	backup_component_members: "Mitglieder",
-	backup_component_members_desc: "Spitznamen und Rollen der aktuellen Mitglieder",
+	backup_component_members_desc:
+		"Spitznamen und Rollen der aktuellen Mitglieder",
 	backup_select_placeholder: "Wähle aus, was enthalten sein soll",
 	backup_usage: "${count}/${max} Backups verwendet",
-	backup_limit_reached: "Du hast das Limit von **${max} Backups** erreicht. Lösche zuerst eines mit `/backup delete`.",
-	backup_busy: "Es läuft bereits ein Backup-Vorgang, versuche es gleich noch einmal.",
-	backup_panel_expired: "Dieses Panel ist abgelaufen, führe den Befehl erneut aus.",
+	backup_limit_reached:
+		"Du hast das Limit von **${max} Backups** erreicht. Lösche zuerst eines mit `/backup delete`.",
+	backup_busy:
+		"Es läuft bereits ein Backup-Vorgang, versuche es gleich noch einmal.",
+	backup_panel_expired:
+		"Dieses Panel ist abgelaufen, führe den Befehl erneut aus.",
 	backup_btn_create: "Backup erstellen",
 	backup_btn_all: "Alles auswählen",
 	backup_btn_load: "Löschen und wiederherstellen",
 	backup_btn_schedule_save: "Zeitplan speichern",
 	backup_btn_schedule_disable: "Deaktivieren",
 	backup_create_title: "Neues Backup",
-	backup_create_desc: "Wähle aus, was von **${guildName}** gesichert werden soll.",
-	backup_create_progress: "${emoji} Backup wird erstellt, das kann eine Weile dauern...",
+	backup_create_desc:
+		"Wähle aus, was von **${guildName}** gesichert werden soll.",
+	backup_create_progress:
+		"${emoji} Backup wird erstellt, das kann eine Weile dauern...",
 	backup_create_cancelled: "Backup abgebrochen.",
-	backup_create_failed: "Das Backup konnte nicht gespeichert werden. Deiner Liste wurde nichts hinzugefügt.",
+	backup_create_failed:
+		"Das Backup konnte nicht gespeichert werden. Deiner Liste wurde nichts hinzugefügt.",
 	backup_created_title: "Backup erstellt",
-	backup_created_desc: "Deine Backup-ID lautet `${id}`. Verwende sie mit `/backup load`.",
-	backup_created_partial: "**Konnte nicht gesichert werden und wird daher nicht wiederhergestellt:** ${parts}",
+	backup_created_desc:
+		"Deine Backup-ID lautet `${id}`. Verwende sie mit `/backup load`.",
+	backup_created_partial:
+		"**Konnte nicht gesichert werden und wird daher nicht wiederhergestellt:** ${parts}",
 	backup_load_title: "Backup wiederherstellen",
 	backup_load_desc: "Backup von **${guildName}**, erstellt am ${date}.",
-	backup_load_warning: "**Das kann nicht rückgängig gemacht werden.** Alles Ausgewählte wird von diesem Server gelöscht und dann wiederhergestellt. Rollen werden anhand des Namens gefunden und aktualisiert, Mitglieder behalten sie also; im Backup fehlende Rollen werden nur entfernt, wenn auch die Kanäle wiederhergestellt werden.",
-	backup_load_progress: "${emoji} Wiederherstellung läuft, das kann mehrere Minuten dauern...",
+	backup_load_warning:
+		"**Das kann nicht rückgängig gemacht werden.** Alles Ausgewählte wird von diesem Server gelöscht und dann wiederhergestellt. Rollen werden anhand des Namens gefunden und aktualisiert, Mitglieder behalten sie also; im Backup fehlende Rollen werden nur entfernt, wenn auch die Kanäle wiederhergestellt werden.",
+	backup_load_progress:
+		"${emoji} Wiederherstellung läuft, das kann mehrere Minuten dauern...",
 	backup_load_done_title: "Backup wiederhergestellt",
 	backup_load_done_desc: "**${guildName}** wurde wiederhergestellt.",
-	backup_load_report_line: "${emoji} **${label}**: ${okCount} wiederhergestellt",
+	backup_load_report_line:
+		"${emoji} **${label}**: ${okCount} wiederhergestellt",
 	backup_load_report_failed: "(${failedCount} fehlgeschlagen)",
 	backup_list_title: "Deine Backups",
-	backup_list_empty: "Du hast noch kein Backup. Erstelle eines mit `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} Kategorien, ${channelCount} Kanäle",
+	backup_list_empty:
+		"Du hast noch kein Backup. Erstelle eines mit `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} Kategorien, ${channelCount} Kanäle",
 	backup_list_manual: "Manuell",
 	backup_list_auto: "Automatisch",
 	backup_delete_title: "Dieses Backup löschen?",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} Kategorien, ${channelCount} Kanäle",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} Kategorien, ${channelCount} Kanäle",
 	backup_delete_done: "Das Backup wurde gelöscht.",
 	backup_delete_cancelled: "Das Backup wurde behalten.",
 	backup_schedule_title: "Automatische Backups",
-	backup_schedule_desc: "Sie werden in deinem Konto gespeichert und zählen zu deinem Limit. Nur die letzten ${maxAuto} automatischen Backups dieses Servers werden aufbewahrt.",
-	backup_schedule_owner_only: "Nur der Serverbesitzer kann automatische Backups planen.",
-	backup_schedule_status_on: "Aktiv: **${frequency}**, nächstes Backup ${next}",
+	backup_schedule_desc:
+		"Sie werden in deinem Konto gespeichert und zählen zu deinem Limit. Nur die letzten ${maxAuto} automatischen Backups dieses Servers werden aufbewahrt.",
+	backup_schedule_owner_only:
+		"Nur der Serverbesitzer kann automatische Backups planen.",
+	backup_schedule_status_on:
+		"Aktiv: **${frequency}**, nächstes Backup ${next}",
 	backup_schedule_status_off: "Es ist kein automatisches Backup geplant.",
 	backup_schedule_frequency_placeholder: "Wähle die Häufigkeit",
 	backup_frequency_1d: "Jeden Tag",
@@ -2807,8 +2829,10 @@ export default {
 	backup_frequency_3m: "Alle 3 Monate",
 	backup_frequency_6m: "Alle 6 Monate",
 	backup_frequency_12m: "Jedes Jahr",
-	backup_schedule_dm_limit: "Das automatische Backup von **${guildName}** wurde übersprungen: Du hast das Limit von ${max} Backups erreicht. Lösche eines mit `/backup delete`.",
-	backup_schedule_dm_failed: "Das automatische Backup von **${guildName}** ist fehlgeschlagen. Es wird zum nächsten geplanten Zeitpunkt erneut versucht.",
+	backup_schedule_dm_limit:
+		"Das automatische Backup von **${guildName}** wurde übersprungen: Du hast das Limit von ${max} Backups erreicht. Lösche eines mit `/backup delete`.",
+	backup_schedule_dm_failed:
+		"Das automatische Backup von **${guildName}** ist fehlgeschlagen. Es wird zum nächsten geplanten Zeitpunkt erneut versucht.",
 
 	// Role Reactions
 	// /reactionroles
@@ -3197,40 +3221,27 @@ export default {
 
 	// /setsuggest deaktivieren
 	// /suggest status
-	suggest_not_staff:
-		"Du darfst keine Vorschläge verwalten.",
-	suggest_status_pending:
-		"Ausstehend",
-	suggest_status_reviewing:
-		"In Prüfung",
-	suggest_status_accepted:
-		"Angenommen",
-	suggest_status_planned:
-		"Geplant",
-	suggest_status_implemented:
-		"Umgesetzt",
-	suggest_status_denied:
-		"Abgelehnt",
+	suggest_not_staff: "Du darfst keine Vorschläge verwalten.",
+	suggest_status_pending: "Ausstehend",
+	suggest_status_reviewing: "In Prüfung",
+	suggest_status_accepted: "Angenommen",
+	suggest_status_planned: "Geplant",
+	suggest_status_implemented: "Umgesetzt",
+	suggest_status_denied: "Abgelehnt",
 	suggest_notify_status:
 		"<@${authorId}>, dein Vorschlag ist jetzt **${status}**.",
 	suggest_notify_reply:
 		"<@${authorId}>, das Team hat auf deinen Vorschlag geantwortet.",
-	suggest_button_reply:
-		"Antworten",
-	suggest_modal_title:
-		"Auf den Vorschlag antworten",
-	suggest_modal_label:
-		"Deine Nachricht",
+	suggest_button_reply: "Antworten",
+	suggest_modal_title: "Auf den Vorschlag antworten",
+	suggest_modal_label: "Deine Nachricht",
 	suggest_status_command_work:
 		"Der Vorschlag ist jetzt **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Vorschläge",
-	suggest_list_empty:
-		"Keine Vorschläge vorhanden.",
-	suggest_list_footer:
-		"${shownCount} von ${totalCount}",
+	suggest_list_title: "Vorschläge",
+	suggest_list_empty: "Keine Vorschläge vorhanden.",
+	suggest_list_footer: "${shownCount} von ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3477,7 +3488,8 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"Sie dürfen den Tag `${tag_name}` nicht verwenden.\nSie benötigen Administratorrechte oder können den Tag-Besitzer <@${createBy}> bitten, Sie zur Whitelist hinzuzufügen (`tag wlroles-use`).",
-	tag_use_empty: "Der Tag `${tag_name}` ist leer: Er hat weder Text noch Embed.",
+	tag_use_empty:
+		"Der Tag `${tag_name}` ist leer: Er hat weder Text noch Embed.",
 	tag_use_command_work: "Tag `${tag_name}` wurde gesendet.",
 
 	// /tag edit
@@ -3553,12 +3565,10 @@ export default {
 	// /confession delete
 	confession_sent_confirmation:
 		"Dein Geständnis **#${code}** wurde veröffentlicht.",
-	confession_not_found:
-		"Kein Geständnis mit dem Code **#${code}** gefunden.",
+	confession_not_found: "Kein Geständnis mit dem Code **#${code}** gefunden.",
 	confession_delete_command_work:
 		"Das Geständnis **#${code}** wurde gelöscht.",
-	confession_delete_log_embed_title:
-		"Geständnis gelöscht",
+	confession_delete_log_embed_title: "Geständnis gelöscht",
 	confession_delete_log_embed_desc:
 		"${author} hat das Geständnis **#${code}** gelöscht",
 
@@ -3569,8 +3579,7 @@ export default {
 		"Der Autor des Geständnisses **#${code}** ist bereits gesperrt.",
 	confession_ban_author_expired:
 		"Dieses Geständnis ist zu alt: Sein Autor wird nach 90 Tagen vergessen.",
-	confession_ban_log_embed_title:
-		"Geständnis-Autor gesperrt",
+	confession_ban_log_embed_title: "Geständnis-Autor gesperrt",
 	confession_ban_log_embed_desc:
 		"${author} hat den Autor des Geständnisses **#${code}** gesperrt",
 	confession_banned_error:
@@ -3581,8 +3590,7 @@ export default {
 		"Die mit dem Geständnis **#${code}** verbundene Sperre wurde aufgehoben.",
 	confession_unban_not_found:
 		"Mit dem Geständnis **#${code}** ist keine Sperre verbunden.",
-	confession_unban_log_embed_title:
-		"Geständnis-Autor entsperrt",
+	confession_unban_log_embed_title: "Geständnis-Autor entsperrt",
 	confession_unban_log_embed_desc:
 		"${author} hat die mit dem Geständnis **#${code}** verbundene Sperre aufgehoben",
 
@@ -5028,8 +5036,10 @@ export default {
 	music_apo_saved: "${emoji} **${name}** gespeichert (${stages} Stufen).",
 	// +shardinfo
 	shardinfo_title: "Shard-Informationen",
-	shardinfo_location: "Dieser Server liegt auf Shard **${shardId}**. Befehl verarbeitet von Shard **${handlerShardId}**, Prozess `${pid}`.",
-	shardinfo_member_data: "Mitgliederzahlen: **${exactCount}** exakt, **${approximateCount}** ungefähr, **${missingCount}** fehlend",
+	shardinfo_location:
+		"Dieser Server liegt auf Shard **${shardId}**. Befehl verarbeitet von Shard **${handlerShardId}**, Prozess `${pid}`.",
+	shardinfo_member_data:
+		"Mitgliederzahlen: **${exactCount}** exakt, **${approximateCount}** ungefähr, **${missingCount}** fehlend",
 	shardinfo_offline_shards: "Shards ohne Antwort: ${shards}",
 	shardinfo_section_unavailable: "Nicht verfügbare Server",
 	shardinfo_section_approximate: "Server mit ungefährer Zahl",

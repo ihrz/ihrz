@@ -51,7 +51,7 @@ export const event: BotEvent = {
 
 			const fetchedForNitro = await client.db
 				.get(
-					`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
+					`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`
 				)
 				.catch(() => null);
 

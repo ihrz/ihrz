@@ -120,13 +120,6 @@ class GithubLinesManager {
 		let lines: string[];
 		let filename = match[3];
 
-		// Refuse a span that would be rejected anyway, before downloading.
-		const requestedStart = parseInt(match[4], 10);
-		const requestedEnd = match[5] ? parseInt(match[5], 10) : requestedStart;
-		if (Math.abs(requestedEnd - requestedStart) >= MAX_DISPLAYED_LINES) {
-			return null;
-		}
-
 		if (type === "GitHub") {
 			const text = await this.fetchText(
 				`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`

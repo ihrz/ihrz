@@ -2455,7 +2455,7 @@ export default {
 		"**<@${executorId}>** قام بحظر **<@${userId}>** مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`",
 	tempban_user_is_admin: "هذا المستخدم لديه صلاحيات المدير، لا يمكنني حظره.",
 	tempban_user_highest_role_or_same:
-		"رتبتي في الخادم أقل أو مساوية لـ **user_mention**. لا يمكنني تنفيذ إجراء على هذا العضو.",
+		"رتبتي في الخادم أقل أو مساوية لـ **${user}**. لا يمكنني تنفيذ إجراء على هذا العضو.",
 	tempban_max_time_passed:
 		"\n*الحد الأقصى للحظر المؤقت هو سنة واحدة. تم تطبيق سنة واحدة.*",
 	tempban_user_not_in_guild:
@@ -2518,11 +2518,13 @@ export default {
 		"تم تحديث وحدة النسخ الاحتياطي. الآن يمكن لـ ${allowed_user_string} إنشاء / تحميل النسخ الاحتياطية على هذا الخادم.",
 	// /backup panels
 	backup_component_settings: "إعدادات الخادم",
-	backup_component_settings_desc: "الاسم والصور والمستويات وقنوات النظام وشاشة الترحيب",
+	backup_component_settings_desc:
+		"الاسم والصور والمستويات وقنوات النظام وشاشة الترحيب",
 	backup_component_roles: "الرتب",
 	backup_component_roles_desc: "الترتيب والألوان والأيقونات والأذونات",
 	backup_component_channels: "القنوات",
-	backup_component_channels_desc: "الفئات والقنوات النصية والصوتية والمنتديات والمواضيع",
+	backup_component_channels_desc:
+		"الفئات والقنوات النصية والصوتية والمنتديات والمواضيع",
 	backup_component_permissions: "أذونات القنوات",
 	backup_component_permissions_desc: "استثناءات الرتب والأعضاء في كل قناة",
 	backup_component_emojis: "الرموز التعبيرية",
@@ -2541,8 +2543,10 @@ export default {
 	backup_component_members_desc: "ألقاب ورتب الأعضاء الحاليين",
 	backup_select_placeholder: "اختر ما تريد تضمينه",
 	backup_usage: "تم استخدام ${count}/${max} من النسخ الاحتياطية",
-	backup_limit_reached: "لقد وصلت إلى الحد الأقصى وهو **${max} نسخة احتياطية**. احذف واحدة أولاً باستخدام `/backup delete`.",
-	backup_busy: "هناك عملية نسخ احتياطي قيد التنفيذ بالفعل، حاول مرة أخرى بعد قليل.",
+	backup_limit_reached:
+		"لقد وصلت إلى الحد الأقصى وهو **${max} نسخة احتياطية**. احذف واحدة أولاً باستخدام `/backup delete`.",
+	backup_busy:
+		"هناك عملية نسخ احتياطي قيد التنفيذ بالفعل، حاول مرة أخرى بعد قليل.",
 	backup_panel_expired: "انتهت صلاحية هذه اللوحة، أعد تشغيل الأمر.",
 	backup_btn_create: "إنشاء النسخة الاحتياطية",
 	backup_btn_all: "تحديد الكل",
@@ -2551,33 +2555,44 @@ export default {
 	backup_btn_schedule_disable: "إيقاف",
 	backup_create_title: "نسخة احتياطية جديدة",
 	backup_create_desc: "اختر ما تريد حفظه من **${guildName}**.",
-	backup_create_progress: "${emoji} جارٍ إنشاء النسخة الاحتياطية، قد يستغرق هذا بعض الوقت...",
+	backup_create_progress:
+		"${emoji} جارٍ إنشاء النسخة الاحتياطية، قد يستغرق هذا بعض الوقت...",
 	backup_create_cancelled: "تم إلغاء النسخة الاحتياطية.",
-	backup_create_failed: "تعذر حفظ النسخة الاحتياطية. لم تتم إضافة أي شيء إلى قائمتك.",
+	backup_create_failed:
+		"تعذر حفظ النسخة الاحتياطية. لم تتم إضافة أي شيء إلى قائمتك.",
 	backup_created_title: "تم إنشاء النسخة الاحتياطية",
-	backup_created_desc: "معرّف نسختك الاحتياطية هو `${id}`. استخدمه مع `/backup load`.",
+	backup_created_desc:
+		"معرّف نسختك الاحتياطية هو `${id}`. استخدمه مع `/backup load`.",
 	backup_created_partial: "**تعذر الحفظ، لذلك لن تتم الاستعادة:** ${parts}",
 	backup_load_title: "استعادة نسخة احتياطية",
-	backup_load_desc: "نسخة احتياطية من **${guildName}**، أُنشئت بتاريخ ${date}.",
-	backup_load_warning: "**لا يمكن التراجع عن هذا الإجراء.** يُحذف كل ما تم تحديده من هذا الخادم ثم تتم استعادته. يتم العثور على الأدوار بالاسم وتحديثها، لذا يحتفظ بها الأعضاء؛ ولا تُزال الأدوار غير الموجودة في النسخة الاحتياطية إلا عند استعادة القنوات أيضًا.",
+	backup_load_desc:
+		"نسخة احتياطية من **${guildName}**، أُنشئت بتاريخ ${date}.",
+	backup_load_warning:
+		"**لا يمكن التراجع عن هذا الإجراء.** يُحذف كل ما تم تحديده من هذا الخادم ثم تتم استعادته. يتم العثور على الأدوار بالاسم وتحديثها، لذا يحتفظ بها الأعضاء؛ ولا تُزال الأدوار غير الموجودة في النسخة الاحتياطية إلا عند استعادة القنوات أيضًا.",
 	backup_load_progress: "${emoji} جارٍ الاستعادة، قد يستغرق هذا عدة دقائق...",
 	backup_load_done_title: "تمت استعادة النسخة الاحتياطية",
 	backup_load_done_desc: "تمت استعادة **${guildName}**.",
 	backup_load_report_line: "${emoji} **${label}**: تمت استعادة ${okCount}",
 	backup_load_report_failed: "(فشل ${failedCount})",
 	backup_list_title: "نسخك الاحتياطية",
-	backup_list_empty: "ليس لديك أي نسخة احتياطية بعد. أنشئ واحدة باستخدام `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} فئة، ${channelCount} قناة",
+	backup_list_empty:
+		"ليس لديك أي نسخة احتياطية بعد. أنشئ واحدة باستخدام `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} فئة، ${channelCount} قناة",
 	backup_list_manual: "يدوية",
 	backup_list_auto: "تلقائية",
 	backup_delete_title: "هل تريد حذف هذه النسخة الاحتياطية؟",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} فئة، ${channelCount} قناة",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} فئة، ${channelCount} قناة",
 	backup_delete_done: "تم حذف النسخة الاحتياطية.",
 	backup_delete_cancelled: "تم الاحتفاظ بالنسخة الاحتياطية.",
 	backup_schedule_title: "النسخ الاحتياطية التلقائية",
-	backup_schedule_desc: "يتم حفظها في حسابك وتُحتسب ضمن الحد الخاص بك. يتم الاحتفاظ فقط بآخر ${maxAuto} نسخة احتياطية تلقائية لهذا الخادم.",
-	backup_schedule_owner_only: "يمكن لمالك الخادم فقط جدولة النسخ الاحتياطية التلقائية.",
-	backup_schedule_status_on: "نشط: **${frequency}**، النسخة الاحتياطية التالية ${next}",
+	backup_schedule_desc:
+		"يتم حفظها في حسابك وتُحتسب ضمن الحد الخاص بك. يتم الاحتفاظ فقط بآخر ${maxAuto} نسخة احتياطية تلقائية لهذا الخادم.",
+	backup_schedule_owner_only:
+		"يمكن لمالك الخادم فقط جدولة النسخ الاحتياطية التلقائية.",
+	backup_schedule_status_on:
+		"نشط: **${frequency}**، النسخة الاحتياطية التالية ${next}",
 	backup_schedule_status_off: "لا توجد نسخة احتياطية تلقائية مجدولة.",
 	backup_schedule_frequency_placeholder: "اختر معدل التكرار",
 	backup_frequency_1d: "كل يوم",
@@ -2588,8 +2603,10 @@ export default {
 	backup_frequency_3m: "كل 3 أشهر",
 	backup_frequency_6m: "كل 6 أشهر",
 	backup_frequency_12m: "كل سنة",
-	backup_schedule_dm_limit: "تم تخطي النسخة الاحتياطية التلقائية لـ **${guildName}**: لقد وصلت إلى الحد الأقصى وهو ${max} نسخة احتياطية. احذف واحدة باستخدام `/backup delete`.",
-	backup_schedule_dm_failed: "فشلت النسخة الاحتياطية التلقائية لـ **${guildName}**. ستتم إعادة المحاولة في الموعد المجدول التالي.",
+	backup_schedule_dm_limit:
+		"تم تخطي النسخة الاحتياطية التلقائية لـ **${guildName}**: لقد وصلت إلى الحد الأقصى وهو ${max} نسخة احتياطية. احذف واحدة باستخدام `/backup delete`.",
+	backup_schedule_dm_failed:
+		"فشلت النسخة الاحتياطية التلقائية لـ **${guildName}**. ستتم إعادة المحاولة في الموعد المجدول التالي.",
 
 	// Role Reactions
 	// /reactionroles
@@ -2942,46 +2959,30 @@ export default {
 	suggest_delete_command_error: "لم يتم العثور على الاقتراح في قناة Discord!",
 
 	// /suggest status
-	suggest_not_staff:
-		"ليس لديك إذن لإدارة الاقتراحات.",
-	suggest_status_pending:
-		"قيد الانتظار",
-	suggest_status_reviewing:
-		"قيد المراجعة",
-	suggest_status_accepted:
-		"مقبول",
-	suggest_status_planned:
-		"مخطط له",
-	suggest_status_implemented:
-		"تم التنفيذ",
-	suggest_status_denied:
-		"مرفوض",
-	suggest_notify_status:
-		"<@${authorId}>، حالة اقتراحك الآن: **${status}**.",
-	suggest_notify_reply:
-		"<@${authorId}>، رد فريق الإدارة على اقتراحك.",
-	suggest_button_reply:
-		"رد",
-	suggest_modal_title:
-		"الرد على الاقتراح",
-	suggest_modal_label:
-		"رسالتك",
+	suggest_not_staff: "ليس لديك إذن لإدارة الاقتراحات.",
+	suggest_status_pending: "قيد الانتظار",
+	suggest_status_reviewing: "قيد المراجعة",
+	suggest_status_accepted: "مقبول",
+	suggest_status_planned: "مخطط له",
+	suggest_status_implemented: "تم التنفيذ",
+	suggest_status_denied: "مرفوض",
+	suggest_notify_status: "<@${authorId}>، حالة اقتراحك الآن: **${status}**.",
+	suggest_notify_reply: "<@${authorId}>، رد فريق الإدارة على اقتراحك.",
+	suggest_button_reply: "رد",
+	suggest_modal_title: "الرد على الاقتراح",
+	suggest_modal_label: "رسالتك",
 	suggest_status_command_work:
 		"حالة الاقتراح الآن: **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"الاقتراحات",
-	suggest_list_empty:
-		"لا توجد اقتراحات لعرضها.",
-	suggest_list_footer:
-		"${shownCount} من ${totalCount}",
+	suggest_list_title: "الاقتراحات",
+	suggest_list_empty: "لا توجد اقتراحات لعرضها.",
+	suggest_list_footer: "${shownCount} من ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
 		"${author}، رتبة فريق الاقتراحات الآن هي ${role}.",
-	setsuggest_staff_role_removed:
-		"${author}، تمت إزالة رتبة فريق الاقتراحات.",
+	setsuggest_staff_role_removed: "${author}، تمت إزالة رتبة فريق الاقتراحات.",
 
 	// /setsuggest disable
 	setsuggest_disable_not_admin: "أنت لست مشرفاً!",
@@ -3277,38 +3278,29 @@ export default {
 		"${author} قام بتعطيل وحدة الاعترافات!",
 
 	// /confession delete
-	confession_sent_confirmation:
-		"تم نشر اعترافك **#${code}**.",
-	confession_not_found:
-		"لم يتم العثور على اعتراف بالرمز **#${code}**.",
-	confession_delete_command_work:
-		"تم حذف الاعتراف **#${code}**.",
-	confession_delete_log_embed_title:
-		"حذف اعتراف",
+	confession_sent_confirmation: "تم نشر اعترافك **#${code}**.",
+	confession_not_found: "لم يتم العثور على اعتراف بالرمز **#${code}**.",
+	confession_delete_command_work: "تم حذف الاعتراف **#${code}**.",
+	confession_delete_log_embed_title: "حذف اعتراف",
 	confession_delete_log_embed_desc:
 		"قام ${author} بحذف الاعتراف **#${code}**",
 
 	// /confession ban
 	confession_ban_command_work:
 		"لم يعد بإمكان صاحب الاعتراف **#${code}** الاعتراف في هذا الخادم.",
-	confession_ban_already:
-		"صاحب الاعتراف **#${code}** محظور بالفعل.",
+	confession_ban_already: "صاحب الاعتراف **#${code}** محظور بالفعل.",
 	confession_ban_author_expired:
 		"هذا الاعتراف قديم جدًا: يتم نسيان صاحبه بعد 90 يومًا.",
-	confession_ban_log_embed_title:
-		"حظر صاحب اعتراف",
+	confession_ban_log_embed_title: "حظر صاحب اعتراف",
 	confession_ban_log_embed_desc:
 		"قام ${author} بحظر صاحب الاعتراف **#${code}**",
-	confession_banned_error:
-		"أنت محظور من وحدة الاعترافات في هذا الخادم.",
+	confession_banned_error: "أنت محظور من وحدة الاعترافات في هذا الخادم.",
 
 	// /confession unban
 	confession_unban_command_work:
 		"تم رفع الحظر المرتبط بالاعتراف **#${code}**.",
-	confession_unban_not_found:
-		"لا يوجد حظر مرتبط بالاعتراف **#${code}**.",
-	confession_unban_log_embed_title:
-		"إلغاء حظر صاحب اعتراف",
+	confession_unban_not_found: "لا يوجد حظر مرتبط بالاعتراف **#${code}**.",
+	confession_unban_log_embed_title: "إلغاء حظر صاحب اعتراف",
 	confession_unban_log_embed_desc:
 		"قام ${author} برفع الحظر المرتبط بالاعتراف **#${code}**",
 
@@ -4666,8 +4658,10 @@ export default {
 	music_apo_saved: "${emoji} تم حفظ **${name}** (${stages} مراحل).",
 	// +shardinfo
 	shardinfo_title: "معلومات الشاردات",
-	shardinfo_location: "هذا السيرفر موجود على الشارد **${shardId}**. نفذ الأمر الشارد **${handlerShardId}**، العملية `${pid}`.",
-	shardinfo_member_data: "عدد الأعضاء: **${exactCount}** دقيق، **${approximateCount}** تقريبي، **${missingCount}** غير معروف",
+	shardinfo_location:
+		"هذا السيرفر موجود على الشارد **${shardId}**. نفذ الأمر الشارد **${handlerShardId}**، العملية `${pid}`.",
+	shardinfo_member_data:
+		"عدد الأعضاء: **${exactCount}** دقيق، **${approximateCount}** تقريبي، **${missingCount}** غير معروف",
 	shardinfo_offline_shards: "شاردات لا تستجيب: ${shards}",
 	shardinfo_section_unavailable: "سيرفرات غير متاحة",
 	shardinfo_section_approximate: "سيرفرات بعدد تقريبي",

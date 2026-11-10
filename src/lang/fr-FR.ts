@@ -2670,7 +2670,7 @@ export default {
 	tempban_user_is_admin:
 		"L’utilisateur possède les permissions administrateur, je ne peux pas le bannir.",
 	tempban_user_highest_role_or_same:
-		"Mon rôle sur ce serveur est inférieur ou égal à celui de **user_mention**. Je ne peux pas modérer ce membre.",
+		"Mon rôle sur ce serveur est inférieur ou égal à celui de **${user}**. Je ne peux pas modérer ce membre.",
 	tempban_max_time_passed:
 		"\n*La durée maximale d’un bannissement temporaire est d’un an. J’ai appliqué un an.*",
 	tempban_user_not_in_guild:
@@ -2735,13 +2735,15 @@ export default {
 		"Le module de sauvegarde a été mis à jour. Désormais, ${allowed_user_string} peut exécuter la création ou le chargement de sauvegardes sur ce serveur.",
 	// /backup panels
 	backup_component_settings: "Paramètres du serveur",
-	backup_component_settings_desc: "Nom, images, niveaux, salons système, écran d'accueil",
+	backup_component_settings_desc:
+		"Nom, images, niveaux, salons système, écran d'accueil",
 	backup_component_roles: "Rôles",
 	backup_component_roles_desc: "Ordre, couleurs, icônes et permissions",
 	backup_component_channels: "Salons",
 	backup_component_channels_desc: "Catégories, texte, vocal, forums et fils",
 	backup_component_permissions: "Permissions des salons",
-	backup_component_permissions_desc: "Autorisations des rôles et membres par salon",
+	backup_component_permissions_desc:
+		"Autorisations des rôles et membres par salon",
 	backup_component_emojis: "Emojis",
 	backup_component_emojis_desc: "Tous les emojis personnalisés du serveur",
 	backup_component_stickers: "Autocollants",
@@ -2758,8 +2760,10 @@ export default {
 	backup_component_members_desc: "Pseudos et rôles des membres actuels",
 	backup_select_placeholder: "Choisis ce qu'il faut inclure",
 	backup_usage: "${count}/${max} backups utilisées",
-	backup_limit_reached: "Tu as atteint la limite de **${max} backups**. Supprimes-en une avec `/backup delete` d'abord.",
-	backup_busy: "Une opération de backup est déjà en cours, réessaie dans un instant.",
+	backup_limit_reached:
+		"Tu as atteint la limite de **${max} backups**. Supprimes-en une avec `/backup delete` d'abord.",
+	backup_busy:
+		"Une opération de backup est déjà en cours, réessaie dans un instant.",
 	backup_panel_expired: "Ce panneau a expiré, relance la commande.",
 	backup_btn_create: "Créer la backup",
 	backup_btn_all: "Tout sélectionner",
@@ -2767,34 +2771,47 @@ export default {
 	backup_btn_schedule_save: "Enregistrer le planning",
 	backup_btn_schedule_disable: "Désactiver",
 	backup_create_title: "Nouvelle backup",
-	backup_create_desc: "Choisis ce qu'il faut sauvegarder de **${guildName}**.",
-	backup_create_progress: "${emoji} Création de la backup, cela peut prendre un moment...",
+	backup_create_desc:
+		"Choisis ce qu'il faut sauvegarder de **${guildName}**.",
+	backup_create_progress:
+		"${emoji} Création de la backup, cela peut prendre un moment...",
 	backup_create_cancelled: "Backup annulée.",
-	backup_create_failed: "La backup n'a pas pu être enregistrée. Rien n'a été ajouté à ta liste.",
+	backup_create_failed:
+		"La backup n'a pas pu être enregistrée. Rien n'a été ajouté à ta liste.",
 	backup_created_title: "Backup créée",
-	backup_created_desc: "L'identifiant de ta backup est `${id}`. Utilise-le avec `/backup load`.",
-	backup_created_partial: "**N'ont pas pu être sauvegardés, et ne seront donc pas restaurés :** ${parts}",
+	backup_created_desc:
+		"L'identifiant de ta backup est `${id}`. Utilise-le avec `/backup load`.",
+	backup_created_partial:
+		"**N'ont pas pu être sauvegardés, et ne seront donc pas restaurés :** ${parts}",
 	backup_load_title: "Restaurer une backup",
 	backup_load_desc: "Backup de **${guildName}**, réalisée le ${date}.",
-	backup_load_warning: "**Action irréversible.** Tout ce qui est sélectionné est supprimé de ce serveur, puis restauré. Les rôles sont retrouvés par leur nom et mis à jour, les membres les conservent donc ; ceux absents de la backup ne sont retirés que si les salons sont aussi restaurés.",
-	backup_load_progress: "${emoji} Restauration en cours, cela peut prendre plusieurs minutes...",
+	backup_load_warning:
+		"**Action irréversible.** Tout ce qui est sélectionné est supprimé de ce serveur, puis restauré. Les rôles sont retrouvés par leur nom et mis à jour, les membres les conservent donc ; ceux absents de la backup ne sont retirés que si les salons sont aussi restaurés.",
+	backup_load_progress:
+		"${emoji} Restauration en cours, cela peut prendre plusieurs minutes...",
 	backup_load_done_title: "Backup restaurée",
 	backup_load_done_desc: "**${guildName}** a été restauré.",
 	backup_load_report_line: "${emoji} **${label}** : ${okCount} restauré(s)",
 	backup_load_report_failed: "(${failedCount} en échec)",
 	backup_list_title: "Tes backups",
-	backup_list_empty: "Tu n'as encore aucune backup. Crées-en une avec `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} catégories, ${channelCount} salons",
+	backup_list_empty:
+		"Tu n'as encore aucune backup. Crées-en une avec `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} catégories, ${channelCount} salons",
 	backup_list_manual: "Manuelle",
 	backup_list_auto: "Automatique",
 	backup_delete_title: "Supprimer cette backup ?",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} catégories, ${channelCount} salons",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} catégories, ${channelCount} salons",
 	backup_delete_done: "La backup a été supprimée.",
 	backup_delete_cancelled: "La backup a été conservée.",
 	backup_schedule_title: "Backups automatiques",
-	backup_schedule_desc: "Elles sont enregistrées sur ton compte et comptent dans ta limite. Seules les ${maxAuto} dernières backups automatiques de ce serveur sont conservées.",
-	backup_schedule_owner_only: "Seul le propriétaire du serveur peut programmer des backups automatiques.",
-	backup_schedule_status_on: "Actif : **${frequency}**, prochaine backup ${next}",
+	backup_schedule_desc:
+		"Elles sont enregistrées sur ton compte et comptent dans ta limite. Seules les ${maxAuto} dernières backups automatiques de ce serveur sont conservées.",
+	backup_schedule_owner_only:
+		"Seul le propriétaire du serveur peut programmer des backups automatiques.",
+	backup_schedule_status_on:
+		"Actif : **${frequency}**, prochaine backup ${next}",
 	backup_schedule_status_off: "Aucune backup automatique n'est programmée.",
 	backup_schedule_frequency_placeholder: "Choisis la fréquence",
 	backup_frequency_1d: "Tous les jours",
@@ -2805,8 +2822,10 @@ export default {
 	backup_frequency_3m: "Tous les 3 mois",
 	backup_frequency_6m: "Tous les 6 mois",
 	backup_frequency_12m: "Tous les ans",
-	backup_schedule_dm_limit: "La backup automatique de **${guildName}** a été ignorée : tu as atteint la limite de ${max} backups. Supprimes-en une avec `/backup delete`.",
-	backup_schedule_dm_failed: "La backup automatique de **${guildName}** a échoué. Elle sera retentée à la prochaine échéance.",
+	backup_schedule_dm_limit:
+		"La backup automatique de **${guildName}** a été ignorée : tu as atteint la limite de ${max} backups. Supprimes-en une avec `/backup delete`.",
+	backup_schedule_dm_failed:
+		"La backup automatique de **${guildName}** a échoué. Elle sera retentée à la prochaine échéance.",
 
 	// Role Reactions
 	// /reactionroles
@@ -3188,40 +3207,27 @@ export default {
 		"La suggestion n'a pas été trouvée dans le canal Discord !",
 
 	// /suggest status
-	suggest_not_staff:
-		"Vous n'êtes pas autorisé à gérer les suggestions.",
-	suggest_status_pending:
-		"En attente",
-	suggest_status_reviewing:
-		"À l'étude",
-	suggest_status_accepted:
-		"Acceptée",
-	suggest_status_planned:
-		"Planifiée",
-	suggest_status_implemented:
-		"Implémentée",
-	suggest_status_denied:
-		"Refusée",
+	suggest_not_staff: "Vous n'êtes pas autorisé à gérer les suggestions.",
+	suggest_status_pending: "En attente",
+	suggest_status_reviewing: "À l'étude",
+	suggest_status_accepted: "Acceptée",
+	suggest_status_planned: "Planifiée",
+	suggest_status_implemented: "Implémentée",
+	suggest_status_denied: "Refusée",
 	suggest_notify_status:
 		"<@${authorId}>, votre suggestion est désormais **${status}**.",
 	suggest_notify_reply:
 		"<@${authorId}>, le staff a répondu à votre suggestion.",
-	suggest_button_reply:
-		"Répondre",
-	suggest_modal_title:
-		"Répondre à la suggestion",
-	suggest_modal_label:
-		"Votre message",
+	suggest_button_reply: "Répondre",
+	suggest_modal_title: "Répondre à la suggestion",
+	suggest_modal_label: "Votre message",
 	suggest_status_command_work:
 		"La suggestion est désormais **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Suggestions",
-	suggest_list_empty:
-		"Aucune suggestion à afficher.",
-	suggest_list_footer:
-		"${shownCount} sur ${totalCount}",
+	suggest_list_title: "Suggestions",
+	suggest_list_empty: "Aucune suggestion à afficher.",
+	suggest_list_footer: "${shownCount} sur ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3559,8 +3565,7 @@ export default {
 		"Aucune confession trouvée avec le code **#${code}**.",
 	confession_delete_command_work:
 		"La confession **#${code}** a été supprimée.",
-	confession_delete_log_embed_title:
-		"Suppression de confession",
+	confession_delete_log_embed_title: "Suppression de confession",
 	confession_delete_log_embed_desc:
 		"${author} a supprimé la confession **#${code}**",
 
@@ -3571,8 +3576,7 @@ export default {
 		"L'auteur de la confession **#${code}** est déjà banni.",
 	confession_ban_author_expired:
 		"Cette confession est trop ancienne : son auteur est oublié après 90 jours.",
-	confession_ban_log_embed_title:
-		"Bannissement d'un auteur de confession",
+	confession_ban_log_embed_title: "Bannissement d'un auteur de confession",
 	confession_ban_log_embed_desc:
 		"${author} a banni l'auteur de la confession **#${code}**",
 	confession_banned_error:
@@ -5022,8 +5026,10 @@ export default {
 	music_apo_saved: "${emoji} **${name}** enregistrée (${stages} étapes).",
 	// +shardinfo
 	shardinfo_title: "Informations sur les shards",
-	shardinfo_location: "Ce serveur est sur le shard **${shardId}**. Commande traitée par le shard **${handlerShardId}**, processus `${pid}`.",
-	shardinfo_member_data: "Nombre de membres : **${exactCount}** exacts, **${approximateCount}** approximatifs, **${missingCount}** manquants",
+	shardinfo_location:
+		"Ce serveur est sur le shard **${shardId}**. Commande traitée par le shard **${handlerShardId}**, processus `${pid}`.",
+	shardinfo_member_data:
+		"Nombre de membres : **${exactCount}** exacts, **${approximateCount}** approximatifs, **${missingCount}** manquants",
 	shardinfo_offline_shards: "Shards sans réponse : ${shards}",
 	shardinfo_section_unavailable: "Serveurs indisponibles",
 	shardinfo_section_approximate: "Serveurs au nombre approximatif",

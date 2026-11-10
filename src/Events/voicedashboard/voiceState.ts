@@ -219,9 +219,10 @@ async function isMemberlessChannel(
 		// may have swept from the channel's own .members collection).
 		const fresh = (await channel.fetch()) as BaseGuildVoiceChannel;
 		return fresh.members.size === 0;
-	} catch {
-		// If the channel is already gone, treat it as empty
-		return true;
+	} catch (error) {
+		// Only a deleted channel (Unknown Channel) counts as empty: a rate
+		// limit or a Discord outage must not delete a channel with people in it.
+		return (error as { code?: number })?.code === 10003;
 	}
 }
 

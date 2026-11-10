@@ -149,9 +149,18 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await tomute
+		const muted = await tomute
 			.timeout(mutetimeMS, lang.tempmute_logs_embed_title)
-			.catch(() => {});
+			.catch(() => null);
+
+		if (!muted) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tempmute_i_dont_have_permission
+			});
+			return;
+		}
+
+		const mutedUntil = muted.communicationDisabledUntilTimestamp;
 
 		let content = lang.tempmute_command_work
 			.replace("${tomuteId}", tomute.id)
@@ -168,7 +177,14 @@ export const subCommand: SubCommand = {
 
 		if (mutetimeMS <= max_time_untill_not_warn) {
 			setTimeout(async () => {
-				if (tomute?.isCommunicationDisabled() === true) {
+				// Only announce the natural end of this exact mute: a manual
+				// unmute or a new timeout changes the stored end date.
+				const current = await tomute.fetch(true).catch(() => null);
+				if (
+					current &&
+					mutedUntil !== null &&
+					current.communicationDisabledUntilTimestamp === mutedUntil
+				) {
 					await client.func.method.channelSend(interaction, {
 						content: lang.tempmute_unmuted_by_time.replace(
 							"${tomuteId}",

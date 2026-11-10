@@ -28,14 +28,21 @@ type AutorenewData = {
 }[];
 
 class AutoRenew {
+	// A pass slower than the interval must not clone the same channel twice.
+	private isRunning = false;
+
 	public async init() {
 		try {
 			await this.Refresh(await this.GetAutoRenewData());
 			setInterval(async () => {
+				if (this.isRunning) return;
+				this.isRunning = true;
 				try {
 					await this.Refresh(await this.GetAutoRenewData());
 				} catch (error) {
 					logger.err("Error in AutoRenew interval:", error);
+				} finally {
+					this.isRunning = false;
 				}
 			}, 30_000);
 		} catch (error) {
@@ -159,7 +166,7 @@ class AutoRenew {
 										)
 								})
 								.then((x) => {
-									if (x.pinnable) x.pin();
+									if (x.pinnable) x.pin().catch(() => {});
 								})
 								.catch(() => false);
 						}

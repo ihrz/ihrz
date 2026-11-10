@@ -899,10 +899,13 @@ async function CreateChannelV2(
 						users: result.config.pingUser
 							? [interaction.user.id]
 							: [],
+						// Discord rejects duplicate ids and more than 100.
 						roles: [
-							...(chosenCategory?.rolesToPing ?? []),
-							...(result.config.rolesToPing ?? [])
-						]
+							...new Set([
+								...(chosenCategory?.rolesToPing ?? []),
+								...(result.config.rolesToPing ?? [])
+							])
+						].slice(0, 100)
 					}
 				})
 				.then(async (msg) => {
@@ -1096,10 +1099,17 @@ async function denyUnlessTicketStaff(
 			content
 		});
 	} else if (interaction.isRepliable()) {
-		await interaction.reply({
-			content,
-			flags: MessageFlags.Ephemeral
-		});
+		if (interaction.deferred || interaction.replied) {
+			// Slash commands are deferred before running.
+			await interaction.editReply({ content }).catch(() => {});
+		} else {
+			await interaction
+				.reply({
+					content,
+					flags: MessageFlags.Ephemeral
+				})
+				.catch(() => {});
+		}
 	}
 	return false;
 }

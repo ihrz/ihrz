@@ -2600,7 +2600,7 @@ export default {
 	tempban_user_is_admin:
 		"ユーザーは管理者権限を持っているため、BANできません。",
 	tempban_user_highest_role_or_same:
-		"私のサーバーでのロールが **user_mention** と同じか低いため、このメンバーをモデレートできません。",
+		"私のサーバーでのロールが **${user}** と同じか低いため、このメンバーをモデレートできません。",
 	tempban_max_time_passed:
 		"\n*一時BANの最長期間は1年です。1年を適用しました。*",
 	tempban_user_not_in_guild:
@@ -2665,17 +2665,21 @@ export default {
 		"バックアップモジュールが更新されました。これからは、${allowed_user_string} がこのサーバーでバックアップの作成・読み込みを実行できます。",
 	// /backup panels
 	backup_component_settings: "サーバー設定",
-	backup_component_settings_desc: "名前、画像、レベル、システムチャンネル、ウェルカム画面",
+	backup_component_settings_desc:
+		"名前、画像、レベル、システムチャンネル、ウェルカム画面",
 	backup_component_roles: "ロール",
 	backup_component_roles_desc: "順序、色、アイコン、権限",
 	backup_component_channels: "チャンネル",
-	backup_component_channels_desc: "カテゴリー、テキスト、ボイス、フォーラム、スレッド",
+	backup_component_channels_desc:
+		"カテゴリー、テキスト、ボイス、フォーラム、スレッド",
 	backup_component_permissions: "チャンネル権限",
-	backup_component_permissions_desc: "各チャンネルのロールとメンバーの権限設定",
+	backup_component_permissions_desc:
+		"各チャンネルのロールとメンバーの権限設定",
 	backup_component_emojis: "絵文字",
 	backup_component_emojis_desc: "サーバーのすべてのカスタム絵文字",
 	backup_component_stickers: "スタンプ",
-	backup_component_stickers_desc: "サーバーの静止スタンプとアニメーションスタンプ",
+	backup_component_stickers_desc:
+		"サーバーの静止スタンプとアニメーションスタンプ",
 	backup_component_bans: "BAN",
 	backup_component_bans_desc: "BANされたユーザーとその理由",
 	backup_component_automod: "AutoMod ルール",
@@ -2688,9 +2692,12 @@ export default {
 	backup_component_members_desc: "現在のメンバーのニックネームとロール",
 	backup_select_placeholder: "含める項目を選択してください",
 	backup_usage: "バックアップ使用数: ${count}/${max}",
-	backup_limit_reached: "**${max} 件のバックアップ**の上限に達しました。先に `/backup delete` で1件削除してください。",
-	backup_busy: "すでにバックアップ処理が実行中です。少し待ってからもう一度お試しください。",
-	backup_panel_expired: "このパネルは期限切れです。コマンドをもう一度実行してください。",
+	backup_limit_reached:
+		"**${max} 件のバックアップ**の上限に達しました。先に `/backup delete` で1件削除してください。",
+	backup_busy:
+		"すでにバックアップ処理が実行中です。少し待ってからもう一度お試しください。",
+	backup_panel_expired:
+		"このパネルは期限切れです。コマンドをもう一度実行してください。",
 	backup_btn_create: "バックアップを作成",
 	backup_btn_all: "すべて選択",
 	backup_btn_load: "消去して復元",
@@ -2698,34 +2705,47 @@ export default {
 	backup_btn_schedule_disable: "オフにする",
 	backup_create_title: "新しいバックアップ",
 	backup_create_desc: "**${guildName}** から保存する項目を選択してください。",
-	backup_create_progress: "${emoji} バックアップを作成しています。しばらく時間がかかる場合があります...",
+	backup_create_progress:
+		"${emoji} バックアップを作成しています。しばらく時間がかかる場合があります...",
 	backup_create_cancelled: "バックアップをキャンセルしました。",
-	backup_create_failed: "バックアップを保存できませんでした。リストには何も追加されていません。",
+	backup_create_failed:
+		"バックアップを保存できませんでした。リストには何も追加されていません。",
 	backup_created_title: "バックアップを作成しました",
-	backup_created_desc: "バックアップIDは `${id}` です。`/backup load` で使用してください。",
-	backup_created_partial: "**保存できなかったため、復元されません:** ${parts}",
+	backup_created_desc:
+		"バックアップIDは `${id}` です。`/backup load` で使用してください。",
+	backup_created_partial:
+		"**保存できなかったため、復元されません:** ${parts}",
 	backup_load_title: "バックアップを復元",
 	backup_load_desc: "**${guildName}** のバックアップ(作成日: ${date})。",
-	backup_load_warning: "**この操作は元に戻せません。** 選択した項目はこのサーバーから削除され、その後復元されます。ロールは名前で照合して更新されるため、メンバーのロールは保持されます。バックアップにないロールは、チャンネルも復元する場合にのみ削除されます。",
-	backup_load_progress: "${emoji} 復元しています。数分かかる場合があります...",
+	backup_load_warning:
+		"**この操作は元に戻せません。** 選択した項目はこのサーバーから削除され、その後復元されます。ロールは名前で照合して更新されるため、メンバーのロールは保持されます。バックアップにないロールは、チャンネルも復元する場合にのみ削除されます。",
+	backup_load_progress:
+		"${emoji} 復元しています。数分かかる場合があります...",
 	backup_load_done_title: "バックアップを復元しました",
 	backup_load_done_desc: "**${guildName}** を復元しました。",
 	backup_load_report_line: "${emoji} **${label}**: ${okCount} 件復元",
 	backup_load_report_failed: "(${failedCount} 件失敗)",
 	backup_list_title: "あなたのバックアップ",
-	backup_list_empty: "バックアップはまだありません。`/backup create` で作成してください。",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\nカテゴリー ${categoryCount} 件、チャンネル ${channelCount} 件",
+	backup_list_empty:
+		"バックアップはまだありません。`/backup create` で作成してください。",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\nカテゴリー ${categoryCount} 件、チャンネル ${channelCount} 件",
 	backup_list_manual: "手動",
 	backup_list_auto: "自動",
 	backup_delete_title: "このバックアップを削除しますか?",
-	backup_delete_desc: "**${guildName}** `${id}`\nカテゴリー ${categoryCount} 件、チャンネル ${channelCount} 件",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\nカテゴリー ${categoryCount} 件、チャンネル ${channelCount} 件",
 	backup_delete_done: "バックアップを削除しました。",
 	backup_delete_cancelled: "バックアップは保持されました。",
 	backup_schedule_title: "自動バックアップ",
-	backup_schedule_desc: "自動バックアップはあなたのアカウントに保存され、上限にカウントされます。このサーバーの自動バックアップは最新の ${maxAuto} 件のみ保持されます。",
-	backup_schedule_owner_only: "自動バックアップをスケジュールできるのはサーバーオーナーのみです。",
-	backup_schedule_status_on: "有効: **${frequency}**、次回のバックアップ ${next}",
-	backup_schedule_status_off: "自動バックアップはスケジュールされていません。",
+	backup_schedule_desc:
+		"自動バックアップはあなたのアカウントに保存され、上限にカウントされます。このサーバーの自動バックアップは最新の ${maxAuto} 件のみ保持されます。",
+	backup_schedule_owner_only:
+		"自動バックアップをスケジュールできるのはサーバーオーナーのみです。",
+	backup_schedule_status_on:
+		"有効: **${frequency}**、次回のバックアップ ${next}",
+	backup_schedule_status_off:
+		"自動バックアップはスケジュールされていません。",
 	backup_schedule_frequency_placeholder: "頻度を選択してください",
 	backup_frequency_1d: "毎日",
 	backup_frequency_3d: "3日ごと",
@@ -2735,8 +2755,10 @@ export default {
 	backup_frequency_3m: "3か月ごと",
 	backup_frequency_6m: "6か月ごと",
 	backup_frequency_12m: "毎年",
-	backup_schedule_dm_limit: "**${guildName}** の自動バックアップをスキップしました: ${max} 件のバックアップの上限に達しています。`/backup delete` で1件削除してください。",
-	backup_schedule_dm_failed: "**${guildName}** の自動バックアップに失敗しました。次回のスケジュール時刻に再試行されます。",
+	backup_schedule_dm_limit:
+		"**${guildName}** の自動バックアップをスキップしました: ${max} 件のバックアップの上限に達しています。`/backup delete` で1件削除してください。",
+	backup_schedule_dm_failed:
+		"**${guildName}** の自動バックアップに失敗しました。次回のスケジュール時刻に再試行されます。",
 
 	// Role Reactions
 	// /reactionroles
@@ -3099,40 +3121,27 @@ export default {
 		"提案はDiscordのチャンネルで見つかりませんでした！",
 
 	// /suggest status
-	suggest_not_staff:
-		"提案を管理する権限がありません。",
-	suggest_status_pending:
-		"保留中",
-	suggest_status_reviewing:
-		"検討中",
-	suggest_status_accepted:
-		"承認済み",
-	suggest_status_planned:
-		"計画済み",
-	suggest_status_implemented:
-		"実装済み",
-	suggest_status_denied:
-		"却下",
+	suggest_not_staff: "提案を管理する権限がありません。",
+	suggest_status_pending: "保留中",
+	suggest_status_reviewing: "検討中",
+	suggest_status_accepted: "承認済み",
+	suggest_status_planned: "計画済み",
+	suggest_status_implemented: "実装済み",
+	suggest_status_denied: "却下",
 	suggest_notify_status:
 		"<@${authorId}>、あなたの提案のステータス: **${status}**",
 	suggest_notify_reply:
 		"<@${authorId}>、スタッフがあなたの提案に返信しました。",
-	suggest_button_reply:
-		"返信",
-	suggest_modal_title:
-		"提案に返信",
-	suggest_modal_label:
-		"メッセージ",
+	suggest_button_reply: "返信",
+	suggest_modal_title: "提案に返信",
+	suggest_modal_label: "メッセージ",
 	suggest_status_command_work:
 		"提案のステータス: **${status}**\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"提案",
-	suggest_list_empty:
-		"表示する提案はありません。",
-	suggest_list_footer:
-		"${totalCount} 件中 ${shownCount} 件",
+	suggest_list_title: "提案",
+	suggest_list_empty: "表示する提案はありません。",
+	suggest_list_footer: "${totalCount} 件中 ${shownCount} 件",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3374,7 +3383,8 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"タグ `${tag_name}` を使用する権限がありません。\n管理者権限が必要か、タグの所有者 <@${createBy}> にホワイトリストへの追加を依頼してください（`tag wlroles-use`）。",
-	tag_use_empty: "タグ `${tag_name}` は空です。テキストも埋め込みもありません。",
+	tag_use_empty:
+		"タグ `${tag_name}` は空です。テキストも埋め込みもありません。",
 	tag_use_command_work: "タグ `${tag_name}` が送信されました。",
 
 	// /tag edit
@@ -3447,14 +3457,10 @@ export default {
 		"${author}が告白モジュールを無効にしました！",
 
 	// /confession delete
-	confession_sent_confirmation:
-		"告白 **#${code}** を投稿しました。",
-	confession_not_found:
-		"コード **#${code}** の告白は見つかりません。",
-	confession_delete_command_work:
-		"告白 **#${code}** を削除しました。",
-	confession_delete_log_embed_title:
-		"告白の削除",
+	confession_sent_confirmation: "告白 **#${code}** を投稿しました。",
+	confession_not_found: "コード **#${code}** の告白は見つかりません。",
+	confession_delete_command_work: "告白 **#${code}** を削除しました。",
+	confession_delete_log_embed_title: "告白の削除",
 	confession_delete_log_embed_desc:
 		"${author} が告白 **#${code}** を削除しました",
 
@@ -3465,8 +3471,7 @@ export default {
 		"告白 **#${code}** の投稿者はすでに追放されています。",
 	confession_ban_author_expired:
 		"この告白は古すぎます。投稿者の情報は90日後に消去されます。",
-	confession_ban_log_embed_title:
-		"告白投稿者の追放",
+	confession_ban_log_embed_title: "告白投稿者の追放",
 	confession_ban_log_embed_desc:
 		"${author} が告白 **#${code}** の投稿者を追放しました",
 	confession_banned_error:
@@ -3477,8 +3482,7 @@ export default {
 		"告白 **#${code}** に関連する追放を解除しました。",
 	confession_unban_not_found:
 		"告白 **#${code}** に関連する追放はありません。",
-	confession_unban_log_embed_title:
-		"告白投稿者の追放解除",
+	confession_unban_log_embed_title: "告白投稿者の追放解除",
 	confession_unban_log_embed_desc:
 		"${author} が告白 **#${code}** に関連する追放を解除しました",
 
@@ -4888,8 +4892,10 @@ export default {
 		"${emoji} **${name}** を保存しました（${stages} ステージ）。",
 	// +shardinfo
 	shardinfo_title: "シャード情報",
-	shardinfo_location: "このサーバーはシャード **${shardId}** にあります。コマンドの処理：シャード **${handlerShardId}**、プロセス `${pid}`。",
-	shardinfo_member_data: "メンバー数：正確 **${exactCount}**、概算 **${approximateCount}**、不明 **${missingCount}**",
+	shardinfo_location:
+		"このサーバーはシャード **${shardId}** にあります。コマンドの処理：シャード **${handlerShardId}**、プロセス `${pid}`。",
+	shardinfo_member_data:
+		"メンバー数：正確 **${exactCount}**、概算 **${approximateCount}**、不明 **${missingCount}**",
 	shardinfo_offline_shards: "応答のないシャード：${shards}",
 	shardinfo_section_unavailable: "利用できないサーバー",
 	shardinfo_section_approximate: "概算人数のサーバー",

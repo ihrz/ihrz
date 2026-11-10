@@ -168,6 +168,10 @@ export function createReactionBoard(
 			// Check if the board is enabled and configured
 			if (!baseData || baseData.enabled === "no" || !baseData.channel)
 				return;
+			// A reaction on an uncached message has no count until fetched.
+			if (reaction.count === null || reaction.partial) {
+				await fetchPartials(reaction);
+			}
 			if (
 				!reaction.count ||
 				reaction.count < Math.max(2, baseData.threshold || 2)
@@ -362,7 +366,7 @@ export function createReactionBoard(
 			const reactionCount = reaction.count || 0;
 
 			// If reaction count is below threshold, delete the board message
-			if (reactionCount < baseData.threshold) {
+			if (reactionCount < Math.max(2, baseData.threshold || 2)) {
 				try {
 					await boardMessage.delete();
 

@@ -59,6 +59,32 @@ export const event: BotEvent = {
 		const textEnabled = leaveTextEnabled !== false;
 		const componentsEnabled = leaveComponentsEnabled !== false;
 
+		// Invite bookkeeping runs even without a goodbye channel: joins are
+		// always counted, so leaves must be too.
+		const inviter = base?.inviter
+			? client.users.cache.get(base.inviter) ||
+				(await client.users.fetch(base.inviter).catch(() => null))
+			: null;
+
+		if (inviter) {
+			const inviterStats = (await client.db.get(
+				`${member.guild.id}.USER.${inviter.id}.INVITES`
+			)) as DatabaseStructure.InvitesUserData;
+
+			if (inviterStats) {
+				if (inviterStats?.invites && inviterStats.invites >= 1) {
+					await client.db.sub(
+						`${member.guild.id}.USER.${inviter.id}.INVITES.invites`,
+						1
+					);
+				}
+				await client.db.add(
+					`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`,
+					1
+				);
+			}
+		}
+
 		if (!lChan || !member.guild.channels.cache.get(lChan)) return;
 
 		async function sendGoodbye(
@@ -84,27 +110,7 @@ export const event: BotEvent = {
 			guild: member.guild,
 			guildLocal: guildLocal
 		};
-		if (base?.inviter) {
-			const inviter =
-				client.users.cache.get(base.inviter) ||
-				(await client.users.fetch(base.inviter));
-			const inviterStats = (await client.db.get(
-				`${member.guild.id}.USER.${inviter.id}.INVITES`
-			)) as DatabaseStructure.InvitesUserData;
-
-			if (inviterStats) {
-				if (inviterStats?.invites && inviterStats.invites >= 1) {
-					await client.db.sub(
-						`${member.guild.id}.USER.${inviter.id}.INVITES.invites`,
-						1
-					);
-				}
-				await client.db.add(
-					`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`,
-					1
-				);
-			}
-
+		if (inviter) {
 			const invitesAmount = await client.db.get(
 				`${member.guild.id}.USER.${inviter.id}.INVITES.invites`
 			);

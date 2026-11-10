@@ -2605,7 +2605,7 @@ export default {
 	tempban_user_is_admin:
 		"У пользователя есть права администратора, я не могу его забанить.",
 	tempban_user_highest_role_or_same:
-		"Моя роль на сервере ниже или равна роли **user_mention**. Я не могу модерировать этого участника.",
+		"Моя роль на сервере ниже или равна роли **${user}**. Я не могу модерировать этого участника.",
 	tempban_max_time_passed:
 		"\n*Максимальный срок временного бана — 1 год. Я применил 1 год.*",
 	tempban_user_not_in_guild:
@@ -2668,13 +2668,16 @@ export default {
 		"Модуль резервного копирования обновлён. Теперь ${allowed_user_string} может создавать и загружать резервные копии на этом сервере.",
 	// /backup panels
 	backup_component_settings: "Настройки сервера",
-	backup_component_settings_desc: "Название, изображения, уровни, системные каналы, экран приветствия",
+	backup_component_settings_desc:
+		"Название, изображения, уровни, системные каналы, экран приветствия",
 	backup_component_roles: "Роли",
 	backup_component_roles_desc: "Порядок, цвета, значки и разрешения",
 	backup_component_channels: "Каналы",
-	backup_component_channels_desc: "Категории, текстовые и голосовые каналы, форумы и ветки",
+	backup_component_channels_desc:
+		"Категории, текстовые и голосовые каналы, форумы и ветки",
 	backup_component_permissions: "Разрешения каналов",
-	backup_component_permissions_desc: "Переопределения для ролей и участников в каждом канале",
+	backup_component_permissions_desc:
+		"Переопределения для ролей и участников в каждом канале",
 	backup_component_emojis: "Эмодзи",
 	backup_component_emojis_desc: "Все пользовательские эмодзи сервера",
 	backup_component_stickers: "Стикеры",
@@ -2691,9 +2694,12 @@ export default {
 	backup_component_members_desc: "Никнеймы и роли текущих участников",
 	backup_select_placeholder: "Выберите, что включить",
 	backup_usage: "Использовано резервных копий: ${count}/${max}",
-	backup_limit_reached: "Вы достигли лимита резервных копий: **${max}**. Сначала удалите одну с помощью `/backup delete`.",
-	backup_busy: "Операция резервного копирования уже выполняется, повторите попытку чуть позже.",
-	backup_panel_expired: "Срок действия этой панели истёк, выполните команду ещё раз.",
+	backup_limit_reached:
+		"Вы достигли лимита резервных копий: **${max}**. Сначала удалите одну с помощью `/backup delete`.",
+	backup_busy:
+		"Операция резервного копирования уже выполняется, повторите попытку чуть позже.",
+	backup_panel_expired:
+		"Срок действия этой панели истёк, выполните команду ещё раз.",
 	backup_btn_create: "Создать резервную копию",
 	backup_btn_all: "Выбрать всё",
 	backup_btn_load: "Стереть и восстановить",
@@ -2701,34 +2707,48 @@ export default {
 	backup_btn_schedule_disable: "Отключить",
 	backup_create_title: "Новая резервная копия",
 	backup_create_desc: "Выберите, что сохранить с сервера **${guildName}**.",
-	backup_create_progress: "${emoji} Создание резервной копии, это может занять некоторое время...",
+	backup_create_progress:
+		"${emoji} Создание резервной копии, это может занять некоторое время...",
 	backup_create_cancelled: "Резервное копирование отменено.",
-	backup_create_failed: "Не удалось сохранить резервную копию. В ваш список ничего не добавлено.",
+	backup_create_failed:
+		"Не удалось сохранить резервную копию. В ваш список ничего не добавлено.",
 	backup_created_title: "Резервная копия создана",
-	backup_created_desc: "ID вашей резервной копии: `${id}`. Используйте его с `/backup load`.",
-	backup_created_partial: "**Не удалось сохранить, поэтому не будет восстановлено:** ${parts}",
+	backup_created_desc:
+		"ID вашей резервной копии: `${id}`. Используйте его с `/backup load`.",
+	backup_created_partial:
+		"**Не удалось сохранить, поэтому не будет восстановлено:** ${parts}",
 	backup_load_title: "Восстановление резервной копии",
-	backup_load_desc: "Резервная копия сервера **${guildName}**, создана ${date}.",
-	backup_load_warning: "**Это действие необратимо.** Всё выбранное удаляется с этого сервера, а затем восстанавливается. Роли находятся по названию и обновляются, поэтому участники их сохраняют; роли, которых нет в резервной копии, удаляются только при восстановлении каналов.",
-	backup_load_progress: "${emoji} Восстановление, это может занять несколько минут...",
+	backup_load_desc:
+		"Резервная копия сервера **${guildName}**, создана ${date}.",
+	backup_load_warning:
+		"**Это действие необратимо.** Всё выбранное удаляется с этого сервера, а затем восстанавливается. Роли находятся по названию и обновляются, поэтому участники их сохраняют; роли, которых нет в резервной копии, удаляются только при восстановлении каналов.",
+	backup_load_progress:
+		"${emoji} Восстановление, это может занять несколько минут...",
 	backup_load_done_title: "Резервная копия восстановлена",
 	backup_load_done_desc: "Сервер **${guildName}** восстановлен.",
 	backup_load_report_line: "${emoji} **${label}**: восстановлено ${okCount}",
 	backup_load_report_failed: "(ошибок: ${failedCount})",
 	backup_list_title: "Ваши резервные копии",
-	backup_list_empty: "У вас пока нет резервных копий. Создайте её с помощью `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\nКатегорий: ${categoryCount}, каналов: ${channelCount}",
+	backup_list_empty:
+		"У вас пока нет резервных копий. Создайте её с помощью `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\nКатегорий: ${categoryCount}, каналов: ${channelCount}",
 	backup_list_manual: "Вручную",
 	backup_list_auto: "Автоматически",
 	backup_delete_title: "Удалить эту резервную копию?",
-	backup_delete_desc: "**${guildName}** `${id}`\nКатегорий: ${categoryCount}, каналов: ${channelCount}",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\nКатегорий: ${categoryCount}, каналов: ${channelCount}",
 	backup_delete_done: "Резервная копия удалена.",
 	backup_delete_cancelled: "Резервная копия сохранена.",
 	backup_schedule_title: "Автоматические резервные копии",
-	backup_schedule_desc: "Они сохраняются в вашем аккаунте и учитываются в вашем лимите. Хранятся только последние автоматические резервные копии этого сервера (${maxAuto}).",
-	backup_schedule_owner_only: "Планировать автоматические резервные копии может только владелец сервера.",
-	backup_schedule_status_on: "Активно: **${frequency}**, следующая резервная копия ${next}",
-	backup_schedule_status_off: "Автоматическое резервное копирование не запланировано.",
+	backup_schedule_desc:
+		"Они сохраняются в вашем аккаунте и учитываются в вашем лимите. Хранятся только последние автоматические резервные копии этого сервера (${maxAuto}).",
+	backup_schedule_owner_only:
+		"Планировать автоматические резервные копии может только владелец сервера.",
+	backup_schedule_status_on:
+		"Активно: **${frequency}**, следующая резервная копия ${next}",
+	backup_schedule_status_off:
+		"Автоматическое резервное копирование не запланировано.",
 	backup_schedule_frequency_placeholder: "Выберите периодичность",
 	backup_frequency_1d: "Каждый день",
 	backup_frequency_3d: "Каждые 3 дня",
@@ -2738,8 +2758,10 @@ export default {
 	backup_frequency_3m: "Каждые 3 месяца",
 	backup_frequency_6m: "Каждые 6 месяцев",
 	backup_frequency_12m: "Каждый год",
-	backup_schedule_dm_limit: "Автоматическое резервное копирование сервера **${guildName}** пропущено: вы достигли лимита резервных копий (${max}). Удалите одну с помощью `/backup delete`.",
-	backup_schedule_dm_failed: "Не удалось создать автоматическую резервную копию сервера **${guildName}**. Попытка будет повторена в следующее запланированное время.",
+	backup_schedule_dm_limit:
+		"Автоматическое резервное копирование сервера **${guildName}** пропущено: вы достигли лимита резервных копий (${max}). Удалите одну с помощью `/backup delete`.",
+	backup_schedule_dm_failed:
+		"Не удалось создать автоматическую резервную копию сервера **${guildName}**. Попытка будет повторена в следующее запланированное время.",
 
 	// Реакции ролей
 	// /reactionroles
@@ -3100,40 +3122,27 @@ export default {
 	suggest_delete_command_error: "Предложение не найдено в канале Discord!",
 
 	// /suggest status
-	suggest_not_staff:
-		"У вас нет прав на управление предложениями.",
-	suggest_status_pending:
-		"Ожидает",
-	suggest_status_reviewing:
-		"На рассмотрении",
-	suggest_status_accepted:
-		"Принято",
-	suggest_status_planned:
-		"Запланировано",
-	suggest_status_implemented:
-		"Реализовано",
-	suggest_status_denied:
-		"Отклонено",
+	suggest_not_staff: "У вас нет прав на управление предложениями.",
+	suggest_status_pending: "Ожидает",
+	suggest_status_reviewing: "На рассмотрении",
+	suggest_status_accepted: "Принято",
+	suggest_status_planned: "Запланировано",
+	suggest_status_implemented: "Реализовано",
+	suggest_status_denied: "Отклонено",
 	suggest_notify_status:
 		"<@${authorId}>, статус вашего предложения: **${status}**.",
 	suggest_notify_reply:
 		"<@${authorId}>, персонал ответил на ваше предложение.",
-	suggest_button_reply:
-		"Ответить",
-	suggest_modal_title:
-		"Ответить на предложение",
-	suggest_modal_label:
-		"Ваше сообщение",
+	suggest_button_reply: "Ответить",
+	suggest_modal_title: "Ответить на предложение",
+	suggest_modal_label: "Ваше сообщение",
 	suggest_status_command_work:
 		"Статус предложения: **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Предложения",
-	suggest_list_empty:
-		"Нет предложений для показа.",
-	suggest_list_footer:
-		"${shownCount} из ${totalCount}",
+	suggest_list_title: "Предложения",
+	suggest_list_empty: "Нет предложений для показа.",
+	suggest_list_footer: "${shownCount} из ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3447,26 +3456,20 @@ export default {
 		"${author} отключил модуль исповедей!",
 
 	// /confession delete
-	confession_sent_confirmation:
-		"Ваше признание **#${code}** опубликовано.",
-	confession_not_found:
-		"Признание с кодом **#${code}** не найдено.",
-	confession_delete_command_work:
-		"Признание **#${code}** удалено.",
-	confession_delete_log_embed_title:
-		"Удаление признания",
+	confession_sent_confirmation: "Ваше признание **#${code}** опубликовано.",
+	confession_not_found: "Признание с кодом **#${code}** не найдено.",
+	confession_delete_command_work: "Признание **#${code}** удалено.",
+	confession_delete_log_embed_title: "Удаление признания",
 	confession_delete_log_embed_desc:
 		"${author} удалил(а) признание **#${code}**",
 
 	// /confession ban
 	confession_ban_command_work:
 		"Автор признания **#${code}** больше не может оставлять признания на этом сервере.",
-	confession_ban_already:
-		"Автор признания **#${code}** уже заблокирован.",
+	confession_ban_already: "Автор признания **#${code}** уже заблокирован.",
 	confession_ban_author_expired:
 		"Это признание слишком старое: автор забывается через 90 дней.",
-	confession_ban_log_embed_title:
-		"Блокировка автора признания",
+	confession_ban_log_embed_title: "Блокировка автора признания",
 	confession_ban_log_embed_desc:
 		"${author} заблокировал(а) автора признания **#${code}**",
 	confession_banned_error:
@@ -3477,8 +3480,7 @@ export default {
 		"Блокировка, связанная с признанием **#${code}**, снята.",
 	confession_unban_not_found:
 		"С признанием **#${code}** не связана ни одна блокировка.",
-	confession_unban_log_embed_title:
-		"Разблокировка автора признания",
+	confession_unban_log_embed_title: "Разблокировка автора признания",
 	confession_unban_log_embed_desc:
 		"${author} снял(а) блокировку, связанную с признанием **#${code}**",
 
@@ -4884,8 +4886,10 @@ export default {
 	music_apo_saved: "${emoji} **${name}** сохранена (этапов: ${stages}).",
 	// +shardinfo
 	shardinfo_title: "Информация о шардах",
-	shardinfo_location: "Этот сервер находится на шарде **${shardId}**. Команду обработал шард **${handlerShardId}**, процесс `${pid}`.",
-	shardinfo_member_data: "Участники: **${exactCount}** точно, **${approximateCount}** примерно, **${missingCount}** нет данных",
+	shardinfo_location:
+		"Этот сервер находится на шарде **${shardId}**. Команду обработал шард **${handlerShardId}**, процесс `${pid}`.",
+	shardinfo_member_data:
+		"Участники: **${exactCount}** точно, **${approximateCount}** примерно, **${missingCount}** нет данных",
 	shardinfo_offline_shards: "Шарды без ответа: ${shards}",
 	shardinfo_section_unavailable: "Недоступные серверы",
 	shardinfo_section_approximate: "Серверы с примерным числом",

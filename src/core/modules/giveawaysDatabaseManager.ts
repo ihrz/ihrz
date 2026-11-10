@@ -30,29 +30,60 @@ export function dedupeEntries(entries: string[] | undefined): string[] {
 }
 
 class db {
-	public async AddEntries(giveawayId: string, user: string) {
-		const giveaway = await this.GetGiveawayData(giveawayId);
-		if (giveaway) {
-			giveaway.entries = giveaway.entries || [];
-			if (giveaway.entries.includes(user)) return;
-			giveaway.entries.push(user);
-			await giveawaysTable.set(giveawayId, giveaway);
-		}
+	/**
+	 * Every write reads the whole giveaway document and writes it back, so
+	 * concurrent writes on one giveaway (two entries, an entry during the
+	 * end) are chained here: none of them can overwrite another's change.
+	 */
+	private locks = new Map<string, Promise<unknown>>();
+
+	private withLock<T>(
+		giveawayId: string,
+		task: () => Promise<T>
+	): Promise<T> {
+		const previous = this.locks.get(giveawayId) || Promise.resolve();
+		const run = previous.catch(() => {}).then(task);
+		const tail = run.catch(() => {});
+		this.locks.set(giveawayId, tail);
+		tail.then(() => {
+			if (this.locks.get(giveawayId) === tail) {
+				this.locks.delete(giveawayId);
+			}
+		});
+		return run;
 	}
 
-	public async RemoveEntries(
+	/** Returns the entry count after the change, or null if the giveaway is gone. */
+	public AddEntries(
+		giveawayId: string,
+		user: string
+	): Promise<number | null> {
+		return this.withLock(giveawayId, async () => {
+			const giveaway = await this.GetGiveawayData(giveawayId);
+			if (!giveaway) return null;
+			giveaway.entries = giveaway.entries || [];
+			if (giveaway.entries.includes(user)) return giveaway.entries.length;
+			giveaway.entries.push(user);
+			await giveawaysTable.set(giveawayId, giveaway);
+			return giveaway.entries.length;
+		});
+	}
+
+	public RemoveEntries(
 		giveawayId: string,
 		userId: string
 	): Promise<string[]> {
-		const giveaway = await this.GetGiveawayData(giveawayId);
-		if (giveaway) {
-			giveaway.entries = giveaway.entries.filter(
-				(entry: string) => entry !== userId
-			);
-			await giveawaysTable.set(giveawayId, giveaway);
-			return giveaway.entries;
-		}
-		return [];
+		return this.withLock(giveawayId, async () => {
+			const giveaway = await this.GetGiveawayData(giveawayId);
+			if (giveaway) {
+				giveaway.entries = (giveaway.entries || []).filter(
+					(entry: string) => entry !== userId
+				);
+				await giveawaysTable.set(giveawayId, giveaway);
+				return giveaway.entries;
+			}
+			return [];
+		});
 	}
 
 	public async GetGiveawayData(
@@ -65,18 +96,24 @@ class db {
 		await giveawaysTable.set(giveawayId, giveaway);
 	}
 
-	public async SetEnded(giveawayId: string, state: GiveawayEndedStatus) {
-		const giveaway = (await this.GetGiveawayData(giveawayId))!;
-		giveaway.ended = state;
-		await giveawaysTable.set(giveawayId, giveaway);
-		return "OK";
+	public SetEnded(giveawayId: string, state: GiveawayEndedStatus) {
+		return this.withLock(giveawayId, async () => {
+			const giveaway = await this.GetGiveawayData(giveawayId);
+			if (!giveaway) return "OK";
+			giveaway.ended = state;
+			await giveawaysTable.set(giveawayId, giveaway);
+			return "OK";
+		});
 	}
 
-	public async SetWinners(giveawayId: string, winners: string[] | string) {
-		const giveaway = (await this.GetGiveawayData(giveawayId))!;
-		giveaway.winners = winners;
-		await giveawaysTable.set(giveawayId, giveaway);
-		return "OK";
+	public SetWinners(giveawayId: string, winners: string[] | string) {
+		return this.withLock(giveawayId, async () => {
+			const giveaway = await this.GetGiveawayData(giveawayId);
+			if (!giveaway) return "OK";
+			giveaway.winners = winners;
+			await giveawaysTable.set(giveawayId, giveaway);
+			return "OK";
+		});
 	}
 
 	public async GetAllGiveawaysData(): Promise<
@@ -99,16 +136,19 @@ class db {
 		}
 	}
 
-	public async AvoidDoubleEntries(giveawayId: string) {
-		const giveaway = await this.GetGiveawayData(giveawayId);
-		if (!giveaway) return;
+	public AvoidDoubleEntries(giveawayId: string): Promise<void> {
+		return this.withLock(giveawayId, async () => {
+			const giveaway = await this.GetGiveawayData(giveawayId);
+			if (!giveaway) return;
 
-		const uniqueEntries = dedupeEntries(giveaway.entries);
-		if (uniqueEntries.length === (giveaway.entries || []).length) return;
+			const uniqueEntries = dedupeEntries(giveaway.entries);
+			if (uniqueEntries.length === (giveaway.entries || []).length)
+				return;
 
-		giveaway.entries = uniqueEntries;
+			giveaway.entries = uniqueEntries;
 
-		await giveawaysTable.set(giveawayId, giveaway);
+			await giveawaysTable.set(giveawayId, giveaway);
+		});
 	}
 }
 

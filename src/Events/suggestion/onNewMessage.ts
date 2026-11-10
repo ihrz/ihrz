@@ -111,27 +111,34 @@ export const event: BotEvent = {
 				]
 			})
 			.catch(() =>
-				client.func.method.channelSend(message, {
-					...suggestionBody,
-					files: [footerFile]
-				})
+				client.func.method
+					.channelSend(message, {
+						...suggestionBody,
+						files: [footerFile]
+					})
+					.catch(() => null)
 			);
+
+		if (!msg) return;
 
 		await message.delete().catch(() => {});
 
-		let thread = await msg
+		// The suggestion is saved even when the thread cannot be created
+		// (missing permission, announcement channel), so its buttons work.
+		const thread = await msg
 			.startThread({
 				name: `#${suggestCode}`,
 				reason: "[Suggestion] Module"
 			})
 			.then((x) =>
 				x.edit({ invitable: true, locked: false, archived: false })
-			);
+			)
+			.catch(() => null);
 
 		await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`, {
 			author: message.author.id,
 			msgId: msg.id,
-			threadId: thread.id,
+			threadId: thread?.id ?? null,
 			status: "pending",
 			timestamp: Date.now()
 		});

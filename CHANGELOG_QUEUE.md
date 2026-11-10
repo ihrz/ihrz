@@ -193,6 +193,19 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
 - Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.
+- **Giveaways**: two members joining at the same moment are both entered, a giveaway can no longer be announced twice, nobody can join once it has ended, leaving one giveaway no longer takes you out of the others in the channel, and a reroll with nobody left no longer announces an empty winner.
+- **Reaction roles**: removing your reaction on a custom emoji takes the role back again.
+- **Skullboard**: reactions on older messages (sent before a restart) count again, and a post below the threshold is removed with the same rule as the starboard.
+- **Counter**: two numbers sent at the same time no longer reset a correct count.
+- **Suggestions**: a suggestion is saved even when its thread cannot be created, so its buttons keep working.
+- **`/mod tempmute`**: a mute that fails says so instead of claiming success, and the "unmuted" notice is sent when the mute ends.
+- **`/mod tempban`**: the role error shows the member instead of `user_mention`.
+- **Temporary voice channels**: a Discord outage or rate limit no longer deletes a channel with people inside.
+- **`/economy deposit all` and `withdraw all`**: work again with a balance that has decimals.
+- **GitHub lines**: a link to more than 50 lines shows the warning again, and a range going past the end of the file is shortened instead of ignored.
+- **Tickets**: the "no permission" answer of `/ticket delete`, `transcript` and `open` shows up again, and a role in both the panel and category ping lists no longer stops the ticket message.
+- **`/guildconfig config restore`**: on a server with no protection, allowlist, blacklist or member data yet, those come from the backup instead of being lost.
+- **Profile pictures, auto-renew**: no longer post a bot's avatar or renew a channel twice.
 
 - **Self-hosting**: Chrome / Chromium is no longer needed at all, images are rendered with resvg. The install script no longer downloads Chrome, and `PUPPETEER_EXECUTABLE_PATH` can be removed from `.env`
 - **Self-hosting**: `pm2 start pm2.config.cjs` now installs and upgrades its own Bun, pulls the latest code and installs new dependencies on every start; images can be rendered by HorizonGateway to save memory on every shard
@@ -242,7 +255,7 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **`/tempvoice`**: the join-to-create channel can be removed (a button, or by emptying the menu), and the panel no longer breaks when that channel was deleted
 - **Commands outside a server** (`/fun` in DMs or as a user app): no more "malformed key" error when the card signature was looked up
 - **Honeypot**: bans a spammer who already left the server
-- **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count)
+- **Invites**: joins are counted again on servers that never configured anything (an error stopped them before the count), and leaves are now subtracted even without a goodbye channel (counts only went up)
 - **Stats**: `/stats ustats` counted every message twice, `/gstats` titles are translated
 - **Languages**: raw placeholders fixed in `/perm create-roles` (Japanese), `/daily`, `/schedule`, profile pictures and the blacklist summary; missing emojis now show in sticky messages, Last.fm errors, the welcomer leave message, the TempVoice panel and the empty-channel music notice; French texts fixed
 - **Performance**: server settings are cached, so busy servers get faster answers

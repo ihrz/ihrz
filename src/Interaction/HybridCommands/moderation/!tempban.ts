@@ -104,9 +104,10 @@ export const subCommand: SubCommand = {
 				interaction.guild.ownerId !== interaction.member.user.id
 			) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.tempban_user_highest_role_or_same
-						.replace("${emoji_No}", client.iHorizon_Emojis.No)
-						.replace("${user}", userToBan.toString())
+					content: lang.tempban_user_highest_role_or_same.replace(
+						"${user}",
+						userToBan.toString()
+					)
 				});
 				return;
 			}

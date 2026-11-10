@@ -2566,7 +2566,7 @@ const enUS = {
 	tempban_user_is_admin:
 		"The user has administrator permissions, I cannot ban them.",
 	tempban_user_highest_role_or_same:
-		"My role on this server is lower or equal to **user_mention**. I cannot moderate this member.",
+		"My role on this server is lower or equal to **${user}**. I cannot moderate this member.",
 	tempban_max_time_passed:
 		"\n*The maximum time for a temporary ban is 1 year. I have applied 1 year.*",
 	tempban_user_not_in_guild:
@@ -2628,13 +2628,16 @@ const enUS = {
 		"The backup module has been updated. From now on, ${allowed_user_string} can perform backup creation/loading on this server.",
 	// /backup panels
 	backup_component_settings: "Server settings",
-	backup_component_settings_desc: "Name, images, levels, system channels, welcome screen",
+	backup_component_settings_desc:
+		"Name, images, levels, system channels, welcome screen",
 	backup_component_roles: "Roles",
 	backup_component_roles_desc: "Order, colors, icons and permissions",
 	backup_component_channels: "Channels",
-	backup_component_channels_desc: "Categories, text, voice, forums and threads",
+	backup_component_channels_desc:
+		"Categories, text, voice, forums and threads",
 	backup_component_permissions: "Channel permissions",
-	backup_component_permissions_desc: "Role and member overrides on each channel",
+	backup_component_permissions_desc:
+		"Role and member overrides on each channel",
 	backup_component_emojis: "Emojis",
 	backup_component_emojis_desc: "Every custom emoji of the server",
 	backup_component_stickers: "Stickers",
@@ -2651,8 +2654,10 @@ const enUS = {
 	backup_component_members_desc: "Nicknames and roles of current members",
 	backup_select_placeholder: "Choose what to include",
 	backup_usage: "${count}/${max} backups used",
-	backup_limit_reached: "You have reached the limit of **${max} backups**. Delete one with `/backup delete` first.",
-	backup_busy: "A backup operation is already running, try again in a moment.",
+	backup_limit_reached:
+		"You have reached the limit of **${max} backups**. Delete one with `/backup delete` first.",
+	backup_busy:
+		"A backup operation is already running, try again in a moment.",
 	backup_panel_expired: "This panel has expired, run the command again.",
 	backup_btn_create: "Create the backup",
 	backup_btn_all: "Select everything",
@@ -2661,32 +2666,43 @@ const enUS = {
 	backup_btn_schedule_disable: "Turn off",
 	backup_create_title: "New backup",
 	backup_create_desc: "Choose what to save from **${guildName}**.",
-	backup_create_progress: "${emoji} Creating the backup, this can take a while...",
+	backup_create_progress:
+		"${emoji} Creating the backup, this can take a while...",
 	backup_create_cancelled: "Backup cancelled.",
-	backup_create_failed: "The backup could not be saved. Nothing was added to your list.",
+	backup_create_failed:
+		"The backup could not be saved. Nothing was added to your list.",
 	backup_created_title: "Backup created",
-	backup_created_desc: "Your backup ID is `${id}`. Use it with `/backup load`.",
-	backup_created_partial: "**Could not be saved, so it will not be restored:** ${parts}",
+	backup_created_desc:
+		"Your backup ID is `${id}`. Use it with `/backup load`.",
+	backup_created_partial:
+		"**Could not be saved, so it will not be restored:** ${parts}",
 	backup_load_title: "Restore a backup",
 	backup_load_desc: "Backup of **${guildName}**, made on ${date}.",
-	backup_load_warning: "**This cannot be undone.** Everything selected is deleted from this server, then restored. Roles are matched by name and updated, so members keep them; roles missing from the backup are removed only when channels are restored too.",
-	backup_load_progress: "${emoji} Restoring, this can take several minutes...",
+	backup_load_warning:
+		"**This cannot be undone.** Everything selected is deleted from this server, then restored. Roles are matched by name and updated, so members keep them; roles missing from the backup are removed only when channels are restored too.",
+	backup_load_progress:
+		"${emoji} Restoring, this can take several minutes...",
 	backup_load_done_title: "Backup restored",
 	backup_load_done_desc: "**${guildName}** has been restored.",
 	backup_load_report_line: "${emoji} **${label}**: ${okCount} restored",
 	backup_load_report_failed: "(${failedCount} failed)",
 	backup_list_title: "Your backups",
-	backup_list_empty: "You have no backup yet. Create one with `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categories, ${channelCount} channels",
+	backup_list_empty:
+		"You have no backup yet. Create one with `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categories, ${channelCount} channels",
 	backup_list_manual: "Manual",
 	backup_list_auto: "Automatic",
 	backup_delete_title: "Delete this backup?",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} categories, ${channelCount} channels",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} categories, ${channelCount} channels",
 	backup_delete_done: "The backup was deleted.",
 	backup_delete_cancelled: "The backup was kept.",
 	backup_schedule_title: "Automatic backups",
-	backup_schedule_desc: "They are saved to your account and count toward your limit. Only the latest ${maxAuto} automatic backups of this server are kept.",
-	backup_schedule_owner_only: "Only the server owner can schedule automatic backups.",
+	backup_schedule_desc:
+		"They are saved to your account and count toward your limit. Only the latest ${maxAuto} automatic backups of this server are kept.",
+	backup_schedule_owner_only:
+		"Only the server owner can schedule automatic backups.",
 	backup_schedule_status_on: "Active: **${frequency}**, next backup ${next}",
 	backup_schedule_status_off: "No automatic backup is scheduled.",
 	backup_schedule_frequency_placeholder: "Choose how often",
@@ -2698,8 +2714,10 @@ const enUS = {
 	backup_frequency_3m: "Every 3 months",
 	backup_frequency_6m: "Every 6 months",
 	backup_frequency_12m: "Every year",
-	backup_schedule_dm_limit: "The automatic backup of **${guildName}** was skipped: you have reached the limit of ${max} backups. Delete one with `/backup delete`.",
-	backup_schedule_dm_failed: "The automatic backup of **${guildName}** failed. It will be tried again at the next scheduled time.",
+	backup_schedule_dm_limit:
+		"The automatic backup of **${guildName}** was skipped: you have reached the limit of ${max} backups. Delete one with `/backup delete`.",
+	backup_schedule_dm_failed:
+		"The automatic backup of **${guildName}** failed. It will be tried again at the next scheduled time.",
 
 	// Role Reactions
 	// /reactionroles
@@ -3068,40 +3086,27 @@ const enUS = {
 		"The suggestion is not found in this Discord channel!",
 
 	// /suggest status
-	suggest_not_staff:
-		"You are not allowed to manage suggestions.",
-	suggest_status_pending:
-		"Pending",
-	suggest_status_reviewing:
-		"Under review",
-	suggest_status_accepted:
-		"Accepted",
-	suggest_status_planned:
-		"Planned",
-	suggest_status_implemented:
-		"Implemented",
-	suggest_status_denied:
-		"Denied",
+	suggest_not_staff: "You are not allowed to manage suggestions.",
+	suggest_status_pending: "Pending",
+	suggest_status_reviewing: "Under review",
+	suggest_status_accepted: "Accepted",
+	suggest_status_planned: "Planned",
+	suggest_status_implemented: "Implemented",
+	suggest_status_denied: "Denied",
 	suggest_notify_status:
 		"<@${authorId}>, your suggestion is now **${status}**.",
 	suggest_notify_reply:
 		"<@${authorId}>, the staff replied to your suggestion.",
-	suggest_button_reply:
-		"Reply",
-	suggest_modal_title:
-		"Respond to the suggestion",
-	suggest_modal_label:
-		"Your message",
+	suggest_button_reply: "Reply",
+	suggest_modal_title: "Respond to the suggestion",
+	suggest_modal_label: "Your message",
 	suggest_status_command_work:
 		"The suggestion is now **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Suggestions",
-	suggest_list_empty:
-		"No suggestion to show.",
-	suggest_list_footer:
-		"${shownCount} of ${totalCount}",
+	suggest_list_title: "Suggestions",
+	suggest_list_empty: "No suggestion to show.",
+	suggest_list_footer: "${shownCount} of ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3345,7 +3350,8 @@ const enUS = {
 	// /tag use
 	tag_use_not_allowed:
 		"You are not allowed to use the tag `${tag_name}`.\nYou need the Administrator permission, or you can ask the tag owner <@${createBy}> to add you to the whitelist (`tag wlroles-use`).",
-	tag_use_empty: "The tag `${tag_name}` is empty: it has no text and no embed.",
+	tag_use_empty:
+		"The tag `${tag_name}` is empty: it has no text and no embed.",
 	tag_use_command_work: "Tag `${tag_name}` has been sent.",
 
 	// /tag edit
@@ -3418,12 +3424,9 @@ const enUS = {
 	// /confession delete
 	confession_sent_confirmation:
 		"Your confession **#${code}** has been posted.",
-	confession_not_found:
-		"No confession found with the code **#${code}**.",
-	confession_delete_command_work:
-		"Confession **#${code}** has been deleted.",
-	confession_delete_log_embed_title:
-		"Delete Confession",
+	confession_not_found: "No confession found with the code **#${code}**.",
+	confession_delete_command_work: "Confession **#${code}** has been deleted.",
+	confession_delete_log_embed_title: "Delete Confession",
 	confession_delete_log_embed_desc:
 		"${author} deleted the confession **#${code}**",
 
@@ -3434,8 +3437,7 @@ const enUS = {
 		"The author of confession **#${code}** is already banned.",
 	confession_ban_author_expired:
 		"This confession is too old: its author is forgotten after 90 days.",
-	confession_ban_log_embed_title:
-		"Ban Confession Author",
+	confession_ban_log_embed_title: "Ban Confession Author",
 	confession_ban_log_embed_desc:
 		"${author} banned the author of the confession **#${code}**",
 	confession_banned_error:
@@ -3446,8 +3448,7 @@ const enUS = {
 		"The ban linked to confession **#${code}** has been lifted.",
 	confession_unban_not_found:
 		"No ban is linked to the confession **#${code}**.",
-	confession_unban_log_embed_title:
-		"Unban Confession Author",
+	confession_unban_log_embed_title: "Unban Confession Author",
 	confession_unban_log_embed_desc:
 		"${author} lifted the ban linked to the confession **#${code}**",
 
@@ -4854,8 +4855,10 @@ const enUS = {
 	music_apo_saved: "${emoji} **${name}** saved (${stages} stages).",
 	// +shardinfo
 	shardinfo_title: "Shard information",
-	shardinfo_location: "This server is on shard **${shardId}**. Command handled by shard **${handlerShardId}**, process `${pid}`.",
-	shardinfo_member_data: "Member counts: **${exactCount}** exact, **${approximateCount}** approximate, **${missingCount}** missing",
+	shardinfo_location:
+		"This server is on shard **${shardId}**. Command handled by shard **${handlerShardId}**, process `${pid}`.",
+	shardinfo_member_data:
+		"Member counts: **${exactCount}** exact, **${approximateCount}** approximate, **${missingCount}** missing",
 	shardinfo_offline_shards: "Shards not responding: ${shards}",
 	shardinfo_section_unavailable: "Unavailable servers",
 	shardinfo_section_approximate: "Servers using an approximate count",

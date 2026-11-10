@@ -84,7 +84,9 @@ export const subCommand: SubCommand = {
 
 			// Parsed once: the same integer is checked and moved.
 			const amount =
-				toDeposit === "all" ? Number(balance) : Number(toDeposit);
+				toDeposit === "all"
+					? Math.floor(Number(balance))
+					: Number(toDeposit);
 
 			if (!Number.isSafeInteger(amount) || amount <= 0) {
 				await client.func.method.interactionSend(interaction, {

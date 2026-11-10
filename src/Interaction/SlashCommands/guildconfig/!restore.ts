@@ -90,9 +90,11 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
-				// Security and member state always stays as it is now: a backup
-				// must not bring back a removed allowlist entry, an older
-				// protection setup, a lifted blacklist or spent balances.
+				// Security and member state stays as it is now: a backup must
+				// not bring back a removed allowlist entry, an older protection
+				// setup, a lifted blacklist or spent balances. A field this
+				// server has no data for at all (fresh server, migration) is
+				// taken from the backup instead of being lost.
 				const {
 					guildId: _sourceGuildId,
 					OWNER: _owner,
@@ -109,8 +111,13 @@ export const subCommand: SubCommand = {
 					> | null) || {};
 				const kept: Record<string, unknown> = {};
 				for (const field of PRESERVED_FIELDS) {
-					if (current[field] !== undefined)
+					if (current[field] !== undefined) {
 						kept[field] = current[field];
+					} else if (
+						(res as Record<string, unknown>)[field] !== undefined
+					) {
+						kept[field] = (res as Record<string, unknown>)[field];
+					}
 				}
 
 				await client.db.set(`${interaction.guildId}`, {

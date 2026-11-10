@@ -2652,7 +2652,7 @@ export default {
 	tempban_user_is_admin:
 		"El usuario tiene permisos de administrador, no puedo banearlo.",
 	tempban_user_highest_role_or_same:
-		"Mi rol en este servidor es inferior o igual al de **user_mention**. No puedo moderar a este miembro.",
+		"Mi rol en este servidor es inferior o igual al de **${user}**. No puedo moderar a este miembro.",
 	tempban_max_time_passed:
 		"\n*El tiempo máximo para un baneo temporal es 1 año. He aplicado 1 año.*",
 	tempban_user_not_in_guild:
@@ -2716,21 +2716,26 @@ export default {
 		"El módulo de copias de seguridad ha sido actualizado. Ahora, ${allowed_user_string} puede crear o cargar copias de seguridad en este servidor.",
 	// /backup panels
 	backup_component_settings: "Ajustes del servidor",
-	backup_component_settings_desc: "Nombre, imágenes, niveles, canales del sistema, pantalla de bienvenida",
+	backup_component_settings_desc:
+		"Nombre, imágenes, niveles, canales del sistema, pantalla de bienvenida",
 	backup_component_roles: "Roles",
 	backup_component_roles_desc: "Orden, colores, iconos y permisos",
 	backup_component_channels: "Canales",
 	backup_component_channels_desc: "Categorías, texto, voz, foros e hilos",
 	backup_component_permissions: "Permisos de canales",
-	backup_component_permissions_desc: "Excepciones de roles y miembros en cada canal",
+	backup_component_permissions_desc:
+		"Excepciones de roles y miembros en cada canal",
 	backup_component_emojis: "Emojis",
-	backup_component_emojis_desc: "Todos los emojis personalizados del servidor",
+	backup_component_emojis_desc:
+		"Todos los emojis personalizados del servidor",
 	backup_component_stickers: "Stickers",
-	backup_component_stickers_desc: "Stickers estáticos y animados del servidor",
+	backup_component_stickers_desc:
+		"Stickers estáticos y animados del servidor",
 	backup_component_bans: "Baneos",
 	backup_component_bans_desc: "Usuarios baneados y los motivos",
 	backup_component_automod: "Reglas de AutoMod",
-	backup_component_automod_desc: "Las reglas de moderación nativas de Discord",
+	backup_component_automod_desc:
+		"Las reglas de moderación nativas de Discord",
 	backup_component_events: "Eventos",
 	backup_component_events_desc: "Eventos programados del servidor",
 	backup_component_messages: "Mensajes",
@@ -2739,9 +2744,12 @@ export default {
 	backup_component_members_desc: "Apodos y roles de los miembros actuales",
 	backup_select_placeholder: "Elige qué incluir",
 	backup_usage: "${count}/${max} copias de seguridad usadas",
-	backup_limit_reached: "Has alcanzado el límite de **${max} copias de seguridad**. Elimina una con `/backup delete` primero.",
-	backup_busy: "Ya hay una operación de copia de seguridad en curso, inténtalo de nuevo en un momento.",
-	backup_panel_expired: "Este panel ha caducado, vuelve a ejecutar el comando.",
+	backup_limit_reached:
+		"Has alcanzado el límite de **${max} copias de seguridad**. Elimina una con `/backup delete` primero.",
+	backup_busy:
+		"Ya hay una operación de copia de seguridad en curso, inténtalo de nuevo en un momento.",
+	backup_panel_expired:
+		"Este panel ha caducado, vuelve a ejecutar el comando.",
 	backup_btn_create: "Crear la copia de seguridad",
 	backup_btn_all: "Seleccionar todo",
 	backup_btn_load: "Borrar y restaurar",
@@ -2749,34 +2757,48 @@ export default {
 	backup_btn_schedule_disable: "Desactivar",
 	backup_create_title: "Nueva copia de seguridad",
 	backup_create_desc: "Elige qué guardar de **${guildName}**.",
-	backup_create_progress: "${emoji} Creando la copia de seguridad, esto puede tardar un poco...",
+	backup_create_progress:
+		"${emoji} Creando la copia de seguridad, esto puede tardar un poco...",
 	backup_create_cancelled: "Copia de seguridad cancelada.",
-	backup_create_failed: "No se pudo guardar la copia de seguridad. No se ha añadido nada a tu lista.",
+	backup_create_failed:
+		"No se pudo guardar la copia de seguridad. No se ha añadido nada a tu lista.",
 	backup_created_title: "Copia de seguridad creada",
-	backup_created_desc: "El ID de tu copia de seguridad es `${id}`. Úsalo con `/backup load`.",
-	backup_created_partial: "**No se pudo guardar, por lo que no se restaurará:** ${parts}",
+	backup_created_desc:
+		"El ID de tu copia de seguridad es `${id}`. Úsalo con `/backup load`.",
+	backup_created_partial:
+		"**No se pudo guardar, por lo que no se restaurará:** ${parts}",
 	backup_load_title: "Restaurar una copia de seguridad",
-	backup_load_desc: "Copia de seguridad de **${guildName}**, realizada el ${date}.",
-	backup_load_warning: "**Esta acción es irreversible.** Todo lo seleccionado se elimina de este servidor y luego se restaura. Los roles se buscan por nombre y se actualizan, así que los miembros los conservan; los que no están en la copia de seguridad solo se eliminan si también se restauran los canales.",
-	backup_load_progress: "${emoji} Restaurando, esto puede tardar varios minutos...",
+	backup_load_desc:
+		"Copia de seguridad de **${guildName}**, realizada el ${date}.",
+	backup_load_warning:
+		"**Esta acción es irreversible.** Todo lo seleccionado se elimina de este servidor y luego se restaura. Los roles se buscan por nombre y se actualizan, así que los miembros los conservan; los que no están en la copia de seguridad solo se eliminan si también se restauran los canales.",
+	backup_load_progress:
+		"${emoji} Restaurando, esto puede tardar varios minutos...",
 	backup_load_done_title: "Copia de seguridad restaurada",
 	backup_load_done_desc: "**${guildName}** ha sido restaurado.",
 	backup_load_report_line: "${emoji} **${label}**: ${okCount} restaurados",
 	backup_load_report_failed: "(${failedCount} fallidos)",
 	backup_list_title: "Tus copias de seguridad",
-	backup_list_empty: "Todavía no tienes ninguna copia de seguridad. Crea una con `/backup create`.",
-	backup_list_entry: "**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categorías, ${channelCount} canales",
+	backup_list_empty:
+		"Todavía no tienes ninguna copia de seguridad. Crea una con `/backup create`.",
+	backup_list_entry:
+		"**${guildName}** · ${mode} · ${date}\n`${id}`\n${categoryCount} categorías, ${channelCount} canales",
 	backup_list_manual: "Manual",
 	backup_list_auto: "Automática",
 	backup_delete_title: "¿Eliminar esta copia de seguridad?",
-	backup_delete_desc: "**${guildName}** `${id}`\n${categoryCount} categorías, ${channelCount} canales",
+	backup_delete_desc:
+		"**${guildName}** `${id}`\n${categoryCount} categorías, ${channelCount} canales",
 	backup_delete_done: "La copia de seguridad se ha eliminado.",
 	backup_delete_cancelled: "La copia de seguridad se ha conservado.",
 	backup_schedule_title: "Copias de seguridad automáticas",
-	backup_schedule_desc: "Se guardan en tu cuenta y cuentan para tu límite. Solo se conservan las últimas ${maxAuto} copias de seguridad automáticas de este servidor.",
-	backup_schedule_owner_only: "Solo el propietario del servidor puede programar copias de seguridad automáticas.",
-	backup_schedule_status_on: "Activo: **${frequency}**, próxima copia de seguridad ${next}",
-	backup_schedule_status_off: "No hay ninguna copia de seguridad automática programada.",
+	backup_schedule_desc:
+		"Se guardan en tu cuenta y cuentan para tu límite. Solo se conservan las últimas ${maxAuto} copias de seguridad automáticas de este servidor.",
+	backup_schedule_owner_only:
+		"Solo el propietario del servidor puede programar copias de seguridad automáticas.",
+	backup_schedule_status_on:
+		"Activo: **${frequency}**, próxima copia de seguridad ${next}",
+	backup_schedule_status_off:
+		"No hay ninguna copia de seguridad automática programada.",
 	backup_schedule_frequency_placeholder: "Elige la frecuencia",
 	backup_frequency_1d: "Todos los días",
 	backup_frequency_3d: "Cada 3 días",
@@ -2786,8 +2808,10 @@ export default {
 	backup_frequency_3m: "Cada 3 meses",
 	backup_frequency_6m: "Cada 6 meses",
 	backup_frequency_12m: "Cada año",
-	backup_schedule_dm_limit: "Se ha omitido la copia de seguridad automática de **${guildName}**: has alcanzado el límite de ${max} copias de seguridad. Elimina una con `/backup delete`.",
-	backup_schedule_dm_failed: "La copia de seguridad automática de **${guildName}** ha fallado. Se volverá a intentar en la próxima hora programada.",
+	backup_schedule_dm_limit:
+		"Se ha omitido la copia de seguridad automática de **${guildName}**: has alcanzado el límite de ${max} copias de seguridad. Elimina una con `/backup delete`.",
+	backup_schedule_dm_failed:
+		"La copia de seguridad automática de **${guildName}** ha fallado. Se volverá a intentar en la próxima hora programada.",
 
 	// Role Reactions
 	// /reactionroles
@@ -3168,40 +3192,27 @@ export default {
 
 	// /configurarsugerencia desactivar
 	// /suggest status
-	suggest_not_staff:
-		"No tienes permiso para gestionar las sugerencias.",
-	suggest_status_pending:
-		"Pendiente",
-	suggest_status_reviewing:
-		"En revisión",
-	suggest_status_accepted:
-		"Aceptada",
-	suggest_status_planned:
-		"Planificada",
-	suggest_status_implemented:
-		"Implementada",
-	suggest_status_denied:
-		"Rechazada",
+	suggest_not_staff: "No tienes permiso para gestionar las sugerencias.",
+	suggest_status_pending: "Pendiente",
+	suggest_status_reviewing: "En revisión",
+	suggest_status_accepted: "Aceptada",
+	suggest_status_planned: "Planificada",
+	suggest_status_implemented: "Implementada",
+	suggest_status_denied: "Rechazada",
 	suggest_notify_status:
 		"<@${authorId}>, tu sugerencia ahora está **${status}**.",
 	suggest_notify_reply:
 		"<@${authorId}>, el staff ha respondido a tu sugerencia.",
-	suggest_button_reply:
-		"Responder",
-	suggest_modal_title:
-		"Responder a la sugerencia",
-	suggest_modal_label:
-		"Tu mensaje",
+	suggest_button_reply: "Responder",
+	suggest_modal_title: "Responder a la sugerencia",
+	suggest_modal_label: "Tu mensaje",
 	suggest_status_command_work:
 		"La sugerencia ahora está **${status}**.\nhttps://discord.com/channels/${guildId}/${channelId}/${messageId}",
 
 	// /suggest list
-	suggest_list_title:
-		"Sugerencias",
-	suggest_list_empty:
-		"No hay sugerencias que mostrar.",
-	suggest_list_footer:
-		"${shownCount} de ${totalCount}",
+	suggest_list_title: "Sugerencias",
+	suggest_list_empty: "No hay sugerencias que mostrar.",
+	suggest_list_footer: "${shownCount} de ${totalCount}",
 
 	// /setsuggest staff-role
 	setsuggest_staff_role_set:
@@ -3456,7 +3467,8 @@ export default {
 	// /tag use
 	tag_use_not_allowed:
 		"No tienes permiso para usar la etiqueta `${tag_name}`.\nNecesitas permisos de administrador o puedes pedirle al propietario de la etiqueta <@${createBy}> que te agregue a la lista blanca (`tag wlroles-use`).",
-	tag_use_empty: "La etiqueta `${tag_name}` está vacía: no tiene texto ni embed.",
+	tag_use_empty:
+		"La etiqueta `${tag_name}` está vacía: no tiene texto ni embed.",
 	tag_use_command_work: "La etiqueta `${tag_name}` ha sido enviada.",
 
 	// /tag edit
@@ -3538,8 +3550,7 @@ export default {
 		"No se ha encontrado ninguna confesión con el código **#${code}**.",
 	confession_delete_command_work:
 		"La confesión **#${code}** ha sido eliminada.",
-	confession_delete_log_embed_title:
-		"Confesión eliminada",
+	confession_delete_log_embed_title: "Confesión eliminada",
 	confession_delete_log_embed_desc:
 		"${author} ha eliminado la confesión **#${code}**",
 
@@ -3550,8 +3561,7 @@ export default {
 		"El autor de la confesión **#${code}** ya está baneado.",
 	confession_ban_author_expired:
 		"Esta confesión es demasiado antigua: su autor se olvida tras 90 días.",
-	confession_ban_log_embed_title:
-		"Autor de confesión baneado",
+	confession_ban_log_embed_title: "Autor de confesión baneado",
 	confession_ban_log_embed_desc:
 		"${author} ha baneado al autor de la confesión **#${code}**",
 	confession_banned_error:
@@ -3562,8 +3572,7 @@ export default {
 		"Se ha levantado el baneo vinculado a la confesión **#${code}**.",
 	confession_unban_not_found:
 		"Ningún baneo está vinculado a la confesión **#${code}**.",
-	confession_unban_log_embed_title:
-		"Autor de confesión desbaneado",
+	confession_unban_log_embed_title: "Autor de confesión desbaneado",
 	confession_unban_log_embed_desc:
 		"${author} ha levantado el baneo vinculado a la confesión **#${code}**",
 
@@ -4988,8 +4997,10 @@ export default {
 	music_apo_saved: "${emoji} **${name}** guardada (${stages} etapas).",
 	// +shardinfo
 	shardinfo_title: "Información de los shards",
-	shardinfo_location: "Este servidor está en el shard **${shardId}**. Comando gestionado por el shard **${handlerShardId}**, proceso `${pid}`.",
-	shardinfo_member_data: "Número de miembros: **${exactCount}** exactos, **${approximateCount}** aproximados, **${missingCount}** sin datos",
+	shardinfo_location:
+		"Este servidor está en el shard **${shardId}**. Comando gestionado por el shard **${handlerShardId}**, proceso `${pid}`.",
+	shardinfo_member_data:
+		"Número de miembros: **${exactCount}** exactos, **${approximateCount}** aproximados, **${missingCount}** sin datos",
 	shardinfo_offline_shards: "Shards sin respuesta: ${shards}",
 	shardinfo_section_unavailable: "Servidores no disponibles",
 	shardinfo_section_approximate: "Servidores con número aproximado",

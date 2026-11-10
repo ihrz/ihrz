@@ -184,6 +184,15 @@ class GiveawayManager {
 		const giveawayData = await db.GetGiveawayData(interaction.message.id);
 		const lang = await getLanguageData(interaction.guildId!);
 
+		if (
+			!giveawayData ||
+			giveawayData.ended === GiveawayEndedStatus.ENDED ||
+			new Date(giveawayData.expireIn).getTime() <= Date.now()
+		) {
+			await interaction.deferUpdate().catch(() => {});
+			return;
+		}
+
 		if (giveawayData?.entries?.includes(interaction.user.id)) {
 			await this.removeEntries(interaction);
 			return;
@@ -233,6 +242,13 @@ class GiveawayManager {
 			}
 
 			await interaction.deferUpdate();
+
+			const entryCount = await db.AddEntries(
+				interaction.message.id,
+				interaction.user.id
+			);
+			if (entryCount === null) return;
+
 			const regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
 			const regex = new RegExp(regexPattern);
 
@@ -242,7 +258,7 @@ class GiveawayManager {
 				.setDescription(
 					interaction.message.embeds[0]?.description!.replace(
 						regex,
-						`${lang.event_gw_entries_words}: **${giveawayData?.entries.length! + 1}**`
+						`${lang.event_gw_entries_words}: **${entryCount}**`
 					)
 				)
 				.setFooter(
@@ -251,9 +267,9 @@ class GiveawayManager {
 					)
 				);
 
-			await interaction.message.edit({ embeds: [embedsToEdit] });
-
-			await db.AddEntries(interaction.message.id, interaction.user.id);
+			await interaction.message
+				.edit({ embeds: [embedsToEdit] })
+				.catch(() => {});
 
 			return;
 		}
@@ -262,7 +278,7 @@ class GiveawayManager {
 	private async removeEntries(interaction: ButtonInteraction<"cached">) {
 		const lang = await getLanguageData(interaction.guildId!);
 
-		await interaction.reply({
+		const prompt = await interaction.reply({
 			content: lang.event_gw_confirm_leave_msg.replace(
 				"${author}",
 				interaction.user.toString()
@@ -275,16 +291,20 @@ class GiveawayManager {
 						.setLabel(lang.event_gw_leave_button_placeholder)
 				)
 			],
-			flags: [1 << 6]
+			flags: [1 << 6],
+			withResponse: true
 		});
+		const promptMessage = prompt.resource?.message;
+		if (!promptMessage) return;
 
-		const collector = interaction.channel!.createMessageComponentCollector({
+		const collector = promptMessage.createMessageComponentCollector({
 			time: 60_000,
 			filter: (i) => interaction.user.id === i.user.id
 		});
 
 		collector.on("collect", async (i: ButtonInteraction<"cached">) => {
 			if (i.customId === "giveaway-leave") {
+				collector.stop("left");
 				const now_members = await db.RemoveEntries(
 					interaction.message.id,
 					interaction.user.id
@@ -307,21 +327,26 @@ class GiveawayManager {
 						)
 					);
 
-				await interaction.message.edit({ embeds: [embedsToEdit] });
-				await interaction.editReply({
-					components: [],
-					content: lang.event_gw_removeentries_msg.replace(
-						"${author}",
-						interaction.user.toString()
-					)
-				});
+				await interaction.message
+					.edit({ embeds: [embedsToEdit] })
+					.catch(() => {});
+				await i
+					.update({
+						components: [],
+						content: lang.event_gw_removeentries_msg.replace(
+							"${author}",
+							interaction.user.toString()
+						)
+					})
+					.catch(() => {});
 
 				return;
 			}
 		});
 
-		collector.on("end", async () => {
-			await interaction.deleteReply();
+		collector.on("end", async (_collected, reason) => {
+			if (reason === "left") return;
+			await interaction.deleteReply().catch(() => {});
 		});
 	}
 
@@ -576,7 +601,7 @@ class GiveawayManager {
 					]
 				});
 
-				if (winner && winner[0] !== "None") {
+				if (winner.length > 0 && winner[0] !== "None") {
 					await client.func.method.reply(message, {
 						content: lang.event_gw_reroll_win_msg
 							.replace("${winners}", winners.toString())

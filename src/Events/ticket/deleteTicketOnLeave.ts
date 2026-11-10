@@ -70,7 +70,7 @@ export const event: BotEvent = {
 					)
 					.setTimestamp();
 
-				TicketLogsChannel.send({
+				await TicketLogsChannel.send({
 					embeds: [embed],
 					files: [
 						await client.func.displayBotName.footerAttachmentBuilder(
@@ -78,7 +78,7 @@ export const event: BotEvent = {
 						),
 						attachment
 					]
-				});
+				}).catch(() => null);
 
 				await channel?.delete().catch(() => {});
 			} catch (e) {}
