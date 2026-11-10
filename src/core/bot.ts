@@ -73,7 +73,7 @@ global.client = new Client({
 		GatewayIntentBits.DirectMessageReactions,
 		GatewayIntentBits.DirectMessages,
 		GatewayIntentBits.DirectMessageTyping,
-		GatewayIntentBits.GuildEmojisAndStickers,
+		GatewayIntentBits.GuildExpressions,
 		GatewayIntentBits.GuildIntegrations,
 		GatewayIntentBits.GuildInvites,
 		GatewayIntentBits.GuildMembers,
