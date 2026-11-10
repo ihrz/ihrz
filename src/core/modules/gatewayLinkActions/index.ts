@@ -26,6 +26,7 @@ import {
 	checkMemberCommandPermission,
 	hasCommandPermissionRequirements
 } from "../../functions/permissonsCalculator.js";
+import { consumeCommandRateLimit } from "../../commandExecutor.js";
 import { ActionDef, ActionError, ActionGroup, fail, Params } from "./types.js";
 import { coreActions } from "./core.js";
 import { communityActions } from "./community.js";
@@ -77,7 +78,8 @@ function resolveCommand(client: Client, path: string) {
 export async function authorize(
 	client: Client,
 	member: GuildMember,
-	def: ActionDef
+	def: ActionDef,
+	opts: { write?: boolean } = {}
 ): Promise<void> {
 	if (await blacklistTable.get(`${member.id}.blacklisted`)) {
 		fail("forbidden: you are blacklisted from the bot");
@@ -92,18 +94,56 @@ export async function authorize(
 
 	const { allowed, permissionData } = await checkMemberCommandPermission(
 		member,
-		def.command
+		def.command!
 	);
-	if (allowed) return;
-	if (hasCommandPermissionRequirements(permissionData)) {
-		fail(
-			`forbidden: the server's permission rules don't let you use /${def.command}`
-		);
+	if (!allowed) {
+		if (hasCommandPermissionRequirements(permissionData)) {
+			fail(
+				`forbidden: the server's permission rules don't let you use /${def.command}`
+			);
+		}
+		const permission = (target as { permission?: bigint | null })
+			.permission;
+		if (permission && !member.permissions.has(permission)) {
+			const name = new PermissionsBitField(permission)
+				.toArray()
+				.join(", ");
+			fail(`forbidden: /${def.command} requires ${name}`);
+		}
 	}
-	const permission = (target as { permission?: bigint | null }).permission;
-	if (permission && !member.permissions.has(permission)) {
-		const name = new PermissionsBitField(permission).toArray().join(", ");
-		fail(`forbidden: /${def.command} requires ${name}`);
+	if (opts.write) await countUse(client, member, def.command!, target);
+}
+
+// A dashboard action that changes something counts as a use of its command:
+// the guild's /commandlimit and the command's cooldown (same keys as
+// commandExecutor, so the slash command and the dashboard share them).
+async function countUse(
+	client: Client,
+	member: GuildMember,
+	command: string,
+	target: unknown
+): Promise<void> {
+	const left = await consumeCommandRateLimit(
+		client,
+		member.guild,
+		member.id,
+		command
+	);
+	if (left !== null) {
+		fail(`rate limited: try again in ${Math.ceil(left / 1000)} s`);
+	}
+	const cooldown = (target as { cooldown?: number }).cooldown;
+	if (
+		cooldown &&
+		(await client.func.helper.cooldown(member.id, command, cooldown))
+	) {
+		const last =
+			(await client.func.helper.getCooldownTimestamp(
+				member.id,
+				command
+			)) || 0;
+		const wait = Math.max(0, cooldown - (Date.now() - last));
+		fail(`cooldown: try again in ${Math.ceil(wait / 1000)} s`);
 	}
 }
 
@@ -122,7 +162,7 @@ export async function runAction(
 	const actor = await guild!.members.fetch(event.actorId).catch(() => null);
 	if (!actor) fail("forbidden: you are not a member of this server");
 
-	await authorize(client, actor!, def!);
+	await authorize(client, actor!, def!, { write: event.write === true });
 
 	const lang = await client.func.getLanguageData(guild!.id);
 	return def!.run({

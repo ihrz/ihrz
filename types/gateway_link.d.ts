@@ -74,6 +74,10 @@ export namespace GatewayLink {
 		action: string;
 		// GET actions: the query, as strings. POST actions: the JSON body.
 		params: Record<string, unknown>;
+		// POST (it changes something): the command's cooldown and the guild's
+		// /commandlimit apply, as for a use of the command. Reads are free
+		// (the dashboard polls some of them).
+		write?: boolean;
 	}
 
 	export type Event = ConfigUpdatedEvent | ActionEvent;

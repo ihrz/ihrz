@@ -23,6 +23,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
+	Guild,
 	GuildMember,
 	Message,
 	PermissionFlagsBits,
@@ -252,24 +253,49 @@ export async function checkCommandRateLimit(
 	const { client, source: interaction, lang, commandPath } = ctx;
 	if (!interaction.guild) return false;
 
-	if (
-		await client.func.ownerHelper.isGuildOwner(
-			getUserId(interaction),
-			interaction.guild
+	const remainingTime = await consumeCommandRateLimit(
+		client,
+		interaction.guild,
+		getUserId(interaction),
+		commandPath
+	);
+	if (remainingTime === null) return false;
+
+	await replyDenied(
+		ctx,
+		lang.commandlimit_rate_limited.replace(
+			"${time}",
+			client.timeCalculator.to_beautiful_string(remainingTime, lang)
 		)
-	) {
-		return false;
+	);
+	return true;
+}
+
+/**
+ * The guild's `/commandlimit` for this command (or its category), counted
+ * for this user: `null` when allowed (the use is recorded), otherwise the
+ * time left in ms. The server owner is never limited. Shared with the
+ * dashboard actions (`gatewayLinkActions/index.ts`).
+ */
+export async function consumeCommandRateLimit(
+	client: Client,
+	guild: Guild,
+	userId: string,
+	commandPath: string
+): Promise<number | null> {
+	if (await client.func.ownerHelper.isGuildOwner(userId, guild)) {
+		return null;
 	}
 
 	let configuredLimit = await client.db.get(
-		`${interaction.guild.id}.UTILS.COMMAND_LIMITS.${commandPath}`
+		`${guild.id}.UTILS.COMMAND_LIMITS.${commandPath}`
 	);
 
 	if (!configuredLimit) {
 		const category = commandPath.split(" ")[0];
 		if (category !== commandPath) {
 			configuredLimit = await client.db.get(
-				`${interaction.guild.id}.UTILS.COMMAND_LIMITS.${category}`
+				`${guild.id}.UTILS.COMMAND_LIMITS.${category}`
 			);
 		}
 	}
@@ -279,10 +305,10 @@ export async function checkCommandRateLimit(
 		configuredLimit.count <= 0 ||
 		configuredLimit.windowMs <= 0
 	) {
-		return false;
+		return null;
 	}
 
-	const rateLimitKey = `COMMAND_LIMITS.${interaction.guild.id}.${commandPath}.${getUserId(interaction)}`;
+	const rateLimitKey = `COMMAND_LIMITS.${guild.id}.${commandPath}.${userId}`;
 	const attempts = ((await tempTable.get(rateLimitKey)) || []) as number[];
 	const now = Date.now();
 	const activeAttempts = attempts.filter(
@@ -291,21 +317,12 @@ export async function checkCommandRateLimit(
 
 	if (activeAttempts.length >= configuredLimit.count) {
 		const oldestAttempt = activeAttempts[0];
-		const remainingTime = configuredLimit.windowMs - (now - oldestAttempt);
-
-		await replyDenied(
-			ctx,
-			lang.commandlimit_rate_limited.replace(
-				"${time}",
-				client.timeCalculator.to_beautiful_string(remainingTime, lang)
-			)
-		);
-		return true;
+		return configuredLimit.windowMs - (now - oldestAttempt);
 	}
 
 	activeAttempts.push(now);
 	await tempTable.set(rateLimitKey, activeAttempts);
-	return false;
+	return null;
 }
 
 export async function preExecutionCooldown(

@@ -71,7 +71,8 @@ import {
 	undoUnbanAll,
 	unmuteAll,
 	unmuteMember,
-	UnmuteRefusal
+	UnmuteRefusal,
+	isGuildJobRunning
 } from "../moderationOps.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
 
@@ -481,6 +482,9 @@ export const moderationActions: ActionGroup = {
 	"bans.remove-all": {
 		command: "unban-all all",
 		run: async ({ guild }) => {
+			if (isGuildJobRunning(guild.id, "unban-all")) {
+				return fail("an unban-all is already running on this server");
+			}
 			const result = await unbanAll(guild);
 			if (!result.ok) return fail("nobody is banned");
 			return { started: true, total: result.total };
@@ -490,6 +494,9 @@ export const moderationActions: ActionGroup = {
 	"bans.undo-remove-all": {
 		command: "unban-all undo",
 		run: async ({ guild }) => {
+			if (isGuildJobRunning(guild.id, "unban-all")) {
+				return fail("an unban-all is already running on this server");
+			}
 			const result = await undoUnbanAll(guild);
 			if (!result.ok) return fail("nothing to undo");
 			return { started: true, total: result.total };
@@ -546,6 +553,11 @@ export const moderationActions: ActionGroup = {
 	"roles.mass": {
 		command: "utils massiverole",
 		run: async (ctx) => {
+			if (isGuildJobRunning(ctx.guild.id, "mass-role")) {
+				return fail(
+					"a mass role change is already running on this server"
+				);
+			}
 			const role = roleParam(ctx);
 			const adding = ctx.params.oneOf("op", ["add", "remove"]) === "add";
 			const plan = await massRolePlan(ctx.actor, role, adding);

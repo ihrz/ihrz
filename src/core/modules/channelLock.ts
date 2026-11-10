@@ -104,8 +104,10 @@ export async function applyAllChannelsLock(
 	guild.channels.cache.forEach((c) => {
 		if (c.type === ChannelType.GuildText) {
 			count++;
+			// `edit`, not `create`: create replaces the whole overwrite, and a
+			// private channel lost its ViewChannel deny (it became visible).
 			c.permissionOverwrites
-				.create(targetId, { SendMessages: !locking })
+				.edit(targetId, { SendMessages: locking ? false : null })
 				.catch(() => {});
 		}
 	});

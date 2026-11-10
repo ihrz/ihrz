@@ -485,6 +485,26 @@ export interface BatchHooks<R> {
 	onDone?: (result: R) => unknown;
 }
 
+// Background jobs running per guild ("unban-all", "mass-role"): the dashboard
+// refuses a second one while the first runs (two unban-all runs each wrote
+// their own partial undo list; mass-role runs stacked thousands of edits).
+const runningJobs = new Set<string>();
+export const isGuildJobRunning = (guildId: string, kind: string) =>
+	runningJobs.has(`${guildId}:${kind}`);
+async function trackJob(
+	guildId: string,
+	kind: string,
+	job: () => Promise<unknown>
+) {
+	const key = `${guildId}:${kind}`;
+	runningJobs.add(key);
+	try {
+		await job();
+	} finally {
+		runningJobs.delete(key);
+	}
+}
+
 // `/unban-all all`: unbans everyone (in the background) and remembers who,
 // for `undo`.
 export async function unbanAll(
@@ -497,24 +517,26 @@ export async function unbanAll(
 
 	const unbanned: string[] = [];
 	let failed = 0;
-	setImmediate(async () => {
-		await processBatch(
-			Array.from(bans.values()),
-			async (ban) => {
-				try {
-					await guild.bans.remove(ban.user.id);
-					unbanned.push(ban.user.id);
-					return true;
-				} catch {
-					failed++;
-					return false;
-				}
-			},
-			{ batchSize: 5, delay: 200 }
-		);
-		await guild.client.db.set(unbanAllKey(guild.id), unbanned);
-		await hooks.onDone?.({ unbanned: unbanned.length, failed });
-	});
+	setImmediate(() =>
+		trackJob(guild.id, "unban-all", async () => {
+			await processBatch(
+				Array.from(bans.values()),
+				async (ban) => {
+					try {
+						await guild.bans.remove(ban.user.id);
+						unbanned.push(ban.user.id);
+						return true;
+					} catch {
+						failed++;
+						return false;
+					}
+				},
+				{ batchSize: 5, delay: 200 }
+			);
+			await guild.client.db.set(unbanAllKey(guild.id), unbanned);
+			await hooks.onDone?.({ unbanned: unbanned.length, failed });
+		})
+	);
 	return { ok: true, total: bans.size };
 }
 
@@ -531,24 +553,26 @@ export async function undoUnbanAll(
 
 	const banned: string[] = [];
 	let failed = 0;
-	setImmediate(async () => {
-		await processBatch(
-			list,
-			async (userId: string) => {
-				try {
-					await guild.bans.create(userId);
-					banned.push(userId);
-					return true;
-				} catch {
-					failed++;
-					return false;
-				}
-			},
-			{ batchSize: 5, delay: 200 }
-		);
-		await guild.client.db.set(unbanAllKey(guild.id), []);
-		await hooks.onDone?.({ banned: banned.length, failed });
-	});
+	setImmediate(() =>
+		trackJob(guild.id, "unban-all", async () => {
+			await processBatch(
+				list,
+				async (userId: string) => {
+					try {
+						await guild.bans.create(userId);
+						banned.push(userId);
+						return true;
+					} catch {
+						failed++;
+						return false;
+					}
+				},
+				{ batchSize: 5, delay: 200 }
+			);
+			await guild.client.db.set(unbanAllKey(guild.id), []);
+			await hooks.onDone?.({ banned: banned.length, failed });
+		})
+	);
 	return { ok: true, total: list.length };
 }
 
@@ -868,20 +892,28 @@ export async function massRoleRun(
 ): Promise<{ changed: number; failed: number }> {
 	let changed = 0;
 	let failed = 0;
-	await processBatch(
-		members,
-		async (member) => {
-			try {
-				if (adding) await member.roles.add(role, "[Massrole] Module");
-				else await member.roles.remove(role, "[MassiveRole] Command");
-				changed++;
-				return true;
-			} catch {
-				failed++;
-				return false;
-			}
-		},
-		{ batchSize: 10, delay: 150 }
+	const guildId = members[0]?.guild.id ?? "";
+	await trackJob(guildId, "mass-role", () =>
+		processBatch(
+			members,
+			async (member) => {
+				try {
+					if (adding)
+						await member.roles.add(role, "[Massrole] Module");
+					else
+						await member.roles.remove(
+							role,
+							"[MassiveRole] Command"
+						);
+					changed++;
+					return true;
+				} catch {
+					failed++;
+					return false;
+				}
+			},
+			{ batchSize: 10, delay: 150 }
+		)
 	);
 	return { changed, failed };
 }

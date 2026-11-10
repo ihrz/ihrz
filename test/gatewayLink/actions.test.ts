@@ -156,6 +156,31 @@ describe("gateway actions: authorize", () => {
 		blacklisted.delete(MOD);
 	});
 
+	test("a write counts as a use: the command's cooldown applies, reads are free", async () => {
+		const { client, member } = setup(null, PermissionFlagsBits.BanMembers);
+		client.commands.get("ban").cooldown = 60_000;
+		const used = new Set<string>();
+		client.func = {
+			ownerHelper: { isGuildOwner: async () => false },
+			helper: {
+				cooldown: async (id: string, path: string) => {
+					const k = `${path}.${id}`;
+					if (used.has(k)) return true;
+					used.add(k);
+					return false;
+				},
+				getCooldownTimestamp: async () => Date.now()
+			}
+		};
+		const def = { command: "ban", run: async () => 0 };
+		await authorize(client, member, def);
+		await authorize(client, member, def);
+		await authorize(client, member, def, { write: true });
+		expect(
+			await refused(authorize(client, member, def, { write: true }))
+		).toContain("cooldown");
+	});
+
 	test("an action mirroring an unknown command is refused", async () => {
 		const { client, member } = setup(
 			null,

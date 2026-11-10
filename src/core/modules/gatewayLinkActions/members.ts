@@ -137,24 +137,6 @@ export async function settle<T extends object>(
 	}
 }
 
-// Command cooldown (`commandExecutor.checkGlobalCooldown`): same key, so the
-// slash command and the dashboard share it.
-async function checkCooldown(
-	{ client, actor }: ActionContext,
-	path: string
-): Promise<void> {
-	const target = client.subCommands.get(path) as
-		{ cooldown?: number } | undefined;
-	if (!target?.cooldown) return;
-	if (await client.func.helper.cooldown(actor.id, path, target.cooldown)) {
-		const last =
-			(await client.func.helper.getCooldownTimestamp(actor.id, path)) ||
-			0;
-		const left = Math.max(0, target.cooldown - (Date.now() - last));
-		fail(`cooldown: try again in ${Math.ceil(left / 1000)} s`);
-	}
-}
-
 const amount = (ctx: ActionContext, max: number) =>
 	ctx.params.int("amount", { min: 1, max });
 
@@ -592,7 +574,6 @@ export const membersActions: ActionGroup = {
 			const to = voiceChannelParam(ctx, "toChannelId", [
 				ChannelType.GuildVoice
 			]);
-			await checkCooldown(ctx, "utils massmove");
 			return massMove(membersOfChannels([from]), to);
 		}
 	},
@@ -603,7 +584,6 @@ export const membersActions: ActionGroup = {
 			const to = voiceChannelParam(ctx, "toChannelId", [
 				ChannelType.GuildVoice
 			]);
-			await checkCooldown(ctx, "utils massmove");
 			return massMove(
 				membersOfChannels(massMoveSourceChannels(ctx.guild)),
 				to
@@ -621,7 +601,18 @@ export const membersActions: ActionGroup = {
 			if (!category || category.type !== ChannelType.GuildCategory) {
 				return fail("category not found");
 			}
-			const targets = categoryVoiceChannels(category);
+			// The actor must see the category and the channels members land in
+			// (as for `from`/`to` of the other moves: the picker offers those).
+			if (
+				!category
+					.permissionsFor(ctx.actor)
+					.has(PermissionFlagsBits.ViewChannel)
+			) {
+				return fail("category not found");
+			}
+			const targets = categoryVoiceChannels(category).filter((c) =>
+				c.permissionsFor(ctx.actor).has(PermissionFlagsBits.ViewChannel)
+			);
 			if (targets.length === 0) {
 				return fail("this category has no voice channel");
 			}
