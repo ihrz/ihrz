@@ -4029,6 +4029,8 @@ export default {
 		"Ticket-Protokoll - Löschen eines Tickets",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} hat ein Ticket gelöscht (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} hat den Server verlassen: Das Ticket (#${channelName}) wurde geschlossen und gelöscht, das Transkript ist angehängt.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"Ticket-Protokoll - Hinzufügen/Entfernen von Mitgliedern eines Tickets",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

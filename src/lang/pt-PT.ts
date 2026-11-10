@@ -3955,6 +3955,8 @@ export default {
 		"TicketLog - Deleção de Ticket",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} deletou um ticket (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} saiu do servidor: o ticket (#${channelName}) foi fechado e eliminado, a transcrição está em anexo.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"TicketLog - Adição/Remoção de Membros de um Ticket",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

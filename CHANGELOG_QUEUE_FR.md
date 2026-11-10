@@ -203,7 +203,7 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **Salons vocaux temporaires** : une panne de Discord ou une limite de requêtes ne supprime plus un salon où il y a du monde.
 - **`/economy deposit all` et `withdraw all`** : fonctionnent de nouveau avec un solde à virgule.
 - **Lignes GitHub** : un lien vers plus de 50 lignes affiche de nouveau l'avertissement, et une plage qui dépasse la fin du fichier est raccourcie au lieu d'être ignorée.
-- **Tickets** : la réponse « pas la permission » de `/ticket delete`, `transcript` et `open` s'affiche de nouveau, et un rôle présent à la fois dans les pings du panneau et de la catégorie ne bloque plus le message du ticket.
+- **Tickets** : quand un membre part, tous les tickets qu'il avait ouverts sont fermés et supprimés, avec leur transcription et un log dans le salon de logs des tickets s'il est configuré (sans lui, les tickets restaient ouverts pour toujours). La réponse « pas la permission » de `/ticket delete`, `transcript` et `open` s'affiche de nouveau, et un rôle présent à la fois dans les pings du panneau et de la catégorie ne bloque plus le message du ticket.
 - **`/guildconfig config restore`** : sur un serveur qui n'a encore aucune donnée de protection, d'allowlist, de blacklist ou de membres, elles sont reprises de la sauvegarde au lieu d'être perdues.
 - **Photos de profil, auto-renew** : ne publient plus l'avatar d'un bot et ne recréent plus un salon deux fois.
 

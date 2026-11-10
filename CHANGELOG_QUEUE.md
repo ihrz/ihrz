@@ -203,7 +203,7 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **Temporary voice channels**: a Discord outage or rate limit no longer deletes a channel with people inside.
 - **`/economy deposit all` and `withdraw all`**: work again with a balance that has decimals.
 - **GitHub lines**: a link to more than 50 lines shows the warning again, and a range going past the end of the file is shortened instead of ignored.
-- **Tickets**: the "no permission" answer of `/ticket delete`, `transcript` and `open` shows up again, and a role in both the panel and category ping lists no longer stops the ticket message.
+- **Tickets**: when a member leaves, every ticket they opened is closed and deleted, with its transcript and a log entry in the ticket log channel when one is set (without one, tickets used to stay open forever). The "no permission" answer of `/ticket delete`, `transcript` and `open` shows up again, and a role in both the panel and category ping lists no longer stops the ticket message.
 - **`/guildconfig config restore`**: on a server with no protection, allowlist, blacklist or member data yet, those come from the backup instead of being lost.
 - **Profile pictures, auto-renew**: no longer post a bot's avatar or renew a channel twice.
 

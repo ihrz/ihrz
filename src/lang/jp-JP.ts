@@ -3908,6 +3908,8 @@ export default {
 		"チケットログ - チケットの削除",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author}さんがチケットを削除しました（#${channelName}）！",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} がサーバーを退出したため、チケット (#${channelName}) を閉じて削除しました。トランスクリプトを添付しています。",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"チケットログ - チケットのメンバーの追加/削除",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

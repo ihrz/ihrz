@@ -3879,6 +3879,8 @@ const enUS = {
 		"TicketLog - Ticket deletion",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} has deleted a ticket (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} left the server: their ticket (#${channelName}) was closed and deleted, its transcript is attached.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"TicketLog - Add/Remove Members of a Ticket",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

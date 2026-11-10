@@ -3984,6 +3984,8 @@ export default {
 		"Registro dei ticket - Eliminazione di un ticket",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} ha eliminato un ticket (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} ha lasciato il server: il suo ticket (#${channelName}) è stato chiuso ed eliminato, la trascrizione è allegata.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"Registro dei ticket - Aggiunta/Rimozione membri di un ticket",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

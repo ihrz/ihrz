@@ -4031,6 +4031,8 @@ export default {
 		"Journal des tickets - Suppression d'un ticket",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} a supprimé un ticket (#${channelName}) !",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} a quitté le serveur : son ticket (#${channelName}) a été fermé et supprimé, sa transcription est jointe.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"Journal des tickets - Ajout/Retrait de membres d'un ticket",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

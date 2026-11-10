@@ -19,39 +19,49 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildMember, TextChannel } from "discord.js";
+import {
+	AttachmentPayload,
+	Client,
+	EmbedBuilder,
+	GuildMember,
+	TextChannel
+} from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
-		const fetch = await client.db.get(
+		const tickets = (await client.db.get(
 			`${member.guild.id}.TICKET_ALL.${member.user.id}`
+		)) as DatabaseStructure.TicketUserData | null;
+		if (!tickets || !Object.keys(tickets).length) return;
+
+		const lang = await client.func.getLanguageData(member.guild.id);
+		const logsChannelId = await client.db.get(
+			`${member.guild.id}.GUILD.TICKET.logs`
 		);
+		const logsChannel = logsChannelId
+			? member.guild.channels.cache.get(logsChannelId)
+			: undefined;
 
-		for (const channelId in fetch) {
-			const lang = await client.func.getLanguageData(member.guild.id);
-			const channel = member.guild.channels.cache.get(
-				fetch[channelId].channel
-			);
+		// Every ticket of the member who left is closed: transcript and log
+		// entry first (when a log channel is set), then the channel goes.
+		for (const ticket of Object.values(tickets)) {
+			const channel = ticket?.channel
+				? member.guild.channels.cache.get(ticket.channel)
+				: undefined;
 
-			try {
-				let TicketLogsChannel = await client.db.get(
-					`${member.guild.id}.GUILD.TICKET.logs`
-				);
-				TicketLogsChannel =
-					member.guild?.channels.cache.get(TicketLogsChannel);
-				if (!TicketLogsChannel) return;
-
+			if (channel?.isTextBased() && logsChannel?.isSendable()) {
 				const attachment = await DiscordJSTranscript.create({
 					channel: channel as TextChannel,
 					limit: -1,
-					filename: `${member.guild.id}-transcript.html`,
+					filename: `${member.guild.id}-${channel.id}-transcript.html`,
 					footerText: "Exported {number} message{s}",
 					poweredBy: false
-				});
+				}).catch(() => null);
 
 				const embed = new EmbedBuilder()
 					.setColor("#008000")
@@ -59,9 +69,9 @@ export const event: BotEvent = {
 						lang.event_ticket_logsChannel_onDelete_embed_title
 					)
 					.setDescription(
-						lang.event_ticket_logsChannel_onDelete_embed_desc
+						lang.event_ticket_logsChannel_onLeave_embed_desc
 							.replace("${author}", member.user.toString())
-							.replace("${channelName}", channel?.name!)
+							.replace("${channelName}", channel.name)
 					)
 					.setFooter(
 						await client.func.displayBotName.footerBuilder(
@@ -70,22 +80,23 @@ export const event: BotEvent = {
 					)
 					.setTimestamp();
 
-				await TicketLogsChannel.send({
-					embeds: [embed],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							member
-						),
-						attachment
-					]
-				}).catch(() => null);
+				const files: AttachmentPayload[] = [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						member
+					)
+				];
+				if (attachment) files.push(attachment as AttachmentPayload);
 
-				await channel?.delete().catch(() => {});
-			} catch (e) {}
+				await logsChannel
+					.send({ embeds: [embed], files })
+					.catch(() => null);
+			}
 
-			await client.db.delete(
-				`${member.guild.id}.TICKET_ALL.${member.user.id}`
-			);
+			await channel?.delete().catch(() => {});
 		}
+
+		await client.db.delete(
+			`${member.guild.id}.TICKET_ALL.${member.user.id}`
+		);
 	}
 };

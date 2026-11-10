@@ -3910,6 +3910,8 @@ export default {
 		"Лог билетов - Удаление билета",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} удалил билет (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"${author} покинул(а) сервер: тикет (#${channelName}) закрыт и удалён, расшифровка приложена.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"Лог билетов - Добавление/удаление участников из билета",
 	event_ticket_logsChannel_onAddMember2_embed_desc:

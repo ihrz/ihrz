@@ -3711,6 +3711,8 @@ export default {
 	event_ticket_logsChannel_onDelete_embed_title: "تذكرة السجل - حذف التذكرة",
 	event_ticket_logsChannel_onDelete_embed_desc:
 		"${author} قام بحذف التذكرة (#${channelName})!",
+	event_ticket_logsChannel_onLeave_embed_desc:
+		"غادر ${author} الخادم: تم إغلاق تذكرته (#${channelName}) وحذفها، والنص الكامل مرفق.",
 	event_ticket_logsChannel_onAddMember2_embed_title:
 		"تذكرة السجل - إضافة/إزالة أعضاء من التذكرة",
 	event_ticket_logsChannel_onAddMember2_embed_desc:
