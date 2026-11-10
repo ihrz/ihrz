@@ -28,6 +28,7 @@ import {
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { lockMemberName } from "../../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -59,71 +60,30 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (
-			interaction.guild.ownerId !== interaction.member.user.id &&
-			(targetMember.id === interaction.guild.ownerId ||
-				targetMember.roles.highest.position >=
-					(interaction.member as GuildMember).roles.highest.position)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.moderation_target_higher_role.replace(
-					"${member}",
-					targetMember.toString()
-				)
-			});
-			return;
-		}
-
-		if (!targetMember.manageable) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.util_lockname_not_manageable.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (
-			await client.db.get(
-				`${interaction.guildId}.LOCKNAME.${targetMember.id}`
-			)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.util_lockname_already_locked.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		const lockedNick = desiredNickname
-			? desiredNickname.trim().substring(0, 32)
-			: (targetMember.nickname ?? null);
-
-		if (lockedNick && lockedNick !== targetMember.nickname) {
-			try {
-				await targetMember.edit({ nick: lockedNick });
-			} catch {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.util_lockname_not_manageable.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-				return;
-			}
-		}
-
-		await client.db.set(
-			`${interaction.guildId}.LOCKNAME.${targetMember.id}`,
-			{
-				nick: lockedNick,
-				lockedBy: interaction.member.user.id,
-				lockedAt: Date.now()
-			}
+		const result = await lockMemberName(
+			client,
+			interaction.guild,
+			interaction.member as GuildMember,
+			targetMember,
+			desiredNickname
 		);
+
+		if (!result.ok) {
+			await client.func.method.interactionSend(interaction, {
+				content:
+					result.reason === "hierarchy"
+						? lang.moderation_target_higher_role.replace(
+								"${member}",
+								targetMember.toString()
+							)
+						: (result.reason === "already_locked"
+								? lang.util_lockname_already_locked
+								: lang.util_lockname_not_manageable
+							).replace("${emoji_No}", client.iHorizon_Emojis.No)
+			});
+			return;
+		}
+		const lockedNick = result.nick;
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.util_lockname_logs_embed_title,

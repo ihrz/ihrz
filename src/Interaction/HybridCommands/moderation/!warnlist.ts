@@ -28,7 +28,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { getWarns } from "../../../core/modules/moderationOps.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -60,10 +60,9 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const member = opts.member("member", 0) as GuildMember | null;
 
-		const allWarns: DatabaseStructure.WarnsData[] | null =
-			await client.db.get(
-				`${interaction.guildId}.USER.${member?.id}.WARNS`
-			);
+		const allWarns = member
+			? await getWarns(interaction.guild, member.id)
+			: [];
 
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {

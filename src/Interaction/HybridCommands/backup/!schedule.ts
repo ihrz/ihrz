@@ -34,7 +34,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
 	BACKUP_FREQUENCIES,
-	computeNextRun,
+	buildSchedule,
 	DEFAULT_BACKUP_COMPONENTS,
 	frequencyKey,
 	MAX_AUTO_BACKUPS_PER_GUILD,
@@ -170,15 +170,7 @@ export const subCommand: SubCommand = {
 			} else if (i.isStringSelectMenu() && i.customId === COMPONENTS) {
 				selected = normalizeComponents(i.values);
 			} else if (i.customId === SAVE) {
-				current = {
-					ownerId: authorId,
-					every: frequency.every,
-					unit: frequency.unit,
-					components: selected,
-					nextRunAt: computeNextRun(Date.now(), frequency),
-					lastRunAt: current?.lastRunAt ?? null,
-					lastError: null
-				};
+				current = buildSchedule(authorId, frequency, selected, current);
 				await client.backup.saveSchedule(guild.id, current);
 			} else if (i.customId === DISABLE) {
 				await client.backup.removeSchedule(guild.id);

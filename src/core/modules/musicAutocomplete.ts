@@ -28,7 +28,7 @@
  * a title fires one request per keystroke.
  */
 
-import { AutocompleteInteraction, Client } from "discord.js";
+import { AutocompleteInteraction, Client, User } from "discord.js";
 import type { SearchResult, Track } from "lavalink-client";
 
 import {
@@ -46,7 +46,7 @@ const CACHE_MAX_ENTRIES = 500;
 // Discord limit for choice names and values.
 const CHOICE_MAX_LENGTH = 100;
 
-interface Choice {
+export interface Choice {
 	name: string;
 	value: string;
 }
@@ -95,11 +95,19 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
 	});
 }
 
-async function search(
+export interface TrackSuggestion {
+	track: Track;
+	// What to send to /music play to get exactly this track.
+	choice: Choice;
+}
+
+// Up to MAX_CHOICES tracks for a text query, within SEARCH_TIMEOUT_MS.
+// Also the dashboard's search (gatewayLinkActions/music.ts).
+export async function searchTrackSuggestions(
 	client: Client,
-	interaction: AutocompleteInteraction,
+	user: User,
 	query: string
-): Promise<Choice[]> {
+): Promise<TrackSuggestion[]> {
 	const node = Array.from(client.player.nodeManager.nodes.values()).find(
 		(candidate) => candidate.connected !== false
 	);
@@ -111,7 +119,7 @@ async function search(
 		const remaining = deadline - Date.now();
 		if (remaining <= 0) break;
 		res = await withTimeout(
-			node.search({ query, source }, interaction.user),
+			node.search({ query, source }, user),
 			remaining
 		);
 		if (res && responseExist(res)) break;
@@ -119,15 +127,15 @@ async function search(
 	if (!res || !responseExist(res)) return [];
 
 	const seen = new Set<string>();
-	const choices: Choice[] = [];
+	const found: TrackSuggestion[] = [];
 	for (const track of res.tracks) {
 		const choice = toChoice(track as Track);
 		if (!choice || seen.has(choice.value)) continue;
 		seen.add(choice.value);
-		choices.push(choice);
-		if (choices.length === MAX_CHOICES) break;
+		found.push({ track: track as Track, choice });
+		if (found.length === MAX_CHOICES) break;
 	}
-	return choices;
+	return found;
 }
 
 function remember(key: string, choices: Choice[]): void {
@@ -165,7 +173,9 @@ export async function musicTrackAutocomplete(
 		if (cached && cached.expires > Date.now()) {
 			choices = cached.choices;
 		} else {
-			choices = await search(client, interaction, query);
+			choices = (
+				await searchTrackSuggestions(client, interaction.user, query)
+			).map((found) => found.choice);
 			remember(key, choices);
 		}
 	}

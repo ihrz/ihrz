@@ -25,6 +25,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
+	Guild,
 	GuildMember,
 	Message,
 	MessageContextMenuCommandInteraction,
@@ -742,11 +743,30 @@ export async function sendQueueAddMessage(
 	client: Client,
 	track: Track
 ): Promise<void> {
-	const channel = interaction.guild?.channels.cache.get(
-		player.textChannelId as string
+	if (!interaction.guild) return;
+	await announceQueueAdd(
+		client,
+		lang,
+		interaction.guild,
+		player,
+		track,
+		interaction.channelId
 	);
+}
 
-	if (channel?.id !== interaction.channelId) {
+// The "added to the queue" notice, in the player's text channel unless the
+// request came from it (the reply there already says it).
+export async function announceQueueAdd(
+	client: Client,
+	lang: LanguageData,
+	guild: Guild,
+	player: Player,
+	track: Track,
+	sourceChannelId: string | null
+): Promise<void> {
+	const channel = guild.channels.cache.get(player.textChannelId as string);
+
+	if (channel?.id !== sourceChannelId) {
 		await (channel as BaseGuildTextChannel).send({
 			embeds: [
 				new EmbedBuilder()
@@ -767,61 +787,66 @@ export async function sendQueueAddMessage(
 	}
 }
 
-export async function handleMusicPlay({
-	client,
-	interaction,
-	lang,
-	queries,
-	respond
-}: HandleMusicPlayOptions): Promise<void> {
-	if (
-		!client.user ||
-		!interaction.member ||
-		!interaction.guild ||
-		!interaction.channel
-	) {
-		return;
-	}
+// Why a play request was refused, before or while queueing.
+export type MusicPlayRefusal =
+	| "not_in_voice"
+	| "h247_refused"
+	| "music_cannot"
+	| "no_result"
+	| "not_allowed";
 
-	const member = interaction.member as GuildMember;
+export interface EnqueueMusicOptions {
+	client: Client;
+	lang: LanguageData;
+	guild: Guild;
+	member: GuildMember;
+	requester: User;
+	queries: string[];
+	// Text channel of a player created here.
+	textChannelId: string;
+	// Where the request came from: no "added" notice is sent there.
+	sourceChannelId: string | null;
+}
+
+export type EnqueueMusicResult =
+	| { ok: true; player: Player; firstResult: SearchResult }
+	| { ok: false; reason: MusicPlayRefusal };
+
+// The work of /music play up to the reply: checks, search, queue, playback.
+// Shared by the slash command, the context menu and the dashboard.
+export async function enqueueMusicQueries({
+	client,
+	lang,
+	guild,
+	member,
+	requester,
+	queries,
+	textChannelId,
+	sourceChannelId
+}: EnqueueMusicOptions): Promise<EnqueueMusicResult> {
 	const voiceChannel = member.voice.channel;
 
-	if (!voiceChannel) {
-		await respond({ content: lang.p_not_in_voice_channel });
-		return;
-	}
+	if (!voiceChannel) return { ok: false, reason: "not_in_voice" };
 
-	const h247Data = await getH247Data(client, interaction.guild.id);
+	const h247Data = await getH247Data(client, guild.id);
 
 	if (
 		h247Data?.enabled &&
 		member.voice.channelId !== h247Data.voiceChannelId
 	) {
-		await respond({
-			content: lang.h247_play_refused.replace(
-				"${emoji_No}",
-				client.iHorizon_Emojis.No
-			)
-		});
-		return;
+		return { ok: false, reason: "h247_refused" };
 	}
 
-	const ttsData = await getTTSData(client, interaction.guild.id);
+	const ttsData = await getTTSData(client, guild.id);
 	if (ttsData && ttsData.enabled) {
-		await cleanupTTS(client, interaction.guild.id);
+		await cleanupTTS(client, guild.id);
 	}
 
 	if (
-		interaction.guild.members.me?.voice.channelId &&
-		member.voice.channelId !== interaction.guild.members.me.voice.channelId
+		guild.members.me?.voice.channelId &&
+		member.voice.channelId !== guild.members.me.voice.channelId
 	) {
-		await respond({
-			content: lang.music_cannot.replace(
-				"${emoji_No}",
-				client.iHorizon_Emojis.No
-			)
-		});
-		return;
+		return { ok: false, reason: "music_cannot" };
 	}
 
 	const normalizedQueries = queries
@@ -829,17 +854,12 @@ export async function handleMusicPlay({
 		.filter(Boolean);
 
 	if (normalizedQueries.length === 0) {
-		await respond({ embeds: [buildNoResultEmbed(lang)] });
-		return;
+		return { ok: false, reason: "no_result" };
 	}
 
 	if (normalizedQueries.some((query) => !client.func.isAllowedLinks(query))) {
-		await respond({ content: lang.p_not_allowed });
-		return;
+		return { ok: false, reason: "not_allowed" };
 	}
-
-	const requester =
-		interaction instanceof Message ? interaction.author : interaction.user;
 
 	let firstResult: SearchResult | undefined;
 	let player: Player | undefined;
@@ -854,8 +874,7 @@ export async function handleMusicPlay({
 		);
 
 		if (!res || res.tracks.length === 0) {
-			await respond({ embeds: [buildNoResultEmbed(lang)] });
-			return;
+			return { ok: false, reason: "no_result" };
 		}
 
 		res.tracks.forEach((track) => {
@@ -865,11 +884,11 @@ export async function handleMusicPlay({
 		if (!player) {
 			currentNode = node;
 			player = client.player.createPlayer({
-				guildId: interaction.guildId as string,
+				guildId: guild.id,
 				node,
 				selfDeaf: true,
 				selfMute: false,
-				textChannelId: interaction.channelId,
+				textChannelId,
 				voiceChannelId: voiceChannel.id
 			});
 
@@ -893,23 +912,43 @@ export async function handleMusicPlay({
 			await player.play();
 		}
 
-		await sendQueueAddMessage(
-			interaction,
-			lang,
-			player,
+		await announceQueueAdd(
 			client,
-			res.tracks[0]
+			lang,
+			guild,
+			player,
+			res.tracks[0],
+			sourceChannelId
 		);
 
 		firstResult ??= res;
 	}
 
 	if (!player || !firstResult) {
-		return;
+		return { ok: false, reason: "no_result" };
 	}
+	return { ok: true, player, firstResult };
+}
 
-	// The reply is the live now playing panel. When the requested track was
-	// queued behind another one, the panel shows what plays now plus a note.
+// After a successful play: the live now playing panel (sent with `send`)
+// and the music history entries.
+export async function announceMusicPlay({
+	client,
+	lang,
+	player,
+	firstResult,
+	requester,
+	send
+}: {
+	client: Client;
+	lang: LanguageData;
+	player: Player;
+	firstResult: SearchResult;
+	requester: User;
+	send: (payload: NowPlayingPayload) => Promise<Message>;
+}): Promise<void> {
+	// When the requested track was queued behind another one, the panel
+	// shows what plays now plus a note.
 	const firstTrack = firstResult.tracks[0];
 	const notes: string[] = [];
 	const current = player.queue.current;
@@ -941,10 +980,19 @@ export async function handleMusicPlay({
 		client,
 		lang,
 		guildId: player.guildId,
-		send: respond,
+		send,
 		notes
 	});
 
+	await recordMusicPlay(client, player, firstResult);
+}
+
+// The music history entries of a play (/music history, dashboard).
+export async function recordMusicPlay(
+	client: Client,
+	player: Player,
+	firstResult: SearchResult
+): Promise<void> {
 	await client.db.push(
 		`${player.guildId}.MUSIC_HISTORY.buffer`,
 		`[${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}: PLAYED]: { ${firstResult.tracks[0].requester} - ${firstResult.tracks[0].info.title as string} | ${firstResult.tracks[0].info.uri} } by ${firstResult.tracks[0].requester}`
@@ -954,4 +1002,75 @@ export async function handleMusicPlay({
 		`${player.guildId}.MUSIC_HISTORY.embed`,
 		`${time(new Date(), "R")}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
 	);
+}
+
+export async function handleMusicPlay({
+	client,
+	interaction,
+	lang,
+	queries,
+	respond
+}: HandleMusicPlayOptions): Promise<void> {
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	) {
+		return;
+	}
+
+	const requester =
+		interaction instanceof Message ? interaction.author : interaction.user;
+
+	const result = await enqueueMusicQueries({
+		client,
+		lang,
+		guild: interaction.guild,
+		member: interaction.member as GuildMember,
+		requester,
+		queries,
+		textChannelId: interaction.channelId,
+		sourceChannelId: interaction.channelId
+	});
+
+	if (!result.ok) {
+		switch (result.reason) {
+			case "not_in_voice":
+				await respond({ content: lang.p_not_in_voice_channel });
+				return;
+			case "h247_refused":
+				await respond({
+					content: lang.h247_play_refused.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+				return;
+			case "music_cannot":
+				await respond({
+					content: lang.music_cannot.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+				return;
+			case "not_allowed":
+				await respond({ content: lang.p_not_allowed });
+				return;
+			case "no_result":
+				await respond({ embeds: [buildNoResultEmbed(lang)] });
+				return;
+		}
+	}
+
+	// The reply is the live now playing panel.
+	await announceMusicPlay({
+		client,
+		lang,
+		player: result.player,
+		firstResult: result.firstResult,
+		requester,
+		send: respond
+	});
 }

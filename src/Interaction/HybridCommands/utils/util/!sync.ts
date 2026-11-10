@@ -34,6 +34,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../../core/modules/uiCard.js";
+import { syncCategory } from "../../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -57,16 +58,7 @@ export const subCommand: SubCommand = {
 			0
 		)) as CategoryChannel | null;
 
-		const child_channels = category?.children.cache.values()!;
-
-		const changes: string[] = [];
-
-		for (const child of child_channels) {
-			if (!child.permissionsLocked) {
-				await child.lockPermissions();
-				changes.push(child.id);
-			}
-		}
+		const changes: string[] = category ? await syncCategory(category) : [];
 
 		await sendCard(
 			client,

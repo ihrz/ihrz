@@ -20,18 +20,16 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
+
 import { LanguageData } from "../../../../types/languageData.js";
 import logger from "../../../core/logger.js";
-
 import { SubCommand } from "../../../../types/command.js";
-import { crossfadeSkip } from "../../../core/modules/musicCrossfadeSkip.js";
+import { skipMusic } from "../../../core/modules/musicControls.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,79 +47,40 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (!(interaction.member as GuildMember).voice.channel) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.skip_not_in_voice_channel.replace(
-					"${emoji_Warning_Icon}",
-					client.iHorizon_Emojis.Warning_Icon
-				)
-			});
-			return;
-		}
-
-		// Check if the member is in the same voice channel as the bot
-		if (
-			(interaction.member as GuildMember).voice.channelId !==
-			interaction.guild.members.me?.voice.channelId
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
 		try {
-			const voiceChannel = (interaction.member as GuildMember).voice
-				.channel;
-			const player = client.player.getPlayer(
-				interaction.guildId as string
+			const result = await skipMusic(
+				client,
+				interaction.member as GuildMember,
+				lang,
+				interaction.channelId
 			);
-			const oldName = player?.queue.current?.info.title;
-			const channel = interaction.guild.channels.cache.get(
-				player?.textChannelId as string
-			);
-
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.skip_nothing_playing
-				});
+			if (!result.ok) {
+				const content = {
+					not_in_voice: lang.skip_not_in_voice_channel.replace(
+						"${emoji_Warning_Icon}",
+						client.iHorizon_Emojis.Warning_Icon
+					),
+					nothing_playing: lang.skip_nothing_playing,
+					not_same_channel: lang.music_cannot.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
+					not_enough_tracks: null
+				}[result.reason];
+				if (content) {
+					await client.func.method.interactionSend(interaction, {
+						content
+					});
+				}
 				return;
-			}
-
-			if (player.queue.tracks.length >= 1) {
-				await crossfadeSkip(player);
-			} else {
-				player.stopPlaying();
-			}
-
-			if (interaction.channelId !== channel?.id) {
-				(channel as BaseGuildTextChannel).send({
-					embeds: [
-						new EmbedBuilder()
-							.setColor(2829617)
-							.setDescription(
-								lang.event_mp_playerSkip
-									.replace(
-										"${emoji_Music_Icon}",
-										client.iHorizon_Emojis.Music_Icon
-									)
-									.replace("${trackTitle}", oldName as string)
-							)
-					]
-				});
 			}
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.skip_command_work.replace(
 					"{queue}",
-					player.queue.current?.info.title as string
+					result.next as string
 				)
 			});
-
-			return;
 		} catch (error) {
 			logger.err(error);
 		}

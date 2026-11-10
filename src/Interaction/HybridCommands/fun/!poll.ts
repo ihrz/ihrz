@@ -24,11 +24,11 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
-	ACCENT,
-	botSignature,
-	buildCard,
-	sendCard
-} from "../../../core/modules/uiCard.js";
+	addPollVotes,
+	buildPollCard,
+	isFunDisabled
+} from "../../../core/modules/communityMessages.js";
+import { sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -37,10 +37,7 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
+		if (await isFunDisabled(client, interaction.guildId)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.fun_category_disable
 			});
@@ -53,32 +50,19 @@ export const subCommand: SubCommand = {
 				? interaction.user
 				: interaction.author;
 
-		// The reactions are the votes; they work on a Components V2 message too.
 		const msg = await sendCard(
 			client,
 			interaction,
-			buildCard({
-				accent: ACCENT.info,
-				emoji: client.iHorizon_Emojis.Thinking,
-				title: lang.poll_card_title.replace(
-					"${author}",
-					user.globalName || user.username
-				),
-				description: `**${pollMessage}**`,
-				blocks: [
-					lang.poll_card_vote
-						.replace("${yes}", client.iHorizon_Emojis.Yes)
-						.replace("${no}", client.iHorizon_Emojis.No)
-				],
-				images: [
-					"https://www.ihorizon.org/assets/img/poll_embed_image.gif"
-				],
-				signature: await botSignature(client, interaction.guildId)
-			})
+			await buildPollCard(
+				client,
+				lang,
+				interaction.guildId,
+				user,
+				pollMessage!
+			)
 		);
 
-		await msg.react(client.iHorizon_Emojis.Yes);
-		await msg.react(client.iHorizon_Emojis.No);
+		await addPollVotes(client, msg);
 
 		return;
 	}

@@ -406,7 +406,7 @@ declare namespace Client_Functions {
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
-		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		interaction: { guild?: Guild | null },
 		embed: { title: string; description: string }
 	): Promise<void>;
 

@@ -20,6 +20,8 @@
 */
 
 import { Guild } from "discord.js";
+import { axios } from "./axios.js";
+import { metasTable } from "../../Events/client/ready.js";
 
 // https://discord.com/developers/docs/resources/guild#modify-current-member
 export const GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL =
@@ -132,4 +134,31 @@ export async function applyLanguageBio(
 			.replace("{wink_emoji}", client.iHorizon_Emojis.Wink)
 			.replace("{home_emoji}", client.iHorizon_Emojis.Home)
 	);
+}
+
+// /custom bio refuses 400 characters and more.
+export const MAX_CUSTOM_BIO_LENGTH = 399;
+
+// /custom bio reset: the bot's own profile description.
+export async function resetGuildBotBio(guild: Guild): Promise<boolean> {
+	return changeGuildBotBio(
+		guild,
+		((await metasTable.get("BOT.user.bio")) as string | null) ||
+			client.user!.username
+	);
+}
+
+// /custom banner: the image goes as a data URI, like the commands send it.
+export function bannerDataUri(image: Buffer): string {
+	return `data:image/jpeg;base64,${image.toString("base64")}`;
+}
+
+// /custom banner reset: the banner of the bot's profile.
+export async function resetGuildBotBanner(guild: Guild): Promise<boolean> {
+	const fileBuffer = (
+		await axios.get(client.func.retrieveMyself.retrieveBanner(), {
+			responseType: "arrayBuffer"
+		})
+	).data;
+	return changeGuildBotBanner(guild, bannerDataUri(Buffer.from(fileBuffer)));
 }

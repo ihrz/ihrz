@@ -211,3 +211,32 @@ export function reorderedPositions(
 			: [{ role, position: slots[index] }]
 	);
 }
+
+export interface BackupScheduleRecord {
+	ownerId: string;
+	every: number;
+	unit: BackupScheduleUnit;
+	components: string[];
+	nextRunAt: number;
+	lastRunAt?: number | null;
+	lastError?: "limit" | "failed" | null;
+}
+
+/** What /backup schedule saves: the next run counts from now. */
+export function buildSchedule(
+	ownerId: string,
+	frequency: BackupFrequency,
+	components: readonly string[],
+	previous: Pick<BackupScheduleRecord, "lastRunAt"> | null,
+	now: number = Date.now()
+): BackupScheduleRecord {
+	return {
+		ownerId,
+		every: frequency.every,
+		unit: frequency.unit,
+		components: normalizeComponents(components),
+		nextRunAt: computeNextRun(now, frequency),
+		lastRunAt: previous?.lastRunAt ?? null,
+		lastError: null
+	};
+}

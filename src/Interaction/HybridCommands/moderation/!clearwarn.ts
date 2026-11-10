@@ -28,7 +28,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { clearWarns } from "../../../core/modules/moderationOps.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -51,12 +51,11 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const member = opts.member("member", 0) as GuildMember | null;
 
-		const allWarns: DatabaseStructure.WarnsData[] | null =
-			await client.db.get(
-				`${interaction.guildId}.USER.${member?.id}.WARNS`
-			);
+		const result = member
+			? await clearWarns(interaction.guild, member.id)
+			: ({ ok: false, code: "no_warns" } as const);
 
-		if (!allWarns || allWarns.length === 0) {
+		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
@@ -65,16 +64,11 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		// delete all warns
-		await client.db.delete(
-			`${interaction.guildId}.USER.${member?.id}.WARNS`
-		);
-
 		await client.func.method.interactionSend(interaction, {
 			content: lang.clearwarn_command_ok
 				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
 				.replace("${member}", member?.toString()!)
-				.replace("${allWarnCount}", allWarns.length.toString())
+				.replace("${allWarnCount}", result.count.toString())
 				.replace("${author}", interaction.member.toString())
 		});
 

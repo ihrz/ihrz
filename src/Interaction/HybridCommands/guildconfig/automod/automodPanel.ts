@@ -49,23 +49,18 @@ import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import logger from "../../../../core/logger.js";
 import {
 	type AutomodRuleKey,
+	type AutomodRuleState,
 	DEFAULT_MENTION_LIMIT,
-	enableNativeRule,
-	fetchNativeRules,
-	resolveRuleSettings,
-	ruleActions,
-	RULE_ORDER
+	disableAutomodRule,
+	enableAutomodRule,
+	loadAutomodState,
+	RULE_ORDER,
+	saveAutomodBypass,
+	saveAutomodLogs
 } from "../../../../core/modules/automodRules.js";
 
 const COLLECTOR_TIMEOUT = 800_000;
 const PANEL_ACCENT_COLOR = 0x5865f2;
-interface AutomodRuleState {
-	ruleId: string | null;
-	enabled: boolean;
-	bypassRoles: string[];
-	logsChannel: string | null;
-	mentionLimit: number | null;
-}
 
 interface AutomodPanelState {
 	rule: AutomodRuleKey | null;
@@ -180,54 +175,26 @@ export async function openAutomodPanel(
 			: lang.var_none;
 	}
 
-	function buildRuleState(
-		key: AutomodRuleKey,
-		rule: AutoModerationRule | undefined
-	): AutomodRuleState {
-		return {
-			ruleId: rule?.id ?? null,
-			enabled: rule?.enabled ?? false,
-			...resolveRuleSettings(guild, rule, storedPanel?.[key])
-		};
-	}
-
 	async function loadPanelState(): Promise<void> {
-		nativeRules = await fetchNativeRules(guild);
-
-		storedPanel =
-			((await client.db.get(
-				`${guildId}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL`
-			)) as DatabaseStructure.AutomodPanelSchema | null) ?? {};
-
-		for (const key of RULE_ORDER) {
-			state.rules[key] = buildRuleState(key, nativeRules[key]);
-		}
-	}
-
-	async function syncLegacyDb(
-		key: AutomodRuleKey,
-		enable: boolean
-	): Promise<void> {
-		// The dashboard reads these. "media" is a boolean, the rest "on" / "off".
-		await client.db.set(
-			`${guildId}.GUILD.GUILD_CONFIG.${key}`,
-			key === "media" ? enable : enable ? "on" : "off"
-		);
+		const loaded = await loadAutomodState(guild, client.db);
+		nativeRules = loaded.native;
+		storedPanel = loaded.stored;
+		state.rules = loaded.rules;
 	}
 
 	async function enableRule(key: AutomodRuleKey): Promise<void> {
-		await enableNativeRule(guild, key, nativeRules[key], state.rules[key]);
-
-		await syncLegacyDb(key, true);
+		await enableAutomodRule(
+			guild,
+			client.db,
+			key,
+			nativeRules[key],
+			state.rules[key]
+		);
 		await loadPanelState();
 	}
 
 	async function disableRule(key: AutomodRuleKey): Promise<void> {
-		const existing = nativeRules[key];
-
-		if (existing) await existing.setEnabled(false);
-
-		await syncLegacyDb(key, false);
+		await disableAutomodRule(guild, client.db, key, nativeRules[key]);
 		await loadPanelState();
 	}
 
@@ -489,15 +456,16 @@ export async function openAutomodPanel(
 
 		await source.deferUpdate().catch(() => null);
 
-		await client.db.set(
-			`${guildId}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL.${key}.bypassRoles`,
-			roleIds
-		);
 		state.rules[key].bypassRoles = roleIds;
 
 		try {
-			const existing = nativeRules[key];
-			if (existing) await existing.edit({ exemptRoles: roleIds });
+			await saveAutomodBypass(
+				guild,
+				client.db,
+				key,
+				roleIds,
+				nativeRules[key]
+			);
 		} catch (error) {
 			logger.err(error);
 			await feedback(source, apiErrorMessage());
@@ -523,24 +491,15 @@ export async function openAutomodPanel(
 
 		state.rules[key].logsChannel = channelId;
 
-		if (channelId) {
-			await client.db.set(
-				`${guildId}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL.${key}.logsChannel`,
-				channelId
-			);
-		} else {
-			await client.db.delete(
-				`${guildId}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL.${key}.logsChannel`
-			);
-		}
-
 		try {
-			const existing = nativeRules[key];
-			if (existing && state.rules[key].enabled) {
-				await existing.edit({
-					actions: ruleActions(state.rules[key].logsChannel)
-				});
-			}
+			await saveAutomodLogs(
+				guild,
+				client.db,
+				key,
+				channelId,
+				nativeRules[key],
+				state.rules[key].enabled
+			);
 		} catch (error) {
 			logger.err(error);
 			await feedback(source, apiErrorMessage());

@@ -28,9 +28,13 @@ import {
 import JSZip from "jszip";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	createGuildEmoji,
+	emojiNameTaken,
+	MAX_EMOJI_BYTES
+} from "../../../../core/modules/emojiImport.js";
 
 const MAX_ZIP_BYTES = 8 * 1024 * 1024;
-const MAX_EMOJI_BYTES = 256 * 1024;
 const MAX_EMOJIS = 50;
 
 async function readCapped(
@@ -162,12 +166,7 @@ export const subCommand: SubCommand = {
 					.replace(/[^\w\s]/g, "")
 					.slice(0, 32);
 
-				if (
-					interaction.guild!.emojis.cache.some(
-						(emoji) => emoji.name === emojiName
-					)
-				)
-					return false;
+				if (emojiNameTaken(interaction.guild!, emojiName)) return false;
 				emojis.push([emojiName, file]);
 				return true;
 			});
@@ -182,12 +181,11 @@ export const subCommand: SubCommand = {
 				);
 				if (!fileBuffer) continue;
 
-				const emoji = await interaction
-					.guild!.emojis.create({
-						name: emojiName,
-						attachment: fileBuffer
-					})
-					.catch(() => null);
+				const emoji = await createGuildEmoji(
+					interaction.guild!,
+					emojiName,
+					fileBuffer
+				);
 				if (emoji) createdEmojis.push(emoji);
 			}
 

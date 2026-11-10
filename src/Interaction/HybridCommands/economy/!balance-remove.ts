@@ -30,6 +30,10 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	editMemberMoney,
+	isEconomyDisabled
+} from "../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -47,10 +51,7 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
+		if (await isEconomyDisabled(client, interaction.guild.id)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
 					"${authorId}",
@@ -64,12 +65,12 @@ export const subCommand: SubCommand = {
 		const amount = opts.number("amount", 0) as number;
 		const user = opts.member("member", 0) as GuildMember;
 
-		await client.db.sub(
-			`${interaction.guildId}.USER.${user.id}.ECONOMY.money`,
-			amount!
-		);
-		const bal = await client.db.get(
-			`${interaction.guildId}.USER.${user.id}.ECONOMY.money`
+		const bal = await editMemberMoney(
+			client,
+			interaction.guild.id,
+			user.id,
+			"remove",
+			amount
 		);
 
 		const embed = new EmbedBuilder()

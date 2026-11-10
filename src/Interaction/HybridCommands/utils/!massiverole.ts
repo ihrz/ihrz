@@ -19,16 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	Role,
-	Guild,
-	Message
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, Role, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
-import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -38,6 +31,11 @@ import {
 	notice,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import {
+	MASSROLE_MAX_MEMBERS,
+	massRolePlan,
+	massRoleRun
+} from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -63,16 +61,16 @@ export const subCommand: SubCommand = {
 		let s: number = 0;
 		let e: number = 0;
 
-		if ((interaction.guild as Guild).memberCount >= 10000) {
+		const emojis = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+		const author = interaction.member;
+
+		if (guild.memberCount >= MASSROLE_MAX_MEMBERS) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.massiverole_too_much_member
 			});
 			return;
 		}
-
-		const emojis = client.iHorizon_Emojis;
-		const guild = interaction.guild;
-		const author = interaction.member;
 
 		if (role) {
 			const refusedReason =
@@ -149,22 +147,12 @@ export const subCommand: SubCommand = {
 		if (action === "add" || action === "sub") {
 			const adding = action === "add";
 			try {
-				const members = await guild.members.fetch();
-				const authorIsOwner = guild.ownerId === author.id;
-				const membersToProcess = Array.from(members.values()).filter(
-					(member) =>
-						member.roles.cache.has(role?.id!) !== adding &&
-						// A role is never removed from someone ranked at or
-						// above the author.
-						(adding ||
-							authorIsOwner ||
-							(member.id !== guild.ownerId &&
-								member.roles.highest.position <
-									author.roles.highest.position))
-				);
+				const plan = await massRolePlan(author, role as Role, adding);
+				if (!plan.ok) throw new Error(plan.code);
+				const membersToProcess = plan.members;
 
 				// Members that already have the role (add) or never had it (sub)
-				s = members.size - membersToProcess.length;
+				s = plan.skipped;
 
 				await ogInteraction.edit({
 					components: [
@@ -182,33 +170,15 @@ export const subCommand: SubCommand = {
 				});
 
 				// Process in batches asynchronously
-				processBatchAsync(
-					membersToProcess,
-					async (member) => {
-						try {
-							if (adding) {
-								await member.roles.add(
-									role as Role,
-									"[Massrole] Module"
-								);
-							} else {
-								await member.roles.remove(
-									role as Role,
-									"[MassiveRole] Command"
-								);
-							}
-							a++;
-							return true;
-						} catch {
-							e++;
-							return false;
+				setImmediate(() =>
+					massRoleRun(membersToProcess, role as Role, adding).then(
+						async (r) => {
+							a = r.changed;
+							e = r.failed;
+							// Send final result when processing is complete
+							await showResult(adding);
 						}
-					},
-					{ batchSize: 10, delay: 150 },
-					async () => {
-						// Send final result when processing is complete
-						await showResult(adding);
-					}
+					)
 				);
 				return;
 			} catch (error) {}

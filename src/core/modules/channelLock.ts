@@ -24,6 +24,7 @@ import {
 	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
+	Guild,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -43,6 +44,85 @@ function resolveRole(
 		return interaction.options.getRole("role");
 	}
 	return client.func.method.role(interaction, args!, 0);
+}
+
+/**
+ * The overwrite /lock and /unlock set for `targetId` (a role, @everyone by
+ * default). Shared with the dashboard actions.
+ */
+export function applyChannelLock(
+	channel: BaseGuildTextChannel,
+	targetId: string,
+	mode: "lock" | "unlock"
+) {
+	return channel.permissionOverwrites.edit(
+		targetId,
+		mode === "lock"
+			? { SendMessages: false, Connect: false }
+			: { SendMessages: null, Connect: null }
+	);
+}
+
+export function sendChannelLockLog(
+	guild: Guild,
+	lang: LanguageData,
+	mode: "lock" | "unlock",
+	authorId: string,
+	channelId: string
+) {
+	return guild.client.func.ihorizon_logs(
+		{ guild },
+		mode === "lock"
+			? {
+					title: lang.lock_logs_embed_title,
+					description: lang.lock_logs_embed_description
+						.replaceAll("${authorId}", authorId)
+						.replaceAll("${channelId}", channelId)
+				}
+			: {
+					title: lang.unlock_logs_embed_title,
+					description: lang.unlock_logs_embed_description
+						.replaceAll("${authorId}", authorId)
+						.replaceAll("${channelId}", channelId)
+				}
+	);
+}
+
+/**
+ * /lock-all and /unlock-all: SendMessages on every text channel (edits not
+ * awaited), then the log. Returns how many channels were touched.
+ */
+export async function applyAllChannelsLock(
+	guild: Guild,
+	lang: LanguageData,
+	targetId: string,
+	mode: "lock" | "unlock",
+	authorId: string
+): Promise<number> {
+	const locking = mode === "lock";
+	let count = 0;
+	guild.channels.cache.forEach((c) => {
+		if (c.type === ChannelType.GuildText) {
+			count++;
+			c.permissionOverwrites
+				.create(targetId, { SendMessages: !locking })
+				.catch(() => {});
+		}
+	});
+
+	await guild.client.func.ihorizon_logs(
+		{ guild },
+		{
+			title: locking
+				? lang.lockall_logs_embed_title
+				: lang.unlockall_logs_embed_title,
+			description: (locking
+				? lang.lockall_logs_embed_description
+				: lang.unlockall_logs_embed_description
+			).replaceAll("${authorId}", authorId)
+		}
+	);
+	return count;
 }
 
 /**
@@ -85,11 +165,7 @@ export async function setChannelLock(
 	const targetId = role?.id || interaction.guild.roles.everyone.id;
 
 	if (mode === "lock") {
-		channel.permissionOverwrites
-			.edit(targetId, {
-				SendMessages: false,
-				Connect: false
-			})
+		applyChannelLock(channel, targetId, "lock")
 			.then(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.lock_embed_message_description.replaceAll(
@@ -100,25 +176,24 @@ export async function setChannelLock(
 			})
 			.catch(() => {});
 
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.lock_logs_embed_title,
-			description: lang.lock_logs_embed_description
-				.replaceAll("${authorId}", interaction.member.user.id)
-				.replaceAll("${channelId}", interaction.channel.id as string)
-		});
+		await sendChannelLockLog(
+			interaction.guild,
+			lang,
+			"lock",
+			interaction.member.user.id,
+			interaction.channel.id as string
+		);
 		return;
 	}
 
-	await channel.permissionOverwrites.edit(targetId, {
-		SendMessages: null,
-		Connect: null
-	});
-	await client.func.ihorizon_logs(interaction, {
-		title: lang.unlock_logs_embed_title,
-		description: lang.unlock_logs_embed_description
-			.replaceAll("${authorId}", interaction.member.user.id)
-			.replaceAll("${channelId}", interaction.channel.id)
-	});
+	await applyChannelLock(channel, targetId, "unlock");
+	await sendChannelLockLog(
+		interaction.guild,
+		lang,
+		"unlock",
+		interaction.member.user.id,
+		interaction.channel.id
+	);
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unlock_embed_message_description
@@ -148,24 +223,13 @@ export async function setAllChannelsLock(
 	const role = resolveRole(client, interaction, args);
 	const locking = mode === "lock";
 
-	interaction.guild.channels.cache.forEach((c) => {
-		if (c.type === ChannelType.GuildText) {
-			c.permissionOverwrites.create(
-				role?.id || interaction.guild?.roles.everyone.id!,
-				{ SendMessages: !locking }
-			);
-		}
-	});
-
-	await client.func.ihorizon_logs(interaction, {
-		title: locking
-			? lang.lockall_logs_embed_title
-			: lang.unlockall_logs_embed_title,
-		description: (locking
-			? lang.lockall_logs_embed_description
-			: lang.unlockall_logs_embed_description
-		).replaceAll("${authorId}", interaction.member.user.id)
-	});
+	await applyAllChannelsLock(
+		interaction.guild,
+		lang,
+		role?.id || interaction.guild.roles.everyone.id,
+		mode,
+		interaction.member.user.id
+	);
 
 	await client.func.method.interactionSend(interaction, {
 		content: (locking

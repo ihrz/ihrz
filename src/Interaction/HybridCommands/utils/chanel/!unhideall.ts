@@ -19,16 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import { setAllChannelsHidden } from "../../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,52 +47,21 @@ export const subCommand: SubCommand = {
 
 		let role_to_edit = role?.id || interaction.guild.id;
 
+		await client.func.method.interactionSend(interaction, {
+			content: lang.channel_unhideall_in_progress
+		});
+
 		try {
-			const allChannels = await interaction.guild.channels.fetch();
-			let unhiddenCount = 0;
-			let errorCount = 0;
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.channel_unhideall_in_progress
-			});
-
-			for (const [_channelId, channel] of allChannels) {
-				if (!channel || channel.type !== 0) continue;
-
-				const textChannel = channel as BaseGuildTextChannel;
-
-				try {
-					if (!textChannel.manageable) {
-						errorCount++;
-						continue;
-					}
-
-					const everyoneOverwrite =
-						textChannel.permissionOverwrites.cache.get(
-							role_to_edit
-						);
-
-					if (
-						everyoneOverwrite &&
-						everyoneOverwrite.deny.has("ViewChannel")
-					) {
-						await textChannel.permissionOverwrites.edit(
-							role_to_edit,
-							{
-								ViewChannel: null
-							}
-						);
-						unhiddenCount++;
-					}
-				} catch (error) {
-					errorCount++;
-				}
-			}
+			const { changed, errors } = await setAllChannelsHidden(
+				interaction.guild,
+				role_to_edit,
+				false
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.channel_unhideall_success
-					.replace("{unhiddenCount}", unhiddenCount.toString())
-					.replace("{errorCount}", errorCount.toString())
+					.replace("{unhiddenCount}", changed.toString())
+					.replace("{errorCount}", errors.toString())
 			});
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {

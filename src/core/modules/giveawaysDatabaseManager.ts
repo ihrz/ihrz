@@ -22,7 +22,7 @@
 import { Giveaway } from "../../../types/giveaways.js";
 import { GiveawayEndedStatus } from "./giveawaysManager.js";
 import logger from "../logger.js";
-import { giveawaysTable } from "../../Events/client/ready.js";
+import { giveawaysTable } from "../database/tables.js";
 
 /** Entries without duplicates, first occurrence order kept. */
 export function dedupeEntries(entries: string[] | undefined): string[] {

@@ -28,8 +28,8 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import logger from "../../../core/logger.js";
-
 import { SubCommand } from "../../../../types/command.js";
+import { pauseMusic } from "../../../core/modules/musicControls.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -47,52 +47,37 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (!(interaction.member as GuildMember)?.voice.channel) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.pause_no_queue.replace(
-					"${emoji_Warning_Icon}",
-					client.iHorizon_Emojis.Warning_Icon
-				)
-			});
-			return;
-		}
-
 		try {
-			const voiceChannel = (interaction.member as GuildMember).voice
-				.channel;
-			const player = client.player.getPlayer(
-				interaction.guildId as string
+			const result = await pauseMusic(
+				client,
+				interaction.member as GuildMember
 			);
-
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.pause_nothing_playing
-				});
-				return;
-			}
-
-			// Check if the member is in the same voice channel as the bot
-			if (
-				(interaction.member as GuildMember).voice.channelId !==
-				interaction.guild.members.me?.voice.channelId
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.music_cannot.replace(
+			if (!result.ok) {
+				const content = {
+					not_in_voice: lang.pause_no_queue.replace(
+						"${emoji_Warning_Icon}",
+						client.iHorizon_Emojis.Warning_Icon
+					),
+					nothing_playing: lang.pause_nothing_playing,
+					not_same_channel: lang.music_cannot.replace(
 						"${emoji_No}",
 						client.iHorizon_Emojis.No
-					)
-				});
+					),
+					not_enough_tracks: null
+				}[result.reason];
+				if (content) {
+					await client.func.method.interactionSend(interaction, {
+						content
+					});
+				}
 				return;
 			}
 
-			player.pause();
-
 			await client.func.method.interactionSend(interaction, {
-				content: player.paused
+				content: result.paused
 					? lang.pause_var_paused
 					: lang.pause_var_err
 			});
-			return;
 		} catch (error) {
 			logger.err(error);
 		}

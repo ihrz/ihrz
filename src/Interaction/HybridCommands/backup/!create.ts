@@ -46,6 +46,7 @@ import {
 	canUseBackups,
 	componentsLine,
 	componentsSelect,
+	createBackupLogged,
 	isAuthor,
 	showCard
 } from "../../../core/modules/backupPanels.js";
@@ -188,10 +189,12 @@ export const subCommand: SubCommand = {
 			});
 
 			try {
-				const { data, count } = await client.backup.createForUser(
+				const { data, count } = await createBackupLogged(
+					client,
 					guild,
 					authorId,
-					selected
+					selected,
+					lang
 				);
 				await showCard(
 					message,
@@ -223,14 +226,6 @@ export const subCommand: SubCommand = {
 						signature
 					})
 				);
-				await client.func.ihorizon_logs(interaction, {
-					title: lang.backup_logs_embed_title_on_creation,
-					description:
-						lang.backup_logs_embed_description_on_creation.replace(
-							"${authorId}",
-							authorId
-						)
-				});
 			} catch (error) {
 				const text =
 					error instanceof BackupLimitError

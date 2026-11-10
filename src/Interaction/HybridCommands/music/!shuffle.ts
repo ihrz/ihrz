@@ -25,9 +25,11 @@ import {
 	GuildMember,
 	Message
 } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
 
+import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 import { SubCommand } from "../../../../types/command.js";
+import { shuffleMusic } from "../../../core/modules/musicControls.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -45,42 +47,34 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const voiceChannel = (interaction.member as GuildMember).voice.channel;
-		const player = client.player.getPlayer(interaction.guildId as string);
+		try {
+			const result = await shuffleMusic(
+				client,
+				interaction.member as GuildMember
+			);
+			if (!result.ok) {
+				const content = {
+					not_in_voice: lang.shuffle_no_queue,
+					nothing_playing: lang.shuffle_no_queue,
+					not_same_channel: lang.music_cannot.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
+					not_enough_tracks: lang.shuffle_no_enought
+				}[result.reason];
+				if (content) {
+					await client.func.method.interactionSend(interaction, {
+						content
+					});
+				}
+				return;
+			}
 
-		if (!player || !player.playing || !voiceChannel) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.shuffle_no_queue
+				content: lang.shuffle_command_work
 			});
-			return;
+		} catch (error) {
+			logger.err(error);
 		}
-
-		// Check if the member is in the same voice channel as the bot
-		if (
-			(interaction.member as GuildMember).voice.channelId !==
-			interaction.guild.members.me?.voice.channelId
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (player.queue.tracks.length < 2) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.shuffle_no_enought
-			});
-			return;
-		}
-
-		await player.queue.shuffle();
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.shuffle_command_work
-		});
-		return;
 	}
 };

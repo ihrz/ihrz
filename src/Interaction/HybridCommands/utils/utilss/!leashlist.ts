@@ -22,7 +22,11 @@
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import {
+	activeLeashes as filterActiveLeashes,
+	getLeashConfig,
+	getLeashes
+} from "../../../../core/modules/memberToolsManager.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import {
@@ -51,23 +55,12 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const baseData =
-			(await client.db.get(
-				`${interaction.guildId}.UTILS.LEASH_CONFIG`
-			)) ||
-			({
-				maxLeashedByUsers: 3,
-				maxLeashTime: client.timeCalculator.to_ms("30min")
-			} as DatabaseStructure.LeashConfig);
-		const fetchedData = ((await client.db.get(
-			`${interaction.guildId}.UTILS.LEASH`
-		)) || []) as DatabaseStructure.LeashData[];
-		const now = Date.now();
-		const maxLeashTime =
-			baseData.maxLeashTime ?? client.timeCalculator.to_ms("30min");
-		const activeLeashes = fetchedData.filter(
-			(leash) => now - leash.timestamp <= maxLeashTime
+		const { maxLeashTime } = await getLeashConfig(
+			client,
+			interaction.guild.id
 		);
+		const fetchedData = await getLeashes(client, interaction.guild.id);
+		const activeLeashes = filterActiveLeashes(fetchedData, maxLeashTime);
 
 		if (activeLeashes.length !== fetchedData.length) {
 			await client.db.set(

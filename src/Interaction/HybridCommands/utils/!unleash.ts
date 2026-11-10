@@ -23,7 +23,7 @@ import { Client, ChatInputCommandInteraction, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { releaseLeash } from "../../../core/modules/memberToolsManager.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -46,15 +46,14 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const user = opts.member("member", 0)!;
 
-		const fetchedData = ((await client.db.get(
-			`${interaction.guildId}.UTILS.LEASH`
-		)) || []) as DatabaseStructure.LeashData[];
-
-		const pairingToRemove = fetchedData?.find(
-			(x) => x.dom === interaction.member?.user.id && x.sub === user.id
+		const released = await releaseLeash(
+			client,
+			interaction.guild.id,
+			interaction.member.user.id,
+			user.id
 		);
 
-		if (!pairingToRemove) {
+		if (!released) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unleash_not_in_leash.replace(
 					"${emoji_No}",
@@ -63,15 +62,6 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-
-		const updatedData = fetchedData?.filter(
-			(x) => !(x.dom === interaction.member?.user.id && x.sub === user.id)
-		);
-
-		await client.db.set(
-			`${interaction.guildId}.UTILS.LEASH`,
-			Array.from(new Set(updatedData))
-		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_unleash_command_ok.replace(

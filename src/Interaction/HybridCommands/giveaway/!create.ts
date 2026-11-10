@@ -27,7 +27,10 @@ import {
 	Message
 } from "discord.js";
 
-import { axios } from "../../../core/functions/axios.js";
+import {
+	checkGiveawayOptions,
+	startGiveaway
+} from "../../../core/modules/giveawaysManager.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
@@ -62,83 +65,47 @@ export const subCommand: SubCommand = {
 				? (interaction.options.getString("image") as string)
 				: "";
 
-		if (
-			isNaN(giveawayNumberWinners as number) ||
-			parseInt(giveawayNumberWinners.toString()) <= 0
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.start_is_not_valid
-			});
-			return;
-		}
-
 		const giveawayDurationFormated = client.timeCalculator.to_ms(
 			giveawayDuration!
 		);
+		const requirement = {
+			type: giveawayRequirement,
+			value: giveawayRequirementValue
+		};
 
-		if (!giveawayDurationFormated) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.start_time_not_valid.replace(
-					"${author}",
-					interaction.member.user.toString()
-				)
-			});
+		const error = checkGiveawayOptions(client, interaction.guild, {
+			winnerCount: giveawayNumberWinners as number,
+			durationMs: giveawayDurationFormated,
+			requirement
+		});
+
+		if (error) {
+			const content =
+				error === "winners"
+					? lang.start_is_not_valid
+					: error === "duration"
+						? lang.start_time_not_valid.replace(
+								"${author}",
+								interaction.member.user.toString()
+							)
+						: (error === "invites"
+								? lang.start_invalid_invites_req_value
+								: error === "messages"
+									? lang.start_invalid_messages_req_value
+									: lang.start_invalid_roles_req_value
+							).replace("${emoji_No}", client.iHorizon_Emojis.No);
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
 
-		if (
-			giveawayRequirement === "invites" &&
-			!client.func.method.isNumber(giveawayRequirementValue || "")
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.start_invalid_invites_req_value.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		} else if (
-			giveawayRequirement === "messages" &&
-			!client.func.method.isNumber(giveawayRequirementValue || "")
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.start_invalid_messages_req_value.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		} else if (
-			giveawayRequirement === "roles" &&
-			!interaction.guild.roles.cache.has(giveawayRequirementValue || "")
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.start_invalid_roles_req_value.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		await client.giveawaysManager.create(
-			giveawayChannel as BaseGuildTextChannel,
-			{
-				duration: giveawayDurationFormated,
-				prize: (giveawayPrize || "")?.substring(0, 256),
-				winnerCount: giveawayNumberWinners as number,
-				hostedBy: interaction.member.user.id,
-				embedImageURL: (await client.func.mediaManipulation.isImageUrl(
-					imageUrl
-				))
-					? imageUrl
-					: null,
-				requirement: {
-					type: giveawayRequirement,
-					value: giveawayRequirementValue
-				}
-			}
-		);
+		await startGiveaway(client, giveawayChannel as BaseGuildTextChannel, {
+			winnerCount: giveawayNumberWinners as number,
+			durationMs: giveawayDurationFormated,
+			prize: giveawayPrize,
+			hostedBy: interaction.member.user.id,
+			imageUrl,
+			requirement
+		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.reroll_logs_embed_title,

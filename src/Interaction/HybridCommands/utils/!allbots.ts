@@ -33,6 +33,7 @@ import {
 	sendCard,
 	sendPaginatedCard
 } from "../../../core/modules/uiCard.js";
+import { guildBots } from "../../../core/modules/serverAudit.js";
 
 const PER_PAGE = 10;
 
@@ -53,9 +54,7 @@ export const subCommand: SubCommand = {
 
 		const guild = interaction.guild;
 		const e = client.iHorizon_Emojis;
-		const bots = [
-			...guild.members.cache.filter((m) => m.user.bot).values()
-		].sort((a, b) => (a.joinedTimestamp ?? 0) - (b.joinedTimestamp ?? 0));
+		const bots = guildBots(guild);
 
 		if (bots.length === 0) {
 			await sendCard(

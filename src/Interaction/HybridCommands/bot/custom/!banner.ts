@@ -24,6 +24,10 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { axios } from "../../../../core/functions/axios.js";
+import {
+	bannerDataUri,
+	resetGuildBotBanner
+} from "../../../../core/functions/customProfileHelper.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -50,28 +54,16 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_banner_reset
 			});
-			const fileBuffer = (
-				await axios.get(client.func.retrieveMyself.retrieveBanner(), {
-					responseType: "arrayBuffer"
-				})
-			).data;
-			const buffer = Buffer.from(fileBuffer);
-			const base64String = buffer.toString("base64");
-			await client.func.customProfileHelper.changeGuildBotBanner(
-				interaction.guild,
-				`data:image/jpeg;base64,${base64String}`
-			);
+			await resetGuildBotBanner(interaction.guild);
 
 			return;
 		} else if (banner && client.func.validImageType(banner.contentType)) {
 			const fileBuffer = (
 				await axios.get(banner.url!, { responseType: "arrayBuffer" })
 			).data;
-			const buffer = Buffer.from(fileBuffer);
-			const base64String = buffer.toString("base64");
 			await client.func.customProfileHelper.changeGuildBotBanner(
 				interaction.guild,
-				`data:image/jpeg;base64,${base64String}`
+				bannerDataUri(Buffer.from(fileBuffer))
 			);
 
 			const x = await client.func.bannerURL(

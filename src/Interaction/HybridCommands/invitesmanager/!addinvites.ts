@@ -29,6 +29,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
+import { editMemberInvites } from "../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -50,43 +51,13 @@ export const subCommand: SubCommand = {
 		const user = opts.member("member", 0) as GuildMember;
 		const amount = opts.number("amount", 1)!;
 
-		const check = await client.db.get(
-			`${interaction?.guild?.id}.USER.${user.id}.INVITES`
+		const total = await editMemberInvites(
+			client,
+			interaction.guild.id,
+			user.id,
+			"add",
+			amount
 		);
-
-		if (check) {
-			await client.db.add(
-				`${interaction.guildId}.USER.${user.id}.INVITES.invites`,
-				amount!
-			);
-			await client.db.add(
-				`${interaction.guildId}.USER.${user.id}.INVITES.bonus`,
-				amount!
-			);
-		} else {
-			await client.db.set(
-				`${interaction?.guild?.id}.USER.${user.id}.INVITES`,
-				{
-					regular: 0,
-					bonus: 0,
-					leaves: 0,
-					invites: 0
-				}
-			);
-			await client.db.add(
-				`${interaction.guildId}.USER.${user.id}.INVITES.invites`,
-				amount!
-			);
-			await client.db.add(
-				`${interaction.guildId}.USER.${user.id}.INVITES.bonus`,
-				amount!
-			);
-		}
-
-		const total =
-			(await client.db.get(
-				`${interaction.guildId}.USER.${user.id}.INVITES.invites`
-			)) || 0;
 
 		await sendCard(
 			client,

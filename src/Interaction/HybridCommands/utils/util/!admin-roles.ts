@@ -43,6 +43,7 @@ import {
 	pageLabel,
 	sendCard
 } from "../../../../core/modules/uiCard.js";
+import { adminRoles } from "../../../../core/modules/serverAudit.js";
 
 const PER_PAGE = 10;
 
@@ -70,13 +71,7 @@ export const subCommand: SubCommand = {
 
 		const guild = interaction.guild;
 		const e = client.iHorizon_Emojis;
-		const all_admin_roles = Array.from(
-			guild.roles.cache
-				.filter((x) =>
-					x.permissions.has(PermissionFlagsBits.Administrator)
-				)
-				.values()
-		).sort((a, b) => b.position - a.position);
+		const all_admin_roles = adminRoles(guild);
 
 		if (all_admin_roles.length == 0) {
 			await client.func.method.interactionSend(interaction, {

@@ -32,12 +32,15 @@ import {
 	Message,
 	ButtonInteraction,
 	ColorResolvable,
+	Guild,
 	GuildMember
 } from "discord.js";
 
 import {
+	Giveaway,
 	GiveawayCreateOptions,
 	GiveawayFetch,
+	GiveawayRequirementBody,
 	GiveawaysManagerOptions
 } from "../../../types/giveaways.js";
 import getLanguageData from "../functions/getLanguageData.js";
@@ -835,3 +838,78 @@ class GiveawayManager {
 	}
 }
 export { GiveawayManager };
+
+/** A giveaway of this guild, or null (unknown id, other guild). */
+export async function getGuildGiveaway(
+	client: Client,
+	guildId: string,
+	giveawayId: string
+): Promise<Giveaway | null> {
+	const giveaway = (await client.giveawaysManager
+		.getGiveawayData(giveawayId)
+		.catch(() => null)) as Giveaway | null;
+	return giveaway && giveaway.guildId === guildId ? giveaway : null;
+}
+
+export type GiveawayOptionError =
+	"winners" | "duration" | "invites" | "messages" | "roles";
+
+/** The checks of `/gw create`, in its order (the caller words the error). */
+export function checkGiveawayOptions(
+	client: Client,
+	guild: Guild,
+	options: {
+		winnerCount: number;
+		durationMs: number | null | undefined;
+		requirement: GiveawayRequirementBody;
+	}
+): GiveawayOptionError | null {
+	const { winnerCount, durationMs, requirement } = options;
+	if (isNaN(winnerCount) || parseInt(winnerCount.toString()) <= 0) {
+		return "winners";
+	}
+	if (!durationMs) return "duration";
+
+	const value = requirement.value || "";
+	if (requirement.type === "invites" && !client.func.method.isNumber(value)) {
+		return "invites";
+	}
+	if (
+		requirement.type === "messages" &&
+		!client.func.method.isNumber(value)
+	) {
+		return "messages";
+	}
+	if (requirement.type === "roles" && !guild.roles.cache.has(value)) {
+		return "roles";
+	}
+	return null;
+}
+
+/** Posts and saves a giveaway like `/gw create` (prize cut, image checked). */
+export async function startGiveaway(
+	client: Client,
+	channel: BaseGuildTextChannel,
+	options: {
+		winnerCount: number;
+		durationMs: number;
+		prize: string | null | undefined;
+		hostedBy: string;
+		imageUrl: string | null | undefined;
+		requirement: GiveawayRequirementBody;
+	}
+): Promise<Message> {
+	const imageUrl = options.imageUrl || "";
+	return client.giveawaysManager.create(channel, {
+		duration: options.durationMs,
+		prize: (options.prize || "").substring(0, 256),
+		winnerCount: options.winnerCount,
+		hostedBy: options.hostedBy,
+		embedImageURL: (await client.func.mediaManipulation.isImageUrl(
+			imageUrl
+		))
+			? imageUrl
+			: null,
+		requirement: options.requirement
+	});
+}

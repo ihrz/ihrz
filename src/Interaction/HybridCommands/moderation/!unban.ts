@@ -22,12 +22,12 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-	PermissionsBitField
+	GuildMember,
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
-import logger from "../../../core/logger.js";
+import { unbanUser } from "../../../core/modules/moderationOps.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -47,66 +47,31 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			!interaction.guild.members.me?.permissions.has([
-				PermissionsBitField.Flags.BanMembers
-			])
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unban_bot_dont_have_permission.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
 		const opts = client.func.method.options(interaction, args);
-		const userID = opts.string("userid", 0);
+		const userID = opts.string("userid", 0) as string;
 		let reason = opts.longString("reason", 1);
 
 		if (!reason) reason = lang.unban_reason;
 
-		await interaction.guild.bans
-			.fetch()
-			.then(async (bans) => {
-				if (bans.size == 0) {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_there_is_nobody_banned.replace(
-							"${emoji_No}",
-							client.iHorizon_Emojis.No
-						)
-					});
-					return;
-				}
-				const bannedID = bans.find((ban) => ban.user.id == userID);
-				if (!bannedID) {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_the_member_is_not_banned.replace(
-							"${emoji_No}",
-							client.iHorizon_Emojis.No
-						)
-					});
-					return;
-				}
+		const result = await unbanUser(
+			interaction.member as GuildMember,
+			userID,
+			reason,
+			lang
+		);
 
-				await interaction.guild?.bans
-					.remove(userID as string, reason as string)
-					.catch(() => {});
-				await client.func.method.interactionSend(interaction, {
-					content: lang.unban_is_now_unbanned.replaceAll(
-						"${userID}",
-						userID as string
-					)
-				});
-			})
-			.catch((err: string) => logger.err(err));
+		if (!result.ok) {
+			await client.func.method.interactionSend(interaction, {
+				content: (result.code === "bot_missing_permission"
+					? lang.unban_bot_dont_have_permission
+					: lang.unban_the_member_is_not_banned
+				).replace("${emoji_No}", client.iHorizon_Emojis.No)
+			});
+			return;
+		}
 
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.unban_logs_embed_title,
-			description: lang.unban_logs_embed_description
-				.replaceAll("${userID}", userID as string)
-				.replaceAll("${authorId}", interaction.member.user.id)
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unban_is_now_unbanned.replaceAll("${userID}", userID)
 		});
 	}
 };

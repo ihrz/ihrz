@@ -24,7 +24,10 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
-import { metasTable } from "../../../../Events/client/ready.js";
+import {
+	MAX_CUSTOM_BIO_LENGTH,
+	resetGuildBotBio
+} from "../../../../core/functions/customProfileHelper.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,13 +54,10 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_desc_reset
 			});
-			await client.func.customProfileHelper.changeGuildBotBio(
-				interaction.guild,
-				(await metasTable.get("BOT.user.bio")) || client.user.username
-			);
+			await resetGuildBotBio(interaction.guild);
 			return;
 		} else if (desc) {
-			if (desc.length >= 400)
+			if (desc.length > MAX_CUSTOM_BIO_LENGTH)
 				return await client.func.method.interactionSend(interaction, {
 					content:
 						lang.guildconfig_setbot_footername_footer_too_long_msg

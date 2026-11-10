@@ -29,6 +29,7 @@ import {
 	Message,
 	MessageComponentInteraction,
 	MessageFlags,
+	PermissionFlagsBits,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder
 } from "discord.js";
@@ -41,7 +42,10 @@ import {
 	frequencyKey
 } from "../backup/src/components.js";
 import type { BackupReport } from "../backup/src/load.js";
-import { cardPayload } from "./uiCard.js";
+import type { BackupData, BackupInfos } from "../backup/src/types/index.js";
+import { componentsOf } from "../backup/src/components.js";
+import { BackupBusyError } from "../backup/src/index.js";
+import { ACCENT, buildCard, cardPayload, notice } from "./uiCard.js";
 
 export const BACKUP_PANEL_TIMEOUT = 180_000;
 
@@ -210,4 +214,114 @@ export async function showCard(message: Message, card: ContainerBuilder) {
 			flags: [MessageFlags.IsComponentsV2]
 		} as never)
 		.catch(() => undefined);
+}
+
+/** Creates a backup for the author, then logs it like /backup create. */
+export async function createBackupLogged(
+	client: Client,
+	guild: Guild,
+	authorId: string,
+	components: readonly string[],
+	lang: LanguageData
+) {
+	const result = await client.backup.createForUser(
+		guild,
+		authorId,
+		components
+	);
+	await client.func.ihorizon_logs(
+		{ guild },
+		{
+			title: lang.backup_logs_embed_title_on_creation,
+			description: lang.backup_logs_embed_description_on_creation.replace(
+				"${authorId}",
+				authorId
+			)
+		}
+	);
+	return result;
+}
+
+export type BackupLoadRefusal =
+	"not_allowed" | "bot_not_admin" | "invalid_id" | "not_yours" | "missing";
+
+/** The checks of /backup load, before anything is shown or restored. */
+export async function prepareBackupLoad(
+	client: Client,
+	guild: Guild,
+	authorId: string,
+	backupID: string | null | undefined
+): Promise<
+	| { ok: true; backup: BackupInfos; available: BackupComponent[] }
+	| { ok: false; reason: BackupLoadRefusal }
+> {
+	if (!(await canUseBackups(client, guild, authorId))) {
+		return { ok: false, reason: "not_allowed" };
+	}
+	if (!guild.members.me?.permissions.has(PermissionFlagsBits.Administrator)) {
+		return { ok: false, reason: "bot_not_admin" };
+	}
+	if (!backupID) return { ok: false, reason: "invalid_id" };
+
+	const index = await client.backup.getUserBackups(authorId);
+	if (!Object.hasOwn(index, backupID)) {
+		return { ok: false, reason: "not_yours" };
+	}
+	const backup = await client.backup.fetchBackup(backupID).catch(() => null);
+	if (!backup) return { ok: false, reason: "missing" };
+
+	const available = componentsOf(backup.data);
+	if (!available.length) return { ok: false, reason: "missing" };
+	return { ok: true, backup, available };
+}
+
+/** The message of /backup load for each refusal. */
+export function backupLoadRefusalText(
+	lang: LanguageData,
+	reason: BackupLoadRefusal
+): string {
+	return {
+		not_allowed: lang.backup_manage_nique_tes_mort,
+		bot_not_admin: lang.backup_i_dont_have_perm_on_load,
+		invalid_id: lang.backup_unvalid_id_on_load,
+		not_yours: lang.backup_this_is_not_your_backup,
+		missing: lang.backup_backup_doesnt_exist
+	}[reason];
+}
+
+/** Restores the backup and returns the card that reports how it went. */
+export async function runBackupLoad(
+	client: Client,
+	lang: LanguageData,
+	guild: Guild,
+	backup: BackupData,
+	backupID: string,
+	selected: readonly BackupComponent[],
+	signature: string
+): Promise<ContainerBuilder> {
+	try {
+		const report = await client.backup.load(backup, guild, {
+			components: [...selected]
+		});
+		return buildCard({
+			accent: ACCENT.success,
+			emoji: client.iHorizon_Emojis.Backup_Done,
+			title: lang.backup_load_done_title,
+			description: lang.backup_load_done_desc.replace(
+				"${guildName}",
+				guild.name
+			),
+			blocks: [reportLines(client, lang, report)],
+			signature
+		});
+	} catch (error) {
+		if (error instanceof BackupBusyError) {
+			return notice("warning", lang.backup_busy);
+		}
+		logger.err(`Backup load failed: ${error}`);
+		return notice(
+			"danger",
+			lang.backup_error_on_load.replace("${backupID}", backupID)
+		);
+	}
 }

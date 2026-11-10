@@ -24,7 +24,10 @@ import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
-import { statusLabel } from "../../../../core/modules/suggestionManager.js";
+import {
+	statusLabel,
+	suggestionRows
+} from "../../../../core/modules/suggestionManager.js";
 
 const MAX_LISTED = 15;
 
@@ -48,17 +51,7 @@ export const subCommand: SubCommand = {
 			`${interaction.guildId}.SUGGESTION`
 		)) ?? {}) as DatabaseStructure.SuggestionData;
 
-		const rows = Object.entries(all)
-			.map(([code, data]) => {
-				const votes = Object.values(data.votes ?? {});
-				const up = votes.filter((vote) => vote === "up").length;
-				const down = votes.length - up;
-				return { code, data, up, down };
-			})
-			.filter(
-				({ data }) => !filter || (data.status ?? "pending") === filter
-			)
-			.sort((a, b) => b.up - b.down - (a.up - a.down));
+		const rows = suggestionRows(all, filter);
 
 		if (rows.length === 0) {
 			await interaction.editReply({ content: lang.suggest_list_empty });

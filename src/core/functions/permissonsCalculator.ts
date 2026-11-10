@@ -541,26 +541,34 @@ export function getPermissionByValue(
 	return key ? PERMISSION_MAPPING[key] : null;
 }
 
-export function getRefusedRoleReason(
+export type RoleRefusal =
+	| { code: "managed_or_everyone" }
+	| { code: "too_high_bot" }
+	| { code: "too_high_user" }
+	| { code: "missing_permissions"; missing: string[] };
+
+// Why `author` may not hand out / take away `role` (null: allowed). Shared
+// by the commands (localised through `getRefusedRoleReason`) and the
+// dashboard actions (English).
+export function getRoleRefusal(
 	role: Role,
-	author: GuildMember,
-	lang: LanguageData
-): string | null {
+	author: GuildMember
+): RoleRefusal | null {
 	const botMember = role.guild.members.me;
 
 	if (role.id === role.guild.id || role.managed) {
-		return lang.rolepanel_role_managed_or_everyone;
+		return { code: "managed_or_everyone" };
 	}
 
 	if (!botMember || botMember.roles.highest.position <= role.position) {
-		return lang.rolepanel_role_too_high_bot;
+		return { code: "too_high_bot" };
 	}
 
 	if (
 		role.guild.ownerId !== author.id &&
 		author.roles.highest.position <= role.position
 	) {
-		return lang.rolepanel_role_too_high_user;
+		return { code: "too_high_user" };
 	}
 
 	const authorPermissions = new PermissionsBitField(author.permissions);
@@ -572,14 +580,34 @@ export function getRefusedRoleReason(
 			.filter((permission) => !authorPermissions.has(permission));
 
 		if (missingPermissions.length > 0) {
-			return lang.rolepanel_role_missing_permissions.replace(
-				"${permissions}",
-				missingPermissions
-					.map((permission) => `\`${permission}\``)
-					.join(", ")
-			);
+			return { code: "missing_permissions", missing: missingPermissions };
 		}
 	}
 
 	return null;
+}
+
+export function getRefusedRoleReason(
+	role: Role,
+	author: GuildMember,
+	lang: LanguageData
+): string | null {
+	const refusal = getRoleRefusal(role, author);
+	switch (refusal?.code) {
+		case undefined:
+			return null;
+		case "managed_or_everyone":
+			return lang.rolepanel_role_managed_or_everyone;
+		case "too_high_bot":
+			return lang.rolepanel_role_too_high_bot;
+		case "too_high_user":
+			return lang.rolepanel_role_too_high_user;
+		case "missing_permissions":
+			return lang.rolepanel_role_missing_permissions.replace(
+				"${permissions}",
+				refusal.missing
+					.map((permission) => `\`${permission}\``)
+					.join(", ")
+			);
+	}
 }

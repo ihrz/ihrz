@@ -23,12 +23,10 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	GuildMember,
-	Message,
-	GuildMemberRoleManager
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
-import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -38,6 +36,7 @@ import {
 	notice,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { derankPlan, derankRun } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -70,34 +69,21 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (
-			(interaction.member.roles as GuildMemberRoleManager).highest
-				.position <= member.roles.highest.position &&
-			interaction.guild.ownerId !== interaction.member.user.id &&
-			interaction.guild.ownerId !== interaction.member.user.id
-		) {
+		const plan = derankPlan(interaction.member as GuildMember, member);
+
+		if (!plan.ok) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_delrole_highter_or_egal_roles_msg.replace(
-					"${emoji_Stop}",
-					client.iHorizon_Emojis.Stop
-				)
+				content:
+					plan.code === "target_above_author"
+						? lang.utils_delrole_highter_or_egal_roles_msg.replace(
+								"${emoji_Stop}",
+								client.iHorizon_Emojis.Stop
+							)
+						: lang.derank_no_role
 			});
 			return;
 		}
-
-		const rolesToRemove = Array.from(member.roles.cache.values()).filter(
-			(role) => role.id !== role.guild.roles.everyone.id
-		);
-
-		let good = 0;
-		let bad = 0;
-
-		if (rolesToRemove.length === 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.derank_no_role
-			});
-			return;
-		}
+		const rolesToRemove = plan.roles;
 
 		// Send immediate response
 		await sendCard(
@@ -112,59 +98,49 @@ export const subCommand: SubCommand = {
 		);
 
 		// Process role removal in batches asynchronously
-		processBatchAsync(
-			rolesToRemove,
-			async (role) => {
-				try {
-					await member.roles.remove(role.id, "[Derank] Module");
-					good++;
-					return true;
-				} catch {
-					bad++;
-					return false;
+		setImmediate(() =>
+			derankRun(member, rolesToRemove).then(
+				async ({ removed: good, failed: bad }) => {
+					// Send final result when processing is complete
+					const emojis = client.iHorizon_Emojis;
+					await sendCard(
+						client,
+						interaction,
+						buildCard({
+							accent: bad > 0 ? ACCENT.warning : ACCENT.success,
+							emoji: emojis.Minus,
+							title: lang.derank_card_title,
+							thumbnail: member.displayAvatarURL({ size: 256 }),
+							fields: [
+								{
+									emoji: emojis.Ticket_User,
+									label: lang.utils_label_member,
+									value: member.toString()
+								},
+								{
+									emoji: emojis.Yes,
+									label: lang.derank_label_removed,
+									value: `\`${good}\``
+								},
+								bad > 0 && {
+									emoji: emojis.No,
+									label: lang.utils_label_failed,
+									value: `\`${bad}\``
+								},
+								{
+									emoji: emojis.Crown,
+									label: lang.utils_label_by,
+									value: interaction.member!.toString()
+								}
+							],
+							signature: await botSignature(
+								client,
+								interaction.guildId
+							)
+						})
+					);
 				}
-			},
-			{ batchSize: 5, delay: 100 },
-			async (result) => {
-				// Send final result when processing is complete
-				const emojis = client.iHorizon_Emojis;
-				await sendCard(
-					client,
-					interaction,
-					buildCard({
-						accent: bad > 0 ? ACCENT.warning : ACCENT.success,
-						emoji: emojis.Minus,
-						title: lang.derank_card_title,
-						thumbnail: member.displayAvatarURL({ size: 256 }),
-						fields: [
-							{
-								emoji: emojis.Ticket_User,
-								label: lang.utils_label_member,
-								value: member.toString()
-							},
-							{
-								emoji: emojis.Yes,
-								label: lang.derank_label_removed,
-								value: `\`${good}\``
-							},
-							bad > 0 && {
-								emoji: emojis.No,
-								label: lang.utils_label_failed,
-								value: `\`${bad}\``
-							},
-							{
-								emoji: emojis.Crown,
-								label: lang.utils_label_by,
-								value: interaction.member!.toString()
-							}
-						],
-						signature: await botSignature(
-							client,
-							interaction.guildId
-						)
-					})
-				);
-			}
+			)
 		);
 	}
 };

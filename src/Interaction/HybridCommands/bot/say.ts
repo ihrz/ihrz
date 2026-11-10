@@ -30,6 +30,7 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { sayPayload } from "../../../core/modules/communityMessages.js";
 
 export const command: Command = {
 	name: "say",
@@ -95,12 +96,10 @@ export const command: Command = {
 		if (interaction instanceof ChatInputCommandInteraction)
 			(await interaction.deferReply()) &&
 				(await interaction.deleteReply());
-		await client.func.method.channelSend(interaction, {
-			content:
-				"> " +
-				`${toSay}${lang.say_footer_msg.replace("${author}", interaction.member.user.toString())}`,
-			allowedMentions: { roles: [], users: [], repliedUser: false }
-		});
+		await client.func.method.channelSend(
+			interaction,
+			sayPayload(lang, toSay, interaction.member.user)
+		);
 		return;
 	}
 };

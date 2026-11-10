@@ -28,7 +28,7 @@ import {
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
-import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { listLockNames } from "../../../../core/modules/memberToolsManager.js";
 import {
 	ACCENT,
 	botSignature,
@@ -55,13 +55,7 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const lockedList = await client.db.get<
-			Record<string, DatabaseStructure.LockNameData | undefined>
-		>(`${interaction.guildId}.LOCKNAME`);
-
-		const entries = Object.entries(lockedList || {}).filter(
-			([, lockData]) => lockData !== undefined
-		);
+		const entries = await listLockNames(client, interaction.guild.id);
 
 		if (entries.length === 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -72,8 +66,6 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-
-		entries.sort(([, a], [, b]) => (b?.lockedAt ?? 0) - (a?.lockedAt ?? 0));
 
 		const lines = entries.map(([memberId, lockData]) => {
 			const nick = lockData?.nick

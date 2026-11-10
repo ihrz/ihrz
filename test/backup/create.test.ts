@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { readyTables } from "../readyTables.ts";
 import { expect, mock, test } from "bun:test";
 
 const saved = new Map<string, unknown>();
@@ -28,11 +29,13 @@ const table = {
 	delete: async (k: string) => void saved.delete(k),
 	all: async () => []
 };
-mock.module("../../src/Events/client/ready.js", () => ({
-	backupsTable: table,
-	metasTable: table,
-	backupSchedulesTable: table
-}));
+mock.module("../../src/Events/client/ready.js", () =>
+	readyTables({
+		backupsTable: table,
+		metasTable: table,
+		backupSchedulesTable: table
+	})
+);
 
 const { create } = await import("../../src/core/backup/src/index.ts");
 const { clearGuild } = await import("../../src/core/backup/src/util.ts");

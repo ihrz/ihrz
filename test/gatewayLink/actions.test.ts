@@ -19,15 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { readyTables } from "../readyTables.ts";
 import { describe, expect, mock, test } from "bun:test";
 import { PermissionFlagsBits, PermissionsBitField } from "discord.js";
 
 const blacklisted = new Set<string>();
-mock.module("../../src/Events/client/ready.js", () => ({
-	blacklistTable: {
-		get: async (key: string) => blacklisted.has(key.split(".")[0])
-	}
-}));
+mock.module("../../src/Events/client/ready.js", () =>
+	readyTables({
+		blacklistTable: {
+			get: async (key: string) => blacklisted.has(key.split(".")[0])
+		}
+	})
+);
 
 const { authorize, actions } =
 	await import("../../src/core/modules/gatewayLinkActions/index.ts");
@@ -168,10 +171,32 @@ describe("gateway actions: authorize", () => {
 		).toContain("not found");
 	});
 
-	test("every action names a command the bot has, or is owner-only, or reads", () => {
+	test("every action is guarded by a real command (or is owner-only)", () => {
+		// The bot's own catalog (commands.json): "cmd", "cmd sub", "cmd group sub".
+		const catalog = require("../../src/files/commands.json") as {
+			name: string;
+			options?: { name: string; type: number; options?: unknown[] }[];
+		}[];
+		const paths = new Set<string>();
+		const walk = (c: any, prefix: string) => {
+			const path = prefix ? `${prefix} ${c.name}` : c.name;
+			paths.add(path);
+			for (const o of c.options ?? [])
+				if (o.type === 1 || o.type === 2) walk(o, path);
+		};
+		catalog.forEach((c) => walk(c, ""));
 		for (const [name, def] of Object.entries(actions)) {
 			expect(typeof def.run).toBe("function");
 			expect(name).toMatch(/^[a-z.-]+$/);
+			if (name === "ping") continue;
+			if (!def.ownerOnly) {
+				expect(def.command, name).toBeDefined();
+			}
+			if (def.command)
+				expect(
+					paths.has(def.command),
+					`${name} -> /${def.command}`
+				).toBe(true);
 		}
 	});
 });

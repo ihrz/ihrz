@@ -340,3 +340,124 @@ export function automodToggles(
 		({ key, isOn }) => isOn(before?.[key]) !== isOn(after?.[key])
 	).map(({ key, isOn }) => ({ key, enabled: isOn(after?.[key]) }));
 }
+
+// ---------------------------------------------------------------------------
+// What the /automod panel and the dashboard change: the native rule, plus
+// what the panel stores (`GUILD_CONFIG.AUTOMOD_PANEL`) and the GUILD_CONFIG
+// flag the dashboard reads.
+
+export interface AutomodDb {
+	get(key: string): Promise<unknown>;
+	set(key: string, value: any): Promise<unknown>;
+	delete(key: string): Promise<unknown>;
+}
+
+export interface AutomodRuleState extends RuleSettings {
+	ruleId: string | null;
+	enabled: boolean;
+}
+
+export interface AutomodState {
+	native: NativeRules;
+	stored: DatabaseStructure.AutomodPanelSchema;
+	rules: Record<AutomodRuleKey, AutomodRuleState>;
+}
+
+export async function loadAutomodState(
+	guild: Guild,
+	db: AutomodDb
+): Promise<AutomodState> {
+	const native = await fetchNativeRules(guild);
+	const stored =
+		((await db.get(
+			`${guild.id}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL`
+		)) as DatabaseStructure.AutomodPanelSchema | null) ?? {};
+	const rules = {} as Record<AutomodRuleKey, AutomodRuleState>;
+	for (const key of RULE_ORDER) {
+		const rule = native[key];
+		rules[key] = {
+			ruleId: rule?.id ?? null,
+			enabled: rule?.enabled ?? false,
+			...resolveRuleSettings(guild, rule, stored?.[key])
+		};
+	}
+	return { native, stored, rules };
+}
+
+/** The GUILD_CONFIG flag: "media" is a boolean, the rest "on" / "off". */
+export function automodFlagValue(
+	key: AutomodRuleKey,
+	enabled: boolean
+): string | boolean {
+	return key === "media" ? enabled : enabled ? "on" : "off";
+}
+
+async function syncAutomodFlag(
+	db: AutomodDb,
+	guildId: string,
+	key: AutomodRuleKey,
+	enabled: boolean
+): Promise<void> {
+	await db.set(
+		`${guildId}.GUILD.GUILD_CONFIG.${key}`,
+		automodFlagValue(key, enabled)
+	);
+}
+
+export async function enableAutomodRule(
+	guild: Guild,
+	db: AutomodDb,
+	key: AutomodRuleKey,
+	existing: AutoModerationRule | undefined,
+	settings: RuleSettings
+): Promise<void> {
+	await enableNativeRule(guild, key, existing, settings);
+	await syncAutomodFlag(db, guild.id, key, true);
+}
+
+export async function disableAutomodRule(
+	guild: Guild,
+	db: AutomodDb,
+	key: AutomodRuleKey,
+	existing: AutoModerationRule | undefined
+): Promise<void> {
+	if (existing) await existing.setEnabled(false);
+	await syncAutomodFlag(db, guild.id, key, false);
+}
+
+/** Stores the exempted roles, then puts them on the rule when it exists. */
+export async function saveAutomodBypass(
+	guild: Guild,
+	db: AutomodDb,
+	key: AutomodRuleKey,
+	roleIds: string[],
+	existing: AutoModerationRule | undefined
+): Promise<string[]> {
+	const roles = roleIds.filter((roleId) => roleId !== guild.id);
+	await db.set(
+		`${guild.id}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL.${key}.bypassRoles`,
+		roles
+	);
+	if (existing) await existing.edit({ exemptRoles: roles });
+	return roles;
+}
+
+/** Stores the alert channel (null: none), then updates an enabled rule. */
+export async function saveAutomodLogs(
+	guild: Guild,
+	db: AutomodDb,
+	key: AutomodRuleKey,
+	channelId: string | null,
+	existing: AutoModerationRule | undefined,
+	enabled: boolean
+): Promise<void> {
+	const path = `${guild.id}.GUILD.GUILD_CONFIG.AUTOMOD_PANEL.${key}.logsChannel`;
+	if (channelId) await db.set(path, channelId);
+	else await db.delete(path);
+	if (existing && enabled) {
+		await existing.edit({ actions: ruleActions(channelId) });
+	}
+}
+
+/** Discord's bounds for `mentionTotalLimit`. */
+export const MAX_MENTION_LIMIT = 50;

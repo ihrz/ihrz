@@ -28,12 +28,44 @@ import {
 } from "../../functions/permissonsCalculator.js";
 import { ActionDef, ActionError, ActionGroup, fail, Params } from "./types.js";
 import { coreActions } from "./core.js";
+import { communityActions } from "./community.js";
+import { membersActions } from "./members.js";
+import { moderationActions } from "./moderation.js";
+import { musicActions } from "./music.js";
+import { serverActions } from "./server.js";
+import { ticketsActions } from "./tickets.js";
 
 // Every action the dashboard can ask for. The gateway relays only the names
 // of its own table (HorizonGateway `src/dash_actions.rs`): keep both in sync.
 export const actions: ActionGroup = {
-	...coreActions
+	...coreActions,
+	...communityActions,
+	...membersActions,
+	...moderationActions,
+	...musicActions,
+	...serverActions,
+	...ticketsActions
 };
+
+// Two groups defining the same name would silently shadow one another.
+{
+	const seen = new Set<string>();
+	for (const group of [
+		coreActions,
+		communityActions,
+		membersActions,
+		moderationActions,
+		musicActions,
+		serverActions,
+		ticketsActions
+	]) {
+		for (const name of Object.keys(group)) {
+			if (seen.has(name))
+				throw new Error(`duplicate gateway action ${name}`);
+			seen.add(name);
+		}
+	}
+}
 
 function resolveCommand(client: Client, path: string) {
 	return path.includes(" ")

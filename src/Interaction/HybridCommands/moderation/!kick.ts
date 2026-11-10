@@ -23,9 +23,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	GuildMemberRoleManager,
-	Message,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -37,6 +35,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { kickMember } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -64,68 +63,35 @@ export const subCommand: SubCommand = {
 
 		if (!member) return;
 
-		if (
-			!interaction.guild.members.me?.permissions.has(
-				PermissionsBitField.Flags.KickMembers
-			)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_dont_have_permission.replace(
+		const result = await kickMember(
+			interaction.member as GuildMember,
+			member,
+			reason,
+			lang
+		);
+
+		if (!result.ok) {
+			const e = client.iHorizon_Emojis;
+			const content = {
+				bot_missing_permission: lang.kick_dont_have_permission.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (member.id === interaction.member.user.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_attempt_kick_your_self.replace(
+					e.No
+				),
+				self: lang.kick_attempt_kick_your_self.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (
-			(interaction.member.roles as GuildMemberRoleManager).highest
-				.position <= member.roles.highest.position &&
-			interaction.guild.ownerId !== interaction.member.user.id
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_attempt_kick_higter_member.replace(
-					"${emoji_Stop}",
-					client.iHorizon_Emojis.Stop
-				)
-			});
-			return;
-		}
-
-		member
-			.send({
-				content: lang.kick_message_to_the_banned_member
-					.replaceAll("${guildName}", interaction.guild.name)
-					.replaceAll(
-						"${authorUsername}",
-						interaction.member.user.username
-					)
-			})
-			.catch(() => {});
-
-		const kicked = await member
-			.kick(
-				`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`
-			)
-			.then(() => true)
-			.catch(() => false);
-		if (!kicked) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setrankroles_command_error.replace(
+					e.No
+				),
+				target_above_author:
+					lang.kick_attempt_kick_higter_member.replace(
+						"${emoji_Stop}",
+						e.Stop
+					),
+				failed: lang.setrankroles_command_error.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
+					e.No
 				)
-			});
+			}[result.code];
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
 
@@ -158,12 +124,5 @@ export const subCommand: SubCommand = {
 				signature: await botSignature(client, interaction.guildId)
 			})
 		);
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.kick_logs_embed_title,
-			description: lang.kick_logs_embed_description
-				.replaceAll("${member}", member.user.toString())
-				.replaceAll("${authorId}", interaction.member.user.id)
-		});
 	}
 };

@@ -20,21 +20,16 @@
 */
 
 import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	ColorResolvable,
-	EmbedBuilder,
 	GuildMember,
-	Message,
-	MessageFlags,
-	User
+	Message
 } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
 
+import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 import { SubCommand } from "../../../../types/command.js";
+import { setMusicVolume } from "../../../core/modules/musicControls.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -54,25 +49,36 @@ export const subCommand: SubCommand = {
 
 		const opts = client.func.method.options(interaction, args);
 		const query = opts.string("level", 0);
+		const sanitizedVolume = parseInt(String(query));
 
-		const voiceChannel = (interaction.member as GuildMember).voice.channel;
-		const player = client.player.getPlayer(interaction.guildId as string);
+		try {
+			const result = await setMusicVolume(
+				client,
+				interaction.member as GuildMember,
+				sanitizedVolume
+			);
+			if (!result.ok) {
+				const content = {
+					not_in_voice: lang.pause_nothing_playing,
+					nothing_playing: lang.pause_nothing_playing,
+					not_same_channel: lang.pause_nothing_playing,
+					not_enough_tracks: null
+				}[result.reason];
+				if (content) {
+					await client.func.method.interactionSend(interaction, {
+						content
+					});
+				}
+				return;
+			}
 
-		if (!player || !player.playing || !voiceChannel) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.pause_nothing_playing
+				content: lang.music_volume_command_ok
+					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+					.replace("${query}", String(query))
 			});
-			return;
+		} catch (error) {
+			logger.err(error);
 		}
-
-		let sanitizedVolume = parseInt(String(query));
-		player.setVolume(sanitizedVolume);
-		player.customVolume = sanitizedVolume;
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.music_volume_command_ok
-				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-				.replace("${query}", String(query))
-		});
 	}
 };

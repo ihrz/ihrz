@@ -26,11 +26,10 @@ import {
 	Message
 } from "discord.js";
 
-import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { getTTSData, cleanupTTS } from "../../../core/modules/ttsManager.js";
-
+import logger from "../../../core/logger.js";
 import { SubCommand } from "../../../../types/command.js";
+import { stopMusic } from "../../../core/modules/musicControls.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,47 +47,32 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		// Check if the member is in the same voice channel as the bot
-		if (
-			(interaction.member as GuildMember).voice.channelId !==
-			interaction.guild.members.me?.voice.channelId
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
 		try {
-			const voiceChannel = (interaction.member as GuildMember).voice
-				.channel;
-			const player = client.player.getPlayer(interaction.guild.id);
-
-			const ttsData = await getTTSData(client, interaction.guild.id);
-			if (ttsData && ttsData.enabled) {
-				await cleanupTTS(client, interaction.guild.id);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_command_work
-				});
+			const result = await stopMusic(
+				client,
+				interaction.member as GuildMember
+			);
+			if (!result.ok) {
+				const content = {
+					not_in_voice: lang.stop_nothing_playing,
+					nothing_playing: lang.stop_nothing_playing,
+					not_same_channel: lang.music_cannot.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
+					not_enough_tracks: null
+				}[result.reason];
+				if (content) {
+					await client.func.method.interactionSend(interaction, {
+						content
+					});
+				}
 				return;
 			}
-
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_nothing_playing
-				});
-				return;
-			}
-
-			player.stopPlaying();
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.stop_command_work
 			});
-			return;
 		} catch (error) {
 			logger.err(error);
 		}

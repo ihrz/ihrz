@@ -23,12 +23,12 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	Message,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { unmuteAll } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -44,65 +44,25 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			!interaction.guild.members.me?.permissions.has([
-				PermissionsBitField.Flags.ManageRoles
-			])
-		) {
+		const result = await unmuteAll(interaction.member as GuildMember, lang);
+
+		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_i_dont_have_permission.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
+				content:
+					result.code === "bot_missing_permission"
+						? lang.unmute_i_dont_have_permission.replace(
+								"${emoji_No}",
+								client.iHorizon_Emojis.No
+							)
+						: lang.unmuteall_no_muted_members
 			});
 			return;
-		}
-
-		const isOwner =
-			interaction.guild.ownerId === interaction.member.user.id;
-		const authorPosition = (interaction.member as GuildMember).roles.highest
-			.position;
-		const mutedMembers = Array.from(
-			interaction.guild.members.cache
-				.filter(
-					(member) =>
-						member.isCommunicationDisabled() &&
-						// Only members below the author, like a single unmute.
-						(isOwner ||
-							(member.id !== interaction.guild!.ownerId &&
-								member.roles.highest.position < authorPosition))
-				)
-				.values()
-		);
-
-		if (mutedMembers.length === 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unmuteall_no_muted_members
-			});
-			return;
-		}
-
-		let unmuted = 0;
-
-		for (const member of mutedMembers) {
-			await member
-				.timeout(null, lang.unmuteall_audit_reason)
-				.then(() => unmuted++)
-				.catch(() => {});
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unmuteall_command_work
-				.replace("${unmuted}", unmuted.toString())
-				.replace("${total}", mutedMembers.length.toString())
-		});
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.unmuteall_logs_embed_title,
-			description: lang.unmuteall_logs_embed_description
-				.replace("${authorId}", interaction.member.user.id)
-				.replace("${unmuted}", unmuted.toString())
-				.replace("${total}", mutedMembers.length.toString())
+				.replace("${unmuted}", result.unmuted.toString())
+				.replace("${total}", result.total.toString())
 		});
 	}
 };

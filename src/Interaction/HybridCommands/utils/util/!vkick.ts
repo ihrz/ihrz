@@ -23,12 +23,12 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	Message,
-	GuildMember,
-	PermissionFlagsBits
+	GuildMember
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { canVoiceKick } from "../../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if the member is an admin
-		if (member.permissions.has(PermissionFlagsBits.Administrator)) {
+		if (!canVoiceKick(member)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_not_admin_kick // draft
 			});

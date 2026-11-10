@@ -19,15 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { BaseGuildTextChannel, EmbedBuilder, Guild } from "discord.js";
 
 export default async function send(
-	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	// An interaction, a message, or anything with the guild (dashboard actions).
+	interaction: { guild?: Guild | null },
 	embed: {
 		title: string;
 		description: string;

@@ -41,6 +41,7 @@ import {
 	pageLabel,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { getMutedMembers } from "../../../core/modules/moderationOps.js";
 
 const PER_PAGE = 10;
 
@@ -60,15 +61,7 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const char: GuildMember[] = Array.from(
-			interaction.guild.members.cache
-				.filter((member) => member.isCommunicationDisabled())
-				.values()
-		).sort(
-			(a, b) =>
-				(a.communicationDisabledUntilTimestamp ?? 0) -
-				(b.communicationDisabledUntilTimestamp ?? 0)
-		);
+		const char: GuildMember[] = getMutedMembers(interaction.guild);
 
 		if (char.length == 0) {
 			await client.func.method.interactionSend(interaction, {

@@ -20,7 +20,6 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	Client,
 	ChatInputCommandInteraction,
 	GuildMember,
@@ -29,16 +28,17 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
-
 import { SubCommand } from "../../../../types/command.js";
 import {
 	ACCENT,
 	botSignature,
 	buildCard,
-	cardPayload,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import {
+	removeWarn,
+	sendUnwarnLog
+} from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -60,12 +60,11 @@ export const subCommand: SubCommand = {
 		const member = opts.member("member", 0) as GuildMember | null;
 		const warnID = opts.longString("warn-id", 1)!;
 
-		const allWarns: DatabaseStructure.WarnsData[] | null =
-			await client.db.get(
-				`${interaction.guildId}.USER.${member?.id}.WARNS`
-			);
+		const result = member
+			? await removeWarn(interaction.guild, member.id, warnID)
+			: ({ ok: false, code: "no_warns" } as const);
 
-		if (!allWarns || allWarns.length === 0) {
+		if (!result.ok && result.code === "no_warns") {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
@@ -74,8 +73,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const removedWarn = allWarns.find((x) => x.id === warnID);
-		if (!removedWarn) {
+		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found_id
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
@@ -83,11 +81,7 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
-
-		await client.db.set(
-			`${interaction.guildId}.USER.${member?.id}.WARNS`,
-			allWarns.filter((x) => x.id !== warnID)
-		);
+		const removedWarn = result.removed;
 
 		const e = client.iHorizon_Emojis;
 		const warnedAt = Math.floor(removedWarn.timestamp / 1000);
@@ -133,59 +127,12 @@ export const subCommand: SubCommand = {
 			resultCard(await botSignature(client, interaction.guildId))
 		);
 
-		const unwarnLogTitle = lang.unwarn_logEmbed_title;
-		const unwarnLogDescription = lang.unwarn_logEmbed_desc
-			.replace("${author}", interaction.member.toString())
-			.replace("${member}", member?.toString()!);
-
-		if (client.func.hasIhorizonLogs(interaction.guild)) {
-			await client.func.ihorizon_logs(interaction, {
-				title: unwarnLogTitle,
-				description: unwarnLogDescription
-			});
-			return;
-		}
-
-		const unwarnLogCard = buildCard({
-			accent: ACCENT.success,
-			emoji: e.Logs,
-			title: unwarnLogTitle,
-			description: unwarnLogDescription,
-			fields: [
-				{
-					emoji: e.Warn,
-					label: lang.mod_label_warn_id,
-					value: `\`${removedWarn.id}\``
-				},
-				{
-					emoji: e.Paper,
-					label: lang.var_reason,
-					value: removedWarn.reason
-				}
-			]
-		});
-
-		const modsChannel = interaction.guild.channels.cache.find(
-			(channel) => channel.name.includes("mods") && channel.isTextBased()
-		) as BaseGuildTextChannel | undefined;
-
-		if (modsChannel) {
-			await modsChannel.send(cardPayload(unwarnLogCard)).catch(() => {});
-			return;
-		}
-
-		const moderationLogsId = (await client.db.get(
-			`${interaction.guildId}.GUILD.SERVER_LOGS.moderation`
-		)) as string | null;
-
-		if (!moderationLogsId) return;
-
-		const moderationLogsChannel = interaction.guild.channels.cache.get(
-			moderationLogsId
-		) as BaseGuildTextChannel | undefined;
-
-		await moderationLogsChannel
-			?.send(cardPayload(unwarnLogCard))
-			.catch(() => {});
+		await sendUnwarnLog(
+			interaction.guild,
+			interaction.member.toString(),
+			member?.toString()!,
+			removedWarn,
+			lang
+		);
 	}
 };

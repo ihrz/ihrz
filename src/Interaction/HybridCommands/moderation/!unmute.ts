@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
 	GuildMember,
 	Message
@@ -30,6 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { unmuteMember } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -52,63 +52,40 @@ export const subCommand: SubCommand = {
 
 		if (!tomute) return;
 
-		if (
-			!interaction.guild.members.me?.permissions.has([
-				PermissionsBitField.Flags.ManageRoles
-			])
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_i_dont_have_permission.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
+		const result = await unmuteMember(
+			interaction.member as GuildMember,
+			tomute,
+			lang
+		);
 
-		if (tomute?.id === interaction.member.user.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_attempt_mute_your_self.replace(
+		if (!result.ok) {
+			const e = client.iHorizon_Emojis;
+			const content = {
+				bot_missing_permission:
+					lang.unmute_i_dont_have_permission.replace(
+						"${emoji_No}",
+						e.No
+					),
+				self: lang.unmute_attempt_mute_your_self.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (
-			interaction.guild.ownerId !== interaction.member.user.id &&
-			(tomute.id === interaction.guild.ownerId ||
-				tomute.roles.highest.position >=
-					(interaction.member as GuildMember).roles.highest.position)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.moderation_target_higher_role.replace(
+					e.No
+				),
+				target_above_author: lang.moderation_target_higher_role.replace(
 					"${member}",
 					tomute.toString()
+				),
+				not_muted: lang.unmute_not_muted,
+				failed: lang.setrankroles_command_error.replace(
+					"${emoji_No}",
+					e.No
 				)
-			});
+			}[result.code];
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
-
-		if (!tomute?.isCommunicationDisabled() === true) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_not_muted
-			});
-			return;
-		}
-
-		tomute.disableCommunicationUntil(Date.now());
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unmute_command_work.replace("${tomuteId}", tomute.id)
-		});
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.unmute_logs_embed_title,
-			description: lang.unmute_logs_embed_description
-				.replace("${authorId}", interaction.member.user.id)
-				.replace("${tomuteId}", tomute.id)
 		});
 	}
 };

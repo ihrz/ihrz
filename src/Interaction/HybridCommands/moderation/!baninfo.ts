@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	AuditLogEvent,
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -33,6 +28,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { getBanInfo } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,36 +47,23 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let ban_info;
-		try {
-			ban_info = await interaction.guild?.bans.fetch(user.id);
-		} catch {
-			ban_info = null;
-		}
+		const info = interaction.guild
+			? await getBanInfo(interaction.guild, user.id)
+			: null;
 
-		if (!ban_info) {
+		if (!info) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.baninfo_not_banned
 			});
 			return;
 		}
 
-		const auditLogs = await interaction.guild?.fetchAuditLogs({
-			type: AuditLogEvent.MemberBanAdd,
-			limit: 100
-		});
-
-		const banLog = auditLogs?.entries.find(
-			(log) =>
-				log.target?.id === user!.id &&
-				log.action === AuditLogEvent.MemberBanAdd
-		);
-
+		const ban_info = info.ban;
 		const e = client.iHorizon_Emojis;
-		const bannedAt = banLog
-			? Math.floor(banLog.createdTimestamp / 1000)
+		const bannedAt = info.bannedAt
+			? Math.floor(info.bannedAt / 1000)
 			: null;
-		const executor = banLog?.executor;
+		const executor = info.executor;
 
 		await sendCard(
 			client,

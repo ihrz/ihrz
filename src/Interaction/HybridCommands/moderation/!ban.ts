@@ -22,9 +22,8 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	GuildMemberRoleManager,
+	GuildMember,
 	Message,
-	PermissionsBitField,
 	User
 } from "discord.js";
 
@@ -37,6 +36,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { banUser } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -69,121 +69,66 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (
-			!interaction.guild.members.me?.permissions.has(
-				PermissionsBitField.Flags.BanMembers
-			)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.ban_dont_have_perm_myself.replace(
+		const result = await banUser(
+			interaction.member as GuildMember,
+			member,
+			reason,
+			lang
+		);
+
+		if (!result.ok) {
+			const e = client.iHorizon_Emojis;
+			const content = {
+				bot_missing_permission: lang.ban_dont_have_perm_myself.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
+					e.No
+				),
+				self: lang.ban_try_to_ban_yourself.replace("${emoji_No}", e.No),
+				target_above_author: lang.ban_attempt_ban_higter_member.replace(
+					"${emoji_Stop}",
+					e.Stop
+				),
+				not_bannable: lang.ban_cant_ban_member.replace(
+					"${emoji_No}",
+					e.No
+				),
+				failed: lang.setrankroles_command_error.replace(
+					"${emoji_No}",
+					e.No
 				)
-			});
+			}[result.code];
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
 
-		const guildMember = await interaction.guild.members
-			.fetch(member.id)
-			.catch(() => null);
-
-		if (member.id === interaction.member.user.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.ban_try_to_ban_yourself.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (guildMember) {
-			if (
-				(interaction.member.roles as GuildMemberRoleManager).highest
-					.position <= guildMember.roles.highest.position &&
-				interaction.guild.ownerId !== interaction.member.user.id
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.ban_attempt_ban_higter_member.replace(
-						"${emoji_Stop}",
-						client.iHorizon_Emojis.Stop
-					)
-				});
-				return;
-			}
-
-			if (!guildMember.bannable) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.ban_cant_ban_member.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-				return;
-			}
-		}
-
-		member
-			.send({
-				content: lang.ban_message_to_the_banned_member
-					.replace("${guildName}", interaction.guild.name)
-					.replace("${reason}", reason)
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: e.Ban_Hammer,
+				title: lang.ban_card_title,
+				thumbnail: member.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${member} (\`${member.id}\`)`
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member!.toString()
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: reason || lang.var_no_set
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
 			})
-			.catch(() => false)
-			.then(() => false);
-
-		interaction.guild?.bans
-			.create(member?.id!, {
-				reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}`
-			})
-			.then(async () => {
-				const e = client.iHorizon_Emojis;
-				await sendCard(
-					client,
-					interaction,
-					buildCard({
-						accent: ACCENT.danger,
-						emoji: e.Ban_Hammer,
-						title: lang.ban_card_title,
-						thumbnail: member.displayAvatarURL({ size: 128 }),
-						fields: [
-							{
-								emoji: e.Ticket_User,
-								label: lang.utils_label_member,
-								value: `${member} (\`${member.id}\`)`
-							},
-							{
-								emoji: e.Security,
-								label: lang.mod_label_moderator,
-								value: interaction.member!.toString()
-							},
-							{
-								emoji: e.Paper,
-								label: lang.var_reason,
-								value: reason || lang.var_no_set
-							}
-						],
-						signature: await botSignature(
-							client,
-							interaction.guildId
-						)
-					})
-				).catch(() => {});
-
-				await client.func.ihorizon_logs(interaction, {
-					title: lang.ban_logs_embed_title,
-					description: lang.ban_logs_embed_description
-						.replaceAll("${memberId}", member.id)
-						.replaceAll("${authorId}", interaction.member?.user.id!)
-				});
-			})
-			.catch(() => {
-				return client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-			});
+		).catch(() => {});
 	}
 };

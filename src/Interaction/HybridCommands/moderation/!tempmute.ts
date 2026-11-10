@@ -23,13 +23,12 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	Message,
-	PermissionFlagsBits,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { tempmuteMember } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -79,88 +78,45 @@ export const subCommand: SubCommand = {
 			lang
 		);
 
-		if (
-			!interaction.guild.members.me?.permissions.has([
-				PermissionsBitField.Flags.ManageMessages,
-				PermissionsBitField.Flags.MuteMembers,
-				PermissionsBitField.Flags.ViewAuditLog,
-				PermissionsBitField.Flags.ManageGuild
-			])
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_i_dont_have_permission.replace(
+		const result = await tempmuteMember(
+			interaction.member as GuildMember,
+			tomute,
+			mutetimeMS,
+			mutetimeString,
+			reason,
+			lang
+		);
+
+		if (!result.ok) {
+			const e = client.iHorizon_Emojis;
+			const content = {
+				bot_missing_permission:
+					lang.tempmute_i_dont_have_permission.replace(
+						"${emoji_No}",
+						e.No
+					),
+				target_is_admin: lang.tempmute_tomute_is_admin.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (tomute.permissions.has(PermissionFlagsBits.Administrator)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_tomute_is_admin.replace(
+					e.No
+				),
+				target_above_bot: lang.tempmute_tomute_highest_role_or_same
+					.replace("${emoji_No}", e.No)
+					.replace("${tomute}", tomute.toString()),
+				target_above_author: lang.tempmute_cannot_mute_higher_role
+					.replace("${emoji_No}", e.No)
+					.replace("${tomute}", tomute.toString()),
+				self: lang.tempmute_cannot_mute_yourself.replace(
 					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
+					e.No
+				),
+				already_muted: lang.tempmute_already_muted,
+				failed: lang.tempmute_i_dont_have_permission
+			}[result.code];
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
 
-		if (
-			tomute.roles.highest.position >=
-				interaction.guild.members.me.roles.highest.position &&
-			interaction.guild.ownerId !== interaction.member.user.id
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_tomute_highest_role_or_same
-					.replace("${emoji_No}", client.iHorizon_Emojis.No)
-					.replace("${tomute}", tomute.toString())
-			});
-			return;
-		}
-
-		if (
-			interaction.guild.ownerId !== interaction.member.user.id &&
-			tomute.roles.highest.position >=
-				(interaction.member as GuildMember).roles.highest.position
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_cannot_mute_higher_role
-					.replace("${emoji_No}", client.iHorizon_Emojis.No)
-					.replace("${tomute}", tomute.toString())
-			});
-			return;
-		}
-
-		if (tomute.id === interaction.member.user.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_cannot_mute_yourself.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
-		if (tomute.isCommunicationDisabled() === true) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_already_muted
-			});
-			return;
-		}
-
-		const muted = await tomute
-			.timeout(mutetimeMS, lang.tempmute_logs_embed_title)
-			.catch(() => null);
-
-		if (!muted) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_i_dont_have_permission
-			});
-			return;
-		}
-
-		const mutedUntil = muted.communicationDisabledUntilTimestamp;
+		const mutedUntil = result.mutedUntil;
 
 		let content = lang.tempmute_command_work
 			.replace("${tomuteId}", tomute.id)
@@ -194,27 +150,5 @@ export const subCommand: SubCommand = {
 				}
 			}, mutetimeMS);
 		}
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.tempmute_logs_embed_title,
-			description: lang.tempmute_logs_embed_description
-				.replace("${authorId}", interaction.member.user.id)
-				.replace("${tomuteId}", tomute.id)
-				.replace("${duration}", mutetimeString)
-				.replace("${reason}", reason || lang.var_no_set)
-		});
-
-		await client.func.method
-			.warnMember(
-				interaction.member!,
-				tomute!,
-				lang.tempmute_logs_embed_description
-					.replace("${authorId}", interaction.member.user.id)
-					.replace("${tomuteId}", tomute.id)
-					.replace("${duration}", mutetimeString)
-					.replace("${reason}", reason || lang.var_no_set),
-				lang
-			)
-			.catch(() => {});
 	}
 };

@@ -21,7 +21,6 @@
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
-import { processBatchAsync } from "../../../../core/functions/batchProcessor.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import {
@@ -31,6 +30,7 @@ import {
 	notice,
 	sendCard
 } from "../../../../core/modules/uiCard.js";
+import { unbanAll } from "../../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,76 +48,43 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const banned_members = await interaction.guild.bans.fetch();
-
-		const unbanned_members: string[] = [];
-		let cannot_unban = 0;
-
-		if (!banned_members || banned_members.size === 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.action_unban_all_no_banned_members
-			});
-			return;
-		}
-
 		const e = client.iHorizon_Emojis;
+		const guild = interaction.guild;
 
-		// Send immediate response (a card, so the final result can replace it)
-		await sendCard(
-			client,
-			interaction,
-			notice(
-				"info",
-				`${e.Discord_Loading} ${lang.unbanall_card_progress.replace(
-					"${count}",
-					banned_members.size.toString()
-				)}`
-			)
-		);
-
-		// Process unbans in batches asynchronously
-		processBatchAsync(
-			Array.from(banned_members.values()),
-			async (banInfo) => {
-				try {
-					await interaction.guild?.bans.remove(banInfo.user.id);
-					unbanned_members.push(banInfo.user.id);
-					return true;
-				} catch (e) {
-					cannot_unban++;
-					return false;
-				}
-			},
-			{ batchSize: 5, delay: 200 }, // Slower for unban operations
-			async (result) => {
-				// Save unbanned members to database
-				await client.db.set(
-					`${interaction.guildId}.UTILS.unban_members`,
-					unbanned_members
-				);
-
-				// Send final result
+		const result = await unbanAll(guild, {
+			onStart: (total) =>
+				sendCard(
+					client,
+					interaction,
+					notice(
+						"info",
+						`${e.Discord_Loading} ${lang.unbanall_card_progress.replace(
+							"${count}",
+							total.toString()
+						)}`
+					)
+				),
+			onDone: async (r) => {
 				await sendCard(
 					client,
 					interaction,
 					buildCard({
-						accent:
-							cannot_unban > 0 ? ACCENT.warning : ACCENT.success,
+						accent: r.failed > 0 ? ACCENT.warning : ACCENT.success,
 						emoji: e.Unlock,
 						title: lang.unbanall_card_title,
 						thumbnail:
-							interaction.guild?.iconURL({ size: 128 }) ||
+							guild.iconURL({ size: 128 }) ||
 							client.user?.displayAvatarURL({ size: 128 }),
 						fields: [
 							{
 								emoji: e.Yes,
 								label: lang.unbanall_label_unbanned,
-								value: `\`${unbanned_members.length}\``
+								value: `\`${r.unbanned}\``
 							},
 							{
 								emoji: e.No,
 								label: lang.unbanall_label_failed,
-								value: `\`${cannot_unban}\``
+								value: `\`${r.failed}\``
 							}
 						],
 						signature: await botSignature(
@@ -127,7 +94,14 @@ export const subCommand: SubCommand = {
 					})
 				);
 			}
-		);
+		});
+
+		if (!result.ok) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.action_unban_all_no_banned_members
+			});
+			return;
+		}
 
 		return;
 	}

@@ -26,6 +26,7 @@ import {
 	Message
 } from "discord.js";
 
+import { renameTicketChannel } from "../../../core/modules/ticketsManager.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -69,17 +70,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		(interaction.channel as BaseGuildTextChannel)
-			.setName(name)
-			.then(async () => {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.ticket_rename_ok
-				});
-			})
-			.catch(async () => {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.ticket_rename_error
-				});
-			});
+		const renamed = await renameTicketChannel(
+			interaction.channel as BaseGuildTextChannel,
+			name
+		);
+		await client.func.method.interactionSend(interaction, {
+			content: renamed ? lang.ticket_rename_ok : lang.ticket_rename_error
+		});
 	}
 };

@@ -29,6 +29,7 @@ import {
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import { setChannelHidden } from "../../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -52,51 +53,37 @@ export const subCommand: SubCommand = {
 		let role_to_edit = role?.id || interaction.guild.id;
 		let channel = interaction.channel as BaseGuildTextChannel;
 
-		try {
-			if (!interaction.guild.channels.cache.get(channel.id)) {
-				channel = (await interaction.guild.channels.fetch(
-					channel.id
-				)) as BaseGuildTextChannel;
-			}
+		if (!interaction.guild.channels.cache.get(channel.id)) {
+			const fetched = await interaction.guild.channels
+				.fetch(channel.id)
+				.catch(() => null);
+			if (fetched) channel = fetched as BaseGuildTextChannel;
+		}
 
-			if (!channel.manageable) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.renew_dont_have_permission
-				});
-				return;
-			}
+		const result = await setChannelHidden(channel, role_to_edit, false);
 
-			const everyoneOverwrite =
-				channel.permissionOverwrites.cache.get(role_to_edit);
-
-			if (
-				!everyoneOverwrite ||
-				!everyoneOverwrite.deny.has("ViewChannel")
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_unhide_already_visible.replace(
-						"@everyone",
-						`<@&${role_to_edit}>`
-					)
-				});
-				return;
-			}
-
-			await channel.permissionOverwrites.edit(role_to_edit, {
-				ViewChannel: null
-			});
-
-			// Send success message
+		if (result === "unchanged") {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.channel_unhide_success.replace(
+				content: lang.channel_unhide_already_visible.replace(
 					"@everyone",
 					`<@&${role_to_edit}>`
 				)
 			});
-		} catch (error) {
+			return;
+		}
+
+		if (result !== "ok") {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.renew_dont_have_permission
 			});
+			return;
 		}
+
+		await client.func.method.interactionSend(interaction, {
+			content: lang.channel_unhide_success.replace(
+				"@everyone",
+				`<@&${role_to_edit}>`
+			)
+		});
 	}
 };

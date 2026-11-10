@@ -23,16 +23,14 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	GuildMemberRoleManager,
-	Message,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
+import { checkRoleChange } from "../../../core/modules/moderationOps.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -55,19 +53,6 @@ export const subCommand: SubCommand = {
 		const role = opts.role("role", 1);
 		const author = interaction.member as GuildMember;
 
-		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] =
-			(await client.db.get(`${interaction.guildId}.UTILS.wlRoles`)) || [];
-
-		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_delrole_not_wl.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
-			});
-			return;
-		}
-
 		if (!user) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.ban_dont_found_member
@@ -75,55 +60,30 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (
-			!interaction.guild.members.me?.permissions.has(
-				PermissionsBitField.Flags.Administrator
-			)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_i_dont_have_permission
-			});
-			return;
-		}
+		const check = role
+			? await checkRoleChange(author, user, role, false)
+			: null;
 
-		if (role) {
-			const refusedReason =
-				client.func.permissonsCalculator.getRefusedRoleReason(
-					role,
-					author,
-					lang
-				);
-
-			if (refusedReason) {
-				await client.func.method.interactionSend(interaction, {
-					content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
-				});
-				return;
-			}
-		}
-
-		if (
-			(interaction.member.roles as GuildMemberRoleManager).highest
-				.position <= user.roles.highest.position &&
-			interaction.member.user.id !== user.id &&
-			interaction.guild.ownerId !== interaction.member.user.id
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_delrole_highter_or_egal_roles_msg.replace(
-					"${emoji_Stop}",
-					client.iHorizon_Emojis.Stop
-				)
-			});
-			return;
-		}
-
-		if (
-			interaction.guild.members.me.roles.highest.position <=
-			role?.position!
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_delrole_try2brain
-			});
+		if (check && !check.ok) {
+			const e = client.iHorizon_Emojis;
+			const content =
+				check.code === "role_refused"
+					? `${e.Stop} ${client.func.permissonsCalculator.getRefusedRoleReason(role!, author, lang)}`
+					: {
+							not_whitelisted: lang.utils_delrole_not_wl.replace(
+								"${emoji_No}",
+								e.No
+							),
+							bot_not_admin: lang.backup_i_dont_have_permission,
+							target_above_author:
+								lang.utils_delrole_highter_or_egal_roles_msg.replace(
+									"${emoji_Stop}",
+									e.Stop
+								),
+							admin_role: "",
+							role_above_bot: lang.utils_delrole_try2brain
+						}[check.code];
+			await client.func.method.interactionSend(interaction, { content });
 			return;
 		}
 

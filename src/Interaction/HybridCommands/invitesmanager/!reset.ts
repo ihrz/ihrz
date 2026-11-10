@@ -22,7 +22,7 @@
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { resetGuildInvites } from "../../../core/modules/memberToolsManager.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -51,13 +51,7 @@ export const subCommand: SubCommand = {
 		});
 
 		if (response) {
-			const baseData = (await client.db.get(
-				`${interaction.guildId}.USER`
-			)) as DatabaseStructure.DbGuildUserObject;
-			for (const user in baseData) {
-				baseData[user].INVITES = {};
-			}
-			await client.db.set(`${interaction.guildId}.USER`, baseData);
+			await resetGuildInvites(client, interaction.guild.id);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.resetallinvites_succes_on_delete,
 				components: []

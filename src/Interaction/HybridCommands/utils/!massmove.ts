@@ -22,8 +22,6 @@
 import {
 	Client,
 	ChatInputCommandInteraction,
-	ChannelType,
-	BaseGuildVoiceChannel,
 	VoiceChannel,
 	Message
 } from "discord.js";
@@ -31,6 +29,11 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	massMoveSourceChannels,
+	membersOfChannels,
+	moveMembers
+} from "../../../core/modules/memberToolsManager.js";
 import {
 	ACCENT,
 	botSignature,
@@ -55,12 +58,7 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const allChannel =
-			Array.from(interaction.guild.channels.cache.values()!).filter(
-				(x) =>
-					x.type ===
-					(ChannelType.GuildVoice || ChannelType.GuildStageVoice)
-			) || [];
+		const allChannel = massMoveSourceChannels(interaction.guild);
 
 		const opts = client.func.method.options(interaction, args);
 		const fromChannel = await opts.voiceChannel("from", 0);
@@ -68,42 +66,16 @@ export const subCommand: SubCommand = {
 
 		if (toChannel === null) return;
 
-		let movedCount = 0;
-		let errorCount = 0;
-
 		await sendCard(
 			client,
 			interaction,
 			notice("info", client.iHorizon_Emojis.Discord_Loading)
 		);
 
-		if (fromChannel) {
-			for (const member of (
-				fromChannel as BaseGuildVoiceChannel
-			).members.values()) {
-				try {
-					await member.voice.setChannel(toChannel as VoiceChannel);
-					movedCount++;
-				} catch (error) {
-					errorCount++;
-				}
-			}
-		} else if (allChannel) {
-			for (const channel of allChannel) {
-				for (const member of (
-					channel as BaseGuildVoiceChannel
-				).members.values()) {
-					try {
-						await member.voice.setChannel(
-							toChannel as VoiceChannel
-						);
-						movedCount++;
-					} catch (error) {
-						errorCount++;
-					}
-				}
-			}
-		}
+		const { moved: movedCount, failed: errorCount } = await moveMembers(
+			membersOfChannels(fromChannel ? [fromChannel] : allChannel),
+			() => toChannel as VoiceChannel
+		);
 
 		const emojis = client.iHorizon_Emojis;
 		await sendCard(

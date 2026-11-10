@@ -23,14 +23,16 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	ChannelType,
-	BaseGuildVoiceChannel,
-	VoiceChannel,
 	Message,
 	CategoryChannel
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	categoryVoiceChannels,
+	moveMembers
+} from "../../../../core/modules/memberToolsManager.js";
 import {
 	ACCENT,
 	botSignature,
@@ -85,13 +87,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Get all voice channels in the target category
-		const targetVoiceChannels = Array.from(
-			category.children.cache.values()
-		).filter(
-			(channel) =>
-				channel.type === ChannelType.GuildVoice ||
-				channel.type === ChannelType.GuildStageVoice
-		) as BaseGuildVoiceChannel[];
+		const targetVoiceChannels = categoryVoiceChannels(category);
 
 		if (targetVoiceChannels.length === 0) {
 			return await client.func.method.interactionSend(interaction, {
@@ -107,9 +103,6 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		let movedCount = 0;
-		let errorCount = 0;
-
 		await sendCard(
 			client,
 			interaction,
@@ -122,18 +115,10 @@ export const subCommand: SubCommand = {
 		);
 
 		// Distribute members across voice channels
-		for (let i = 0; i < shuffledMembers.length; i++) {
-			const member = shuffledMembers[i];
-			const targetChannel =
-				targetVoiceChannels[i % targetVoiceChannels.length];
-
-			try {
-				await member.voice.setChannel(targetChannel as VoiceChannel);
-				movedCount++;
-			} catch (error) {
-				errorCount++;
-			}
-		}
+		const { moved: movedCount, failed: errorCount } = await moveMembers(
+			shuffledMembers,
+			(i) => targetVoiceChannels[i % targetVoiceChannels.length]
+		);
 
 		const emojis = client.iHorizon_Emojis;
 		await sendCard(

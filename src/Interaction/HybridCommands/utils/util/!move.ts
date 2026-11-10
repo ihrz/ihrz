@@ -19,15 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-	PermissionFlagsBits
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { notice, sendCard } from "../../../../core/modules/uiCard.js";
+import { canMoveMember } from "../../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -58,12 +54,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if the member is an admin
-		if (
-			member?.permissions.has(PermissionFlagsBits.Administrator) &&
-			!interaction.member.permissions.has(
-				PermissionFlagsBits.Administrator
-			)
-		) {
+		if (!canMoveMember(interaction.member, member)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_move_impossible_to_move_admin
 			});

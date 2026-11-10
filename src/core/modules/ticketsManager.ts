@@ -51,7 +51,12 @@ import {
 	Message,
 	MessageFlags,
 	Collection,
-	PermissionFlagsBits
+	PermissionFlagsBits,
+	BaseMessageOptions,
+	Client,
+	Guild,
+	GuildMember,
+	OverwriteType
 } from "discord.js";
 
 import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
@@ -958,106 +963,190 @@ async function CreateChannelV2(
 		});
 }
 
-async function CloseTicket(
-	interaction: ChatInputCommandInteraction<"cached"> | Message
-) {
-	const data = await interaction.client.func.getLanguageData(
-		interaction.guildId
-	);
+type TicketFiles = NonNullable<BaseMessageOptions["files"]>;
 
-	const fetch = await interaction.client.db.get(
-		`${interaction.guildId}.TICKET_ALL`
-	);
-
-	for (const user in fetch) {
-		for (const channel in fetch[user]) {
-			if (channel === interaction.channel?.id) {
-				const member = interaction.guild?.members.cache.get(
-					fetch[user][channel]?.author
-				);
-
-				const attachment = await DiscordJSTranscript.create({
-					channel: interaction.channel as TextBasedChannel,
-					limit: -1,
-					filename: `${interaction.guildId}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false
-				});
-
-				const embed = new EmbedBuilder()
-					.setDescription(data.close_title_sourcebin)
-					.setColor("#0014a8");
-
-				try {
-					(
-						interaction.channel as BaseGuildTextChannel
-					).permissionOverwrites.create(member?.user as User, {
-						ViewChannel: false,
-						SendMessages: false,
-						ReadMessageHistory: false
-					});
-					client.func.method.interactionSend(interaction, {
-						content: data.close_command_work_notify_channel,
-						files: [attachment],
-						embeds: [embed]
-					});
-				} catch {
-					await interaction.client.func.method.channelSend(
-						interaction,
-						data.close_command_error
-					);
-					return;
-				}
-
-				try {
-					let TicketLogsChannel = await interaction.client.db.get(
-						`${interaction.guildId}.GUILD.TICKET.logs`
-					);
-					TicketLogsChannel =
-						interaction.guild?.channels.cache.get(
-							TicketLogsChannel
-						);
-					if (!TicketLogsChannel) return;
-
-					const embed = new EmbedBuilder()
-						.setColor("#008000")
-						.setTitle(
-							data.event_ticket_logsChannel_onClose_embed_title
-						)
-						.setDescription(
-							data.event_ticket_logsChannel_onClose_embed_desc
-								.replace(
-									"${author}",
-									interaction.member?.user.toString()!
-								)
-								.replace(
-									"${channelId}",
-									interaction.channel?.id!
-								)
-						)
-						.setFooter(
-							await interaction.client.func.displayBotName.footerBuilder(
-								interaction.guildId!
-							)
-						)
-						.setTimestamp();
-
-					TicketLogsChannel.send({
-						embeds: [embed],
-						files: [
-							attachment,
-							await interaction.client.func.displayBotName.footerAttachmentBuilder(
-								interaction
-							)
-						]
-					});
-					return;
-				} catch (e) {
-					return;
-				}
+/** Everything in `TICKET_ALL` for a guild, flattened (`key` = the author key). */
+async function listTicketEntries(
+	client: Client,
+	guildId: string
+): Promise<{ key: string; data: DatabaseStructure.TicketChannelData }[]> {
+	const all = (await client.db.get(
+		`${guildId}.TICKET_ALL`
+	)) as DatabaseStructure.TicketData | null;
+	const out: { key: string; data: DatabaseStructure.TicketChannelData }[] =
+		[];
+	if (!all || typeof all !== "object") return out;
+	for (const key of Object.keys(all)) {
+		const byUser = all[key];
+		if (!byUser || typeof byUser !== "object") continue;
+		for (const channelId of Object.keys(byUser)) {
+			const data = byUser[channelId];
+			if (data && typeof data === "object") {
+				// The channel id is the key; `channel` mirrors it.
+				out.push({ key, data: { ...data, channel: channelId } });
 			}
 		}
 	}
+	return out;
+}
+
+/** The ticket stored for a channel, with the author key it is filed under. */
+async function findTicketByChannel(
+	client: Client,
+	guildId: string,
+	channelId: string | null | undefined
+): Promise<{ key: string; data: DatabaseStructure.TicketChannelData } | null> {
+	if (!channelId) return null;
+	const entries = await listTicketEntries(client, guildId);
+	return entries.find((e) => e.data.channel === channelId) ?? null;
+}
+
+/** Sends an entry to the ticket log channel (`GUILD.TICKET.logs`), if set. Never throws. */
+async function sendTicketLog(
+	guild: Guild,
+	title: string,
+	description: string,
+	files: TicketFiles = []
+): Promise<void> {
+	try {
+		const logsId = await guild.client.db.get(
+			`${guild.id}.GUILD.TICKET.logs`
+		);
+		const logs = logsId ? guild.channels.cache.get(logsId) : undefined;
+		if (!logs?.isSendable()) return;
+
+		const embed = new EmbedBuilder()
+			.setColor("#008000")
+			.setTitle(title)
+			.setDescription(description)
+			.setFooter(
+				await guild.client.func.displayBotName.footerBuilder(guild.id)
+			)
+			.setTimestamp();
+
+		await logs.send({
+			embeds: [embed],
+			files: [
+				await guild.client.func.displayBotName.footerAttachmentBuilder(
+					guild
+				),
+				...files
+			]
+		});
+	} catch {}
+}
+
+function interactionUser(interaction: Interaction<"cached"> | Message): User {
+	return interaction instanceof Message
+		? interaction.author
+		: interaction.user;
+}
+
+/**
+ * /ticket close and the dashboard: full transcript, the author loses access,
+ * `notify` gets the transcript, then the log entry. False if the channel
+ * permissions could not be changed.
+ */
+async function closeTicketChannel(
+	channel: BaseGuildTextChannel,
+	authorId: string,
+	actor: User,
+	lang: LanguageData,
+	notify: (payload: {
+		content: string;
+		files: TicketFiles;
+		embeds: EmbedBuilder[];
+	}) => Promise<unknown>
+): Promise<boolean> {
+	const attachment = await DiscordJSTranscript.create({
+		channel: channel as TextBasedChannel,
+		limit: -1,
+		filename: `${channel.guildId}-transcript.html`,
+		footerText: "Exported {number} message{s}",
+		poweredBy: false
+	});
+
+	const embed = new EmbedBuilder()
+		.setDescription(lang.close_title_sourcebin)
+		.setColor("#0014a8");
+
+	try {
+		await channel.permissionOverwrites.create(
+			authorId,
+			{
+				ViewChannel: false,
+				SendMessages: false,
+				ReadMessageHistory: false
+			},
+			{ type: OverwriteType.Member }
+		);
+	} catch {
+		return false;
+	}
+
+	await notify({
+		content: lang.close_command_work_notify_channel,
+		files: [attachment],
+		embeds: [embed]
+	}).catch(() => null);
+
+	await sendTicketLog(
+		channel.guild,
+		lang.event_ticket_logsChannel_onClose_embed_title,
+		lang.event_ticket_logsChannel_onClose_embed_desc
+			.replace("${author}", actor.toString())
+			.replace("${channelId}", channel.id),
+		[attachment]
+	);
+	return true;
+}
+
+async function CloseTicket(
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const ticket = await findTicketByChannel(
+		interaction.client,
+		interaction.guildId!,
+		interaction.channel?.id
+	);
+	if (!ticket) return;
+
+	const ok = await closeTicketChannel(
+		interaction.channel as BaseGuildTextChannel,
+		ticket.data.author,
+		interactionUser(interaction),
+		lang,
+		(payload) =>
+			interaction.client.func.method.interactionSend(interaction, payload)
+	);
+	if (!ok) {
+		await interaction.client.func.method.channelSend(
+			interaction,
+			lang.close_command_error
+		);
+	}
+}
+
+/**
+ * Who may delete, transcript or reopen a ticket: its author, administrators
+ * and anyone who can manage the ticket channel.
+ */
+function canManageTicket(
+	member: GuildMember,
+	channelId: string | null | undefined,
+	authorId: string | undefined
+): boolean {
+	return (
+		member.id === authorId ||
+		member.permissions.has(PermissionFlagsBits.Administrator) ||
+		(!!channelId &&
+			member
+				.permissionsIn(channelId)
+				.has(PermissionFlagsBits.ManageChannels))
+	);
 }
 
 /**
@@ -1077,15 +1166,7 @@ async function denyUnlessTicketStaff(
 ): Promise<boolean> {
 	const channel = interaction.channel;
 	const member = interaction.member;
-	const userId = member?.user.id;
-	const allowed =
-		(!!userId && userId === authorId) ||
-		(!!member &&
-			(member.permissions.has(PermissionFlagsBits.Administrator) ||
-				(!!channel &&
-					member
-						.permissionsIn(channel.id)
-						.has(PermissionFlagsBits.ManageChannels))));
+	const allowed = !!member && canManageTicket(member, channel?.id, authorId);
 
 	if (allowed) return true;
 
@@ -1185,6 +1266,28 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	}
 }
 
+/** /ticket remove-member and the dashboard: the user loses access, then the log entry. Throws if Discord refuses. */
+async function removeTicketMember(
+	channel: BaseGuildTextChannel,
+	user: User,
+	actor: User,
+	lang: LanguageData
+): Promise<void> {
+	await channel.permissionOverwrites.create(user, {
+		ViewChannel: false,
+		SendMessages: false,
+		ReadMessageHistory: false
+	});
+	await sendTicketLog(
+		channel.guild,
+		lang.event_ticket_logsChannel_onRemoveMember_embed_title,
+		lang.event_ticket_logsChannel_onRemoveMember_embed_desc
+			.replace("${member}", user.toString())
+			.replace("${author}", actor.toString())
+			.replace("${channelId}", channel.id)
+	);
+}
+
 async function TicketRemoveMember(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	member: User
@@ -1194,67 +1297,46 @@ async function TicketRemoveMember(
 	);
 
 	try {
-		(
-			interaction.channel as BaseGuildTextChannel
-		)?.permissionOverwrites.create(member as User, {
-			ViewChannel: false,
-			SendMessages: false,
-			ReadMessageHistory: false
-		});
-		client.func.method.interactionSend(interaction, {
-			content: data.remove_command_work.replaceAll(
-				"${memberTag}",
-				member?.username!
-			)
-		});
-
-		try {
-			let TicketLogsChannel = await interaction.client.db.get(
-				`${interaction.guildId}.GUILD.TICKET.logs`
-			);
-			TicketLogsChannel =
-				interaction.guild?.channels.cache.get(TicketLogsChannel);
-			if (!TicketLogsChannel) return;
-
-			const embed = new EmbedBuilder()
-				.setColor("#008000")
-				.setTitle(
-					data.event_ticket_logsChannel_onRemoveMember_embed_title
-				)
-				.setDescription(
-					data.event_ticket_logsChannel_onRemoveMember_embed_desc
-						.replace("${member}", member?.toString()!)
-						.replace(
-							"${author}",
-							interaction.member?.user.toString()!
-						)
-						.replace("${channelId}", interaction.channel?.id!)
-				)
-				.setFooter(
-					await interaction.client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setTimestamp();
-
-			TicketLogsChannel.send({
-				embeds: [embed],
-				files: [
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
-			return;
-		} catch (e) {
-			return;
-		}
+		await removeTicketMember(
+			interaction.channel as BaseGuildTextChannel,
+			member,
+			interactionUser(interaction),
+			data
+		);
 	} catch {
 		await client.func.method.interactionSend(interaction, {
 			content: data.remove_command_error
 		});
 		return;
 	}
+	await client.func.method.interactionSend(interaction, {
+		content: data.remove_command_work.replaceAll(
+			"${memberTag}",
+			member?.username!
+		)
+	});
+}
+
+/** /ticket add-member and the dashboard: the user gets access, then the log entry. Throws if Discord refuses. */
+async function addTicketMember(
+	channel: BaseGuildTextChannel,
+	user: User,
+	actor: User,
+	lang: LanguageData
+): Promise<void> {
+	await channel.permissionOverwrites.create(user, {
+		ViewChannel: true,
+		SendMessages: true,
+		ReadMessageHistory: true
+	});
+	await sendTicketLog(
+		channel.guild,
+		lang.event_ticket_logsChannel_onAddMember_embed_title,
+		lang.event_ticket_logsChannel_onAddMember_embed_desc
+			.replace("${member}", user.toString())
+			.replace("${author}", actor.toString())
+			.replace("${channelId}", channel.id)
+	);
 }
 
 async function TicketAddMember(
@@ -1273,286 +1355,202 @@ async function TicketAddMember(
 	}
 
 	try {
-		(
-			interaction.channel as BaseGuildTextChannel
-		).permissionOverwrites.create(member, {
-			ViewChannel: true,
-			SendMessages: true,
-			ReadMessageHistory: true
-		});
-		await client.func.method.interactionSend(interaction, {
-			content: data.add_command_work.replaceAll(
-				"${memberTag}",
-				member.username
-			)
-		});
-
-		try {
-			let TicketLogsChannel = await interaction.client.db.get(
-				`${interaction.guildId}.GUILD.TICKET.logs`
-			);
-			TicketLogsChannel =
-				interaction.guild?.channels.cache.get(TicketLogsChannel);
-			if (!TicketLogsChannel) return;
-
-			const embed = new EmbedBuilder()
-				.setColor("#008000")
-				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
-				.setDescription(
-					data.event_ticket_logsChannel_onAddMember_embed_desc
-						.replace("${member}", member.toString())
-						.replace(
-							"${author}",
-							interaction.member?.user.toString()!
-						)
-						.replace("${channelId}", interaction.channel?.id!)
-				)
-				.setFooter(
-					await interaction.client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setTimestamp();
-
-			TicketLogsChannel.send({
-				embeds: [embed],
-				files: [
-					await interaction.client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
-			return;
-		} catch (e) {
-			return;
-		}
+		await addTicketMember(
+			interaction.channel as BaseGuildTextChannel,
+			member,
+			interactionUser(interaction),
+			data
+		);
 	} catch (e) {
 		await client.func.method.interactionSend(interaction, {
 			content: data.add_command_error
 		});
 		return;
 	}
+	await client.func.method.interactionSend(interaction, {
+		content: data.add_command_work.replaceAll(
+			"${memberTag}",
+			member.username
+		)
+	});
+}
+
+/** /ticket open and the dashboard: the author gets access back, then the log entry. Throws if Discord refuses. */
+async function reopenTicketChannel(
+	channel: BaseGuildTextChannel,
+	authorId: string,
+	actor: User,
+	lang: LanguageData
+): Promise<void> {
+	await channel.permissionOverwrites.edit(
+		authorId,
+		{
+			ViewChannel: true,
+			SendMessages: true,
+			AttachFiles: true,
+			ReadMessageHistory: true
+		},
+		{ type: OverwriteType.Member }
+	);
+	await sendTicketLog(
+		channel.guild,
+		lang.event_ticket_logsChannel_onReopen_embed_title,
+		lang.event_ticket_logsChannel_onReopen_embed_desc
+			.replace("${author}", actor.toString())
+			.replace("${channelId}", channel.id)
+	);
 }
 
 async function TicketReOpen(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	lang: LanguageData
 ) {
-	const fetch = await interaction.client.db.get(
-		`${interaction.guildId}.TICKET_ALL`
+	const ticket = await findTicketByChannel(
+		interaction.client,
+		interaction.guildId!,
+		interaction.channel?.id
+	);
+	if (!ticket) return;
+	if (!(await denyUnlessTicketStaff(interaction, ticket.data.author, lang)))
+		return;
+
+	try {
+		await reopenTicketChannel(
+			interaction.channel as BaseGuildTextChannel,
+			ticket.data.author,
+			interactionUser(interaction),
+			lang
+		);
+	} catch (e) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.open_command_error
+		});
+		return;
+	}
+	await client.func.method.interactionSend(interaction, {
+		content: lang.open_command_work.replaceAll(
+			"${channel}",
+			interaction.channel?.toString()!
+		)
+	});
+}
+
+/**
+ * Ticket deletion (slash, prefix, button, dashboard), once the caller checked
+ * `canManageTicket`: entry removed, transcript to the logs (and to the author
+ * by DM when someone else deletes it), channel deleted. False if the channel
+ * could not be deleted.
+ */
+async function deleteTicketChannel(
+	channel: BaseGuildTextChannel,
+	ticketKey: string,
+	ticketOwnerId: string | undefined,
+	actor: User,
+	lang: LanguageData
+): Promise<boolean> {
+	const guild = channel.guild;
+	const ticketOwner = ticketOwnerId
+		? await guild.client.users.fetch(ticketOwnerId).catch(() => null)
+		: null;
+	const ticketOwnerMention = ticketOwner?.toString() || `<@${ticketOwnerId}>`;
+	const deletedByUserId = actor.id;
+	const shouldSendOwnerDm =
+		!!ticketOwner && ticketOwnerId !== deletedByUserId;
+
+	await guild.client.db.delete(
+		`${guild.id}.TICKET_ALL.${ticketKey}.${channel.id}`
 	);
 
-	for (const user in fetch) {
-		for (const channel in fetch[user]) {
-			if (channel === interaction.channel?.id) {
-				if (
-					!(await denyUnlessTicketStaff(
-						interaction,
-						fetch[user][channel]?.author,
-						lang
-					))
-				)
-					return;
+	try {
+		const logsId = await guild.client.db.get(
+			`${guild.id}.GUILD.TICKET.logs`
+		);
+		const TicketLogsChannel = logsId
+			? guild.channels.cache.get(logsId)
+			: undefined;
 
-				const member = interaction.guild?.members.cache.get(
-					fetch[user][channel]?.author
-				);
+		if (TicketLogsChannel?.isSendable()) {
+			const attachment = await DiscordJSTranscript.create({
+				channel: channel as TextBasedChannel,
+				limit: -1,
+				filename: `${guild.id}-transcript.html`,
+				footerText: "Exported {number} message{s}",
+				poweredBy: false
+			});
 
-				try {
-					(
-						interaction.channel as BaseGuildTextChannel
-					).permissionOverwrites
-						.edit(member?.user.id!, {
-							ViewChannel: true,
-							SendMessages: true,
-							AttachFiles: true,
-							ReadMessageHistory: true
-						})
-						.then(() => {
-							client.func.method.interactionSend(interaction, {
-								content: lang.open_command_work.replaceAll(
-									"${channel}",
-									interaction.channel?.toString()!
-								)
-							});
-							return;
-						});
-
-					try {
-						let TicketLogsChannel = await interaction.client.db.get(
-							`${interaction.guildId}.GUILD.TICKET.logs`
-						);
-						TicketLogsChannel =
-							interaction.guild?.channels.cache.get(
-								TicketLogsChannel
-							);
-						if (!TicketLogsChannel) return;
-
-						const embed = new EmbedBuilder()
-							.setColor("#008000")
-							.setTitle(
-								lang.event_ticket_logsChannel_onReopen_embed_title
+			if (shouldSendOwnerDm) {
+				await ticketOwner
+					.send({
+						content: lang.ticket_deleted
+							.replace(
+								"${ticketOwnerMention}",
+								ticketOwnerMention
 							)
-							.setDescription(
-								lang.event_ticket_logsChannel_onReopen_embed_desc
-									.replace(
-										"${author}",
-										interaction.member?.user.toString()!
-									)
-									.replace(
-										"${channelId}",
-										interaction.channel.id
-									)
-							)
-							.setFooter(
-								await interaction.client.func.displayBotName.footerBuilder(
-									interaction.guildId!
-								)
-							)
-							.setTimestamp();
-
-						TicketLogsChannel.send({
-							embeds: [embed],
-							files: [
-								await interaction.client.func.displayBotName.footerAttachmentBuilder(
-									interaction
-								)
-							]
-						});
-						return;
-					} catch (e) {
-						return;
-					}
-				} catch (e) {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.open_command_error
-					});
-					return;
-				}
+							.replace("${deletedByUserId}", deletedByUserId),
+						files: [attachment]
+					})
+					.catch(() => null);
 			}
+
+			const embed = new EmbedBuilder()
+				.setColor("#008000")
+				.setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
+				.setDescription(
+					lang.event_ticket_logsChannel_onDelete_embed_desc
+						.replace("${author}", actor.toString())
+						.replace("${channelName}", channel.name)
+				)
+				.setFooter(
+					await guild.client.func.displayBotName.footerBuilder(
+						guild.id
+					)
+				)
+				.setTimestamp();
+			const deleted = await channel.delete().then(
+				() => true,
+				() => false
+			);
+
+			TicketLogsChannel.send({
+				embeds: [embed],
+				files: [
+					await guild.client.func.displayBotName.footerAttachmentBuilder(
+						guild
+					),
+					attachment
+				]
+			}).catch(() => null);
+			return deleted;
 		}
+		return await channel.delete().then(
+			() => true,
+			() => false
+		);
+	} catch (e) {
+		return false;
 	}
 }
 
 async function TicketDelete(interaction: Interaction<"cached"> | Message) {
-	const data = await interaction.client.func.getLanguageData(
+	const lang = await interaction.client.func.getLanguageData(
 		interaction.guildId
 	);
-	const fetch = await interaction.client.db.get(
-		`${interaction.guildId}.TICKET_ALL`
+	const ticket = await findTicketByChannel(
+		interaction.client,
+		interaction.guildId!,
+		interaction.channel?.id
 	);
-	const lang = await client.func.getLanguageData(interaction.guildId);
+	if (!ticket) return;
+	if (!(await denyUnlessTicketStaff(interaction, ticket.data.author, lang)))
+		return;
 
-	for (const user in fetch) {
-		for (const channel in fetch[user]) {
-			if (channel === interaction.channel?.id) {
-				const ticketOwnerId = fetch[user][channel]?.author;
-				const ticketOwner = ticketOwnerId
-					? await interaction.client.users
-							.fetch(ticketOwnerId)
-							.catch(() => null)
-					: null;
-				const ticketOwnerMention =
-					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
-				if (
-					!(await denyUnlessTicketStaff(
-						interaction,
-						ticketOwnerId,
-						lang
-					))
-				)
-					return;
-
-				const deletedByUserId = interaction.member?.user.id;
-				const shouldSendOwnerDm =
-					!!ticketOwner &&
-					!!deletedByUserId &&
-					ticketOwnerId !== deletedByUserId;
-
-				await interaction.client.db.delete(
-					`${interaction.guildId}.TICKET_ALL.${user}.${channel}`
-				);
-
-				try {
-					let TicketLogsChannel = await interaction.client.db.get(
-						`${interaction.guildId}.GUILD.TICKET.logs`
-					);
-					TicketLogsChannel =
-						interaction.guild?.channels.cache.get(
-							TicketLogsChannel
-						);
-
-					if (TicketLogsChannel) {
-						const attachment = await DiscordJSTranscript.create({
-							channel: interaction.channel as TextBasedChannel,
-							limit: -1,
-							filename: `${interaction.guildId}-transcript.html`,
-							footerText: "Exported {number} message{s}",
-							poweredBy: false
-						});
-
-						if (shouldSendOwnerDm) {
-							await ticketOwner
-								.send({
-									content: lang.ticket_deleted
-										.replace(
-											"${ticketOwnerMention}",
-											ticketOwnerMention
-										)
-										.replace(
-											"${deletedByUserId}",
-											deletedByUserId
-										),
-									files: [attachment]
-								})
-								.catch(() => null);
-						}
-
-						const embed = new EmbedBuilder()
-							.setColor("#008000")
-							.setTitle(
-								data.event_ticket_logsChannel_onDelete_embed_title
-							)
-							.setDescription(
-								data.event_ticket_logsChannel_onDelete_embed_desc
-									.replace(
-										"${author}",
-										interaction.member?.user.toString()!
-									)
-									.replace(
-										"${channelName}",
-										(
-											interaction.channel as BaseGuildTextChannel
-										)?.name
-									)
-							)
-							.setFooter(
-								await interaction.client.func.displayBotName.footerBuilder(
-									interaction.guildId!
-								)
-							)
-							.setTimestamp();
-						interaction.channel.delete();
-
-						TicketLogsChannel.send({
-							embeds: [embed],
-							files: [
-								await interaction.client.func.displayBotName.footerAttachmentBuilder(
-									interaction
-								),
-								attachment
-							]
-						});
-					} else {
-						await interaction.channel.delete();
-					}
-					return;
-				} catch (e) {
-					return;
-				}
-			}
-		}
-	}
+	await deleteTicketChannel(
+		interaction.channel as BaseGuildTextChannel,
+		ticket.key,
+		ticket.data.author,
+		interactionUser(interaction),
+		lang
+	);
 }
 
 async function TicketAddMember_2(
@@ -1690,22 +1688,80 @@ async function TicketSearch(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	channelId: string
 ): Promise<DatabaseStructure.TicketChannelData | null> {
-	const tickets = await interaction.client.db.get(
-		`${interaction.guildId}.TICKET_ALL`
+	return (
+		(
+			await findTicketByChannel(
+				interaction.client,
+				interaction.guildId!,
+				channelId
+			)
+		)?.data ?? null
 	);
+}
 
-	if (!tickets) return null;
+/**
+ * /ticket remind and the dashboard: DMs the ticket author a link to the
+ * ticket with the time since their last message. Null if the channel
+ * messages could not be read.
+ */
+async function remindTicketOwner(
+	channel: BaseGuildTextChannel,
+	authorId: string,
+	lang: LanguageData
+): Promise<{ owner: GuildMember | null; sent: boolean } | null> {
+	const guild = channel.guild;
+	const ticketOwner =
+		guild.members.cache.get(authorId) ||
+		(await guild.members.fetch(authorId).catch(() => null));
 
-	for (const userTickets of Object.values(tickets) as Record<
-		string,
-		DatabaseStructure.TicketChannelData
-	>[]) {
-		if (channelId in userTickets) {
-			return userTickets[channelId];
-		}
-	}
+	// The last 100 messages.
+	const messages = await channel.messages
+		.fetch({ limit: 100 })
+		.catch(() => null);
+	if (!messages) return null;
 
-	return null;
+	// The ticket owner's latest message.
+	const lastOwnerMessage = messages
+		.filter((x) => x.author.id === ticketOwner?.id)
+		.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+		.first();
+
+	const timestamp = lastOwnerMessage?.createdTimestamp;
+	const time = timestamp
+		? guild.client.timeCalculator.to_beautiful_string(
+				Date.now() - timestamp,
+				lang
+			)
+		: lang.var_never;
+
+	const sent = !!(await ticketOwner
+		?.send({
+			content: `https://discord.com/channels/${guild.id}/${channel.id}`,
+			embeds: [
+				new EmbedBuilder()
+					.setTitle(lang.ticket_remind_embed_title)
+					.setDescription(lang.ticket_remind_embed_desc)
+					.setFields({
+						name: lang.ticket_remind_embed_fields_1_name,
+						value: `[${time}](https://discord.com/channels/${guild.id}/${channel.id}/${lastOwnerMessage?.id})`
+					})
+					.setColor("Red")
+					.setFooter(
+						await guild.client.func.displayBotName.footerBuilder(
+							guild.id
+						)
+					)
+			],
+			files: [
+				await guild.client.func.displayBotName.footerAttachmentBuilder(
+					guild
+				)
+			]
+		})
+		.then(() => true)
+		.catch(() => false));
+
+	return { owner: ticketOwner ?? null, sent };
 }
 
 async function TicketRemind(
@@ -1723,71 +1779,35 @@ async function TicketRemind(
 		return;
 	}
 
-	let ticketOwner =
-		interaction.guild?.members.cache.get(owner_ticket.author) ||
-		(await interaction.guild?.members
-			.fetch(owner_ticket.author)
-			.catch(() => null));
+	const result = await remindTicketOwner(
+		interaction.channel as BaseGuildTextChannel,
+		owner_ticket.author,
+		lang
+	);
+	if (!result) return; // Exit if we couldn't fetch messages
 
-	// Fetch messages properly - get the last 100 messages
-	let messages = await interaction.channel?.messages
-		.fetch({ limit: 100 })
-		.catch(() => null);
-
-	if (!messages) return; // Exit if we couldn't fetch messages
-
-	// Filter to get only messages from the ticket owner
-	let lastOwnerMessage = messages
-		.filter((x) => x.author.id === ticketOwner?.id)
-		.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
-		.first();
-
-	let timestamp = lastOwnerMessage?.createdTimestamp;
-	let time = timestamp
-		? interaction.client.timeCalculator.to_beautiful_string(
-				Date.now() - timestamp,
-				lang
-			)
-		: lang.var_never;
-
-	let Success = await ticketOwner
-		?.send({
-			content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
-			embeds: [
-				new EmbedBuilder()
-					.setTitle(lang.ticket_remind_embed_title)
-					.setDescription(lang.ticket_remind_embed_desc)
-					.setFields({
-						name: lang.ticket_remind_embed_fields_1_name,
-						value: `[${time}](https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${lastOwnerMessage?.id})`
-					})
-					.setColor("Red")
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-			],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		})
-		.then(() => true)
-		.catch(() => false);
-
-	if (!Success) {
+	if (!result.sent) {
 		client.func.method.interactionSend(interaction, {
 			content: lang.utils_dm_cant
 				.replace("${emoji_No}", client.iHorizon_Emojis.No)
-				.replace("${targetMember}", ticketOwner?.toString()!)
+				.replace("${targetMember}", result.owner?.toString()!)
 		});
 	} else {
 		client.func.method.interactionSend(interaction, {
 			content: lang.ticket_remind_command_ok
 		});
 	}
+}
+
+/** /ticket rename and the dashboard. False if Discord refuses. */
+async function renameTicketChannel(
+	channel: BaseGuildTextChannel,
+	name: string
+): Promise<boolean> {
+	return channel.setName(name).then(
+		() => true,
+		() => false
+	);
 }
 
 export {
@@ -1801,5 +1821,15 @@ export {
 	TicketReOpen,
 	TicketAddMember_2,
 	TicketRemind,
-	TicketSearch
+	TicketSearch,
+	listTicketEntries,
+	findTicketByChannel,
+	canManageTicket,
+	closeTicketChannel,
+	addTicketMember,
+	removeTicketMember,
+	reopenTicketChannel,
+	deleteTicketChannel,
+	remindTicketOwner,
+	renameTicketChannel
 };

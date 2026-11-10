@@ -28,6 +28,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
+import { resetMemberSection } from "../../../core/modules/memberToolsManager.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -62,8 +63,11 @@ export const subCommand: SubCommand = {
 		});
 
 		if (response) {
-			await client.db.delete(
-				`${interaction.guildId}.USER.${user.id}.ECONOMY`
+			await resetMemberSection(
+				client,
+				interaction.guild.id,
+				user.id,
+				"ECONOMY"
 			);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.resetallinvites_succes_on_delete,

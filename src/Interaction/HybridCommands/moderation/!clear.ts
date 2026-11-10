@@ -32,15 +32,10 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-
-const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
-const MAX_SCANNED_MESSAGES = 1000;
-const FETCH_DELAY_MS = 350; // small buffer to stay clear of the messages.fetch rate limit
-
-function keepBulkDeletable(messages: readonly Message[]): Message[] {
-	const twoWeeksAgo = Date.now() - TWO_WEEKS_MS;
-	return messages.filter((m) => m.createdTimestamp > twoWeeksAgo);
-}
+import {
+	bulkClear,
+	selectMessagesToClear
+} from "../../../core/modules/moderationOps.js";
 
 export async function afterSent(
 	sent: Message,
@@ -59,75 +54,27 @@ export async function clearMessage(
 	lang: LanguageData
 ): Promise<void> {
 	try {
-		let filteredBody = body;
-		if (body instanceof Collection) {
-			filteredBody = body.filter(
-				(m) => keepBulkDeletable([m]).length > 0
-			);
-		}
-
-		const messages = await (
-			interaction.channel as BaseGuildTextChannel
-		).bulkDelete(filteredBody, true);
+		const count = await bulkClear(
+			interaction.channel as BaseGuildTextChannel,
+			body,
+			interaction.member?.user.id,
+			lang
+		);
 
 		const sent = await client.func.method.channelSend(interaction, {
 			content: lang.clear_confirmation_message.replace(
 				"${messageCount}",
-				messages.size.toString()
+				count.toString()
 			)
 		});
 
 		setTimeout(() => afterSent(sent, interaction), 5000);
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.clear_logs_embed_title,
-			description: lang.clear_logs_embed_description
-				.replace("${authorId}", String(interaction.member?.user.id))
-				.replace("${messageCount}", messages.size.toString())
-				.replace("${channelId}", String(interaction.channel?.id))
-		});
 	} catch (error) {
 		logger.err("[clear] bulkDelete failed:", error);
 		await client.func.method.interactionSend(interaction, {
 			content: `${error?.message}`
 		});
 	}
-}
-
-async function findMessagesByAuthor(
-	channel: BaseGuildTextChannel,
-	authorId: Snowflake,
-	targetAmount: number
-): Promise<{ matched: Message[]; scanned: number }> {
-	const matched: Message[] = [];
-	let scanned = 0;
-	let lastMessageId: string | undefined;
-
-	const chunks = Math.ceil(MAX_SCANNED_MESSAGES / 100);
-
-	for (let i = 0; i < chunks && matched.length < targetAmount; i++) {
-		const fetchedMessages = await channel.messages.fetch({
-			limit: 100,
-			before: lastMessageId
-		});
-
-		if (fetchedMessages.size === 0) break;
-
-		scanned += fetchedMessages.size;
-		lastMessageId = fetchedMessages.last()?.id;
-
-		for (const msg of fetchedMessages.values()) {
-			if (msg.author.id !== authorId) continue;
-			matched.push(msg);
-			if (matched.length >= targetAmount) break;
-		}
-
-		const isLastIteration =
-			i === chunks - 1 || matched.length >= targetAmount;
-		if (!isLastIteration) await Bun.sleep(FETCH_DELAY_MS);
-	}
-
-	return { matched, scanned };
 }
 
 export const subCommand: SubCommand = {
@@ -152,40 +99,19 @@ export const subCommand: SubCommand = {
 
 		const channel = interaction.channel as BaseGuildTextChannel;
 
-		if (member) {
-			const targetAmount = Math.max(amount, 1);
+		const selected = await selectMessagesToClear(
+			channel,
+			amount,
+			member?.id ?? null
+		);
 
-			const { matched, scanned } = await findMessagesByAuthor(
-				channel,
-				member.id,
-				targetAmount
-			);
-
-			logger.debug(
-				`[clear] scanned ${scanned} message(s) to find ${matched.length}/${targetAmount} from ${member.id}`
-			);
-
-			if (matched.length === 0) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.clear_command_no_message
-				});
-				return;
-			}
-
-			const deletable = keepBulkDeletable(matched.slice(0, targetAmount));
-
-			if (deletable.length === 0) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.clear_command_no_message
-				});
-				return;
-			}
-
-			await clearMessage(deletable, interaction, lang);
-			return;
-		} else {
-			await clearMessage(Math.min(amount, 100), interaction, lang);
+		if (selected === null) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.clear_command_no_message
+			});
 			return;
 		}
+
+		await clearMessage(selected, interaction, lang);
 	}
 };

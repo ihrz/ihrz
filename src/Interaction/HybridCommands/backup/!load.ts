@@ -25,25 +25,23 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
-import { BackupBusyError } from "../../../core/backup/src/index.js";
 import {
-	componentsOf,
 	normalizeComponents,
 	type BackupComponent
 } from "../../../core/backup/src/components.js";
 import {
 	BACKUP_PANEL_TIMEOUT,
-	canUseBackups,
+	backupLoadRefusalText,
 	componentsLine,
 	componentsSelect,
 	isAuthor,
-	reportLines,
+	prepareBackupLoad,
+	runBackupLoad,
 	showCard
 } from "../../../core/modules/backupPanels.js";
 import {
@@ -84,42 +82,17 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const backupID = opts.string("backup-id", 0);
 
-		if (!(await canUseBackups(client, guild, authorId))) {
-			await refuse(lang.backup_manage_nique_tes_mort);
+		const prepared = await prepareBackupLoad(
+			client,
+			guild,
+			authorId,
+			backupID
+		);
+		if (!prepared.ok) {
+			await refuse(backupLoadRefusalText(lang, prepared.reason));
 			return;
 		}
-		if (
-			!guild.members.me?.permissions.has(
-				PermissionsBitField.Flags.Administrator
-			)
-		) {
-			await refuse(lang.backup_i_dont_have_perm_on_load);
-			return;
-		}
-		if (!backupID) {
-			await refuse(lang.backup_unvalid_id_on_load);
-			return;
-		}
-
-		const index = await client.backup.getUserBackups(authorId);
-		if (!Object.hasOwn(index, backupID)) {
-			await refuse(lang.backup_this_is_not_your_backup);
-			return;
-		}
-
-		const backup = await client.backup
-			.fetchBackup(backupID)
-			.catch(() => null);
-		if (!backup) {
-			await refuse(lang.backup_backup_doesnt_exist);
-			return;
-		}
-
-		const available = componentsOf(backup.data);
-		if (!available.length) {
-			await refuse(lang.backup_backup_doesnt_exist);
-			return;
-		}
+		const { backup, available } = prepared;
 		let selected: BackupComponent[] = [...available];
 		const signature = await botSignature(client, guild.id);
 
@@ -208,39 +181,17 @@ export const subCommand: SubCommand = {
 					.catch(() => undefined);
 			};
 
-			try {
-				const report = await client.backup.load(backup.data, guild, {
-					components: selected
-				});
-				await finish(
-					buildCard({
-						accent: ACCENT.success,
-						emoji: emojis.Backup_Done,
-						title: lang.backup_load_done_title,
-						description: lang.backup_load_done_desc.replace(
-							"${guildName}",
-							guild.name
-						),
-						blocks: [reportLines(client, lang, report)],
-						signature
-					})
-				);
-			} catch (error) {
-				if (error instanceof BackupBusyError) {
-					await finish(notice("warning", lang.backup_busy));
-					return;
-				}
-				logger.err(`Backup load failed: ${error}`);
-				await finish(
-					notice(
-						"danger",
-						lang.backup_error_on_load.replace(
-							"${backupID}",
-							backupID
-						)
-					)
-				);
-			}
+			await finish(
+				await runBackupLoad(
+					client,
+					lang,
+					guild,
+					backup.data,
+					backupID!,
+					selected,
+					signature
+				)
+			);
 		});
 
 		collector.on("end", async () => {

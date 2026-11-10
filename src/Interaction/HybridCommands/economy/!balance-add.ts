@@ -23,6 +23,10 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	editMemberMoney,
+	isEconomyDisabled
+} from "../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -40,10 +44,7 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
+		if (await isEconomyDisabled(client, interaction.guild.id)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_disable_msg.replace(
 					"${authorId}",
@@ -63,8 +64,11 @@ export const subCommand: SubCommand = {
 				.replace("${amountValue}", amount.toString())
 		});
 
-		await client.db.add(
-			`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`,
+		await editMemberMoney(
+			client,
+			interaction.guild.id,
+			user?.id!,
+			"add",
 			amount
 		);
 

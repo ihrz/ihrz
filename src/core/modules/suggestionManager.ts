@@ -255,3 +255,50 @@ export function suggestionOutcomeText(
 
 	return status ? text.replace("${status}", statusLabel(lang, status)) : text;
 }
+
+export interface SuggestionRow {
+	code: string;
+	data: Suggestion;
+	up: number;
+	down: number;
+}
+
+/** `/suggest list`: suggestions with their votes, best score first. */
+export function suggestionRows(
+	all: DatabaseStructure.SuggestionData | null | undefined,
+	filter: Status | null
+): SuggestionRow[] {
+	return Object.entries(all ?? {})
+		.map(([code, data]) => {
+			const votes = Object.values(data.votes ?? {});
+			const up = votes.filter((vote) => vote === "up").length;
+			const down = votes.length - up;
+			return { code, data, up, down };
+		})
+		.filter(({ data }) => !filter || (data.status ?? "pending") === filter)
+		.sort((a, b) => b.up - b.down - (a.up - a.down));
+}
+
+/**
+ * `/suggest delete`: deletes the message, then the suggestion. "missing" when
+ * the message cannot be fetched (the suggestion is kept, as before).
+ */
+export async function deleteSuggestion(
+	client: Client,
+	guild: Guild,
+	channelId: string,
+	code: string
+): Promise<"ok" | "not_found" | "missing"> {
+	const path = `${guild.id}.SUGGESTION.${code}`;
+	const data = (await client.db.get(path)) as Suggestion | null;
+	if (!data) return "not_found";
+
+	const channel = guild.channels.cache.get(channelId) as
+		BaseGuildTextChannel | undefined;
+	const message = await channel?.messages.fetch(data.msgId).catch(() => null);
+	if (!message) return "missing";
+
+	message.delete().catch(() => {});
+	await client.db.delete(path);
+	return "ok";
+}

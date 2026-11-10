@@ -28,6 +28,7 @@ import {
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { unlockMemberName } from "../../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -58,42 +59,27 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (
-			interaction.guild.ownerId !== interaction.member.user.id &&
-			(targetMember.id === interaction.guild.ownerId ||
-				targetMember.roles.highest.position >=
-					(interaction.member as GuildMember).roles.highest.position)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.moderation_target_higher_role.replace(
-					"${member}",
-					targetMember.toString()
-				)
-			});
-			return;
-		}
-
-		const lockedNameData = await client.db.get(
-			`${interaction.guildId}.LOCKNAME.${targetMember.id}`
+		const result = await unlockMemberName(
+			client,
+			interaction.guild,
+			interaction.member as GuildMember,
+			targetMember
 		);
 
-		if (!lockedNameData) {
+		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_unlockname_not_locked.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
-				)
+				content:
+					result.reason === "hierarchy"
+						? lang.moderation_target_higher_role.replace(
+								"${member}",
+								targetMember.toString()
+							)
+						: lang.util_unlockname_not_locked.replace(
+								"${emoji_No}",
+								client.iHorizon_Emojis.No
+							)
 			});
 			return;
-		}
-
-		await client.db.delete(
-			`${interaction.guildId}.LOCKNAME.${targetMember.id}`
-		);
-
-		// Clear the custom nickname: back to the user's global display name.
-		if (targetMember.manageable && targetMember.nickname) {
-			await targetMember.edit({ nick: null }).catch(() => {});
 		}
 
 		await client.func.ihorizon_logs(interaction, {

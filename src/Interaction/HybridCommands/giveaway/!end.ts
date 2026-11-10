@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { getGuildGiveaway } from "../../../core/modules/giveawaysManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -44,11 +45,13 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const inputData = opts.string("giveaway-id", 0);
 
-		const giveaway = await client.giveawaysManager
-			.getGiveawayData(inputData as string)
-			.catch(() => null);
+		const giveaway = await getGuildGiveaway(
+			client,
+			interaction.guildId!,
+			inputData as string
+		);
 
-		if (!giveaway || giveaway.guildId !== interaction.guildId) {
+		if (!giveaway) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.end_not_find_giveaway.replaceAll(
 					"${gw}",
