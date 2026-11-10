@@ -31,6 +31,7 @@ import {
 import logger from "../../../../core/logger.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { enableTalkMode } from "../../../../core/modules/voiceModes.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -57,48 +58,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const targets = voiceChannel.members.filter(
-			(target) => !target.user.bot && target.id !== member.id
+		const { mutedCount, skippedCount } = await enableTalkMode(
+			interaction.guild,
+			voiceChannel,
+			member,
+			lang
 		);
-
-		let mutedCount = 0;
-		let skippedCount = 0;
-
-		for (const target of targets.values()) {
-			if (
-				target.permissions.has(PermissionFlagsBits.Administrator) ||
-				target.permissions.has(PermissionFlagsBits.ManageChannels)
-			) {
-				skippedCount++;
-				continue;
-			}
-
-			try {
-				await target.voice.setMute(true, lang.util_talk_audit_reason);
-				await client.db.set(
-					`${interaction.guildId}.UTILS.VOICE_TALK_MUTED.${target.id}`,
-					true
-				);
-				mutedCount++;
-			} catch (error) {
-				logger.err(error);
-			}
-		}
-
-		await client.db.set(`${interaction.guildId}.UTILS.VOICE_TALK`, {
-			channelId: voiceChannel.id,
-			enabledBy: member.id,
-			createdAt: Date.now()
-		});
-
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.util_talk_logs_title,
-			description: lang.util_talk_logs_description
-				.replace("${author}", member.user.toString())
-				.replace("${voiceChannel}", voiceChannel.toString())
-				.replace("${mutedCount}", mutedCount.toString())
-				.replace("${skippedCount}", skippedCount.toString())
-		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_talk_command_work

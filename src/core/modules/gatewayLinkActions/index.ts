@@ -35,6 +35,7 @@ import { moderationActions } from "./moderation.js";
 import { musicActions } from "./music.js";
 import { serverActions } from "./server.js";
 import { ticketsActions } from "./tickets.js";
+import { utilitiesActions } from "./utilities.js";
 
 // Every action the dashboard can ask for. The gateway relays only the names
 // of its own table (HorizonGateway `src/dash_actions.rs`): keep both in sync.
@@ -45,7 +46,8 @@ export const actions: ActionGroup = {
 	...moderationActions,
 	...musicActions,
 	...serverActions,
-	...ticketsActions
+	...ticketsActions,
+	...utilitiesActions
 };
 
 // Two groups defining the same name would silently shadow one another.
@@ -58,7 +60,8 @@ export const actions: ActionGroup = {
 		moderationActions,
 		musicActions,
 		serverActions,
-		ticketsActions
+		ticketsActions,
+		utilitiesActions
 	]) {
 		for (const name of Object.keys(group)) {
 			if (seen.has(name))
