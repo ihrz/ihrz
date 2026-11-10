@@ -3942,7 +3942,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}、このギブアウェイを退出してもよろしいですか？",
 	event_gw_embed_desc:
-		"終了: ${end_string} (${end_string2})\n主催者: <@${hostedBy}>\n参加数: **0**\n当選者: **${winners_amount}**",
+		"終了: ${end_string} (${end_string2})\n主催者: <@${hostedBy}>\n参加数: **${entries}**\n当選者: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"終了: ${time1} (${time2})\n主催者: <@${hostedBy}>\nエントリー **${entrieCount}**\n勝者: ${winners}",
 	event_gw_entries_words: "参加数",

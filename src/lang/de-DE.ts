@@ -4063,7 +4063,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}, bist du sicher, dass du dieses Gewinnspiel verlassen möchtest?",
 	event_gw_embed_desc:
-		"Endet: ${end_string} (${end_string2})\nVeranstaltet von: <@${hostedBy}>\nTeilnehmer: **0**\nGewinner: **${winners_amount}**",
+		"Endet: ${end_string} (${end_string2})\nVeranstaltet von: <@${hostedBy}>\nTeilnehmer: **${entries}**\nGewinner: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Beendet: ${time1} (${time2})\nGastgeber: <@${hostedBy}>\nEinträge **${entrieCount}**\nGewinner: ${winners}",
 	event_gw_entries_words: "Teilnehmer",

@@ -3942,7 +3942,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}, вы уверены, что хотите покинуть этот розыгрыш?",
 	event_gw_embed_desc:
-		"Заканчивается: ${end_string} (${end_string2})\nОрганизатор: <@${hostedBy}>\nЗаписи: **0**\nПобедители: **${winners_amount}**",
+		"Заканчивается: ${end_string} (${end_string2})\nОрганизатор: <@${hostedBy}>\nЗаписи: **${entries}**\nПобедители: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Завершено: ${time1} (${time2})\nПровел: <@${hostedBy}>\nЗаписи **${entrieCount}**\nПобедители: ${winners}",
 	event_gw_entries_words: "Записи",

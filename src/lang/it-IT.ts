@@ -4016,7 +4016,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}, sei sicuro di voler lasciare questo giveaway?",
 	event_gw_embed_desc:
-		"Termina: ${end_string} (${end_string2})\nOspitato da: <@${hostedBy}>\nPartecipazioni: **0**\nVincitori: **${winners_amount}**",
+		"Termina: ${end_string} (${end_string2})\nOspitato da: <@${hostedBy}>\nPartecipazioni: **${entries}**\nVincitori: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Terminato: ${time1} (${time2})\nOspitato da: <@${hostedBy}>\nPartecipanti **${entrieCount}**\nVincitori: ${winners}",
 	event_gw_entries_words: "Partecipazioni",

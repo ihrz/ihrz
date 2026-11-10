@@ -4040,7 +4040,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}, ¿estás seguro de que quieres salir de este sorteo?",
 	event_gw_embed_desc:
-		"Termina: ${end_string} (${end_string2})\nOrganizado por: <@${hostedBy}>\nEntradas: **0**\nGanadores: **${winners_amount}**",
+		"Termina: ${end_string} (${end_string2})\nOrganizado por: <@${hostedBy}>\nEntradas: **${entries}**\nGanadores: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Terminado: ${time1} (${time2})\nOrganizado por: <@${hostedBy}>\nEntradas **${entrieCount}**\nGanadores: ${winners}",
 	event_gw_entries_words: "Entradas",

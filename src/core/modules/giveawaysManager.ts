@@ -44,12 +44,37 @@ import {
 	GiveawaysManagerOptions
 } from "../../../types/giveaways.js";
 import getLanguageData from "../functions/getLanguageData.js";
+import { LanguageData } from "../../../types/languageData.js";
 import { secureRandomInt } from "../functions/random.js";
 import db, { dedupeEntries } from "./giveawaysDatabaseManager.js";
 
 export enum GiveawayEndedStatus {
 	ENDED = 1,
 	NOT_ENDED = 2
+}
+
+/**
+ * The description of a running giveaway, always built from its data (never
+ * by editing the text already posted: that broke on French typography, and
+ * on a server that had changed language). Used at creation and on each
+ * entry or leave.
+ */
+export function renderGiveawayDescription(
+	lang: LanguageData,
+	giveaway: {
+		expireIn: Date | string | number;
+		hostedBy: string;
+		winnerCount: number;
+	},
+	entries: number
+): string {
+	const end = new Date(giveaway.expireIn);
+	return lang.event_gw_embed_desc
+		.replace("${end_string}", time(end, "R"))
+		.replace("${end_string2}", time(end, "D"))
+		.replace("${winners_amount}", String(giveaway.winnerCount))
+		.replace("${hostedBy}", String(giveaway.hostedBy))
+		.replace("${entries}", String(entries));
 }
 
 class GiveawayManager {
@@ -104,30 +129,21 @@ class GiveawayManager {
 					.setLabel(lang.event_gw_entries_button_title)
 					.setStyle(ButtonStyle.Secondary);
 
-				const end_string = time(
-					new Date(Date.now() + data.duration),
-					"R"
-				);
-				const end_string2 = time(
-					new Date(Date.now() + data.duration),
-					"D"
-				);
-				const winners_amount = data.winnerCount;
-
 				const gw = new EmbedBuilder()
 					.setColor(
 						this.options.config?.embedColor as ColorResolvable
 					)
 					.setTitle(data.prize)
 					.setDescription(
-						lang.event_gw_embed_desc
-							.replace("${end_string}", end_string)
-							.replace("${end_string2}", end_string2)
-							.replace(
-								"${winners_amount}",
-								String(winners_amount)
-							)
-							.replace("${hostedBy}", String(data.hostedBy))
+						renderGiveawayDescription(
+							lang,
+							{
+								expireIn: Date.now() + data.duration,
+								hostedBy: data.hostedBy,
+								winnerCount: data.winnerCount
+							},
+							0
+						)
 					)
 					.setTimestamp(new Date(Date.now() + data.duration))
 					.setFooter(
@@ -252,17 +268,11 @@ class GiveawayManager {
 			);
 			if (entryCount === null) return;
 
-			const regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
-			const regex = new RegExp(regexPattern);
-
 			const embedsToEdit = EmbedBuilder.from(
 				interaction.message.embeds[0]
 			)
 				.setDescription(
-					interaction.message.embeds[0]?.description!.replace(
-						regex,
-						`${lang.event_gw_entries_words}: **${entryCount}**`
-					)
+					renderGiveawayDescription(lang, giveawayData, entryCount)
 				)
 				.setFooter(
 					await client.func.displayBotName.footerBuilder(
@@ -312,16 +322,18 @@ class GiveawayManager {
 					interaction.message.id,
 					interaction.user.id
 				);
-				const regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
-				const regex = new RegExp(regexPattern);
-
+				const giveaway = await db.GetGiveawayData(
+					interaction.message.id
+				);
+				if (!giveaway) return;
 				const embedsToEdit = EmbedBuilder.from(
 					interaction.message.embeds[0]
 				)
 					.setDescription(
-						interaction.message.embeds[0]?.description!.replace(
-							regex,
-							`${lang.event_gw_entries_words}: **${now_members.length}**`
+						renderGiveawayDescription(
+							lang,
+							giveaway,
+							now_members.length
 						)
 					)
 					.setFooter(

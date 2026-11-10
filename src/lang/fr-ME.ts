@@ -4090,7 +4090,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author}, es-tu sûr de vouloir quitter ce concours ?",
 	event_gw_embed_desc:
-		"Se termine: ${end_string} (${end_string2})\nOrganisé par: <@${hostedBy}>\nParticipations: **0**\nGagnants: **${winners_amount}**",
+		"Se termine: ${end_string} (${end_string2})\nOrganisé par: <@${hostedBy}>\nParticipations: **${entries}**\nGagnants: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Terminé : ${time1} (${time2})\nOrganisé par : <@${hostedBy}>\nEntrées: **${entrieCount}**\nGagnants: ${winners}",
 	event_gw_entries_words: "Participations",

@@ -3912,7 +3912,7 @@ const enUS = {
 	event_gw_confirm_leave_msg:
 		"${author} are you sure you want to leave this giveaway?",
 	event_gw_embed_desc:
-		"Ends: ${end_string} (${end_string2})\nHosted by: <@${hostedBy}>\nEntries: **0**\nWinners: **${winners_amount}**",
+		"Ends: ${end_string} (${end_string2})\nHosted by: <@${hostedBy}>\nEntries: **${entries}**\nWinners: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"Ended: ${time1} (${time2})\nHosted by: <@${hostedBy}>\nEntries **${entrieCount}**\nWinners: ${winners}",
 	event_gw_entries_words: "Entries",

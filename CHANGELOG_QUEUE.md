@@ -298,3 +298,4 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 - **`/music pause`, `/music resume`, `/music skip`**: no error when the player is already paused or playing, or when the player's text channel was deleted
 - **`/unban-all`, `/utils massiverole`**: a second run on the same server is refused while the first one is still going (two runs used to overlap, and an unban-all could forget who to ban again on `undo`)
 - **`/util untalk`**: refused while talk mode is on in another voice channel, whose members stayed muted for good when it was replaced
+- **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text

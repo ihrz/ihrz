@@ -298,3 +298,4 @@ Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes
 - **`/music pause`, `/music resume`, `/music skip`** : plus d'erreur quand le lecteur est déjà en pause ou en lecture, ni quand le salon texte du lecteur a été supprimé
 - **`/unban-all`, `/utils massiverole`** : un second lancement sur le même serveur est refusé tant que le premier n'est pas fini (deux lancements se chevauchaient, et un unban-all pouvait oublier qui rebannir avec `undo`)
 - **`/util untalk`** : refusé tant que le mode talk est actif dans un autre salon vocal, dont les membres restaient muets pour de bon quand il était remplacé
+- **Giveaways** : le nombre de participations d'un giveaway en cours se met maintenant à jour en français aussi (il restait à 0), et le message du giveaway est toujours reconstruit depuis ses données plutôt qu'en modifiant son texte

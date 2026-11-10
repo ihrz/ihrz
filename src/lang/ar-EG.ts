@@ -3742,7 +3742,7 @@ export default {
 	event_gw_confirm_leave_msg:
 		"${author} هل أنت متأكد من أنك تريد الانسحاب من هذه السحوبات؟",
 	event_gw_embed_desc:
-		"ينتهي: ${end_string} (${end_string2})\nمستضاف من قبل: <@${hostedBy}>\nالمشاركات: **0**\nالفائزون: **${winners_amount}**",
+		"ينتهي: ${end_string} (${end_string2})\nمستضاف من قبل: <@${hostedBy}>\nالمشاركات: **${entries}**\nالفائزون: **${winners_amount}**",
 	event_gw_ended_embed_desc:
 		"انتهت: ${time1} (${time2})\nمستضاف من قبل: <@${hostedBy}>\nالمشاركات **${entrieCount}**\nالفائزون: ${winners}",
 	event_gw_entries_words: "المشاركات",
