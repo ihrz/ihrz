@@ -21,6 +21,7 @@
 
 import {
 	ChatInputCommandInteraction,
+	Client,
 	GuildMember,
 	Message,
 	PermissionFlagsBits,
@@ -76,11 +77,49 @@ export async function checkCommandPermission(
 		interaction instanceof ChatInputCommandInteraction
 			? interaction.user
 			: interaction.author;
-	const db = interaction.client.db;
 
+	return checkUserCommandPermission(
+		interaction.client.db,
+		interaction.guildId!,
+		usr.id,
+		interaction.member,
+		command
+	);
+}
+
+/**
+ * The same check as a slash command, for a member outside of an interaction
+ * (dashboard actions relayed by HorizonGateway, `gatewayLinkActions`).
+ */
+export async function checkMemberCommandPermission(
+	member: GuildMember,
+	command: string
+): Promise<{
+	allowed: boolean;
+	permissionData: command;
+}> {
+	return checkUserCommandPermission(
+		member.client.db,
+		member.guild.id,
+		member.id,
+		member,
+		command
+	);
+}
+
+async function checkUserCommandPermission(
+	db: Client["db"],
+	guildId: string,
+	userId: string,
+	member: GuildMember | null | undefined,
+	command: string
+): Promise<{
+	allowed: boolean;
+	permissionData: command;
+}> {
 	// Fetch permission data from database
 	const guildPerm = (await db.get(
-		`${interaction.guildId}.UTILS`
+		`${guildId}.UTILS`
 	)) as DatabaseStructure.UtilsData;
 	if (!guildPerm) {
 		return {
@@ -94,11 +133,11 @@ export async function checkCommandPermission(
 
 	// Check permissions in order of priority
 	const checkResults = await Promise.all([
-		checkExplicitUserPermission(usr.id, cmdPermData),
-		checkRoleHierarchy(interaction.member, guildPerm, cmdPermData),
-		checkExplicitRolePermission(interaction.member, cmdPermData),
-		checkUserPermLevel(usr.id, guildPerm, cmdPermData),
-		await isOnTheOwnerList(interaction.guildId!, interaction.member?.id!)
+		checkExplicitUserPermission(userId, cmdPermData),
+		checkRoleHierarchy(member, guildPerm, cmdPermData),
+		checkExplicitRolePermission(member, cmdPermData),
+		checkUserPermLevel(userId, guildPerm, cmdPermData),
+		await isOnTheOwnerList(guildId, member?.id!)
 	]);
 
 	// If any permission check returns true, allow the command

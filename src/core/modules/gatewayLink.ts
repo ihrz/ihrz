@@ -28,6 +28,8 @@ import {
 	HorizonGatewayInternal
 } from "../functions/apiUrlParser.js";
 import { applyConfigChanges } from "./gatewayLinkHandlers.js";
+import { ActionError, runAction } from "./gatewayLinkActions/index.js";
+import { DiscordAPIError } from "discord.js";
 import logger from "../logger.js";
 
 const RECONNECT_MIN_MS = 1_000;
@@ -127,6 +129,9 @@ export class GatewayLink {
 				logger.log(
 					`Gateway link ready (shard #${this.client.shard?.ids[0] ?? 0})`
 				);
+			} else if (frame.op === "event" && frame.type === "guild.action") {
+				// Independent of config events: never queued behind them.
+				void this.handle(frame);
 			} else if (frame.op === "event") {
 				const previous =
 					this.queues.get(frame.guildId) ?? Promise.resolve();
@@ -149,8 +154,29 @@ export class GatewayLink {
 
 	private async handle(event: Protocol.Event): Promise<void> {
 		try {
+			if (event.type === "guild.action") {
+				let data: unknown;
+				try {
+					data = await runAction(this.client, event);
+				} catch (error) {
+					this.send({
+						op: "ack",
+						id: event.id,
+						ok: false,
+						error: actionErrorMessage(event.action, error)
+					});
+					return;
+				}
+				this.send({
+					op: "ack",
+					id: event.id,
+					ok: true,
+					data: data ?? null
+				});
+				return;
+			}
 			if (event.type !== "guild.config.updated") {
-				throw `unknown event type ${event.type}`;
+				throw `unknown event type ${(event as Protocol.Event).type}`;
 			}
 			const results = await applyConfigChanges(this.client, event);
 			this.send({
@@ -169,4 +195,15 @@ export class GatewayLink {
 			});
 		}
 	}
+}
+
+// What the dashboard may read of a failed action: our own messages and
+// Discord's ("Missing Permissions"), never an internal error.
+function actionErrorMessage(action: string, error: unknown): string {
+	if (error instanceof ActionError) return error.message;
+	if (typeof error === "string") return error;
+	if (error instanceof DiscordAPIError)
+		return `Discord refused: ${error.message}`;
+	logger.err(`Gateway action ${action} failed: ${error}`);
+	return "the bot ran into an error";
 }

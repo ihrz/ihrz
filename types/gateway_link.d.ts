@@ -60,7 +60,23 @@ export namespace GatewayLink {
 		changes: ConfigChange[];
 	}
 
-	export type Event = ConfigUpdatedEvent;
+	// A dashboard action run by the bot (`core/modules/gatewayLinkActions`):
+	// reading what only the bot knows, or acting with a slash command's guards.
+	// The gateway already checked the session and Manage Server; the bot checks
+	// the actor again like `commandExecutor` (custom perms, native permission).
+	export interface ActionEvent {
+		op: "event";
+		id: string;
+		type: "guild.action";
+		guildId: string;
+		actorId: string;
+		// Name in `actions` (e.g. "music.state"); the gateway relays known names only.
+		action: string;
+		// GET actions: the query, as strings. POST actions: the JSON body.
+		params: Record<string, unknown>;
+	}
+
+	export type Event = ConfigUpdatedEvent | ActionEvent;
 
 	export interface ChangeResult {
 		path: string;
@@ -74,5 +90,7 @@ export namespace GatewayLink {
 		ok: boolean;
 		error?: string;
 		results?: ChangeResult[];
+		// `guild.action`: what the action answers (JSON).
+		data?: unknown;
 	}
 }
