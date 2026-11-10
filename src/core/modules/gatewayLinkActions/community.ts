@@ -29,6 +29,7 @@ import {
 	Client,
 	Guild,
 	GuildMember,
+	Message,
 	PermissionFlagsBits,
 	PermissionResolvable
 } from "discord.js";
@@ -326,6 +327,74 @@ const withTimeout = <T>(p: Promise<T>, ms: number): Promise<T | null> =>
 		new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))
 	]);
 
+// Board messages per bulk read: Discord's maximum.
+const BOARD_BULK = 100;
+// Bulk reads at most for one page, before falling back to one read per message.
+const BOARD_BULK_ROUNDS = 5;
+
+const snowflakeDesc = (a: string, b: string) =>
+	BigInt(a) > BigInt(b) ? -1 : BigInt(a) < BigInt(b) ? 1 : 0;
+
+/**
+ * The board messages of a page, in as few Discord calls as possible: the bot's
+ * cache first (it edits these messages itself, so it stays current), then
+ * reads of 100 messages walking back from the newest wanted id (usually one
+ * call for a page of 25, instead of 25), and a read per message only for those
+ * still out of reach. A message missing from a range already walked through
+ * was deleted: it is not asked for again.
+ */
+export async function fetchBoardMessages(
+	channel: Pick<BaseGuildTextChannel, "messages">,
+	ids: string[]
+): Promise<Map<string, Message>> {
+	const found = new Map<string, Message>();
+	const wanted = new Set<string>();
+	for (const id of ids) {
+		if (!/^\d{17,20}$/.test(id)) continue;
+		const cached = channel.messages.cache.get(id);
+		if (cached) found.set(id, cached);
+		else wanted.add(id);
+	}
+	if (wanted.size === 0) return found;
+
+	const sorted = [...wanted].sort(snowflakeDesc);
+	const oldestWanted = BigInt(sorted[sorted.length - 1]);
+	let before = (BigInt(sorted[0]) + 1n).toString();
+	let walkedPast = false;
+	for (let round = 0; round < BOARD_BULK_ROUNDS && wanted.size; round++) {
+		const batch = await withTimeout(
+			channel.messages.fetch({ limit: BOARD_BULK, before }),
+			BOARD_FETCH_TIMEOUT_MS
+		);
+		if (!batch || batch.size === 0) {
+			// Nothing older: whatever is still wanted no longer exists.
+			walkedPast = !!batch;
+			break;
+		}
+		let oldest = before;
+		for (const [id, message] of batch) {
+			if (wanted.delete(id)) found.set(id, message);
+			if (BigInt(id) < BigInt(oldest)) oldest = id;
+		}
+		if (BigInt(oldest) <= oldestWanted || batch.size < BOARD_BULK) {
+			walkedPast = true;
+			break;
+		}
+		before = oldest;
+	}
+
+	if (wanted.size && !walkedPast) {
+		await mapLimit([...wanted], BOARD_FETCH_CONCURRENCY, async (id) => {
+			const message = await withTimeout(
+				channel.messages.fetch(id),
+				BOARD_FETCH_TIMEOUT_MS
+			);
+			if (message) found.set(id, message);
+		});
+	}
+	return found;
+}
+
 async function listBoard(
 	{ client, guild, params }: ActionContext,
 	dbKey: "STARBOARD" | "SKULLBOARD"
@@ -350,34 +419,32 @@ async function listBoard(
 				BaseGuildTextChannel | undefined)
 		: undefined;
 
-	const entries = await mapLimit(
-		slice,
-		BOARD_FETCH_CONCURRENCY,
-		async (entry): Promise<BoardEntry> => {
-			const board = boardChannel?.messages?.fetch
-				? await withTimeout(
-						boardChannel.messages.fetch(entry.number),
-						BOARD_FETCH_TIMEOUT_MS
-					)
-				: null;
-			const embed = board?.embeds?.[0];
-			return {
-				messageId: entry.messageId,
-				channelId: entry.channelId,
-				authorId: entry.author,
-				url: messageUrl(guild.id, entry.channelId, entry.messageId),
-				boardMessageId: entry.number,
-				boardUrl: config?.channel
-					? messageUrl(guild.id, config.channel, entry.number)
-					: null,
-				count: boardCount(board?.content),
-				content: embed?.description?.slice(0, 300) ?? null,
-				authorName: embed?.author?.name ?? null,
-				authorAvatarUrl: embed?.author?.iconURL ?? null,
-				imageUrl: embed?.image?.url ?? null
-			};
-		}
-	);
+	const boardMessages = boardChannel
+		? await fetchBoardMessages(
+				boardChannel,
+				slice.map((e) => e.number)
+			)
+		: new Map<string, Message>();
+
+	const entries = slice.map((entry): BoardEntry => {
+		const board = boardMessages.get(entry.number) ?? null;
+		const embed = board?.embeds?.[0];
+		return {
+			messageId: entry.messageId,
+			channelId: entry.channelId,
+			authorId: entry.author,
+			url: messageUrl(guild.id, entry.channelId, entry.messageId),
+			boardMessageId: entry.number,
+			boardUrl: config?.channel
+				? messageUrl(guild.id, config.channel, entry.number)
+				: null,
+			count: boardCount(board?.content),
+			content: embed?.description?.slice(0, 300) ?? null,
+			authorName: embed?.author?.name ?? null,
+			authorAvatarUrl: embed?.author?.iconURL ?? null,
+			imageUrl: embed?.image?.url ?? null
+		};
+	});
 
 	return {
 		enabled: !!config && config.enabled !== "no" && !!config.channel,

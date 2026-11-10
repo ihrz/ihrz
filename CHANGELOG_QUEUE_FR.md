@@ -299,3 +299,4 @@ Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes
 - **`/unban-all`, `/utils massiverole`** : un second lancement sur le même serveur est refusé tant que le premier n'est pas fini (deux lancements se chevauchaient, et un unban-all pouvait oublier qui rebannir avec `undo`)
 - **`/util untalk`** : refusé tant que le mode talk est actif dans un autre salon vocal, dont les membres restaient muets pour de bon quand il était remplacé
 - **Giveaways** : le nombre de participations d'un giveaway en cours se met maintenant à jour en français aussi (il restait à 0), et le message du giveaway est toujours reconstruit depuis ses données plutôt qu'en modifiant son texte
+- **Dashboard — Hall of fame** : les pages du starboard et du skullboard se chargent bien plus vite (leurs messages sont lus 100 par 100 au lieu d'un par un)

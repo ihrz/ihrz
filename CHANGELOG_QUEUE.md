@@ -299,3 +299,4 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 - **`/unban-all`, `/utils massiverole`**: a second run on the same server is refused while the first one is still going (two runs used to overlap, and an unban-all could forget who to ban again on `undo`)
 - **`/util untalk`**: refused while talk mode is on in another voice channel, whose members stayed muted for good when it was replaced
 - **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text
+- **Dashboard — Hall of fame**: the starboard and skullboard pages load much faster (their messages are read 100 at a time instead of one by one)
