@@ -32,6 +32,11 @@ import {
 
 import { DatabaseStructure } from "../../types/database_structure.js";
 import logger from "./logger.js";
+import { fetchPublic, readCapped } from "./svg/remoteImage.js";
+
+/** Feeds are admin-supplied URLs: public hosts only, bounded size and time. */
+const FEED_TIMEOUT_MS = 10_000;
+const FEED_MAX_BYTES = 2 * 1024 * 1024;
 
 interface BloggerFeedResponse {
 	blog: DatabaseStructure.BloggerBlogSchema;
@@ -101,6 +106,8 @@ function xmlDate(value: any): Date {
 }
 
 export class BloggerNotifier {
+	private refreshing = false;
+
 	private delay(ms: number): Promise<void> {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
@@ -142,13 +149,35 @@ export class BloggerNotifier {
 	}
 
 	private async parseFeed(rssUrl: string): Promise<ParsedFeed> {
-		const response = await fetch(rssUrl);
+		const response = await fetchPublic(rssUrl, {
+			timeoutMs: FEED_TIMEOUT_MS,
+			headers: {
+				Accept: "application/rss+xml, application/atom+xml, application/xml, text/xml"
+			}
+		});
 
+		if (!response) {
+			throw new Error(`Feed unreachable or not public: ${rssUrl}`);
+		}
 		if (!response.ok) {
+			await response.body?.cancel().catch(() => {});
 			throw new Error(`HTTP ${response.status} while fetching ${rssUrl}`);
 		}
 
-		const xml = Bun.XML.parse(await response.text()) as XmlNode;
+		const type = (response.headers.get("content-type") ?? "").toLowerCase();
+		if (type && !type.includes("xml") && !type.startsWith("text/plain")) {
+			await response.body?.cancel().catch(() => {});
+			throw new Error(`Not an XML feed (${type}): ${rssUrl}`);
+		}
+
+		const body = await readCapped(response, FEED_MAX_BYTES).catch(
+			() => null
+		);
+		if (!body) {
+			throw new Error(`Feed too large or interrupted: ${rssUrl}`);
+		}
+
+		const xml = Bun.XML.parse(body.toString("utf8")) as XmlNode;
 		const rss = xml.rss ?? xml["rdf:RDF"];
 		const channel = rss?.channel;
 
@@ -425,7 +454,20 @@ export class BloggerNotifier {
 				.white
 		);
 
-		await this.refresh();
-		setInterval(async () => await this.refresh(), 60_000); // Check every minute
+		await this.guardedRefresh();
+		setInterval(() => this.guardedRefresh(), 60_000); // Check every minute
+	}
+
+	/** One refresh at a time: a slow feed must not stack overlapping runs. */
+	private async guardedRefresh() {
+		if (this.refreshing) return;
+		this.refreshing = true;
+		try {
+			await this.refresh();
+		} catch (error) {
+			logger.err(`Blogger refresh failed: ${error}`);
+		} finally {
+			this.refreshing = false;
+		}
 	}
 }

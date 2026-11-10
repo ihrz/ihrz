@@ -27,6 +27,14 @@ import { decrypt } from "../../../core/functions/encryptDecryptMethod.js";
 import { invalidateProtectionContext } from "../../../core/modules/protectionEngine.js";
 import { SubCommand } from "../../../../types/command.js";
 
+const PRESERVED_FIELDS = [
+	"OWNER",
+	"PROTECTION",
+	"ALLOWLIST",
+	"BLACKLIST",
+	"USER"
+] as const;
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -43,6 +51,20 @@ export const subCommand: SubCommand = {
 			!interaction.channel
 		)
 			return;
+
+		// A restore replaces the whole guild document: only crown owners may
+		// run it, an administrator could otherwise replay an old backup.
+		if (
+			!(await client.func.ownerHelper.isGuildOwner(
+				interaction.user.id,
+				interaction.guild
+			))
+		) {
+			await interaction.editReply({
+				content: lang.blockbot_not_owner
+			});
+			return;
+		}
 
 		const backup = interaction.options.getAttachment("backup-to-load");
 
@@ -68,14 +90,32 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
-				const { guildId: _sourceGuildId, OWNER: _owner, ...data } = res;
-				const currentOwner = await client.db.get(
-					`${interaction.guildId}.OWNER`
-				);
+				// Security and member state always stays as it is now: a backup
+				// must not bring back a removed allowlist entry, an older
+				// protection setup, a lifted blacklist or spent balances.
+				const {
+					guildId: _sourceGuildId,
+					OWNER: _owner,
+					PROTECTION: _protection,
+					ALLOWLIST: _allowlist,
+					BLACKLIST: _blacklist,
+					USER: _user,
+					...data
+				} = res;
+				const current =
+					((await client.db.get(`${interaction.guildId}`)) as Record<
+						string,
+						unknown
+					> | null) || {};
+				const kept: Record<string, unknown> = {};
+				for (const field of PRESERVED_FIELDS) {
+					if (current[field] !== undefined)
+						kept[field] = current[field];
+				}
 
 				await client.db.set(`${interaction.guildId}`, {
 					...data,
-					...(currentOwner ? { OWNER: currentOwner } : {})
+					...kept
 				});
 				invalidateProtectionContext(interaction.guildId);
 			} catch (error) {

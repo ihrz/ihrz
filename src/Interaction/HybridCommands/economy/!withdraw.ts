@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 			)) as DatabaseStructure.EconomyUserSchema;
 
 			const opts = client.func.method.options(interaction, args);
-			let toWithdraw = opts.string("how-much", 0) as string;
+			const toWithdraw = opts.string("how-much", 0) as string;
 
 			if (
 				(await client.db.get(
@@ -85,22 +85,14 @@ export const subCommand: SubCommand = {
 
 			const bank = dataAccount?.bank ?? 0;
 
-			if (toWithdraw === "all") toWithdraw = bank.toString();
+			// Parsed once: the same integer is checked and moved.
+			const clean_to_withdraw =
+				toWithdraw === "all" ? Number(bank) : Number(toWithdraw);
 
-			if (isNaN(Number(toWithdraw))) {
-				await client.func.method.interactionSend(interaction, {
-					content:
-						lang.temporary_voice_limit_button_not_integer.replace(
-							"${emoji_No}",
-							client.iHorizon_Emojis.No
-						)
-				});
-				return;
-			}
-
-			const clean_to_withdraw = parseInt(toWithdraw);
-
-			if (isNaN(clean_to_withdraw) || clean_to_withdraw <= 0) {
+			if (
+				!Number.isSafeInteger(clean_to_withdraw) ||
+				clean_to_withdraw <= 0
+			) {
 				await client.func.method.interactionSend(interaction, {
 					content:
 						lang.temporary_voice_limit_button_not_integer.replace(
@@ -123,11 +115,11 @@ export const subCommand: SubCommand = {
 
 			await client.db.sub(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
-				parseInt(toWithdraw)
+				clean_to_withdraw
 			);
 			await client.db.add(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-				parseInt(toWithdraw)
+				clean_to_withdraw
 			);
 
 			const embed = new EmbedBuilder()
@@ -146,7 +138,7 @@ export const subCommand: SubCommand = {
 							"${author}",
 							interaction.member.user.toString()
 						)
-						.replace("${toWithdraw}", toWithdraw.toString())
+						.replace("${toWithdraw}", clean_to_withdraw.toString())
 				)
 				.addFields({
 					name: lang.withdraw_embed_fields1_name,
@@ -170,7 +162,7 @@ export const subCommand: SubCommand = {
 			await client.func.economyLogs.withdraw(
 				interaction.guild,
 				interaction.member.user.id,
-				Number(clean_to_withdraw),
+				clean_to_withdraw,
 				lang
 			);
 			return;

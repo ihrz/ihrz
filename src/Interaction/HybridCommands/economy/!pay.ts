@@ -59,10 +59,26 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		let releaseTarget: (() => void) | null = null;
 		try {
 			const opts = client.func.method.options(interaction, args);
 			const amount = opts.number("amount", 0) as number;
 			const user = opts.member("member", 0) as GuildMember;
+
+			// The other member's balance is checked then changed: lock it too.
+			if (user && user.id !== interaction.member.user.id) {
+				releaseTarget = acquireEconomyLock(
+					interaction.guildId!,
+					user.id
+				);
+				if (!releaseTarget) {
+					await client.func.method.interactionSend(interaction, {
+						content: lang.economy_action_in_progress,
+						flags: [1 << 6]
+					});
+					return;
+				}
+			}
 
 			const member = await client.db.get(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
@@ -127,6 +143,7 @@ export const subCommand: SubCommand = {
 			);
 			return;
 		} finally {
+			releaseTarget?.();
 			releaseLock();
 		}
 	}

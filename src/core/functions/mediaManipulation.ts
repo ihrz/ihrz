@@ -24,7 +24,8 @@ import path from "path";
 import fs from "node:fs";
 import os from "os";
 import { mkdir } from "fs/promises";
-import { axios } from "./axios.ts";
+import { fitsDecodeBudget } from "./svgKit.ts";
+import { isPublicImageUrl } from "../svg/remoteImage.ts";
 
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
 export const tempDir = path.join(os.tmpdir(), "media-manipulation");
@@ -32,6 +33,9 @@ export const tempDir = path.join(os.tmpdir(), "media-manipulation");
 export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 	if (!fs.existsSync(tempDir)) {
 		await mkdir(tempDir, { recursive: true });
+	}
+	if (!fitsDecodeBudget(buffer)) {
+		throw new Error("Image too large to decode");
 	}
 	try {
 		const image = await Jimp.read(buffer);
@@ -77,6 +81,9 @@ export async function resizeImage(
 	width: number;
 	height: number;
 }> {
+	if (!fitsDecodeBudget(inputImage)) {
+		throw new Error("Image too large to decode");
+	}
 	const image = await Jimp.read(inputImage);
 	const metadata = { width: image.getWidth(), height: image.getHeight() };
 
@@ -117,12 +124,7 @@ export async function resizeImage(
 	return metadata;
 }
 
+/** Whether `url` is a public http(s) URL serving an image (no internal hosts). */
 export async function isImageUrl(url: string): Promise<boolean> {
-	try {
-		const response = await axios.head(url);
-		const contentType = response.headers.get("content-type");
-		return contentType.startsWith("image/");
-	} catch (error) {
-		return false;
-	}
+	return isPublicImageUrl(url).catch(() => false);
 }

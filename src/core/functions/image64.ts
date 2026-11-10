@@ -20,15 +20,11 @@
 */
 
 import { axios, AxiosResponse } from "./axios.js";
+import { isPublicImageUrl } from "../svg/remoteImage.js";
 
+/** Whether `url` is a public http(s) URL serving an image (no internal hosts). */
 export async function isImageUrl(url: string): Promise<boolean> {
-	try {
-		const response = await axios.head(url);
-		const contentType = response.headers.get("content-type");
-		return contentType.startsWith("image/");
-	} catch (error) {
-		return false;
-	}
+	return isPublicImageUrl(url).catch(() => false);
 }
 
 export async function image64(arg: string): Promise<Buffer | undefined> {

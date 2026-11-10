@@ -30,6 +30,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { is_safe_key_segment } from "../../../core/database/lodash.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,8 +49,20 @@ export const subCommand: SubCommand = {
 			return;
 
 		const opts = client.func.method.options(interaction, args);
-		const current_tag_name = opts.string("current_tag_name", 0, true);
-		const new_tag_name = opts.string("new_tag_name", 1, true);
+		const current_tag_name = opts
+			.string("current_tag_name", 0, true)
+			.trim();
+		const new_tag_name = opts.string("new_tag_name", 1, true).trim();
+
+		if (!is_safe_key_segment(current_tag_name)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tag_doesnt_exist.replace(
+					"${tag_name}",
+					current_tag_name
+				)
+			});
+			return;
+		}
 
 		const baseData = (await client.db.get(
 			`${interaction.guildId}.GUILD.TAGS.storedTags.${current_tag_name}`
@@ -78,6 +91,30 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tag_edit_error_perm
 			});
+			return;
+		}
+
+		if (
+			new_tag_name.length > 16 ||
+			/\s/.test(new_tag_name) ||
+			!is_safe_key_segment(new_tag_name)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tag_create_not_good_name
+			});
+			return;
+		}
+
+		if (
+			new_tag_name !== current_tag_name &&
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.TAGS.storedTags.${new_tag_name}`
+			))
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tag_create_already_exist
+			});
+			return;
 		}
 
 		await client.db.delete(

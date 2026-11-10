@@ -508,6 +508,23 @@ export function imageSize(
 	}
 }
 
+/** Largest image (in pixels) any decoder (Jimp, resvg) is allowed to unpack. */
+export const MAX_DECODE_PIXELS = 4096 * 4096;
+
+/**
+ * Whether the header-declared size of `buffer` is known and small enough to
+ * decode: an 8 MB PNG can declare 30000x30000 and unpack to gigabytes.
+ */
+export function fitsDecodeBudget(buffer: Buffer): boolean {
+	const size = imageSize(buffer);
+	return (
+		!!size &&
+		size.width > 0 &&
+		size.height > 0 &&
+		size.width * size.height <= MAX_DECODE_PIXELS
+	);
+}
+
 export function dataUri(buffer: Buffer): string {
 	return `data:${mimeOf(buffer)};base64,${buffer.toString("base64")}`;
 }
@@ -560,10 +577,12 @@ function preferPng(url: string): string {
 /**
  * Downloads a user-supplied image URL safely (public hosts only, bounded
  * size and time). Use it for any URL that does not come from Discord.
- * WebP (not decodable by resvg 2.6) is reported as missing, never drawn
- * as an empty image.
+ * WebP (not decodable by resvg 2.6) and images over MAX_DECODE_PIXELS are
+ * reported as missing, never drawn as an empty image.
  */
 export async function fetchImage(url: string): Promise<Buffer | null> {
 	const buffer = await fetchPublicImage(preferPng(url));
-	return buffer && mimeOf(buffer) !== "image/webp" ? buffer : null;
+	return buffer && mimeOf(buffer) !== "image/webp" && fitsDecodeBudget(buffer)
+		? buffer
+		: null;
 }

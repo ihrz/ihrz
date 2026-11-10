@@ -19,8 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Interaction } from "discord.js";
+import {
+	Client,
+	Interaction,
+	MessageFlags,
+	PermissionResolvable
+} from "discord.js";
 import { BotEvent } from "../../../types/event.js";
+import {
+	formatPermissionName,
+	rawPermissionName
+} from "../../core/commandExecutor.js";
 
 export const event: BotEvent = {
 	name: "interactionCreate",
@@ -33,6 +42,27 @@ export const event: BotEvent = {
 			return;
 
 		const cmd = client.applicationsCommands.get(interaction.commandName);
+
+		if (
+			cmd?.permission &&
+			!interaction.memberPermissions?.has(
+				cmd.permission as PermissionResolvable
+			)
+		) {
+			const lang = await client.func.getLanguageData(
+				interaction.guildId as string
+			);
+			const permName =
+				formatPermissionName(lang, cmd.permission) ||
+				rawPermissionName(cmd.permission);
+
+			await interaction.reply({
+				content: lang.var_dont_have_perm.replace("{perm}", permName),
+				flags: MessageFlags.Ephemeral
+			});
+			return;
+		}
+
 		if (cmd && cmd.thinking) {
 			await interaction.deferReply();
 		}

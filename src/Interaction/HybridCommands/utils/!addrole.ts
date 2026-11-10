@@ -87,6 +87,22 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		if (role) {
+			const refusedReason =
+				client.func.permissonsCalculator.getRefusedRoleReason(
+					role,
+					author,
+					lang
+				);
+
+			if (refusedReason) {
+				await client.func.method.interactionSend(interaction, {
+					content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+				});
+				return;
+			}
+		}
+
 		if (
 			(interaction.member.roles as GuildMemberRoleManager).highest
 				.position <= user.roles.highest.position &&

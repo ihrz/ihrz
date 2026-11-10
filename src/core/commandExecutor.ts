@@ -25,7 +25,9 @@ import {
 	EmbedBuilder,
 	GuildMember,
 	Message,
-	PermissionFlagsBits
+	PermissionFlagsBits,
+	PermissionResolvable,
+	PermissionsBitField
 } from "discord.js";
 import { LanguageData } from "../../types/languageData.js";
 import { Command } from "../../types/command";
@@ -107,7 +109,7 @@ async function deferIfNeeded(ctx: ExecutionContext) {
 	}
 }
 
-function formatPermissionName(
+export function formatPermissionName(
 	lang: LanguageData,
 	permission: unknown
 ): string | null {
@@ -121,6 +123,16 @@ function formatPermissionName(
 			.join(", ");
 	}
 	return lang[perm.name] || perm.name;
+}
+
+export function rawPermissionName(permission: unknown): string {
+	try {
+		return new PermissionsBitField(permission as PermissionResolvable)
+			.toArray()
+			.join(", ");
+	} catch {
+		return String(permission);
+	}
 }
 
 async function checkCustomSdkGate(ctx: ExecutionContext): Promise<boolean> {
@@ -212,8 +224,9 @@ async function checkNativePermission(
 	const member = await getMember(ctx.source);
 	if (member?.permissions.has(target.permission)) return true;
 
-	const permName = formatPermissionName(ctx.lang, target.permission);
-	if (!permName) return true;
+	const permName =
+		formatPermissionName(ctx.lang, target.permission) ||
+		rawPermissionName(target.permission);
 
 	await replyDenied(
 		ctx,

@@ -31,6 +31,7 @@ import {
 	Vanity
 } from "discord.js";
 import Jimp from "jimp";
+import { fitsDecodeBudget } from "../../core/functions/svgKit.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { InviteCacheData } from "../../../types/client.js";
@@ -76,6 +77,7 @@ async function downscaleAvatar(
 			512,
 			Math.max(64, parseInt(avatarSize, 10) || 256)
 		);
+		if (!fitsDecodeBudget(buffer)) return buffer;
 		const image = await Jimp.read(buffer);
 		if (image.getWidth() > target) image.resize(target, Jimp.AUTO);
 		return await image.getBufferAsync(Jimp.MIME_PNG);

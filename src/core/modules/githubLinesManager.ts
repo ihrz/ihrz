@@ -28,6 +28,16 @@
 
 import { Message } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
+import { readCapped } from "../svg/remoteImage.js";
+
+/*
+ * Any member can post links: every download is bounded in count, size and
+ * time so a message full of huge files cannot exhaust the shard memory.
+ */
+const MAX_LINKS_PER_MESSAGE = 5;
+const MAX_FILE_BYTES = 1024 * 1024;
+const FETCH_TIMEOUT_MS = 5_000;
+const MAX_DISPLAYED_LINES = 50;
 
 export class LineData {
 	readonly lineLength: number;
@@ -63,6 +73,22 @@ class GithubLinesManager {
 		}
 	}
 
+	private async fetchText(
+		url: string,
+		headers?: Record<string, string>
+	): Promise<string | null> {
+		const resp = await fetch(url, {
+			headers,
+			signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+		}).catch(() => null);
+		if (!resp?.ok) {
+			await resp?.body?.cancel().catch(() => {});
+			return null;
+		}
+		const body = await readCapped(resp, MAX_FILE_BYTES).catch(() => null);
+		return body ? body.toString("utf8") : null;
+	}
+
 	static formatIndent(str: string): string {
 		const lines = str.replace(/\t/g, "    ").split("\n");
 		const ignored: number[] = [];
@@ -94,44 +120,47 @@ class GithubLinesManager {
 		let lines: string[];
 		let filename = match[3];
 
+		// Refuse a span that would be rejected anyway, before downloading.
+		const requestedStart = parseInt(match[4], 10);
+		const requestedEnd = match[5] ? parseInt(match[5], 10) : requestedStart;
+		if (Math.abs(requestedEnd - requestedStart) >= MAX_DISPLAYED_LINES) {
+			return null;
+		}
+
 		if (type === "GitHub") {
-			const resp = await fetch(
+			const text = await this.fetchText(
 				`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`
 			);
-			if (!resp.ok) {
-				return null; // TODO: fallback to API
-			}
-			const text = await resp.text();
+			if (text === null) return null;
 			lines = text.split("\n");
 		} else if (type === "GitLab") {
-			const resp = await fetch(
+			const text = await this.fetchText(
 				`https://gitlab.com/${match[1]}/-/raw/${match[2]}/${filename}`
 			);
-			if (!resp.ok) {
-				return null; // TODO: fallback to API
-			}
-			const text = await resp.text();
+			if (text === null) return null;
 			lines = text.split("\n");
 		} else if (type === "Gist") {
 			const dotFilename = filename.replace(/-([^-]*)$/, ".$1");
 			let text: string | null = null;
 
 			if (match[2].length) {
-				const resp = await fetch(
+				text = await this.fetchText(
 					`https://gist.githubusercontent.com/${match[1]}/raw/${match[2]}/${dotFilename}`
 				);
-				if (!resp.ok) return null;
-				text = await resp.text();
+				if (text === null) return null;
 			} else {
-				const resp = await fetch(
+				const raw = await this.fetchText(
 					`https://api.github.com/gists/${match[1].split("/")[1]}`,
-					{
-						headers: this.authHeaders
-					}
+					this.authHeaders
 				);
-				if (!resp.ok) return null;
+				if (raw === null) return null;
 
-				const json = (await resp.json()) as JSONObject;
+				let json: JSONObject;
+				try {
+					json = JSON.parse(raw) as JSONObject;
+				} catch {
+					return null;
+				}
 				if (
 					!("files" in json) ||
 					typeof json.files !== "object" ||
@@ -192,23 +221,31 @@ class GithubLinesManager {
 
 	async extractCodeLinks(msg: string): Promise<IMessageData> {
 		const returned: Promise<LineData | null>[] = [];
+		const seen = new Set<string>();
+		const accept = (match: RegExpMatchArray): boolean => {
+			if (seen.has(match[0]) || seen.size >= MAX_LINKS_PER_MESSAGE) {
+				return false;
+			}
+			seen.add(match[0]);
+			return true;
+		};
 
 		for (const match of msg.matchAll(
 			/https?:\/\/github\.com\/([\w-]+\/[\w.-]+)\/blob\/(.+?)\/(.+?)#L(\d+)[-~]?L?(\d*)/g
 		)) {
-			returned.push(this.handleMatch(match, "GitHub"));
+			if (accept(match)) returned.push(this.handleMatch(match, "GitHub"));
 		}
 
 		for (const match of msg.matchAll(
 			/https?:\/\/gitlab\.com\/([\w-]+\/[\w.-]+)\/-\/blob\/(.+?)\/(.+?)#L(\d+)-?(\d*)/g
 		)) {
-			returned.push(this.handleMatch(match, "GitLab"));
+			if (accept(match)) returned.push(this.handleMatch(match, "GitLab"));
 		}
 
 		for (const match of msg.matchAll(
 			/https?:\/\/gist\.github\.com\/([\w-]+\/[\da-zA-Z]+)\/?([\da-z]*)\/*#file-(.+?)-L(\d+)[-~]?L?(\d*)/g
 		)) {
-			returned.push(this.handleMatch(match, "Gist"));
+			if (accept(match)) returned.push(this.handleMatch(match, "Gist"));
 		}
 
 		const unfiltered = await Promise.all(returned);
@@ -236,7 +273,7 @@ class GithubLinesManager {
 		);
 		const lang = await msg.client.func.getLanguageData(msg.guildId!);
 
-		if (totalLines > 50) {
+		if (totalLines > MAX_DISPLAYED_LINES) {
 			return {
 				botMsg: lang.git_lines_avoiding_spam,
 				toDelete: true,

@@ -103,6 +103,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		// Tag content is written by members: users only, never @everyone,
+		// @here or a role, whoever created the tag.
+		const allowedMentions = { parse: ["users" as const] };
+
 		if (interaction.channel.isSendable()) {
 			if (message_id) {
 				const message = await interaction.channel.messages
@@ -111,12 +115,14 @@ export const subCommand: SubCommand = {
 				if (message) {
 					await message.reply({
 						content,
+						allowedMentions,
 						embeds: embed?.embedSource ? [embed.embedSource] : []
 					});
 				}
 			} else {
 				await interaction.channel.send({
 					content,
+					allowedMentions,
 					embeds: embed?.embedSource ? [embed.embedSource] : []
 				});
 			}

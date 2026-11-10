@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import nodemailer from "nodemailer";
+import nodemailer, { type Transporter } from "nodemailer";
 
 export interface MailerConfig {
 	host: string;
@@ -38,7 +38,7 @@ export interface MailerAuth {
 
 export class Mailer {
 	private config: MailerConfig;
-	private transport: nodemailer.Transporter;
+	private transport: Transporter;
 	public connected: boolean;
 	public ownerMail: string;
 	private signature: { text: string; html: string };
@@ -133,10 +133,15 @@ export class Mailer {
 				? normalizedText + this.signature.text
 				: normalizedText;
 
+			// The plain text carries untrusted values (guild names): escape
+			// it before it becomes HTML.
+			const textAsHtml = Bun.escapeHTML(normalizedText).replace(
+				/\r?\n/g,
+				"<br>"
+			);
 			const finalHtml = withSignature
-				? (html || normalizedText.replace(/\r?\n/g, "<br>")) +
-					this.signature.html
-				: html || normalizedText.replace(/\r?\n/g, "<br>");
+				? (html || textAsHtml) + this.signature.html
+				: html || textAsHtml;
 
 			const info = await this.transport.sendMail({
 				from: `"${this.config.fromName}" <${this.config.auth.mail}>`,

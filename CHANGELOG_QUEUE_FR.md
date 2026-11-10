@@ -130,13 +130,23 @@ Toutes les images générées (cartes de rang, cartes de bienvenue, captcha, mem
 Cette version corrige plusieurs problèmes de sécurité. **Si vous hébergez votre propre instance d'iHorizon, mettez-la à jour au plus vite.**
 
 - Les réglages enregistrés refusent les noms de clé réservés, et les noms de tag et mots de réaction automatique ne peuvent plus contenir de point (les lettres de toutes les langues restent acceptées)
-- Les commandes média ne téléchargent que des images d'hôtes publics, avec des limites de taille et de temps
+- Les commandes média, les URL d'images du welcomer et des giveaways, les flux RSS Blogger et les aperçus de lignes GitHub/GitLab ne joignent que des hôtes http(s) publics (vérifiés à chaque redirection, adresses internes refusées même via des astuces DNS), avec des limites de taille et de temps ; les images de plus de 16,7 millions de pixels environ sont ignorées
 - `/util unzip-emojis` importe au plus 50 emojis, un par un, ignore les fichiers trop lourds et arrête de lire un fichier qui ment sur sa taille
-- `/guildconfig config restore` ne restaure qu'une sauvegarde faite sur le même serveur et ne change jamais les owners du bot sur ce serveur ; les sauvegardes faites avant cette version ne peuvent plus être restaurées
+- `/guildconfig config restore` ne restaure qu'une sauvegarde faite sur le même serveur et ne change jamais les owners du bot sur ce serveur ; les sauvegardes faites avant cette version ne peuvent plus être restaurées. Elle est désormais réservée aux propriétaires du serveur et conserve la protection, l'allowlist, la blacklist et les données des membres (économie) actuelles
 - Les commandes réservées aux owners du bot vérifient toujours l'owner
-- Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps (une deuxième envoyée trop vite reçoit un court message)
+- Économie : un retrait sur une banque vide est refusé, `/economy shop` débite chaque achat sur votre solde actuel, et les commandes d'argent et de cooldown ne peuvent plus être lancées plusieurs fois en même temps (une deuxième envoyée trop vite reçoit un court message). `/economy rob` et `/economy pay` verrouillent aussi l'autre membre, et `/economy deposit` / `/economy withdraw` n'acceptent que des montants entiers positifs
 - Les commandes de giveaway n'agissent que sur les giveaways du serveur actuel
-- `/mod tempban` et `/mod ban` refusent d'agir sur un membre dont le rôle le plus haut est égal ou supérieur au vôtre
+- `/mod tempban`, `/mod ban` et `/mod kick` refusent d'agir sur un membre dont le rôle le plus haut est égal ou supérieur au vôtre
+- `/utils addrole`, `/utils delrole` et `/economy role add` refusent un rôle au-dessus de votre rôle le plus haut ou ayant des permissions que vous n'avez pas
+- `/tag edit` est réservé à l'auteur du tag et aux administrateurs, et refuse les noms invalides ou déjà utilisés
+- `/ticket delete`, `/ticket transcript` et `/ticket open` exigent l'auteur du ticket ou le staff aussi depuis la commande, plus seulement depuis les boutons
+- Les messages du bot ne mentionnent plus `@everyone`, `@here` ou des rôles depuis du texte d'utilisateur (tags, options renvoyées, messages sticky) ; les notifications de stream et les pings du staff des tickets gardent leurs mentions configurées
+- Les commandes du menu contextuel vérifient leur permission requise, et une permission de commande inconnue refuse au lieu d'autoriser
+- `/perm set-user` niveau 0 ne peut plus retirer le niveau de quelqu'un de rang égal ou supérieur
+- Le choix du fuseau du mode nuit et le choix du rôle de role-select n'acceptent que la personne qui les a ouverts
+- Les codes de sécurité AuthRestore ne sont plus enregistrés dans les logs de commandes
+- « Convertir en MP4 » refuse tout de suite les fichiers de plus de 25 Mo ou l'audio de plus de 10 minutes
+- Auto-hébergement : nodemailer passe en 10.4.0 et undici est corrigé ; les noms de serveur sont échappés dans les e-mails de notification de l'owner
 
 ---
 

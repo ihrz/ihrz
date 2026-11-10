@@ -26,7 +26,10 @@ import { SubCommand } from "../../../../types/command.js";
 
 import { GifUtil, GifFrame, BitmapImage, GifCodec } from "gifwrap";
 import Jimp from "jimp";
-import { fetchImage } from "../../../core/functions/svgKit.js";
+import {
+	fetchImage,
+	fitsDecodeBudget
+} from "../../../core/functions/svgKit.js";
 
 const MAX_GIF_SIDE = 512;
 
@@ -37,7 +40,9 @@ const MAX_GIF_SIDE = 512;
  */
 async function createGifFromUrl(imageUrl: string): Promise<Buffer> {
 	const source = await fetchImage(imageUrl);
-	if (!source) throw new Error("Image unavailable or not decodable");
+	if (!source || !fitsDecodeBudget(source)) {
+		throw new Error("Image unavailable or not decodable");
+	}
 
 	const image = await Jimp.read(source);
 

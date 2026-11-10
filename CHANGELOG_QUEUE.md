@@ -130,13 +130,23 @@ Every generated image (rank cards, welcome cards, captcha, memes, `/tweet` and `
 This release fixes several security issues. **If you host your own iHorizon instance, update as soon as possible.**
 
 - Stored settings reject reserved key names, and tag names and auto-react words can no longer contain a dot (letters of every language still work)
-- Media commands only download images from public hosts, with size and time limits
+- Media commands, welcomer and giveaway image URLs, Blogger RSS feeds and GitHub/GitLab line previews only reach public http(s) hosts (checked on every redirect, internal addresses refused even through DNS tricks), with size and time limits; images over about 16.7 million pixels are ignored
 - `/util unzip-emojis` imports at most 50 emojis, one at a time, skips oversized files and stops reading a file that lies about its size
-- `/guildconfig config restore` only restores a backup saved on the same server and never changes the bot owners of the server; backups made before this release can no longer be restored
+- `/guildconfig config restore` only restores a backup saved on the same server and never changes the bot owners of the server; backups made before this release can no longer be restored. It is now limited to server owners and keeps the current protection, allowlist, blacklist and member (economy) data
 - Bot-owner commands always check the owner
-- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once (a second one sent too fast gets a short notice)
+- Economy: withdrawing from an empty bank is refused, `/economy shop` charges every purchase on your current balance, and money and cooldown commands can no longer be run several times at once (a second one sent too fast gets a short notice). `/economy rob` and `/economy pay` also lock the other member, and `/economy deposit` / `/economy withdraw` only accept whole positive amounts
 - Giveaway commands only act on giveaways of the current server
-- `/mod tempban` and `/mod ban` refuse to act on a member whose highest role is equal to or above yours
+- `/mod tempban`, `/mod ban` and `/mod kick` refuse to act on a member whose highest role is equal to or above yours
+- `/utils addrole`, `/utils delrole` and `/economy role add` refuse a role above your own highest role or carrying permissions you don't have
+- `/tag edit` is limited to the tag's author and administrators, and refuses invalid names or a name already in use
+- `/ticket delete`, `/ticket transcript` and `/ticket open` require the ticket author or staff from the command too, not only from the buttons
+- Bot messages no longer ping `@everyone`, `@here` or roles from user text (tags, echoed options, sticky messages); stream notifications and ticket staff pings keep their configured mentions
+- Context-menu commands enforce their required permission, and an unknown command permission now denies instead of allowing
+- `/perm set-user` level 0 can no longer remove the level of someone ranked equal or higher
+- The night-mode timezone picker and the role-select role picker only accept the person who opened them
+- AuthRestore security keys are no longer stored in the command logs
+- "Convert to MP4" refuses files over 25 MB or audio longer than 10 minutes straight away
+- Self-hosting: nodemailer updated to 10.4.0 and undici patched; server names are escaped in owner notification emails
 
 ---
 

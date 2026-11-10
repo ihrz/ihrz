@@ -19,7 +19,14 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, GuildMember, Message } from "discord.js";
+import {
+	ChatInputCommandInteraction,
+	GuildMember,
+	Message,
+	PermissionFlagsBits,
+	PermissionsBitField,
+	Role
+} from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
@@ -493,4 +500,47 @@ export function getPermissionByValue(
 	) as keyof typeof PERMISSION_MAPPING | undefined;
 
 	return key ? PERMISSION_MAPPING[key] : null;
+}
+
+export function getRefusedRoleReason(
+	role: Role,
+	author: GuildMember,
+	lang: LanguageData
+): string | null {
+	const botMember = role.guild.members.me;
+
+	if (role.id === role.guild.id || role.managed) {
+		return lang.rolepanel_role_managed_or_everyone;
+	}
+
+	if (!botMember || botMember.roles.highest.position <= role.position) {
+		return lang.rolepanel_role_too_high_bot;
+	}
+
+	if (
+		role.guild.ownerId !== author.id &&
+		author.roles.highest.position <= role.position
+	) {
+		return lang.rolepanel_role_too_high_user;
+	}
+
+	const authorPermissions = new PermissionsBitField(author.permissions);
+	const rolePermissions = new PermissionsBitField(role.permissions);
+
+	if (!authorPermissions.has(PermissionFlagsBits.Administrator)) {
+		const missingPermissions = rolePermissions
+			.toArray()
+			.filter((permission) => !authorPermissions.has(permission));
+
+		if (missingPermissions.length > 0) {
+			return lang.rolepanel_role_missing_permissions.replace(
+				"${permissions}",
+				missingPermissions
+					.map((permission) => `\`${permission}\``)
+					.join(", ")
+			);
+		}
+	}
+
+	return null;
 }

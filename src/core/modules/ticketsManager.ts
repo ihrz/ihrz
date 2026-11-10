@@ -894,7 +894,16 @@ async function CreateChannelV2(
 					embeds: embeds,
 					content: content === "" ? undefined : content,
 					components,
-					files: files
+					files: files,
+					allowedMentions: {
+						users: result.config.pingUser
+							? [interaction.user.id]
+							: [],
+						roles: [
+							...(chosenCategory?.rolesToPing ?? []),
+							...(result.config.rolesToPing ?? [])
+						]
+					}
 				})
 				.then(async (msg) => {
 					await msg.pin("Ticket Panel").catch(() => {});
@@ -1049,33 +1058,49 @@ async function CloseTicket(
 }
 
 /**
- * Delete and transcript buttons: ticket author, administrators and staff
- * (anyone who can manage the ticket channel) only.
+ * Delete, transcript and reopen actions: ticket author, administrators and
+ * staff (anyone who can manage the ticket channel) only, whatever the source
+ * (button, slash command or prefix command).
  * Replies with the permission-denied message and returns false otherwise.
  */
 async function denyUnlessTicketStaff(
-	interaction: ButtonInteraction<"cached">,
+	interaction:
+		| ButtonInteraction<"cached">
+		| ChatInputCommandInteraction<"cached">
+		| Interaction<"cached">
+		| Message,
 	authorId: string | undefined,
 	lang: LanguageData
 ): Promise<boolean> {
 	const channel = interaction.channel;
+	const member = interaction.member;
+	const userId = member?.user.id;
 	const allowed =
-		interaction.user.id === authorId ||
-		interaction.memberPermissions.has(PermissionFlagsBits.Administrator) ||
-		(!!channel &&
-			interaction.member
-				.permissionsIn(channel.id)
-				.has(PermissionFlagsBits.ManageChannels));
+		(!!userId && userId === authorId) ||
+		(!!member &&
+			(member.permissions.has(PermissionFlagsBits.Administrator) ||
+				(!!channel &&
+					member
+						.permissionsIn(channel.id)
+						.has(PermissionFlagsBits.ManageChannels))));
 
 	if (allowed) return true;
 
-	await interaction.reply({
-		content: lang.var_doesnt_have_permissions.replace(
-			"{permission}",
-			"ManageChannels"
-		),
-		flags: MessageFlags.Ephemeral
-	});
+	const content = lang.var_doesnt_have_permissions.replace(
+		"{permission}",
+		"ManageChannels"
+	);
+
+	if (interaction instanceof Message) {
+		await interaction.client.func.method.interactionSend(interaction, {
+			content
+		});
+	} else if (interaction.isRepliable()) {
+		await interaction.reply({
+			content,
+			flags: MessageFlags.Ephemeral
+		});
+	}
 	return false;
 }
 
@@ -1095,8 +1120,6 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
 				if (
-					"isButton" in interaction &&
-					interaction.isButton() &&
 					!(await denyUnlessTicketStaff(
 						interaction,
 						fetch[user][channel]?.author,
@@ -1312,6 +1335,15 @@ async function TicketReOpen(
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
+				if (
+					!(await denyUnlessTicketStaff(
+						interaction,
+						fetch[user][channel]?.author,
+						lang
+					))
+				)
+					return;
+
 				const member = interaction.guild?.members.cache.get(
 					fetch[user][channel]?.author
 				);
@@ -1413,8 +1445,6 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 				const ticketOwnerMention =
 					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
 				if (
-					"isButton" in interaction &&
-					interaction.isButton() &&
 					!(await denyUnlessTicketStaff(
 						interaction,
 						ticketOwnerId,

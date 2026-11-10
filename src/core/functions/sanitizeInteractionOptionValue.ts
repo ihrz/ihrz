@@ -29,7 +29,10 @@ const SENSITIVE_OPTION_NAMES = new Set([
 	"sharedsecret",
 	"credential",
 	"sessionkey",
-	"sessiontoken"
+	"sessiontoken",
+	"key",
+	"securitycode",
+	"secretcode"
 ]);
 
 export function sanitizeInteractionOptionValue(

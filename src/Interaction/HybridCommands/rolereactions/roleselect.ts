@@ -335,10 +335,15 @@ export const command: Command = {
 				flags: [1 << 6]
 			});
 
-			const roleResponse = await modal?.channel?.awaitMessageComponent({
-				componentType: ComponentType.RoleSelect,
-				time: 60_000
-			});
+			const roleResponse = await roleSelectResponse
+				?.awaitMessageComponent({
+					componentType: ComponentType.RoleSelect,
+					time: 60_000,
+					filter: (x) =>
+						x.user.id === modal?.user.id &&
+						x.customId === "role_selection"
+				})
+				.catch(() => null);
 
 			if (roleResponse) {
 				if (baseData.find((x) => x.roleId === roleResponse.values[0])) {

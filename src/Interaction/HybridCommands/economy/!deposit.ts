@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 
 		try {
 			const opts = client.func.method.options(interaction, args);
-			let toDeposit = opts.string("how-much", 0) as string;
+			const toDeposit = opts.string("how-much", 0) as string;
 
 			if (
 				(await client.db.get(
@@ -82,9 +82,11 @@ export const subCommand: SubCommand = {
 					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
 				)) || 0;
 
-			if (toDeposit === "all") toDeposit = balance;
+			// Parsed once: the same integer is checked and moved.
+			const amount =
+				toDeposit === "all" ? Number(balance) : Number(toDeposit);
 
-			if (isNaN(Number(toDeposit))) {
+			if (!Number.isSafeInteger(amount) || amount <= 0) {
 				await client.func.method.interactionSend(interaction, {
 					content:
 						lang.temporary_voice_limit_button_not_integer.replace(
@@ -95,18 +97,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (Number(toDeposit) <= 0) {
-				await client.func.method.interactionSend(interaction, {
-					content:
-						lang.temporary_voice_limit_button_not_integer.replace(
-							"${emoji_No}",
-							client.iHorizon_Emojis.No
-						)
-				});
-				return;
-			}
-
-			if (toDeposit && toDeposit > balance) {
+			if (amount > balance) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.deposit_cannot_abuse.replace(
 						"${emoji_No}",
@@ -118,11 +109,11 @@ export const subCommand: SubCommand = {
 
 			await client.db.add(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
-				parseInt(toDeposit)
+				amount
 			);
 			await client.db.sub(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
-				parseInt(toDeposit)
+				amount
 			);
 
 			const embed = new EmbedBuilder()
@@ -141,7 +132,7 @@ export const subCommand: SubCommand = {
 							"${author}",
 							interaction.member.user.toString()
 						)
-						.replace("${toDeposit}", toDeposit.toString())
+						.replace("${toDeposit}", amount.toString())
 				)
 				.addFields({
 					name: lang.deposit_embed_fields1_name,
@@ -165,7 +156,7 @@ export const subCommand: SubCommand = {
 			await client.func.economyLogs.deposit(
 				interaction.guild,
 				interaction.member.user.id,
-				Number(toDeposit),
+				amount,
 				lang
 			);
 			return;

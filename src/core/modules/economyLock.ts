@@ -22,20 +22,23 @@
 // Per-member lock for the economy commands: a second command of the same
 // member, sent while the first one is still running, is refused instead of
 // reading the same balance twice. In memory: a guild lives on one shard.
+// Commands that move money between two members (pay, rob) lock both, so a
+// victim or recipient cannot be drained by concurrent commands either.
 const held = new Set<string>();
 
 /**
- * Tries to take the per-member lock. Returns a release function, or null if
- * the lock is already held. The caller must release it in a finally block.
+ * Tries to take the lock of every given member, all or nothing. Returns a
+ * release function, or null if one of them is already held. The caller must
+ * release it in a finally block.
  */
 export function acquireEconomyLock(
 	guildId: string,
-	userId: string
+	...userIds: string[]
 ): (() => void) | null {
-	const key = `${guildId}.${userId}`;
-	if (held.has(key)) return null;
-	held.add(key);
+	const keys = [...new Set(userIds)].sort().map((id) => `${guildId}.${id}`);
+	if (keys.some((key) => held.has(key))) return null;
+	for (const key of keys) held.add(key);
 	return () => {
-		held.delete(key);
+		for (const key of keys) held.delete(key);
 	};
 }

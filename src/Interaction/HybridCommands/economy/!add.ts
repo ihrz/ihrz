@@ -24,6 +24,7 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
+	GuildMember,
 	PermissionsBitField,
 	Role
 } from "discord.js";
@@ -50,6 +51,20 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0) as Role;
 		const amount = opts.number("amount", 1)!;
+
+		const refusedReason =
+			client.func.permissonsCalculator.getRefusedRoleReason(
+				role,
+				interaction.member as GuildMember,
+				lang
+			);
+
+		if (refusedReason) {
+			await client.func.method.interactionSend(interaction, {
+				content: `${client.iHorizon_Emojis.Stop} ${refusedReason}`
+			});
+			return;
+		}
 
 		const roleData = await client.func.economyHelper.pruneBuyableRoles(
 			interaction.guild

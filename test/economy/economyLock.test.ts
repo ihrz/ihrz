@@ -65,4 +65,20 @@ describe("acquireEconomyLock", () => {
 		expect(results.filter(Boolean).length).toBe(1);
 		expect(balance).toBe(0);
 	});
+
+	test("locks several members all or nothing", () => {
+		const victim = acquireEconomyLock("guild", "victim");
+		expect(acquireEconomyLock("guild", "robber", "victim")).toBeNull();
+		// The failed attempt did not keep the free member locked.
+		const robber = acquireEconomyLock("guild", "robber");
+		expect(robber).not.toBeNull();
+		robber!();
+		victim!();
+
+		const both = acquireEconomyLock("guild", "robber", "victim");
+		expect(both).not.toBeNull();
+		expect(acquireEconomyLock("guild", "victim")).toBeNull();
+		both!();
+		expect(acquireEconomyLock("guild", "victim")).not.toBeNull();
+	});
 });

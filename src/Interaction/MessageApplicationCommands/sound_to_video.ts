@@ -33,8 +33,13 @@ import {
 	AttachmentBuilder
 } from "discord.js";
 import { AnotherCommand } from "../../../types/anotherCommand.js";
+import { readCapped } from "../../core/svg/remoteImage.js";
 
 const execFileAsync = promisify(execFile);
+
+const MAX_INPUT_BYTES = 25 * 1024 * 1024;
+const MAX_DURATION_SECONDS = 10 * 60;
+const FFMPEG_TIMEOUT_MS = 3 * 60 * 1000;
 
 export const command: AnotherCommand = {
 	name: "Convert to MP4",
@@ -106,6 +111,24 @@ export const command: AnotherCommand = {
 				return;
 			}
 
+			if (attachment.size > MAX_INPUT_BYTES) {
+				const embed = new EmbedBuilder()
+					.setTitle(lang.global_error)
+					.setColor("#ff0000")
+					.setDescription(
+						lang.global_too_heavy_file.replace(
+							"${fileSize}",
+							(attachment.size / (1024 * 1024)).toFixed(2)
+						)
+					)
+					.setTimestamp();
+				await interaction.reply({
+					embeds: [embed],
+					flags: MessageFlags.Ephemeral
+				});
+				return;
+			}
+
 			await interaction.reply({
 				content: client.iHorizon_Emojis.Discord_Loading
 			});
@@ -113,19 +136,22 @@ export const command: AnotherCommand = {
 			const tmpDir = fs.mkdtempSync(
 				path.join(os.tmpdir(), "ihrz-audiomp4-")
 			);
-			const inputPath = path.join(
-				tmpDir,
-				attachment.name ?? "input_audio"
-			);
+			const extension = (path
+				.extname(attachment.name || "")
+				.match(/^\.[a-z0-9]{1,5}$/i) ?? [""])[0];
+			const inputPath = path.join(tmpDir, `input_audio${extension}`);
 			const outputPath = path.join(tmpDir, "output.mp4");
 
-			const res = await fetch(attachment.url);
+			const res = await fetch(attachment.url, {
+				signal: AbortSignal.timeout(30_000)
+			});
 			if (!res.ok)
 				throw new Error(
-					`Échec téléchargement: ${res.status} ${res.statusText}`
+					`Download failed: ${res.status} ${res.statusText}`
 				);
-			const arrayBuffer = await res.arrayBuffer();
-			fs.writeFileSync(inputPath, Buffer.from(arrayBuffer));
+			const input = await readCapped(res, MAX_INPUT_BYTES);
+			if (!input) throw new Error("Attachment exceeds the size limit");
+			fs.writeFileSync(inputPath, input);
 
 			let audioDuration: number;
 			try {
@@ -140,12 +166,23 @@ export const command: AnotherCommand = {
 				]);
 				audioDuration = parseFloat(probeOutput.trim());
 				if (isNaN(audioDuration) || audioDuration <= 0) {
-					throw new Error("Durée audio invalide");
+					throw new Error("Invalid audio duration");
 				}
 			} catch (probeErr) {
 				throw new Error(
-					"Erreur ffprobe: " + (probeErr as Error).message
+					"ffprobe error: " + (probeErr as Error).message
 				);
+			}
+
+			if (audioDuration > MAX_DURATION_SECONDS) {
+				const embed = new EmbedBuilder()
+					.setTitle(lang.global_error)
+					.setColor("#ff0000")
+					.setDescription(lang.global_not_valid_atc)
+					.setTimestamp();
+				await interaction.editReply({ content: null, embeds: [embed] });
+				fs.rmSync(tmpDir, { recursive: true, force: true });
+				return;
 			}
 
 			const fileTitle = path.parse(attachment.name || "Audio").base;
@@ -182,10 +219,14 @@ export const command: AnotherCommand = {
 						"+faststart",
 						outputPath
 					],
-					{ maxBuffer: 1024 * 1024 * 50 }
+					{
+						maxBuffer: 1024 * 1024 * 50,
+						timeout: FFMPEG_TIMEOUT_MS,
+						killSignal: "SIGKILL"
+					}
 				);
 			} catch (ffErr) {
-				throw new Error("Erreur ffmpeg: " + (ffErr as Error).message);
+				throw new Error("ffmpeg error: " + (ffErr as Error).message);
 			}
 
 			const stats = fs.statSync(outputPath);

@@ -175,11 +175,12 @@ export const subCommand: SubCommand = {
 				const refused: string[] = [];
 
 				for (const [, role] of roleInteraction.roles) {
-					const refusedReason = getRefusedRoleReason(
-						role as Role,
-						author,
-						lang
-					);
+					const refusedReason =
+						client.func.permissonsCalculator.getRefusedRoleReason(
+							role as Role,
+							author,
+							lang
+						);
 
 					if (refusedReason) {
 						refused.push(`${role.toString()}: ${refusedReason}`);
@@ -213,11 +214,12 @@ export const subCommand: SubCommand = {
 				const refusedOnApply: string[] = [];
 
 				for (const role of selectedRoles) {
-					const refusedReason = getRefusedRoleReason(
-						role,
-						author,
-						lang
-					);
+					const refusedReason =
+						client.func.permissonsCalculator.getRefusedRoleReason(
+							role,
+							author,
+							lang
+						);
 
 					if (refusedReason) {
 						refusedOnApply.push(
@@ -342,47 +344,4 @@ async function resolveTargetMember(
 		(client.func.method.member(interaction, args!, 0) as GuildMember) ||
 		null
 	);
-}
-
-function getRefusedRoleReason(
-	role: Role,
-	author: GuildMember,
-	lang: LanguageData
-): string | null {
-	const botMember = role.guild.members.me;
-
-	if (role.id === role.guild.id || role.managed) {
-		return lang.rolepanel_role_managed_or_everyone;
-	}
-
-	if (!botMember || botMember.roles.highest.position <= role.position) {
-		return lang.rolepanel_role_too_high_bot;
-	}
-
-	if (
-		role.guild.ownerId !== author.id &&
-		author.roles.highest.position <= role.position
-	) {
-		return lang.rolepanel_role_too_high_user;
-	}
-
-	const authorPermissions = new PermissionsBitField(author.permissions);
-	const rolePermissions = new PermissionsBitField(role.permissions);
-
-	if (!authorPermissions.has(PermissionFlagsBits.Administrator)) {
-		const missingPermissions = rolePermissions
-			.toArray()
-			.filter((permission) => !authorPermissions.has(permission));
-
-		if (missingPermissions.length > 0) {
-			return lang.rolepanel_role_missing_permissions.replace(
-				"${permissions}",
-				missingPermissions
-					.map((permission) => `\`${permission}\``)
-					.join(", ")
-			);
-		}
-	}
-
-	return null;
 }

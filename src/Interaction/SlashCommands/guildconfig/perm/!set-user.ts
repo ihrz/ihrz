@@ -44,6 +44,28 @@ export const subCommand: SubCommand = {
 		const perm = interaction.options.getString("permission") as string;
 
 		if (perm === "0") {
+			const authorPerm =
+				await client.func.permissonsCalculator.checkUserPermissions(
+					interaction.member
+				);
+			const targetPerm = ((await client.db.get(
+				`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`
+			)) || 0) as number;
+
+			if (
+				targetPerm > 0 &&
+				authorPerm <= targetPerm &&
+				interaction.guild.ownerId !== interaction.member.id
+			) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.perm_set_warn_message.replace(
+						"${author}",
+						interaction.member.toString()
+					)
+				});
+				return;
+			}
+
 			await client.db.delete(
 				`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`
 			);

@@ -40,6 +40,10 @@ const DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS = 60 * 15;
 global.getOS = getOS;
 
 global.client = new Client({
+	// Mass and role mentions are opt-in per message: user-provided text
+	// (tags, option values echoed in replies) must never ping @everyone,
+	// @here or a role.
+	allowedMentions: { parse: ["users"], repliedUser: true },
 	makeCache: Options.cacheWithLimits({
 		MessageManager: 100
 	}),

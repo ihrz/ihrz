@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 
 		if (
 			(interaction.member.roles as GuildMemberRoleManager).highest
-				.position < member.roles.highest.position &&
+				.position <= member.roles.highest.position &&
 			interaction.guild.ownerId !== interaction.member.user.id
 		) {
 			await client.func.method.interactionSend(interaction, {

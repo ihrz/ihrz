@@ -220,8 +220,8 @@ export const event: BotEvent = {
 
 					client.func.method.channelSend(message, {
 						content: msg,
-						// Message modèle éditable par les gestionnaires (dashboard) :
-						// jamais de ping @everyone/@here ni de rôle.
+						// Template editable by dashboard managers: never ping
+						// @everyone, @here or a role.
 						allowedMentions: { parse: ["users"] }
 					});
 					return;

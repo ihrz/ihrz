@@ -570,6 +570,10 @@ export class StreamNotifier {
 									lang.notifier_on_new_media_default_button_label
 								)
 							],
+							// Admin-configured announcement: keep its pings.
+							allowedMentions: {
+								parse: ["everyone", "roles", "users"]
+							},
 							nonce: SnowflakeUtil.generate().toString(),
 							enforceNonce: true
 						});

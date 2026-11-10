@@ -329,18 +329,19 @@ export const command: Command = {
 				flags: MessageFlags.Ephemeral
 			});
 
-			let collector2con =
-				interaction.channel!.createMessageComponentCollector({
-					time,
-					componentType: ComponentType.StringSelect
-				});
+			let collector2con = wait.createMessageComponentCollector({
+				time,
+				componentType: ComponentType.StringSelect,
+				filter: (x) =>
+					x.user.id === i.user.id && x.customId === "utc_choice"
+			});
 
 			collector2con.on("collect", async (i) => {
 				let utc = i.values?.[0];
 				if (utc) {
 					baseData.utc = Number(utc);
 					embed.data.fields![fieldsNumber]!.value =
-						`${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
+						`${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`;
 					refreshogResponse();
 					collector2con.stop();
 				}
@@ -457,7 +458,7 @@ export const command: Command = {
 				endTime.minute
 			];
 			embed.data.fields![fieldsNumber].value =
-				`${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
+				`${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`;
 
 			refreshogResponse();
 		}

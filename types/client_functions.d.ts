@@ -867,6 +867,11 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(
 			value: bigint | Array<bigint>
 		): PermissionValue | Array<PermissionValue> | null;
+		export function getRefusedRoleReason(
+			role: Role,
+			author: GuildMember,
+			lang: LanguageData
+		): string | null;
 		export function hasCommandPermissionRequirements(
 			permissionData: command | null | undefined
 		): boolean;
@@ -990,6 +995,9 @@ declare namespace Client_Functions {
 			template: string,
 			values: { [x: string]: string | number | SvgMarkup }
 		): string;
+		export function fitsDecodeBudget(
+			buffer: Buffer<ArrayBufferLike>
+		): boolean;
 		export function image(
 			source: Buffer<ArrayBufferLike>,
 			options: ImageOptions
