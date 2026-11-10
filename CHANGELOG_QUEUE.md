@@ -197,6 +197,12 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 
 ---
 
+## 🖥️ Dashboard — run the bot's tools from the web
+
+The bot now answers the dashboard's requests itself, with the **same checks as the matching commands**: your `/perm` rules and the command's own permission, its cooldown and `/commandlimit`, and the member and role hierarchy. From the dashboard you can now: control the **music player** (queue, pause, skip, loop, volume, search and add tracks, lyrics); manage **warnings, timeouts, bans and kicks**, unban everyone and undo it; open a **member card** (profile, previous names, voice channel, roles, invites, money, XP, locked nickname); **purge, lock, hide and sync** channels, post as the bot and start a poll; give or remove a role to everyone and audit who is an administrator; see who is in **voice** and move, gather, spread or disconnect members; run **giveaways**, review **suggestions**, browse the starboard and skullboard; handle **open tickets** and read their transcripts; check **webhooks, bots and invites**; download every emoji and sticker at once and add emojis; change the bot's **bio and banner** on the server; create, load and schedule **backups**; set the native **AutoMod** rules (bypass roles, alert channel, mention limit); turn **talk mode** on or off and create the **night-mode exception** role. Settings that had no page now have one too: command permissions and usage limits, ghost ping on arrival, fun commands on/off, nickname filter, role limits, roles moderators can give, leashes, word reactions, channel renewal, frozen voice channel and the suggestion staff role.
+
+---
+
 ## 🛠️ Fixes & improvements
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
@@ -285,3 +291,8 @@ An existing `config.ts` keeps working for now (with a warning): `bun run config:
 - **`/suggest accept`**: the error message is displayed correctly when the suggestion cannot be updated
 - **`/economy shop`**: if the role cannot be given, the member is told and no longer charged
 - `+shardinfo` (bot owners) now replies with an image covering every shard: servers and members per shard, status, ping, memory, voice sessions and uptime. A shard that does not answer is shown as offline instead of failing the command.
+- **`/mod lock-all` and `/mod unlock-all`**: no longer reset the channels' permissions for the role: private channels stayed private but became visible to everyone
+- **`/unmute`**: says so when the timeout could not be removed, instead of reporting a success
+- **`/unban`**: works on servers with more than 1000 bans, and no longer logs an unban that failed
+- **Tickets**: closing or reopening works when the ticket's author is not in the bot's cache, a refused permission change now shows an error instead of a false success, and the ticket log is only written when the action worked
+- **`/music pause`, `/music resume`, `/music skip`**: no error when the player is already paused or playing, or when the player's text channel was deleted

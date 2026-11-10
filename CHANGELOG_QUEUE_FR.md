@@ -197,6 +197,12 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 
 ---
 
+## 🖥️ Dashboard — les outils du bot depuis le web
+
+Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes vérifications que les commandes équivalentes** : vos règles `/perm` et la permission propre à la commande, son cooldown et `/commandlimit`, et la hiérarchie des membres et des rôles. Depuis le dashboard, vous pouvez maintenant : piloter le **lecteur musical** (file, pause, passer, boucle, volume, rechercher et ajouter des morceaux, paroles) ; gérer les **avertissements, exclusions temporaires, bannissements et expulsions**, tout débannir et l'annuler ; ouvrir une **fiche membre** (profil, anciens pseudos, salon vocal, rôles, invitations, argent, XP, pseudo verrouillé) ; **purger, verrouiller, masquer et synchroniser** des salons, écrire au nom du bot et lancer un sondage ; donner ou retirer un rôle à tout le monde et voir qui est administrateur ; voir qui est en **vocal** et déplacer, rassembler, répartir ou déconnecter des membres ; gérer les **giveaways**, modérer les **suggestions**, parcourir le starboard et le skullboard ; traiter les **tickets ouverts** et lire leurs transcriptions ; vérifier les **webhooks, bots et invitations** ; télécharger tous les emojis et autocollants d'un coup et ajouter des emojis ; changer la **bio et la bannière** du bot sur le serveur ; créer, charger et planifier des **backups** ; régler les règles **AutoMod** natives (rôles exemptés, salon d'alerte, limite de mentions) ; activer ou couper le **mode talk** et créer le rôle d'**exception du mode nuit**. Les réglages qui n'avaient pas de page en ont une : permissions et limites d'utilisation des commandes, ghost ping à l'arrivée, commandes fun on/off, filtre de pseudos, limites de rôles, rôles que les modérateurs peuvent donner, laisses, réactions aux mots, renouvellement des salons, salon vocal gelé et rôle de l'équipe des suggestions.
+
+---
+
 ## 🛠️ Corrections & améliorations
 - Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
@@ -285,3 +291,8 @@ Un `config.ts` existant fonctionne encore pour l'instant (avec un avertissement)
 - **`/suggest accept`** : le message d'erreur s'affiche correctement quand la suggestion ne peut pas être mise à jour
 - **`/economy shop`** : si le rôle ne peut pas être donné, le membre est prévenu et n'est plus débité
 - `+shardinfo` (propriétaires du bot) répond désormais avec une image couvrant tous les shards : serveurs et membres par shard, état, ping, mémoire, sessions vocales et uptime. Un shard qui ne répond pas apparaît hors ligne au lieu de faire échouer la commande.
+- **`/mod lock-all` et `/mod unlock-all`** : ne réinitialisent plus les permissions des salons pour le rôle : les salons privés devenaient visibles par tout le monde
+- **`/unmute`** : le dit quand l'exclusion temporaire n'a pas pu être retirée, au lieu d'annoncer un succès
+- **`/unban`** : fonctionne sur les serveurs de plus de 1000 bannissements, et ne journalise plus un débannissement qui a échoué
+- **Tickets** : fermer ou rouvrir fonctionne quand l'auteur du ticket n'est pas dans le cache du bot, un changement de permission refusé affiche une erreur au lieu d'un faux succès, et le journal du ticket n'est écrit que si l'action a réussi
+- **`/music pause`, `/music resume`, `/music skip`** : plus d'erreur quand le lecteur est déjà en pause ou en lecture, ni quand le salon texte du lecteur a été supprimé
