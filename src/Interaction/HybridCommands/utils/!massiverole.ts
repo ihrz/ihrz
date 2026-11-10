@@ -148,7 +148,23 @@ export const subCommand: SubCommand = {
 			const adding = action === "add";
 			try {
 				const plan = await massRolePlan(author, role as Role, adding);
+				if (!plan.ok && plan.code === "busy") {
+					await ogInteraction.edit({
+						components: [
+							notice("info", lang.action_mass_job_running)
+						]
+					});
+					return;
+				}
 				if (!plan.ok) throw new Error(plan.code);
+				// The guild's mass-role slot is held from here: never return
+				// without starting the run, which frees it when it ends.
+				const run = massRoleRun(
+					plan.members,
+					role as Role,
+					adding,
+					plan.release
+				);
 				const membersToProcess = plan.members;
 
 				// Members that already have the role (add) or never had it (sub)
@@ -169,17 +185,15 @@ export const subCommand: SubCommand = {
 					]
 				});
 
-				// Process in batches asynchronously
-				setImmediate(() =>
-					massRoleRun(membersToProcess, role as Role, adding).then(
-						async (r) => {
-							a = r.changed;
-							e = r.failed;
-							// Send final result when processing is complete
-							await showResult(adding);
-						}
-					)
-				);
+				// Processed in batches in the background.
+				void run
+					.then(async (r) => {
+						a = r.changed;
+						e = r.failed;
+						// Send final result when processing is complete
+						await showResult(adding);
+					})
+					.catch(() => {});
 				return;
 			} catch (error) {}
 

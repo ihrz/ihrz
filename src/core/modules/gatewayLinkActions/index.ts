@@ -114,7 +114,11 @@ export async function authorize(
 			fail(`forbidden: /${def.command} requires ${name}`);
 		}
 	}
-	if (opts.write) await countUse(client, member, def.command!, target);
+	// Declared here, not taken from the event: a mislabelled action at the
+	// gateway must not skip the cooldown.
+	if (!def.read || opts.write) {
+		await countUse(client, member, def.command!, target);
+	}
 }
 
 // A dashboard action that changes something counts as a use of its command:

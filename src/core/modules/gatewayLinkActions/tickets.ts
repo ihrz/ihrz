@@ -207,6 +207,7 @@ export const ticketsActions: ActionGroup = {
 	// tickets stay listed (the channel stays until /ticket delete): no
 	// history of deleted tickets is kept.
 	"tickets.list": {
+		read: true,
 		command: "ticket transcript",
 		run: async ({ client, guild, actor, params }) => {
 			const limit = params.int("limit", {
@@ -274,10 +275,19 @@ export const ticketsActions: ActionGroup = {
 	// Structured messages instead of the HTML file of /ticket transcript,
 	// newest first, `before` = message id of the next page.
 	"tickets.transcript": {
+		read: true,
 		command: "ticket transcript",
 		run: async (ctx) => {
 			const { channel, ticket } = await resolveTicket(ctx);
 			requireTicketStaff(ctx, channel, ticket.author);
+			// The history is what Discord would let the actor scroll through.
+			if (
+				!ctx.actor
+					.permissionsIn(channel)
+					.has(PermissionFlagsBits.ReadMessageHistory)
+			) {
+				fail("forbidden: you cannot read this ticket's history");
+			}
 			const limit = ctx.params.int("limit", {
 				min: 1,
 				max: TRANSCRIPT_MAX,

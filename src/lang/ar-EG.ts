@@ -1157,6 +1157,8 @@ export default {
 
 	// /action unban all
 	action_unban_all_no_banned_members: "لا يوجد أعضاء محظورين.",
+	action_mass_job_running: "هناك إجراء جماعي من هذا النوع قيد التنفيذ بالفعل على هذا الخادم، انتظر حتى ينتهي.",
+	util_talk_already_active: "وضع talk مفعّل بالفعل في ${voiceChannel}: أوقفه هناك أولاً.",
 
 	// /action unban undo
 

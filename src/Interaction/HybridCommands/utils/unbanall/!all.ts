@@ -98,7 +98,10 @@ export const subCommand: SubCommand = {
 
 		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.action_unban_all_no_banned_members
+				content:
+					result.code === "busy"
+						? lang.action_mass_job_running
+						: lang.action_unban_all_no_banned_members
 			});
 			return;
 		}

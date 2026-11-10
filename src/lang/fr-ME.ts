@@ -1274,6 +1274,8 @@ export default {
 
 	// /action débannir tous
 	action_unban_all_no_banned_members: "Il n'y a pas de membres bannis.",
+	action_mass_job_running: "Une action de masse de ce type tourne déjà sur ce serveur, attends qu'elle finisse.",
+	util_talk_already_active: "Le mode talk tourne déjà dans ${voiceChannel} : coupe-le d'abord.",
 
 	// /action débannir annuler
 

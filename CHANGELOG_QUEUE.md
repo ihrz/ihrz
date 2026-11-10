@@ -296,3 +296,5 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 - **`/unban`**: works on servers with more than 1000 bans, and no longer logs an unban that failed
 - **Tickets**: closing or reopening works when the ticket's author is not in the bot's cache, a refused permission change now shows an error instead of a false success, and the ticket log is only written when the action worked
 - **`/music pause`, `/music resume`, `/music skip`**: no error when the player is already paused or playing, or when the player's text channel was deleted
+- **`/unban-all`, `/utils massiverole`**: a second run on the same server is refused while the first one is still going (two runs used to overlap, and an unban-all could forget who to ban again on `undo`)
+- **`/util untalk`**: refused while talk mode is on in another voice channel, whose members stayed muted for good when it was replaced

@@ -234,6 +234,7 @@ export function canPostIn(
 
 export const musicActions: ActionGroup = {
 	"music.state": {
+		read: true,
 		command: "music queue",
 		run: async (ctx) => stateOf(ctx)
 	},
@@ -337,6 +338,7 @@ export const musicActions: ActionGroup = {
 
 	// The suggestions of /music play: pass `value` to music.play.
 	"music.search": {
+		read: true,
 		command: "music play",
 		run: async ({ client, actor, params }) => {
 			const query = stripChoiceDuration(
@@ -433,6 +435,7 @@ export const musicActions: ActionGroup = {
 
 	// /music lyrics, of `query` or else of the track playing.
 	"music.lyrics": {
+		read: true,
 		command: "music lyrics",
 		run: async ({ client, guild, actor, params }) => {
 			const query = params.optStr("query", SEARCH_MAX);

@@ -336,6 +336,7 @@ export const membersActions: ActionGroup = {
 
 	// ── Locked nicknames ────────────────────────────────────────────────────
 	"locknames.list": {
+		read: true,
 		command: "utilss locknamelist",
 		run: async (ctx) => {
 			const all = await listLockNames(ctx.client, ctx.guild.id);
@@ -432,6 +433,7 @@ export const membersActions: ActionGroup = {
 
 	// ── Leashes ─────────────────────────────────────────────────────────────
 	"leashes.list": {
+		read: true,
 		command: "utilss leashlist",
 		run: async (ctx) => {
 			// Unlike `/utilss leashlist`, a read doesn't purge expired leashes.
@@ -474,6 +476,7 @@ export const membersActions: ActionGroup = {
 
 	// ── Voice ───────────────────────────────────────────────────────────────
 	"voice.overview": {
+		read: true,
 		command: "util where",
 		run: async (ctx) => {
 			const sessions = ((await ctx.client.db.get(
@@ -514,6 +517,7 @@ export const membersActions: ActionGroup = {
 		}
 	},
 	"voice.where": {
+		read: true,
 		command: "util where",
 		run: async (ctx) => {
 			const member = await fetchMember(
@@ -521,7 +525,14 @@ export const membersActions: ActionGroup = {
 				ctx.params.id("userId")
 			);
 			const channel = member.voice.channel;
-			if (!channel) {
+			// A channel the actor can't see stays unnamed (the slash command
+			// only sends a mention, which Discord hides in that case).
+			if (
+				!channel ||
+				!channel
+					.permissionsFor(ctx.actor)
+					?.has(PermissionFlagsBits.ViewChannel)
+			) {
 				return { member: memberInfo(member), channel: null };
 			}
 			const session = (await ctx.client.db.get(

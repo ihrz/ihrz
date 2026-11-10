@@ -37,6 +37,10 @@ export interface ActionDef {
 	// the actor needs what that command needs (custom `/perm` rules, then its
 	// native permission), exactly like `commandExecutor`.
 	command?: string;
+	// Reads change nothing: they don't count as a use of the command
+	// (cooldown, /commandlimit), the dashboard polls some of them. Anything
+	// else is a write, whatever the gateway says.
+	read?: boolean;
 	// Only the server owner (`/perm edit-roles`, `/backup load`…).
 	ownerOnly?: boolean;
 	run(ctx: ActionContext): Promise<unknown>;

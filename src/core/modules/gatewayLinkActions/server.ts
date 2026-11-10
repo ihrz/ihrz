@@ -264,10 +264,18 @@ function needBotPermission(guild: Guild, permission: bigint, name: string) {
 }
 
 /** One action, two commands (`/custom bio` and `/custom banner`). */
-async function authorizeAlso(ctx: ActionContext, command: string) {
+async function authorizeAlso(
+	ctx: ActionContext,
+	command: string,
+	opts: { read: boolean }
+) {
 	// Loaded here: index.ts imports this file.
 	const { authorize } = await import("./index.js");
-	await authorize(ctx.client, ctx.actor, { command, run: async () => null });
+	await authorize(ctx.client, ctx.actor, {
+		command,
+		read: opts.read,
+		run: async () => null
+	});
 }
 
 async function automodReady(ctx: ActionContext) {
@@ -308,6 +316,7 @@ export const serverActions: ActionGroup = {
 
 	// /utils admin-users + /util admin-roles.
 	"audit.admins": {
+		read: true,
 		command: "utils admin-users",
 		run: async ({ guild }) => {
 			const roles = adminRoles(guild);
@@ -322,6 +331,7 @@ export const serverActions: ActionGroup = {
 
 	// /util allwebhooks. Never the token or the URL.
 	"audit.webhooks": {
+		read: true,
 		command: "util allwebhooks",
 		run: async ({ guild }) => {
 			needBotPermission(
@@ -350,6 +360,7 @@ export const serverActions: ActionGroup = {
 
 	// /utils allbots.
 	"audit.bots": {
+		read: true,
 		command: "utils allbots",
 		run: async ({ guild }) => {
 			const bots = guildBots(guild);
@@ -365,6 +376,7 @@ export const serverActions: ActionGroup = {
 
 	// /util role-members. Paged by member id: `after` + `limit`.
 	"roles.members": {
+		read: true,
 		command: "util role-members",
 		run: async ({ guild, params }) => {
 			const role = guild.roles.cache.get(params.id("roleId"));
@@ -390,6 +402,7 @@ export const serverActions: ActionGroup = {
 
 	// /util inviteinfo.
 	"invites.info": {
+		read: true,
 		command: "util inviteinfo",
 		run: async ({ client, params }) => {
 			const code = params.str("code", { max: 100 }).trim();
@@ -427,6 +440,7 @@ export const serverActions: ActionGroup = {
 
 	// /utils serverinfo + /util serverpic + /banner server.
 	"server.info": {
+		read: true,
 		command: "utils serverinfo",
 		run: async ({ client, guild }) => ({
 			id: guild.id,
@@ -456,12 +470,13 @@ export const serverActions: ActionGroup = {
 
 	// /utils userinfo + /utils prevnames: any user, like the commands.
 	"members.info": {
+		read: true,
 		command: "utils userinfo",
 		run: async (ctx) => {
 			const { client, guild, params } = ctx;
 			const userId = params.id("userId");
 			// The names history is /utils prevnames: its own rules apply.
-			await authorizeAlso(ctx, "utils prevnames");
+			await authorizeAlso(ctx, "utils prevnames", { read: true });
 			const user = await client.users
 				.fetch(userId, { force: true })
 				.catch(() => null);
@@ -513,6 +528,7 @@ export const serverActions: ActionGroup = {
 
 	// What /utils zip-emojis and /util zip-stickers export.
 	"emojis.list": {
+		read: true,
 		command: "utils zip-emojis",
 		run: async ({ guild }) => ({
 			emojis: [...guild.emojis.cache.values()]
@@ -577,6 +593,7 @@ export const serverActions: ActionGroup = {
 	// --- Backups (the author's own, like /backup) ---------------------------------
 
 	"backups.list": {
+		read: true,
 		command: "backup list",
 		run: async ({ client, actor }) => {
 			const index = await client.backup.getUserBackups(actor.id);
@@ -715,6 +732,7 @@ export const serverActions: ActionGroup = {
 
 	// /backup schedule: the server owner only, like the command.
 	"backups.schedules": {
+		read: true,
 		command: "backup schedule",
 		ownerOnly: true,
 		run: async ({ client, guild }) => {
@@ -781,6 +799,7 @@ export const serverActions: ActionGroup = {
 	// --- AutoMod (the /automod panel) ----------------------------------------------
 
 	"automod.state": {
+		read: true,
 		command: "automod",
 		run: async (ctx) => {
 			const { rules } = await automodReady(ctx);
@@ -891,6 +910,7 @@ export const serverActions: ActionGroup = {
 	// Name and avatar go through the dashboard config (BOT.botName / botPFP).
 
 	"bot.profile": {
+		read: true,
 		command: "custom bio",
 		run: async ({ client, guild }) => {
 			const me =
@@ -939,7 +959,7 @@ export const serverActions: ActionGroup = {
 			}
 			let banner: Buffer | null | undefined;
 			if (bannerRaw !== undefined) {
-				await authorizeAlso(ctx, "custom banner");
+				await authorizeAlso(ctx, "custom banner", { read: false });
 				banner =
 					bannerRaw === null || bannerRaw === ""
 						? null

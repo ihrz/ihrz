@@ -621,6 +621,8 @@ export default {
 
 	// /action unban all
 	action_unban_all_no_banned_members: "Заблокованих учасників немає.",
+	action_mass_job_running: "На цьому сервері вже виконується масова дія такого типу, дочекайтеся її завершення.",
+	util_talk_already_active: "Режим talk вже увімкнено в ${voiceChannel}: спершу вимкніть його там.",
 
 	// /action unban undo
 

@@ -296,3 +296,5 @@ Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes
 - **`/unban`** : fonctionne sur les serveurs de plus de 1000 bannissements, et ne journalise plus un débannissement qui a échoué
 - **Tickets** : fermer ou rouvrir fonctionne quand l'auteur du ticket n'est pas dans le cache du bot, un changement de permission refusé affiche une erreur au lieu d'un faux succès, et le journal du ticket n'est écrit que si l'action a réussi
 - **`/music pause`, `/music resume`, `/music skip`** : plus d'erreur quand le lecteur est déjà en pause ou en lecture, ni quand le salon texte du lecteur a été supprimé
+- **`/unban-all`, `/utils massiverole`** : un second lancement sur le même serveur est refusé tant que le premier n'est pas fini (deux lancements se chevauchaient, et un unban-all pouvait oublier qui rebannir avec `undo`)
+- **`/util untalk`** : refusé tant que le mode talk est actif dans un autre salon vocal, dont les membres restaient muets pour de bon quand il était remplacé

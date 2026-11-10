@@ -71,8 +71,7 @@ import {
 	undoUnbanAll,
 	unmuteAll,
 	unmuteMember,
-	UnmuteRefusal,
-	isGuildJobRunning
+	UnmuteRefusal
 } from "../moderationOps.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
 
@@ -248,6 +247,7 @@ export const moderationActions: ActionGroup = {
 
 	// One member's warns, or every member that has some (paged).
 	"warns.list": {
+		read: true,
 		command: "mod warnlist",
 		run: async (ctx) => {
 			const { guild, params } = ctx;
@@ -344,6 +344,7 @@ export const moderationActions: ActionGroup = {
 	/* mutes */
 
 	"mutes.list": {
+		read: true,
 		command: "mod mutelist",
 		run: async ({ guild }) => {
 			const muted = getMutedMembers(guild);
@@ -409,6 +410,7 @@ export const moderationActions: ActionGroup = {
 
 	// Paged by user id (Discord's order): `after` = last id of the page.
 	"bans.list": {
+		read: true,
 		command: "mod banlist",
 		run: async ({ guild, params }) => {
 			const limit = params.int("limit", {
@@ -433,6 +435,7 @@ export const moderationActions: ActionGroup = {
 	},
 
 	"bans.info": {
+		read: true,
 		command: "mod baninfo",
 		run: async ({ guild, params }) => {
 			const userId = params.id("userId");
@@ -482,11 +485,13 @@ export const moderationActions: ActionGroup = {
 	"bans.remove-all": {
 		command: "unban-all all",
 		run: async ({ guild }) => {
-			if (isGuildJobRunning(guild.id, "unban-all")) {
-				return fail("an unban-all is already running on this server");
-			}
 			const result = await unbanAll(guild);
-			if (!result.ok) return fail("nobody is banned");
+			if (!result.ok)
+				return fail(
+					result.code === "busy"
+						? "an unban-all is already running on this server"
+						: "nobody is banned"
+				);
 			return { started: true, total: result.total };
 		}
 	},
@@ -494,11 +499,13 @@ export const moderationActions: ActionGroup = {
 	"bans.undo-remove-all": {
 		command: "unban-all undo",
 		run: async ({ guild }) => {
-			if (isGuildJobRunning(guild.id, "unban-all")) {
-				return fail("an unban-all is already running on this server");
-			}
 			const result = await undoUnbanAll(guild);
-			if (!result.ok) return fail("nothing to undo");
+			if (!result.ok)
+				return fail(
+					result.code === "busy"
+						? "an unban-all is already running on this server"
+						: "nothing to undo"
+				);
 			return { started: true, total: result.total };
 		}
 	},
@@ -553,22 +560,22 @@ export const moderationActions: ActionGroup = {
 	"roles.mass": {
 		command: "utils massiverole",
 		run: async (ctx) => {
-			if (isGuildJobRunning(ctx.guild.id, "mass-role")) {
-				return fail(
-					"a mass role change is already running on this server"
-				);
-			}
 			const role = roleParam(ctx);
 			const adding = ctx.params.oneOf("op", ["add", "remove"]) === "add";
 			const plan = await massRolePlan(ctx.actor, role, adding);
-			if (!plan.ok)
+			if (!plan.ok) {
+				if (plan.code === "role_refused")
+					return fail(roleRefusalMessage(plan.refusal));
 				return fail(
-					plan.code === "too_many_members"
-						? "this server has too many members for a mass role change"
-						: roleRefusalMessage(plan.refusal)
+					plan.code === "busy"
+						? "a mass role change is already running on this server"
+						: "this server has too many members for a mass role change"
 				);
+			}
 			setImmediate(() => {
-				massRoleRun(plan.members, role, adding).catch(() => {});
+				massRoleRun(plan.members, role, adding, plan.release).catch(
+					() => {}
+				);
 			});
 			return {
 				started: true,

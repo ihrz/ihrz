@@ -96,7 +96,10 @@ export const subCommand: SubCommand = {
 
 		if (!result.ok) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unbanall_undo_command_err
+				content:
+					result.code === "busy"
+						? lang.action_mass_job_running
+						: lang.unbanall_undo_command_err
 			});
 			return;
 		}

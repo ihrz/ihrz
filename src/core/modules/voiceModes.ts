@@ -47,8 +47,26 @@ export async function enableTalkMode(
 	voiceChannel: VoiceChannel,
 	author: GuildMember,
 	lang: LanguageData
-): Promise<{ mutedCount: number; skippedCount: number }> {
+): Promise<
+	| { ok: true; mutedCount: number; skippedCount: number }
+	| { ok: false; code: "already_active"; channelId: string }
+> {
 	const client = guild.client;
+	// One talk channel per guild: /util talk only unmutes the recorded one,
+	// members muted in a replaced channel would stay muted for good.
+	const current = (await client.db.get(`${guild.id}.UTILS.VOICE_TALK`)) as {
+		channelId?: string;
+	} | null;
+	if (current?.channelId && current.channelId !== voiceChannel.id) {
+		const still = guild.channels.cache.get(current.channelId);
+		if (still?.type === ChannelType.GuildVoice) {
+			return {
+				ok: false,
+				code: "already_active",
+				channelId: current.channelId
+			};
+		}
+	}
 	const targets = voiceChannel.members.filter(
 		(target) => !target.user.bot && target.id !== author.id
 	);
@@ -95,7 +113,7 @@ export async function enableTalkMode(
 		}
 	);
 
-	return { mutedCount, skippedCount };
+	return { ok: true, mutedCount, skippedCount };
 }
 
 export type TalkOffResult =

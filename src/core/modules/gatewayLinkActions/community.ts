@@ -394,6 +394,7 @@ async function listBoard(
 
 export const communityActions: ActionGroup = {
 	"giveaways.list": {
+		read: true,
 		command: "gw get-all",
 		run: async ({ client, guild }) => {
 			const all = await client.giveawaysManager.getAllGiveawayData();
@@ -412,6 +413,7 @@ export const communityActions: ActionGroup = {
 	},
 
 	"giveaways.entries": {
+		read: true,
 		command: "gw list-entries",
 		run: async (ctx) => {
 			const id = ctx.params.id("id");
@@ -546,6 +548,7 @@ export const communityActions: ActionGroup = {
 	},
 
 	"suggestions.list": {
+		read: true,
 		command: "suggest list",
 		run: async ({ client, guild, actor, params }) => {
 			const status = params.has("status")
@@ -652,11 +655,13 @@ export const communityActions: ActionGroup = {
 	},
 
 	"starboard.list": {
+		read: true,
 		command: "starboard config",
 		run: (ctx) => listBoard(ctx, "STARBOARD")
 	},
 
 	"skullboard.list": {
+		read: true,
 		command: "skullboard config",
 		run: (ctx) => listBoard(ctx, "SKULLBOARD")
 	},

@@ -24,6 +24,7 @@ import { ActionGroup } from "./types.js";
 // Protocol probe: the dashboard checks the bot is reachable for this server.
 export const coreActions: ActionGroup = {
 	ping: {
+		read: true,
 		run: async ({ client, guild }) => ({
 			shard: client.shard?.ids[0] ?? 0,
 			guildId: guild.id,

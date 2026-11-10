@@ -50,6 +50,14 @@ function setup(utils: unknown, perms: bigint, id = MOD, roles: string[] = []) {
 	};
 	const client = {
 		db,
+		// No cooldown, not the owner: writes go through countUse unharmed.
+		func: {
+			ownerHelper: { isGuildOwner: async () => false },
+			helper: {
+				cooldown: async () => false,
+				getCooldownTimestamp: async () => null
+			}
+		} as any,
 		commands: new Map([
 			["ban", { name: "ban", permission: PermissionFlagsBits.BanMembers }]
 		]),
@@ -172,13 +180,16 @@ describe("gateway actions: authorize", () => {
 				getCooldownTimestamp: async () => Date.now()
 			}
 		};
-		const def = { command: "ban", run: async () => 0 };
-		await authorize(client, member, def);
-		await authorize(client, member, def);
-		await authorize(client, member, def, { write: true });
-		expect(
-			await refused(authorize(client, member, def, { write: true }))
-		).toContain("cooldown");
+		// Reads are declared by the bot and never count; anything else does,
+		// whatever the gateway's flag says.
+		const read = { command: "ban", read: true, run: async () => 0 };
+		await authorize(client, member, read);
+		await authorize(client, member, read);
+		const write = { command: "ban", run: async () => 0 };
+		await authorize(client, member, write);
+		expect(await refused(authorize(client, member, write))).toContain(
+			"cooldown"
+		);
 	});
 
 	test("an action mirroring an unknown command is refused", async () => {

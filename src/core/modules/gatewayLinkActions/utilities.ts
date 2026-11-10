@@ -45,13 +45,34 @@ export const utilitiesActions: ActionGroup = {
 			) {
 				return fail("channel not found");
 			}
+			// The slash command needs the author in the channel: from afar,
+			// they must at least be able to join it and mute there.
+			if (
+				!channel
+					.permissionsFor(actor)
+					?.has([
+						PermissionFlagsBits.Connect,
+						PermissionFlagsBits.MuteMembers
+					])
+			) {
+				return fail(
+					"forbidden: you need Connect and Mute Members in this channel"
+				);
+			}
 			const r = await enableTalkMode(
 				guild,
 				channel as VoiceChannel,
 				actor,
 				lang
 			);
-			return { channelId: channel.id, ...r };
+			if (!r.ok) {
+				return fail("talk mode is already on in another voice channel");
+			}
+			return {
+				channelId: channel.id,
+				mutedCount: r.mutedCount,
+				skippedCount: r.skippedCount
+			};
 		}
 	},
 	"voice.talk-off": {

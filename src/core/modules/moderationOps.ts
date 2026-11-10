@@ -485,23 +485,34 @@ export interface BatchHooks<R> {
 	onDone?: (result: R) => unknown;
 }
 
-// Background jobs running per guild ("unban-all", "mass-role"): the dashboard
-// refuses a second one while the first runs (two unban-all runs each wrote
+// Background jobs running per guild ("unban-all", "mass-role"): one at a time,
+// from the slash command or the dashboard alike (two unban-all runs each wrote
 // their own partial undo list; mass-role runs stacked thousands of edits).
+// Reserved synchronously, BEFORE the first await (the fetch of the bans or
+// members takes seconds), and released when the background job ends.
 const runningJobs = new Set<string>();
 export const isGuildJobRunning = (guildId: string, kind: string) =>
 	runningJobs.has(`${guildId}:${kind}`);
-async function trackJob(
+export function reserveGuildJob(
 	guildId: string,
-	kind: string,
-	job: () => Promise<unknown>
-) {
+	kind: string
+): (() => void) | null {
 	const key = `${guildId}:${kind}`;
+	if (runningJobs.has(key)) return null;
 	runningJobs.add(key);
+	let released = false;
+	return () => {
+		if (released) return;
+		released = true;
+		runningJobs.delete(key);
+	};
+}
+
+async function runReserved(release: () => void, job: () => Promise<unknown>) {
 	try {
 		await job();
 	} finally {
-		runningJobs.delete(key);
+		release();
 	}
 }
 
@@ -510,15 +521,31 @@ async function trackJob(
 export async function unbanAll(
 	guild: Guild,
 	hooks: BatchHooks<{ unbanned: number; failed: number }> = {}
-): Promise<Outcome<"nobody_banned", { total: number }>> {
-	const bans = await guild.bans.fetch();
-	if (!bans || bans.size === 0) return refuse("nobody_banned");
-	await hooks.onStart?.(bans.size);
+): Promise<Outcome<"nobody_banned" | "busy", { total: number }>> {
+	const release = reserveGuildJob(guild.id, "unban-all");
+	if (!release) return refuse("busy");
+	let started = false;
+	try {
+		const bans = await guild.bans.fetch();
+		if (!bans || bans.size === 0) return refuse("nobody_banned");
+		await hooks.onStart?.(bans.size);
+		started = true;
+		return startUnbanAll(guild, bans, hooks, release);
+	} finally {
+		if (!started) release();
+	}
+}
 
+function startUnbanAll(
+	guild: Guild,
+	bans: Collection<string, GuildBan>,
+	hooks: BatchHooks<{ unbanned: number; failed: number }>,
+	release: () => void
+): { ok: true; total: number } {
 	const unbanned: string[] = [];
 	let failed = 0;
 	setImmediate(() =>
-		trackJob(guild.id, "unban-all", async () => {
+		runReserved(release, async () => {
 			await processBatch(
 				Array.from(bans.values()),
 				async (ban) => {
@@ -544,19 +571,29 @@ export async function unbanAll(
 export async function undoUnbanAll(
 	guild: Guild,
 	hooks: BatchHooks<{ banned: number; failed: number }> = {}
-): Promise<Outcome<"nothing_to_undo", { total: number }>> {
-	const list: string[] | null = await guild.client.db.get(
-		unbanAllKey(guild.id)
-	);
-	if (!list || list.length === 0) return refuse("nothing_to_undo");
-	await hooks.onStart?.(list.length);
+): Promise<Outcome<"nothing_to_undo" | "busy", { total: number }>> {
+	const release = reserveGuildJob(guild.id, "unban-all");
+	if (!release) return refuse("busy");
+	let list: string[] | null;
+	try {
+		list = await guild.client.db.get(unbanAllKey(guild.id));
+		if (!list || list.length === 0) {
+			release();
+			return refuse("nothing_to_undo");
+		}
+		await hooks.onStart?.(list.length);
+	} catch (error) {
+		release();
+		throw error;
+	}
+	const toBan = list;
 
 	const banned: string[] = [];
 	let failed = 0;
 	setImmediate(() =>
-		trackJob(guild.id, "unban-all", async () => {
+		runReserved(release, async () => {
 			await processBatch(
-				list,
+				toBan,
 				async (userId: string) => {
 					try {
 						await guild.bans.create(userId);
@@ -573,7 +610,7 @@ export async function undoUnbanAll(
 			await hooks.onDone?.({ banned: banned.length, failed });
 		})
 	);
-	return { ok: true, total: list.length };
+	return { ok: true, total: toBan.length };
 }
 
 /* -------------------------------- kick -------------------------------- */
@@ -861,8 +898,8 @@ export async function massRolePlan(
 	role: Role,
 	adding: boolean
 ): Promise<
-	| { ok: true; members: GuildMember[]; skipped: number }
-	| { ok: false; code: "too_many_members" }
+	| { ok: true; members: GuildMember[]; skipped: number; release: () => void }
+	| { ok: false; code: "too_many_members" | "busy" }
 	| { ok: false; code: "role_refused"; refusal: RoleRefusal }
 > {
 	const guild = author.guild;
@@ -871,7 +908,16 @@ export async function massRolePlan(
 	const refusal = getRoleRefusal(role, author);
 	if (refusal) return { ok: false, code: "role_refused", refusal };
 
-	const members = await guild.members.fetch();
+	// Held until `massRoleRun` ends (the caller must run it, or call release).
+	const release = reserveGuildJob(guild.id, "mass-role");
+	if (!release) return refuse("busy");
+	let members: Collection<string, GuildMember>;
+	try {
+		members = await guild.members.fetch();
+	} catch (error) {
+		release();
+		throw error;
+	}
 	const owner = isOwner(author);
 	const list = Array.from(members.values()).filter(
 		(member) =>
@@ -882,18 +928,24 @@ export async function massRolePlan(
 					member.roles.highest.position <
 						author.roles.highest.position))
 	);
-	return { ok: true, members: list, skipped: members.size - list.length };
+	return {
+		ok: true,
+		members: list,
+		skipped: members.size - list.length,
+		release
+	};
 }
 
 export async function massRoleRun(
 	members: GuildMember[],
 	role: Role,
-	adding: boolean
+	adding: boolean,
+	// From `massRolePlan`: the guild's mass-role slot, freed at the end.
+	release: () => void
 ): Promise<{ changed: number; failed: number }> {
 	let changed = 0;
 	let failed = 0;
-	const guildId = members[0]?.guild.id ?? "";
-	await trackJob(guildId, "mass-role", () =>
+	await runReserved(release, () =>
 		processBatch(
 			members,
 			async (member) => {

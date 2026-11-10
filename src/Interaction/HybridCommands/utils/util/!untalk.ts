@@ -58,12 +58,22 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const { mutedCount, skippedCount } = await enableTalkMode(
+		const result = await enableTalkMode(
 			interaction.guild,
 			voiceChannel,
 			member,
 			lang
 		);
+		if (!result.ok) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_talk_already_active.replace(
+					"${voiceChannel}",
+					`<#${result.channelId}>`
+				)
+			});
+			return;
+		}
+		const { mutedCount, skippedCount } = result;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_talk_command_work
