@@ -203,6 +203,22 @@ Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes
 
 ---
 
+## 🇰🇷 iHorizon parle coréen
+
+iHorizon est maintenant disponible en **coréen (한국어)** : tous les messages du bot, et la description, les options et les choix de chaque commande slash dans le client Discord coréen. Choisissez-le avec `/setserverlang` (les serveurs dont la langue Discord est le coréen l'obtiennent automatiquement à l'ajout du bot), avec sa propre bannière. Le TTS lit les messages en coréen avec une voix coréenne (ils étaient lus comme du japonais), et `/tts` propose le coréen. Le dashboard est lui aussi traduit en coréen.
+
+---
+
+## 🖥️ Dashboard — navigation, journal d'activité et pilule du lecteur
+
+- **Palette de commandes** (`Ctrl+K`, `⌘K` sur macOS) : aller à n'importe quelle page, serveur, module, membre (`@`), salon (`#`) ou commande du bot (`/`), lancer des actions rapides et changer vos préférences, de partout
+- **Journal d'activité** : chaque serveur a désormais un journal en lecture seule de ce que ses gestionnaires ont fait sur le dashboard (réglages enregistrés, actions lancées via le bot, refus compris, embeds, panels de tickets, lien vanity), avec l'auteur et l'heure, gardé 90 jours. Il est écrit par iHorizon lui-même et personne ne peut le modifier ni le supprimer
+- **Pilule du lecteur** : tant que le bot joue de la musique sur un serveur, un petit lecteur reste en bas à droite des pages de ce serveur (précédent, lecture/pause, suivant, lien vers le lecteur) et porte les touches multimédia
+- **Limites de rôles** : les limites posées sur des rôles supprimés du serveur sont retirées automatiquement
+- **Mode nuit** : ses réglages sur le dashboard sont réservés au propriétaire du serveur, comme la commande
+
+---
+
 ## 🛠️ Corrections & améliorations
 - Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
@@ -300,4 +316,4 @@ Le bot répond désormais lui-même aux demandes du dashboard, avec **les mêmes
 - **`/util untalk`** : refusé tant que le mode talk est actif dans un autre salon vocal, dont les membres restaient muets pour de bon quand il était remplacé
 - **Giveaways** : le nombre de participations d'un giveaway en cours se met maintenant à jour en français aussi (il restait à 0), et le message du giveaway est toujours reconstruit depuis ses données plutôt qu'en modifiant son texte
 - **Dashboard — Hall of fame** : les pages du starboard et du skullboard se chargent bien plus vite (leurs messages sont lus 100 par 100 au lieu d'un par un)
-- **Dashboard — Lecteur musical** : un bouton **Précédent** rejoue le dernier morceau, et le lecteur répond aux touches multimédia du clavier et aux commandes média du système (lecture/pause, suivant, précédent) tant que sa page est ouverte
+- **Dashboard — Lecteur musical** : un bouton **Précédent** rejoue le dernier morceau, et le lecteur répond aux touches multimédia du clavier et aux commandes média du système (lecture/pause, suivant, précédent) tant que sa page est ouverte, Linux (MPRIS) compris

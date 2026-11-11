@@ -203,6 +203,22 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 
 ---
 
+## 🇰🇷 iHorizon speaks Korean
+
+iHorizon is now available in **Korean (한국어)**: every bot message, and every slash command's description, option and choice in Discord's Korean client. Pick it with `/setserverlang` (servers whose Discord language is Korean get it automatically when they add the bot), and it gets its own banner. TTS reads Korean messages with a Korean voice (they used to be read as Japanese), and `/tts` offers Korean. The dashboard is translated into Korean too.
+
+---
+
+## 🖥️ Dashboard — navigation, activity log and player pill
+
+- **Command palette** (`Ctrl+K`, `⌘K` on macOS): jump to any page, server, module, member (`@`), channel (`#`) or bot command (`/`), run quick actions and change your preferences, from anywhere
+- **Activity log**: each server now has a read-only journal of what its managers did on the dashboard (settings saved, actions run through the bot, refused ones included, embeds, ticket panels, vanity link), with the author and the time, kept 90 days. It is written by iHorizon itself and nobody can edit or delete it
+- **Player pill**: while the bot plays music on a server, a small player sits at the bottom right of that server's pages (previous, play/pause, next, link to the player) and carries the media keys
+- **Role limits**: limits set on roles that were deleted from the server are removed automatically
+- **Night mode**: its settings on the dashboard are reserved to the server owner, like the command
+
+---
+
 ## 🛠️ Fixes & improvements
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
@@ -300,4 +316,4 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 - **`/util untalk`**: refused while talk mode is on in another voice channel, whose members stayed muted for good when it was replaced
 - **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text
 - **Dashboard — Hall of fame**: the starboard and skullboard pages load much faster (their messages are read 100 at a time instead of one by one)
-- **Dashboard — Music player**: a **Previous** button plays the last track again, and the player answers the keyboard's media keys and your system's media controls (play/pause, next, previous) while its page is open
+- **Dashboard — Music player**: a **Previous** button plays the last track again, and the player answers the keyboard's media keys and your system's media controls (play/pause, next, previous) while its page is open, Linux (MPRIS) included
