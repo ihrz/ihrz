@@ -142,6 +142,38 @@ export async function skipMusic(
 	};
 }
 
+/**
+ * Back to the previous track (the dashboard's "previous", media keys): the
+ * track playing now goes back to the front of the queue and the last played
+ * one plays again. Same guards as /music skip. lavalink-client keeps the
+ * played tracks in `queue.previous` (25 by default, filled by the crossfade
+ * skip too); a replayed track is flagged so it does not go back there.
+ */
+export async function previousMusic(
+	client: Client,
+	member: GuildMember
+): Promise<
+	| MusicControlResult<{ title: string }>
+	// Nothing was played before on this player (only this control).
+	| { ok: false; reason: "no_previous" }
+> {
+	if (!member.voice.channel) return refuse("not_in_voice");
+	if (!inBotChannel(member)) return refuse("not_same_channel");
+	const player = playerOf(client, member);
+	if (!player || !player.queue.current) return refuse("nothing_playing");
+	const previous = await player.queue.shiftPrevious();
+	if (!previous) return { ok: false, reason: "no_previous" };
+
+	previous.pluginInfo = {
+		...previous.pluginInfo,
+		clientData: { ...previous.pluginInfo?.clientData, previousTrack: true }
+	};
+	await player.queue.add(player.queue.current, 0);
+	await player.play({ clientTrack: previous });
+	if (player.paused) await player.resume();
+	return { ok: true, title: previous.info.title };
+}
+
 // /music stop. A TTS session in progress is what gets stopped.
 export async function stopMusic(
 	client: Client,

@@ -89,6 +89,11 @@ function makePlayer(over: Record<string, unknown> = {}) {
 		queue: {
 			current: track("a"),
 			tracks: [track("b"), track("c", 0, true)],
+			previous: [] as any[],
+			shiftPrevious: async () => p.queue.previous.shift() ?? null,
+			add: async (t: any, at: number) => {
+				p.queue.tracks.splice(at, 0, t);
+			},
 			shuffle: async () => calls.push("shuffle"),
 			splice: async (s: number, n: number) => {
 				p.queue.tracks.splice(s, n);
@@ -101,6 +106,9 @@ function makePlayer(over: Record<string, unknown> = {}) {
 			p.paused = false;
 		},
 		stopPlaying: async () => calls.push("stopPlaying"),
+		play: async ({ clientTrack }: any) => {
+			p.queue.current = clientTrack;
+		},
 		setRepeatMode: async (m: string) => {
 			p.repeatMode = m;
 		},
@@ -224,6 +232,30 @@ describe("music controls", () => {
 		const r: any = await musicActions["music.pause"].run(ok.ctx() as any);
 		expect(r.paused).toBe(true);
 		expect(r.state.paused).toBe(true);
+	});
+
+	test("previous replays the last track and puts the current one back first", async () => {
+		const player = makePlayer();
+		const { ctx } = setup(BOT_VC, player);
+		expect(
+			await refused(musicActions["music.previous"].run(ctx() as any))
+		).toBe("no previous track to go back to");
+		player.queue.previous.push(track("z"));
+		player.paused = true;
+		const r: any = await musicActions["music.previous"].run(ctx() as any);
+		expect(r.title).toBe("Title z");
+		expect(player.queue.current.info.identifier).toBe("z");
+		// Flagged: it won't go back into the history when it ends.
+		expect(player.queue.current.pluginInfo.clientData.previousTrack).toBe(
+			true
+		);
+		expect(player.queue.tracks[0].info.identifier).toBe("a");
+		expect(player.paused).toBe(false);
+		expect(r.state.hasPrevious).toBe(false);
+		const away = setup(OTHER_VC, player);
+		expect(
+			await refused(musicActions["music.previous"].run(away.ctx() as any))
+		).toContain("forbidden");
 	});
 
 	test("resume does not throw when not paused", async () => {

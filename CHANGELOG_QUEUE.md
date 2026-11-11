@@ -300,3 +300,4 @@ The bot now answers the dashboard's requests itself, with the **same checks as t
 - **`/util untalk`**: refused while talk mode is on in another voice channel, whose members stayed muted for good when it was replaced
 - **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text
 - **Dashboard — Hall of fame**: the starboard and skullboard pages load much faster (their messages are read 100 at a time instead of one by one)
+- **Dashboard — Music player**: a **Previous** button plays the last track again, and the player answers the keyboard's media keys and your system's media controls (play/pause, next, previous) while its page is open

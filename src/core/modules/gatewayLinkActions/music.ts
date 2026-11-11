@@ -59,6 +59,7 @@ import {
 	setMusicVolume,
 	shuffleMusic,
 	skipMusic,
+	previousMusic,
 	stopMusic
 } from "../musicControls.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
@@ -102,6 +103,8 @@ export interface MusicStateView {
 	queueLength: number;
 	// ms of the upcoming tracks, live streams excluded
 	queueDuration: number;
+	// A previous track can be played again (the "previous" control).
+	hasPrevious: boolean;
 	actor: { voiceChannelId: string | null; inBotChannel: boolean };
 }
 
@@ -150,6 +153,7 @@ export function musicState(
 			current: null,
 			queue: [],
 			queueLength: 0,
+			hasPrevious: false,
 			queueDuration: 0,
 			actor: { voiceChannelId: actorVoice, inBotChannel: false }
 		};
@@ -178,6 +182,7 @@ export function musicState(
 			(sum, t) => sum + (isLive(t) ? 0 : t.info.duration || 0),
 			0
 		),
+		hasPrevious: player.queue.previous.length > 0,
 		actor: {
 			voiceChannelId: actorVoice,
 			inBotChannel: !!actorVoice && actorVoice === player.voiceChannelId
@@ -185,11 +190,12 @@ export function musicState(
 	};
 }
 
-export const CONTROL_ERRORS: Record<MusicRefusal, string> = {
+export const CONTROL_ERRORS: Record<MusicRefusal | "no_previous", string> = {
 	not_in_voice: "you must be in a voice channel",
 	nothing_playing: "nothing is playing",
 	not_same_channel: "forbidden: you must be in the bot's voice channel",
-	not_enough_tracks: "at least 2 tracks must be queued to shuffle"
+	not_enough_tracks: "at least 2 tracks must be queued to shuffle",
+	no_previous: "no previous track to go back to"
 };
 
 export const PLAY_ERRORS: Record<MusicPlayRefusal, string> = {
@@ -206,7 +212,9 @@ const stateOf = ({ client, guild, actor }: ActionContext) =>
 // Runs a control and answers with the new state.
 async function control<T extends object>(
 	ctx: ActionContext,
-	run: () => Promise<MusicControlResult<T>>
+	run: () => Promise<
+		MusicControlResult<T> | { ok: false; reason: "no_previous" }
+	>
 ) {
 	const result = await run();
 	if (!result.ok) return fail(CONTROL_ERRORS[result.reason]);
@@ -255,6 +263,13 @@ export const musicActions: ActionGroup = {
 		command: "music skip",
 		run: async (ctx) =>
 			control(ctx, () => skipMusic(ctx.client, ctx.actor, ctx.lang, null))
+	},
+
+	// No slash command goes back: the permissions of /music skip apply.
+	"music.previous": {
+		command: "music skip",
+		run: async (ctx) =>
+			control(ctx, () => previousMusic(ctx.client, ctx.actor))
 	},
 
 	"music.stop": {
