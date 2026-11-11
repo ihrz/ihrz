@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie d'InviteManager",
 		ja: "招待管理カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории управления приглашениями!",
-		"es-ES": "Subcomando para la categoría de gestor de invitaciones!"
+		"es-ES": "Subcomando para la categoría de gestor de invitaciones!",
+		ko: "초대 관리 하위 명령어!"
 	},
 	options: [
 		{
@@ -45,7 +46,8 @@ export const command: Command = {
 				fr: "Ajouter des invitations à un utilisateur",
 				ja: "ユーザーに招待を追加！",
 				ru: "Добавить приглашения пользователю!",
-				"es-ES": "Añadir invitaciones a un usuario!"
+				"es-ES": "Añadir invitaciones a un usuario!",
+				ko: "사용자에게 초대 수를 추가해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -59,7 +61,9 @@ export const command: Command = {
 						fr: "le membre auquel vous souhaitez ajouter des invitations",
 						ja: "招待を追加したいメンバー",
 						ru: "участник, которому добавить приглашения",
-						"es-ES": "el miembro al que quieres añadir invitaciones"
+						"es-ES":
+							"el miembro al que quieres añadir invitaciones",
+						ko: "초대 수를 추가할 멤버"
 					},
 
 					required: true,
@@ -75,7 +79,8 @@ export const command: Command = {
 						fr: "Nombre d'invitations que vous souhaitez ajouter",
 						ja: "追加したい招待数",
 						ru: "Количество приглашений для добавления",
-						"es-ES": "Número de invitaciones que quieres añadir"
+						"es-ES": "Número de invitaciones que quieres añadir",
+						ko: "추가할 초대 수"
 					},
 
 					required: true,
@@ -98,7 +103,8 @@ export const command: Command = {
 				ja: "サーバー招待ランキングを表示！",
 				ru: "Показать таблицу лидеров по приглашениям!",
 				"es-ES":
-					"Mostrar la tabla de clasificación de invitaciones del servidor!"
+					"Mostrar la tabla de clasificación de invitaciones del servidor!",
+				ko: "서버 초대 순위표를 보여줘요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -113,7 +119,8 @@ export const command: Command = {
 				fr: "Obtenez le montant des invitations d'un utilisateur",
 				ja: "ユーザーの招待数を取得！",
 				ru: "Получить количество приглашений пользователя!",
-				"es-ES": "Obtener la cantidad de invitaciones de un usuario!"
+				"es-ES": "Obtener la cantidad de invitaciones de un usuario!",
+				ko: "사용자의 초대 수를 확인해요!"
 			},
 
 			aliases: ["i", "invsee"],
@@ -130,7 +137,8 @@ export const command: Command = {
 						ja: "招待数を表示したいメンバー",
 						ru: "участник, чьи приглашения показать",
 						"es-ES":
-							"el miembro al que quieres mostrar sus invitaciones"
+							"el miembro al que quieres mostrar sus invitaciones",
+						ko: "초대 수를 볼 멤버"
 					},
 
 					required: false,
@@ -151,7 +159,8 @@ export const command: Command = {
 				ja: "サーバー内のInviteManagerの全データを削除",
 				ru: "Удалить все данные InviteManager на сервере",
 				"es-ES":
-					"Eliminar todos los datos de InviteManager en el servidor"
+					"Eliminar todos los datos de InviteManager en el servidor",
+				ko: "서버의 InviteManager 데이터를 모두 삭제해요"
 			},
 
 			aliases: ["inv-delete-all", "invreset"],
@@ -169,7 +178,8 @@ export const command: Command = {
 				fr: "Supprimer les invitations d'un utilisateur",
 				ja: "ユーザーから招待を削除！",
 				ru: "Удалить приглашения у пользователя!",
-				"es-ES": "Eliminar invitaciones de un usuario!"
+				"es-ES": "Eliminar invitaciones de un usuario!",
+				ko: "사용자의 초대 수를 차감해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -184,7 +194,8 @@ export const command: Command = {
 						ja: "招待を削除したいメンバー",
 						ru: "участник, у которого убрать приглашения",
 						"es-ES":
-							"el miembro del que quieres quitar invitaciones"
+							"el miembro del que quieres quitar invitaciones",
+						ko: "초대 수를 제거할 멤버"
 					},
 
 					required: true,
@@ -200,7 +211,8 @@ export const command: Command = {
 						fr: "Nombre d'invitations que vous souhaitez soustraire",
 						ja: "減らしたい招待数",
 						ru: "Количество приглашений для вычитания",
-						"es-ES": "Número de invitaciones que quieres restar"
+						"es-ES": "Número de invitaciones que quieres restar",
+						ko: "차감할 초대 수"
 					},
 
 					required: true,

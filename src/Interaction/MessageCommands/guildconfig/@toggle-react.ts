@@ -39,7 +39,8 @@ export const command: Command = {
 		ja: "ユーザーが挨拶した時のリアクションを有効/無効",
 		ru: "Включить/выключить реакцию при приветствии",
 		"es-ES":
-			"Habilitar / Deshabilitar la reacción cuando un usuario saluda a alguien"
+			"Habilitar / Deshabilitar la reacción cuando un usuario saluda a alguien",
+		ko: "사용자가 인사할 때 반응을 켜거나 꺼요"
 	},
 
 	thinking: false,

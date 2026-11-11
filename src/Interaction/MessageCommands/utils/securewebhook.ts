@@ -35,7 +35,8 @@ export const command: Command = {
 		fr: "Sécuriser une webhook à travers un PROXY iHorizon",
 		ja: "Webhookを保護",
 		ru: "Защитить вебхук",
-		"es-ES": "Asegurar webhook"
+		"es-ES": "Asegurar webhook",
+		ko: "보안 웹후크"
 	},
 
 	thinking: false,
@@ -51,7 +52,8 @@ export const command: Command = {
 				fr: "Action à faire",
 				ja: "実行するアクション",
 				ru: "Выполняемое действие",
-				"es-ES": "Acción a realizar"
+				"es-ES": "Acción a realizar",
+				ko: "수행할 작업"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -64,7 +66,8 @@ export const command: Command = {
 						fr: "Créer",
 						ja: "create",
 						ru: "create",
-						"es-ES": "create"
+						"es-ES": "create",
+						ko: "생성"
 					},
 					value: "create"
 				},
@@ -74,7 +77,8 @@ export const command: Command = {
 						fr: "Supprimer",
 						ja: "delete",
 						ru: "delete",
-						"es-ES": "delete"
+						"es-ES": "delete",
+						ko: "삭제"
 					},
 					value: "delete"
 				},
@@ -84,7 +88,8 @@ export const command: Command = {
 						fr: "Liste",
 						ja: "list",
 						ru: "list",
-						"es-ES": "list"
+						"es-ES": "list",
+						ko: "목록"
 					},
 					value: "list"
 				}
@@ -99,7 +104,8 @@ export const command: Command = {
 				fr: "URL de la Webhook ou code de la Webhook",
 				ja: "WebhookのURLまたはWebhookコード",
 				ru: "URL вебхука или код вебхука",
-				"es-ES": "URL del webhook o código del webhook"
+				"es-ES": "URL del webhook o código del webhook",
+				ko: "웹후크 URL 또는 웹후크 코드"
 			},
 
 			type: ApplicationCommandOptionType.String,

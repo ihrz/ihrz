@@ -111,7 +111,8 @@ export const command: Command = {
 		fr: "Obtenir les informations supplémentaire par rapport au bot.",
 		ja: "ボットの情報を取得！",
 		ru: "Получить информацию о боте!",
-		"es-ES": "Obtener información sobre el bot!"
+		"es-ES": "Obtener información sobre el bot!",
+		ko: "봇 정보를 확인해요!"
 	},
 
 	aliases: ["bi"],

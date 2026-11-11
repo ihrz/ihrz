@@ -128,7 +128,8 @@ export const command: Command = {
 		fr: "Gérer les limites de commandes",
 		ja: "コマンドのレート制限を管理",
 		ru: "Управление лимитами команд",
-		"es-ES": "Gestionar límites de velocidad de comandos"
+		"es-ES": "Gestionar límites de velocidad de comandos",
+		ko: "명령어 사용 제한 관리"
 	},
 
 	options: [
@@ -139,7 +140,8 @@ export const command: Command = {
 				fr: "Action à appliquer sur les limites de commandes",
 				ja: "コマンド制限に適用するアクション",
 				ru: "Действие для применения к лимитам команд",
-				"es-ES": "Acción a aplicar en los límites de comandos"
+				"es-ES": "Acción a aplicar en los límites de comandos",
+				ko: "명령어 사용 제한에 적용할 작업"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: true,
@@ -150,7 +152,8 @@ export const command: Command = {
 						fr: "Définir",
 						ja: "set",
 						ru: "set",
-						"es-ES": "set"
+						"es-ES": "set",
+						ko: "설정"
 					},
 					value: "set"
 				},
@@ -160,7 +163,8 @@ export const command: Command = {
 						fr: "Réinitialiser",
 						ja: "reset",
 						ru: "reset",
-						"es-ES": "reset"
+						"es-ES": "reset",
+						ko: "초기화"
 					},
 					value: "reset"
 				},
@@ -170,7 +174,8 @@ export const command: Command = {
 						fr: "Lister",
 						ja: "list",
 						ru: "list",
-						"es-ES": "list"
+						"es-ES": "list",
+						ko: "목록"
 					},
 					value: "list"
 				}
@@ -184,7 +189,8 @@ export const command: Command = {
 				fr: "Rechercher la commande ou la sous-commande",
 				ja: "コマンドまたはサブコマンドを検索",
 				ru: "Искать команду или подкоманду",
-				"es-ES": "Buscar el comando o subcomando"
+				"es-ES": "Buscar el comando o subcomando",
+				ko: "명령어 또는 하위 명령어 검색"
 			},
 			autocomplete: true,
 			type: ApplicationCommandOptionType.String,
@@ -198,7 +204,8 @@ export const command: Command = {
 				fr: "Nombre maximum d'utilisations dans la fenêtre",
 				ja: "ウィンドウ内の最大使用回数",
 				ru: "Максимальное количество использований в окне",
-				"es-ES": "Número máximo de usos en la ventana"
+				"es-ES": "Número máximo de usos en la ventana",
+				ko: "기간 내 최대 사용 횟수"
 			},
 			type: ApplicationCommandOptionType.Integer,
 			required: false,
@@ -211,7 +218,8 @@ export const command: Command = {
 				fr: "Fenêtre de temps comme 10s, 1m, 5m, 1h",
 				ja: "時間枠（例: 10s, 1m, 5m, 1h）",
 				ru: "Временное окно, например 10с, 1м, 5м, 1ч",
-				"es-ES": "Ventana de tiempo como 10s, 1m, 5m, 1h"
+				"es-ES": "Ventana de tiempo como 10s, 1m, 5m, 1h",
+				ko: "시간 범위 (예: 10s, 1m, 5m, 1h)"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

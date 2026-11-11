@@ -46,7 +46,8 @@ export const command: Command = {
 		fr: "...",
 		ja: "...",
 		ru: "...",
-		"es-ES": "..."
+		"es-ES": "...",
+		ko: "..."
 	},
 
 	thinking: false,

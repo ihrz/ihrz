@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de protection",
 		ja: "保護カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории защиты!",
-		"es-ES": "Subcomando para la categoría de protección!"
+		"es-ES": "Subcomando para la categoría de protección!",
+		ko: "보호 하위 명령어!"
 	},
 
 	options: [
@@ -47,7 +48,8 @@ export const command: Command = {
 				fr: "Ajouter un utilisateur à la liste blanche",
 				ja: "許可リストにユーザーを追加！",
 				ru: "Добавить пользователя в белый список!",
-				"es-ES": "Añadiendo un usuario a la lista de permitidos!"
+				"es-ES": "Añadiendo un usuario a la lista de permitidos!",
+				ko: "사용자를 허용 목록에 추가해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -61,7 +63,8 @@ export const command: Command = {
 						fr: "Quel est le membre alors?",
 						ja: "どのメンバーですか？",
 						ru: "Какой участник?",
-						"es-ES": "Cual es el miembro entonces?"
+						"es-ES": "Cual es el miembro entonces?",
+						ko: "어떤 멤버인가요?"
 					},
 
 					required: false,
@@ -81,7 +84,8 @@ export const command: Command = {
 				fr: "Supprimer un utilisateur de la liste blanche",
 				ja: "許可リストからユーザーを削除！",
 				ru: "Удалить пользователя из белого списка!",
-				"es-ES": "Eliminando un usuario de la lista de permitidos!"
+				"es-ES": "Eliminando un usuario de la lista de permitidos!",
+				ko: "허용 목록에서 사용자를 제거해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -95,7 +99,8 @@ export const command: Command = {
 						fr: "Quel est le membre alors?",
 						ja: "どのメンバーですか？",
 						ru: "Какой участник?",
-						"es-ES": "Cual es el miembro entonces?"
+						"es-ES": "Cual es el miembro entonces?",
+						ko: "어떤 멤버인가요?"
 					},
 
 					required: true,
@@ -115,7 +120,8 @@ export const command: Command = {
 				fr: "Lister les utilisateurs dans la liste autorisée",
 				ja: "許可リストのユーザーを一覧表示！",
 				ru: "Показать пользователей в белом списке!",
-				"es-ES": "Listar los usuarios en la lista de permitidos!"
+				"es-ES": "Listar los usuarios en la lista de permitidos!",
+				ko: "허용 목록의 사용자를 확인해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

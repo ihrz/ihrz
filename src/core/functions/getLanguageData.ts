@@ -63,6 +63,11 @@ export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 			flag: "🇯🇵"
 		},
 		{
+			name: "Korean",
+			code: "ko-KR",
+			flag: "🇰🇷"
+		},
+		{
 			name: "Portuguese",
 			code: "pt-PT",
 			flag: "🇵🇹"

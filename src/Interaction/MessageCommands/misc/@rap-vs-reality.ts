@@ -42,7 +42,8 @@ export const command: Command = {
 		fr: "rap vs reality meme generator",
 		ja: "rap vs reality ミームジェネレーター",
 		ru: "генератор мема rap vs reality",
-		"es-ES": "generador de meme rap vs reality"
+		"es-ES": "generador de meme rap vs reality",
+		ko: "랩 vs 현실 밈 생성기"
 	},
 	options: [
 		{
@@ -52,7 +53,8 @@ export const command: Command = {
 				fr: "le screen avant qu'il ce fasse défon",
 				ja: "before 側が最低",
 				ru: "before отстой",
-				"es-ES": "el before apesta"
+				"es-ES": "el before apesta",
+				ko: "이전이 별로야"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -66,7 +68,8 @@ export const command: Command = {
 				fr: "le screen après qu'il ce soit défoncé",
 				ja: "after 側が最低",
 				ru: "after отстой",
-				"es-ES": "el after apesta"
+				"es-ES": "el after apesta",
+				ko: "이후가 별로야"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de ticket",
 		ja: "チケットカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории тикетов!",
-		"es-ES": "Subcomando para la categoría de tickets!"
+		"es-ES": "Subcomando para la categoría de tickets!",
+		ko: "티켓 하위 명령어!"
 	},
 
 	options: [
@@ -48,7 +49,8 @@ export const command: Command = {
 				fr: "Ajoutez un membre dans votre ticket",
 				ja: "チケットにメンバーを追加！",
 				ru: "Добавить участника в тикет!",
-				"es-ES": "Añadir un miembro a tu ticket!"
+				"es-ES": "Añadir un miembro a tu ticket!",
+				ko: "티켓에 멤버를 추가해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -62,7 +64,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous souhaitez ajouter à votre ticket",
 						ja: "チケットに追加したいユーザー",
 						ru: "Пользователь, которого вы хотите добавить в тикет",
-						"es-ES": "El usuario que quieres añadir a tu ticket"
+						"es-ES": "El usuario que quieres añadir a tu ticket",
+						ko: "티켓에 추가할 사용자"
 					},
 
 					required: true,
@@ -81,7 +84,8 @@ export const command: Command = {
 				fr: "Fermer un ticket",
 				ja: "チケットを閉じる！",
 				ru: "Закрыть тикет!",
-				"es-ES": "Cerrar un ticket!"
+				"es-ES": "Cerrar un ticket!",
+				ko: "티켓을 닫아요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -96,7 +100,8 @@ export const command: Command = {
 				fr: "Rénommer un ticket",
 				ja: "チケットの名前を変更！",
 				ru: "Переименовать тикет!",
-				"es-ES": "Renombrar un ticket!"
+				"es-ES": "Renombrar un ticket!",
+				ko: "티켓 이름을 바꿔요!"
 			},
 
 			options: [
@@ -108,7 +113,8 @@ export const command: Command = {
 						fr: "Le nouveau nom du canal de ticket",
 						ja: "チケットチャンネルの新しい名前。",
 						ru: "Новое название канала тикета.",
-						"es-ES": "El nuevo nombre del canal de ticket."
+						"es-ES": "El nuevo nombre del canal de ticket.",
+						ko: "티켓 채널의 새 이름"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -132,7 +138,8 @@ export const command: Command = {
 				ja: "チケット所有者がしばらく応答していないことを通知！",
 				ru: "Напомнить владельцу тикета, что он давно не отвечал!",
 				"es-ES":
-					"Recordar al propietario del ticket que no ha respondido desde hace tiempo!"
+					"Recordar al propietario del ticket que no ha respondido desde hace tiempo!",
+				ko: "한동안 응답하지 않은 티켓 작성자에게 알림을 보내요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -148,7 +155,8 @@ export const command: Command = {
 				fr: "Supprimer un ticket",
 				ja: "iHorizonチケットを削除！",
 				ru: "Удалить тикет iHorizon!",
-				"es-ES": "Eliminar un ticket de iHorizon!"
+				"es-ES": "Eliminar un ticket de iHorizon!",
+				ko: "iHorizon 티켓을 삭제해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -165,7 +173,8 @@ export const command: Command = {
 				fr: "Désactiver les commande de ticket au seins du serveur",
 				ja: "サーバーでチケットコマンドを無効化！",
 				ru: "Отключить команды тикетов на сервере!",
-				"es-ES": "Deshabilitar los comandos de ticket en un servidor!"
+				"es-ES": "Deshabilitar los comandos de ticket en un servidor!",
+				ko: "서버에서 티켓 명령어를 비활성화해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -179,7 +188,8 @@ export const command: Command = {
 						fr: "Que veux-tu faire? ",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					required: true,
@@ -190,7 +200,8 @@ export const command: Command = {
 								fr: "Supprimer le module",
 								ja: "remove_the_module",
 								ru: "remove_the_module",
-								"es-ES": "remove_the_module"
+								"es-ES": "remove_the_module",
+								ko: "모듈 제거"
 							},
 							value: "off"
 						},
@@ -200,7 +211,8 @@ export const command: Command = {
 								fr: "Activer le module",
 								ja: "power_on_the_module",
 								ru: "power_on_the_module",
-								"es-ES": "power_on_the_module"
+								"es-ES": "power_on_the_module",
+								ko: "모듈 켜기"
 							},
 							value: "on"
 						}
@@ -222,7 +234,8 @@ export const command: Command = {
 				ja: "iHorizonがチケットに関するログを送信するチャンネルを設定！",
 				ru: "Установить канал для логов iHorizon о тикетах!",
 				"es-ES":
-					"Establecer un canal donde iHorizon envíe registros sobre tickets!"
+					"Establecer un canal donde iHorizon envíe registros sobre tickets!",
+				ko: "iHorizon이 티켓 로그를 보낼 채널을 설정해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -237,7 +250,8 @@ export const command: Command = {
 						fr: "Où voulez-vous les journaux ?",
 						ja: "ログを送信する場所",
 						ru: "Куда вы хотите отправлять логи",
-						"es-ES": "Donde quieres los registros"
+						"es-ES": "Donde quieres los registros",
+						ko: "로그를 보낼 위치"
 					},
 
 					required: true,
@@ -256,7 +270,8 @@ export const command: Command = {
 				fr: "Re-ouvrir un ticket fermet",
 				ja: "閉じたチケットを再オープン！",
 				ru: "переоткрыть закрытый тикет!",
-				"es-ES": "reabrir un ticket cerrado!"
+				"es-ES": "reabrir un ticket cerrado!",
+				ko: "닫힌 티켓을 다시 열어요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -271,7 +286,8 @@ export const command: Command = {
 				fr: "Enlever un membre d'un ticket",
 				ja: "チケットからメンバーを削除！",
 				ru: "Удалить участника из тикета!",
-				"es-ES": "Eliminar a un miembro de tu ticket!"
+				"es-ES": "Eliminar a un miembro de tu ticket!",
+				ko: "티켓에서 멤버를 제거해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -285,7 +301,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous souhaitez supprimer de votre ticket",
 						ja: "チケットから削除したいユーザー",
 						ru: "Пользователь, которого вы хотите удалить из тикета",
-						"es-ES": "El usuario que quieres eliminar de tu ticket"
+						"es-ES": "El usuario que quieres eliminar de tu ticket",
+						ko: "티켓에서 제거할 사용자"
 					},
 
 					required: true,
@@ -305,7 +322,8 @@ export const command: Command = {
 				ja: "カスタムチケット設定用パネルを作成",
 				ru: "Создание панели для настройки тикетов",
 				"es-ES":
-					"Crear un panel para configuración de tickets personalizada"
+					"Crear un panel para configuración de tickets personalizada",
+				ko: "맞춤 티켓 설정 패널을 만들어요"
 			},
 
 			options: [
@@ -317,7 +335,8 @@ export const command: Command = {
 						fr: "L'identifiant du panel",
 						ja: "パネルのID",
 						ru: "ID вашей панели",
-						"es-ES": "ID de tu panel"
+						"es-ES": "ID de tu panel",
+						ko: "패널 ID"
 					},
 
 					required: false,
@@ -338,7 +357,8 @@ export const command: Command = {
 				fr: "Définir la catégorie dans laquelle les ticket doivent être créés",
 				ja: "チケットが作成されるカテゴリを設定！",
 				ru: "Установить категорию для создания тикетов!",
-				"es-ES": "Establecer la categoría donde se crean los tickets!"
+				"es-ES": "Establecer la categoría donde se crean los tickets!",
+				ko: "티켓이 생성될 카테고리를 설정해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -351,7 +371,8 @@ export const command: Command = {
 						fr: "Le nom du panneau de votre ticket",
 						ja: "チケットパネルの名前。",
 						ru: "Название вашей панели тикетов.",
-						"es-ES": "El nombre de tu panel de tickets."
+						"es-ES": "El nombre de tu panel de tickets.",
+						ko: "티켓 패널 이름"
 					},
 
 					channel_types: [ChannelType.GuildCategory],
@@ -373,7 +394,8 @@ export const command: Command = {
 				fr: "Obtenir la transcription d'un message de ticket",
 				ja: "チケットメッセージのトランスクリプトを取得！",
 				ru: "Получить транскрипт тикета!",
-				"es-ES": "Obtener la transcripción de un mensaje de ticket!"
+				"es-ES": "Obtener la transcripción de un mensaje de ticket!",
+				ko: "티켓 대화 기록을 받아요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -388,7 +410,8 @@ export const command: Command = {
 				fr: "Transforme le salon de ticket en salon classique auprès du bot.",
 				ja: "チケットのリンクを解除！",
 				ru: "Отвязать тикет!",
-				"es-ES": "Desvincular un ticket!"
+				"es-ES": "Desvincular un ticket!",
+				ko: "티켓 연결을 해제해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

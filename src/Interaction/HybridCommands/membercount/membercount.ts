@@ -45,7 +45,8 @@ export const command: Command = {
 		fr: "Parametrer un canal vocal pour afficher des statistique",
 		ja: "メンバーカウントチャンネルを設定！",
 		ru: "Установить каналы счетчика участников!",
-		"es-ES": "Establecer canales de conteo de miembros!"
+		"es-ES": "Establecer canales de conteo de miembros!",
+		ko: "멤버 수 채널을 설정해요!"
 	},
 
 	options: [
@@ -57,7 +58,8 @@ export const command: Command = {
 				fr: "<Power on /Power off>",
 				ja: "<オン / オフ>",
 				ru: "<Вкл / Выкл>",
-				"es-ES": "<Encender / Apagar>"
+				"es-ES": "<Encender / Apagar>",
+				ko: "<켜기 /끄기>"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -69,7 +71,8 @@ export const command: Command = {
 						fr: "Activer",
 						ja: "power_on",
 						ru: "power_on",
-						"es-ES": "power_on"
+						"es-ES": "power_on",
+						ko: "켜기"
 					},
 					value: "on"
 				},
@@ -79,7 +82,8 @@ export const command: Command = {
 						fr: "Désactiver",
 						ja: "power_off",
 						ru: "power_off",
-						"es-ES": "power_off"
+						"es-ES": "power_off",
+						ko: "끄기"
 					},
 					value: "off"
 				}
@@ -95,7 +99,8 @@ export const command: Command = {
 				fr: "Le cannal pour définir le module membercount",
 				ja: "メンバーカウントを設定するチャンネル",
 				ru: "Канал для установки счетчика участников",
-				"es-ES": "El canal para establecer el conteo de miembros"
+				"es-ES": "El canal para establecer el conteo de miembros",
+				ko: "멤버 수를 표시할 채널"
 			},
 
 			channel_types: [ChannelType.GuildVoice],
@@ -116,7 +121,8 @@ export const command: Command = {
 				ja: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				ru: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				"es-ES":
-					"{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
+					"{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
+				ko: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
 			},
 
 			permission: null

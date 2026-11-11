@@ -32,7 +32,8 @@ export const command: Command = {
 		fr: "tts",
 		ja: "tts",
 		ru: "tts",
-		"es-ES": "tts"
+		"es-ES": "tts",
+		ko: "tts"
 	},
 
 	description: "Subcommand for TTS (Text-to-Speech) category!",
@@ -40,7 +41,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie TTS (Text-to-Speech)",
 		ja: "TTS（テキスト読み上げ）カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории TTS (озвучивание текста)!",
-		"es-ES": "Subcomando para la categoría TTS (Texto a Voz)!"
+		"es-ES": "Subcomando para la categoría TTS (Texto a Voz)!",
+		ko: "TTS (텍스트 음성 변환) 하위 명령어!"
 	},
 
 	aliases: [],
@@ -55,7 +57,8 @@ export const command: Command = {
 				fr: "Rejoindre le salon vocal et activer le mode TTS",
 				ja: "ボイスチャンネルに参加してTTSモードを有効化！",
 				ru: "Войти в голосовой канал и включить TTS!",
-				"es-ES": "Unirse al canal de voz y habilitar el modo TTS!"
+				"es-ES": "Unirse al canal de voz y habilitar el modo TTS!",
+				ko: "음성 채널에 들어가 TTS 모드를 켜요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -71,7 +74,8 @@ export const command: Command = {
 				fr: "Quitter le salon vocal et désactiver le mode TTS",
 				ja: "ボイスチャンネルから退出してTTSモードを無効化！",
 				ru: "Выйти из голосового канала и отключить TTS!",
-				"es-ES": "Salir del canal de voz y deshabilitar el modo TTS!"
+				"es-ES": "Salir del canal de voz y deshabilitar el modo TTS!",
+				ko: "음성 채널에서 나가고 TTS 모드를 꺼요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -87,7 +91,8 @@ export const command: Command = {
 				fr: "Obtenir des informations sur le module TTS",
 				ja: "TTSモジュールの情報を取得！",
 				ru: "Получить информацию о модуле TTS!",
-				"es-ES": "Obtener información sobre el módulo TTS!"
+				"es-ES": "Obtener información sobre el módulo TTS!",
+				ko: "TTS 모듈 정보를 확인해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -100,7 +105,8 @@ export const command: Command = {
 				fr: "langue",
 				ja: "lang",
 				ru: "lang",
-				"es-ES": "lang"
+				"es-ES": "lang",
+				ko: "lang"
 			},
 
 			prefixName: "ttslang",
@@ -111,7 +117,8 @@ export const command: Command = {
 				ja: "サーバーのデフォルトTTS言語を設定！",
 				ru: "Установить язык TTS по умолчанию!",
 				"es-ES":
-					"Establecer el idioma TTS predeterminado para el servidor!"
+					"Establecer el idioma TTS predeterminado para el servidor!",
+				ko: "서버의 기본 TTS 언어를 설정해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -122,7 +129,8 @@ export const command: Command = {
 						fr: "langue",
 						ja: "language",
 						ru: "language",
-						"es-ES": "language"
+						"es-ES": "language",
+						ko: "language"
 					},
 
 					description: "The TTS language to use!",
@@ -130,7 +138,8 @@ export const command: Command = {
 						fr: "La langue TTS à utiliser",
 						ja: "使用するTTS言語！",
 						ru: "Язык TTS для использования!",
-						"es-ES": "El idioma TTS a usar!"
+						"es-ES": "El idioma TTS a usar!",
+						ko: "사용할 TTS 언어!"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -142,7 +151,8 @@ export const command: Command = {
 								fr: "Anglais",
 								ja: "english",
 								ru: "english",
-								"es-ES": "english"
+								"es-ES": "english",
+								ko: "영어"
 							},
 							value: "en-US"
 						},
@@ -152,7 +162,8 @@ export const command: Command = {
 								fr: "Francais",
 								ja: "french",
 								ru: "french",
-								"es-ES": "french"
+								"es-ES": "french",
+								ko: "프랑스어"
 							},
 							value: "fr-FR"
 						},
@@ -162,7 +173,8 @@ export const command: Command = {
 								fr: "Allemand",
 								ja: "german",
 								ru: "german",
-								"es-ES": "german"
+								"es-ES": "german",
+								ko: "독일어"
 							},
 							value: "de-DE"
 						},
@@ -172,7 +184,8 @@ export const command: Command = {
 								fr: "Espagnol",
 								ja: "spanish",
 								ru: "spanish",
-								"es-ES": "spanish"
+								"es-ES": "spanish",
+								ko: "스페인어"
 							},
 							value: "es-ES"
 						},
@@ -182,7 +195,8 @@ export const command: Command = {
 								fr: "Italien",
 								ja: "italian",
 								ru: "italian",
-								"es-ES": "italian"
+								"es-ES": "italian",
+								ko: "이탈리아어"
 							},
 							value: "it-IT"
 						},
@@ -192,9 +206,21 @@ export const command: Command = {
 								fr: "Japonais",
 								ja: "japanese",
 								ru: "japanese",
-								"es-ES": "japanese"
+								"es-ES": "japanese",
+								ko: "일본어"
 							},
 							value: "jp-JP"
+						},
+						{
+							name: "Korean",
+							name_localizations: {
+								fr: "Coréen",
+								ja: "korean",
+								ru: "korean",
+								"es-ES": "korean",
+								ko: "한국어"
+							},
+							value: "ko-KR"
 						},
 						{
 							name: "Portuguese",
@@ -202,7 +228,8 @@ export const command: Command = {
 								fr: "Portugais",
 								ja: "portuguese",
 								ru: "portuguese",
-								"es-ES": "portuguese"
+								"es-ES": "portuguese",
+								ko: "포르투갈어"
 							},
 							value: "pt-PT"
 						},
@@ -212,7 +239,8 @@ export const command: Command = {
 								fr: "Russe",
 								ja: "russian",
 								ru: "russian",
-								"es-ES": "russian"
+								"es-ES": "russian",
+								ko: "러시아어"
 							},
 							value: "ru-RU"
 						},
@@ -222,7 +250,8 @@ export const command: Command = {
 								fr: "Arabe",
 								ja: "arabic",
 								ru: "arabic",
-								"es-ES": "arabic"
+								"es-ES": "arabic",
+								ko: "아랍어"
 							},
 							value: "ar-EG"
 						}

@@ -45,7 +45,8 @@ export const command: Command = {
 		ja: "監査ログ用のログチャンネルを設定！",
 		ru: "Установить канал для аудита!",
 		"es-ES":
-			"Establecer un canal de registros para los registros de auditoría!"
+			"Establecer un canal de registros para los registros de auditoría!",
+		ko: "감사 로그 채널을 설정해요!"
 	},
 
 	aliases: ["logs", "setlog"],
@@ -59,7 +60,8 @@ export const command: Command = {
 				fr: "Spécifier le canal de journaux",
 				ja: "指定されたログカテゴリ",
 				ru: "Указанная категория логов",
-				"es-ES": "Categoría de registros especificada"
+				"es-ES": "Categoría de registros especificada",
+				ko: "지정할 로그 종류"
 			},
 			required: true,
 			choices: [
@@ -69,7 +71,8 @@ export const command: Command = {
 						fr: "Configurer tous les canaux",
 						ja: "setup_all_channels",
 						ru: "setup_all_channels",
-						"es-ES": "setup_all_channels"
+						"es-ES": "setup_all_channels",
+						ko: "모든 채널 설정"
 					},
 					value: "auto"
 				},
@@ -79,7 +82,8 @@ export const command: Command = {
 						fr: "Supprimer toutes les configurations",
 						ja: "delete_all_settings",
 						ru: "delete_all_settings",
-						"es-ES": "delete_all_settings"
+						"es-ES": "delete_all_settings",
+						ko: "모든 설정 삭제"
 					},
 					value: "off"
 				},
@@ -89,7 +93,8 @@ export const command: Command = {
 						fr: "Logs AntiSpam",
 						ja: "antispam_logs",
 						ru: "antispam_logs",
-						"es-ES": "antispam_logs"
+						"es-ES": "antispam_logs",
+						ko: "스팸 방지 로그"
 					},
 					value: "antispam"
 				},
@@ -99,7 +104,8 @@ export const command: Command = {
 						fr: "Logs Boost",
 						ja: "boost_logs",
 						ru: "boost_logs",
-						"es-ES": "boost_logs"
+						"es-ES": "boost_logs",
+						ko: "부스트 로그"
 					},
 					value: "boost"
 				},
@@ -109,7 +115,8 @@ export const command: Command = {
 						fr: "Logs Canal",
 						ja: "channel_logs",
 						ru: "channel_logs",
-						"es-ES": "channel_logs"
+						"es-ES": "channel_logs",
+						ko: "채널 로그"
 					},
 					value: "channel"
 				},
@@ -119,7 +126,8 @@ export const command: Command = {
 						fr: "Logs Messages",
 						ja: "messages_logs",
 						ru: "messages_logs",
-						"es-ES": "messages_logs"
+						"es-ES": "messages_logs",
+						ko: "메시지 로그"
 					},
 					value: "message"
 				},
@@ -129,7 +137,8 @@ export const command: Command = {
 						fr: "Logs Modération",
 						ja: "moderation_logs",
 						ru: "moderation_logs",
-						"es-ES": "moderation_logs"
+						"es-ES": "moderation_logs",
+						ko: "모더레이션 로그"
 					},
 					value: "moderation"
 				},
@@ -139,7 +148,8 @@ export const command: Command = {
 						fr: "Logs Rôles",
 						ja: "roles_logs",
 						ru: "roles_logs",
-						"es-ES": "roles_logs"
+						"es-ES": "roles_logs",
+						ko: "역할 로그"
 					},
 					value: "roles"
 				},
@@ -149,7 +159,8 @@ export const command: Command = {
 						fr: "Logs Ticket",
 						ja: "ticket_logs",
 						ru: "ticket_logs",
-						"es-ES": "ticket_logs"
+						"es-ES": "ticket_logs",
+						ko: "티켓 로그"
 					},
 					value: "ticket"
 				},
@@ -159,7 +170,8 @@ export const command: Command = {
 						fr: "Logs Voice",
 						ja: "voice_logs",
 						ru: "voice_logs",
-						"es-ES": "voice_logs"
+						"es-ES": "voice_logs",
+						ko: "음성 로그"
 					},
 					value: "voice"
 				},
@@ -169,7 +181,8 @@ export const command: Command = {
 						fr: "Logs Confession",
 						ja: "confession_logs",
 						ru: "confession_logs",
-						"es-ES": "confession_logs"
+						"es-ES": "confession_logs",
+						ko: "고백 로그"
 					},
 					value: "confession"
 				},
@@ -179,7 +192,8 @@ export const command: Command = {
 						fr: "Logs d'économie",
 						ja: "economy_logs",
 						ru: "economy_logs",
-						"es-ES": "economy_logs"
+						"es-ES": "economy_logs",
+						ko: "경제 로그"
 					},
 					value: "economy"
 				}
@@ -196,7 +210,8 @@ export const command: Command = {
 				fr: "Le canal sur lequel vous souhaitez recevoir votre message de journaux",
 				ja: "ログメッセージを送信したいチャンネル！",
 				ru: "Канал для сообщений логов!",
-				"es-ES": "El canal donde quieres tus mensajes de registro!"
+				"es-ES": "El canal donde quieres tus mensajes de registro!",
+				ko: "로그 메시지를 보낼 채널!"
 			},
 			required: false,
 			permission: null

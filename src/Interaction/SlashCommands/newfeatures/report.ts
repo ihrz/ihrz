@@ -39,7 +39,8 @@ export const command: Command = {
 		ja: "バグ、エラー、スペルミスをiHorizonの開発者に報告！",
 		ru: "Сообщить об ошибке разработчикам iHorizon!",
 		"es-ES":
-			"Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!"
+			"Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!",
+		ko: "버그, 오류, 맞춤법 오류를 iHorizon 개발자에게 신고해요!"
 	},
 
 	options: [
@@ -52,7 +53,9 @@ export const command: Command = {
 				fr: "Quelle est le problème? S'il vous plaît expliquer le problème.",
 				ja: "問題は何ですか？良い文章で説明してください",
 				ru: "В чем проблема? Пожалуйста, составьте хорошее предложение",
-				"es-ES": "Cual es el problema? Por favor, haz una buena oración"
+				"es-ES":
+					"Cual es el problema? Por favor, haz una buena oración",
+				ko: "무엇이 문제인가요? 자세히 적어 주세요"
 			},
 
 			required: true,

@@ -37,7 +37,9 @@ export const command: Command = {
 		fr: "Obtenir les informations nécessaires sur ma développeuse, Kisakay",
 		ja: "開発者Kisakayの基本情報を取得",
 		ru: "Получить информацию о разработчике Kisakay",
-		"es-ES": "Obtener información necesaria sobre mi desarrollador, Kisakay"
+		"es-ES":
+			"Obtener información necesaria sobre mi desarrollador, Kisakay",
+		ko: "제 개발자 Kisakay에 대한 꼭 필요한 정보"
 	},
 
 	aliases: ["anaïs", "anais", "kisa"],

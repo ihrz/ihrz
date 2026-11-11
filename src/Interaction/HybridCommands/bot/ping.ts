@@ -39,7 +39,8 @@ export const command: Command = {
 		fr: "Obtenir la latence du bot",
 		ja: "ボットのレイテンシを取得！",
 		ru: "Получить задержку бота!",
-		"es-ES": "Obtener la latencia del bot!"
+		"es-ES": "Obtener la latencia del bot!",
+		ko: "봇 지연 시간을 확인해요!"
 	},
 
 	aliases: ["speed", "pong", "vitesse"],

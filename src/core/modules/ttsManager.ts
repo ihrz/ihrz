@@ -46,6 +46,7 @@ const LANGUAGE_CODES = {
 	es: ["es-ES", "es-MX"],
 	it: ["it-IT"],
 	ja: ["ja-JP"],
+	ko: ["ko-KR"],
 	ar: ["ar-SA", "ar-XA", "ar-EG"]
 } as const;
 
@@ -57,6 +58,7 @@ const LOCALE_TO_LANG: Record<string, keyof typeof LANGUAGE_CODES> = {
 	"es-ES": "es",
 	"it-IT": "it",
 	"jp-JP": "ja",
+	"ko-KR": "ko",
 	"pt-PT": "pt",
 	"ru-RU": "ru",
 	"ar-EG": "ar"

@@ -67,7 +67,8 @@ export const command: Command = {
 		fr: "Configurer la sélection de rôles pour un message spécifique",
 		ja: "特定のメッセージのロール選択を設定",
 		ru: "Настроить выбор ролей для сообщения",
-		"es-ES": "Configurar la selección de roles para un mensaje específico"
+		"es-ES": "Configurar la selección de roles para un mensaje específico",
+		ko: "특정 메시지의 역할 선택을 설정해요"
 	},
 	aliases: ["selectreact"],
 	options: [
@@ -79,7 +80,8 @@ export const command: Command = {
 				fr: "Le salon où se trouve le message à configurer",
 				ja: "対象メッセージを含むチャンネル",
 				ru: "Канал с целевым сообщением",
-				"es-ES": "El canal que contiene el mensaje objetivo"
+				"es-ES": "El canal que contiene el mensaje objetivo",
+				ko: "대상 메시지가 있는 채널"
 			},
 			channel_types: [ChannelType.GuildText],
 			required: true,
@@ -93,7 +95,8 @@ export const command: Command = {
 				fr: "Identifiant du message à configurer pour la sélection de rôles",
 				ja: "ロール選択を設定するメッセージID",
 				ru: "ID сообщения для настройки выбора ролей",
-				"es-ES": "ID del mensaje para configurar la selección de roles"
+				"es-ES": "ID del mensaje para configurar la selección de roles",
+				ko: "역할 선택을 설정할 메시지 ID"
 			},
 			required: true,
 			permission: null

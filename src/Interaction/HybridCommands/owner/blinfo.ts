@@ -46,7 +46,8 @@ export const command: Command = {
 		fr: "Afficher des informations sur un utilisateur blacklisté",
 		ja: "ブラックリストユーザーの情報を表示！",
 		ru: "Показать информацию о пользователе в черном списке!",
-		"es-ES": "Mostrar información sobre el usuario en la lista negra!"
+		"es-ES": "Mostrar información sobre el usuario en la lista negra!",
+		ko: "블랙리스트 사용자 정보를 보여줘요!"
 	},
 
 	options: [
@@ -59,7 +60,8 @@ export const command: Command = {
 				fr: "L'utilisateur que vous voulez obtenir ces informations de bl",
 				ja: "確認したいユーザー...",
 				ru: "Пользователь, которого вы хотите посмотреть...",
-				"es-ES": "El usuario que quieres mirar..."
+				"es-ES": "El usuario que quieres mirar...",
+				ko: "살펴볼 사용자..."
 			},
 
 			required: true,

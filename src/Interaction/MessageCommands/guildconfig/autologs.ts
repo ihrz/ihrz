@@ -35,7 +35,8 @@ export const command: Command = {
 		fr: "Configurer automatiquement tous les canaux de journaux",
 		ja: "全ログチャンネルを自動設定",
 		ru: "Автоматически настроить все каналы логов",
-		"es-ES": "Establecer todos los canales de registro automáticamente"
+		"es-ES": "Establecer todos los canales de registro automáticamente",
+		ko: "모든 로그 채널을 자동으로 설정해요"
 	},
 
 	thinking: false,

@@ -40,7 +40,8 @@ export const command: Command = {
 		ja: "ユーザーが再参加した時に以前のロールを再付与！",
 		ru: "Вернуть старые роли при повторном входе!",
 		"es-ES":
-			"Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
+			"Volver a dar roles antiguos cuando el usuario se reúne al servidor!",
+		ko: "사용자가 서버에 다시 들어오면 이전 역할을 다시 부여해요!"
 	},
 
 	options: [
@@ -53,7 +54,8 @@ export const command: Command = {
 				fr: "Voulez-vous activer/désactiver le module ?",
 				ja: "モジュールをオン/オフしますか？",
 				ru: "Включить или выключить модуль?",
-				"es-ES": "Quieres encender/apagar el módulo?"
+				"es-ES": "Quieres encender/apagar el módulo?",
+				ko: "모듈을 켜거나 끌까요?"
 			},
 
 			required: true,
@@ -64,7 +66,8 @@ export const command: Command = {
 						fr: "Activer",
 						ja: "power_on",
 						ru: "power_on",
-						"es-ES": "power_on"
+						"es-ES": "power_on",
+						ko: "켜기"
 					},
 					value: "on"
 				},
@@ -74,7 +77,8 @@ export const command: Command = {
 						fr: "Désactiver",
 						ja: "power_off",
 						ru: "power_off",
-						"es-ES": "power_off"
+						"es-ES": "power_off",
+						ko: "끄기"
 					},
 					value: "off"
 				}
@@ -91,7 +95,8 @@ export const command: Command = {
 				fr: "Redonner des rôles admin ?",
 				ja: "管理者ロールを再付与しますか？",
 				ru: "Заново выдать роль администратора?",
-				"es-ES": "Volver a dar el rol de administrador?"
+				"es-ES": "Volver a dar el rol de administrador?",
+				ko: "관리자 역할도 다시 부여할까요?"
 			},
 
 			required: false,
@@ -102,7 +107,8 @@ export const command: Command = {
 						fr: "Oui",
 						ja: "yes",
 						ru: "yes",
-						"es-ES": "yes"
+						"es-ES": "yes",
+						ko: "예"
 					},
 					value: "yes"
 				},
@@ -112,7 +118,8 @@ export const command: Command = {
 						fr: "Non",
 						ja: "no",
 						ru: "no",
-						"es-ES": "no"
+						"es-ES": "no",
+						ko: "아니요"
 					},
 					value: "no"
 				}

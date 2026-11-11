@@ -42,7 +42,8 @@ export const command: Command = {
 		fr: "kawaeine meme generator",
 		ja: "kawaeine ミームジェネレーター",
 		ru: "генератор мема kawaeine",
-		"es-ES": "generador de meme kawaeine"
+		"es-ES": "generador de meme kawaeine",
+		ko: "kawaeine 밈 생성기"
 	},
 	options: [
 		{
@@ -52,7 +53,8 @@ export const command: Command = {
 				fr: "le screen qui te fait dire que ça va mal",
 				ja: "before 側が最低",
 				ru: "before отстой",
-				"es-ES": "el before apesta"
+				"es-ES": "el before apesta",
+				ko: "이전이 별로야"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)",
 		ja: "指定されたもののバナーを取得（サーバー/ユーザー）",
 		ru: "Взять баннер указанного объекта (Сервер/Пользователь)",
-		"es-ES": "Tomar el banner de cosas especificadas (Servidor/Usuario)"
+		"es-ES": "Tomar el banner de cosas especificadas (Servidor/Usuario)",
+		ko: "지정한 대상(서버/사용자)의 배너를 가져와요"
 	},
 
 	category: "utils",
@@ -48,7 +49,8 @@ export const command: Command = {
 				fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)",
 				ja: "指定ユーザーのバナーを取得！",
 				ru: "Получить баннер указанного пользователя!",
-				"es-ES": "Obtener el banner de un usuario especificado!"
+				"es-ES": "Obtener el banner de un usuario especificado!",
+				ko: "지정한 사용자의 배너를 확인해요!"
 			},
 
 			aliases: ["userbanner", "ubanner"],
@@ -64,7 +66,8 @@ export const command: Command = {
 						fr: "Qu'est-ce que l'utilisateur alors ?",
 						ja: "どのユーザーですか？",
 						ru: "Какой пользователь?",
-						"es-ES": "Cual es el usuario entonces?"
+						"es-ES": "Cual es el usuario entonces?",
+						ko: "어떤 사용자인가요?"
 					},
 
 					required: false,
@@ -84,7 +87,8 @@ export const command: Command = {
 				fr: "Récupérer la bannière du serveur",
 				ja: "サーバーのバナーを取得！",
 				ru: "Получить баннер сервера!",
-				"es-ES": "Obtener el banner del servidor!"
+				"es-ES": "Obtener el banner del servidor!",
+				ko: "서버 배너를 확인해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

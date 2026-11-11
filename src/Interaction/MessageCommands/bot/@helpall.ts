@@ -92,7 +92,8 @@ export const command: Command = {
 		fr: "Affiche toutes les commandes hybrides que tu peux utiliser",
 		ja: "使用可能なハイブリッドコマンドをすべて表示",
 		ru: "Показать все гибридные команды, доступные вам",
-		"es-ES": "Muestra todos los comandos híbridos que puedes usar"
+		"es-ES": "Muestra todos los comandos híbridos que puedes usar",
+		ko: "사용할 수 있는 모든 하이브리드 명령어를 보여줘요"
 	},
 	thinking: false,
 	category: "bot",

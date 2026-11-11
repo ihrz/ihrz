@@ -29,7 +29,7 @@ import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 const DETECTORS: Array<{ regex: RegExp; locale: string }> = [
 	{ regex: /[а-яА-ЯёЁ]/g, locale: "ru-RU" },
 	{ regex: /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, locale: "jp-JP" },
-	{ regex: /[\uAC00-\uD7AF]/g, locale: "jp-JP" },
+	{ regex: /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/g, locale: "ko-KR" },
 	{ regex: /[\u0600-\u06FF\u0590-\u05FF]/g, locale: "ar-EG" }
 ];
 

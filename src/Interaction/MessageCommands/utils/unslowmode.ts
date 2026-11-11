@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Supprimer le mode lent du cannal actuel",
 		ja: "現在のチャンネルのクールダウンを解除",
 		ru: "Снять задержку с текущего канала",
-		"es-ES": "Eliminar el enfriamiento en el canal actual"
+		"es-ES": "Eliminar el enfriamiento en el canal actual",
+		ko: "현재 채널의 쿨다운을 제거해요"
 	},
 
 	thinking: false,

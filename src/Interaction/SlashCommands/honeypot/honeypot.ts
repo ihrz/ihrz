@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Commande sous-groupée pour la configuration de Honeypot",
 		ja: "ハニーポット設定のサブコマンド！",
 		ru: "Подкоманда для настройки Honeypot!",
-		"es-ES": "Subcomando para la configuración de honeypot!"
+		"es-ES": "Subcomando para la configuración de honeypot!",
+		ko: "허니팟 설정 하위 명령어!"
 	},
 
 	options: [
@@ -46,7 +47,8 @@ export const command: Command = {
 				fr: "Configurer le panneau de protection Honeypot",
 				ja: "ハニーポット保護パネルを設定。",
 				ru: "Настроить панель защиты Honeypot.",
-				"es-ES": "Configurar el panel de protección Honeypot."
+				"es-ES": "Configurar el panel de protección Honeypot.",
+				ko: "허니팟 보호 패널을 설정해요."
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

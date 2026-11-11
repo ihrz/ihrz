@@ -241,6 +241,7 @@ async function handleCategorySelect(
 							"fr-FR": "fr",
 							"fr-ME": "fr",
 							"jp-JP": "ja",
+							"ko-KR": "ko",
 							"ru-RU": "ru",
 							"es-ES": "es-ES"
 						};
@@ -363,7 +364,8 @@ export const command: Command = {
 		fr: "Obtenir la liste de toute les commandes",
 		ja: "全コマンドのリストを取得！",
 		ru: "Получить список всех команд!",
-		"es-ES": "Obtener una lista de todos los comandos!"
+		"es-ES": "Obtener una lista de todos los comandos!",
+		ko: "모든 명령어 목록을 확인해요!"
 	},
 
 	options: [
@@ -375,7 +377,8 @@ export const command: Command = {
 				fr: "La commandes sur laquelle vous voulez des info",
 				ja: "情報が欲しいコマンド名",
 				ru: "Имя команды, о которой нужна информация",
-				"es-ES": "El nombre del comando del que quieres información"
+				"es-ES": "El nombre del comando del que quieres información",
+				ko: "정보를 볼 명령어 이름"
 			},
 
 			type: ApplicationCommandOptionType.String,

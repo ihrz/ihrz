@@ -35,7 +35,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de configuration du serveur",
 		ja: "サーバー設定カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории настройки сервера!",
-		"es-ES": "Subcomando para la categoría de configuración del servidor!"
+		"es-ES": "Subcomando para la categoría de configuración del servidor!",
+		ko: "서버 설정 하위 명령어!"
 	},
 
 	options: [
@@ -47,7 +48,9 @@ export const command: Command = {
 				fr: "Manipulation de salons pour le module Join GhostPing",
 				ja: "Join GhostPingモジュールのチャンネル操作",
 				ru: "Управление каналами для модуля Join GhostPing",
-				"es-ES": "Manipulación de canales para el módulo Join GhostPing"
+				"es-ES":
+					"Manipulación de canales para el módulo Join GhostPing",
+				ko: "입장 고스트 핑 모듈의 채널 관리"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -61,7 +64,8 @@ export const command: Command = {
 						fr: "Ajouter un salon",
 						ja: "チャンネルを追加",
 						ru: "Добавить канал",
-						"es-ES": "Añadir un canal"
+						"es-ES": "Añadir un canal",
+						ko: "채널 추가"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -77,7 +81,8 @@ export const command: Command = {
 								fr: "Le salon que tu veux",
 								ja: "希望するチャンネル",
 								ru: "Желаемый канал",
-								"es-ES": "El canal que deseas"
+								"es-ES": "El canal que deseas",
+								ko: "원하는 채널"
 							},
 
 							required: true,
@@ -95,7 +100,8 @@ export const command: Command = {
 						fr: "Enlever un salon de la liste",
 						ja: "チャンネルを削除",
 						ru: "Удалить канал",
-						"es-ES": "Eliminar un canal"
+						"es-ES": "Eliminar un canal",
+						ko: "채널 삭제"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -111,7 +117,8 @@ export const command: Command = {
 								fr: "Le salon que tu veux",
 								ja: "希望するチャンネル",
 								ru: "Желаемый канал",
-								"es-ES": "El canal que deseas"
+								"es-ES": "El canal que deseas",
+								ko: "원하는 채널"
 							},
 
 							required: true,

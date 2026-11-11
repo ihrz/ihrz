@@ -39,7 +39,8 @@ export const command: Command = {
 		fr: "soutien",
 		ja: "support",
 		ru: "support",
-		"es-ES": "support"
+		"es-ES": "support",
+		ko: "support"
 	},
 
 	description:
@@ -49,7 +50,8 @@ export const command: Command = {
 		ja: "サーバーメンバーの自己紹介にサーバーに関する情報がある場合にロールを付与！",
 		ru: "Выдать роли, если у участника в описании есть информация о сервере!",
 		"es-ES":
-			"Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"
+			"Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!",
+		ko: "소개에 서버 관련 내용이 있는 멤버에게 역할을 부여해요!"
 	},
 
 	aliases: ["soutien"],
@@ -64,7 +66,8 @@ export const command: Command = {
 				fr: "Quelle action voulez-vous ?",
 				ja: "アクションを選択",
 				ru: "Выберите действие",
-				"es-ES": "Elegir la acción"
+				"es-ES": "Elegir la acción",
+				ko: "작업 선택"
 			},
 
 			required: true,
@@ -75,7 +78,8 @@ export const command: Command = {
 						fr: "Activer",
 						ja: "power_on",
 						ru: "power_on",
-						"es-ES": "power_on"
+						"es-ES": "power_on",
+						ko: "켜기"
 					},
 					value: "on"
 				},
@@ -85,7 +89,8 @@ export const command: Command = {
 						fr: "Désactiver",
 						ja: "power_off",
 						ru: "power_off",
-						"es-ES": "power_off"
+						"es-ES": "power_off",
+						ko: "끄기"
 					},
 					value: "off"
 				}
@@ -102,7 +107,8 @@ export const command: Command = {
 				fr: "Quel type d'entrer l'utilisateur doit avoir?",
 				ja: "ユーザーが入力するタイプは？",
 				ru: "Какой тип ввода у пользователя?",
-				"es-ES": "Que tipo de entrada tiene el usuario?"
+				"es-ES": "Que tipo de entrada tiene el usuario?",
+				ko: "사용자가 입력할 방식은 무엇인가요?"
 			},
 
 			choices: [
@@ -112,7 +118,8 @@ export const command: Command = {
 						fr: "Quelques choses dans la bio",
 						ja: "something_in_the_bio",
 						ru: "something_in_the_bio",
-						"es-ES": "something_in_the_bio"
+						"es-ES": "something_in_the_bio",
+						ko: "소개에 들어간 내용"
 					},
 					value: "bio"
 				},
@@ -122,7 +129,8 @@ export const command: Command = {
 						fr: "Le tag du serveur sur sont profil (Activable via des boosts)",
 						ja: "the_guild_tag_boost_perks",
 						ru: "the_guild_tag_boost_perks",
-						"es-ES": "the_guild_tag_boost_perks"
+						"es-ES": "the_guild_tag_boost_perks",
+						ko: "서버 태그 (부스트 혜택)"
 					},
 					value: "tag"
 				}
@@ -139,7 +147,8 @@ export const command: Command = {
 				fr: "Les rôles à donner à vos membre",
 				ja: "メンバーに付与するロール",
 				ru: "Роли для выдачи участнику",
-				"es-ES": "Los roles a dar a nuestro miembro"
+				"es-ES": "Los roles a dar a nuestro miembro",
+				ko: "멤버에게 지급할 역할"
 			},
 
 			required: false,
@@ -155,7 +164,8 @@ export const command: Command = {
 				fr: "Choisissez les mots-clés voulue dans la bio",
 				ja: "自己紹介に含めたいキーワードを選択",
 				ru: "Выберите ключевые слова для описания",
-				"es-ES": "Elegir las palabras clave deseadas en la biografía"
+				"es-ES": "Elegir las palabras clave deseadas en la biografía",
+				ko: "소개에 포함되어야 할 키워드 선택"
 			},
 
 			required: false,

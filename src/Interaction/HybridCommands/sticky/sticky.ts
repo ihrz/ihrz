@@ -35,7 +35,8 @@ export const command: Command = {
 		fr: "Gérer les messages sticky dans les salons textuels",
 		ja: "テキストチャンネルの固定メッセージを管理",
 		ru: "Управление закрепленными сообщениями",
-		"es-ES": "Gestionar mensajes fijos en canales de texto"
+		"es-ES": "Gestionar mensajes fijos en canales de texto",
+		ko: "텍스트 채널의 고정 메시지를 관리해요"
 	},
 
 	options: [
@@ -47,7 +48,8 @@ export const command: Command = {
 				fr: "Créer ou modifier un message sticky texte",
 				ja: "テキストの固定メッセージを作成または更新",
 				ru: "Создать или обновить закрепленное текстовое сообщение",
-				"es-ES": "Crear o actualizar un mensaje fijo de texto"
+				"es-ES": "Crear o actualizar un mensaje fijo de texto",
+				ko: "텍스트 고정 메시지를 만들거나 업데이트해요"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -58,7 +60,8 @@ export const command: Command = {
 						fr: "Le salon textuel",
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
-						"es-ES": "El canal de texto"
+						"es-ES": "El canal de texto",
+						ko: "텍스트 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -72,7 +75,8 @@ export const command: Command = {
 						fr: "Le contenu du message sticky",
 						ja: "固定メッセージの内容",
 						ru: "Содержание закрепленного сообщения",
-						"es-ES": "El contenido del mensaje fijo"
+						"es-ES": "El contenido del mensaje fijo",
+						ko: "고정 메시지 내용"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -89,7 +93,8 @@ export const command: Command = {
 				fr: "Créer ou modifier un message sticky embed",
 				ja: "埋め込みの固定メッセージを作成または更新",
 				ru: "Создать или обновить закрепленное сообщение-эмбед",
-				"es-ES": "Crear o actualizar un mensaje fijo con embed"
+				"es-ES": "Crear o actualizar un mensaje fijo con embed",
+				ko: "임베드 고정 메시지를 만들거나 업데이트해요"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -100,7 +105,8 @@ export const command: Command = {
 						fr: "Le salon textuel",
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
-						"es-ES": "El canal de texto"
+						"es-ES": "El canal de texto",
+						ko: "텍스트 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -114,7 +120,8 @@ export const command: Command = {
 						fr: "L'identifiant de l'embed",
 						ja: "埋め込み識別子",
 						ru: "Идентификатор эмбеда",
-						"es-ES": "El identificador del embed"
+						"es-ES": "El identificador del embed",
+						ko: "임베드 식별자"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -128,7 +135,8 @@ export const command: Command = {
 						ja: "埋め込みと共に送信するオプションのテキスト",
 						ru: "Дополнительный текст с эмбедом",
 						"es-ES":
-							"Contenido de texto opcional enviado con el embed"
+							"Contenido de texto opcional enviado con el embed",
+						ko: "임베드와 함께 보낼 텍스트 (선택)"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,
@@ -145,7 +153,8 @@ export const command: Command = {
 				fr: "Désactiver un message sticky dans un salon",
 				ja: "1つのチャンネルの固定メッセージを無効化",
 				ru: "Отключить закрепленное сообщение в канале",
-				"es-ES": "Deshabilitar un mensaje fijo en un canal"
+				"es-ES": "Deshabilitar un mensaje fijo en un canal",
+				ko: "한 채널의 고정 메시지를 비활성화해요"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -156,7 +165,8 @@ export const command: Command = {
 						fr: "Le salon textuel",
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
-						"es-ES": "El canal de texto"
+						"es-ES": "El canal de texto",
+						ko: "텍스트 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -174,7 +184,8 @@ export const command: Command = {
 				fr: "Afficher la configuration sticky d'un salon",
 				ja: "1つのチャンネルの固定設定を表示",
 				ru: "Показать конфигурацию закрепленных сообщений канала",
-				"es-ES": "Mostrar la configuración fija de un canal"
+				"es-ES": "Mostrar la configuración fija de un canal",
+				ko: "채널의 고정 메시지 설정을 보여줘요"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -185,7 +196,8 @@ export const command: Command = {
 						fr: "Le salon textuel",
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
-						"es-ES": "El canal de texto"
+						"es-ES": "El canal de texto",
+						ko: "텍스트 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -203,7 +215,8 @@ export const command: Command = {
 				fr: "Lister tous les salons sticky",
 				ja: "全固定チャンネルを一覧表示",
 				ru: "Показать все закрепленные каналы",
-				"es-ES": "Listar todos los canales fijos"
+				"es-ES": "Listar todos los canales fijos",
+				ko: "고정 메시지가 있는 모든 채널 목록"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
@@ -216,7 +229,8 @@ export const command: Command = {
 				fr: "Republier le message sticky dans un salon",
 				ja: "1つのチャンネルで固定メッセージを再投稿",
 				ru: "Переотправить закрепленное сообщение в канале",
-				"es-ES": "Volver a publicar el mensaje fijo en un canal"
+				"es-ES": "Volver a publicar el mensaje fijo en un canal",
+				ko: "한 채널에 고정 메시지를 다시 게시해요"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -227,7 +241,8 @@ export const command: Command = {
 						fr: "Le salon textuel",
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
-						"es-ES": "El canal de texto"
+						"es-ES": "El canal de texto",
+						ko: "텍스트 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],

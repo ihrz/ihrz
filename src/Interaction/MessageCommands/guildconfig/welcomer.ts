@@ -38,7 +38,8 @@ export const command: Command = {
 		fr: "Définir le module welcomer",
 		ja: "ウェルカマーモジュールを設定！",
 		ru: "Настроить модуль приветствия!",
-		"es-ES": "Establecer el módulo de bienvenida!"
+		"es-ES": "Establecer el módulo de bienvenida!",
+		ko: "환영 모듈을 설정해요!"
 	},
 
 	aliases: ["leaver"],

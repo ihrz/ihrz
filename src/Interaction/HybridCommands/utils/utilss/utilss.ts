@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Commande sous groupé pour la catégorie utilitaire",
 		ja: "ユーティリティコマンドのサブコマンドカテゴリ",
 		ru: "Категория подкоманд для утилит",
-		"es-ES": "Categoría de subcomando para comandos de utilidad"
+		"es-ES": "Categoría de subcomando para comandos de utilidad",
+		ko: "유틸리티 명령어의 하위 명령어"
 	},
 
 	options: [
@@ -50,7 +51,8 @@ export const command: Command = {
 				ja: "メンバーのニックネームをロック（+unlocknameで解除するまで変更不可）！",
 				ru: "Заблокировать ник участника (нельзя изменить до +unlockname)!",
 				"es-ES":
-					"Bloquear el apodo de un miembro (no se puede cambiar hasta +unlockname)!"
+					"Bloquear el apodo de un miembro (no se puede cambiar hasta +unlockname)!",
+				ko: "멤버의 별명을 잠가요 (+unlockname 전까지 변경할 수 없어요)!"
 			},
 
 			options: [
@@ -63,7 +65,8 @@ export const command: Command = {
 						fr: "Le membre dont tu veux verrouiller le pseudo",
 						ja: "ニックネームをロックしたいメンバー",
 						ru: "Участник, чей ник нужно заблокировать",
-						"es-ES": "El miembro cuyo apodo quieres bloquear"
+						"es-ES": "El miembro cuyo apodo quieres bloquear",
+						ko: "별명을 잠글 멤버"
 					},
 
 					required: true,
@@ -81,7 +84,8 @@ export const command: Command = {
 						ja: "設定してロックするニックネーム（空 = 現状維持）",
 						ru: "Ник для установки и блокировки (пусто = оставить текущий)",
 						"es-ES":
-							"El apodo a definir y bloquear (vacío = mantener el actual)"
+							"El apodo a definir y bloquear (vacío = mantener el actual)",
+						ko: "설정하고 잠글 별명 (비우면 현재 별명 유지)"
 					},
 
 					required: false,
@@ -102,7 +106,8 @@ export const command: Command = {
 				fr: "Déverrouiller le pseudo d'un membre !",
 				ja: "メンバーのニックネームのロックを解除！",
 				ru: "Разблокировать ник участника!",
-				"es-ES": "Desbloquear el apodo de un miembro!"
+				"es-ES": "Desbloquear el apodo de un miembro!",
+				ko: "멤버의 별명 잠금을 해제해요!"
 			},
 
 			options: [
@@ -115,7 +120,8 @@ export const command: Command = {
 						fr: "Le membre dont tu veux déverrouiller le pseudo",
 						ja: "ニックネームのロックを解除したいメンバー",
 						ru: "Участник, чей ник нужно разблокировать",
-						"es-ES": "El miembro cuyo apodo quieres desbloquear"
+						"es-ES": "El miembro cuyo apodo quieres desbloquear",
+						ko: "별명 잠금을 풀 멤버"
 					},
 
 					required: true,
@@ -136,7 +142,8 @@ export const command: Command = {
 				fr: "Afficher la liste des pseudos verrouillés !",
 				ja: "ロックされたニックネームのリストを表示！",
 				ru: "Показать список заблокированных ников!",
-				"es-ES": "Mostrar la lista de apodos bloqueados!"
+				"es-ES": "Mostrar la lista de apodos bloqueados!",
+				ko: "잠긴 별명 목록을 보여줘요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -151,7 +158,8 @@ export const command: Command = {
 				fr: "Lister toutes les laisses actives du serveur",
 				ja: "サーバー内の有効なリードを一覧表示",
 				ru: "Показать все активные привязки на сервере",
-				"es-ES": "Listar todas las ataduras activas del servidor"
+				"es-ES": "Listar todas las ataduras activas del servidor",
+				ko: "서버에서 활성화된 모든 목줄 목록"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -167,7 +175,8 @@ export const command: Command = {
 				ja: "現在のボイスチャンネルのボイスリージョンを自動に設定",
 				ru: "Установить голосовой регион текущего голосового канала на автоматический",
 				"es-ES":
-					"Establecer la región de voz de tu canal de voz actual en automático"
+					"Establecer la región de voz de tu canal de voz actual en automático",
+				ko: "현재 음성 채널의 지역을 자동으로 설정해요"
 			},
 
 			aliases: ["rvc"],

@@ -57,7 +57,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de message pré-programmer",
 		ja: "スケジュールカテゴリの管理！",
 		ru: "Управление категорией расписания!",
-		"es-ES": "Gestor para la categoría de horarios!"
+		"es-ES": "Gestor para la categoría de horarios!",
+		ko: "일정 카테고리 관리!"
 	},
 	category: "schedule",
 	thinking: false,

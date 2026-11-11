@@ -40,7 +40,8 @@ export const command: Command = {
 		fr: "Changer le préfixe du bot sur le serveur",
 		ja: "サーバーのボットプレフィックスを変更",
 		ru: "Изменить префикс бота на сервере",
-		"es-ES": "Cambiar el prefijo del bot en el servidor"
+		"es-ES": "Cambiar el prefijo del bot en el servidor",
+		ko: "서버의 봇 접두사를 변경해요"
 	},
 
 	aliases: ["setprefix", "changeprefix"],

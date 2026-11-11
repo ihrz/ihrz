@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis",
 		ja: "ランダムなユーザーアバターをチャンネルに送信！",
 		ru: "Отправить случайный аватар в канал!",
-		"es-ES": "Enviar avatar de usuario aleatorio en el canal!"
+		"es-ES": "Enviar avatar de usuario aleatorio en el canal!",
+		ko: "채널에 무작위 사용자의 아바타를 보내요!"
 	},
 
 	options: [
@@ -49,7 +50,8 @@ export const command: Command = {
 				fr: "Définir le canal du module pfps",
 				ja: "PFPSモジュールのチャンネルを設定！",
 				ru: "Установить канал модуля PFPS!",
-				"es-ES": "Establecer el canal del módulo PFPS!"
+				"es-ES": "Establecer el canal del módulo PFPS!",
+				ko: "프로필 사진 모듈 채널을 설정해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -63,7 +65,8 @@ export const command: Command = {
 						fr: "Le channel",
 						ja: "チャンネル！",
 						ru: "Канал!",
-						"es-ES": "El canal!"
+						"es-ES": "El canal!",
+						ko: "채널!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -85,7 +88,8 @@ export const command: Command = {
 				fr: "Activer ou désactiver le module",
 				ja: "PFPSモジュールを有効化または無効化！",
 				ru: "Включить или отключить модуль PFPS!",
-				"es-ES": "Habilitar o Deshabilitar el módulo PFPS!"
+				"es-ES": "Habilitar o Deshabilitar el módulo PFPS!",
+				ko: "PFPS 모듈을 켜거나 꺼요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -99,7 +103,8 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					required: true,
@@ -110,7 +115,8 @@ export const command: Command = {
 								fr: "Activer",
 								ja: "power_on",
 								ru: "power_on",
-								"es-ES": "power_on"
+								"es-ES": "power_on",
+								ko: "켜기"
 							},
 							value: "on"
 						},
@@ -120,7 +126,8 @@ export const command: Command = {
 								fr: "Désactiver",
 								ja: "power_off",
 								ru: "power_off",
-								"es-ES": "power_off"
+								"es-ES": "power_off",
+								ko: "끄기"
 							},
 							value: "off"
 						}

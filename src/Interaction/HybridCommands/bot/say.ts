@@ -40,7 +40,8 @@ export const command: Command = {
 		fr: "Envoyer un message via le bot!",
 		ja: "ボットを通じてメッセージを送信！",
 		ru: "Отправить сообщение через бота!",
-		"es-ES": "Enviar un mensaje a través del bot!"
+		"es-ES": "Enviar un mensaje a través del bot!",
+		ko: "봇을 통해 메시지를 보내요!"
 	},
 
 	category: "bot",
@@ -51,7 +52,8 @@ export const command: Command = {
 				fr: "contenu",
 				ja: "content",
 				ru: "content",
-				"es-ES": "content"
+				"es-ES": "content",
+				ko: "content"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -61,7 +63,8 @@ export const command: Command = {
 				fr: "Le message que le bot vas dire",
 				ja: "ボットに何を言わせたいですか！",
 				ru: "Что вы хотите, чтобы бот сказал!",
-				"es-ES": "Que quieres que el bot diga!"
+				"es-ES": "Que quieres que el bot diga!",
+				ko: "봇이 말할 내용!"
 			},
 
 			required: true,

@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de suggestion",
 		ja: "提案カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории предложений!",
-		"es-ES": "Subcomando para la categoría de sugerencias!"
+		"es-ES": "Subcomando para la categoría de sugerencias!",
+		ko: "건의 하위 명령어!"
 	},
 
 	options: [
@@ -51,7 +52,8 @@ export const command: Command = {
 				ja: "提案モジュールを無効化（管理者権限が必要）！",
 				ru: "Отключить модуль предложений (требуются права администратора)!",
 				"es-ES":
-					"Deshabilitar el módulo de sugerencias (requiere permiso de administrador)!"
+					"Deshabilitar el módulo de sugerencias (requiere permiso de administrador)!",
+				ko: "건의 모듈을 비활성화해요 (관리자 권한 필요)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -65,7 +67,8 @@ export const command: Command = {
 						fr: "Que veux-tu faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					required: true,
@@ -76,7 +79,8 @@ export const command: Command = {
 								fr: "Activer le module de suggestion",
 								ja: "power_on_the_suggestion_module",
 								ru: "power_on_the_suggestion_module",
-								"es-ES": "power_on_the_suggestion_module"
+								"es-ES": "power_on_the_suggestion_module",
+								ko: "건의 모듈 켜기"
 							},
 							value: "on"
 						},
@@ -86,7 +90,8 @@ export const command: Command = {
 								fr: "Désactiver le module de suggestion",
 								ja: "power_off_the_suggestion_module",
 								ru: "power_off_the_suggestion_module",
-								"es-ES": "power_off_the_suggestion_module"
+								"es-ES": "power_off_the_suggestion_module",
+								ko: "건의 모듈 끄기"
 							},
 							value: "off"
 						}
@@ -109,7 +114,8 @@ export const command: Command = {
 				ja: "提案モジュール用のチャンネルを設定（管理者権限が必要）！",
 				ru: "Установить канал для модуля предложений (требуются права администратора)!",
 				"es-ES":
-					"Establecer un canal para el módulo de sugerencias (requiere permiso de administrador)!"
+					"Establecer un canal para el módulo de sugerencias (requiere permiso de administrador)!",
+				ko: "건의 모듈 채널을 설정해요 (관리자 권한 필요)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -125,7 +131,8 @@ export const command: Command = {
 						ja: "提案を設置するチャンネルは？",
 						ru: "Какой канал для размещения предложений?",
 						"es-ES":
-							"Cual es el canal para colocar las sugerencias?"
+							"Cual es el canal para colocar las sugerencias?",
+						ko: "건의를 받을 채널은 어디인가요?"
 					},
 
 					required: true,
@@ -146,7 +153,9 @@ export const command: Command = {
 				fr: "Définir le rôle autorisé à gérer les suggestions, ou le retirer",
 				ja: "提案を管理できるロールを設定または解除！",
 				ru: "Назначить или убрать роль для управления предложениями!",
-				"es-ES": "Definir o quitar el rol que gestiona las sugerencias!"
+				"es-ES":
+					"Definir o quitar el rol que gestiona las sugerencias!",
+				ko: "건의를 관리할 수 있는 역할을 설정하거나 지워요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -160,7 +169,8 @@ export const command: Command = {
 						fr: "Le rôle staff, laisser vide pour le retirer",
 						ja: "スタッフロール（空欄で解除）",
 						ru: "Роль персонала, оставьте пустым, чтобы убрать",
-						"es-ES": "El rol de staff, déjalo vacío para quitarlo"
+						"es-ES": "El rol de staff, déjalo vacío para quitarlo",
+						ko: "스태프 역할 (비우면 지워요)"
 					},
 
 					required: false,

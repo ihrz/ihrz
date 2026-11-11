@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Compter les nombres dans un salon",
 		ja: "チャンネル内でカウント",
 		ru: "Считать число в канале",
-		"es-ES": "Contar número en un canal"
+		"es-ES": "Contar número en un canal",
+		ko: "채널에서 숫자를 세요"
 	},
 
 	options: [
@@ -49,7 +50,8 @@ export const command: Command = {
 				fr: "Définir le canal du module counter",
 				ja: "カウンターモジュールのチャンネルを設定！",
 				ru: "Установить канал модуля счетчика!",
-				"es-ES": "Establecer el canal del módulo contador!"
+				"es-ES": "Establecer el canal del módulo contador!",
+				ko: "카운터 모듈 채널을 설정해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -63,7 +65,8 @@ export const command: Command = {
 						fr: "Le channel",
 						ja: "チャンネル！",
 						ru: "Канал!",
-						"es-ES": "El canal!"
+						"es-ES": "El canal!",
+						ko: "채널!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -85,7 +88,8 @@ export const command: Command = {
 				fr: "Activer ou désactiver le module compteur",
 				ja: "カウンターモジュールを有効化または無効化！",
 				ru: "Включить или отключить модуль счетчика!",
-				"es-ES": "Habilitar o Deshabilitar el módulo contador!"
+				"es-ES": "Habilitar o Deshabilitar el módulo contador!",
+				ko: "카운터 모듈을 켜거나 꺼요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -99,7 +103,8 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					required: true,
@@ -110,7 +115,8 @@ export const command: Command = {
 								fr: "Activer",
 								ja: "power_on",
 								ru: "power_on",
-								"es-ES": "power_on"
+								"es-ES": "power_on",
+								ko: "켜기"
 							},
 							value: "on"
 						},
@@ -120,7 +126,8 @@ export const command: Command = {
 								fr: "Désactiver",
 								ja: "power_off",
 								ru: "power_off",
-								"es-ES": "power_off"
+								"es-ES": "power_off",
+								ko: "끄기"
 							},
 							value: "off"
 						}

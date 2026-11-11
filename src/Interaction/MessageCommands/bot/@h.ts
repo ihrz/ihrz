@@ -314,7 +314,8 @@ export const command: Command = {
 		fr: "Un menu de help tah les matrixé",
 		ja: "OGユーザー向けヘルプメニュー（笑）",
 		ru: "меню помощи для OG пользователей",
-		"es-ES": "menú de ayuda para usuario OG lol"
+		"es-ES": "menú de ayuda para usuario OG lol",
+		ko: "찐 고인물용 도움말 메뉴 ㅋㅋ"
 	},
 	thinking: false,
 	category: "bot",
@@ -403,6 +404,7 @@ export const command: Command = {
 								"fr-FR": "fr",
 								"fr-ME": "fr",
 								"jp-JP": "ja",
+								"ko-KR": "ko",
 								"ru-RU": "ru",
 								"es-ES": "es-ES"
 							};

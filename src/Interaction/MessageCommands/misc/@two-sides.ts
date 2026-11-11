@@ -42,7 +42,8 @@ export const command: Command = {
 		fr: "i have two sides meme generator",
 		ja: "i have two sides ミームジェネレーター",
 		ru: "генератор мема i have two sides",
-		"es-ES": "generador de meme i have two sides"
+		"es-ES": "generador de meme i have two sides",
+		ko: "나에겐 두 얼굴이 있다 밈 생성기"
 	},
 	options: [
 		{
@@ -52,7 +53,8 @@ export const command: Command = {
 				fr: "le screen avant qu'il ce fasse défon",
 				ja: "before 側が最低",
 				ru: "before отстой",
-				"es-ES": "el before apesta"
+				"es-ES": "el before apesta",
+				ko: "이전이 별로야"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -65,7 +67,8 @@ export const command: Command = {
 				fr: "le screen après qu'il ce soit défoncé",
 				ja: "after 側が最低",
 				ru: "after отстой",
-				"es-ES": "el after apesta"
+				"es-ES": "el after apesta",
+				ko: "이후가 별로야"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

@@ -39,7 +39,8 @@ export const command: Command = {
 		ja: "元貢献者Etherの不要な情報を取得",
 		ru: "Получить ненужную информацию о бывшем участнике Ether",
 		"es-ES":
-			"Obtener información innecesaria sobre mi antiguo contribuidor Ether"
+			"Obtener información innecesaria sobre mi antiguo contribuidor Ether",
+		ko: "제 전 기여자 Ether에 대한 쓸데없는 정보"
 	},
 
 	category: "bot",

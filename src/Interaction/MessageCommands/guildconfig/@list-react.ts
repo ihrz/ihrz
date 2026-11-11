@@ -42,7 +42,8 @@ export const command: Command = {
 		ja: "リアクション用に保存された全特定メッセージを表示",
 		ru: "Показать сохраненные сообщения для реакций",
 		"es-ES":
-			"Mostrar todos los mensajes específicos guardados para reaccionar"
+			"Mostrar todos los mensajes específicos guardados para reaccionar",
+		ko: "반응하도록 저장된 메시지를 모두 보여줘요"
 	},
 
 	thinking: false,

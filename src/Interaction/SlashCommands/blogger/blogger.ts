@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie des flux RSS de blogs",
 		ja: "ブロガーRSSフィードのサブコマンドカテゴリ！",
 		ru: "Категория подкоманд для RSS-лент блога!",
-		"es-ES": "Categoría de subcomando para feeds RSS de blogger!"
+		"es-ES": "Categoría de subcomando para feeds RSS de blogger!",
+		ko: "블로그 RSS 피드 하위 명령어!"
 	},
 
 	options: [
@@ -48,7 +49,8 @@ export const command: Command = {
 				fr: "Manipulation des flux RSS de blogs",
 				ja: "ブログRSSフィードの操作",
 				ru: "Управление RSS-лентами блога",
-				"es-ES": "Manipulación de feeds RSS de blog"
+				"es-ES": "Manipulación de feeds RSS de blog",
+				ko: "블로그 RSS 피드 관리"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -63,7 +65,8 @@ export const command: Command = {
 						fr: "Ajouter un flux RSS de blog",
 						ja: "ブログのRSSフィードを追加",
 						ru: "Добавить RSS-ленту блога",
-						"es-ES": "Añadir un feed RSS de blog"
+						"es-ES": "Añadir un feed RSS de blog",
+						ko: "블로그 RSS 피드 추가"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -77,7 +80,8 @@ export const command: Command = {
 								fr: "L'URL du flux RSS",
 								ja: "RSSフィードのURL",
 								ru: "URL RSS-ленты",
-								"es-ES": "La URL del feed RSS"
+								"es-ES": "La URL del feed RSS",
+								ko: "RSS 피드 URL"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -96,7 +100,8 @@ export const command: Command = {
 								ja: "通知が送信されるチャンネル",
 								ru: "Канал, куда будут отправляться уведомления",
 								"es-ES":
-									"El canal donde se enviarán las notificaciones"
+									"El canal donde se enviarán las notificaciones",
+								ko: "알림을 보낼 채널"
 							},
 
 							channel_types: [ChannelType.GuildText],
@@ -119,7 +124,8 @@ export const command: Command = {
 						fr: "Supprimer un flux RSS de blog",
 						ja: "ブログのRSSフィードを削除",
 						ru: "Удалить RSS-ленту блога",
-						"es-ES": "Eliminar un feed RSS de blog"
+						"es-ES": "Eliminar un feed RSS de blog",
+						ko: "블로그 RSS 피드 제거"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -133,7 +139,8 @@ export const command: Command = {
 								fr: "L'identifiant du flux RSS",
 								ja: "ブログRSSフィードのID",
 								ru: "ID RSS-ленты блога",
-								"es-ES": "El ID del feed RSS del blog"
+								"es-ES": "El ID del feed RSS del blog",
+								ko: "블로그 RSS 피드 ID"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -156,7 +163,8 @@ export const command: Command = {
 						ja: "設定された全ブログRSSフィードを表示",
 						ru: "Показать все настроенные RSS-ленты блогов",
 						"es-ES":
-							"Mostrar todos los feeds RSS de blog configurados"
+							"Mostrar todos los feeds RSS de blog configurados",
+						ko: "설정된 모든 블로그 RSS 피드를 보여줘요"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -175,7 +183,8 @@ export const command: Command = {
 				fr: "La configuration pour le module Blogger",
 				ja: "Bloggerモジュールの設定",
 				ru: "Настройка модуля Blogger",
-				"es-ES": "Configuración para el módulo Blogger"
+				"es-ES": "Configuración para el módulo Blogger",
+				ko: "Blogger 모듈 설정"
 			},
 
 			options: [
@@ -187,7 +196,8 @@ export const command: Command = {
 						fr: "Activer ou désactiver le module Blogger",
 						ja: "Bloggerモジュールを有効化または無効化",
 						ru: "Включить или отключить модуль Blogger",
-						"es-ES": "Habilitar o deshabilitar el módulo Blogger"
+						"es-ES": "Habilitar o deshabilitar el módulo Blogger",
+						ko: "Blogger 모듈을 켜거나 꺼요"
 					},
 
 					options: [
@@ -199,7 +209,8 @@ export const command: Command = {
 								fr: "Activer ou Désactiver",
 								ja: "オンまたはオフ",
 								ru: "Включить или Выключить",
-								"es-ES": "Encender o Apagar"
+								"es-ES": "Encender o Apagar",
+								ko: "켜기 또는 끄기"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -211,7 +222,8 @@ export const command: Command = {
 										fr: "Activer",
 										ja: "power_on",
 										ru: "power_on",
-										"es-ES": "power_on"
+										"es-ES": "power_on",
+										ko: "켜기"
 									},
 									value: "on"
 								},
@@ -221,7 +233,8 @@ export const command: Command = {
 										fr: "Désactiver",
 										ja: "power_off",
 										ru: "power_off",
-										"es-ES": "power_off"
+										"es-ES": "power_off",
+										ko: "끄기"
 									},
 									value: "off"
 								}

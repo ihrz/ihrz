@@ -40,7 +40,8 @@ export const command: Command = {
 		ja: "ユーザーをオーナーリストに追加（一般メンバーは使用不可）！",
 		ru: "Добавить пользователя в список владельцев (не для обычных участников)!",
 		"es-ES":
-			"Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!"
+			"Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!",
+		ko: "사용자를 소유자 목록에 추가해요 (일반 멤버는 사용 불가)!"
 	},
 
 	aliases: ["addowner", "owneradd", "owners", "ownerlist"],
@@ -57,7 +58,8 @@ export const command: Command = {
 				ja: "iHorizonプロジェクトのオーナーにしたいメンバー",
 				ru: "Участник, которого вы хотите сделать владельцем проектов iHorizon",
 				"es-ES":
-					"El miembro que quieres hacer propietario de los proyectos iHorizon"
+					"El miembro que quieres hacer propietario de los proyectos iHorizon",
+				ko: "iHorizon 프로젝트 소유자로 지정할 멤버"
 			},
 
 			required: false,

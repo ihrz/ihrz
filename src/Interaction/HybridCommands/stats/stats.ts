@@ -33,7 +33,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie des statistique des utilisateurs!",
 		ja: "統計カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории статистики!",
-		"es-ES": "Subcomando para la categoría de estadísticas!"
+		"es-ES": "Subcomando para la categoría de estadísticas!",
+		ko: "통계 하위 명령어!"
 	},
 
 	options: [
@@ -45,7 +46,8 @@ export const command: Command = {
 				fr: "Regarder un profil",
 				ja: "プロフィールを表示",
 				ru: "Посмотреть профиль",
-				"es-ES": "Ver perfil"
+				"es-ES": "Ver perfil",
+				ko: "프로필 보기"
 			},
 
 			aliases: ["u"],
@@ -59,7 +61,8 @@ export const command: Command = {
 						fr: "L'utilisateur que vous souhaiter",
 						ja: "対象のメンバー",
 						ru: "Желаемый участник",
-						"es-ES": "El miembro que deseas"
+						"es-ES": "El miembro que deseas",
+						ko: "원하는 멤버"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -81,7 +84,8 @@ export const command: Command = {
 				fr: "Regarder le classement du serveur",
 				ja: "サーバーランキングを表示",
 				ru: "Показать таблицу лидеров сервера",
-				"es-ES": "Ver tabla de clasificación del servidor"
+				"es-ES": "Ver tabla de clasificación del servidor",
+				ko: "서버 순위표 보기"
 			},
 
 			aliases: ["g"],
@@ -97,7 +101,8 @@ export const command: Command = {
 				fr: "Voir le top des utilisateurs par messages",
 				ja: "メッセージ数トップユーザーを表示",
 				ru: "Показать топ пользователей по сообщениям",
-				"es-ES": "Ver usuarios top por mensajes"
+				"es-ES": "Ver usuarios top por mensajes",
+				ko: "메시지 수 상위 사용자 보기"
 			},
 
 			aliases: ["tm", "topm"],
@@ -110,7 +115,8 @@ export const command: Command = {
 						fr: "Période (quotidien, hebdomadaire, mensuel)",
 						ja: "期間（デイリー、ウィークリー、マンスリー）",
 						ru: "Период (ежедневно, еженедельно, ежемесячно)",
-						"es-ES": "Período de tiempo (diario, semanal, mensual)"
+						"es-ES": "Período de tiempo (diario, semanal, mensual)",
+						ko: "기간 (일간, 주간, 월간)"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,
@@ -121,7 +127,8 @@ export const command: Command = {
 								fr: "Quotidien",
 								ja: "daily",
 								ru: "daily",
-								"es-ES": "daily"
+								"es-ES": "daily",
+								ko: "일간"
 							},
 							value: "daily"
 						},
@@ -131,7 +138,8 @@ export const command: Command = {
 								fr: "Hebdomadaire",
 								ja: "weekly",
 								ru: "weekly",
-								"es-ES": "weekly"
+								"es-ES": "weekly",
+								ko: "주간"
 							},
 							value: "weekly"
 						},
@@ -141,7 +149,8 @@ export const command: Command = {
 								fr: "Mensuel",
 								ja: "monthly",
 								ru: "monthly",
-								"es-ES": "monthly"
+								"es-ES": "monthly",
+								ko: "월간"
 							},
 							value: "monthly"
 						}
@@ -157,7 +166,8 @@ export const command: Command = {
 						ja: "表示するユーザー数（デフォルト: 10, 最大: 25）",
 						ru: "Количество пользователей для отображения (по умолчанию: 10, макс: 25)",
 						"es-ES":
-							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
+							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)",
+						ko: "표시할 사용자 수 (기본값: 10, 최대: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
@@ -178,7 +188,8 @@ export const command: Command = {
 				fr: "Voir le top des utilisateurs par activité vocale",
 				ja: "ボイスアクティビティトップユーザーを表示",
 				ru: "Показать топ пользователей по голосовой активности",
-				"es-ES": "Ver usuarios top por actividad de voz"
+				"es-ES": "Ver usuarios top por actividad de voz",
+				ko: "음성 활동 상위 사용자 보기"
 			},
 
 			aliases: ["tv", "topv"],
@@ -191,7 +202,8 @@ export const command: Command = {
 						fr: "Période (quotidien, hebdomadaire, mensuel)",
 						ja: "期間（デイリー、ウィークリー、マンスリー）",
 						ru: "Период (ежедневно, еженедельно, ежемесячно)",
-						"es-ES": "Período de tiempo (diario, semanal, mensual)"
+						"es-ES": "Período de tiempo (diario, semanal, mensual)",
+						ko: "기간 (일간, 주간, 월간)"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,
@@ -202,7 +214,8 @@ export const command: Command = {
 								fr: "Quotidien",
 								ja: "daily",
 								ru: "daily",
-								"es-ES": "daily"
+								"es-ES": "daily",
+								ko: "일간"
 							},
 							value: "daily"
 						},
@@ -212,7 +225,8 @@ export const command: Command = {
 								fr: "Hebdomadaire",
 								ja: "weekly",
 								ru: "weekly",
-								"es-ES": "weekly"
+								"es-ES": "weekly",
+								ko: "주간"
 							},
 							value: "weekly"
 						},
@@ -222,7 +236,8 @@ export const command: Command = {
 								fr: "Mensuel",
 								ja: "monthly",
 								ru: "monthly",
-								"es-ES": "monthly"
+								"es-ES": "monthly",
+								ko: "월간"
 							},
 							value: "monthly"
 						}
@@ -238,7 +253,8 @@ export const command: Command = {
 						ja: "表示するユーザー数（デフォルト: 10, 最大: 25）",
 						ru: "Количество пользователей для отображения (по умолчанию: 10, макс: 25)",
 						"es-ES":
-							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)"
+							"Número de usuarios a mostrar (predeterminado: 10, máx: 25)",
+						ko: "표시할 사용자 수 (기본값: 10, 최대: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
@@ -259,7 +275,8 @@ export const command: Command = {
 				fr: "Comparer les statistiques entre plusieurs utilisateurs",
 				ja: "複数ユーザー間の統計を比較",
 				ru: "Сравнить статистику нескольких пользователей",
-				"es-ES": "Comparar estadísticas entre múltiples usuarios"
+				"es-ES": "Comparar estadísticas entre múltiples usuarios",
+				ko: "여러 사용자의 통계를 비교해요"
 			},
 
 			aliases: ["cmp"],
@@ -272,7 +289,8 @@ export const command: Command = {
 						fr: "Premier utilisateur à comparer",
 						ja: "比較する1人目のユーザー",
 						ru: "Первый пользователь для сравнения",
-						"es-ES": "Primer usuario a comparar"
+						"es-ES": "Primer usuario a comparar",
+						ko: "비교할 첫 번째 사용자"
 					},
 					type: ApplicationCommandOptionType.User,
 					required: true,
@@ -285,7 +303,8 @@ export const command: Command = {
 						fr: "Deuxième utilisateur à comparer",
 						ja: "比較する2人目のユーザー",
 						ru: "Второй пользователь для сравнения",
-						"es-ES": "Segundo usuario a comparar"
+						"es-ES": "Segundo usuario a comparar",
+						ko: "비교할 두 번째 사용자"
 					},
 					type: ApplicationCommandOptionType.User,
 					required: true,
@@ -304,7 +323,8 @@ export const command: Command = {
 				fr: "Voir les statistiques d'un canal spécifique",
 				ja: "特定のチャンネルの統計を表示",
 				ru: "Посмотреть статистику канала",
-				"es-ES": "Ver estadísticas de un canal específico"
+				"es-ES": "Ver estadísticas de un canal específico",
+				ko: "특정 채널의 통계를 확인해요"
 			},
 
 			aliases: ["cstats", "chstats"],
@@ -317,7 +337,8 @@ export const command: Command = {
 						fr: "Le canal à analyser",
 						ja: "分析するチャンネル",
 						ru: "Канал для анализа",
-						"es-ES": "El canal a analizar"
+						"es-ES": "El canal a analizar",
+						ko: "분석할 채널"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					required: false,

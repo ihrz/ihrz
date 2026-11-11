@@ -55,7 +55,8 @@ export const command: Command = {
 		ja: "指定チャンネルの新規メッセージに指定絵文字を送信",
 		ru: "Отправить эмодзи при новом сообщении в канале",
 		"es-ES":
-			"Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado"
+			"Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado",
+		ko: "지정한 채널에 새 메시지가 오면 지정한 이모지를 보내요"
 	},
 
 	thinking: true,

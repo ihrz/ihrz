@@ -39,7 +39,8 @@ export const command: Command = {
 		fr: "sous-commande groupé pour la catégorie Starboard",
 		ja: "スターボードカテゴリのサブコマンドグループ",
 		ru: "Группа подкоманд для категории Starboard",
-		"es-ES": "Grupo de subcomando para la categoría Starboard"
+		"es-ES": "Grupo de subcomando para la categoría Starboard",
+		ko: "스타보드 카테고리의 하위 명령어 그룹"
 	},
 
 	permission: [PermissionFlagsBits.Administrator],
@@ -55,7 +56,8 @@ export const command: Command = {
 				fr: "désactiver ou activer le module",
 				ja: "モジュールを有効化または無効化",
 				ru: "Включить или отключить модуль",
-				"es-ES": "Habilitar o deshabilitar el módulo"
+				"es-ES": "Habilitar o deshabilitar el módulo",
+				ko: "모듈을 켜거나 꺼요"
 			},
 
 			options: [
@@ -67,7 +69,8 @@ export const command: Command = {
 						fr: "que voulez-vous faire?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					choices: [
@@ -77,7 +80,8 @@ export const command: Command = {
 								fr: "Activer",
 								ja: "power_on",
 								ru: "power_on",
-								"es-ES": "power_on"
+								"es-ES": "power_on",
+								ko: "켜기"
 							},
 							value: "on"
 						},
@@ -87,7 +91,8 @@ export const command: Command = {
 								fr: "Désactiver",
 								ja: "power_off",
 								ru: "power_off",
-								"es-ES": "power_off"
+								"es-ES": "power_off",
+								ko: "끄기"
 							},
 							value: "off"
 						}
@@ -115,7 +120,8 @@ export const command: Command = {
 				ja: "最も多くの skulled メッセージが送信されるチャンネルを変更",
 				ru: "Изменить канал для сообщений с черепами",
 				"es-ES":
-					"Cambiar el canal donde se envían los mensajes más skulled"
+					"Cambiar el canal donde se envían los mensajes más skulled",
+				ko: "해골 반응을 가장 많이 받은 메시지를 보낼 채널을 변경해요"
 			},
 
 			options: [
@@ -127,7 +133,8 @@ export const command: Command = {
 						fr: "Le salon que vous souhaitez",
 						ja: "希望するチャンネル",
 						ru: "желаемый канал",
-						"es-ES": "el canal que deseas"
+						"es-ES": "el canal que deseas",
+						ko: "원하는 채널"
 					},
 
 					permission: null,
@@ -150,7 +157,8 @@ export const command: Command = {
 				fr: "seuil",
 				ja: "threshold",
 				ru: "threshold",
-				"es-ES": "threshold"
+				"es-ES": "threshold",
+				ko: "threshold"
 			},
 			prefixName: "skullboardthreshold",
 
@@ -161,7 +169,8 @@ export const command: Command = {
 				ja: "チャンネルで参照されるために必要な skull のしきい値を設定",
 				ru: "Установить порог черепов для попадания в канал",
 				"es-ES":
-					"Establecer el umbral de skulls necesario para ser referenciado en el canal"
+					"Establecer el umbral de skulls necesario para ser referenciado en el canal",
+				ko: "채널에 올라가는 데 필요한 해골 수를 설정해요"
 			},
 
 			options: [
@@ -173,7 +182,8 @@ export const command: Command = {
 						fr: "Le seuil/pallier",
 						ja: "しきい値",
 						ru: "порог",
-						"es-ES": "el umbral"
+						"es-ES": "el umbral",
+						ko: "기준 수"
 					},
 
 					type: ApplicationCommandOptionType.Number,
@@ -196,7 +206,8 @@ export const command: Command = {
 				ja: "skullチャンネルのメッセージの下にスレッドを作成しますか？",
 				ru: "Создать ветку под сообщением в канале черепов?",
 				"es-ES":
-					"Crear un hilo debajo del mensaje en el canal de skulls?"
+					"Crear un hilo debajo del mensaje en el canal de skulls?",
+				ko: "스컬 채널의 메시지 아래에 스레드를 만들까요?"
 			},
 
 			options: [
@@ -208,7 +219,8 @@ export const command: Command = {
 						fr: "que voulez-vous faire?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "Que quieres hacer?",
+						ko: "무엇을 할까요?"
 					},
 
 					choices: [
@@ -218,7 +230,8 @@ export const command: Command = {
 								fr: "Créer un fil",
 								ja: "create_thread",
 								ru: "create_thread",
-								"es-ES": "create_thread"
+								"es-ES": "create_thread",
+								ko: "스레드 만들기"
 							},
 							value: "yes"
 						},
@@ -228,7 +241,8 @@ export const command: Command = {
 								fr: "Ne pas créer un fil",
 								ja: "don_t_create_thread",
 								ru: "don_t_create_thread",
-								"es-ES": "don_t_create_thread"
+								"es-ES": "don_t_create_thread",
+								ko: "스레드 만들지 않기"
 							},
 							value: "no"
 						}

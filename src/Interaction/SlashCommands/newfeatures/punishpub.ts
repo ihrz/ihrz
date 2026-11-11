@@ -38,7 +38,8 @@ export const command: Command = {
 		fr: "Punir l'utilisateur lorsqu'il envoie trop de publicité",
 		ja: "広告を送りすぎたユーザーを罰する！",
 		ru: "Наказать пользователя за чрезмерную рекламу!",
-		"es-ES": "Castigar al usuario cuando envía demasiada publicidad!"
+		"es-ES": "Castigar al usuario cuando envía demasiada publicidad!",
+		ko: "광고를 너무 많이 보내는 사용자를 처벌해요!"
 	},
 
 	options: [
@@ -51,7 +52,8 @@ export const command: Command = {
 				fr: "Choisir l'état du module",
 				ja: "モジュールのステータスを選択",
 				ru: "Выберите статус модуля",
-				"es-ES": "Elegir el estado del módulo"
+				"es-ES": "Elegir el estado del módulo",
+				ko: "모듈 상태 선택"
 			},
 
 			required: true,
@@ -62,7 +64,8 @@ export const command: Command = {
 						fr: "Activer",
 						ja: "on",
 						ru: "on",
-						"es-ES": "on"
+						"es-ES": "on",
+						ko: "켜기"
 					},
 					value: "true"
 				},
@@ -72,7 +75,8 @@ export const command: Command = {
 						fr: "Désactiver",
 						ja: "off",
 						ru: "off",
-						"es-ES": "off"
+						"es-ES": "off",
+						ko: "끄기"
 					},
 					value: "false"
 				}
@@ -89,7 +93,8 @@ export const command: Command = {
 				fr: "Le nombre maximum de flags avant la punition",
 				ja: "罰前の最大フラグ数",
 				ru: "Максимальное количество флагов до наказания",
-				"es-ES": "La cantidad máxima de marcas antes del castigo"
+				"es-ES": "La cantidad máxima de marcas antes del castigo",
+				ko: "처벌 전까지 허용할 최대 경고 횟수"
 			},
 
 			required: false,
@@ -104,7 +109,8 @@ export const command: Command = {
 				fr: "Choisir la punition",
 				ja: "罰を選択",
 				ru: "Выберите наказание",
-				"es-ES": "Elegir el castigo"
+				"es-ES": "Elegir el castigo",
+				ko: "처벌 선택"
 			},
 
 			required: false,
@@ -115,7 +121,8 @@ export const command: Command = {
 						fr: "Bannir",
 						ja: "ban",
 						ru: "ban",
-						"es-ES": "ban"
+						"es-ES": "ban",
+						ko: "차단"
 					},
 					value: "ban"
 				},
@@ -125,7 +132,8 @@ export const command: Command = {
 						fr: "Expulser",
 						ja: "kick",
 						ru: "kick",
-						"es-ES": "kick"
+						"es-ES": "kick",
+						ko: "추방"
 					},
 					value: "kick"
 				},
@@ -135,7 +143,8 @@ export const command: Command = {
 						fr: "Muter",
 						ja: "mute",
 						ru: "mute",
-						"es-ES": "mute"
+						"es-ES": "mute",
+						ko: "타임아웃"
 					},
 					value: "mute"
 				}

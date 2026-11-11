@@ -36,7 +36,8 @@ export const command: Command = {
 		fr: "Ouvrir le panneau de configuration de TempVoice !",
 		ja: "TempVoiceの設定パネルを開く！",
 		ru: "Открыть панель настройки TempVoice!",
-		"es-ES": "Abrir el panel de configuración de TempVoice!"
+		"es-ES": "Abrir el panel de configuración de TempVoice!",
+		ko: "TempVoice 설정 패널을 열어요!"
 	},
 
 	category: "voicedashboard",

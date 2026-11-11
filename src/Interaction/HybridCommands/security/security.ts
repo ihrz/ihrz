@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "sécurité",
 		ja: "security",
 		ru: "security",
-		"es-ES": "security"
+		"es-ES": "security",
+		ko: "security"
 	},
 
 	description: "Subcommand for security category!",
@@ -42,7 +43,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de securité",
 		ja: "セキュリティカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории безопасности!",
-		"es-ES": "Subcomando para la categoría de seguridad!"
+		"es-ES": "Subcomando para la categoría de seguridad!",
+		ko: "보안 하위 명령어!"
 	},
 
 	options: [
@@ -52,7 +54,8 @@ export const command: Command = {
 				fr: "définir-cannal",
 				ja: "channel",
 				ru: "channel",
-				"es-ES": "channel"
+				"es-ES": "channel",
+				ko: "channel"
 			},
 			prefixName: "security-channel",
 
@@ -63,7 +66,8 @@ export const command: Command = {
 				ja: "新規メンバーの認証プロセスが行われるチャンネル！",
 				ru: "Канал для процесса верификации новых участников!",
 				"es-ES":
-					"Canal donde se realiza el proceso de verificación para nuevos miembros!"
+					"Canal donde se realiza el proceso de verificación para nuevos miembros!",
+				ko: "새 멤버 인증을 진행할 채널!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -78,7 +82,8 @@ export const command: Command = {
 						fr: "Quelle est le channel ?",
 						ja: "どのチャンネルですか？",
 						ru: "Какой канал?",
-						"es-ES": "Cual es el canal?"
+						"es-ES": "Cual es el canal?",
+						ko: "어떤 채널인가요?"
 					},
 
 					required: true,
@@ -95,7 +100,8 @@ export const command: Command = {
 				fr: "statut",
 				ja: "config",
 				ru: "config",
-				"es-ES": "config"
+				"es-ES": "config",
+				ko: "config"
 			},
 			prefixName: "security-config",
 
@@ -105,7 +111,8 @@ export const command: Command = {
 				ja: "セキュリティモジュール機能を無効化または有効化！",
 				ru: "Отключить или включить модуль безопасности!",
 				"es-ES":
-					"Deshabilitar o habilitar la función del módulo de seguridad!"
+					"Deshabilitar o habilitar la función del módulo de seguridad!",
+				ko: "보안 모듈 기능을 켜거나 꺼요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -119,7 +126,8 @@ export const command: Command = {
 						fr: "Quelle est l'action que vous souhaitez faire ?",
 						ja: "実行したいアクションは？",
 						ru: "Какое действие вы хотите выполнить?",
-						"es-ES": "Cual es la acción que quieres realizar?"
+						"es-ES": "Cual es la acción que quieres realizar?",
+						ko: "어떤 작업을 할까요?"
 					},
 
 					required: true,
@@ -130,7 +138,8 @@ export const command: Command = {
 								fr: "Activer",
 								ja: "power_on",
 								ru: "power_on",
-								"es-ES": "power_on"
+								"es-ES": "power_on",
+								ko: "켜기"
 							},
 							value: "on"
 						},
@@ -140,7 +149,8 @@ export const command: Command = {
 								fr: "Désactiver",
 								ja: "power_off",
 								ru: "power_off",
-								"es-ES": "power_off"
+								"es-ES": "power_off",
+								ko: "끄기"
 							},
 							value: "off"
 						}
@@ -158,7 +168,8 @@ export const command: Command = {
 				fr: "role-à-donner",
 				ja: "role-to-give",
 				ru: "role-to-give",
-				"es-ES": "role-to-give"
+				"es-ES": "role-to-give",
+				ko: "role-to-give"
 			},
 
 			description:
@@ -168,7 +179,8 @@ export const command: Command = {
 				ja: "キャプチャ認証時に新規メンバーに付与されるロール！",
 				ru: "Роль, которая будет выдана новым участникам при прохождении капчи!",
 				"es-ES":
-					"El rol que se dará a los nuevos miembros cuando pasen la verificación Captcha!"
+					"El rol que se dará a los nuevos miembros cuando pasen la verificación Captcha!",
+				ko: "캡차 인증을 통과한 새 멤버에게 지급할 역할!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -182,7 +194,8 @@ export const command: Command = {
 						fr: "Quel est le rôle ?",
 						ja: "どのロールですか？",
 						ru: "Какая роль?",
-						"es-ES": "Cual es el rol?"
+						"es-ES": "Cual es el rol?",
+						ko: "어떤 역할인가요?"
 					},
 
 					required: true,
@@ -199,7 +212,8 @@ export const command: Command = {
 				fr: "role-à-enlever",
 				ja: "role-to-remove",
 				ru: "role-to-remove",
-				"es-ES": "role-to-remove"
+				"es-ES": "role-to-remove",
+				ko: "role-to-remove"
 			},
 
 			description:
@@ -209,7 +223,8 @@ export const command: Command = {
 				ja: "キャプチャ認証時に新規メンバーから削除されるロール！",
 				ru: "Роль, которая будет снята с новых участников при прохождении капчи!",
 				"es-ES":
-					"El rol que se quitará a los nuevos miembros cuando pasen la verificación Captcha!"
+					"El rol que se quitará a los nuevos miembros cuando pasen la verificación Captcha!",
+				ko: "캡차 인증을 통과한 새 멤버에게서 제거할 역할!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -223,7 +238,8 @@ export const command: Command = {
 						fr: "Quel est le rôle ?",
 						ja: "どのロールですか？",
 						ru: "Какая роль?",
-						"es-ES": "Cual es el rol?"
+						"es-ES": "Cual es el rol?",
+						ko: "어떤 역할인가요?"
 					},
 
 					required: true,

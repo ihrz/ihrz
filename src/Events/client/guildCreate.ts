@@ -493,6 +493,9 @@ Guild Info:
 				case "ja":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "jp-JP");
 					break;
+				case "ko":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "ko-KR");
+					break;
 				case "pt-BR":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "pt-PT");
 					break;

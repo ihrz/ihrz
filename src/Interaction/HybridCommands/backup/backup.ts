@@ -35,7 +35,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie backup",
 		ja: "バックアップカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории резервного копирования!",
-		"es-ES": "Subcomando para la categoría de copias de seguridad!"
+		"es-ES": "Subcomando para la categoría de copias de seguridad!",
+		ko: "백업 하위 명령어!"
 	},
 
 	options: [
@@ -47,7 +48,8 @@ export const command: Command = {
 				fr: "créer",
 				ja: "create",
 				ru: "create",
-				"es-ES": "create"
+				"es-ES": "create",
+				ko: "create"
 			},
 
 			aliases: ["bcreate"],
@@ -57,7 +59,8 @@ export const command: Command = {
 				fr: "Créer une backup",
 				ja: "バックアップを作成！",
 				ru: "Создать резервную копию!",
-				"es-ES": "Crear una copia de seguridad!"
+				"es-ES": "Crear una copia de seguridad!",
+				ko: "백업을 만들어요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -69,7 +72,8 @@ export const command: Command = {
 				fr: "listé",
 				ja: "list",
 				ru: "list",
-				"es-ES": "list"
+				"es-ES": "list",
+				ko: "list"
 			},
 			prefixName: "backup-list",
 
@@ -78,7 +82,8 @@ export const command: Command = {
 				fr: "Listé toute vos backup(s)",
 				ja: "バックアップを一覧表示！",
 				ru: "Показать ваши резервные копии!",
-				"es-ES": "Listar tus copias de seguridad!"
+				"es-ES": "Listar tus copias de seguridad!",
+				ko: "내 백업 목록을 확인해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -90,7 +95,8 @@ export const command: Command = {
 				fr: "chargé",
 				ja: "load",
 				ru: "load",
-				"es-ES": "load"
+				"es-ES": "load",
+				ko: "load"
 			},
 			prefixName: "backup-load",
 
@@ -99,7 +105,8 @@ export const command: Command = {
 				fr: "Charger une de vos backup(s)",
 				ja: "バックアップを読み込んで初期化！",
 				ru: "Загрузить резервную копию для инициализации!",
-				"es-ES": "Cargar tu copia de seguridad para inicializar!"
+				"es-ES": "Cargar tu copia de seguridad para inicializar!",
+				ko: "백업을 불러와 서버를 초기화해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -113,7 +120,8 @@ export const command: Command = {
 						fr: "Quelle est l'identifiant de la backup ?",
 						ja: "バックアップIDは？",
 						ru: "Какой ID резервной копии?",
-						"es-ES": "Cual es el ID de la copia de seguridad?"
+						"es-ES": "Cual es el ID de la copia de seguridad?",
+						ko: "백업 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -133,7 +141,8 @@ export const command: Command = {
 				fr: "Supprimer une backup de la liste",
 				ja: "リストからバックアップを削除",
 				ru: "Удалить резервную копию из списка",
-				"es-ES": "Eliminar tu copia de seguridad de la lista"
+				"es-ES": "Eliminar tu copia de seguridad de la lista",
+				ko: "목록에서 백업을 삭제해요"
 			},
 
 			options: [
@@ -147,7 +156,8 @@ export const command: Command = {
 						ja: "リストから削除したいバックアップのID",
 						ru: "ID резервной копии, которую вы хотите удалить из списка",
 						"es-ES":
-							"El ID de tu copia de seguridad que quieres eliminar de la lista"
+							"El ID de tu copia de seguridad que quieres eliminar de la lista",
+						ko: "목록에서 삭제할 백업 ID"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -168,7 +178,8 @@ export const command: Command = {
 				fr: "Sauvegarder ce serveur automatiquement selon un planning",
 				ja: "スケジュールでこのサーバーを自動バックアップ",
 				ru: "Автоматически создавать резервные копии по расписанию",
-				"es-ES": "Hacer copias de este servidor automáticamente"
+				"es-ES": "Hacer copias de este servidor automáticamente",
+				ko: "일정에 따라 이 서버를 자동으로 백업해요"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -184,7 +195,8 @@ export const command: Command = {
 				ja: "このサーバーのバックアップシステムを管理",
 				ru: "Управление системой резервного копирования",
 				"es-ES":
-					"Gestionar el sistema de copias de seguridad en este servidor"
+					"Gestionar el sistema de copias de seguridad en este servidor",
+				ko: "이 서버의 백업 시스템 관리"
 			},
 
 			permission: null,
@@ -201,7 +213,8 @@ export const command: Command = {
 						ja: "バックアップシステムをサーバーオーナーのみに制限",
 						ru: "Сделать систему резервного копирования доступной только владельцу сервера",
 						"es-ES":
-							"Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor"
+							"Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor",
+						ko: "백업 시스템을 서버 소유자만 쓸 수 있게 해요"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -212,7 +225,8 @@ export const command: Command = {
 								fr: "Seulement le propriétaire",
 								ja: "only_owner",
 								ru: "only_owner",
-								"es-ES": "only_owner"
+								"es-ES": "only_owner",
+								ko: "소유자만"
 							},
 							value: "owner"
 						},
@@ -222,7 +236,8 @@ export const command: Command = {
 								fr: "Tous les administrateurs",
 								ja: "all_admin_s",
 								ru: "all_admin_s",
-								"es-ES": "all_admin_s"
+								"es-ES": "all_admin_s",
+								ko: "모든 관리자"
 							},
 							value: "admin"
 						}

@@ -45,7 +45,8 @@ export const command: Command = {
 		fr: "setlangue",
 		ja: "setlang",
 		ru: "setlang",
-		"es-ES": "setlang"
+		"es-ES": "setlang",
+		ko: "setlang"
 	},
 
 	aliases: ["setsrvlang", "lang"],
@@ -55,7 +56,8 @@ export const command: Command = {
 		fr: "Choisir la langue du bot discord !",
 		ja: "サーバーの言語を設定！",
 		ru: "Установить язык сервера!",
-		"es-ES": "Establecer el idioma del servidor!"
+		"es-ES": "Establecer el idioma del servidor!",
+		ko: "서버 언어를 설정해요!"
 	},
 
 	thinking: false,

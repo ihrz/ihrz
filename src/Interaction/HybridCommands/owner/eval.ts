@@ -41,7 +41,8 @@ export const command: Command = {
 		fr: "Executer du code JavaScript (Seulement pour les dev du bot).",
 		ja: "JavaScriptプログラムを実行（開発者のみ）！",
 		ru: "Запустить программу JavaScript (только для разработчиков)!",
-		"es-ES": "Ejecutar programa Javascript (solo para desarrolladores)!"
+		"es-ES": "Ejecutar programa Javascript (solo para desarrolladores)!",
+		ko: "Javascript 프로그램을 실행해요 (개발자 전용)!"
 	},
 
 	options: [
@@ -54,7 +55,8 @@ export const command: Command = {
 				fr: "JS Code",
 				ja: "JavaScriptコード",
 				ru: "код JavaScript",
-				"es-ES": "código JavaScript"
+				"es-ES": "código JavaScript",
+				ko: "JavaScript 코드"
 			},
 
 			required: true,

@@ -34,7 +34,8 @@ export const command: Command = {
 		fr: "Commande sous-groupé pour la catégorie de suggestion",
 		ja: "提案カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории предложений!",
-		"es-ES": "Subcomando para la categoría de sugerencias!"
+		"es-ES": "Subcomando para la categoría de sugerencias!",
+		ko: "건의 하위 명령어!"
 	},
 
 	options: [
@@ -44,7 +45,8 @@ export const command: Command = {
 				fr: "répondre",
 				ja: "reply",
 				ru: "reply",
-				"es-ES": "reply"
+				"es-ES": "reply",
+				ko: "reply"
 			},
 			prefixName: "sug-reply",
 
@@ -53,7 +55,8 @@ export const command: Command = {
 				fr: "Répondre à la suggestion",
 				ja: "提案に返信！",
 				ru: "Ответить на предложение!",
-				"es-ES": "Responder a la sugerencia!"
+				"es-ES": "Responder a la sugerencia!",
+				ko: "건의에 답장해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -67,7 +70,8 @@ export const command: Command = {
 						fr: "Quelle est l'indentifiant de la suggestion ?",
 						ja: "提案のIDは？",
 						ru: "Какой ID предложения?",
-						"es-ES": "Cual es el ID de la sugerencia?"
+						"es-ES": "Cual es el ID de la sugerencia?",
+						ko: "건의 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -83,7 +87,8 @@ export const command: Command = {
 						fr: "Quelle message vous voulez laissez à la suggestion",
 						ja: "どのメッセージに返信しますか？",
 						ru: "На какое сообщение вы хотите ответить?",
-						"es-ES": "A qué mensaje quieres responder?"
+						"es-ES": "A qué mensaje quieres responder?",
+						ko: "어떤 메시지로 답장할까요?"
 					},
 
 					required: true,
@@ -101,7 +106,8 @@ export const command: Command = {
 				fr: "refusé",
 				ja: "deny",
 				ru: "deny",
-				"es-ES": "deny"
+				"es-ES": "deny",
+				ko: "deny"
 			},
 			prefixName: "sug-deny",
 
@@ -110,7 +116,8 @@ export const command: Command = {
 				fr: "Refuser une suggestion (Requière les permission Admin)",
 				ja: "提案を拒否！",
 				ru: "Отклонить предложение!",
-				"es-ES": "Denegar una sugerencia!"
+				"es-ES": "Denegar una sugerencia!",
+				ko: "건의를 거절해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -124,7 +131,8 @@ export const command: Command = {
 						fr: "Quelle est l'indentifiant de la suggestion ?",
 						ja: "提案のIDは？",
 						ru: "Какой ID предложения?",
-						"es-ES": "Cual es el ID de la sugerencia?"
+						"es-ES": "Cual es el ID de la sugerencia?",
+						ko: "건의 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -137,7 +145,8 @@ export const command: Command = {
 						fr: "raison",
 						ja: "reason",
 						ru: "reason",
-						"es-ES": "reason"
+						"es-ES": "reason",
+						ko: "reason"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -147,7 +156,8 @@ export const command: Command = {
 						fr: "Quelle message vous voulez laissez à la suggestion",
 						ja: "拒否する理由は？",
 						ru: "Причина отказа?",
-						"es-ES": "Que razón tienes para denegar?"
+						"es-ES": "Que razón tienes para denegar?",
+						ko: "거절 사유는 무엇인가요?"
 					},
 
 					required: true,
@@ -165,7 +175,8 @@ export const command: Command = {
 				fr: "accepté",
 				ja: "accept",
 				ru: "accept",
-				"es-ES": "accept"
+				"es-ES": "accept",
+				ko: "accept"
 			},
 			prefixName: "sug-accept",
 
@@ -174,7 +185,8 @@ export const command: Command = {
 				fr: "Accepter une suggestion (Requiert permissions Admin)",
 				ja: "提案を承認！",
 				ru: "Принять предложение!",
-				"es-ES": "Aceptar una sugerencia!"
+				"es-ES": "Aceptar una sugerencia!",
+				ko: "건의를 수락해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -188,7 +200,8 @@ export const command: Command = {
 						fr: "Quelle est l'indentifiant de la suggestion ?",
 						ja: "提案のIDは？",
 						ru: "Какой ID предложения?",
-						"es-ES": "Cual es el ID de la sugerencia?"
+						"es-ES": "Cual es el ID de la sugerencia?",
+						ko: "건의 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -201,7 +214,8 @@ export const command: Command = {
 						fr: "raison",
 						ja: "reason",
 						ru: "reason",
-						"es-ES": "reason"
+						"es-ES": "reason",
+						ko: "reason"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -211,7 +225,8 @@ export const command: Command = {
 						fr: "Quelle message vous voulez laissez à la suggestion",
 						ja: "承認する理由は？",
 						ru: "Причина принятия?",
-						"es-ES": "Que razón tienes para aceptar?"
+						"es-ES": "Que razón tienes para aceptar?",
+						ko: "수락 사유는 무엇인가요?"
 					},
 
 					required: true,
@@ -228,7 +243,8 @@ export const command: Command = {
 				fr: "supprimer",
 				ja: "delete",
 				ru: "delete",
-				"es-ES": "delete"
+				"es-ES": "delete",
+				ko: "delete"
 			},
 			prefixName: "sug-delete",
 
@@ -237,7 +253,8 @@ export const command: Command = {
 				fr: "Supprimer une suggestion (Requiert permissions Admin)",
 				ja: "提案を削除！",
 				ru: "Удалить предложение!",
-				"es-ES": "Eliminar una sugerencia!"
+				"es-ES": "Eliminar una sugerencia!",
+				ko: "건의를 삭제해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -251,7 +268,8 @@ export const command: Command = {
 						fr: "Quelle est l'indentifiant de la suggestion ?",
 						ja: "提案のIDは？",
 						ru: "Какой ID предложения?",
-						"es-ES": "Cual es el ID de la sugerencia?"
+						"es-ES": "Cual es el ID de la sugerencia?",
+						ko: "건의 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -272,7 +290,8 @@ export const command: Command = {
 				fr: "Changer le statut d'une suggestion",
 				ja: "提案のステータスを変更！",
 				ru: "Изменить статус предложения!",
-				"es-ES": "Cambiar el estado de una sugerencia!"
+				"es-ES": "Cambiar el estado de una sugerencia!",
+				ko: "건의의 상태를 변경해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -286,7 +305,8 @@ export const command: Command = {
 						fr: "Quelle est l'identifiant de la suggestion ?",
 						ja: "提案のIDは？",
 						ru: "Какой ID предложения?",
-						"es-ES": "Cual es el ID de la sugerencia?"
+						"es-ES": "Cual es el ID de la sugerencia?",
+						ko: "건의 ID는 무엇인가요?"
 					},
 
 					required: true,
@@ -302,7 +322,8 @@ export const command: Command = {
 						fr: "Le nouveau statut",
 						ja: "新しいステータス",
 						ru: "Новый статус",
-						"es-ES": "El nuevo estado"
+						"es-ES": "El nuevo estado",
+						ko: "새 상태"
 					},
 
 					required: true,
@@ -313,7 +334,8 @@ export const command: Command = {
 								fr: "En attente",
 								ja: "保留中",
 								ru: "Ожидает",
-								"es-ES": "Pendiente"
+								"es-ES": "Pendiente",
+								ko: "대기 중"
 							},
 							value: "pending"
 						},
@@ -323,7 +345,8 @@ export const command: Command = {
 								fr: "À l'étude",
 								ja: "検討中",
 								ru: "На рассмотрении",
-								"es-ES": "En revisión"
+								"es-ES": "En revisión",
+								ko: "검토 중"
 							},
 							value: "reviewing"
 						},
@@ -333,7 +356,8 @@ export const command: Command = {
 								fr: "Acceptée",
 								ja: "承認済み",
 								ru: "Принято",
-								"es-ES": "Aceptada"
+								"es-ES": "Aceptada",
+								ko: "수락됨"
 							},
 							value: "accepted"
 						},
@@ -343,7 +367,8 @@ export const command: Command = {
 								fr: "Planifiée",
 								ja: "計画済み",
 								ru: "Запланировано",
-								"es-ES": "Planificada"
+								"es-ES": "Planificada",
+								ko: "예정됨"
 							},
 							value: "planned"
 						},
@@ -353,7 +378,8 @@ export const command: Command = {
 								fr: "Implémentée",
 								ja: "実装済み",
 								ru: "Реализовано",
-								"es-ES": "Implementada"
+								"es-ES": "Implementada",
+								ko: "반영됨"
 							},
 							value: "implemented"
 						},
@@ -363,7 +389,8 @@ export const command: Command = {
 								fr: "Refusée",
 								ja: "却下",
 								ru: "Отклонено",
-								"es-ES": "Rechazada"
+								"es-ES": "Rechazada",
+								ko: "거절됨"
 							},
 							value: "denied"
 						}
@@ -380,7 +407,8 @@ export const command: Command = {
 						fr: "Un message optionnel pour l'auteur",
 						ja: "投稿者への任意のメッセージ",
 						ru: "Необязательное сообщение для автора",
-						"es-ES": "Un mensaje opcional para el autor"
+						"es-ES": "Un mensaje opcional para el autor",
+						ko: "작성자에게 보낼 메시지 (선택)"
 					},
 
 					required: false,
@@ -401,7 +429,8 @@ export const command: Command = {
 				fr: "Lister les suggestions les plus populaires",
 				ja: "人気の提案を一覧表示！",
 				ru: "Показать самые популярные предложения!",
-				"es-ES": "Listar las sugerencias más populares!"
+				"es-ES": "Listar las sugerencias más populares!",
+				ko: "가장 인기 있는 건의 목록을 확인해요!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -415,7 +444,8 @@ export const command: Command = {
 						fr: "Afficher uniquement ce statut",
 						ja: "このステータスのみ表示",
 						ru: "Показывать только этот статус",
-						"es-ES": "Mostrar solo este estado"
+						"es-ES": "Mostrar solo este estado",
+						ko: "이 상태만 표시"
 					},
 
 					required: false,
@@ -426,7 +456,8 @@ export const command: Command = {
 								fr: "En attente",
 								ja: "保留中",
 								ru: "Ожидает",
-								"es-ES": "Pendiente"
+								"es-ES": "Pendiente",
+								ko: "대기 중"
 							},
 							value: "pending"
 						},
@@ -436,7 +467,8 @@ export const command: Command = {
 								fr: "À l'étude",
 								ja: "検討中",
 								ru: "На рассмотрении",
-								"es-ES": "En revisión"
+								"es-ES": "En revisión",
+								ko: "검토 중"
 							},
 							value: "reviewing"
 						},
@@ -446,7 +478,8 @@ export const command: Command = {
 								fr: "Acceptée",
 								ja: "承認済み",
 								ru: "Принято",
-								"es-ES": "Aceptada"
+								"es-ES": "Aceptada",
+								ko: "수락됨"
 							},
 							value: "accepted"
 						},
@@ -456,7 +489,8 @@ export const command: Command = {
 								fr: "Planifiée",
 								ja: "計画済み",
 								ru: "Запланировано",
-								"es-ES": "Planificada"
+								"es-ES": "Planificada",
+								ko: "예정됨"
 							},
 							value: "planned"
 						},
@@ -466,7 +500,8 @@ export const command: Command = {
 								fr: "Implémentée",
 								ja: "実装済み",
 								ru: "Реализовано",
-								"es-ES": "Implementada"
+								"es-ES": "Implementada",
+								ko: "반영됨"
 							},
 							value: "implemented"
 						},
@@ -476,7 +511,8 @@ export const command: Command = {
 								fr: "Refusée",
 								ja: "却下",
 								ru: "Отклонено",
-								"es-ES": "Rechazada"
+								"es-ES": "Rechazada",
+								ko: "거절됨"
 							},
 							value: "denied"
 						}

@@ -31,6 +31,7 @@ const files: Record<string, () => Promise<any>> = {
 	"fr-ME.ts": () => import("../lang/fr-ME.ts"),
 	"it-IT.ts": () => import("../lang/it-IT.ts"),
 	"jp-JP.ts": () => import("../lang/jp-JP.ts"),
+	"ko-KR.ts": () => import("../lang/ko-KR.ts"),
 	"pt-PT.ts": () => import("../lang/pt-PT.ts"),
 	"ru-RU.ts": () => import("../lang/ru-RU.ts")
 };

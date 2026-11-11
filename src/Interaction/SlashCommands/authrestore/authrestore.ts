@@ -38,7 +38,8 @@ export const command: Command = {
 		ja: "iHorizonメッセージの下のリンク確認ボタンでauthrestoreと同じことを行う",
 		ru: "Сделать то же, что и authrestore, с кнопкой проверки ссылки под сообщением iHorizon",
 		"es-ES":
-			"Hacer lo mismo que authrestore con el botón de verificación de enlace bajo el mensaje de iHorizon"
+			"Hacer lo mismo que authrestore con el botón de verificación de enlace bajo el mensaje de iHorizon",
+		ko: "iHorizon 메시지 아래의 링크 인증 버튼으로 authrestore와 같은 기능을 해요"
 	},
 
 	aliases: [],
@@ -52,7 +53,8 @@ export const command: Command = {
 				ja: "AuthRestoreボタン用の現在のメッセージを設定",
 				ru: "Установить текущее сообщение для кнопки AuthRestore",
 				"es-ES":
-					"Establecer el mensaje actual para el botón AuthRestore"
+					"Establecer el mensaje actual para el botón AuthRestore",
+				ko: "AuthRestore 버튼 메시지를 설정해요"
 			},
 
 			options: [
@@ -65,7 +67,8 @@ export const command: Command = {
 						fr: "Le salon textuelle où se trouve le message",
 						ja: "メッセージがあるチャンネル",
 						ru: "Канал, где находится сообщение",
-						"es-ES": "El canal donde está el mensaje"
+						"es-ES": "El canal donde está el mensaje",
+						ko: "메시지가 있는 채널"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -85,7 +88,8 @@ export const command: Command = {
 						ja: "設定したいメッセージの識別子をコピーしてください",
 						ru: "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить",
 						"es-ES":
-							"Por favor, copia el identificador del mensaje que quieres configurar"
+							"Por favor, copia el identificador del mensaje que quieres configurar",
+						ko: "설정할 메시지의 ID를 복사해 붙여 넣어 주세요"
 					},
 
 					required: true,
@@ -101,7 +105,8 @@ export const command: Command = {
 						fr: "Le rôle que vous souhaitez configurer",
 						ja: "設定したいロール",
 						ru: "Роль, которую вы хотите настроить",
-						"es-ES": "El rol que quieres configurar"
+						"es-ES": "El rol que quieres configurar",
+						ko: "설정할 역할"
 					},
 
 					required: false,
@@ -125,7 +130,8 @@ export const command: Command = {
 				fr: "Supprimer le bouton du module de AuthRestore",
 				ja: "AuthRestoreモジュールのボタンを削除",
 				ru: "Удалить кнопку модуля AuthRestore",
-				"es-ES": "Eliminar el botón del módulo AuthRestore"
+				"es-ES": "Eliminar el botón del módulo AuthRestore",
+				ko: "AuthRestore 모듈 버튼을 삭제해요"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -142,7 +148,8 @@ export const command: Command = {
 				ja: "サーバーのAuthRestoreモジュールの全情報を取得",
 				ru: "Получить всю информацию о модуле AuthRestore сервера",
 				"es-ES":
-					"Obtener toda la información sobre el módulo AuthRestore del servidor"
+					"Obtener toda la información sobre el módulo AuthRestore del servidor",
+				ko: "서버의 AuthRestore 모듈 정보를 모두 확인해요"
 			},
 
 			options: [
@@ -156,7 +163,8 @@ export const command: Command = {
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
 						"es-ES":
-							"La clave privada de tu configuración AuthRestore"
+							"La clave privada de tu configuración AuthRestore",
+						ko: "AuthRestore 설정의 비공개 키"
 					},
 
 					required: true,
@@ -178,7 +186,8 @@ export const command: Command = {
 				ja: "AuthRestoreモジュールの全メンバーをサーバーに強制参加",
 				ru: "Принудительно заставить всех участников AuthRestore присоединиться",
 				"es-ES":
-					"Forzar a todos los miembros de tu módulo AuthRestore a unirse al servidor"
+					"Forzar a todos los miembros de tu módulo AuthRestore a unirse al servidor",
+				ko: "AuthRestore 모듈의 모든 멤버를 서버에 강제로 참여시켜요"
 			},
 
 			options: [
@@ -192,7 +201,8 @@ export const command: Command = {
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
 						"es-ES":
-							"La clave privada de tu configuración AuthRestore"
+							"La clave privada de tu configuración AuthRestore",
+						ko: "AuthRestore 설정의 비공개 키"
 					},
 
 					required: true,
@@ -212,7 +222,8 @@ export const command: Command = {
 				fr: "Définir un nouveau rôle pour le module AuthRestore",
 				ja: "AuthRestoreモジュールの新しいロールを設定",
 				ru: "Установить новые роли для модуля AuthRestore",
-				"es-ES": "Establecer nuevos roles para el módulo AuthRestore"
+				"es-ES": "Establecer nuevos roles para el módulo AuthRestore",
+				ko: "AuthRestore 모듈의 새 역할을 설정해요"
 			},
 
 			options: [
@@ -226,7 +237,8 @@ export const command: Command = {
 						ja: "AuthRestore設定のプライベートキー",
 						ru: "Приватный ключ вашей конфигурации AuthRestore",
 						"es-ES":
-							"La clave privada de tu configuración AuthRestore"
+							"La clave privada de tu configuración AuthRestore",
+						ko: "AuthRestore 설정의 비공개 키"
 					},
 
 					required: true,
@@ -243,7 +255,8 @@ export const command: Command = {
 						ja: "AuthRestore設定の新しいロール",
 						ru: "Новые роли для конфигурации AuthRestore",
 						"es-ES":
-							"Los nuevos roles para tu configuración AuthRestore"
+							"Los nuevos roles para tu configuración AuthRestore",
+						ko: "AuthRestore 설정의 새 역할"
 					},
 
 					required: true,
