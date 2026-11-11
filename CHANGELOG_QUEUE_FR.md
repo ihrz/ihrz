@@ -209,10 +209,14 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 
 ---
 
-## 🖥️ Dashboard — navigation, journal d'activité et pilule du lecteur
+## 🖥️ Dashboard — carte publique, journal d'activité, couleurs et plus
 
 - **Palette de commandes** (`Ctrl+K`, `⌘K` sur macOS) : aller à n'importe quelle page, serveur, module, membre (`@`), salon (`#`) ou commande du bot (`/`), lancer des actions rapides et changer vos préférences, de partout
-- **Journal d'activité** : chaque serveur a désormais un journal en lecture seule de ce que ses gestionnaires ont fait sur le dashboard (réglages enregistrés, actions lancées via le bot, refus compris, embeds, panels de tickets, lien vanity), avec l'auteur et l'heure, gardé 90 jours. Il est écrit par iHorizon lui-même et personne ne peut le modifier ni le supprimer
+- **Votre carte iHorizon** sur `dash.ihorizon.org/@pseudo`, façon page de liens : avatar, badges gagnés avec iHorizon (staff, accès anticipé, serveurs gérés avec le bot, votre réseau de membres, commandes utilisées, Last.fm, sauvegardes, vétéran, popularité, anniversaire), une accroche, la bio de votre `/profil`, vos liens, la musique que vous écoutez sur Last.fm, vos chiffres et un compteur de visiteurs uniques. Choisissez sa couleur et son fond (aurora, votre bannière, dégradé, mesh, uni) et exactement ce qui s'affiche ; elle reste désactivée tant que vous ne l'activez pas (Paramètres › Profil public)
+- **Journal d'activité** : chaque serveur a désormais un journal en lecture seule de ce que ses gestionnaires ont fait sur le dashboard, avec l'auteur et l'heure, gardé 90 jours : chaque réglage modifié avec son ancienne et sa nouvelle valeur (salons, rôles et membres par leur nom), chaque action lancée via le bot, les embeds, panels de tickets et le lien vanity, refus et échecs compris. Recherche par texte, type, auteur, statut et dates, export CSV. Il est écrit par iHorizon lui-même et personne ne peut le modifier ni le supprimer
+- **Couleur d'accent** : Paramètres › Apparence permet à chacun de choisir la couleur du dashboard (14 palettes ou n'importe quelle couleur, contraste toujours lisible), le thème (système, clair, sombre) et la langue
+- **Signaler un bug** depuis n'importe où (menu du profil, `Ctrl+K`) : un titre, ce qui s'est passé et une capture (fichier, glisser-déposer, coller ou capture de l'écran). Suivez vos signalements et les réponses de l'équipe dans Paramètres › Signalements
+- **Owners du bot** : tous les signalements dans les paramètres (filtre par statut, recherche, réponse, clôture), et la blacklist du bot avec noms, raisons, auteurs et dates
 - **Pilule du lecteur** : tant que le bot joue de la musique sur un serveur, un petit lecteur reste en bas à droite des pages de ce serveur (précédent, lecture/pause, suivant, lien vers le lecteur) et porte les touches multimédia
 - **Limites de rôles** : les limites posées sur des rôles supprimés du serveur sont retirées automatiquement
 - **Mode nuit** : ses réglages sur le dashboard sont réservés au propriétaire du serveur, comme la commande

@@ -209,10 +209,14 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 
 ---
 
-## 🖥️ Dashboard — navigation, activity log and player pill
+## 🖥️ Dashboard — public card, activity log, colours and more
 
 - **Command palette** (`Ctrl+K`, `⌘K` on macOS): jump to any page, server, module, member (`@`), channel (`#`) or bot command (`/`), run quick actions and change your preferences, from anywhere
-- **Activity log**: each server now has a read-only journal of what its managers did on the dashboard (settings saved, actions run through the bot, refused ones included, embeds, ticket panels, vanity link), with the author and the time, kept 90 days. It is written by iHorizon itself and nobody can edit or delete it
+- **Your iHorizon card** at `dash.ihorizon.org/@username`, like a link-in-bio page: avatar, badges earned with iHorizon (staff, early access, servers you run with the bot, your member network, commands used, Last.fm, backups, veteran, popularity, birthday), a tagline, your `/profil` bio, your links, the music you are playing on Last.fm, your numbers and a unique visitors counter. Pick its colour and background (aurora, your banner, gradient, mesh, plain) and choose exactly what is shown; it stays off until you turn it on (Settings › Public profile)
+- **Activity log**: each server now has a read-only journal of what its managers did on the dashboard, with the author and the time, kept 90 days: every setting changed with its old and new value (channels, roles and members by name), every action run through the bot, embeds, ticket panels and the vanity link, refused or failed attempts included. Search it by text, type, author, status and dates, and export it as CSV. It is written by iHorizon itself and nobody can edit or delete it
+- **Accent colour**: Settings › Appearance lets everyone pick the dashboard's colour (14 palettes or any colour; contrast stays readable), the theme (system, light, dark) and the language
+- **Report a bug** from anywhere (profile menu, `Ctrl+K`): a title, what happened and a screenshot (file, drag and drop, paste or a capture of your screen). Follow your reports and the team's answers in Settings › Bug reports
+- **Bot owners**: every bug report in Settings (filter by status, search, answer, close), and the bot's blacklist with names, reasons, authors and dates
 - **Player pill**: while the bot plays music on a server, a small player sits at the bottom right of that server's pages (previous, play/pause, next, link to the player) and carries the media keys
 - **Role limits**: limits set on roles that were deleted from the server are removed automatically
 - **Night mode**: its settings on the dashboard are reserved to the server owner, like the command
