@@ -72,9 +72,11 @@ import {
 } from "../automodRules.js";
 import {
 	bannerDataUri,
+	changeGuildBotAvatar,
 	changeGuildBotBanner,
 	changeGuildBotBio,
 	MAX_CUSTOM_BIO_LENGTH,
+	resetGuildBotAvatar,
 	resetGuildBotBanner,
 	resetGuildBotBio
 } from "../../functions/customProfileHelper.js";
@@ -92,6 +94,8 @@ import {
 const LIST_CAP = 500;
 /** Images sent as base64 for a banner of the bot on this server. */
 export const MAX_BANNER_BYTES = 1024 * 1024;
+/** Same cap for the bot's avatar on a server (the dashboard's body limit is 1.5 MiB). */
+export const MAX_AVATAR_BYTES = 1024 * 1024;
 /** Longest a backup creation is awaited before it goes on in the background. */
 const CREATE_WAIT_MS = 50_000;
 
@@ -930,20 +934,26 @@ export const serverActions: ActionGroup = {
 					((await metasTable.get("BOT.user.bio")) as string | null) ||
 					client.user!.username,
 				maxBioLength: MAX_CUSTOM_BIO_LENGTH,
-				maxBannerBytes: MAX_BANNER_BYTES
+				maxBannerBytes: MAX_BANNER_BYTES,
+				maxAvatarBytes: MAX_AVATAR_BYTES
 			};
 		}
 	},
 
-	// `bio` / `banner`: a value sets it, null resets it like the commands'
-	// "reset" action, absent leaves it.
+	// `bio` / `banner` / `avatar`: a value sets it, null resets it like the
+	// commands' "reset" action, absent leaves it.
 	"bot.profile-set": {
 		command: "custom bio",
 		run: async (ctx) => {
 			const { guild, params } = ctx;
 			const bioRaw = params.raw_("bio");
 			const bannerRaw = params.raw_("banner");
-			if (bioRaw === undefined && bannerRaw === undefined)
+			const avatarRaw = params.raw_("avatar");
+			if (
+				bioRaw === undefined &&
+				bannerRaw === undefined &&
+				avatarRaw === undefined
+			)
 				return fail("nothing to change");
 
 			let bio: string | null | undefined;
@@ -967,8 +977,21 @@ export const serverActions: ActionGroup = {
 								.buffer;
 			}
 
-			const result: { bio?: "set" | "reset"; banner?: "set" | "reset" } =
-				{};
+			// Like `/custom avatar` (`bot/custom/!avatar.ts`): its own permission check.
+			let avatar: { buffer: Buffer; type: string } | null | undefined;
+			if (avatarRaw !== undefined) {
+				await authorizeAlso(ctx, "custom avatar", { read: false });
+				avatar =
+					avatarRaw === null || avatarRaw === ""
+						? null
+						: decodeImage(avatarRaw, "avatar", MAX_AVATAR_BYTES);
+			}
+
+			const result: {
+				bio?: "set" | "reset";
+				banner?: "set" | "reset";
+				avatar?: "set" | "reset";
+			} = {};
 			if (bio !== undefined) {
 				const ok =
 					bio === null
@@ -987,6 +1010,25 @@ export const serverActions: ActionGroup = {
 							);
 				if (!ok) return fail("Discord refused the banner");
 				result.banner = banner === null ? "reset" : "set";
+			}
+			if (avatar !== undefined) {
+				const ok =
+					avatar === null
+						? await resetGuildBotAvatar(guild).catch(() => false)
+						: await changeGuildBotAvatar(
+								guild,
+								bannerDataUri(avatar.buffer)
+							);
+				if (!ok) return fail("Discord refused the avatar");
+				// Kept like the command does (`${guildId}.BOT.botPFP`).
+				if (avatar === null)
+					await client.db.delete(`${guild.id}.BOT.botPFP`);
+				else
+					await client.db.set(
+						`${guild.id}.BOT.botPFP`,
+						avatar.buffer.toString("base64")
+					);
+				result.avatar = avatar === null ? "reset" : "set";
 			}
 			return result;
 		}

@@ -154,6 +154,15 @@ export function bannerDataUri(image: Buffer): string {
 }
 
 // /custom banner reset: the banner of the bot's profile.
+/** Back to the bot's global avatar on this server, like `/custom avatar reset`. */
+export async function resetGuildBotAvatar(guild: Guild): Promise<boolean> {
+	const url = client.user?.avatarURL({ size: 4096, extension: "png" });
+	if (!url) return false;
+	const fileBuffer = (await axios.get(url, { responseType: "arrayBuffer" }))
+		.data;
+	return changeGuildBotAvatar(guild, bannerDataUri(Buffer.from(fileBuffer)));
+}
+
 export async function resetGuildBotBanner(guild: Guild): Promise<boolean> {
 	const fileBuffer = (
 		await axios.get(client.func.retrieveMyself.retrieveBanner(), {
