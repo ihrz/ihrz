@@ -62,6 +62,18 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 ---
 
+## 💜 Music — your playlists and liked tracks
+
+Everyone now has a personal **music library** in the dashboard's player: **like** a track with the heart (up to 5,000 liked tracks) and keep up to **20 playlists** of 400 tracks each. Create a playlist empty or from what is playing and the queue, add any track of the queue or of your liked tracks to it, rename it, reorder it, remove tracks, and **play or shuffle** a playlist or your liked tracks in your voice channel in one click. Tracks are kept ready to play, so even a 400-track playlist starts at once. Your library is yours only and follows you on every server; editing it never shows up in a server's activity log.
+
+---
+
+## 🔄 Music — the music server can restart
+
+When the music server (Wavyzon / Lavalink) restarts or loses its connection, the music now **picks up where it was on its own**: the bot takes its session back, or else puts every player back (track, position, volume, pause, filters, Equalizer APO). Meanwhile, music commands, the player panel and the dashboard say that the music server is restarting instead of "nothing is playing" or an error; stop, shuffle, loop and clearing the queue keep working. The bot tries to reconnect every 5 seconds instead of every 50.
+
+---
+
 ## 🧰 Utilities — new cards everywhere
 
 Every utility command answers with a **Components V2** card instead of an embed: one clear title with an emoji from the bot's pack, one detail per line, dates shown in each reader's own time zone, the server's bot name as a quiet signature, and colours that say what happened (green when done, red when destructive, orange when something failed). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (one card now, with the inviter and the expiry), `/serverpic`, `/where`, `/vc` and `/snipe` get richer cards; the lists (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) turn pages with Previous / Next that only the author can use; mass actions (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) show what they did and what failed; the media-only, nick-kicker and whitelisted-roles panels keep their menus inside the card. Fixes on the way: `/vc` counted deafened members as muted, `/locknamelist` showed wrong dates, `/util move` tried to move members who weren't in a voice channel, `/admin-users` can really hide bots now, and `/prevnames` only offers to erase your own history.
@@ -220,10 +232,18 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Player pill**: while the bot plays music on a server, a small player sits at the bottom right of that server's pages (previous, play/pause, next, link to the player) and carries the media keys
 - **Role limits**: limits set on roles that were deleted from the server are removed automatically
 - **Night mode**: its settings on the dashboard are reserved to the server owner, like the command
+- **Music player** rebuilt as a full-screen player in the style of Spotify and TIDAL: the artwork blurred behind everything, a big cover, a side panel with the queue, the lyrics, your library and the search, and a play bar at the bottom; on phones, a now-playing screen (your phone's own media controls take over the keyboard shortcuts). It says when the music server is restarting, and long links (Apple Music, Amazon, Spotify) and TIDAL playlists now work from it
+- **Your card on `discord.wf/@username`**, a short address that also opens server invites (`discord.wf/your-server`). Cards can have a **custom background image** (up to 5 MB), links show the **logo of their site** (Telegram, Instagram, Facebook, YouTube, Spotify, Steam, TikTok, Twitch, GitHub and about 80 more), and a card shared on Discord or a social network gets **its own preview**: your name, tagline, colour and a picture made from your avatar and numbers
+- **Bot profile**: set the bot's avatar on your server, like `/custom avatar`
+- **Previous names** (Tools): see your name history and erase it, like the button of `/utils prevnames`
+- **Every language of the bot**: the dashboard is now also in German, Portuguese, Japanese, Arabic (right to left) and "vulgar French"
+- **Phones**: a lighter search (`Ctrl+K`), tab bars on one scrolling line, no more zoom, and a loading screen with the iHorizon logo on public cards
 
 ---
 
 ## 🛠️ Fixes & improvements
+- **Music**: right after a skip, the dashboard and the player card show the new track's time instead of the previous track's for several seconds, and a paused track's time no longer keeps running
+- **Music**: TIDAL playlists are converted 8 tracks at a time, so adding one from the dashboard no longer times out
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
 - Tags: a tag with no text and no embed now answers with a clear message, and a mention no longer replaces the tag's text.

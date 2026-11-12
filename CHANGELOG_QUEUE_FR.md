@@ -62,6 +62,18 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 
 ---
 
+## 💜 Musique — vos playlists et titres likés
+
+Chacun a désormais sa **bibliothèque musicale** dans le lecteur du dashboard : **likez** un titre avec le cœur (jusqu'à 5 000 titres likés) et gardez jusqu'à **20 playlists** de 400 titres chacune. Créez une playlist vide ou avec le titre en cours et la file, ajoutez-y n'importe quel titre de la file ou de vos titres likés, renommez-la, réordonnez-la, retirez des titres, et **lancez ou mélangez** une playlist ou vos titres likés dans votre salon vocal en un clic. Les titres sont gardés prêts à jouer : même une playlist de 400 titres démarre aussitôt. Votre bibliothèque n'appartient qu'à vous et vous suit sur tous les serveurs ; la modifier n'apparaît jamais dans le journal d'activité d'un serveur.
+
+---
+
+## 🔄 Musique — le serveur musical peut redémarrer
+
+Quand le serveur musical (Wavyzon / Lavalink) redémarre ou perd la connexion, la musique **reprend toute seule là où elle en était** : le bot reprend sa session, ou à défaut remet chaque lecteur en place (titre, position, volume, pause, filtres, Equalizer APO). Pendant ce temps, les commandes de musique, le panneau du lecteur et le dashboard disent que le serveur musical redémarre au lieu de « nothing is playing » ou d'une erreur ; arrêter, mélanger, répéter et vider la file restent possibles. Le bot retente la connexion toutes les 5 secondes au lieu de 50.
+
+---
+
 ## 🧰 Utilitaires — de nouvelles cartes partout
 
 Toutes les commandes utilitaires répondent avec une carte **Components V2** au lieu d'un embed : un titre clair avec un emoji du pack du bot, une information par ligne, des dates affichées dans le fuseau horaire de chacun, le nom du bot du serveur en signature discrète, et des couleurs qui disent ce qui s'est passé (vert quand c'est fait, rouge pour une action destructive, orange quand quelque chose a échoué). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (une seule carte maintenant, avec l'auteur de l'invitation et son expiration), `/serverpic`, `/where`, `/vc` et `/snipe` ont des cartes plus riches ; les listes (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) se feuillettent avec Précédent / Suivant, réservés à l'auteur ; les actions de masse (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) montrent ce qu'elles ont fait et ce qui a échoué ; les panneaux media-only, nick-kicker et rôles autorisés gardent leurs menus dans la carte. Corrigé au passage : `/vc` comptait les membres en sourdine comme muets, `/locknamelist` affichait de mauvaises dates, `/util move` tentait de déplacer des membres absents des salons vocaux, `/admin-users` peut vraiment masquer les bots, et `/prevnames` ne propose plus que d'effacer votre propre historique.
@@ -220,10 +232,18 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Pilule du lecteur** : tant que le bot joue de la musique sur un serveur, un petit lecteur reste en bas à droite des pages de ce serveur (précédent, lecture/pause, suivant, lien vers le lecteur) et porte les touches multimédia
 - **Limites de rôles** : les limites posées sur des rôles supprimés du serveur sont retirées automatiquement
 - **Mode nuit** : ses réglages sur le dashboard sont réservés au propriétaire du serveur, comme la commande
+- **Lecteur musical** refait en lecteur plein écran façon Spotify et TIDAL : la pochette floutée derrière tout, une grande pochette, un panneau avec la file, les paroles, votre bibliothèque et la recherche, et une barre de lecture en bas ; sur téléphone, un écran « en cours » (les commandes multimédia du téléphone remplacent les raccourcis clavier). Il prévient quand le serveur musical redémarre, et les liens longs (Apple Music, Amazon, Spotify) et les playlists TIDAL y fonctionnent désormais
+- **Votre carte sur `discord.wf/@pseudo`**, une adresse courte qui ouvre aussi les invitations de serveur (`discord.wf/votre-serveur`). Les cartes acceptent une **image de fond personnalisée** (jusqu'à 5 Mo), les liens affichent le **logo de leur site** (Telegram, Instagram, Facebook, YouTube, Spotify, Steam, TikTok, Twitch, GitHub et environ 80 autres), et une carte partagée sur Discord ou un réseau social a **son propre aperçu** : votre nom, votre phrase, votre couleur et une image faite de votre avatar et de vos chiffres
+- **Profil du bot** : changer l'avatar du bot sur votre serveur, comme `/custom avatar`
+- **Anciens pseudos** (Outils) : voir votre historique de noms et l'effacer, comme le bouton de `/utils prevnames`
+- **Toutes les langues du bot** : le dashboard existe aussi en allemand, portugais, japonais, arabe (de droite à gauche) et « français vulgaire »
+- **Téléphones** : une recherche plus légère (`Ctrl+K`), des onglets sur une seule ligne qui défile, plus de zoom, et un écran de chargement au logo d'iHorizon sur les cartes publiques
 
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Musique** : juste après un skip, le dashboard et la carte du lecteur affichent le temps du nouveau titre au lieu de celui du précédent pendant plusieurs secondes, et le temps d'un titre en pause ne défile plus
+- **Musique** : les playlists TIDAL sont converties 8 titres à la fois : les ajouter depuis le dashboard ne dépasse plus le délai
 - Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
 - Tags : un tag sans texte ni embed répond désormais par un message clair, et une mention ne remplace plus le texte du tag.
