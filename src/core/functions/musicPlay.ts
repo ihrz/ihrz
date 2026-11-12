@@ -402,6 +402,26 @@ export async function handleAppleMusic(
 	}
 }
 
+/** `fn` over `items`, at most `limit` at a time, results in order. */
+export async function mapLimit<T, R>(
+	items: T[],
+	limit: number,
+	fn: (item: T) => Promise<R>
+): Promise<R[]> {
+	const out: R[] = new Array(items.length);
+	let next = 0;
+	const worker = async () => {
+		while (next < items.length) {
+			const i = next++;
+			out[i] = await fn(items[i]!);
+		}
+	};
+	await Promise.all(
+		Array.from({ length: Math.min(limit, items.length) }, worker)
+	);
+	return out;
+}
+
 export async function handleTidalMusic(
 	requester: User,
 	node: LavalinkNode,
@@ -431,23 +451,23 @@ export async function handleTidalMusic(
 		) {
 			const tracks = res.tracks.slice(0, 100);
 
-			const results = await Promise.all(
-				tracks.map(async (track) => {
-					try {
-						const search = await node.search(
-							{
-								query: `${track.title} ${track.artist.name}`,
-								source: "deezer"
-							},
-							requester
-						);
+			// A few at a time: a 100-track playlist in one burst slowed the
+			// node down and could outlast the dashboard's wait.
+			const results = await mapLimit(tracks, 8, async (track) => {
+				try {
+					const search = await node.search(
+						{
+							query: `${track.title} ${track.artist.name}`,
+							source: "deezer"
+						},
+						requester
+					);
 
-						return search?.tracks?.[0] ?? undefined;
-					} catch {
-						return undefined;
-					}
-				})
-			);
+					return search?.tracks?.[0] ?? undefined;
+				} catch {
+					return undefined;
+				}
+			});
 
 			const foundTracks = results.filter(
 				(track): track is Track => track !== undefined
@@ -461,8 +481,8 @@ export async function handleTidalMusic(
 				loadType: "playlist",
 				tracks: foundTracks,
 				playlistInfo: {
-					name: res.title ?? "Apple Music Playlist",
-					title: res.title ?? "Apple Music Playlist",
+					name: res.title ?? "Tidal Playlist",
+					title: res.title ?? "Tidal Playlist",
 					duration: foundTracks.reduce(
 						(total, track) => total + track.info.duration,
 						0
@@ -476,7 +496,7 @@ export async function handleTidalMusic(
 
 		return undefined;
 	} catch (err) {
-		logger.err("Apple Music handler failed:", err);
+		logger.err("Tidal handler failed:", err);
 		return undefined;
 	}
 }
