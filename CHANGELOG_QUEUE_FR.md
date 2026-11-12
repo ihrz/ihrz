@@ -246,6 +246,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 
 ## 🛠️ Corrections & améliorations
 - **Musique** : juste après un skip, le dashboard et la carte du lecteur affichent le temps du nouveau titre au lieu de celui du précédent pendant plusieurs secondes, et le temps d'un titre en pause ne défile plus
+- **Musique** : les paroles synchronisées suivent ce que vous entendez vraiment : elles attendent le trajet du son jusqu'à vos oreilles (le ping vocal vers Discord, Discord et votre appareil), restent sur le bon titre pendant un skip en fondu, et un réglage − / + les décale de 0,1 s quand un fichier de paroles est décalé
 - **Musique** : les playlists TIDAL sont converties 8 titres à la fois : les ajouter depuis le dashboard ne dépasse plus le délai
 - Boutique de l'économie : les rôles supprimés du serveur ne restent plus en « rôle inconnu », ils sont retirés automatiquement et libèrent leur place dans la limite de 20 rôles.
 - Rôle de soutien : un statut contenant le mot « null » ou un texte configuré vide ne donne plus le rôle.
