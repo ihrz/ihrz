@@ -67,6 +67,8 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 
 Chacun a désormais sa **bibliothèque musicale** dans le lecteur du dashboard : **likez** un titre avec le cœur (jusqu'à 5 000 titres likés) et gardez jusqu'à **20 playlists** de 400 titres chacune. Créez une playlist vide ou avec le titre en cours et la file, ajoutez-y n'importe quel titre de la file ou de vos titres likés, renommez-la, réordonnez-la, retirez des titres, et **lancez ou mélangez** une playlist ou vos titres likés dans votre salon vocal en un clic. Les titres sont gardés prêts à jouer : même une playlist de 400 titres démarre aussitôt. Votre bibliothèque n'appartient qu'à vous et vous suit sur tous les serveurs ; la modifier n'apparaît jamais dans le journal d'activité d'un serveur.
 
+**Importez** une playlist ou un album TIDAL, Spotify, Apple Music, Deezer, YouTube ou SoundCloud depuis son lien dans une nouvelle playlist (400 titres au plus), et **partagez** n'importe laquelle de vos playlists avec un lien public sur `music.ihorizon.org/playlist/…` : une page avec sa pochette, son propriétaire et ses titres, son propre aperçu sur Discord, et un bouton **Ajouter à ma bibliothèque** qui la copie dans la bibliothèque du visiteur. Le partage est désactivé tant que vous ne l'activez pas pour une playlist, et le lien cesse de marcher dès que vous le retirez.
+
 ---
 
 ## 🔄 Musique — le serveur musical peut redémarrer

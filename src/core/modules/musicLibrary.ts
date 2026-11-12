@@ -51,6 +51,19 @@ const plKey = (user: string) => `PL_${user}`;
 const ptKey = (user: string, id: string) => `PT_${user}_${id}`;
 const fiKey = (user: string) => `FI_${user}`;
 const fpKey = (user: string, page: number) => `FP_${user}_${page}`;
+const shareKey = (shareId: string) => `SHARE_${shareId}`;
+
+// A public link's id: 12 letters and digits, at least one letter (never
+// mistaken for a numeric playlist id of a music site).
+export const SHARE_ID = /^(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{12}$/;
+const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+export function newShareId(): string {
+	for (;;) {
+		const id = [...randomBytes(12)].map((b) => BASE62[b % 62]).join("");
+		if (SHARE_ID.test(id)) return id;
+	}
+}
 
 export class LibraryError extends Error {}
 const refuse = (message: string): never => {
@@ -222,12 +235,14 @@ export function renamePlaylist(
 
 export function deletePlaylist(user: string, id: string): Promise<void> {
 	return serial(user, async () => {
-		const { playlists } = await findPlaylist(user, id);
+		const { playlists, playlist } = await findPlaylist(user, id);
 		await savePlaylists(
 			user,
 			playlists.filter((p) => p.id !== id)
 		);
 		await musicLibraryTable.delete(ptKey(user, id));
+		if (playlist.shareId)
+			await musicLibraryTable.delete(shareKey(playlist.shareId));
 	});
 }
 
@@ -445,6 +460,75 @@ export async function allFavorites(
 	max = MAX_FAVORITES
 ): Promise<LibraryTrack[]> {
 	return (await favoritesPage(user, 0, max)).tracks;
+}
+
+// ---- Public links ----
+
+/** Gives a playlist a public link (or takes it away). */
+export function setShared(
+	user: string,
+	id: string,
+	shared: boolean
+): Promise<LibraryPlaylist> {
+	return serial(user, async () => {
+		const { playlists, index, playlist } = await findPlaylist(user, id);
+		if (shared && !playlist.shareId) {
+			let shareId = newShareId();
+			while (await musicLibraryTable.has(shareKey(shareId)))
+				shareId = newShareId();
+			const link: DatabaseStructure.LibraryShare = {
+				userId: user,
+				playlistId: id
+			};
+			await musicLibraryTable.set(shareKey(shareId), link);
+			playlists[index] = { ...playlist, shareId };
+		} else if (!shared && playlist.shareId) {
+			await musicLibraryTable.delete(shareKey(playlist.shareId));
+			playlists[index] = { ...playlist, shareId: null };
+		} else return playlist;
+		await savePlaylists(user, playlists);
+		return playlists[index]!;
+	});
+}
+
+/** A playlist behind a public link, while it is still shared. */
+export async function sharedPlaylist(shareId: string): Promise<{
+	userId: string;
+	playlist: LibraryPlaylist;
+	tracks: LibraryTrack[];
+} | null> {
+	if (!SHARE_ID.test(shareId)) return null;
+	const link = (await musicLibraryTable.get(
+		shareKey(shareId)
+	)) as DatabaseStructure.LibraryShare | null;
+	if (!link?.userId || !link.playlistId) return null;
+	const playlist = (await listPlaylists(link.userId)).find(
+		(p) => p.id === link.playlistId && p.shareId === shareId
+	);
+	if (!playlist) return null;
+	const tracks = (await musicLibraryTable.get(
+		ptKey(link.userId, playlist.id)
+	)) as LibraryTrack[] | null;
+	return {
+		userId: link.userId,
+		playlist,
+		tracks: Array.isArray(tracks) ? tracks : []
+	};
+}
+
+/** `name`, or `name (2)`, `name (3)`… when the user already has it. */
+export async function freeName(user: string, raw: string): Promise<string> {
+	const base = cleanName(raw) || "Playlist";
+	const taken = new Set(
+		(await listPlaylists(user)).map((p) => p.name.toLowerCase())
+	);
+	if (!taken.has(base.toLowerCase())) return base;
+	for (let n = 2; n < 100; n++) {
+		const suffix = ` (${n})`;
+		const name = base.slice(0, NAME_MAX - suffix.length) + suffix;
+		if (!taken.has(name.toLowerCase())) return name;
+	}
+	return base;
 }
 
 /** Tests only. */

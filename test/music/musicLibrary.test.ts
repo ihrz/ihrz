@@ -182,6 +182,56 @@ describe("liked tracks", () => {
 	});
 });
 
+describe("public links", () => {
+	test("share, read through the link, unshare, and gone with the playlist", async () => {
+		const p = await lib.createPlaylist(U, "Road trip", [
+			track(1),
+			track(2)
+		]);
+		const shared = await lib.setShared(U, p.id, true);
+		expect(shared.shareId).toMatch(lib.SHARE_ID);
+		// Sharing twice keeps the same link.
+		expect((await lib.setShared(U, p.id, true)).shareId).toBe(
+			shared.shareId
+		);
+
+		const seen = await lib.sharedPlaylist(shared.shareId!);
+		expect(seen?.userId).toBe(U);
+		expect(seen?.playlist.name).toBe("Road trip");
+		expect(seen?.tracks.map((t) => t.identifier)).toEqual(["id1", "id2"]);
+		// A rename or new tracks keep the link.
+		await lib.renamePlaylist(U, p.id, "Night drive");
+		await lib.addToPlaylist(U, p.id, [track(3)]);
+		expect(
+			(await lib.sharedPlaylist(shared.shareId!))?.tracks
+		).toHaveLength(3);
+
+		expect((await lib.setShared(U, p.id, false)).shareId).toBeNull();
+		expect(await lib.sharedPlaylist(shared.shareId!)).toBeNull();
+
+		const again = await lib.setShared(U, p.id, true);
+		expect(again.shareId).not.toBe(shared.shareId);
+		await lib.deletePlaylist(U, p.id);
+		expect(await lib.sharedPlaylist(again.shareId!)).toBeNull();
+	});
+
+	test("ids: 12 letters and digits with a letter; junk is never read", async () => {
+		for (let i = 0; i < 50; i++)
+			expect(lib.newShareId()).toMatch(lib.SHARE_ID);
+		expect(lib.SHARE_ID.test("123456789012")).toBe(false);
+		expect(await lib.sharedPlaylist("../PL_x")).toBeNull();
+		expect(await lib.sharedPlaylist("AAAAAAAAAAAA")).toBeNull();
+	});
+
+	test("imported names never collide", async () => {
+		await lib.createPlaylist(U, "Chill");
+		expect(await lib.freeName(U, "chill")).toBe("chill (2)");
+		await lib.createPlaylist(U, "Chill (2)");
+		expect(await lib.freeName(U, "Chill")).toBe("Chill (3)");
+		expect(await lib.freeName(U, "New one")).toBe("New one");
+	});
+});
+
 describe("tracks", () => {
 	test("kept with what plays them again; streams and unkeyed tracks", () => {
 		const t = track(3);

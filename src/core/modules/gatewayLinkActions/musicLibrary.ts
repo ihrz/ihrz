@@ -32,8 +32,11 @@ import type { DatabaseStructure } from "../../../../types/database_structure.js"
 import {
 	announceMusicPlay,
 	enqueueMusicQueries,
-	recordMusicPlay
+	isUrlQuery,
+	recordMusicPlay,
+	searchMusicQuery
 } from "../../functions/musicPlay.js";
+import { audioAvailable } from "../audioNode.js";
 import logger from "../../logger.js";
 import {
 	addToPlaylist,
@@ -43,6 +46,7 @@ import {
 	favoriteKeys,
 	favoritesPage,
 	findFavorite,
+	freeName,
 	LibraryError,
 	listPlaylists,
 	MAX_FAVORITES,
@@ -55,10 +59,13 @@ import {
 	removeFromPlaylist,
 	renamePlaylist,
 	setFavorite,
+	setShared,
+	SHARE_ID,
+	sharedPlaylist,
 	toLibraryTrack,
 	trackKey
 } from "../musicLibrary.js";
-import { canPostIn, PLAY_ERRORS } from "./music.js";
+import { AUDIO_UNAVAILABLE, canPostIn, PLAY_ERRORS } from "./music.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
 
 type LibraryTrack = DatabaseStructure.LibraryTrack;
@@ -173,6 +180,20 @@ async function playList(
 			: recordMusicPlay(client, result.player, result.firstResult);
 	after.catch((error) => logger.err(error));
 	return { queued: result.firstResult.tracks.length };
+}
+
+// An iHorizon public link (`…/playlist/{shareId}` on a host that is not a
+// music site): its id, else null.
+function shareIdOf(url: string, isMusicSite: boolean): string | null {
+	if (isMusicSite) return null;
+	try {
+		const id = new URL(url).pathname.match(
+			/\/playlist\/([A-Za-z0-9]+)\/?$/
+		)?.[1];
+		return id && SHARE_ID.test(id) ? id : null;
+	} catch {
+		return null;
+	}
 }
 
 const LIMITS = {
@@ -359,6 +380,62 @@ export const musicLibraryActions: ActionGroup = {
 				movePlaylistTrack(ctx.actor.id, id, from, to)
 			);
 			return { playlist };
+		}
+	},
+
+	// A new playlist from a link: a TIDAL, Spotify, Apple Music, Deezer,
+	// YouTube or SoundCloud playlist or album (resolved by the music node,
+	// like /music play), or someone's public iHorizon playlist. `name` is
+	// optional (the source's name otherwise, made unique).
+	"music.playlist-import": {
+		command: "music play",
+		run: async (ctx) => {
+			const { client, actor, params } = ctx;
+			const url = params.str("url", { max: 500 }).trim();
+			const wanted = params.optStr("name", 200)?.trim() || null;
+			if (!isUrlQuery(url)) fail("a playlist link is needed");
+			const musicSite = client.func.isAllowedLinks(url);
+			const shareId = shareIdOf(url, musicSite);
+			let name: string;
+			let tracks: LibraryTrack[];
+			if (shareId) {
+				const shared = await sharedPlaylist(shareId);
+				if (!shared) fail("playlist not found");
+				name = wanted ?? shared!.playlist.name;
+				tracks = shared!.tracks;
+			} else {
+				if (!musicSite) fail("this link is not allowed");
+				if (!audioAvailable(client)) fail(AUDIO_UNAVAILABLE);
+				const { res } = await searchMusicQuery(client, url, actor.user);
+				if (!res?.tracks.length) fail("nothing found at this link");
+				tracks = res!.tracks
+					.map((t) => toLibraryTrack(t as Track))
+					.filter((t): t is LibraryTrack => !!t);
+				name =
+					wanted ??
+					(res!.playlist?.name ||
+						(res!.tracks.length === 1
+							? res!.tracks[0]!.info.title
+							: "Imported playlist"));
+			}
+			if (!tracks.length) fail("nothing found at this link");
+			const unique = await freeName(actor.id, name);
+			const playlist = await lib(() =>
+				createPlaylist(actor.id, unique, tracks)
+			);
+			return { playlist, found: tracks.length, kept: playlist.count };
+		}
+	},
+
+	// A public link for a playlist (`shared`), or none.
+	"music.playlist-share": {
+		command: "music play",
+		run: async (ctx) => {
+			const id = playlistId(ctx);
+			const shared = ctx.params.bool("shared", true);
+			return {
+				playlist: await lib(() => setShared(ctx.actor.id, id, shared))
+			};
 		}
 	},
 

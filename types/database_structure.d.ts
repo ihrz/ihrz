@@ -970,7 +970,7 @@ export namespace DatabaseStructure {
 	// Music library of each user, table `music_library`
 	// (src/core/modules/musicLibrary.ts). Keys never hold a dot (a dot is a
 	// path): `PL_{userId}`, `PT_{userId}_{playlistId}`, `FI_{userId}`,
-	// `FP_{userId}_{page}`.
+	// `FP_{userId}_{page}`, `SHARE_{shareId}`.
 
 	/** A track kept in a library: enough to play it again without a search. */
 	export interface LibraryTrack {
@@ -1007,6 +1007,18 @@ export namespace DatabaseStructure {
 		duration: number;
 		// Artwork of its first track.
 		cover: string | null;
+		// Set while the playlist has a public link (`SHARE_{shareId}`).
+		shareId?: string | null;
+	}
+
+	/**
+	 * `SHARE_{shareId}` (12 letters and digits): a playlist shown publicly,
+	 * read by HorizonGateway for `music.ihorizon.org/playlist/{shareId}`. It
+	 * counts only while the playlist still holds the same `shareId`.
+	 */
+	export interface LibraryShare {
+		userId: string;
+		playlistId: string;
 	}
 
 	/** `PL_{userId}`: up to 20 playlists, in the user's order. */
