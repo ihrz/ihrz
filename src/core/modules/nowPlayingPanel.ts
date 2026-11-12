@@ -38,6 +38,8 @@
  * Stop are drawn to match their Pause.
  */
 
+import { trackPosition } from "./trackClock.js";
+import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import {
 	ActionRowBuilder,
@@ -226,7 +228,10 @@ export async function openNowPlayingPanel(
 		const { track, isLive } = view;
 		const position = isLive
 			? 0
-			: Math.min(live.position, track.info.duration);
+			: // The track the card shows: the live one may have just changed.
+				live.queue.current && sameTrack(live.queue.current, track)
+				? trackPosition(live)
+				: 0;
 		const times = client.func.generateProgressBar(
 			emojis,
 			position,
@@ -573,6 +578,19 @@ export async function openNowPlayingPanel(
 				return;
 			}
 
+			// The audio node is restarting: pause and skip wait for it (the
+			// player comes back on its own), stop still works.
+			if (
+				!playerNodeReady(live) &&
+				(i.customId === BUTTON.pause || i.customId === BUTTON.skip)
+			) {
+				await i.reply({
+					content: lang.music_audio_unavailable,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
+			}
+
 			await i.deferUpdate();
 			const user = i.user.toString();
 
@@ -624,7 +642,7 @@ export async function openNowPlayingPanel(
 					break;
 				}
 				case BUTTON.stop:
-					await live.destroy();
+					await destroyPlayerSafely(live);
 					announce(
 						lang.nowplaying_stop_buttom.replace("${author}", user)
 					);

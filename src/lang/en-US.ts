@@ -2124,6 +2124,8 @@ const enUS = {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 The music server is restarting. Your music will pick up where it was on its own in a few seconds, try again in a moment.",
 	music_cannot:
 		"${emoji_No} You need to be in the same voice channel as me to use this command!",
 

@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { markTrackStart } from "./trackClock.js";
+import { watchAudioNodes } from "./audioNode.js";
 import { BaseGuildTextChannel, Client, User } from "discord.js";
 import { LavalinkManager } from "lavalink-client";
 
@@ -47,7 +49,8 @@ export default async (client: Client) => {
 
 	nodes.forEach((i) => {
 		i.retryAmount = Infinity;
-		i.retryDelay = 50_000;
+		// A restart of the node takes seconds: back as soon as it is up.
+		i.retryDelay = 5_000;
 	});
 
 	client.player = new LavalinkManager({
@@ -76,6 +79,8 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("trackStart", async (player, track) => {
+		// Before anything awaits: the dashboard and the card read it.
+		markTrackStart(player, track);
 		await resyncNextTrack(player);
 		const ttsData = await getTTSData(client, player.guildId);
 		if (ttsData && ttsData.enabled) return;
@@ -198,28 +203,8 @@ export default async (client: Client) => {
 		);
 	});
 
-	client.player.nodeManager
-		.on("disconnect", (node, reason) => {
-			// logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
-		})
-		.on("connect", (node) => {
-			// logger.log(`:: CONNECTED :: ${node.id}`);
-		})
-		.on("reconnecting", (node) => {
-			// logger.warn(`:: RECONNECTING :: ${node.id}`);
-		})
-		.on("create", (node) => {
-			// logger.log(`:: CREATED :: ${node.id}`);
-		})
-		.on("destroy", (node) => {
-			// logger.err(`:: DESTROYED :: ${node.id}`);
-		})
-		.on("error", (node, error, payload) => {
-			logger.err(`:: ERROR :: ${node.id} ${error.message}`);
-		})
-		.on("resumed", (node, payload, players) => {
-			// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
-		});
+	// A node that restarts: clear refusals meanwhile, players put back after.
+	watchAudioNodes(client);
 
 	client.player.on("trackError", async (player, x, y) => {
 		let t0 = performance.now();

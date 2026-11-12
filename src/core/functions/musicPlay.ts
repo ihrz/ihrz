@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { audioAvailable } from "../modules/audioNode.js";
 import {
 	BaseGuildTextChannel,
 	CacheType,
@@ -813,7 +814,9 @@ export type MusicPlayRefusal =
 	| "h247_refused"
 	| "music_cannot"
 	| "no_result"
-	| "not_allowed";
+	| "not_allowed"
+	// The audio node is restarting (audioNode.ts).
+	| "audio_unavailable";
 
 export interface EnqueueMusicOptions {
 	client: Client;
@@ -879,6 +882,11 @@ export async function enqueueMusicQueries({
 
 	if (normalizedQueries.some((query) => !client.func.isAllowedLinks(query))) {
 		return { ok: false, reason: "not_allowed" };
+	}
+
+	// Without a node the search finds nothing: say why instead of "no result".
+	if (!audioAvailable(client)) {
+		return { ok: false, reason: "audio_unavailable" };
 	}
 
 	let firstResult: SearchResult | undefined;
@@ -1080,6 +1088,9 @@ export async function handleMusicPlay({
 				return;
 			case "no_result":
 				await respond({ embeds: [buildNoResultEmbed(lang)] });
+				return;
+			case "audio_unavailable":
+				await respond({ content: lang.music_audio_unavailable });
 				return;
 		}
 	}

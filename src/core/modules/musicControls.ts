@@ -35,6 +35,7 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
+import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import { cleanupTTS, getTTSData } from "./ttsManager.js";
 
@@ -52,7 +53,10 @@ export type MusicRefusal =
 	// The member is not in the bot's voice channel.
 	| "not_same_channel"
 	// /music shuffle: fewer than 2 tracks queued.
-	| "not_enough_tracks";
+	| "not_enough_tracks"
+	// The audio node is restarting (audioNode.ts): the player comes back
+	// on its own, the controls that need the node wait for it.
+	| "audio_unavailable";
 
 export type MusicControlResult<T = object> =
 	({ ok: true } & T) | { ok: false; reason: MusicRefusal };
@@ -65,6 +69,14 @@ const inBotChannel = (member: GuildMember): boolean =>
 const playerOf = (client: Client, member: GuildMember) =>
 	client.player.getPlayer(member.guild.id);
 
+// lavalink-client marks the players "not playing" while their node is away:
+// a track waiting for the node still counts as playing.
+const active = (player: MusicPlayer): boolean =>
+	player.playing || (!playerNodeReady(player) && !!player.queue.current);
+
+// The controls that talk to the node.
+const nodeDown = (player: MusicPlayer): boolean => !playerNodeReady(player);
+
 // /music pause
 export async function pauseMusic(
 	client: Client,
@@ -72,8 +84,9 @@ export async function pauseMusic(
 ): Promise<MusicControlResult<{ paused: boolean }>> {
 	if (!member.voice.channel) return refuse("not_in_voice");
 	const player = playerOf(client, member);
-	if (!player || !player.playing) return refuse("nothing_playing");
+	if (!player || !active(player)) return refuse("nothing_playing");
 	if (!inBotChannel(member)) return refuse("not_same_channel");
+	if (nodeDown(player)) return refuse("audio_unavailable");
 	if (!player.paused) await player.pause();
 	return { ok: true, paused: !!player.paused };
 }
@@ -86,6 +99,7 @@ export async function resumeMusic(
 	const player = playerOf(client, member);
 	if (!player || !member.voice.channel) return refuse("nothing_playing");
 	if (!inBotChannel(member)) return refuse("not_same_channel");
+	if (nodeDown(player)) return refuse("audio_unavailable");
 	// lavalink-client throws when the player isn't paused.
 	if (player.paused) await player.resume();
 	return { ok: true };
@@ -103,7 +117,8 @@ export async function skipMusic(
 	if (!inBotChannel(member)) return refuse("not_same_channel");
 
 	const player = playerOf(client, member);
-	if (!player || !player.playing) return refuse("nothing_playing");
+	if (!player || !active(player)) return refuse("nothing_playing");
+	if (nodeDown(player)) return refuse("audio_unavailable");
 
 	const oldName = player.queue.current?.info.title as string;
 	const channel = member.guild.channels.cache.get(
@@ -161,6 +176,7 @@ export async function previousMusic(
 	if (!inBotChannel(member)) return refuse("not_same_channel");
 	const player = playerOf(client, member);
 	if (!player || !player.queue.current) return refuse("nothing_playing");
+	if (nodeDown(player)) return refuse("audio_unavailable");
 	const previous = await player.queue.shiftPrevious();
 	if (!previous) return { ok: false, reason: "no_previous" };
 
@@ -188,9 +204,11 @@ export async function stopMusic(
 	}
 
 	const player = playerOf(client, member);
-	if (!player || !player.playing || !member.voice.channel)
+	if (!player || !active(player) || !member.voice.channel)
 		return refuse("nothing_playing");
-	await player.stopPlaying();
+	// The node is away: leave and empty the queue here, nothing to tell it.
+	if (nodeDown(player)) await destroyPlayerSafely(player, "stop");
+	else await player.stopPlaying();
 	return { ok: true, tts: false };
 }
 
@@ -200,7 +218,7 @@ export async function shuffleMusic(
 	member: GuildMember
 ): Promise<MusicControlResult> {
 	const player = playerOf(client, member);
-	if (!player || !player.playing || !member.voice.channel)
+	if (!player || !active(player) || !member.voice.channel)
 		return refuse("nothing_playing");
 	if (!inBotChannel(member)) return refuse("not_same_channel");
 	if (player.queue.tracks.length < 2) return refuse("not_enough_tracks");
@@ -228,7 +246,7 @@ export async function setMusicLoop(
 	mode: RepeatMode
 ): Promise<MusicControlResult> {
 	const player = playerOf(client, member);
-	if (!player || !player.playing || !member.voice.channel)
+	if (!player || !active(player) || !member.voice.channel)
 		return refuse("nothing_playing");
 	if (!inBotChannel(member)) return refuse("not_same_channel");
 	await player.setRepeatMode(mode);
@@ -243,8 +261,9 @@ export async function setMusicVolume(
 	volume: number
 ): Promise<MusicControlResult> {
 	const player = playerOf(client, member);
-	if (!player || !player.playing || !member.voice.channel)
+	if (!player || !active(player) || !member.voice.channel)
 		return refuse("nothing_playing");
+	if (nodeDown(player)) return refuse("audio_unavailable");
 	await player.setVolume(volume);
 	player.customVolume = volume;
 	return { ok: true };

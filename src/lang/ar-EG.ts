@@ -2036,6 +2036,8 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 سيرفر الموسيقى بيعمل ريستارت. المزيكا هتكمل لوحدها من نفس المكان في ثواني، جرّب تاني بعد شوية.",
 	music_cannot:
 		"${emoji_No} يجب أن تكون في نفس القناة الصوتية معي لاستخدام هذا الأمر!",
 

@@ -2176,6 +2176,8 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 O servidor de música está a reiniciar. A tua música continua sozinha onde estava daqui a uns segundos, tenta de novo daqui a pouco.",
 	music_cannot:
 		"${emoji_No} Você precisa estar no mesmo canal de voz que eu para usar este comando!",
 

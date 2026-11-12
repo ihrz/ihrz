@@ -67,6 +67,7 @@ export const subCommand: SubCommand = {
 						"${emoji_No}",
 						client.iHorizon_Emojis.No
 					),
+					audio_unavailable: lang.music_audio_unavailable,
 					not_enough_tracks: null
 				}[result.reason];
 				if (content) {

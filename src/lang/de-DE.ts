@@ -2206,6 +2206,8 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 Der Musikserver startet neu. Deine Musik läuft in ein paar Sekunden von selbst an derselben Stelle weiter, versuch es gleich noch einmal.",
 	music_cannot:
 		"${emoji_No} Du musst im selben Sprachkanal wie ich sein, um diesen Befehl zu verwenden!",
 

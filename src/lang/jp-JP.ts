@@ -2136,6 +2136,8 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 音楽サーバーを再起動しています。数秒で自動的に続きから再生されます。少し待ってからもう一度お試しください。",
 	music_cannot:
 		"${emoji_No} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！",
 

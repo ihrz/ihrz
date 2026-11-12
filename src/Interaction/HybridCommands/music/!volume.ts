@@ -62,6 +62,7 @@ export const subCommand: SubCommand = {
 					not_in_voice: lang.pause_nothing_playing,
 					nothing_playing: lang.pause_nothing_playing,
 					not_same_channel: lang.pause_nothing_playing,
+					audio_unavailable: lang.music_audio_unavailable,
 					not_enough_tracks: null
 				}[result.reason];
 				if (content) {

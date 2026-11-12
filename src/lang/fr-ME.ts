@@ -2229,6 +2229,8 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_audio_unavailable:
+		"🔄 Le serveur de son redémarre, calme-toi. Ta zik reprend toute seule là où elle était dans quelques secondes, réessaie après.",
 	music_cannot:
 		"${emoji_No} Vous devez être dans le même canal vocal que moi pour utiliser cette commande !",
 

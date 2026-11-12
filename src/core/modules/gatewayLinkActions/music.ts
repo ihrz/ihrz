@@ -27,6 +27,12 @@
  * command.
  */
 
+import { trackPosition } from "../trackClock.js";
+import {
+	audioAvailable,
+	audioDownSince,
+	playerNodeReady
+} from "../audioNode.js";
 import {
 	BaseGuildTextChannel,
 	Guild,
@@ -171,10 +177,7 @@ export function musicState(
 		loop: (REPEAT_MODES as readonly string[]).includes(player.repeatMode)
 			? (player.repeatMode as RepeatMode)
 			: "off",
-		position:
-			current && !isLive(current)
-				? Math.max(0, Math.min(player.position, current.info.duration))
-				: 0,
+		position: current && !isLive(current) ? trackPosition(player) : 0,
 		current: current ? trackView(current) : null,
 		queue: tracks.slice(0, QUEUE_MAX).map(trackView),
 		queueLength: tracks.length,
@@ -190,12 +193,17 @@ export function musicState(
 	};
 }
 
+// "unavailable" ⇒ 503 at the gateway (dash_actions.rs::response): try again later.
+export const AUDIO_UNAVAILABLE =
+	"unavailable: the music server is restarting, the music picks up on its own in a few seconds";
+
 export const CONTROL_ERRORS: Record<MusicRefusal | "no_previous", string> = {
 	not_in_voice: "you must be in a voice channel",
 	nothing_playing: "nothing is playing",
 	not_same_channel: "forbidden: you must be in the bot's voice channel",
 	not_enough_tracks: "at least 2 tracks must be queued to shuffle",
-	no_previous: "no previous track to go back to"
+	no_previous: "no previous track to go back to",
+	audio_unavailable: AUDIO_UNAVAILABLE
 };
 
 export const PLAY_ERRORS: Record<MusicPlayRefusal, string> = {
@@ -203,11 +211,19 @@ export const PLAY_ERRORS: Record<MusicPlayRefusal, string> = {
 	h247_refused: "forbidden: 24/7 mode keeps the bot in another voice channel",
 	music_cannot: "forbidden: the bot is playing in another voice channel",
 	not_allowed: "this link is not allowed",
-	no_result: "no track found"
+	no_result: "no track found",
+	audio_unavailable: AUDIO_UNAVAILABLE
 };
 
-const stateOf = ({ client, guild, actor }: ActionContext) =>
-	musicState(guild, actor, client.player.getPlayer(guild.id));
+// `audio`: the music server can take a request; else since when it is away
+// (it restarts, the players come back on their own: audioNode.ts).
+const stateOf = ({ client, guild, actor }: ActionContext) => ({
+	...musicState(guild, actor, client.player.getPlayer(guild.id)),
+	audio: {
+		available: audioAvailable(client),
+		downSince: audioDownSince(client)
+	}
+});
 
 // Runs a control and answers with the new state.
 async function control<T extends object>(
@@ -327,6 +343,7 @@ export const musicActions: ActionGroup = {
 			) {
 				return fail(CONTROL_ERRORS.not_same_channel);
 			}
+			if (!playerNodeReady(player)) return fail(AUDIO_UNAVAILABLE);
 			const target = player.queue.tracks[index] as Track | undefined;
 			if (!target) return fail("track not found");
 			if (identifier !== null && target.info.identifier !== identifier) {
