@@ -2151,6 +2151,7 @@ export default {
 	// Команды музыки
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "Любимые треки",
 	music_audio_unavailable:
 		"🔄 Музыкальный сервер перезапускается. Музыка сама продолжится с того же места через несколько секунд, попробуй чуть позже.",
 	music_cannot:

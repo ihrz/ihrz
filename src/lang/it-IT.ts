@@ -2186,6 +2186,7 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "Brani preferiti",
 	music_audio_unavailable:
 		"🔄 Il server musicale si sta riavviando. La musica riprenderà da sola da dove era tra qualche secondo, riprova tra un attimo.",
 	music_cannot:

@@ -2195,6 +2195,7 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "Canciones que te gustan",
 	music_audio_unavailable:
 		"🔄 El servidor de música se está reiniciando. Tu música seguirá sola donde estaba en unos segundos, vuelve a intentarlo en un momento.",
 	music_cannot:

@@ -33,6 +33,7 @@ import { communityActions } from "./community.js";
 import { membersActions } from "./members.js";
 import { moderationActions } from "./moderation.js";
 import { musicActions } from "./music.js";
+import { musicLibraryActions } from "./musicLibrary.js";
 import { serverActions } from "./server.js";
 import { ticketsActions } from "./tickets.js";
 import { utilitiesActions } from "./utilities.js";
@@ -45,6 +46,7 @@ export const actions: ActionGroup = {
 	...membersActions,
 	...moderationActions,
 	...musicActions,
+	...musicLibraryActions,
 	...serverActions,
 	...ticketsActions,
 	...utilitiesActions
@@ -59,6 +61,7 @@ export const actions: ActionGroup = {
 		membersActions,
 		moderationActions,
 		musicActions,
+		musicLibraryActions,
 		serverActions,
 		ticketsActions,
 		utilitiesActions

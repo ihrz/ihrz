@@ -101,7 +101,8 @@ export const event: BotEvent = {
 			"metasTable",
 			"giveawaysTable",
 			"backupsTable",
-			"backupSchedulesTable"
+			"backupSchedulesTable",
+			"musicLibraryTable"
 		]);
 
 		// Only the main shard creates application emojis; the others read them.

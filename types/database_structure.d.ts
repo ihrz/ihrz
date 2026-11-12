@@ -953,4 +953,60 @@ export namespace DatabaseStructure {
 
 	/** Shard ids that wrote logs, with their last write (Unix ms). */
 	export type SlashLogShards = Record<string, number>;
+
+	// Music library of each user, table `music_library`
+	// (src/core/modules/musicLibrary.ts). Keys never hold a dot (a dot is a
+	// path): `PL_{userId}`, `PT_{userId}_{playlistId}`, `FI_{userId}`,
+	// `FP_{userId}_{page}`.
+
+	/** A track kept in a library: enough to play it again without a search. */
+	export interface LibraryTrack {
+		// `${sourceName}:${identifier}`: one track once in a list.
+		key: string;
+		// Lavalink encoded track (rebuilt with ManagerUtils.buildTrack).
+		encoded: string;
+		identifier: string;
+		title: string;
+		author: string;
+		uri: string | null;
+		artworkUrl: string | null;
+		// ms (0 for a stream)
+		duration: number;
+		isStream: boolean;
+		isSeekable: boolean;
+		sourceName: string;
+		isrc: string | null;
+		// When it was added (Unix ms).
+		at: number;
+	}
+
+	/** One playlist, as listed (its tracks live in `PT_{userId}_{id}`). */
+	export interface LibraryPlaylist {
+		// 8 lowercase hex characters
+		id: string;
+		// 1 to 50 characters
+		name: string;
+		createdAt: number;
+		updatedAt: number;
+		// Up to 400 tracks.
+		count: number;
+		// Total duration (ms, streams count 0).
+		duration: number;
+		// Artwork of its first track.
+		cover: string | null;
+	}
+
+	/** `PL_{userId}`: up to 20 playlists, in the user's order. */
+	export interface LibraryPlaylists {
+		playlists: LibraryPlaylist[];
+	}
+
+	/**
+	 * `FI_{userId}`: the liked tracks (up to 5000), oldest first, in pages of
+	 * 250 keys; page n's tracks are `FP_{userId}_{n}`, in the same order.
+	 */
+	export interface LibraryFavoritesIndex {
+		pages: string[][];
+	}
+
 }

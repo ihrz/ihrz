@@ -27,6 +27,7 @@
  * command.
  */
 
+import { favoriteKeys, trackKey } from "../musicLibrary.js";
 import { trackPosition } from "../trackClock.js";
 import {
 	audioAvailable,
@@ -260,7 +261,18 @@ export const musicActions: ActionGroup = {
 	"music.state": {
 		read: true,
 		command: "music queue",
-		run: async (ctx) => stateOf(ctx)
+		run: async (ctx) => {
+			// The actor's heart on the track playing (their own library).
+			const current = ctx.client.player.getPlayer(ctx.guild.id)?.queue
+				.current;
+			const key = current ? trackKey(current) : null;
+			const liked = key
+				? await favoriteKeys(ctx.actor.id)
+						.then((keys) => keys.has(key))
+						.catch(() => false)
+				: false;
+			return { ...stateOf(ctx), currentKey: key, liked };
+		}
 	},
 
 	"music.pause": {

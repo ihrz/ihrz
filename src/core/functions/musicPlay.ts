@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { toLavalinkTrack } from "../modules/musicLibrary.js";
+import type { DatabaseStructure } from "../../../types/database_structure.js";
 import { audioAvailable } from "../modules/audioNode.js";
 import {
 	BaseGuildTextChannel,
@@ -825,6 +827,9 @@ export interface EnqueueMusicOptions {
 	member: GuildMember;
 	requester: User;
 	queries: string[];
+	// Tracks already resolved (a library playlist, the liked tracks): queued
+	// as one playlist instead of searching `queries`.
+	results?: { name: string; tracks: DatabaseStructure.LibraryTrack[] };
 	// Text channel of a player created here.
 	textChannelId: string;
 	// Where the request came from: no "added" notice is sent there.
@@ -835,6 +840,49 @@ export type EnqueueMusicResult =
 	| { ok: true; player: Player; firstResult: SearchResult }
 	| { ok: false; reason: MusicPlayRefusal };
 
+// A library list as a search result (no search: the tracks are encoded).
+function libraryResult(
+	client: Client,
+	results: NonNullable<EnqueueMusicOptions["results"]>,
+	requester: User
+): SearchResult {
+	const tracks = results.tracks.map(
+		(t) =>
+			client.player.utils.buildTrack(
+				toLavalinkTrack(t) as never,
+				requester
+			) as Track
+	);
+	return {
+		loadType: "playlist",
+		tracks,
+		playlist: {
+			name: results.name,
+			title: results.name,
+			author: null,
+			thumbnail: null,
+			uri: null,
+			selectedTrack: null,
+			duration: tracks.reduce((n, t) => n + (t.info.duration || 0), 0)
+		},
+		exception: null,
+		pluginInfo: {}
+	} as unknown as SearchResult;
+}
+
+// The node of the guild's player, else a node that can play.
+function libraryNode(
+	client: Client,
+	guildId: string
+): LavalinkNode | undefined {
+	return (
+		client.player.getPlayer(guildId)?.node ??
+		Array.from(client.player.nodeManager.nodes.values()).find(
+			(node) => node.connected !== false && !!node.sessionId
+		)
+	);
+}
+
 // The work of /music play up to the reply: checks, search, queue, playback.
 // Shared by the slash command, the context menu and the dashboard.
 export async function enqueueMusicQueries({
@@ -844,6 +892,7 @@ export async function enqueueMusicQueries({
 	member,
 	requester,
 	queries,
+	results,
 	textChannelId,
 	sourceChannelId
 }: EnqueueMusicOptions): Promise<EnqueueMusicResult> {
@@ -876,7 +925,7 @@ export async function enqueueMusicQueries({
 		.map((query) => stripChoiceDuration(query.trim()))
 		.filter(Boolean);
 
-	if (normalizedQueries.length === 0) {
+	if (normalizedQueries.length === 0 && !results?.tracks.length) {
 		return { ok: false, reason: "no_result" };
 	}
 
@@ -893,13 +942,17 @@ export async function enqueueMusicQueries({
 	let player: Player | undefined;
 	let currentNode: LavalinkNode | undefined;
 
-	for (const query of normalizedQueries) {
-		const { node, res } = await searchMusicQuery(
-			client,
-			query,
-			requester,
-			currentNode
-		);
+	const items: Array<string | SearchResult> = results
+		? [libraryResult(client, results, requester)]
+		: normalizedQueries;
+	for (const item of items) {
+		const { node, res } =
+			typeof item === "string"
+				? await searchMusicQuery(client, item, requester, currentNode)
+				: {
+						node: currentNode ?? libraryNode(client, guild.id),
+						res: item
+					};
 
 		if (!res || res.tracks.length === 0) {
 			return { ok: false, reason: "no_result" };

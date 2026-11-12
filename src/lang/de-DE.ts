@@ -2206,6 +2206,7 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "Lieblingssongs",
 	music_audio_unavailable:
 		"🔄 Der Musikserver startet neu. Deine Musik läuft in ein paar Sekunden von selbst an derselben Stelle weiter, versuch es gleich noch einmal.",
 	music_cannot:

@@ -2059,6 +2059,7 @@ export default {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "좋아요 표시한 곡",
 	music_audio_unavailable:
 		"🔄 음악 서버가 다시 시작되고 있어요. 몇 초 뒤 하던 곳부터 자동으로 이어서 재생돼요. 잠시 후 다시 시도해 주세요.",
 	music_cannot:

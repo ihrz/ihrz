@@ -2124,6 +2124,7 @@ const enUS = {
 	// Music commands
 	// /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+	music_library_liked_name: "Liked tracks",
 	music_audio_unavailable:
 		"🔄 The music server is restarting. Your music will pick up where it was on its own in a few seconds, try again in a moment.",
 	music_cannot:
