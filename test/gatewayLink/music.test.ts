@@ -442,6 +442,30 @@ describe("music.search / music.lyrics", () => {
 		).toContain("at least");
 	});
 
+	test("search: long links are links, long text is refused", async () => {
+		const { ctx } = setup(null);
+		const link =
+			"https://music.apple.com/fr/album/a-very-long-album-name-that-goes-on-and-on/1234567890?i=1234567891&l=en-GB";
+		expect(link.length).toBeGreaterThan(100);
+		expect(
+			await musicActions["music.search"].run(ctx({ query: link }) as any)
+		).toEqual({ url: true, results: [] });
+		expect(
+			await refused(
+				musicActions["music.search"].run(
+					ctx({ query: "a".repeat(101) }) as any
+				)
+			)
+		).toBe("parameter too long: query");
+		expect(
+			await refused(
+				musicActions["music.search"].run(
+					ctx({ query: "https://x.y/" + "a".repeat(500) }) as any
+				)
+			)
+		).toBe("parameter too long: query");
+	});
+
 	test("lyrics of the current track need something playing", async () => {
 		const { ctx, client } = setup(null, undefined);
 		client.func = { searchLyrics: async () => null };

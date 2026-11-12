@@ -356,10 +356,15 @@ export const musicActions: ActionGroup = {
 		read: true,
 		command: "music play",
 		run: async ({ client, actor, params }) => {
+			// A link is checked before the length of a search: Apple Music,
+			// Amazon or Spotify links (`?si=…`) pass 100 characters, and
+			// music.play takes them up to PLAY_QUERY_MAX like /music play.
 			const query = stripChoiceDuration(
-				params.str("query", { max: SEARCH_MAX }).trim()
+				params.str("query", { max: PLAY_QUERY_MAX }).trim()
 			);
 			if (isUrlQuery(query)) return { url: true, results: [] };
+			if (query.length > SEARCH_MAX)
+				return fail("parameter too long: query");
 			if (query.length < SEARCH_MIN)
 				return fail(`query must be at least ${SEARCH_MIN} characters`);
 			const found = await searchTrackSuggestions(
