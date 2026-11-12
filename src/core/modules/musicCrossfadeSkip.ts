@@ -32,6 +32,7 @@
  *   meanwhile, and its `finished` would advance the queue a second time.
  */
 
+import { markTrackStart } from "./trackClock.js";
 import { Track } from "lavalink-client";
 
 import { isWavyzonNode, syncNextTrack } from "./nextTrackSync.js";
@@ -100,6 +101,8 @@ async function advanceQueue(player: Player, skipTo: number): Promise<void> {
 	}
 	if (player.repeatMode === "queue" && current) queue.tracks.push(current);
 	queue.current = (queue.tracks.shift() as Track | undefined) ?? null;
+	// Deck B started at 0 with the fade: the node says so a few seconds later.
+	markTrackStart(player);
 	await queue.utils.save();
 }
 
