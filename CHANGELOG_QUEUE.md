@@ -39,6 +39,7 @@ The cross-fade announced with the new music backend now actually happens: the ne
 ## 🎤 Music — lyrics that work, and track suggestions
 
 - Lyrics show up again everywhere (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music backend, and are remembered per song so they appear instantly the next time.
+- **Synced lyrics** on the dashboard's player: when the music server has timed lyrics (LRCLIB), the line being sung fills and glows with the track, the others fade around it, and the lyrics scroll by themselves; show them big in the middle of the player with **Full screen lyrics**.
 - `/music play` and `/music lyrics` **suggest tracks as you type** ("Title - Artist (3:20)", from Deezer, then SoundCloud); picking one plays, or fetches the lyrics of, exactly that song. A pasted link is kept as is.
 - `/music trackinfo` works again: it takes an optional title (empty: the track playing now) and shows a card with the artwork, length, source and lyrics.
 

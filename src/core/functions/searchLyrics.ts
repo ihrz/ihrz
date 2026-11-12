@@ -46,6 +46,39 @@ type LyricsEntry = DatabaseStructure.LyricsCacheEntry;
 export interface LyricsData {
 	text: string;
 	provider: string;
+	// Synced lyrics (timed lines), when the node has them.
+	lines?: DatabaseStructure.LyricsLine[];
+}
+
+const MAX_LINES = 2000;
+
+/** The node's LavaLyrics `lines` ({timestamp, duration, line}, ms) as LyricsLine. */
+export function toLyricsLines(raw: unknown): DatabaseStructure.LyricsLine[] {
+	if (!Array.isArray(raw)) return [];
+	const lines = raw
+		.filter(
+			(l) =>
+				l &&
+				typeof l.timestamp === "number" &&
+				Number.isFinite(l.timestamp) &&
+				typeof l.line === "string"
+		)
+		.slice(0, MAX_LINES)
+		.map((l) => ({
+			start: Math.max(0, Math.round(l.timestamp)),
+			duration:
+				typeof l.duration === "number" ? Math.max(0, l.duration) : 0,
+			text: String(l.line).trim().slice(0, 500)
+		}))
+		.sort((a, b) => a.start - b.start);
+	// A line without a duration lasts until the next one (5 s for the last).
+	return lines.map((l, i) => ({
+		start: l.start,
+		end: l.duration
+			? l.start + Math.round(l.duration)
+			: (lines[i + 1]?.start ?? l.start + 5000),
+		text: l.text
+	}));
 }
 
 /** A "no lyrics" answer is asked again after this long. */
@@ -62,7 +95,9 @@ function validEntry(entry: unknown): entry is LyricsEntry {
 	if (!entry || typeof entry !== "object") return false;
 	const e = entry as Partial<LyricsEntry>;
 	if (e.v !== 1 || typeof e.fetchedAt !== "number") return false;
-	if (typeof e.text === "string") return e.text.trim().length > 0;
+	// Written before synced lyrics: asked again once for the timed lines.
+	if (typeof e.text === "string")
+		return e.text.trim().length > 0 && Array.isArray(e.lines);
 	return e.text === null && Date.now() - e.fetchedAt < MISSING_TTL_MS;
 }
 
@@ -87,16 +122,24 @@ async function findTrack(query: string, author?: User): Promise<Track | null> {
 /** The node's answer: lyrics, null for none, undefined when it failed. */
 async function fetchFromNode(
 	track: Track
-): Promise<{ text: string; provider: string } | null | undefined> {
+): Promise<LyricsData | null | undefined> {
 	const node = connectedNode();
 	if (!node || !track.encoded) return undefined;
 	try {
 		const res = (await node.request(
 			`/lyrics?track=${encodeURIComponent(track.encoded)}`
-		)) as { text?: string | null; provider?: string } | undefined;
+		)) as
+			| { text?: string | null; provider?: string; lines?: unknown }
+			| undefined;
 		// 204 No Content (none found) resolves to undefined.
 		const text = res?.text?.trim();
-		return text ? { text, provider: res?.provider || "lyrics.ovh" } : null;
+		return text
+			? {
+					text,
+					provider: res?.provider || "lyrics.ovh",
+					lines: toLyricsLines(res?.lines)
+				}
+			: null;
 	} catch (error) {
 		logger.warn(`lyrics lookup failed: ${String(error)}`);
 		return undefined;
@@ -124,7 +167,8 @@ export default async function getLyrics(
 						track,
 						res: {
 							text: cached.text,
-							provider: cached.provider || "lyrics.ovh"
+							provider: cached.provider || "lyrics.ovh",
+							lines: cached.lines ?? []
 						}
 					}
 				: null;
@@ -140,7 +184,8 @@ export default async function getLyrics(
 			fetchedAt: Date.now(),
 			text: found?.text ?? null,
 			provider: found?.provider,
-			sourceName: track.info.sourceName
+			sourceName: track.info.sourceName,
+			lines: found?.lines ?? []
 		};
 		await table.set(isrc, entry).catch(() => null);
 	}

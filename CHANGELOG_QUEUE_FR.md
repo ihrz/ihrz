@@ -39,6 +39,7 @@ Le fondu annoncé avec le nouveau backend musical a maintenant vraiment lieu : l
 ## 🎤 Musique — des paroles qui marchent, et des suggestions de morceaux
 
 - Les paroles s'affichent de nouveau partout (`/music lyrics`, le bouton **Paroles** du lecteur, `/music trackinfo`) : elles viennent maintenant de lyrics.ovh via le backend musical, et sont mémorisées par chanson pour s'afficher instantanément la fois suivante.
+- **Paroles synchronisées** dans le lecteur du dashboard : quand le serveur musical a des paroles minutées (LRCLIB), la ligne chantée se remplit et brille au rythme du titre, les autres s'estompent autour, et les paroles défilent toutes seules ; affichez-les en grand au centre du lecteur avec **Paroles en grand**.
 - `/music play` et `/music lyrics` **proposent des morceaux pendant la saisie** (« Titre - Artiste (3:20) », depuis Deezer, puis SoundCloud) ; en choisir un lance, ou affiche les paroles de, cette chanson précise. Un lien collé est gardé tel quel.
 - `/music trackinfo` fonctionne de nouveau : il accepte un titre facultatif (vide : le morceau en cours) et affiche une carte avec la pochette, la durée, la source et les paroles.
 

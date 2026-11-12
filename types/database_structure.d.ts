@@ -909,6 +909,19 @@ export namespace DatabaseStructure {
 		provider?: string;
 		/** Source of the track they were looked up for. */
 		sourceName?: string;
+		/**
+		 * Timed lines (synced lyrics, LRCLIB through the node); [] for plain
+		 * lyrics. Absent on entries written before synced lyrics: those are
+		 * asked again once.
+		 */
+		lines?: LyricsLine[];
+	}
+
+	/** A synced lyrics line: from `start` to `end`, in ms of the track. */
+	export interface LyricsLine {
+		start: number;
+		end: number;
+		text: string;
 	}
 
 	// Slash command logs, table `slash_logs` (src/core/modules/slashLogStore.ts).
@@ -1008,5 +1021,4 @@ export namespace DatabaseStructure {
 	export interface LibraryFavoritesIndex {
 		pages: string[][];
 	}
-
 }

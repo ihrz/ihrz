@@ -506,7 +506,9 @@ export const musicActions: ActionGroup = {
 				track: trackView(found.track as Track),
 				provider: found.res.provider,
 				text: text.slice(0, LYRICS_MAX),
-				truncated: text.length > LYRICS_MAX
+				truncated: text.length > LYRICS_MAX,
+				// Synced lyrics: the dashboard follows them with the track.
+				lines: found.res.lines ?? []
 			};
 		}
 	}
