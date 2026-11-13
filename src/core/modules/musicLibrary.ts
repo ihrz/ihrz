@@ -58,6 +58,25 @@ const shareKey = (shareId: string) => `SHARE_${shareId}`;
 export const SHARE_ID = /^(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{12}$/;
 const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+/**
+ * An iHorizon public link (`music.ihorizon.org/playlist/{shareId}`, on any
+ * host that is not a music site): its id, else null.
+ */
+export function shareIdFromUrl(
+	url: string,
+	isMusicSite: boolean
+): string | null {
+	if (isMusicSite) return null;
+	try {
+		const id = new URL(url).pathname.match(
+			/\/playlist\/([A-Za-z0-9]+)\/?$/
+		)?.[1];
+		return id && SHARE_ID.test(id) ? id : null;
+	} catch {
+		return null;
+	}
+}
+
 export function newShareId(): string {
 	for (;;) {
 		const id = [...randomBytes(12)].map((b) => BASE62[b % 62]).join("");

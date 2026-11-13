@@ -39,7 +39,7 @@ The cross-fade announced with the new music backend now actually happens: the ne
 ## 🎤 Music — lyrics that work, and track suggestions
 
 - Lyrics show up again everywhere (`/music lyrics`, the **Lyrics** button of the player, `/music trackinfo`): they now come from lyrics.ovh through the music backend, and are remembered per song so they appear instantly the next time.
-- **Synced lyrics** on the dashboard's player: when the music server has timed lyrics (LRCLIB), the line being sung fills and glows with the track, the others fade around it, and the lyrics scroll by themselves; show them big in the middle of the player with **Full screen lyrics**.
+- **Synced lyrics** on the dashboard's player: when the music server has timed lyrics (LRCLIB), the line being sung fills and glows with the track, the others fade around it, and the lyrics scroll by themselves; on a computer they take the whole player (in the spirit of Radiant Lyrics by meowarex).
 - `/music play` and `/music lyrics` **suggest tracks as you type** ("Title - Artist (3:20)", from Deezer, then SoundCloud); picking one plays, or fetches the lyrics of, exactly that song. A pasted link is kept as is.
 - `/music trackinfo` works again: it takes an optional title (empty: the track playing now) and shows a card with the artwork, length, source and lyrics.
 
@@ -67,7 +67,7 @@ The cross-fade announced with the new music backend now actually happens: the ne
 
 Everyone now has a personal **music library** in the dashboard's player: **like** a track with the heart (up to 5,000 liked tracks) and keep up to **20 playlists** of 400 tracks each. Create a playlist empty or from what is playing and the queue, add any track of the queue or of your liked tracks to it, rename it, reorder it, remove tracks, and **play or shuffle** a playlist or your liked tracks in your voice channel in one click. Tracks are kept ready to play, so even a 400-track playlist starts at once. Your library is yours only and follows you on every server; editing it never shows up in a server's activity log.
 
-**Import** a TIDAL, Spotify, Apple Music, Deezer, YouTube or SoundCloud playlist or album from its link into a new playlist (400 tracks at most), and **share** any of your playlists with a public link on `music.ihorizon.org/playlist/…`: a page with its cover, owner and tracks, a preview of its own on Discord, and an **Add to my library** button that copies it into the visitor's own library. Sharing is off until you turn it on for a playlist, and the link stops working as soon as you remove it.
+**Import** a TIDAL, Spotify, Apple Music, Deezer, YouTube or SoundCloud playlist or album from its link into a new playlist (400 tracks at most), and **share** any of your playlists with a public link on `music.ihorizon.org/playlist/…`: a page with its cover, owner and tracks, a preview of its own on Discord, and an **Add to my library** button that copies it into the visitor's own library. Sharing is off until you turn it on for a playlist, and the link stops working as soon as you remove it. `/music play` takes these links too: paste one and the whole shared playlist plays at once.
 
 ---
 

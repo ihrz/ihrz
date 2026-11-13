@@ -19,7 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { toLavalinkTrack } from "../modules/musicLibrary.js";
+import {
+	shareIdFromUrl,
+	sharedPlaylist,
+	toLavalinkTrack
+} from "../modules/musicLibrary.js";
 import type { DatabaseStructure } from "../../../types/database_structure.js";
 import { audioAvailable } from "../modules/audioNode.js";
 import {
@@ -921,9 +925,23 @@ export async function enqueueMusicQueries({
 		return { ok: false, reason: "music_cannot" };
 	}
 
-	const normalizedQueries = queries
+	let normalizedQueries = queries
 		.map((query) => stripChoiceDuration(query.trim()))
 		.filter(Boolean);
+
+	// A playlist shared from iHorizon (music.ihorizon.org/playlist/…): its
+	// tracks are kept ready to play, no search and no allowed-site check.
+	const only = normalizedQueries.length === 1 ? normalizedQueries[0]! : null;
+	const shareId =
+		!results && only && isUrlQuery(only)
+			? shareIdFromUrl(only, client.func.isAllowedLinks(only))
+			: null;
+	if (shareId) {
+		const shared = await sharedPlaylist(shareId);
+		if (!shared?.tracks.length) return { ok: false, reason: "no_result" };
+		results = { name: shared.playlist.name, tracks: shared.tracks };
+		normalizedQueries = [];
+	}
 
 	if (normalizedQueries.length === 0 && !results?.tracks.length) {
 		return { ok: false, reason: "no_result" };
