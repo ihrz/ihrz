@@ -858,7 +858,12 @@ export interface EnqueueMusicOptions {
 	queries: string[];
 	// Tracks already resolved (a library playlist, the liked tracks): queued
 	// as one playlist instead of searching `queries`.
-	results?: { name: string; tracks: DatabaseStructure.LibraryTrack[] };
+	/** Tracks already kept (library, share link): no search. `single`: one track, announced as a track, not a playlist. */
+	results?: {
+		name: string;
+		tracks: DatabaseStructure.LibraryTrack[];
+		single?: boolean;
+	};
 	// Text channel of a player created here.
 	textChannelId: string;
 	// Where the request came from: no "added" notice is sent there.
@@ -882,6 +887,14 @@ function libraryResult(
 				requester
 			) as Track
 	);
+	if (results.single && tracks.length === 1)
+		return {
+			loadType: "track",
+			tracks,
+			playlist: null,
+			exception: null,
+			pluginInfo: {}
+		} as unknown as SearchResult;
 	return {
 		loadType: "playlist",
 		tracks,

@@ -139,7 +139,8 @@ async function targetTrack(ctx: ActionContext): Promise<LibraryTrack> {
 async function playList(
 	ctx: ActionContext,
 	name: string,
-	tracks: LibraryTrack[]
+	tracks: LibraryTrack[],
+	single = false
 ) {
 	const { client, guild, actor, lang } = ctx;
 	if (!tracks.length) fail("nothing to play");
@@ -162,7 +163,7 @@ async function playList(
 		member: actor,
 		requester: actor.user,
 		queries: [],
-		results: { name, tracks: tracks.slice(0, MAX_PLAYLIST_TRACKS) },
+		results: { name, tracks: tracks.slice(0, MAX_PLAYLIST_TRACKS), single },
 		textChannelId: panelId,
 		sourceChannelId: canPost ? panelId : null
 	});
@@ -433,6 +434,18 @@ export const musicLibraryActions: ActionGroup = {
 				playlistTracks(ctx.actor.id, playlistId(ctx))
 			);
 			return playList(ctx, playlist.name, tracks);
+		}
+	},
+
+	// Adds one kept track to the queue (plays it when nothing is playing):
+	// `key`, and `from` (playlist id) for a playlist's track, else a liked one.
+	"music.track-queue": {
+		command: "music play",
+		run: async (ctx) => {
+			// Never the track playing (targetTrack's default): a kept one only.
+			if (!ctx.params.has("key")) fail("invalid parameter: key");
+			const track = await targetTrack(ctx);
+			return playList(ctx, track.title, [track], true);
 		}
 	},
 
