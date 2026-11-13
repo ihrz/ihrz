@@ -350,3 +350,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Dashboard — Welcome / Leave**: a formatting bar above the messages (bold, italic, underline, strikethrough, spoiler, code, quote, Ctrl+B/I/U) and a **{channel}** button that picks a channel of the server and inserts its mention; embed menus show titles formatted as on Discord
 - **Dashboard — Music player**: in a playlist or your liked tracks, hovering a track turns its number into an **Add to queue** button
 - **Dashboard**: the formatting bar (and **{channel}**) is also on tags, embeds, sticky messages, the notifier, the level-up message, messages sent in a channel and suggestion replies
+- **Self-hosting**: `SHARD_LOGS_CHANNEL_ID` (optional) posts each shard's life in a channel: ready, reconnecting, resumed, disconnected, died; the console also says when a reconnecting shard has resumed

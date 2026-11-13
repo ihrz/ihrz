@@ -214,7 +214,11 @@ export function configFromEnv(env: Env): ConfigData {
 			blacklistPictureInEmbed: text(env, "BLACKLIST_PICTURE_URL"),
 			guildLogsChannelID: text(env, "GUILD_LOGS_CHANNEL_ID"),
 			reportChannelID: text(env, "REPORT_CHANNEL_ID"),
-			lavalinkLogsChannelID: optionalText(env, "LAVALINK_LOGS_CHANNEL_ID")
+			lavalinkLogsChannelID: optionalText(
+				env,
+				"LAVALINK_LOGS_CHANNEL_ID"
+			),
+			shardLogsChannelID: optionalText(env, "SHARD_LOGS_CHANNEL_ID")
 		},
 		command: {
 			always100: list(env, "ALWAYS_100")
@@ -291,6 +295,7 @@ export function configToEnv(config: ConfigData): Record<string, string> {
 		GUILD_LOGS_CHANNEL_ID: config.core.guildLogsChannelID ?? "",
 		REPORT_CHANNEL_ID: config.core.reportChannelID ?? "",
 		LAVALINK_LOGS_CHANNEL_ID: config.core.lavalinkLogsChannelID ?? "",
+		SHARD_LOGS_CHANNEL_ID: config.core.shardLogsChannelID ?? "",
 		OWNERS: config.owners.users.join(","),
 		ALWAYS_100: config.command.always100.join(","),
 		HORIZON_GATEWAY_URL: config.api.HorizonGateway ?? DEFAULT_GATEWAY,
