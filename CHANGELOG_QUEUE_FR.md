@@ -352,3 +352,4 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Dashboard** : la barre de mise en forme (et **{channel}**) est aussi sur les tags, les embeds, les messages épinglés (sticky), le notifier, le message de niveau, les messages envoyés dans un salon et les réponses aux suggestions
 - **Auto-hébergement** : `SHARD_LOGS_CHANNEL_ID` (facultatif) publie la vie de chaque shard dans un salon : prêt, reconnexion, reprise, déconnexion, mort ; la console dit aussi quand un shard qui se reconnectait a repris
 - **Dashboard — Messages épinglés** : chaque salon peut maintenant utiliser un embed (seul ou avec le texte), comme `/sticky embed`
+- **Activité Discord** : le lecteur musical d'iHorizon s'ouvre directement dans Discord depuis un salon vocal (bouton fusée) : la file, les paroles, vos playlists et les commandes, pour tout le monde dans le salon
