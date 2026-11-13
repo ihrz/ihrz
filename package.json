@@ -54,8 +54,7 @@
 		"lavalink-client": "^2.11.0",
 		"nodemailer": "^10.4.0",
 		"sweety-html-transcripts": "^0.4.0",
-		"typescript-eslint": "^8.72.1",
-		"youtubei.js": "^17.2.0"
+		"typescript-eslint": "^8.72.1"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.5",
