@@ -102,7 +102,12 @@ async function advanceQueue(player: Player, skipTo: number): Promise<void> {
 	if (player.repeatMode === "queue" && current) queue.tracks.push(current);
 	queue.current = (queue.tracks.shift() as Track | undefined) ?? null;
 	// Deck B started at 0 with the fade: the node says so a few seconds later.
-	markTrackStart(player);
+	markTrackStart(
+		player,
+		player.queue.current,
+		Date.now(),
+		SKIP_CROSSFADE_MS + 500
+	);
 	await queue.utils.save();
 }
 

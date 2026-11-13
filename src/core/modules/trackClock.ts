@@ -36,7 +36,10 @@ const KEY = "internal_track_clock";
 // A crossfade notes the start before the node's own trackStart: kept.
 const SAME_START_MS = 30_000;
 
-type Clock = { id: string; at: number };
+// `hold`: until then the node's position is not this track's. A Wavyzon
+// crossfade keeps reporting the OUTGOING deck's position for the whole fade
+// (wavyzon-player player.rs: FrameInfo.position_ms = pos_a while mixing).
+type Clock = { id: string; at: number; hold?: number };
 
 const idOf = (track: Track | UnresolvedTrack | null | undefined) =>
 	track?.encoded ?? track?.info?.identifier ?? null;
@@ -45,13 +48,15 @@ const idOf = (track: Track | UnresolvedTrack | null | undefined) =>
 export function markTrackStart(
 	player: Player,
 	track: Track | UnresolvedTrack | null = player.queue.current,
-	at = Date.now()
+	at = Date.now(),
+	// The node keeps reporting the previous track this long (crossfade).
+	holdMs = 0
 ): void {
 	const id = idOf(track);
 	if (!id) return;
 	const prev = player.getData<Clock | undefined>(KEY);
 	if (prev?.id === id && at - prev.at < SAME_START_MS) return;
-	player.setData(KEY, { id, at });
+	player.setData(KEY, { id, at, ...(holdMs > 0 && { hold: at + holdMs }) });
 }
 
 /** The position of the track playing (ms), bounded by its duration. */
@@ -65,7 +70,11 @@ export function trackPosition(player: Player): number {
 	const clock = player.getData<Clock | undefined>(KEY);
 	const reported = player.lastPositionChange ?? 0;
 	let position: number;
-	if (clock && clock.id === idOf(current) && reported < clock.at) {
+	if (
+		clock &&
+		clock.id === idOf(current) &&
+		(reported < clock.at || Date.now() < (clock.hold ?? 0))
+	) {
 		// No position from the node for this track yet.
 		position = Date.now() - clock.at;
 	} else {

@@ -99,4 +99,19 @@ describe("trackPosition", () => {
 		markTrackStart(p, p.queue.current, Date.now());
 		expect(trackPosition(p)).toBeGreaterThanOrEqual(3_000);
 	});
+
+	test("a crossfade: the node's position is the outgoing track's until the fade ends", () => {
+		const p = makePlayer();
+		p.queue.current = {
+			encoded: "enc-b",
+			info: { identifier: "b", duration: 180_000 }
+		};
+		markTrackStart(p, p.queue.current, Date.now() - 1_000, 3_500);
+		// Wavyzon reports deck A (the previous track) at 2 min while mixing.
+		p.lastPosition = 120_000;
+		p.lastPositionChange = Date.now();
+		const pos = trackPosition(p);
+		expect(pos).toBeGreaterThanOrEqual(1_000);
+		expect(pos).toBeLessThan(2_000);
+	});
 });

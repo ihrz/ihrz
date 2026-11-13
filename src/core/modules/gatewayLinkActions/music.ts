@@ -112,6 +112,8 @@ export interface MusicStateView {
 	queueDuration: number;
 	// A previous track can be played again (the "previous" control).
 	hasPrevious: boolean;
+	// Voice ping of the node to Discord (ms), null when unknown.
+	voicePing?: number | null;
 	actor: { voiceChannelId: string | null; inBotChannel: boolean };
 }
 
@@ -187,6 +189,12 @@ export function musicState(
 			0
 		),
 		hasPrevious: player.queue.previous.length > 0,
+		// The node's voice ping to Discord (ms): the dashboard delays the lyrics
+		// by the audio's way to the listener, half of it included.
+		voicePing:
+			typeof player.ping?.ws === "number" && player.ping.ws > 0
+				? Math.round(player.ping.ws)
+				: null,
 		actor: {
 			voiceChannelId: actorVoice,
 			inBotChannel: !!actorVoice && actorVoice === player.voiceChannelId

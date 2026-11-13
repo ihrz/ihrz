@@ -246,6 +246,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 
 ## 🛠️ Fixes & improvements
 - **Music**: right after a skip, the dashboard and the player card show the new track's time instead of the previous track's for several seconds, and a paused track's time no longer keeps running
+- **Music**: synced lyrics follow what you actually hear: they wait for the audio's way to your ears (the voice ping to Discord, Discord and your device), stay on the right track during a crossfade skip, and a − / + control nudges them by 0.1 s when a lyrics file is off
 - **Music**: TIDAL playlists are converted 8 tracks at a time, so adding one from the dashboard no longer times out
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
