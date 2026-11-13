@@ -58,19 +58,22 @@ const shareKey = (shareId: string) => `SHARE_${shareId}`;
 export const SHARE_ID = /^(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{12}$/;
 const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+// Where iHorizon's shared playlists live (HorizonGateway `[dashboard]
+// musicDomain`); also in the allowed links (isAllowedLinks.ts).
+export const SHARE_HOSTS: readonly string[] = ["music.ihorizon.org"];
+
 /**
- * An iHorizon public link (`music.ihorizon.org/playlist/{shareId}`, on any
- * host that is not a music site): its id, else null.
+ * The id of an iHorizon shared playlist link
+ * (`https://music.ihorizon.org/playlist/{shareId}`), else null. Only the
+ * address is read: the tracks come from the bot's own library
+ * (`sharedPlaylist`), nothing is downloaded from that site.
  */
-export function shareIdFromUrl(
-	url: string,
-	isMusicSite: boolean
-): string | null {
-	if (isMusicSite) return null;
+export function shareIdFromUrl(url: string): string | null {
 	try {
-		const id = new URL(url).pathname.match(
-			/\/playlist\/([A-Za-z0-9]+)\/?$/
-		)?.[1];
+		const { hostname, pathname } = new URL(url);
+		if (!SHARE_HOSTS.includes(hostname.toLowerCase().replace(/^www\./, "")))
+			return null;
+		const id = pathname.match(/^\/playlist\/([A-Za-z0-9]+)\/?$/)?.[1];
 		return id && SHARE_ID.test(id) ? id : null;
 	} catch {
 		return null;

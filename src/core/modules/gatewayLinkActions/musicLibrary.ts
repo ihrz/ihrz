@@ -380,8 +380,7 @@ export const musicLibraryActions: ActionGroup = {
 			const url = params.str("url", { max: 500 }).trim();
 			const wanted = params.optStr("name", 200)?.trim() || null;
 			if (!isUrlQuery(url)) fail("a playlist link is needed");
-			const musicSite = client.func.isAllowedLinks(url);
-			const shareId = shareIdFromUrl(url, musicSite);
+			const shareId = shareIdFromUrl(url);
 			let name: string;
 			let tracks: LibraryTrack[];
 			if (shareId) {
@@ -390,7 +389,8 @@ export const musicLibraryActions: ActionGroup = {
 				name = wanted ?? shared!.playlist.name;
 				tracks = shared!.tracks;
 			} else {
-				if (!musicSite) fail("this link is not allowed");
+				if (!client.func.isAllowedLinks(url))
+					fail("this link is not allowed");
 				if (!audioAvailable(client)) fail(AUDIO_UNAVAILABLE);
 				const { res } = await searchMusicQuery(client, url, actor.user);
 				if (!res?.tracks.length) fail("nothing found at this link");

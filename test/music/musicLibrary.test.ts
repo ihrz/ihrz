@@ -223,37 +223,35 @@ describe("public links", () => {
 		expect(await lib.sharedPlaylist("AAAAAAAAAAAA")).toBeNull();
 	});
 
-	test("a share link is told apart from a music site's playlist", () => {
+	test("only music.ihorizon.org links are shared playlists", () => {
 		const own = "https://music.ihorizon.org/playlist/aB3dE5gH7jK9";
-		expect(lib.shareIdFromUrl(own, false)).toBe("aB3dE5gH7jK9");
-		expect(lib.shareIdFromUrl(own + "/", false)).toBe("aB3dE5gH7jK9");
-		// Deezer (numeric), Spotify (22 chars), TIDAL (UUID): never a share.
+		expect(lib.shareIdFromUrl(own)).toBe("aB3dE5gH7jK9");
+		expect(lib.shareIdFromUrl(own + "/")).toBe("aB3dE5gH7jK9");
 		expect(
 			lib.shareIdFromUrl(
-				"https://www.deezer.com/playlist/123456789012",
-				false
+				"https://MUSIC.ihorizon.org/playlist/aB3dE5gH7jK9"
+			)
+		).toBe("aB3dE5gH7jK9");
+		// Same path on another host (a music site or anything else): no.
+		for (const url of [
+			"https://www.deezer.com/playlist/aB3dE5gH7jK9",
+			"https://evil.example/playlist/aB3dE5gH7jK9",
+			"https://music.ihorizon.org.evil.example/playlist/aB3dE5gH7jK9",
+			"https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+		])
+			expect(lib.shareIdFromUrl(url)).toBeNull();
+		// Our host, but not a playlist id.
+		expect(
+			lib.shareIdFromUrl(
+				"https://music.ihorizon.org/playlist/123456789012"
 			)
 		).toBeNull();
 		expect(
 			lib.shareIdFromUrl(
-				"https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
-				true
+				"https://music.ihorizon.org/x/playlist/aB3dE5gH7jK9"
 			)
 		).toBeNull();
-		expect(
-			lib.shareIdFromUrl(
-				"https://tidal.com/browse/playlist/2079b82f-3725-4f46-8cb5-95d0ae425f8b",
-				true
-			)
-		).toBeNull();
-		// A music site never counts, even with a matching path.
-		expect(
-			lib.shareIdFromUrl(
-				"https://www.deezer.com/playlist/aB3dE5gH7jK9",
-				true
-			)
-		).toBeNull();
-		expect(lib.shareIdFromUrl("not a link", false)).toBeNull();
+		expect(lib.shareIdFromUrl("not a link")).toBeNull();
 	});
 
 	test("imported names never collide", async () => {
