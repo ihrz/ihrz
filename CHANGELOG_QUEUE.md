@@ -346,3 +346,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text
 - **Dashboard — Hall of fame**: the starboard and skullboard pages load much faster (their messages are read 100 at a time instead of one by one)
 - **Dashboard — Music player**: a **Previous** button plays the last track again, and the player answers the keyboard's media keys and your system's media controls (play/pause, next, previous) while its page is open, Linux (MPRIS) included
+- **Dashboard — Open tickets**: messages show as on Discord: custom (Nitro) emojis, member, role and channel mentions with their names, bold/italic/underline/spoilers, replies with the message answered, images in place (spoilers blurred until clicked), stickers, embed colours, and a smaller BOT tag

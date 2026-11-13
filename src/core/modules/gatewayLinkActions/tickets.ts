@@ -75,9 +75,25 @@ export interface TranscriptMessage {
 		url: string;
 		size: number;
 		contentType: string | null;
+		width: number | null;
+		height: number | null;
+		spoiler: boolean;
 	}[];
-	embeds: { title: string | null; description: string | null }[];
+	embeds: {
+		title: string | null;
+		description: string | null;
+		color: number | null;
+	}[];
+	// Names of the members mentioned (`<@id>`): the dashboard shows names,
+	// roles and channels come from the server's own lists.
+	mentions: Record<string, string>;
+	// The message this one replies to (null: not a reply). `author` and
+	// `content` are null when Discord did not send it along (deleted).
+	reply: { id: string; author: string | null; content: string | null } | null;
+	stickers: { name: string; url: string }[];
 }
+
+const REPLY_EXCERPT = 200;
 
 const LIST_MAX = 100;
 const TRANSCRIPT_MAX = 100;
@@ -177,6 +193,23 @@ async function targetUser(ctx: ActionContext) {
 	return user;
 }
 
+// The replied message: discord.js keeps the one Discord sends along with a
+// reply (`referenced_message`) in the channel's cache, no extra fetch.
+function replyOf(m: Message): TranscriptMessage["reply"] {
+	const id = m.reference?.messageId;
+	if (!id || m.reference?.channelId !== m.channelId) return null;
+	const ref = m.channel.messages.cache.get(id);
+	return {
+		id,
+		author: ref
+			? (ref.member?.displayName ??
+				ref.author.globalName ??
+				ref.author.username)
+			: null,
+		content: ref ? ref.content.slice(0, REPLY_EXCERPT) : null
+	};
+}
+
 export function toTranscriptMessage(m: Message): TranscriptMessage {
 	return {
 		id: m.id,
@@ -193,11 +226,28 @@ export function toTranscriptMessage(m: Message): TranscriptMessage {
 			name: a.name,
 			url: a.url,
 			size: a.size,
-			contentType: a.contentType
+			contentType: a.contentType,
+			width: a.width ?? null,
+			height: a.height ?? null,
+			spoiler: a.spoiler
 		})),
 		embeds: m.embeds.map((e) => ({
 			title: e.title,
-			description: e.description
+			description: e.description,
+			color: e.color ?? null
+		})),
+		mentions: Object.fromEntries(
+			[...m.mentions.users.values()].map((u) => [
+				u.id,
+				m.mentions.members?.get(u.id)?.displayName ??
+					u.globalName ??
+					u.username
+			])
+		),
+		reply: replyOf(m),
+		stickers: [...m.stickers.values()].map((st) => ({
+			name: st.name,
+			url: st.url
 		}))
 	};
 }

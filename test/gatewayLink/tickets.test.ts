@@ -34,8 +34,12 @@ mock.module("../../src/Events/client/ready.js", () =>
 	})
 );
 
-const { ticketsActions, ticketAccess, compareSnowflakeDesc } =
-	await import("../../src/core/modules/gatewayLinkActions/tickets.ts");
+const {
+	ticketsActions,
+	ticketAccess,
+	compareSnowflakeDesc,
+	toTranscriptMessage
+} = await import("../../src/core/modules/gatewayLinkActions/tickets.ts");
 const { canManageTicket, findTicketByChannel, listTicketEntries } =
 	await import("../../src/core/modules/ticketsManager.ts");
 const { Params, ActionError } =
@@ -271,5 +275,106 @@ describe("tickets: actions", () => {
 				/^ticket (transcript|close|open|delete|rename|add-member|remove-member|remind)$/
 			);
 		}
+	});
+});
+
+describe("tickets.transcript: messages as the dashboard shows them", () => {
+	const coll = <T extends { id: string }>(items: T[]) =>
+		new Map(items.map((x) => [x.id, x]));
+	const message = (over: Record<string, unknown> = {}): any => {
+		const cache = new Map<string, any>();
+		const m: any = {
+			id: "910000000000000001",
+			channelId: "920000000000000001",
+			author: {
+				id: "1",
+				username: "bob",
+				globalName: "Bob",
+				bot: true,
+				displayAvatarURL: () => "https://cdn/a.png"
+			},
+			member: { displayName: "Bobby" },
+			content: "Salut <@2> <:pog:930000000000000001>",
+			createdTimestamp: 1,
+			editedTimestamp: null,
+			attachments: coll([
+				{
+					id: "a",
+					name: "shot.png",
+					url: "https://cdn.discordapp.com/attachments/x/shot.png",
+					size: 10,
+					contentType: "image/png",
+					width: 640,
+					height: 480,
+					spoiler: true
+				}
+			]),
+			embeds: [{ title: "T", description: "D", color: 0x2b6fe0 }],
+			mentions: {
+				users: coll([
+					{ id: "2", username: "alice", globalName: "Alice" }
+				]),
+				members: coll([{ id: "2", displayName: "Ali" }])
+			},
+			stickers: coll([
+				{
+					id: "s",
+					name: "wave",
+					url: "https://media.discordapp.net/stickers/s.png"
+				}
+			]),
+			reference: null,
+			channel: { messages: { cache } },
+			...over
+		};
+		return m;
+	};
+
+	test("mentions get names, attachments their size and spoiler, embeds their colour, stickers", () => {
+		const t = toTranscriptMessage(message());
+		expect(t.author).toMatchObject({ name: "Bobby", bot: true });
+		expect(t.mentions).toEqual({ "2": "Ali" });
+		expect(t.attachments[0]).toMatchObject({
+			width: 640,
+			height: 480,
+			spoiler: true,
+			contentType: "image/png"
+		});
+		expect(t.embeds[0]).toEqual({
+			title: "T",
+			description: "D",
+			color: 0x2b6fe0
+		});
+		expect(t.stickers).toEqual([
+			{ name: "wave", url: "https://media.discordapp.net/stickers/s.png" }
+		]);
+		expect(t.reply).toBeNull();
+	});
+
+	test("a reply: the replied message when Discord sent it, else only its id; another channel is no reply", () => {
+		const m = message({
+			reference: {
+				messageId: "910000000000000000",
+				channelId: "920000000000000001"
+			}
+		});
+		expect(toTranscriptMessage(m).reply).toEqual({
+			id: "910000000000000000",
+			author: null,
+			content: null
+		});
+		m.channel.messages.cache.set("910000000000000000", {
+			content: "x".repeat(300),
+			member: null,
+			author: { username: "carol", globalName: null }
+		});
+		const r = toTranscriptMessage(m).reply!;
+		expect(r.author).toBe("carol");
+		expect(r.content).toHaveLength(200);
+		expect(
+			toTranscriptMessage(
+				message({ reference: { messageId: "9", channelId: "999" } })
+			).reply
+		).toBeNull();
 	});
 });
