@@ -91,6 +91,10 @@ export interface ConfigData {
 		 * @description channel id where the bot will send music playback error
 		 */
 		lavalinkLogsChannelID?: string;
+		/**
+		 * @description channel id where the shards' events are posted (ready, reconnecting, resumed, died...)
+		 */
+		shardLogsChannelID?: string;
 	};
 
 	command: {

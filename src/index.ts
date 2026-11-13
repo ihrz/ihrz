@@ -31,6 +31,7 @@ import { writeVersionFile } from "./core/modules/releaseNotifier.js";
 import { installShardShutdown } from "./core/modules/shardShutdown.js";
 import { checkExports } from "./core/modules/exportsManifest.js";
 import { buildShardBundle } from "./core/modules/shardBundle.js";
+import { createShardLog } from "./core/modules/shardLogChannel.js";
 import { extractResources, IS_STANDALONE } from "./core/modules/resources.js";
 import pkg from "../package.json";
 
@@ -149,17 +150,38 @@ installShardShutdown(manager);
 
 await writeVersionFile(pkg.version);
 
+const shardLog = createShardLog(token, config.core.shardLogsChannelID);
+
 manager.on("shardCreate", (shard) => {
 	const tag = `[Shard #${shard.id}]`.cyan;
+	const name = `Shard #${shard.id}`;
 	logger.log(`${config.console.emojis.HOST} >> ${tag} Spawning...`.green);
 
-	shard.on("ready", () => logger.log(`${tag} ✅ Ready`.green));
-	shard.on("disconnect", () => logger.warn(`${tag} ⚠️ Disconnected`.yellow));
-	shard.on("reconnecting", () =>
-		logger.log(`${tag} 🔄 Reconnecting...`.blue)
-	);
-	shard.on("death", (proc) => logger.err(`${tag} 💀 Died`.red));
-	shard.on("error", (err) => logger.err(`${tag} Error: ${err.message}`.red));
+	shard.on("ready", () => {
+		logger.log(`${tag} ✅ Ready`.green);
+		shardLog(`✅ **${name}** ready`);
+	});
+	shard.on("disconnect", () => {
+		logger.warn(`${tag} ⚠️ Disconnected`.yellow);
+		shardLog(`⚠️ **${name}** disconnected`);
+	});
+	shard.on("reconnecting", () => {
+		logger.log(`${tag} 🔄 Reconnecting...`.blue);
+		shardLog(`🔄 **${name}** reconnecting...`);
+	});
+	// The session came back: nothing was lost while it reconnected.
+	shard.on("resume", () => {
+		logger.log(`${tag} ♻️ Resumed`.green);
+		shardLog(`♻️ **${name}** resumed`);
+	});
+	shard.on("death", () => {
+		logger.err(`${tag} 💀 Died`.red);
+		shardLog(`💀 **${name}** died (respawning)`);
+	});
+	shard.on("error", (err) => {
+		logger.err(`${tag} Error: ${err.message}`.red);
+		shardLog(`❌ **${name}** error: ${err.message}`);
+	});
 });
 
 await manager.spawn({
@@ -169,3 +191,4 @@ await manager.spawn({
 });
 
 logger.log(`✅ All ${totalShards} shards spawned`.green);
+shardLog(`🚀 All ${totalShards} shards spawned (v${pkg.version})`);
