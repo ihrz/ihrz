@@ -351,3 +351,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Dashboard — Music player**: in a playlist or your liked tracks, hovering a track turns its number into an **Add to queue** button
 - **Dashboard**: the formatting bar (and **{channel}**) is also on tags, embeds, sticky messages, the notifier, the level-up message, messages sent in a channel and suggestion replies
 - **Self-hosting**: `SHARD_LOGS_CHANNEL_ID` (optional) posts each shard's life in a channel: ready, reconnecting, resumed, disconnected, died; the console also says when a reconnecting shard has resumed
+- **Dashboard — Sticky messages**: each channel can now use an embed (alone or with the text), like `/sticky embed`
