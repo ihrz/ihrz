@@ -60,7 +60,7 @@ import {
 	renamePlaylist,
 	setFavorite,
 	setShared,
-	SHARE_ID,
+	shareIdFromUrl,
 	sharedPlaylist,
 	toLibraryTrack,
 	trackKey
@@ -180,20 +180,6 @@ async function playList(
 			: recordMusicPlay(client, result.player, result.firstResult);
 	after.catch((error) => logger.err(error));
 	return { queued: result.firstResult.tracks.length };
-}
-
-// An iHorizon public link (`…/playlist/{shareId}` on a host that is not a
-// music site): its id, else null.
-function shareIdOf(url: string, isMusicSite: boolean): string | null {
-	if (isMusicSite) return null;
-	try {
-		const id = new URL(url).pathname.match(
-			/\/playlist\/([A-Za-z0-9]+)\/?$/
-		)?.[1];
-		return id && SHARE_ID.test(id) ? id : null;
-	} catch {
-		return null;
-	}
 }
 
 const LIMITS = {
@@ -395,7 +381,7 @@ export const musicLibraryActions: ActionGroup = {
 			const wanted = params.optStr("name", 200)?.trim() || null;
 			if (!isUrlQuery(url)) fail("a playlist link is needed");
 			const musicSite = client.func.isAllowedLinks(url);
-			const shareId = shareIdOf(url, musicSite);
+			const shareId = shareIdFromUrl(url, musicSite);
 			let name: string;
 			let tracks: LibraryTrack[];
 			if (shareId) {
