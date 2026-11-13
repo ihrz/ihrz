@@ -20,6 +20,11 @@
 */
 
 import {
+	youtubeListId,
+	youtubePlaylist,
+	youtubeVideo
+} from "../extractors/youtube/index.js";
+import {
 	shareIdFromUrl,
 	sharedPlaylist,
 	toLavalinkTrack
@@ -49,7 +54,6 @@ import maskLink from "./maskLink.js";
 import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
 import { getH247Data } from "../modules/h247Manager.js";
 
-import { Innertube, YTNodes } from "youtubei.js";
 import * as spotify from "../extractors/spotify/index.js";
 import appleMusic from "../extractors/apple-music/index.js";
 import amazonMusic from "../extractors/amazon-music/index.js";
@@ -73,8 +77,6 @@ export type PlayResponsePayload = Pick<
 	"allowedMentions" | "content" | "embeds"
 > &
 	Partial<NowPlayingPayload>;
-
-const youtube = await Innertube.create();
 
 export interface HandleMusicPlayOptions {
 	client: Client;
@@ -292,38 +294,61 @@ export function sanitizeYoutubeUrl(input: string): string {
 	}
 }
 
+// A YouTube link: a playlist (`list=`) gives all its videos, else the video
+// alone; each one is then found on Deezer (src/core/extractors/youtube, the
+// public pages, no API key).
 export async function handleYoutube(
 	requester: User,
 	node: LavalinkNode,
 	query: string
 ): Promise<SearchResult | undefined> {
-	try {
-		const url = sanitizeYoutubeUrl(query);
-
-		const search = await youtube.search(url, {
-			type: "video"
-		});
-
-		const video = search.videos[0];
-
-		if (!video) {
-			return undefined;
-		}
-
-		const itemName = removeParenthesesContent(
-			(video as YTNodes.Video).title.text || ""
-		);
-		if (itemName !== "" || itemName !== null) {
+	const deezer = async (title: string, artist: string) => {
+		try {
 			return await node.search(
-				{
-					query: itemName,
-					source: "deezer"
-				},
+				{ query: `${title} ${artist}`.trim(), source: "deezer" },
 				requester
 			);
-		} else {
+		} catch {
 			return undefined;
 		}
+	};
+	try {
+		if (youtubeListId(query)) {
+			const playlist = await youtubePlaylist(query).catch((err) => {
+				logger.warn(`YouTube playlist not read: ${String(err)}`);
+				return null;
+			});
+			if (playlist?.tracks.length) {
+				const found = (
+					await mapLimit(
+						playlist.tracks.slice(0, 100),
+						8,
+						async (t) =>
+							(await deezer(t.title, t.artist.name))?.tracks?.[0]
+					)
+				).filter((t): t is Track => !!t);
+				if (found.length) {
+					return {
+						loadType: "playlist",
+						tracks: found,
+						playlistInfo: {
+							name: playlist.title,
+							title: playlist.title,
+							duration: found.reduce(
+								(total, t) => total + t.info.duration,
+								0
+							),
+							selectedTrack: null
+						},
+						exception: null,
+						pluginInfo: {}
+					} as unknown as SearchResult;
+				}
+			}
+		}
+		const video = await youtubeVideo(query);
+		if (!video) return undefined;
+		return await deezer(video.title, video.artist.name);
 	} catch (err) {
 		logger.err("YouTube handler failed:", err);
 		return undefined;
@@ -833,7 +858,12 @@ export interface EnqueueMusicOptions {
 	queries: string[];
 	// Tracks already resolved (a library playlist, the liked tracks): queued
 	// as one playlist instead of searching `queries`.
-	results?: { name: string; tracks: DatabaseStructure.LibraryTrack[] };
+	/** Tracks already kept (library, share link): no search. `single`: one track, announced as a track, not a playlist. */
+	results?: {
+		name: string;
+		tracks: DatabaseStructure.LibraryTrack[];
+		single?: boolean;
+	};
 	// Text channel of a player created here.
 	textChannelId: string;
 	// Where the request came from: no "added" notice is sent there.
@@ -857,6 +887,14 @@ function libraryResult(
 				requester
 			) as Track
 	);
+	if (results.single && tracks.length === 1)
+		return {
+			loadType: "track",
+			tracks,
+			playlist: null,
+			exception: null,
+			pluginInfo: {}
+		} as unknown as SearchResult;
 	return {
 		loadType: "playlist",
 		tracks,

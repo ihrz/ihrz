@@ -27,6 +27,7 @@
  *    src/core/extractors/apple-music/   <- apple-music-metadata
  *    src/core/extractors/amazon-music/  <- amazon-music-metadata
  *    src/core/extractors/tidal/         <- tidal-metadata
+ *    src/core/extractors/youtube/       <- (new) playlists and videos, public pages
  *
  * Shared rules and types live in src/core/extractors/common/.
  */
@@ -34,4 +35,5 @@
 export { default as appleMusic } from "./apple-music/index.js";
 export { default as amazonMusic } from "./amazon-music/index.js";
 export { default as tidalMusic } from "./tidal/index.js";
+export * as youtube from "./youtube/index.js";
 export * as spotify from "./spotify/index.js";

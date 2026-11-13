@@ -247,6 +247,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ## 🛠️ Fixes & improvements
 - **Music**: right after a skip, the dashboard and the player card show the new track's time instead of the previous track's for several seconds, and a paused track's time no longer keeps running
 - **Music**: synced lyrics follow what you actually hear: they wait for the audio's way to your ears (the voice ping to Discord, Discord and your device), stay on the right track during a crossfade skip, and a − / + control nudges them by 0.1 s when a lyrics file is off
+- **Music**: a YouTube or YouTube Music playlist link (`list=`, mixes included) plays the whole playlist (100 tracks at most) instead of only its first video, and YouTube titles are cleaned ("Artist - Title (Official Video)") before the search; YouTube links are read from YouTube's public pages, no YouTube library anymore
 - **Music**: TIDAL playlists are converted 8 tracks at a time, so adding one from the dashboard no longer times out
 - Economy shop: roles deleted from the server no longer stay as "unknown role" entries, they are removed automatically and free their slot in the 20-role limit.
 - Support role: a status containing the word "null" or an empty configured text no longer grants the role.
@@ -345,3 +346,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Giveaways**: the entry count of a running giveaway now updates in French too (it stayed at 0), and the giveaway message is always rebuilt from its data rather than by editing its text
 - **Dashboard — Hall of fame**: the starboard and skullboard pages load much faster (their messages are read 100 at a time instead of one by one)
 - **Dashboard — Music player**: a **Previous** button plays the last track again, and the player answers the keyboard's media keys and your system's media controls (play/pause, next, previous) while its page is open, Linux (MPRIS) included
+- **Dashboard — Open tickets**: messages show as on Discord: custom (Nitro) emojis, member, role and channel mentions with their names, bold/italic/underline/spoilers, replies with the message answered, images in place (spoilers blurred until clicked), stickers, embed colours, and a smaller BOT tag
+- **Dashboard — Welcome / Leave**: a formatting bar above the messages (bold, italic, underline, strikethrough, spoiler, code, quote, Ctrl+B/I/U) and a **{channel}** button that picks a channel of the server and inserts its mention; embed menus show titles formatted as on Discord
+- **Dashboard — Music player**: in a playlist or your liked tracks, hovering a track turns its number into an **Add to queue** button
+- **Dashboard**: the formatting bar (and **{channel}**) is also on tags, embeds, sticky messages, the notifier, the level-up message, messages sent in a channel and suggestion replies
