@@ -73,6 +73,9 @@ const allowedDomains: string[] = [
 	"www.youtube.com",
 	"music.youtube.com",
 
+	// iHorizon's shared playlists (read from the bot's own library)
+	"music.ihorizon.org",
+
 	// Tidal
 	"tidal.com",
 	"www.tidal.com",
