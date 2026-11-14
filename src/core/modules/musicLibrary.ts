@@ -347,6 +347,18 @@ export function movePlaylistTrack(
 
 const keysCache = new Map<string, { at: number; keys: Set<string> }>();
 const KEYS_TTL = 60_000;
+// Bumped by each like / unlike: a read that started before it (music.state
+// polls all the time) must not put the old hearts back in the cache.
+const keysGen = new Map<string, number>();
+
+/** After a write: the cache holds what was just written, older reads are void. */
+function keysWritten(
+	user: string,
+	index: DatabaseStructure.LibraryFavoritesIndex
+): void {
+	keysGen.set(user, (keysGen.get(user) ?? 0) + 1);
+	keysCache.set(user, { at: Date.now(), keys: new Set(index.pages.flat()) });
+}
 
 async function favoritesIndex(
 	user: string
@@ -361,7 +373,11 @@ async function favoritesIndex(
 export async function favoriteKeys(user: string): Promise<Set<string>> {
 	const hit = keysCache.get(user);
 	if (hit && Date.now() - hit.at < KEYS_TTL) return hit.keys;
+	const gen = keysGen.get(user) ?? 0;
 	const keys = new Set((await favoritesIndex(user)).pages.flat());
+	// A like landed while this read was out: what it read is already old.
+	if ((keysGen.get(user) ?? 0) !== gen)
+		return keysCache.get(user)?.keys ?? keys;
 	keysCache.set(user, { at: Date.now(), keys });
 	return keys;
 }
@@ -398,7 +414,7 @@ export function setFavorite(
 		index.pages[last]!.push(track.key);
 		await musicLibraryTable.set(fpKey(user, last), page);
 		await musicLibraryTable.set(fiKey(user), index);
-		keysCache.delete(user);
+		keysWritten(user, index);
 		return true;
 	});
 }
@@ -433,7 +449,7 @@ async function removeFavoriteAt(
 		await musicLibraryTable.set(fpKey(user, page), tracks);
 	}
 	await musicLibraryTable.set(fiKey(user), index);
-	keysCache.delete(user);
+	keysWritten(user, index);
 }
 
 /** Liked tracks, the latest first: `offset`, `limit` over all of them. */
@@ -554,4 +570,4 @@ export async function freeName(user: string, raw: string): Promise<string> {
 }
 
 /** Tests only. */
-export const __libraryTest = { keysCache, queues };
+export const __libraryTest = { keysCache, keysGen, queues };

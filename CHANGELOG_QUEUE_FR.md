@@ -353,3 +353,4 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Auto-hébergement** : `SHARD_LOGS_CHANNEL_ID` (facultatif) publie la vie de chaque shard dans un salon : prêt, reconnexion, reprise, déconnexion, mort ; la console dit aussi quand un shard qui se reconnectait a repris
 - **Dashboard — Messages épinglés** : chaque salon peut maintenant utiliser un embed (seul ou avec le texte), comme `/sticky embed`
 - **Activité Discord** : le lecteur musical d'iHorizon s'ouvre directement dans Discord depuis un salon vocal (bouton fusée) : la file, les paroles, vos playlists et les commandes, pour tout le monde dans le salon
+- **Titres likés** : le cœur du titre en cours ne disparaît plus pendant une minute après un like ou un unlike
