@@ -354,3 +354,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Dashboard — Sticky messages**: each channel can now use an embed (alone or with the text), like `/sticky embed`
 - **Discord Activity**: the iHorizon music player opens right inside Discord from a voice channel (rocket button): the queue, lyrics, your playlists and the controls, for everyone in the channel
 - **Liked tracks**: the heart of the track playing no longer disappears for up to a minute after a like or an unlike
+- **Music**: who controls the player: everyone in the voice channel adds tracks and removes their own (`/music clear-queue` removes only yours), the person who requested the track playing pauses, skips it and sets the volume, and managers (owner, Administrator, Manage Server) control everything. Alone with iHorizon you control everything; if the requester left, anyone can. Same rules for the panel buttons, the dashboard and the Discord Activity

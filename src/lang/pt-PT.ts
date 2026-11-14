@@ -2179,6 +2179,11 @@ export default {
 	music_library_liked_name: "Músicas favoritas",
 	music_audio_unavailable:
 		"🔄 O servidor de música está a reiniciar. A tua música continua sozinha onde estava daqui a uns segundos, tenta de novo daqui a pouco.",
+	music_requester_only:
+		"${emoji_No} Só quem pediu esta música, ou um gestor do servidor, pode fazer isso.",
+	music_manager_only: "${emoji_No} Só um gestor do servidor pode fazer isso.",
+	clear_queue_command_own:
+		"${emoji_Security} As tuas músicas saíram da fila (${removed}). As dos outros ouvintes ficam.",
 	music_cannot:
 		"${emoji_No} Você precisa estar no mesmo canal de voz que eu para usar este comando!",
 

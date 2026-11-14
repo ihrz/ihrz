@@ -61,6 +61,14 @@ export const subCommand: SubCommand = {
 						client.iHorizon_Emojis.No
 					),
 					audio_unavailable: lang.music_audio_unavailable,
+					requester_only: lang.music_requester_only.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
+					manager_only: lang.music_manager_only.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
 					not_enough_tracks: null
 				}[result.reason];
 				if (content) {
@@ -71,11 +79,19 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
+			// Not a manager: only their own tracks left the queue.
 			await client.func.method.interactionSend(interaction, {
-				content: lang.clear_queue_command_ok.replace(
-					"${emoji_Security}",
-					client.iHorizon_Emojis.Security
-				)
+				content: result.own
+					? lang.clear_queue_command_own
+							.replace(
+								"${emoji_Security}",
+								client.iHorizon_Emojis.Security
+							)
+							.replace("${removed}", String(result.removed))
+					: lang.clear_queue_command_ok.replace(
+							"${emoji_Security}",
+							client.iHorizon_Emojis.Security
+						)
 			});
 		} catch (error) {
 			logger.err(error);

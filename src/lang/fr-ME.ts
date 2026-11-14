@@ -2232,6 +2232,12 @@ export default {
 	music_library_liked_name: "Les sons que j'kiffe",
 	music_audio_unavailable:
 		"🔄 Le serveur de son redémarre, calme-toi. Ta zik reprend toute seule là où elle était dans quelques secondes, réessaie après.",
+	music_requester_only:
+		"${emoji_No} Touche pas, c'est pas ton son : seul celui qui l'a demandé ou un gérant du serveur peut faire ça.",
+	music_manager_only:
+		"${emoji_No} T'as pas le droit, seul un gérant du serveur peut faire ça.",
+	clear_queue_command_own:
+		"${emoji_Security} J'ai viré tes sons de la file (${removed}). Ceux des autres, on touche pas.",
 	music_cannot:
 		"${emoji_No} Vous devez être dans le même canal vocal que moi pour utiliser cette commande !",
 

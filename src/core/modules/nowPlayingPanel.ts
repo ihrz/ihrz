@@ -41,6 +41,7 @@
 import { trackPosition } from "./trackClock.js";
 import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
+import { musicRights } from "./musicControls.js";
 import {
 	ActionRowBuilder,
 	AttachmentBuilder,
@@ -586,6 +587,23 @@ export async function openNowPlayingPanel(
 			) {
 				await i.reply({
 					content: lang.music_audio_unavailable,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
+			}
+
+			// Who controls what (musicControls.ts › musicRights): pause and
+			// skip, the track playing's requester or a manager; loop and stop,
+			// a manager.
+			const rights = await musicRights(member, live);
+			const current =
+				i.customId === BUTTON.pause || i.customId === BUTTON.skip;
+			if (current ? !rights.current : !rights.manager) {
+				await i.reply({
+					content: (current
+						? lang.music_requester_only
+						: lang.music_manager_only
+					).replace("${emoji_No}", client.iHorizon_Emojis.No),
 					flags: [MessageFlags.Ephemeral]
 				});
 				return;

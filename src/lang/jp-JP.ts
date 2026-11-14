@@ -2139,6 +2139,11 @@ export default {
 	music_library_liked_name: "お気に入りの曲",
 	music_audio_unavailable:
 		"🔄 音楽サーバーを再起動しています。数秒で自動的に続きから再生されます。少し待ってからもう一度お試しください。",
+	music_requester_only:
+		"${emoji_No} この曲をリクエストした人か、サーバーの管理者だけが操作できます。",
+	music_manager_only: "${emoji_No} サーバーの管理者だけが操作できます。",
+	clear_queue_command_own:
+		"${emoji_Security} あなたの曲をキューから削除しました（${removed}）。他の人の曲はそのままです。",
 	music_cannot:
 		"${emoji_No} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！",
 

@@ -2209,6 +2209,11 @@ export default {
 	music_library_liked_name: "Lieblingssongs",
 	music_audio_unavailable:
 		"🔄 Der Musikserver startet neu. Deine Musik läuft in ein paar Sekunden von selbst an derselben Stelle weiter, versuch es gleich noch einmal.",
+	music_requester_only:
+		"${emoji_No} Nur wer diesen Titel angefordert hat oder ein Server-Manager kann das tun.",
+	music_manager_only: "${emoji_No} Nur ein Server-Manager kann das tun.",
+	clear_queue_command_own:
+		"${emoji_Security} Deine Titel wurden aus der Warteschlange entfernt (${removed}). Die der anderen bleiben.",
 	music_cannot:
 		"${emoji_No} Du musst im selben Sprachkanal wie ich sein, um diesen Befehl zu verwenden!",
 

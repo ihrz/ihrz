@@ -2189,6 +2189,11 @@ export default {
 	music_library_liked_name: "Brani preferiti",
 	music_audio_unavailable:
 		"🔄 Il server musicale si sta riavviando. La musica riprenderà da sola da dove era tra qualche secondo, riprova tra un attimo.",
+	music_requester_only:
+		"${emoji_No} Solo chi ha richiesto questo brano, o un gestore del server, può farlo.",
+	music_manager_only: "${emoji_No} Solo un gestore del server può farlo.",
+	clear_queue_command_own:
+		"${emoji_Security} I tuoi brani hanno lasciato la coda (${removed}). Quelli degli altri restano.",
 	music_cannot:
 		"${emoji_No} Devi essere nello stesso canale vocale con me per usare questo comando!",
 

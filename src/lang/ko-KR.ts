@@ -2062,6 +2062,11 @@ export default {
 	music_library_liked_name: "좋아요 표시한 곡",
 	music_audio_unavailable:
 		"🔄 음악 서버가 다시 시작되고 있어요. 몇 초 뒤 하던 곳부터 자동으로 이어서 재생돼요. 잠시 후 다시 시도해 주세요.",
+	music_requester_only:
+		"${emoji_No} 이 곡을 신청한 사람이나 서버 관리자만 할 수 있어요.",
+	music_manager_only: "${emoji_No} 서버 관리자만 할 수 있어요.",
+	clear_queue_command_own:
+		"${emoji_Security} 내 곡을 대기열에서 뺐어요 (${removed}). 다른 사람의 곡은 그대로예요.",
 	music_cannot:
 		"${emoji_No} 이 명령어를 사용하려면 저와 같은 음성 채널에 있어야 해요!",
 

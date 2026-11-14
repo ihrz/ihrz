@@ -2039,6 +2039,11 @@ export default {
 	music_library_liked_name: "الأغاني المفضلة",
 	music_audio_unavailable:
 		"🔄 سيرفر الموسيقى بيعمل ريستارت. المزيكا هتكمل لوحدها من نفس المكان في ثواني، جرّب تاني بعد شوية.",
+	music_requester_only:
+		"${emoji_No} فقط من طلب هذا المقطع، أو مدير الخادم، يمكنه فعل ذلك.",
+	music_manager_only: "${emoji_No} فقط مدير الخادم يمكنه فعل ذلك.",
+	clear_queue_command_own:
+		"${emoji_Security} أُزيلت مقاطعك من قائمة الانتظار (${removed}). مقاطع الآخرين باقية.",
 	music_cannot:
 		"${emoji_No} يجب أن تكون في نفس القناة الصوتية معي لاستخدام هذا الأمر!",
 

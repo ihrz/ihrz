@@ -58,7 +58,10 @@ import {
 	MusicControlResult,
 	MusicPlayer,
 	MusicRefusal,
+	MusicRights,
+	musicRights,
 	pauseMusic,
+	removeQueuedTrack,
 	REPEAT_MODES,
 	RepeatMode,
 	resumeMusic,
@@ -114,7 +117,15 @@ export interface MusicStateView {
 	hasPrevious: boolean;
 	// Voice ping of the node to Discord (ms), null when unknown.
 	voicePing?: number | null;
-	actor: { voiceChannelId: string | null; inBotChannel: boolean };
+	actor: {
+		id: string;
+		voiceChannelId: string | null;
+		inBotChannel: boolean;
+		// What the actor may do (musicControls.ts › musicRights): everything,
+		// or the track playing; the player greys out the rest.
+		manager: boolean;
+		controlsCurrent: boolean;
+	};
 }
 
 const isLive = (track: Track): boolean =>
@@ -145,9 +156,15 @@ const channelRef = (guild: Guild, id: string | null | undefined) => {
 export function musicState(
 	guild: Guild,
 	actor: GuildMember,
-	player: MusicPlayer | undefined
+	player: MusicPlayer | undefined,
+	rights: MusicRights
 ): MusicStateView {
 	const actorVoice = actor.voice.channelId ?? null;
+	const who = {
+		id: actor.id,
+		manager: rights.manager,
+		controlsCurrent: rights.current
+	};
 	if (!player) {
 		return {
 			active: false,
@@ -164,7 +181,7 @@ export function musicState(
 			queueLength: 0,
 			hasPrevious: false,
 			queueDuration: 0,
-			actor: { voiceChannelId: actorVoice, inBotChannel: false }
+			actor: { ...who, voiceChannelId: actorVoice, inBotChannel: false }
 		};
 	}
 	const current = (player.queue.current as Track | null) ?? null;
@@ -196,6 +213,7 @@ export function musicState(
 				? Math.round(player.ping.ws)
 				: null,
 		actor: {
+			...who,
 			voiceChannelId: actorVoice,
 			inBotChannel: !!actorVoice && actorVoice === player.voiceChannelId
 		}
@@ -212,7 +230,10 @@ export const CONTROL_ERRORS: Record<MusicRefusal | "no_previous", string> = {
 	not_same_channel: "forbidden: you must be in the bot's voice channel",
 	not_enough_tracks: "at least 2 tracks must be queued to shuffle",
 	no_previous: "no previous track to go back to",
-	audio_unavailable: AUDIO_UNAVAILABLE
+	audio_unavailable: AUDIO_UNAVAILABLE,
+	requester_only:
+		"forbidden: only the listener who requested this track, or a server manager, can do that",
+	manager_only: "forbidden: only a server manager can do that"
 };
 
 export const PLAY_ERRORS: Record<MusicPlayRefusal, string> = {
@@ -226,13 +247,16 @@ export const PLAY_ERRORS: Record<MusicPlayRefusal, string> = {
 
 // `audio`: the music server can take a request; else since when it is away
 // (it restarts, the players come back on their own: audioNode.ts).
-const stateOf = ({ client, guild, actor }: ActionContext) => ({
-	...musicState(guild, actor, client.player.getPlayer(guild.id)),
-	audio: {
-		available: audioAvailable(client),
-		downSince: audioDownSince(client)
-	}
-});
+async function stateOf({ client, guild, actor }: ActionContext) {
+	const player = client.player.getPlayer(guild.id);
+	return {
+		...musicState(guild, actor, player, await musicRights(actor, player)),
+		audio: {
+			available: audioAvailable(client),
+			downSince: audioDownSince(client)
+		}
+	};
+}
 
 // Runs a control and answers with the new state.
 async function control<T extends object>(
@@ -244,7 +268,7 @@ async function control<T extends object>(
 	const result = await run();
 	if (!result.ok) return fail(CONTROL_ERRORS[result.reason]);
 	const { ok: _ok, ...extra } = result;
-	return { ...extra, state: stateOf(ctx) };
+	return { ...extra, state: await stateOf(ctx) };
 }
 
 // The member and the bot can read and post in this channel.
@@ -279,7 +303,7 @@ export const musicActions: ActionGroup = {
 						.then((keys) => keys.has(key))
 						.catch(() => false)
 				: false;
-			return { ...stateOf(ctx), currentKey: key, liked };
+			return { ...(await stateOf(ctx)), currentKey: key, liked };
 		}
 	},
 
@@ -349,6 +373,29 @@ export const musicActions: ActionGroup = {
 	},
 
 	// The "jump to" menu of the /music queue panel.
+	// One upcoming track out of the queue: its requester, or a manager.
+	"music.remove": {
+		command: "music queue",
+		run: async (ctx) => {
+			const index = ctx.params.int("index", { min: 0 });
+			const identifier = ctx.params.optStr("identifier", 500);
+			const result = await removeQueuedTrack(
+				ctx.client,
+				ctx.actor,
+				index,
+				identifier
+			);
+			if (!result.ok) {
+				if (result.reason === "track_not_found")
+					return fail("track not found");
+				if (result.reason === "queue_changed")
+					return fail("the queue changed, refresh it and try again");
+				return fail(CONTROL_ERRORS[result.reason]);
+			}
+			return { removed: result.title, state: await stateOf(ctx) };
+		}
+	},
+
 	"music.skip-to": {
 		command: "music queue",
 		run: async (ctx) => {
@@ -364,6 +411,9 @@ export const musicActions: ActionGroup = {
 				return fail(CONTROL_ERRORS.not_same_channel);
 			}
 			if (!playerNodeReady(player)) return fail(AUDIO_UNAVAILABLE);
+			// Jumping skips the others' tracks: a manager's call.
+			if (!(await musicRights(actor, player)).manager)
+				return fail(CONTROL_ERRORS.manager_only);
 			const target = player.queue.tracks[index] as Track | undefined;
 			if (!target) return fail("track not found");
 			if (identifier !== null && target.info.identifier !== identifier) {
@@ -384,7 +434,7 @@ export const musicActions: ActionGroup = {
 					allowedMentions: { parse: [] }
 				})
 				.catch(() => null);
-			return { skippedTo: trackView(target), state: stateOf(ctx) };
+			return { skippedTo: trackView(target), state: await stateOf(ctx) };
 		}
 	},
 
@@ -485,7 +535,7 @@ export const musicActions: ActionGroup = {
 							}
 						: null,
 				panelChannelId: canPost ? panelId : null,
-				state: stateOf(ctx)
+				state: await stateOf(ctx)
 			};
 		}
 	},
