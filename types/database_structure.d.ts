@@ -1007,6 +1007,9 @@ export namespace DatabaseStructure {
 		duration: number;
 		// Artwork of its first track.
 		cover: string | null;
+		// Up to 4 different artworks of its first tracks (the cover mosaic);
+		// filled on the next write, or by the first read of the library.
+		covers?: string[];
 		// Set while the playlist has a public link (`SHARE_{shareId}`).
 		shareId?: string | null;
 	}

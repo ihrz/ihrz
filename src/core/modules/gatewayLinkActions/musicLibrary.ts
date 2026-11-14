@@ -49,6 +49,7 @@ import {
 	freeName,
 	LibraryError,
 	listPlaylists,
+	listPlaylistsWithCovers,
 	MAX_FAVORITES,
 	MAX_PLAYLIST_TRACKS,
 	MAX_PLAYLISTS,
@@ -196,7 +197,7 @@ export const musicLibraryActions: ActionGroup = {
 		read: true,
 		command: "music play",
 		run: async ({ actor }) => ({
-			playlists: await listPlaylists(actor.id),
+			playlists: await listPlaylistsWithCovers(actor.id),
 			favorites: (await favoriteKeys(actor.id)).size,
 			limits: LIMITS
 		})

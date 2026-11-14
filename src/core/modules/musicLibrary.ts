@@ -165,6 +165,18 @@ export function cleanName(name: string): string {
 	return name.replace(/\s+/g, " ").trim().slice(0, NAME_MAX);
 }
 
+export const MOSAIC = 4;
+
+/** Up to 4 different artworks, in the playlist's order (one album four times is one cover). */
+export function coversOf(tracks: LibraryTrack[]): string[] {
+	const out: string[] = [];
+	for (const t of tracks) {
+		if (t.artworkUrl && !out.includes(t.artworkUrl)) out.push(t.artworkUrl);
+		if (out.length === MOSAIC) break;
+	}
+	return out;
+}
+
 const summary = (
 	base: Pick<LibraryPlaylist, "id" | "name" | "createdAt">,
 	tracks: LibraryTrack[]
@@ -173,7 +185,8 @@ const summary = (
 	updatedAt: Date.now(),
 	count: tracks.length,
 	duration: tracks.reduce((n, t) => n + (t.isStream ? 0 : t.duration), 0),
-	cover: tracks.find((t) => t.artworkUrl)?.artworkUrl ?? null
+	cover: tracks.find((t) => t.artworkUrl)?.artworkUrl ?? null,
+	covers: coversOf(tracks)
 });
 
 // ---- Playlists ----
@@ -187,6 +200,31 @@ export async function listPlaylists(user: string): Promise<LibraryPlaylist[]> {
 
 const savePlaylists = (user: string, playlists: LibraryPlaylist[]) =>
 	musicLibraryTable.set(plKey(user), { playlists });
+
+/**
+ * listPlaylists, with the mosaic of the playlists kept before `covers`
+ * existed: computed from their tracks and saved once (in the user's write
+ * queue, so a write in progress is not undone).
+ */
+export async function listPlaylistsWithCovers(
+	user: string
+): Promise<LibraryPlaylist[]> {
+	const playlists = await listPlaylists(user);
+	if (!playlists.some((p) => !Array.isArray(p.covers))) return playlists;
+	return serial(user, async () => {
+		const fresh = await listPlaylists(user);
+		let changed = false;
+		for (const p of fresh) {
+			if (Array.isArray(p.covers)) continue;
+			const stored = (await musicLibraryTable.get(ptKey(user, p.id))) as
+				LibraryTrack[] | null;
+			p.covers = coversOf(Array.isArray(stored) ? stored : []);
+			changed = true;
+		}
+		if (changed) await savePlaylists(user, fresh);
+		return fresh;
+	});
+}
 
 async function findPlaylist(user: string, id: string) {
 	const playlists = await listPlaylists(user);
