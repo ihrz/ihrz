@@ -38,7 +38,7 @@
  * Stop are drawn to match their Pause.
  */
 
-import { trackPosition } from "./trackClock.js";
+import { markPaused, trackPosition } from "./trackClock.js";
 import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import { musicRights } from "./musicControls.js";
@@ -616,6 +616,7 @@ export async function openNowPlayingPanel(
 				case BUTTON.pause:
 					if (live.paused) {
 						await live.resume();
+						markPaused(live, false);
 						announce(
 							lang.nowplaying_resume_button.replace(
 								"${author}",
@@ -624,6 +625,7 @@ export async function openNowPlayingPanel(
 						);
 					} else {
 						await live.pause();
+						markPaused(live, true);
 						announce(
 							lang.nowplaying_pause_button.replace(
 								"${author}",
