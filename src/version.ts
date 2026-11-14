@@ -37,11 +37,29 @@ export function shell(str: string): string {
 // Baked in by tools/Standalone_Build.ts: a binary has no git checkout.
 const build = typeof IHORIZON_BUILD === "undefined" ? null : IHORIZON_BUILD;
 
+// The remote as a web link: `git@host:path.git` and `https://host/path.git`
+// become `https://host/path`. Credentials in an HTTPS remote
+// (`https://user:token@host/…`) are dropped: the link is public (BOT document).
 export function parseGitRemote(remote: string): string {
 	return remote
 		.trim()
 		.replace(/^git@([^:]+):/, "https://$1/")
+		.replace(/^(https?:\/\/)[^@/]+@/, "$1")
 		.replace(/\.git$/, "");
+}
+
+/** The running build for the BOT document: null where it is unknown (no git, no remote). */
+export function buildInfo() {
+	return {
+		version,
+		branch: env || null,
+		commit: short_commit_hex || null,
+		commitLong: long_commit_hex || null,
+		commitUrl:
+			git_remote.startsWith("https://") && long_commit_hex
+				? git_commit_url
+				: null
+	};
 }
 
 export const env: string = build?.branch ?? shell("git branch --show-current");
@@ -54,6 +72,12 @@ export const git_remote = parseGitRemote(
 export const short_commit_hex =
 	build?.shortCommit ?? shell("git rev-parse --short HEAD");
 export const long_commit_hex = build?.longCommit ?? shell("git rev-parse HEAD");
-export const git_commit_url = `${git_remote}/commit/${long_commit_hex}`;
+export function commitUrl(remote: string, commit: string): string {
+	// GitLab's own route (`/commit/` only redirects to it); `/commit/` elsewhere (GitHub…).
+	return /^https:\/\/[^/]*gitlab\./.test(remote)
+		? `${remote}/-/commit/${commit}`
+		: `${remote}/commit/${commit}`;
+}
+export const git_commit_url = commitUrl(git_remote, long_commit_hex);
 
 export const ClientVersion = `${version} (${env}:${short_commit_hex}) discord.js@${djs}`;

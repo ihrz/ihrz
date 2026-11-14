@@ -67,6 +67,7 @@ import {
 	initTables
 } from "../../core/database/tables.js";
 import { Team } from "../../../types/teams.js";
+import { buildInfo } from "../../version.js";
 
 export {
 	tempTable,
@@ -323,6 +324,8 @@ export const event: BotEvent = {
 						community: {
 							servers: await getCommunityServers()
 						},
+						// The commit running, its branch and its GitLab link (version.ts).
+						build: buildInfo(),
 						lastPushAt: pushedAt,
 						lastPushAtISO: new Date(pushedAt).toISOString(),
 						writerShard: client.shard?.ids[0] ?? 0
