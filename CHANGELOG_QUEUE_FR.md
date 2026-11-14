@@ -373,3 +373,4 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Dashboard — Messages épinglés** : chaque salon peut maintenant utiliser un embed (seul ou avec le texte), comme `/sticky embed`
 - **Activité Discord** : le lecteur musical d'iHorizon s'ouvre directement dans Discord depuis un salon vocal (bouton fusée) : la file, les paroles, vos playlists et les commandes, pour tout le monde dans le salon
 - **Titres likés** : le cœur du titre en cours ne disparaît plus pendant une minute après un like ou un unlike
+- **Musique — paroles** : les paroles synchronisées s'arrêtent quand la musique est en pause, même juste après le début d'un morceau, et suivent en quelques secondes une pause, un passage ou un saut faits ailleurs (une commande, un bouton de panneau, un autre auditeur) au lieu de continuer

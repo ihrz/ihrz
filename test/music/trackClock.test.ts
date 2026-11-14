@@ -23,6 +23,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+	markPaused,
 	markTrackStart,
 	trackPosition
 } from "../../src/core/modules/trackClock.ts";
@@ -53,6 +54,31 @@ function makePlayer(over: Record<string, unknown> = {}) {
 }
 
 describe("trackPosition", () => {
+	test("paused before the node reported a position: it stays still, and goes on from there", () => {
+		const p = makePlayer();
+		const t0 = Date.now() - 10_000;
+		markTrackStart(p, p.queue.current, t0);
+		// Paused 2 s in; 8 s later, still 2 s.
+		markPaused(p, true, t0 + 2_000);
+		p.paused = true;
+		expect(trackPosition(p)).toBe(2_000);
+		// Resumed now: it goes on from 2 s, not from 10.
+		markPaused(p, false);
+		p.paused = false;
+		const pos = trackPosition(p);
+		expect(pos).toBeGreaterThanOrEqual(2_000);
+		expect(pos).toBeLessThan(2_500);
+	});
+
+	test("a pause nobody noted (no markPaused) still stops the clock where it is seen", () => {
+		const p = makePlayer();
+		markTrackStart(p, p.queue.current, Date.now() - 3_000);
+		p.paused = true;
+		const first = trackPosition(p);
+		const later = trackPosition(p);
+		expect(later).toBe(first);
+	});
+
 	test("right after a skip, the new track starts at 0, not at the old track's position", () => {
 		const p = makePlayer();
 		// The node reported 150 s of the previous track 2 s ago.

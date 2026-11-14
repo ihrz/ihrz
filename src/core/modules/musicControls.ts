@@ -48,6 +48,7 @@ import {
 import { LanguageData } from "../../../types/languageData.js";
 import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
+import { markPaused } from "./trackClock.js";
 import { cleanupTTS, getTTSData } from "./ttsManager.js";
 
 export type MusicPlayer = NonNullable<
@@ -163,7 +164,10 @@ export async function pauseMusic(
 	if (!inBotChannel(member)) return refuse("not_same_channel");
 	if (nodeDown(player)) return refuse("audio_unavailable");
 	if (!(await needsCurrent(member, player))) return refuse("requester_only");
-	if (!player.paused) await player.pause();
+	if (!player.paused) {
+		await player.pause();
+		markPaused(player, true);
+	}
 	return { ok: true, paused: !!player.paused };
 }
 
@@ -178,7 +182,10 @@ export async function resumeMusic(
 	if (nodeDown(player)) return refuse("audio_unavailable");
 	if (!(await needsCurrent(member, player))) return refuse("requester_only");
 	// lavalink-client throws when the player isn't paused.
-	if (player.paused) await player.resume();
+	if (player.paused) {
+		await player.resume();
+		markPaused(player, false);
+	}
 	return { ok: true };
 }
 

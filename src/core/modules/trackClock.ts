@@ -39,7 +39,10 @@ const SAME_START_MS = 30_000;
 // `hold`: until then the node's position is not this track's. A Wavyzon
 // crossfade keeps reporting the OUTGOING deck's position for the whole fade
 // (wavyzon-player player.rs: FrameInfo.position_ms = pos_a while mixing).
-type Clock = { id: string; at: number; hold?: number };
+// `pausedAt`: the time since the start stops there while paused (the lyrics
+// and the progress stay still); a resume moves `at` (and `hold`) on by the
+// pause's length.
+type Clock = { id: string; at: number; hold?: number; pausedAt?: number };
 
 const idOf = (track: Track | UnresolvedTrack | null | undefined) =>
 	track?.encoded ?? track?.info?.identifier ?? null;
@@ -59,6 +62,26 @@ export function markTrackStart(
 	player.setData(KEY, { id, at, ...(holdMs > 0 && { hold: at + holdMs }) });
 }
 
+/** The player was paused (or resumed) at `at`: see `Clock.pausedAt`. */
+export function markPaused(
+	player: Player,
+	paused: boolean,
+	at = Date.now()
+): void {
+	const clock = player.getData<Clock | undefined>(KEY);
+	if (!clock) return;
+	if (paused && clock.pausedAt === undefined) {
+		player.setData(KEY, { ...clock, pausedAt: at });
+	} else if (!paused && clock.pausedAt !== undefined) {
+		const shift = Math.max(0, at - clock.pausedAt);
+		player.setData(KEY, {
+			id: clock.id,
+			at: clock.at + shift,
+			...(clock.hold !== undefined && { hold: clock.hold + shift })
+		});
+	}
+}
+
 /** The position of the track playing (ms), bounded by its duration. */
 export function trackPosition(player: Player): number {
 	const current = player.queue.current;
@@ -67,6 +90,10 @@ export function trackPosition(player: Player): number {
 		current.info?.isStream || !current.info?.duration
 			? Number.POSITIVE_INFINITY
 			: current.info.duration;
+	// A pause or a resume nobody noted (markPaused) counts from when it is seen.
+	const noted = player.getData<Clock | undefined>(KEY);
+	if (noted && !!player.paused !== (noted.pausedAt !== undefined))
+		markPaused(player, !!player.paused);
 	const clock = player.getData<Clock | undefined>(KEY);
 	const reported = player.lastPositionChange ?? 0;
 	let position: number;
@@ -75,8 +102,9 @@ export function trackPosition(player: Player): number {
 		clock.id === idOf(current) &&
 		(reported < clock.at || Date.now() < (clock.hold ?? 0))
 	) {
-		// No position from the node for this track yet.
-		position = Date.now() - clock.at;
+		// No position from the node for this track yet: the time since its
+		// start, stopped while paused.
+		position = (clock.pausedAt ?? Date.now()) - clock.at;
 	} else {
 		// lavalink-client's position grows while paused: not the real one.
 		position = player.paused ? player.lastPosition : player.position;
