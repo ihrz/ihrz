@@ -117,6 +117,9 @@ export interface MusicStateView {
 	hasPrevious: boolean;
 	// Voice ping of the node to Discord (ms), null when unknown.
 	voicePing?: number | null;
+	// The bot's avatar on this server (its own for the server, set by
+	// /custom avatar, else its global one): the player's header.
+	botAvatar: string | null;
 	actor: {
 		id: string;
 		voiceChannelId: string | null;
@@ -165,6 +168,9 @@ export function musicState(
 		manager: rights.manager,
 		controlsCurrent: rights.current
 	};
+	const botAvatar =
+		guild.members.me?.displayAvatarURL?.({ extension: "png", size: 128 }) ??
+		null;
 	if (!player) {
 		return {
 			active: false,
@@ -181,6 +187,7 @@ export function musicState(
 			queueLength: 0,
 			hasPrevious: false,
 			queueDuration: 0,
+			botAvatar,
 			actor: { ...who, voiceChannelId: actorVoice, inBotChannel: false }
 		};
 	}
@@ -212,6 +219,7 @@ export function musicState(
 			typeof player.ping?.ws === "number" && player.ping.ws > 0
 				? Math.round(player.ping.ws)
 				: null,
+		botAvatar,
 		actor: {
 			...who,
 			voiceChannelId: actorVoice,

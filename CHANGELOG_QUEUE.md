@@ -374,3 +374,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Discord Activity**: the iHorizon music player opens right inside Discord from a voice channel (rocket button): the queue, lyrics, your playlists and the controls, for everyone in the channel
 - **Liked tracks**: the heart of the track playing no longer disappears for up to a minute after a like or an unlike
 - **Music — lyrics**: the synced lyrics stop when the music is paused, even right after a track starts, and follow a pause, a skip or a seek made elsewhere (a command, a panel button, another listener) within seconds instead of running on
+- **Dashboard — playlists**: a playlist's cover is a mosaic of its first artworks (one, two halves, one big and two small, or a 2×2 grid), in the player, the "add to a playlist" menu and its public page

@@ -199,6 +199,20 @@ describe("music.state", () => {
 		});
 	});
 
+	test("the bot's avatar on the server, for the player's header", async () => {
+		const { ctx, guild } = setup(null);
+		expect(
+			((await musicActions["music.state"].run(ctx() as any)) as any)
+				.botAvatar
+		).toBeNull();
+		guild.members.me.displayAvatarURL = () =>
+			"https://cdn.discordapp.com/guilds/1/users/2/avatars/a.png";
+		expect(
+			((await musicActions["music.state"].run(ctx() as any)) as any)
+				.botAvatar
+		).toBe("https://cdn.discordapp.com/guilds/1/users/2/avatars/a.png");
+	});
+
 	test("player: current track, queue and totals", async () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);

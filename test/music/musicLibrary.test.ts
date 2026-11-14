@@ -126,6 +126,42 @@ describe("playlists", () => {
 	});
 });
 
+describe("cover mosaic", () => {
+	test("up to 4 different artworks, in order", () => {
+		const tracks = [1, 3, 3, 2, 5, 7, 9].map((n) => track(n));
+		// Even n: no artwork; 3 twice: once.
+		expect(lib.coversOf(tracks)).toEqual([
+			"https://img/1.jpg",
+			"https://img/3.jpg",
+			"https://img/5.jpg",
+			"https://img/7.jpg"
+		]);
+		expect(lib.coversOf([track(2)])).toEqual([]);
+	});
+
+	test("kept with the playlist, and filled for one saved before it existed", async () => {
+		const p = await lib.createPlaylist(U, "Mix", [track(1), track(3)]);
+		expect(p.covers).toEqual(["https://img/1.jpg", "https://img/3.jpg"]);
+		const added = await lib.addToPlaylist(U, p.id, [
+			track(5),
+			track(7),
+			track(9)
+		]);
+		expect(added.playlist.covers).toHaveLength(4);
+
+		// An older document: no `covers`.
+		const { musicLibraryTable } =
+			await import("../../src/core/database/tables.ts");
+		const doc = (await musicLibraryTable.get(`PL_${U}`)) as any;
+		delete doc.playlists[0].covers;
+		await musicLibraryTable.set(`PL_${U}`, doc);
+		const listed = await lib.listPlaylistsWithCovers(U);
+		expect(listed[0]!.covers).toHaveLength(4);
+		// Saved: the next plain read has it too.
+		expect((await lib.listPlaylists(U))[0]!.covers).toHaveLength(4);
+	});
+});
+
 describe("liked tracks", () => {
 	test("like, unlike, pages, latest first", async () => {
 		expect(await lib.setFavorite(U, track(1), true)).toBe(true);
