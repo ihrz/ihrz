@@ -34,6 +34,7 @@
  */
 
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
+import { musicRights } from "./musicControls.js";
 import {
 	ActionRowBuilder,
 	BaseGuildTextChannel,
@@ -345,19 +346,29 @@ export async function openQueuePanel(
 			.catch(() => null);
 	};
 
-	/** Playback controls need the member in the bot's voice channel. */
+	/**
+	 * Shuffle and skip to a track: a member of the bot's voice channel who is
+	 * a manager (musicControls.ts › musicRights) — they move the others'
+	 * tracks.
+	 */
 	const canControl = async (
 		i: MessageComponentInteraction,
 		p: Player
 	): Promise<boolean> => {
 		const member = i.member as GuildMember | null;
 		if (
-			member?.voice.channelId &&
-			member.voice.channelId === p.voiceChannelId
-		)
-			return true;
+			!member?.voice.channelId ||
+			member.voice.channelId !== p.voiceChannelId
+		) {
+			await i.reply({
+				content: lang.music_cannot.replace("${emoji_No}", emojis.No),
+				flags: [MessageFlags.Ephemeral]
+			});
+			return false;
+		}
+		if ((await musicRights(member, p as never)).manager) return true;
 		await i.reply({
-			content: lang.music_cannot.replace("${emoji_No}", emojis.No),
+			content: lang.music_manager_only.replace("${emoji_No}", emojis.No),
 			flags: [MessageFlags.Ephemeral]
 		});
 		return false;

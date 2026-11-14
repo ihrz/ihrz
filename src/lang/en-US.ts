@@ -2127,6 +2127,11 @@ const enUS = {
 	music_library_liked_name: "Liked tracks",
 	music_audio_unavailable:
 		"🔄 The music server is restarting. Your music will pick up where it was on its own in a few seconds, try again in a moment.",
+	music_requester_only:
+		"${emoji_No} Only the person who requested this track, or a server manager, can do that.",
+	music_manager_only: "${emoji_No} Only a server manager can do that.",
+	clear_queue_command_own:
+		"${emoji_Security} Your tracks left the queue (${removed}). The other listeners' tracks stay.",
 	music_cannot:
 		"${emoji_No} You need to be in the same voice channel as me to use this command!",
 

@@ -146,6 +146,9 @@ function setup(actorVoice: string | null, player?: any, botVoice = BOT_VC) {
 		id: "300000000000000000",
 		guild,
 		user: { id: "300000000000000000" },
+		// A manager (Manage Server): these tests are about the controls; who
+		// may use them is test/music/musicRights.test.ts.
+		permissions: { has: () => true },
 		voice: {
 			channelId: actorVoice,
 			channel: actorVoice
@@ -187,7 +190,13 @@ describe("music.state", () => {
 		const s: any = await musicActions["music.state"].run(ctx() as any);
 		expect(s.active).toBe(false);
 		expect(s.queue).toEqual([]);
-		expect(s.actor).toEqual({ voiceChannelId: null, inBotChannel: false });
+		expect(s.actor).toEqual({
+			id: "300000000000000000",
+			voiceChannelId: null,
+			inBotChannel: false,
+			manager: true,
+			controlsCurrent: true
+		});
 	});
 
 	test("player: current track, queue and totals", async () => {
@@ -212,7 +221,10 @@ describe("music.state", () => {
 		const player = makePlayer({ position: 999_999_999 });
 		player.queue.tracks = tracks;
 		const { guild, actor } = setup(null, player);
-		const s = musicState(guild, actor, player);
+		const s = musicState(guild, actor, player, {
+			manager: false,
+			current: false
+		});
 		expect(s.queue.length).toBe(QUEUE_MAX);
 		expect(s.queueLength).toBe(150);
 		expect(s.position).toBe(180_000);

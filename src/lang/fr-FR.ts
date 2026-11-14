@@ -2209,6 +2209,12 @@ export default {
 	music_library_liked_name: "Titres likés",
 	music_audio_unavailable:
 		"🔄 Le serveur musical redémarre. Ta musique reprendra toute seule là où elle en était dans quelques secondes, réessaie dans un instant.",
+	music_requester_only:
+		"${emoji_No} Seule la personne qui a demandé ce titre, ou un gestionnaire du serveur, peut faire ça.",
+	music_manager_only:
+		"${emoji_No} Seul un gestionnaire du serveur peut faire ça.",
+	clear_queue_command_own:
+		"${emoji_Security} Tes titres ont quitté la file (${removed}). Ceux des autres auditeurs restent.",
 	music_cannot:
 		"${emoji_No} Vous devez être dans le même canal vocal que moi pour utiliser cette commande !",
 

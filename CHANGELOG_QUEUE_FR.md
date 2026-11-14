@@ -77,6 +77,25 @@ Quand le serveur musical (Wavyzon / Lavalink) redémarre ou perd la connexion, l
 
 ---
 
+## 🎧 Musique — qui contrôle le lecteur
+
+Fini le salon vocal où n'importe qui coupe la musique des autres : chacun contrôle **ses** morceaux, et les gestionnaires gardent la main sur tout.
+
+| Action | Tout le monde dans le salon vocal | La personne qui a demandé le morceau en cours | Gestionnaires* |
+| --- | :---: | :---: | :---: |
+| Ajouter un morceau | ✅ | ✅ | ✅ |
+| Retirer ses propres morceaux de la file | ✅ | ✅ | ✅ |
+| `/music clear-queue` | ses morceaux seulement | ses morceaux seulement | toute la file |
+| Pause, reprise, passer, volume | ❌ | ✅ | ✅ |
+| Précédent, mélanger, répéter, arrêter | ❌ | ❌ | ✅ |
+| Passer directement à un morceau, retirer celui d'un autre | ❌ | ❌ | ✅ |
+
+\* Propriétaire du serveur, permission **Administrateur** ou **Gérer le serveur**, ou owner d'iHorizon.
+
+Seul avec iHorizon dans le salon, vous contrôlez tout ; si la personne qui a demandé le morceau en cours a quitté le salon, n'importe quel auditeur peut le mettre en pause, le passer ou régler le volume. Les mêmes règles valent pour les commandes `/music`, les boutons des panneaux de lecture et de file, le lecteur du dashboard et l'Activité Discord, qui grisent ce que vous ne pouvez pas faire.
+
+---
+
 ## 🧰 Utilitaires — de nouvelles cartes partout
 
 Toutes les commandes utilitaires répondent avec une carte **Components V2** au lieu d'un embed : un titre clair avec un emoji du pack du bot, une information par ligne, des dates affichées dans le fuseau horaire de chacun, le nom du bot du serveur en signature discrète, et des couleurs qui disent ce qui s'est passé (vert quand c'est fait, rouge pour une action destructive, orange quand quelque chose a échoué). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (une seule carte maintenant, avec l'auteur de l'invitation et son expiration), `/serverpic`, `/where`, `/vc` et `/snipe` ont des cartes plus riches ; les listes (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) se feuillettent avec Précédent / Suivant, réservés à l'auteur ; les actions de masse (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) montrent ce qu'elles ont fait et ce qui a échoué ; les panneaux media-only, nick-kicker et rôles autorisés gardent leurs menus dans la carte. Corrigé au passage : `/vc` comptait les membres en sourdine comme muets, `/locknamelist` affichait de mauvaises dates, `/util move` tentait de déplacer des membres absents des salons vocaux, `/admin-users` peut vraiment masquer les bots, et `/prevnames` ne propose plus que d'effacer votre propre historique.
@@ -353,3 +372,4 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Auto-hébergement** : `SHARD_LOGS_CHANNEL_ID` (facultatif) publie la vie de chaque shard dans un salon : prêt, reconnexion, reprise, déconnexion, mort ; la console dit aussi quand un shard qui se reconnectait a repris
 - **Dashboard — Messages épinglés** : chaque salon peut maintenant utiliser un embed (seul ou avec le texte), comme `/sticky embed`
 - **Activité Discord** : le lecteur musical d'iHorizon s'ouvre directement dans Discord depuis un salon vocal (bouton fusée) : la file, les paroles, vos playlists et les commandes, pour tout le monde dans le salon
+- **Titres likés** : le cœur du titre en cours ne disparaît plus pendant une minute après un like ou un unlike

@@ -51,6 +51,7 @@ beforeEach(async () => {
 	resetTables();
 	await initTables({ db: new Memory() } as never, ["musicLibraryTable"]);
 	lib.__libraryTest.keysCache.clear();
+	lib.__libraryTest.keysGen.clear();
 });
 afterAll(() => resetTables());
 
@@ -170,6 +171,55 @@ describe("liked tracks", () => {
 		await expect(lib.setFavorite(U, track(1), true)).rejects.toThrow(
 			"at most 5000"
 		);
+	});
+
+	test("a read in flight during a like never caches the old hearts", async () => {
+		// The player asks music.state every few seconds: a read of the liked
+		// keys can start before a like is written and end after it.
+		const { musicLibraryTable } =
+			await import("../../src/core/database/tables.ts");
+		const get = musicLibraryTable.get.bind(musicLibraryTable);
+		let release!: () => void;
+		const gate = new Promise<void>((r) => (release = r));
+		let held = false;
+		(musicLibraryTable as any).get = async (key: string) => {
+			const value = await get(key);
+			if (key === `FI_${U}` && !held) {
+				held = true;
+				await gate; // read done (old index), answer late
+			}
+			return value;
+		};
+		try {
+			const stale = lib.favoriteKeys(U);
+			await new Promise((r) => setTimeout(r, 5));
+			await lib.setFavorite(U, track(1), true);
+			release();
+			await stale;
+			expect((await lib.favoriteKeys(U)).has(track(1).key)).toBe(true);
+
+			// Same the other way: unliked while a read is in flight.
+			held = false;
+			let release2!: () => void;
+			const gate2 = new Promise<void>((r) => (release2 = r));
+			(musicLibraryTable as any).get = async (key: string) => {
+				const value = await get(key);
+				if (key === `FI_${U}` && !held) {
+					held = true;
+					await gate2;
+				}
+				return value;
+			};
+			lib.__libraryTest.keysCache.clear();
+			const stale2 = lib.favoriteKeys(U);
+			await new Promise((r) => setTimeout(r, 5));
+			await lib.setFavorite(U, track(1), false);
+			release2();
+			await stale2;
+			expect((await lib.favoriteKeys(U)).has(track(1).key)).toBe(false);
+		} finally {
+			(musicLibraryTable as any).get = get;
+		}
 	});
 
 	test("concurrent likes of one user all land", async () => {

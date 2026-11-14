@@ -77,6 +77,25 @@ When the music server (Wavyzon / Lavalink) restarts or loses its connection, the
 
 ---
 
+## 🎧 Music — who controls the player
+
+No more voice channels where anyone cuts the others' music: everyone controls **their own** tracks, and managers keep control of everything.
+
+| Action | Everyone in the voice channel | Whoever requested the track playing | Managers* |
+| --- | :---: | :---: | :---: |
+| Add a track | ✅ | ✅ | ✅ |
+| Remove their own tracks from the queue | ✅ | ✅ | ✅ |
+| `/music clear-queue` | their tracks only | their tracks only | the whole queue |
+| Pause, resume, skip, volume | ❌ | ✅ | ✅ |
+| Previous, shuffle, loop, stop | ❌ | ❌ | ✅ |
+| Skip to a track, remove someone else's | ❌ | ❌ | ✅ |
+
+\* The server's owner, **Administrator** or **Manage Server** permission, or one of iHorizon's owners.
+
+Alone with iHorizon in the channel, you control everything; if whoever requested the track playing has left the channel, any listener can pause it, skip it or set the volume. The same rules apply to the `/music` commands, the buttons of the player and queue panels, the dashboard's player and the Discord Activity, which grey out what you can't do.
+
+---
+
 ## 🧰 Utilities — new cards everywhere
 
 Every utility command answers with a **Components V2** card instead of an embed: one clear title with an emoji from the bot's pack, one detail per line, dates shown in each reader's own time zone, the server's bot name as a quiet signature, and colours that say what happened (green when done, red when destructive, orange when something failed). `/userinfo`, `/serverinfo`, `/avatar`, `/banner`, `/inviteinfo` (one card now, with the inviter and the expiry), `/serverpic`, `/where`, `/vc` and `/snipe` get richer cards; the lists (`/allbots`, `/admin-users`, `/admin-roles`, `/allwebhooks`, `/role-members`, `/prevnames`, `/leashlist`, `/locknamelist`) turn pages with Previous / Next that only the author can use; mass actions (`/massiverole`, `/nickrole`, `/massmove`, `/bringall`, `/derank`, `/unbanall`) show what they did and what failed; the media-only, nick-kicker and whitelisted-roles panels keep their menus inside the card. Fixes on the way: `/vc` counted deafened members as muted, `/locknamelist` showed wrong dates, `/util move` tried to move members who weren't in a voice channel, `/admin-users` can really hide bots now, and `/prevnames` only offers to erase your own history.
@@ -353,3 +372,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Self-hosting**: `SHARD_LOGS_CHANNEL_ID` (optional) posts each shard's life in a channel: ready, reconnecting, resumed, disconnected, died; the console also says when a reconnecting shard has resumed
 - **Dashboard — Sticky messages**: each channel can now use an embed (alone or with the text), like `/sticky embed`
 - **Discord Activity**: the iHorizon music player opens right inside Discord from a voice channel (rocket button): the queue, lyrics, your playlists and the controls, for everyone in the channel
+- **Liked tracks**: the heart of the track playing no longer disappears for up to a minute after a like or an unlike

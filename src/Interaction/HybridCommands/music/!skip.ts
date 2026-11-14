@@ -66,6 +66,14 @@ export const subCommand: SubCommand = {
 						client.iHorizon_Emojis.No
 					),
 					audio_unavailable: lang.music_audio_unavailable,
+					requester_only: lang.music_requester_only.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
+					manager_only: lang.music_manager_only.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					),
 					not_enough_tracks: null
 				}[result.reason];
 				if (content) {

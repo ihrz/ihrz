@@ -2198,6 +2198,12 @@ export default {
 	music_library_liked_name: "Canciones que te gustan",
 	music_audio_unavailable:
 		"🔄 El servidor de música se está reiniciando. Tu música seguirá sola donde estaba en unos segundos, vuelve a intentarlo en un momento.",
+	music_requester_only:
+		"${emoji_No} Solo quien pidió esta canción, o un gestor del servidor, puede hacer eso.",
+	music_manager_only:
+		"${emoji_No} Solo un gestor del servidor puede hacer eso.",
+	clear_queue_command_own:
+		"${emoji_Security} Tus canciones salieron de la cola (${removed}). Las de los demás oyentes se quedan.",
 	music_cannot:
 		"${emoji_No} ¡Debes estar en el mismo canal de voz que yo para usar este comando!",
 
