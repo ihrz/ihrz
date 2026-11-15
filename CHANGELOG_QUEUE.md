@@ -371,7 +371,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Dashboard**: the formatting bar (and **{channel}**) is also on tags, embeds, sticky messages, the notifier, the level-up message, messages sent in a channel and suggestion replies
 - **Self-hosting**: `SHARD_LOGS_CHANNEL_ID` (optional) posts each shard's life in a channel: ready, reconnecting, resumed, disconnected, died; the console also says when a reconnecting shard has resumed
 - **Dashboard — Sticky messages**: each channel can now use an embed (alone or with the text), like `/sticky embed`
-- **Discord Activity**: the iHorizon music player opens right inside Discord from a voice channel (rocket button): the queue, lyrics, your playlists and the controls, for everyone in the channel
+- **Discord Activity**: the iHorizon music player opens right inside Discord from a voice channel (rocket button): the queue, lyrics, your playlists and the controls, for everyone in the channel. Opened in a DM, or on a server iHorizon has not joined, it offers to add the bot instead
 - **Liked tracks**: the heart of the track playing no longer disappears for up to a minute after a like or an unlike
 - **Music — lyrics**: the synced lyrics stop when the music is paused, even right after a track starts, and follow a pause, a skip or a seek made elsewhere (a command, a panel button, another listener) within seconds instead of running on
 - **Dashboard — playlists**: a playlist's cover is a mosaic of its first artworks (one, two halves, one big and two small, or a 2×2 grid), in the player, the "add to a playlist" menu and its public page
