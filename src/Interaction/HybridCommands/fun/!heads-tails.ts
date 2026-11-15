@@ -37,6 +37,15 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
+			return;
+		}
 		const isHead = client.func.random.secureRandomFloat() < 0.5;
 
 		const result = isHead

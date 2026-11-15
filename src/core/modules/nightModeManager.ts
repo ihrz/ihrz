@@ -37,6 +37,17 @@ type nightModeData = {
 }[];
 type checked_nightmode_response = "started" | "ended";
 
+/** Whether night mode takes Administrator away from this role (bots: see `derankBot` / `wlBots`). */
+export function keepsDerank(
+	role: Pick<Role, "managed"> & { tags?: { botId?: string | null } | null; id: string },
+	data: Pick<DatabaseStructure.NightMode, "derankBot" | "wlBots"> | undefined
+): boolean {
+	if (!role.managed) return true;
+	if (!data?.derankBot) return false;
+	const allowed = new Set(data.wlBots ?? []);
+	return !(role.tags?.botId && allowed.has(role.tags.botId)) && !allowed.has(role.id);
+}
+
 class NightModeManager {
 	public async init() {
 		this.Refresh(await this.GetNightModeData());
@@ -170,7 +181,7 @@ class NightModeManager {
 		);
 
 		if (!im_self_admin || !im_on_top || !is_admin) {
-			this.warn_owner(guild, {
+			if (guildObject.data?.notify) this.warn_owner(guild, {
 				type: "ended",
 				im_on_top,
 				im_self_admin: im_self_admin || false,
@@ -215,7 +226,7 @@ class NightModeManager {
 				`\n>>> ${changed_roles.map((x) => "@" + x + "").join("\n")}`;
 		}
 
-		this.Notify_Server_Owner(guild, {
+		if (guildObject.data?.notify) this.Notify_Server_Owner(guild, {
 			type: "ended",
 			msg: {
 				content: msg
@@ -308,7 +319,7 @@ class NightModeManager {
 		);
 
 		if (!im_self_admin || !im_on_top || !is_admin) {
-			this.warn_owner(guild, {
+			if (guildObject.data?.notify) this.warn_owner(guild, {
 				type: "started",
 				im_on_top,
 				im_self_admin: im_self_admin || false,
@@ -328,13 +339,9 @@ class NightModeManager {
 			(x) => x.id !== x.guild.members.me?.roles.botRole?.id
 		);
 
-		if (guildObject.data?.derankBot && guildObject.data.wlBots) {
-			filtered_pa_roles = filtered_pa_roles.filter(
-				(role) =>
-					!role.managed ||
-					(guildObject.data?.wlBots || []).includes(role.id)
-			);
-		}
+		// A bot's Administrator comes from its own (managed) role. "Derank bots" off: bots keep it.
+		// On: they lose it too, except the allowed bots (bot user ids, chosen in /nightmode).
+		filtered_pa_roles = filtered_pa_roles.filter((role) => keepsDerank(role, guildObject.data));
 
 		const changed_roles: Role[] = [];
 		// Roles still waiting to be given back from an earlier night are kept.
@@ -373,7 +380,7 @@ class NightModeManager {
 				`\n>>> ${changed_roles.map((x) => "@" + x.name + "").join("\n")}`;
 		}
 
-		this.Notify_Server_Owner(guild, {
+		if (guildObject.data?.notify) this.Notify_Server_Owner(guild, {
 			type: "started",
 			msg: {
 				content: msg

@@ -23,6 +23,7 @@ import {
 	Client,
 	EmbedBuilder,
 	MessageReaction,
+	NewsChannel,
 	TextChannel,
 	User
 } from "discord.js";
@@ -138,7 +139,8 @@ export function createReactionBoard(
 		const channel =
 			guild.channels.cache.get(id) ||
 			(await guild.channels.fetch(id).catch(() => null));
-		return channel instanceof TextChannel ? channel : null;
+		// Announcement channels accept the same posts (/starboard and the dashboard both offer them).
+		return channel instanceof TextChannel || channel instanceof NewsChannel ? channel : null;
 	}
 
 	async function onAdd(

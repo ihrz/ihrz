@@ -264,6 +264,10 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Night mode**: "Derank bots" now does what it says (bots keep Administrator when it is off, lose it when it is on), the allowed bots list works, and the owner only gets the night's private messages when "Notify" is on
+- **Starboard & skullboard**: an announcement channel works as the board channel (posts were silently skipped)
+- **Fun commands**: dice, heads or tails, number, rate, gay, stench, togif, trans, captions and bubbles now respect the server's fun switch like the others
+- `/guildconfig bot prefix` accepts a 5-character prefix, like the dashboard
 - **Music**: right after a skip, the dashboard and the player card show the new track's time instead of the previous track's for several seconds, and a paused track's time no longer keeps running
 - **Music**: synced lyrics follow what you actually hear: they wait for the audio's way to your ears (the voice ping to Discord, Discord and your device), stay on the right track during a crossfade skip, and a − / + control nudges them by 0.1 s when a lyrics file is off
 - **Music**: a YouTube or YouTube Music playlist link (`list=`, mixes included) plays the whole playlist (100 tracks at most) instead of only its first video, and YouTube titles are cleaned ("Artist - Title (Official Video)") before the search; YouTube links are read from YouTube's public pages, no YouTube library anymore
