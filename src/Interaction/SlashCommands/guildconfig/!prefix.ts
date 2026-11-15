@@ -61,7 +61,8 @@ export const subCommand: SubCommand = {
 					content:
 						lang.guildconfig_setbot_prefix_prefix_specify_prefix
 				});
-			if (prefix.length >= 5)
+			// 5 characters at most, like the dashboard (gateway validate.rs).
+			if (prefix.length > 5)
 				return await client.func.method.interactionSend(interaction, {
 					content: lang.guildconfig_setbot_prefix_prefix_too_long
 				});
