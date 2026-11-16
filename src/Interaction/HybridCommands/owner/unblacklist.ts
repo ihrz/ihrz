@@ -23,6 +23,7 @@ import {
 	Client,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
+	Guild,
 	UserResolvable,
 	ApplicationCommandType,
 	Message
@@ -144,13 +145,17 @@ export async function run_for_bot_owner(
 		return;
 	}
 
-	// Function to broadcast unban across all shards
+	const storedReason = String(fetched.reason ?? "");
+
+	// Function to broadcast unban across all shards.
+	// Only lifts bans the global blacklist placed: a ban the server applied
+	// for another reason stays.
 	async function broadcastUnbanAcrossShards(
 		userId: string,
 		username: string
 	) {
 		const results = await client.shard?.broadcastEval(
-			async (c, { userId, username }) => {
+			async (c, { userId, storedReason }) => {
 				const guilds = c.guilds.cache.filter(
 					(g) =>
 						g.members.me?.permissions.has("BanMembers") &&
@@ -163,22 +168,37 @@ export async function run_for_bot_owner(
 				const delay = 100;
 				const guildIds = Array.from(guilds.keys());
 
+				// Same rule as isGlobalBlacklistBan (broadcastEval code cannot
+				// reach module scope): keep both in sync.
+				const isBlacklistBan = (reason: string | null | undefined) =>
+					!!reason &&
+					((storedReason !== "" && reason === storedReason) ||
+						reason.includes("iHorizon Project Blacklist - ") ||
+						(storedReason !== "" &&
+							reason.includes("iHorizon") &&
+							reason.endsWith(storedReason)));
+
 				for (let i = 0; i < guildIds.length; i += batchSize) {
 					const batch = guildIds.slice(i, i + batchSize);
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = c.guilds.cache.get(guildId);
-						if (guild) {
-							try {
-								await guild.members
-									.unban(userId, "iHorizon Unblacklist")
-									.catch(() => {});
-								return true;
-							} catch {
+						if (!guild) return false;
+						try {
+							const ban = await guild.bans
+								.fetch({ user: userId, force: true })
+								.catch(() => null);
+							if (!ban || !isBlacklistBan(ban.reason)) {
 								return false;
 							}
+							await guild.members.unban(
+								userId,
+								"iHorizon Unblacklist"
+							);
+							return true;
+						} catch {
+							return false;
 						}
-						return false;
 					});
 
 					const batchResults = await Promise.all(batchPromises);
@@ -193,7 +213,7 @@ export async function run_for_bot_owner(
 
 				return { successCount, totalGuilds };
 			},
-			{ context: { userId, username } }
+			{ context: { userId, username, storedReason } }
 		);
 
 		// Sum up results from all shards
@@ -218,7 +238,9 @@ export async function run_for_bot_owner(
 		}
 
 		await blacklistTable.delete(`${member?.id}`);
-		await interaction.guild.members.unban(bannedMember).catch(() => {});
+		await unbanIfMatching(interaction.guild, bannedMember.id, (reason) =>
+			isGlobalBlacklistBan(reason, storedReason)
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_command_work.replaceAll(
@@ -295,7 +317,7 @@ export async function run_for_guild_owner(
 	const opts = client.func.method.options(interaction, args);
 	const member = await opts.user("user", 0);
 
-	const fetched = await client.db.delete(
+	const fetched = await client.db.get(
 		`${interaction.guildId}.BLACKLIST.${member?.id}`
 	);
 
@@ -321,7 +343,11 @@ export async function run_for_guild_owner(
 	}
 
 	await client.db.delete(`${interaction.guildId}.BLACKLIST.${member?.id}`);
-	await interaction.guild.members.unban(bannedMember).catch(() => {});
+	// Stored local reasons fall back like the join ban in blacklistFetcher.ts.
+	const storedReason = String(fetched.reason || "blacklisted!");
+	await unbanIfMatching(interaction.guild, bannedMember.id, (reason) =>
+		isServerBlacklistBan(reason, storedReason)
+	);
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unblacklist_command_work.replaceAll(
@@ -331,4 +357,54 @@ export async function run_for_guild_owner(
 	});
 
 	return;
+}
+
+/**
+ * True when a ban reason was written by the global blacklist: the
+ * /blacklist ban itself (the stored reason, "iHorizon Project Blacklist - ..."
+ * since 2024) or the join ban of blacklistFetcher.ts (global_blacklist_reason
+ * in the guild's language, which names iHorizon and ends with the stored reason).
+ */
+export function isGlobalBlacklistBan(
+	reason: string | null | undefined,
+	storedReason: string
+): boolean {
+	if (!reason) return false;
+	if (storedReason !== "" && reason === storedReason) return true;
+	if (reason.includes("iHorizon Project Blacklist - ")) return true;
+	return (
+		storedReason !== "" &&
+		reason.includes("iHorizon") &&
+		reason.endsWith(storedReason)
+	);
+}
+
+/**
+ * True when a ban reason was written by this server's own blacklist: the
+ * /blacklist ban ("Blacklist - ...") or the join ban (server_blacklist_reason,
+ * which ends with the stored reason). Global blacklist bans name iHorizon and
+ * are left alone.
+ */
+export function isServerBlacklistBan(
+	reason: string | null | undefined,
+	storedReason: string
+): boolean {
+	if (!reason) return false;
+	if (reason === storedReason) return true;
+	return !reason.includes("iHorizon") && reason.endsWith(storedReason);
+}
+
+async function unbanIfMatching(
+	guild: Guild,
+	userId: string,
+	isMatch: (reason: string | null | undefined) => boolean
+): Promise<boolean> {
+	const ban = await guild.bans
+		.fetch({ user: userId, force: true })
+		.catch(() => null);
+	if (!ban || !isMatch(ban.reason)) return false;
+	return guild.members
+		.unban(userId, "iHorizon Unblacklist")
+		.then(() => true)
+		.catch(() => false);
 }

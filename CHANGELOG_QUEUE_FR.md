@@ -264,6 +264,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **`/unblacklist`** : ne lève plus que les bannissements posés par la liste noire. Avant, la commande levait tous les bannissements de l'utilisateur sur chaque serveur de 500 membres ou moins, y compris ceux qu'un serveur avait posés pour une autre raison. Le propriétaire d'un serveur qui retire quelqu'un de la liste noire de son serveur ne lève plus non plus un bannissement de la liste noire globale, et le résultat compte les bannissements réellement levés
 - **Mode nuit** : « Dérank les bots » fait enfin ce qu'il dit (les bots gardent Administrateur s'il est coupé, le perdent s'il est activé), la liste des bots autorisés fonctionne, et le propriétaire ne reçoit les messages privés de la nuit que si « Notifier » est activé
 - **Starboard & skullboard** : un salon d'annonces fonctionne comme salon du tableau (les republications étaient ignorées sans rien dire)
 - **Commandes fun** : dé, pile ou face, nombre, note, gay, stench, togif, trans, captions et bubbles respectent maintenant l'interrupteur fun du serveur comme les autres

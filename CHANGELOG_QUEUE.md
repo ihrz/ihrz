@@ -264,6 +264,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **`/unblacklist`**: only lifts the bans the blacklist placed. It used to lift every ban of the user on every server of 500 members or fewer, including bans a server had applied for another reason. A server owner unblacklisting someone from their own server no longer lifts a global blacklist ban there either, and the result counts the bans actually lifted
 - **Night mode**: "Derank bots" now does what it says (bots keep Administrator when it is off, lose it when it is on), the allowed bots list works, and the owner only gets the night's private messages when "Notify" is on
 - **Starboard & skullboard**: an announcement channel works as the board channel (posts were silently skipped)
 - **Fun commands**: dice, heads or tails, number, rate, gay, stench, togif, trans, captions and bubbles now respect the server's fun switch like the others
