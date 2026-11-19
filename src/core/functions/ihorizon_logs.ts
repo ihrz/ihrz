@@ -40,6 +40,8 @@ export default async function send(
 		);
 
 		if (!logchannel) return;
-		(logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
+		(logchannel as BaseGuildTextChannel)
+			.send({ embeds: [logEmbed] })
+			.catch(() => {});
 	} catch {}
 }
