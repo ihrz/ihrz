@@ -1857,6 +1857,10 @@ const enUS = {
 
 	setlogschannel_all_already_exist:
 		"All the log channels are already configured!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | I can't post logs in ${channel}, I'm missing these permissions there: ${permissions}.",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | I can't create the log channels, I'm missing these permissions: ${permissions}.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "The channel ${channel} is already set!",

@@ -1885,6 +1885,10 @@ export default {
 	setlogschannel_var_channel: "Журналы канала",
 	setlogschannel_var_confession: "Журналы признаний",
 	setlogschannel_all_already_exist: "Все каналы логов уже настроены!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | Я не могу отправлять логи в ${channel}, мне там не хватает прав: ${permissions}.",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | Я не могу создать каналы логов, мне не хватает прав: ${permissions}.",
 	setlogschannel_var_economy: "Журналы экономики",
 
 	// /join-ghostping add

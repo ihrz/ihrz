@@ -1783,6 +1783,10 @@ export default {
 	setlogschannel_var_channel: "سجلات القناة",
 	setlogschannel_var_confession: "سجلات الاعترافات",
 	setlogschannel_all_already_exist: "جميع قنوات السجلات مكونة بالفعل!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | لا أستطيع إرسال السجلات في ${channel}، تنقصني هذه الصلاحيات هناك: ${permissions}",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | لا أستطيع إنشاء قنوات السجلات، تنقصني هذه الصلاحيات: ${permissions}",
 	setlogschannel_var_economy: "سجلات الاقتصاد",
 
 	// /join-ghostping add

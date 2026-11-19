@@ -1914,6 +1914,10 @@ export default {
 	setlogschannel_var_confession: "Registros de confesiones",
 	setlogschannel_all_already_exist:
 		"¡Todos los canales de registros ya están configurados!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | No puedo enviar registros en ${channel}, me faltan estos permisos allí: ${permissions}.",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | No puedo crear los canales de registros, me faltan estos permisos: ${permissions}.",
 	setlogschannel_var_economy: "Registros de economía",
 
 	// /join-ghostping add

@@ -1866,6 +1866,10 @@ export default {
 	setlogschannel_var_confession: "告白ログ",
 	setlogschannel_all_already_exist:
 		"すべてのログチャンネルは既に設定されています！",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | ${channel} にログを送信できません。このチャンネルで次の権限が不足しています: ${permissions}",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | ログチャンネルを作成できません。次の権限が不足しています: ${permissions}",
 	setlogschannel_var_economy: "経済ログ",
 
 	// /join-ghostping add

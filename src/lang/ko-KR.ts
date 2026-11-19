@@ -1808,6 +1808,10 @@ export default {
 	setlogschannel_var_economy: "경제 로그",
 
 	setlogschannel_all_already_exist: "모든 로그 채널이 이미 설정되어 있어요!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | ${channel}에 로그를 보낼 수 없어요. 이 채널에서 다음 권한이 부족해요: ${permissions}",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | 로그 채널을 만들 수 없어요. 다음 권한이 부족해요: ${permissions}",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "${channel} 채널은 이미 설정되어 있어요!",
