@@ -59,6 +59,7 @@ import { createOauth2LinkWithGuild } from "../functions/authRestoreHelper.js";
 import { authRestoreTable } from "../../Events/client/ready.js";
 import { applyApoFilter, checkApo } from "./musicApo.js";
 import { activeConfig, migrate } from "./musicApoState.js";
+import { musicInUse } from "./audioNode.js";
 
 type Schema = DatabaseStructure.DbGuildObject;
 
@@ -172,7 +173,7 @@ const handlers: Record<string, ChangeHandler> = {
 			// would join a minute later anyway.
 			const player = client.player.getPlayer(guild.id);
 			const tts = await getTTSData(client, guild.id);
-			const conflict = player?.playing
+			const conflict = musicInUse(player)
 				? "music is playing in this server"
 				: tts?.enabled && tts.voiceChannelId !== next.voiceChannelId
 					? "text-to-speech is active in another channel"
@@ -709,7 +710,7 @@ const handlers: Record<string, ChangeHandler> = {
 		if (!(channel instanceof VoiceChannel))
 			return revert("voice channel not found");
 		const music = client.player.getPlayer(guild.id);
-		if (!wasOn && music?.playing)
+		if (!wasOn && musicInUse(music))
 			return revert("music is playing in this server");
 		const h247 = await getH247Data(client, guild.id);
 		if (h247?.enabled && h247.voiceChannelId !== channel.id)

@@ -85,10 +85,13 @@ const inBotChannel = (member: GuildMember): boolean =>
 const playerOf = (client: Client, member: GuildMember) =>
 	client.player.getPlayer(member.guild.id);
 
-// lavalink-client marks the players "not playing" while their node is away:
-// a track waiting for the node still counts as playing.
+// lavalink-client marks the players "not playing" while their node is away,
+// and while paused (syncPlayerData: playing = !paused): a track waiting for
+// the node or paused still counts as playing — skip, volume, stop… must work
+// from pause.
 const active = (player: MusicPlayer): boolean =>
-	player.playing || (!playerNodeReady(player) && !!player.queue.current);
+	player.playing ||
+	(!!player.queue.current && (!!player.paused || !playerNodeReady(player)));
 
 // The controls that talk to the node.
 const nodeDown = (player: MusicPlayer): boolean => !playerNodeReady(player);
