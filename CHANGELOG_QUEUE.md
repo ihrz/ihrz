@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🎫 Tickets — transcripts on the web
+
+When a ticket is closed or deleted, its transcript is now also kept on **ticket.ihorizon.org**: a link button (📜 Transcript) comes with the closing message, the ticket log and the DM to its author. The page shows the whole conversation as in Discord — messages, replies, embeds, images and files, staff and author tags — with the people of the ticket, a search and a print/PDF button. It opens after signing in with Discord on the dashboard, and only for the people of the ticket, its staff and the server's managers. The HTML file is still attached as before. Transcripts are erased when iHorizon leaves the server.
+
+---
+
 ## 💾 Backups — rebuilt from the ground up
 
 `/backup` now runs on **Components V2 panels** with a dedicated emoji set. **Choose what goes in a backup, and what comes back out of it**: server settings, roles, channels, channel permissions, emojis, stickers, bans, AutoMod rules, events, messages and members. A restore only wipes what you selected.

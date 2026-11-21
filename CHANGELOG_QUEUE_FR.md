@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🎫 Tickets — les transcripts sur le web
+
+Quand un ticket est fermé ou supprimé, son transcript est désormais aussi conservé sur **ticket.ihorizon.org** : un bouton (📜 Transcript) accompagne le message de fermeture, le log du ticket et le MP à son auteur. La page montre toute la conversation comme dans Discord — messages, réponses, embeds, images et fichiers, badges staff et auteur — avec les personnes du ticket, une recherche et un bouton impression/PDF. Elle s'ouvre après connexion avec Discord sur le dashboard, et seulement pour les personnes du ticket, son staff et les gestionnaires du serveur. Le fichier HTML reste joint comme avant. Les transcripts sont effacés quand iHorizon quitte le serveur.
+
+---
+
 ## 💾 Backups — entièrement refaites
 
 `/backup` passe en **panneaux Components V2** avec un jeu d'emojis dédié. **Choisissez ce qui entre dans une backup, et ce qui en ressort** : paramètres du serveur, rôles, salons, permissions des salons, emojis, autocollants, bannissements, règles AutoMod, événements, messages et membres. Une restauration n'efface que ce que vous avez sélectionné.

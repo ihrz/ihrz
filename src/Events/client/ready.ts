@@ -93,7 +93,9 @@ export const event: BotEvent = {
 			"ownerTable",
 			"profilTable",
 			"authRestoreTable",
-			"prevnamesTable"
+			"prevnamesTable",
+			// Before recoverPendingGuildDataDeletions: leaving a server erases its transcripts.
+			"ticketTranscriptsTable"
 		]);
 		await recoverPendingGuildDataDeletions(client);
 		await initTables(client, [

@@ -68,6 +68,72 @@ export namespace DatabaseStructure {
 
 	export type TicketUserData = Record<string, TicketChannelData>;
 
+	// ---- Ticket transcripts (table `ticket_transcripts`, src/core/modules/ticketTranscripts.ts) ----
+	// `{channelId}` = TicketTranscriptSchema, written when a ticket is closed or deleted (the latest wins);
+	// `G_{guildId}` = string[] of the server's transcript channel ids (erased with the server's data).
+	// Read by the gateway (ticket.ihorizon.org/<channelId>), after a dashboard login: participants, staff
+	// roles, server managers and bot owners only.
+	export interface TicketTranscriptUser {
+		username: string;
+		globalName: string | null;
+		/** CDN path without extension: `avatars/{id}/{hash}` or `guilds/{g}/users/{id}/avatars/{hash}`. */
+		avatar: string | null;
+		bot: boolean;
+		/** Highest coloured role, `#rrggbb`. */
+		color: string | null;
+	}
+
+	export interface TicketTranscriptAttachment {
+		name: string;
+		url: string;
+		contentType: string | null;
+		size: number;
+		width: number | null;
+		height: number | null;
+	}
+
+	export interface TicketTranscriptMessage {
+		id: string;
+		authorId: string;
+		/** discord.js MessageType (0 = default, 19 = reply…). */
+		type: number;
+		content: string;
+		createdAt: number;
+		editedAt: number | null;
+		replyTo: string | null;
+		attachments: TicketTranscriptAttachment[];
+		/** APIEmbed[] (EmbedBuilder.toJSON()). */
+		embeds: unknown[];
+		stickers: { id: string; name: string; format: number }[];
+	}
+
+	export interface TicketTranscriptSchema {
+		v: 1;
+		guildId: string;
+		guildName: string;
+		guildIcon: string | null;
+		channelId: string;
+		channelName: string;
+		/** Who opened the ticket (TicketChannelData.author). */
+		authorId: string;
+		openedAt: number;
+		closedAt: number;
+		closedBy: string | null;
+		reason: "close" | "delete";
+		/** Author, everyone who wrote, members let into the channel. */
+		participants: string[];
+		/** Participants who could manage the ticket (Administrator or ManageChannels on it). */
+		staff: string[];
+		/** Roles let into the channel (@everyone excluded): their members may read the transcript. */
+		staffRoles: string[];
+		users: Record<string, TicketTranscriptUser>;
+		roles: Record<string, { name: string; color: string | null }>;
+		channels: Record<string, { name: string }>;
+		messages: TicketTranscriptMessage[];
+		/** More than 5000 messages: only the latest are kept. */
+		truncated: boolean;
+	}
+
 	export interface TicketChannelData {
 		channel: string;
 		author: string;

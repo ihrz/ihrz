@@ -131,6 +131,12 @@ export interface ConfigData {
 		 * @description Not required for Self-Hosting. This is a private shared-key between the HorizonGateway and the production bot.
 		 */
 		apiToken: string;
+
+		/**
+		 * @example "https://ticket.ihorizon.org"
+		 * @description Not required for Self-Hosting. Site of the HorizonGateway that shows ticket transcripts (`<url>/<channelId>`). Empty: transcripts are only sent as HTML files.
+		 */
+		ticketTranscriptUrl?: string;
 	};
 
 	uptimeKuma?: {

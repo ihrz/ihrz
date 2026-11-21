@@ -229,7 +229,8 @@ export function configFromEnv(env: Env): ConfigData {
 		api: {
 			HorizonGateway: text(env, "HORIZON_GATEWAY_URL") || DEFAULT_GATEWAY,
 			HorizonGatewayLocal: optionalText(env, "HORIZON_GATEWAY_LOCAL_URL"),
-			apiToken: text(env, "HORIZON_API_TOKEN")
+			apiToken: text(env, "HORIZON_API_TOKEN"),
+			ticketTranscriptUrl: optionalText(env, "TICKET_TRANSCRIPT_URL")
 		},
 		lastfm:
 			lastfmApiKey && lastfmSharedSecret
@@ -301,6 +302,7 @@ export function configToEnv(config: ConfigData): Record<string, string> {
 		HORIZON_GATEWAY_URL: config.api.HorizonGateway ?? DEFAULT_GATEWAY,
 		HORIZON_GATEWAY_LOCAL_URL: config.api.HorizonGatewayLocal ?? "",
 		HORIZON_API_TOKEN: config.api.apiToken ?? "",
+		TICKET_TRANSCRIPT_URL: config.api.ticketTranscriptUrl ?? "",
 		LASTFM_API_KEY: config.lastfm?.apiKey ?? "",
 		LASTFM_SHARED_SECRET: config.lastfm?.sharedSecret ?? "",
 		UPTIME_KUMA_URL: config.uptimeKuma?.url ?? "",
