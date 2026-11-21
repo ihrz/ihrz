@@ -24,6 +24,7 @@ import { Client, EmbedBuilder, Guild } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import logger from "../../core/logger.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
+import { deleteGuildTranscripts } from "../../core/modules/ticketTranscripts.js";
 
 const GUILD_DELETE_DELAY = 10 * 60 * 60 * 1000;
 const GUILD_DELETE_QUEUE_KEY = "GUILD_DELETE_QUEUE_KEY";
@@ -79,6 +80,7 @@ async function clearGuildData(client: Client, guildId: string) {
 
 	await client.db.delete(`${guildId}`);
 	await client.backup.removeSchedule(guildId);
+	await deleteGuildTranscripts(guildId).catch(() => null);
 	await updatePendingGuildDeletionQueue(client, (queue) => {
 		if (!(guildId in queue)) return { changed: false, result: undefined };
 		delete queue[guildId];

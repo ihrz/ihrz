@@ -1930,6 +1930,10 @@ export default {
 	setlogschannel_var_confession: "Beichtprotokolle",
 	setlogschannel_all_already_exist:
 		"Alle Log-Kanäle sind bereits konfiguriert!",
+	setlogschannel_bot_missing_channel_permissions:
+		"${emoji_No} | Ich kann keine Logs in ${channel} senden, mir fehlen dort diese Berechtigungen: ${permissions}.",
+	setlogschannel_bot_missing_permissions:
+		"${emoji_No} | Ich kann die Log-Kanäle nicht erstellen, mir fehlen diese Berechtigungen: ${permissions}.",
 	setlogschannel_var_economy: "Wirtschaftsprotokolle",
 
 	// /join-ghostping add

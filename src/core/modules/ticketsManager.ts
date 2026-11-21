@@ -62,6 +62,7 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
 import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
+import { saveTicketTranscript } from "./ticketTranscripts.js";
 import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
@@ -1006,7 +1007,8 @@ async function sendTicketLog(
 	guild: Guild,
 	title: string,
 	description: string,
-	files: TicketFiles = []
+	files: TicketFiles = [],
+	transcriptLink: { url: string; label: string } | null = null
 ): Promise<void> {
 	try {
 		const logsId = await guild.client.db.get(
@@ -1031,9 +1033,23 @@ async function sendTicketLog(
 					guild
 				),
 				...files
-			]
+			],
+			components: transcriptLink
+				? [transcriptLinkRow(transcriptLink)]
+				: []
 		});
 	} catch {}
+}
+
+/** Link button to the transcript on the web (ticket.ihorizon.org/<channelId>). */
+function transcriptLinkRow(link: { url: string; label: string }) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(link.url)
+			.setEmoji("📜")
+			.setLabel(link.label.slice(0, 80))
+	);
 }
 
 function interactionUser(interaction: Interaction<"cached"> | Message): User {
@@ -1056,8 +1072,19 @@ async function closeTicketChannel(
 		content: string;
 		files: TicketFiles;
 		embeds: EmbedBuilder[];
+		components?: ActionRowBuilder<ButtonBuilder>[];
 	}) => Promise<unknown>
 ): Promise<boolean> {
+	// Saved while the channel is still whole (the web transcript, kept in the database).
+	const webUrl = await saveTicketTranscript(
+		channel,
+		authorId,
+		actor,
+		"close"
+	);
+	const transcriptLink = webUrl
+		? { url: webUrl, label: lang.ticket_module_button_transcript }
+		: null;
 	const attachment = await DiscordJSTranscript.create({
 		channel: channel as TextBasedChannel,
 		limit: -1,
@@ -1087,7 +1114,10 @@ async function closeTicketChannel(
 	await notify({
 		content: lang.close_command_work_notify_channel,
 		files: [attachment],
-		embeds: [embed]
+		embeds: [embed],
+		...(transcriptLink
+			? { components: [transcriptLinkRow(transcriptLink)] }
+			: {})
 	}).catch(() => null);
 
 	await sendTicketLog(
@@ -1096,7 +1126,8 @@ async function closeTicketChannel(
 		lang.event_ticket_logsChannel_onClose_embed_desc
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id),
-		[attachment]
+		[attachment],
+		transcriptLink
 	);
 	return true;
 }
@@ -1457,6 +1488,22 @@ async function deleteTicketChannel(
 	const shouldSendOwnerDm =
 		!!ticketOwner && ticketOwnerId !== deletedByUserId;
 
+	// Before anything is removed: the web transcript outlives the channel.
+	const webUrl = await saveTicketTranscript(
+		channel,
+		ticketOwnerId ?? ticketKey,
+		actor,
+		"delete"
+	);
+	const linkRows = webUrl
+		? [
+				transcriptLinkRow({
+					url: webUrl,
+					label: lang.ticket_module_button_transcript
+				})
+			]
+		: [];
+
 	await guild.client.db.delete(
 		`${guild.id}.TICKET_ALL.${ticketKey}.${channel.id}`
 	);
@@ -1487,7 +1534,8 @@ async function deleteTicketChannel(
 								ticketOwnerMention
 							)
 							.replace("${deletedByUserId}", deletedByUserId),
-						files: [attachment]
+						files: [attachment],
+						components: linkRows
 					})
 					.catch(() => null);
 			}
@@ -1518,7 +1566,8 @@ async function deleteTicketChannel(
 						guild
 					),
 					attachment
-				]
+				],
+				components: linkRows
 			}).catch(() => null);
 			return deleted;
 		}

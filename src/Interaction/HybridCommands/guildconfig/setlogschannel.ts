@@ -29,12 +29,56 @@ import {
 	PermissionFlagsBits,
 	Message,
 	Channel,
-	CategoryChannel
+	CategoryChannel,
+	GuildBasedChannel,
+	OverwriteResolvable,
+	OverwriteType,
+	PermissionsBitField,
+	User
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
+
+// The log events post embeds: the bot needs these in every log channel.
+const LOG_CHANNEL_PERMISSIONS = [
+	PermissionFlagsBits.ViewChannel,
+	PermissionFlagsBits.SendMessages,
+	PermissionFlagsBits.EmbedLinks
+];
+
+// The LOGS category denies these to @everyone and grants the log permissions
+// to the bot: Discord only lets a bot set the permissions it holds itself.
+const AUTO_SETUP_PERMISSIONS = [
+	PermissionFlagsBits.ManageChannels,
+	PermissionFlagsBits.ReadMessageHistory,
+	...LOG_CHANNEL_PERMISSIONS
+];
+
+export function missingLogPermissions(
+	target: GuildBasedChannel | undefined,
+	botUser: User
+): string[] {
+	const permissions = target?.permissionsFor(botUser);
+	return permissions
+		? permissions.missing(LOG_CHANNEL_PERMISSIONS)
+		: new PermissionsBitField(LOG_CHANNEL_PERMISSIONS).toArray();
+}
+
+function formatPermissions(names: string[]): string {
+	return names.map((name) => `\`${name}\``).join(", ");
+}
+
+// Without its own overwrite the bot is locked out of a category that hides
+// itself from @everyone, unless it is an administrator.
+function botLogOverwrite(botUser: User): OverwriteResolvable {
+	return {
+		id: botUser.id,
+		type: OverwriteType.Member,
+		allow: LOG_CHANNEL_PERMISSIONS
+	};
+}
 
 export const command: Command = {
 	name: "setlogs",
@@ -236,6 +280,7 @@ export const command: Command = {
 		)
 			return;
 
+		const botUser = client.user;
 		const allCreatedChannels: string[] = [];
 		const allLogsPossible = [
 			{ id: "voice", value: lang.setlogschannel_var_voice },
@@ -295,26 +340,34 @@ export const command: Command = {
 					return;
 				}
 
-				if (already === channel.id) {
+				const target = interaction.guild?.channels.cache.get(
+					channel.id
+				);
+				const missing = missingLogPermissions(target, botUser);
+				if (missing.length > 0) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.joinghostping_add_already_set.replace(
-							"${channel}",
-							channel.toString()
-						)
+						content:
+							lang.setlogschannel_bot_missing_channel_permissions
+								.replace("${channel}", channel.toString())
+								.replace(
+									"${permissions}",
+									formatPermissions(missing)
+								)
 					});
 					return;
 				}
 
-				(
-					interaction.guild?.channels.cache.get(
-						channel.id
-					) as BaseGuildTextChannel | null
-				)?.send({
-					content: lang.setlogschannel_confirmation_message
-						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-						.replace("${authorId}", interaction.member?.user.id!)
-						.replace("${typeOfLogs}", typeOfLogs)
-				});
+				await (target as BaseGuildTextChannel)
+					.send({
+						content: lang.setlogschannel_confirmation_message
+							.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+							.replace(
+								"${authorId}",
+								interaction.member?.user.id!
+							)
+							.replace("${typeOfLogs}", typeOfLogs)
+					})
+					.catch(() => null);
 
 				if (logKey === "ticket-log-channel") {
 					await client.db.set(
@@ -355,6 +408,21 @@ export const command: Command = {
 
 		if (type === "auto") {
 			if (channel) {
+				const target = interaction.guild.channels.cache.get(channel.id);
+				const missing = missingLogPermissions(target, botUser);
+				if (missing.length > 0) {
+					await client.func.method.interactionSend(interaction, {
+						content:
+							lang.setlogschannel_bot_missing_channel_permissions
+								.replace("${channel}", channel.toString())
+								.replace(
+									"${permissions}",
+									formatPermissions(missing)
+								)
+					});
+					return;
+				}
+
 				for (const logType of allLogsPossible) {
 					if (logType.id === "ticket-log-channel") {
 						await client.db.set(
@@ -369,19 +437,17 @@ export const command: Command = {
 					}
 				}
 				allCreatedChannels.push(channel.id);
-				(
-					interaction.guild.channels.cache.get(
-						channel.id
-					) as BaseGuildTextChannel | null
-				)?.send({
-					content: lang.setlogschannel_confirmation_message
-						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-						.replace("${authorId}", interaction.member.user.id!)
-						.replace(
-							"${typeOfLogs}",
-							allLogsPossible.map((x) => x.value).join(",")
-						)
-				});
+				await (target as BaseGuildTextChannel)
+					.send({
+						content: lang.setlogschannel_confirmation_message
+							.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+							.replace("${authorId}", interaction.member.user.id!)
+							.replace(
+								"${typeOfLogs}",
+								allLogsPossible.map((x) => x.value).join(",")
+							)
+					})
+					.catch(() => null);
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setlogschannel_utils_command_work
@@ -392,84 +458,122 @@ export const command: Command = {
 						)
 				});
 			} else {
-				const existingLogs: Record<string, string> = {};
-				let existingCategory: CategoryChannel | null = null;
+				try {
+					const existingLogs: Record<string, string> = {};
+					let existingCategory: CategoryChannel | null = null;
 
-				for (const logType of allLogsPossible) {
-					let channelId: string | null = null;
+					for (const logType of allLogsPossible) {
+						let channelId: string | null = null;
 
-					if (logType.id === "ticket-log-channel") {
-						channelId = await client.db.get(
-							`${interaction.guildId}.GUILD.TICKET.logs`
-						);
-					} else {
-						channelId = await client.db.get(
-							`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`
-						);
-					}
+						if (logType.id === "ticket-log-channel") {
+							channelId = await client.db.get(
+								`${interaction.guildId}.GUILD.TICKET.logs`
+							);
+						} else {
+							channelId = await client.db.get(
+								`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`
+							);
+						}
 
-					// Vérifier si le salon existe vraiment dans le serveur
-					if (channelId) {
-						const guildChannel =
-							interaction.guild.channels.cache.get(channelId);
-						if (guildChannel) {
-							existingLogs[logType.id] = channelId;
-							// Récupérer la catégorie parente du premier salon trouvé
-							if (!existingCategory && guildChannel.parent) {
-								existingCategory =
-									guildChannel.parent as CategoryChannel;
-							}
+						// A saved channel only counts if it still exists and the bot
+						// can post in it: otherwise a new one is created.
+						const guildChannel = channelId
+							? interaction.guild.channels.cache.get(channelId)
+							: undefined;
+						if (
+							!guildChannel ||
+							missingLogPermissions(guildChannel, botUser)
+								.length > 0
+						) {
+							continue;
+						}
+						existingLogs[logType.id] = guildChannel.id;
+
+						// New channels join the category of the first usable one,
+						// when the bot can create channels there.
+						const parent = guildChannel.parent;
+						if (
+							!existingCategory &&
+							parent?.type === ChannelType.GuildCategory &&
+							parent
+								.permissionsFor(botUser)
+								?.has([
+									PermissionFlagsBits.ViewChannel,
+									PermissionFlagsBits.ManageChannels
+								])
+						) {
+							existingCategory = parent;
 						}
 					}
-				}
 
-				const missingLogs = allLogsPossible.filter(
-					(logType) => !existingLogs[logType.id]
-				);
+					const missingLogs = allLogsPossible.filter(
+						(logType) => !existingLogs[logType.id]
+					);
 
-				if (missingLogs.length === 0) {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.setlogschannel_all_already_exist
-					});
-					return;
-				}
+					if (missingLogs.length === 0) {
+						await client.func.method.interactionSend(interaction, {
+							content: lang.setlogschannel_all_already_exist
+						});
+						return;
+					}
 
-				if (!existingCategory) {
-					existingCategory = await interaction.guild.channels.create({
-						name: "LOGS",
-						type: ChannelType.GuildCategory,
-						permissionOverwrites: [
-							{
-								id: interaction.guild.roles.everyone.id,
-								deny: [
-									PermissionFlagsBits.ViewChannel,
-									PermissionFlagsBits.SendMessages,
-									PermissionFlagsBits.ReadMessageHistory
+					const botPermissions =
+						interaction.guild.members.me?.permissions;
+					const missingSetup = botPermissions
+						? botPermissions.missing(AUTO_SETUP_PERMISSIONS)
+						: new PermissionsBitField(
+								AUTO_SETUP_PERMISSIONS
+							).toArray();
+					if (missingSetup.length > 0) {
+						await client.func.method.interactionSend(interaction, {
+							content:
+								lang.setlogschannel_bot_missing_permissions.replace(
+									"${permissions}",
+									formatPermissions(missingSetup)
+								)
+						});
+						return;
+					}
+
+					if (!existingCategory) {
+						existingCategory =
+							await interaction.guild.channels.create({
+								name: "LOGS",
+								type: ChannelType.GuildCategory,
+								permissionOverwrites: [
+									{
+										id: interaction.guild.roles.everyone.id,
+										deny: [
+											PermissionFlagsBits.ViewChannel,
+											PermissionFlagsBits.SendMessages,
+											PermissionFlagsBits.ReadMessageHistory
+										]
+									},
+									botLogOverwrite(botUser)
 								]
-							}
-						]
-					});
-				}
+							});
+					}
 
-				if (existingCategory) {
+					const category = existingCategory;
+					const overwrites: OverwriteResolvable[] = [
+						...category.permissionOverwrites.cache
+							.filter((overwrite) => overwrite.id !== botUser.id)
+							.values(),
+						botLogOverwrite(botUser)
+					];
+
 					for (const logType of missingLogs) {
 						const newChannel =
 							await interaction.guild.channels.create({
 								name: logType.value,
-								parent: existingCategory.id,
-								permissionOverwrites:
-									existingCategory.permissionOverwrites.cache,
+								parent: category.id,
+								permissionOverwrites: overwrites,
 								type: ChannelType.GuildText
 							});
+						allCreatedChannels.push(newChannel.id);
 
-						if (newChannel) {
-							allCreatedChannels.push(newChannel.id);
-
-							(
-								interaction.guild.channels.cache.get(
-									newChannel.id
-								) as BaseGuildTextChannel | null
-							)?.send({
+						await newChannel
+							.send({
 								content:
 									lang.setlogschannel_confirmation_message
 										.replace(
@@ -481,23 +585,22 @@ export const command: Command = {
 											interaction.member.user.id!
 										)
 										.replace("${typeOfLogs}", logType.value)
-							});
+							})
+							.catch(() => null);
 
-							if (logType.id === "ticket-log-channel") {
-								await client.db.set(
-									`${interaction.guildId}.GUILD.TICKET.logs`,
-									newChannel.id
-								);
-							} else {
-								await client.db.set(
-									`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`,
-									newChannel.id
-								);
-							}
+						if (logType.id === "ticket-log-channel") {
+							await client.db.set(
+								`${interaction.guildId}.GUILD.TICKET.logs`,
+								newChannel.id
+							);
+						} else {
+							await client.db.set(
+								`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`,
+								newChannel.id
+							);
 						}
 					}
-				}
-				if (allCreatedChannels.length > 0) {
+
 					await client.func.method.interactionSend(interaction, {
 						content: lang.setlogschannel_utils_command_work
 							.replace(
@@ -510,6 +613,11 @@ export const command: Command = {
 								"${typeOfLogs}",
 								missingLogs.map((x) => x.value).join(", ")
 							)
+					});
+				} catch (e) {
+					logger.err(e);
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setlogschannel_command_error
 					});
 				}
 			}
