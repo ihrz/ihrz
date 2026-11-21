@@ -119,7 +119,8 @@ export namespace DatabaseStructure {
 		openedAt: number;
 		closedAt: number;
 		closedBy: string | null;
-		reason: "close" | "delete";
+		/** "transcript" = exported by /ticket transcript while the ticket was open (closedAt = export time). */
+		reason: "close" | "delete" | "transcript";
 		/** Author, everyone who wrote, members let into the channel. */
 		participants: string[];
 		/** Participants who could manage the ticket (Administrator or ManageChannels on it). */

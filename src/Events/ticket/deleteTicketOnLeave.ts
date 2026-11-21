@@ -21,6 +21,7 @@
 
 import {
 	AttachmentPayload,
+	BaseGuildTextChannel,
 	Client,
 	EmbedBuilder,
 	GuildMember,
@@ -30,6 +31,10 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
+import {
+	saveTicketTranscript,
+	transcriptLinkRow
+} from "../../core/modules/ticketTranscripts.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -53,6 +58,17 @@ export const event: BotEvent = {
 			const channel = ticket?.channel
 				? member.guild.channels.cache.get(ticket.channel)
 				: undefined;
+
+			// The web transcript (ticket.ihorizon.org) outlives the channel.
+			const webUrl =
+				channel instanceof BaseGuildTextChannel
+					? await saveTicketTranscript(
+							channel,
+							member.user.id,
+							null,
+							"delete"
+						)
+					: null;
 
 			if (channel?.isTextBased() && logsChannel?.isSendable()) {
 				const attachment = await DiscordJSTranscript.create({
@@ -88,7 +104,18 @@ export const event: BotEvent = {
 				if (attachment) files.push(attachment as AttachmentPayload);
 
 				await logsChannel
-					.send({ embeds: [embed], files })
+					.send({
+						embeds: [embed],
+						files,
+						components: webUrl
+							? [
+									transcriptLinkRow(
+										webUrl,
+										lang.ticket_module_button_transcript
+									)
+								]
+							: []
+					})
 					.catch(() => null);
 			}
 

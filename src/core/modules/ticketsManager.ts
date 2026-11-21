@@ -62,7 +62,10 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
 import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
-import { saveTicketTranscript } from "./ticketTranscripts.js";
+import {
+	saveTicketTranscript,
+	transcriptLinkRow as webTranscriptRow
+} from "./ticketTranscripts.js";
 import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
@@ -1043,13 +1046,7 @@ async function sendTicketLog(
 
 /** Link button to the transcript on the web (ticket.ihorizon.org/<channelId>). */
 function transcriptLinkRow(link: { url: string; label: string }) {
-	return new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder()
-			.setStyle(ButtonStyle.Link)
-			.setURL(link.url)
-			.setEmoji("📜")
-			.setLabel(link.label.slice(0, 80))
-	);
+	return webTranscriptRow(link.url, link.label);
 }
 
 function interactionUser(interaction: Interaction<"cached"> | Message): User {
@@ -1250,6 +1247,13 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				)
 					return;
 
+				// The web transcript (ticket.ihorizon.org) next to the HTML file.
+				const webUrl = await saveTicketTranscript(
+					interactionChannel,
+					fetch[user][channel]?.author ?? user,
+					interaction.user,
+					"transcript"
+				);
 				const attachment = await DiscordJSTranscript.create({
 					channel: interactionChannel as TextBasedChannel,
 					limit: -1,
@@ -1282,7 +1286,15 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 					.send({
 						embeds: [embed],
 						content: data.transript_command_work,
-						files: [attachment]
+						files: [attachment],
+						components: webUrl
+							? [
+									transcriptLinkRow({
+										url: webUrl,
+										label: data.ticket_module_button_transcript
+									})
+								]
+							: []
 					})
 					.catch(() =>
 						interaction.followUp({

@@ -29,7 +29,10 @@
 //   leaves the server, `deleteDatabaseDataOnGuildLeave.ts`). No dot in a key: a dot is a path.
 // Who may read it is decided by the gateway: participants, holders of a staff role, server managers, bot owners.
 import {
+	ActionRowBuilder,
 	BaseGuildTextChannel,
+	ButtonBuilder,
+	ButtonStyle,
 	Client,
 	Collection,
 	GuildMember,
@@ -49,15 +52,36 @@ const MAX_EMBEDS = 10;
 const MAX_ATTACHMENTS = 10;
 const MAX_INDEX = 5000;
 
-/** Where a transcript can be read, or null when this instance has no transcript site (TICKET_TRANSCRIPT_URL). */
+/** The official transcript site, used by the production bot when TICKET_TRANSCRIPT_URL is not set. */
+export const OFFICIAL_TRANSCRIPT_URL = "https://ticket.ihorizon.org";
+
+/**
+ * Where a transcript can be read, or null when this instance has no transcript site: TICKET_TRANSCRIPT_URL, else
+ * the official site on the production branch (`client.version.env`) of a bot linked to a HorizonGateway
+ * (HORIZON_API_TOKEN set): a self-hosted production bot has no transcript site, its links would lead nowhere.
+ */
 export function transcriptUrl(
 	client: Client,
 	channelId: string
 ): string | null {
-	const base = (client.config.api.ticketTranscriptUrl || "")
-		.trim()
-		.replace(/\/+$/, "");
+	const configured = (client.config?.api?.ticketTranscriptUrl || "").trim();
+	const official =
+		client.version?.env === "production" && !!client.config?.api?.apiToken;
+	const base = (
+		configured || (official ? OFFICIAL_TRANSCRIPT_URL : "")
+	).replace(/\/+$/, "");
 	return /^https?:\/\//.test(base) ? `${base}/${channelId}` : null;
+}
+
+/** Link button to the transcript on the web (📜, the ticket transcript label). */
+export function transcriptLinkRow(url: string, label: string) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(url)
+			.setEmoji("📜")
+			.setLabel(label.slice(0, 80))
+	);
 }
 
 /** Every message of the channel, oldest first (at most TRANSCRIPT_MAX_MESSAGES, the latest ones). */
@@ -131,7 +155,7 @@ export async function buildTicketTranscript(
 	channel: BaseGuildTextChannel,
 	authorId: string,
 	closedBy: User | null,
-	reason: "close" | "delete"
+	reason: DatabaseStructure.TicketTranscriptSchema["reason"]
 ): Promise<DatabaseStructure.TicketTranscriptSchema> {
 	const guild = channel.guild;
 	const { messages, truncated } = await allMessages(channel);
@@ -245,7 +269,7 @@ export async function saveTicketTranscript(
 	channel: BaseGuildTextChannel,
 	authorId: string,
 	closedBy: User | null,
-	reason: "close" | "delete"
+	reason: DatabaseStructure.TicketTranscriptSchema["reason"]
 ): Promise<string | null> {
 	try {
 		const doc = await buildTicketTranscript(

@@ -42,4 +42,28 @@ describe("transcriptUrl", () => {
 		expect(transcriptUrl(withUrl(""), "123")).toBeNull();
 		expect(transcriptUrl(withUrl("ticket.ihorizon.org"), "123")).toBeNull();
 	});
+
+	test("the production branch links to the official site by default", () => {
+		const prod = (ticketTranscriptUrl?: string) =>
+			({
+				config: { api: { ticketTranscriptUrl, apiToken: "secret" } },
+				version: { env: "production" }
+			}) as unknown as Client;
+		expect(transcriptUrl(prod(undefined), "123")).toBe(
+			"https://ticket.ihorizon.org/123"
+		);
+		expect(transcriptUrl(prod("https://t.example.org"), "123")).toBe(
+			"https://t.example.org/123"
+		);
+		const dev = {
+			config: { api: {} },
+			version: { env: "dev" }
+		} as unknown as Client;
+		expect(transcriptUrl(dev, "123")).toBeNull();
+		const selfHosted = {
+			config: { api: { apiToken: "" } },
+			version: { env: "production" }
+		} as unknown as Client;
+		expect(transcriptUrl(selfHosted, "123")).toBeNull();
+	});
 });
