@@ -6,7 +6,7 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ## 🎫 Tickets — les transcripts sur le web
 
-Quand un ticket est fermé ou supprimé, son transcript est désormais aussi conservé sur **ticket.ihorizon.org** : un bouton (📜 Transcript) accompagne le message de fermeture, le log du ticket, le MP à son auteur et `/ticket transcript` (qui enregistre aussi le ticket tel quel). La page montre toute la conversation comme dans Discord — messages, réponses, embeds, images et fichiers, badges staff et auteur — avec les personnes du ticket, une recherche et un bouton impression/PDF. Elle s'ouvre après connexion avec Discord sur le dashboard, et seulement pour les personnes du ticket, son staff et les gestionnaires du serveur. Le fichier HTML reste joint comme avant. Les transcripts sont effacés quand iHorizon quitte le serveur.
+Quand un ticket est fermé ou supprimé, son transcript est désormais aussi conservé sur **ticket.ihorizon.org** : un bouton (📜 Transcript) accompagne le message de fermeture, le log du ticket, le MP à son auteur et `/ticket transcript` (qui enregistre aussi le ticket tel quel). La page montre toute la conversation comme dans Discord — messages, réponses, embeds, images et fichiers, badges staff et auteur — avec les personnes du ticket, une recherche et un bouton impression/PDF. Elle s'ouvre après connexion avec Discord sur le dashboard, et seulement pour les personnes du ticket, son staff et les gestionnaires du serveur. Le fichier HTML reste joint comme avant, et le transcript envoyé en message privé devient une carte (serveur, ticket, date, fichier et bouton). Les transcripts sont effacés quand iHorizon quitte le serveur.
 
 ---
 

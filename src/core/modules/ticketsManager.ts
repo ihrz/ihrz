@@ -64,6 +64,7 @@ import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
 import {
 	saveTicketTranscript,
+	transcriptDmPayload,
 	transcriptLinkRow as webTranscriptRow
 } from "./ticketTranscripts.js";
 import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
@@ -1267,10 +1268,6 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 					})
 				});
 
-				const embed = new EmbedBuilder()
-					.setDescription(data.close_title_sourcebin)
-					.setColor("#0014a8");
-
 				if (interaction.deferred) {
 					await interaction.editReply({
 						content: data.guildconfig_config_save_check_dm
@@ -1283,19 +1280,16 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				}
 
 				await interaction.user
-					.send({
-						embeds: [embed],
-						content: data.transript_command_work,
-						files: [attachment],
-						components: webUrl
-							? [
-									transcriptLinkRow({
-										url: webUrl,
-										label: data.ticket_module_button_transcript
-									})
-								]
-							: []
-					})
+					.send(
+						transcriptDmPayload({
+							channel: interactionChannel,
+							title: data.close_title_sourcebin,
+							text: data.transript_command_work,
+							file: attachment,
+							webUrl,
+							buttonLabel: data.ticket_module_button_transcript
+						})
+					)
 					.catch(() =>
 						interaction.followUp({
 							content: data.ticket_transcript_failed_to_send,
@@ -1539,16 +1533,21 @@ async function deleteTicketChannel(
 
 			if (shouldSendOwnerDm) {
 				await ticketOwner
-					.send({
-						content: lang.ticket_deleted
-							.replace(
-								"${ticketOwnerMention}",
-								ticketOwnerMention
-							)
-							.replace("${deletedByUserId}", deletedByUserId),
-						files: [attachment],
-						components: linkRows
-					})
+					.send(
+						transcriptDmPayload({
+							channel,
+							title: lang.close_title_sourcebin,
+							text: lang.ticket_deleted
+								.replace(
+									"${ticketOwnerMention}",
+									ticketOwnerMention
+								)
+								.replace("${deletedByUserId}", deletedByUserId),
+							file: attachment,
+							webUrl,
+							buttonLabel: lang.ticket_module_button_transcript
+						})
+					)
 					.catch(() => null);
 			}
 
