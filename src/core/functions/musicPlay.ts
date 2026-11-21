@@ -30,7 +30,7 @@ import {
 	toLavalinkTrack
 } from "../modules/musicLibrary.js";
 import type { DatabaseStructure } from "../../../types/database_structure.js";
-import { audioAvailable } from "../modules/audioNode.js";
+import { audioAvailable, musicInUse } from "../modules/audioNode.js";
 import {
 	BaseGuildTextChannel,
 	CacheType,
@@ -1043,7 +1043,9 @@ export async function enqueueMusicQueries({
 			res.loadType === "playlist" ? res.tracks : res.tracks[0]
 		);
 
-		if (!player.playing) {
+		// Paused on a track: queue only. play() would restart the paused
+		// track from its start (lavalink-client replays queue.current).
+		if (!musicInUse(player)) {
 			await player.play();
 		}
 

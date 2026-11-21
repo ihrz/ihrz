@@ -354,3 +354,92 @@ describe("music controls while the node is away", () => {
 		expect(player.destroyed).toBe(true);
 	});
 });
+
+// lavalink-client marks a paused player "not playing" (syncPlayerData:
+// playing = !paused): the controls refused everything with "nothing_playing"
+// while paused — notably skip from the dashboard.
+describe("music controls while paused", () => {
+	const setup = () => {
+		const node = makeNode();
+		const skips: unknown[] = [];
+		const player = makePlayer(node, {
+			playing: false,
+			paused: true,
+			skip: async (to?: unknown) => {
+				skips.push(to ?? 0);
+				player.paused = false;
+				player.playing = true;
+			},
+			setVolume: async () => null
+		});
+		const client = makeClient(node, [player]);
+		const member: any = {
+			id: "300000000000000000",
+			guild: {
+				id: player.guildId,
+				ownerId: "300000000000000000",
+				channels: { cache: new Map() },
+				members: { me: { voice: { channelId: player.voiceChannelId } } }
+			},
+			permissions: { has: () => true },
+			roles: { cache: new Map() },
+			voice: {
+				channelId: player.voiceChannelId,
+				channel: { id: player.voiceChannelId, members: new Map() }
+			}
+		};
+		return { client, player, member, skips };
+	};
+
+	test("skip works from pause and plays the next track", async () => {
+		const { client, player, member, skips } = setup();
+		const lang: any = { event_mp_playerSkip: "" };
+		const res = await controls.skipMusic(client, member, lang, null);
+		expect(res.ok).toBe(true);
+		expect(skips.length).toBe(1);
+		expect(player.paused).toBe(false);
+	});
+
+	test("volume, shuffle and pause still answer while paused", async () => {
+		const { client, member } = setup();
+		expect((await controls.setMusicVolume(client, member, 50)).ok).toBe(
+			true
+		);
+		expect(await controls.shuffleMusic(client, member)).toEqual({
+			ok: true
+		});
+		expect(await controls.pauseMusic(client, member)).toEqual({
+			ok: true,
+			paused: true
+		});
+	});
+
+	test("a paused player with no track is still 'nothing playing'", async () => {
+		const { client, player, member } = setup();
+		player.queue.current = null;
+		const lang: any = {};
+		expect(await controls.skipMusic(client, member, lang, null)).toEqual({
+			ok: false,
+			reason: "nothing_playing"
+		});
+	});
+});
+
+// Paused music still holds the voice channel (/tts join, /h247 join, the
+// dashboard handlers) and /music play only queues behind it: play() would
+// restart the paused track from its start.
+describe("musicInUse", () => {
+	const player = (playing: boolean, paused: boolean, current: unknown) =>
+		({ playing, paused, queue: { current } }) as any;
+
+	test("playing, or paused on a track", () => {
+		expect(audio.musicInUse(player(true, false, {}))).toBe(true);
+		expect(audio.musicInUse(player(false, true, {}))).toBe(true);
+	});
+
+	test("idle, paused without a track, or no player", () => {
+		expect(audio.musicInUse(player(false, false, {}))).toBe(false);
+		expect(audio.musicInUse(player(false, true, null))).toBe(false);
+		expect(audio.musicInUse(undefined)).toBe(false);
+	});
+});

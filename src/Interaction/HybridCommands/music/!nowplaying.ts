@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import { openNowPlayingPanel } from "../../../core/modules/nowPlayingPanel.js";
+import { musicInUse } from "../../../core/modules/audioNode.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -41,7 +42,8 @@ export const subCommand: SubCommand = {
 			return;
 
 		const player = client.player.getPlayer(interaction.guild.id);
-		if (!player?.playing || !player.queue.current) {
+		// Paused counts: the panel resumes it.
+		if (!musicInUse(player) || !player?.queue.current) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.nowplaying_no_queue
 			});

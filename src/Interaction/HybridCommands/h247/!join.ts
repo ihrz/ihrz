@@ -35,6 +35,7 @@ import {
 	joinH247VoiceChannel
 } from "../../../core/modules/h247Manager.js";
 import { getTTSData } from "../../../core/modules/ttsManager.js";
+import { musicInUse } from "../../../core/modules/audioNode.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -78,7 +79,8 @@ export const subCommand: SubCommand = {
 
 		const player = client.player.getPlayer(interaction.guild.id);
 
-		if (player?.playing) {
+		// Paused music still holds the voice channel.
+		if (musicInUse(player)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.h247_join_music_playing.replace(
 					"${emoji_No}",

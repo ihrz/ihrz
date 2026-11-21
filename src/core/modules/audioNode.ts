@@ -84,6 +84,18 @@ export function playerNodeReady(player: Player): boolean {
 	return usable(player.node);
 }
 
+/**
+ * Music is in use: playing, or paused on a track. lavalink-client sets
+ * `playing = !paused` (syncPlayerData), so `playing` alone says nothing
+ * while paused.
+ */
+export function musicInUse(player: Player | null | undefined): boolean {
+	return (
+		!!player &&
+		(player.playing || (!!player.paused && !!player.queue.current))
+	);
+}
+
 /** Destroys a player even when its node is gone (see above). */
 export async function destroyPlayerSafely(
 	player: Player,
