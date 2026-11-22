@@ -27,9 +27,6 @@ import {
 	GuildTextBasedChannel,
 	Client,
 	BaseGuildTextChannel,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	TextChannel,
 	ChannelType,
 	AuditLogEvent,
@@ -43,6 +40,10 @@ import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 import { blacklistTable } from "./ready.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 import { cancelPendingGuildDataDeletion } from "./deleteDatabaseDataOnGuildLeave.js";
+import {
+	ownerWelcomePayload,
+	serverWelcomePayload
+} from "../../core/modules/guildWelcome.js";
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -130,80 +131,13 @@ export const event: BotEvent = {
 			}
 		}
 
+		// Components V2 card: what iHorizon is, the language it speaks here
+		// and how to change it (/setlang), where to start (guildWelcome.ts).
 		async function messageToServer() {
+			if (!channel?.isSendable()) return;
 			const lang = await client.func.getLanguageData(guild.id);
-			const welcomeMessage = lang.new_guild_embed_title || [];
-
-			const embed = new EmbedBuilder()
-				.setColor("#2134ff")
-				.setFooter({
-					text: "iHorizon",
-					iconURL: "attachment://footer_icon.png"
-				})
-				.setImage(await client.func.bannerGenerator(guild.id))
-				.setDescription(
-					lang.new_guild_embed_desc.replace(
-						"${randomMessage}",
-						welcomeMessage[
-							Math.floor(
-								client.func.random.secureRandomFloat() *
-									welcomeMessage.length
-							)
-						]
-					)
-				)
-				.setThumbnail(Expressions.Wink);
-
-			const buttons1 =
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.Crown)
-						.setLabel(lang.guild_create_btn_invite)
-						.setStyle(ButtonStyle.Link)
-						.setURL(
-							`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
-						),
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.Sparkles)
-						.setLabel(lang.guild_create_btn_website)
-						.setStyle(ButtonStyle.Link)
-						.setURL("https://www.ihorizon.org"),
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.Search)
-						.setLabel(lang.guild_create_btn_search)
-						.setStyle(ButtonStyle.Link)
-						.setURL("https://www.ihorizon.org/search")
-				);
-			const buttons2 =
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
-						.setLabel(lang.guild_create_btn_repos)
-						.setStyle(ButtonStyle.Link)
-						.setURL(`https://gitlab.com/ihrz/ihrz`),
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.Logo)
-						.setLabel(lang.guild_create_btn_support)
-						.setStyle(ButtonStyle.Link)
-						.setURL("https://discord.gg/ihorizon"),
-					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.Documentation)
-						.setLabel(lang.guild_create_btn_docs)
-						.setStyle(ButtonStyle.Link)
-						.setURL("https://www.ihorizon.org/docs")
-				);
-			if (!channel) return;
-
-			(channel as TextChannel)
-				.send({
-					embeds: [embed],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							guild
-						)
-					],
-					components: [buttons1, buttons2]
-				})
+			await channel
+				.send(await serverWelcomePayload(client, guild, lang))
 				.catch(() => {});
 		}
 
@@ -268,61 +202,10 @@ export const event: BotEvent = {
 					// No permission to read audit logs, fallback to owner only
 				}
 
+				// Same card for the owner and whoever added the bot (guildWelcome.ts).
+				const payload = await ownerWelcomePayload(client, guild, lang);
 				const sendDM = async (user: typeof owner.user) => {
-					const embed = new EmbedBuilder()
-						.setColor("#2b2d31")
-						.setDescription(
-							lang.new_guild_owner_dm_description
-								.replace("${owner}", user.username)
-								.replace("${guildName}", guild.name)
-						)
-						.setThumbnail(Expressions.Wink)
-						.setFooter({
-							text: "iHorizon",
-							iconURL: "attachment://footer_icon.png"
-						})
-						.setTimestamp();
-
-					const buttons =
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setLabel(lang.guild_create_btn_invite)
-								.setEmoji(client.iHorizon_Emojis.Crown)
-								.setStyle(ButtonStyle.Link)
-								.setURL(
-									`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
-								),
-							new ButtonBuilder()
-								.setLabel(lang.guild_create_btn_website)
-								.setEmoji(client.iHorizon_Emojis.Sparkles)
-								.setStyle(ButtonStyle.Link)
-								.setURL("https://www.ihorizon.org"),
-							new ButtonBuilder()
-								.setLabel(lang.guild_create_btn_support)
-								.setEmoji(client.iHorizon_Emojis.Logo)
-								.setStyle(ButtonStyle.Link)
-								.setURL("https://discord.gg/ihorizon"),
-							new ButtonBuilder()
-								.setLabel(lang.guild_create_btn_docs)
-								.setEmoji(client.iHorizon_Emojis.Documentation)
-								.setStyle(ButtonStyle.Link)
-								.setURL("https://www.ihorizon.org/docs"),
-							new ButtonBuilder()
-								.setLabel(lang.guild_create_btn_repos)
-								.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
-								.setStyle(ButtonStyle.Link)
-								.setURL("https://gitlab.com/ihrz/ihrz")
-						);
-
-					await user.send({
-						embeds: [embed],
-						components: [buttons],
-						files: [
-							await client.func.displayBotName.footerAttachmentBuilder(
-								guild
-							)
-						]
-					});
+					await user.send(payload);
 				};
 
 				// Send to owner
