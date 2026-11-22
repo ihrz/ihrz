@@ -95,13 +95,14 @@ export function transcriptLinkRow(url: string, label: string) {
 /**
  * The transcript sent by private message (/ticket transcript, a deleted ticket's author), as Components V2: the
  * title and text, the ticket's channel, server and date, the HTML file, and the web transcript button when there
- * is one. `file` = the HTML attachment from DiscordJSTranscript.create.
+ * is one. `file` = the HTML attachment from DiscordJSTranscript.create, null when the web transcript replaces it
+ * (production: links only, no HTML file sent to Discord).
  */
 export function transcriptDmPayload(options: {
 	channel: BaseGuildTextChannel;
 	title: string;
 	text: string;
-	file: AttachmentBuilder;
+	file: AttachmentBuilder | null;
 	webUrl: string | null;
 	buttonLabel: string;
 }) {
@@ -122,11 +123,13 @@ export function transcriptDmPayload(options: {
 	} else {
 		container.addTextDisplayComponents(head);
 	}
-	container
-		.addSeparatorComponents(new SeparatorBuilder())
-		.addFileComponents(
-			new FileBuilder().setURL(`attachment://${file.name}`)
-		);
+	if (file) {
+		container
+			.addSeparatorComponents(new SeparatorBuilder())
+			.addFileComponents(
+				new FileBuilder().setURL(`attachment://${file.name}`)
+			);
+	}
 	if (webUrl) {
 		container.addActionRowComponents(
 			transcriptLinkRow(webUrl, buttonLabel)
@@ -134,7 +137,7 @@ export function transcriptDmPayload(options: {
 	}
 	return {
 		components: [container],
-		files: [file],
+		files: file ? [file] : [],
 		flags: MessageFlags.IsComponentsV2 as const
 	};
 }

@@ -65,4 +65,21 @@ describe("transcriptDmPayload", () => {
 		expect(json).not.toContain("ticket.ihorizon.org");
 		expect(json).toContain("attachment://1-transcript.html");
 	});
+
+	test("with a web transcript, the link only: no HTML file", () => {
+		const payload = transcriptDmPayload({
+			channel: channel(null),
+			title: "Ticket transcript",
+			text: "Here is the transcript.",
+			file: null,
+			webUrl: "https://ticket.ihorizon.org/1234567890123456789",
+			buttonLabel: "Transcript"
+		});
+		expect(payload.files).toEqual([]);
+		const json = JSON.stringify(payload.components[0].toJSON());
+		expect(json).not.toContain("attachment://");
+		expect(json).toContain(
+			"https://ticket.ihorizon.org/1234567890123456789"
+		);
+	});
 });

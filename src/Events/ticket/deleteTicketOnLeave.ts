@@ -71,13 +71,16 @@ export const event: BotEvent = {
 					: null;
 
 			if (channel?.isTextBased() && logsChannel?.isSendable()) {
-				const attachment = await DiscordJSTranscript.create({
-					channel: channel as TextChannel,
-					limit: -1,
-					filename: `${member.guild.id}-${channel.id}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false
-				}).catch(() => null);
+				// The link replaces the HTML file when there is a web transcript.
+				const attachment = webUrl
+					? null
+					: await DiscordJSTranscript.create({
+							channel: channel as TextChannel,
+							limit: -1,
+							filename: `${member.guild.id}-${channel.id}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false
+						}).catch(() => null);
 
 				const embed = new EmbedBuilder()
 					.setColor("#008000")
