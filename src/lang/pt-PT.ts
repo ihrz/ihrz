@@ -2479,21 +2479,18 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Eu não posso deletar mais de 99 mensagens de uma vez!",
 	clear_channel_message_deleted: "${messageCount} mensagens deletadas!",
-	clear_confirmation_message: "${messageCount} mensagens foram deletadas!",
 	clear_logs_embed_title: "Logs de Mensagens Limpas",
 	clear_logs_embed_description:
 		"<@${authorId}> limpou ${messageCount} mensagens em <#${channelId}>",
 	clear_command_no_message: "Não há mensagens para apagar neste canal",
 
 	// /lock
-	lock_embed_message_description: "O canal foi bloqueado por <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | Você não tem permissão para bloquear canais.",
 	lock_logs_embed_title: "Logs de Bloqueio",
 	lock_logs_embed_description: "<@${authorId}> bloqueou <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description: "O canal foi desbloqueado com sucesso!",
 	unlock_dont_have_permission:
 		"${emoji_No} | Você não tem permissão para desbloquear canais.",
 	unlock_logs_embed_title: "Logs de Desbloqueio",
@@ -2502,14 +2499,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | Você não tem permissão para bloquear todos os canais.",
-	lockall_embed_message_description:
-		"Todos os canais foram bloqueados por <@${authorId}>.",
 	lockall_logs_embed_title: "Logs de Bloqueio Geral",
 	lockall_logs_embed_description: "<@${authorId}> bloqueou todos os canais!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Todos os canais foram desbloqueados por <@${authorId}>.",
 	unlockall_logs_embed_title: "Logs de Desbloqueio Geral",
 	unlockall_logs_embed_description:
 		"<@${authorId}> desbloqueou todos os canais!",
@@ -2522,7 +2515,6 @@ export default {
 		"${emoji_No} | **Não há ninguém banido deste servidor!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **O ID informado não está banido deste servidor**!",
-	unban_is_now_unbanned: "<@${userID}> foi desbanido deste servidor!",
 	unban_logs_embed_title: "Logs de Desbanimento",
 	unban_logs_embed_description:
 		"<@${userID}> foi desbanido do servidor por <@${authorId}>!",
@@ -2535,8 +2527,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Você não pode silenciar a si mesmo!",
 	tempmute_already_muted: "Este usuário já está silenciado!",
-	tempmute_command_work:
-		"<@${tomuteId}> foi silenciado por ${duration}\n**Motivo**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> foi desilenciado!",
 	tempmute_logs_embed_title: "Logs de Silenciamento Temporário",
 	tempmute_logs_embed_description:
@@ -2560,8 +2550,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | Não podes atribuir um cargo temporário a ti próprio!",
 	temprole_already_has_role: "Este utilizador já tem este cargo temporário!",
-	temprole_command_work:
-		"<@${tomuteId}> recebeu o cargo por ${duration}\n**Motivo**: `${reason}`",
 	temprole_removed_by_time:
 		"O cargo temporário de <@${tomuteId}> foi removido!",
 	temprole_logs_embed_title: "Registos de Cargos Temporários",
@@ -2583,21 +2571,15 @@ export default {
 	unmute_not_muted: "Este usuário não está silenciado!",
 	unmute_muted_role_doesnt_exist:
 		"O cargo `silenciado` não existe. Por favor, silencie o usuário **antes** da criação dos cargos de silenciamento...",
-	unmute_command_work: "<@${tomuteId}> foi desilenciado!",
 	unmute_logs_embed_title: "Logs de Desilenciamento",
 	unmute_logs_embed_description: "<@${authorId}> desilenciou <@${tomuteId}>",
 	unmuteall_no_muted_members: "Nenhum membro silenciado foi encontrado.",
 	unmuteall_audit_reason: "Desilenciar todos",
-	unmuteall_command_work: "${unmuted}/${total} membros foram desilenciados.",
 	unmuteall_logs_embed_title: "Logs de desilenciar todos",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> desilenciou ${unmuted}/${total} membros.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} foi advertido! **Motivo**: `${reason}`\n__ID da Advertência__: `${warnId}`",
-	warn_logEmbed_title: "Registros de Advertências",
-	warn_logEmbed_desc: "${author} advertiu ${member} por `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | Você não tem permissão para advertir um membro neste servidor do Discord.",
 
@@ -2630,8 +2612,6 @@ export default {
 	var_ban_date: "Data da banição",
 
 	// /limpar-avisos
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** aviso(s) de ${member} foi/foram removido(s).",
 
 	// /tempban
 	tempban_dont_have_permission:
@@ -2639,8 +2619,6 @@ export default {
 	tempban_i_dont_have_permission: "Não tenho permissão para banir membros.",
 	tempban_cannot_ban_yourself: "Não podes banir-te a ti próprio!",
 	tempban_already_banned: "Este utilizador já está temporariamente banido!",
-	tempban_command_work:
-		"**<@${userId}>** foi temporariamente banido por **${duration}**\n**Razão**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** foi desbanido!",
 	tempban_logs_embed_title: "Registos de banimento temporário",
 	tempban_logs_embed_description:
@@ -4374,10 +4352,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} Tens de esperar **${time}** entre cada utilização de **`${ctxCommandPath}`**",
 
-	global_warn_embed_title: "Recebeste um aviso – Caso **`${id}`**",
-	global_warn_embed_desc:
-		"> **Motivo:** ${reason}\n> **Responsável:** @${authorUsername} (*${authorRolesHighestName}*)\nAviso gerado ${time}",
-	global_warn_component_button_label: "Enviado de ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> ERROU NO **${number}**!! O próximo número é **1**. **Não podes contar duas vezes seguidas.**",
@@ -4832,8 +4806,56 @@ export default {
 	mutelist_card_cleared_title: "Castigos removidos",
 	mutelist_card_cleared_desc: "${count} membros podem voltar a falar.",
 	warnlist_card_title: "Avisos de ${user}",
-	warnlist_card_count: "${count} avisos",
 	unwarn_card_title: "Aviso removido",
+	warn_card_title: "Membro avisado",
+	warn_err_self: "${emoji_No} Não te podes avisar a ti mesmo.",
+	warn_err_bot: "${emoji_No} Os bots não podem ser avisados.",
+	warn_err_above: "${emoji_No} Não podes avisar um membro cujo cargo mais alto é igual ou superior ao teu.",
+	warn_dm_title: "Recebeste um aviso",
+	warn_label_date: "Data",
+	warn_label_active: "Avisos ativos",
+	warn_label_note: "Nota da staff",
+	warn_label_sanction: "Sanção automática",
+	warn_auto_reason: "Sanção automática: ${count} avisos",
+	warn_sanction_timeout: "Castigo temporário (${duration})",
+	warn_sanction_kick: "Expulsão",
+	warn_sanction_ban: "Banimento",
+	warn_sanction_failed: "${sanction}, não aplicada: o iHorizon não pode sancionar este membro",
+	warn_expire_note: "os avisos expiram após ${days} dias",
+	warnlist_expired: "expirado",
+	warnlist_card_active: "${active} ativos · ${count} no total",
+	warnconfig_title: "Definições dos avisos",
+	warnconfig_label_expiry: "Expiração",
+	warnconfig_expiry_never: "Nunca: os avisos contam para sempre",
+	warnconfig_expiry_days: "Após ${days} dias",
+	warnconfig_label_rules: "Sanções automáticas",
+	warnconfig_no_rules: "Nenhuma: os avisos nunca desencadeiam uma sanção sozinhos",
+	warnconfig_rule_line: "**${count}** avisos → ${sanction}",
+	warnconfig_saved: "Definições guardadas.",
+	warnconfig_err_duration: "${emoji_No} Um castigo precisa de uma duração de 1 minuto a 28 dias (ex. `1h`, `2d`).",
+	warnconfig_err_count: "${emoji_No} O limite deve ir de 1 a 100 avisos.",
+	warnconfig_err_rules: "${emoji_No} 10 sanções automáticas no máximo: remove uma primeiro.",
+	warnconfig_err_expiry: "${emoji_No} A expiração deve ir de 0 (nunca) a 365 dias.",
+	warnconfig_err_sanction: "${emoji_No} Escolhe uma sanção para este limite (ou `none` para o remover).",
+	warnconfig_hint: "Adicionar uma sanção: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · removê-la: `sanction:none` · expiração: `expire-days:30` (0 = nunca)",
+	clearwarn_card_title: "Avisos apagados",
+	clearwarn_card_desc: "Os ${count} avisos de ${member} foram removidos.",
+	clear_allwarns_card_title: "Todos os avisos eliminados",
+	mod_label_duration: "Duração",
+	mod_label_ends: "Termina",
+	mod_label_channel: "Canal",
+	mod_label_messages: "Mensagens apagadas",
+	mod_label_target: "Aplica-se a",
+	tempmute_card_title: "Membro de castigo",
+	unmute_card_title: "Castigo retirado",
+	unban_card_title: "Membro desbanido",
+	tempban_card_title: "Membro banido temporariamente",
+	temprole_card_title: "Cargo temporário atribuído",
+	clear_card_title: "Mensagens apagadas",
+	lock_card_title: "Canal bloqueado",
+	unlock_card_title: "Canal desbloqueado",
+	lockall_card_title: "Servidor bloqueado",
+	unlockall_card_title: "Servidor desbloqueado",
 	rolepanel_card_done_title: "Cargos atualizados",
 	rolepanel_label_added: "Adicionados",
 	rolepanel_label_removed: "Removidos",

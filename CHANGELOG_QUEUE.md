@@ -4,6 +4,16 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## ⚠️ Moderation — a real warning system
+
+Warnings now work like in the big moderation bots. **`/mod warnconfig`** (administrators) sets **automatic sanctions**: reach 3 warnings and get a 1-hour timeout, 5 and get kicked, 7 and get banned — any threshold you like, up to 10. Warnings can **expire** after a number of days: they stay in the history but no longer count. Each warning can carry a **private staff note**, shown in `/mod warnlist`, the logs and the dashboard, never to the member. The warned member gets a clear card by private message with the reason and their number of active warnings. You can no longer warn yourself, a bot or someone above you. Every warning counts, including the automatic ones (anti-spam, timeouts…).
+
+The same settings are in the dashboard, in a new **Warnings** module, and the **Sanctions** module shows notes, expired warnings and the sanction a warning triggered.
+
+Every `/mod` command now answers with a **Components V2 card**: warn, warnlist, warnconfig, clearwarn, clear-all-warns, tempmute, unmute, unmuteall, unban, tempban, temprole, clear, lock, unlock, lock-all and unlock-all join ban, kick, baninfo, banlist and mutelist.
+
+---
+
 ## 🎫 Tickets — transcripts on the web
 
 When a ticket is closed or deleted, its transcript is now also kept on **ticket.ihorizon.org**: a link button (📜 Transcript) comes with the closing message, the ticket log, the DM to its author and `/ticket transcript` (which also saves the ticket as it is). The page shows the whole conversation as in Discord — messages, replies, embeds, images and files, staff and author tags — with the people of the ticket, a search and a print/PDF button. It opens after signing in with Discord on the dashboard, and only for the people of the ticket, its staff and the server's managers. The HTML file is still attached as before, and the transcript sent by private message is now a card (server, ticket, date, file and button). Transcripts are erased when iHorizon leaves the server.

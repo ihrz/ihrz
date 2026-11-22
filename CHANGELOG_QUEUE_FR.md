@@ -4,6 +4,16 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## ⚠️ Modération — un vrai système d'avertissements
+
+Les avertissements fonctionnent enfin comme dans les grands bots de modération. **`/mod warnconfig`** (administrateurs) règle des **sanctions automatiques** : 3 avertissements et c'est une exclusion d'une heure, 5 une expulsion, 7 un bannissement — les seuils que vous voulez, jusqu'à 10. Les avertissements peuvent **expirer** après un nombre de jours : ils restent dans l'historique mais ne comptent plus. Chaque avertissement peut porter une **note privée du staff**, visible dans `/mod warnlist`, les logs et le dashboard, jamais par le membre. Le membre averti reçoit une carte claire en message privé avec la raison et son nombre d'avertissements actifs. On ne peut plus s'avertir soi-même, avertir un bot ou quelqu'un au-dessus de soi. Tous les avertissements comptent, y compris les automatiques (anti-spam, exclusions…).
+
+Les mêmes réglages sont dans le dashboard, dans un nouveau module **Avertissements**, et le module **Sanctions** montre les notes, les avertissements expirés et la sanction déclenchée par un avertissement.
+
+Toutes les commandes `/mod` répondent désormais par une **carte Components V2** : warn, warnlist, warnconfig, clearwarn, clear-all-warns, tempmute, unmute, unmuteall, unban, tempban, temprole, clear, lock, unlock, lock-all et unlock-all rejoignent ban, kick, baninfo, banlist et mutelist.
+
+---
+
 ## 🎫 Tickets — les transcripts sur le web
 
 Quand un ticket est fermé ou supprimé, son transcript est désormais aussi conservé sur **ticket.ihorizon.org** : un bouton (📜 Transcript) accompagne le message de fermeture, le log du ticket, le MP à son auteur et `/ticket transcript` (qui enregistre aussi le ticket tel quel). La page montre toute la conversation comme dans Discord — messages, réponses, embeds, images et fichiers, badges staff et auteur — avec les personnes du ticket, une recherche et un bouton impression/PDF. Elle s'ouvre après connexion avec Discord sur le dashboard, et seulement pour les personnes du ticket, son staff et les gestionnaires du serveur. Le fichier HTML reste joint comme avant, et le transcript envoyé en message privé devient une carte (serveur, ticket, date, fichier et bouton). Les transcripts sont effacés quand iHorizon quitte le serveur.

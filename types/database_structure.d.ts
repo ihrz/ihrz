@@ -627,7 +627,29 @@ export namespace DatabaseStructure {
 		reason: string;
 		authorID: string;
 		id: string;
+		/** Private note for the staff (never sent to the member), 500 characters at most. */
+		note?: string;
 	};
+
+	// ---- Warn settings (`{guildId}.GUILD.WARN_CONFIG`, src/core/modules/warnSystem.ts) ----
+	// Written by /mod warnconfig and the dashboard (Moderation module); read when a warn is added and by
+	// /mod warnlist. Rules are mirrored by the gateway (`dash_config/warn_config.rs`).
+	export type WarnSanctionAction = "timeout" | "kick" | "ban";
+
+	export interface WarnSanctionRule {
+		/** Active warnings that trigger it (1..100, unique): applied once, when the count reaches it. */
+		count: number;
+		action: WarnSanctionAction;
+		/** Timeout length in ms (1 minute..28 days), timeout only. */
+		duration?: number;
+	}
+
+	export interface WarnConfigSchema {
+		/** A warning stops counting after this many days (0 or absent = never), 365 at most. */
+		expireDays?: number;
+		/** 10 at most, sorted by count. */
+		rules?: WarnSanctionRule[];
+	}
 
 	export interface JoinBannerOptions {
 		backgroundURL: string;
@@ -789,6 +811,7 @@ export namespace DatabaseStructure {
 		TAGS: GuildTagsStructure;
 		BOT?: DbGuildBotObject;
 		LANG?: LangSchema;
+		WARN_CONFIG?: WarnConfigSchema;
 		TICKET?: {
 			[key: string]:
 				DbTicketConfigurationObject | string | boolean | undefined;

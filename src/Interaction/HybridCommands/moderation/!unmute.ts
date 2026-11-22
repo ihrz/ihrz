@@ -27,6 +27,12 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { unmuteMember } from "../../../core/modules/moderationOps.js";
@@ -84,8 +90,29 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.unmute_command_work.replace("${tomuteId}", tomute.id)
-		});
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Unlock,
+				title: lang.unmute_card_title,
+				thumbnail: tomute.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${tomute} (\`${tomute.id}\`)`
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

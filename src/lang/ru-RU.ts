@@ -2452,15 +2452,12 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Я не могу удалить более 99 сообщений за один раз!",
 	clear_channel_message_deleted: "Удалено ${messageCount} сообщений!",
-	clear_confirmation_message: "${messageCount} сообщений было удалено!",
 	clear_logs_embed_title: "Логи удаления сообщений",
 	clear_logs_embed_description:
 		"<@${authorId}> удалил ${messageCount} сообщений в <#${channelId}>",
 	clear_command_no_message: "Нет сообщений для удаления в этом канале",
 
 	// /lock
-	lock_embed_message_description:
-		"Канал заблокирован пользователем <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на блокировку каналов.",
 	lock_logs_embed_title: "Логи блокировки каналов",
@@ -2468,7 +2465,6 @@ export default {
 		"<@${authorId}> заблокировал канал <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description: "Канал успешно разблокирован!",
 	unlock_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на разблокировку канала.",
 	unlock_logs_embed_title: "Логи разблокировки каналов",
@@ -2478,14 +2474,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на блокировку всех каналов.",
-	lockall_embed_message_description:
-		"Все каналы заблокированы пользователем <@${authorId}>.",
 	lockall_logs_embed_title: "Логи блокировки всех каналов",
 	lockall_logs_embed_description: "<@${authorId}> заблокировал все каналы!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Все каналы были разблокированы пользователем <@${authorId}>.",
 	unlockall_logs_embed_title: "Логи разблокировки всех каналов",
 	unlockall_logs_embed_description:
 		"<@${authorId}> разблокировал все каналы!",
@@ -2498,7 +2490,6 @@ export default {
 		"${emoji_No} | **На этом сервере нет забаненных участников!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **Указанный ID не забанен на этом сервере**!",
-	unban_is_now_unbanned: "<@${userID}> теперь разбанен на этом сервере!",
 	unban_logs_embed_title: "Логи разбанов",
 	unban_logs_embed_description:
 		"<@${userID}> теперь разбанен на сервере пользователем <@${authorId}>!",
@@ -2511,8 +2502,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Вы не можете временно заблокировать сами себя!",
 	tempmute_already_muted: "Этот пользователь уже заблокирован!",
-	tempmute_command_work:
-		"<@${tomuteId}> был замучен на ${duration}\n**Причина**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> был разблокирован!",
 	tempmute_logs_embed_title: "Логи временной блокировки",
 	tempmute_logs_embed_description:
@@ -2537,8 +2526,6 @@ export default {
 		"${emoji_No} | Вы не можете выдать временную роль самому себе!",
 	temprole_already_has_role:
 		"У этого пользователя уже есть эта временная роль!",
-	temprole_command_work:
-		"<@${tomuteId}> получил роль на ${duration}\n**Причина**: `${reason}`",
 	temprole_removed_by_time: "Временная роль <@${tomuteId}> была удалена!",
 	temprole_logs_embed_title: "Логи временных ролей",
 	temprole_logs_embed_description:
@@ -2559,24 +2546,16 @@ export default {
 	unmute_not_muted: "Этот пользователь не заблокирован!",
 	unmute_muted_role_doesnt_exist:
 		"Роль `muted` не существует. Пожалуйста, заблокируйте пользователя **перед** созданием ролей для блокировки...",
-	unmute_command_work: "<@${tomuteId}> был разблокирован!",
 	unmute_logs_embed_title: "Логи разблокировки",
 	unmute_logs_embed_description:
 		"<@${authorId}> разблокировал <@${tomuteId}>",
 	unmuteall_no_muted_members: "Заглушенные участники не найдены.",
 	unmuteall_audit_reason: "Снять заглушение со всех",
-	unmuteall_command_work:
-		"Снято заглушение с ${unmuted}/${total} участников.",
 	unmuteall_logs_embed_title: "Логи массового снятия заглушения",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> снял заглушение с ${unmuted}/${total} участников.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} получил предупреждение! **Причина**: `${reason}`\n__ID предупреждения__: `${warnId}`",
-	warn_logEmbed_title: "Журнал предупреждений",
-	warn_logEmbed_desc:
-		"${author} выдал предупреждение ${member} за `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на предупреждение участника на этом сервере Discord.",
 
@@ -2609,16 +2588,12 @@ export default {
 	var_ban_date: "Дата блокировки",
 
 	// /очистить-предупреждения
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** предупреждение(-я) участника ${member} удалено(-ы).",
 
 	// /tempban
 	tempban_dont_have_permission: "У вас нет прав временно банить участников.",
 	tempban_i_dont_have_permission: "У меня нет прав банить участников.",
 	tempban_cannot_ban_yourself: "Вы не можете забанить сами себя!",
 	tempban_already_banned: "Этот пользователь уже временно забанен!",
-	tempban_command_work:
-		"**<@${userId}>** был временно забанен на **${duration}**\n**Причина**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** был разбанен!",
 	tempban_logs_embed_title: "Логи временного бана",
 	tempban_logs_embed_description:
@@ -4328,10 +4303,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} Вам нужно подождать **${time}** между каждым использованием **`${ctxCommandPath}`**",
 
-	global_warn_embed_title: "Вы получили предупреждение – Дело **`${id}`**",
-	global_warn_embed_desc:
-		"> **Причина:** ${reason}\n> **Ответственный:** @${authorUsername} (*${authorRolesHighestName}*)\nПредупреждение создано ${time}",
-	global_warn_component_button_label: "Отправлено с ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**",
@@ -4784,8 +4755,56 @@ export default {
 	mutelist_card_cleared_title: "Тайм-ауты сняты",
 	mutelist_card_cleared_desc: "Участники снова могут писать: ${count}.",
 	warnlist_card_title: "Предупреждения ${user}",
-	warnlist_card_count: "Предупреждений: ${count}",
 	unwarn_card_title: "Предупреждение снято",
+	warn_card_title: "Участник предупреждён",
+	warn_err_self: "${emoji_No} Нельзя выдать предупреждение самому себе.",
+	warn_err_bot: "${emoji_No} Ботам нельзя выдавать предупреждения.",
+	warn_err_above: "${emoji_No} Нельзя предупредить участника, чья высшая роль равна вашей или выше.",
+	warn_dm_title: "Вы получили предупреждение",
+	warn_label_date: "Дата",
+	warn_label_active: "Активные предупреждения",
+	warn_label_note: "Заметка для стаффа",
+	warn_label_sanction: "Автоматическое наказание",
+	warn_auto_reason: "Автоматическое наказание: ${count} предупреждений",
+	warn_sanction_timeout: "Тайм-аут (${duration})",
+	warn_sanction_kick: "Кик",
+	warn_sanction_ban: "Бан",
+	warn_sanction_failed: "${sanction}, не применено: iHorizon не может наказать этого участника",
+	warn_expire_note: "предупреждения истекают через ${days} дн.",
+	warnlist_expired: "истекло",
+	warnlist_card_active: "Активных: ${active} · всего: ${count}",
+	warnconfig_title: "Настройки предупреждений",
+	warnconfig_label_expiry: "Срок действия",
+	warnconfig_expiry_never: "Никогда: предупреждения действуют всегда",
+	warnconfig_expiry_days: "Через ${days} дн.",
+	warnconfig_label_rules: "Автоматические наказания",
+	warnconfig_no_rules: "Нет: предупреждения сами по себе никогда не вызывают наказание",
+	warnconfig_rule_line: "**${count}** предупреждений → ${sanction}",
+	warnconfig_saved: "Настройки сохранены.",
+	warnconfig_err_duration: "${emoji_No} Для тайм-аута нужна длительность от 1 минуты до 28 дней (например, `1h`, `2d`).",
+	warnconfig_err_count: "${emoji_No} Порог должен быть от 1 до 100 предупреждений.",
+	warnconfig_err_rules: "${emoji_No} Не больше 10 автоматических наказаний: сначала удалите одно.",
+	warnconfig_err_expiry: "${emoji_No} Срок действия — от 0 (никогда) до 365 дней.",
+	warnconfig_err_sanction: "${emoji_No} Выберите наказание для этого порога (или `none`, чтобы удалить его).",
+	warnconfig_hint: "Добавить наказание: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · удалить: `sanction:none` · срок: `expire-days:30` (0 = никогда)",
+	clearwarn_card_title: "Предупреждения удалены",
+	clearwarn_card_desc: "Удалено предупреждений у ${member}: ${count}.",
+	clear_allwarns_card_title: "Все предупреждения удалены",
+	mod_label_duration: "Длительность",
+	mod_label_ends: "Окончание",
+	mod_label_channel: "Канал",
+	mod_label_messages: "Удалено сообщений",
+	mod_label_target: "Применяется к",
+	tempmute_card_title: "Участник в тайм-ауте",
+	unmute_card_title: "Тайм-аут снят",
+	unban_card_title: "Участник разбанен",
+	tempban_card_title: "Участник временно забанен",
+	temprole_card_title: "Выдана временная роль",
+	clear_card_title: "Сообщения удалены",
+	lock_card_title: "Канал закрыт",
+	unlock_card_title: "Канал открыт",
+	lockall_card_title: "Сервер закрыт",
+	unlockall_card_title: "Сервер открыт",
 	rolepanel_card_done_title: "Роли обновлены",
 	rolepanel_label_added: "Добавлены",
 	rolepanel_label_removed: "Сняты",

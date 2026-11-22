@@ -26,6 +26,13 @@
 // differ (English for the dashboard).
 
 import {
+	activeWarns,
+	getWarnConfig,
+	isWarnExpired,
+	issueWarn,
+	WARN_LIMITS
+} from "../warnSystem.js";
+import {
 	BaseGuildTextChannel,
 	CategoryChannel,
 	ChannelType,
@@ -252,6 +259,8 @@ export const moderationActions: ActionGroup = {
 		run: async (ctx) => {
 			const { guild, params } = ctx;
 			const userId = params.optId("userId");
+			const config = await getWarnConfig(guild);
+			const now = Date.now();
 			if (userId) {
 				const warns = await getWarns(guild, userId);
 				const member = guild.members.cache.get(userId);
@@ -259,6 +268,9 @@ export const moderationActions: ActionGroup = {
 					userId,
 					member: member ? memberInfo(member) : null,
 					total: warns.length,
+					// Warnings that still count (warnSystem.ts: expiry).
+					active: activeWarns(warns, config, now).length,
+					expireDays: config.expireDays,
 					// Newest first.
 					warns: warns
 						.slice(-WARNS_PER_USER_MAX)
@@ -267,7 +279,9 @@ export const moderationActions: ActionGroup = {
 							id: w.id,
 							reason: w.reason,
 							authorId: w.authorID,
-							at: w.timestamp
+							at: w.timestamp,
+							note: w.note ?? null,
+							expired: isWarnExpired(w, config, now)
 						}))
 				};
 			}
@@ -276,6 +290,7 @@ export const moderationActions: ActionGroup = {
 				.map((x) => ({
 					userId: x.userId,
 					count: x.warns.length,
+					active: activeWarns(x.warns, config, now).length,
 					lastAt: Math.max(...x.warns.map((w) => w.timestamp || 0))
 				}))
 				.sort((a, b) => b.lastAt - a.lastAt);
@@ -298,13 +313,37 @@ export const moderationActions: ActionGroup = {
 		run: async (ctx) => {
 			const member = await fetchMember(ctx);
 			const reason = ctx.params.str("reason", { max: WARN_REASON_MAX });
-			const warnId = await ctx.client.func.method.warnMember(
+			const note = ctx.params.optStr("note", WARN_LIMITS.note);
+			// The same guards as /mod warn: a warn can sanction automatically.
+			if (member.id === ctx.actor.id)
+				return fail("you cannot warn yourself");
+			if (member.user.bot) return fail("bots cannot be warned");
+			if (
+				ctx.guild.ownerId !== ctx.actor.id &&
+				member.roles.highest.position >=
+					ctx.actor.roles.highest.position
+			)
+				return fail(
+					"forbidden: this member's highest role is equal to or above yours"
+				);
+			const issued = await issueWarn(
 				ctx.actor,
 				member,
 				reason,
-				ctx.lang
+				ctx.lang,
+				note
 			);
-			return { warnId };
+			return {
+				warnId: issued.warn.id,
+				active: issued.active,
+				sanction: issued.sanction
+					? {
+							action: issued.sanction.rule.action,
+							duration: issued.sanction.rule.duration ?? null,
+							applied: issued.sanction.applied
+						}
+					: null
+			};
 		}
 	},
 

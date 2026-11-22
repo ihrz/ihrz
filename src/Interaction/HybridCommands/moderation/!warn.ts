@@ -29,6 +29,8 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { sendCard } from "../../../core/modules/uiCard.js";
+import { issueWarn, warnCard } from "../../../core/modules/warnSystem.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,6 +51,13 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const member = opts.member("member", 0) as GuildMember | null;
 		const reason = opts.longString("reason", 1)!;
+		// Slash only: in a prefix command the reason takes the rest of the message.
+		const note =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("note")
+				: null;
+		const author = interaction.member as GuildMember;
+		const e = client.iHorizon_Emojis;
 
 		if (!member) {
 			await client.func.method.interactionSend(interaction, {
@@ -56,20 +65,29 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
+		// A warn can sanction automatically: the same guards as a sanction.
+		const refusal =
+			member.id === author.id
+				? lang.warn_err_self
+				: member.user.bot
+					? lang.warn_err_bot
+					: interaction.guild.ownerId !== author.id &&
+						  member.roles.highest.position >=
+								author.roles.highest.position
+						? lang.warn_err_above
+						: null;
+		if (refusal) {
+			await client.func.method.interactionSend(interaction, {
+				content: refusal.replace("${emoji_No}", e.No)
+			});
+			return;
+		}
 
-		const warnId = await client.func.method.warnMember(
-			interaction.member!,
-			member!,
-			reason,
-			lang
+		const issued = await issueWarn(author, member, reason, lang, note);
+		await sendCard(
+			client,
+			interaction,
+			await warnCard(author, member, issued, lang)
 		);
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.warn_command_work
-				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-				.replace("${member}", member?.toString()!)
-				.replace("${reason}", reason)
-				.replace("${warnId}", warnId)
-		});
 	}
 };

@@ -2354,21 +2354,18 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | 한 번에 99개보다 많은 메시지는 삭제할 수 없어요!",
 	clear_channel_message_deleted: "메시지 ${messageCount}개를 삭제했어요!",
-	clear_confirmation_message: "메시지 ${messageCount}개가 삭제되었어요!",
 	clear_logs_embed_title: "메시지 삭제 로그",
 	clear_logs_embed_description:
 		"<@${authorId}> 님이 <#${channelId}>에서 메시지 ${messageCount}개를 삭제했어요",
 	clear_command_no_message: "이 채널에 삭제할 메시지가 없어요",
 
 	// /lock
-	lock_embed_message_description: "<@${authorId}> 님이 채널을 잠갔어요.",
 	lock_dont_have_permission: "${emoji_No} | 채널을 잠글 권한이 없어요.",
 	lock_logs_embed_title: "잠금 로그",
 	lock_logs_embed_description:
 		"<@${authorId}> 님이 <#${channelId}> 채널을 잠갔어요",
 
 	// /unlock
-	unlock_embed_message_description: "채널 잠금을 해제했어요!",
 	unlock_dont_have_permission:
 		"${emoji_No} | 채널 잠금을 해제할 권한이 없어요.",
 	unlock_logs_embed_title: "잠금 해제 로그",
@@ -2378,14 +2375,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | 모든 채널을 잠글 권한이 없어요.",
-	lockall_embed_message_description:
-		"<@${authorId}> 님이 모든 채널을 잠갔어요.",
 	lockall_logs_embed_title: "전체 잠금 로그",
 	lockall_logs_embed_description: "<@${authorId}> 님이 모든 채널을 잠갔어요!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"<@${authorId}> 님이 모든 채널의 잠금을 해제했어요.",
 	unlockall_logs_embed_title: "전체 잠금 해제 로그",
 	unlockall_logs_embed_description:
 		"<@${authorId}> 님이 모든 채널의 잠금을 해제했어요!",
@@ -2398,7 +2391,6 @@ export default {
 		"${emoji_No} | **이 서버에서 차단된 사람이 없어요!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **입력한 ID는 이 서버에서 차단되어 있지 않아요**!",
-	unban_is_now_unbanned: "<@${userID}> 님의 이 서버 차단을 해제했어요!",
 	unban_logs_embed_title: "차단 해제 로그",
 	unban_logs_embed_description:
 		"<@${authorId}> 님이 <@${userID}> 님의 서버 차단을 해제했어요!",
@@ -2411,8 +2403,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | 자기 자신에게 타임아웃을 적용할 수 없어요!",
 	tempmute_already_muted: "이 사용자는 이미 타임아웃 상태예요!",
-	tempmute_command_work:
-		"<@${tomuteId}> 님에게 ${duration} 동안 타임아웃을 적용했어요\n**사유**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> 님의 타임아웃이 해제되었어요!",
 	tempmute_logs_embed_title: "임시 타임아웃 로그",
 	tempmute_logs_embed_description:
@@ -2436,8 +2426,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | 자기 자신에게는 임시 역할을 추가할 수 없어요!",
 	temprole_already_has_role: "이 사용자는 이미 이 임시 역할을 가지고 있어요!",
-	temprole_command_work:
-		"<@${tomuteId}>님에게 ${duration} 동안 역할을 부여했어요\n**사유**: `${reason}`",
 	temprole_removed_by_time: "<@${tomuteId}>님의 임시 역할이 제거되었어요!",
 	temprole_logs_embed_title: "임시 역할 로그",
 	temprole_logs_embed_description:
@@ -2458,24 +2446,16 @@ export default {
 	unmute_not_muted: "이 사용자는 타임아웃 상태가 아니에요!",
 	unmute_muted_role_doesnt_exist:
 		"`muted` 역할이 존재하지 않아요. muted 역할이 생성되도록 먼저 사용자를 타임아웃해 주세요...",
-	unmute_command_work: "<@${tomuteId}>님의 타임아웃을 해제했어요!",
 	unmute_logs_embed_title: "타임아웃 해제 로그",
 	unmute_logs_embed_description:
 		"<@${authorId}>님이 <@${tomuteId}>님의 타임아웃을 해제했어요",
 	unmuteall_no_muted_members: "타임아웃된 멤버를 찾지 못했어요.",
 	unmuteall_audit_reason: "전체 타임아웃 해제",
-	unmuteall_command_work:
-		"멤버 ${unmuted}/${total}명의 타임아웃을 해제했어요.",
 	unmuteall_logs_embed_title: "전체 타임아웃 해제 로그",
 	unmuteall_logs_embed_description:
 		"<@${authorId}>님이 멤버 ${unmuted}/${total}명의 타임아웃을 해제했어요.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member}님에게 경고를 줬어요! **사유**: `${reason}`\n__경고 ID__: `${warnId}`",
-	warn_logEmbed_title: "경고 로그",
-	warn_logEmbed_desc:
-		"${author}님이 ${member}님에게 `${reason}` 사유로 경고를 줬어요",
 	warn_dont_have_permission:
 		"${emoji_No} | 이 Discord 서버에서 멤버에게 경고를 줄 권한이 없어요.",
 
@@ -2507,16 +2487,12 @@ export default {
 	var_ban_date: "차단 날짜",
 
 	// /clearwarn
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}님, ${member}님의 경고 **`${allWarnCount}`**개를 지웠어요.",
 
 	// /tempban
 	tempban_dont_have_permission: "멤버를 임시 차단할 권한이 없어요.",
 	tempban_i_dont_have_permission: "저에게 멤버를 차단할 권한이 없어요.",
 	tempban_cannot_ban_yourself: "자기 자신을 차단할 수 없어요!",
 	tempban_already_banned: "이 사용자는 이미 임시 차단되어 있어요!",
-	tempban_command_work:
-		"**<@${userId}>**님을 **${duration}** 동안 임시 차단했어요\n**사유**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>**님의 차단을 해제했어요!",
 	tempban_logs_embed_title: "임시 차단 로그",
 	tempban_logs_embed_description:
@@ -4165,10 +4141,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} **`${ctxCommandPath}`** 사이에 **${time}** 기다려야 해요",
 
-	global_warn_embed_title: "경고를 받았어요 - 케이스 **`${id}`**",
-	global_warn_embed_desc:
-		"> **사유:** ${reason}\n> **담당자:** @${authorUsername} (*${authorRolesHighestName}*)\n경고 발행 ${time}",
-	global_warn_component_button_label: "${authorGuildName}에서 보냄",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}>님이 **${number}**에서 망쳤어요!! 다음 숫자는 **1**이에요. **연속으로 두 번 셀 수 없어요.**",
@@ -4618,8 +4590,56 @@ export default {
 	mutelist_card_cleared_title: "타임아웃 해제 완료",
 	mutelist_card_cleared_desc: "멤버 ${count}명이 다시 말할 수 있어요.",
 	warnlist_card_title: "${user}님의 경고",
-	warnlist_card_count: "경고 ${count}회",
 	unwarn_card_title: "경고 제거됨",
+	warn_card_title: "멤버에게 경고했습니다",
+	warn_err_self: "${emoji_No} 자기 자신에게 경고할 수 없습니다.",
+	warn_err_bot: "${emoji_No} 봇에게는 경고할 수 없습니다.",
+	warn_err_above: "${emoji_No} 가장 높은 역할이 자신과 같거나 높은 멤버에게는 경고할 수 없습니다.",
+	warn_dm_title: "경고를 받았습니다",
+	warn_label_date: "날짜",
+	warn_label_active: "유효한 경고",
+	warn_label_note: "스태프 메모",
+	warn_label_sanction: "자동 처벌",
+	warn_auto_reason: "자동 처벌: 경고 ${count}회",
+	warn_sanction_timeout: "타임아웃 (${duration})",
+	warn_sanction_kick: "추방",
+	warn_sanction_ban: "차단",
+	warn_sanction_failed: "${sanction}, 적용 안 됨: iHorizon이 이 멤버를 처벌할 수 없습니다",
+	warn_expire_note: "경고는 ${days}일 후 만료됩니다",
+	warnlist_expired: "만료됨",
+	warnlist_card_active: "유효 ${active}개 · 총 ${count}개",
+	warnconfig_title: "경고 설정",
+	warnconfig_label_expiry: "만료",
+	warnconfig_expiry_never: "없음: 경고가 영원히 유지됩니다",
+	warnconfig_expiry_days: "${days}일 후",
+	warnconfig_label_rules: "자동 처벌",
+	warnconfig_no_rules: "없음: 경고만으로는 처벌되지 않습니다",
+	warnconfig_rule_line: "경고 **${count}**회 → ${sanction}",
+	warnconfig_saved: "설정을 저장했습니다.",
+	warnconfig_err_duration: "${emoji_No} 타임아웃은 1분에서 28일 사이의 기간이 필요합니다 (예: `1h`, `2d`).",
+	warnconfig_err_count: "${emoji_No} 기준은 경고 1회에서 100회 사이여야 합니다.",
+	warnconfig_err_rules: "${emoji_No} 자동 처벌은 최대 10개입니다. 먼저 하나를 삭제하세요.",
+	warnconfig_err_expiry: "${emoji_No} 만료는 0(없음)에서 365일 사이여야 합니다.",
+	warnconfig_err_sanction: "${emoji_No} 이 기준의 처벌을 선택하세요 (삭제하려면 `none`).",
+	warnconfig_hint: "처벌 추가: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · 삭제: `sanction:none` · 만료: `expire-days:30` (0 = 없음)",
+	clearwarn_card_title: "경고를 지웠습니다",
+	clearwarn_card_desc: "${member}의 경고 ${count}개를 삭제했습니다.",
+	clear_allwarns_card_title: "모든 경고를 삭제했습니다",
+	mod_label_duration: "기간",
+	mod_label_ends: "종료",
+	mod_label_channel: "채널",
+	mod_label_messages: "삭제한 메시지",
+	mod_label_target: "적용 대상",
+	tempmute_card_title: "멤버를 타임아웃했습니다",
+	unmute_card_title: "타임아웃을 해제했습니다",
+	unban_card_title: "차단을 해제했습니다",
+	tempban_card_title: "멤버를 일시 차단했습니다",
+	temprole_card_title: "임시 역할을 부여했습니다",
+	clear_card_title: "메시지를 삭제했습니다",
+	lock_card_title: "채널을 잠갔습니다",
+	unlock_card_title: "채널 잠금을 해제했습니다",
+	lockall_card_title: "서버를 잠갔습니다",
+	unlockall_card_title: "서버 잠금을 해제했습니다",
 	rolepanel_card_done_title: "역할 업데이트 완료",
 	rolepanel_label_added: "추가됨",
 	rolepanel_label_removed: "제거됨",

@@ -2512,15 +2512,12 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Je ne peux pas supprimer plus de 99 messages à la fois !",
 	clear_channel_message_deleted: "${messageCount} messages supprimés !",
-	clear_confirmation_message: "${messageCount} messages ont été supprimés !",
 	clear_logs_embed_title: "Logs de suppression de messages",
 	clear_logs_embed_description:
 		"<@${authorId}> a supprimé ${messageCount} messages dans <#${channelId}>",
 	clear_command_no_message: "Aucun message à supprimer dans ce canal",
 
 	// /lock
-	lock_embed_message_description:
-		"Le salon a été verrouillé par <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission de verrouiller les salons.",
 	lock_logs_embed_title: "Logs de Verrouillage",
@@ -2528,8 +2525,6 @@ export default {
 		"<@${authorId}> a verrouillé le salon <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description:
-		"Le salon a été déverrouillé avec succès !",
 	unlock_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission de déverrouiller le salon.",
 	unlock_logs_embed_title: "Journal de déverrouillage",
@@ -2539,15 +2534,11 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission de verrouiller tous les canaux.",
-	lockall_embed_message_description:
-		"Tous les canaux ont été verrouillés par <@${authorId}>.",
 	lockall_logs_embed_title: "Logs de Verrouillage",
 	lockall_logs_embed_description:
 		"<@${authorId}> a verrouillé tous les canaux !",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Tous les canaux ont été déverrouillés par <@${authorId}>.",
 	unlockall_logs_embed_title: "Logs de Déverrouillage",
 	unlockall_logs_embed_description:
 		"<@${authorId}> a déverrouillé tous les canaux !",
@@ -2560,8 +2551,6 @@ export default {
 		"${emoji_No} | **Il n'y a personne banni de ce serveur !**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **L'ID indiqué n'est pas banni de ce serveur !**",
-	unban_is_now_unbanned:
-		"<@${userID}> est maintenant débanni de ce serveur !",
 	unban_logs_embed_title: "Logs de déban",
 	unban_logs_embed_description:
 		"<@${userID}> a été débanni du serveur par <@${authorId}> !",
@@ -2574,8 +2563,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Vous ne pouvez pas vous rendre muet vous-même !",
 	tempmute_already_muted: "Cet utilisateur est déjà rendu muet !",
-	tempmute_command_work:
-		"<@${tomuteId}> a été rendu muet pendant ${duration}\n**Raison** : `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> a été réactivé !",
 	tempmute_logs_embed_title: "Logs de Tempmute",
 	tempmute_logs_embed_description:
@@ -2599,8 +2586,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | Vous ne pouvez pas vous ajouter un rôle temporaire à vous-même !",
 	temprole_already_has_role: "Cet utilisateur a déjà ce rôle temporaire !",
-	temprole_command_work:
-		"<@${tomuteId}> a reçu le rôle pour ${duration}\n**Raison** : `${reason}`",
 	temprole_removed_by_time:
 		"Le rôle temporaire de <@${tomuteId}> a été retiré !",
 	temprole_logs_embed_title: "Logs des rôles temporaires",
@@ -2622,24 +2607,16 @@ export default {
 	unmute_not_muted: "Cet utilisateur n'est pas en sourdine !",
 	unmute_muted_role_doesnt_exist:
 		"Le rôle sourdine n'existe pas. Veuillez d'abord mettre en sourdine l'utilisateur pour créer le rôle de sourdine...",
-	unmute_command_work: "<@${tomuteId}> n'est plus en sourdine !",
 	unmute_logs_embed_title: "Logs de sourdine",
 	unmute_logs_embed_description:
 		"<@${authorId}> a retiré la sourdine de <@${tomuteId}>",
 	unmuteall_no_muted_members: "Aucun membre en sourdine n'a été trouvé.",
 	unmuteall_audit_reason: "Retrait de sourdine global",
-	unmuteall_command_work:
-		"${unmuted}/${total} membres ont été retirés de leur sourdine.",
 	unmuteall_logs_embed_title: "Logs de retrait de sourdine global",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> a retiré la sourdine de ${unmuted}/${total} membres.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} a été averti ! **Raison** : `${reason}`\n__ID de l'avertissement__ : `${warnId}`",
-	warn_logEmbed_title: "Historique des Avertissements",
-	warn_logEmbed_desc:
-		"${author} a averti ${member} pour la raison : `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission d'avertir un membre au sein de ce serveur Discord.",
 
@@ -2672,8 +2649,6 @@ export default {
 	var_ban_date: "Date du bannissement",
 
 	// /effacer-avertissements
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** avertissement(s) de ${member} a/ont été effacé(s).",
 
 	// /tempban
 	tempban_dont_have_permission:
@@ -2682,8 +2657,6 @@ export default {
 		"Je n'ai pas la permission de bannir des membres.",
 	tempban_cannot_ban_yourself: "Vous ne pouvez pas vous bannir vous-même !",
 	tempban_already_banned: "Cet utilisateur est déjà banni temporairement !",
-	tempban_command_work:
-		"**<@${userId}>** a été banni temporairement pour **${duration}**\n**Raison** : `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** a été débanni !",
 	tempban_logs_embed_title: "Logs de bannissement temporaire",
 	tempban_logs_embed_description:
@@ -4457,11 +4430,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctxCommandPath}`**",
 
-	global_warn_embed_title:
-		"Vous avez reçu un avertissement – Cas **`${id}`**",
-	global_warn_embed_desc:
-		"> **Raison :** ${reason}\n> **Responsable :** @${authorUsername} (*${authorRolesHighestName}*)\nAvertissement généré ${time}",
-	global_warn_component_button_label: "Envoyé depuis ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> S'EST TROMPÉ À **${number}** ! ! Le prochain nombre est **1**. **Vous ne pouvez pas compter deux fois d'affilée.**",
@@ -4924,8 +4892,56 @@ export default {
 	mutelist_card_cleared_title: "Exclusions retirées",
 	mutelist_card_cleared_desc: "${count} membres peuvent de nouveau parler.",
 	warnlist_card_title: "Avertissements de ${user}",
-	warnlist_card_count: "${count} avertissements",
 	unwarn_card_title: "Avertissement retiré",
+	warn_card_title: "Membre averti",
+	warn_err_self: "${emoji_No} Vous ne pouvez pas vous avertir vous-même.",
+	warn_err_bot: "${emoji_No} Les bots ne peuvent pas être avertis.",
+	warn_err_above: "${emoji_No} Vous ne pouvez pas avertir un membre dont le rôle le plus haut est égal ou supérieur au vôtre.",
+	warn_dm_title: "Vous avez reçu un avertissement",
+	warn_label_date: "Date",
+	warn_label_active: "Avertissements actifs",
+	warn_label_note: "Note du staff",
+	warn_label_sanction: "Sanction automatique",
+	warn_auto_reason: "Sanction automatique : ${count} avertissements",
+	warn_sanction_timeout: "Exclusion temporaire (${duration})",
+	warn_sanction_kick: "Expulsion",
+	warn_sanction_ban: "Bannissement",
+	warn_sanction_failed: "${sanction}, non appliquée : iHorizon ne peut pas sanctionner ce membre",
+	warn_expire_note: "les avertissements expirent après ${days} jours",
+	warnlist_expired: "expiré",
+	warnlist_card_active: "${active} actifs · ${count} au total",
+	warnconfig_title: "Réglages des avertissements",
+	warnconfig_label_expiry: "Expiration",
+	warnconfig_expiry_never: "Jamais : les avertissements comptent pour toujours",
+	warnconfig_expiry_days: "Après ${days} jours",
+	warnconfig_label_rules: "Sanctions automatiques",
+	warnconfig_no_rules: "Aucune : les avertissements ne déclenchent jamais de sanction seuls",
+	warnconfig_rule_line: "**${count}** avertissements → ${sanction}",
+	warnconfig_saved: "Réglages enregistrés.",
+	warnconfig_err_duration: "${emoji_No} Une exclusion temporaire a besoin d'une durée de 1 minute à 28 jours (ex. `1h`, `2d`).",
+	warnconfig_err_count: "${emoji_No} Le seuil doit aller de 1 à 100 avertissements.",
+	warnconfig_err_rules: "${emoji_No} 10 sanctions automatiques au maximum : retirez-en une d'abord.",
+	warnconfig_err_expiry: "${emoji_No} L'expiration doit aller de 0 (jamais) à 365 jours.",
+	warnconfig_err_sanction: "${emoji_No} Choisissez une sanction pour ce seuil (ou `none` pour le retirer).",
+	warnconfig_hint: "Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la retirer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
+	clearwarn_card_title: "Avertissements effacés",
+	clearwarn_card_desc: "Les ${count} avertissements de ${member} ont été retirés.",
+	clear_allwarns_card_title: "Tous les avertissements supprimés",
+	mod_label_duration: "Durée",
+	mod_label_ends: "Fin",
+	mod_label_channel: "Salon",
+	mod_label_messages: "Messages supprimés",
+	mod_label_target: "S'applique à",
+	tempmute_card_title: "Membre exclu temporairement",
+	unmute_card_title: "Exclusion retirée",
+	unban_card_title: "Membre débanni",
+	tempban_card_title: "Membre banni temporairement",
+	temprole_card_title: "Rôle temporaire donné",
+	clear_card_title: "Messages supprimés",
+	lock_card_title: "Salon verrouillé",
+	unlock_card_title: "Salon déverrouillé",
+	lockall_card_title: "Serveur verrouillé",
+	unlockall_card_title: "Serveur déverrouillé",
 	rolepanel_card_done_title: "Rôles mis à jour",
 	rolepanel_label_added: "Ajoutés",
 	rolepanel_label_removed: "Retirés",

@@ -1144,14 +1144,11 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Я не можу видалити більше 99 повідомлень за один раз!",
 	clear_channel_message_deleted: "Видалено ${messageCount} повідомлень!",
-	clear_confirmation_message: "${messageCount} повідомлень було видалено!",
 	clear_logs_embed_title: "Логи видалення повідомлень",
 	clear_logs_embed_description:
 		"<@${authorId}> видалив ${messageCount} повідомлень в <#${channelId}>",
 
 	// /lock
-	lock_embed_message_description:
-		"Канал заблоковано користувачем <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | У вас немає дозволу на блокування каналів.",
 	lock_logs_embed_title: "Логи блокування каналів",
@@ -1159,7 +1156,6 @@ export default {
 		"<@${authorId}> заблокував канал <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description: "Канал успішно розблоковано!",
 	unlock_dont_have_permission:
 		"${emoji_No} | У вас немає дозволу на розблокування каналу.",
 	unlock_logs_embed_title: "Логи розблокування каналів",
@@ -1169,8 +1165,6 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | У вас немає дозволу на блокування всіх каналів.",
-	lockall_embed_message_description:
-		"Всі канали заблоковані користувачем <@${authorId}>.",
 	lockall_logs_embed_title: "Логи блокування всіх каналів",
 	lockall_logs_embed_description: "<@${authorId}> заблокував всі канали!",
 
@@ -1182,7 +1176,6 @@ export default {
 		"${emoji_No} | **На цьому сервері немає забанених учасників!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **Вказаний ID не забанений на цьому сервері**!",
-	unban_is_now_unbanned: "<@${userID}> тепер розбанений на цьому сервері!",
 	unban_logs_embed_title: "Логи розбанів",
 	unban_logs_embed_description:
 		"<@${userID}> тепер розбанений на сервері користувачем ${authorId}!",
@@ -1195,7 +1188,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Ви не можете тимчасово заблокувати самі себе!",
 	tempmute_already_muted: "Цей користувач вже заблокований!",
-	tempmute_command_work: "<@${tomuteId}> був заблокований на ${duration}",
 	tempmute_unmuted_by_time: "<@${tomuteId}> був розблокований!",
 	tempmute_logs_embed_title: "Логи тимчасової блокування",
 	tempmute_logs_embed_description:
@@ -1211,12 +1203,10 @@ export default {
 	unmute_not_muted: "Цей користувач не заблокований!",
 	unmute_muted_role_doesnt_exist:
 		"Роль `muted` не існує. Будь ласка, заблокуйте користувача **перед** створенням ролей для блокування...",
-	unmute_command_work: "<@${tomuteId}> був розблокований!",
 	unmute_logs_embed_title: "Логи розблокування",
 	unmute_logs_embed_description: "<@${authorId}> розблокував <@${tomuteId}>",
 	unmuteall_no_muted_members: "Заглушених учасників не знайдено.",
 	unmuteall_audit_reason: "Зняти заглушення з усіх",
-	unmuteall_command_work: "Знято заглушення з ${unmuted}/${total} учасників.",
 	unmuteall_logs_embed_title: "Логи масового зняття заглушення",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> зняв заглушення з ${unmuted}/${total} учасників.",

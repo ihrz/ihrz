@@ -653,6 +653,25 @@ export const command: Command = {
 					required: true,
 
 					permission: null
+				},
+				{
+					name: "note",
+
+					description:
+						"A private note for the staff (never sent to the member)",
+					description_localizations: {
+						fr: "Une note privée pour le staff (jamais envoyée au membre)",
+						ja: "スタッフ用の非公開メモ（メンバーには送られません）",
+						ru: "Личная заметка для стаффа (участнику не отправляется)",
+						"es-ES":
+							"Una nota privada para el staff (nunca se envía al miembro)",
+						ko: "스태프 전용 비공개 메모 (멤버에게 보내지 않아요)"
+					},
+
+					type: ApplicationCommandOptionType.String,
+					required: false,
+
+					permission: null
 				}
 			],
 
@@ -755,6 +774,148 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.ModerateMembers
+		},
+		{
+			name: "warnconfig",
+
+			description: "Warning settings: expiry and automatic sanctions",
+			description_localizations: {
+				fr: "Réglages des avertissements : expiration et sanctions automatiques",
+				ja: "警告の設定：有効期限と自動処罰",
+				ru: "Настройки предупреждений: срок действия и автоматические наказания",
+				"es-ES":
+					"Ajustes de advertencias: caducidad y sanciones automáticas",
+				ko: "경고 설정: 만료와 자동 처벌"
+			},
+
+			options: [
+				{
+					name: "threshold",
+
+					description:
+						"Number of active warnings that triggers the sanction",
+					description_localizations: {
+						fr: "Nombre d'avertissements actifs qui déclenche la sanction",
+						ja: "処罰が発動する有効な警告の数",
+						ru: "Число активных предупреждений для наказания",
+						"es-ES":
+							"Número de advertencias activas que activa la sanción",
+						ko: "처벌이 발동되는 유효한 경고 수"
+					},
+
+					type: ApplicationCommandOptionType.Integer,
+					required: false,
+
+					permission: null
+				},
+				{
+					name: "sanction",
+
+					description:
+						"The sanction at this threshold (none removes it)",
+					description_localizations: {
+						fr: "La sanction à ce seuil (none la retire)",
+						ja: "このしきい値での処罰（none で削除）",
+						ru: "Наказание на этом пороге (none — удалить)",
+						"es-ES": "La sanción en este umbral (none la quita)",
+						ko: "이 기준의 처벌 (none은 삭제)"
+					},
+
+					type: ApplicationCommandOptionType.String,
+					required: false,
+					choices: [
+						{
+							name: "Timeout",
+							name_localizations: {
+								fr: "Exclusion temporaire",
+								ja: "タイムアウト",
+								ru: "Тайм-аут",
+								"es-ES": "Aislamiento",
+								ko: "타임아웃"
+							},
+							value: "timeout"
+						},
+						{
+							name: "Kick",
+							name_localizations: {
+								fr: "Expulsion",
+								ja: "キック",
+								ru: "Кик",
+								"es-ES": "Expulsión",
+								ko: "추방"
+							},
+							value: "kick"
+						},
+						{
+							name: "Ban",
+							name_localizations: {
+								fr: "Bannissement",
+								ja: "BAN",
+								ru: "Бан",
+								"es-ES": "Baneo",
+								ko: "차단"
+							},
+							value: "ban"
+						},
+						{
+							name: "None (remove)",
+							name_localizations: {
+								fr: "Aucune (retirer)",
+								ja: "なし（削除）",
+								ru: "Нет (удалить)",
+								"es-ES": "Ninguna (quitar)",
+								ko: "없음 (삭제)"
+							},
+							value: "none"
+						}
+					],
+
+					permission: null
+				},
+				{
+					name: "duration",
+
+					description: "Timeout length, e.g. 1h, 2d (timeout only)",
+					description_localizations: {
+						fr: "Durée de l'exclusion, ex. 1h, 2d (timeout seulement)",
+						ja: "タイムアウトの期間、例：1h、2d（タイムアウトのみ）",
+						ru: "Длительность тайм-аута, например 1h, 2d",
+						"es-ES":
+							"Duración del aislamiento, p. ej. 1h, 2d (solo timeout)",
+						ko: "타임아웃 기간, 예: 1h, 2d (타임아웃만)"
+					},
+
+					type: ApplicationCommandOptionType.String,
+					required: false,
+
+					permission: null
+				},
+				{
+					name: "expire-days",
+
+					description:
+						"Warnings stop counting after this many days (0 = never)",
+					description_localizations: {
+						fr: "Les avertissements expirent après ce nombre de jours (0 = jamais)",
+						ja: "警告がこの日数で失効します（0 = なし）",
+						ru: "Предупреждения истекают через столько дней (0 = никогда)",
+						"es-ES":
+							"Las advertencias caducan tras estos días (0 = nunca)",
+						ko: "경고가 이 일수 후 만료돼요 (0 = 없음)"
+					},
+
+					type: ApplicationCommandOptionType.Integer,
+					required: false,
+
+					permission: null
+				}
+			],
+
+			aliases: ["warnsettings", "warn-config"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "clearwarn",

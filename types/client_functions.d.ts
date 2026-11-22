@@ -669,7 +669,8 @@ declare namespace Client_Functions {
 			author: GuildMember,
 			member: GuildMember,
 			reason: string,
-			lang: LanguageData
+			lang: LanguageData,
+			note?: string | null
 		): Promise<string>;
 	}
 

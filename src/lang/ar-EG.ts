@@ -2317,20 +2317,17 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | لا أستطيع حذف أكثر من 99 رسالة في مرة واحدة!",
 	clear_channel_message_deleted: "${messageCount} رسالة تم حذفها!",
-	clear_confirmation_message: "${messageCount} رسالة تم حذفها!",
 	clear_logs_embed_title: "سجلات حذف الرسائل",
 	clear_logs_embed_description:
 		"<@${authorId}> حذف ${messageCount} رسالة في <#${channelId}>",
 	clear_command_no_message: "لا توجد رسائل لحذفها في هذه القناة",
 
 	// /lock
-	lock_embed_message_description: "تم قفل القناة بواسطة <@${authorId}>.",
 	lock_dont_have_permission: "${emoji_No} | ليس لديك إذن لقفل القنوات.",
 	lock_logs_embed_title: "سجلات قفل القنوات",
 	lock_logs_embed_description: "<@${authorId}> قفل <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description: "تم فتح القناة بنجاح!",
 	unlock_dont_have_permission: "${emoji_No} | ليس لديك إذن لفتح القناة.",
 	unlock_logs_embed_title: "سجلات فتح القنوات",
 	unlock_logs_embed_description: "<@${authorId}> فتح <#${channelId}>",
@@ -2338,14 +2335,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | ليس لديك إذن لقفل جميع القنوات.",
-	lockall_embed_message_description:
-		"تم قفل جميع القنوات بواسطة <@${authorId}>.",
 	lockall_logs_embed_title: "سجلات قفل جميع القنوات",
 	lockall_logs_embed_description: "<@${authorId}> قفل جميع القنوات!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"تم فك قفل جميع القنوات بواسطة <@${authorId}>.",
 	unlockall_logs_embed_title: "سجلات فك قفل جميع القنوات",
 	unlockall_logs_embed_description: "<@${authorId}> فكّ قفل جميع القنوات!",
 
@@ -2356,7 +2349,6 @@ export default {
 		"${emoji_No} | **لا يوجد أي عضو محظور في هذا الخادم!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **الرقم المحدد ليس محظورًا من هذا الخادم**!",
-	unban_is_now_unbanned: "<@${userID}> تم رفع حظره من هذا الخادم الآن!",
 	unban_logs_embed_title: "سجلات فك الحظر",
 	unban_logs_embed_description:
 		"<@${userID}> تم رفع حظره من الخادم بواسطة <@${authorId}>!",
@@ -2368,8 +2360,6 @@ export default {
 	tempmute_i_dont_have_permission: "${emoji_No} | ليس لدي إذن.",
 	tempmute_cannot_mute_yourself: "${emoji_No} | لا يمكنك إسكات نفسك!",
 	tempmute_already_muted: "هذا العضو مُسكَت بالفعل!",
-	tempmute_command_work:
-		"<@${tomuteId}> تم كتمه لمدة ${duration}\n**السبب**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> تم رفع الميوت!",
 	tempmute_logs_embed_title: "سجلات الميوت المؤقت",
 	tempmute_logs_embed_description:
@@ -2393,8 +2383,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | لا يمكنك إضافة دور مؤقت لنفسك!",
 	temprole_already_has_role: "هذا المستخدم لديه هذا الدور المؤقت بالفعل!",
-	temprole_command_work:
-		"<@${tomuteId}> تم منحه الدور لمدة ${duration}\n**السبب**: `${reason}`",
 	temprole_removed_by_time: "تمت إزالة الدور المؤقت من <@${tomuteId}>!",
 	temprole_logs_embed_title: "سجل الأدوار المؤقتة",
 	temprole_logs_embed_description:
@@ -2413,21 +2401,15 @@ export default {
 	unmute_not_muted: "هذا العضو ليس مُسكَت!",
 	unmute_muted_role_doesnt_exist:
 		"دور `المسكت` غير موجود. يرجى إسكات العضو **قبل** إنشاء أدوار الميوت...",
-	unmute_command_work: "<@${tomuteId}> تم رفع ميوته!",
 	unmute_logs_embed_title: "سجلات رفع الميوت",
 	unmute_logs_embed_description: "<@${authorId}> رفع ميوت <@${tomuteId}>",
 	unmuteall_no_muted_members: "لم يتم العثور على أعضاء مكتومين.",
 	unmuteall_audit_reason: "رفع الميوت عن الجميع",
-	unmuteall_command_work: "تم رفع الميوت عن ${unmuted}/${total} عضو.",
 	unmuteall_logs_embed_title: "سجلات رفع الميوت عن الجميع",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> رفع الميوت عن ${unmuted}/${total} عضو.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`",
-	warn_logEmbed_title: "سجلات التحذير",
-	warn_logEmbed_desc: "${author} حذر ${member} بسبب `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | ليس لديك إذن لتحذير عضو في هذا السيرفر.",
 
@@ -2459,16 +2441,12 @@ export default {
 	var_ban_date: "تاريخ الحظر",
 
 	// /مسح_التحذيرات
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, تم مسح **`${allWarnCount}`** تحذير(ات) من ${member}",
 
 	// /tempban
 	tempban_dont_have_permission: "ليس لديك صلاحية لحظر الأعضاء مؤقتًا.",
 	tempban_i_dont_have_permission: "ليس لدي صلاحية لحظر الأعضاء.",
 	tempban_cannot_ban_yourself: "لا يمكنك حظر نفسك!",
 	tempban_already_banned: "هذا المستخدم محظور مؤقتًا بالفعل!",
-	tempban_command_work:
-		"**<@${userId}>** تم حظره مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** تم رفع الحظر عنه!",
 	tempban_logs_embed_title: "سجلات الحظر المؤقت",
 	tempban_logs_embed_description:
@@ -4108,10 +4086,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} يجب عليك الانتظار **${time}** بين كل استخدام لـ **`${ctxCommandPath}`**",
 
-	global_warn_embed_title: "تم تحذيرك - القضية **`${id}`**",
-	global_warn_embed_desc:
-		"> **السبب:** ${reason}\n> **المسؤول:** @${authorUsername} (*${authorRolesHighestName}*)\nتم إنشاء التحذير ${time}",
-	global_warn_component_button_label: "مرسل من ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**",
@@ -4558,8 +4532,56 @@ export default {
 	mutelist_card_cleared_title: "تمت إزالة الكتم",
 	mutelist_card_cleared_desc: "يمكن لـ ${count} عضو التحدث مجددًا.",
 	warnlist_card_title: "تحذيرات ${user}",
-	warnlist_card_count: "${count} تحذير",
 	unwarn_card_title: "تمت إزالة التحذير",
+	warn_card_title: "العضو خد تحذير",
+	warn_err_self: "${emoji_No} مينفعش تحذّر نفسك.",
+	warn_err_bot: "${emoji_No} مينفعش تحذّر البوتات.",
+	warn_err_above: "${emoji_No} مينفعش تحذّر عضو أعلى رول عنده قدّك أو أعلى منك.",
+	warn_dm_title: "إنت خدت تحذير",
+	warn_label_date: "التاريخ",
+	warn_label_active: "التحذيرات الشغالة",
+	warn_label_note: "ملاحظة للستاف",
+	warn_label_sanction: "عقوبة تلقائية",
+	warn_auto_reason: "عقوبة تلقائية: ${count} تحذيرات",
+	warn_sanction_timeout: "ميوت مؤقت (${duration})",
+	warn_sanction_kick: "طرد",
+	warn_sanction_ban: "باند",
+	warn_sanction_failed: "${sanction}، ما اتطبقتش: iHorizon مش قادر يعاقب العضو ده",
+	warn_expire_note: "التحذيرات بتخلص بعد ${days} يوم",
+	warnlist_expired: "خلصت",
+	warnlist_card_active: "${active} شغالة · ${count} في المجمل",
+	warnconfig_title: "إعدادات التحذيرات",
+	warnconfig_label_expiry: "مدة الصلاحية",
+	warnconfig_expiry_never: "أبدًا: التحذيرات بتفضل على طول",
+	warnconfig_expiry_days: "بعد ${days} يوم",
+	warnconfig_label_rules: "العقوبات التلقائية",
+	warnconfig_no_rules: "مفيش: التحذيرات لوحدها مش بتعمل عقوبة",
+	warnconfig_rule_line: "**${count}** تحذيرات ← ${sanction}",
+	warnconfig_saved: "الإعدادات اتحفظت.",
+	warnconfig_err_duration: "${emoji_No} الميوت المؤقت محتاج مدة من دقيقة لـ 28 يوم (زي `1h`، `2d`).",
+	warnconfig_err_count: "${emoji_No} الحد لازم يكون من 1 لـ 100 تحذير.",
+	warnconfig_err_rules: "${emoji_No} 10 عقوبات تلقائية بالكتير: امسح واحدة الأول.",
+	warnconfig_err_expiry: "${emoji_No} مدة الصلاحية لازم تكون من 0 (أبدًا) لـ 365 يوم.",
+	warnconfig_err_sanction: "${emoji_No} اختار عقوبة للحد ده (أو `none` عشان تشيله).",
+	warnconfig_hint: "تضيف عقوبة: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · تشيلها: `sanction:none` · الصلاحية: `expire-days:30` (0 = أبدًا)",
+	clearwarn_card_title: "التحذيرات اتمسحت",
+	clearwarn_card_desc: "اتشالت ${count} تحذيرات من ${member}.",
+	clear_allwarns_card_title: "كل التحذيرات اتمسحت",
+	mod_label_duration: "المدة",
+	mod_label_ends: "بتخلص",
+	mod_label_channel: "القناة",
+	mod_label_messages: "الرسايل اللي اتمسحت",
+	mod_label_target: "بيتطبق على",
+	tempmute_card_title: "العضو خد ميوت مؤقت",
+	unmute_card_title: "الميوت اتشال",
+	unban_card_title: "العضو اتفك عنه الباند",
+	tempban_card_title: "العضو خد باند مؤقت",
+	temprole_card_title: "اتدّى رول مؤقت",
+	clear_card_title: "الرسايل اتمسحت",
+	lock_card_title: "القناة اتقفلت",
+	unlock_card_title: "القناة اتفتحت",
+	lockall_card_title: "السيرفر اتقفل",
+	unlockall_card_title: "السيرفر اتفتح",
 	rolepanel_card_done_title: "تم تحديث الرتب",
 	rolepanel_label_added: "أضيفت",
 	rolepanel_label_removed: "أزيلت",

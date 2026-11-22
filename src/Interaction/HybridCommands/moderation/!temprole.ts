@@ -29,6 +29,12 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
@@ -167,18 +173,58 @@ export const subCommand: SubCommand = {
 			reason!
 		);
 
-		let content = lang.temprole_command_work
-			.replace("${tomuteId}", memberToAdd.id)
-			.replace("${duration}", roletimeString)
-			.replace("${reason}", reason || lang.var_no_set);
-
-		if (overflow) {
-			content += lang.temprole_tomute_max_time_passed.replace(
-				"${emoji_VC_OpenChat}",
-				client.iHorizon_Emojis.VC_OpenChat
-			);
-		}
-		await client.func.method.interactionSend(interaction, content);
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Ticket_Role,
+				title: lang.temprole_card_title,
+				thumbnail: memberToAdd.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${memberToAdd} (\`${memberToAdd.id}\`)`
+					},
+					{
+						emoji: e.Ticket_Role,
+						label: lang.utils_label_role,
+						value: roleToAdd.toString()
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					},
+					{
+						emoji: e.Timer,
+						label: lang.mod_label_duration,
+						value: roletimeString
+					},
+					{
+						emoji: e.Schedule,
+						label: lang.mod_label_ends,
+						value: `<t:${Math.floor((Date.now() + roletimeMS) / 1000)}:R>`
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: reason || lang.var_no_set
+					}
+				],
+				blocks: [
+					overflow
+						? lang.temprole_tomute_max_time_passed.replace(
+								"${emoji_VC_OpenChat}",
+								e.VC_OpenChat
+							)
+						: null
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.temprole_logs_embed_title,

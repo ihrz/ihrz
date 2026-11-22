@@ -26,6 +26,12 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -61,9 +67,25 @@ export const subCommand: SubCommand = {
 				);
 			}
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.clear_allwarns_command_ok
-			});
+			const e = client.iHorizon_Emojis;
+			await sendCard(
+				client,
+				interaction,
+				buildCard({
+					accent: ACCENT.success,
+					emoji: e.Yes,
+					title: lang.clear_allwarns_card_title,
+					description: lang.clear_allwarns_command_ok,
+					fields: [
+						{
+							emoji: e.Security,
+							label: lang.mod_label_moderator,
+							value: interaction.member.toString()
+						}
+					],
+					signature: await botSignature(client, interaction.guildId)
+				})
+			);
 		} else {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setjoinroles_action_canceled,

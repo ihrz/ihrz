@@ -2486,8 +2486,6 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Non posso eliminare più di 99 messaggi in una volta!",
 	clear_channel_message_deleted: "${messageCount} messaggi eliminati!",
-	clear_confirmation_message:
-		"${messageCount} messaggi sono stati eliminati!",
 	clear_logs_embed_title: "Log eliminazione messaggi",
 	clear_logs_embed_description:
 		"<@${authorId}> ha eliminato ${messageCount} messaggi in <#${channelId}>",
@@ -2495,8 +2493,6 @@ export default {
 		"Non ci sono messaggi da eliminare in questo canale",
 
 	// /lock
-	lock_embed_message_description:
-		"Il canale è stato bloccato da <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | Non hai i permessi per bloccare i canali.",
 	lock_logs_embed_title: "Log di Blocco",
@@ -2504,8 +2500,6 @@ export default {
 		"<@${authorId}> ha bloccato il canale <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description:
-		"Il canale è stato sbloccato con successo!",
 	unlock_dont_have_permission:
 		"${emoji_No} | Non hai il permesso di sbloccare il canale.",
 	unlock_logs_embed_title: "Log di sblocco",
@@ -2515,15 +2509,11 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | Non hai il permesso di bloccare tutti i canali.",
-	lockall_embed_message_description:
-		"Tutti i canali sono stati bloccati da <@${authorId}>.",
 	lockall_logs_embed_title: "Log Blocco Canali",
 	lockall_logs_embed_description:
 		"<@${authorId}> ha bloccato tutti i canali!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Tutti i canali sono stati sbloccati da <@${authorId}>.",
 	unlockall_logs_embed_title: "Log Sblocco Canali",
 	unlockall_logs_embed_description:
 		"<@${authorId}> ha sbloccato tutti i canali!",
@@ -2537,7 +2527,6 @@ export default {
 		"${emoji_No} | **Non c'è nessuno sbannato da questo server!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **L'ID indicato non è stato sbannato da questo server!**",
-	unban_is_now_unbanned: "<@${userID}> è stato sbannato da questo server!",
 	unban_logs_embed_title: "Unban Logs",
 	unban_logs_embed_description:
 		"<@${userID}> è stato sbannato dal server da <@${authorId}>!",
@@ -2549,8 +2538,6 @@ export default {
 	tempmute_i_dont_have_permission: "${emoji_No} | Non ho il permesso.",
 	tempmute_cannot_mute_yourself: "${emoji_No} | Non puoi mutare te stesso!",
 	tempmute_already_muted: "Questo utente è già mutato!",
-	tempmute_command_work:
-		"<@${tomuteId}> è stato silenziato per ${duration}\n**Motivo**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> è stato smutato!",
 	tempmute_logs_embed_title: "Log Tempmute",
 	tempmute_logs_embed_description:
@@ -2574,8 +2561,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | Non puoi aggiungere un ruolo temporaneo a te stesso!",
 	temprole_already_has_role: "Questo utente ha già questo ruolo temporaneo!",
-	temprole_command_work:
-		"<@${tomuteId}> ha ricevuto il ruolo per ${duration}\n**Motivo**: `${reason}`",
 	temprole_removed_by_time:
 		"Il ruolo temporaneo di <@${tomuteId}> è stato rimosso!",
 	temprole_logs_embed_title: "Log Ruoli Temporanei",
@@ -2596,21 +2581,15 @@ export default {
 	unmute_not_muted: "Questo utente non è mutato!",
 	unmute_muted_role_doesnt_exist:
 		"Il ruolo mutato non esiste. Per favore muta l'utente prima di creare il ruolo per la muta...",
-	unmute_command_work: "<@${tomuteId}> è stato smutato!",
 	unmute_logs_embed_title: "Unmute Logs",
 	unmute_logs_embed_description: "<@${authorId}> smuta <@${tomuteId}>.",
 	unmuteall_no_muted_members: "Non sono stati trovati membri mutati.",
 	unmuteall_audit_reason: "Smuta tutti",
-	unmuteall_command_work: "${unmuted}/${total} membri sono stati smutati.",
 	unmuteall_logs_embed_title: "Log smuta tutti",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> ha smutato ${unmuted}/${total} membri.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} è stato avvertito! **Motivo**: `${reason}`\n__ID Avvertimento__: `${warnId}`",
-	warn_logEmbed_title: "Registro Avvertimenti",
-	warn_logEmbed_desc: "${author} ha avvertito ${member} per `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | Non hai il permesso di avvertire un membro in questo server Discord.",
 
@@ -2643,8 +2622,6 @@ export default {
 	var_ban_date: "Data del ban",
 
 	// /cancella-avvertimenti
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** avvertimento/i di ${member} è/sono stato/i cancellato/i.",
 
 	// /tempban
 	tempban_dont_have_permission:
@@ -2652,8 +2629,6 @@ export default {
 	tempban_i_dont_have_permission: "Non ho il permesso di bannare i membri.",
 	tempban_cannot_ban_yourself: "Non puoi bannare te stesso!",
 	tempban_already_banned: "Questo utente è già temporaneamente bannato!",
-	tempban_command_work:
-		"**<@${userId}>** è stato temporaneamente bannato per **${duration}**\n**Motivo**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** è stato sbannato!",
 	tempban_logs_embed_title: "Log del ban temporaneo",
 	tempban_logs_embed_description:
@@ -4404,10 +4379,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} Devi aspettare **${time}** tra ogni utilizzo di **`${ctxCommandPath}`**",
 
-	global_warn_embed_title: "Hai ricevuto un avvertimento – Caso **`${id}`**",
-	global_warn_embed_desc:
-		"> **Motivo:** ${reason}\n> **Responsabile:** @${authorUsername} (*${authorRolesHighestName}*)\nAvvertimento generato ${time}",
-	global_warn_component_button_label: "Inviato da ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> HA SBAGLIATO A **${number}**!! Il prossimo numero è **1**. **Non puoi contare due volte di fila.**",
@@ -4869,8 +4840,56 @@ export default {
 	mutelist_card_cleared_title: "Timeout rimossi",
 	mutelist_card_cleared_desc: "${count} membri possono di nuovo parlare.",
 	warnlist_card_title: "Avvertimenti di ${user}",
-	warnlist_card_count: "${count} avvertimenti",
 	unwarn_card_title: "Avvertimento rimosso",
+	warn_card_title: "Membro avvertito",
+	warn_err_self: "${emoji_No} Non puoi avvertire te stesso.",
+	warn_err_bot: "${emoji_No} I bot non possono essere avvertiti.",
+	warn_err_above: "${emoji_No} Non puoi avvertire un membro il cui ruolo più alto è uguale o superiore al tuo.",
+	warn_dm_title: "Hai ricevuto un avvertimento",
+	warn_label_date: "Data",
+	warn_label_active: "Avvertimenti attivi",
+	warn_label_note: "Nota dello staff",
+	warn_label_sanction: "Sanzione automatica",
+	warn_auto_reason: "Sanzione automatica: ${count} avvertimenti",
+	warn_sanction_timeout: "Timeout (${duration})",
+	warn_sanction_kick: "Espulsione",
+	warn_sanction_ban: "Ban",
+	warn_sanction_failed: "${sanction}, non applicata: iHorizon non può sanzionare questo membro",
+	warn_expire_note: "gli avvertimenti scadono dopo ${days} giorni",
+	warnlist_expired: "scaduto",
+	warnlist_card_active: "${active} attivi · ${count} in totale",
+	warnconfig_title: "Impostazioni degli avvertimenti",
+	warnconfig_label_expiry: "Scadenza",
+	warnconfig_expiry_never: "Mai: gli avvertimenti contano per sempre",
+	warnconfig_expiry_days: "Dopo ${days} giorni",
+	warnconfig_label_rules: "Sanzioni automatiche",
+	warnconfig_no_rules: "Nessuna: gli avvertimenti non attivano mai una sanzione da soli",
+	warnconfig_rule_line: "**${count}** avvertimenti → ${sanction}",
+	warnconfig_saved: "Impostazioni salvate.",
+	warnconfig_err_duration: "${emoji_No} Un timeout richiede una durata da 1 minuto a 28 giorni (es. `1h`, `2d`).",
+	warnconfig_err_count: "${emoji_No} La soglia deve andare da 1 a 100 avvertimenti.",
+	warnconfig_err_rules: "${emoji_No} 10 sanzioni automatiche al massimo: rimuovine una prima.",
+	warnconfig_err_expiry: "${emoji_No} La scadenza deve andare da 0 (mai) a 365 giorni.",
+	warnconfig_err_sanction: "${emoji_No} Scegli una sanzione per questa soglia (o `none` per rimuoverla).",
+	warnconfig_hint: "Aggiungi una sanzione: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · rimuovila: `sanction:none` · scadenza: `expire-days:30` (0 = mai)",
+	clearwarn_card_title: "Avvertimenti cancellati",
+	clearwarn_card_desc: "I ${count} avvertimenti di ${member} sono stati rimossi.",
+	clear_allwarns_card_title: "Tutti gli avvertimenti eliminati",
+	mod_label_duration: "Durata",
+	mod_label_ends: "Termina",
+	mod_label_channel: "Canale",
+	mod_label_messages: "Messaggi eliminati",
+	mod_label_target: "Si applica a",
+	tempmute_card_title: "Membro in timeout",
+	unmute_card_title: "Timeout rimosso",
+	unban_card_title: "Membro sbannato",
+	tempban_card_title: "Membro bannato temporaneamente",
+	temprole_card_title: "Ruolo temporaneo assegnato",
+	clear_card_title: "Messaggi eliminati",
+	lock_card_title: "Canale bloccato",
+	unlock_card_title: "Canale sbloccato",
+	lockall_card_title: "Server bloccato",
+	unlockall_card_title: "Server sbloccato",
 	rolepanel_card_done_title: "Ruoli aggiornati",
 	rolepanel_label_added: "Aggiunti",
 	rolepanel_label_removed: "Rimossi",

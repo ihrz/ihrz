@@ -21,19 +21,13 @@
 
 import {
 	GuildMember,
-	EmbedBuilder,
-	BaseGuildTextChannel,
 	PermissionFlagsBits,
 	Guild,
-	time,
-	ButtonBuilder,
-	ActionRowBuilder,
-	PermissionsBitField,
-	ButtonStyle
+	PermissionsBitField
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
-import { generatePassword } from "../random.js";
+import { issueWarn } from "../../modules/warnSystem.js";
 
 // A member, or only an id when the member is not cached (e.g. a nuke bot).
 export type PunishTarget = GuildMember | { guild: Guild; id: string };
@@ -136,126 +130,18 @@ export async function punish(
 	}
 }
 
-async function sendWarnLog(
-	author: GuildMember,
-	member: GuildMember,
-	reason: string,
-	lang: LanguageData
-): Promise<void> {
-	const guild = member.guild;
-	const embed = new EmbedBuilder()
-		.setColor("#bf0bb9")
-		.setTitle(lang.warn_logEmbed_title)
-		.setDescription(
-			lang.warn_logEmbed_desc
-				.replace("${author}", author.toString())
-				.replace("${member}", member.toString())
-				.replace("${reason}", reason)
-		);
-
-	const sendTo = async (
-		channel: BaseGuildTextChannel | null | undefined
-	): Promise<boolean> => {
-		if (!channel || !channel.isTextBased()) return false;
-
-		try {
-			await channel.send({ embeds: [embed] });
-			return true;
-		} catch {
-			return false;
-		}
-	};
-
-	if (client.func.hasIhorizonLogs(guild)) {
-		const ihorizonLogsChannel = guild.channels.cache.find(
-			(channel) =>
-				channel.name.includes("ihorizon-logs") && channel.isTextBased()
-		) as BaseGuildTextChannel | undefined;
-
-		if (await sendTo(ihorizonLogsChannel)) return;
-	}
-
-	const modsChannel = guild.channels.cache.find(
-		(channel) => channel.name.includes("mods") && channel.isTextBased()
-	) as BaseGuildTextChannel | undefined;
-
-	if (await sendTo(modsChannel)) return;
-
-	const moderationLogsId = (await guild.client.db.get(
-		`${guild.id}.GUILD.SERVER_LOGS.moderation`
-	)) as string | null;
-
-	if (!moderationLogsId) return;
-
-	const moderationLogsChannel = guild.channels.cache.get(moderationLogsId) as
-		BaseGuildTextChannel | undefined;
-
-	await sendTo(moderationLogsChannel);
-}
-
+/**
+ * Adds a warn: the member's card, the staff log, the automatic sanction of a
+ * reached threshold (warnSystem.ts). Returns the warn id.
+ */
 export async function warnMember(
 	author: GuildMember,
 	member: GuildMember,
 	reason: string,
-	lang: LanguageData
+	lang: LanguageData,
+	note?: string | null
 ): Promise<string> {
-	const warnObject: DatabaseStructure.WarnsData = {
-		timestamp: Date.now(),
-		reason: reason,
-		authorID: author.user.id,
-		id: generatePassword({ length: 8, lowercase: false, numbers: true })
-	};
-
-	await member.client.db.push(
-		`${member.guild.id}.USER.${member.user.id}.WARNS`,
-		warnObject
-	);
-
-	member
-		.send({
-			embeds: [
-				new EmbedBuilder()
-					.setColor("Red")
-					.setTitle(
-						lang.global_warn_embed_title.replace(
-							"${id}",
-							warnObject.id
-						)
-					)
-					.setDescription(
-						lang.global_warn_embed_desc
-							.replace("${reason}", warnObject.reason)
-							.replace("${authorUsername}", author.user.username)
-							.replace(
-								"${authorRolesHighestName}",
-								author.roles.highest.name
-							)
-							.replace(
-								"${time}",
-								time(new Date(warnObject.timestamp))
-							)
-					)
-			],
-			components: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setStyle(ButtonStyle.Secondary)
-						.setCustomId(`guild-id-${author.guild.id}`)
-						.setDisabled(true)
-						.setLabel(
-							lang.global_warn_component_button_label.replace(
-								"${authorGuildName}",
-								author.guild.name
-							)
-						)
-				)
-			]
-		})
-		.catch(() => null);
-
-	await sendWarnLog(author, member, reason, lang).catch(() => {});
-
-	return warnObject.id;
+	return (await issueWarn(author, member, reason, lang, note)).warn.id;
 }
 
 export function getDangerousPermissions(lang: LanguageData): {

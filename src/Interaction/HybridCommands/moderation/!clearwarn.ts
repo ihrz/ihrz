@@ -29,6 +29,12 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { clearWarns } from "../../../core/modules/moderationOps.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -64,13 +70,28 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.clearwarn_command_ok
-				.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-				.replace("${member}", member?.toString()!)
-				.replace("${allWarnCount}", result.count.toString())
-				.replace("${author}", interaction.member.toString())
-		});
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Yes,
+				title: lang.clearwarn_card_title,
+				description: lang.clearwarn_card_desc
+					.replace("${count}", String(result.count))
+					.replace("${member}", member!.toString()),
+				thumbnail: member?.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 
 		return;
 	}
