@@ -64,6 +64,7 @@ import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
 import {
 	saveTicketTranscript,
+	transcriptDmPayload,
 	transcriptLinkRow as webTranscriptRow
 } from "./ticketTranscripts.js";
 import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
@@ -1082,13 +1083,18 @@ async function closeTicketChannel(
 	const transcriptLink = webUrl
 		? { url: webUrl, label: lang.ticket_module_button_transcript }
 		: null;
-	const attachment = await DiscordJSTranscript.create({
-		channel: channel as TextBasedChannel,
-		limit: -1,
-		filename: `${channel.guildId}-transcript.html`,
-		footerText: "Exported {number} message{s}",
-		poweredBy: false
-	});
+	// With a web transcript (production), the link replaces the HTML file:
+	// no file is sent to Discord. Without one, the HTML file as before.
+	const attachment = webUrl
+		? null
+		: await DiscordJSTranscript.create({
+				channel: channel as TextBasedChannel,
+				limit: -1,
+				filename: `${channel.guildId}-transcript.html`,
+				footerText: "Exported {number} message{s}",
+				poweredBy: false
+			});
+	const files: TicketFiles = attachment ? [attachment] : [];
 
 	const embed = new EmbedBuilder()
 		.setDescription(lang.close_title_sourcebin)
@@ -1110,7 +1116,7 @@ async function closeTicketChannel(
 
 	await notify({
 		content: lang.close_command_work_notify_channel,
-		files: [attachment],
+		files,
 		embeds: [embed],
 		...(transcriptLink
 			? { components: [transcriptLinkRow(transcriptLink)] }
@@ -1123,7 +1129,7 @@ async function closeTicketChannel(
 		lang.event_ticket_logsChannel_onClose_embed_desc
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id),
-		[attachment],
+		files,
 		transcriptLink
 	);
 	return true;
@@ -1247,29 +1253,28 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				)
 					return;
 
-				// The web transcript (ticket.ihorizon.org) next to the HTML file.
+				// The web transcript (ticket.ihorizon.org); its link replaces the
+				// HTML file when there is one (production).
 				const webUrl = await saveTicketTranscript(
 					interactionChannel,
 					fetch[user][channel]?.author ?? user,
 					interaction.user,
 					"transcript"
 				);
-				const attachment = await DiscordJSTranscript.create({
-					channel: interactionChannel as TextBasedChannel,
-					limit: -1,
-					filename: `${interaction.guildId}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false,
-					saveImages: true,
-					favicon: interaction.client.user.displayAvatarURL({
-						size: 512,
-						extension: "png"
-					})
-				});
-
-				const embed = new EmbedBuilder()
-					.setDescription(data.close_title_sourcebin)
-					.setColor("#0014a8");
+				const attachment = webUrl
+					? null
+					: await DiscordJSTranscript.create({
+							channel: interactionChannel as TextBasedChannel,
+							limit: -1,
+							filename: `${interaction.guildId}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false,
+							saveImages: true,
+							favicon: interaction.client.user.displayAvatarURL({
+								size: 512,
+								extension: "png"
+							})
+						});
 
 				if (interaction.deferred) {
 					await interaction.editReply({
@@ -1283,19 +1288,16 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				}
 
 				await interaction.user
-					.send({
-						embeds: [embed],
-						content: data.transript_command_work,
-						files: [attachment],
-						components: webUrl
-							? [
-									transcriptLinkRow({
-										url: webUrl,
-										label: data.ticket_module_button_transcript
-									})
-								]
-							: []
-					})
+					.send(
+						transcriptDmPayload({
+							channel: interactionChannel,
+							title: data.close_title_sourcebin,
+							text: data.transript_command_work,
+							file: attachment,
+							webUrl,
+							buttonLabel: data.ticket_module_button_transcript
+						})
+					)
 					.catch(() =>
 						interaction.followUp({
 							content: data.ticket_transcript_failed_to_send,
@@ -1529,26 +1531,34 @@ async function deleteTicketChannel(
 			: undefined;
 
 		if (TicketLogsChannel?.isSendable()) {
-			const attachment = await DiscordJSTranscript.create({
-				channel: channel as TextBasedChannel,
-				limit: -1,
-				filename: `${guild.id}-transcript.html`,
-				footerText: "Exported {number} message{s}",
-				poweredBy: false
-			});
+			// The link replaces the HTML file when there is a web transcript.
+			const attachment = webUrl
+				? null
+				: await DiscordJSTranscript.create({
+						channel: channel as TextBasedChannel,
+						limit: -1,
+						filename: `${guild.id}-transcript.html`,
+						footerText: "Exported {number} message{s}",
+						poweredBy: false
+					});
 
 			if (shouldSendOwnerDm) {
 				await ticketOwner
-					.send({
-						content: lang.ticket_deleted
-							.replace(
-								"${ticketOwnerMention}",
-								ticketOwnerMention
-							)
-							.replace("${deletedByUserId}", deletedByUserId),
-						files: [attachment],
-						components: linkRows
-					})
+					.send(
+						transcriptDmPayload({
+							channel,
+							title: lang.close_title_sourcebin,
+							text: lang.ticket_deleted
+								.replace(
+									"${ticketOwnerMention}",
+									ticketOwnerMention
+								)
+								.replace("${deletedByUserId}", deletedByUserId),
+							file: attachment,
+							webUrl,
+							buttonLabel: lang.ticket_module_button_transcript
+						})
+					)
 					.catch(() => null);
 			}
 
@@ -1577,7 +1587,7 @@ async function deleteTicketChannel(
 					await guild.client.func.displayBotName.footerAttachmentBuilder(
 						guild
 					),
-					attachment
+					...(attachment ? [attachment] : [])
 				],
 				components: linkRows
 			}).catch(() => null);

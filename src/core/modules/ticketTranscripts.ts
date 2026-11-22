@@ -30,6 +30,14 @@
 // Who may read it is decided by the gateway: participants, holders of a staff role, server managers, bot owners.
 import {
 	ActionRowBuilder,
+	AttachmentBuilder,
+	ContainerBuilder,
+	FileBuilder,
+	MessageFlags,
+	SectionBuilder,
+	SeparatorBuilder,
+	TextDisplayBuilder,
+	ThumbnailBuilder,
 	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
@@ -82,6 +90,56 @@ export function transcriptLinkRow(url: string, label: string) {
 			.setEmoji("📜")
 			.setLabel(label.slice(0, 80))
 	);
+}
+
+/**
+ * The transcript sent by private message (/ticket transcript, a deleted ticket's author), as Components V2: the
+ * title and text, the ticket's channel, server and date, the HTML file, and the web transcript button when there
+ * is one. `file` = the HTML attachment from DiscordJSTranscript.create, null when the web transcript replaces it
+ * (production: links only, no HTML file sent to Discord).
+ */
+export function transcriptDmPayload(options: {
+	channel: BaseGuildTextChannel;
+	title: string;
+	text: string;
+	file: AttachmentBuilder | null;
+	webUrl: string | null;
+	buttonLabel: string;
+}) {
+	const { channel, title, text, file, webUrl, buttonLabel } = options;
+	const guild = channel.guild;
+	const now = Math.floor(Date.now() / 1000);
+	const head = new TextDisplayBuilder().setContent(
+		`## 📜 ${title}\n${text}\n-# <#${channel.id}> (#${channel.name}) · ${guild.name} · <t:${now}:f>`
+	);
+	const icon = guild.iconURL({ size: 128, extension: "png" });
+	const container = new ContainerBuilder().setAccentColor(0x0014a8);
+	if (icon) {
+		container.addSectionComponents(
+			new SectionBuilder()
+				.addTextDisplayComponents(head)
+				.setThumbnailAccessory(new ThumbnailBuilder().setURL(icon))
+		);
+	} else {
+		container.addTextDisplayComponents(head);
+	}
+	if (file) {
+		container
+			.addSeparatorComponents(new SeparatorBuilder())
+			.addFileComponents(
+				new FileBuilder().setURL(`attachment://${file.name}`)
+			);
+	}
+	if (webUrl) {
+		container.addActionRowComponents(
+			transcriptLinkRow(webUrl, buttonLabel)
+		);
+	}
+	return {
+		components: [container],
+		files: file ? [file] : [],
+		flags: MessageFlags.IsComponentsV2 as const
+	};
 }
 
 /** Every message of the channel, oldest first (at most TRANSCRIPT_MAX_MESSAGES, the latest ones). */
