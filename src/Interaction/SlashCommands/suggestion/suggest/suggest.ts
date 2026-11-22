@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "Подкоманда для категории предложений!",
 		"es-ES": "Subcomando para la categoría de sugerencias!",
 		ko: "건의 하위 명령어!",
-		uk: "Підкоманда для категорії пропозицій!"
+		uk: "Підкоманда для категорії пропозицій!",
+		de: "Unterbefehle der Vorschlags-Kategorie!",
+		it: "Sottocomandi della categoria suggerimenti!",
+		"pt-BR": "Subcomandos da categoria sugestões!",
+		pl: "Podkomendy kategorii sugestii!"
 	},
 
 	options: [
@@ -48,7 +52,11 @@ export const command: Command = {
 				ru: "reply",
 				"es-ES": "reply",
 				ko: "reply",
-				uk: "reply"
+				uk: "reply",
+				de: "reply",
+				it: "reply",
+				"pt-BR": "reply",
+				pl: "reply"
 			},
 			prefixName: "sug-reply",
 
@@ -59,7 +67,11 @@ export const command: Command = {
 				ru: "Ответить на предложение!",
 				"es-ES": "Responder a la sugerencia!",
 				ko: "건의에 답장해요!",
-				uk: "Відповісти на пропозицію!"
+				uk: "Відповісти на пропозицію!",
+				de: "Antworte auf den Vorschlag!",
+				it: "Rispondi al suggerimento!",
+				"pt-BR": "Responda à sugestão!",
+				pl: "Odpowiedz na sugestię!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -75,7 +87,11 @@ export const command: Command = {
 						ru: "Какой ID предложения?",
 						"es-ES": "Cual es el ID de la sugerencia?",
 						ko: "건의 ID는 무엇인가요?",
-						uk: "Який ID пропозиції?"
+						uk: "Який ID пропозиції?",
+						de: "Wie lautet die ID des Vorschlags?",
+						it: "Qual è l'ID del suggerimento?",
+						"pt-BR": "Qual é o ID da sugestão?",
+						pl: "Jakie jest ID sugestii?"
 					},
 
 					required: true,
@@ -93,7 +109,11 @@ export const command: Command = {
 						ru: "На какое сообщение вы хотите ответить?",
 						"es-ES": "A qué mensaje quieres responder?",
 						ko: "어떤 메시지로 답장할까요?",
-						uk: "Яке повідомлення-відповідь?"
+						uk: "Яке повідомлення-відповідь?",
+						de: "Auf welche Nachricht willst du antworten?",
+						it: "A quale messaggio vuoi rispondere?",
+						"pt-BR": "A qual mensagem você quer responder?",
+						pl: "Na którą wiadomość chcesz odpowiedzieć?"
 					},
 
 					required: true,
@@ -113,7 +133,11 @@ export const command: Command = {
 				ru: "deny",
 				"es-ES": "deny",
 				ko: "deny",
-				uk: "deny"
+				uk: "deny",
+				de: "deny",
+				it: "deny",
+				"pt-BR": "deny",
+				pl: "deny"
 			},
 			prefixName: "sug-deny",
 
@@ -124,7 +148,11 @@ export const command: Command = {
 				ru: "Отклонить предложение!",
 				"es-ES": "Denegar una sugerencia!",
 				ko: "건의를 거절해요!",
-				uk: "Відхилити пропозицію!"
+				uk: "Відхилити пропозицію!",
+				de: "Lehne einen Vorschlag ab!",
+				it: "Rifiuta un suggerimento!",
+				"pt-BR": "Recuse uma sugestão!",
+				pl: "Odrzuć sugestię!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -140,7 +168,11 @@ export const command: Command = {
 						ru: "Какой ID предложения?",
 						"es-ES": "Cual es el ID de la sugerencia?",
 						ko: "건의 ID는 무엇인가요?",
-						uk: "Який ID пропозиції?"
+						uk: "Який ID пропозиції?",
+						de: "Wie lautet die ID des Vorschlags?",
+						it: "Qual è l'ID del suggerimento?",
+						"pt-BR": "Qual é o ID da sugestão?",
+						pl: "Jakie jest ID sugestii?"
 					},
 
 					required: true,
@@ -155,7 +187,11 @@ export const command: Command = {
 						ru: "reason",
 						"es-ES": "reason",
 						ko: "reason",
-						uk: "reason"
+						uk: "reason",
+						de: "reason",
+						it: "reason",
+						"pt-BR": "reason",
+						pl: "reason"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -167,7 +203,11 @@ export const command: Command = {
 						ru: "Причина отказа?",
 						"es-ES": "Que razón tienes para denegar?",
 						ko: "거절 사유는 무엇인가요?",
-						uk: "Яка причина відхилення?"
+						uk: "Яка причина відхилення?",
+						de: "Aus welchem Grund lehnst du ab?",
+						it: "Qual è il motivo del rifiuto?",
+						"pt-BR": "Qual é o motivo da recusa?",
+						pl: "Jaki jest powód odrzucenia?"
 					},
 
 					required: true,
@@ -187,7 +227,11 @@ export const command: Command = {
 				ru: "accept",
 				"es-ES": "accept",
 				ko: "accept",
-				uk: "accept"
+				uk: "accept",
+				de: "accept",
+				it: "accept",
+				"pt-BR": "accept",
+				pl: "accept"
 			},
 			prefixName: "sug-accept",
 
@@ -198,7 +242,11 @@ export const command: Command = {
 				ru: "Принять предложение!",
 				"es-ES": "Aceptar una sugerencia!",
 				ko: "건의를 수락해요!",
-				uk: "Прийняти пропозицію!"
+				uk: "Прийняти пропозицію!",
+				de: "Nimm einen Vorschlag an!",
+				it: "Accetta un suggerimento!",
+				"pt-BR": "Aceite uma sugestão!",
+				pl: "Zaakceptuj sugestię!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -214,7 +262,11 @@ export const command: Command = {
 						ru: "Какой ID предложения?",
 						"es-ES": "Cual es el ID de la sugerencia?",
 						ko: "건의 ID는 무엇인가요?",
-						uk: "Який ID пропозиції?"
+						uk: "Який ID пропозиції?",
+						de: "Wie lautet die ID des Vorschlags?",
+						it: "Qual è l'ID del suggerimento?",
+						"pt-BR": "Qual é o ID da sugestão?",
+						pl: "Jakie jest ID sugestii?"
 					},
 
 					required: true,
@@ -229,7 +281,11 @@ export const command: Command = {
 						ru: "reason",
 						"es-ES": "reason",
 						ko: "reason",
-						uk: "reason"
+						uk: "reason",
+						de: "reason",
+						it: "reason",
+						"pt-BR": "reason",
+						pl: "reason"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -241,7 +297,11 @@ export const command: Command = {
 						ru: "Причина принятия?",
 						"es-ES": "Que razón tienes para aceptar?",
 						ko: "수락 사유는 무엇인가요?",
-						uk: "Яка причина прийняття?"
+						uk: "Яка причина прийняття?",
+						de: "Aus welchem Grund nimmst du an?",
+						it: "Qual è il motivo dell'approvazione?",
+						"pt-BR": "Qual é o motivo da aprovação?",
+						pl: "Jaki jest powód akceptacji?"
 					},
 
 					required: true,
@@ -260,7 +320,11 @@ export const command: Command = {
 				ru: "delete",
 				"es-ES": "delete",
 				ko: "delete",
-				uk: "delete"
+				uk: "delete",
+				de: "delete",
+				it: "delete",
+				"pt-BR": "delete",
+				pl: "delete"
 			},
 			prefixName: "sug-delete",
 
@@ -271,7 +335,11 @@ export const command: Command = {
 				ru: "Удалить предложение!",
 				"es-ES": "Eliminar una sugerencia!",
 				ko: "건의를 삭제해요!",
-				uk: "Видалити пропозицію!"
+				uk: "Видалити пропозицію!",
+				de: "Lösche einen Vorschlag!",
+				it: "Elimina un suggerimento!",
+				"pt-BR": "Exclua uma sugestão!",
+				pl: "Usuń sugestię!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -287,7 +355,11 @@ export const command: Command = {
 						ru: "Какой ID предложения?",
 						"es-ES": "Cual es el ID de la sugerencia?",
 						ko: "건의 ID는 무엇인가요?",
-						uk: "Який ID пропозиції?"
+						uk: "Який ID пропозиції?",
+						de: "Wie lautet die ID des Vorschlags?",
+						it: "Qual è l'ID del suggerimento?",
+						"pt-BR": "Qual é o ID da sugestão?",
+						pl: "Jakie jest ID sugestii?"
 					},
 
 					required: true,
@@ -310,7 +382,11 @@ export const command: Command = {
 				ru: "Изменить статус предложения!",
 				"es-ES": "Cambiar el estado de una sugerencia!",
 				ko: "건의의 상태를 변경해요!",
-				uk: "Змінити статус пропозиції!"
+				uk: "Змінити статус пропозиції!",
+				de: "Ändere den Status eines Vorschlags!",
+				it: "Cambia lo stato di un suggerimento!",
+				"pt-BR": "Altere o status de uma sugestão!",
+				pl: "Zmień status sugestii!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -326,7 +402,11 @@ export const command: Command = {
 						ru: "Какой ID предложения?",
 						"es-ES": "Cual es el ID de la sugerencia?",
 						ko: "건의 ID는 무엇인가요?",
-						uk: "Який ID пропозиції?"
+						uk: "Який ID пропозиції?",
+						de: "Wie lautet die ID des Vorschlags?",
+						it: "Qual è l'ID del suggerimento?",
+						"pt-BR": "Qual é o ID da sugestão?",
+						pl: "Jakie jest ID sugestii?"
 					},
 
 					required: true,
@@ -344,7 +424,11 @@ export const command: Command = {
 						ru: "Новый статус",
 						"es-ES": "El nuevo estado",
 						ko: "새 상태",
-						uk: "Новий статус"
+						uk: "Новий статус",
+						de: "Der neue Status",
+						it: "Il nuovo stato",
+						"pt-BR": "O novo status",
+						pl: "Nowy status"
 					},
 
 					required: true,
@@ -357,7 +441,11 @@ export const command: Command = {
 								ru: "Ожидает",
 								"es-ES": "Pendiente",
 								ko: "대기 중",
-								uk: "Очікує"
+								uk: "Очікує",
+								de: "Ausstehend",
+								it: "In attesa",
+								"pt-BR": "Pendente",
+								pl: "Oczekuje"
 							},
 							value: "pending"
 						},
@@ -369,7 +457,11 @@ export const command: Command = {
 								ru: "На рассмотрении",
 								"es-ES": "En revisión",
 								ko: "검토 중",
-								uk: "На розгляді"
+								uk: "На розгляді",
+								de: "In Prüfung",
+								it: "In revisione",
+								"pt-BR": "Em análise",
+								pl: "W trakcie rozpatrywania"
 							},
 							value: "reviewing"
 						},
@@ -381,7 +473,11 @@ export const command: Command = {
 								ru: "Принято",
 								"es-ES": "Aceptada",
 								ko: "수락됨",
-								uk: "Прийнято"
+								uk: "Прийнято",
+								de: "Angenommen",
+								it: "Accettato",
+								"pt-BR": "Aceito",
+								pl: "Zaakceptowano"
 							},
 							value: "accepted"
 						},
@@ -393,7 +489,11 @@ export const command: Command = {
 								ru: "Запланировано",
 								"es-ES": "Planificada",
 								ko: "예정됨",
-								uk: "Заплановано"
+								uk: "Заплановано",
+								de: "Geplant",
+								it: "Pianificato",
+								"pt-BR": "Planejado",
+								pl: "Planowane"
 							},
 							value: "planned"
 						},
@@ -405,7 +505,11 @@ export const command: Command = {
 								ru: "Реализовано",
 								"es-ES": "Implementada",
 								ko: "반영됨",
-								uk: "Реалізовано"
+								uk: "Реалізовано",
+								de: "Umgesetzt",
+								it: "Implementato",
+								"pt-BR": "Implementado",
+								pl: "Zaimplementowano"
 							},
 							value: "implemented"
 						},
@@ -417,7 +521,11 @@ export const command: Command = {
 								ru: "Отклонено",
 								"es-ES": "Rechazada",
 								ko: "거절됨",
-								uk: "Відхилено"
+								uk: "Відхилено",
+								de: "Abgelehnt",
+								it: "Rifiutato",
+								"pt-BR": "Recusado",
+								pl: "Odrzucono"
 							},
 							value: "denied"
 						}
@@ -436,7 +544,11 @@ export const command: Command = {
 						ru: "Необязательное сообщение для автора",
 						"es-ES": "Un mensaje opcional para el autor",
 						ko: "작성자에게 보낼 메시지 (선택)",
-						uk: "Необов'язкове повідомлення для автора"
+						uk: "Необов'язкове повідомлення для автора",
+						de: "Eine optionale Nachricht an den Autor",
+						it: "Un messaggio facoltativo per l'autore",
+						"pt-BR": "Uma mensagem opcional para o autor",
+						pl: "Opcjonalna wiadomość dla autora"
 					},
 
 					required: false,
@@ -459,7 +571,11 @@ export const command: Command = {
 				ru: "Показать самые популярные предложения!",
 				"es-ES": "Listar las sugerencias más populares!",
 				ko: "가장 인기 있는 건의 목록을 확인해요!",
-				uk: "Показати найпопулярніші пропозиції!"
+				uk: "Показати найпопулярніші пропозиції!",
+				de: "Die beliebtesten Vorschläge auflisten!",
+				it: "Elenca i suggerimenti più popolari!",
+				"pt-BR": "Liste as sugestões mais populares!",
+				pl: "Wyświetl najpopularniejsze sugestie!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -475,7 +591,11 @@ export const command: Command = {
 						ru: "Показывать только этот статус",
 						"es-ES": "Mostrar solo este estado",
 						ko: "이 상태만 표시",
-						uk: "Показувати лише цей статус"
+						uk: "Показувати лише цей статус",
+						de: "Nur diesen Status anzeigen",
+						it: "Mostra solo questo stato",
+						"pt-BR": "Mostrar só este status",
+						pl: "Pokaż tylko ten status"
 					},
 
 					required: false,
@@ -488,7 +608,11 @@ export const command: Command = {
 								ru: "Ожидает",
 								"es-ES": "Pendiente",
 								ko: "대기 중",
-								uk: "Очікує"
+								uk: "Очікує",
+								de: "Ausstehend",
+								it: "In attesa",
+								"pt-BR": "Pendente",
+								pl: "Oczekuje"
 							},
 							value: "pending"
 						},
@@ -500,7 +624,11 @@ export const command: Command = {
 								ru: "На рассмотрении",
 								"es-ES": "En revisión",
 								ko: "검토 중",
-								uk: "На розгляді"
+								uk: "На розгляді",
+								de: "In Prüfung",
+								it: "In revisione",
+								"pt-BR": "Em análise",
+								pl: "W trakcie rozpatrywania"
 							},
 							value: "reviewing"
 						},
@@ -512,7 +640,11 @@ export const command: Command = {
 								ru: "Принято",
 								"es-ES": "Aceptada",
 								ko: "수락됨",
-								uk: "Прийнято"
+								uk: "Прийнято",
+								de: "Angenommen",
+								it: "Accettato",
+								"pt-BR": "Aceito",
+								pl: "Zaakceptowano"
 							},
 							value: "accepted"
 						},
@@ -524,7 +656,11 @@ export const command: Command = {
 								ru: "Запланировано",
 								"es-ES": "Planificada",
 								ko: "예정됨",
-								uk: "Заплановано"
+								uk: "Заплановано",
+								de: "Geplant",
+								it: "Pianificato",
+								"pt-BR": "Planejado",
+								pl: "Planowane"
 							},
 							value: "planned"
 						},
@@ -536,7 +672,11 @@ export const command: Command = {
 								ru: "Реализовано",
 								"es-ES": "Implementada",
 								ko: "반영됨",
-								uk: "Реалізовано"
+								uk: "Реалізовано",
+								de: "Umgesetzt",
+								it: "Implementato",
+								"pt-BR": "Implementado",
+								pl: "Zaimplementowano"
 							},
 							value: "implemented"
 						},
@@ -548,7 +688,11 @@ export const command: Command = {
 								ru: "Отклонено",
 								"es-ES": "Rechazada",
 								ko: "거절됨",
-								uk: "Відхилено"
+								uk: "Відхилено",
+								de: "Abgelehnt",
+								it: "Rifiutato",
+								"pt-BR": "Recusado",
+								pl: "Odrzucono"
 							},
 							value: "denied"
 						}

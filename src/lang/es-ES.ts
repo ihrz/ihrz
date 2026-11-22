@@ -4321,7 +4321,7 @@ export default {
 		"¡Gracias por recibirme! Soy **iHorizon**: moderación, tickets, música, protección, registros y mucho más, en un solo bot **gratuito** y de **código abierto**.",
 	welcome_lang_title: "Idioma",
 	welcome_lang_text:
-		"Aquí hablo {language}, elegido según la región de tu servidor.\nPara cambiarlo, un administrador puede usar {command}: un panel permite elegir entre 11 idiomas.",
+		"Aquí hablo {language}, elegido según la región de tu servidor.\nPara cambiarlo, un administrador puede usar {command}: un panel permite elegir entre {count} idiomas.",
 	welcome_start_title: "Primeros pasos",
 	welcome_start_help:
 		"{command} muestra todos los comandos, ordenados por categoría",
@@ -5177,5 +5177,55 @@ export default {
 	tempvoice_region_ussouth: "EE. UU. Sur",
 	tempvoice_region_uswest: "EE. UU. Oeste",
 	tempvoice_region_uscentral: "EE. UU. Centro",
-	tempvoice_region_brazil: "Brasil"
+	tempvoice_region_brazil: "Brasil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Miembro baneado",
+	logs_ban_remove_title: "Miembro desbaneado",
+	logs_kick_title: "Miembro expulsado",
+	logs_boost_add_title: "Nuevo boost",
+	logs_boost_remove_title: "Boost retirado",
+	logs_channel_update_title: "Canal actualizado",
+	logs_message_delete_title: "Mensaje eliminado",
+	logs_message_update_title: "Mensaje editado",
+	logs_roles_update_title: "Roles actualizados",
+	logs_voice_title: "Actividad de voz",
+	logs_channel_label: "Canal",
+	logs_jump_to_message: "Ir al mensaje",
+	logs_message_delete_embeds:
+		"Los embeds del mensaje (${count}) se muestran justo debajo.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "¡El recordatorio #${scheduleCode} ha vencido!",
+
+	// invites V2 cards
+	invites_reset_title: "Restablecer el gestor de invitaciones",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Tu posición: **#${rank}** de ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Todavía no estás en la clasificación.",
+	economy_leaderboard_count: "${count} miembro(s) clasificado(s)",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Nivel ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** activado: los archivos ejecutables se eliminarán.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** desactivado: los archivos ejecutables vuelven a estar permitidos.",
+	guildconfig_list_react_title: "Reacciones automáticas",
+
+	// hard-coded strings
+	updates_button_releases: "Versiones",
+	updates_button_commit: "Commit",
+	warn_reason_piconly: "Sanción automática: canal solo de imágenes",
+	warn_reason_antiexe: "Anti-Exe: envió un archivo ejecutable",
+	warn_reason_punishpub: "Sanción automática: publicidad",
+	warn_reason_antispam: "Sanción automática: spam",
+	automod_block_custom_message: "iHorizon bloqueó este mensaje",
+	derogation_role_name: "gestionado por iHorizon",
+	ticket_transcript_footer: "Mensajes exportados: {number}",
+	music_playlist_fallback_name: "Lista de ${platform}",
+	music_apo_node_unreachable:
+		"no se puede contactar con el servidor de audio (${message})"
 } satisfies LanguageData;

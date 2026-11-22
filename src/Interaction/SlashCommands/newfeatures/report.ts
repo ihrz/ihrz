@@ -41,7 +41,12 @@ export const command: Command = {
 		"es-ES":
 			"Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!",
 		ko: "버그, 오류, 맞춤법 오류를 iHorizon 개발자에게 신고해요!",
-		uk: "Повідомити розробникам iHorizon про баг, помилку чи орфографічну помилку!"
+		uk: "Повідомити розробникам iHorizon про баг, помилку чи орфографічну помилку!",
+		de: "Melde einen Bug oder Tippfehler an die iHorizon-Entwickler!",
+		it: "Segnala un bug, un errore o un refuso agli sviluppatori di iHorizon!",
+		"pt-BR":
+			"Relate um bug, erro ou erro de ortografia aos devs do iHorizon!",
+		pl: "Zgłoś błąd lub literówkę twórcom iHorizon!"
 	},
 
 	options: [
@@ -57,7 +62,12 @@ export const command: Command = {
 				"es-ES":
 					"Cual es el problema? Por favor, haz una buena oración",
 				ko: "무엇이 문제인가요? 자세히 적어 주세요",
-				uk: "У чому проблема? Будь ласка, опишіть зрозуміло"
+				uk: "У чому проблема? Будь ласка, опишіть зрозуміло",
+				de: "Was ist das Problem? Bitte formuliere ordentliche Sätze",
+				it: "Qual è il problema? Scrivi frasi chiare, per favore",
+				"pt-BR":
+					"Qual é o problema? Escreva frases bem claras, por favor",
+				pl: "Jaki jest problem? Napisz proszę poprawne zdania"
 			},
 
 			required: true,

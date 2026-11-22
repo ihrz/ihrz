@@ -27,7 +27,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
@@ -35,6 +34,15 @@ import { Command, SubCommand } from "../../../../../types/command.js";
 
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import { Option } from "../../../../../types/option.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	pageLabel,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 function normalizePermissionData(
 	permData?: Partial<DatabaseStructure.PermCommandData> | null
@@ -201,9 +209,20 @@ export const subCommand: SubCommand = {
 					`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`
 				);
 
-				await client.func.method.interactionSend(interaction, {
-					content: `${commandType}: ${requestedCommand}\n ${lang.perm_set_command_reset}`
-				});
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.success,
+						emoji: client.iHorizon_Emojis.Gear,
+						title: `${commandType} : \`${requestedCommand}\``,
+						description: lang.perm_set_command_reset,
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
+					})
+				);
 			} else {
 				const changesSummary =
 					changes.length > 0
@@ -215,9 +234,20 @@ export const subCommand: SubCommand = {
 					newPerms
 				);
 
-				await client.func.method.interactionSend(interaction, {
-					content: `${commandType}: ${requestedCommand}\n\n${changesSummary}`
-				});
+				await sendCard(
+					client,
+					interaction,
+					buildCard({
+						accent: ACCENT.success,
+						emoji: client.iHorizon_Emojis.Gear,
+						title: `${commandType} : \`${requestedCommand}\``,
+						description: changesSummary,
+						signature: await botSignature(
+							client,
+							interaction.guildId
+						)
+					})
+				);
 			}
 		} else if (choice === "list") {
 			const res = (await client.db.get(
@@ -333,29 +363,35 @@ export const subCommand: SubCommand = {
 				}
 			}
 
-			// Pagination logic
-			const fieldsPerPage = 15;
+			// Pagination logic (8 per page: one block each, under the
+			// 40 components of a V2 message)
+			const fieldsPerPage = 8;
 			const pages = Math.ceil(allFields.length / fieldsPerPage);
 			let currentPage = 0;
+			const signature = await botSignature(client, interaction.guildId);
 
-			// Create embed for current page
+			// Create the card for current page
 			const createEmbed = (page: number) => {
-				const embed = new EmbedBuilder()
-					.setColor("#010101")
-					.setTitle(`${lang.var_permission} (${page + 1}/${pages})`)
-					.setTimestamp();
-
 				const startIdx = page * fieldsPerPage;
 				const endIdx = Math.min(
 					startIdx + fieldsPerPage,
 					allFields.length
 				);
 
-				for (let i = startIdx; i < endIdx; i++) {
-					embed.addFields(allFields[i]);
-				}
-
-				return embed;
+				return buildCard({
+					accent: ACCENT.neutral,
+					emoji: client.iHorizon_Emojis.Crown,
+					title: lang.var_permission,
+					blocks: allFields
+						.slice(startIdx, endIdx)
+						.map((field) =>
+							field.name === "** **"
+								? field.value
+								: `${field.name}\n${field.value}`
+						),
+					signature,
+					footer: pageLabel(lang, page, pages)
+				});
 			};
 
 			// Create navigation buttons
@@ -375,22 +411,19 @@ export const subCommand: SubCommand = {
 				return row;
 			};
 
-			// Only show pagination if there are more than 15 fields
+			const withButtons = (page: number) =>
+				createEmbed(page).addActionRowComponents(createButtons(page));
+
+			// Only show pagination if there is more than one page
 			if (allFields.length <= fieldsPerPage) {
-				const embed = createEmbed(0);
-				await client.func.method.interactionSend(interaction, {
-					embeds: [embed]
-				});
+				await sendCard(client, interaction, createEmbed(0));
 				return;
 			}
 
 			// Send initial message with buttons
 			const message = (await client.func.method.interactionSend(
 				interaction,
-				{
-					embeds: [createEmbed(currentPage)],
-					components: [createButtons(currentPage)]
-				}
+				cardPayload(withButtons(currentPage)) as never
 			)) as Message;
 
 			// Create button collector
@@ -414,19 +447,13 @@ export const subCommand: SubCommand = {
 					currentPage = Math.min(pages - 1, currentPage + 1);
 				}
 
-				await i.update({
-					embeds: [createEmbed(currentPage)],
-					components: [createButtons(currentPage)]
-				});
+				await i.update(cardPayload(withButtons(currentPage)) as never);
 			});
 
 			collector.on("end", async () => {
 				// Remove buttons when collector expires
 				await message
-					.edit({
-						embeds: [createEmbed(currentPage)],
-						components: []
-					})
+					.edit(cardPayload(createEmbed(currentPage)) as never)
 					.catch(() => {});
 			});
 		} else if (choice === "delete") {
@@ -451,12 +478,17 @@ export const subCommand: SubCommand = {
 				await client.db.delete(
 					`${interaction.guildId}.UTILS.PERMS.${commands}`
 				);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.perm_command_delete_command_deleted.replace(
-						"${commands}",
-						commands
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						lang.perm_command_delete_command_deleted.replace(
+							"${commands}",
+							commands
+						)
 					)
-				});
+				);
 				return;
 			} else {
 				await client.func.method.interactionSend(interaction, {
@@ -620,9 +652,7 @@ export const subCommand: SubCommand = {
 					.replace("${changeCount}", changes.length.toString())
 					.replace("${type}", type)
 					.replace("${value}", value);
-				await client.func.method.interactionSend(interaction, {
-					content: msg
-				});
+				await sendCard(client, interaction, notice("success", msg));
 				return;
 			}
 		}

@@ -23,6 +23,7 @@ import { ChatInputCommandInteraction, Client } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -84,20 +85,27 @@ export const subCommand: SubCommand = {
 				}
 			);
 
-			await interaction.editReply({
-				content:
-					lang.too_new_account_logEmbed_desc_on_enable
-						.replace("${author}", interaction.user.toString())
-						.replace("${beautifulTime}", beautifulTime.toString())
-						.replace("${guildName}", beautifulTime.toString())
-						.replace("${maxJoin}", String(maximumJoin)) +
-					lang.too_new_account_command_work_on_enable2
-						.replace(
-							"${emoji_Sparkles}",
-							client.iHorizon_Emojis.Sparkles
-						)
-						.replace("${maxJoin}", String(maximumJoin))
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice(
+						"success",
+						lang.too_new_account_logEmbed_desc_on_enable
+							.replace("${author}", interaction.user.toString())
+							.replace(
+								"${beautifulTime}",
+								beautifulTime.toString()
+							)
+							.replace("${guildName}", beautifulTime.toString())
+							.replace("${maxJoin}", String(maximumJoin)) +
+							lang.too_new_account_command_work_on_enable2
+								.replace(
+									"${emoji_Sparkles}",
+									client.iHorizon_Emojis.Sparkles
+								)
+								.replace("${maxJoin}", String(maximumJoin))
+					)
+				) as never
+			);
 			return;
 		} else if (action === "off") {
 			await client.func.ihorizon_logs(interaction, {
@@ -113,12 +121,17 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.GUILD.BLOCK_NEW_ACCOUNT`
 			);
 
-			await interaction.editReply({
-				content: lang.too_new_account_command_work_on_disable.replace(
-					"${author}",
-					interaction.user.toString()
-				)
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice(
+						"success",
+						lang.too_new_account_command_work_on_disable.replace(
+							"${author}",
+							interaction.user.toString()
+						)
+					)
+				) as never
+			);
 			return;
 		}
 	}

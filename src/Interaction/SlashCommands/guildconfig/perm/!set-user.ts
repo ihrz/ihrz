@@ -22,6 +22,7 @@
 import { Client, ChatInputCommandInteraction, User } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
+import { notice, sendCard } from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -70,12 +71,14 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.perm_set_deleted.replace(
-					"${user}",
-					user.toString()
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.perm_set_deleted.replace("${user}", user.toString())
 				)
-			});
+			);
 		} else {
 			const fetchedPerm =
 				await client.func.permissonsCalculator.checkUserPermissions(
@@ -102,11 +105,16 @@ export const subCommand: SubCommand = {
 				parseInt(perm)
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.perm_set_ok
-					.replace("${user}", user.toString())
-					.replace("${perm}", perm)
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.perm_set_ok
+						.replace("${user}", user.toString())
+						.replace("${perm}", perm)
+				)
+			);
 		}
 
 		return;

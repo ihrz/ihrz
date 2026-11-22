@@ -32,7 +32,6 @@ import {
 	Client,
 	ContainerBuilder,
 	Message,
-	MessageFlags,
 	PermissionFlagsBits,
 	RoleSelectMenuBuilder,
 	RoleSelectMenuInteraction,
@@ -58,9 +57,10 @@ import {
 	saveAutomodBypass,
 	saveAutomodLogs
 } from "../../../../core/modules/automodRules.js";
+import { ACCENT, cardPayload } from "../../../../core/modules/uiCard.js";
 
 const COLLECTOR_TIMEOUT = 800_000;
-const PANEL_ACCENT_COLOR = 0x5865f2;
+const PANEL_ACCENT_COLOR = ACCENT.neutral;
 
 interface AutomodPanelState {
 	rule: AutomodRuleKey | null;
@@ -387,10 +387,9 @@ export async function openAutomodPanel(
 		container.addActionRowComponents(buildNavRow(disabled));
 
 		await message.edit({
-			components: [container],
-			files: [],
-			flags: [MessageFlags.IsComponentsV2]
-		});
+			...cardPayload(container),
+			files: []
+		} as never);
 	}
 
 	async function feedback(
@@ -538,8 +537,9 @@ export async function openAutomodPanel(
 		return;
 	}
 
-	const placeholder = (await client.func.method.interactionSend(interaction, {
-		components: [
+	const placeholder = (await client.func.method.interactionSend(
+		interaction,
+		cardPayload(
 			new ContainerBuilder()
 				.setAccentColor(PANEL_ACCENT_COLOR)
 				.addTextDisplayComponents(
@@ -547,9 +547,8 @@ export async function openAutomodPanel(
 						`## ${client.iHorizon_Emojis.Uses_Automod_Badge} ${lang.automod_panel_title}`
 					)
 				)
-		],
-		flags: [MessageFlags.IsComponentsV2]
-	})) as Message<true>;
+		) as never
+	)) as Message<true>;
 
 	await render(placeholder);
 

@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -118,43 +118,37 @@ export const subCommand: SubCommand = {
 				amount
 			);
 
-			const embed = new EmbedBuilder()
-				.setAuthor({
-					name: lang.daily_embed_title,
-					iconURL: (
-						interaction.member.user as User
-					).displayAvatarURL()
-				})
-				.setColor("#a4cb80")
-				.setTitle(lang.deposit_embed_title)
-				.setDescription(
-					lang.deposit_embed_desc
-						.replace("${emoji_Coin}", client.iHorizon_Emojis.Coin)
+			const e = client.iHorizon_Emojis;
+			const newBank = await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`
+			);
+			await sendCard(
+				client,
+				interaction,
+				buildCard({
+					accent: ACCENT.success,
+					emoji: e.Wallet,
+					title: lang.deposit_embed_title,
+					description: lang.deposit_embed_desc
+						.replace("${emoji_Coin}", e.Coin)
 						.replace(
 							"${author}",
 							interaction.member.user.toString()
 						)
-						.replace("${toDeposit}", amount.toString())
-				)
-				.addFields({
-					name: lang.deposit_embed_fields1_name,
-					value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
+						.replace("${toDeposit}", amount.toString()),
+					thumbnail: interaction.member.displayAvatarURL({
+						size: 256
+					}),
+					fields: [
+						{
+							emoji: e.Coin,
+							label: lang.deposit_embed_fields1_name,
+							value: `${newBank}${e.Coin}`
+						}
+					],
+					signature: await botSignature(client, interaction.guildId)
 				})
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setTimestamp();
-
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+			);
 			await client.func.economyLogs.deposit(
 				interaction.guild,
 				interaction.member.user.id,

@@ -29,6 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { is_safe_key_segment } from "../../../core/database/lodash.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 export const command: Command = {
 	name: "remove-react",
 	aliases: ["react-remove", "removereact", "reactremove"],
@@ -41,7 +42,11 @@ export const command: Command = {
 		"es-ES":
 			"Eliminar reacción de iHorizon cuando el usuario envía un mensaje",
 		ko: "사용자가 메시지를 보낼 때 iHorizon이 다는 반응을 제거해요",
-		uk: "Прибрати реакцію iHorizon, коли користувач надсилає повідомлення"
+		uk: "Прибрати реакцію iHorizon, коли користувач надсилає повідомлення",
+		de: "iHorizon-Reaktion entfernen, wenn ein Nutzer eine Nachricht sendet",
+		it: "Rimuovi la reazione di iHorizon quando un utente invia un messaggio",
+		"pt-BR": "Remover reação do iHorizon quando um usuário enviar mensagem",
+		pl: "Usuń reakcję iHorizon, gdy użytkownik wyśle wiadomość"
 	},
 
 	thinking: false,
@@ -74,11 +79,16 @@ export const command: Command = {
 		}
 
 		await interaction.reply({
-			content: lang.remove_react_command_work
-				.replace("${authorId}", interaction.member?.id!)
-				.replace("${message}", message?.toLowerCase()),
-			allowedMentions: { repliedUser: false }
-		});
+			...cardPayload(
+				notice(
+					"success",
+					lang.remove_react_command_work
+						.replace("${authorId}", interaction.member?.id!)
+						.replace("${message}", message?.toLowerCase())
+				)
+			),
+			allowedMentions: { parse: [], repliedUser: false }
+		} as never);
 
 		await client.db.delete(
 			`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`

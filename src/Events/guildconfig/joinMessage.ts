@@ -125,8 +125,11 @@ export async function generateJoinImage(
 		"";
 	let profilePictureRound = member.displayHexColor;
 	let textColour = "#aa9999";
-	let textMessage =
-		"Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild";
+	const [lang, guildLocalRaw] = await Promise.all([
+		member.client.func.getLanguageData(member.guild.id),
+		member.client.db.get(`${member.guild.id}.GUILD.LANG.lang`)
+	]);
+	let textMessage = lang.setjoinmessage_image_default_text;
 	let textSize = "40px";
 	let avatarSize = "140px";
 
@@ -162,7 +165,11 @@ export async function generateJoinImage(
 
 	const message = member.client.func.method.generateCustomMessagePreview(
 		textMessage,
-		{ user: member.user, guild: member.guild, guildLocal: "fr-FR" }
+		{
+			user: member.user,
+			guild: member.guild,
+			guildLocal: guildLocalRaw || "en-US"
+		}
 	);
 	const style = { size: fontSize, family: "JetBrains Mono" as const };
 	const lines = (

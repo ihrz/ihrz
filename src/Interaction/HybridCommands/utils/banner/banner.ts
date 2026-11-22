@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "Взять баннер указанного объекта (Сервер/Пользователь)",
 		"es-ES": "Tomar el banner de cosas especificadas (Servidor/Usuario)",
 		ko: "지정한 대상(서버/사용자)의 배너를 가져와요",
-		uk: "Отримати банер вказаного об'єкта (сервер/користувач)"
+		uk: "Отримати банер вказаного об'єкта (сервер/користувач)",
+		de: "Hol dir das Banner von Server oder Nutzer",
+		it: "Prendi il banner di server o utente",
+		"pt-BR": "Pegue o banner de servidor ou usuário",
+		pl: "Pobierz baner serwera lub użytkownika"
 	},
 
 	category: "utils",
@@ -52,7 +56,11 @@ export const command: Command = {
 				ru: "Получить баннер указанного пользователя!",
 				"es-ES": "Obtener el banner de un usuario especificado!",
 				ko: "지정한 사용자의 배너를 확인해요!",
-				uk: "Отримати банер вказаного користувача!"
+				uk: "Отримати банер вказаного користувача!",
+				de: "Zeige das Banner eines Nutzers!",
+				it: "Ottieni il banner di un utente!",
+				"pt-BR": "Veja o banner de um usuário!",
+				pl: "Pokaż baner użytkownika!"
 			},
 
 			aliases: ["userbanner", "ubanner"],
@@ -70,7 +78,11 @@ export const command: Command = {
 						ru: "Какой пользователь?",
 						"es-ES": "Cual es el usuario entonces?",
 						ko: "어떤 사용자인가요?",
-						uk: "Який користувач?"
+						uk: "Який користувач?",
+						de: "Welches Mitglied dann?",
+						it: "Quale utente allora?",
+						"pt-BR": "Qual usuário então?",
+						pl: "Jaki więc użytkownik?"
 					},
 
 					required: false,
@@ -92,7 +104,11 @@ export const command: Command = {
 				ru: "Получить баннер сервера!",
 				"es-ES": "Obtener el banner del servidor!",
 				ko: "서버 배너를 확인해요!",
-				uk: "Отримати банер сервера!"
+				uk: "Отримати банер сервера!",
+				de: "Zeige das Banner des Servers!",
+				it: "Ottieni il banner del server!",
+				"pt-BR": "Veja o banner do servidor!",
+				pl: "Pokaż baner serwera!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

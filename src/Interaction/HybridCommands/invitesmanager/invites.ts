@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "Подкоманда для категории управления приглашениями!",
 		"es-ES": "Subcomando para la categoría de gestor de invitaciones!",
 		ko: "초대 관리 하위 명령어!",
-		uk: "Підкоманда категорії менеджера запрошень!"
+		uk: "Підкоманда категорії менеджера запрошень!",
+		de: "Unterbefehle der Einladungsverwaltungs-Kategorie!",
+		it: "Sottocomandi della categoria gestione inviti!",
+		"pt-BR": "Subcomandos da categoria gerenciador de convites!",
+		pl: "Podkomendy kategorii menedżera zaproszeń!"
 	},
 	options: [
 		{
@@ -49,7 +53,11 @@ export const command: Command = {
 				ru: "Добавить приглашения пользователю!",
 				"es-ES": "Añadir invitaciones a un usuario!",
 				ko: "사용자에게 초대 수를 추가해요!",
-				uk: "Додати запрошення користувачу!"
+				uk: "Додати запрошення користувачу!",
+				de: "Füge einem Nutzer Einladungen hinzu!",
+				it: "Aggiungi inviti a un utente!",
+				"pt-BR": "Adicione convites a um usuário!",
+				pl: "Dodaj zaproszenia użytkownikowi!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +74,11 @@ export const command: Command = {
 						"es-ES":
 							"el miembro al que quieres añadir invitaciones",
 						ko: "초대 수를 추가할 멤버",
-						uk: "Учасник, якому ви хочете додати запрошення"
+						uk: "Учасник, якому ви хочете додати запрошення",
+						de: "Das Mitglied, dem du Einladungen hinzufügst",
+						it: "Il membro a cui aggiungere inviti",
+						"pt-BR": "O membro a quem você quer adicionar convites",
+						pl: "Członek, któremu dodać zaproszenia"
 					},
 
 					required: true,
@@ -84,7 +96,11 @@ export const command: Command = {
 						ru: "Количество приглашений для добавления",
 						"es-ES": "Número de invitaciones que quieres añadir",
 						ko: "추가할 초대 수",
-						uk: "Кількість запрошень, яку ви хочете додати"
+						uk: "Кількість запрошень, яку ви хочете додати",
+						de: "Anzahl der hinzuzufügenden Einladungen",
+						it: "Numero di inviti da aggiungere",
+						"pt-BR": "Número de convites a adicionar",
+						pl: "Liczba zaproszeń do dodania"
 					},
 
 					required: true,
@@ -109,7 +125,11 @@ export const command: Command = {
 				"es-ES":
 					"Mostrar la tabla de clasificación de invitaciones del servidor!",
 				ko: "서버 초대 순위표를 보여줘요!",
-				uk: "Показати таблицю лідерів сервера за запрошеннями!"
+				uk: "Показати таблицю лідерів сервера за запрошеннями!",
+				de: "Zeigt die Einladungs-Rangliste des Servers!",
+				it: "Mostra la classifica inviti del server!",
+				"pt-BR": "Mostra o ranking de convites do servidor!",
+				pl: "Pokazuje ranking zaproszeń serwera!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -126,7 +146,11 @@ export const command: Command = {
 				ru: "Получить количество приглашений пользователя!",
 				"es-ES": "Obtener la cantidad de invitaciones de un usuario!",
 				ko: "사용자의 초대 수를 확인해요!",
-				uk: "Отримати кількість запрошень користувача!"
+				uk: "Отримати кількість запрошень користувача!",
+				de: "Zeige die Einladungsanzahl eines Nutzers!",
+				it: "Ottieni il numero di inviti di un utente!",
+				"pt-BR": "Veja a quantidade de convites de um usuário!",
+				pl: "Pokaż liczbę zaproszeń użytkownika!"
 			},
 
 			aliases: ["i", "invsee"],
@@ -145,7 +169,11 @@ export const command: Command = {
 						"es-ES":
 							"el miembro al que quieres mostrar sus invitaciones",
 						ko: "초대 수를 볼 멤버",
-						uk: "Учасник, чиї запрошення ви хочете показати"
+						uk: "Учасник, чиї запрошення ви хочете показати",
+						de: "Das Mitglied, dessen Einladungen du sehen willst",
+						it: "Il membro di cui vedere gli inviti",
+						"pt-BR": "O membro cujos convites você quer ver",
+						pl: "Członek, którego zaproszenia chcesz zobaczyć"
 					},
 
 					required: false,
@@ -168,7 +196,11 @@ export const command: Command = {
 				"es-ES":
 					"Eliminar todos los datos de InviteManager en el servidor",
 				ko: "서버의 InviteManager 데이터를 모두 삭제해요",
-				uk: "Видалити всі дані InviteManager на сервері"
+				uk: "Видалити всі дані InviteManager на сервері",
+				de: "Alle InviteManager-Daten des Servers löschen",
+				it: "Elimina tutti i dati di InviteManager nel server",
+				"pt-BR": "Exclua todos os dados do InviteManager no servidor",
+				pl: "Usuń wszystkie dane InviteManager na serwerze"
 			},
 
 			aliases: ["inv-delete-all", "invreset"],
@@ -188,7 +220,11 @@ export const command: Command = {
 				ru: "Удалить приглашения у пользователя!",
 				"es-ES": "Eliminar invitaciones de un usuario!",
 				ko: "사용자의 초대 수를 차감해요!",
-				uk: "Забрати запрошення в користувача!"
+				uk: "Забрати запрошення в користувача!",
+				de: "Entferne Einladungen eines Nutzers!",
+				it: "Rimuovi inviti a un utente!",
+				"pt-BR": "Remova convites de um usuário!",
+				pl: "Usuń zaproszenia użytkownikowi!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -205,7 +241,11 @@ export const command: Command = {
 						"es-ES":
 							"el miembro del que quieres quitar invitaciones",
 						ko: "초대 수를 제거할 멤버",
-						uk: "Учасник, у якого ви хочете забрати запрошення"
+						uk: "Учасник, у якого ви хочете забрати запрошення",
+						de: "Das Mitglied, dem du Einladungen entfernst",
+						it: "Il membro a cui rimuovere inviti",
+						"pt-BR": "O membro de quem você quer remover convites",
+						pl: "Członek, któremu odjąć zaproszenia"
 					},
 
 					required: true,
@@ -223,7 +263,11 @@ export const command: Command = {
 						ru: "Количество приглашений для вычитания",
 						"es-ES": "Número de invitaciones que quieres restar",
 						ko: "차감할 초대 수",
-						uk: "Кількість запрошень, яку ви хочете відняти"
+						uk: "Кількість запрошень, яку ви хочете відняти",
+						de: "Anzahl der abzuziehenden Einladungen",
+						it: "Numero di inviti da sottrarre",
+						"pt-BR": "Número de convites a subtrair",
+						pl: "Liczba zaproszeń do odjęcia"
 					},
 
 					required: true,

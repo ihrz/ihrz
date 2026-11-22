@@ -42,7 +42,11 @@ export const command: Command = {
 		ru: "Показать все ссылки iHorizon",
 		"es-ES": "Mostrar todos los enlaces sobre iHorizon",
 		ko: "iHorizon 관련 링크를 모두 보여줘요",
-		uk: "Показати всі посилання iHorizon"
+		uk: "Показати всі посилання iHorizon",
+		de: "Zeigt alle Links zu iHorizon",
+		it: "Mostra tutti i link su iHorizon",
+		"pt-BR": "Mostra todos os links do iHorizon",
+		pl: "Pokazuje wszystkie linki do iHorizon"
 	},
 
 	aliases: ["link"],

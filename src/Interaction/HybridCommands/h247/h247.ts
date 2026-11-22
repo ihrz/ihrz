@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "h247",
 		"es-ES": "h247",
 		ko: "h247",
-		uk: "h247"
+		uk: "h247",
+		de: "h247",
+		it: "h247",
+		"pt-BR": "h247",
+		pl: "h247"
 	},
 
 	description: "Keep iHorizon connected 24/7 in a voice channel!",
@@ -46,7 +50,11 @@ export const command: Command = {
 		ru: "Держите iHorizon на связи 24/7 в голосовом канале!",
 		"es-ES": "¡Mantén a iHorizon conectado 24/7 en un canal de voz!",
 		ko: "iHorizon을 음성 채널에 24시간 연결해 둬요!",
-		uk: "Тримати iHorizon у голосовому каналі 24/7!"
+		uk: "Тримати iHorizon у голосовому каналі 24/7!",
+		de: "Halte iHorizon rund um die Uhr in einem Sprachkanal!",
+		it: "Mantieni iHorizon connesso 24/7 in un canale vocale!",
+		"pt-BR": "Mantenha o iHorizon conectado 24/7 em um canal de voz!",
+		pl: "Utrzymaj iHorizon połączonego 24/7 na kanale głosowym!"
 	},
 
 	options: [
@@ -59,7 +67,11 @@ export const command: Command = {
 				ru: "join",
 				"es-ES": "join",
 				ko: "join",
-				uk: "join"
+				uk: "join",
+				de: "join",
+				it: "join",
+				"pt-BR": "join",
+				pl: "join"
 			},
 
 			description: "Park iHorizon 24/7 in a voice channel!",
@@ -69,7 +81,11 @@ export const command: Command = {
 				ru: "Оставить iHorizon 24/7 в голосовом канале!",
 				"es-ES": "¡Estacionar a iHorizon 24/7 en un canal de voz!",
 				ko: "iHorizon을 음성 채널에 24시간 머물게 해요!",
-				uk: "Залишити iHorizon у голосовому каналі 24/7!"
+				uk: "Залишити iHorizon у голосовому каналі 24/7!",
+				de: "Parke iHorizon rund um die Uhr in einem Sprachkanal!",
+				it: "Parcheggia iHorizon 24/7 in un canale vocale!",
+				"pt-BR": "Deixe o iHorizon 24/7 em um canal de voz!",
+				pl: "Zaparkuj iHorizon 24/7 na kanale głosowym!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -83,7 +99,11 @@ export const command: Command = {
 						ru: "channel",
 						"es-ES": "canal",
 						ko: "channel",
-						uk: "channel"
+						uk: "channel",
+						de: "channel",
+						it: "channel",
+						"pt-BR": "channel",
+						pl: "channel"
 					},
 
 					description: "The voice channel where iHorizon will stay!",
@@ -93,7 +113,11 @@ export const command: Command = {
 						ru: "Голосовой канал, где останется iHorizon!",
 						"es-ES": "¡El canal de voz donde se quedará iHorizon!",
 						ko: "iHorizon이 머무를 음성 채널!",
-						uk: "Голосовий канал, у якому залишатиметься iHorizon!"
+						uk: "Голосовий канал, у якому залишатиметься iHorizon!",
+						de: "Der Sprachkanal, in dem iHorizon bleibt!",
+						it: "Il canale vocale in cui resterà iHorizon!",
+						"pt-BR": "O canal de voz onde o iHorizon ficará!",
+						pl: "Kanał głosowy, w którym zostanie iHorizon!"
 					},
 
 					type: ApplicationCommandOptionType.Channel,
@@ -116,7 +140,11 @@ export const command: Command = {
 				ru: "leave",
 				"es-ES": "leave",
 				ko: "leave",
-				uk: "leave"
+				uk: "leave",
+				de: "leave",
+				it: "leave",
+				"pt-BR": "leave",
+				pl: "leave"
 			},
 
 			description: "Disable the 24/7 connection on this server!",
@@ -126,7 +154,11 @@ export const command: Command = {
 				ru: "Отключить подключение 24/7 на этом сервере!",
 				"es-ES": "¡Desactivar la conexión 24/7 en este servidor!",
 				ko: "이 서버에서 24/7 연결을 해제해요!",
-				uk: "Вимкнути підключення 24/7 на цьому сервері!"
+				uk: "Вимкнути підключення 24/7 на цьому сервері!",
+				de: "24/7-Verbindung auf diesem Server deaktivieren!",
+				it: "Disattiva la connessione 24/7 su questo server!",
+				"pt-BR": "Desative a conexão 24/7 neste servidor!",
+				pl: "Wyłącz połączenie 24/7 na tym serwerze!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -144,7 +176,11 @@ export const command: Command = {
 				ru: "Получить информацию о модуле H24/7!",
 				"es-ES": "Obtener información sobre el módulo H24/7!",
 				ko: "H24/7 모듈 정보를 확인해요!",
-				uk: "Отримати інформацію про модуль H24/7!"
+				uk: "Отримати інформацію про модуль H24/7!",
+				de: "Infos zum H24/7-Modul anzeigen!",
+				it: "Ottieni informazioni sul modulo H24/7!",
+				"pt-BR": "Veja informações sobre o módulo H24/7!",
+				pl: "Pokaż informacje o module H24/7!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

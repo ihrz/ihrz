@@ -37,7 +37,11 @@ export const command: Command = {
 		ru: "⭐️ (VERY UHQ) Git Lines",
 		"es-ES": "⭐️ (VERY UHQ) Git Lines",
 		ko: "⭐️ (VERY UHQ) Git Lines",
-		uk: "⭐️ (VERY UHQ) Git Lines"
+		uk: "⭐️ (VERY UHQ) Git Lines",
+		de: "⭐️ (VERY UHQ) Git Lines",
+		it: "⭐️ (VERY UHQ) Git Lines",
+		"pt-BR": "⭐️ (VERY UHQ) Git Lines",
+		pl: "⭐️ (VERY UHQ) Git Lines"
 	},
 
 	options: [
@@ -51,7 +55,11 @@ export const command: Command = {
 				ru: "Настроить модули Git Lines",
 				"es-ES": "Configurar los módulos de Git Lines",
 				ko: "Git Lines 모듈을 설정해요",
-				uk: "Налаштувати модуль Git Lines"
+				uk: "Налаштувати модуль Git Lines",
+				de: "Konfiguriere das Git-Lines-Modul",
+				it: "Configura il modulo Git Lines",
+				"pt-BR": "Configure o módulo Git Lines",
+				pl: "Skonfiguruj moduł Git Lines"
 			},
 
 			permission: PermissionFlagsBits.Administrator,

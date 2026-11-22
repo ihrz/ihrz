@@ -58,7 +58,11 @@ export const command: Command = {
 		ru: "⭐️ (VERY UHQ) NightMode",
 		"es-ES": "⭐️ (VERY UHQ) NightMode",
 		ko: "⭐️ (VERY UHQ) 야간 모드",
-		uk: "⭐️ (VERY UHQ) NightMode"
+		uk: "⭐️ (VERY UHQ) NightMode",
+		de: "⭐️ (VERY UHQ) NightMode",
+		it: "⭐️ (VERY UHQ) NightMode",
+		"pt-BR": "⭐️ (VERY UHQ) NightMode",
+		pl: "⭐️ (VERY UHQ) NightMode"
 	},
 
 	thinking: false,

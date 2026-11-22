@@ -27,7 +27,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
+	ContainerBuilder,
 	Message,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
@@ -39,6 +39,12 @@ import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { AntiSpam } from "../../../../types/antispam.js";
 import { invalidateAntiSpamConfig } from "../../../core/modules/antiSpamEngine.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 type PresetKeys = "chill" | "guard" | "extreme";
@@ -114,15 +120,9 @@ export const subCommand: SubCommand = {
 				)) || []
 		};
 
-		const embed = new EmbedBuilder()
-			.setColor("#6666ff")
-			.setTitle(lang.antispam_manage_embed_title)
-			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
+		const guildIcon = interaction.guild.iconURL({ size: 256 });
 
 		const choices: {
 			label: string;
@@ -193,7 +193,8 @@ export const subCommand: SubCommand = {
 			}
 		];
 
-		choices.forEach((content, x) => {
+		// The value shown for each choice, in the same order.
+		const shown: string[] = choices.map((content) => {
 			let value: string = "";
 			const inDb = baseData?.[content.value as AntiSpamOptionKey];
 
@@ -232,11 +233,7 @@ export const subCommand: SubCommand = {
 							: `🔥 ` + lang.setjoinroles_var_none;
 					break;
 			}
-			embed.addFields({
-				name: content.label,
-				value: "`" + value + "`",
-				inline: true
-			});
+			return value ? "`" + value + "`" : lang.setjoinroles_var_none;
 		});
 
 		function beautifyValue(
@@ -270,67 +267,21 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		function updateEmbedFields(
-			embed: EmbedBuilder,
-			baseData: AntiSpam.AntiSpamOptions
-		) {
-			embed.setFields([
-				{
-					name: lang.antispam_manage_choices_1_label,
-					value: beautifyValue("Enabled", baseData.Enabled, lang),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_2_label,
-					value: beautifyValue(
-						"ignoreBots",
-						baseData.ignoreBots,
-						lang
-					),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_3_label,
-					value: beautifyValue(
-						"punishment_type",
-						baseData.punishment_type,
-						lang
-					),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_4_label,
-					value: beautifyValue(
-						"punishTime",
-						baseData.punishTime,
-						lang
-					),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_6_label,
-					value: beautifyValue(
-						"removeMessages",
-						baseData.removeMessages,
-						lang
-					),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_7_label,
-					value: beautifyValue(
-						"maxInterval",
-						baseData.maxInterval,
-						lang
-					),
-					inline: true
-				},
-				{
-					name: lang.antispam_manage_choices_12_label,
-					value: beautifyValue("Threshold", baseData.Threshold, lang),
-					inline: true
-				}
-			]);
+		/** After a preset: every value from baseData. */
+		function resetShown(baseData: AntiSpam.AntiSpamOptions) {
+			choices.forEach((content, x) => {
+				shown[x] = beautifyValue(
+					content.value,
+					baseData[content.value as AntiSpamOptionKey],
+					lang
+				);
+			});
+		}
+
+		/** Shows `value` for the choice `key`. */
+		function show(key: string, value: string) {
+			const fieldIndex = choices.findIndex((x) => x.value === key);
+			if (fieldIndex !== -1) shown[fieldIndex] = value;
 		}
 
 		const select = new StringSelectMenuBuilder()
@@ -348,25 +299,63 @@ export const subCommand: SubCommand = {
 			.setCustomId("antispam-manage-preset-button")
 			.setLabel(lang.antispam_manage_button_preset_label);
 
+		const presetSelect = new StringSelectMenuBuilder()
+			.setCustomId("antispam-select-preset")
+			.setPlaceholder(lang.antispam_manage_selectstring_preset_label)
+			.addOptions([
+				{
+					label: lang.antispam_manage_preset_level1_name,
+					value: "chill"
+				},
+				{
+					label: lang.antispam_manage_preset_level2_name,
+					value: "guard"
+				},
+				{
+					label: lang.antispam_manage_preset_level3_name,
+					value: "extreme"
+				}
+			]);
+
+		// What sits under the card: the main menu and buttons, the preset
+		// menu alone, or the main menu with a second menu for one value.
+		let mode: "main" | "preset" | StringSelectMenuBuilder = "main";
+
+		function render(): ContainerBuilder {
+			const card = buildCard({
+				accent: ACCENT.info,
+				emoji: e.AutoMod_Spam,
+				title: lang.antispam_manage_embed_title,
+				thumbnail: guildIcon,
+				fields: choices.map((content, x) => ({
+					label: content.label,
+					value: shown[x]
+				})),
+				signature
+			});
+			const row = <T extends StringSelectMenuBuilder | ButtonBuilder>(
+				...components: T[]
+			) => new ActionRowBuilder<T>().addComponents(...components);
+
+			if (mode === "preset") {
+				card.addActionRowComponents(row(presetSelect));
+				return card;
+			}
+			card.addActionRowComponents(row(select));
+			if (mode !== "main") card.addActionRowComponents(row(mode));
+			card.addActionRowComponents(row(button, button2));
+			return card;
+		}
+
+		// Every edit sends the whole card again with the Components V2 flag.
+		const refresh = () =>
+			originalResponse
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
+
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
-			{
-				embeds: [embed],
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						select
-					),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						button,
-						button2
-					)
-				],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
+			cardPayload(render()) as never
 		);
 
 		const collector = originalResponse.createMessageComponentCollector({
@@ -404,33 +393,8 @@ export const subCommand: SubCommand = {
 					buttonCollector.stop();
 				} else if (i.customId === "antispam-manage-preset-button") {
 					await i.deferUpdate();
-					await originalResponse.edit({
-						content: interaction.member.toString(),
-						embeds: [embed],
-						components: [
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								new StringSelectMenuBuilder()
-									.setCustomId("antispam-select-preset")
-									.setPlaceholder(
-										lang.antispam_manage_selectstring_preset_label
-									)
-									.addOptions([
-										{
-											label: lang.antispam_manage_preset_level1_name,
-											value: "chill"
-										},
-										{
-											label: lang.antispam_manage_preset_level2_name,
-											value: "guard"
-										},
-										{
-											label: lang.antispam_manage_preset_level3_name,
-											value: "extreme"
-										}
-									])
-							)
-						]
-					});
+					mode = "preset";
+					await refresh();
 
 					const response = await i.channel?.awaitMessageComponent({
 						componentType: ComponentType.StringSelect,
@@ -467,21 +431,12 @@ export const subCommand: SubCommand = {
 								break;
 						}
 
-						updateEmbedFields(embed, baseData);
-
-						await originalResponse.edit({
-							content: null,
-							embeds: [embed],
-							components: [
-								new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-									select.setDisabled(false)
-								),
-								new ActionRowBuilder<ButtonBuilder>().addComponents(
-									button.setDisabled(false),
-									button2.setDisabled(false)
-								)
-							]
-						});
+						resetShown(baseData);
+						select.setDisabled(false);
+						button.setDisabled(false);
+						button2.setDisabled(false);
+						mode = "main";
+						await refresh();
 					}
 				}
 			}
@@ -528,9 +483,6 @@ export const subCommand: SubCommand = {
 						.replace(",", ".");
 
 					if (choicesGet.wantedValueType === "time") {
-						const fieldIndex = choices.findIndex(
-							(x) => x.value === choicesGet.value
-						);
 						const formatedTime =
 							client.timeCalculator.to_ms(resultModal);
 
@@ -545,19 +497,13 @@ export const subCommand: SubCommand = {
 
 						await result.deferUpdate();
 
-						if (embed.data.fields && fieldIndex !== -1) {
-							embed.data.fields[fieldIndex].value =
-								`\`${resultModal}\``;
-						}
-						await originalResponse.edit({ embeds: [embed] });
+						show(choicesGet.value, `\`${resultModal}\``);
+						await refresh();
 
 						(baseData[
 							choicesGet.value as AntiSpamOptionKey
 						] as number) = formatedTime;
 					} else if (choicesGet.wantedValueType === "number") {
-						const fieldIndex = choices.findIndex(
-							(x) => x.value === choicesGet.value
-						);
 						const isNumber = parseInt(resultModal);
 
 						if (Number.isNaN(isNumber)) {
@@ -572,11 +518,8 @@ export const subCommand: SubCommand = {
 							return;
 						}
 
-						if (embed.data.fields && fieldIndex !== -1) {
-							embed.data.fields[fieldIndex].value =
-								`\`${resultModal}\``;
-						}
-						await originalResponse.edit({ embeds: [embed] });
+						show(choicesGet.value, `\`${resultModal}\``);
+						await refresh();
 						await result.deferUpdate();
 
 						(baseData[
@@ -589,31 +532,19 @@ export const subCommand: SubCommand = {
 				) {
 					await i.deferUpdate();
 
-					await originalResponse.edit({
-						content: interaction.member.user.toString()!,
-						components: [
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								select.setDisabled(false)
-							),
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								new StringSelectMenuBuilder()
-									.setCustomId("antispam-manage-yes-or-no")
-									.setPlaceholder(choicesGet.description)
-									.addOptions(
-										new StringSelectMenuOptionBuilder()
-											.setLabel(lang.var_yes)
-											.setValue("antispam-manage-yes"),
-										new StringSelectMenuOptionBuilder()
-											.setLabel(lang.var_no)
-											.setValue("antispam-manage-no")
-									)
-							),
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								button,
-								button2
-							)
-						]
-					});
+					select.setDisabled(false);
+					mode = new StringSelectMenuBuilder()
+						.setCustomId("antispam-manage-yes-or-no")
+						.setPlaceholder(choicesGet.description)
+						.addOptions(
+							new StringSelectMenuOptionBuilder()
+								.setLabel(lang.var_yes)
+								.setValue("antispam-manage-yes"),
+							new StringSelectMenuOptionBuilder()
+								.setLabel(lang.var_no)
+								.setValue("antispam-manage-no")
+						);
+					await refresh();
 
 					const response = await i.channel?.awaitMessageComponent({
 						componentType: ComponentType.StringSelect,
@@ -627,54 +558,23 @@ export const subCommand: SubCommand = {
 					await response.deferUpdate();
 
 					if (response.values[0] === "antispam-manage-yes") {
-						const fieldIndex = choices.findIndex(
-							(x) => x.value === choicesGet.value
+						show(
+							choicesGet.value,
+							`\`🟢 ${lang.guildprofil_set_blockpub}\``
 						);
-
-						if (embed.data.fields && fieldIndex !== -1) {
-							embed.data.fields[fieldIndex].value =
-								`\`🟢 ${lang.guildprofil_set_blockpub}\``;
-						}
-
-						await originalResponse.edit({
-							content: null,
-							embeds: [embed],
-							components: [
-								new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-									select.setDisabled(false)
-								),
-								new ActionRowBuilder<ButtonBuilder>().addComponents(
-									button,
-									button2
-								)
-							]
-						});
+						mode = "main";
+						await refresh();
 
 						(baseData[
 							choicesGet.value as AntiSpamOptionKey
 						] as boolean) = true;
 					} else if (response.values[0] === "antispam-manage-no") {
-						const fieldIndex = choices.findIndex(
-							(x) => x.value === choicesGet.value
+						show(
+							choicesGet.value,
+							`\`🔴 ${lang.guildprofil_not_set_blockpub}\``
 						);
-
-						if (embed.data.fields && fieldIndex !== -1) {
-							embed.data.fields[fieldIndex].value =
-								`\`🔴 ${lang.guildprofil_not_set_blockpub}\``;
-						}
-						await originalResponse.edit({
-							content: null,
-							embeds: [embed],
-							components: [
-								new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-									select.setDisabled(false)
-								),
-								new ActionRowBuilder<ButtonBuilder>().addComponents(
-									button,
-									button2
-								)
-							]
-						});
+						mode = "main";
+						await refresh();
 
 						(baseData[
 							choicesGet.value as AntiSpamOptionKey
@@ -683,40 +583,28 @@ export const subCommand: SubCommand = {
 				} else if (choicesGet?.type === "punish") {
 					await i.deferUpdate();
 
-					await originalResponse.edit({
-						content: interaction.member.user.toString(),
-						components: [
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								select.setDisabled(false)
-							),
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								new StringSelectMenuBuilder()
-									.setCustomId("antispam-manage-punish-type")
-									.setPlaceholder(choicesGet.description)
-									.addOptions(
-										new StringSelectMenuOptionBuilder()
-											.setLabel(
-												lang.setjoinroles_var_perm_ban_members
-											)
-											.setValue("antispam-manage-ban"),
-										new StringSelectMenuOptionBuilder()
-											.setLabel(
-												lang.setjoinroles_var_perm_kick_members
-											)
-											.setValue("antispam-manage-kick"),
-										new StringSelectMenuOptionBuilder()
-											.setLabel(
-												lang.antispam_manage_select_menu_punish_mute_label
-											)
-											.setValue("antispam-manage-mute")
-									)
-							),
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								button,
-								button2
-							)
-						]
-					});
+					select.setDisabled(false);
+					mode = new StringSelectMenuBuilder()
+						.setCustomId("antispam-manage-punish-type")
+						.setPlaceholder(choicesGet.description)
+						.addOptions(
+							new StringSelectMenuOptionBuilder()
+								.setLabel(
+									lang.setjoinroles_var_perm_ban_members
+								)
+								.setValue("antispam-manage-ban"),
+							new StringSelectMenuOptionBuilder()
+								.setLabel(
+									lang.setjoinroles_var_perm_kick_members
+								)
+								.setValue("antispam-manage-kick"),
+							new StringSelectMenuOptionBuilder()
+								.setLabel(
+									lang.antispam_manage_select_menu_punish_mute_label
+								)
+								.setValue("antispam-manage-mute")
+						);
+					await refresh();
 
 					const response = await i.channel?.awaitMessageComponent({
 						componentType: ComponentType.StringSelect,
@@ -730,34 +618,16 @@ export const subCommand: SubCommand = {
 					await response.deferUpdate();
 
 					const collectedResponse = response.values[0];
-					const fieldIndex = choices.findIndex(
-						(x) => x.value === choicesGet.value
-					);
 
-					await originalResponse.edit({
-						content: null,
-						embeds: [embed],
-						components: [
-							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-								select.setDisabled(false)
-							),
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								button,
-								button2
-							)
-						]
-					});
-
-					if (embed.data.fields && fieldIndex !== -1) {
-						if (collectedResponse.endsWith("kick")) {
-							embed.data.fields[fieldIndex].value = "`kick`";
-						} else if (collectedResponse.endsWith("ban")) {
-							embed.data.fields[fieldIndex].value = "`ban`";
-						} else if (collectedResponse.endsWith("mute")) {
-							embed.data.fields[fieldIndex].value = "`mute`";
-						}
+					if (collectedResponse.endsWith("kick")) {
+						show(choicesGet.value, "`kick`");
+					} else if (collectedResponse.endsWith("ban")) {
+						show(choicesGet.value, "`ban`");
+					} else if (collectedResponse.endsWith("mute")) {
+						show(choicesGet.value, "`mute`");
 					}
-					await originalResponse.edit({ embeds: [embed] });
+					mode = "main";
+					await refresh();
 					(baseData[
 						choicesGet.value as AntiSpamOptionKey
 					] as string) = collectedResponse.split("-")[2]!;
@@ -766,17 +636,11 @@ export const subCommand: SubCommand = {
 		);
 
 		collector.on("end", async () => {
-			await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						select.setDisabled(true)
-					),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						button.setDisabled(true),
-						button2.setDisabled(true)
-					)
-				]
-			});
+			select.setDisabled(true);
+			button.setDisabled(true);
+			button2.setDisabled(true);
+			mode = "main";
+			await refresh();
 		});
 	}
 };

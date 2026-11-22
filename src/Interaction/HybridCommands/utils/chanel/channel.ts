@@ -35,7 +35,11 @@ export const command: Command = {
 		ru: "channel",
 		"es-ES": "channel",
 		ko: "channel",
-		uk: "channel"
+		uk: "channel",
+		de: "channel",
+		it: "channel",
+		"pt-BR": "channel",
+		pl: "channel"
 	},
 
 	description: "Channel operating commands",
@@ -45,7 +49,11 @@ export const command: Command = {
 		ru: "Команды управления каналами",
 		"es-ES": "Comandos de operación de canales",
 		ko: "채널 관리 명령어",
-		uk: "Команди керування каналами"
+		uk: "Команди керування каналами",
+		de: "Kanal-Befehle",
+		it: "Comandi per i canali",
+		"pt-BR": "Comandos de canais",
+		pl: "Komendy kanałów"
 	},
 
 	options: [
@@ -58,7 +66,11 @@ export const command: Command = {
 				ru: "Скрыть текущий канал от всех",
 				"es-ES": "Ocultar el canal actual de todos",
 				ko: "현재 채널을 모두에게서 숨겨요",
-				uk: "Приховати поточний канал від усіх"
+				uk: "Приховати поточний канал від усіх",
+				de: "Den aktuellen Kanal für alle ausblenden",
+				it: "Nascondi a tutti il canale attuale",
+				"pt-BR": "Oculte o canal atual de todos",
+				pl: "Ukryj bieżący kanał przed wszystkimi"
 			},
 
 			options: [
@@ -73,7 +85,11 @@ export const command: Command = {
 						ru: "роль, которую нужно скрыть в канале",
 						"es-ES": "el rol que quieres ocultar en el canal",
 						ko: "채널에서 숨길 역할",
-						uk: "роль, від якої потрібно приховати канал"
+						uk: "роль, від якої потрібно приховати канал",
+						de: "Rolle, die im Kanal versteckt wird",
+						it: "Ruolo da nascondere nel canale",
+						"pt-BR": "Cargo a ocultar no canal",
+						pl: "Rola do ukrycia na kanale"
 					},
 
 					permission: null,
@@ -94,7 +110,11 @@ export const command: Command = {
 				ru: "Показать текущий канал всем",
 				"es-ES": "Mostrar el canal actual a todos",
 				ko: "현재 채널을 모두에게 다시 보이게 해요",
-				uk: "Показати поточний канал усім"
+				uk: "Показати поточний канал усім",
+				de: "Macht den aktuellen Kanal wieder für alle sichtbar",
+				it: "Rende di nuovo visibile a tutti il canale corrente",
+				"pt-BR": "Torna o canal atual visível para todos",
+				pl: "Odkrywa bieżący kanał dla wszystkich"
 			},
 
 			options: [
@@ -109,7 +129,11 @@ export const command: Command = {
 						ru: "роль, которую нужно показать в канале",
 						"es-ES": "el rol que quieres mostrar en el canal",
 						ko: "채널에서 다시 보이게 할 역할",
-						uk: "роль, якій потрібно показати канал"
+						uk: "роль, якій потрібно показати канал",
+						de: "Rolle, die im Kanal wieder sichtbar wird",
+						it: "Ruolo da mostrare di nuovo nel canale",
+						"pt-BR": "Cargo a reexibir no canal",
+						pl: "Rola do odkrycia na kanale"
 					},
 
 					permission: null,
@@ -131,7 +155,12 @@ export const command: Command = {
 				ru: "Показать все каналы всем на сервере",
 				"es-ES": "Mostrar todos los canales del servidor a todos",
 				ko: "서버의 모든 채널을 모두에게 다시 보이게 해요",
-				uk: "Показати всі канали сервера всім"
+				uk: "Показати всі канали сервера всім",
+				de: "Macht alle Kanäle des Servers wieder für alle sichtbar",
+				it: "Rende di nuovo visibili a tutti tutti i canali del server",
+				"pt-BR":
+					"Torna todos os canais do servidor visíveis para todos",
+				pl: "Odkrywa wszystkie kanały serwera dla wszystkich"
 			},
 
 			options: [
@@ -147,7 +176,12 @@ export const command: Command = {
 						"es-ES":
 							"el rol que quieres mostrar en todos los canales del servidor",
 						ko: "서버의 모든 채널에서 다시 보이게 할 역할",
-						uk: "роль, якій потрібно показати всі канали сервера"
+						uk: "роль, якій потрібно показати всі канали сервера",
+						de: "Rolle, die in allen Kanälen des Servers wieder sichtbar wird",
+						it: "Ruolo da mostrare di nuovo in tutti i canali del server",
+						"pt-BR":
+							"Cargo a reexibir em todos os canais do servidor",
+						pl: "Rola do odkrycia na wszystkich kanałach serwera"
 					},
 
 					permission: null,
@@ -169,7 +203,11 @@ export const command: Command = {
 				ru: "Скрыть все каналы от всех на сервере",
 				"es-ES": "Ocultar todos los canales del servidor a todos",
 				ko: "서버의 모든 채널을 모두에게서 숨겨요",
-				uk: "Приховати всі канали сервера від усіх"
+				uk: "Приховати всі канали сервера від усіх",
+				de: "Alle Kanäle des Servers für alle ausblenden",
+				it: "Nascondi a tutti tutti i canali del server",
+				"pt-BR": "Oculte todos os canais do servidor de todos",
+				pl: "Ukryj wszystkie kanały serwera przed wszystkimi"
 			},
 
 			options: [
@@ -185,7 +223,12 @@ export const command: Command = {
 						"es-ES":
 							"el rol que quieres ocultar en todos los canales del servidor",
 						ko: "서버의 모든 채널에서 숨길 역할",
-						uk: "роль, від якої потрібно приховати всі канали сервера"
+						uk: "роль, від якої потрібно приховати всі канали сервера",
+						de: "Rolle, die in allen Kanälen des Servers versteckt wird",
+						it: "Ruolo da nascondere in tutti i canali del server",
+						"pt-BR":
+							"Cargo a ocultar em todos os canais do servidor",
+						pl: "Rola do ukrycia na wszystkich kanałach serwera"
 					},
 
 					permission: null,

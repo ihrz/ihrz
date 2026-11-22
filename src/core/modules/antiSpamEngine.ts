@@ -38,14 +38,21 @@
 
 import {
 	BaseGuildTextChannel,
-	EmbedBuilder,
 	GuildMember,
 	Message,
-	PermissionFlagsBits
+	PermissionFlagsBits,
+	time
 } from "discord.js";
 
 import { AntiSpam } from "../../../types/antispam.js";
 import { LanguageData } from "../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice
+} from "./uiCard.js";
 
 interface TrackedMessage {
 	id: string;
@@ -281,7 +288,7 @@ async function punish(
 				.warnMember(
 					member.guild.members.me!,
 					member,
-					"Antispam Punishment",
+					lang.warn_reason_antispam,
 					lang
 				)
 				.catch(() => {});
@@ -346,8 +353,18 @@ async function flushReport(guildId: string): Promise<void> {
 			break;
 	}
 
+	// The warning is meant for the spammers: they are still pinged (and only
+	// them), cards ping nobody by default.
 	report.channel
-		.send(warning)
+		.send({
+			...cardPayload(
+				notice(
+					"warning",
+					`${client.iHorizon_Emojis.Warning_Icon} ${warning}`
+				)
+			),
+			allowedMentions: { users: members.map((member) => member.id) }
+		})
 		.then((sent) => {
 			setTimeout(
 				() => sent.delete().catch(() => {}),
@@ -364,22 +381,21 @@ async function flushReport(guildId: string): Promise<void> {
 		: undefined;
 	if (!logsChannel?.isTextBased()) return;
 
-	const embed = new EmbedBuilder()
-		.setColor("#e4433f")
-		.setTimestamp()
-		.setTitle(
-			lang.antispam_log_embed_title.replace(
-				"${actionType}",
-				report.options.punishment_type
-			)
-		)
-		.setDescription(
-			lang.antispam_log_embed_desc
-				.replace("${bot}", client.user!.toString())
-				.replace("${actionType}", lang.var_sanction.toLowerCase())
-				.replace("${user}", mentions)
-		);
-	await logsChannel.send({ embeds: [embed] }).catch(() => {});
+	const card = buildCard({
+		accent: ACCENT.danger,
+		emoji: client.iHorizon_Emojis.AutoMod_Spam,
+		title: lang.antispam_log_embed_title.replace(
+			"${actionType}",
+			report.options.punishment_type
+		),
+		description: lang.antispam_log_embed_desc
+			.replace("${bot}", client.user!.toString())
+			.replace("${actionType}", lang.var_sanction.toLowerCase())
+			.replace("${user}", mentions),
+		footer: time(new Date(), "f"),
+		signature: await botSignature(client, guildId)
+	});
+	await logsChannel.send(cardPayload(card) as never).catch(() => {});
 }
 
 /* ------------------------------------------------------------------ */

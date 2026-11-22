@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 import {
 	getH247Data,
 	deleteH247Data,
@@ -49,12 +50,17 @@ export const subCommand: SubCommand = {
 		const existing = await getH247Data(client, interaction.guild.id);
 
 		if (!existing?.enabled) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_leave_not_active.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_leave_not_active.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 			return;
 		}
 
@@ -65,22 +71,32 @@ export const subCommand: SubCommand = {
 				await leaveCurrentVoiceConnection(interaction.guild);
 			}
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_left.replace(
-					"${emoji_Yes}",
-					client.iHorizon_Emojis.Yes
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.h247_left.replace(
+						"${emoji_Yes}",
+						client.iHorizon_Emojis.Yes
+					)
 				)
-			});
+			);
 		} catch (error) {
 			logger.err(
 				`H247 leave error in guild ${interaction.guild.id}: ${error}`
 			);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_leave_error.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_leave_error.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 		}
 	}
 };

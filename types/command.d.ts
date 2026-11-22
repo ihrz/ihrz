@@ -37,6 +37,10 @@ export interface NameLocalizations {
 	"es-ES": string;
 	ko: string;
 	uk: string;
+	de: string;
+	it: string;
+	"pt-BR": string;
+	pl: string;
 }
 
 export interface DescriptionLocalizations {
@@ -46,6 +50,10 @@ export interface DescriptionLocalizations {
 	"es-ES": string;
 	ko: string;
 	uk: string;
+	de: string;
+	it: string;
+	"pt-BR": string;
+	pl: string;
 }
 
 export interface Command {

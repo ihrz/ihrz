@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
 	GuildMember,
@@ -32,6 +31,8 @@ import { LanguageData } from "../../../../types/languageData.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, sendCard } from "../../../core/modules/uiCard.js";
+import { roleListCard } from "../../../core/modules/economyCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -81,7 +82,8 @@ export const subCommand: SubCommand = {
 		}
 
 		// send message if the role has dangerous permissions
-		if (roleDangerousPermissions.length > 0) {
+		const prompted = roleDangerousPermissions.length > 0;
+		if (prompted) {
 			const stringDangerousPermissions = roleDangerousPermissions
 				.map((x) => "`" + x + "`")
 				.join(", ");
@@ -120,30 +122,23 @@ export const subCommand: SubCommand = {
 			roleData
 		);
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.economy_boost_embed_title)
-			.setDescription(lang.economy_boost_embed_desc)
-			.setFields(
-				client.func.economyHelper.generateRoleFields(roleData, lang)
-			)
-			.setColor("#0097ff")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			content: null,
-			embeds: [embed],
-			components: [],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		const card = await roleListCard(
+			client,
+			interaction.guildId!,
+			roleData,
+			lang,
+			{
+				title: lang.economy_boost_embed_title,
+				description: lang.economy_boost_embed_desc
+			}
+		);
+		// The confirmation prompt is a plain message, which can't become a
+		// Components V2 card on edit: the card follows it instead.
+		if (prompted && interaction instanceof ChatInputCommandInteraction) {
+			await interaction.followUp(cardPayload(card));
+		} else {
+			await sendCard(client, interaction, card);
+		}
 
 		await client.func.economyLogs.roleAdd(
 			interaction.guild,

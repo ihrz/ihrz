@@ -26,6 +26,7 @@ import { decrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
 import { invalidateProtectionContext } from "../../../core/modules/protectionEngine.js";
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 const PRESERVED_FIELDS = [
 	"OWNER",
@@ -133,9 +134,11 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		await interaction.editReply({
-			content: lang.guildconfig_config_restore_msg
-		});
+		await interaction.editReply(
+			cardPayload(
+				notice("success", lang.guildconfig_config_restore_msg)
+			) as never
+		);
 		return;
 	}
 };

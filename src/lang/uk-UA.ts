@@ -3408,7 +3408,7 @@ export default {
 		"Дякую, що запросили мене! Я **iHorizon**: модерація, тікети, музика, захист, журнали та багато іншого в одному боті, **безкоштовному** й з **відкритим кодом**.",
 	welcome_lang_title: "Мова",
 	welcome_lang_text:
-		"Тут я розмовляю мовою {language}, вибраною за регіоном вашого сервера.\nЩоб змінити її, адміністратор може скористатися {command}: на панелі можна вибрати одну з 11 мов.",
+		"Тут я розмовляю мовою {language}, вибраною за регіоном вашого сервера.\nЩоб змінити її, адміністратор може скористатися {command}: на панелі можна вибрати одну з {count} мов.",
 	welcome_start_title: "Початок роботи",
 	welcome_start_help: "{command} показує всі команди за категоріями",
 	welcome_start_dashboard:
@@ -4185,5 +4185,54 @@ export default {
 	tempvoice_region_ussouth: "США Південь",
 	tempvoice_region_uswest: "США Захід",
 	tempvoice_region_uscentral: "США Центр",
-	tempvoice_region_brazil: "Бразилія"
+	tempvoice_region_brazil: "Бразилія",
+
+	// logs V2 cards
+	logs_ban_add_title: "Учасника забанено",
+	logs_ban_remove_title: "Учасника розбанено",
+	logs_kick_title: "Учасника вигнано",
+	logs_boost_add_title: "Новий буст",
+	logs_boost_remove_title: "Буст знято",
+	logs_channel_update_title: "Канал змінено",
+	logs_message_delete_title: "Повідомлення видалено",
+	logs_message_update_title: "Повідомлення змінено",
+	logs_roles_update_title: "Ролі змінено",
+	logs_voice_title: "Голосова активність",
+	logs_channel_label: "Канал",
+	logs_jump_to_message: "Перейти до повідомлення",
+	logs_message_delete_embeds:
+		"Ембеди повідомлення (${count}) показано нижче.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "Нагадування #${scheduleCode} настало!",
+
+	// invites V2 cards
+	invites_reset_title: "Скидання менеджера запрошень",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Ваше місце: **#${rank}** з ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Вас поки немає в рейтингу.",
+	economy_leaderboard_count: "Учасників у рейтингу: ${count}",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Рівень ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** увімкнено: виконувані файли буде видалено.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** вимкнено: виконувані файли знову дозволено.",
+	guildconfig_list_react_title: "Автоматичні реакції",
+
+	// hard-coded strings
+	updates_button_releases: "Релізи",
+	updates_button_commit: "Коміт",
+	warn_reason_piconly: "Автоматичне покарання: канал лише для зображень",
+	warn_reason_antiexe: "Anti-Exe: надіслано виконуваний файл",
+	warn_reason_punishpub: "Автоматичне покарання: реклама",
+	warn_reason_antispam: "Автоматичне покарання: спам",
+	automod_block_custom_message: "Це повідомлення заблоковано iHorizon",
+	derogation_role_name: "керується iHorizon",
+	ticket_transcript_footer: "Експортовано повідомлень: {number}",
+	music_playlist_fallback_name: "Плейлист ${platform}",
+	music_apo_node_unreachable: "аудіосервер недоступний (${message})"
 } satisfies LanguageData;

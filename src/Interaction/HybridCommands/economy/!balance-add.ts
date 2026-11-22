@@ -23,6 +23,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 import {
 	editMemberMoney,
 	isEconomyDisabled
@@ -58,11 +59,16 @@ export const subCommand: SubCommand = {
 		const amount = opts.number("amount", 0) as number;
 		const user = await opts.user("member", 1);
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.addmoney_command_work
-				.replace("${userId}", user?.id!)
-				.replace("${amountValue}", amount.toString())
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				`${client.iHorizon_Emojis.Yes} ${lang.addmoney_command_work
+					.replace("${userId}", user?.id!)
+					.replace("${amountValue}", amount.toString())}`
+			)
+		);
 
 		await editMemberMoney(
 			client,

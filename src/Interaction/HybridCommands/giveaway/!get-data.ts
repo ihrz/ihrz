@@ -129,7 +129,14 @@ export const subCommand: SubCommand = {
 				if (giveawayData.ended) {
 					embed.addFields({
 						name: lang.gw_getdata_embed_fields_winners,
-						value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
+						// Nobody won: [] (current) or "None" (older giveaways).
+						value:
+							Array.isArray(giveawayData.winners) &&
+							giveawayData.winners.length
+								? giveawayData.winners
+										.map((x: string) => `<@${x}>`)
+										.join(", ")
+								: lang.var_none
 					});
 				}
 				await client.func.method.interactionSend(interaction, {

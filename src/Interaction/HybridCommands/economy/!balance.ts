@@ -22,13 +22,18 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -73,53 +78,42 @@ export const subCommand: SubCommand = {
 		);
 		const totalWallet = (baseData.money || 0) + (baseData.bank || 0);
 
-		const embed = new EmbedBuilder()
-			.setColor("#e3c6ff")
-			.setTitle(
-				lang.economy_balance_wallet_title.replace(
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.neutral,
+				emoji: e.Wallet,
+				title: lang.economy_balance_wallet_title.replace(
 					"${user}",
-					`\`${member.user.username}\``
-				)
-			)
-			.setThumbnail(member.displayAvatarURL())
-			.setDescription(
-				lang.balance_he_have_wallet
+					member.user.username
+				),
+				description: lang.balance_he_have_wallet
 					.replace("${bal}", totalWallet.toString())
 					.replace("${user}", member.toString())
-					.replace("${emoji_Wallet}", client.iHorizon_Emojis.Wallet)
-			)
-			.addFields(
-				{
-					name: lang.balance_embed_fields1_name,
-					value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`,
-					inline: true
-				},
-				{
-					name: lang.balance_embed_fields2_name,
-					value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`,
-					inline: true
-				},
-				{
-					name: lang.var_boost,
-					value: `${possibleBoost}x`,
-					inline: true
-				}
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setTimestamp();
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+					.replace("${emoji_Wallet}", e.Wallet),
+				thumbnail: member.displayAvatarURL({ size: 256 }),
+				fields: [
+					{
+						emoji: e.Coin,
+						label: lang.balance_embed_fields1_name,
+						value: `${baseData.bank || 0}${e.Coin}`
+					},
+					{
+						emoji: e.Wallet,
+						label: lang.balance_embed_fields2_name,
+						value: `${baseData.money || 0}${e.Coin}`
+					},
+					{
+						emoji: e.Boost_Gem,
+						label: lang.var_boost,
+						value: `${possibleBoost}x`
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

@@ -4007,7 +4007,7 @@ export default {
 		"شكرًا إنكم ضفتوني! أنا **iHorizon**: إشراف، تذاكر، موسيقى، حماية، سجلات وحاجات كتير، في بوت واحد **ببلاش** و**مفتوح المصدر**.",
 	welcome_lang_title: "اللغة",
 	welcome_lang_text:
-		"هنا بتكلم {language}، اتختارت على حسب منطقة السيرفر.\nعشان تغيّرها، أي أدمن يقدر يستخدم {command}: هتلاقي لوحة فيها 11 لغة تختار منهم.",
+		"هنا بتكلم {language}، اتختارت على حسب منطقة السيرفر.\nعشان تغيّرها، أي أدمن يقدر يستخدم {command}: هتلاقي لوحة فيها {count} لغة تختار منهم.",
 	welcome_start_title: "ابدأ من هنا",
 	welcome_start_help: "{command} بيعرض كل الأوامر مقسّمة حسب الفئة",
 	welcome_start_dashboard: "من [الداشبورد]({url}) تظبط كل حاجة من المتصفح",
@@ -4826,5 +4826,53 @@ export default {
 	tempvoice_region_ussouth: "جنوب أمريكا",
 	tempvoice_region_uswest: "غرب أمريكا",
 	tempvoice_region_uscentral: "وسط أمريكا",
-	tempvoice_region_brazil: "البرازيل"
+	tempvoice_region_brazil: "البرازيل",
+
+	// logs V2 cards
+	logs_ban_add_title: "عضو اتبند",
+	logs_ban_remove_title: "عضو اتشال عنه البان",
+	logs_kick_title: "عضو اتطرد",
+	logs_boost_add_title: "بوست جديد",
+	logs_boost_remove_title: "البوست اتشال",
+	logs_channel_update_title: "القناة اتعدلت",
+	logs_message_delete_title: "رسالة اتمسحت",
+	logs_message_update_title: "رسالة اتعدلت",
+	logs_roles_update_title: "الرولات اتغيرت",
+	logs_voice_title: "نشاط في الفويس",
+	logs_channel_label: "القناة",
+	logs_jump_to_message: "روح للرسالة",
+	logs_message_delete_embeds:
+		"الإمبدات بتاعة الرسالة (${count}) تحت على طول.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "التذكير #${scheduleCode} وقته جه!",
+
+	// invites V2 cards
+	invites_reset_title: "إعادة ضبط مدير الدعوات",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"ترتيبك: **#${rank}** من ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "إنت لسه مش في الترتيب.",
+	economy_leaderboard_count: "${count} عضو في الترتيب",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "المستوى ${level}",
+	guildconfig_antiexe_enabled: "🔐 **Anti-Bin** اتفعل: أي ملف تنفيذي هيتمسح.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** اتقفل: الملفات التنفيذية مسموحة تاني.",
+	guildconfig_list_react_title: "الريأكشنات الأوتوماتيك",
+
+	// hard-coded strings
+	updates_button_releases: "الإصدارات",
+	updates_button_commit: "الكوميت",
+	warn_reason_piconly: "عقوبة تلقائية: القناة دي للصور بس",
+	warn_reason_antiexe: "Anti-Exe: بعت ملف تنفيذي",
+	warn_reason_punishpub: "عقوبة تلقائية: إعلانات",
+	warn_reason_antispam: "عقوبة تلقائية: سبام",
+	automod_block_custom_message: "iHorizon منع الرسالة دي",
+	derogation_role_name: "تحت إدارة iHorizon",
+	ticket_transcript_footer: "الرسايل اللي اتصدّرت: {number}",
+	music_playlist_fallback_name: "بلاي ليست ${platform}",
+	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})"
 } satisfies LanguageData;

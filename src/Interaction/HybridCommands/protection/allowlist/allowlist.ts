@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "Подкоманда для категории защиты!",
 		"es-ES": "Subcomando para la categoría de protección!",
 		ko: "보호 하위 명령어!",
-		uk: "Підкоманда категорії захисту!"
+		uk: "Підкоманда категорії захисту!",
+		de: "Unterbefehle der Schutz-Kategorie!",
+		it: "Sottocomandi della categoria protezione!",
+		"pt-BR": "Subcomandos da categoria proteção!",
+		pl: "Podkomendy kategorii ochrony!"
 	},
 
 	options: [
@@ -51,7 +55,11 @@ export const command: Command = {
 				ru: "Добавить пользователя в белый список!",
 				"es-ES": "Añadiendo un usuario a la lista de permitidos!",
 				ko: "사용자를 허용 목록에 추가해요!",
-				uk: "Додати користувача до списку дозволених!"
+				uk: "Додати користувача до списку дозволених!",
+				de: "Füge einen Nutzer zur Allowlist hinzu!",
+				it: "Aggiungi un utente alla allowlist!",
+				"pt-BR": "Adicione um usuário à allowlist!",
+				pl: "Dodaj użytkownika do listy dozwolonych!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -67,7 +75,11 @@ export const command: Command = {
 						ru: "Какой участник?",
 						"es-ES": "Cual es el miembro entonces?",
 						ko: "어떤 멤버인가요?",
-						uk: "Хто цей учасник?"
+						uk: "Хто цей учасник?",
+						de: "Welches Mitglied dann?",
+						it: "Quale membro allora?",
+						"pt-BR": "Qual membro então?",
+						pl: "Jaki więc członek?"
 					},
 
 					required: false,
@@ -89,7 +101,11 @@ export const command: Command = {
 				ru: "Удалить пользователя из белого списка!",
 				"es-ES": "Eliminando un usuario de la lista de permitidos!",
 				ko: "허용 목록에서 사용자를 제거해요!",
-				uk: "Вилучити користувача зі списку дозволених!"
+				uk: "Вилучити користувача зі списку дозволених!",
+				de: "Entferne einen Nutzer aus der Allowlist!",
+				it: "Rimuovi un utente dalla allowlist!",
+				"pt-BR": "Remova um usuário da allowlist!",
+				pl: "Usuń użytkownika z listy dozwolonych!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -105,7 +121,11 @@ export const command: Command = {
 						ru: "Какой участник?",
 						"es-ES": "Cual es el miembro entonces?",
 						ko: "어떤 멤버인가요?",
-						uk: "Хто цей учасник?"
+						uk: "Хто цей учасник?",
+						de: "Welches Mitglied dann?",
+						it: "Quale membro allora?",
+						"pt-BR": "Qual membro então?",
+						pl: "Jaki więc członek?"
 					},
 
 					required: true,
@@ -127,7 +147,11 @@ export const command: Command = {
 				ru: "Показать пользователей в белом списке!",
 				"es-ES": "Listar los usuarios en la lista de permitidos!",
 				ko: "허용 목록의 사용자를 확인해요!",
-				uk: "Показати користувачів зі списку дозволених!"
+				uk: "Показати користувачів зі списку дозволених!",
+				de: "Nutzer in der Allowlist auflisten!",
+				it: "Elenca gli utenti nella allowlist!",
+				"pt-BR": "Liste os usuários na allowlist!",
+				pl: "Wyświetl użytkowników na liście dozwolonych!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

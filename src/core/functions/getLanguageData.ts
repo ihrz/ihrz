@@ -41,6 +41,7 @@ export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 		{ name: "Italiano", code: "it-IT", flag: "🇮🇹" },
 		{ name: "日本語", code: "jp-JP", flag: "🇯🇵" },
 		{ name: "한국어", code: "ko-KR", flag: "🇰🇷" },
+		{ name: "Polski", code: "pl-PL", flag: "🇵🇱" },
 		{ name: "Português", code: "pt-PT", flag: "🇵🇹" },
 		{ name: "Русский", code: "ru-RU", flag: "🇷🇺" },
 		{ name: "Українська", code: "uk-UA", flag: "🇺🇦" }
@@ -56,6 +57,7 @@ const LOCALE_PREFIX: Record<string, string> = {
 	it: "it-IT",
 	ja: "jp-JP",
 	ko: "ko-KR",
+	pl: "pl-PL",
 	pt: "pt-PT",
 	ru: "ru-RU",
 	uk: "uk-UA"

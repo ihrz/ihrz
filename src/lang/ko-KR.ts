@@ -4060,7 +4060,7 @@ export default {
 		"초대해 주셔서 감사합니다! 저는 **iHorizon**입니다. 관리, 티켓, 음악, 보호, 로그 등 모든 것을 **무료** **오픈 소스** 봇 하나로.",
 	welcome_lang_title: "언어",
 	welcome_lang_text:
-		"이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 11개 언어 중 고를 수 있습니다.",
+		"이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 {count}개 언어 중 고를 수 있습니다.",
 	welcome_start_title: "시작하기",
 	welcome_start_help: "{command}: 모든 명령어를 카테고리별로 보여줍니다",
 	welcome_start_dashboard:
@@ -4892,5 +4892,54 @@ export default {
 	tempvoice_region_ussouth: "미국 남부",
 	tempvoice_region_uswest: "미국 서부",
 	tempvoice_region_uscentral: "미국 중부",
-	tempvoice_region_brazil: "브라질"
+	tempvoice_region_brazil: "브라질",
+
+	// logs V2 cards
+	logs_ban_add_title: "멤버 차단됨",
+	logs_ban_remove_title: "멤버 차단 해제됨",
+	logs_kick_title: "멤버 추방됨",
+	logs_boost_add_title: "새 부스트",
+	logs_boost_remove_title: "부스트 해제됨",
+	logs_channel_update_title: "채널 수정됨",
+	logs_message_delete_title: "메시지 삭제됨",
+	logs_message_update_title: "메시지 수정됨",
+	logs_roles_update_title: "역할 변경됨",
+	logs_voice_title: "음성 활동",
+	logs_channel_label: "채널",
+	logs_jump_to_message: "메시지로 이동",
+	logs_message_delete_embeds:
+		"메시지의 임베드(${count}개)는 바로 아래에 표시됩니다.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "알림 #${scheduleCode} 시간이 됐어요!",
+
+	// invites V2 cards
+	invites_reset_title: "초대 관리자 초기화",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"내 순위: ${count}명 중 **#${rank}** · ${wealth}",
+	economy_leaderboard_not_ranked: "아직 순위표에 없습니다.",
+	economy_leaderboard_count: "순위에 오른 멤버 ${count}명",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "레벨 ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** 활성화: 실행 파일은 삭제돼요.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** 비활성화: 실행 파일이 다시 허용돼요.",
+	guildconfig_list_react_title: "자동 반응",
+
+	// hard-coded strings
+	updates_button_releases: "릴리스",
+	updates_button_commit: "커밋",
+	warn_reason_piconly: "자동 처벌: 이미지 전용 채널",
+	warn_reason_antiexe: "Anti-Exe: 실행 파일 전송",
+	warn_reason_punishpub: "자동 처벌: 홍보",
+	warn_reason_antispam: "자동 처벌: 스팸",
+	automod_block_custom_message: "이 메시지는 iHorizon에 의해 차단되었습니다",
+	derogation_role_name: "iHorizon 관리",
+	ticket_transcript_footer: "내보낸 메시지: {number}",
+	music_playlist_fallback_name: "${platform} 플레이리스트",
+	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})"
 } satisfies LanguageData;

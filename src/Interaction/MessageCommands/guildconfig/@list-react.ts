@@ -24,7 +24,6 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	Client,
-	EmbedBuilder,
 	Message,
 	PermissionsBitField
 } from "discord.js";
@@ -32,6 +31,13 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	pageLabel
+} from "../../../core/modules/uiCard.js";
 export const command: Command = {
 	name: "list-react",
 	aliases: ["react-list", "listreact", "reactlist"],
@@ -44,7 +50,11 @@ export const command: Command = {
 		"es-ES":
 			"Mostrar todos los mensajes específicos guardados para reaccionar",
 		ko: "반응하도록 저장된 메시지를 모두 보여줘요",
-		uk: "Показати всі збережені повідомлення для реакцій"
+		uk: "Показати всі збережені повідомлення для реакцій",
+		de: "Zeigt alle gespeicherten Nachrichten für Reaktionen",
+		it: "Mostra tutti i messaggi salvati a cui reagire",
+		"pt-BR": "Mostra todas as mensagens salvas para reagir",
+		pl: "Pokazuje wszystkie zapisane wiadomości do reakcji"
 	},
 
 	thinking: false,
@@ -81,19 +91,20 @@ export const command: Command = {
 			return;
 		}
 
+		const signature = await botSignature(client, interaction.guildId);
 		const createEmbed = async () => {
-			return new EmbedBuilder()
-				.setColor("#010101")
-				.setDescription(pages[currentPage])
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage + 1,
-						pages.length
-					)
-				)
-				.setTimestamp();
+			const container = buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.guildconfig_list_react_title,
+				description: pages[currentPage],
+				signature,
+				footer: pageLabel(lang, currentPage, pages.length)
+			});
+			container.addActionRowComponents(
+				row as ActionRowBuilder<ButtonBuilder>
+			);
+			return container;
 		};
 
 		const row = new ActionRowBuilder().addComponents(
@@ -108,14 +119,9 @@ export const command: Command = {
 		);
 
 		const messageEmbed = await interaction.reply({
-			embeds: [await createEmbed()],
-			components: [row as ActionRowBuilder<ButtonBuilder>],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+			...cardPayload(await createEmbed()),
+			allowedMentions: { parse: [], repliedUser: false }
+		} as never);
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
@@ -132,7 +138,9 @@ export const command: Command = {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
-			messageEmbed.edit({ embeds: [await createEmbed()] });
+			messageEmbed
+				.edit(cardPayload(await createEmbed()) as never)
+				.catch(() => null);
 		});
 
 		collector.on("end", () => {
@@ -141,9 +149,10 @@ export const command: Command = {
 					component.setDisabled(true);
 				}
 			});
-			messageEmbed.edit({
-				components: [row as ActionRowBuilder<ButtonBuilder>]
-			});
+			(async () =>
+				messageEmbed.edit(
+					cardPayload(await createEmbed()) as never
+				))().catch(() => null);
 		});
 	}
 };

@@ -26,7 +26,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
+	ContainerBuilder,
 	Message,
 	RoleSelectMenuBuilder
 } from "discord.js";
@@ -34,6 +34,12 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { AntiSpam } from "../../../../types/antispam.js";
 import { invalidateAntiSpamConfig } from "../../../core/modules/antiSpamEngine.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -56,23 +62,12 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`
 			)) || ([] as AntiSpam.AntiSpamOptions["BYPASS_ROLES"]);
 
-		const embed = new EmbedBuilder()
-			.setColor("#6666ff")
-			.setTitle(lang.antispam_manage_embed_title)
-			.setDescription(lang.antispan_bypassroles_embed_desc)
-			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-			.addFields({
-				name: lang.setjoinroles_help_embed_fields_1_name,
-				value:
-					Array.isArray(all_roles) && all_roles.length > 0
-						? all_roles.map((x) => `<@&${x}>`).join(", ")
-						: lang.setjoinroles_var_none
-			})
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
+		const guildIcon = interaction.guild.iconURL({ size: 256 });
+
+		// Role ids shown on the card: the saved list, then the selection.
+		let shown: string[] = Array.isArray(all_roles) ? all_roles : [];
 
 		const select = new RoleSelectMenuBuilder()
 			.setCustomId("antispam-select-config")
@@ -92,17 +87,37 @@ export const subCommand: SubCommand = {
 			.setCustomId("antispam-manage-save-button")
 			.setLabel(lang.antispam_manage_button_label);
 
+		const selectRow =
+			new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select);
+		const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			button
+		);
+
+		function render(): ContainerBuilder {
+			return buildCard({
+				accent: ACCENT.info,
+				emoji: e.AutoMod_Spam,
+				title: lang.antispam_manage_embed_title,
+				description: lang.antispan_bypassroles_embed_desc,
+				thumbnail: guildIcon,
+				fields: [
+					{
+						emoji: e.Ticket_Role,
+						label: lang.setjoinroles_help_embed_fields_1_name,
+						value:
+							shown.map((x) => `<@&${x}>`).join(", ") ||
+							lang.setjoinroles_var_none
+					}
+				],
+				signature
+			})
+				.addActionRowComponents(selectRow)
+				.addActionRowComponents(buttonRow);
+		}
+
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
-			{
-				embeds: [embed],
-				components: [
-					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-						select
-					),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-				]
-			}
+			cardPayload(render()) as never
 		);
 
 		const collector = originalResponse.createMessageComponentCollector({
@@ -148,35 +163,24 @@ export const subCommand: SubCommand = {
 
 			await i.deferUpdate();
 
-			const values = i.values;
-
-			embed.setFields({
-				name: lang.setjoinroles_help_embed_fields_1_name,
-				value:
-					values.length === 0
-						? lang.setjoinroles_var_none
-						: values.map((x) => `<@&${x}>`).join(",")
-			});
-
 			all_roles = i.values;
-			await originalResponse.edit({ embeds: [embed] });
+			shown = i.values;
+			// The card is sent again with its menu: keep the new selection in it.
+			select.setDefaultRoles(i.values);
+			await originalResponse
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
 		});
 
 		collector.on("end", async () => {
-			await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-						select.setDisabled(true)
-					),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setStyle(ButtonStyle.Success)
-							.setCustomId("antispam-manage-save-button")
-							.setEmoji(client.iHorizon_Emojis.Yes)
-							.setDisabled(true)
-					)
-				]
-			});
+			select.setDisabled(true);
+			button
+				.setLabel(lang.antispam_manage_button_label)
+				.setEmoji(e.Yes)
+				.setDisabled(true);
+			await originalResponse
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
 		});
 	}
 };

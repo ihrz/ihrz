@@ -24,7 +24,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
 	Message,
 	StringSelectMenuBuilder
 } from "discord.js";
@@ -33,6 +32,14 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+import { roleLines } from "../../../core/modules/economyCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -93,37 +100,48 @@ export const subCommand: SubCommand = {
 
 		const buyableRoles = buyableRolesArray; // buyableRolesArray.filter((role) => !baseData.ownedRoles?.includes(role.roleId));
 
-		const embed = new EmbedBuilder()
-			.setTitle(
-				lang.economy_shop_embed_title.replace(
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
+		const shopCard = () =>
+			buildCard({
+				accent: ACCENT.success,
+				title: lang.economy_shop_embed_title.replace(
 					"${guildName}",
-					interaction.guild.name
-				)
-			)
-			.setColor("#45f712")
-			.setDescription(lang.economy_shop_embed_desc)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			)
-			.setFields(
-				{
-					name: lang.balance_embed_fields1_name,
-					value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`,
-					inline: true
-				},
-				{
-					name: lang.balance_embed_fields2_name,
-					value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`,
-					inline: true
-				},
-				{
-					name: lang.var_boost,
-					value: `${possibleBoost}x`,
-					inline: true
-				}
-			);
+					interaction.guild!.name
+				),
+				description: lang.economy_shop_embed_desc,
+				thumbnail: interaction.guild!.iconURL({ size: 256 }),
+				fields: [
+					{
+						emoji: e.Coin,
+						label: lang.balance_embed_fields1_name,
+						value: `${baseData.bank || 0}${e.Coin}`
+					},
+					{
+						emoji: e.Wallet,
+						label: lang.balance_embed_fields2_name,
+						value: `${baseData.money || 0}${e.Coin}`
+					},
+					{
+						emoji: e.Boost_Gem,
+						label: lang.var_boost,
+						value: `${possibleBoost}x`
+					}
+				],
+				blocks: [
+					roleLines(
+						client,
+						Object.fromEntries(
+							buyableRoles.map(({ roleId, ...details }) => [
+								roleId,
+								details
+							])
+						),
+						lang
+					)
+				],
+				signature
+			});
 		const selectMenuOptions = buyableRoles.map((role) => ({
 			label:
 				interaction.guild?.roles.cache.get(role.roleId)?.name ||
@@ -164,17 +182,10 @@ export const subCommand: SubCommand = {
 				selectMenu
 			);
 
-		const og_interaction = await client.func.method.interactionSend(
+		const og_interaction = await sendCard(
+			client,
 			interaction,
-			{
-				embeds: [embed],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				],
-				components: [actionRow]
-			}
+			shopCard().addActionRowComponents(actionRow)
 		);
 
 		// create a collector
@@ -294,9 +305,11 @@ export const subCommand: SubCommand = {
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					selectMenu.setDisabled(true)
 				);
-			await og_interaction.edit({
-				components: [row]
-			});
+			await og_interaction
+				.edit(
+					cardPayload(shopCard().addActionRowComponents(row)) as never
+				)
+				.catch(() => undefined);
 		});
 	}
 };

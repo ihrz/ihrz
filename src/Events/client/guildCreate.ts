@@ -387,6 +387,9 @@ Guild Info:
 				case "uk":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "uk-UA");
 					break;
+				case "pl":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "pl-PL");
+					break;
 				case "pt-BR":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "pt-PT");
 					break;

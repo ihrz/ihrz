@@ -40,7 +40,11 @@ export const command: Command = {
 		ru: "Настроить модуль приветствия!",
 		"es-ES": "Establecer el módulo de bienvenida!",
 		ko: "환영 모듈을 설정해요!",
-		uk: "Налаштувати модуль привітань!"
+		uk: "Налаштувати модуль привітань!",
+		de: "Richtet das Willkommensmodul ein!",
+		it: "Imposta il modulo di benvenuto!",
+		"pt-BR": "Configura o módulo de boas-vindas!",
+		pl: "Ustawia moduł powitań!"
 	},
 
 	aliases: ["leaver"],

@@ -36,7 +36,11 @@ export const command: Command = {
 		ru: "Подкоманда для категории профиля!",
 		"es-ES": "Subcomando para la categoría de perfil!",
 		ko: "프로필 하위 명령어!",
-		uk: "Підкоманда категорії профілю!"
+		uk: "Підкоманда категорії профілю!",
+		de: "Unterbefehle der Profil-Kategorie!",
+		it: "Sottocomandi della categoria profilo!",
+		"pt-BR": "Subcomandos da categoria perfil!",
+		pl: "Podkomendy kategorii profilu!"
 	},
 
 	options: [
@@ -48,7 +52,11 @@ export const command: Command = {
 				ru: "show",
 				"es-ES": "show",
 				ko: "show",
-				uk: "show"
+				uk: "show",
+				de: "show",
+				it: "show",
+				"pt-BR": "show",
+				pl: "show"
 			},
 
 			description: "See the iHorizon's profil of the member!",
@@ -58,7 +66,11 @@ export const command: Command = {
 				ru: "Посмотреть профиль iHorizon участника!",
 				"es-ES": "Ver el perfil de iHorizon del miembro!",
 				ko: "멤버의 iHorizon 프로필을 확인해요!",
-				uk: "Переглянути профіль учасника в iHorizon!"
+				uk: "Переглянути профіль учасника в iHorizon!",
+				de: "Zeigt das iHorizon-Profil des Mitglieds!",
+				it: "Mostra il profilo iHorizon del membro!",
+				"pt-BR": "Mostra o perfil iHorizon do membro!",
+				pl: "Pokazuje profil iHorizon członka!"
 			},
 
 			aliases: ["me", "prof"],
@@ -76,7 +88,11 @@ export const command: Command = {
 						ru: "Пользователь для поиска",
 						"es-ES": "El usuario que quieres buscar",
 						ko: "조회할 사용자",
-						uk: "Користувач, якого ви хочете переглянути"
+						uk: "Користувач, якого ви хочете переглянути",
+						de: "Das Mitglied, das du nachschlagen willst",
+						it: "L'utente da cercare",
+						"pt-BR": "O usuário que você quer consultar",
+						pl: "Użytkownik do sprawdzenia"
 					},
 
 					required: false,
@@ -95,7 +111,11 @@ export const command: Command = {
 				ru: "set-age",
 				"es-ES": "set-age",
 				ko: "set-age",
-				uk: "set-age"
+				uk: "set-age",
+				de: "set-age",
+				it: "set-age",
+				"pt-BR": "set-age",
+				pl: "set-age"
 			},
 
 			description: "Set your age on the iHorizon's Profil !",
@@ -105,7 +125,11 @@ export const command: Command = {
 				ru: "Установить возраст в профиле iHorizon!",
 				"es-ES": "Establecer tu edad en el perfil de iHorizon!",
 				ko: "iHorizon 프로필에 나이를 설정해요!",
-				uk: "Вказати свій вік у профілі iHorizon!"
+				uk: "Вказати свій вік у профілі iHorizon!",
+				de: "Legt dein Alter im iHorizon-Profil fest!",
+				it: "Imposta la tua età nel profilo iHorizon!",
+				"pt-BR": "Define sua idade no perfil iHorizon!",
+				pl: "Ustawia twój wiek w profilu iHorizon!"
 			},
 
 			aliases: ["age"],
@@ -123,7 +147,11 @@ export const command: Command = {
 						ru: "Ваш возраст в профиле iHorizon",
 						"es-ES": "Tu edad en el perfil de iHorizon",
 						ko: "iHorizon 프로필의 나이",
-						uk: "Ваш вік у профілі iHorizon"
+						uk: "Ваш вік у профілі iHorizon",
+						de: "Dein Alter im iHorizon-Profil",
+						it: "La tua età nel profilo iHorizon",
+						"pt-BR": "Sua idade no perfil iHorizon",
+						pl: "Twój wiek w profilu iHorizon"
 					},
 
 					required: true,
@@ -142,7 +170,11 @@ export const command: Command = {
 				ru: "set-description",
 				"es-ES": "set-description",
 				ko: "set-description",
-				uk: "set-description"
+				uk: "set-description",
+				de: "set-description",
+				it: "set-description",
+				"pt-BR": "set-description",
+				pl: "set-description"
 			},
 
 			description: "Set your description on the iHorizon's Profil!",
@@ -152,7 +184,11 @@ export const command: Command = {
 				ru: "Установить описание в профиле iHorizon!",
 				"es-ES": "Establecer tu descripción en el perfil de iHorizon!",
 				ko: "iHorizon 프로필에 소개를 설정해요!",
-				uk: "Вказати свій опис у профілі iHorizon!"
+				uk: "Вказати свій опис у профілі iHorizon!",
+				de: "Legt deine Beschreibung im iHorizon-Profil fest!",
+				it: "Imposta la tua descrizione nel profilo iHorizon!",
+				"pt-BR": "Define sua descrição no perfil iHorizon!",
+				pl: "Ustawia twój opis w profilu iHorizon!"
 			},
 
 			aliases: ["desc", "description"],
@@ -170,7 +206,11 @@ export const command: Command = {
 						ru: "Ваше описание в профиле iHorizon",
 						"es-ES": "Tu descripción en el perfil de iHorizon",
 						ko: "iHorizon 프로필의 소개",
-						uk: "Ваш опис у профілі iHorizon"
+						uk: "Ваш опис у профілі iHorizon",
+						de: "Deine Beschreibung im iHorizon-Profil",
+						it: "La tua descrizione nel profilo iHorizon",
+						"pt-BR": "Sua descrição no perfil iHorizon",
+						pl: "Twój opis w profilu iHorizon"
 					},
 
 					required: true,
@@ -189,7 +229,11 @@ export const command: Command = {
 				ru: "set-gender",
 				"es-ES": "set-gender",
 				ko: "set-gender",
-				uk: "set-gender"
+				uk: "set-gender",
+				de: "set-gender",
+				it: "set-gender",
+				"pt-BR": "set-gender",
+				pl: "set-gender"
 			},
 
 			description: "Set your gender on the iHorizon's Profil!",
@@ -199,7 +243,11 @@ export const command: Command = {
 				ru: "Установить пол в профиле iHorizon!",
 				"es-ES": "Establecer tu género en el perfil de iHorizon!",
 				ko: "iHorizon 프로필에 성별을 설정해요!",
-				uk: "Вказати свою стать у профілі iHorizon!"
+				uk: "Вказати свою стать у профілі iHorizon!",
+				de: "Legt dein Geschlecht im iHorizon-Profil fest!",
+				it: "Imposta il tuo genere nel profilo iHorizon!",
+				"pt-BR": "Define seu gênero no perfil iHorizon!",
+				pl: "Ustawia twoją płeć w profilu iHorizon!"
 			},
 
 			aliases: ["gender"],
@@ -217,7 +265,11 @@ export const command: Command = {
 						ru: "Пол, который вам подходит",
 						"es-ES": "Género que más te queda",
 						ko: "나에게 가장 잘 맞는 성별",
-						uk: "Стать, що вам найбільше підходить"
+						uk: "Стать, що вам найбільше підходить",
+						de: "Das Geschlecht, das am besten zu dir passt",
+						it: "Il genere che ti rappresenta di più",
+						"pt-BR": "O gênero que mais combina com você",
+						pl: "Płeć, która najbardziej do ciebie pasuje"
 					},
 
 					required: true,
@@ -230,7 +282,11 @@ export const command: Command = {
 								ru: "female",
 								"es-ES": "female",
 								ko: "♀ 여성",
-								uk: "♀ Жіноча"
+								uk: "♀ Жіноча",
+								de: "♀ Weiblich",
+								it: "♀ Femmina",
+								"pt-BR": "♀ Feminino",
+								pl: "♀ Kobieta"
 							},
 							value: "female"
 						},
@@ -242,7 +298,11 @@ export const command: Command = {
 								ru: "male",
 								"es-ES": "male",
 								ko: "♂ 남성",
-								uk: "♂ Чоловіча"
+								uk: "♂ Чоловіча",
+								de: "♂ Männlich",
+								it: "♂ Maschio",
+								"pt-BR": "♂ Masculino",
+								pl: "♂ Mężczyzna"
 							},
 							value: "male"
 						},
@@ -254,7 +314,11 @@ export const command: Command = {
 								ru: "non-binary",
 								"es-ES": "non-binary",
 								ko: "⚧ 논바이너리",
-								uk: "⚧ Небінарна"
+								uk: "⚧ Небінарна",
+								de: "⚧ Nicht-binär",
+								it: "⚧ Non binario",
+								"pt-BR": "⚧ Não binário",
+								pl: "⚧ Niebinarna"
 							},
 							value: "non-binary"
 						}
@@ -274,7 +338,11 @@ export const command: Command = {
 				ru: "set-pronoun",
 				"es-ES": "set-pronoun",
 				ko: "set-pronoun",
-				uk: "set-pronoun"
+				uk: "set-pronoun",
+				de: "set-pronoun",
+				it: "set-pronoun",
+				"pt-BR": "set-pronoun",
+				pl: "set-pronoun"
 			},
 
 			description: "Set your pronoun on the iHorizon's Profil!",
@@ -284,7 +352,11 @@ export const command: Command = {
 				ru: "Установить местоимение в профиле iHorizon!",
 				"es-ES": "Establecer tu pronombre en el perfil de iHorizon!",
 				ko: "iHorizon 프로필에 대명사를 설정해요!",
-				uk: "Вказати свій займенник у профілі iHorizon!"
+				uk: "Вказати свій займенник у профілі iHorizon!",
+				de: "Legt deine Pronomen im iHorizon-Profil fest!",
+				it: "Imposta i tuoi pronomi nel profilo iHorizon!",
+				"pt-BR": "Define seus pronomes no perfil iHorizon!",
+				pl: "Ustawia twoje zaimki w profilu iHorizon!"
 			},
 
 			aliases: ["pronoun", "pronom"],
@@ -302,7 +374,11 @@ export const command: Command = {
 						ru: "Местоимение, которое вам подходит",
 						"es-ES": "Pronombre que más te queda",
 						ko: "나에게 가장 잘 맞는 대명사",
-						uk: "Займенник, що вам найбільше підходить"
+						uk: "Займенник, що вам найбільше підходить",
+						de: "Das Pronomen, das am besten zu dir passt",
+						it: "Il pronome che ti rappresenta di più",
+						"pt-BR": "O pronome que mais combina com você",
+						pl: "Zaimek, który najbardziej do ciebie pasuje"
 					},
 
 					required: true,
@@ -315,7 +391,11 @@ export const command: Command = {
 								ru: "she_her",
 								"es-ES": "she_her",
 								ko: "그녀 (she/her)",
-								uk: "вона/її"
+								uk: "вона/її",
+								de: "sie/ihr",
+								it: "lei/lei",
+								"pt-BR": "ela/dela",
+								pl: "ona/jej"
 							},
 							value: "she-her"
 						},
@@ -327,7 +407,11 @@ export const command: Command = {
 								ru: "he_him",
 								"es-ES": "he_him",
 								ko: "그 (he/him)",
-								uk: "він/його"
+								uk: "він/його",
+								de: "er/ihm",
+								it: "lui/lui",
+								"pt-BR": "ele/dele",
+								pl: "on/jego"
 							},
 							value: "he-him"
 						},
@@ -339,7 +423,11 @@ export const command: Command = {
 								ru: "they_them",
 								"es-ES": "they_them",
 								ko: "그들 (they/them)",
-								uk: "вони/їх"
+								uk: "вони/їх",
+								de: "they/them",
+								it: "loro/loro",
+								"pt-BR": "elu/delu",
+								pl: "oni/ich"
 							},
 							value: "they-them"
 						},
@@ -351,7 +439,11 @@ export const command: Command = {
 								ru: "xe_xem",
 								"es-ES": "xe_xem",
 								ko: "xe/xem",
-								uk: "xe/xem"
+								uk: "xe/xem",
+								de: "xe/xem",
+								it: "xe/xem",
+								"pt-BR": "xe/xem",
+								pl: "xe/xem"
 							},
 							value: "xe-xem"
 						},
@@ -363,7 +455,11 @@ export const command: Command = {
 								ru: "ze_zem",
 								"es-ES": "ze_zem",
 								ko: "ze/zem",
-								uk: "ze/zem"
+								uk: "ze/zem",
+								de: "ze/zem",
+								it: "ze/zem",
+								"pt-BR": "ze/zem",
+								pl: "ze/zem"
 							},
 							value: "ze-zem"
 						},
@@ -375,7 +471,11 @@ export const command: Command = {
 								ru: "other_say_my_name",
 								"es-ES": "other_say_my_name",
 								ko: "기타 (이름으로 불러 주세요)",
-								uk: "інше (називати на ім'я)"
+								uk: "інше (називати на ім'я)",
+								de: "Andere (sag meinen Namen)",
+								it: "Altro (dì il mio nome)",
+								"pt-BR": "Outro (diga meu nome)",
+								pl: "Inna (powiedz moje imię)"
 							},
 							value: "other"
 						}
@@ -395,7 +495,11 @@ export const command: Command = {
 				ru: "set-birthday",
 				"es-ES": "set-birthday",
 				ko: "set-birthday",
-				uk: "set-birthday"
+				uk: "set-birthday",
+				de: "set-birthday",
+				it: "set-birthday",
+				"pt-BR": "set-birthday",
+				pl: "set-birthday"
 			},
 
 			description: "Set your birthday on the iHorizon's Profil!",
@@ -405,7 +509,11 @@ export const command: Command = {
 				ru: "Установить день рождения в профиле iHorizon!",
 				"es-ES": "Establecer tu cumpleaños en el perfil de iHorizon!",
 				ko: "iHorizon 프로필에 생일을 설정해요!",
-				uk: "Вказати свій день народження в профілі iHorizon!"
+				uk: "Вказати свій день народження в профілі iHorizon!",
+				de: "Legt deinen Geburtstag im iHorizon-Profil fest!",
+				it: "Imposta il tuo compleanno nel profilo iHorizon!",
+				"pt-BR": "Define seu aniversário no perfil iHorizon!",
+				pl: "Ustawia twoje urodziny w profilu iHorizon!"
 			},
 
 			aliases: ["birthday", "anniversaire"],

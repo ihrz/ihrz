@@ -21,20 +21,14 @@
 
 import {
 	ActionRowBuilder,
-	ActionRowData,
-	APIMessageTopLevelComponent,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonInteraction,
 	ButtonStyle,
 	EmbedBuilder,
-	JSONEncodable,
-	MessageActionRowComponentBuilder,
-	MessageActionRowComponentData,
-	TextInputStyle,
-	TopLevelComponentData
+	TextInputStyle
 } from "discord.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
+import { sendLogCard } from "../../../core/modules/logCard.js";
 import maskLink from "../../../core/functions/maskLink.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { tempTable } from "../../../Events/client/ready.js";
@@ -144,16 +138,6 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 				(await interaction.guild.channels
 					.fetch(someinfo)
 					.catch(() => null));
-			let components: (
-				| APIMessageTopLevelComponent
-				| JSONEncodable<APIMessageTopLevelComponent>
-				| TopLevelComponentData
-				| ActionRowData<
-						| MessageActionRowComponentData
-						| MessageActionRowComponentBuilder
-				  >
-			)[] = [];
-
 			if (!channel) {
 				await client.db.delete(
 					`${interaction.guildId}.GUILD.SERVER_LOGS.confession`
@@ -161,25 +145,21 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 				return;
 			}
 
-			let msg = `## ${lang.confession_1_embed_log_title}: ${confessionData.code}
-${name}`;
-
-			components.push(
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setStyle(ButtonStyle.Secondary)
-						.setLabel(lang.userinfo_button_label)
-						.setCustomId(`confessionauthor%${interaction.user.id}`)
-				)
-			);
-
-			let embed = new EmbedBuilder()
-				.setColor("#010101")
-				.setDescription(msg)
-				.setTimestamp();
-			(channel as BaseGuildTextChannel).send({
-				embeds: [embed],
-				components
+			await sendLogCard(channel, {
+				kind: "info",
+				emoji: interaction.client.iHorizon_Emojis.Pages,
+				title: `${lang.confession_1_embed_log_title}: ${confessionData.code}`,
+				description: name,
+				rows: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Secondary)
+							.setLabel(lang.userinfo_button_label)
+							.setCustomId(
+								`confessionauthor%${interaction.user.id}`
+							)
+					)
+				]
 			});
 		}
 	}

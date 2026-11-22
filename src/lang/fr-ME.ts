@@ -4386,7 +4386,7 @@ export default {
 		"Wesh, merci de m'avoir invité ! Moi c'est **iHorizon** : modo, tickets, musique, protection, logs et tout le bordel, dans un seul bot **gratos** et **open source**.",
 	welcome_lang_title: "Langue",
 	welcome_lang_text:
-		"Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi 11 langues.",
+		"Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi {count} langues.",
 	welcome_start_title: "Pour commencer",
 	welcome_start_help:
 		"{command} te sort toutes les commandes, rangées par catégorie",
@@ -5235,5 +5235,59 @@ export default {
 	tempvoice_region_ussouth: "USA Sud",
 	tempvoice_region_uswest: "USA Ouest",
 	tempvoice_region_uscentral: "USA Centre",
-	tempvoice_region_brazil: "Brésil"
+	tempvoice_region_brazil: "Brésil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Un gars s'est fait dégager à vie",
+	logs_ban_remove_title: "Un gars a été débanni, il a eu de la chance",
+	logs_kick_title: "Un gars s'est fait kick, ciao",
+	logs_boost_add_title: "Quelqu'un a lâché son boost, respect",
+	logs_boost_remove_title: "Un radin a retiré son boost",
+	logs_channel_update_title: "Quelqu'un a tripoté un salon",
+	logs_message_delete_title: "Un message a été effacé, louche",
+	logs_message_update_title: "Quelqu'un a retouché son message en douce",
+	logs_roles_update_title: "Ça a joué avec les rôles",
+	logs_voice_title: "Ça bouge en vocal",
+	logs_channel_label: "Salon",
+	logs_jump_to_message: "Va mater le message",
+	logs_message_delete_embeds:
+		"Les embeds du message (${count}) sont juste en dessous, régale-toi.",
+
+	// schedule V2 cards
+	schedule_reminder_title:
+		"Eh, ton rappel #${scheduleCode} il est tombé, bouge-toi !",
+
+	// invites V2 cards
+	invites_reset_title: "Tout péter dans le gestionnaire d'invites",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"T'es **#${rank}** sur ${count} · ${wealth}, pas mal le rat",
+	economy_leaderboard_not_ranked:
+		"T'es même pas dans le classement, fauché va.",
+	economy_leaderboard_count: "${count} clampin(s) dans le classement",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Niveau ${level} frérot",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** activé : les .exe de merde vont dégager direct.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** désactivé : les .exe peuvent revenir, tant pis pour vous.",
+	guildconfig_list_react_title: "Réactions auto de ouf",
+
+	// hard-coded strings
+	updates_button_releases: "Les versions",
+	updates_button_commit: "Le commit",
+	warn_reason_piconly:
+		"Sanction auto : t'as pas capté que c'est que des images ici",
+	warn_reason_antiexe: "Anti-Exe : t'as balancé un exécutable, gros malin",
+	warn_reason_punishpub: "Sanction auto : arrête ta pub de merde",
+	warn_reason_antispam: "Sanction auto : t'arrêtes de spammer ouais ?",
+	automod_block_custom_message:
+		"iHorizon a bloqué ton message, déso pas déso",
+	derogation_role_name: "géré par iHorizon",
+	ticket_transcript_footer: "Messages exportés : {number}, tranquille",
+	music_playlist_fallback_name: "Playlist ${platform}",
+	music_apo_node_unreachable:
+		"le serveur audio répond plus, il est mort (${message})"
 } satisfies LanguageData;

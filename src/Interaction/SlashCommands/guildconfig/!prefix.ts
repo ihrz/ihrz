@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -52,9 +53,14 @@ export const subCommand: SubCommand = {
 
 		if (action === "mention") {
 			await client.db.delete(`${interaction.guildId}.BOT.prefix`);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.guildconfig_setbot_prefix_prefix_now_mention
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.guildconfig_setbot_prefix_prefix_now_mention
+				)
+			);
 		} else if (action === "change") {
 			if (!prefix)
 				return await client.func.method.interactionSend(interaction, {
@@ -73,12 +79,17 @@ export const subCommand: SubCommand = {
 				formatedPrefix
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.guildconfig_setbot_prefix_prefix_is_good.replace(
-					"${formatedPrefix}",
-					formatedPrefix
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.guildconfig_setbot_prefix_prefix_is_good.replace(
+						"${formatedPrefix}",
+						formatedPrefix
+					)
 				)
-			});
+			);
 			return;
 		}
 	}

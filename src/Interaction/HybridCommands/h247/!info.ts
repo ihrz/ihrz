@@ -19,16 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import { getH247Data } from "../../../core/modules/h247Manager.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,31 +49,35 @@ export const subCommand: SubCommand = {
 		const h247Data = await getH247Data(client, interaction.guild.id);
 		const isActive = !!h247Data?.enabled;
 
-		const embed = new EmbedBuilder()
-			.setColor(isActive ? "#57F287" : "#ED4245")
-			.setTitle(lang.h247_info_embed_title)
-			.setDescription(lang.h247_info_embed_description)
-			.addFields({
-				name: lang.h247_info_field_status,
-				value: isActive ? lang.var_enabled : lang.var_disabled,
-				inline: true
-			});
+		const e = client.iHorizon_Emojis;
 
-		if (isActive && h247Data) {
-			embed.addFields({
-				name: lang.var_voice_channel,
-				value: `<#${h247Data.voiceChannelId}>`,
-				inline: true
-			});
-		}
-
-		embed.addFields({
-			name: lang.h247_info_field_howto,
-			value: lang.h247_info_howto_value
-		});
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: isActive ? ACCENT.success : ACCENT.danger,
+				emoji: e.Voice_Channel,
+				title: lang.h247_info_embed_title,
+				description: lang.h247_info_embed_description,
+				thumbnail: interaction.guild.iconURL({ size: 256 }),
+				fields: [
+					{
+						emoji: isActive ? e.Yes : e.No,
+						label: lang.h247_info_field_status,
+						value: isActive ? lang.var_enabled : lang.var_disabled
+					},
+					isActive &&
+						h247Data && {
+							emoji: e.Player_Headphones,
+							label: lang.var_voice_channel,
+							value: `<#${h247Data.voiceChannelId}>`
+						}
+				],
+				blocks: [
+					`${e.Documentation} **${lang.h247_info_field_howto}**\n${lang.h247_info_howto_value}`
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -104,27 +104,22 @@ export const subCommand: SubCommand = {
 					interaction.member
 				));
 
-			const embed = new EmbedBuilder()
-				.setAuthor({
-					name: lang.work_embed_author.replaceAll(
-						"${authorUsername}",
-						(interaction.member.user as User).globalName ||
-							interaction.member.user.username
-					),
-					iconURL: (
-						interaction.member.user as User
-					).displayAvatarURL()
-				})
-				.setDescription(
-					lang.work_embed_description
-						.replaceAll(
-							"${authorUsername}",
-							(interaction.member.user as User).globalName ||
-								interaction.member.user.username
-						)
-						.replaceAll("${amount}", amount.toString())
-				)
-				.setColor("#f1d488");
+			const name =
+				(interaction.member.user as User).globalName ||
+				interaction.member.user.username;
+			const card = buildCard({
+				accent: ACCENT.success,
+				emoji: client.iHorizon_Emojis.Coin,
+				title: lang.work_embed_author.replaceAll(
+					"${authorUsername}",
+					name
+				),
+				description: lang.work_embed_description
+					.replaceAll("${authorUsername}", name)
+					.replaceAll("${amount}", amount.toString()),
+				thumbnail: interaction.member.displayAvatarURL({ size: 256 }),
+				signature: await botSignature(client, interaction.guildId)
+			});
 
 			await client.db.set(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`,
@@ -135,9 +130,7 @@ export const subCommand: SubCommand = {
 				amount
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed]
-			});
+			await sendCard(client, interaction, card);
 		} finally {
 			releaseLock();
 		}

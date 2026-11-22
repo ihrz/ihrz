@@ -28,6 +28,8 @@
 import type { LavalinkNode, Player } from "lavalink-client";
 
 import logger from "../logger.js";
+import getLanguageDataByCode from "../functions/getLanguageDataByCode.js";
+import type { LanguageData } from "../../../types/languageData.js";
 import { ApoState, activeConfig, migrate } from "./musicApoState.js";
 
 // Time allowed to Wavyzon to validate a configuration.
@@ -57,7 +59,8 @@ export type ApoCheck =
 // built without the plugin) answers 404: `unsupported`.
 export async function checkApo(
 	node: LavalinkNode,
-	config: string
+	config: string,
+	lang?: LanguageData
 ): Promise<ApoCheck> {
 	// Same address lavalink-client uses (its `restAddress` getter is private).
 	const { secure, host, port } = node.options;
@@ -77,7 +80,12 @@ export async function checkApo(
 		return {
 			ok: false,
 			unsupported: false,
-			error: `node unreachable (${(e as Error).message})`
+			error: (
+				lang ?? (await getLanguageDataByCode("en-US"))
+			).music_apo_node_unreachable.replace(
+				"${message}",
+				(e as Error).message
+			)
 		};
 	}
 	if (res.status === 404) return { ok: false, unsupported: true };

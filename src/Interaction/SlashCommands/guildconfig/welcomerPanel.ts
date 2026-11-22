@@ -33,12 +33,12 @@ import {
 	Client,
 	ComponentType,
 	ContainerBuilder,
-	EmbedBuilder,
 	GuildMember,
 	Interaction,
 	MediaGalleryBuilder,
 	MediaGalleryItemBuilder,
 	Message,
+	InteractionReplyOptions,
 	MessageFlags,
 	PermissionFlagsBits,
 	PermissionsBitField,
@@ -60,6 +60,11 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { generateJoinImage } from "../../../Events/guildconfig/joinMessage.js";
 import { metasTable } from "../../../Events/client/ready.js";
 import logger from "../../../core/logger.js";
+import {
+	ACCENT,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 
 const COLLECTOR_TIMEOUT = 800_000;
 const BANNER_ATTACHMENT_NAME = "image.png";
@@ -401,12 +406,22 @@ async function safeFollowUp(
 		| RoleSelectMenuInteraction<"cached">,
 	options: {
 		content?: string;
-		embeds?: EmbedBuilder[];
-		components?: ActionRowBuilder<ButtonBuilder>[];
+		/** A V2 card, sent instead of `content`. */
+		card?: ContainerBuilder;
 	}
 ): Promise<void> {
 	try {
-		await source.followUp({ ...options, flags: [1 << 6] });
+		await source.followUp(
+			options.card
+				? ({
+						...cardPayload(options.card),
+						flags: [
+							MessageFlags.IsComponentsV2,
+							MessageFlags.Ephemeral
+						]
+					} as never)
+				: { content: options.content, flags: [1 << 6] }
+		);
 	} catch (error) {
 		const code = (error as { code?: number })?.code;
 		if (code === 10062 || code === 40060) {
@@ -809,11 +824,7 @@ export async function openWelcomerPanel(
 			}
 		}
 
-		await message.edit({
-			components: [container],
-			files,
-			flags: [MessageFlags.IsComponentsV2]
-		});
+		await message.edit({ ...cardPayload(container), files } as never);
 	}
 
 	async function askForMessage(
@@ -1124,17 +1135,16 @@ export async function openWelcomerPanel(
 
 		if (warnHighRoles.length > 0) {
 			await safeFollowUp(source, {
-				embeds: [
-					new EmbedBuilder()
-						.setTitle(lang.setjoinroles_warn_title)
-						.setDescription(lang.setjoinroles_too_highter_roles)
-						.addFields(
-							warnHighRoles.map((role) => ({
-								name: `@${role.name} (${role.id})`,
-								value: `<@&${role.id}>: \`${role.position}\` vs ${client.user?.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
-							}))
-						)
-				]
+				card: buildCard({
+					accent: ACCENT.warning,
+					emoji: client.iHorizon_Emojis.Warning_Icon,
+					title: lang.setjoinroles_warn_title,
+					description: lang.setjoinroles_too_highter_roles,
+					blocks: warnHighRoles.map(
+						(role) =>
+							`**@${role.name} (${role.id})**\n<@&${role.id}>: \`${role.position}\` vs ${client.user?.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
+					)
+				})
 			});
 		}
 
@@ -1168,23 +1178,27 @@ export async function openWelcomerPanel(
 					.setDisabled(true)
 			);
 
+		const warnCard = () =>
+			buildCard({
+				accent: ACCENT.warning,
+				emoji: client.iHorizon_Emojis.Warning_Icon,
+				title: lang.setjoinroles_warn_title,
+				description: lang.setjoinroles_warn_dangerous_perm,
+				blocks: dangerous.map(
+					(role) =>
+						`**@${role.name} (${role.id})**\n${role.permissions
+							.map((perm) => `\`${perm}\``)
+							.join(", ")}`
+				)
+			});
+		// Every edit of this V2 reply resends the card with its new buttons.
+		const warnPayload = (row: ActionRowBuilder<ButtonBuilder>) =>
+			cardPayload(warnCard().addActionRowComponents(row)) as never;
+
 		const warnMsg = await source.reply({
-			embeds: [
-				new EmbedBuilder()
-					.setTitle(lang.setjoinroles_warn_title)
-					.setDescription(lang.setjoinroles_warn_dangerous_perm)
-					.addFields(
-						dangerous.map((role) => ({
-							name: `@${role.name} (${role.id})`,
-							value: role.permissions
-								.map((perm) => `\`${perm}\``)
-								.join(", ")
-						}))
-					)
-			],
-			components: [confirmRow],
-			flags: [1 << 6]
-		});
+			...cardPayload(warnCard().addActionRowComponents(confirmRow)),
+			flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
+		} as InteractionReplyOptions);
 
 		try {
 			const confirm = await (
@@ -1206,23 +1220,19 @@ export async function openWelcomerPanel(
 				for (const role of dangerous)
 					state.confirmedDangerousRoles.add(role.id);
 				confirmRow.components.forEach((x) => x.setDisabled(true));
-				await warnMsg
-					.edit({ components: [confirmRow] })
-					.catch(() => null);
+				await warnMsg.edit(warnPayload(confirmRow)).catch(() => null);
 				await saveRoles(source, picked, tooHigh, message);
 			} else {
 				await warnMsg
-					.edit({
-						components: [doneRow(lang.setjoinroles_action_canceled)]
-					})
+					.edit(
+						warnPayload(doneRow(lang.setjoinroles_action_canceled))
+					)
 					.catch(() => null);
 				await render(message);
 			}
 		} catch {
 			await warnMsg
-				.edit({
-					components: [doneRow(lang.setjoinroles_timesup_button)]
-				})
+				.edit(warnPayload(doneRow(lang.setjoinroles_timesup_button)))
 				.catch(() => null);
 			await render(message);
 		}
@@ -1556,8 +1566,9 @@ export async function openWelcomerPanel(
 		await render(message);
 	}
 
-	const placeholder = (await client.func.method.interactionSend(interaction, {
-		components: [
+	const placeholder = (await client.func.method.interactionSend(
+		interaction,
+		cardPayload(
 			new ContainerBuilder()
 				.setAccentColor(PANEL_ACCENT_COLOR)
 				.addTextDisplayComponents(
@@ -1568,9 +1579,8 @@ export async function openWelcomerPanel(
 				.addActionRowComponents(
 					buildSectionSelectRow(lang, state.section)
 				)
-		],
-		flags: [MessageFlags.IsComponentsV2]
-	})) as Message<true>;
+		) as never
+	)) as Message<true>;
 
 	await render(placeholder);
 

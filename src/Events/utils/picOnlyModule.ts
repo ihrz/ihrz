@@ -109,7 +109,7 @@ export const event: BotEvent = {
 							.warnMember(
 								message.guild?.members.me!,
 								message.member!,
-								"Automated Punishment - Pic Only",
+								lang.warn_reason_piconly,
 								lang
 							)
 							.catch(() => {});

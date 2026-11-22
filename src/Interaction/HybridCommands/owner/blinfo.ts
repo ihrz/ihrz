@@ -48,7 +48,11 @@ export const command: Command = {
 		ru: "Показать информацию о пользователе в черном списке!",
 		"es-ES": "Mostrar información sobre el usuario en la lista negra!",
 		ko: "블랙리스트 사용자 정보를 보여줘요!",
-		uk: "Показати інформацію про користувача з чорного списку!"
+		uk: "Показати інформацію про користувача з чорного списку!",
+		de: "Zeigt Infos zu einem Mitglied auf der Blacklist!",
+		it: "Mostra informazioni su un utente in blacklist!",
+		"pt-BR": "Mostra informações sobre um usuário na blacklist!",
+		pl: "Pokazuje informacje o użytkowniku na czarnej liście!"
 	},
 
 	options: [
@@ -63,7 +67,11 @@ export const command: Command = {
 				ru: "Пользователь, которого вы хотите посмотреть...",
 				"es-ES": "El usuario que quieres mirar...",
 				ko: "살펴볼 사용자...",
-				uk: "Користувач, якого ви хочете переглянути..."
+				uk: "Користувач, якого ви хочете переглянути...",
+				de: "Das Mitglied, das du ansehen willst ...",
+				it: "L'utente da guardare...",
+				"pt-BR": "O usuário que você quer ver...",
+				pl: "Użytkownik, któremu chcesz się przyjrzeć..."
 			},
 
 			required: true,

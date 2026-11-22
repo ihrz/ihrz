@@ -32,6 +32,7 @@ import {
 } from "../../../core/functions/emojiChecker.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "antiexe",
@@ -43,7 +44,11 @@ export const command: Command = {
 		ru: "Удалить все сообщения с бинарными файлами",
 		"es-ES": "Eliminar cada mensaje que contenga archivos binarios",
 		ko: "바이너리 파일이 포함된 모든 메시지를 삭제해요",
-		uk: "Видаляти всі повідомлення з бінарними файлами"
+		uk: "Видаляти всі повідомлення з бінарними файлами",
+		de: "Alle Nachrichten mit Binärdateien löschen",
+		it: "Elimina ogni messaggio contenente file binari",
+		"pt-BR": "Apague toda mensagem com arquivos binários",
+		pl: "Usuń każdą wiadomość zawierającą pliki binarne"
 	},
 
 	thinking: false,
@@ -65,12 +70,13 @@ export const command: Command = {
 		await client.db.set(`${interaction.guildId}.UTILS.antiExe`, newState);
 
 		await interaction.reply({
-			content:
+			...cardPayload(
 				newState === "on"
-					? "**[Anti-Bin]** Enabled: 🔐"
-					: "**[Anti-Bin]** Disabled: 🔓",
-			allowedMentions: { repliedUser: false }
-		});
+					? notice("success", lang.guildconfig_antiexe_enabled)
+					: notice("warning", lang.guildconfig_antiexe_disabled)
+			),
+			allowedMentions: { parse: [], repliedUser: false }
+		} as never);
 		return;
 	}
 };

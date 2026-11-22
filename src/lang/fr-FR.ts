@@ -4349,7 +4349,7 @@ export default {
 		"Merci de m'accueillir ! Je suis **iHorizon** : modération, tickets, musique, protection, logs et bien plus, dans un seul bot **gratuit** et **open source**.",
 	welcome_lang_title: "Langue",
 	welcome_lang_text:
-		"Je parle {language} ici, d'après la région de votre serveur.\nPour la changer, un administrateur peut utiliser {command} : un panneau permet de choisir parmi 11 langues.",
+		"Je parle {language} ici, d'après la région de votre serveur.\nPour la changer, un administrateur peut utiliser {command} : un panneau permet de choisir parmi {count} langues.",
 	welcome_start_title: "Bien démarrer",
 	welcome_start_help:
 		"{command} liste toutes les commandes, classées par catégorie",
@@ -5204,5 +5204,56 @@ export default {
 	tempvoice_region_ussouth: "États-Unis Sud",
 	tempvoice_region_uswest: "États-Unis Ouest",
 	tempvoice_region_uscentral: "États-Unis Centre",
-	tempvoice_region_brazil: "Brésil"
+	tempvoice_region_brazil: "Brésil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Membre banni",
+	logs_ban_remove_title: "Membre débanni",
+	logs_kick_title: "Membre expulsé",
+	logs_boost_add_title: "Nouveau boost",
+	logs_boost_remove_title: "Boost retiré",
+	logs_channel_update_title: "Salon modifié",
+	logs_message_delete_title: "Message supprimé",
+	logs_message_update_title: "Message modifié",
+	logs_roles_update_title: "Rôles modifiés",
+	logs_voice_title: "Activité vocale",
+	logs_channel_label: "Salon",
+	logs_jump_to_message: "Aller au message",
+	logs_message_delete_embeds:
+		"Les embeds du message (${count}) sont affichés juste en dessous.",
+
+	// schedule V2 cards
+	schedule_reminder_title:
+		"Le rappel #${scheduleCode} est arrivé à échéance !",
+
+	// invites V2 cards
+	invites_reset_title: "Réinitialiser le gestionnaire d'invitations",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Votre rang : **#${rank}** sur ${count} · ${wealth}",
+	economy_leaderboard_not_ranked:
+		"Vous n'êtes pas encore dans le classement.",
+	economy_leaderboard_count: "${count} membre(s) classé(s)",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Niveau ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** activé : les fichiers exécutables seront supprimés.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** désactivé : les fichiers exécutables sont de nouveau autorisés.",
+	guildconfig_list_react_title: "Réactions automatiques",
+
+	// hard-coded strings
+	updates_button_releases: "Versions",
+	updates_button_commit: "Commit",
+	warn_reason_piconly: "Sanction automatique : salon réservé aux images",
+	warn_reason_antiexe: "Anti-Exe : envoi d'un fichier exécutable",
+	warn_reason_punishpub: "Sanction automatique : publicité",
+	warn_reason_antispam: "Sanction automatique : spam",
+	automod_block_custom_message: "Ce message a été bloqué par iHorizon",
+	derogation_role_name: "géré par iHorizon",
+	ticket_transcript_footer: "Messages exportés : {number}",
+	music_playlist_fallback_name: "Playlist ${platform}",
+	music_apo_node_unreachable: "le serveur audio est injoignable (${message})"
 } satisfies LanguageData;

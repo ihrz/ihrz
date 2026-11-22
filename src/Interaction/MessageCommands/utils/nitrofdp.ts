@@ -62,7 +62,11 @@ export const command: Command = {
 		ru: "без комментария",
 		"es-ES": "sin comentario",
 		ko: "코멘트 없이",
-		uk: "без коментарів"
+		uk: "без коментарів",
+		de: "Ohne Kommentar",
+		it: "Senza commento",
+		"pt-BR": "Sem comentário",
+		pl: "Bez komentarza"
 	},
 
 	options: [
@@ -76,7 +80,11 @@ export const command: Command = {
 				ru: "количество nitro",
 				"es-ES": "cantidad de nitro",
 				ko: "Nitro 개수",
-				uk: "кількість nitro"
+				uk: "кількість nitro",
+				de: "Anzahl der Nitro",
+				it: "Quantità di Nitro",
+				"pt-BR": "Quantidade de Nitro",
+				pl: "Liczba Nitro"
 			},
 
 			type: ApplicationCommandOptionType.Number,

@@ -44,7 +44,11 @@ export const command: Command = {
 		ru: "Получить статус бота!",
 		"es-ES": "Obtener el estado del bot!",
 		ko: "봇 상태를 확인해요!",
-		uk: "Отримати статус бота!"
+		uk: "Отримати статус бота!",
+		de: "Zeige den Status des Bots!",
+		it: "Ottieni lo stato del bot!",
+		"pt-BR": "Veja o status do bot!",
+		pl: "Pokaż status bota!"
 	},
 
 	category: "bot",

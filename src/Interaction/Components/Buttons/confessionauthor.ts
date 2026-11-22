@@ -21,10 +21,16 @@
 
 import {
 	ButtonInteraction,
-	EmbedBuilder,
 	MessageFlags,
 	PermissionFlagsBits
 } from "discord.js";
+
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 export default async function (interaction: ButtonInteraction<"cached">) {
 	if (
 		!interaction.memberPermissions.has(PermissionFlagsBits.ModerateMembers)
@@ -60,30 +66,20 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	}
 
-	const embed = new EmbedBuilder()
-		.setColor("#010101")
-		.setAuthor({
-			name: user.username,
-			iconURL: user.displayAvatarURL({
-				forceStatic: false,
-				size: 4096
-			}),
-			url: `https://discordapp.com/users/${user.id}`
-		})
-		.setDescription(`<@${user.id}>`)
-		.setFooter(
-			await interaction.client.func.displayBotName.footerBuilder(
-				interaction.guildId!
-			)
-		);
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const card = buildCard({
+		accent: ACCENT.neutral,
+		emoji: interaction.client.iHorizon_Emojis.Ticket_User,
+		title: lang.userinfo_button_label,
+		thumbnail: user.displayAvatarURL({ forceStatic: false, size: 4096 }),
+		description: `<@${user.id}>\n[${user.username}](https://discordapp.com/users/${user.id})`,
+		signature: await botSignature(interaction.client, interaction.guildId)
+	});
 
 	await interaction.reply({
-		files: [
-			await interaction.client.func.displayBotName.footerAttachmentBuilder(
-				interaction
-			)
-		],
-		flags: MessageFlags.Ephemeral,
-		embeds: [embed]
+		...cardPayload(card),
+		flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2]
 	});
 }

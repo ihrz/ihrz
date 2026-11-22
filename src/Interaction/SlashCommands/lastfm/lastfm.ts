@@ -37,7 +37,11 @@ export const command: Command = {
 		"es-ES":
 			"Conecta tu cuenta de Last.fm y controla el scrobbling de música.",
 		ko: "Last.fm 계정을 연결하고 음악 스크로블링을 관리해요.",
-		uk: "Підключіть акаунт Last.fm і керуйте скроблінгом музики."
+		uk: "Підключіть акаунт Last.fm і керуйте скроблінгом музики.",
+		de: "Verbinde dein Last.fm-Konto und steuere das Scrobbling.",
+		it: "Collega il tuo account Last.fm e gestisci lo scrobbling.",
+		"pt-BR": "Conecte sua conta do Last.fm e controle o scrobbling.",
+		pl: "Połącz konto Last.fm i zarządzaj scrobblingiem."
 	},
 
 	options: [
@@ -53,7 +57,12 @@ export const command: Command = {
 				"es-ES":
 					"Habilitar o deshabilitar el scrobbling de Last.fm para tu cuenta.",
 				ko: "내 계정의 Last.fm 스크로블링을 켜거나 꺼요.",
-				uk: "Увімкнути або вимкнути скроблінг Last.fm для вашого акаунта."
+				uk: "Увімкнути або вимкнути скроблінг Last.fm для вашого акаунта.",
+				de: "Last.fm-Scrobbling für dein Konto aktivieren oder deaktivieren.",
+				it: "Attiva o disattiva lo scrobbling Last.fm per il tuo account.",
+				"pt-BR":
+					"Ative ou desative o scrobbling do Last.fm na sua conta.",
+				pl: "Włącz lub wyłącz scrobbling Last.fm dla swojego konta."
 			},
 			ephemeral: true,
 			options: [
@@ -66,7 +75,11 @@ export const command: Command = {
 						ru: "Включить или выключить модуль",
 						"es-ES": "Encender o Apagar el módulo",
 						ko: "모듈 켜기 또는 끄기",
-						uk: "Увімкнути або вимкнути модуль"
+						uk: "Увімкнути або вимкнути модуль",
+						de: "Modul ein- oder ausschalten",
+						it: "Attiva o disattiva il modulo",
+						"pt-BR": "Ligar ou desligar o módulo",
+						pl: "Włącz lub wyłącz moduł"
 					},
 					type: ApplicationCommandOptionType.String,
 					choices: [
@@ -78,7 +91,11 @@ export const command: Command = {
 								ru: "power_on",
 								"es-ES": "power_on",
 								ko: "켜기",
-								uk: "Увімкнути"
+								uk: "Увімкнути",
+								de: "Einschalten",
+								it: "Attiva",
+								"pt-BR": "Ligar",
+								pl: "Włącz"
 							},
 							value: "on"
 						},
@@ -90,7 +107,11 @@ export const command: Command = {
 								ru: "power_off",
 								"es-ES": "power_off",
 								ko: "끄기",
-								uk: "Вимкнути"
+								uk: "Вимкнути",
+								de: "Ausschalten",
+								it: "Disattiva",
+								"pt-BR": "Desligar",
+								pl: "Wyłącz"
 							},
 							value: "off"
 						}
@@ -113,7 +134,11 @@ export const command: Command = {
 				"es-ES":
 					"Iniciar sesión en Last.fm y guardar tu sesión de scrobbling.",
 				ko: "Last.fm에 로그인하고 스크로블링 세션을 저장해요.",
-				uk: "Увійти в Last.fm і зберегти сесію скроблінгу."
+				uk: "Увійти в Last.fm і зберегти сесію скроблінгу.",
+				de: "Melde dich bei Last.fm an und speichere deine Scrobbling-Sitzung.",
+				it: "Accedi a Last.fm e salva la tua sessione di scrobbling.",
+				"pt-BR": "Entre no Last.fm e guarde sua sessão de scrobbling.",
+				pl: "Zaloguj się do Last.fm i zapisz sesję scrobblingu."
 			},
 			ephemeral: true,
 			options: [
@@ -127,7 +152,11 @@ export const command: Command = {
 						"es-ES":
 							"Tu nombre de usuario o dirección de correo de Last.fm",
 						ko: "Last.fm 사용자명 또는 이메일 주소",
-						uk: "Ваше ім'я користувача або email Last.fm"
+						uk: "Ваше ім'я користувача або email Last.fm",
+						de: "Dein Last.fm-Benutzername oder deine E-Mail-Adresse",
+						it: "Il tuo nome utente o indirizzo email di Last.fm",
+						"pt-BR": "Seu nome de usuário ou e-mail do Last.fm",
+						pl: "Twoja nazwa użytkownika lub e-mail Last.fm"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -142,7 +171,11 @@ export const command: Command = {
 						ru: "Ваш пароль Last.fm",
 						"es-ES": "Tu contraseña de Last.fm",
 						ko: "Last.fm 비밀번호",
-						uk: "Ваш пароль Last.fm"
+						uk: "Ваш пароль Last.fm",
+						de: "Dein Last.fm-Passwort",
+						it: "La tua password di Last.fm",
+						"pt-BR": "Sua senha do Last.fm",
+						pl: "Twoje hasło Last.fm"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,

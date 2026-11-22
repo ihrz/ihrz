@@ -4190,7 +4190,7 @@ const enUS = {
 		"Thanks for having me! I'm **iHorizon**: moderation, tickets, music, protection, logs and much more, in one bot that is **free** and **open source**.",
 	welcome_lang_title: "Language",
 	welcome_lang_text:
-		"I speak {language} here, picked from your server's region.\nTo change it, an administrator can use {command}: a panel lets you choose among 11 languages.",
+		"I speak {language} here, picked from your server's region.\nTo change it, an administrator can use {command}: a panel lets you choose among {count} languages.",
 	welcome_start_title: "Get started",
 	welcome_start_help: "{command} lists every command, sorted by category",
 	welcome_start_dashboard:
@@ -5033,7 +5033,56 @@ const enUS = {
 	tempvoice_region_ussouth: "US South",
 	tempvoice_region_uswest: "US West",
 	tempvoice_region_uscentral: "US Central",
-	tempvoice_region_brazil: "Brazil"
+	tempvoice_region_brazil: "Brazil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Member banned",
+	logs_ban_remove_title: "Member unbanned",
+	logs_kick_title: "Member kicked",
+	logs_boost_add_title: "New boost",
+	logs_boost_remove_title: "Boost removed",
+	logs_channel_update_title: "Channel updated",
+	logs_message_delete_title: "Message deleted",
+	logs_message_update_title: "Message edited",
+	logs_roles_update_title: "Roles updated",
+	logs_voice_title: "Voice activity",
+	logs_channel_label: "Channel",
+	logs_jump_to_message: "Go to the message",
+	logs_message_delete_embeds:
+		"The message's embeds (${count}) are shown just below.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "Reminder #${scheduleCode} is due!",
+
+	// invites V2 cards
+	invites_reset_title: "Reset the Invite Manager",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Your rank: **#${rank}** of ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "You are not on the leaderboard yet.",
+	economy_leaderboard_count: "${count} ranked member(s)",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Level ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** enabled: executable files will be removed.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** disabled: executable files are allowed again.",
+	guildconfig_list_react_title: "Automatic reactions",
+
+	// hard-coded strings
+	updates_button_releases: "Releases",
+	updates_button_commit: "Commit",
+	warn_reason_piconly: "Automatic punishment: images-only channel",
+	warn_reason_antiexe: "Anti-Exe: sent an executable file",
+	warn_reason_punishpub: "Automatic punishment: advertising",
+	warn_reason_antispam: "Automatic punishment: spam",
+	automod_block_custom_message: "This message was blocked by iHorizon",
+	derogation_role_name: "managed by iHorizon",
+	ticket_transcript_footer: "Messages exported: {number}",
+	music_playlist_fallback_name: "${platform} playlist",
+	music_apo_node_unreachable: "the music node can't be reached (${message})"
 };
 
 export default enUS;

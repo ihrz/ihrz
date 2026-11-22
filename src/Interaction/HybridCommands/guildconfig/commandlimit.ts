@@ -24,7 +24,6 @@ import {
 	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	PermissionFlagsBits
 } from "discord.js";
@@ -33,6 +32,12 @@ import { Command } from "../../../../types/command.js";
 import { Option } from "../../../../types/option.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import {
+	ACCENT,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 function getCommandChoices(client: Client): string[] {
 	const choices: string[] = [];
@@ -103,21 +108,18 @@ function buildListEmbed(
 	lang: LanguageData,
 	entries: [string, DatabaseStructure.CommandRateLimit][]
 ) {
-	return new EmbedBuilder()
-		.setColor("#11304c")
-		.setTitle(lang.commandlimit_list_title)
-		.setDescription(
-			entries
-				.map(([commandPath, limit]) =>
-					lang.commandlimit_list_item
-						.replace("${command}", commandPath)
-						.replace(
-							"${limit}",
-							formatRateLimit(limit, lang, client)
-						)
-				)
-				.join("\n")
-		);
+	return buildCard({
+		accent: ACCENT.info,
+		emoji: client.iHorizon_Emojis.Timer,
+		title: lang.commandlimit_list_title,
+		description: entries
+			.map(([commandPath, limit]) =>
+				lang.commandlimit_list_item
+					.replace("${command}", commandPath)
+					.replace("${limit}", formatRateLimit(limit, lang, client))
+			)
+			.join("\n")
+	});
 }
 
 export const command: Command = {
@@ -130,7 +132,11 @@ export const command: Command = {
 		ru: "Управление лимитами команд",
 		"es-ES": "Gestionar límites de velocidad de comandos",
 		ko: "명령어 사용 제한 관리",
-		uk: "Керувати лімітами використання команд"
+		uk: "Керувати лімітами використання команд",
+		de: "Befehls-Ratenlimits verwalten",
+		it: "Gestisci i limiti di frequenza dei comandi",
+		"pt-BR": "Gerencie os limites de uso dos comandos",
+		pl: "Zarządzaj limitami użycia komend"
 	},
 
 	options: [
@@ -143,7 +149,11 @@ export const command: Command = {
 				ru: "Действие для применения к лимитам команд",
 				"es-ES": "Acción a aplicar en los límites de comandos",
 				ko: "명령어 사용 제한에 적용할 작업",
-				uk: "Дія над лімітами команд"
+				uk: "Дія над лімітами команд",
+				de: "Auf Befehlslimits anzuwendende Aktion",
+				it: "Azione da applicare ai limiti dei comandi",
+				"pt-BR": "Ação a aplicar nos limites de comandos",
+				pl: "Akcja do zastosowania dla limitów komend"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: true,
@@ -156,7 +166,11 @@ export const command: Command = {
 						ru: "set",
 						"es-ES": "set",
 						ko: "설정",
-						uk: "Встановити"
+						uk: "Встановити",
+						de: "Festlegen",
+						it: "Imposta",
+						"pt-BR": "Definir",
+						pl: "Ustaw"
 					},
 					value: "set"
 				},
@@ -168,7 +182,11 @@ export const command: Command = {
 						ru: "reset",
 						"es-ES": "reset",
 						ko: "초기화",
-						uk: "Скинути"
+						uk: "Скинути",
+						de: "Zurücksetzen",
+						it: "Reimposta",
+						"pt-BR": "Redefinir",
+						pl: "Zresetuj"
 					},
 					value: "reset"
 				},
@@ -180,7 +198,11 @@ export const command: Command = {
 						ru: "list",
 						"es-ES": "list",
 						ko: "목록",
-						uk: "Список"
+						uk: "Список",
+						de: "Liste",
+						it: "Elenco",
+						"pt-BR": "Lista",
+						pl: "Lista"
 					},
 					value: "list"
 				}
@@ -196,7 +218,11 @@ export const command: Command = {
 				ru: "Искать команду или подкоманду",
 				"es-ES": "Buscar el comando o subcomando",
 				ko: "명령어 또는 하위 명령어 검색",
-				uk: "Пошук команди або підкоманди"
+				uk: "Пошук команди або підкоманди",
+				de: "Befehl oder Unterbefehl suchen",
+				it: "Cerca il comando o sottocomando",
+				"pt-BR": "Busca o comando ou subcomando",
+				pl: "Wyszukaj komendę lub podkomendę"
 			},
 			autocomplete: true,
 			type: ApplicationCommandOptionType.String,
@@ -212,7 +238,11 @@ export const command: Command = {
 				ru: "Максимальное количество использований в окне",
 				"es-ES": "Número máximo de usos en la ventana",
 				ko: "기간 내 최대 사용 횟수",
-				uk: "Максимальна кількість використань за проміжок"
+				uk: "Максимальна кількість використань за проміжок",
+				de: "Maximale Nutzungen im Zeitfenster",
+				it: "Numero massimo di utilizzi nella finestra",
+				"pt-BR": "Número máximo de usos na janela",
+				pl: "Maks. liczba użyć w oknie czasowym"
 			},
 			type: ApplicationCommandOptionType.Integer,
 			required: false,
@@ -227,7 +257,11 @@ export const command: Command = {
 				ru: "Временное окно, например 10с, 1м, 5м, 1ч",
 				"es-ES": "Ventana de tiempo como 10s, 1m, 5m, 1h",
 				ko: "시간 범위 (예: 10s, 1m, 5m, 1h)",
-				uk: "Проміжок часу, наприклад 10s, 1m, 5m, 1h"
+				uk: "Проміжок часу, наприклад 10s, 1m, 5m, 1h",
+				de: "Zeitfenster wie 10s, 1m, 5m, 1h",
+				it: "Finestra di tempo come 10s, 1m, 5m, 1h",
+				"pt-BR": "Janela de tempo como 10s, 1m, 5m, 1h",
+				pl: "Okno czasowe, np. 10s, 1m, 5m, 1h"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -265,9 +299,11 @@ export const command: Command = {
 			const entries = Object.entries(limits).sort((a, b) =>
 				a[0].localeCompare(b[0])
 			);
-			await client.func.method.interactionSend(interaction, {
-				embeds: [buildListEmbed(client, lang, entries)]
-			});
+			await sendCard(
+				client,
+				interaction,
+				buildListEmbed(client, lang, entries)
+			);
 			return;
 		}
 
@@ -303,12 +339,17 @@ export const command: Command = {
 			await client.db.delete(
 				`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`
 			);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.commandlimit_reset_success.replace(
-					"${command}",
-					requestedCommand
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.commandlimit_reset_success.replace(
+						"${command}",
+						requestedCommand
+					)
 				)
-			});
+			);
 			return;
 		}
 
@@ -335,11 +376,16 @@ export const command: Command = {
 			payload
 		);
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.commandlimit_set_success
-				.replace("${command}", requestedCommand)
-				.replace("${limit}", formatRateLimit(payload, lang, client))
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				lang.commandlimit_set_success
+					.replace("${command}", requestedCommand)
+					.replace("${limit}", formatRateLimit(payload, lang, client))
+			)
+		);
 	},
 	async autocomplete(client, interaction) {
 		const focusedOption = interaction.options.getFocused(true);

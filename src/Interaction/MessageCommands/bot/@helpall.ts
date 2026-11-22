@@ -78,6 +78,10 @@ function localizedDesc(entry: BotContent, guildLang: string): string {
 		"ko-KR": "ko",
 		"ru-RU": "ru",
 		"uk-UA": "uk",
+		"de-DE": "de",
+		"it-IT": "it",
+		"pt-PT": "pt-BR",
+		"pl-PL": "pl",
 		"es-ES": "es-ES"
 	};
 	const key = langMap[guildLang];
@@ -96,7 +100,11 @@ export const command: Command = {
 		ru: "Показать все гибридные команды, доступные вам",
 		"es-ES": "Muestra todos los comandos híbridos que puedes usar",
 		ko: "사용할 수 있는 모든 하이브리드 명령어를 보여줘요",
-		uk: "Показати всі гібридні команди, доступні вам"
+		uk: "Показати всі гібридні команди, доступні вам",
+		de: "Zeigt alle Hybrid-Befehle, die du nutzen darfst",
+		it: "Mostra tutti i comandi ibridi che puoi usare",
+		"pt-BR": "Mostra todos os comandos híbridos que você pode usar",
+		pl: "Pokazuje wszystkie komendy hybrydowe, których możesz używać"
 	},
 	thinking: false,
 	category: "bot",

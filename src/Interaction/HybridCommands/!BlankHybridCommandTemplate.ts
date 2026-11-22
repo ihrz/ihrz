@@ -43,7 +43,11 @@ export const command: Command = {
 		ru: "",
 		"es-ES": "",
 		ko: "",
-		uk: ""
+		uk: "",
+		de: "",
+		it: "",
+		"pt-BR": "",
+		pl: ""
 	},
 
 	permission: PermissionFlagsBits.AddReactions,

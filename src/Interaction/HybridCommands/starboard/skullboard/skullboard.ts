@@ -41,7 +41,11 @@ export const command: Command = {
 		ru: "Группа подкоманд для категории Starboard",
 		"es-ES": "Grupo de subcomando para la categoría Starboard",
 		ko: "스타보드 카테고리의 하위 명령어 그룹",
-		uk: "Група підкоманд для категорії Starboard"
+		uk: "Група підкоманд для категорії Starboard",
+		de: "Unterbefehlsgruppe für die Starboard-Kategorie",
+		it: "Gruppo di sottocomandi per la categoria Starboard",
+		"pt-BR": "Grupo de subcomandos da categoria Starboard",
+		pl: "Grupa podkomend kategorii Starboard"
 	},
 
 	permission: [PermissionFlagsBits.Administrator],
@@ -59,7 +63,11 @@ export const command: Command = {
 				ru: "Включить или отключить модуль",
 				"es-ES": "Habilitar o deshabilitar el módulo",
 				ko: "모듈을 켜거나 꺼요",
-				uk: "Увімкнути або вимкнути модуль"
+				uk: "Увімкнути або вимкнути модуль",
+				de: "Modul aktivieren oder deaktivieren",
+				it: "Attiva o disattiva il modulo",
+				"pt-BR": "Ative ou desative o módulo",
+				pl: "Włącz lub wyłącz moduł"
 			},
 
 			options: [
@@ -73,7 +81,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -85,7 +97,11 @@ export const command: Command = {
 								ru: "power_on",
 								"es-ES": "power_on",
 								ko: "켜기",
-								uk: "Увімкнути"
+								uk: "Увімкнути",
+								de: "Einschalten",
+								it: "Attiva",
+								"pt-BR": "Ligar",
+								pl: "Włącz"
 							},
 							value: "on"
 						},
@@ -97,7 +113,11 @@ export const command: Command = {
 								ru: "power_off",
 								"es-ES": "power_off",
 								ko: "끄기",
-								uk: "Вимкнути"
+								uk: "Вимкнути",
+								de: "Ausschalten",
+								it: "Disattiva",
+								"pt-BR": "Desligar",
+								pl: "Wyłącz"
 							},
 							value: "off"
 						}
@@ -127,7 +147,11 @@ export const command: Command = {
 				"es-ES":
 					"Cambiar el canal donde se envían los mensajes más skulled",
 				ko: "해골 반응을 가장 많이 받은 메시지를 보낼 채널을 변경해요",
-				uk: "Змінити канал для повідомлень з найбільшою кількістю черепів"
+				uk: "Змінити канал для повідомлень з найбільшою кількістю черепів",
+				de: "Ändere den Kanal für die am meisten mit Totenkopf bewerteten Nachrichten",
+				it: "Cambia il canale dei messaggi più teschiati",
+				"pt-BR": "Altere o canal das mensagens mais caveiradas",
+				pl: "Zmień kanał z najczęściej czaszkowanymi wiadomościami"
 			},
 
 			options: [
@@ -141,7 +165,11 @@ export const command: Command = {
 						ru: "желаемый канал",
 						"es-ES": "el canal que deseas",
 						ko: "원하는 채널",
-						uk: "бажаний канал"
+						uk: "бажаний канал",
+						de: "Der gewünschte Kanal",
+						it: "Il canale che vuoi",
+						"pt-BR": "O canal que você quer",
+						pl: "Wybrany kanał"
 					},
 
 					permission: null,
@@ -166,7 +194,11 @@ export const command: Command = {
 				ru: "threshold",
 				"es-ES": "threshold",
 				ko: "threshold",
-				uk: "threshold"
+				uk: "threshold",
+				de: "threshold",
+				it: "threshold",
+				"pt-BR": "threshold",
+				pl: "threshold"
 			},
 			prefixName: "skullboardthreshold",
 
@@ -179,7 +211,12 @@ export const command: Command = {
 				"es-ES":
 					"Establecer el umbral de skulls necesario para ser referenciado en el canal",
 				ko: "채널에 올라가는 데 필요한 해골 수를 설정해요",
-				uk: "Встановити поріг черепів для потрапляння в канал"
+				uk: "Встановити поріг черепів для потрапляння в канал",
+				de: "Legt die nötige Totenkopf-Anzahl für die Aufnahme in den Kanal fest",
+				it: "Imposta la soglia di teschi per essere inserito nel canale",
+				"pt-BR":
+					"Define o limite de caveiras para ser incluído no canal",
+				pl: "Ustawia próg czaszek potrzebny do umieszczenia na kanale"
 			},
 
 			options: [
@@ -193,7 +230,11 @@ export const command: Command = {
 						ru: "порог",
 						"es-ES": "el umbral",
 						ko: "기준 수",
-						uk: "поріг"
+						uk: "поріг",
+						de: "Der Schwellenwert",
+						it: "La soglia",
+						"pt-BR": "O limite",
+						pl: "Próg"
 					},
 
 					type: ApplicationCommandOptionType.Number,
@@ -218,7 +259,12 @@ export const command: Command = {
 				"es-ES":
 					"Crear un hilo debajo del mensaje en el canal de skulls?",
 				ko: "스컬 채널의 메시지 아래에 스레드를 만들까요?",
-				uk: "Створювати гілку під повідомленням у каналі черепів?"
+				uk: "Створювати гілку під повідомленням у каналі черепів?",
+				de: "Thread unter der Nachricht im Totenkopf-Kanal erstellen?",
+				it: "Creare un thread sotto il messaggio nel canale dei teschi?",
+				"pt-BR":
+					"Criar um tópico abaixo da mensagem no canal de caveiras?",
+				pl: "Utworzyć wątek pod wiadomością na kanale czaszek?"
 			},
 
 			options: [
@@ -232,7 +278,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -244,7 +294,11 @@ export const command: Command = {
 								ru: "create_thread",
 								"es-ES": "create_thread",
 								ko: "스레드 만들기",
-								uk: "Створювати гілку"
+								uk: "Створювати гілку",
+								de: "Thread erstellen",
+								it: "Crea thread",
+								"pt-BR": "Criar tópico",
+								pl: "Utwórz wątek"
 							},
 							value: "yes"
 						},
@@ -256,7 +310,11 @@ export const command: Command = {
 								ru: "don_t_create_thread",
 								"es-ES": "don_t_create_thread",
 								ko: "스레드 만들지 않기",
-								uk: "Не створювати гілку"
+								uk: "Не створювати гілку",
+								de: "Keinen Thread erstellen",
+								it: "Non creare thread",
+								"pt-BR": "Não criar tópico",
+								pl: "Nie twórz wątku"
 							},
 							value: "no"
 						}

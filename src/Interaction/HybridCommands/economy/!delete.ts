@@ -19,16 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	Message,
-	Role
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, Message, Role } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { sendCard } from "../../../core/modules/uiCard.js";
+import { roleListCard } from "../../../core/modules/economyCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -80,28 +76,14 @@ export const subCommand: SubCommand = {
 			roleData
 		);
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.economy_boost_embed_title)
-			.setDescription(lang.economy_boost_embed_desc)
-			.setFields(
-				client.func.economyHelper.generateRoleFields(roleData, lang)
-			)
-			.setColor("#0097ff")
-			.setTimestamp()
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
+		await sendCard(
+			client,
+			interaction,
+			await roleListCard(client, interaction.guildId!, roleData, lang, {
+				title: lang.economy_boost_embed_title,
+				description: lang.economy_boost_embed_desc
+			})
+		);
 
 		await client.func.economyLogs.roleDelete(
 			interaction.guild,

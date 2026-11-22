@@ -38,7 +38,11 @@ export const command: Command = {
 		ru: "Категория подкоманд для RSS-лент блога!",
 		"es-ES": "Categoría de subcomando para feeds RSS de blogger!",
 		ko: "블로그 RSS 피드 하위 명령어!",
-		uk: "Категорія підкоманд для RSS-стрічок блогів!"
+		uk: "Категорія підкоманд для RSS-стрічок блогів!",
+		de: "Unterbefehl-Kategorie für Blogger-RSS-Feeds!",
+		it: "Categoria di sottocomandi per i feed RSS dei blog!",
+		"pt-BR": "Categoria de subcomandos para feeds RSS de blogs!",
+		pl: "Kategoria podkomend dla kanałów RSS blogów!"
 	},
 
 	options: [
@@ -52,7 +56,11 @@ export const command: Command = {
 				ru: "Управление RSS-лентами блога",
 				"es-ES": "Manipulación de feeds RSS de blog",
 				ko: "블로그 RSS 피드 관리",
-				uk: "Керування RSS-стрічками блогів"
+				uk: "Керування RSS-стрічками блогів",
+				de: "Blog-RSS-Feeds verwalten",
+				it: "Gestione dei feed RSS dei blog",
+				"pt-BR": "Gerenciar feeds RSS de blogs",
+				pl: "Zarządzanie kanałami RSS blogów"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -69,7 +77,11 @@ export const command: Command = {
 						ru: "Добавить RSS-ленту блога",
 						"es-ES": "Añadir un feed RSS de blog",
 						ko: "블로그 RSS 피드 추가",
-						uk: "Додати RSS-стрічку блогу"
+						uk: "Додати RSS-стрічку блогу",
+						de: "Einen Blog-RSS-Feed hinzufügen",
+						it: "Aggiungi un feed RSS di un blog",
+						"pt-BR": "Adicionar um feed RSS de blog",
+						pl: "Dodaj kanał RSS bloga"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -85,7 +97,11 @@ export const command: Command = {
 								ru: "URL RSS-ленты",
 								"es-ES": "La URL del feed RSS",
 								ko: "RSS 피드 URL",
-								uk: "URL RSS-стрічки"
+								uk: "URL RSS-стрічки",
+								de: "Die URL des RSS-Feeds",
+								it: "L'URL del feed RSS",
+								"pt-BR": "A URL do feed RSS",
+								pl: "Adres URL kanału RSS"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -106,7 +122,12 @@ export const command: Command = {
 								"es-ES":
 									"El canal donde se enviarán las notificaciones",
 								ko: "알림을 보낼 채널",
-								uk: "Канал, куди надсилатимуться сповіщення"
+								uk: "Канал, куди надсилатимуться сповіщення",
+								de: "Kanal, in dem Benachrichtigungen gesendet werden",
+								it: "Canale in cui verranno inviate le notifiche",
+								"pt-BR":
+									"Canal onde as notificações serão enviadas",
+								pl: "Kanał, na który trafią powiadomienia"
 							},
 
 							channel_types: [ChannelType.GuildText],
@@ -131,7 +152,11 @@ export const command: Command = {
 						ru: "Удалить RSS-ленту блога",
 						"es-ES": "Eliminar un feed RSS de blog",
 						ko: "블로그 RSS 피드 제거",
-						uk: "Видалити RSS-стрічку блогу"
+						uk: "Видалити RSS-стрічку блогу",
+						de: "Einen Blog-RSS-Feed entfernen",
+						it: "Rimuovi un feed RSS di un blog",
+						"pt-BR": "Remover um feed RSS de blog",
+						pl: "Usuń kanał RSS bloga"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -147,7 +172,11 @@ export const command: Command = {
 								ru: "ID RSS-ленты блога",
 								"es-ES": "El ID del feed RSS del blog",
 								ko: "블로그 RSS 피드 ID",
-								uk: "ID RSS-стрічки блогу"
+								uk: "ID RSS-стрічки блогу",
+								de: "ID des Blog-RSS-Feeds",
+								it: "ID del feed RSS del blog",
+								"pt-BR": "ID do feed RSS do blog",
+								pl: "ID kanału RSS bloga"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -172,7 +201,12 @@ export const command: Command = {
 						"es-ES":
 							"Mostrar todos los feeds RSS de blog configurados",
 						ko: "설정된 모든 블로그 RSS 피드를 보여줘요",
-						uk: "Показати всі налаштовані RSS-стрічки блогів"
+						uk: "Показати всі налаштовані RSS-стрічки блогів",
+						de: "Zeigt alle eingerichteten Blog-RSS-Feeds",
+						it: "Mostra tutti i feed RSS dei blog configurati",
+						"pt-BR":
+							"Mostra todos os feeds RSS de blogs configurados",
+						pl: "Pokazuje wszystkie skonfigurowane kanały RSS blogów"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -193,7 +227,11 @@ export const command: Command = {
 				ru: "Настройка модуля Blogger",
 				"es-ES": "Configuración para el módulo Blogger",
 				ko: "Blogger 모듈 설정",
-				uk: "Налаштування модуля Blogger"
+				uk: "Налаштування модуля Blogger",
+				de: "Konfiguration des Blogger-Moduls",
+				it: "Configurazione del modulo Blogger",
+				"pt-BR": "Configuração do módulo Blogger",
+				pl: "Konfiguracja modułu Blogger"
 			},
 
 			options: [
@@ -207,7 +245,11 @@ export const command: Command = {
 						ru: "Включить или отключить модуль Blogger",
 						"es-ES": "Habilitar o deshabilitar el módulo Blogger",
 						ko: "Blogger 모듈을 켜거나 꺼요",
-						uk: "Увімкнути або вимкнути модуль Blogger"
+						uk: "Увімкнути або вимкнути модуль Blogger",
+						de: "Blogger-Modul aktivieren oder deaktivieren",
+						it: "Attiva o disattiva il modulo Blogger",
+						"pt-BR": "Ative ou desative o módulo Blogger",
+						pl: "Włącz lub wyłącz moduł Blogger"
 					},
 
 					options: [
@@ -221,7 +263,11 @@ export const command: Command = {
 								ru: "Включить или Выключить",
 								"es-ES": "Encender o Apagar",
 								ko: "켜기 또는 끄기",
-								uk: "Увімкнути або вимкнути"
+								uk: "Увімкнути або вимкнути",
+								de: "Ein- oder ausschalten",
+								it: "Attiva o disattiva",
+								"pt-BR": "Ligar ou desligar",
+								pl: "Włącz lub wyłącz"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -235,7 +281,11 @@ export const command: Command = {
 										ru: "power_on",
 										"es-ES": "power_on",
 										ko: "켜기",
-										uk: "Увімкнути"
+										uk: "Увімкнути",
+										de: "Einschalten",
+										it: "Attiva",
+										"pt-BR": "Ligar",
+										pl: "Włącz"
 									},
 									value: "on"
 								},
@@ -247,7 +297,11 @@ export const command: Command = {
 										ru: "power_off",
 										"es-ES": "power_off",
 										ko: "끄기",
-										uk: "Вимкнути"
+										uk: "Вимкнути",
+										de: "Ausschalten",
+										it: "Disattiva",
+										"pt-BR": "Desligar",
+										pl: "Wyłącz"
 									},
 									value: "off"
 								}

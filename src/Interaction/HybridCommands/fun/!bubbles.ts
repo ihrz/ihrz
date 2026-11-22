@@ -22,6 +22,7 @@
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 import { SubCommand } from "../../../../types/command.js";
 import { bubbles } from "../../../core/images.js";
 
@@ -63,7 +64,12 @@ export const subCommand: SubCommand = {
 				]
 			});
 		} catch (error) {
-			throw "Failed to create GIF:" + error;
+			logger.err(
+				`bubbles GIF creation failed for ${image.url}: ${error}`
+			);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.love_command_error
+			});
 		}
 	}
 };

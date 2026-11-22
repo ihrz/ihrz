@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
@@ -36,6 +35,13 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "membercount",
@@ -47,7 +53,11 @@ export const command: Command = {
 		ru: "Установить каналы счетчика участников!",
 		"es-ES": "Establecer canales de conteo de miembros!",
 		ko: "멤버 수 채널을 설정해요!",
-		uk: "Налаштувати канали лічильника учасників!"
+		uk: "Налаштувати канали лічильника учасників!",
+		de: "Legt Mitgliederzähler-Kanäle fest!",
+		it: "Imposta i canali contatore dei membri!",
+		"pt-BR": "Define canais de contagem de membros!",
+		pl: "Ustawia kanały licznika członków!"
 	},
 
 	options: [
@@ -61,7 +71,11 @@ export const command: Command = {
 				ru: "<Вкл / Выкл>",
 				"es-ES": "<Encender / Apagar>",
 				ko: "<켜기 /끄기>",
-				uk: "<Увімкнути / Вимкнути>"
+				uk: "<Увімкнути / Вимкнути>",
+				de: "<Einschalten / Ausschalten>",
+				it: "<Attiva / Disattiva>",
+				"pt-BR": "<Ligar / Desligar>",
+				pl: "<Włącz / Wyłącz>"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -75,7 +89,11 @@ export const command: Command = {
 						ru: "power_on",
 						"es-ES": "power_on",
 						ko: "켜기",
-						uk: "Увімкнути"
+						uk: "Увімкнути",
+						de: "Einschalten",
+						it: "Attiva",
+						"pt-BR": "Ligar",
+						pl: "Włącz"
 					},
 					value: "on"
 				},
@@ -87,7 +105,11 @@ export const command: Command = {
 						ru: "power_off",
 						"es-ES": "power_off",
 						ko: "끄기",
-						uk: "Вимкнути"
+						uk: "Вимкнути",
+						de: "Ausschalten",
+						it: "Disattiva",
+						"pt-BR": "Desligar",
+						pl: "Wyłącz"
 					},
 					value: "off"
 				}
@@ -105,7 +127,11 @@ export const command: Command = {
 				ru: "Канал для установки счетчика участников",
 				"es-ES": "El canal para establecer el conteo de miembros",
 				ko: "멤버 수를 표시할 채널",
-				uk: "<Увімкнути / Вимкнути>"
+				uk: "<Увімкнути / Вимкнути>",
+				de: "<Einschalten / Ausschalten>",
+				it: "<Attiva / Disattiva>",
+				"pt-BR": "<Ligar / Desligar>",
+				pl: "<Włącz / Wyłącz>"
 			},
 
 			channel_types: [ChannelType.GuildVoice],
@@ -128,7 +154,11 @@ export const command: Command = {
 				"es-ES":
 					"{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				ko: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
-				uk: "<Увімкнути / Вимкнути>"
+				uk: "<Увімкнути / Вимкнути>",
+				de: "<Einschalten / Ausschalten>",
+				it: "<Attiva / Disattiva>",
+				"pt-BR": "<Ligar / Desligar>",
+				pl: "<Włącz / Wyłącz>"
 			},
 
 			permission: null
@@ -161,14 +191,22 @@ export const command: Command = {
 		)) as BaseGuildVoiceChannel;
 		const messagei = opts.string("name", 2);
 
-		const help_embed = new EmbedBuilder()
-			.setColor("#0014a8")
-			.setTitle(lang.setmembercount_helpembed_title)
-			.setDescription(lang.setmembercount_helpembed_description)
-			.addFields({
-				name: lang.setmembercount_helpembed_fields_name,
-				value: lang.setmembercount_helpembed_fields_value
-			});
+		const e = client.iHorizon_Emojis;
+		const sendHelp = async () =>
+			sendCard(
+				client,
+				interaction,
+				buildCard({
+					accent: ACCENT.info,
+					emoji: e.Server_Stats,
+					title: lang.setmembercount_helpembed_title,
+					description: `\`${lang.setmembercount_helpembed_description}\``,
+					blocks: [
+						`${e.Documentation} **${lang.setmembercount_helpembed_fields_name}**\n${lang.setmembercount_helpembed_fields_value}`
+					],
+					signature: await botSignature(client, interaction.guildId)
+				})
+			);
 
 		if (type == "on") {
 			const botMembers = interaction.guild.members.cache.filter(
@@ -203,9 +241,7 @@ export const command: Command = {
 			});
 
 			if (!messagei) {
-				await client.func.method.interactionSend(interaction, {
-					embeds: [help_embed]
-				});
+				await sendHelp();
 				return;
 			}
 
@@ -258,9 +294,7 @@ export const command: Command = {
 					{ name: messagei, enable: true, channel: channel?.id }
 				);
 			} else {
-				await client.func.method.interactionSend(interaction, {
-					embeds: [help_embed]
-				});
+				await sendHelp();
 				return;
 			}
 
@@ -278,12 +312,17 @@ export const command: Command = {
 			);
 
 			(fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setmembercount_command_work_on_enable.replace(
-					"${emoji_Yes}",
-					client.iHorizon_Emojis.Yes
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.setmembercount_command_work_on_enable.replace(
+						"${emoji_Yes}",
+						e.Yes
+					)
 				)
-			});
+			);
 			return;
 		} else if (type == "off") {
 			await client.db.delete(`${interaction.guildId}.GUILD.MCOUNT`);
@@ -297,22 +336,23 @@ export const command: Command = {
 					)
 			});
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setmembercount_command_work_on_disable.replace(
-					"${emoji_Yes}",
-					client.iHorizon_Emojis.Yes
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.setmembercount_command_work_on_disable.replace(
+						"${emoji_Yes}",
+						e.Yes
+					)
 				)
-			});
+			);
 			return;
 		} else if (!type) {
-			await client.func.method.interactionSend(interaction, {
-				embeds: [help_embed]
-			});
+			await sendHelp();
 			return;
 		} else if (!messagei) {
-			await client.func.method.interactionSend(interaction, {
-				embeds: [help_embed]
-			});
+			await sendHelp();
 			return;
 		}
 	}

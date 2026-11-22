@@ -40,7 +40,11 @@ export const command: Command = {
 		ru: "Подкоманда для категории тегов сообщений",
 		"es-ES": "Subcomando para la categoría de mensajes de etiquetas",
 		ko: "태그 메시지 하위 명령어",
-		uk: "Підкоманда для категорії тегів повідомлень"
+		uk: "Підкоманда для категорії тегів повідомлень",
+		de: "Unterbefehle der Tag-Nachrichten-Kategorie",
+		it: "Sottocomandi della categoria messaggi tag",
+		"pt-BR": "Subcomandos da categoria mensagens de tags",
+		pl: "Podkomendy kategorii wiadomości tagów"
 	},
 
 	options: [
@@ -55,7 +59,11 @@ export const command: Command = {
 				ru: "Белый список ролей для использования тегов",
 				"es-ES": "Roles de lista blanca para usar etiquetas",
 				ko: "태그를 사용할 수 있는 역할 허용 목록",
-				uk: "Білий список ролей для використання тегів"
+				uk: "Білий список ролей для використання тегів",
+				de: "Rollen-Whitelist zum Verwenden von Tags",
+				it: "Whitelist dei ruoli per usare i tag",
+				"pt-BR": "Whitelist de cargos para usar tags",
+				pl: "Biała lista ról do używania tagów"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -72,7 +80,11 @@ export const command: Command = {
 				ru: "Белый список ролей для создания тегов",
 				"es-ES": "Roles de lista blanca para crear etiquetas",
 				ko: "태그를 만들 수 있는 역할 허용 목록",
-				uk: "Білий список ролей для створення тегів"
+				uk: "Білий список ролей для створення тегів",
+				de: "Rollen-Whitelist zum Erstellen von Tags",
+				it: "Whitelist dei ruoli per creare tag",
+				"pt-BR": "Whitelist de cargos para criar tags",
+				pl: "Biała lista ról do tworzenia tagów"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -89,7 +101,11 @@ export const command: Command = {
 				ru: "Использовать тег",
 				"es-ES": "Usar una etiqueta",
 				ko: "태그 사용",
-				uk: "Використати тег"
+				uk: "Використати тег",
+				de: "Einen Tag verwenden",
+				it: "Usa un tag",
+				"pt-BR": "Usar uma tag",
+				pl: "Użyj tagu"
 			},
 
 			options: [
@@ -103,7 +119,11 @@ export const command: Command = {
 						ru: "Название тега",
 						"es-ES": "Nombre de la etiqueta",
 						ko: "태그 이름",
-						uk: "Назва тегу"
+						uk: "Назва тегу",
+						de: "Name des Tags",
+						it: "Nome del tag",
+						"pt-BR": "Nome da tag",
+						pl: "Nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -120,7 +140,11 @@ export const command: Command = {
 						ru: "Упомянуть пользователя",
 						"es-ES": "Mencionar al usuario",
 						ko: "사용자 멘션",
-						uk: "Згадати користувача"
+						uk: "Згадати користувача",
+						de: "Den Nutzer erwähnen",
+						it: "Menziona l'utente",
+						"pt-BR": "Mencionar o usuário",
+						pl: "Wspomnij użytkownika"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -137,7 +161,11 @@ export const command: Command = {
 						ru: "ID сообщения для ответа",
 						"es-ES": "ID del mensaje para responder",
 						ko: "답장할 메시지 ID",
-						uk: "ID повідомлення для відповіді"
+						uk: "ID повідомлення для відповіді",
+						de: "ID der Nachricht, auf die geantwortet wird",
+						it: "ID del messaggio a cui rispondere",
+						"pt-BR": "ID da mensagem a responder",
+						pl: "ID wiadomości, na którą odpowiadasz"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -161,7 +189,11 @@ export const command: Command = {
 				ru: "Создать тег",
 				"es-ES": "Crear una etiqueta",
 				ko: "태그 만들기",
-				uk: "Створити тег"
+				uk: "Створити тег",
+				de: "Tag erstellen",
+				it: "Crea un tag",
+				"pt-BR": "Criar uma tag",
+				pl: "Utwórz tag"
 			},
 
 			options: [
@@ -175,7 +207,11 @@ export const command: Command = {
 						ru: "Название тега",
 						"es-ES": "Nombre de la etiqueta",
 						ko: "태그 이름",
-						uk: "Назва тегу"
+						uk: "Назва тегу",
+						de: "Name des Tags",
+						it: "Nome del tag",
+						"pt-BR": "Nome da tag",
+						pl: "Nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -192,7 +228,11 @@ export const command: Command = {
 						ru: "ID эмбеда",
 						"es-ES": "ID del embed",
 						ko: "임베드 ID",
-						uk: "ID ембеда"
+						uk: "ID ембеда",
+						de: "Embed-ID",
+						it: "ID dell'embed",
+						"pt-BR": "ID do embed",
+						pl: "ID embeda"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -209,7 +249,11 @@ export const command: Command = {
 						ru: "Сообщение с эмбедом",
 						"es-ES": "Mensaje con el embed",
 						ko: "임베드가 있는 메시지",
-						uk: "Повідомлення з ембедом"
+						uk: "Повідомлення з ембедом",
+						de: "Nachricht mit dem Embed",
+						it: "Messaggio con l'embed",
+						"pt-BR": "Mensagem com o embed",
+						pl: "Wiadomość z embedem"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -231,7 +275,11 @@ export const command: Command = {
 				ru: "Редактировать тег",
 				"es-ES": "Editar una etiqueta",
 				ko: "태그 편집",
-				uk: "Редагувати тег"
+				uk: "Редагувати тег",
+				de: "Tag bearbeiten",
+				it: "Modifica un tag",
+				"pt-BR": "Editar uma tag",
+				pl: "Edytuj tag"
 			},
 
 			options: [
@@ -245,7 +293,11 @@ export const command: Command = {
 						ru: "Текущее название тега",
 						"es-ES": "El nombre actual de la etiqueta",
 						ko: "현재 태그 이름",
-						uk: "Поточна назва тегу"
+						uk: "Поточна назва тегу",
+						de: "Der aktuelle Tag-Name",
+						it: "Il nome attuale del tag",
+						"pt-BR": "O nome atual da tag",
+						pl: "Aktualna nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -262,7 +314,11 @@ export const command: Command = {
 						ru: "Новое название тега",
 						"es-ES": "El nuevo nombre de la etiqueta",
 						ko: "새 태그 이름",
-						uk: "Нова назва тегу"
+						uk: "Нова назва тегу",
+						de: "Der neue Tag-Name",
+						it: "Il nuovo nome del tag",
+						"pt-BR": "O novo nome da tag",
+						pl: "Nowa nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -285,7 +341,11 @@ export const command: Command = {
 				ru: "Удалить тег",
 				"es-ES": "Eliminar una etiqueta",
 				ko: "태그 삭제",
-				uk: "Видалити тег"
+				uk: "Видалити тег",
+				de: "Tag löschen",
+				it: "Elimina un tag",
+				"pt-BR": "Excluir uma tag",
+				pl: "Usuń tag"
 			},
 
 			options: [
@@ -299,7 +359,11 @@ export const command: Command = {
 						ru: "Название тега",
 						"es-ES": "Nombre de la etiqueta",
 						ko: "태그 이름",
-						uk: "Назва тегу"
+						uk: "Назва тегу",
+						de: "Name des Tags",
+						it: "Nome del tag",
+						"pt-BR": "Nome da tag",
+						pl: "Nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -322,7 +386,11 @@ export const command: Command = {
 				ru: "Показать все теги",
 				"es-ES": "Listar todas las etiquetas",
 				ko: "모든 태그 목록",
-				uk: "Показати всі теги"
+				uk: "Показати всі теги",
+				de: "Alle Tags auflisten",
+				it: "Elenca tutti i tag",
+				"pt-BR": "Listar todas as tags",
+				pl: "Wyświetl wszystkie tagi"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -339,7 +407,11 @@ export const command: Command = {
 				ru: "Информация о теге",
 				"es-ES": "Información de una etiqueta",
 				ko: "태그 정보",
-				uk: "Інформація про тег"
+				uk: "Інформація про тег",
+				de: "Infos zu einem Tag",
+				it: "Info di un tag",
+				"pt-BR": "Informações de uma tag",
+				pl: "Informacje o tagu"
 			},
 
 			options: [
@@ -353,7 +425,11 @@ export const command: Command = {
 						ru: "Название тега",
 						"es-ES": "Nombre de la etiqueta",
 						ko: "태그 이름",
-						uk: "Назва тегу"
+						uk: "Назва тегу",
+						de: "Name des Tags",
+						it: "Nome del tag",
+						"pt-BR": "Nome da tag",
+						pl: "Nazwa tagu"
 					},
 
 					type: ApplicationCommandOptionType.String,

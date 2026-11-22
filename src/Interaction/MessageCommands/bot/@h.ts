@@ -316,7 +316,11 @@ export const command: Command = {
 		ru: "меню помощи для OG пользователей",
 		"es-ES": "menú de ayuda para usuario OG lol",
 		ko: "찐 고인물용 도움말 메뉴 ㅋㅋ",
-		uk: "меню допомоги для OG-користувачів"
+		uk: "меню допомоги для OG-користувачів",
+		de: "Hilfemenü für OG-Nutzer lmao",
+		it: "Menu di aiuto per utenti OG lmao",
+		"pt-BR": "Menu de ajuda para usuários OG kkk",
+		pl: "Menu pomocy dla weteranów lmao"
 	},
 	thinking: false,
 	category: "bot",
@@ -408,6 +412,10 @@ export const command: Command = {
 								"ko-KR": "ko",
 								"ru-RU": "ru",
 								"uk-UA": "uk",
+								"de-DE": "de",
+								"it-IT": "it",
+								"pt-PT": "pt-BR",
+								"pl-PL": "pl",
 								"es-ES": "es-ES"
 							};
 							const key = langMap[skidBot.lang] as

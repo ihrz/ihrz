@@ -742,7 +742,8 @@ declare namespace Client_Functions {
 			client: Client<boolean>,
 			query: string,
 			requester: User,
-			preferredNode?: LavalinkNode
+			preferredNode?: LavalinkNode,
+			lang?: LanguageData
 		): Promise<SearchMusicQueryResult>;
 		export function searchQueryOnNode(
 			client: Client<boolean>,

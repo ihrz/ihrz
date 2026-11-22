@@ -44,7 +44,11 @@ export const command: Command = {
 		ru: "генератор мема i have two sides",
 		"es-ES": "generador de meme i have two sides",
 		ko: "나에겐 두 얼굴이 있다 밈 생성기",
-		uk: "генератор мемів i have two sides"
+		uk: "генератор мемів i have two sides",
+		de: "Meme-Generator „Ich habe zwei Seiten“",
+		it: "Generatore di meme «ho due lati»",
+		"pt-BR": "Gerador de meme «tenho dois lados»",
+		pl: "Generator memów „mam dwie strony”"
 	},
 	options: [
 		{
@@ -56,7 +60,11 @@ export const command: Command = {
 				ru: "before отстой",
 				"es-ES": "el before apesta",
 				ko: "이전이 별로야",
-				uk: "before відстій"
+				uk: "before відстій",
+				de: "Das Vorher ist schlecht",
+				it: "Il prima fa schifo",
+				"pt-BR": "O antes é ruim",
+				pl: "Przed jest do bani"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -71,7 +79,11 @@ export const command: Command = {
 				ru: "after отстой",
 				"es-ES": "el after apesta",
 				ko: "이후가 별로야",
-				uk: "after відстій"
+				uk: "after відстій",
+				de: "Das Nachher ist schlecht",
+				it: "Il dopo fa schifo",
+				"pt-BR": "O depois é ruim",
+				pl: "Po jest do bani"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

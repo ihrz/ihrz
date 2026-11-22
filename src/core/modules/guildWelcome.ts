@@ -105,7 +105,8 @@ async function guideBlocks(
 			`### ${e.Gear} ${lang.welcome_lang_title}\n` +
 				fill(lang.welcome_lang_text, {
 					language: `**${languageName(code)}**`,
-					command: setlang
+					command: setlang,
+					count: String(AvailableLanguage.length)
 				})
 		),
 		new TextDisplayBuilder().setContent(

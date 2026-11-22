@@ -42,7 +42,12 @@ export const command: Command = {
 		"es-ES":
 			"Volver a dar roles antiguos cuando el usuario se reúne al servidor!",
 		ko: "사용자가 서버에 다시 들어오면 이전 역할을 다시 부여해요!",
-		uk: "Повертати старі ролі, коли користувач повертається на сервер!"
+		uk: "Повертати старі ролі, коли користувач повертається на сервер!",
+		de: "Gib alte Rollen zurück, wenn ein Nutzer wieder beitritt!",
+		it: "Riassegna i vecchi ruoli quando un utente rientra nel server!",
+		"pt-BR":
+			"Devolva os cargos antigos quando um usuário voltar ao servidor!",
+		pl: "Przywróć dawne role, gdy użytkownik wróci na serwer!"
 	},
 
 	options: [
@@ -57,7 +62,11 @@ export const command: Command = {
 				ru: "Включить или выключить модуль?",
 				"es-ES": "Quieres encender/apagar el módulo?",
 				ko: "모듈을 켜거나 끌까요?",
-				uk: "Увімкнути чи вимкнути модуль?"
+				uk: "Увімкнути чи вимкнути модуль?",
+				de: "Möchtest du das Modul ein- oder ausschalten?",
+				it: "Vuoi attivare/disattivare il modulo?",
+				"pt-BR": "Deseja ligar/desligar o módulo?",
+				pl: "Chcesz włączyć/wyłączyć moduł?"
 			},
 
 			required: true,
@@ -70,7 +79,11 @@ export const command: Command = {
 						ru: "power_on",
 						"es-ES": "power_on",
 						ko: "켜기",
-						uk: "Увімкнути"
+						uk: "Увімкнути",
+						de: "Einschalten",
+						it: "Attiva",
+						"pt-BR": "Ligar",
+						pl: "Włącz"
 					},
 					value: "on"
 				},
@@ -82,7 +95,11 @@ export const command: Command = {
 						ru: "power_off",
 						"es-ES": "power_off",
 						ko: "끄기",
-						uk: "Вимкнути"
+						uk: "Вимкнути",
+						de: "Ausschalten",
+						it: "Disattiva",
+						"pt-BR": "Desligar",
+						pl: "Wyłącz"
 					},
 					value: "off"
 				}
@@ -101,7 +118,11 @@ export const command: Command = {
 				ru: "Заново выдать роль администратора?",
 				"es-ES": "Volver a dar el rol de administrador?",
 				ko: "관리자 역할도 다시 부여할까요?",
-				uk: "Повертати роль адміністратора?"
+				uk: "Повертати роль адміністратора?",
+				de: "Administrator-Rolle zurückgeben?",
+				it: "Riassegnare il ruolo Amministratore?",
+				"pt-BR": "Devolver o cargo de Administrador?",
+				pl: "Przywrócić rolę administratora?"
 			},
 
 			required: false,
@@ -114,7 +135,11 @@ export const command: Command = {
 						ru: "yes",
 						"es-ES": "yes",
 						ko: "예",
-						uk: "Так"
+						uk: "Так",
+						de: "Ja",
+						it: "Sì",
+						"pt-BR": "Sim",
+						pl: "Tak"
 					},
 					value: "yes"
 				},
@@ -126,7 +151,11 @@ export const command: Command = {
 						ru: "no",
 						"es-ES": "no",
 						ko: "아니요",
-						uk: "Ні"
+						uk: "Ні",
+						de: "Nein",
+						it: "No",
+						"pt-BR": "Não",
+						pl: "Nie"
 					},
 					value: "no"
 				}

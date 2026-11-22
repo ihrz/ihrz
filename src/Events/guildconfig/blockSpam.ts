@@ -100,7 +100,7 @@ async function applySanction(
 				await client.func.method.warnMember(
 					message.guild?.members.me!,
 					member,
-					"Timeout by PunishPUB",
+					lang.warn_reason_punishpub,
 					lang
 				);
 				break;

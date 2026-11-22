@@ -1099,7 +1099,7 @@ async function closeTicketChannel(
 				channel: channel as TextBasedChannel,
 				limit: -1,
 				filename: `${channel.guildId}-transcript.html`,
-				footerText: "Exported {number} message{s}",
+				footerText: lang.ticket_transcript_footer,
 				poweredBy: false
 			});
 	const files: AttachmentBuilder[] = attachment ? [attachment] : [];
@@ -1275,7 +1275,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 							channel: interactionChannel as TextBasedChannel,
 							limit: -1,
 							filename: `${interaction.guildId}-transcript.html`,
-							footerText: "Exported {number} message{s}",
+							footerText: data.ticket_transcript_footer,
 							poweredBy: false,
 							saveImages: true,
 							favicon: interaction.client.user.displayAvatarURL({
@@ -1541,7 +1541,7 @@ async function deleteTicketChannel(
 						channel: channel as TextBasedChannel,
 						limit: -1,
 						filename: `${guild.id}-transcript.html`,
-						footerText: "Exported {number} message{s}",
+						footerText: lang.ticket_transcript_footer,
 						poweredBy: false
 					});
 

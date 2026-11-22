@@ -25,7 +25,7 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
+	ContainerBuilder,
 	Guild,
 	GuildMember
 } from "discord.js";
@@ -35,6 +35,14 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { AntiSpam } from "../../../../types/antispam.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	pageLabel
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -53,14 +61,18 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const originalResponse = await interaction.editReply({
-			content: client.iHorizon_Emojis.Discord_Loading
-		});
+		// The loading message is already V2: a reply can't become V2 on edit.
+		const originalResponse = await interaction.editReply(
+			cardPayload(
+				notice("info", client.iHorizon_Emojis.Discord_Loading)
+			) as never
+		);
 
 		const baseData = (await client.db.get(
 			`${interaction.guildId}`
 		)) as DatabaseStructure.DbInId;
-		const pages: EmbedBuilder[] = [];
+		const pages: { name: string; value: string }[][] = [];
+		const signature = await botSignature(client, interaction.guildId);
 
 		const joinDmMessageField = {
 			name: lang.guildprofil_embed_fields_joinDmMessage,
@@ -224,18 +236,26 @@ export const subCommand: SubCommand = {
 		const generateEmbedForFields = (
 			fields: { name: string; value: string }[]
 		) => {
-			const embed = new EmbedBuilder()
-				.setColor("#016c9a")
-				.setDescription(
-					lang.guildprofil_embed_description.replaceAll(
-						"${guildName}",
-						interaction.guild?.name as string
-					)
-				)
-				.addFields(fields)
-				.setThumbnail(interaction.guild?.iconURL() as string);
-			pages.push(embed);
+			pages.push(fields);
 		};
+
+		// One block per setting: values are multi-line (lists, code blocks).
+		const renderPage = (page: number): ContainerBuilder =>
+			buildCard({
+				accent: ACCENT.info,
+				emoji: client.iHorizon_Emojis.Gear,
+				title: interaction.guild?.name as string,
+				description: lang.guildprofil_embed_description.replaceAll(
+					"${guildName}",
+					interaction.guild?.name as string
+				),
+				thumbnail: interaction.guild?.iconURL() ?? null,
+				blocks: pages[page].map(
+					(field) => `**${field.name}**\n${field.value}`
+				),
+				signature,
+				footer: pageLabel(lang, page, pages.length)
+			});
 
 		generateEmbedForFields([
 			joinMessageField,
@@ -274,23 +294,12 @@ export const subCommand: SubCommand = {
 
 		let currentPage = 0;
 
-		const editCurrentPage = async () => {
-			await interaction.editReply({
-				content: null,
-				embeds: [
-					pages[currentPage]
-						.setColor("#016c9a")
-						.setFooter(
-							await client.func.displayBotName.footerPaginationBuilder(
-								interaction.guildId!,
-								lang,
-								currentPage + 1,
-								pages.length
-							)
-						)
-				],
-				components: [generateActionRow()]
-			});
+		const editCurrentPage = async (disabled = false) => {
+			const container = renderPage(currentPage);
+			const row = generateActionRow();
+			if (disabled) row.components.forEach((x) => x.setDisabled(true));
+			container.addActionRowComponents(row);
+			await interaction.editReply(cardPayload(container) as never);
 		};
 
 		const generateActionRow = () => {
@@ -337,15 +346,7 @@ export const subCommand: SubCommand = {
 		});
 
 		collector?.on("end", () => {
-			const newComp = generateActionRow();
-
-			newComp.components.forEach((x) => {
-				x.setDisabled(true);
-			});
-
-			interaction.editReply({
-				components: [newComp]
-			});
+			editCurrentPage(true).catch(() => null);
 		});
 	}
 };

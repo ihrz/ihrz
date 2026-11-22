@@ -32,6 +32,7 @@ import {
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "support",
@@ -41,7 +42,11 @@ export const command: Command = {
 		ru: "support",
 		"es-ES": "support",
 		ko: "support",
-		uk: "support"
+		uk: "support",
+		de: "support",
+		it: "support",
+		"pt-BR": "support",
+		pl: "support"
 	},
 
 	description:
@@ -53,7 +58,11 @@ export const command: Command = {
 		"es-ES":
 			"Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!",
 		ko: "소개에 서버 관련 내용이 있는 멤버에게 역할을 부여해요!",
-		uk: "Видавати роль учасникам, які згадують ваш сервер у своїй біографії!"
+		uk: "Видавати роль учасникам, які згадують ваш сервер у своїй біографії!",
+		de: "Gib eine Rolle, wenn die Bio eines Mitglieds etwas über deinen Server enthält!",
+		it: "Assegna un ruolo se la bio di un membro parla del tuo server!",
+		"pt-BR": "Dê um cargo quando a bio de um membro citar o seu servidor!",
+		pl: "Nadaj rolę, gdy opis członka zawiera coś o twoim serwerze!"
 	},
 
 	aliases: ["soutien"],
@@ -70,7 +79,11 @@ export const command: Command = {
 				ru: "Выберите действие",
 				"es-ES": "Elegir la acción",
 				ko: "작업 선택",
-				uk: "Оберіть дію"
+				uk: "Оберіть дію",
+				de: "Wähle die Aktion",
+				it: "Scegli l'azione",
+				"pt-BR": "Escolha a ação",
+				pl: "Wybierz akcję"
 			},
 
 			required: true,
@@ -83,7 +96,11 @@ export const command: Command = {
 						ru: "power_on",
 						"es-ES": "power_on",
 						ko: "켜기",
-						uk: "Увімкнути"
+						uk: "Увімкнути",
+						de: "Einschalten",
+						it: "Attiva",
+						"pt-BR": "Ligar",
+						pl: "Włącz"
 					},
 					value: "on"
 				},
@@ -95,7 +112,11 @@ export const command: Command = {
 						ru: "power_off",
 						"es-ES": "power_off",
 						ko: "끄기",
-						uk: "Вимкнути"
+						uk: "Вимкнути",
+						de: "Ausschalten",
+						it: "Disattiva",
+						"pt-BR": "Desligar",
+						pl: "Wyłącz"
 					},
 					value: "off"
 				}
@@ -114,7 +135,11 @@ export const command: Command = {
 				ru: "Какой тип ввода у пользователя?",
 				"es-ES": "Que tipo de entrada tiene el usuario?",
 				ko: "사용자가 입력할 방식은 무엇인가요?",
-				uk: "Що саме має бути в учасника?"
+				uk: "Що саме має бути в учасника?",
+				de: "Welche Art von Eingabe sollen Mitglieder machen?",
+				it: "Che tipo di input devono inserire gli utenti?",
+				"pt-BR": "Que tipo de entrada os usuários devem fornecer?",
+				pl: "Jakiego typu dane mają podać użytkownicy?"
 			},
 
 			choices: [
@@ -126,7 +151,11 @@ export const command: Command = {
 						ru: "something_in_the_bio",
 						"es-ES": "something_in_the_bio",
 						ko: "소개에 들어간 내용",
-						uk: "Щось у біографії"
+						uk: "Щось у біографії",
+						de: "Etwas in der Bio",
+						it: "Qualcosa nella bio",
+						"pt-BR": "Algo na bio",
+						pl: "Coś w biogramie"
 					},
 					value: "bio"
 				},
@@ -138,7 +167,11 @@ export const command: Command = {
 						ru: "the_guild_tag_boost_perks",
 						"es-ES": "the_guild_tag_boost_perks",
 						ko: "서버 태그 (부스트 혜택)",
-						uk: "Тег сервера (переваги буста)"
+						uk: "Тег сервера (переваги буста)",
+						de: "Der Server-Tag (Boost-Vorteile)",
+						it: "Il tag del server (vantaggi Boost)",
+						"pt-BR": "A tag do servidor (benefícios de Boost)",
+						pl: "Tag serwera (korzyści z boostów)"
 					},
 					value: "tag"
 				}
@@ -157,7 +190,11 @@ export const command: Command = {
 				ru: "Роли для выдачи участнику",
 				"es-ES": "Los roles a dar a nuestro miembro",
 				ko: "멤버에게 지급할 역할",
-				uk: "Ролі, які видаються учасникам"
+				uk: "Ролі, які видаються учасникам",
+				de: "Die Rollen, die unser Mitglied erhält",
+				it: "I ruoli da dare al nostro membro",
+				"pt-BR": "Os cargos a dar ao nosso membro",
+				pl: "Role dla naszego członka"
 			},
 
 			required: false,
@@ -175,7 +212,11 @@ export const command: Command = {
 				ru: "Выберите ключевые слова для описания",
 				"es-ES": "Elegir las palabras clave deseadas en la biografía",
 				ko: "소개에 포함되어야 할 키워드 선택",
-				uk: "Оберіть ключові слова для біографії"
+				uk: "Оберіть ключові слова для біографії",
+				de: "Wähle die gewünschten Schlüsselwörter in der Bio",
+				it: "Scegli le parole chiave volute nella bio",
+				"pt-BR": "Escolha as palavras-chave desejadas na bio",
+				pl: "Wybierz słowa kluczowe wymagane w opisie"
 			},
 
 			required: false,
@@ -256,18 +297,21 @@ export const command: Command = {
 							.replace("${input}", input!)
 							.replace("${rolesId}", roles.id);
 
-			await client.func.method.interactionSend(interaction, {
-				content: Message
-			});
+			await sendCard(client, interaction, notice("success", Message));
 		} else {
 			await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.support_command_work_on_disable.replace(
-					"${guildName}",
-					interaction.guild.name
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.support_command_work_on_disable.replace(
+						"${guildName}",
+						interaction.guild.name
+					)
 				)
-			});
+			);
 			return;
 		}
 	}

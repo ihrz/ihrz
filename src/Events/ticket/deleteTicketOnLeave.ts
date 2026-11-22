@@ -74,7 +74,7 @@ export const event: BotEvent = {
 							channel: channel as TextChannel,
 							limit: -1,
 							filename: `${member.guild.id}-${channel.id}-transcript.html`,
-							footerText: "Exported {number} message{s}",
+							footerText: lang.ticket_transcript_footer,
 							poweredBy: false
 						}).catch(() => null);
 

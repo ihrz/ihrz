@@ -42,7 +42,11 @@ export const command: Command = {
 		ru: "Открывает интерактивную панель настройки защиты!",
 		"es-ES": "¡Abre el panel de configuración interactivo de protección!",
 		ko: "대화형 보호 설정 패널을 열어요!",
-		uk: "Відкрити інтерактивну панель налаштування захисту!"
+		uk: "Відкрити інтерактивну панель налаштування захисту!",
+		de: "Öffne das interaktive Schutz-Konfigurationspanel!",
+		it: "Apri il pannello interattivo di configurazione della protezione!",
+		"pt-BR": "Abra o painel interativo de configuração de proteção!",
+		pl: "Otwórz interaktywny panel konfiguracji ochrony!"
 	},
 
 	thinking: true,

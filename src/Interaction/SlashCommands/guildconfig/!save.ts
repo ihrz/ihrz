@@ -22,13 +22,15 @@
 import {
 	Client,
 	ChatInputCommandInteraction,
-	AttachmentBuilder
+	AttachmentBuilder,
+	FileBuilder
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { encrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,17 +53,24 @@ export const subCommand: SubCommand = {
 			client.version.env === "production" ||
 			client.version.env === "dev"
 		) {
-			await interaction.editReply({
-				content: lang.guildconfig_config_save_check_dm
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice("info", lang.guildconfig_config_save_check_dm)
+				) as never
+			);
 			const link = apiUrlParser.HorizonGateway(
 				apiUrlParser.GatewayMethod.ServerBackup
 			);
 
 			await interaction.user
-				.send({
-					content: `${lang.guildconfig_config_save_user_msg_2}${link}/${encrypt(client.config.api.apiToken, interaction.guildId)}/${encrypt(client.config.api.apiToken, Date.now().toString())}`
-				})
+				.send(
+					cardPayload(
+						notice(
+							"info",
+							`${lang.guildconfig_config_save_user_msg_2}${link}/${encrypt(client.config.api.apiToken, interaction.guildId)}/${encrypt(client.config.api.apiToken, Date.now().toString())}`
+						)
+					)
+				)
 				.catch(() => {})
 				.then(() => {});
 		} else {
@@ -81,15 +90,27 @@ export const subCommand: SubCommand = {
 				name: interaction.guildId + ".json"
 			});
 
-			await interaction.editReply({
-				content: lang.guildconfig_config_save_check_dm
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice("info", lang.guildconfig_config_save_check_dm)
+				) as never
+			);
 
 			await interaction.user
 				.send({
-					content: lang.guildconfig_config_save_user_msg.replace(
-						"${guildName}",
-						interaction.guild.name
+					// V2: the file is shown by a file component.
+					...cardPayload(
+						notice(
+							"info",
+							lang.guildconfig_config_save_user_msg.replace(
+								"${guildName}",
+								interaction.guild.name
+							)
+						).addFileComponents(
+							new FileBuilder().setURL(
+								`attachment://${interaction.guildId}.json`
+							)
+						)
 					),
 					files: [attachment]
 				})

@@ -4299,7 +4299,7 @@ export default {
 		"Grazie per l'invito! Sono **iHorizon**: moderazione, ticket, musica, protezione, log e molto altro, in un solo bot **gratuito** e **open source**.",
 	welcome_lang_title: "Lingua",
 	welcome_lang_text:
-		"Qui parlo {language}, scelta in base alla regione del tuo server.\nPer cambiarla, un amministratore può usare {command}: un pannello permette di scegliere tra 11 lingue.",
+		"Qui parlo {language}, scelta in base alla regione del tuo server.\nPer cambiarla, un amministratore può usare {command}: un pannello permette di scegliere tra {count} lingue.",
 	welcome_start_title: "Per iniziare",
 	welcome_start_help:
 		"{command} elenca tutti i comandi, divisi per categoria",
@@ -5152,5 +5152,56 @@ export default {
 	tempvoice_region_ussouth: "USA Sud",
 	tempvoice_region_uswest: "USA Ovest",
 	tempvoice_region_uscentral: "USA Centro",
-	tempvoice_region_brazil: "Brasile"
+	tempvoice_region_brazil: "Brasile",
+
+	// logs V2 cards
+	logs_ban_add_title: "Membro bannato",
+	logs_ban_remove_title: "Membro sbannato",
+	logs_kick_title: "Membro espulso",
+	logs_boost_add_title: "Nuovo boost",
+	logs_boost_remove_title: "Boost rimosso",
+	logs_channel_update_title: "Canale aggiornato",
+	logs_message_delete_title: "Messaggio eliminato",
+	logs_message_update_title: "Messaggio modificato",
+	logs_roles_update_title: "Ruoli aggiornati",
+	logs_voice_title: "Attività vocale",
+	logs_channel_label: "Canale",
+	logs_jump_to_message: "Vai al messaggio",
+	logs_message_delete_embeds:
+		"Gli embed del messaggio (${count}) sono mostrati qui sotto.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "Il promemoria #${scheduleCode} è scaduto!",
+
+	// invites V2 cards
+	invites_reset_title: "Reimposta il gestore degli inviti",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"La tua posizione: **#${rank}** su ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Non sei ancora in classifica.",
+	economy_leaderboard_count: "${count} membro/i in classifica",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Livello ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** attivato: i file eseguibili verranno rimossi.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** disattivato: i file eseguibili sono di nuovo consentiti.",
+	guildconfig_list_react_title: "Reazioni automatiche",
+
+	// hard-coded strings
+	updates_button_releases: "Versioni",
+	updates_button_commit: "Commit",
+	warn_reason_piconly: "Sanzione automatica: canale solo immagini",
+	warn_reason_antiexe: "Anti-Exe: inviato un file eseguibile",
+	warn_reason_punishpub: "Sanzione automatica: pubblicità",
+	warn_reason_antispam: "Sanzione automatica: spam",
+	automod_block_custom_message:
+		"Questo messaggio è stato bloccato da iHorizon",
+	derogation_role_name: "gestito da iHorizon",
+	ticket_transcript_footer: "Messaggi esportati: {number}",
+	music_playlist_fallback_name: "Playlist ${platform}",
+	music_apo_node_unreachable:
+		"il server audio non è raggiungibile (${message})"
 } satisfies LanguageData;

@@ -32,7 +32,11 @@ export const command: Command = {
 		ru: "...",
 		"es-ES": "...",
 		ko: "...",
-		uk: "..."
+		uk: "...",
+		de: "...",
+		it: "...",
+		"pt-BR": "...",
+		pl: "..."
 	},
 	thinking: false,
 	category: "404",

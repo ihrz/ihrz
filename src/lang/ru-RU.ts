@@ -4225,7 +4225,7 @@ export default {
 		"Спасибо, что пригласили! Я **iHorizon**: модерация, тикеты, музыка, защита, логи и многое другое в одном **бесплатном** боте с **открытым исходным кодом**.",
 	welcome_lang_title: "Язык",
 	welcome_lang_text:
-		"Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из 11 языков.",
+		"Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из {count} языков.",
 	welcome_start_title: "С чего начать",
 	welcome_start_help: "{command} покажет все команды по категориям",
 	welcome_start_dashboard:
@@ -5063,5 +5063,54 @@ export default {
 	tempvoice_region_ussouth: "США Юг",
 	tempvoice_region_uswest: "США Запад",
 	tempvoice_region_uscentral: "США Центр",
-	tempvoice_region_brazil: "Бразилия"
+	tempvoice_region_brazil: "Бразилия",
+
+	// logs V2 cards
+	logs_ban_add_title: "Участник забанен",
+	logs_ban_remove_title: "Участник разбанен",
+	logs_kick_title: "Участник выгнан",
+	logs_boost_add_title: "Новый буст",
+	logs_boost_remove_title: "Буст снят",
+	logs_channel_update_title: "Канал изменён",
+	logs_message_delete_title: "Сообщение удалено",
+	logs_message_update_title: "Сообщение изменено",
+	logs_roles_update_title: "Роли изменены",
+	logs_voice_title: "Голосовая активность",
+	logs_channel_label: "Канал",
+	logs_jump_to_message: "Перейти к сообщению",
+	logs_message_delete_embeds: "Эмбеды сообщения (${count}) показаны ниже.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "Напоминание #${scheduleCode} наступило!",
+
+	// invites V2 cards
+	invites_reset_title: "Сброс менеджера приглашений",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Ваше место: **#${rank}** из ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Вас пока нет в рейтинге.",
+	economy_leaderboard_count: "Участников в рейтинге: ${count}",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Уровень ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** включён: исполняемые файлы будут удаляться.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** выключен: исполняемые файлы снова разрешены.",
+	guildconfig_list_react_title: "Автоматические реакции",
+
+	// hard-coded strings
+	updates_button_releases: "Релизы",
+	updates_button_commit: "Коммит",
+	warn_reason_piconly:
+		"Автоматическое наказание: канал только для изображений",
+	warn_reason_antiexe: "Anti-Exe: отправлен исполняемый файл",
+	warn_reason_punishpub: "Автоматическое наказание: реклама",
+	warn_reason_antispam: "Автоматическое наказание: спам",
+	automod_block_custom_message: "Это сообщение заблокировано iHorizon",
+	derogation_role_name: "управляется iHorizon",
+	ticket_transcript_footer: "Экспортировано сообщений: {number}",
+	music_playlist_fallback_name: "Плейлист ${platform}",
+	music_apo_node_unreachable: "аудиосервер недоступен (${message})"
 } satisfies LanguageData;

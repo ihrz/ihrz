@@ -40,6 +40,7 @@ import {
 import { Command } from "../../../../types/command.js";
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { cardPayload, notice, sendCard } from "../../../core/modules/uiCard.js";
 
 // The log events post embeds: the bot needs these in every log channel.
 const LOG_CHANNEL_PERMISSIONS = [
@@ -91,7 +92,11 @@ export const command: Command = {
 		"es-ES":
 			"Establecer un canal de registros para los registros de auditoría!",
 		ko: "감사 로그 채널을 설정해요!",
-		uk: "Встановити канал для журналів аудиту!"
+		uk: "Встановити канал для журналів аудиту!",
+		de: "Legt einen Kanal für Audit-Logs fest!",
+		it: "Imposta un canale per i log di controllo!",
+		"pt-BR": "Define um canal para os logs de auditoria!",
+		pl: "Ustawia kanał dla logów audytu!"
 	},
 
 	aliases: ["logs", "setlog"],
@@ -107,7 +112,11 @@ export const command: Command = {
 				ru: "Указанная категория логов",
 				"es-ES": "Categoría de registros especificada",
 				ko: "지정할 로그 종류",
-				uk: "Вказана категорія журналів"
+				uk: "Вказана категорія журналів",
+				de: "Bestimmte Log-Kategorie",
+				it: "Categoria di log specifica",
+				"pt-BR": "Categoria de logs específica",
+				pl: "Wybrana kategoria logów"
 			},
 			required: true,
 			choices: [
@@ -119,7 +128,11 @@ export const command: Command = {
 						ru: "setup_all_channels",
 						"es-ES": "setup_all_channels",
 						ko: "모든 채널 설정",
-						uk: "Налаштувати всі канали"
+						uk: "Налаштувати всі канали",
+						de: "Alle Kanäle einrichten",
+						it: "Configura tutti i canali",
+						"pt-BR": "Configurar todos os canais",
+						pl: "Skonfiguruj wszystkie kanały"
 					},
 					value: "auto"
 				},
@@ -131,7 +144,11 @@ export const command: Command = {
 						ru: "delete_all_settings",
 						"es-ES": "delete_all_settings",
 						ko: "모든 설정 삭제",
-						uk: "Видалити всі налаштування"
+						uk: "Видалити всі налаштування",
+						de: "Alle Einstellungen löschen",
+						it: "Elimina tutte le impostazioni",
+						"pt-BR": "Excluir todas as configurações",
+						pl: "Usuń wszystkie ustawienia"
 					},
 					value: "off"
 				},
@@ -143,7 +160,11 @@ export const command: Command = {
 						ru: "antispam_logs",
 						"es-ES": "antispam_logs",
 						ko: "스팸 방지 로그",
-						uk: "Журнали антиспаму"
+						uk: "Журнали антиспаму",
+						de: "AntiSpam-Logs",
+						it: "Log AntiSpam",
+						"pt-BR": "Logs do AntiSpam",
+						pl: "Logi AntiSpam"
 					},
 					value: "antispam"
 				},
@@ -155,7 +176,11 @@ export const command: Command = {
 						ru: "boost_logs",
 						"es-ES": "boost_logs",
 						ko: "부스트 로그",
-						uk: "Журнали бустів"
+						uk: "Журнали бустів",
+						de: "Boost-Logs",
+						it: "Log dei boost",
+						"pt-BR": "Logs de boosts",
+						pl: "Logi boostów"
 					},
 					value: "boost"
 				},
@@ -167,7 +192,11 @@ export const command: Command = {
 						ru: "channel_logs",
 						"es-ES": "channel_logs",
 						ko: "채널 로그",
-						uk: "Журнали каналів"
+						uk: "Журнали каналів",
+						de: "Kanal-Logs",
+						it: "Log dei canali",
+						"pt-BR": "Logs de canais",
+						pl: "Logi kanałów"
 					},
 					value: "channel"
 				},
@@ -179,7 +208,11 @@ export const command: Command = {
 						ru: "messages_logs",
 						"es-ES": "messages_logs",
 						ko: "메시지 로그",
-						uk: "Журнали повідомлень"
+						uk: "Журнали повідомлень",
+						de: "Nachrichten-Logs",
+						it: "Log dei messaggi",
+						"pt-BR": "Logs de mensagens",
+						pl: "Logi wiadomości"
 					},
 					value: "message"
 				},
@@ -191,7 +224,11 @@ export const command: Command = {
 						ru: "moderation_logs",
 						"es-ES": "moderation_logs",
 						ko: "모더레이션 로그",
-						uk: "Журнали модерації"
+						uk: "Журнали модерації",
+						de: "Moderations-Logs",
+						it: "Log di moderazione",
+						"pt-BR": "Logs de moderação",
+						pl: "Logi moderacji"
 					},
 					value: "moderation"
 				},
@@ -203,7 +240,11 @@ export const command: Command = {
 						ru: "roles_logs",
 						"es-ES": "roles_logs",
 						ko: "역할 로그",
-						uk: "Журнали ролей"
+						uk: "Журнали ролей",
+						de: "Rollen-Logs",
+						it: "Log dei ruoli",
+						"pt-BR": "Logs de cargos",
+						pl: "Logi ról"
 					},
 					value: "roles"
 				},
@@ -215,7 +256,11 @@ export const command: Command = {
 						ru: "ticket_logs",
 						"es-ES": "ticket_logs",
 						ko: "티켓 로그",
-						uk: "Журнали тікетів"
+						uk: "Журнали тікетів",
+						de: "Ticket-Logs",
+						it: "Log dei ticket",
+						"pt-BR": "Logs de tickets",
+						pl: "Logi ticketów"
 					},
 					value: "ticket"
 				},
@@ -227,7 +272,11 @@ export const command: Command = {
 						ru: "voice_logs",
 						"es-ES": "voice_logs",
 						ko: "음성 로그",
-						uk: "Журнали голосових каналів"
+						uk: "Журнали голосових каналів",
+						de: "Sprach-Logs",
+						it: "Log vocali",
+						"pt-BR": "Logs de voz",
+						pl: "Logi głosowe"
 					},
 					value: "voice"
 				},
@@ -239,7 +288,11 @@ export const command: Command = {
 						ru: "confession_logs",
 						"es-ES": "confession_logs",
 						ko: "고백 로그",
-						uk: "Журнали зізнань"
+						uk: "Журнали зізнань",
+						de: "Geständnis-Logs",
+						it: "Log delle confessioni",
+						"pt-BR": "Logs de confissões",
+						pl: "Logi wyznań"
 					},
 					value: "confession"
 				},
@@ -251,7 +304,11 @@ export const command: Command = {
 						ru: "economy_logs",
 						"es-ES": "economy_logs",
 						ko: "경제 로그",
-						uk: "Журнали економіки"
+						uk: "Журнали економіки",
+						de: "Wirtschafts-Logs",
+						it: "Log dell'economia",
+						"pt-BR": "Logs de economia",
+						pl: "Logi ekonomii"
 					},
 					value: "economy"
 				}
@@ -270,7 +327,11 @@ export const command: Command = {
 				ru: "Канал для сообщений логов!",
 				"es-ES": "El canal donde quieres tus mensajes de registro!",
 				ko: "로그 메시지를 보낼 채널!",
-				uk: "Канал для повідомлень журналів!"
+				uk: "Канал для повідомлень журналів!",
+				de: "Der Kanal für deine Log-Nachrichten!",
+				it: "Il canale per i tuoi messaggi di log!",
+				"pt-BR": "O canal para suas mensagens de log!",
+				pl: "Kanał dla twoich wiadomości logów!"
 			},
 			required: false,
 			permission: null
@@ -373,15 +434,23 @@ export const command: Command = {
 				}
 
 				await (target as BaseGuildTextChannel)
-					.send({
-						content: lang.setlogschannel_confirmation_message
-							.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-							.replace(
-								"${authorId}",
-								interaction.member?.user.id!
+					.send(
+						cardPayload(
+							notice(
+								"success",
+								lang.setlogschannel_confirmation_message
+									.replace(
+										"${emoji_Yes}",
+										client.iHorizon_Emojis.Yes
+									)
+									.replace(
+										"${authorId}",
+										interaction.member?.user.id!
+									)
+									.replace("${typeOfLogs}", typeOfLogs)
 							)
-							.replace("${typeOfLogs}", typeOfLogs)
-					})
+						)
+					)
 					.catch(() => null);
 
 				if (logKey === "ticket-log-channel") {
@@ -396,11 +465,16 @@ export const command: Command = {
 					);
 				}
 
-				await client.func.method.interactionSend(interaction, {
-					content: lang.setlogschannel_command_work
-						.replace("${argsidId}", channel.id)
-						.replace("${typeOfLogs}", typeOfLogs)
-				});
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						lang.setlogschannel_command_work
+							.replace("${argsidId}", channel.id)
+							.replace("${typeOfLogs}", typeOfLogs)
+					)
+				);
 
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.setlogschannel_logs_embed_title,
@@ -453,25 +527,43 @@ export const command: Command = {
 				}
 				allCreatedChannels.push(channel.id);
 				await (target as BaseGuildTextChannel)
-					.send({
-						content: lang.setlogschannel_confirmation_message
-							.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-							.replace("${authorId}", interaction.member.user.id!)
-							.replace(
-								"${typeOfLogs}",
-								allLogsPossible.map((x) => x.value).join(",")
+					.send(
+						cardPayload(
+							notice(
+								"success",
+								lang.setlogschannel_confirmation_message
+									.replace(
+										"${emoji_Yes}",
+										client.iHorizon_Emojis.Yes
+									)
+									.replace(
+										"${authorId}",
+										interaction.member.user.id!
+									)
+									.replace(
+										"${typeOfLogs}",
+										allLogsPossible
+											.map((x) => x.value)
+											.join(",")
+									)
 							)
-					})
+						)
+					)
 					.catch(() => null);
 
-				await client.func.method.interactionSend(interaction, {
-					content: lang.setlogschannel_utils_command_work
-						.replace("${argsidId}", `<#${channel.id}>`)
-						.replace(
-							"${typeOfLogs}",
-							allLogsPossible.map((x) => x.value).join(", ")
-						)
-				});
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						lang.setlogschannel_utils_command_work
+							.replace("${argsidId}", `<#${channel.id}>`)
+							.replace(
+								"${typeOfLogs}",
+								allLogsPossible.map((x) => x.value).join(", ")
+							)
+					)
+				);
 			} else {
 				try {
 					const existingLogs: Record<string, string> = {};
@@ -588,19 +680,26 @@ export const command: Command = {
 						allCreatedChannels.push(newChannel.id);
 
 						await newChannel
-							.send({
-								content:
-									lang.setlogschannel_confirmation_message
-										.replace(
-											"${emoji_Yes}",
-											client.iHorizon_Emojis.Yes
-										)
-										.replace(
-											"${authorId}",
-											interaction.member.user.id!
-										)
-										.replace("${typeOfLogs}", logType.value)
-							})
+							.send(
+								cardPayload(
+									notice(
+										"success",
+										lang.setlogschannel_confirmation_message
+											.replace(
+												"${emoji_Yes}",
+												client.iHorizon_Emojis.Yes
+											)
+											.replace(
+												"${authorId}",
+												interaction.member.user.id!
+											)
+											.replace(
+												"${typeOfLogs}",
+												logType.value
+											)
+									)
+								)
+							)
 							.catch(() => null);
 
 						if (logType.id === "ticket-log-channel") {
@@ -616,19 +715,24 @@ export const command: Command = {
 						}
 					}
 
-					await client.func.method.interactionSend(interaction, {
-						content: lang.setlogschannel_utils_command_work
-							.replace(
-								"${argsidId}",
-								allCreatedChannels
-									.map((x) => `<#${x}>`)
-									.join(",")
-							)
-							.replace(
-								"${typeOfLogs}",
-								missingLogs.map((x) => x.value).join(", ")
-							)
-					});
+					await sendCard(
+						client,
+						interaction,
+						notice(
+							"success",
+							lang.setlogschannel_utils_command_work
+								.replace(
+									"${argsidId}",
+									allCreatedChannels
+										.map((x) => `<#${x}>`)
+										.join(",")
+								)
+								.replace(
+									"${typeOfLogs}",
+									missingLogs.map((x) => x.value).join(", ")
+								)
+						)
+					);
 				} catch (e) {
 					logger.err(e);
 					await client.func.method.interactionSend(interaction, {
@@ -663,12 +767,17 @@ export const command: Command = {
 				await client.db.delete(
 					`${interaction.guildId}.GUILD.SERVER_LOGS`
 				);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.setlogschannel_command_work_on_delete.replace(
-						"${guildName}",
-						interaction.guild?.name as string
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						lang.setlogschannel_command_work_on_delete.replace(
+							"${guildName}",
+							interaction.guild?.name as string
+						)
 					)
-				});
+				);
 			} catch (e) {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {

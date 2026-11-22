@@ -37,7 +37,11 @@ export const command: Command = {
 		ru: "Автоматически настроить все каналы логов",
 		"es-ES": "Establecer todos los canales de registro automáticamente",
 		ko: "모든 로그 채널을 자동으로 설정해요",
-		uk: "Автоматично налаштувати всі канали логів"
+		uk: "Автоматично налаштувати всі канали логів",
+		de: "Legt alle Log-Kanäle automatisch fest",
+		it: "Imposta automaticamente tutti i canali di log",
+		"pt-BR": "Define todos os canais de logs automaticamente",
+		pl: "Automatycznie ustawia wszystkie kanały logów"
 	},
 
 	thinking: false,

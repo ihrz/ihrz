@@ -37,7 +37,11 @@ export const command: Command = {
 		ru: "Настроить профиль бота на вашем сервере",
 		"es-ES": "Personalizar el perfil del bot en tu servidor de Discord",
 		ko: "Discord 서버에서 봇 프로필을 꾸며요",
-		uk: "Налаштувати профіль бота на вашому сервері Discord"
+		uk: "Налаштувати профіль бота на вашому сервері Discord",
+		de: "Passe das Bot-Profil auf deinem Discord-Server an",
+		it: "Personalizza il profilo del bot nel tuo server Discord",
+		"pt-BR": "Personalize o perfil do bot no seu servidor do Discord",
+		pl: "Dostosuj profil bota na swoim serwerze Discord"
 	},
 
 	options: [
@@ -53,7 +57,11 @@ export const command: Command = {
 				ru: "Изменить имя iHorizon на сервере",
 				"es-ES": "Cambiar el nombre de iHorizon en el servidor",
 				ko: "서버에서 iHorizon의 이름을 변경해요",
-				uk: "Змінити ім'я iHorizon на сервері"
+				uk: "Змінити ім'я iHorizon на сервері",
+				de: "Ändere den iHorizon-Namen auf dem Server",
+				it: "Cambia il nome di iHorizon nel server",
+				"pt-BR": "Altere o nome do iHorizon no servidor",
+				pl: "Zmień nazwę iHorizon na serwerze"
 			},
 
 			options: [
@@ -67,7 +75,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "¿Qué quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -80,7 +92,11 @@ export const command: Command = {
 								"es-ES":
 									"Restablecer el nombre predeterminado del bot",
 								ko: "기본 봇 이름",
-								uk: "Типове ім'я бота"
+								uk: "Типове ім'я бота",
+								de: "Standard-Bot-Name",
+								it: "Nome predefinito del bot",
+								"pt-BR": "Nome padrão do bot",
+								pl: "Domyślna nazwa bota"
 							},
 							value: "reset"
 						},
@@ -92,7 +108,11 @@ export const command: Command = {
 								ru: "Задать имя",
 								"es-ES": "Establecer un nombre",
 								ko: "하나 설정",
-								uk: "Задати своє"
+								uk: "Задати своє",
+								de: "Eines festlegen",
+								it: "Imposta uno",
+								"pt-BR": "Definir um",
+								pl: "Ustaw jeden"
 							},
 							value: "set"
 						}
@@ -113,7 +133,11 @@ export const command: Command = {
 						ru: "Имя",
 						"es-ES": "El nombre",
 						ko: "이름",
-						uk: "Ім'я"
+						uk: "Ім'я",
+						de: "Der Name",
+						it: "Il nome",
+						"pt-BR": "O nome",
+						pl: "Nazwa"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -138,7 +162,11 @@ export const command: Command = {
 				ru: "Изменить аватар iHorizon на сервере",
 				"es-ES": "Cambiar el avatar de iHorizon en tu servidor",
 				ko: "서버에서 iHorizon의 아바타를 변경해요",
-				uk: "Змінити аватар iHorizon на вашому сервері"
+				uk: "Змінити аватар iHorizon на вашому сервері",
+				de: "Ändere den iHorizon-Avatar auf deinem Server",
+				it: "Cambia l'avatar di iHorizon nel tuo server",
+				"pt-BR": "Altere o avatar do iHorizon no seu servidor",
+				pl: "Zmień awatar iHorizon na swoim serwerze"
 			},
 
 			options: [
@@ -152,7 +180,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "¿Qué quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -165,7 +197,11 @@ export const command: Command = {
 								"es-ES":
 									"Restablecer el avatar predeterminado del bot",
 								ko: "기본 봇 아바타",
-								uk: "Типовий аватар бота"
+								uk: "Типовий аватар бота",
+								de: "Standard-Bot-Avatar",
+								it: "Avatar predefinito del bot",
+								"pt-BR": "Avatar padrão do bot",
+								pl: "Domyślny awatar bota"
 							},
 							value: "reset"
 						},
@@ -177,7 +213,11 @@ export const command: Command = {
 								ru: "Задать аватар",
 								"es-ES": "Establecer un avatar",
 								ko: "하나 설정",
-								uk: "Задати своє"
+								uk: "Задати своє",
+								de: "Eines festlegen",
+								it: "Imposta uno",
+								"pt-BR": "Definir um",
+								pl: "Ustaw jeden"
 							},
 							value: "set"
 						}
@@ -197,7 +237,11 @@ export const command: Command = {
 						ru: "Аватар",
 						"es-ES": "El avatar",
 						ko: "아바타",
-						uk: "Аватар"
+						uk: "Аватар",
+						de: "Der Avatar",
+						it: "L'avatar",
+						"pt-BR": "O avatar",
+						pl: "Awatar"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -223,7 +267,11 @@ export const command: Command = {
 				ru: "Изменить баннер iHorizon на сервере",
 				"es-ES": "Cambiar el banner de iHorizon en tu servidor",
 				ko: "서버에서 iHorizon의 배너를 변경해요",
-				uk: "Змінити банер iHorizon на вашому сервері"
+				uk: "Змінити банер iHorizon на вашому сервері",
+				de: "Ändere das iHorizon-Banner auf deinem Server",
+				it: "Cambia il banner di iHorizon nel tuo server",
+				"pt-BR": "Altere o banner do iHorizon no seu servidor",
+				pl: "Zmień baner iHorizon na swoim serwerze"
 			},
 
 			options: [
@@ -237,7 +285,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "¿Qué quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -250,7 +302,11 @@ export const command: Command = {
 								"es-ES":
 									"Restablecer el banner predeterminado del bot",
 								ko: "기본 봇 배너",
-								uk: "Типовий банер бота"
+								uk: "Типовий банер бота",
+								de: "Standard-Bot-Banner",
+								it: "Banner predefinito del bot",
+								"pt-BR": "Banner padrão do bot",
+								pl: "Domyślny baner bota"
 							},
 							value: "reset"
 						},
@@ -262,7 +318,11 @@ export const command: Command = {
 								ru: "Задать баннер",
 								"es-ES": "Establecer un banner",
 								ko: "하나 설정",
-								uk: "Задати своє"
+								uk: "Задати своє",
+								de: "Eines festlegen",
+								it: "Imposta uno",
+								"pt-BR": "Definir um",
+								pl: "Ustaw jeden"
 							},
 							value: "set"
 						}
@@ -282,7 +342,11 @@ export const command: Command = {
 						ru: "Баннер",
 						"es-ES": "El banner",
 						ko: "배너",
-						uk: "Банер"
+						uk: "Банер",
+						de: "Das Banner",
+						it: "Il banner",
+						"pt-BR": "O banner",
+						pl: "Baner"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -307,7 +371,11 @@ export const command: Command = {
 				ru: "Изменить описание iHorizon на сервере",
 				"es-ES": "Cambiar la biografía de iHorizon en tu servidor",
 				ko: "서버에서 iHorizon의 소개를 변경해요",
-				uk: "Змінити біографію iHorizon на вашому сервері"
+				uk: "Змінити біографію iHorizon на вашому сервері",
+				de: "Ändere die iHorizon-Bio auf deinem Server",
+				it: "Cambia la bio di iHorizon nel tuo server",
+				"pt-BR": "Altere a bio do iHorizon no seu servidor",
+				pl: "Zmień opis iHorizon na swoim serwerze"
 			},
 
 			options: [
@@ -321,7 +389,11 @@ export const command: Command = {
 						ru: "Что вы хотите сделать?",
 						"es-ES": "¿Qué quieres hacer?",
 						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?"
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					choices: [
@@ -334,7 +406,11 @@ export const command: Command = {
 								"es-ES":
 									"Restablecer la descripción predeterminada del bot",
 								ko: "기본 봇 소개",
-								uk: "Типовий опис бота"
+								uk: "Типовий опис бота",
+								de: "Standard-Bot-Beschreibung",
+								it: "Descrizione predefinita del bot",
+								"pt-BR": "Descrição padrão do bot",
+								pl: "Domyślny opis bota"
 							},
 							value: "reset"
 						},
@@ -346,7 +422,11 @@ export const command: Command = {
 								ru: "Задать описание",
 								"es-ES": "Establecer una descripción",
 								ko: "하나 설정",
-								uk: "Задати своє"
+								uk: "Задати своє",
+								de: "Eines festlegen",
+								it: "Imposta uno",
+								"pt-BR": "Definir um",
+								pl: "Ustaw jeden"
 							},
 							value: "set"
 						}
@@ -366,7 +446,11 @@ export const command: Command = {
 						ru: "Описание",
 						"es-ES": "La descripción",
 						ko: "설명",
-						uk: "Опис"
+						uk: "Опис",
+						de: "Die Beschreibung",
+						it: "La descrizione",
+						"pt-BR": "A descrição",
+						pl: "Opis"
 					},
 
 					type: ApplicationCommandOptionType.String,

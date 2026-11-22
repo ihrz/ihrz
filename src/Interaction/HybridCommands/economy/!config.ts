@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -64,12 +65,17 @@ export const subCommand: SubCommand = {
 				false
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_set_enable.replace(
-					"${authorId}",
-					interaction.member.user.id
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					`${client.iHorizon_Emojis.Yes} ${lang.economy_disable_set_enable.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)}`
 				)
-			});
+			);
 			await client.func.economyLogs.config(
 				interaction.guild,
 				interaction.member.user.id,
@@ -92,12 +98,17 @@ export const subCommand: SubCommand = {
 				true
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_set_disable.replace(
-					"${authorId}",
-					interaction.member.user.id
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					`${client.iHorizon_Emojis.Yes} ${lang.economy_disable_set_disable.replace(
+						"${authorId}",
+						interaction.member.user.id
+					)}`
 				)
-			});
+			);
 
 			await client.func.economyLogs.config(
 				interaction.guild,

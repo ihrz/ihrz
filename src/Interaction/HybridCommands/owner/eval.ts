@@ -43,7 +43,11 @@ export const command: Command = {
 		ru: "Запустить программу JavaScript (только для разработчиков)!",
 		"es-ES": "Ejecutar programa Javascript (solo para desarrolladores)!",
 		ko: "Javascript 프로그램을 실행해요 (개발자 전용)!",
-		uk: "Виконати програму на Javascript (лише для розробників)!"
+		uk: "Виконати програму на Javascript (лише для розробників)!",
+		de: "Führt ein JavaScript-Programm aus (nur für Entwickler)!",
+		it: "Esegue un programma JavaScript (solo sviluppatori)!",
+		"pt-BR": "Executa um programa JavaScript (apenas desenvolvedores)!",
+		pl: "Uruchamia program JavaScript (tylko dla deweloperów)!"
 	},
 
 	options: [
@@ -58,7 +62,11 @@ export const command: Command = {
 				ru: "код JavaScript",
 				"es-ES": "código JavaScript",
 				ko: "JavaScript 코드",
-				uk: "Код JavaScript"
+				uk: "Код JavaScript",
+				de: "JavaScript-Code",
+				it: "codice JavaScript",
+				"pt-BR": "código JavaScript",
+				pl: "kod JavaScript"
 			},
 
 			required: true,

@@ -4217,7 +4217,7 @@ export default {
 		"招待ありがとうございます！**iHorizon** です。モデレーション、チケット、音楽、保護、ログなどを、**無料**で**オープンソース**のひとつのボットで。",
 	welcome_lang_title: "言語",
 	welcome_lang_text:
-		"このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから 11 の言語を選べます。",
+		"このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから {count} の言語を選べます。",
 	welcome_start_title: "はじめに",
 	welcome_start_help: "{command} ですべてのコマンドをカテゴリ別に表示",
 	welcome_start_dashboard:
@@ -5062,5 +5062,55 @@ export default {
 	tempvoice_region_ussouth: "米国南部",
 	tempvoice_region_uswest: "米国西部",
 	tempvoice_region_uscentral: "米国中部",
-	tempvoice_region_brazil: "ブラジル"
+	tempvoice_region_brazil: "ブラジル",
+
+	// logs V2 cards
+	logs_ban_add_title: "メンバーがBANされました",
+	logs_ban_remove_title: "メンバーのBANが解除されました",
+	logs_kick_title: "メンバーがキックされました",
+	logs_boost_add_title: "新しいブースト",
+	logs_boost_remove_title: "ブーストが解除されました",
+	logs_channel_update_title: "チャンネルが更新されました",
+	logs_message_delete_title: "メッセージが削除されました",
+	logs_message_update_title: "メッセージが編集されました",
+	logs_roles_update_title: "ロールが更新されました",
+	logs_voice_title: "ボイスアクティビティ",
+	logs_channel_label: "チャンネル",
+	logs_jump_to_message: "メッセージへ移動",
+	logs_message_delete_embeds:
+		"メッセージの埋め込み（${count}件）はすぐ下に表示されます。",
+
+	// schedule V2 cards
+	schedule_reminder_title: "リマインダー #${scheduleCode} の時間です！",
+
+	// invites V2 cards
+	invites_reset_title: "招待マネージャーをリセット",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"あなたの順位: ${count} 人中 **#${rank}** · ${wealth}",
+	economy_leaderboard_not_ranked: "まだランキングに入っていません。",
+	economy_leaderboard_count: "ランキング参加者: ${count} 人",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "レベル ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** を有効にしました：実行ファイルは削除されます。",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** を無効にしました：実行ファイルが再び許可されます。",
+	guildconfig_list_react_title: "自動リアクション",
+
+	// hard-coded strings
+	updates_button_releases: "リリース",
+	updates_button_commit: "コミット",
+	warn_reason_piconly: "自動処罰: 画像専用チャンネル",
+	warn_reason_antiexe: "Anti-Exe: 実行ファイルを送信しました",
+	warn_reason_punishpub: "自動処罰: 宣伝行為",
+	warn_reason_antispam: "自動処罰: スパム",
+	automod_block_custom_message:
+		"このメッセージは iHorizon によってブロックされました",
+	derogation_role_name: "iHorizon が管理",
+	ticket_transcript_footer: "エクスポートしたメッセージ: {number}",
+	music_playlist_fallback_name: "${platform} のプレイリスト",
+	music_apo_node_unreachable: "音声サーバーに接続できません (${message})"
 } satisfies LanguageData;

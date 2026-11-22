@@ -103,7 +103,9 @@ export const subCommand: SubCommand = {
 			const { res } = await client.func.musicPlay.searchMusicQuery(
 				client,
 				query,
-				interaction.member.user
+				interaction.member.user,
+				undefined,
+				lang
 			);
 			if (!res || res.tracks.length <= 0) {
 				await client.func.method.interactionSend(interaction, {

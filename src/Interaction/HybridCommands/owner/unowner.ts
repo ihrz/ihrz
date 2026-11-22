@@ -42,7 +42,12 @@ export const command: Command = {
 		"es-ES":
 			"El miembro que quiere eliminar de la lista de propietarios (Solo propietario de iHorizon)!",
 		ko: "소유자 목록에서 삭제할 멤버 (iHorizon 소유자 전용)!",
-		uk: "Учасник, якого слід вилучити зі списку власників (лише власник iHorizon)!"
+		uk: "Учасник, якого слід вилучити зі списку власників (лише власник iHorizon)!",
+		de: "Mitglied, das von der Owner-Liste entfernt wird (nur iHorizon-Owner)!",
+		it: "Membro da rimuovere dalla lista proprietari (solo owner di iHorizon)!",
+		"pt-BR":
+			"Membro a remover da lista de donos (apenas dono do iHorizon)!",
+		pl: "Członek do usunięcia z listy właścicieli (tylko właściciel iHorizon)!"
 	},
 
 	options: [
@@ -58,7 +63,11 @@ export const command: Command = {
 				"es-ES":
 					"El miembro que quiere eliminar de la lista de propietarios",
 				ko: "소유자 목록에서 삭제할 멤버",
-				uk: "Учасник, якого слід вилучити зі списку власників"
+				uk: "Учасник, якого слід вилучити зі списку власників",
+				de: "Mitglied, das von der Owner-Liste entfernt wird",
+				it: "Membro da rimuovere dalla lista dei proprietari",
+				"pt-BR": "Membro a remover da lista de donos",
+				pl: "Członek do usunięcia z listy właścicieli"
 			},
 
 			required: true,

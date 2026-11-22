@@ -23,6 +23,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -73,11 +74,16 @@ export const subCommand: SubCommand = {
 
 		let stime = client.timeCalculator.to_beautiful_string(time, lang);
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.economy_manage_rewards_cooldown_command_ok
-				.replace("${type}", type)
-				.replace("${stime}", stime)
-		});
+		await sendCard(
+			client,
+			interaction,
+			notice(
+				"success",
+				`${client.iHorizon_Emojis.Yes} ${lang.economy_manage_rewards_cooldown_command_ok
+					.replace("${type}", type)
+					.replace("${stime}", stime)}`
+			)
+		);
 		await client.func.economyLogs.setCooldown(
 			interaction.guild,
 			interaction.member.user.id,
