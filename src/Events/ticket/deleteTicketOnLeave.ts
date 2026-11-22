@@ -20,10 +20,8 @@
 */
 
 import {
-	AttachmentPayload,
 	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	TextChannel
 } from "discord.js";
@@ -31,10 +29,8 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
-import {
-	saveTicketTranscript,
-	transcriptLinkRow
-} from "../../core/modules/ticketTranscripts.js";
+import { sendTicketLog } from "../../core/modules/ticketsManager.js";
+import { saveTicketTranscript } from "../../core/modules/ticketTranscripts.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -82,44 +78,21 @@ export const event: BotEvent = {
 							poweredBy: false
 						}).catch(() => null);
 
-				const embed = new EmbedBuilder()
-					.setColor("#008000")
-					.setTitle(
-						lang.event_ticket_logsChannel_onDelete_embed_title
-					)
-					.setDescription(
+				await sendTicketLog(member.guild, {
+					kind: "deleted",
+					title: lang.event_ticket_logsChannel_onDelete_embed_title,
+					description:
 						lang.event_ticket_logsChannel_onLeave_embed_desc
 							.replace("${author}", member.user.toString())
-							.replace("${channelName}", channel.name)
-					)
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							member.guild.id
-						)
-					)
-					.setTimestamp();
-
-				const files: AttachmentPayload[] = [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						member
-					)
-				];
-				if (attachment) files.push(attachment as AttachmentPayload);
-
-				await logsChannel
-					.send({
-						embeds: [embed],
-						files,
-						components: webUrl
-							? [
-									transcriptLinkRow(
-										webUrl,
-										lang.ticket_module_button_transcript
-									)
-								]
-							: []
-					})
-					.catch(() => null);
+							.replace("${channelName}", channel.name),
+					files: attachment ? [attachment] : [],
+					link: webUrl
+						? {
+								url: webUrl,
+								label: lang.ticket_module_button_transcript
+							}
+						: null
+				});
 			}
 
 			await channel?.delete().catch(() => {});

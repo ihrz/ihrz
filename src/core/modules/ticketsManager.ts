@@ -20,6 +20,11 @@
 */
 
 import {
+	TextDisplayBuilder,
+	SeparatorBuilder,
+	FileBuilder,
+	ContainerBuilder,
+	AttachmentBuilder,
 	EmbedBuilder,
 	ButtonBuilder,
 	ButtonStyle,
@@ -524,37 +529,14 @@ async function CreateChannel(
 				});
 
 			try {
-				let TicketLogsChannel = await interaction.client.db.get(
-					`${interaction.guildId}.GUILD.TICKET.logs`
-				);
-				TicketLogsChannel =
-					interaction.guild?.channels.cache.get(TicketLogsChannel);
-				if (!TicketLogsChannel) return;
-
-				const embed = new EmbedBuilder()
-					.setColor("#008000")
-					.setTitle(
-						lang.event_ticket_logsChannel_onCreationChannel_embed_title
-					)
-					.setDescription(
+				if (!interaction.guild) return;
+				await sendTicketLog(interaction.guild, {
+					kind: "created",
+					title: lang.event_ticket_logsChannel_onCreationChannel_embed_title,
+					description:
 						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
 							.replace("${author}", interaction.user.toString())
 							.replace("${channelId}", channel.id)
-					)
-					.setFooter(
-						await interaction.client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-					.setTimestamp();
-
-				TicketLogsChannel.send({
-					embeds: [embed],
-					files: [
-						await interaction.client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
 				});
 				return;
 			} catch (e) {
@@ -926,37 +908,14 @@ async function CreateChannelV2(
 				});
 
 			try {
-				let TicketLogsChannel = await interaction.client.db.get(
-					`${interaction.guildId}.GUILD.TICKET.logs`
-				);
-				TicketLogsChannel =
-					interaction.guild?.channels.cache.get(TicketLogsChannel);
-				if (!TicketLogsChannel) return;
-
-				const embed = new EmbedBuilder()
-					.setColor("#008000")
-					.setTitle(
-						lang.event_ticket_logsChannel_onCreationChannel_embed_title
-					)
-					.setDescription(
+				if (!interaction.guild) return;
+				await sendTicketLog(interaction.guild, {
+					kind: "created",
+					title: lang.event_ticket_logsChannel_onCreationChannel_embed_title,
+					description:
 						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
 							.replace("${author}", interaction.user.toString())
 							.replace("${channelId}", channel.id)
-					)
-					.setFooter(
-						await interaction.client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-					.setTimestamp();
-
-				TicketLogsChannel.send({
-					embeds: [embed],
-					files: [
-						await interaction.client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
 				});
 				return;
 			} catch (e) {
@@ -1006,13 +965,43 @@ async function findTicketByChannel(
 	return entries.find((e) => e.data.channel === channelId) ?? null;
 }
 
-/** Sends an entry to the ticket log channel (`GUILD.TICKET.logs`), if set. Never throws. */
+type TicketLogKind =
+	| "created"
+	| "closed"
+	| "reopened"
+	| "deleted"
+	| "added"
+	| "removed"
+	| "members";
+
+// Colour and bot emoji of each log entry.
+const TICKET_LOG_STYLE: Record<
+	TicketLogKind,
+	{ color: number; emoji: string }
+> = {
+	created: { color: 0x23a55a, emoji: "Ticket_Main" },
+	closed: { color: 0xf0b232, emoji: "Lock" },
+	reopened: { color: 0x5865f2, emoji: "Unlock" },
+	deleted: { color: 0xf23f43, emoji: "Ticket_Trash" },
+	added: { color: 0x5865f2, emoji: "Ticket_User" },
+	removed: { color: 0x80848e, emoji: "Ticket_User" },
+	members: { color: 0x5865f2, emoji: "Ticket_User" }
+};
+
+/**
+ * Sends an entry to the ticket log channel (`GUILD.TICKET.logs`), if set, as a Components V2 card: the event, its
+ * text, the HTML transcript when there is no web one, the web transcript button, the bot name and the time. Never
+ * throws. Mentions do not ping (a V2 text, unlike an embed, would).
+ */
 async function sendTicketLog(
 	guild: Guild,
-	title: string,
-	description: string,
-	files: TicketFiles = [],
-	transcriptLink: { url: string; label: string } | null = null
+	entry: {
+		kind: TicketLogKind;
+		title: string;
+		description: string;
+		files?: AttachmentBuilder[];
+		link?: { url: string; label: string } | null;
+	}
 ): Promise<void> {
 	try {
 		const logsId = await guild.client.db.get(
@@ -1021,26 +1010,45 @@ async function sendTicketLog(
 		const logs = logsId ? guild.channels.cache.get(logsId) : undefined;
 		if (!logs?.isSendable()) return;
 
-		const embed = new EmbedBuilder()
-			.setColor("#008000")
-			.setTitle(title)
-			.setDescription(description)
-			.setFooter(
-				await guild.client.func.displayBotName.footerBuilder(guild.id)
+		const style = TICKET_LOG_STYLE[entry.kind];
+		const emoji =
+			(guild.client.iHorizon_Emojis as Record<string, string>)[
+				style.emoji
+			] ?? "";
+		const footer = await guild.client.func.displayBotName.footerBuilder(
+			guild.id
+		);
+		const files = entry.files ?? [];
+
+		const container = new ContainerBuilder()
+			.setAccentColor(style.color)
+			.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${emoji} ${entry.title}\n${entry.description}`
+				)
+			);
+		if (files.length) {
+			container.addSeparatorComponents(new SeparatorBuilder());
+			for (const file of files) {
+				container.addFileComponents(
+					new FileBuilder().setURL(`attachment://${file.name}`)
+				);
+			}
+		}
+		if (entry.link) {
+			container.addActionRowComponents(transcriptLinkRow(entry.link));
+		}
+		container.addTextDisplayComponents(
+			new TextDisplayBuilder().setContent(
+				`-# ${footer.text} · <t:${Math.floor(Date.now() / 1000)}:f>`
 			)
-			.setTimestamp();
+		);
 
 		await logs.send({
-			embeds: [embed],
-			files: [
-				await guild.client.func.displayBotName.footerAttachmentBuilder(
-					guild
-				),
-				...files
-			],
-			components: transcriptLink
-				? [transcriptLinkRow(transcriptLink)]
-				: []
+			components: [container],
+			files,
+			flags: MessageFlags.IsComponentsV2,
+			allowedMentions: { parse: [] }
 		});
 	} catch {}
 }
@@ -1094,7 +1102,7 @@ async function closeTicketChannel(
 				footerText: "Exported {number} message{s}",
 				poweredBy: false
 			});
-	const files: TicketFiles = attachment ? [attachment] : [];
+	const files: AttachmentBuilder[] = attachment ? [attachment] : [];
 
 	const embed = new EmbedBuilder()
 		.setDescription(lang.close_title_sourcebin)
@@ -1123,15 +1131,15 @@ async function closeTicketChannel(
 			: {})
 	}).catch(() => null);
 
-	await sendTicketLog(
-		channel.guild,
-		lang.event_ticket_logsChannel_onClose_embed_title,
-		lang.event_ticket_logsChannel_onClose_embed_desc
+	await sendTicketLog(channel.guild, {
+		kind: "closed",
+		title: lang.event_ticket_logsChannel_onClose_embed_title,
+		description: lang.event_ticket_logsChannel_onClose_embed_desc
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id),
 		files,
-		transcriptLink
-	);
+		link: transcriptLink
+	});
 	return true;
 }
 
@@ -1323,14 +1331,14 @@ async function removeTicketMember(
 		SendMessages: false,
 		ReadMessageHistory: false
 	});
-	await sendTicketLog(
-		channel.guild,
-		lang.event_ticket_logsChannel_onRemoveMember_embed_title,
-		lang.event_ticket_logsChannel_onRemoveMember_embed_desc
+	await sendTicketLog(channel.guild, {
+		kind: "removed",
+		title: lang.event_ticket_logsChannel_onRemoveMember_embed_title,
+		description: lang.event_ticket_logsChannel_onRemoveMember_embed_desc
 			.replace("${member}", user.toString())
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id)
-	);
+	});
 }
 
 async function TicketRemoveMember(
@@ -1374,14 +1382,14 @@ async function addTicketMember(
 		SendMessages: true,
 		ReadMessageHistory: true
 	});
-	await sendTicketLog(
-		channel.guild,
-		lang.event_ticket_logsChannel_onAddMember_embed_title,
-		lang.event_ticket_logsChannel_onAddMember_embed_desc
+	await sendTicketLog(channel.guild, {
+		kind: "added",
+		title: lang.event_ticket_logsChannel_onAddMember_embed_title,
+		description: lang.event_ticket_logsChannel_onAddMember_embed_desc
 			.replace("${member}", user.toString())
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id)
-	);
+	});
 }
 
 async function TicketAddMember(
@@ -1437,13 +1445,13 @@ async function reopenTicketChannel(
 		},
 		{ type: OverwriteType.Member }
 	);
-	await sendTicketLog(
-		channel.guild,
-		lang.event_ticket_logsChannel_onReopen_embed_title,
-		lang.event_ticket_logsChannel_onReopen_embed_desc
+	await sendTicketLog(channel.guild, {
+		kind: "reopened",
+		title: lang.event_ticket_logsChannel_onReopen_embed_title,
+		description: lang.event_ticket_logsChannel_onReopen_embed_desc
 			.replace("${author}", actor.toString())
 			.replace("${channelId}", channel.id)
-	);
+	});
 }
 
 async function TicketReOpen(
@@ -1509,14 +1517,9 @@ async function deleteTicketChannel(
 		actor,
 		"delete"
 	);
-	const linkRows = webUrl
-		? [
-				transcriptLinkRow({
-					url: webUrl,
-					label: lang.ticket_module_button_transcript
-				})
-			]
-		: [];
+	const transcriptLink = webUrl
+		? { url: webUrl, label: lang.ticket_module_button_transcript }
+		: null;
 
 	await guild.client.db.delete(
 		`${guild.id}.TICKET_ALL.${ticketKey}.${channel.id}`
@@ -1562,35 +1565,20 @@ async function deleteTicketChannel(
 					.catch(() => null);
 			}
 
-			const embed = new EmbedBuilder()
-				.setColor("#008000")
-				.setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
-				.setDescription(
-					lang.event_ticket_logsChannel_onDelete_embed_desc
-						.replace("${author}", actor.toString())
-						.replace("${channelName}", channel.name)
-				)
-				.setFooter(
-					await guild.client.func.displayBotName.footerBuilder(
-						guild.id
-					)
-				)
-				.setTimestamp();
 			const deleted = await channel.delete().then(
 				() => true,
 				() => false
 			);
 
-			TicketLogsChannel.send({
-				embeds: [embed],
-				files: [
-					await guild.client.func.displayBotName.footerAttachmentBuilder(
-						guild
-					),
-					...(attachment ? [attachment] : [])
-				],
-				components: linkRows
-			}).catch(() => null);
+			await sendTicketLog(guild, {
+				kind: "deleted",
+				title: lang.event_ticket_logsChannel_onDelete_embed_title,
+				description: lang.event_ticket_logsChannel_onDelete_embed_desc
+					.replace("${author}", actor.toString())
+					.replace("${channelName}", channel.name),
+				files: attachment ? [attachment] : [],
+				link: transcriptLink
+			});
 			return deleted;
 		}
 		return await channel.delete().then(
@@ -1706,53 +1694,23 @@ async function TicketAddMember_2(
 	}
 	await interaction.deferUpdate();
 
-	try {
-		let TicketLogsChannel = await interaction.client.db.get(
-			`${interaction.guildId}.GUILD.TICKET.logs`
-		);
-		TicketLogsChannel =
-			interaction.guild?.channels.cache.get(TicketLogsChannel);
-		if (!TicketLogsChannel) return;
-
-		const embed = new EmbedBuilder()
-			.setColor("#008000")
-			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
-			.setDescription(
-				data.event_ticket_logsChannel_onAddMember2_embed_desc
-					.replace("${author}", interaction.user.toString())
-					.replace(
-						"${removedMembers}",
-						removedMembers
-							.map((memberId) => `<@${memberId}>`)
-							.join(" ") || "None"
-					)
-					.replace(
-						"${addedMembers}",
-						addedMembers
-							.map((memberId) => `<@${memberId}>`)
-							.join(" ") || "None"
-					)
-					.replace("${channel}", interaction.channel?.toString()!)
+	await sendTicketLog(interaction.guild, {
+		kind: "members",
+		title: data.event_ticket_logsChannel_onAddMember2_embed_title,
+		description: data.event_ticket_logsChannel_onAddMember2_embed_desc
+			.replace("${author}", interaction.user.toString())
+			.replace(
+				"${removedMembers}",
+				removedMembers.map((memberId) => `<@${memberId}>`).join(" ") ||
+					"None"
 			)
-			.setFooter(
-				await interaction.client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
+			.replace(
+				"${addedMembers}",
+				addedMembers.map((memberId) => `<@${memberId}>`).join(" ") ||
+					"None"
 			)
-			.setTimestamp();
-
-		TicketLogsChannel.send({
-			embeds: [embed],
-			files: [
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		});
-		return;
-	} catch (e) {
-		return;
-	}
+			.replace("${channel}", interaction.channel?.toString()!)
+	});
 }
 
 async function TicketSearch(
@@ -1901,6 +1859,7 @@ export {
 	removeTicketMember,
 	reopenTicketChannel,
 	deleteTicketChannel,
+	sendTicketLog,
 	remindTicketOwner,
 	renameTicketChannel
 };
