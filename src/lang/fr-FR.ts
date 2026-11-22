@@ -4345,17 +4345,24 @@ export default {
 	guild_create_btn_repos: "Dépôts iHorizon",
 	guild_create_btn_support: "Serveur Support",
 	guild_create_btn_docs: "Documentation iHorizon",
-	welcome_server_intro: "Merci de m'accueillir ! Je suis **iHorizon** : modération, tickets, musique, protection, logs et bien plus, dans un seul bot **gratuit** et **open source**.",
+	welcome_server_intro:
+		"Merci de m'accueillir ! Je suis **iHorizon** : modération, tickets, musique, protection, logs et bien plus, dans un seul bot **gratuit** et **open source**.",
 	welcome_lang_title: "Langue",
-	welcome_lang_text: "Je parle {language} ici, d'après la région de votre serveur.\nPour la changer, un administrateur peut utiliser {command} : un panneau permet de choisir parmi 11 langues.",
+	welcome_lang_text:
+		"Je parle {language} ici, d'après la région de votre serveur.\nPour la changer, un administrateur peut utiliser {command} : un panneau permet de choisir parmi 11 langues.",
 	welcome_start_title: "Bien démarrer",
-	welcome_start_help: "{command} liste toutes les commandes, classées par catégorie",
-	welcome_start_dashboard: "Le [dashboard]({url}) configure tout depuis votre navigateur",
-	welcome_start_support: "Une question ou un bug ? Notre [serveur support]({url}) est là pour vous",
+	welcome_start_help:
+		"{command} liste toutes les commandes, classées par catégorie",
+	welcome_start_dashboard:
+		"Le [dashboard]({url}) configure tout depuis votre navigateur",
+	welcome_start_support:
+		"Une question ou un bug ? Notre [serveur support]({url}) est là pour vous",
 	welcome_footer: "Gratuit et open source depuis 2020 · ihorizon.org",
 	welcome_dm_title: "Merci d'avoir ajouté iHorizon !",
-	welcome_dm_intro: "iHorizon vient d'arriver sur {guild}. Voici tout ce qu'il faut pour bien commencer.",
-	welcome_dm_outro: "> *Un bot gratuit peut faire mieux que des bots payants.*\nC'est ça, iHorizon : une communauté et un projet portés par des passionnés depuis 2020. Bienvenue à bord !",
+	welcome_dm_intro:
+		"iHorizon vient d'arriver sur {guild}. Voici tout ce qu'il faut pour bien commencer.",
+	welcome_dm_outro:
+		"> *Un bot gratuit peut faire mieux que des bots payants.*\nC'est ça, iHorizon : une communauté et un projet portés par des passionnés depuis 2020. Bienvenue à bord !",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commandes`**\n> *« Fait par des gens depuis 2022, pour votre communauté. »*\n**https://www.ihorizon.org**",
@@ -4429,7 +4436,6 @@ export default {
 	var_off: "désactivé",
 	global_command_cooldown_msg:
 		"${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctxCommandPath}`**",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> S'EST TROMPÉ À **${number}** ! ! Le prochain nombre est **1**. **Vous ne pouvez pas compter deux fois d'affilée.**",
@@ -4896,7 +4902,8 @@ export default {
 	warn_card_title: "Membre averti",
 	warn_err_self: "${emoji_No} Vous ne pouvez pas vous avertir vous-même.",
 	warn_err_bot: "${emoji_No} Les bots ne peuvent pas être avertis.",
-	warn_err_above: "${emoji_No} Vous ne pouvez pas avertir un membre dont le rôle le plus haut est égal ou supérieur au vôtre.",
+	warn_err_above:
+		"${emoji_No} Vous ne pouvez pas avertir un membre dont le rôle le plus haut est égal ou supérieur au vôtre.",
 	warn_dm_title: "Vous avez reçu un avertissement",
 	warn_label_date: "Date",
 	warn_label_active: "Avertissements actifs",
@@ -4906,26 +4913,36 @@ export default {
 	warn_sanction_timeout: "Exclusion temporaire (${duration})",
 	warn_sanction_kick: "Expulsion",
 	warn_sanction_ban: "Bannissement",
-	warn_sanction_failed: "${sanction}, non appliquée : iHorizon ne peut pas sanctionner ce membre",
+	warn_sanction_failed:
+		"${sanction}, non appliquée : iHorizon ne peut pas sanctionner ce membre",
 	warn_expire_note: "les avertissements expirent après ${days} jours",
 	warnlist_expired: "expiré",
 	warnlist_card_active: "${active} actifs · ${count} au total",
 	warnconfig_title: "Réglages des avertissements",
 	warnconfig_label_expiry: "Expiration",
-	warnconfig_expiry_never: "Jamais : les avertissements comptent pour toujours",
+	warnconfig_expiry_never:
+		"Jamais : les avertissements comptent pour toujours",
 	warnconfig_expiry_days: "Après ${days} jours",
 	warnconfig_label_rules: "Sanctions automatiques",
-	warnconfig_no_rules: "Aucune : les avertissements ne déclenchent jamais de sanction seuls",
+	warnconfig_no_rules:
+		"Aucune : les avertissements ne déclenchent jamais de sanction seuls",
 	warnconfig_rule_line: "**${count}** avertissements → ${sanction}",
 	warnconfig_saved: "Réglages enregistrés.",
-	warnconfig_err_duration: "${emoji_No} Une exclusion temporaire a besoin d'une durée de 1 minute à 28 jours (ex. `1h`, `2d`).",
-	warnconfig_err_count: "${emoji_No} Le seuil doit aller de 1 à 100 avertissements.",
-	warnconfig_err_rules: "${emoji_No} 10 sanctions automatiques au maximum : retirez-en une d'abord.",
-	warnconfig_err_expiry: "${emoji_No} L'expiration doit aller de 0 (jamais) à 365 jours.",
-	warnconfig_err_sanction: "${emoji_No} Choisissez une sanction pour ce seuil (ou `none` pour le retirer).",
-	warnconfig_hint: "Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la retirer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
+	warnconfig_err_duration:
+		"${emoji_No} Une exclusion temporaire a besoin d'une durée de 1 minute à 28 jours (ex. `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} Le seuil doit aller de 1 à 100 avertissements.",
+	warnconfig_err_rules:
+		"${emoji_No} 10 sanctions automatiques au maximum : retirez-en une d'abord.",
+	warnconfig_err_expiry:
+		"${emoji_No} L'expiration doit aller de 0 (jamais) à 365 jours.",
+	warnconfig_err_sanction:
+		"${emoji_No} Choisissez une sanction pour ce seuil (ou `none` pour le retirer).",
+	warnconfig_hint:
+		"Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la retirer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
 	clearwarn_card_title: "Avertissements effacés",
-	clearwarn_card_desc: "Les ${count} avertissements de ${member} ont été retirés.",
+	clearwarn_card_desc:
+		"Les ${count} avertissements de ${member} ont été retirés.",
 	clear_allwarns_card_title: "Tous les avertissements supprimés",
 	mod_label_duration: "Durée",
 	mod_label_ends: "Fin",
@@ -5143,5 +5160,49 @@ export default {
 	status_panel_card_col_history: "60 derniers contrôles",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30j",
-	status_panel_card_chart: "Temps de réponse moyen"
+	status_panel_card_chart: "Temps de réponse moyen",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Inviter iHorizon",
+	dm_only_server_desc:
+		"# Oups !\n\nVous utilisez iHorizon dans une conversation privée, mais cette commande ne fonctionne que sur un serveur Discord.\n\nAjoutez-moi sur un serveur pour l'utiliser !",
+	topgg_vote_button: "Voter pour iHorizon",
+	dm_message_from: "Message de ${guild}",
+	dm_message_by: "Message de ${user}",
+	ticket_panel_button_saved: "Enregistré",
+	economy_balance_wallet_title: "Portefeuille de ${user}",
+	reactionroles_help_embed_title: "Aide de /reactionroles",
+	command_error_title: "**La commande a rencontré un problème.**",
+	command_error_report: "**Merci de signaler ce problème avec `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Cher·e <@${ownerId}>, désolé, mais vous avez été blacklisté d'iHorizon.\nJe quitte donc votre serveur. Pour toute question, contactez mes développeurs.\n\nMerci de votre compréhension.",
+	status_field_cpu: "Processeur",
+	status_field_memory: "Mémoire",
+	status_field_machine_uptime: "Disponibilité de la machine",
+	status_field_bot_uptime: "Disponibilité du bot",
+	status_field_os: "Système",
+	status_field_bot_version: "Version du bot",
+	status_field_bun_version: "Version de Bun",
+	owner_guild_title: "Propriétaires du serveur",
+	var_discord_permission: "Permission Discord",
+	rate_nothing: "rien",
+	embed_default_footer: "Pied de page",
+	music_history_file_title:
+		"Historique musical de ${guild} (30 derniers jours, du plus récent au plus ancien)",
+	music_history_requested_by: "demandé par ${user}",
+	music_history_live: "direct",
+	tempvoice_region_singapore: "Singapour",
+	tempvoice_region_sydney: "Australie (Sydney)",
+	tempvoice_region_russia: "Russie",
+	tempvoice_region_india: "Inde",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "Afrique du Sud",
+	tempvoice_region_rotterdam: "Pays-Bas (Rotterdam)",
+	tempvoice_region_japan: "Japon (Tokyo)",
+	tempvoice_region_southkorea: "Corée du Sud",
+	tempvoice_region_useast: "États-Unis Est",
+	tempvoice_region_ussouth: "États-Unis Sud",
+	tempvoice_region_uswest: "États-Unis Ouest",
+	tempvoice_region_uscentral: "États-Unis Centre",
+	tempvoice_region_brazil: "Brésil"
 } satisfies LanguageData;

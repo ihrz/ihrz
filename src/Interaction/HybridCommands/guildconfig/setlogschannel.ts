@@ -90,7 +90,8 @@ export const command: Command = {
 		ru: "Установить канал для аудита!",
 		"es-ES":
 			"Establecer un canal de registros para los registros de auditoría!",
-		ko: "감사 로그 채널을 설정해요!"
+		ko: "감사 로그 채널을 설정해요!",
+		uk: "Встановити канал для журналів аудиту!"
 	},
 
 	aliases: ["logs", "setlog"],
@@ -105,7 +106,8 @@ export const command: Command = {
 				ja: "指定されたログカテゴリ",
 				ru: "Указанная категория логов",
 				"es-ES": "Categoría de registros especificada",
-				ko: "지정할 로그 종류"
+				ko: "지정할 로그 종류",
+				uk: "Вказана категорія журналів"
 			},
 			required: true,
 			choices: [
@@ -116,7 +118,8 @@ export const command: Command = {
 						ja: "setup_all_channels",
 						ru: "setup_all_channels",
 						"es-ES": "setup_all_channels",
-						ko: "모든 채널 설정"
+						ko: "모든 채널 설정",
+						uk: "Налаштувати всі канали"
 					},
 					value: "auto"
 				},
@@ -127,7 +130,8 @@ export const command: Command = {
 						ja: "delete_all_settings",
 						ru: "delete_all_settings",
 						"es-ES": "delete_all_settings",
-						ko: "모든 설정 삭제"
+						ko: "모든 설정 삭제",
+						uk: "Видалити всі налаштування"
 					},
 					value: "off"
 				},
@@ -138,7 +142,8 @@ export const command: Command = {
 						ja: "antispam_logs",
 						ru: "antispam_logs",
 						"es-ES": "antispam_logs",
-						ko: "스팸 방지 로그"
+						ko: "스팸 방지 로그",
+						uk: "Журнали антиспаму"
 					},
 					value: "antispam"
 				},
@@ -149,7 +154,8 @@ export const command: Command = {
 						ja: "boost_logs",
 						ru: "boost_logs",
 						"es-ES": "boost_logs",
-						ko: "부스트 로그"
+						ko: "부스트 로그",
+						uk: "Журнали бустів"
 					},
 					value: "boost"
 				},
@@ -160,7 +166,8 @@ export const command: Command = {
 						ja: "channel_logs",
 						ru: "channel_logs",
 						"es-ES": "channel_logs",
-						ko: "채널 로그"
+						ko: "채널 로그",
+						uk: "Журнали каналів"
 					},
 					value: "channel"
 				},
@@ -171,7 +178,8 @@ export const command: Command = {
 						ja: "messages_logs",
 						ru: "messages_logs",
 						"es-ES": "messages_logs",
-						ko: "메시지 로그"
+						ko: "메시지 로그",
+						uk: "Журнали повідомлень"
 					},
 					value: "message"
 				},
@@ -182,7 +190,8 @@ export const command: Command = {
 						ja: "moderation_logs",
 						ru: "moderation_logs",
 						"es-ES": "moderation_logs",
-						ko: "모더레이션 로그"
+						ko: "모더레이션 로그",
+						uk: "Журнали модерації"
 					},
 					value: "moderation"
 				},
@@ -193,7 +202,8 @@ export const command: Command = {
 						ja: "roles_logs",
 						ru: "roles_logs",
 						"es-ES": "roles_logs",
-						ko: "역할 로그"
+						ko: "역할 로그",
+						uk: "Журнали ролей"
 					},
 					value: "roles"
 				},
@@ -204,7 +214,8 @@ export const command: Command = {
 						ja: "ticket_logs",
 						ru: "ticket_logs",
 						"es-ES": "ticket_logs",
-						ko: "티켓 로그"
+						ko: "티켓 로그",
+						uk: "Журнали тікетів"
 					},
 					value: "ticket"
 				},
@@ -215,7 +226,8 @@ export const command: Command = {
 						ja: "voice_logs",
 						ru: "voice_logs",
 						"es-ES": "voice_logs",
-						ko: "음성 로그"
+						ko: "음성 로그",
+						uk: "Журнали голосових каналів"
 					},
 					value: "voice"
 				},
@@ -226,7 +238,8 @@ export const command: Command = {
 						ja: "confession_logs",
 						ru: "confession_logs",
 						"es-ES": "confession_logs",
-						ko: "고백 로그"
+						ko: "고백 로그",
+						uk: "Журнали зізнань"
 					},
 					value: "confession"
 				},
@@ -237,7 +250,8 @@ export const command: Command = {
 						ja: "economy_logs",
 						ru: "economy_logs",
 						"es-ES": "economy_logs",
-						ko: "경제 로그"
+						ko: "경제 로그",
+						uk: "Журнали економіки"
 					},
 					value: "economy"
 				}
@@ -255,7 +269,8 @@ export const command: Command = {
 				ja: "ログメッセージを送信したいチャンネル！",
 				ru: "Канал для сообщений логов!",
 				"es-ES": "El canal donde quieres tus mensajes de registro!",
-				ko: "로그 메시지를 보낼 채널!"
+				ko: "로그 메시지를 보낼 채널!",
+				uk: "Канал для повідомлень журналів!"
 			},
 			required: false,
 			permission: null

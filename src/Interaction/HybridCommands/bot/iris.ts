@@ -38,7 +38,8 @@ export const command: Command = {
 		ja: "開発者Irisの不要な情報を取得",
 		ru: "Получить ненужную информацию о разработчице Iris",
 		"es-ES": "Obtener información innecesaria sobre mi desarrolladora Iris",
-		ko: "제 개발자 Iris에 대한 쓸데없는 정보"
+		ko: "제 개발자 Iris에 대한 쓸데없는 정보",
+		uk: "Отримати непотрібну інформацію про мою розробницю Iris"
 	},
 
 	category: "bot",

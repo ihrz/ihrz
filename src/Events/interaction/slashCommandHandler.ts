@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import getLanguageDataByCode from "../../core/functions/getLanguageDataByCode.js";
+import { languageForLocale } from "../../core/functions/getLanguageData.js";
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -83,7 +85,9 @@ export const event: BotEvent = {
 		);
 		if (!resolved) {
 			return interaction.reply({
-				content: "Connection error.",
+				content: (
+					await client.func.getLanguageData(interaction.guildId)
+				).iC_event_connection_error,
 				flags: [1 << 6]
 			});
 		}
@@ -92,27 +96,29 @@ export const event: BotEvent = {
 			interaction.channel?.type === ChannelType.DM &&
 			!resolved.command?.integration_types?.includes(1)
 		) {
+			// No server, no server language: the user's Discord language.
+			const dmLang = await getLanguageDataByCode(
+				languageForLocale(interaction.locale)
+			);
 			return await interaction.reply({
 				embeds: [
 					new EmbedBuilder()
 						.setColor(2829617)
 						.setImage(await client.func.bannerGenerator(null))
-						.setDescription(
-							`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`
-						)
+						.setDescription(dmLang.dm_only_server_desc)
 				],
 				components: [
 					new ActionRowBuilder<ButtonBuilder>().addComponents(
 						new ButtonBuilder()
 							.setEmoji(client.iHorizon_Emojis.Crown)
-							.setLabel("Invite iHorizon")
+							.setLabel(dmLang.button_invite_ihorizon)
 							.setStyle(ButtonStyle.Link)
 							.setURL(
 								`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
 							),
 						new ButtonBuilder()
 							.setEmoji(client.iHorizon_Emojis.Sparkles)
-							.setLabel("iHorizon Website")
+							.setLabel(dmLang.guild_create_btn_website)
 							.setStyle(ButtonStyle.Link)
 							.setURL("https://ihorizon.org")
 					)

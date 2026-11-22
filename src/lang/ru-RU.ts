@@ -4221,17 +4221,23 @@ export default {
 	guild_create_btn_repos: "Репозитории iHorizon",
 	guild_create_btn_support: "Сервер поддержки",
 	guild_create_btn_docs: "Документация iHorizon",
-	welcome_server_intro: "Спасибо, что пригласили! Я **iHorizon**: модерация, тикеты, музыка, защита, логи и многое другое в одном **бесплатном** боте с **открытым исходным кодом**.",
+	welcome_server_intro:
+		"Спасибо, что пригласили! Я **iHorizon**: модерация, тикеты, музыка, защита, логи и многое другое в одном **бесплатном** боте с **открытым исходным кодом**.",
 	welcome_lang_title: "Язык",
-	welcome_lang_text: "Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из 11 языков.",
+	welcome_lang_text:
+		"Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из 11 языков.",
 	welcome_start_title: "С чего начать",
 	welcome_start_help: "{command} покажет все команды по категориям",
-	welcome_start_dashboard: "В [панели управления]({url}) всё настраивается прямо в браузере",
-	welcome_start_support: "Вопрос или ошибка? Наш [сервер поддержки]({url}) всегда поможет",
+	welcome_start_dashboard:
+		"В [панели управления]({url}) всё настраивается прямо в браузере",
+	welcome_start_support:
+		"Вопрос или ошибка? Наш [сервер поддержки]({url}) всегда поможет",
 	welcome_footer: "Бесплатно и с открытым кодом с 2020 года · ihorizon.org",
 	welcome_dm_title: "Спасибо, что добавили iHorizon!",
-	welcome_dm_intro: "iHorizon только что присоединился к {guild}. Вот всё, что нужно, чтобы начать.",
-	welcome_dm_outro: "> *Бесплатный бот может быть лучше платных.*\nЭто и есть iHorizon: сообщество и проект, который с 2020 года развивают увлечённые люди. Добро пожаловать!",
+	welcome_dm_intro:
+		"iHorizon только что присоединился к {guild}. Вот всё, что нужно, чтобы начать.",
+	welcome_dm_outro:
+		"> *Бесплатный бот может быть лучше платных.*\nЭто и есть iHorizon: сообщество и проект, который с 2020 года развивают увлечённые люди. Добро пожаловать!",
 	welcome_btn_dashboard: "Панель",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} команд`**\n> *« Сделано людьми с 2022 года для вашего сообщества. »*\n**https://www.ihorizon.org**",
@@ -4302,7 +4308,6 @@ export default {
 	var_off: "выключено",
 	global_command_cooldown_msg:
 		"${emoji} Вам нужно подождать **${time}** между каждым использованием **`${ctxCommandPath}`**",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**",
@@ -4759,7 +4764,8 @@ export default {
 	warn_card_title: "Участник предупреждён",
 	warn_err_self: "${emoji_No} Нельзя выдать предупреждение самому себе.",
 	warn_err_bot: "${emoji_No} Ботам нельзя выдавать предупреждения.",
-	warn_err_above: "${emoji_No} Нельзя предупредить участника, чья высшая роль равна вашей или выше.",
+	warn_err_above:
+		"${emoji_No} Нельзя предупредить участника, чья высшая роль равна вашей или выше.",
 	warn_dm_title: "Вы получили предупреждение",
 	warn_label_date: "Дата",
 	warn_label_active: "Активные предупреждения",
@@ -4769,7 +4775,8 @@ export default {
 	warn_sanction_timeout: "Тайм-аут (${duration})",
 	warn_sanction_kick: "Кик",
 	warn_sanction_ban: "Бан",
-	warn_sanction_failed: "${sanction}, не применено: iHorizon не может наказать этого участника",
+	warn_sanction_failed:
+		"${sanction}, не применено: iHorizon не может наказать этого участника",
 	warn_expire_note: "предупреждения истекают через ${days} дн.",
 	warnlist_expired: "истекло",
 	warnlist_card_active: "Активных: ${active} · всего: ${count}",
@@ -4778,15 +4785,22 @@ export default {
 	warnconfig_expiry_never: "Никогда: предупреждения действуют всегда",
 	warnconfig_expiry_days: "Через ${days} дн.",
 	warnconfig_label_rules: "Автоматические наказания",
-	warnconfig_no_rules: "Нет: предупреждения сами по себе никогда не вызывают наказание",
+	warnconfig_no_rules:
+		"Нет: предупреждения сами по себе никогда не вызывают наказание",
 	warnconfig_rule_line: "**${count}** предупреждений → ${sanction}",
 	warnconfig_saved: "Настройки сохранены.",
-	warnconfig_err_duration: "${emoji_No} Для тайм-аута нужна длительность от 1 минуты до 28 дней (например, `1h`, `2d`).",
-	warnconfig_err_count: "${emoji_No} Порог должен быть от 1 до 100 предупреждений.",
-	warnconfig_err_rules: "${emoji_No} Не больше 10 автоматических наказаний: сначала удалите одно.",
-	warnconfig_err_expiry: "${emoji_No} Срок действия — от 0 (никогда) до 365 дней.",
-	warnconfig_err_sanction: "${emoji_No} Выберите наказание для этого порога (или `none`, чтобы удалить его).",
-	warnconfig_hint: "Добавить наказание: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · удалить: `sanction:none` · срок: `expire-days:30` (0 = никогда)",
+	warnconfig_err_duration:
+		"${emoji_No} Для тайм-аута нужна длительность от 1 минуты до 28 дней (например, `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} Порог должен быть от 1 до 100 предупреждений.",
+	warnconfig_err_rules:
+		"${emoji_No} Не больше 10 автоматических наказаний: сначала удалите одно.",
+	warnconfig_err_expiry:
+		"${emoji_No} Срок действия — от 0 (никогда) до 365 дней.",
+	warnconfig_err_sanction:
+		"${emoji_No} Выберите наказание для этого порога (или `none`, чтобы удалить его).",
+	warnconfig_hint:
+		"Добавить наказание: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · удалить: `sanction:none` · срок: `expire-days:30` (0 = никогда)",
 	clearwarn_card_title: "Предупреждения удалены",
 	clearwarn_card_desc: "Удалено предупреждений у ${member}: ${count}.",
 	clear_allwarns_card_title: "Все предупреждения удалены",
@@ -5004,5 +5018,50 @@ export default {
 	status_panel_card_col_history: "Последние 60 проверок",
 	status_panel_card_col_ping: "Пинг",
 	status_panel_card_col_uptime: "30д",
-	status_panel_card_chart: "Среднее время отклика"
+	status_panel_card_chart: "Среднее время отклика",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Пригласить iHorizon",
+	dm_only_server_desc:
+		"# Ой!\n\nВы используете iHorizon в личных сообщениях, но эта команда работает только на сервере Discord.\n\nДобавьте меня на сервер, чтобы ей пользоваться!",
+	topgg_vote_button: "Проголосовать за iHorizon",
+	dm_message_from: "Сообщение от ${guild}",
+	dm_message_by: "Сообщение от ${user}",
+	ticket_panel_button_saved: "Сохранено",
+	economy_balance_wallet_title: "Кошелёк ${user}",
+	reactionroles_help_embed_title: "Справка /reactionroles",
+	command_error_title: "**При выполнении команды возникла проблема.**",
+	command_error_report:
+		"**Пожалуйста, сообщите об этой проблеме через `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Здравствуйте, <@${ownerId}>. К сожалению, вы в чёрном списке iHorizon.\nПоэтому я покидаю ваш сервер. Если есть вопросы, свяжитесь с моими разработчиками.\n\nСпасибо за понимание.",
+	status_field_cpu: "ЦП",
+	status_field_memory: "Память",
+	status_field_machine_uptime: "Время работы машины",
+	status_field_bot_uptime: "Время работы бота",
+	status_field_os: "ОС",
+	status_field_bot_version: "Версия бота",
+	status_field_bun_version: "Версия Bun",
+	owner_guild_title: "Владельцы сервера",
+	var_discord_permission: "Право Discord",
+	rate_nothing: "ничего",
+	embed_default_footer: "Нижний колонтитул",
+	music_history_file_title:
+		"История музыки ${guild} (последние 30 дней, сначала новые)",
+	music_history_requested_by: "запросил(а) ${user}",
+	music_history_live: "прямой эфир",
+	tempvoice_region_singapore: "Сингапур",
+	tempvoice_region_sydney: "Австралия (Сидней)",
+	tempvoice_region_russia: "Россия",
+	tempvoice_region_india: "Индия",
+	tempvoice_region_hongkong: "Гонконг",
+	tempvoice_region_southafrica: "ЮАР",
+	tempvoice_region_rotterdam: "Нидерланды (Роттердам)",
+	tempvoice_region_japan: "Япония (Токио)",
+	tempvoice_region_southkorea: "Южная Корея",
+	tempvoice_region_useast: "США Восток",
+	tempvoice_region_ussouth: "США Юг",
+	tempvoice_region_uswest: "США Запад",
+	tempvoice_region_uscentral: "США Центр",
+	tempvoice_region_brazil: "Бразилия"
 } satisfies LanguageData;

@@ -35,7 +35,8 @@ export const command: Command = {
 		ja: "ギブアウェイカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории розыгрышей!",
 		"es-ES": "Subcomando para la categoría de sorteos!",
-		ko: "경품 추첨 하위 명령어!"
+		ko: "경품 추첨 하위 명령어!",
+		uk: "Підкоманда категорії розіграшів!"
 	},
 	options: [
 		{
@@ -45,7 +46,8 @@ export const command: Command = {
 				ja: "create",
 				ru: "create",
 				"es-ES": "create",
-				ko: "create"
+				ko: "create",
+				uk: "create"
 			},
 			prefixName: "gw-create",
 
@@ -57,7 +59,8 @@ export const command: Command = {
 				ja: "ギブアウェイを開始！",
 				ru: "Начать розыгрыш!",
 				"es-ES": "Iniciar un sorteo!",
-				ko: "경품 추첨을 시작해요!"
+				ko: "경품 추첨을 시작해요!",
+				uk: "Почати розіграш!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -69,7 +72,8 @@ export const command: Command = {
 						ja: "winner",
 						ru: "winner",
 						"es-ES": "winner",
-						ko: "winner"
+						ko: "winner",
+						uk: "winner"
 					},
 
 					type: ApplicationCommandOptionType.Number,
@@ -80,7 +84,8 @@ export const command: Command = {
 						ja: "ギブアウェイの当選者数",
 						ru: "Количество победителей розыгрыша",
 						"es-ES": "Número de ganadores del sorteo",
-						ko: "경품 추첨 당첨자 수"
+						ko: "경품 추첨 당첨자 수",
+						uk: "Кількість переможців розіграшу"
 					},
 
 					required: true,
@@ -94,7 +99,8 @@ export const command: Command = {
 						ja: "time",
 						ru: "time",
 						"es-ES": "time",
-						ko: "time"
+						ko: "time",
+						uk: "time"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -105,7 +111,8 @@ export const command: Command = {
 						ja: "ギブアウェイの開催時間",
 						ru: "Длительность розыгрыша",
 						"es-ES": "La duración del sorteo",
-						ko: "경품 추첨 기간"
+						ko: "경품 추첨 기간",
+						uk: "Тривалість розіграшу"
 					},
 
 					required: true,
@@ -121,7 +128,8 @@ export const command: Command = {
 						ja: "ギブアウェイ参加要件",
 						ru: "Требование для участия в розыгрыше",
 						"es-ES": "El requisito para entrar en el sorteo",
-						ko: "경품 추첨 참가 조건"
+						ko: "경품 추첨 참가 조건",
+						uk: "Умова для участі в розіграші"
 					},
 
 					choices: [
@@ -132,7 +140,8 @@ export const command: Command = {
 								ja: "none",
 								ru: "none",
 								"es-ES": "none",
-								ko: "없음"
+								ko: "없음",
+								uk: "Немає"
 							},
 							value: "none"
 						},
@@ -143,7 +152,8 @@ export const command: Command = {
 								ja: "need_specific_invitations_amount",
 								ru: "need_specific_invitations_amount",
 								"es-ES": "need_specific_invitations_amount",
-								ko: "특정 초대 수 필요"
+								ko: "특정 초대 수 필요",
+								uk: "Потрібна певна кількість запрошень"
 							},
 							value: "invites"
 						},
@@ -154,7 +164,8 @@ export const command: Command = {
 								ja: "need_specific_messages_number",
 								ru: "need_specific_messages_number",
 								"es-ES": "need_specific_messages_number",
-								ko: "특정 메시지 수 필요"
+								ko: "특정 메시지 수 필요",
+								uk: "Потрібна певна кількість повідомлень"
 							},
 							value: "messages"
 						},
@@ -165,7 +176,8 @@ export const command: Command = {
 								ja: "need_specific_roles",
 								ru: "need_specific_roles",
 								"es-ES": "need_specific_roles",
-								ko: "특정 역할 필요"
+								ko: "특정 역할 필요",
+								uk: "Потрібні певні ролі"
 							},
 							value: "roles"
 						}
@@ -183,7 +195,8 @@ export const command: Command = {
 						ja: "prize",
 						ru: "prize",
 						"es-ES": "prize",
-						ko: "prize"
+						ko: "prize",
+						uk: "prize"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -194,7 +207,8 @@ export const command: Command = {
 						ja: "ギブアウェイの賞品",
 						ru: "Приз розыгрыша",
 						"es-ES": "El premio del sorteo",
-						ko: "경품 추첨 상품"
+						ko: "경품 추첨 상품",
+						uk: "Приз розіграшу"
 					},
 
 					required: true,
@@ -211,7 +225,8 @@ export const command: Command = {
 						ja: "要件の値",
 						ru: "Значение требования",
 						"es-ES": "El valor del requisito",
-						ko: "조건 값"
+						ko: "조건 값",
+						uk: "Значення умови"
 					},
 
 					required: false,
@@ -228,7 +243,8 @@ export const command: Command = {
 						ja: "ギブアウェイの埋め込みに表示される画像",
 						ru: "Изображение в эмбеде розыгрыша",
 						"es-ES": "Imagen mostrada en el embed del sorteo",
-						ko: "경품 추첨 임베드에 표시할 이미지"
+						ko: "경품 추첨 임베드에 표시할 이미지",
+						uk: "Зображення в ембеді розіграшу"
 					},
 
 					required: false,
@@ -246,7 +262,8 @@ export const command: Command = {
 				ja: "go",
 				ru: "go",
 				"es-ES": "go",
-				ko: "go"
+				ko: "go",
+				uk: "go"
 			},
 			prefixName: "gw-go",
 
@@ -260,7 +277,8 @@ export const command: Command = {
 				ru: "Открыть панель для настройки и запуска розыгрыша!",
 				"es-ES":
 					"Abrir un panel interactivo para configurar y lanzar un sorteo!",
-				ko: "대화형 패널에서 경품 추첨을 설정하고 시작해요!"
+				ko: "대화형 패널에서 경품 추첨을 설정하고 시작해요!",
+				uk: "Відкрити інтерактивну панель, щоб налаштувати й запустити розіграш!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -274,7 +292,8 @@ export const command: Command = {
 				ja: "end",
 				ru: "end",
 				"es-ES": "end",
-				ko: "end"
+				ko: "end",
+				uk: "end"
 			},
 			prefixName: "gw-end",
 
@@ -286,7 +305,8 @@ export const command: Command = {
 				ja: "ギブアウェイを停止！",
 				ru: "Остановить розыгрыш!",
 				"es-ES": "Detener un sorteo!",
-				ko: "경품 추첨을 종료해요!"
+				ko: "경품 추첨을 종료해요!",
+				uk: "Зупинити розіграш!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -303,7 +323,8 @@ export const command: Command = {
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
 						"es-ES":
 							"El ID del sorteo (es el ID del mensaje del embed del sorteo)",
-						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)"
+						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)",
+						uk: "ID розіграшу (ID повідомлення з ембедом розіграшу)"
 					},
 
 					required: true,
@@ -321,7 +342,8 @@ export const command: Command = {
 				ja: "reroll",
 				ru: "reroll",
 				"es-ES": "reroll",
-				ko: "reroll"
+				ko: "reroll",
+				uk: "reroll"
 			},
 
 			description: "Reroll a giveaway winner(s)!",
@@ -330,7 +352,8 @@ export const command: Command = {
 				ja: "ギブアウェイの当選者を再抽選！",
 				ru: "Перевыбрать победителя(ей) розыгрыша!",
 				"es-ES": "Volver a sortear ganador(es) del sorteo!",
-				ko: "경품 추첨 당첨자를 다시 뽑아요!"
+				ko: "경품 추첨 당첨자를 다시 뽑아요!",
+				uk: "Переобрати переможця(-ів) розіграшу!"
 			},
 
 			aliases: ["re"],
@@ -349,7 +372,8 @@ export const command: Command = {
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
 						"es-ES":
 							"El ID del sorteo (es el ID del mensaje del embed del sorteo)",
-						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)"
+						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)",
+						uk: "ID розіграшу (ID повідомлення з ембедом розіграшу)"
 					},
 
 					required: true,
@@ -367,7 +391,8 @@ export const command: Command = {
 				ja: "list-entries",
 				ru: "list-entries",
 				"es-ES": "list-entries",
-				ko: "list-entries"
+				ko: "list-entries",
+				uk: "list-entries"
 			},
 
 			description: "List all entries in giveaway!",
@@ -376,7 +401,8 @@ export const command: Command = {
 				ja: "ギブアウェイの全エントリーを一覧表示！",
 				ru: "Показать всех участников розыгрыша!",
 				"es-ES": "Listar todas las entradas en el sorteo!",
-				ko: "경품 추첨의 모든 참가자 목록을 확인해요!"
+				ko: "경품 추첨의 모든 참가자 목록을 확인해요!",
+				uk: "Показати всіх учасників розіграшу!"
 			},
 
 			aliases: ["list"],
@@ -395,7 +421,8 @@ export const command: Command = {
 						ru: "ID розыгрыша (это ID сообщения эмбеда розыгрыша)",
 						"es-ES":
 							"El ID del sorteo (es el ID del mensaje del embed del sorteo)",
-						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)"
+						ko: "경품 추첨 ID (경품 추첨 임베드의 메시지 ID)",
+						uk: "ID розіграшу (ID повідомлення з ембедом розіграшу)"
 					},
 
 					required: true,
@@ -413,7 +440,8 @@ export const command: Command = {
 				ja: "get-data",
 				ru: "get-data",
 				"es-ES": "get-data",
-				ko: "get-data"
+				ko: "get-data",
+				uk: "get-data"
 			},
 
 			description: "Get informations about a giveaway (JSON Body)",
@@ -422,7 +450,8 @@ export const command: Command = {
 				ja: "ギブアウェイの情報を取得（JSONデータ）",
 				ru: "Получить информацию о розыгрыше (JSON)",
 				"es-ES": "Obtener información sobre un sorteo (cuerpo JSON)",
-				ko: "경품 추첨 정보를 확인해요 (JSON 본문)"
+				ko: "경품 추첨 정보를 확인해요 (JSON 본문)",
+				uk: "Отримати інформацію про розіграш (тіло JSON)"
 			},
 
 			aliases: ["get"],
@@ -438,7 +467,8 @@ export const command: Command = {
 						ja: "ギブアウェイのID",
 						ru: "ID розыгрыша",
 						"es-ES": "ID del sorteo",
-						ko: "경품 추첨 ID"
+						ko: "경품 추첨 ID",
+						uk: "ID розіграшу"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -457,7 +487,8 @@ export const command: Command = {
 				ja: "get-all",
 				ru: "get-all",
 				"es-ES": "get-all",
-				ko: "get-all"
+				ko: "get-all",
+				uk: "get-all"
 			},
 
 			description:
@@ -468,7 +499,8 @@ export const command: Command = {
 				ru: "Получить информацию о всех розыгрышах на сервере (JSON)",
 				"es-ES":
 					"Obtener información sobre todos los sorteos en un servidor (cuerpo JSON)",
-				ko: "서버의 모든 경품 추첨 정보를 확인해요 (JSON 본문)"
+				ko: "서버의 모든 경품 추첨 정보를 확인해요 (JSON 본문)",
+				uk: "Отримати інформацію про всі розіграші сервера (тіло JSON)"
 			},
 
 			aliases: ["gall"],

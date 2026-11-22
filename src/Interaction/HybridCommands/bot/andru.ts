@@ -38,7 +38,8 @@ export const command: Command = {
 		ja: "貢献者andruの不要な情報を取得",
 		ru: "Получить ненужную информацию об участнике andru",
 		"es-ES": "Obtener información innecesaria sobre mi contribuidor andru",
-		ko: "제 기여자 andru에 대한 쓸데없는 정보"
+		ko: "제 기여자 andru에 대한 쓸데없는 정보",
+		uk: "Отримати непотрібну інформацію про мого учасника розробки andru"
 	},
 
 	category: "bot",

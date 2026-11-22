@@ -42,7 +42,8 @@ export const command: Command = {
 		ja: "iHorizonのステータス埋め込みを作成",
 		ru: "Создать эмбед статуса iHorizon",
 		"es-ES": "Hacer un embed de estado sobre iHorizon",
-		ko: "iHorizon 상태 임베드를 만들어요"
+		ko: "iHorizon 상태 임베드를 만들어요",
+		uk: "Створити ембед статусу iHorizon"
 	},
 
 	thinking: false,

@@ -42,7 +42,8 @@ export const command: Command = {
 		ja: "バイナリファイルを含む全てのメッセージを削除",
 		ru: "Удалить все сообщения с бинарными файлами",
 		"es-ES": "Eliminar cada mensaje que contenga archivos binarios",
-		ko: "바이너리 파일이 포함된 모든 메시지를 삭제해요"
+		ko: "바이너리 파일이 포함된 모든 메시지를 삭제해요",
+		uk: "Видаляти всі повідомлення з бінарними файлами"
 	},
 
 	thinking: false,

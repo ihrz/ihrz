@@ -40,7 +40,8 @@ export const command: Command = {
 		ru: "Добавить реакцию iHorizon при отправке сообщения",
 		"es-ES":
 			"Añadir reacción de iHorizon cuando el usuario envía un mensaje",
-		ko: "사용자가 메시지를 보내면 iHorizon이 반응을 추가해요"
+		ko: "사용자가 메시지를 보내면 iHorizon이 반응을 추가해요",
+		uk: "Додати реакцію iHorizon, коли користувач надсилає повідомлення"
 	},
 
 	thinking: false,

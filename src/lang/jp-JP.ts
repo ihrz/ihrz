@@ -4213,17 +4213,22 @@ export default {
 	guild_create_btn_repos: "iHorizonリポジトリ",
 	guild_create_btn_support: "サポートサーバー",
 	guild_create_btn_docs: "iHorizonドキュメント",
-	welcome_server_intro: "招待ありがとうございます！**iHorizon** です。モデレーション、チケット、音楽、保護、ログなどを、**無料**で**オープンソース**のひとつのボットで。",
+	welcome_server_intro:
+		"招待ありがとうございます！**iHorizon** です。モデレーション、チケット、音楽、保護、ログなどを、**無料**で**オープンソース**のひとつのボットで。",
 	welcome_lang_title: "言語",
-	welcome_lang_text: "このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから 11 の言語を選べます。",
+	welcome_lang_text:
+		"このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから 11 の言語を選べます。",
 	welcome_start_title: "はじめに",
 	welcome_start_help: "{command} ですべてのコマンドをカテゴリ別に表示",
-	welcome_start_dashboard: "[ダッシュボード]({url}) でブラウザからすべて設定できます",
+	welcome_start_dashboard:
+		"[ダッシュボード]({url}) でブラウザからすべて設定できます",
 	welcome_start_support: "質問や不具合は [サポートサーバー]({url}) へどうぞ",
 	welcome_footer: "2020 年から無料・オープンソース · ihorizon.org",
 	welcome_dm_title: "iHorizon を追加していただきありがとうございます！",
-	welcome_dm_intro: "iHorizon が {guild} に参加しました。はじめるために必要なことをまとめました。",
-	welcome_dm_outro: "> *無料のボットでも、有料のボット以上のことができる。*\nそれが iHorizon。2020 年から情熱ある人たちが支えるコミュニティとプロジェクトです。ようこそ！",
+	welcome_dm_intro:
+		"iHorizon が {guild} に参加しました。はじめるために必要なことをまとめました。",
+	welcome_dm_outro:
+		"> *無料のボットでも、有料のボット以上のことができる。*\nそれが iHorizon。2020 年から情熱ある人たちが支えるコミュニティとプロジェクトです。ようこそ！",
 	welcome_btn_dashboard: "ダッシュボード",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} コマンド`**\n> *« 2022年から人々によって作られ、あなたのコミュニティのために。 »*\n**https://www.ihorizon.org**",
@@ -4297,7 +4302,6 @@ export default {
 	var_off: "無効",
 	global_command_cooldown_msg:
 		"${emoji} **`${ctxCommandPath}`** の使用間隔を **${time}** 待つ必要があります",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**",
@@ -4762,7 +4766,8 @@ export default {
 	warn_card_title: "メンバーに警告しました",
 	warn_err_self: "${emoji_No} 自分自身に警告することはできません。",
 	warn_err_bot: "${emoji_No} ボットには警告できません。",
-	warn_err_above: "${emoji_No} 自分と同じかそれより上のロールを持つメンバーには警告できません。",
+	warn_err_above:
+		"${emoji_No} 自分と同じかそれより上のロールを持つメンバーには警告できません。",
 	warn_dm_title: "警告を受けました",
 	warn_label_date: "日時",
 	warn_label_active: "有効な警告",
@@ -4772,7 +4777,8 @@ export default {
 	warn_sanction_timeout: "タイムアウト（${duration}）",
 	warn_sanction_kick: "キック",
 	warn_sanction_ban: "BAN",
-	warn_sanction_failed: "${sanction}、未適用：iHorizon はこのメンバーを処罰できません",
+	warn_sanction_failed:
+		"${sanction}、未適用：iHorizon はこのメンバーを処罰できません",
 	warn_expire_note: "警告は ${days} 日後に失効します",
 	warnlist_expired: "失効",
 	warnlist_card_active: "有効 ${active} 件 · 合計 ${count} 件",
@@ -4784,12 +4790,18 @@ export default {
 	warnconfig_no_rules: "なし：警告だけで処罰されることはありません",
 	warnconfig_rule_line: "警告 **${count}** 回 → ${sanction}",
 	warnconfig_saved: "設定を保存しました。",
-	warnconfig_err_duration: "${emoji_No} タイムアウトには 1 分から 28 日の期間が必要です（例：`1h`、`2d`）。",
-	warnconfig_err_count: "${emoji_No} しきい値は 1 から 100 回の間で指定してください。",
-	warnconfig_err_rules: "${emoji_No} 自動処罰は最大 10 件です。先にひとつ削除してください。",
-	warnconfig_err_expiry: "${emoji_No} 有効期限は 0（なし）から 365 日の間で指定してください。",
-	warnconfig_err_sanction: "${emoji_No} このしきい値の処罰を選んでください（削除する場合は `none`）。",
-	warnconfig_hint: "処罰を追加：`/mod warnconfig threshold:3 sanction:timeout duration:1h` · 削除：`sanction:none` · 有効期限：`expire-days:30`（0 = なし）",
+	warnconfig_err_duration:
+		"${emoji_No} タイムアウトには 1 分から 28 日の期間が必要です（例：`1h`、`2d`）。",
+	warnconfig_err_count:
+		"${emoji_No} しきい値は 1 から 100 回の間で指定してください。",
+	warnconfig_err_rules:
+		"${emoji_No} 自動処罰は最大 10 件です。先にひとつ削除してください。",
+	warnconfig_err_expiry:
+		"${emoji_No} 有効期限は 0（なし）から 365 日の間で指定してください。",
+	warnconfig_err_sanction:
+		"${emoji_No} このしきい値の処罰を選んでください（削除する場合は `none`）。",
+	warnconfig_hint:
+		"処罰を追加：`/mod warnconfig threshold:3 sanction:timeout duration:1h` · 削除：`sanction:none` · 有効期限：`expire-days:30`（0 = なし）",
 	clearwarn_card_title: "警告を削除しました",
 	clearwarn_card_desc: "${member} の警告 ${count} 件を削除しました。",
 	clear_allwarns_card_title: "すべての警告を削除しました",
@@ -5007,5 +5019,48 @@ export default {
 	status_panel_card_col_history: "直近60回のチェック",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30日",
-	status_panel_card_chart: "平均応答時間"
+	status_panel_card_chart: "平均応答時間",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "iHorizon を招待",
+	dm_only_server_desc:
+		"# おっと!\n\niHorizon を DM で使っていますが、このコマンドは Discord サーバーでのみ動作します。\n\nサーバーに追加して使ってください!",
+	topgg_vote_button: "iHorizon に投票",
+	dm_message_from: "${guild} からのメッセージ",
+	dm_message_by: "${user} からのメッセージ",
+	ticket_panel_button_saved: "保存しました",
+	economy_balance_wallet_title: "${user} の財布",
+	reactionroles_help_embed_title: "/reactionroles のヘルプ",
+	command_error_title: "**コマンドの実行中に問題が発生しました。**",
+	command_error_report: "**`/report` でこの問題を報告してください。**",
+	guild_blacklisted_leave_desc:
+		"<@${ownerId}> さん、申し訳ありませんが、あなたは iHorizon のブラックリストに登録されています。\nそのため、サーバーから退出します。ご質問があれば開発者までご連絡ください。\n\nご理解ありがとうございます。",
+	status_field_cpu: "CPU",
+	status_field_memory: "メモリ",
+	status_field_machine_uptime: "マシンの稼働時間",
+	status_field_bot_uptime: "ボットの稼働時間",
+	status_field_os: "OS",
+	status_field_bot_version: "ボットのバージョン",
+	status_field_bun_version: "Bun のバージョン",
+	owner_guild_title: "サーバーのオーナー",
+	var_discord_permission: "Discord の権限",
+	rate_nothing: "なし",
+	embed_default_footer: "フッター",
+	music_history_file_title: "${guild} の音楽履歴（直近 30 日、新しい順）",
+	music_history_requested_by: "リクエスト: ${user}",
+	music_history_live: "ライブ",
+	tempvoice_region_singapore: "シンガポール",
+	tempvoice_region_sydney: "オーストラリア（シドニー）",
+	tempvoice_region_russia: "ロシア",
+	tempvoice_region_india: "インド",
+	tempvoice_region_hongkong: "香港",
+	tempvoice_region_southafrica: "南アフリカ",
+	tempvoice_region_rotterdam: "オランダ（ロッテルダム）",
+	tempvoice_region_japan: "日本（東京）",
+	tempvoice_region_southkorea: "韓国",
+	tempvoice_region_useast: "米国東部",
+	tempvoice_region_ussouth: "米国南部",
+	tempvoice_region_uswest: "米国西部",
+	tempvoice_region_uscentral: "米国中部",
+	tempvoice_region_brazil: "ブラジル"
 } satisfies LanguageData;

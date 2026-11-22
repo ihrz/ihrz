@@ -37,7 +37,8 @@ export const command: Command = {
 		ja: "告白カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории признаний!",
 		"es-ES": "Subcomando para la categoría de confesiones!",
-		ko: "고백 하위 명령어!"
+		ko: "고백 하위 명령어!",
+		uk: "Підкоманда категорії зізнань!"
 	},
 
 	options: [
@@ -51,7 +52,8 @@ export const command: Command = {
 				ja: "告白モジュールのチャンネルを設定！",
 				ru: "Установить канал модуля признаний!",
 				"es-ES": "Establecer el canal del módulo de confesiones!",
-				ko: "고백 모듈 채널을 설정해요!"
+				ko: "고백 모듈 채널을 설정해요!",
+				uk: "Встановити канал модуля зізнань!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +68,8 @@ export const command: Command = {
 						ja: "チャンネル！",
 						ru: "Канал!",
 						"es-ES": "El canal!",
-						ko: "채널!"
+						ko: "채널!",
+						uk: "Канал!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -85,7 +88,8 @@ export const command: Command = {
 						ja: "ボタンのタイトル",
 						ru: "Название кнопки",
 						"es-ES": "El título del botón",
-						ko: "버튼 제목"
+						ko: "버튼 제목",
+						uk: "Назва кнопки"
 					},
 
 					required: true,
@@ -106,7 +110,8 @@ export const command: Command = {
 				ja: "告白モジュールを有効化または無効化！",
 				ru: "Включить или отключить модуль признаний!",
 				"es-ES": "Habilitar o Deshabilitar el módulo de confesiones!",
-				ko: "고백 모듈을 켜거나 꺼요!"
+				ko: "고백 모듈을 켜거나 꺼요!",
+				uk: "Увімкнути або вимкнути модуль зізнань!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -121,7 +126,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -133,7 +139,8 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути"
 							},
 							value: "on"
 						},
@@ -144,7 +151,8 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути"
 							},
 							value: "off"
 						}
@@ -166,7 +174,8 @@ export const command: Command = {
 				ja: "告白の上にスレッドを作成しますか？",
 				ru: "Создать ветку над признанием?",
 				"es-ES": "Crear un hilo encima de la confesión?",
-				ko: "고백 위에 스레드를 만들까요?"
+				ko: "고백 위에 스레드를 만들까요?",
+				uk: "Створювати гілку під зізнанням?"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -181,7 +190,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -193,7 +203,8 @@ export const command: Command = {
 								ja: "create_thread",
 								ru: "create_thread",
 								"es-ES": "create_thread",
-								ko: "스레드 만들기"
+								ko: "스레드 만들기",
+								uk: "Створювати гілку"
 							},
 							value: "yes"
 						},
@@ -204,7 +215,8 @@ export const command: Command = {
 								ja: "don_t_create_thread",
 								ru: "don_t_create_thread",
 								"es-ES": "don_t_create_thread",
-								ko: "스레드 만들지 않기"
+								ko: "스레드 만들지 않기",
+								uk: "Не створювати гілку"
 							},
 							value: "no"
 						}
@@ -226,7 +238,8 @@ export const command: Command = {
 				ja: "告白間のクールダウンを変更！",
 				ru: "Изменить задержку между признаниями!",
 				"es-ES": "Cambiar el enfriamiento entre confesiones!",
-				ko: "고백 사이의 쿨다운을 변경해요!"
+				ko: "고백 사이의 쿨다운을 변경해요!",
+				uk: "Змінити затримку між зізнаннями!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -241,7 +254,8 @@ export const command: Command = {
 						ja: "クールダウン時間（例: 3h/30m/10s...）",
 						ru: "Время задержки, например 3ч/30м/10с...",
 						"es-ES": "Tiempo de enfriamiento como 3h/30m/10s...",
-						ko: "쿨다운 시간 (예: 3h/30m/10s...)"
+						ko: "쿨다운 시간 (예: 3h/30m/10s...)",
+						uk: "Тривалість затримки, наприклад 3h/30m/10s..."
 					},
 
 					required: true,
@@ -262,7 +276,8 @@ export const command: Command = {
 				ja: "告白を削除！",
 				ru: "Удалить признание!",
 				"es-ES": "Eliminar una confesión!",
-				ko: "고백을 삭제해요!"
+				ko: "고백을 삭제해요!",
+				uk: "Видалити зізнання!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -277,7 +292,8 @@ export const command: Command = {
 						ja: "告白コード",
 						ru: "Код признания",
 						"es-ES": "El código de la confesión",
-						ko: "고백 코드"
+						ko: "고백 코드",
+						uk: "Код зізнання"
 					},
 
 					required: true,
@@ -300,7 +316,8 @@ export const command: Command = {
 				ru: "Заблокировать автора признания, не раскрывая его!",
 				"es-ES":
 					"Banear del módulo al autor de una confesión, sin revelarlo!",
-				ko: "고백 작성자를 공개하지 않고 모듈에서 차단해요!"
+				ko: "고백 작성자를 공개하지 않고 모듈에서 차단해요!",
+				uk: "Заблокувати автора зізнання в модулі, не розкриваючи його!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -315,7 +332,8 @@ export const command: Command = {
 						ja: "告白コード",
 						ru: "Код признания",
 						"es-ES": "El código de la confesión",
-						ko: "고백 코드"
+						ko: "고백 코드",
+						uk: "Код зізнання"
 					},
 
 					required: true,
@@ -337,7 +355,8 @@ export const command: Command = {
 				ja: "原因となった告白コードで追放を解除！",
 				ru: "Снять блокировку по коду признания!",
 				"es-ES": "Levantar un baneo con el código de la confesión!",
-				ko: "차단의 원인이 된 고백 코드로 차단을 해제해요!"
+				ko: "차단의 원인이 된 고백 코드로 차단을 해제해요!",
+				uk: "Зняти бан за кодом зізнання, через яке його було накладено!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -352,7 +371,8 @@ export const command: Command = {
 						ja: "告白コード",
 						ru: "Код признания",
 						"es-ES": "El código de la confesión",
-						ko: "고백 코드"
+						ko: "고백 코드",
+						uk: "Код зізнання"
 					},
 
 					required: true,

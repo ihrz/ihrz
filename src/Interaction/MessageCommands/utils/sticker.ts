@@ -34,7 +34,8 @@ export const command: Command = {
 		ja: "返信メッセージからスタンプを追加",
 		ru: "Добавить стикер из ответного сообщения",
 		"es-ES": "Añadir un sticker del mensaje respondido",
-		ko: "답장한 메시지의 스티커를 추가해요"
+		ko: "답장한 메시지의 스티커를 추가해요",
+		uk: "Додати стікер із повідомлення, на яке ви відповіли"
 	},
 
 	thinking: false,

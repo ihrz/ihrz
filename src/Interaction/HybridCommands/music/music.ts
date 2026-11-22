@@ -50,7 +50,8 @@ export const command: Command = {
 		ja: "music",
 		ru: "music",
 		"es-ES": "music",
-		ko: "music"
+		ko: "music",
+		uk: "music"
 	},
 
 	description: "Subcommand for music category!",
@@ -59,7 +60,8 @@ export const command: Command = {
 		ja: "音楽カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории музыки!",
 		"es-ES": "Subcomando para la categoría de música!",
-		ko: "음악 하위 명령어!"
+		ko: "음악 하위 명령어!",
+		uk: "Підкоманда категорії музики!"
 	},
 
 	aliases: ["m"],
@@ -76,7 +78,8 @@ export const command: Command = {
 				ru: "Управлять конфигурациями Equalizer APO сервера (администраторы)!",
 				"es-ES":
 					"Gestionar las configuraciones Equalizer APO del servidor (administradores)!",
-				ko: "서버의 Equalizer APO 설정을 관리해요 (관리자)!"
+				ko: "서버의 Equalizer APO 설정을 관리해요 (관리자)!",
+				uk: "Керувати конфігураціями Equalizer APO сервера (адміністратори)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -88,7 +91,8 @@ export const command: Command = {
 						ja: "file",
 						ru: "file",
 						"es-ES": "archivo",
-						ko: "file"
+						ko: "file",
+						uk: "file"
 					},
 					type: ApplicationCommandOptionType.Attachment,
 
@@ -100,7 +104,8 @@ export const command: Command = {
 						ru: "Конфигурация Equalizer APO (.txt) для добавления на сервер",
 						"es-ES":
 							"Configuración de Equalizer APO (.txt) para añadir al servidor",
-						ko: "서버 설정에 추가할 Equalizer APO 설정 파일(.txt)"
+						ko: "서버 설정에 추가할 Equalizer APO 설정 파일(.txt)",
+						uk: "Конфігурація Equalizer APO (.txt), яку слід додати до конфігурацій сервера"
 					},
 
 					required: false,
@@ -118,7 +123,8 @@ export const command: Command = {
 				ja: "loop",
 				ru: "loop",
 				"es-ES": "loop",
-				ko: "loop"
+				ko: "loop",
+				uk: "loop"
 			},
 
 			description: "Set loop mode of the guild!",
@@ -127,7 +133,8 @@ export const command: Command = {
 				ja: "サーバーのループモードを設定！",
 				ru: "Установить режим повтора на сервере!",
 				"es-ES": "Establecer el modo de bucle del servidor!",
-				ko: "서버의 반복 모드를 설정해요!"
+				ko: "서버의 반복 모드를 설정해요!",
+				uk: "Встановити режим повтору на сервері!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -142,7 +149,8 @@ export const command: Command = {
 						ja: "ループタイプ",
 						ru: "Тип повтора",
 						"es-ES": "Tipo de bucle",
-						ko: "반복 유형"
+						ko: "반복 유형",
+						uk: "Тип повтору"
 					},
 
 					required: true,
@@ -154,7 +162,8 @@ export const command: Command = {
 								ja: "off",
 								ru: "off",
 								"es-ES": "off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнено"
 							},
 							value: "off"
 						},
@@ -165,7 +174,8 @@ export const command: Command = {
 								ja: "on",
 								ru: "on",
 								"es-ES": "on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнено"
 							},
 							value: "track"
 						}
@@ -186,7 +196,8 @@ export const command: Command = {
 				ja: "曲の歌詞を検索！",
 				ru: "Найти текст песни!",
 				"es-ES": "Encontrar la letra de una canción!",
-				ko: "곡의 가사를 찾아요!"
+				ko: "곡의 가사를 찾아요!",
+				uk: "Знайти текст пісні!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -201,7 +212,8 @@ export const command: Command = {
 						ja: "希望するトラックのタイトル",
 						ru: "Название желаемого трека",
 						"es-ES": "El título de la pista que deseas",
-						ko: "원하는 곡 제목"
+						ko: "원하는 곡 제목",
+						uk: "Назва треку, який ви шукаєте"
 					},
 
 					required: true,
@@ -220,7 +232,8 @@ export const command: Command = {
 				ja: "history",
 				ru: "history",
 				"es-ES": "history",
-				ko: "history"
+				ko: "history",
+				uk: "history"
 			},
 
 			description:
@@ -231,7 +244,8 @@ export const command: Command = {
 				ru: "Посмотреть историю всей музыки, воспроизведенной на сервере!",
 				"es-ES":
 					"Ver el historial de toda la música reproducida en este servidor!",
-				ko: "이 서버에서 재생된 모든 음악 기록을 확인해요!"
+				ko: "이 서버에서 재생된 모든 음악 기록을 확인해요!",
+				uk: "Переглянути історію всієї музики, що грала на цьому сервері!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -248,7 +262,8 @@ export const command: Command = {
 				ja: "このサーバーの音楽キューをクリア！",
 				ru: "Очистить музыкальную очередь на сервере!",
 				"es-ES": "Limpiar la cola de música en este servidor!",
-				ko: "이 서버의 음악 대기열을 비워요!"
+				ko: "이 서버의 음악 대기열을 비워요!",
+				uk: "Очистити чергу музики на цьому сервері!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -262,7 +277,8 @@ export const command: Command = {
 				ja: "nowplaying",
 				ru: "nowplaying",
 				"es-ES": "nowplaying",
-				ko: "nowplaying"
+				ko: "nowplaying",
+				uk: "nowplaying"
 			},
 
 			description: "Get the current playing song!",
@@ -271,7 +287,8 @@ export const command: Command = {
 				ja: "現在再生中の曲を取得！",
 				ru: "Получить текущую песню!",
 				"es-ES": "Obtener la canción actual!",
-				ko: "지금 재생 중인 곡을 확인해요!"
+				ko: "지금 재생 중인 곡을 확인해요!",
+				uk: "Показати пісню, що зараз грає!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -287,7 +304,8 @@ export const command: Command = {
 				ja: "現在再生中の曲を一時停止！",
 				ru: "Поставить текущую песню на паузу!",
 				"es-ES": "Pausar la canción actual!",
-				ko: "지금 재생 중인 곡을 일시정지해요!"
+				ko: "지금 재생 중인 곡을 일시정지해요!",
+				uk: "Призупинити пісню, що зараз грає!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -303,7 +321,8 @@ export const command: Command = {
 				ja: "曲を再生！",
 				ru: "Воспроизвести песню!",
 				"es-ES": "Reproducir una canción!",
-				ko: "곡을 재생해요!"
+				ko: "곡을 재생해요!",
+				uk: "Відтворити пісню!"
 			},
 
 			aliases: ["p"],
@@ -322,7 +341,8 @@ export const command: Command = {
 						ru: "Название трека (можно указать URL)",
 						"es-ES":
 							"El título de la pista que deseas (puedes poner URL como quieras)",
-						ko: "원하는 곡 제목 (URL도 가능)"
+						ko: "원하는 곡 제목 (URL도 가능)",
+						uk: "Назва треку, який ви шукаєте (можна вказати URL)"
 					},
 
 					required: true,
@@ -343,7 +363,8 @@ export const command: Command = {
 				ja: "サーバーのプレイヤーの音量を変更",
 				ru: "изменить громкость плеера на сервере",
 				"es-ES": "cambiar el volumen del reproductor en el servidor",
-				ko: "서버 플레이어의 볼륨을 변경해요"
+				ko: "서버 플레이어의 볼륨을 변경해요",
+				uk: "Змінити гучність програвача на сервері"
 			},
 
 			permission: null,
@@ -358,7 +379,8 @@ export const command: Command = {
 						ja: "音楽レベル",
 						ru: "уровень музыки",
 						"es-ES": "el nivel de música",
-						ko: "음악 볼륨"
+						ko: "음악 볼륨",
+						uk: "Рівень гучності"
 					},
 
 					choices: VOLUMES.map((x) => {
@@ -369,7 +391,8 @@ export const command: Command = {
 								ja: x + "%",
 								ru: x + "%",
 								"es-ES": x + "%",
-								ko: x + "%"
+								ko: x + "%",
+								uk: x + "%"
 							},
 							value: x
 						};
@@ -392,7 +415,8 @@ export const command: Command = {
 				ja: "インターネットで音楽を検索",
 				ru: "Искать музыку в интернете",
 				"es-ES": "Buscar música en Internet",
-				ko: "인터넷에서 음악을 검색해요"
+				ko: "인터넷에서 음악을 검색해요",
+				uk: "Знайти музику в інтернеті"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -410,7 +434,8 @@ export const command: Command = {
 						ru: "Название или URL трека (пусто: текущий трек)",
 						"es-ES":
 							"Título o URL de la pista (vacío: la que suena ahora)",
-						ko: "곡 제목 또는 URL (비우면 지금 재생 중인 곡)"
+						ko: "곡 제목 또는 URL (비우면 지금 재생 중인 곡)",
+						uk: "Назва треку або URL (порожньо: трек, що грає зараз)"
 					},
 
 					required: false,
@@ -430,7 +455,8 @@ export const command: Command = {
 				ja: "キューを取得！",
 				ru: "Получить очередь!",
 				"es-ES": "Obtener la cola!",
-				ko: "대기열을 확인해요!"
+				ko: "대기열을 확인해요!",
+				uk: "Показати чергу!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -444,7 +470,8 @@ export const command: Command = {
 				ja: "resume",
 				ru: "resume",
 				"es-ES": "resume",
-				ko: "resume"
+				ko: "resume",
+				uk: "resume"
 			},
 
 			aliases: ["unpause"],
@@ -455,7 +482,8 @@ export const command: Command = {
 				ja: "現在再生中の曲を再開！",
 				ru: "Возобновить текущую песню!",
 				"es-ES": "Reanudar la canción actual!",
-				ko: "현재 곡을 다시 재생해요!"
+				ko: "현재 곡을 다시 재생해요!",
+				uk: "Відновити пісню, що зараз грає!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -469,7 +497,8 @@ export const command: Command = {
 				ja: "shuffle",
 				ru: "shuffle",
 				"es-ES": "shuffle",
-				ko: "shuffle"
+				ko: "shuffle",
+				uk: "shuffle"
 			},
 
 			description: "Shuffle the queue!",
@@ -478,7 +507,8 @@ export const command: Command = {
 				ja: "キューをシャッフル！",
 				ru: "Перемешать очередь!",
 				"es-ES": "Mezclar la cola!",
-				ko: "대기열을 셔플해요!"
+				ko: "대기열을 셔플해요!",
+				uk: "Перемішати чергу!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -494,7 +524,8 @@ export const command: Command = {
 				ja: "現在再生中の曲をスキップ！",
 				ru: "Пропустить текущую песню!",
 				"es-ES": "Saltar la canción actual!",
-				ko: "지금 재생 중인 곡을 건너뛰어요!"
+				ko: "지금 재생 중인 곡을 건너뛰어요!",
+				uk: "Пропустити пісню, що зараз грає!"
 			},
 
 			aliases: ["next"],
@@ -512,7 +543,8 @@ export const command: Command = {
 				ja: "現在再生中の曲を停止！",
 				ru: "Остановить текущую песню!",
 				"es-ES": "Detener la canción actual!",
-				ko: "지금 재생 중인 곡을 정지해요!"
+				ko: "지금 재생 중인 곡을 정지해요!",
+				uk: "Зупинити пісню, що зараз грає!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

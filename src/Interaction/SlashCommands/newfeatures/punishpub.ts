@@ -39,7 +39,8 @@ export const command: Command = {
 		ja: "広告を送りすぎたユーザーを罰する！",
 		ru: "Наказать пользователя за чрезмерную рекламу!",
 		"es-ES": "Castigar al usuario cuando envía demasiada publicidad!",
-		ko: "광고를 너무 많이 보내는 사용자를 처벌해요!"
+		ko: "광고를 너무 많이 보내는 사용자를 처벌해요!",
+		uk: "Карати користувача за надмірну рекламу!"
 	},
 
 	options: [
@@ -53,7 +54,8 @@ export const command: Command = {
 				ja: "モジュールのステータスを選択",
 				ru: "Выберите статус модуля",
 				"es-ES": "Elegir el estado del módulo",
-				ko: "모듈 상태 선택"
+				ko: "모듈 상태 선택",
+				uk: "Виберіть стан модуля"
 			},
 
 			required: true,
@@ -65,7 +67,8 @@ export const command: Command = {
 						ja: "on",
 						ru: "on",
 						"es-ES": "on",
-						ko: "켜기"
+						ko: "켜기",
+						uk: "УВІМК."
 					},
 					value: "true"
 				},
@@ -76,7 +79,8 @@ export const command: Command = {
 						ja: "off",
 						ru: "off",
 						"es-ES": "off",
-						ko: "끄기"
+						ko: "끄기",
+						uk: "ВИМК."
 					},
 					value: "false"
 				}
@@ -94,7 +98,8 @@ export const command: Command = {
 				ja: "罰前の最大フラグ数",
 				ru: "Максимальное количество флагов до наказания",
 				"es-ES": "La cantidad máxima de marcas antes del castigo",
-				ko: "처벌 전까지 허용할 최대 경고 횟수"
+				ko: "처벌 전까지 허용할 최대 경고 횟수",
+				uk: "Максимальна кількість позначок до покарання"
 			},
 
 			required: false,
@@ -110,7 +115,8 @@ export const command: Command = {
 				ja: "罰を選択",
 				ru: "Выберите наказание",
 				"es-ES": "Elegir el castigo",
-				ko: "처벌 선택"
+				ko: "처벌 선택",
+				uk: "Виберіть покарання"
 			},
 
 			required: false,
@@ -122,7 +128,8 @@ export const command: Command = {
 						ja: "ban",
 						ru: "ban",
 						"es-ES": "ban",
-						ko: "차단"
+						ko: "차단",
+						uk: "БАН"
 					},
 					value: "ban"
 				},
@@ -133,7 +140,8 @@ export const command: Command = {
 						ja: "kick",
 						ru: "kick",
 						"es-ES": "kick",
-						ko: "추방"
+						ko: "추방",
+						uk: "ВИГНАТИ"
 					},
 					value: "kick"
 				},
@@ -144,7 +152,8 @@ export const command: Command = {
 						ja: "mute",
 						ru: "mute",
 						"es-ES": "mute",
-						ko: "타임아웃"
+						ko: "타임아웃",
+						uk: "МУТ"
 					},
 					value: "mute"
 				}

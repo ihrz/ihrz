@@ -376,7 +376,7 @@ async function flushReport(guildId: string): Promise<void> {
 		.setDescription(
 			lang.antispam_log_embed_desc
 				.replace("${bot}", client.user!.toString())
-				.replace("${actionType}", "sanction")
+				.replace("${actionType}", lang.var_sanction.toLowerCase())
 				.replace("${user}", mentions)
 		);
 	await logsChannel.send({ embeds: [embed] }).catch(() => {});

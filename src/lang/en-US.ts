@@ -4186,17 +4186,23 @@ const enUS = {
 	guild_create_btn_repos: "iHorizon Repositories",
 	guild_create_btn_support: "Support Server",
 	guild_create_btn_docs: "iHorizon Documentation",
-	welcome_server_intro: "Thanks for having me! I'm **iHorizon**: moderation, tickets, music, protection, logs and much more, in one bot that is **free** and **open source**.",
+	welcome_server_intro:
+		"Thanks for having me! I'm **iHorizon**: moderation, tickets, music, protection, logs and much more, in one bot that is **free** and **open source**.",
 	welcome_lang_title: "Language",
-	welcome_lang_text: "I speak {language} here, picked from your server's region.\nTo change it, an administrator can use {command}: a panel lets you choose among 11 languages.",
+	welcome_lang_text:
+		"I speak {language} here, picked from your server's region.\nTo change it, an administrator can use {command}: a panel lets you choose among 11 languages.",
 	welcome_start_title: "Get started",
 	welcome_start_help: "{command} lists every command, sorted by category",
-	welcome_start_dashboard: "The [dashboard]({url}) sets everything up from your browser",
-	welcome_start_support: "A question or a bug? Our [support server]({url}) is there for you",
+	welcome_start_dashboard:
+		"The [dashboard]({url}) sets everything up from your browser",
+	welcome_start_support:
+		"A question or a bug? Our [support server]({url}) is there for you",
 	welcome_footer: "Free and open source since 2020 · ihorizon.org",
 	welcome_dm_title: "Thank you for adding iHorizon!",
-	welcome_dm_intro: "iHorizon has just joined {guild}. Here is everything you need to get started.",
-	welcome_dm_outro: "> *A free bot can do better than paid bots.*\nThat's iHorizon: a community and a project kept alive by passionate people since 2020. Welcome aboard!",
+	welcome_dm_intro:
+		"iHorizon has just joined {guild}. Here is everything you need to get started.",
+	welcome_dm_outro:
+		"> *A free bot can do better than paid bots.*\nThat's iHorizon: a community and a project kept alive by passionate people since 2020. Welcome aboard!",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commands`**\n> *« Made by people since 2022, for your community. »*\n**https://www.ihorizon.org**",
@@ -4267,7 +4273,6 @@ const enUS = {
 	var_off: "disabled",
 	global_command_cooldown_msg:
 		"${emoji} You need to wait **${time}** between each **`${ctxCommandPath}`**",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> MESSED UP AT **${number}**!! The next number is **1**. **You cannot count twice in a row.**",
@@ -4731,7 +4736,8 @@ const enUS = {
 	warn_card_title: "Member warned",
 	warn_err_self: "${emoji_No} You cannot warn yourself.",
 	warn_err_bot: "${emoji_No} Bots cannot be warned.",
-	warn_err_above: "${emoji_No} You cannot warn a member whose highest role is equal to or above yours.",
+	warn_err_above:
+		"${emoji_No} You cannot warn a member whose highest role is equal to or above yours.",
 	warn_dm_title: "You received a warning",
 	warn_label_date: "Date",
 	warn_label_active: "Active warnings",
@@ -4741,7 +4747,8 @@ const enUS = {
 	warn_sanction_timeout: "Timeout (${duration})",
 	warn_sanction_kick: "Kick",
 	warn_sanction_ban: "Ban",
-	warn_sanction_failed: "${sanction}, not applied: iHorizon cannot sanction this member",
+	warn_sanction_failed:
+		"${sanction}, not applied: iHorizon cannot sanction this member",
 	warn_expire_note: "warnings expire after ${days} days",
 	warnlist_expired: "expired",
 	warnlist_card_active: "${active} active · ${count} in total",
@@ -4750,15 +4757,22 @@ const enUS = {
 	warnconfig_expiry_never: "Never: warnings count forever",
 	warnconfig_expiry_days: "After ${days} days",
 	warnconfig_label_rules: "Automatic sanctions",
-	warnconfig_no_rules: "None: warnings never trigger a sanction by themselves",
+	warnconfig_no_rules:
+		"None: warnings never trigger a sanction by themselves",
 	warnconfig_rule_line: "**${count}** warnings → ${sanction}",
 	warnconfig_saved: "Settings saved.",
-	warnconfig_err_duration: "${emoji_No} A timeout needs a duration from 1 minute to 28 days (e.g. `1h`, `2d`).",
-	warnconfig_err_count: "${emoji_No} The threshold must be from 1 to 100 warnings.",
-	warnconfig_err_rules: "${emoji_No} 10 automatic sanctions at most: remove one first.",
-	warnconfig_err_expiry: "${emoji_No} The expiry must be from 0 (never) to 365 days.",
-	warnconfig_err_sanction: "${emoji_No} Pick a sanction for this threshold (or `none` to remove it).",
-	warnconfig_hint: "Add a sanction: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · remove it: `sanction:none` · expiry: `expire-days:30` (0 = never)",
+	warnconfig_err_duration:
+		"${emoji_No} A timeout needs a duration from 1 minute to 28 days (e.g. `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} The threshold must be from 1 to 100 warnings.",
+	warnconfig_err_rules:
+		"${emoji_No} 10 automatic sanctions at most: remove one first.",
+	warnconfig_err_expiry:
+		"${emoji_No} The expiry must be from 0 (never) to 365 days.",
+	warnconfig_err_sanction:
+		"${emoji_No} Pick a sanction for this threshold (or `none` to remove it).",
+	warnconfig_hint:
+		"Add a sanction: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · remove it: `sanction:none` · expiry: `expire-days:30` (0 = never)",
 	clearwarn_card_title: "Warnings cleared",
 	clearwarn_card_desc: "${count} warnings of ${member} have been removed.",
 	clear_allwarns_card_title: "All warnings deleted",
@@ -4975,7 +4989,51 @@ const enUS = {
 	status_panel_card_col_history: "Last 60 checks",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30d",
-	status_panel_card_chart: "Average response time"
+	status_panel_card_chart: "Average response time",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Invite iHorizon",
+	dm_only_server_desc:
+		"# Uh oh!\n\nYou are using iHorizon in a private conversation, but this command only works in a Discord server.\n\nAdd me to a server to use it!",
+	topgg_vote_button: "Vote for iHorizon",
+	dm_message_from: "Message from ${guild}",
+	dm_message_by: "Message by ${user}",
+	ticket_panel_button_saved: "Saved",
+	economy_balance_wallet_title: "${user}'s wallet",
+	reactionroles_help_embed_title: "/reactionroles help",
+	command_error_title: "**The command ran into a problem.**",
+	command_error_report: "**Please report this issue with `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Dear <@${ownerId}>, I'm sorry, but you have been blacklisted from iHorizon.\nAs a result, I am leaving your server. If you have any questions, please contact my developers.\n\nThank you for your understanding.",
+	status_field_cpu: "CPU",
+	status_field_memory: "Memory",
+	status_field_machine_uptime: "Machine uptime",
+	status_field_bot_uptime: "Bot uptime",
+	status_field_os: "OS",
+	status_field_bot_version: "Bot version",
+	status_field_bun_version: "Bun version",
+	owner_guild_title: "Server owners",
+	var_discord_permission: "Discord permission",
+	rate_nothing: "nothing",
+	embed_default_footer: "Footer",
+	music_history_file_title:
+		"Music history of ${guild} (last 30 days, newest first)",
+	music_history_requested_by: "requested by ${user}",
+	music_history_live: "live",
+	tempvoice_region_singapore: "Singapore",
+	tempvoice_region_sydney: "Australia (Sydney)",
+	tempvoice_region_russia: "Russia",
+	tempvoice_region_india: "India",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "South Africa",
+	tempvoice_region_rotterdam: "Netherlands (Rotterdam)",
+	tempvoice_region_japan: "Japan (Tokyo)",
+	tempvoice_region_southkorea: "South Korea",
+	tempvoice_region_useast: "US East",
+	tempvoice_region_ussouth: "US South",
+	tempvoice_region_uswest: "US West",
+	tempvoice_region_uscentral: "US Central",
+	tempvoice_region_brazil: "Brazil"
 };
 
 export default enUS;

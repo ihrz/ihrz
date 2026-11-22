@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🇺🇦 iHorizon speaks Ukrainian
+
+Ukrainian is now a full language of iHorizon: pick **Українська** with `/setlang`. Every reply, card, menu and log is translated, slash commands show Ukrainian descriptions in a Ukrainian Discord app, and the dashboard has a Ukrainian version too. A server whose Discord region is Ukrainian starts in Ukrainian. The language menu now shows every language in its own name (Français, Deutsch, 日本語…).
+
+---
+
 ## ⚠️ Moderation — a real warning system
 
 Warnings now work like in the big moderation bots. **`/mod warnconfig`** (administrators) sets **automatic sanctions**: reach 3 warnings and get a 1-hour timeout, 5 and get kicked, 7 and get banned — any threshold you like, up to 10. Warnings can **expire** after a number of days: they stay in the history but no longer count. Each warning can carry a **private staff note**, shown in `/mod warnlist`, the logs and the dashboard, never to the member. The warned member gets a clear card by private message with the reason and their number of active warnings. You can no longer warn yourself, a bot or someone above you. Every warning counts, including the automatic ones (anti-spam, timeouts…).
@@ -280,6 +286,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Translations**: the last hard-coded texts are translated (help pages, temporary voice regions, wallet, error messages, the DM-only notice, `/status`, the top.gg button…), and a command used in DMs answers in your Discord language
 - **Welcome**: when iHorizon joins a server, its message (and the private message to the owner and to whoever added it) is now a clear card: what the bot does, the language it speaks there and how to change it with `/setlang`, where to start (`/help`, the dashboard, the support server)
 - **Tickets**: the ticket log channel gets cards instead of embeds (created, closed, reopened, deleted, members added or removed), each with its colour and icon, and they no longer ping the people they mention
 - **Tickets**: on the official iHorizon, transcripts are no longer sent as HTML files (channel, logs, private messages): the ticket.ihorizon.org button replaces them

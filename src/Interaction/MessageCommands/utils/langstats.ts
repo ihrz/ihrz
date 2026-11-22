@@ -35,7 +35,8 @@ export const command: Command = {
 		ru: "Получить статистику языков в iHorizon",
 		"es-ES":
 			"Obtener estadísticas sobre el idioma en el Bot de Discord iHorizon",
-		ko: "iHorizon Discord 봇의 언어 통계를 확인해요"
+		ko: "iHorizon Discord 봇의 언어 통계를 확인해요",
+		uk: "Отримати статистику мов у Discord-боті iHorizon"
 	},
 
 	aliases: [],

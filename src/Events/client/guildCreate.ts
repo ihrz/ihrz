@@ -99,7 +99,12 @@ export const event: BotEvent = {
 			const tqtmonreuf = new EmbedBuilder()
 				.setColor("#FF0000")
 				.setDescription(
-					`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`
+					(
+						await client.func.getLanguageData(guild.id)
+					).guild_blacklisted_leave_desc.replace(
+						"${ownerId}",
+						guild.ownerId
+					)
 				)
 				.setTimestamp()
 				.setFooter(
@@ -378,6 +383,9 @@ Guild Info:
 					break;
 				case "ko":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "ko-KR");
+					break;
+				case "uk":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "uk-UA");
 					break;
 				case "pt-BR":
 					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "pt-PT");

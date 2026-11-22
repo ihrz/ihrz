@@ -37,7 +37,8 @@ export const command: Command = {
 		ja: "ランクカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории рангов!",
 		"es-ES": "Subcomando para la categoría de rangos!",
-		ko: "랭크 하위 명령어!"
+		ko: "랭크 하위 명령어!",
+		uk: "Підкоманда категорії рангів!"
 	},
 
 	options: [
@@ -52,7 +53,8 @@ export const command: Command = {
 				ru: "Когда пользователь получает уровень ранга, выдать роль!",
 				"es-ES":
 					"Cuando el usuario gana un nivel de rango, darle un rol!",
-				ko: "사용자가 레벨에 도달하면 역할을 지급해요!"
+				ko: "사용자가 레벨에 도달하면 역할을 지급해요!",
+				uk: "Видавати роль, коли користувач досягає рівня рангу!"
 			},
 
 			aliases: ["rroles"],
@@ -74,7 +76,8 @@ export const command: Command = {
 				ru: "Настроить сообщение при получении нового уровня XP!",
 				"es-ES":
 					"Configurar el mensaje cuando el usuario gana un nuevo nivel de XP!",
-				ko: "사용자가 새 레벨에 도달했을 때 보낼 메시지를 설정해요!"
+				ko: "사용자가 새 레벨에 도달했을 때 보낼 메시지를 설정해요!",
+				uk: "Налаштувати повідомлення про новий рівень XP користувача!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -89,7 +92,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -101,7 +105,8 @@ export const command: Command = {
 								ja: "power_on_the_module_send_message",
 								ru: "power_on_the_module_send_message",
 								"es-ES": "power_on_the_module_send_message",
-								ko: "모듈 켜기 (레벨이 오르면 메시지 전송)"
+								ko: "모듈 켜기 (레벨이 오르면 메시지 전송)",
+								uk: "Увімкнути модуль (надсилати повідомлення, коли користувач отримує рівень XP)"
 							},
 							value: "on"
 						},
@@ -112,7 +117,8 @@ export const command: Command = {
 								ja: "power_off_the_module_don_t_send_",
 								ru: "power_off_the_module_don_t_send_",
 								"es-ES": "power_off_the_module_don_t_send_",
-								ko: "모듈 끄기 (메시지는 보내지 않지만 경험치(XP)는 계속 쌓여요)"
+								ko: "모듈 끄기 (메시지는 보내지 않지만 경험치(XP)는 계속 쌓여요)",
+								uk: "Вимкнути модуль (без повідомлень, але користувач і далі отримує рівні XP)"
 							},
 							value: "off"
 						},
@@ -123,7 +129,8 @@ export const command: Command = {
 								ja: "disable_the_module_don_t_send_an",
 								ru: "disable_the_module_don_t_send_an",
 								"es-ES": "disable_the_module_don_t_send_an",
-								ko: "모듈 비활성화 (메시지를 보내지 않고 경험치(XP)도 쌓이지 않아요)"
+								ko: "모듈 비활성화 (메시지를 보내지 않고 경험치(XP)도 쌓이지 않아요)",
+								uk: "Вимкнути модуль (без повідомлень, і користувач не отримує рівні XP)"
 							},
 							value: "disable"
 						}
@@ -144,7 +151,8 @@ export const command: Command = {
 				ja: "show",
 				ru: "show",
 				"es-ES": "show",
-				ko: "show"
+				ko: "show",
+				uk: "show"
 			},
 
 			description: "Get the user's xp level!",
@@ -153,7 +161,8 @@ export const command: Command = {
 				ja: "ユーザーのXPレベルを取得！",
 				ru: "Получить уровень XP пользователя!",
 				"es-ES": "Obtener el nivel de XP del usuario!",
-				ko: "사용자의 레벨을 확인해요!"
+				ko: "사용자의 레벨을 확인해요!",
+				uk: "Отримати рівень XP користувача!"
 			},
 
 			aliases: ["rsee", "look", "level"],
@@ -172,7 +181,8 @@ export const command: Command = {
 						ru: "Пользователь для поиска, оставьте пустым для показа своей статистики",
 						"es-ES":
 							"El usuario que quieres buscar, déjalo en blanco si quieres mostrar tus estadísticas",
-						ko: "조회할 사용자 (비워 두면 내 통계)"
+						ko: "조회할 사용자 (비워 두면 내 통계)",
+						uk: "Користувач для перегляду; залиште порожнім, щоб показати свою статистику"
 					},
 
 					required: false,
@@ -194,7 +204,8 @@ export const command: Command = {
 				ja: "ユーザーのランクレベルをリセット",
 				ru: "Сбросить уровень ранга пользователя",
 				"es-ES": "Restablecer el nivel de rango de un usuario",
-				ko: "사용자의 레벨을 초기화해요"
+				ko: "사용자의 레벨을 초기화해요",
+				uk: "Скинути рівень рангу користувача"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -210,7 +221,8 @@ export const command: Command = {
 						ru: "Пользователь, чьи данные рангов нужно сбросить",
 						"es-ES":
 							"El usuario al que quieres restablecer los datos de rango",
-						ko: "랭크 데이터를 초기화할 사용자"
+						ko: "랭크 데이터를 초기화할 사용자",
+						uk: "Користувач, чиї дані рангів ви хочете скинути"
 					},
 
 					required: true,
@@ -231,7 +243,8 @@ export const command: Command = {
 				ru: "Сбросить уровень ранга всех пользователей",
 				"es-ES":
 					"Restablecer el nivel de rango de cada usuario en el servidor",
-				ko: "서버 모든 사용자의 레벨을 초기화해요"
+				ko: "서버 모든 사용자의 레벨을 초기화해요",
+				uk: "Скинути рівні рангів усіх користувачів сервера"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -247,7 +260,8 @@ export const command: Command = {
 				ja: "channel",
 				ru: "channel",
 				"es-ES": "channel",
-				ko: "channel"
+				ko: "channel",
+				uk: "channel"
 			},
 
 			description:
@@ -258,7 +272,8 @@ export const command: Command = {
 				ru: "Установить канал для сообщений о новом уровне XP!",
 				"es-ES":
 					"Establecer el canal donde el usuario recibe el mensaje de nuevo nivel de XP!",
-				ko: "레벨 업 메시지를 보낼 채널을 설정해요!"
+				ko: "레벨 업 메시지를 보낼 채널을 설정해요!",
+				uk: "Встановити канал для повідомлень про новий рівень XP!"
 			},
 
 			aliases: ["rchannel"],
@@ -275,7 +290,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -287,7 +303,8 @@ export const command: Command = {
 								ja: "remove_the_module_send_xp_messag",
 								ru: "remove_the_module_send_xp_messag",
 								"es-ES": "remove_the_module_send_xp_messag",
-								ko: "모듈 제거 (사용자가 메시지를 보낸 채널에 레벨업 메시지 전송)"
+								ko: "모듈 제거 (사용자가 메시지를 보낸 채널에 레벨업 메시지 전송)",
+								uk: "Прибрати модуль (повідомлення XP у каналі, де писав користувач)"
 							},
 							value: "off"
 						},
@@ -298,7 +315,8 @@ export const command: Command = {
 								ja: "power_on_the_module_send_xp_mess",
 								ru: "power_on_the_module_send_xp_mess",
 								"es-ES": "power_on_the_module_send_xp_mess",
-								ko: "모듈 켜기 (특정 채널에 레벨업 메시지 전송)"
+								ko: "모듈 켜기 (특정 채널에 레벨업 메시지 전송)",
+								uk: "Увімкнути модуль (повідомлення XP в окремому каналі)"
 							},
 							value: "on"
 						}
@@ -316,7 +334,8 @@ export const command: Command = {
 						ja: "XPメッセージ用の特定チャンネル！",
 						ru: "Конкретный канал для сообщений XP!",
 						"es-ES": "El canal específico para mensajes de XP!",
-						ko: "경험치(XP) 메시지를 보낼 채널!"
+						ko: "경험치(XP) 메시지를 보낼 채널!",
+						uk: "Окремий канал для повідомлень про XP!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -338,7 +357,8 @@ export const command: Command = {
 				ja: "leaderboard",
 				ru: "leaderboard",
 				"es-ES": "leaderboard",
-				ko: "leaderboard"
+				ko: "leaderboard",
+				uk: "leaderboard"
 			},
 
 			description: "Get the xp's leaderboard of the guild!",
@@ -348,7 +368,8 @@ export const command: Command = {
 				ru: "Получить таблицу лидеров по XP!",
 				"es-ES":
 					"Obtener la tabla de clasificación de XP del servidor!",
-				ko: "서버의 경험치(XP) 순위표를 확인해요!"
+				ko: "서버의 경험치(XP) 순위표를 확인해요!",
+				uk: "Отримати таблицю лідерів сервера за XP!"
 			},
 
 			aliases: ["rankslb"],
@@ -367,7 +388,8 @@ export const command: Command = {
 				ja: "ランクモジュールでこのチャンネルを無視",
 				ru: "Игнорировать эти каналы в модуле рангов",
 				"es-ES": "Ignorar estos canales en el módulo de Rangos",
-				ko: "랭크 모듈에서 무시할 채널"
+				ko: "랭크 모듈에서 무시할 채널",
+				uk: "Ігнорувати ці канали в модулі рангів"
 			},
 
 			aliases: ["ignore"],
@@ -387,7 +409,8 @@ export const command: Command = {
 				ru: "Установить сообщение при повышении уровня",
 				"es-ES":
 					"Establecer un mensaje personalizado cuando el usuario gana nivel",
-				ko: "레벨이 오를 때 보낼 맞춤 메시지를 설정해요"
+				ko: "레벨이 오를 때 보낼 맞춤 메시지를 설정해요",
+				uk: "Встановити власне повідомлення при підвищенні рівня"
 			},
 
 			aliases: ["msg"],

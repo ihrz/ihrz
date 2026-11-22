@@ -91,7 +91,10 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blogger_blog_add_success
-					?.replace("${validationName}", validation.name || "Unknown")
+					?.replace(
+						"${validationName}",
+						validation.name || lang.var_unknown
+					)
 					?.replace("${channel}", channel.toString())
 					?.replace("${blogId}", blogId),
 				embeds: [

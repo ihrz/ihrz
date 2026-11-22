@@ -43,7 +43,8 @@ export const command: Command = {
 		ja: "スターボードカテゴリのサブコマンドグループ",
 		ru: "Группа подкоманд для категории Starboard",
 		"es-ES": "Grupo de subcomando para la categoría Starboard",
-		ko: "스타보드 카테고리의 하위 명령어 그룹"
+		ko: "스타보드 카테고리의 하위 명령어 그룹",
+		uk: "Група підкоманд для категорії Starboard"
 	},
 
 	permission: [PermissionFlagsBits.Administrator],
@@ -60,7 +61,8 @@ export const command: Command = {
 				ja: "モジュールを有効化または無効化",
 				ru: "Включить или отключить модуль",
 				"es-ES": "Habilitar o deshabilitar el módulo",
-				ko: "모듈을 켜거나 꺼요"
+				ko: "모듈을 켜거나 꺼요",
+				uk: "Увімкнути або вимкнути модуль"
 			},
 
 			options: [
@@ -73,7 +75,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					choices: [
@@ -84,7 +87,8 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути"
 							},
 							value: "on"
 						},
@@ -95,7 +99,8 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути"
 							},
 							value: "off"
 						}
@@ -124,7 +129,8 @@ export const command: Command = {
 				ru: "Изменить канал для сообщений со звездами",
 				"es-ES":
 					"Cambiar el canal donde se envían los mensajes más destacados",
-				ko: "별 반응을 가장 많이 받은 메시지를 보낼 채널을 변경해요"
+				ko: "별 반응을 가장 많이 받은 메시지를 보낼 채널을 변경해요",
+				uk: "Змінити канал для повідомлень з найбільшою кількістю зірок"
 			},
 
 			options: [
@@ -137,7 +143,8 @@ export const command: Command = {
 						ja: "希望するチャンネル",
 						ru: "желаемый канал",
 						"es-ES": "el canal que deseas",
-						ko: "원하는 채널"
+						ko: "원하는 채널",
+						uk: "бажаний канал"
 					},
 
 					permission: null,
@@ -161,7 +168,8 @@ export const command: Command = {
 				ja: "threshold",
 				ru: "threshold",
 				"es-ES": "threshold",
-				ko: "threshold"
+				ko: "threshold",
+				uk: "threshold"
 			},
 			prefixName: "starboardthreshold",
 
@@ -173,7 +181,8 @@ export const command: Command = {
 				ru: "Установить порог звезд для попадания в канал",
 				"es-ES":
 					"Establecer el umbral de estrellas necesario para ser referenciado en el canal",
-				ko: "채널에 올라가는 데 필요한 별 수를 설정해요"
+				ko: "채널에 올라가는 데 필요한 별 수를 설정해요",
+				uk: "Встановити поріг зірок для потрапляння в канал"
 			},
 
 			options: [
@@ -186,7 +195,8 @@ export const command: Command = {
 						ja: "しきい値",
 						ru: "порог",
 						"es-ES": "el umbral",
-						ko: "기준 수"
+						ko: "기준 수",
+						uk: "поріг"
 					},
 
 					type: ApplicationCommandOptionType.Number,
@@ -210,7 +220,8 @@ export const command: Command = {
 				ru: "Создать ветку под сообщением в звездном канале?",
 				"es-ES":
 					"Crear un hilo debajo del mensaje en el canal de estrellas?",
-				ko: "스타 채널의 메시지 아래에 스레드를 만들까요?"
+				ko: "스타 채널의 메시지 아래에 스레드를 만들까요?",
+				uk: "Створювати гілку під повідомленням у каналі зірок?"
 			},
 
 			options: [
@@ -223,7 +234,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					choices: [
@@ -234,7 +246,8 @@ export const command: Command = {
 								ja: "create_thread",
 								ru: "create_thread",
 								"es-ES": "create_thread",
-								ko: "스레드 만들기"
+								ko: "스레드 만들기",
+								uk: "Створювати гілку"
 							},
 							value: "yes"
 						},
@@ -245,7 +258,8 @@ export const command: Command = {
 								ja: "don_t_create_thread",
 								ru: "don_t_create_thread",
 								"es-ES": "don_t_create_thread",
-								ko: "스레드 만들지 않기"
+								ko: "스레드 만들지 않기",
+								uk: "Не створювати гілку"
 							},
 							value: "no"
 						}

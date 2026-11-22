@@ -298,7 +298,7 @@ export async function sendErrorMessage(
 			? (neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map((x) => `<@${x}>`).join(", ")} \n`)
 			: "";
 	} else {
-		neededPerm = "**\`Discord Permission\`**";
+		neededPerm = `**\`${lang.var_discord_permission}\`**`;
 	}
 
 	return await interaction.client.func.method.interactionSend(interaction, {

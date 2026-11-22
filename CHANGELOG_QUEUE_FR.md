@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🇺🇦 iHorizon parle ukrainien
+
+L'ukrainien devient une langue à part entière d'iHorizon : choisissez **Українська** avec `/setlang`. Chaque réponse, carte, menu et log est traduit, les commandes slash ont leurs descriptions en ukrainien dans une application Discord en ukrainien, et le dashboard a lui aussi sa version ukrainienne. Un serveur dont la région Discord est ukrainienne démarre en ukrainien. Le menu des langues affiche désormais chaque langue dans son propre nom (Français, Deutsch, 日本語…).
+
+---
+
 ## ⚠️ Modération — un vrai système d'avertissements
 
 Les avertissements fonctionnent enfin comme dans les grands bots de modération. **`/mod warnconfig`** (administrateurs) règle des **sanctions automatiques** : 3 avertissements et c'est une exclusion d'une heure, 5 une expulsion, 7 un bannissement — les seuils que vous voulez, jusqu'à 10. Les avertissements peuvent **expirer** après un nombre de jours : ils restent dans l'historique mais ne comptent plus. Chaque avertissement peut porter une **note privée du staff**, visible dans `/mod warnlist`, les logs et le dashboard, jamais par le membre. Le membre averti reçoit une carte claire en message privé avec la raison et son nombre d'avertissements actifs. On ne peut plus s'avertir soi-même, avertir un bot ou quelqu'un au-dessus de soi. Tous les avertissements comptent, y compris les automatiques (anti-spam, exclusions…).
@@ -280,6 +286,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Traductions** : les derniers textes écrits en dur sont traduits (pages d'aide, régions des salons vocaux temporaires, portefeuille, messages d'erreur, l'avis « serveurs uniquement » en MP, `/status`, le bouton top.gg…), et une commande utilisée en MP répond dans votre langue Discord
 - **Bienvenue** : quand iHorizon rejoint un serveur, son message (et le message privé à l'owner et à la personne qui l'a ajouté) devient une carte claire : ce que fait le bot, la langue qu'il parle et comment la changer avec `/setlang`, par où commencer (`/help`, le dashboard, le serveur support)
 - **Tickets** : le salon de logs des tickets reçoit des cartes au lieu des embeds (créé, fermé, rouvert, supprimé, membres ajoutés ou retirés), chacune avec sa couleur et son icône, et elles ne mentionnent plus personne
 - **Tickets** : sur l'iHorizon officiel, les transcripts ne sont plus envoyés en fichiers HTML (salon, logs, messages privés) : le bouton ticket.ihorizon.org les remplace

@@ -40,7 +40,8 @@ export const command: Command = {
 		ru: "Удалить реакцию iHorizon при отправке сообщения",
 		"es-ES":
 			"Eliminar reacción de iHorizon cuando el usuario envía un mensaje",
-		ko: "사용자가 메시지를 보낼 때 iHorizon이 다는 반응을 제거해요"
+		ko: "사용자가 메시지를 보낼 때 iHorizon이 다는 반응을 제거해요",
+		uk: "Прибрати реакцію iHorizon, коли користувач надсилає повідомлення"
 	},
 
 	thinking: false,

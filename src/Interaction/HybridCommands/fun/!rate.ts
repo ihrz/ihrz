@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const string = opts.longString("the_things", 0);
 
-		const the_things = maskLink(string || "nothing");
+		const the_things = maskLink(string || lang.rate_nothing);
 
 		await sendCard(
 			client,

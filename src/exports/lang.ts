@@ -33,7 +33,8 @@ const files: Record<string, () => Promise<any>> = {
 	"jp-JP.ts": () => import("../lang/jp-JP.ts"),
 	"ko-KR.ts": () => import("../lang/ko-KR.ts"),
 	"pt-PT.ts": () => import("../lang/pt-PT.ts"),
-	"ru-RU.ts": () => import("../lang/ru-RU.ts")
+	"ru-RU.ts": () => import("../lang/ru-RU.ts"),
+	"uk-UA.ts": () => import("../lang/uk-UA.ts")
 };
 
 export default files;

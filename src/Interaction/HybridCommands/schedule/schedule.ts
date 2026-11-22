@@ -58,7 +58,8 @@ export const command: Command = {
 		ja: "スケジュールカテゴリの管理！",
 		ru: "Управление категорией расписания!",
 		"es-ES": "Gestor para la categoría de horarios!",
-		ko: "일정 카테고리 관리!"
+		ko: "일정 카테고리 관리!",
+		uk: "Керування категорією розкладу!"
 	},
 	category: "schedule",
 	thinking: false,

@@ -46,7 +46,8 @@ export const command: Command = {
 		ja: "メンバーカウントチャンネルを設定！",
 		ru: "Установить каналы счетчика участников!",
 		"es-ES": "Establecer canales de conteo de miembros!",
-		ko: "멤버 수 채널을 설정해요!"
+		ko: "멤버 수 채널을 설정해요!",
+		uk: "Налаштувати канали лічильника учасників!"
 	},
 
 	options: [
@@ -59,7 +60,8 @@ export const command: Command = {
 				ja: "<オン / オフ>",
 				ru: "<Вкл / Выкл>",
 				"es-ES": "<Encender / Apagar>",
-				ko: "<켜기 /끄기>"
+				ko: "<켜기 /끄기>",
+				uk: "<Увімкнути / Вимкнути>"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -72,7 +74,8 @@ export const command: Command = {
 						ja: "power_on",
 						ru: "power_on",
 						"es-ES": "power_on",
-						ko: "켜기"
+						ko: "켜기",
+						uk: "Увімкнути"
 					},
 					value: "on"
 				},
@@ -83,7 +86,8 @@ export const command: Command = {
 						ja: "power_off",
 						ru: "power_off",
 						"es-ES": "power_off",
-						ko: "끄기"
+						ko: "끄기",
+						uk: "Вимкнути"
 					},
 					value: "off"
 				}
@@ -100,7 +104,8 @@ export const command: Command = {
 				ja: "メンバーカウントを設定するチャンネル",
 				ru: "Канал для установки счетчика участников",
 				"es-ES": "El canal para establecer el conteo de miembros",
-				ko: "멤버 수를 표시할 채널"
+				ko: "멤버 수를 표시할 채널",
+				uk: "<Увімкнути / Вимкнути>"
 			},
 
 			channel_types: [ChannelType.GuildVoice],
@@ -122,7 +127,8 @@ export const command: Command = {
 				ru: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
 				"es-ES":
 					"{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
-				ko: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
+				ko: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
+				uk: "<Увімкнути / Вимкнути>"
 			},
 
 			permission: null

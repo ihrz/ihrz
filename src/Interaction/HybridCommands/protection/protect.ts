@@ -41,7 +41,8 @@ export const command: Command = {
 		ja: "対話型保護設定パネルを開きます！",
 		ru: "Открывает интерактивную панель настройки защиты!",
 		"es-ES": "¡Abre el panel de configuración interactivo de protección!",
-		ko: "대화형 보호 설정 패널을 열어요!"
+		ko: "대화형 보호 설정 패널을 열어요!",
+		uk: "Відкрити інтерактивну панель налаштування захисту!"
 	},
 
 	thinking: true,

@@ -43,7 +43,8 @@ export const command: Command = {
 		ru: "Показать сохраненные сообщения для реакций",
 		"es-ES":
 			"Mostrar todos los mensajes específicos guardados para reaccionar",
-		ko: "반응하도록 저장된 메시지를 모두 보여줘요"
+		ko: "반응하도록 저장된 메시지를 모두 보여줘요",
+		uk: "Показати всі збережені повідомлення для реакцій"
 	},
 
 	thinking: false,

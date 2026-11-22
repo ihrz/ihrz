@@ -47,14 +47,22 @@ export const permissionLevel = [
 			ja: "default",
 			ru: "default",
 			"es-ES": "default",
-			ko: "기본값"
+			ko: "기본값",
+			uk: "Типово"
 		},
 		value: "0"
 	},
 	...permissionsRole.map((x) => {
 		return {
 			name: x,
-			name_localizations: { fr: x, ja: x, ru: x, "es-ES": x, ko: x },
+			name_localizations: {
+				fr: x,
+				ja: x,
+				ru: x,
+				"es-ES": x,
+				ko: x,
+				uk: x
+			},
 			value: x.split(" ")[1]
 		};
 	})
@@ -69,7 +77,8 @@ export const command: Command = {
 		ja: "コマンド権限のサブコマンド！",
 		ru: "Подкоманда для разрешений команд!",
 		"es-ES": "Subcomando para permisos de comando!",
-		ko: "명령어 권한 하위 명령어!"
+		ko: "명령어 권한 하위 명령어!",
+		uk: "Підкоманда для дозволів команд!"
 	},
 
 	options: [
@@ -82,7 +91,8 @@ export const command: Command = {
 				ja: "ユーザーに権限を設定",
 				ru: "Установить разрешения пользователю",
 				"es-ES": "Establecer permiso al usuario",
-				ko: "사용자에게 권한을 설정해요"
+				ko: "사용자에게 권한을 설정해요",
+				uk: "Встановити дозвіл користувачу"
 			},
 
 			options: [
@@ -95,7 +105,8 @@ export const command: Command = {
 						ja: "対象のメンバー",
 						ru: "Участник, которого вы хотите",
 						"es-ES": "Miembro que deseas",
-						ko: "원하는 멤버"
+						ko: "원하는 멤버",
+						uk: "Бажаний учасник"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -113,7 +124,8 @@ export const command: Command = {
 						ru: "разрешение для участника",
 						"es-ES":
 							"permiso que quieres establecer para el miembro",
-						ko: "멤버에게 설정할 권한"
+						ko: "멤버에게 설정할 권한",
+						uk: "дозвіл, який потрібно встановити учаснику"
 					},
 
 					choices: permissionLevel,
@@ -139,7 +151,8 @@ export const command: Command = {
 				ru: "Установить разрешение для использования команды",
 				"es-ES":
 					"Establecer un permiso específico para usar un comando",
-				ko: "명령어 하나의 사용 권한을 설정해요"
+				ko: "명령어 하나의 사용 권한을 설정해요",
+				uk: "Встановити певний дозвіл для використання команди"
 			},
 
 			options: [
@@ -153,7 +166,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -165,7 +179,8 @@ export const command: Command = {
 								ja: "change_command_permission",
 								ru: "change_command_permission",
 								"es-ES": "change_command_permission",
-								ko: "명령어 권한 변경"
+								ko: "명령어 권한 변경",
+								uk: "Змінити дозвіл команди"
 							},
 							value: "change"
 						},
@@ -176,7 +191,8 @@ export const command: Command = {
 								ja: "delete_command_permission",
 								ru: "delete_command_permission",
 								"es-ES": "delete_command_permission",
-								ko: "명령어 권한 삭제"
+								ko: "명령어 권한 삭제",
+								uk: "Видалити дозвіл команди"
 							},
 							value: "delete"
 						},
@@ -187,7 +203,8 @@ export const command: Command = {
 								ja: "delete_permission_role_user_leve",
 								ru: "delete_permission_role_user_leve",
 								"es-ES": "delete_permission_role_user_leve",
-								ko: "권한 삭제 (역할/사용자/레벨)"
+								ko: "권한 삭제 (역할/사용자/레벨)",
+								uk: "Видалити дозвіл (роль/користувач/рівень)"
 							},
 							value: "delete-all"
 						},
@@ -198,7 +215,8 @@ export const command: Command = {
 								ja: "list_all_commands_permission_set",
 								ru: "list_all_commands_permission_set",
 								"es-ES": "list_all_commands_permission_set",
-								ko: "설정된 모든 명령어 권한 목록"
+								ko: "설정된 모든 명령어 권한 목록",
+								uk: "Показати всі встановлені дозволи команд"
 							},
 							value: "list"
 						}
@@ -215,7 +233,8 @@ export const command: Command = {
 						ja: "更新したいコマンド",
 						ru: "Команда, которую вы хотите обновить",
 						"es-ES": "El comando que quieres actualizar",
-						ko: "변경할 명령어"
+						ko: "변경할 명령어",
+						uk: "Команда, яку ви хочете оновити"
 					},
 
 					autocomplete: true,
@@ -233,7 +252,8 @@ export const command: Command = {
 						ja: "選択したコマンドの権限",
 						ru: "Разрешение для выбранной команды",
 						"es-ES": "El permiso para el comando seleccionado",
-						ko: "선택한 명령어의 권한"
+						ko: "선택한 명령어의 권한",
+						uk: "Дозвіл для вибраної команди"
 					},
 
 					choices: permissionLevel,
@@ -253,7 +273,8 @@ export const command: Command = {
 						ru: "Пользовательская роль для команды",
 						"es-ES":
 							"El rol personalizado que quieres establecer para el comando",
-						ko: "명령어에 설정할 역할"
+						ko: "명령어에 설정할 역할",
+						uk: "Власна роль, яку потрібно встановити для команди"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -273,7 +294,8 @@ export const command: Command = {
 						ru: "Пользователь для команды",
 						"es-ES":
 							"El usuario personalizado que quieres establecer para el comando",
-						ko: "명령어에 설정할 사용자"
+						ko: "명령어에 설정할 사용자",
+						uk: "Користувач, якого потрібно встановити для команди"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -299,7 +321,8 @@ export const command: Command = {
 				ru: "показать всех пользователей с правами",
 				"es-ES":
 					"mostrar todos los usuarios con permisos en el servidor",
-				ko: "서버에서 권한을 받은 사용자를 모두 보여줘요"
+				ko: "서버에서 권한을 받은 사용자를 모두 보여줘요",
+				uk: "показати всіх користувачів із дозволами на сервері"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -315,7 +338,8 @@ export const command: Command = {
 				ja: "サーバーの権限ロールを編集",
 				ru: "редактировать роли разрешений на сервере",
 				"es-ES": "editar los roles de permiso en el servidor",
-				ko: "서버의 권한 역할을 편집해요"
+				ko: "서버의 권한 역할을 편집해요",
+				uk: "редагувати ролі дозволів на сервері"
 			},
 
 			options: [
@@ -326,7 +350,8 @@ export const command: Command = {
 						ja: "perm_level",
 						ru: "perm_level",
 						"es-ES": "perm_level",
-						ko: "perm_level"
+						ko: "perm_level",
+						uk: "perm_level"
 					},
 
 					description: "Permission level to edit",
@@ -335,7 +360,8 @@ export const command: Command = {
 						ja: "編集する権限レベル",
 						ru: "Уровень разрешений для редактирования",
 						"es-ES": "Nivel de permiso a editar",
-						ko: "편집할 권한 레벨"
+						ko: "편집할 권한 레벨",
+						uk: "Рівень дозволу для редагування"
 					},
 
 					choices: permissionLevel.filter((x) => x.value !== "0"),
@@ -352,7 +378,8 @@ export const command: Command = {
 						ja: "編集するロール権限",
 						ru: "Разрешение роли для редактирования",
 						"es-ES": "Permiso de rol a editar",
-						ko: "편집할 역할 권한"
+						ko: "편집할 역할 권한",
+						uk: "Дозвіл ролі для редагування"
 					},
 
 					permission: null,
@@ -374,7 +401,8 @@ export const command: Command = {
 				ja: "権限用のロールを作成",
 				ru: "Создать роли для разрешений",
 				"es-ES": "Crear roles para los permisos",
-				ko: "권한용 역할을 만들어요"
+				ko: "권한용 역할을 만들어요",
+				uk: "Створити ролі для дозволів"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

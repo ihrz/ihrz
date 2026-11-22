@@ -48,12 +48,14 @@ export async function shouldAdvertiseTheTopggVoteButton(
 	// return Date.now() - lastVoteTimestamp >= twelveHours;
 }
 
-export function generateTopggActionRow(): ActionRowBuilder<ButtonBuilder> {
+export function generateTopggActionRow(
+	label = "Vote for iHorizon"
+): ActionRowBuilder<ButtonBuilder> {
 	return new ActionRowBuilder<ButtonBuilder>().addComponents(
 		new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setURL(`https://top.gg/bot/${client.user?.id}/vote`)
-			.setLabel("Vote for iHorizon")
+			.setLabel(label)
 			.setEmoji(client.iHorizon_Emojis.TOPGG)
 	);
 }
@@ -68,9 +70,10 @@ export type components = readonly (
 )[];
 
 export async function addTopggButonToTheActualComponents(
-	current: components
+	current: components,
+	label?: string
 ): Promise<components> {
-	const topggActionRow = await generateTopggActionRow();
+	const topggActionRow = generateTopggActionRow(label);
 
 	if (!current || current.length === 0) {
 		return [topggActionRow];

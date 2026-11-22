@@ -2052,8 +2052,7 @@ export default {
 		"${emoji_No} يجب أن تكون في نفس القناة الصوتية معي لاستخدام هذا الأمر!",
 
 	// /p
-	p_not_in_voice_channel:
-		"يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!",
+	p_not_in_voice_channel: "يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!",
 	p_embed_title: "لا توجد نتائج",
 	p_not_allowed:
 		"الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Soundcloud، إلخ.",
@@ -2169,8 +2168,7 @@ export default {
 		"${emoji_Yes} **تم ضبط مستوى الصوت إلى** `${query}`%",
 
 	// /music apo
-	music_apo_download_failed:
-		"${emoji_No} | تعذّر تنزيل الملف، حاول مرة أخرى.",
+	music_apo_download_failed: "${emoji_No} | تعذّر تنزيل الملف، حاول مرة أخرى.",
 	music_apo_no_node: "${emoji_No} | لا توجد عقدة صوت متصلة حاليًا.",
 	music_apo_unsupported:
 		"${emoji_No} | عقدة الصوت هذه لا تدعم فلاتر APO (تحتاج Wavyzon مع إضافة `apo`).",
@@ -2719,8 +2717,7 @@ export default {
 	support_command_not_role: ":x: | لم تقم بتحديد الدور!",
 	support_command_not_type:
 		":x: | إنت ماحددتش نوع الدعم اللي عايزه في بروفايل المستخدم (bio = نبذة، مثال: رابط السيرفر؛ tag = تاج السيرفر)!",
-	support_command_guild_not_have_tag:
-		":x: | السيرفر مافيهوش أي تاجات حالياً.",
+	support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي تاجات حالياً.",
 	support_command_work_2:
 		"إنت ضبطت موديول الدعم لـ ${guildName}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${rolesId}>!",
 
@@ -4006,17 +4003,21 @@ export default {
 	guild_create_btn_repos: "مستودعات iHorizon",
 	guild_create_btn_support: "خادم الدعم",
 	guild_create_btn_docs: "مستندات iHorizon",
-	welcome_server_intro: "شكرًا إنكم ضفتوني! أنا **iHorizon**: إشراف، تذاكر، موسيقى، حماية، سجلات وحاجات كتير، في بوت واحد **ببلاش** و**مفتوح المصدر**.",
+	welcome_server_intro:
+		"شكرًا إنكم ضفتوني! أنا **iHorizon**: إشراف، تذاكر، موسيقى، حماية، سجلات وحاجات كتير، في بوت واحد **ببلاش** و**مفتوح المصدر**.",
 	welcome_lang_title: "اللغة",
-	welcome_lang_text: "هنا بتكلم {language}، اتختارت على حسب منطقة السيرفر.\nعشان تغيّرها، أي أدمن يقدر يستخدم {command}: هتلاقي لوحة فيها 11 لغة تختار منهم.",
+	welcome_lang_text:
+		"هنا بتكلم {language}، اتختارت على حسب منطقة السيرفر.\nعشان تغيّرها، أي أدمن يقدر يستخدم {command}: هتلاقي لوحة فيها 11 لغة تختار منهم.",
 	welcome_start_title: "ابدأ من هنا",
 	welcome_start_help: "{command} بيعرض كل الأوامر مقسّمة حسب الفئة",
 	welcome_start_dashboard: "من [الداشبورد]({url}) تظبط كل حاجة من المتصفح",
-	welcome_start_support: "عندك سؤال أو مشكلة؟ [سيرفر الدعم]({url}) موجود عشانك",
+	welcome_start_support:
+		"عندك سؤال أو مشكلة؟ [سيرفر الدعم]({url}) موجود عشانك",
 	welcome_footer: "ببلاش ومفتوح المصدر من 2020 · ihorizon.org",
 	welcome_dm_title: "شكرًا إنك ضفت iHorizon!",
 	welcome_dm_intro: "iHorizon لسه داخل {guild}. ده كل اللي محتاجه عشان تبدأ.",
-	welcome_dm_outro: "> *بوت ببلاش ممكن يعمل أحسن من البوتات المدفوعة.*\nده iHorizon: مجتمع ومشروع شايلينه ناس بتحبه من 2020. أهلًا بيك!",
+	welcome_dm_outro:
+		"> *بوت ببلاش ممكن يعمل أحسن من البوتات المدفوعة.*\nده iHorizon: مجتمع ومشروع شايلينه ناس بتحبه من 2020. أهلًا بيك!",
 	welcome_btn_dashboard: "الداشبورد",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} أمر`**\n> *« صُنع بواسطة أشخاص منذ عام 2022، من أجل مجتمعك. »*\n**https://www.ihorizon.org**",
@@ -4086,7 +4087,6 @@ export default {
 	global_command_cooldown_msg:
 		"${emoji} يجب عليك الانتظار **${time}** بين كل استخدام لـ **`${ctxCommandPath}`**",
 
-
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**",
 	counter_error_syntaxic:
@@ -4134,8 +4134,7 @@ export default {
 	sticky_show_embed_fields_embed: "معرّف الـ embed",
 	sticky_show_embed_fields_last_message: "معرّف آخر رسالة sticky",
 	sticky_list_embed_title: "قنوات sticky",
-	sticky_list_embed_desc_empty:
-		"لا توجد أي قناة sticky مُعدّة على هذا الخادم.",
+	sticky_list_embed_desc_empty: "لا توجد أي قناة sticky مُعدّة على هذا الخادم.",
 	sticky_list_embed_desc_line_text: "${channel} - Sticky نصي",
 	sticky_list_embed_desc_line_embed:
 		"${channel} - Sticky embed (`${embed_id}`)",
@@ -4232,8 +4231,7 @@ export default {
 	tts_join_lang_fallback: "ar-EG",
 
 	// /tts leave
-	tts_leave_not_active:
-		"${emoji_No} وحدة TTS غير نشطة حالياً على هذا الخادم!",
+	tts_leave_not_active: "${emoji_No} وحدة TTS غير نشطة حالياً على هذا الخادم!",
 	tts_leave_not_in_voice:
 		"${emoji_No} يجب أن تكون في القناة الصوتية TTS لتعطيلها!",
 	tts_leave_disabled: "${emoji_Yes} تم تعطيل وضع TTS على هذا الخادم!",
@@ -4536,7 +4534,8 @@ export default {
 	warn_card_title: "العضو خد تحذير",
 	warn_err_self: "${emoji_No} مينفعش تحذّر نفسك.",
 	warn_err_bot: "${emoji_No} مينفعش تحذّر البوتات.",
-	warn_err_above: "${emoji_No} مينفعش تحذّر عضو أعلى رول عنده قدّك أو أعلى منك.",
+	warn_err_above:
+		"${emoji_No} مينفعش تحذّر عضو أعلى رول عنده قدّك أو أعلى منك.",
 	warn_dm_title: "إنت خدت تحذير",
 	warn_label_date: "التاريخ",
 	warn_label_active: "التحذيرات الشغالة",
@@ -4546,7 +4545,8 @@ export default {
 	warn_sanction_timeout: "ميوت مؤقت (${duration})",
 	warn_sanction_kick: "طرد",
 	warn_sanction_ban: "باند",
-	warn_sanction_failed: "${sanction}، ما اتطبقتش: iHorizon مش قادر يعاقب العضو ده",
+	warn_sanction_failed:
+		"${sanction}، ما اتطبقتش: iHorizon مش قادر يعاقب العضو ده",
 	warn_expire_note: "التحذيرات بتخلص بعد ${days} يوم",
 	warnlist_expired: "خلصت",
 	warnlist_card_active: "${active} شغالة · ${count} في المجمل",
@@ -4558,12 +4558,17 @@ export default {
 	warnconfig_no_rules: "مفيش: التحذيرات لوحدها مش بتعمل عقوبة",
 	warnconfig_rule_line: "**${count}** تحذيرات ← ${sanction}",
 	warnconfig_saved: "الإعدادات اتحفظت.",
-	warnconfig_err_duration: "${emoji_No} الميوت المؤقت محتاج مدة من دقيقة لـ 28 يوم (زي `1h`، `2d`).",
+	warnconfig_err_duration:
+		"${emoji_No} الميوت المؤقت محتاج مدة من دقيقة لـ 28 يوم (زي `1h`، `2d`).",
 	warnconfig_err_count: "${emoji_No} الحد لازم يكون من 1 لـ 100 تحذير.",
-	warnconfig_err_rules: "${emoji_No} 10 عقوبات تلقائية بالكتير: امسح واحدة الأول.",
-	warnconfig_err_expiry: "${emoji_No} مدة الصلاحية لازم تكون من 0 (أبدًا) لـ 365 يوم.",
-	warnconfig_err_sanction: "${emoji_No} اختار عقوبة للحد ده (أو `none` عشان تشيله).",
-	warnconfig_hint: "تضيف عقوبة: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · تشيلها: `sanction:none` · الصلاحية: `expire-days:30` (0 = أبدًا)",
+	warnconfig_err_rules:
+		"${emoji_No} 10 عقوبات تلقائية بالكتير: امسح واحدة الأول.",
+	warnconfig_err_expiry:
+		"${emoji_No} مدة الصلاحية لازم تكون من 0 (أبدًا) لـ 365 يوم.",
+	warnconfig_err_sanction:
+		"${emoji_No} اختار عقوبة للحد ده (أو `none` عشان تشيله).",
+	warnconfig_hint:
+		"تضيف عقوبة: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · تشيلها: `sanction:none` · الصلاحية: `expire-days:30` (0 = أبدًا)",
 	clearwarn_card_title: "التحذيرات اتمسحت",
 	clearwarn_card_desc: "اتشالت ${count} تحذيرات من ${member}.",
 	clear_allwarns_card_title: "كل التحذيرات اتمسحت",
@@ -4778,5 +4783,48 @@ export default {
 	status_panel_card_col_history: "آخر 60 فحصا",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30 يوما",
-	status_panel_card_chart: "متوسط زمن الاستجابة"
+	status_panel_card_chart: "متوسط زمن الاستجابة",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "ادعي iHorizon",
+	dm_only_server_desc:
+		"# أوبس!\n\nإنت بتستخدم iHorizon في رسالة خاصة، بس الأمر ده بيشتغل في سيرفر Discord بس.\n\nضيفني على سيرفر عشان تستخدمه!",
+	topgg_vote_button: "صوّت لـ iHorizon",
+	dm_message_from: "رسالة من ${guild}",
+	dm_message_by: "رسالة من ${user}",
+	ticket_panel_button_saved: "اتحفظ",
+	economy_balance_wallet_title: "محفظة ${user}",
+	reactionroles_help_embed_title: "مساعدة /reactionroles",
+	command_error_title: "**الأمر حصل فيه مشكلة.**",
+	command_error_report: "**بلّغ عن المشكلة دي بـ `/report` لو سمحت.**",
+	guild_blacklisted_leave_desc:
+		"أهلًا <@${ownerId}>، آسف بس إنت في البلاك ليست بتاعة iHorizon.\nعشان كده هسيب السيرفر بتاعك. لو عندك أي سؤال كلّم المطورين بتوعي.\n\nشكرًا لتفهمك.",
+	status_field_cpu: "المعالج",
+	status_field_memory: "الذاكرة",
+	status_field_machine_uptime: "وقت تشغيل الجهاز",
+	status_field_bot_uptime: "وقت تشغيل البوت",
+	status_field_os: "نظام التشغيل",
+	status_field_bot_version: "نسخة البوت",
+	status_field_bun_version: "نسخة Bun",
+	owner_guild_title: "أصحاب السيرفر",
+	var_discord_permission: "صلاحية Discord",
+	rate_nothing: "ولا حاجة",
+	embed_default_footer: "التذييل",
+	music_history_file_title: "سجل موسيقى ${guild} (آخر 30 يوم، الأحدث الأول)",
+	music_history_requested_by: "طلبه ${user}",
+	music_history_live: "بث مباشر",
+	tempvoice_region_singapore: "سنغافورة",
+	tempvoice_region_sydney: "أستراليا (سيدني)",
+	tempvoice_region_russia: "روسيا",
+	tempvoice_region_india: "الهند",
+	tempvoice_region_hongkong: "هونج كونج",
+	tempvoice_region_southafrica: "جنوب أفريقيا",
+	tempvoice_region_rotterdam: "هولندا (روتردام)",
+	tempvoice_region_japan: "اليابان (طوكيو)",
+	tempvoice_region_southkorea: "كوريا الجنوبية",
+	tempvoice_region_useast: "شرق أمريكا",
+	tempvoice_region_ussouth: "جنوب أمريكا",
+	tempvoice_region_uswest: "غرب أمريكا",
+	tempvoice_region_uscentral: "وسط أمريكا",
+	tempvoice_region_brazil: "البرازيل"
 } satisfies LanguageData;

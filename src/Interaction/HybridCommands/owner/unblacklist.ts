@@ -43,7 +43,8 @@ export const command: Command = {
 		ru: "Пользователь для удаления из черного списка (Только владелец iHorizon)!",
 		"es-ES":
 			"El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)!",
-		ko: "블랙리스트에서 제거할 사용자 (iHorizon 소유자 전용)!"
+		ko: "블랙리스트에서 제거할 사용자 (iHorizon 소유자 전용)!",
+		uk: "Користувач, якого слід вилучити з чорного списку (лише власник iHorizon)!"
 	},
 
 	options: [
@@ -59,7 +60,8 @@ export const command: Command = {
 				ru: "Пользователь для удаления из черного списка (Только владелец iHorizon)",
 				"es-ES":
 					"El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)",
-				ko: "블랙리스트에서 제거할 사용자 (iHorizon 소유자 전용)"
+				ko: "블랙리스트에서 제거할 사용자 (iHorizon 소유자 전용)",
+				uk: "Користувач, якого слід вилучити з чорного списку (лише власник iHorizon)"
 			},
 
 			required: true,

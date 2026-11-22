@@ -59,7 +59,7 @@ describe("guild welcome", () => {
 		const json = JSON.stringify(payload.components[0].toJSON());
 		expect(json).toContain("</setlang:111>");
 		expect(json).toContain("</help:222>");
-		expect(json).toContain("🇫🇷 French");
+		expect(json).toContain("🇫🇷 Français");
 		expect(json).toContain("https://dash.ihorizon.org");
 		expect(json).toContain("banner-fr-FR.png");
 	});

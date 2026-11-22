@@ -37,7 +37,8 @@ export const command: Command = {
 		ja: "通知のサブコマンドカテゴリ！",
 		ru: "Категория подкоманд для уведомлений!",
 		"es-ES": "Categoría de subcomando para notificador!",
-		ko: "알림 하위 명령어!"
+		ko: "알림 하위 명령어!",
+		uk: "Категорія підкоманд для сповіщень!"
 	},
 
 	options: [
@@ -50,7 +51,8 @@ export const command: Command = {
 				ja: "ストリーマー/YouTuber/Twitcherの操作",
 				ru: "Управление стримерами/YouTube/Twitch",
 				"es-ES": "Manipulación de Streamer/Youtuber/Twitcher",
-				ko: "스트리머/유튜버/트위치 스트리머 관리"
+				ko: "스트리머/유튜버/트위치 스트리머 관리",
+				uk: "Керування стримерами/ютуберами/твічерами"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -66,7 +68,8 @@ export const command: Command = {
 						ja: "ストリーマー/YouTuber/Twitcherを追加",
 						ru: "Добавить стримера/YouTube/Twitch",
 						"es-ES": "Añadir Streamer/Youtuber/Twitcher",
-						ko: "스트리머/유튜버/트위치 스트리머 추가"
+						ko: "스트리머/유튜버/트위치 스트리머 추가",
+						uk: "Додати стримера/ютубера/твічера"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -83,7 +86,8 @@ export const command: Command = {
 								ru: "Платформа стримера/YouTube/Twitch",
 								"es-ES":
 									"La plataforma del Streamer/Youtuber/Twitcher",
-								ko: "스트리머/유튜버/트위치 스트리머의 플랫폼"
+								ko: "스트리머/유튜버/트위치 스트리머의 플랫폼",
+								uk: "Платформа стримера/ютубера/твічера"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -96,7 +100,8 @@ export const command: Command = {
 										ja: "youtube",
 										ru: "youtube",
 										"es-ES": "youtube",
-										ko: "YouTube"
+										ko: "YouTube",
+										uk: "YouTube"
 									},
 									value: "youtube"
 								},
@@ -107,7 +112,8 @@ export const command: Command = {
 										ja: "twitch",
 										ru: "twitch",
 										"es-ES": "twitch",
-										ko: "Twitch"
+										ko: "Twitch",
+										uk: "Twitch"
 									},
 									value: "twitch"
 								}
@@ -126,7 +132,8 @@ export const command: Command = {
 								ja: "ストリーマー/YouTuber/TwitcherのID",
 								ru: "ID стримера/YouTube/Twitch",
 								"es-ES": "El ID del Streamer/Youtuber/Twitcher",
-								ko: "스트리머/유튜버/트위치 스트리머 ID"
+								ko: "스트리머/유튜버/트위치 스트리머 ID",
+								uk: "ID стримера/ютубера/твічера"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -149,7 +156,8 @@ export const command: Command = {
 						ja: "ストリーマー/YouTuber/Twitcherを削除",
 						ru: "Удалить стримера/YouTube/Twitch",
 						"es-ES": "Eliminar Streamer/Youtuber/Twitcher",
-						ko: "스트리머/유튜버/트위치 스트리머 제거"
+						ko: "스트리머/유튜버/트위치 스트리머 제거",
+						uk: "Видалити стримера/ютубера/твічера"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -166,7 +174,8 @@ export const command: Command = {
 								ru: "Платформа стримера/YouTube/Twitch",
 								"es-ES":
 									"La plataforma del Streamer/Youtuber/Twitcher",
-								ko: "스트리머/유튜버/트위치 스트리머의 플랫폼"
+								ko: "스트리머/유튜버/트위치 스트리머의 플랫폼",
+								uk: "Платформа стримера/ютубера/твічера"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -179,7 +188,8 @@ export const command: Command = {
 										ja: "youtube",
 										ru: "youtube",
 										"es-ES": "youtube",
-										ko: "YouTube"
+										ko: "YouTube",
+										uk: "YouTube"
 									},
 									value: "youtube"
 								},
@@ -190,7 +200,8 @@ export const command: Command = {
 										ja: "twitch",
 										ru: "twitch",
 										"es-ES": "twitch",
-										ko: "Twitch"
+										ko: "Twitch",
+										uk: "Twitch"
 									},
 									value: "twitch"
 								}
@@ -209,7 +220,8 @@ export const command: Command = {
 								ja: "ストリーマー/YouTuber/TwitcherのID",
 								ru: "ID стримера/YouTube/Twitch",
 								"es-ES": "El ID del Streamer/Youtuber/Twitcher",
-								ko: "스트리머/유튜버/트위치 스트리머 ID"
+								ko: "스트리머/유튜버/트위치 스트리머 ID",
+								uk: "ID стримера/ютубера/твічера"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -232,7 +244,8 @@ export const command: Command = {
 						ja: "ストリーマー/YouTuber/Twitcherを表示",
 						ru: "Показать стримера/YouTube/Twitch",
 						"es-ES": "Mostrar Streamer/Youtuber/Twitcher",
-						ko: "스트리머/유튜버/트위치 스트리머 보기"
+						ko: "스트리머/유튜버/트위치 스트리머 보기",
+						uk: "Показати стримерів/ютуберів/твічерів"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -252,7 +265,8 @@ export const command: Command = {
 				ja: "Notifierモジュールの設定",
 				ru: "Настройка модуля Notifier",
 				"es-ES": "Configuración para el módulo Notifier",
-				ko: "Notifier 모듈 설정"
+				ko: "Notifier 모듈 설정",
+				uk: "Налаштування модуля Notifier"
 			},
 
 			options: [
@@ -267,7 +281,8 @@ export const command: Command = {
 						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение в канал",
 						"es-ES":
 							"Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje en el canal",
-						ko: "스트리머/유튜버/트위치 스트리머가 영상을 올리면 iHorizon이 채널에 메시지를 보내요"
+						ko: "스트리머/유튜버/트위치 스트리머가 영상을 올리면 iHorizon이 채널에 메시지를 보내요",
+						uk: "Коли стример/ютубер/твічер публікує відео, iHorizon надсилає повідомлення в канал"
 					},
 
 					options: [
@@ -280,7 +295,8 @@ export const command: Command = {
 								ja: "チャンネル",
 								ru: "Канал",
 								"es-ES": "El canal",
-								ko: "채널"
+								ko: "채널",
+								uk: "Канал"
 							},
 
 							channel_types: [
@@ -309,7 +325,8 @@ export const command: Command = {
 						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение",
 						"es-ES":
 							"Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje",
-						ko: "스트리머/유튜버/트위치 스트리머가 영상을 올리면 iHorizon이 메시지를 보내요"
+						ko: "스트리머/유튜버/트위치 스트리머가 영상을 올리면 iHorizon이 메시지를 보내요",
+						uk: "Коли стример/ютубер/твічер публікує відео, iHorizon надсилає повідомлення"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,

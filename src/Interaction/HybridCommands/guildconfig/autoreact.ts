@@ -56,7 +56,8 @@ export const command: Command = {
 		ru: "Отправить эмодзи при новом сообщении в канале",
 		"es-ES":
 			"Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado",
-		ko: "지정한 채널에 새 메시지가 오면 지정한 이모지를 보내요"
+		ko: "지정한 채널에 새 메시지가 오면 지정한 이모지를 보내요",
+		uk: "Надсилати вказаний емодзі на нове повідомлення у вказаному каналі"
 	},
 
 	thinking: true,

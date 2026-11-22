@@ -66,7 +66,7 @@ export function createSelectMenuRows(
 	const selectMenu = new StringSelectMenuBuilder()
 		.setCustomId(`help_category_select_${currentPage}`)
 		.setPlaceholder(
-			`${lang.help_select_menu}${totalPages > 1 ? ` (Page ${currentPage + 1}/${totalPages})` : ""}`
+			`${lang.help_select_menu}${totalPages > 1 ? ` (${lang.var_page} ${currentPage + 1}/${totalPages})` : ""}`
 		)
 		.addOptions(
 			categoriesChunk.map((cat) => ({
@@ -100,7 +100,7 @@ export function createNavigationRow(
 	navigationRow.addComponents(
 		new ButtonBuilder()
 			.setCustomId("help_prev_page")
-			.setLabel("◀ Previous")
+			.setLabel(`◀ ${lang.var_previous}`)
 			.setStyle(ButtonStyle.Primary)
 			.setDisabled(currentPage === 0)
 	);
@@ -118,7 +118,7 @@ export function createNavigationRow(
 	navigationRow.addComponents(
 		new ButtonBuilder()
 			.setCustomId("help_next_page")
-			.setLabel("Next ▶")
+			.setLabel(`${lang.var_next} ▶`)
 			.setStyle(ButtonStyle.Primary)
 			.setDisabled(currentPage === totalPages - 1)
 	);
@@ -315,7 +315,8 @@ export const command: Command = {
 		ja: "OGユーザー向けヘルプメニュー（笑）",
 		ru: "меню помощи для OG пользователей",
 		"es-ES": "menú de ayuda para usuario OG lol",
-		ko: "찐 고인물용 도움말 메뉴 ㅋㅋ"
+		ko: "찐 고인물용 도움말 메뉴 ㅋㅋ",
+		uk: "меню допомоги для OG-користувачів"
 	},
 	thinking: false,
 	category: "bot",
@@ -406,6 +407,7 @@ export const command: Command = {
 								"jp-JP": "ja",
 								"ko-KR": "ko",
 								"ru-RU": "ru",
+								"uk-UA": "uk",
 								"es-ES": "es-ES"
 							};
 							const key = langMap[skidBot.lang] as
@@ -450,7 +452,7 @@ export const command: Command = {
 							// Create new embed for remaining commands
 							currentSuiteEmbed = new EmbedBuilder()
 								.setTitle(
-									`${suite.name} (Page ${suiteEmbedPages.length + 1})`
+									`${suite.name} (${lang.var_page} ${suiteEmbedPages.length + 1})`
 								)
 								.setDescription(lang.h_suite_desc)
 								.setColor(skidBot.color as ColorResolvable)

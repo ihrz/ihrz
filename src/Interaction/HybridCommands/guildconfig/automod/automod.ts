@@ -41,7 +41,8 @@ export const command: Command = {
 		ja: "対話型AutoMod設定パネルを開きます！",
 		ru: "Открывает интерактивную панель настройки AutoMod!",
 		"es-ES": "¡Abre el panel de configuración interactivo de AutoMod!",
-		ko: "대화형 자동 관리(AutoMod) 설정 패널을 열어요!"
+		ko: "대화형 자동 관리(AutoMod) 설정 패널을 열어요!",
+		uk: "Відкрити інтерактивну панель налаштування AutoMod!"
 	},
 
 	thinking: true,

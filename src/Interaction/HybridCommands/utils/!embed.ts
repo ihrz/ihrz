@@ -159,7 +159,9 @@ class EmbedManager {
 			case "footer":
 				this.embed.setFooter({
 					iconURL: url,
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":
@@ -183,7 +185,9 @@ class EmbedManager {
 			case "footer":
 				this.embed.setFooter({
 					iconURL: attachmentUrl,
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":
@@ -200,7 +204,9 @@ class EmbedManager {
 		switch (type) {
 			case "footer":
 				this.embed.setFooter({
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":

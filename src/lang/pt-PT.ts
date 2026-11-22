@@ -4267,17 +4267,23 @@ export default {
 	guild_create_btn_repos: "Repositórios iHorizon",
 	guild_create_btn_support: "Servidor de Suporte",
 	guild_create_btn_docs: "Documentação iHorizon",
-	welcome_server_intro: "Obrigado por me receberem! Sou o **iHorizon**: moderação, tickets, música, proteção, registos e muito mais, num só bot **gratuito** e **open source**.",
+	welcome_server_intro:
+		"Obrigado por me receberem! Sou o **iHorizon**: moderação, tickets, música, proteção, registos e muito mais, num só bot **gratuito** e **open source**.",
 	welcome_lang_title: "Idioma",
-	welcome_lang_text: "Aqui falo {language}, escolhido pela região do teu servidor.\nPara o mudar, um administrador pode usar {command}: um painel permite escolher entre 11 idiomas.",
+	welcome_lang_text:
+		"Aqui falo {language}, escolhido pela região do teu servidor.\nPara o mudar, um administrador pode usar {command}: um painel permite escolher entre 11 idiomas.",
 	welcome_start_title: "Primeiros passos",
 	welcome_start_help: "{command} mostra todos os comandos, por categoria",
-	welcome_start_dashboard: "O [painel]({url}) configura tudo a partir do teu navegador",
-	welcome_start_support: "Uma dúvida ou um erro? O nosso [servidor de suporte]({url}) está aqui para ajudar",
+	welcome_start_dashboard:
+		"O [painel]({url}) configura tudo a partir do teu navegador",
+	welcome_start_support:
+		"Uma dúvida ou um erro? O nosso [servidor de suporte]({url}) está aqui para ajudar",
 	welcome_footer: "Gratuito e open source desde 2020 · ihorizon.org",
 	welcome_dm_title: "Obrigado por adicionares o iHorizon!",
-	welcome_dm_intro: "O iHorizon acabou de entrar em {guild}. Aqui está tudo o que precisas para começar.",
-	welcome_dm_outro: "> *Um bot gratuito pode fazer melhor do que bots pagos.*\nIsso é o iHorizon: uma comunidade e um projeto mantidos por apaixonados desde 2020. Bem-vindo a bordo!",
+	welcome_dm_intro:
+		"O iHorizon acabou de entrar em {guild}. Aqui está tudo o que precisas para começar.",
+	welcome_dm_outro:
+		"> *Um bot gratuito pode fazer melhor do que bots pagos.*\nIsso é o iHorizon: uma comunidade e um projeto mantidos por apaixonados desde 2020. Bem-vindo a bordo!",
 	welcome_btn_dashboard: "Painel",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} comandos`**\n> *« Feito por pessoas desde 2022, para a sua comunidade. »*\n**https://www.ihorizon.org**",
@@ -4351,7 +4357,6 @@ export default {
 	var_off: "desativado",
 	global_command_cooldown_msg:
 		"${emoji} Tens de esperar **${time}** entre cada utilização de **`${ctxCommandPath}`**",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> ERROU NO **${number}**!! O próximo número é **1**. **Não podes contar duas vezes seguidas.**",
@@ -4810,7 +4815,8 @@ export default {
 	warn_card_title: "Membro avisado",
 	warn_err_self: "${emoji_No} Não te podes avisar a ti mesmo.",
 	warn_err_bot: "${emoji_No} Os bots não podem ser avisados.",
-	warn_err_above: "${emoji_No} Não podes avisar um membro cujo cargo mais alto é igual ou superior ao teu.",
+	warn_err_above:
+		"${emoji_No} Não podes avisar um membro cujo cargo mais alto é igual ou superior ao teu.",
 	warn_dm_title: "Recebeste um aviso",
 	warn_label_date: "Data",
 	warn_label_active: "Avisos ativos",
@@ -4820,7 +4826,8 @@ export default {
 	warn_sanction_timeout: "Castigo temporário (${duration})",
 	warn_sanction_kick: "Expulsão",
 	warn_sanction_ban: "Banimento",
-	warn_sanction_failed: "${sanction}, não aplicada: o iHorizon não pode sancionar este membro",
+	warn_sanction_failed:
+		"${sanction}, não aplicada: o iHorizon não pode sancionar este membro",
 	warn_expire_note: "os avisos expiram após ${days} dias",
 	warnlist_expired: "expirado",
 	warnlist_card_active: "${active} ativos · ${count} no total",
@@ -4829,15 +4836,21 @@ export default {
 	warnconfig_expiry_never: "Nunca: os avisos contam para sempre",
 	warnconfig_expiry_days: "Após ${days} dias",
 	warnconfig_label_rules: "Sanções automáticas",
-	warnconfig_no_rules: "Nenhuma: os avisos nunca desencadeiam uma sanção sozinhos",
+	warnconfig_no_rules:
+		"Nenhuma: os avisos nunca desencadeiam uma sanção sozinhos",
 	warnconfig_rule_line: "**${count}** avisos → ${sanction}",
 	warnconfig_saved: "Definições guardadas.",
-	warnconfig_err_duration: "${emoji_No} Um castigo precisa de uma duração de 1 minuto a 28 dias (ex. `1h`, `2d`).",
+	warnconfig_err_duration:
+		"${emoji_No} Um castigo precisa de uma duração de 1 minuto a 28 dias (ex. `1h`, `2d`).",
 	warnconfig_err_count: "${emoji_No} O limite deve ir de 1 a 100 avisos.",
-	warnconfig_err_rules: "${emoji_No} 10 sanções automáticas no máximo: remove uma primeiro.",
-	warnconfig_err_expiry: "${emoji_No} A expiração deve ir de 0 (nunca) a 365 dias.",
-	warnconfig_err_sanction: "${emoji_No} Escolhe uma sanção para este limite (ou `none` para o remover).",
-	warnconfig_hint: "Adicionar uma sanção: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · removê-la: `sanction:none` · expiração: `expire-days:30` (0 = nunca)",
+	warnconfig_err_rules:
+		"${emoji_No} 10 sanções automáticas no máximo: remove uma primeiro.",
+	warnconfig_err_expiry:
+		"${emoji_No} A expiração deve ir de 0 (nunca) a 365 dias.",
+	warnconfig_err_sanction:
+		"${emoji_No} Escolhe uma sanção para este limite (ou `none` para o remover).",
+	warnconfig_hint:
+		"Adicionar uma sanção: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · removê-la: `sanction:none` · expiração: `expire-days:30` (0 = nunca)",
 	clearwarn_card_title: "Avisos apagados",
 	clearwarn_card_desc: "Os ${count} avisos de ${member} foram removidos.",
 	clear_allwarns_card_title: "Todos os avisos eliminados",
@@ -5058,5 +5071,49 @@ export default {
 	status_panel_card_col_history: "Últimas 60 verificações",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30d",
-	status_panel_card_chart: "Tempo de resposta médio"
+	status_panel_card_chart: "Tempo de resposta médio",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Convidar o iHorizon",
+	dm_only_server_desc:
+		"# Ups!\n\nEstás a usar o iHorizon numa conversa privada, mas este comando só funciona num servidor Discord.\n\nAdiciona-me a um servidor para o usar!",
+	topgg_vote_button: "Votar no iHorizon",
+	dm_message_from: "Mensagem de ${guild}",
+	dm_message_by: "Mensagem de ${user}",
+	ticket_panel_button_saved: "Guardado",
+	economy_balance_wallet_title: "Carteira de ${user}",
+	reactionroles_help_embed_title: "Ajuda de /reactionroles",
+	command_error_title: "**O comando encontrou um problema.**",
+	command_error_report: "**Por favor, reporta este problema com `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Olá <@${ownerId}>, lamento, mas estás na lista negra do iHorizon.\nPor isso, vou sair do teu servidor. Se tiveres dúvidas, contacta os meus programadores.\n\nObrigado pela compreensão.",
+	status_field_cpu: "CPU",
+	status_field_memory: "Memória",
+	status_field_machine_uptime: "Tempo ativo da máquina",
+	status_field_bot_uptime: "Tempo ativo do bot",
+	status_field_os: "SO",
+	status_field_bot_version: "Versão do bot",
+	status_field_bun_version: "Versão do Bun",
+	owner_guild_title: "Donos do servidor",
+	var_discord_permission: "Permissão do Discord",
+	rate_nothing: "nada",
+	embed_default_footer: "Rodapé",
+	music_history_file_title:
+		"Histórico musical de ${guild} (últimos 30 dias, do mais recente)",
+	music_history_requested_by: "pedido por ${user}",
+	music_history_live: "em direto",
+	tempvoice_region_singapore: "Singapura",
+	tempvoice_region_sydney: "Austrália (Sydney)",
+	tempvoice_region_russia: "Rússia",
+	tempvoice_region_india: "Índia",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "África do Sul",
+	tempvoice_region_rotterdam: "Países Baixos (Roterdão)",
+	tempvoice_region_japan: "Japão (Tóquio)",
+	tempvoice_region_southkorea: "Coreia do Sul",
+	tempvoice_region_useast: "EUA Este",
+	tempvoice_region_ussouth: "EUA Sul",
+	tempvoice_region_uswest: "EUA Oeste",
+	tempvoice_region_uscentral: "EUA Centro",
+	tempvoice_region_brazil: "Brasil"
 } satisfies LanguageData;

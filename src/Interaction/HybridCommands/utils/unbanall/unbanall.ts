@@ -34,7 +34,8 @@ export const command: Command = {
 		ja: "unban-all",
 		ru: "unban-all",
 		"es-ES": "unban-all",
-		ko: "unban-all"
+		ko: "unban-all",
+		uk: "unban-all"
 	},
 
 	aliases: ["massunban"],
@@ -45,7 +46,8 @@ export const command: Command = {
 		ja: "一斉バン解除アクション",
 		ru: "Массовое действие по разбану",
 		"es-ES": "Acción masiva sobre desbaneo",
-		ko: "일괄 차단 해제"
+		ko: "일괄 차단 해제",
+		uk: "Масова дія з розбану"
 	},
 
 	options: [
@@ -59,7 +61,8 @@ export const command: Command = {
 				ja: "サーバーの全メンバーのバンを解除",
 				ru: "Разбанить всех участников сервера",
 				"es-ES": "Desbanear a todos los miembros del servidor",
-				ko: "서버의 모든 멤버 차단을 해제해요"
+				ko: "서버의 모든 멤버 차단을 해제해요",
+				uk: "Розбанити всіх учасників сервера"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -73,7 +76,8 @@ export const command: Command = {
 				ja: "undo",
 				ru: "undo",
 				"es-ES": "undo",
-				ko: "undo"
+				ko: "undo",
+				uk: "undo"
 			},
 
 			description: "Undo the unban all of all members",
@@ -82,7 +86,8 @@ export const command: Command = {
 				ja: "全メンバーの一斉バン解除を取り消し",
 				ru: "Отменить разбан всех участников",
 				"es-ES": "Deshacer el desbaneo masivo de todos los miembros",
-				ko: "전체 차단 해제를 되돌려요"
+				ko: "전체 차단 해제를 되돌려요",
+				uk: "Скасувати масовий розбан усіх учасників"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

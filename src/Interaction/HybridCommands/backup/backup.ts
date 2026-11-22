@@ -36,7 +36,8 @@ export const command: Command = {
 		ja: "バックアップカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории резервного копирования!",
 		"es-ES": "Subcomando para la categoría de copias de seguridad!",
-		ko: "백업 하위 명령어!"
+		ko: "백업 하위 명령어!",
+		uk: "Підкоманда категорії резервного копіювання!"
 	},
 
 	options: [
@@ -49,7 +50,8 @@ export const command: Command = {
 				ja: "create",
 				ru: "create",
 				"es-ES": "create",
-				ko: "create"
+				ko: "create",
+				uk: "create"
 			},
 
 			aliases: ["bcreate"],
@@ -60,7 +62,8 @@ export const command: Command = {
 				ja: "バックアップを作成！",
 				ru: "Создать резервную копию!",
 				"es-ES": "Crear una copia de seguridad!",
-				ko: "백업을 만들어요!"
+				ko: "백업을 만들어요!",
+				uk: "Створити резервну копію!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -73,7 +76,8 @@ export const command: Command = {
 				ja: "list",
 				ru: "list",
 				"es-ES": "list",
-				ko: "list"
+				ko: "list",
+				uk: "list"
 			},
 			prefixName: "backup-list",
 
@@ -83,7 +87,8 @@ export const command: Command = {
 				ja: "バックアップを一覧表示！",
 				ru: "Показать ваши резервные копии!",
 				"es-ES": "Listar tus copias de seguridad!",
-				ko: "내 백업 목록을 확인해요!"
+				ko: "내 백업 목록을 확인해요!",
+				uk: "Показати ваші резервні копії!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -96,7 +101,8 @@ export const command: Command = {
 				ja: "load",
 				ru: "load",
 				"es-ES": "load",
-				ko: "load"
+				ko: "load",
+				uk: "load"
 			},
 			prefixName: "backup-load",
 
@@ -106,7 +112,8 @@ export const command: Command = {
 				ja: "バックアップを読み込んで初期化！",
 				ru: "Загрузить резервную копию для инициализации!",
 				"es-ES": "Cargar tu copia de seguridad para inicializar!",
-				ko: "백업을 불러와 서버를 초기화해요!"
+				ko: "백업을 불러와 서버를 초기화해요!",
+				uk: "Завантажити резервну копію для ініціалізації!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -121,7 +128,8 @@ export const command: Command = {
 						ja: "バックアップIDは？",
 						ru: "Какой ID резервной копии?",
 						"es-ES": "Cual es el ID de la copia de seguridad?",
-						ko: "백업 ID는 무엇인가요?"
+						ko: "백업 ID는 무엇인가요?",
+						uk: "Який ID резервної копії?"
 					},
 
 					required: true,
@@ -142,7 +150,8 @@ export const command: Command = {
 				ja: "リストからバックアップを削除",
 				ru: "Удалить резервную копию из списка",
 				"es-ES": "Eliminar tu copia de seguridad de la lista",
-				ko: "목록에서 백업을 삭제해요"
+				ko: "목록에서 백업을 삭제해요",
+				uk: "Видалити резервну копію зі списку"
 			},
 
 			options: [
@@ -157,7 +166,8 @@ export const command: Command = {
 						ru: "ID резервной копии, которую вы хотите удалить из списка",
 						"es-ES":
 							"El ID de tu copia de seguridad que quieres eliminar de la lista",
-						ko: "목록에서 삭제할 백업 ID"
+						ko: "목록에서 삭제할 백업 ID",
+						uk: "ID резервної копії, яку ви хочете видалити зі списку"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -179,7 +189,8 @@ export const command: Command = {
 				ja: "スケジュールでこのサーバーを自動バックアップ",
 				ru: "Автоматически создавать резервные копии по расписанию",
 				"es-ES": "Hacer copias de este servidor automáticamente",
-				ko: "일정에 따라 이 서버를 자동으로 백업해요"
+				ko: "일정에 따라 이 서버를 자동으로 백업해요",
+				uk: "Автоматично створювати резервні копії сервера за розкладом"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -196,7 +207,8 @@ export const command: Command = {
 				ru: "Управление системой резервного копирования",
 				"es-ES":
 					"Gestionar el sistema de copias de seguridad en este servidor",
-				ko: "이 서버의 백업 시스템 관리"
+				ko: "이 서버의 백업 시스템 관리",
+				uk: "Керування системою резервного копіювання на сервері"
 			},
 
 			permission: null,
@@ -214,7 +226,8 @@ export const command: Command = {
 						ru: "Сделать систему резервного копирования доступной только владельцу сервера",
 						"es-ES":
 							"Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor",
-						ko: "백업 시스템을 서버 소유자만 쓸 수 있게 해요"
+						ko: "백업 시스템을 서버 소유자만 쓸 수 있게 해요",
+						uk: "Зробити систему резервного копіювання доступною лише власнику сервера"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -226,7 +239,8 @@ export const command: Command = {
 								ja: "only_owner",
 								ru: "only_owner",
 								"es-ES": "only_owner",
-								ko: "소유자만"
+								ko: "소유자만",
+								uk: "Лише власник"
 							},
 							value: "owner"
 						},
@@ -237,7 +251,8 @@ export const command: Command = {
 								ja: "all_admin_s",
 								ru: "all_admin_s",
 								"es-ES": "all_admin_s",
-								ko: "모든 관리자"
+								ko: "모든 관리자",
+								uk: "Усі адміністратори"
 							},
 							value: "admin"
 						}

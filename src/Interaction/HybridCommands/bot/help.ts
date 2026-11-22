@@ -243,6 +243,7 @@ async function handleCategorySelect(
 							"jp-JP": "ja",
 							"ko-KR": "ko",
 							"ru-RU": "ru",
+							"uk-UA": "uk",
 							"es-ES": "es-ES"
 						};
 						const key = langMap[guildData] as
@@ -365,7 +366,8 @@ export const command: Command = {
 		ja: "全コマンドのリストを取得！",
 		ru: "Получить список всех команд!",
 		"es-ES": "Obtener una lista de todos los comandos!",
-		ko: "모든 명령어 목록을 확인해요!"
+		ko: "모든 명령어 목록을 확인해요!",
+		uk: "Отримати список усіх команд!"
 	},
 
 	options: [
@@ -378,7 +380,8 @@ export const command: Command = {
 				ja: "情報が欲しいコマンド名",
 				ru: "Имя команды, о которой нужна информация",
 				"es-ES": "El nombre del comando del que quieres información",
-				ko: "정보를 볼 명령어 이름"
+				ko: "정보를 볼 명령어 이름",
+				uk: "Назва команди, про яку потрібна інформація"
 			},
 
 			type: ApplicationCommandOptionType.String,

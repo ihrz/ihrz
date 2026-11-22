@@ -100,7 +100,7 @@ export const command: AnotherCommand = {
 				)
 			) {
 				const embed = new EmbedBuilder()
-					.setTitle("❌ Error")
+					.setTitle(lang.global_error)
 					.setColor("#ff0000")
 					.setDescription(lang.global_not_valid_atc)
 					.setTimestamp();

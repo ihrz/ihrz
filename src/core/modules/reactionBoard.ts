@@ -140,7 +140,9 @@ export function createReactionBoard(
 			guild.channels.cache.get(id) ||
 			(await guild.channels.fetch(id).catch(() => null));
 		// Announcement channels accept the same posts (/starboard and the dashboard both offer them).
-		return channel instanceof TextChannel || channel instanceof NewsChannel ? channel : null;
+		return channel instanceof TextChannel || channel instanceof NewsChannel
+			? channel
+			: null;
 	}
 
 	async function onAdd(

@@ -36,7 +36,8 @@ export const command: Command = {
 		ja: "アンチスパムカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории антиспама!",
 		"es-ES": "Subcomando para la categoría antispam!",
-		ko: "스팸 방지 하위 명령어!"
+		ko: "스팸 방지 하위 명령어!",
+		uk: "Підкоманда категорії антиспаму!"
 	},
 
 	options: [
@@ -50,7 +51,8 @@ export const command: Command = {
 				ja: "アンチスパムモジュールを管理",
 				ru: "Управление модулем антиспама",
 				"es-ES": "Gestionar el módulo antispam",
-				ko: "스팸 방지 모듈 관리"
+				ko: "스팸 방지 모듈 관리",
+				uk: "Керування модулем антиспаму"
 			},
 
 			aliases: ["mng", "antimng"],
@@ -69,7 +71,8 @@ export const command: Command = {
 				ja: "アンチスパムをバイパスする全てのロール",
 				ru: "Все роли, обходящие антиспам",
 				"es-ES": "Todos los roles que evitan el antispam",
-				ko: "스팸 방지를 우회하는 모든 역할"
+				ko: "스팸 방지를 우회하는 모든 역할",
+				uk: "Усі ролі, що обходять антиспам"
 			},
 
 			aliases: ["bproles"],
@@ -88,7 +91,8 @@ export const command: Command = {
 				ja: "アンチスパムモジュールでこのチャンネルを無視",
 				ru: "Игнорировать эти каналы в модуле антиспама",
 				"es-ES": "Ignorar estos canales en el módulo AntiSpam",
-				ko: "스팸 방지 모듈에서 무시할 채널"
+				ko: "스팸 방지 모듈에서 무시할 채널",
+				uk: "Ігнорувати ці канали в модулі антиспаму"
 			},
 
 			aliases: ["channels"],

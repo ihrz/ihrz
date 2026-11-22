@@ -47,7 +47,8 @@ export const command: Command = {
 		ru: "Получить последние обновления и список изменений iHorizon!",
 		"es-ES":
 			"Obtén las últimas actualizaciones y el changelog de iHorizon!",
-		ko: "iHorizon의 최신 업데이트와 변경 사항을 확인해요!"
+		ko: "iHorizon의 최신 업데이트와 변경 사항을 확인해요!",
+		uk: "Отримати останні оновлення та список змін iHorizon!"
 	},
 
 	thinking: false,

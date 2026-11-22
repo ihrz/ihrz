@@ -129,7 +129,8 @@ export const command: Command = {
 		ja: "コマンドのレート制限を管理",
 		ru: "Управление лимитами команд",
 		"es-ES": "Gestionar límites de velocidad de comandos",
-		ko: "명령어 사용 제한 관리"
+		ko: "명령어 사용 제한 관리",
+		uk: "Керувати лімітами використання команд"
 	},
 
 	options: [
@@ -141,7 +142,8 @@ export const command: Command = {
 				ja: "コマンド制限に適用するアクション",
 				ru: "Действие для применения к лимитам команд",
 				"es-ES": "Acción a aplicar en los límites de comandos",
-				ko: "명령어 사용 제한에 적용할 작업"
+				ko: "명령어 사용 제한에 적용할 작업",
+				uk: "Дія над лімітами команд"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: true,
@@ -153,7 +155,8 @@ export const command: Command = {
 						ja: "set",
 						ru: "set",
 						"es-ES": "set",
-						ko: "설정"
+						ko: "설정",
+						uk: "Встановити"
 					},
 					value: "set"
 				},
@@ -164,7 +167,8 @@ export const command: Command = {
 						ja: "reset",
 						ru: "reset",
 						"es-ES": "reset",
-						ko: "초기화"
+						ko: "초기화",
+						uk: "Скинути"
 					},
 					value: "reset"
 				},
@@ -175,7 +179,8 @@ export const command: Command = {
 						ja: "list",
 						ru: "list",
 						"es-ES": "list",
-						ko: "목록"
+						ko: "목록",
+						uk: "Список"
 					},
 					value: "list"
 				}
@@ -190,7 +195,8 @@ export const command: Command = {
 				ja: "コマンドまたはサブコマンドを検索",
 				ru: "Искать команду или подкоманду",
 				"es-ES": "Buscar el comando o subcomando",
-				ko: "명령어 또는 하위 명령어 검색"
+				ko: "명령어 또는 하위 명령어 검색",
+				uk: "Пошук команди або підкоманди"
 			},
 			autocomplete: true,
 			type: ApplicationCommandOptionType.String,
@@ -205,7 +211,8 @@ export const command: Command = {
 				ja: "ウィンドウ内の最大使用回数",
 				ru: "Максимальное количество использований в окне",
 				"es-ES": "Número máximo de usos en la ventana",
-				ko: "기간 내 최대 사용 횟수"
+				ko: "기간 내 최대 사용 횟수",
+				uk: "Максимальна кількість використань за проміжок"
 			},
 			type: ApplicationCommandOptionType.Integer,
 			required: false,
@@ -219,7 +226,8 @@ export const command: Command = {
 				ja: "時間枠（例: 10s, 1m, 5m, 1h）",
 				ru: "Временное окно, например 10с, 1м, 5м, 1ч",
 				"es-ES": "Ventana de tiempo como 10s, 1m, 5m, 1h",
-				ko: "시간 범위 (예: 10s, 1m, 5m, 1h)"
+				ko: "시간 범위 (예: 10s, 1m, 5m, 1h)",
+				uk: "Проміжок часу, наприклад 10s, 1m, 5m, 1h"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

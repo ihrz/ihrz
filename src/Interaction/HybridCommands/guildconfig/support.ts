@@ -40,7 +40,8 @@ export const command: Command = {
 		ja: "support",
 		ru: "support",
 		"es-ES": "support",
-		ko: "support"
+		ko: "support",
+		uk: "support"
 	},
 
 	description:
@@ -51,7 +52,8 @@ export const command: Command = {
 		ru: "Выдать роли, если у участника в описании есть информация о сервере!",
 		"es-ES":
 			"Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!",
-		ko: "소개에 서버 관련 내용이 있는 멤버에게 역할을 부여해요!"
+		ko: "소개에 서버 관련 내용이 있는 멤버에게 역할을 부여해요!",
+		uk: "Видавати роль учасникам, які згадують ваш сервер у своїй біографії!"
 	},
 
 	aliases: ["soutien"],
@@ -67,7 +69,8 @@ export const command: Command = {
 				ja: "アクションを選択",
 				ru: "Выберите действие",
 				"es-ES": "Elegir la acción",
-				ko: "작업 선택"
+				ko: "작업 선택",
+				uk: "Оберіть дію"
 			},
 
 			required: true,
@@ -79,7 +82,8 @@ export const command: Command = {
 						ja: "power_on",
 						ru: "power_on",
 						"es-ES": "power_on",
-						ko: "켜기"
+						ko: "켜기",
+						uk: "Увімкнути"
 					},
 					value: "on"
 				},
@@ -90,7 +94,8 @@ export const command: Command = {
 						ja: "power_off",
 						ru: "power_off",
 						"es-ES": "power_off",
-						ko: "끄기"
+						ko: "끄기",
+						uk: "Вимкнути"
 					},
 					value: "off"
 				}
@@ -108,7 +113,8 @@ export const command: Command = {
 				ja: "ユーザーが入力するタイプは？",
 				ru: "Какой тип ввода у пользователя?",
 				"es-ES": "Que tipo de entrada tiene el usuario?",
-				ko: "사용자가 입력할 방식은 무엇인가요?"
+				ko: "사용자가 입력할 방식은 무엇인가요?",
+				uk: "Що саме має бути в учасника?"
 			},
 
 			choices: [
@@ -119,7 +125,8 @@ export const command: Command = {
 						ja: "something_in_the_bio",
 						ru: "something_in_the_bio",
 						"es-ES": "something_in_the_bio",
-						ko: "소개에 들어간 내용"
+						ko: "소개에 들어간 내용",
+						uk: "Щось у біографії"
 					},
 					value: "bio"
 				},
@@ -130,7 +137,8 @@ export const command: Command = {
 						ja: "the_guild_tag_boost_perks",
 						ru: "the_guild_tag_boost_perks",
 						"es-ES": "the_guild_tag_boost_perks",
-						ko: "서버 태그 (부스트 혜택)"
+						ko: "서버 태그 (부스트 혜택)",
+						uk: "Тег сервера (переваги буста)"
 					},
 					value: "tag"
 				}
@@ -148,7 +156,8 @@ export const command: Command = {
 				ja: "メンバーに付与するロール",
 				ru: "Роли для выдачи участнику",
 				"es-ES": "Los roles a dar a nuestro miembro",
-				ko: "멤버에게 지급할 역할"
+				ko: "멤버에게 지급할 역할",
+				uk: "Ролі, які видаються учасникам"
 			},
 
 			required: false,
@@ -165,7 +174,8 @@ export const command: Command = {
 				ja: "自己紹介に含めたいキーワードを選択",
 				ru: "Выберите ключевые слова для описания",
 				"es-ES": "Elegir las palabras clave deseadas en la biografía",
-				ko: "소개에 포함되어야 할 키워드 선택"
+				ko: "소개에 포함되어야 할 키워드 선택",
+				uk: "Оберіть ключові слова для біографії"
 			},
 
 			required: false,

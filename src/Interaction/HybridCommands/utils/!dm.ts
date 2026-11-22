@@ -57,7 +57,11 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId("forgot-my-name")
 				.setStyle(ButtonStyle.Secondary)
-				.setLabel("Message from: " + interaction.guildId)
+				.setLabel(
+					lang.dm_message_from
+						.replace("${guild}", interaction.guild.name)
+						.slice(0, 80)
+				)
 				.setDisabled(true)
 		];
 
@@ -66,7 +70,14 @@ export const subCommand: SubCommand = {
 				new ButtonBuilder()
 					.setCustomId("forgot-my-name2")
 					.setStyle(ButtonStyle.Secondary)
-					.setLabel("Message by: " + interaction.member.user.id)
+					.setLabel(
+						lang.dm_message_by
+							.replace(
+								"${user}",
+								interaction.member.user.username
+							)
+							.slice(0, 80)
+					)
 					.setDisabled(true)
 			);
 		}

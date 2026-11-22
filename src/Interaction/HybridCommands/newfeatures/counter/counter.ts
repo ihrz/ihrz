@@ -37,7 +37,8 @@ export const command: Command = {
 		ja: "チャンネル内でカウント",
 		ru: "Считать число в канале",
 		"es-ES": "Contar número en un canal",
-		ko: "채널에서 숫자를 세요"
+		ko: "채널에서 숫자를 세요",
+		uk: "Рахувати числа в каналі"
 	},
 
 	options: [
@@ -51,7 +52,8 @@ export const command: Command = {
 				ja: "カウンターモジュールのチャンネルを設定！",
 				ru: "Установить канал модуля счетчика!",
 				"es-ES": "Establecer el canal del módulo contador!",
-				ko: "카운터 모듈 채널을 설정해요!"
+				ko: "카운터 모듈 채널을 설정해요!",
+				uk: "Встановити канал модуля лічильника!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +68,8 @@ export const command: Command = {
 						ja: "チャンネル！",
 						ru: "Канал!",
 						"es-ES": "El canal!",
-						ko: "채널!"
+						ko: "채널!",
+						uk: "Канал!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -89,7 +92,8 @@ export const command: Command = {
 				ja: "カウンターモジュールを有効化または無効化！",
 				ru: "Включить или отключить модуль счетчика!",
 				"es-ES": "Habilitar o Deshabilitar el módulo contador!",
-				ko: "카운터 모듈을 켜거나 꺼요!"
+				ko: "카운터 모듈을 켜거나 꺼요!",
+				uk: "Увімкнути або вимкнути модуль лічильника!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -104,7 +108,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					required: true,
@@ -116,7 +121,8 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути"
 							},
 							value: "on"
 						},
@@ -127,7 +133,8 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути"
 							},
 							value: "off"
 						}

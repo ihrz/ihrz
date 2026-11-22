@@ -37,7 +37,8 @@ export const command: Command = {
 		ja: "ブロガーRSSフィードのサブコマンドカテゴリ！",
 		ru: "Категория подкоманд для RSS-лент блога!",
 		"es-ES": "Categoría de subcomando para feeds RSS de blogger!",
-		ko: "블로그 RSS 피드 하위 명령어!"
+		ko: "블로그 RSS 피드 하위 명령어!",
+		uk: "Категорія підкоманд для RSS-стрічок блогів!"
 	},
 
 	options: [
@@ -50,7 +51,8 @@ export const command: Command = {
 				ja: "ブログRSSフィードの操作",
 				ru: "Управление RSS-лентами блога",
 				"es-ES": "Manipulación de feeds RSS de blog",
-				ko: "블로그 RSS 피드 관리"
+				ko: "블로그 RSS 피드 관리",
+				uk: "Керування RSS-стрічками блогів"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -66,7 +68,8 @@ export const command: Command = {
 						ja: "ブログのRSSフィードを追加",
 						ru: "Добавить RSS-ленту блога",
 						"es-ES": "Añadir un feed RSS de blog",
-						ko: "블로그 RSS 피드 추가"
+						ko: "블로그 RSS 피드 추가",
+						uk: "Додати RSS-стрічку блогу"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -81,7 +84,8 @@ export const command: Command = {
 								ja: "RSSフィードのURL",
 								ru: "URL RSS-ленты",
 								"es-ES": "La URL del feed RSS",
-								ko: "RSS 피드 URL"
+								ko: "RSS 피드 URL",
+								uk: "URL RSS-стрічки"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -101,7 +105,8 @@ export const command: Command = {
 								ru: "Канал, куда будут отправляться уведомления",
 								"es-ES":
 									"El canal donde se enviarán las notificaciones",
-								ko: "알림을 보낼 채널"
+								ko: "알림을 보낼 채널",
+								uk: "Канал, куди надсилатимуться сповіщення"
 							},
 
 							channel_types: [ChannelType.GuildText],
@@ -125,7 +130,8 @@ export const command: Command = {
 						ja: "ブログのRSSフィードを削除",
 						ru: "Удалить RSS-ленту блога",
 						"es-ES": "Eliminar un feed RSS de blog",
-						ko: "블로그 RSS 피드 제거"
+						ko: "블로그 RSS 피드 제거",
+						uk: "Видалити RSS-стрічку блогу"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -140,7 +146,8 @@ export const command: Command = {
 								ja: "ブログRSSフィードのID",
 								ru: "ID RSS-ленты блога",
 								"es-ES": "El ID del feed RSS del blog",
-								ko: "블로그 RSS 피드 ID"
+								ko: "블로그 RSS 피드 ID",
+								uk: "ID RSS-стрічки блогу"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -164,7 +171,8 @@ export const command: Command = {
 						ru: "Показать все настроенные RSS-ленты блогов",
 						"es-ES":
 							"Mostrar todos los feeds RSS de blog configurados",
-						ko: "설정된 모든 블로그 RSS 피드를 보여줘요"
+						ko: "설정된 모든 블로그 RSS 피드를 보여줘요",
+						uk: "Показати всі налаштовані RSS-стрічки блогів"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -184,7 +192,8 @@ export const command: Command = {
 				ja: "Bloggerモジュールの設定",
 				ru: "Настройка модуля Blogger",
 				"es-ES": "Configuración para el módulo Blogger",
-				ko: "Blogger 모듈 설정"
+				ko: "Blogger 모듈 설정",
+				uk: "Налаштування модуля Blogger"
 			},
 
 			options: [
@@ -197,7 +206,8 @@ export const command: Command = {
 						ja: "Bloggerモジュールを有効化または無効化",
 						ru: "Включить или отключить модуль Blogger",
 						"es-ES": "Habilitar o deshabilitar el módulo Blogger",
-						ko: "Blogger 모듈을 켜거나 꺼요"
+						ko: "Blogger 모듈을 켜거나 꺼요",
+						uk: "Увімкнути або вимкнути модуль Blogger"
 					},
 
 					options: [
@@ -210,7 +220,8 @@ export const command: Command = {
 								ja: "オンまたはオフ",
 								ru: "Включить или Выключить",
 								"es-ES": "Encender o Apagar",
-								ko: "켜기 또는 끄기"
+								ko: "켜기 또는 끄기",
+								uk: "Увімкнути або вимкнути"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -223,7 +234,8 @@ export const command: Command = {
 										ja: "power_on",
 										ru: "power_on",
 										"es-ES": "power_on",
-										ko: "켜기"
+										ko: "켜기",
+										uk: "Увімкнути"
 									},
 									value: "on"
 								},
@@ -234,7 +246,8 @@ export const command: Command = {
 										ja: "power_off",
 										ru: "power_off",
 										"es-ES": "power_off",
-										ko: "끄기"
+										ko: "끄기",
+										uk: "Вимкнути"
 									},
 									value: "off"
 								}

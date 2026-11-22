@@ -1702,12 +1702,12 @@ async function TicketAddMember_2(
 			.replace(
 				"${removedMembers}",
 				removedMembers.map((memberId) => `<@${memberId}>`).join(" ") ||
-					"None"
+					data.var_none
 			)
 			.replace(
 				"${addedMembers}",
 				addedMembers.map((memberId) => `<@${memberId}>`).join(" ") ||
-					"None"
+					data.var_none
 			)
 			.replace("${channel}", interaction.channel?.toString()!)
 	});

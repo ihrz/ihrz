@@ -4382,17 +4382,24 @@ export default {
 	guild_create_btn_repos: "Dépôts iHorizon",
 	guild_create_btn_support: "Serveur Support",
 	guild_create_btn_docs: "Documentation iHorizon",
-	welcome_server_intro: "Wesh, merci de m'avoir invité ! Moi c'est **iHorizon** : modo, tickets, musique, protection, logs et tout le bordel, dans un seul bot **gratos** et **open source**.",
+	welcome_server_intro:
+		"Wesh, merci de m'avoir invité ! Moi c'est **iHorizon** : modo, tickets, musique, protection, logs et tout le bordel, dans un seul bot **gratos** et **open source**.",
 	welcome_lang_title: "Langue",
-	welcome_lang_text: "Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi 11 langues.",
+	welcome_lang_text:
+		"Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi 11 langues.",
 	welcome_start_title: "Pour commencer",
-	welcome_start_help: "{command} te sort toutes les commandes, rangées par catégorie",
-	welcome_start_dashboard: "Le [dashboard]({url}) te règle tout depuis ton navigateur",
-	welcome_start_support: "Une question, un bug ? Le [serveur support]({url}) est là, t'inquiète",
+	welcome_start_help:
+		"{command} te sort toutes les commandes, rangées par catégorie",
+	welcome_start_dashboard:
+		"Le [dashboard]({url}) te règle tout depuis ton navigateur",
+	welcome_start_support:
+		"Une question, un bug ? Le [serveur support]({url}) est là, t'inquiète",
 	welcome_footer: "Gratos et open source depuis 2020 · ihorizon.org",
 	welcome_dm_title: "Merci d'avoir ajouté iHorizon, t'es un bon !",
-	welcome_dm_intro: "iHorizon vient de débarquer sur {guild}. Voilà tout ce qu'il te faut pour démarrer.",
-	welcome_dm_outro: "> *Un bot gratos peut faire mieux que les bots payants.*\nC'est ça iHorizon : une commu et un projet tenus par des passionnés depuis 2020. Bienvenue dans la team !",
+	welcome_dm_intro:
+		"iHorizon vient de débarquer sur {guild}. Voilà tout ce qu'il te faut pour démarrer.",
+	welcome_dm_outro:
+		"> *Un bot gratos peut faire mieux que les bots payants.*\nC'est ça iHorizon : une commu et un projet tenus par des passionnés depuis 2020. Bienvenue dans la team !",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commandes`**\n> *« Fait par des gens depuis 2022, pour ta commu. »*\n**https://www.ihorizon.org**",
@@ -4466,7 +4473,6 @@ export default {
 	var_off: "désactivé",
 	global_command_cooldown_msg:
 		"${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctxCommandPath}`**",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> S'EST TROMPÉ À **${number}**!! Le prochain nombre est **1**. **Vous ne pouvez pas compter deux fois d'affilée.**",
@@ -4930,7 +4936,8 @@ export default {
 	warn_card_title: "Membre recadré",
 	warn_err_self: "${emoji_No} Tu vas pas te warn toi-même, t'es sérieux ?",
 	warn_err_bot: "${emoji_No} On warn pas les bots, ça sert à rien.",
-	warn_err_above: "${emoji_No} Tu peux pas warn quelqu'un qui a un rôle aussi haut ou plus haut que toi.",
+	warn_err_above:
+		"${emoji_No} Tu peux pas warn quelqu'un qui a un rôle aussi haut ou plus haut que toi.",
 	warn_dm_title: "T'as pris un avertissement",
 	warn_label_date: "Date",
 	warn_label_active: "Warns actifs",
@@ -4940,7 +4947,8 @@ export default {
 	warn_sanction_timeout: "Mute temporaire (${duration})",
 	warn_sanction_kick: "Kick",
 	warn_sanction_ban: "Ban",
-	warn_sanction_failed: "${sanction}, pas appliquée : iHorizon peut pas toucher ce membre",
+	warn_sanction_failed:
+		"${sanction}, pas appliquée : iHorizon peut pas toucher ce membre",
 	warn_expire_note: "les warns sautent après ${days} jours",
 	warnlist_expired: "expiré",
 	warnlist_card_active: "${active} actifs · ${count} en tout",
@@ -4952,12 +4960,18 @@ export default {
 	warnconfig_no_rules: "Aucune : les warns déclenchent rien tout seuls",
 	warnconfig_rule_line: "**${count}** warns → ${sanction}",
 	warnconfig_saved: "C'est enregistré.",
-	warnconfig_err_duration: "${emoji_No} Un mute temporaire veut une durée de 1 minute à 28 jours (genre `1h`, `2d`).",
-	warnconfig_err_count: "${emoji_No} Le seuil c'est de 1 à 100 warns, pas plus.",
-	warnconfig_err_rules: "${emoji_No} 10 sanctions auto max : vire-en une d'abord.",
-	warnconfig_err_expiry: "${emoji_No} L'expiration c'est de 0 (jamais) à 365 jours.",
-	warnconfig_err_sanction: "${emoji_No} Choisis une sanction pour ce seuil (ou `none` pour la virer).",
-	warnconfig_hint: "Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la virer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
+	warnconfig_err_duration:
+		"${emoji_No} Un mute temporaire veut une durée de 1 minute à 28 jours (genre `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} Le seuil c'est de 1 à 100 warns, pas plus.",
+	warnconfig_err_rules:
+		"${emoji_No} 10 sanctions auto max : vire-en une d'abord.",
+	warnconfig_err_expiry:
+		"${emoji_No} L'expiration c'est de 0 (jamais) à 365 jours.",
+	warnconfig_err_sanction:
+		"${emoji_No} Choisis une sanction pour ce seuil (ou `none` pour la virer).",
+	warnconfig_hint:
+		"Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la virer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
 	clearwarn_card_title: "Warns effacés",
 	clearwarn_card_desc: "Les ${count} warns de ${member} ont dégagé.",
 	clear_allwarns_card_title: "Tous les warns supprimés",
@@ -5177,5 +5191,49 @@ export default {
 	status_panel_card_col_history: "60 derniers contrôles",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30j",
-	status_panel_card_chart: "Temps de réponse moyen"
+	status_panel_card_chart: "Temps de réponse moyen",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Inviter iHorizon",
+	dm_only_server_desc:
+		"# Aïe !\n\nT'utilises iHorizon en MP, mais cette commande marche que sur un serveur Discord.\n\nAjoute-moi sur un serveur et on en reparle !",
+	topgg_vote_button: "Voter pour iHorizon",
+	dm_message_from: "Message de ${guild}",
+	dm_message_by: "Message de ${user}",
+	ticket_panel_button_saved: "Enregistré",
+	economy_balance_wallet_title: "Le portefeuille de ${user}",
+	reactionroles_help_embed_title: "Aide de /reactionroles",
+	command_error_title: "**La commande a planté.**",
+	command_error_report: "**Balance le problème avec `/report` stp.**",
+	guild_blacklisted_leave_desc:
+		"Wesh <@${ownerId}>, désolé mais t'es blacklisté d'iHorizon.\nDu coup je me barre de ton serveur. Une question ? Va voir mes devs.\n\nMerci de ta compréhension.",
+	status_field_cpu: "Processeur",
+	status_field_memory: "Mémoire",
+	status_field_machine_uptime: "Uptime de la machine",
+	status_field_bot_uptime: "Uptime du bot",
+	status_field_os: "Système",
+	status_field_bot_version: "Version du bot",
+	status_field_bun_version: "Version de Bun",
+	owner_guild_title: "Proprios du serveur",
+	var_discord_permission: "Permission Discord",
+	rate_nothing: "que dalle",
+	embed_default_footer: "Pied de page",
+	music_history_file_title:
+		"Historique musical de ${guild} (30 derniers jours, du plus récent au plus vieux)",
+	music_history_requested_by: "demandé par ${user}",
+	music_history_live: "en direct",
+	tempvoice_region_singapore: "Singapour",
+	tempvoice_region_sydney: "Australie (Sydney)",
+	tempvoice_region_russia: "Russie",
+	tempvoice_region_india: "Inde",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "Afrique du Sud",
+	tempvoice_region_rotterdam: "Pays-Bas (Rotterdam)",
+	tempvoice_region_japan: "Japon (Tokyo)",
+	tempvoice_region_southkorea: "Corée du Sud",
+	tempvoice_region_useast: "USA Est",
+	tempvoice_region_ussouth: "USA Sud",
+	tempvoice_region_uswest: "USA Ouest",
+	tempvoice_region_uscentral: "USA Centre",
+	tempvoice_region_brazil: "Brésil"
 } satisfies LanguageData;

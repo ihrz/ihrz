@@ -75,7 +75,12 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setColor("#e3c6ff")
-			.setTitle(`\`${member.user.username}\`'s Wallet`)
+			.setTitle(
+				lang.economy_balance_wallet_title.replace(
+					"${user}",
+					`\`${member.user.username}\``
+				)
+			)
 			.setThumbnail(member.displayAvatarURL())
 			.setDescription(
 				lang.balance_he_have_wallet

@@ -59,7 +59,13 @@ export const event: BotEvent = {
 				.setDisabled(true)
 				.setCustomId("join-dm-from-server")
 				.setStyle(ButtonStyle.Secondary)
-				.setLabel("Message from " + member.guild.id);
+				.setLabel(
+					(
+						await client.func.getLanguageData(member.guild.id)
+					).dm_message_from
+						.replace("${guild}", member.guild.name)
+						.slice(0, 80)
+				);
 
 			member
 				.send({

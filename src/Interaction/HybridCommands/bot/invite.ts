@@ -42,7 +42,8 @@ export const command: Command = {
 		ja: "ボットの招待リンクを取得！",
 		ru: "Получить ссылку приглашения бота!",
 		"es-ES": "Obtener el enlace de invitación del bot!",
-		ko: "봇 초대 링크를 받아요!"
+		ko: "봇 초대 링크를 받아요!",
+		uk: "Отримати посилання для запрошення бота!"
 	},
 
 	aliases: ["inviteme", "oauth"],

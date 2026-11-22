@@ -38,7 +38,8 @@ function to(x: number) {
 				ja: "amount_i",
 				ru: "amount_i",
 				"es-ES": "amount_i",
-				ko: `수량: ${i}`
+				ko: `수량: ${i}`,
+				uk: `Кількість: ${i}`
 			},
 			value: `${i}`
 		});
@@ -53,7 +54,8 @@ export const command: Command = {
 		ja: "fun",
 		ru: "fun",
 		"es-ES": "fun",
-		ko: "fun"
+		ko: "fun",
+		uk: "fun"
 	},
 
 	description: "Subcommand for fun category!",
@@ -62,7 +64,8 @@ export const command: Command = {
 		ja: "Funカテゴリのサブコマンド！",
 		ru: "Подкоманда для категории развлечений!",
 		"es-ES": "Subcomando para la categoría de diversión!",
-		ko: "재미 하위 명령어!"
+		ko: "재미 하위 명령어!",
+		uk: "Підкоманда категорії розваг!"
 	},
 
 	options: [
@@ -73,7 +76,8 @@ export const command: Command = {
 				ja: "animals",
 				ru: "animals",
 				"es-ES": "animals",
-				ko: "animals"
+				ko: "animals",
+				uk: "animals"
 			},
 
 			description: "Fun commands related to animals",
@@ -82,7 +86,8 @@ export const command: Command = {
 				ja: "動物関連のFunコマンド",
 				ru: "Развлекательные команды с животными",
 				"es-ES": "Comandos divertidos relacionados con animales",
-				ko: "동물 관련 재미 명령어"
+				ko: "동물 관련 재미 명령어",
+				uk: "Розважальні команди про тварин"
 			},
 
 			options: [
@@ -93,7 +98,8 @@ export const command: Command = {
 						ja: "cat",
 						ru: "cat",
 						"es-ES": "cat",
-						ko: "cat"
+						ko: "cat",
+						uk: "cat"
 					},
 
 					description: "Get a picture of cat!",
@@ -102,7 +108,8 @@ export const command: Command = {
 						ja: "猫の画像を取得！",
 						ru: "Получить картинку кота!",
 						"es-ES": "Obtener una imagen de un gato!",
-						ko: "고양이 사진을 받아요!"
+						ko: "고양이 사진을 받아요!",
+						uk: "Отримати фото кота!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -116,7 +123,8 @@ export const command: Command = {
 						ja: "dog",
 						ru: "dog",
 						"es-ES": "dog",
-						ko: "dog"
+						ko: "dog",
+						uk: "dog"
 					},
 
 					description: "Get a picture of dog!",
@@ -125,7 +133,8 @@ export const command: Command = {
 						ja: "犬の画像を取得！",
 						ru: "Получить картинку собаки!",
 						"es-ES": "Obtener una imagen de un perro!",
-						ko: "강아지 사진을 받아요!"
+						ko: "강아지 사진을 받아요!",
+						uk: "Отримати фото собаки!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -139,7 +148,8 @@ export const command: Command = {
 						ja: "duck",
 						ru: "duck",
 						"es-ES": "duck",
-						ko: "duck"
+						ko: "duck",
+						uk: "duck"
 					},
 
 					description: "Get a picture of duck!",
@@ -148,7 +158,8 @@ export const command: Command = {
 						ja: "アヒルの画像を取得！",
 						ru: "Получить картинку утки!",
 						"es-ES": "Obtener una imagen de un pato!",
-						ko: "오리 사진을 받아요!"
+						ko: "오리 사진을 받아요!",
+						uk: "Отримати фото качки!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -164,7 +175,8 @@ export const command: Command = {
 						ja: "パンダの画像を取得！",
 						ru: "Получить картинку панды!",
 						"es-ES": "Obtener una imagen de un panda!",
-						ko: "판다 사진을 받아요!"
+						ko: "판다 사진을 받아요!",
+						uk: "Отримати фото панди!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -180,7 +192,8 @@ export const command: Command = {
 						ja: "キツネの画像を取得！",
 						ru: "Получить картинку лисы!",
 						"es-ES": "Obtener una imagen de un zorro!",
-						ko: "여우 사진을 받아요!"
+						ko: "여우 사진을 받아요!",
+						uk: "Отримати фото лисиці!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -196,7 +209,8 @@ export const command: Command = {
 						ja: "イルカの画像を取得！",
 						ru: "Получить картинку дельфина!",
 						"es-ES": "Obtener una imagen de un delfín!",
-						ko: "돌고래 사진을 받아요!"
+						ko: "돌고래 사진을 받아요!",
+						uk: "Отримати фото дельфіна!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -212,7 +226,8 @@ export const command: Command = {
 						ja: "カエルの画像を取得！",
 						ru: "Получить картинку лягушки!",
 						"es-ES": "Obtener una imagen de una rana!",
-						ko: "개구리 사진을 받아요!"
+						ko: "개구리 사진을 받아요!",
+						uk: "Отримати фото жаби!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -228,7 +243,8 @@ export const command: Command = {
 						ja: "リスの画像を取得！",
 						ru: "Получить картинку белки!",
 						"es-ES": "Obtener una imagen de una ardilla!",
-						ko: "다람쥐 사진을 받아요!"
+						ko: "다람쥐 사진을 받아요!",
+						uk: "Отримати фото білки!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -248,7 +264,8 @@ export const command: Command = {
 				ja: "画像関連のFunコマンド",
 				ru: "Развлекательные команды с изображениями",
 				"es-ES": "Comandos divertidos relacionados con imágenes",
-				ko: "이미지 관련 재미 명령어"
+				ko: "이미지 관련 재미 명령어",
+				uk: "Розважальні команди із зображеннями"
 			},
 
 			options: [
@@ -259,7 +276,8 @@ export const command: Command = {
 						ja: "catsay",
 						ru: "catsay",
 						"es-ES": "catsay",
-						ko: "catsay"
+						ko: "catsay",
+						uk: "catsay"
 					},
 
 					description: "Cat say (insert text here)",
@@ -268,7 +286,8 @@ export const command: Command = {
 						ja: "猫が言う（ここにテキストを入力）",
 						ru: "Кот говорит (вставьте текст)",
 						"es-ES": "El gato dice (insertar texto aquí)",
-						ko: "고양이가 말해요 (여기에 텍스트 입력)"
+						ko: "고양이가 말해요 (여기에 텍스트 입력)",
+						uk: "Кіт каже (введіть текст тут)"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -282,7 +301,8 @@ export const command: Command = {
 								ja: "猫が言う...",
 								ru: "Кот говорит...",
 								"es-ES": "El gato dice...",
-								ko: "고양이가 말하길..."
+								ko: "고양이가 말하길...",
+								uk: "Кіт каже..."
 							},
 
 							required: true,
@@ -303,7 +323,8 @@ export const command: Command = {
 						ja: "画像をGIFに変換",
 						ru: "Преобразовать изображение в GIF",
 						"es-ES": "Transformar imagen a gif",
-						ko: "이미지를 GIF로 바꿔요"
+						ko: "이미지를 GIF로 바꿔요",
+						uk: "Перетворити зображення на GIF"
 					},
 
 					options: [
@@ -316,7 +337,8 @@ export const command: Command = {
 								ja: "画像ファイル",
 								ru: "файл изображения",
 								"es-ES": "archivo de imagen",
-								ko: "이미지 파일"
+								ko: "이미지 파일",
+								uk: "Файл зображення"
 							},
 
 							permission: null,
@@ -338,7 +360,8 @@ export const command: Command = {
 						ja: "自分の画像の上にテキストを追加",
 						ru: "Добавить текст поверх вашего изображения",
 						"es-ES": "Añadir texto encima de tu propia imagen",
-						ko: "이미지 위에 텍스트를 추가해요"
+						ko: "이미지 위에 텍스트를 추가해요",
+						uk: "Додати текст поверх власного зображення"
 					},
 
 					options: [
@@ -351,7 +374,8 @@ export const command: Command = {
 								ja: "画像ファイル",
 								ru: "файл изображения",
 								"es-ES": "archivo de imagen",
-								ko: "이미지 파일"
+								ko: "이미지 파일",
+								uk: "Файл зображення"
 							},
 
 							permission: null,
@@ -367,7 +391,8 @@ export const command: Command = {
 								ja: "あなたの字幕",
 								ru: "ваши подписи",
 								"es-ES": "tus subtítulos",
-								ko: "캡션"
+								ko: "캡션",
+								uk: "Ваші підписи"
 							},
 
 							permission: null,
@@ -389,7 +414,8 @@ export const command: Command = {
 						ja: "自分の画像の上に吹き出しを追加",
 						ru: "Добавить пузырек поверх вашего изображения",
 						"es-ES": "Añadir burbuja encima de tu propia imagen",
-						ko: "이미지 위에 말풍선을 추가해요"
+						ko: "이미지 위에 말풍선을 추가해요",
+						uk: "Додати бульбашку поверх власного зображення"
 					},
 
 					options: [
@@ -402,7 +428,8 @@ export const command: Command = {
 								ja: "画像ファイル",
 								ru: "файл изображения",
 								"es-ES": "archivo de imagen",
-								ko: "이미지 파일"
+								ko: "이미지 파일",
+								uk: "Файл зображення"
 							},
 
 							permission: null,
@@ -426,7 +453,8 @@ export const command: Command = {
 						ru: "Разрешить отправку пользовательского комментария YouTube (настоящего)!",
 						"es-ES":
 							"Permitir enviar comentario personalizado de YouTube (real)!",
-						ko: "맞춤 YouTube 댓글을 보내요 (진짜)!"
+						ko: "맞춤 YouTube 댓글을 보내요 (진짜)!",
+						uk: "Створити власний коментар YouTube (справжній)!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -440,7 +468,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "Пользователь",
 								"es-ES": "El usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							required: true,
@@ -457,7 +486,8 @@ export const command: Command = {
 								ja: "コメント",
 								ru: "Комментарий",
 								"es-ES": "El comentario",
-								ko: "코멘트"
+								ko: "코멘트",
+								uk: "Коментар"
 							},
 
 							required: true,
@@ -478,7 +508,8 @@ export const command: Command = {
 						ja: "カスタムツイートを送信可能に！",
 						ru: "Разрешить отправку пользовательского твита!",
 						"es-ES": "Permitir enviar tweet personalizado!",
-						ko: "맞춤 트윗을 보내요!"
+						ko: "맞춤 트윗을 보내요!",
+						uk: "Створити власний твіт!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -492,7 +523,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "Пользователь",
 								"es-ES": "El usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							required: true,
@@ -509,7 +541,8 @@ export const command: Command = {
 								ja: "コメント",
 								ru: "Комментарий",
 								"es-ES": "El comentario",
-								ko: "코멘트"
+								ko: "코멘트",
+								uk: "Коментар"
 							},
 
 							required: true,
@@ -528,7 +561,8 @@ export const command: Command = {
 						ja: "transgender",
 						ru: "transgender",
 						"es-ES": "transgender",
-						ko: "transgender"
+						ko: "transgender",
+						uk: "transgender"
 					},
 
 					description: "all humans have rights",
@@ -537,7 +571,8 @@ export const command: Command = {
 						ja: "全ての人間には権利がある",
 						ru: "все люди имеют права",
 						"es-ES": "todos los humanos tienen derechos",
-						ko: "모든 인간에게는 권리가 있다"
+						ko: "모든 인간에게는 권리가 있다",
+						uk: "Усі люди мають права"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -551,7 +586,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "пользователь",
 								"es-ES": "el usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							required: false,
@@ -577,7 +613,8 @@ export const command: Command = {
 				ja: "ユーザー間の交流",
 				ru: "Взаимодействие между пользователями",
 				"es-ES": "Interacción entre usuarios",
-				ko: "사용자 간 상호작용"
+				ko: "사용자 간 상호작용",
+				uk: "Взаємодія між користувачами"
 			},
 
 			options: [
@@ -588,7 +625,8 @@ export const command: Command = {
 						ja: "67",
 						ru: "67",
 						"es-ES": "67",
-						ko: "67"
+						ko: "67",
+						uk: "67"
 					},
 
 					description: "Send a 67 gif",
@@ -597,7 +635,8 @@ export const command: Command = {
 						ja: "67のGIFを送信",
 						ru: "Отправить гифку 67",
 						"es-ES": "Enviar un gif de 67",
-						ko: "67 GIF를 보내요"
+						ko: "67 GIF를 보내요",
+						uk: "Надіслати GIF 67"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -610,7 +649,8 @@ export const command: Command = {
 						ja: "hack",
 						ru: "hack",
 						"es-ES": "hack",
-						ko: "hack"
+						ko: "hack",
+						uk: "hack"
 					},
 
 					description: "Hack a user!",
@@ -619,7 +659,8 @@ export const command: Command = {
 						ja: "ユーザーをハッキング！",
 						ru: "Взломать пользователя!",
 						"es-ES": "Hackear a un usuario!",
-						ko: "사용자를 해킹해요!"
+						ko: "사용자를 해킹해요!",
+						uk: "Зламати користувача!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -634,7 +675,8 @@ export const command: Command = {
 								ja: "ハッキングしたいユーザー",
 								ru: "Пользователь, которого вы хотите взломать",
 								"es-ES": "El usuario que quieres hackear",
-								ko: "해킹할 사용자"
+								ko: "해킹할 사용자",
+								uk: "Користувач, якого ви хочете зламати"
 							},
 
 							required: true,
@@ -652,7 +694,8 @@ export const command: Command = {
 						ja: "kiss",
 						ru: "kiss",
 						"es-ES": "kiss",
-						ko: "kiss"
+						ko: "kiss",
+						uk: "kiss"
 					},
 
 					description: "Kiss a user!",
@@ -661,7 +704,8 @@ export const command: Command = {
 						ja: "ユーザーにキス！",
 						ru: "Поцеловать пользователя!",
 						"es-ES": "Besar a un usuario!",
-						ko: "사용자에게 뽀뽀해요!"
+						ko: "사용자에게 뽀뽀해요!",
+						uk: "Поцілувати користувача!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -676,7 +720,8 @@ export const command: Command = {
 								ja: "キスしたいユーザー",
 								ru: "Пользователь, которого вы хотите поцеловать",
 								"es-ES": "El usuario que quieres besar",
-								ko: "뽀뽀할 사용자"
+								ko: "뽀뽀할 사용자",
+								uk: "Користувач, якого ви хочете поцілувати"
 							},
 
 							required: true,
@@ -694,7 +739,8 @@ export const command: Command = {
 						ja: "love",
 						ru: "love",
 						"es-ES": "love",
-						ko: "love"
+						ko: "love",
+						uk: "love"
 					},
 
 					description: "Show your love compatibilty with the user!",
@@ -704,7 +750,8 @@ export const command: Command = {
 						ru: "Показать совместимость в любви с пользователем!",
 						"es-ES":
 							"Mostrar tu compatibilidad amorosa con el usuario!",
-						ko: "사용자와의 사랑 궁합을 보여줘요!"
+						ko: "사용자와의 사랑 궁합을 보여줘요!",
+						uk: "Показати вашу любовну сумісність із користувачем!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -721,7 +768,8 @@ export const command: Command = {
 								ru: "Пользователь для проверки совместимости в любви",
 								"es-ES":
 									"El usuario con quien quieres conocer tu compatibilidad amorosa",
-								ko: "사랑 궁합을 볼 사용자"
+								ko: "사랑 궁합을 볼 사용자",
+								uk: "Користувач, з яким ви хочете дізнатися любовну сумісність"
 							},
 
 							required: false,
@@ -740,7 +788,8 @@ export const command: Command = {
 								ru: "Пользователь, с которым вы хотите узнать совместимость в любви",
 								"es-ES":
 									"El usuario con quien quieres saber la compatibilidad amorosa",
-								ko: "사랑 궁합을 볼 사용자"
+								ko: "사랑 궁합을 볼 사용자",
+								uk: "Користувач, з яким ви хочете дізнатися любовну сумісність"
 							},
 
 							required: false,
@@ -758,7 +807,8 @@ export const command: Command = {
 						ja: "poll",
 						ru: "poll",
 						"es-ES": "poll",
-						ko: "poll"
+						ko: "poll",
+						uk: "poll"
 					},
 
 					description: "Create a poll!",
@@ -767,7 +817,8 @@ export const command: Command = {
 						ja: "投票を作成！",
 						ru: "Создать опрос!",
 						"es-ES": "Crear una encuesta!",
-						ko: "투표를 만들어요!"
+						ko: "투표를 만들어요!",
+						uk: "Створити опитування!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -782,7 +833,8 @@ export const command: Command = {
 								ja: "アンケートに表示されるメッセージ",
 								ru: "Сообщение, отображаемое в опросе",
 								"es-ES": "El mensaje mostrado en la encuesta",
-								ko: "투표에 표시할 메시지"
+								ko: "투표에 표시할 메시지",
+								uk: "Повідомлення, що показується в опитуванні"
 							},
 
 							required: true,
@@ -802,7 +854,8 @@ export const command: Command = {
 						ja: "ボットに質問する！",
 						ru: "Задать вопрос боту!",
 						"es-ES": "Hacer una pregunta al bot!",
-						ko: "봇에게 질문해요!"
+						ko: "봇에게 질문해요!",
+						uk: "Поставити питання боту!"
 					},
 
 					aliases: ["8ball"],
@@ -820,7 +873,8 @@ export const command: Command = {
 								ja: "ボットに与えたい質問",
 								ru: "Вопрос, который вы хотите задать боту",
 								"es-ES": "La pregunta que quieres dar al bot",
-								ko: "봇에게 할 질문"
+								ko: "봇에게 할 질문",
+								uk: "Питання, яке ви хочете поставити боту"
 							},
 
 							required: true,
@@ -838,7 +892,8 @@ export const command: Command = {
 						ja: "slap",
 						ru: "slap",
 						"es-ES": "slap",
-						ko: "slap"
+						ko: "slap",
+						uk: "slap"
 					},
 
 					description: "Slap a user!",
@@ -847,7 +902,8 @@ export const command: Command = {
 						ja: "ユーザーを平手打ち！",
 						ru: "Дать пощечину пользователю!",
 						"es-ES": "Abofetear a un usuario!",
-						ko: "사용자를 때려요!"
+						ko: "사용자를 때려요!",
+						uk: "Дати ляпаса користувачу!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -862,7 +918,8 @@ export const command: Command = {
 								ja: "平手打ちしたいユーザー",
 								ru: "Пользователь, которому вы хотите дать пощечину",
 								"es-ES": "El usuario que quieres abofetear",
-								ko: "때릴 사용자"
+								ko: "때릴 사용자",
+								uk: "Користувач, якому ви хочете дати ляпаса"
 							},
 
 							required: true,
@@ -881,7 +938,8 @@ export const command: Command = {
 						ja: "hug",
 						ru: "hug",
 						"es-ES": "hug",
-						ko: "hug"
+						ko: "hug",
+						uk: "hug"
 					},
 
 					description: "Hug a user!",
@@ -890,7 +948,8 @@ export const command: Command = {
 						ja: "ユーザーをハグ！",
 						ru: "Обнять пользователя!",
 						"es-ES": "Abrazar a un usuario!",
-						ko: "사용자를 안아 줘요!"
+						ko: "사용자를 안아 줘요!",
+						uk: "Обійняти користувача!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -905,7 +964,8 @@ export const command: Command = {
 								ja: "ハグしたいユーザー",
 								ru: "Пользователь, которого вы хотите обнять",
 								"es-ES": "El usuario que quieres abrazar",
-								ko: "안아 줄 사용자"
+								ko: "안아 줄 사용자",
+								uk: "Користувач, якого ви хочете обійняти"
 							},
 
 							required: true,
@@ -931,7 +991,8 @@ export const command: Command = {
 				ru: "Развлекательные команды со стилями текста",
 				"es-ES":
 					"Comandos divertidos relacionados con estilos de texto",
-				ko: "텍스트 스타일 관련 재미 명령어"
+				ko: "텍스트 스타일 관련 재미 명령어",
+				uk: "Розважальні команди зі стилем тексту"
 			},
 
 			options: [
@@ -942,7 +1003,8 @@ export const command: Command = {
 						ja: "caracteres",
 						ru: "caracteres",
 						"es-ES": "caracteres",
-						ko: "caracteres"
+						ko: "caracteres",
+						uk: "caracteres"
 					},
 
 					description: "Transform a string into a DarkSasuke!",
@@ -951,7 +1013,8 @@ export const command: Command = {
 						ja: "文字列をDarkSasukeに変換！",
 						ru: "Преобразовать строку в DarkSasuke!",
 						"es-ES": "Transformar una cadena en DarkSasuke!",
-						ko: "문자열을 DarkSasuke 스타일로 바꿔요!"
+						ko: "문자열을 DarkSasuke 스타일로 바꿔요!",
+						uk: "Перетворити рядок на стиль DarkSasuke!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -966,7 +1029,8 @@ export const command: Command = {
 								ja: "変換したいクールなニックネーム！",
 								ru: "ваш крутой ник для преобразования!",
 								"es-ES": "tu apodo genial para transformar!",
-								ko: "변환할 멋진 별명!"
+								ko: "변환할 멋진 별명!",
+								uk: "Ваш крутий нікнейм для перетворення!"
 							},
 
 							required: true,
@@ -986,7 +1050,8 @@ export const command: Command = {
 						ja: "文字列をモールス信号に変換！",
 						ru: "Преобразовать строку в азбуку Морзе!",
 						"es-ES": "Transformar una cadena en Morse!",
-						ko: "문자열을 모스 부호로 바꿔요!"
+						ko: "문자열을 모스 부호로 바꿔요!",
+						uk: "Перетворити рядок на азбуку Морзе!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -1003,7 +1068,8 @@ export const command: Command = {
 								ru: "Введите текст для шифрования/дешифрования азбукой Морзе",
 								"es-ES":
 									"Ingresa tu entrada para encriptar/desencriptar en morse",
-								ko: "모스 부호로 암호화/복호화할 내용을 입력하세요"
+								ko: "모스 부호로 암호화/복호화할 내용을 입력하세요",
+								uk: "Введіть текст для шифрування/розшифрування азбукою Морзе"
 							},
 
 							required: true,
@@ -1026,7 +1092,8 @@ export const command: Command = {
 				ja: "random",
 				ru: "random",
 				"es-ES": "random",
-				ko: "random"
+				ko: "random",
+				uk: "random"
 			},
 
 			description: "Fun slash related to luck (chance)",
@@ -1036,7 +1103,8 @@ export const command: Command = {
 				ru: "Развлекательные команды, связанные с удачей",
 				"es-ES":
 					"Comandos divertidos relacionados con la suerte (azar)",
-				ko: "운(확률) 관련 재미 슬래시 명령어"
+				ko: "운(확률) 관련 재미 슬래시 명령어",
+				uk: "Розважальні команди на удачу (шанс)"
 			},
 
 			options: [
@@ -1047,7 +1115,8 @@ export const command: Command = {
 						ja: "dice",
 						ru: "dice",
 						"es-ES": "dice",
-						ko: "dice"
+						ko: "dice",
+						uk: "dice"
 					},
 
 					description: "Make a dice roll",
@@ -1056,7 +1125,8 @@ export const command: Command = {
 						ja: "サイコロを振る",
 						ru: "Бросить кости",
 						"es-ES": "Hacer una tirada de dado",
-						ko: "주사위를 굴려요"
+						ko: "주사위를 굴려요",
+						uk: "Кинути кубик"
 					},
 
 					aliases: ["dé"],
@@ -1069,7 +1139,8 @@ export const command: Command = {
 								ja: "number",
 								ru: "number",
 								"es-ES": "number",
-								ko: "number"
+								ko: "number",
+								uk: "number"
 							},
 
 							description: "Number of dice to roll",
@@ -1078,7 +1149,8 @@ export const command: Command = {
 								ja: "振るサイコロの数",
 								ru: "Количество костей",
 								"es-ES": "Número de dados a lanzar",
-								ko: "굴릴 주사위 개수"
+								ko: "굴릴 주사위 개수",
+								uk: "Кількість кубиків для кидка"
 							},
 
 							choices: to(7),
@@ -1093,7 +1165,8 @@ export const command: Command = {
 								ja: "faces",
 								ru: "faces",
 								"es-ES": "faces",
-								ko: "faces"
+								ko: "faces",
+								uk: "faces"
 							},
 
 							description: "Number of faces on the dice",
@@ -1102,7 +1175,8 @@ export const command: Command = {
 								ja: "サイコロの面の数",
 								ru: "Количество граней кости",
 								"es-ES": "Número de caras del dado",
-								ko: "주사위 면 수"
+								ko: "주사위 면 수",
+								uk: "Кількість граней кубика"
 							},
 
 							choices: to(12),
@@ -1122,7 +1196,8 @@ export const command: Command = {
 						ja: "heads-tails",
 						ru: "heads-tails",
 						"es-ES": "heads-tails",
-						ko: "heads-tails"
+						ko: "heads-tails",
+						uk: "heads-tails"
 					},
 
 					description: "Heads or tail?",
@@ -1131,7 +1206,8 @@ export const command: Command = {
 						ja: "表か裏か？",
 						ru: "Орел или решка?",
 						"es-ES": "Cara o cruz?",
-						ko: "앞면? 뒷면?"
+						ko: "앞면? 뒷면?",
+						uk: "Орел чи решка?"
 					},
 
 					aliases: ["pileouface", "pile-ou-face"],
@@ -1146,7 +1222,8 @@ export const command: Command = {
 						ja: "number",
 						ru: "number",
 						"es-ES": "number",
-						ko: "number"
+						ko: "number",
+						uk: "number"
 					},
 
 					description: "Generate a random number between two values",
@@ -1156,7 +1233,8 @@ export const command: Command = {
 						ru: "Сгенерировать случайное число между двумя значениями",
 						"es-ES":
 							"Generar un número aleatorio entre dos valores",
-						ko: "두 값 사이의 무작위 숫자를 생성해요"
+						ko: "두 값 사이의 무작위 숫자를 생성해요",
+						uk: "Згенерувати випадкове число між двома значеннями"
 					},
 
 					options: [
@@ -1167,7 +1245,8 @@ export const command: Command = {
 								ja: "min",
 								ru: "min",
 								"es-ES": "min",
-								ko: "min"
+								ko: "min",
+								uk: "min"
 							},
 
 							description: "Minimum value",
@@ -1176,7 +1255,8 @@ export const command: Command = {
 								ja: "最小値",
 								ru: "Минимальное значение",
 								"es-ES": "Valor mínimo",
-								ko: "최솟값"
+								ko: "최솟값",
+								uk: "Мінімальне значення"
 							},
 							type: ApplicationCommandOptionType.Number,
 
@@ -1190,7 +1270,8 @@ export const command: Command = {
 								ja: "max",
 								ru: "max",
 								"es-ES": "max",
-								ko: "max"
+								ko: "max",
+								uk: "max"
 							},
 
 							description: "Maximum value",
@@ -1199,7 +1280,8 @@ export const command: Command = {
 								ja: "最大値",
 								ru: "Максимальное значение",
 								"es-ES": "Valor máximo",
-								ko: "최댓값"
+								ko: "최댓값",
+								uk: "Максимальне значення"
 							},
 
 							type: ApplicationCommandOptionType.Number,
@@ -1221,7 +1303,8 @@ export const command: Command = {
 						ja: "あなたのゲイ度を表示",
 						ru: "Показать, насколько вы гей",
 						"es-ES": "Mostrar qué tan gay eres",
-						ko: "얼마나 게이인지 보여줘요"
+						ko: "얼마나 게이인지 보여줘요",
+						uk: "Показати, наскільки ви гей"
 					},
 
 					options: [
@@ -1234,7 +1317,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "пользователь",
 								"es-ES": "el usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							type: ApplicationCommandOptionType.User,
@@ -1255,7 +1339,8 @@ export const command: Command = {
 						ja: "指定された対象を評価します",
 						ru: "Позволь оценить указанный предмет",
 						"es-ES": "Déjame calificar el tema indicado",
-						ko: "다음 주제를 제가 평가해 볼게요"
+						ko: "다음 주제를 제가 평가해 볼게요",
+						uk: "Дозвольте оцінити вказану тему"
 					},
 
 					aliases: ["note"],
@@ -1270,7 +1355,8 @@ export const command: Command = {
 								ja: "もの",
 								ru: "вещи",
 								"es-ES": "las cosas",
-								ko: "the_things"
+								ko: "the_things",
+								uk: "Речі"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -1291,7 +1377,8 @@ export const command: Command = {
 						ja: "あなたのトランス度を表示",
 						ru: "Показать, насколько вы транс",
 						"es-ES": "Mostrar qué tan trans eres",
-						ko: "얼마나 트랜스인지 보여줘요"
+						ko: "얼마나 트랜스인지 보여줘요",
+						uk: "Показати, наскільки ви транс"
 					},
 
 					options: [
@@ -1304,7 +1391,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "пользователь",
 								"es-ES": "el usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							type: ApplicationCommandOptionType.User,
@@ -1325,7 +1413,8 @@ export const command: Command = {
 						ja: "あなたの臭さ度を表示",
 						ru: "Показать, насколько вы вонючий",
 						"es-ES": "Mostrar qué tan apestoso eres",
-						ko: "얼마나 냄새나는지 보여줘요"
+						ko: "얼마나 냄새나는지 보여줘요",
+						uk: "Показати, наскільки ви смердите"
 					},
 
 					aliases: [
@@ -1347,7 +1436,8 @@ export const command: Command = {
 								ja: "ユーザー",
 								ru: "пользователь",
 								"es-ES": "el usuario",
-								ko: "사용자"
+								ko: "사용자",
+								uk: "Користувач"
 							},
 
 							type: ApplicationCommandOptionType.User,
@@ -1374,7 +1464,8 @@ export const command: Command = {
 				ja: "Funカテゴリを無効化",
 				ru: "Отключить категорию развлечений",
 				"es-ES": "Deshabilitar la categoría de diversión",
-				ko: "재미 카테고리를 비활성화해요"
+				ko: "재미 카테고리를 비활성화해요",
+				uk: "Вимкнути категорію розваг"
 			},
 
 			options: [
@@ -1387,7 +1478,8 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?"
 					},
 
 					choices: [
@@ -1398,7 +1490,8 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути"
 							},
 							value: "on"
 						},
@@ -1409,7 +1502,8 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути"
 							},
 							value: "off"
 						}

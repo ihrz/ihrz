@@ -61,7 +61,8 @@ export const command: Command = {
 		ja: "コメントなし",
 		ru: "без комментария",
 		"es-ES": "sin comentario",
-		ko: "코멘트 없이"
+		ko: "코멘트 없이",
+		uk: "без коментарів"
 	},
 
 	options: [
@@ -74,7 +75,8 @@ export const command: Command = {
 				ja: "Nitroの数",
 				ru: "количество nitro",
 				"es-ES": "cantidad de nitro",
-				ko: "Nitro 개수"
+				ko: "Nitro 개수",
+				uk: "кількість nitro"
 			},
 
 			type: ApplicationCommandOptionType.Number,

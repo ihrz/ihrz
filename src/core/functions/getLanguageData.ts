@@ -29,65 +29,43 @@ export interface LangsData {
 
 export const LangsData: LangsData = {};
 
+// Each language in its own name (the /setlang menu, the welcome card).
 export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 	[
-		{
-			name: "Arab Egyptian",
-			code: "ar-EG",
-			flag: "🇪🇬"
-		},
-		{
-			name: "Deutsch",
-			code: "de-DE",
-			flag: "🇩🇪"
-		},
-		{
-			name: "English",
-			code: "en-US",
-			flag: "🇺🇸"
-		},
-
-		{
-			name: "French",
-			code: "fr-FR",
-			flag: "🇫🇷"
-		},
-		{
-			name: "Italian",
-			code: "it-IT",
-			flag: "🇮🇹"
-		},
-		{
-			name: "Japanese",
-			code: "jp-JP",
-			flag: "🇯🇵"
-		},
-		{
-			name: "Korean",
-			code: "ko-KR",
-			flag: "🇰🇷"
-		},
-		{
-			name: "Portuguese",
-			code: "pt-PT",
-			flag: "🇵🇹"
-		},
-		{
-			name: "Rude French",
-			code: "fr-ME",
-			flag: "🇫🇷"
-		},
-		{
-			name: "Russian",
-			code: "ru-RU",
-			flag: "🇷🇺"
-		},
-		{
-			name: "Spanish",
-			code: "es-ES",
-			flag: "🇪🇸"
-		}
+		{ name: "العربية المصرية", code: "ar-EG", flag: "🇪🇬" },
+		{ name: "Deutsch", code: "de-DE", flag: "🇩🇪" },
+		{ name: "English", code: "en-US", flag: "🇺🇸" },
+		{ name: "Español", code: "es-ES", flag: "🇪🇸" },
+		{ name: "Français", code: "fr-FR", flag: "🇫🇷" },
+		{ name: "Français vulgaire", code: "fr-ME", flag: "🇫🇷" },
+		{ name: "Italiano", code: "it-IT", flag: "🇮🇹" },
+		{ name: "日本語", code: "jp-JP", flag: "🇯🇵" },
+		{ name: "한국어", code: "ko-KR", flag: "🇰🇷" },
+		{ name: "Português", code: "pt-PT", flag: "🇵🇹" },
+		{ name: "Русский", code: "ru-RU", flag: "🇷🇺" },
+		{ name: "Українська", code: "uk-UA", flag: "🇺🇦" }
 	];
+
+// A Discord locale ("uk", "fr", "es-ES", "ja", "pt-BR"…) as the bot's language code; English otherwise.
+const LOCALE_PREFIX: Record<string, string> = {
+	ar: "ar-EG",
+	de: "de-DE",
+	en: "en-US",
+	es: "es-ES",
+	fr: "fr-FR",
+	it: "it-IT",
+	ja: "jp-JP",
+	ko: "ko-KR",
+	pt: "pt-PT",
+	ru: "ru-RU",
+	uk: "uk-UA"
+};
+export function languageForLocale(locale: string | null | undefined): string {
+	return (
+		LOCALE_PREFIX[(locale ?? "").split("-")[0]?.toLowerCase() ?? ""] ??
+		"en-US"
+	);
+}
 
 export default async function getLanguageData(
 	arg: string | undefined | null

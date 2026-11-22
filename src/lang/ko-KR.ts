@@ -4056,17 +4056,23 @@ export default {
 	guild_create_btn_repos: "iHorizon 저장소",
 	guild_create_btn_support: "지원 서버",
 	guild_create_btn_docs: "iHorizon 문서",
-	welcome_server_intro: "초대해 주셔서 감사합니다! 저는 **iHorizon**입니다. 관리, 티켓, 음악, 보호, 로그 등 모든 것을 **무료** **오픈 소스** 봇 하나로.",
+	welcome_server_intro:
+		"초대해 주셔서 감사합니다! 저는 **iHorizon**입니다. 관리, 티켓, 음악, 보호, 로그 등 모든 것을 **무료** **오픈 소스** 봇 하나로.",
 	welcome_lang_title: "언어",
-	welcome_lang_text: "이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 11개 언어 중 고를 수 있습니다.",
+	welcome_lang_text:
+		"이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 11개 언어 중 고를 수 있습니다.",
 	welcome_start_title: "시작하기",
 	welcome_start_help: "{command}: 모든 명령어를 카테고리별로 보여줍니다",
-	welcome_start_dashboard: "[대시보드]({url})에서 브라우저로 모든 것을 설정할 수 있습니다",
-	welcome_start_support: "질문이나 버그가 있나요? [지원 서버]({url})가 도와드립니다",
+	welcome_start_dashboard:
+		"[대시보드]({url})에서 브라우저로 모든 것을 설정할 수 있습니다",
+	welcome_start_support:
+		"질문이나 버그가 있나요? [지원 서버]({url})가 도와드립니다",
 	welcome_footer: "2020년부터 무료 오픈 소스 · ihorizon.org",
 	welcome_dm_title: "iHorizon을 추가해 주셔서 감사합니다!",
-	welcome_dm_intro: "iHorizon이 {guild}에 합류했습니다. 시작하는 데 필요한 모든 것을 알려드릴게요.",
-	welcome_dm_outro: "> *무료 봇도 유료 봇보다 더 잘할 수 있습니다.*\n그것이 iHorizon입니다. 2020년부터 열정적인 사람들이 이어온 커뮤니티이자 프로젝트예요. 환영합니다!",
+	welcome_dm_intro:
+		"iHorizon이 {guild}에 합류했습니다. 시작하는 데 필요한 모든 것을 알려드릴게요.",
+	welcome_dm_outro:
+		"> *무료 봇도 유료 봇보다 더 잘할 수 있습니다.*\n그것이 iHorizon입니다. 2020년부터 열정적인 사람들이 이어온 커뮤니티이자 프로젝트예요. 환영합니다!",
 	welcome_btn_dashboard: "대시보드",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord 봇** **`명령어 +{count}개`**\n> *« 2022년부터 사람들이 만들어 온, 여러분의 커뮤니티를 위한 봇. »*\n**https://www.ihorizon.org**",
@@ -4140,7 +4146,6 @@ export default {
 	var_off: "사용 안 함",
 	global_command_cooldown_msg:
 		"${emoji} **`${ctxCommandPath}`** 사이에 **${time}** 기다려야 해요",
-
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}>님이 **${number}**에서 망쳤어요!! 다음 숫자는 **1**이에요. **연속으로 두 번 셀 수 없어요.**",
@@ -4594,7 +4599,8 @@ export default {
 	warn_card_title: "멤버에게 경고했습니다",
 	warn_err_self: "${emoji_No} 자기 자신에게 경고할 수 없습니다.",
 	warn_err_bot: "${emoji_No} 봇에게는 경고할 수 없습니다.",
-	warn_err_above: "${emoji_No} 가장 높은 역할이 자신과 같거나 높은 멤버에게는 경고할 수 없습니다.",
+	warn_err_above:
+		"${emoji_No} 가장 높은 역할이 자신과 같거나 높은 멤버에게는 경고할 수 없습니다.",
 	warn_dm_title: "경고를 받았습니다",
 	warn_label_date: "날짜",
 	warn_label_active: "유효한 경고",
@@ -4604,7 +4610,8 @@ export default {
 	warn_sanction_timeout: "타임아웃 (${duration})",
 	warn_sanction_kick: "추방",
 	warn_sanction_ban: "차단",
-	warn_sanction_failed: "${sanction}, 적용 안 됨: iHorizon이 이 멤버를 처벌할 수 없습니다",
+	warn_sanction_failed:
+		"${sanction}, 적용 안 됨: iHorizon이 이 멤버를 처벌할 수 없습니다",
 	warn_expire_note: "경고는 ${days}일 후 만료됩니다",
 	warnlist_expired: "만료됨",
 	warnlist_card_active: "유효 ${active}개 · 총 ${count}개",
@@ -4616,12 +4623,18 @@ export default {
 	warnconfig_no_rules: "없음: 경고만으로는 처벌되지 않습니다",
 	warnconfig_rule_line: "경고 **${count}**회 → ${sanction}",
 	warnconfig_saved: "설정을 저장했습니다.",
-	warnconfig_err_duration: "${emoji_No} 타임아웃은 1분에서 28일 사이의 기간이 필요합니다 (예: `1h`, `2d`).",
-	warnconfig_err_count: "${emoji_No} 기준은 경고 1회에서 100회 사이여야 합니다.",
-	warnconfig_err_rules: "${emoji_No} 자동 처벌은 최대 10개입니다. 먼저 하나를 삭제하세요.",
-	warnconfig_err_expiry: "${emoji_No} 만료는 0(없음)에서 365일 사이여야 합니다.",
-	warnconfig_err_sanction: "${emoji_No} 이 기준의 처벌을 선택하세요 (삭제하려면 `none`).",
-	warnconfig_hint: "처벌 추가: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · 삭제: `sanction:none` · 만료: `expire-days:30` (0 = 없음)",
+	warnconfig_err_duration:
+		"${emoji_No} 타임아웃은 1분에서 28일 사이의 기간이 필요합니다 (예: `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} 기준은 경고 1회에서 100회 사이여야 합니다.",
+	warnconfig_err_rules:
+		"${emoji_No} 자동 처벌은 최대 10개입니다. 먼저 하나를 삭제하세요.",
+	warnconfig_err_expiry:
+		"${emoji_No} 만료는 0(없음)에서 365일 사이여야 합니다.",
+	warnconfig_err_sanction:
+		"${emoji_No} 이 기준의 처벌을 선택하세요 (삭제하려면 `none`).",
+	warnconfig_hint:
+		"처벌 추가: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · 삭제: `sanction:none` · 만료: `expire-days:30` (0 = 없음)",
 	clearwarn_card_title: "경고를 지웠습니다",
 	clearwarn_card_desc: "${member}의 경고 ${count}개를 삭제했습니다.",
 	clear_allwarns_card_title: "모든 경고를 삭제했습니다",
@@ -4836,5 +4849,48 @@ export default {
 	status_panel_card_col_history: "최근 60회 점검",
 	status_panel_card_col_ping: "핑",
 	status_panel_card_col_uptime: "30일",
-	status_panel_card_chart: "평균 응답 시간"
+	status_panel_card_chart: "평균 응답 시간",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "iHorizon 초대하기",
+	dm_only_server_desc:
+		"# 이런!\n\nDM에서 iHorizon을 사용하고 있지만, 이 명령어는 Discord 서버에서만 작동해요.\n\n서버에 저를 추가해서 사용해 보세요!",
+	topgg_vote_button: "iHorizon에 투표하기",
+	dm_message_from: "${guild}에서 보낸 메시지",
+	dm_message_by: "${user} 님이 보낸 메시지",
+	ticket_panel_button_saved: "저장됨",
+	economy_balance_wallet_title: "${user} 님의 지갑",
+	reactionroles_help_embed_title: "/reactionroles 도움말",
+	command_error_title: "**명령어 실행 중 문제가 발생했어요.**",
+	command_error_report: "**`/report`로 이 문제를 신고해 주세요.**",
+	guild_blacklisted_leave_desc:
+		"<@${ownerId}> 님, 죄송하지만 iHorizon 블랙리스트에 등록되어 있어요.\n그래서 서버를 떠날게요. 궁금한 점은 개발자에게 문의해 주세요.\n\n양해해 주셔서 감사해요.",
+	status_field_cpu: "CPU",
+	status_field_memory: "메모리",
+	status_field_machine_uptime: "머신 가동 시간",
+	status_field_bot_uptime: "봇 가동 시간",
+	status_field_os: "OS",
+	status_field_bot_version: "봇 버전",
+	status_field_bun_version: "Bun 버전",
+	owner_guild_title: "서버 소유자",
+	var_discord_permission: "Discord 권한",
+	rate_nothing: "없음",
+	embed_default_footer: "바닥글",
+	music_history_file_title: "${guild}의 음악 기록 (최근 30일, 최신순)",
+	music_history_requested_by: "요청: ${user}",
+	music_history_live: "라이브",
+	tempvoice_region_singapore: "싱가포르",
+	tempvoice_region_sydney: "호주 (시드니)",
+	tempvoice_region_russia: "러시아",
+	tempvoice_region_india: "인도",
+	tempvoice_region_hongkong: "홍콩",
+	tempvoice_region_southafrica: "남아프리카 공화국",
+	tempvoice_region_rotterdam: "네덜란드 (로테르담)",
+	tempvoice_region_japan: "일본 (도쿄)",
+	tempvoice_region_southkorea: "대한민국",
+	tempvoice_region_useast: "미국 동부",
+	tempvoice_region_ussouth: "미국 남부",
+	tempvoice_region_uswest: "미국 서부",
+	tempvoice_region_uscentral: "미국 중부",
+	tempvoice_region_brazil: "브라질"
 } satisfies LanguageData;

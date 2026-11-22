@@ -43,7 +43,8 @@ export const command: Command = {
 		ja: "ボットのステータスを取得！",
 		ru: "Получить статус бота!",
 		"es-ES": "Obtener el estado del bot!",
-		ko: "봇 상태를 확인해요!"
+		ko: "봇 상태를 확인해요!",
+		uk: "Отримати статус бота!"
 	},
 
 	category: "bot",
@@ -77,39 +78,39 @@ export const command: Command = {
 			.setColor("#82cda8")
 			.setFields(
 				{
-					name: "Cpu",
+					name: lang.status_field_cpu,
 					value: `${os.cpus()[0].model} (${os.machine()})`,
 					inline: false
 				},
 				{
-					name: "Memory",
+					name: lang.status_field_memory,
 					value: `${client.func.os_utils.niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${client.func.os_utils.niceBytes(memInfo["MemTotal"])}`,
 					inline: false
 				},
 				{
-					name: "Machine Uptime",
+					name: lang.status_field_machine_uptime,
 					value: `${time(new Date(Date.now() - os.uptime() * 1000), "d")}`,
 					inline: false
 				},
 				{
-					name: "Bot Uptime",
+					name: lang.status_field_bot_uptime,
 					value: time(
 						new Date(Date.now() - process.uptime() * 1000),
 						"d"
 					)
 				},
 				{
-					name: `${OS_INFO?.emojis} OS`,
+					name: `${OS_INFO?.emojis} ${lang.status_field_os}`,
 					value: `${OS_INFO?.name} ${os.platform()}`,
 					inline: false
 				},
 				{
-					name: `${client.iHorizon_Emojis.Logo} Bot Version`,
+					name: `${client.iHorizon_Emojis.Logo} ${lang.status_field_bot_version}`,
 					value: `[${client.version.ClientVersion}](${client.version.git_commit_url})`,
 					inline: false
 				},
 				{
-					name: `${client.iHorizon_Emojis.Bun} Bun Version`,
+					name: `${client.iHorizon_Emojis.Bun} ${lang.status_field_bun_version}`,
 					value: `${Bun.version}`,
 					inline: false
 				}
