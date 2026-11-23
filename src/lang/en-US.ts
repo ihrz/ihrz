@@ -5124,7 +5124,11 @@ const enUS = {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"Only the server owner can use backups here. The owner can open them to every administrator with `/backup manage`."
+		"Only the server owner can use backups here. The owner can open them to every administrator with `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"This server already has an AuthRestore key, so I did not create a new one: running `/authrestore set` again would replace it, and the current key would stop working.\nTo start over with a new key, first run `/authrestore delete` (it removes the verify button; the members already verified are kept), then run `/authrestore set` again."
 };
 
 export default enUS;

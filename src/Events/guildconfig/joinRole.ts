@@ -20,8 +20,8 @@
 */
 
 import { Client, GuildMember, PermissionsBitField } from "discord.js";
-import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { WelcomeContext } from "../../core/modules/memberArrival.js";
 
 /**
  * Join roles the bot can still hand out. One deleted, managed or too high
@@ -36,29 +36,35 @@ export function joinRolesToGive(member: GuildMember, ids: string[]): string[] {
 	});
 }
 
-export const event: BotEvent = {
-	name: "guildMemberAdd",
-	run: async (client: Client, member: GuildMember) => {
-		try {
-			if (
-				!member.guild.members.me?.permissions.has(
-					PermissionsBitField.Flags.ManageRoles
-				)
+/** Join roles, part of the welcome side (after the captcha when it is on). */
+export async function giveJoinRoles(
+	client: Client,
+	member: GuildMember,
+	ctx: WelcomeContext = {}
+): Promise<void> {
+	try {
+		if (
+			!member.guild.members.me?.permissions.has(
+				PermissionsBitField.Flags.ManageRoles
 			)
-				return;
+		)
+			return;
 
-			const roleid = (await client.db.get(
-				`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`
-			)) as DatabaseStructure.GuildConfigSchema["joinroles"];
-			if (!roleid?.length) return;
+		const roleid = (await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`
+		)) as DatabaseStructure.GuildConfigSchema["joinroles"];
+		if (!roleid?.length) return;
 
-			const ids = Array.isArray(roleid) ? roleid : [roleid];
-			const roles = joinRolesToGive(member, ids);
-			if (roles.length === 0) return;
-			// `add`, not `set`: the role saver gives roles back on the same event.
-			await member.roles
-				.add(roles, "[AutoRole] Assign role for new member")
-				.catch(() => null);
-		} catch {}
-	}
-};
+		// After the captcha: its "Pending" role was given with the captcha
+		// (`security/onMemberJoin.ts`) and just removed by it.
+		const ids = (Array.isArray(roleid) ? roleid : [roleid]).filter(
+			(id) => id !== ctx.captchaRemovedRole
+		);
+		const roles = joinRolesToGive(member, ids);
+		if (roles.length === 0) return;
+		// `add`, not `set`: the role saver gives roles back at the same time.
+		await member.roles
+			.add(roles, "[AutoRole] Assign role for new member")
+			.catch(() => null);
+	} catch {}
+}

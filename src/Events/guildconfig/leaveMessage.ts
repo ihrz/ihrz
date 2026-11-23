@@ -26,6 +26,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import resolveWelcomerEmbed, {
 	WelcomerEmbedVariables
 } from "../../core/functions/welcomerEmbed.js";
+import { noteDeparture } from "../../core/modules/memberArrival.js";
 
 const GOODBYE_ACCENT_COLOR = 0xed4245;
 const GOODBYE_AVATAR_ATTACHMENT_NAME = "goodbye-avatar.png";
@@ -33,6 +34,9 @@ const GOODBYE_AVATAR_ATTACHMENT_NAME = "goodbye-avatar.png";
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
+		// Read before any await: turned away by a gate (captcha included), or
+		// gone before being welcomed ⇒ no goodbye (`memberArrival`).
+		const announce = noteDeparture(member);
 		const data = await client.func.getLanguageData(member.guild.id);
 		const guildLocal =
 			(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
@@ -85,6 +89,7 @@ export const event: BotEvent = {
 			}
 		}
 
+		if (!announce) return;
 		if (!lChan || !member.guild.channels.cache.get(lChan)) return;
 
 		async function sendGoodbye(

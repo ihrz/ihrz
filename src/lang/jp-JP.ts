@@ -5155,5 +5155,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"ここでバックアップを使えるのはサーバーのオーナーだけです。オーナーは `/backup manage` で全管理者に開放できます。"
+		"ここでバックアップを使えるのはサーバーのオーナーだけです。オーナーは `/backup manage` で全管理者に開放できます。",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"このサーバーにはすでにAuthRestoreキーがあるため、新しいキーは作成しませんでした。`/authrestore set` をもう一度実行するとキーが置き換えられ、現在のキーは使えなくなります。\n新しいキーでやり直すには、まず `/authrestore delete` を実行し（認証ボタンが削除されます。認証済みのメンバーは残ります）、その後もう一度 `/authrestore set` を実行してください。"
 } satisfies LanguageData;

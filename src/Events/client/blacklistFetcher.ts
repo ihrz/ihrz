@@ -23,64 +23,73 @@ import { Client, GuildMember, PermissionFlagsBits } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { blacklistTable } from "./ready.js";
+import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		if (
-			member.guild.members.me?.permissions.has(
-				PermissionFlagsBits.BanMembers
-			)
-		) {
-			const lang = await client.func.getLanguageData(member.guild.id);
+		// The welcome side waits for this check (`memberArrival`).
+		const release = holdArrival(member);
+		try {
+			if (
+				member.guild.members.me?.permissions.has(
+					PermissionFlagsBits.BanMembers
+				)
+			) {
+				const lang = await client.func.getLanguageData(member.guild.id);
 
-			const data = await blacklistTable.get(`${member.user.id}`);
+				const data = await blacklistTable.get(`${member.user.id}`);
 
-			if (data?.blacklisted === true) {
-				await member
-					.send({
-						content: lang.global_blacklist_msg_to_send.replace(
-							"${reason}",
-							data.reason
-						)
-					})
-					.catch(() => {});
-				member
-					.ban({
-						reason: lang.global_blacklist_reason.replace(
-							"${reason}",
-							data.reason
-						)
-					})
-					.catch(() => {})
-					.then(() => {});
-				// Global wins: one DM and one ban, never both lists' ones.
-				return;
+				if (data?.blacklisted === true) {
+					if (member.bannable) markRejected(member);
+					await member
+						.send({
+							content: lang.global_blacklist_msg_to_send.replace(
+								"${reason}",
+								data.reason
+							)
+						})
+						.catch(() => {});
+					member
+						.ban({
+							reason: lang.global_blacklist_reason.replace(
+								"${reason}",
+								data.reason
+							)
+						})
+						.catch(() => {})
+						.then(() => {});
+					// Global wins: one DM and one ban, never both lists' ones.
+					return;
+				}
+
+				const data2 = await client.db.get(
+					`${member.guild.id}.BLACKLIST.${member.id}`
+				);
+
+				if (data2?.blacklisted === true) {
+					if (member.bannable) markRejected(member);
+					await member
+						.send({
+							content: lang.server_blacklist_msg_to_send.replace(
+								"${data2Reason}",
+								data2.reason || "blacklisted!"
+							)
+						})
+						.catch(() => {});
+					member
+						.ban({
+							reason: lang.server_blacklist_reason.replace(
+								"${data2Reason}",
+								data2.reason || "blacklisted!"
+							)
+						})
+						.catch(() => {})
+						.then(() => {});
+				}
 			}
-
-			const data2 = await client.db.get(
-				`${member.guild.id}.BLACKLIST.${member.id}`
-			);
-
-			if (data2?.blacklisted === true) {
-				await member
-					.send({
-						content: lang.server_blacklist_msg_to_send.replace(
-							"${data2Reason}",
-							data2.reason || "blacklisted!"
-						)
-					})
-					.catch(() => {});
-				member
-					.ban({
-						reason: lang.server_blacklist_reason.replace(
-							"${data2Reason}",
-							data2.reason || "blacklisted!"
-						)
-					})
-					.catch(() => {})
-					.then(() => {});
-			}
+		} finally {
+			release();
 		}
 	}
 };

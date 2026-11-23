@@ -4915,5 +4915,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"صاحب السيرفر بس اللي يقدر يستخدم النسخ الاحتياطية هنا. يقدر يفتحها لكل الأدمنز بـ `/backup manage`."
+		"صاحب السيرفر بس اللي يقدر يستخدم النسخ الاحتياطية هنا. يقدر يفتحها لكل الأدمنز بـ `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"السيرفر ده عنده مفتاح AuthRestore أصلاً، فأنا ما عملتش مفتاح جديد: لو شغّلت `/authrestore set` تاني هيستبدله، والمفتاح الحالي مش هيشتغل تاني.\nعشان تبدأ من الأول بمفتاح جديد، شغّل الأول `/authrestore delete` (بيشيل زرار التحقق، والأعضاء اللي اتحققوا قبل كده بيفضلوا محفوظين)، وبعدين شغّل `/authrestore set` تاني."
 } satisfies LanguageData;

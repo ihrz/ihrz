@@ -31,10 +31,13 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import {
+	authRestoreKeyInForce,
 	createAuthRestore,
 	createOauth2LinkWithGuild,
 	sendKeyByDm
 } from "../../../core/functions/authRestoreHelper.js";
+import { authRestoreTable } from "../../../Events/client/ready.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -64,6 +67,23 @@ export const subCommand: SubCommand = {
 		if (!role) {
 			return await client.func.method.interactionSend(interaction, {
 				content: lang.buttonreaction_roles_not_found
+			});
+		}
+
+		// A server keeps one key: running `set` again would replace it (and
+		// lock out whoever holds it). `/authrestore delete` removes the button
+		// first, on purpose; force-join renews the key by its own design.
+		const record: DatabaseStructure.AuthRestoreSchema | null =
+			await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
+		if (
+			authRestoreKeyInForce(
+				record,
+				await authRestoreTable.get(interaction.guildId)
+			)
+		) {
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.rc_set_key_already_set,
+				flags: [1 << 6]
 			});
 		}
 

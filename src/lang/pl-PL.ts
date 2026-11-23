@@ -4270,5 +4270,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"Tutaj z kopii zapasowych może korzystać tylko właściciel serwera. Może je udostępnić wszystkim administratorom przez `/backup manage`."
+		"Tutaj z kopii zapasowych może korzystać tylko właściciel serwera. Może je udostępnić wszystkim administratorom przez `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Ten serwer ma już klucz AuthRestore, więc nie utworzyłem nowego: ponowne uruchomienie `/authrestore set` zastąpiłoby go, a obecny klucz przestałby działać.\nAby zacząć od nowa z nowym kluczem, najpierw uruchom `/authrestore delete` (usuwa przycisk weryfikacji; już zweryfikowani członkowie zostają), a potem ponownie `/authrestore set`."
 } satisfies LanguageData;

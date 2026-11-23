@@ -459,3 +459,8 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Honeypot**: the catch report in the honeypot logs channel is now a card like the other logs
 - **Anti-spam logs**: the card names the punishment actually applied, translated ("New mute", "has muted…"), instead of "has **sanction**" and a raw `mute`/`kick`/`ban`
 - **`/setlogs` › Delete all settings**: nothing is logged in `ihorizon-logs` when there were no log settings to delete
+- **`/authrestore set`**: refused when the server already has a key, instead of silently replacing it (and locking out whoever held it); run `/authrestore delete` first to get a new key on purpose
+- **`/authrestore delete`**: works when the button's message or channel was deleted, instead of never answering
+- **`/authrestore get`**: the reply, which lists your verified members, is now only visible to you
+- **Member arrival**: with the captcha on, the join roles, the role saver, the welcome message and card, the join DM and the ghost pings now wait until the member types the right code (nothing for a member who fails, runs out of time or leaves); the captcha's role to remove, if it's also a join role, is still given at once. The inviter is still credited on arrival, and named in the welcome posted after the captcha
+- **Member arrival**: an account turned away by a gate (blacklists, bot blocker, too-new accounts, name filter, captcha) gets no welcome message, join DM, join roles, ghost ping or leave message, and its role saver note is kept; every welcome now waits about 1.5 s for the gates to decide

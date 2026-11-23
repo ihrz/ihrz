@@ -23,10 +23,13 @@ import { Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
+		// The welcome side waits for this check (`memberArrival`).
+		const release = holdArrival(member);
 		try {
 			const baseData = (await client.db.get(
 				`${member.guild.id}.UTILS.NICK_KICKER`
@@ -51,6 +54,8 @@ export const event: BotEvent = {
 							.includes(word.toLowerCase())
 					))
 			) {
+				// Not welcomed, unless the kick can't happen (then they stay).
+				if (member.kickable) markRejected(member);
 				member
 					.send({
 						content: lang.event_nick_kicker_kick_msg.replace(
@@ -65,8 +70,10 @@ export const event: BotEvent = {
 					.catch(() => {})
 					.then(() => {});
 			}
-		} catch (error) {
+		} catch {
 			return;
+		} finally {
+			release();
 		}
 	}
 };

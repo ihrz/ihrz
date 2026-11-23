@@ -32,8 +32,12 @@ import { readyTables } from "../readyTables.ts";
 
 mock.module("../../src/Events/client/ready.js", () => readyTables());
 
-const { event: joinRole } =
+const { giveJoinRoles } =
 	await import("../../src/Events/guildconfig/joinRole.ts");
+const { givePendingRole } =
+	await import("../../src/Events/security/onMemberJoin.ts");
+const { restoreSavedRoles } =
+	await import("../../src/Events/rolesaver/onMemberJoin.ts");
 const { resolveInvite } =
 	await import("../../src/Events/guildconfig/joinMessage.ts");
 const { bannerStateFrom } =
@@ -55,6 +59,7 @@ describe("join roles", () => {
 		]);
 		const member = {
 			id: "200000000000000001",
+			user: { id: "200000000000000001" },
 			guild: {
 				id: GUILD,
 				members: {
@@ -75,14 +80,44 @@ describe("join roles", () => {
 
 	test("one deleted or too high role no longer costs the member every join role", async () => {
 		const { add, member, client } = setup(["10", "99", "12", "13", "11"]);
-		await joinRole.run(client, member);
+		await giveJoinRoles(client, member);
 		expect(add).toHaveBeenCalledTimes(1);
 		expect(add.mock.calls[0][0]).toEqual(["10", "11"]);
 	});
 
+	test("after the captcha, its Pending role is not given back", async () => {
+		const { add, member, client } = setup(["10", "11"]);
+		await giveJoinRoles(client, member, { captchaRemovedRole: "10" });
+		expect(add.mock.calls[0][0]).toEqual(["11"]);
+	});
+
+	test("the captcha gives the Pending join role at once, nothing else", async () => {
+		const { add, member, client } = setup(["10", "11"]);
+		await givePendingRole(client, member, "10");
+		expect(add).toHaveBeenCalledTimes(1);
+		expect(add.mock.calls[0][0]).toBe("10");
+		add.mockClear();
+		await givePendingRole(client, member, "12"); // not a join role
+		expect(add).not.toHaveBeenCalled();
+	});
+
+	test("the role saver doesn't give the Pending role back after the captcha", async () => {
+		const { add, member } = setup([]);
+		const saved = ["10", "11"];
+		const client = {
+			db: {
+				get: async (key: string) =>
+					key.endsWith("rolesaver.enable") ? true : saved,
+				delete: async () => undefined
+			}
+		} as unknown as Client;
+		await restoreSavedRoles(client, member, { captchaRemovedRole: "10" });
+		expect(add.mock.calls[0][0]).toEqual(["11"]);
+	});
+
 	test("nothing left to give: no request", async () => {
 		const { add, member, client } = setup(["99", "12"]);
-		await joinRole.run(client, member);
+		await giveJoinRoles(client, member);
 		expect(add).not.toHaveBeenCalled();
 	});
 });

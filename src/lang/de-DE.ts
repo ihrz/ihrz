@@ -5307,5 +5307,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"Nur der Serverbesitzer kann hier Backups verwenden. Er kann sie mit `/backup manage` für alle Administratoren freigeben."
+		"Nur der Serverbesitzer kann hier Backups verwenden. Er kann sie mit `/backup manage` für alle Administratoren freigeben.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Dieser Server hat bereits einen AuthRestore-Schlüssel, deshalb habe ich keinen neuen erstellt: `/authrestore set` erneut auszuführen würde ihn ersetzen, und der aktuelle Schlüssel würde nicht mehr funktionieren.\nFür einen neuen Schlüssel führe zuerst `/authrestore delete` aus (entfernt den Verifizierungs-Button; bereits verifizierte Mitglieder bleiben erhalten) und danach erneut `/authrestore set`."
 } satisfies LanguageData;

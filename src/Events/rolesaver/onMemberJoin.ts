@@ -21,42 +21,52 @@
 
 import { Client, GuildMember } from "discord.js";
 
-import { BotEvent } from "../../../types/event.js";
+import { WelcomeContext } from "../../core/modules/memberArrival.js";
 
-export const event: BotEvent = {
-	name: "guildMemberAdd",
-	run: async (client: Client, member: GuildMember) => {
-		if (
-			await client.db.get(
-				`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`
-			)
-		) {
-			const array: string[] | null = await client.db.get(
-				`${member.guild.id}.ROLE_SAVER.${member.user.id}`
+/**
+ * Role saver, part of the welcome side: the roles a returning member had are
+ * given back once the gates let them in (after the captcha when it is on).
+ */
+export async function restoreSavedRoles(
+	client: Client,
+	member: GuildMember,
+	ctx: WelcomeContext = {}
+): Promise<void> {
+	if (
+		await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`
+		)
+	) {
+		const array: string[] | null = await client.db.get(
+			`${member.guild.id}.ROLE_SAVER.${member.user.id}`
+		);
+
+		if (!array || array.length === 0) return;
+
+		// Only roles the bot can hand out: a single managed (booster, bot)
+		// or higher role made the whole request fail. `add` keeps the
+		// roles given on join (joinRole) instead of overwriting them.
+		const ceiling = member.guild.members.me?.roles.highest.position ?? 0;
+		const roles = array.filter((id) => {
+			const role = member.guild.roles.cache.get(id);
+			// Not the captcha's "Pending" role, removed a moment ago.
+			return (
+				id !== ctx.captchaRemovedRole &&
+				!!role &&
+				!role.managed &&
+				role.position < ceiling
 			);
+		});
 
-			if (!array || array.length === 0) return;
-
-			// Only roles the bot can hand out: a single managed (booster, bot)
-			// or higher role made the whole request fail. `add` keeps the
-			// roles given on join (joinRole) instead of overwriting them.
-			const ceiling =
-				member.guild.members.me?.roles.highest.position ?? 0;
-			const roles = array.filter((id) => {
-				const role = member.guild.roles.cache.get(id);
-				return !!role && !role.managed && role.position < ceiling;
-			});
-
-			if (roles.length > 0) {
-				await member.roles
-					.add(roles, "[RoleSaver] Give role back")
-					.catch(() => false);
-			}
-
-			await client.db.delete(
-				`${member.guild.id}.ROLE_SAVER.${member.user.id}`
-			);
-			return;
+		if (roles.length > 0) {
+			await member.roles
+				.add(roles, "[RoleSaver] Give role back")
+				.catch(() => false);
 		}
+
+		await client.db.delete(
+			`${member.guild.id}.ROLE_SAVER.${member.user.id}`
+		);
+		return;
 	}
-};
+}

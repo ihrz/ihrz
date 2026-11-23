@@ -353,3 +353,18 @@ export async function sendKeyByDm(
 	await notify(delivered).catch(() => undefined);
 	return delivered;
 }
+
+/**
+ * True when `/authrestore set` already gave this server a key that is still
+ * in force: the verify button is recorded (`/authrestore delete` clears it)
+ * and the gateway holds a key for the server. Running `set` again would
+ * replace that key, so the command refuses until the button is deleted.
+ */
+export function authRestoreKeyInForce(
+	record: { channelId?: unknown; messageId?: unknown } | null | undefined,
+	entry: Partial<GuildAuthRestore> | null | undefined
+): boolean {
+	if (!record || typeof record !== "object") return false;
+	const code = entry?.config?.securityCode;
+	return typeof code === "string" && code.length > 0;
+}

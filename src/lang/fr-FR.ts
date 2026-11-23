@@ -5298,5 +5298,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"Seul le propriétaire du serveur peut utiliser les sauvegardes ici. Il peut les ouvrir à tous les administrateurs avec `/backup manage`."
+		"Seul le propriétaire du serveur peut utiliser les sauvegardes ici. Il peut les ouvrir à tous les administrateurs avec `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Ce serveur a déjà une clé AuthRestore, je n'en ai donc pas créé de nouvelle : relancer `/authrestore set` la remplacerait, et la clé actuelle ne fonctionnerait plus.\nPour repartir avec une nouvelle clé, lancez d'abord `/authrestore delete` (il retire le bouton de vérification ; les membres déjà vérifiés sont conservés), puis relancez `/authrestore set`."
 } satisfies LanguageData;

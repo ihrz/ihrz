@@ -5334,5 +5334,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"Y a que le proprio du serveur qui touche aux sauvegardes ici. Il peut les filer à tous les admins avec `/backup manage`."
+		"Y a que le proprio du serveur qui touche aux sauvegardes ici. Il peut les filer à tous les admins avec `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Ce serveur a déjà une putain de clé AuthRestore, alors j'en ai pas refait une : si tu relances `/authrestore set` ça l'écrase, et l'ancienne clé sert plus à rien.\nTu veux une nouvelle clé ? Fais d'abord `/authrestore delete` (ça vire le bouton de vérif, les membres déjà vérifiés restent), puis relance `/authrestore set`, bordel."
 } satisfies LanguageData;

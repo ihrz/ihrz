@@ -4984,5 +4984,9 @@ export default {
 
 	// backup refusal
 	backup_use_not_allowed:
-		"여기서는 서버 소유자만 백업을 사용할 수 있어요. 소유자는 `/backup manage`로 모든 관리자에게 열어 줄 수 있어요."
+		"여기서는 서버 소유자만 백업을 사용할 수 있어요. 소유자는 `/backup manage`로 모든 관리자에게 열어 줄 수 있어요.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"이 서버에는 이미 AuthRestore 키가 있어서 새 키를 만들지 않았어요. `/authrestore set`을 다시 실행하면 키가 교체되고 지금 키는 더 이상 작동하지 않아요.\n새 키로 다시 시작하려면 먼저 `/authrestore delete`를 실행한 뒤(인증 버튼이 삭제되고, 이미 인증된 멤버는 유지돼요) `/authrestore set`을 다시 실행해 주세요."
 } satisfies LanguageData;
