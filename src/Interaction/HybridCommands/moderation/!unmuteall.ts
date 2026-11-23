@@ -27,6 +27,12 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 import { SubCommand } from "../../../../types/command.js";
 import { unmuteAll } from "../../../core/modules/moderationOps.js";
 
@@ -59,10 +65,27 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.unmuteall_command_work
-				.replace("${unmuted}", result.unmuted.toString())
-				.replace("${total}", result.total.toString())
-		});
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Unlock,
+				title: lang.mutelist_card_cleared_title,
+				description: lang.mutelist_card_cleared_desc.replace(
+					"${count}",
+					`${result.unmuted}/${result.total}`
+				),
+				fields: [
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

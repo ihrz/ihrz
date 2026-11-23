@@ -394,7 +394,13 @@ export const musicLibraryActions: ActionGroup = {
 				if (!client.func.isAllowedLinks(url))
 					fail("this link is not allowed");
 				if (!audioAvailable(client)) fail(AUDIO_UNAVAILABLE);
-				const { res } = await searchMusicQuery(client, url, actor.user);
+				const { res } = await searchMusicQuery(
+					client,
+					url,
+					actor.user,
+					undefined,
+					ctx.lang
+				);
 				if (!res?.tracks.length) fail("nothing found at this link");
 				tracks = res!.tracks
 					.map((t) => toLibraryTrack(t as Track))

@@ -24,6 +24,7 @@ import { LanguageData } from "../../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { permissionsRole } from "./perm.js";
+import { notice, sendCard } from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -85,16 +86,23 @@ export const subCommand: SubCommand = {
 			);
 
 			if (createdRoles.length > 0) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.perm_roles_created_role.replace(
-						"${roles}",
-						createdRoles.join(", ")
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"success",
+						lang.perm_roles_created_role.replace(
+							"${roles}",
+							createdRoles.join(", ")
+						)
 					)
-				});
+				);
 			} else {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.perm_roles_already_upate
-				});
+				await sendCard(
+					client,
+					interaction,
+					notice("success", lang.perm_roles_already_upate)
+				);
 			}
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {

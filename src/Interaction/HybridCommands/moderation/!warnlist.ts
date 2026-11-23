@@ -29,6 +29,10 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { getWarns } from "../../../core/modules/moderationOps.js";
+import {
+	getWarnConfig,
+	isWarnExpired
+} from "../../../core/modules/warnSystem.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -74,6 +78,19 @@ export const subCommand: SubCommand = {
 		}
 
 		const e = client.iHorizon_Emojis;
+		// Newest first; expired warnings stay in the history, marked.
+		const config = await getWarnConfig(interaction.guild);
+		const now = Date.now();
+		allWarns.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
+		const active = allWarns.filter(
+			(w) => !isWarnExpired(w, config, now)
+		).length;
+		const countLine = lang.warnlist_card_active
+			.replace("${active}", String(active))
+			.replace("${count}", String(allWarns.length));
+		const expiryLine = config.expireDays
+			? ` · ${lang.warn_expire_note.replace("${days}", String(config.expireDays))}`
+			: "";
 		const pages = Math.ceil(allWarns.length / PER_PAGE);
 		const signature = await botSignature(client, interaction.guildId);
 
@@ -91,16 +108,22 @@ export const subCommand: SubCommand = {
 						"${user}",
 						member?.displayName ?? lang.var_unknown
 					),
-					description: `${member ?? ""}\n-# ${lang.warnlist_card_count.replace("${count}", String(allWarns.length))}`,
+					description: `${member ?? ""}\n-# ${countLine}${expiryLine}`,
 					thumbnail: member?.displayAvatarURL({ size: 128 }),
 					blocks: allWarns
 						.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
 						.map((x) => {
 							const at = Math.floor(x.timestamp / 1000);
+							const expired = isWarnExpired(x, config, now);
 							return [
-								`**\`${x.id}\`** · ${x.reason}`,
+								`${expired ? "~~" : ""}**\`${x.id}\`** · ${x.reason}${expired ? `~~ · *${lang.warnlist_expired}*` : ""}`,
+								x.note
+									? `${e.Lock} *${lang.warn_label_note}* : ${x.note}`
+									: null,
 								`-# ${lang.utils_label_by} <@${x.authorID}> · <t:${at}:D> · <t:${at}:R>`
-							].join("\n");
+							]
+								.filter(Boolean)
+								.join("\n");
 						}),
 					footer: pageLabel(lang, page, pages),
 					signature

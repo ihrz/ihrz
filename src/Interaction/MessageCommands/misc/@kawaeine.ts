@@ -43,7 +43,12 @@ export const command: Command = {
 		ja: "kawaeine ミームジェネレーター",
 		ru: "генератор мема kawaeine",
 		"es-ES": "generador de meme kawaeine",
-		ko: "kawaeine 밈 생성기"
+		ko: "kawaeine 밈 생성기",
+		uk: "генератор мемів kawaeine",
+		de: "Kawaeine-Meme-Generator",
+		it: "Generatore di meme kawaeine",
+		"pt-BR": "Gerador de meme kawaeine",
+		pl: "Generator memów kawaeine"
 	},
 	options: [
 		{
@@ -54,7 +59,12 @@ export const command: Command = {
 				ja: "before 側が最低",
 				ru: "before отстой",
 				"es-ES": "el before apesta",
-				ko: "이전이 별로야"
+				ko: "이전이 별로야",
+				uk: "before відстій",
+				de: "Das Vorher ist schlecht",
+				it: "Il prima fa schifo",
+				"pt-BR": "O antes é ruim",
+				pl: "Przed jest do bani"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

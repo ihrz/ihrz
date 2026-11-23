@@ -20,16 +20,11 @@
 */
 
 import {
-	Client,
-	EmbedBuilder,
+	AttachmentBuilder,
 	ChatInputCommandInteraction,
+	Client,
 	Message,
-	User,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	ComponentType,
-	AttachmentBuilder
+	User
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
@@ -37,6 +32,13 @@ import { SubCommand } from "../../../../types/command.js";
 import formatNumber from "../../../core/functions/numberBeautifuer.js";
 import { renderPodium } from "../../../core/modules/podiumCard.js";
 import { fetchAvatar } from "../../../core/modules/statsPage.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	pageLabel
+} from "../../../core/modules/uiCard.js";
+import { sendPaginatedCardWithFiles } from "../../../core/modules/economyCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -100,21 +102,42 @@ export const subCommand: SubCommand = {
 		const itemsPerPage = 10;
 		const totalPages = Math.ceil(array.length / itemsPerPage);
 
-		const createEmbed = async (page: number) => {
-			const startIndex = page * itemsPerPage;
-			const endIndex = startIndex + itemsPerPage;
-			const pageUsers = array.slice(startIndex, endIndex);
+		const e = client.iHorizon_Emojis;
+		const guild = interaction.guild;
+		const authorId = interaction.member.user.id;
+		const userRank = array.findIndex((entry) => entry.user.id === authorId);
+		const userRankText =
+			userRank !== -1
+				? lang.economy_leaderboard_your_rank
+						.replace("${rank}", String(userRank + 1))
+						.replace("${count}", String(array.length))
+						.replace(
+							"${wealth}",
+							`${formatNumber(array[userRank].totalWealth)}${e.Coin}`
+						)
+				: lang.economy_leaderboard_not_ranked;
+		const signature = await botSignature(client, guild.id);
 
-			const embed = new EmbedBuilder()
-				.setTitle(
-					lang.economy_leaderboard_embed_title.replace(
-						"${guildName}",
-						interaction.guild!.name
-					)
-				)
-				.setColor("#ffd700")
-				.setImage("attachment://image.png")
-				.setDescription(
+		const render = (page: number) => {
+			const startIndex = page * itemsPerPage;
+			const pageUsers = array.slice(
+				startIndex,
+				startIndex + itemsPerPage
+			);
+
+			return buildCard({
+				accent: ACCENT.warning,
+				emoji: e.Crown,
+				title: lang.economy_leaderboard_embed_title.replace(
+					"${guildName}",
+					guild.name
+				),
+				description: `-# ${lang.economy_leaderboard_count.replace("${count}", String(array.length))}`,
+				thumbnail:
+					guild.iconURL({ size: 256 }) ||
+					client.user?.displayAvatarURL({ size: 256 }),
+				images: ["attachment://image.png"],
+				blocks: [
 					pageUsers
 						.map((entry, index) => {
 							const globalIndex = startIndex + index;
@@ -127,21 +150,14 @@ export const subCommand: SubCommand = {
 											? "🥉"
 											: "💰";
 
-							return `${medal} **${globalIndex + 1}** ・ ${entry.user?.toString()}\n  ┖ ${client.iHorizon_Emojis.Coin} **${formatNumber(entry.bank)}** (${lang.balance_embed_fields1_name}) + **${formatNumber(entry.money)}** (${lang.balance_embed_fields2_name})`;
+							return `${medal} \`#${globalIndex + 1}\` ${entry.user.toString()} · ${lang.var_total} **${formatNumber(entry.totalWealth)}**${e.Coin}\n-# ${lang.balance_embed_fields1_name} \`${formatNumber(entry.bank)}\` · ${lang.balance_embed_fields2_name} \`${formatNumber(entry.money)}\``;
 						})
-						.join("\n")
-				)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						page + 1,
-						totalPages
-					)
-				)
-				.setTimestamp();
-
-			return embed;
+						.join("\n"),
+					`${e.Stats} ${userRankText}`
+				],
+				footer: pageLabel(lang, page, totalPages),
+				signature
+			});
 		};
 
 		// The coin is a Discord custom emoji (<:Coin:id>): draw its image
@@ -179,116 +195,15 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: "image.png" });
 
-		const createButtons = (currentPage: number) => {
-			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setCustomId("first")
-					.setLabel("<<<")
-					.setStyle(ButtonStyle.Primary)
-					.setDisabled(currentPage === 0),
-				new ButtonBuilder()
-					.setCustomId("previous")
-					.setLabel("<")
-					.setStyle(ButtonStyle.Primary)
-					.setDisabled(currentPage === 0),
-				new ButtonBuilder()
-					.setCustomId("page_info")
-					.setLabel(
-						`${lang.var_page} ${currentPage + 1}/${totalPages}`
-					)
-					.setStyle(ButtonStyle.Secondary)
-					.setDisabled(true),
-				new ButtonBuilder()
-					.setCustomId("next")
-					.setLabel(">")
-					.setStyle(ButtonStyle.Primary)
-					.setDisabled(currentPage === totalPages - 1),
-				new ButtonBuilder()
-					.setCustomId("last")
-					.setLabel(">>>")
-					.setStyle(ButtonStyle.Primary)
-					.setDisabled(currentPage === totalPages - 1)
-			);
-
-			return row;
-		};
-
-		let currentPage = 0;
-
-		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [await createEmbed(currentPage)],
-			components: [createButtons(currentPage)],
-			files: [
-				await client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				),
-				attachment
-			]
-		});
-
-		const collector = message.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 60_000 * 15
-		});
-
-		collector.on("collect", async (buttonInteraction) => {
-			if (!buttonInteraction.isButton()) return;
-
-			switch (buttonInteraction.customId) {
-				case "first":
-					currentPage = 0;
-					break;
-				case "previous":
-					if (currentPage > 0) currentPage--;
-					break;
-				case "next":
-					if (currentPage < totalPages - 1) currentPage++;
-					break;
-				case "last":
-					currentPage = totalPages - 1;
-					break;
-			}
-
-			await buttonInteraction.update({
-				embeds: [await createEmbed(currentPage)],
-				components: [createButtons(currentPage)]
-			});
-		});
-
-		collector.on("end", async () => {
-			await message.edit({
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId("first")
-							.setLabel("<<<")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(true),
-						new ButtonBuilder()
-							.setCustomId("previous")
-							.setLabel("<")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(true),
-						new ButtonBuilder()
-							.setCustomId("page_info")
-							.setLabel(
-								`${lang.var_page} ${currentPage + 1}/${totalPages}`
-							)
-							.setStyle(ButtonStyle.Primary)
-							.setDisabled(true),
-						new ButtonBuilder()
-							.setCustomId("next")
-							.setLabel(">")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(true),
-						new ButtonBuilder()
-							.setCustomId("last")
-							.setLabel(">>>")
-							.setStyle(ButtonStyle.Secondary)
-							.setDisabled(true)
-					)
-				]
-			});
+		await sendPaginatedCardWithFiles({
+			client,
+			interaction,
+			lang,
+			pages: totalPages,
+			files: [attachment],
+			// As before: the pages stay usable for 15 minutes.
+			timeoutMs: 60_000 * 15,
+			render
 		});
 
 		return;

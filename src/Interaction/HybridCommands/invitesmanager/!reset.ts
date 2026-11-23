@@ -19,11 +19,26 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	ChatInputCommandInteraction,
+	Client,
+	ComponentType,
+	Message
+} from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { resetGuildInvites } from "../../../core/modules/memberToolsManager.js";
-import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -43,19 +58,51 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const response = await promptYesOrNo(interaction, {
-			content: lang.resetallinvites_warning_msg,
-			noButton: lang.resetallinvites_no_button,
-			yesButton: lang.resetallinvites_yes_button,
-			dangerAction: true
+		const e = client.iHorizon_Emojis;
+		// Same prompt as promptYesOrNo (same buttons, no timeout), as a card:
+		// the answer replaces it, and a Components V2 message stays V2.
+		const prompt = buildCard({
+			accent: ACCENT.danger,
+			emoji: e.Warning_Icon,
+			title: lang.invites_reset_title,
+			description: lang.resetallinvites_warning_msg,
+			signature: await botSignature(client, interaction.guildId)
+		}).addActionRowComponents(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("yes")
+					.setStyle(ButtonStyle.Danger)
+					.setLabel(lang.resetallinvites_yes_button),
+				new ButtonBuilder()
+					.setCustomId("blank1")
+					.setStyle(ButtonStyle.Secondary)
+					.setLabel("<   >")
+					.setDisabled(true),
+				new ButtonBuilder()
+					.setCustomId("no")
+					.setStyle(ButtonStyle.Success)
+					.setLabel(lang.resetallinvites_no_button)
+			)
+		);
+
+		const sent = await sendCard(client, interaction, prompt);
+		const choice = await sent.awaitMessageComponent({
+			componentType: ComponentType.Button,
+			filter: (x) => x.user.id === interaction.member?.user.id
 		});
 
-		if (response) {
+		await choice.deferUpdate();
+
+		if (choice.customId === "yes") {
 			await resetGuildInvites(client, interaction.guild.id);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.resetallinvites_succes_on_delete,
-				components: []
-			});
+			await choice.editReply(
+				cardPayload(
+					notice(
+						"success",
+						`${e.Yes} ${lang.resetallinvites_succes_on_delete}`
+					)
+				)
+			);
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.resetallinvites_logs_embed_title,
@@ -65,10 +112,14 @@ export const subCommand: SubCommand = {
 				)
 			});
 		} else {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setjoinroles_action_canceled,
-				components: []
-			});
+			await choice.editReply(
+				cardPayload(
+					notice(
+						"info",
+						`${e.No} ${lang.setjoinroles_action_canceled}`
+					)
+				)
+			);
 		}
 	}
 };

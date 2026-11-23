@@ -28,6 +28,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "toggle-react",
@@ -40,7 +41,13 @@ export const command: Command = {
 		ru: "Включить/выключить реакцию при приветствии",
 		"es-ES":
 			"Habilitar / Deshabilitar la reacción cuando un usuario saluda a alguien",
-		ko: "사용자가 인사할 때 반응을 켜거나 꺼요"
+		ko: "사용자가 인사할 때 반응을 켜거나 꺼요",
+		uk: "Увімкнути / вимкнути реакцію, коли користувач когось вітає",
+		de: "Reaktion aktivieren/deaktivieren, wenn ein Nutzer jemanden begrüßt",
+		it: "Attiva/disattiva la reazione quando un utente saluta qualcuno",
+		"pt-BR":
+			"Ativar/desativar a reação quando um usuário cumprimenta alguém",
+		pl: "Włącz/wyłącz reakcję, gdy użytkownik wita kogoś"
 	},
 
 	thinking: false,
@@ -66,11 +73,16 @@ export const command: Command = {
 			: lang.toggle_react_doesnt_react;
 
 		await interaction.reply({
-			content: lang.toggle_react_command_work
-				.replace("{activeMsg}", activeMsg)
-				.replace("${authorId}", interaction.member?.id!),
-			allowedMentions: { repliedUser: false }
-		});
+			...cardPayload(
+				notice(
+					"success",
+					lang.toggle_react_command_work
+						.replace("{activeMsg}", activeMsg)
+						.replace("${authorId}", interaction.member?.id!)
+				)
+			),
+			allowedMentions: { parse: [], repliedUser: false }
+		} as never);
 		return;
 	}
 };

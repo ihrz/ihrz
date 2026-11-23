@@ -4,6 +4,22 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🇺🇦 iHorizon speaks Ukrainian
+
+Ukrainian is now a full language of iHorizon: pick **Українська** with `/setlang`. Every reply, card, menu and log is translated, slash commands show Ukrainian descriptions in a Ukrainian Discord app, and the dashboard has a Ukrainian version too. A server whose Discord region is Ukrainian starts in Ukrainian. The language menu now shows every language in its own name (Français, Deutsch, 日本語…).
+
+---
+
+## ⚠️ Moderation — a real warning system
+
+Warnings now work like in the big moderation bots. **`/mod warnconfig`** (administrators) sets **automatic sanctions**: reach 3 warnings and get a 1-hour timeout, 5 and get kicked, 7 and get banned — any threshold you like, up to 10. Warnings can **expire** after a number of days: they stay in the history but no longer count. Each warning can carry a **private staff note**, shown in `/mod warnlist`, the logs and the dashboard, never to the member. The warned member gets a clear card by private message with the reason and their number of active warnings. You can no longer warn yourself, a bot or someone above you. Every warning counts, including the automatic ones (anti-spam, timeouts…).
+
+The same settings are in the dashboard, in a new **Warnings** module, and the **Sanctions** module shows notes, expired warnings and the sanction a warning triggered.
+
+Every `/mod` command now answers with a **Components V2 card**: warn, warnlist, warnconfig, clearwarn, clear-all-warns, tempmute, unmute, unmuteall, unban, tempban, temprole, clear, lock, unlock, lock-all and unlock-all join ban, kick, baninfo, banlist and mutelist.
+
+---
+
 ## 🎫 Tickets — transcripts on the web
 
 When a ticket is closed or deleted, its transcript is now also kept on **ticket.ihorizon.org**: a link button (📜 Transcript) comes with the closing message, the ticket log, the DM to its author and `/ticket transcript` (which also saves the ticket as it is). The page shows the whole conversation as in Discord — messages, replies, embeds, images and files, staff and author tags — with the people of the ticket, a search and a print/PDF button. It opens after signing in with Discord on the dashboard, and only for the people of the ticket, its staff and the server's managers. The HTML file is still attached as before, and the transcript sent by private message is now a card (server, ticket, date, file and button). Transcripts are erased when iHorizon leaves the server.
@@ -270,7 +286,9 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Translations**: the last hard-coded texts are translated (help pages, temporary voice regions, wallet, error messages, the DM-only notice, `/status`, the top.gg button…), and a command used in DMs answers in your Discord language
 - **Welcome**: when iHorizon joins a server, its message (and the private message to the owner and to whoever added it) is now a clear card: what the bot does, the language it speaks there and how to change it with `/setlang`, where to start (`/help`, the dashboard, the support server)
+- **Tickets**: the ticket log channel gets cards instead of embeds (created, closed, reopened, deleted, members added or removed), each with its colour and icon, and they no longer ping the people they mention
 - **Tickets**: on the official iHorizon, transcripts are no longer sent as HTML files (channel, logs, private messages): the ticket.ihorizon.org button replaces them
 - **Music**: a paused track no longer counts as "nothing playing": skip, volume, stop and the other controls (panel buttons, `/music`, dashboard) work from pause, `/music nowplaying` shows the paused track, `/music play` adds to the queue without restarting the paused track from its start, and `/tts join` / `/h247 join` no longer take the voice channel over paused music
 - **`/setlogs`**: works without the Administrator permission. It used to crash with "Missing Permissions": the `LOGS` category it created was hidden from iHorizon too, so the bot could not create or post in its own log channels. The category now lets iHorizon in, and the command names the missing permission (Manage Channels on the server, or View Channel, Send Messages and Embed Links in a log channel) instead of saving a channel the bot cannot post in. Running `Setup all channels` again replaces the saved channels it can no longer post in
@@ -390,3 +408,9 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Liked tracks**: the heart of the track playing no longer disappears for up to a minute after a like or an unlike
 - **Music — lyrics**: the synced lyrics stop when the music is paused, even right after a track starts, and follow a pause, a skip or a seek made elsewhere (a command, a panel button, another listener) within seconds instead of running on
 - **Dashboard — playlists**: a playlist's cover is a mosaic of its first artworks (one, two halves, one big and two small, or a 2×2 grid), in the player, the "add to a playlist" menu and its public page
+- **Polish**: iHorizon now speaks Polish (`/setlang` → **Polski**), and a server whose region is Poland starts in Polish. The dashboard is available in Polish too
+- **Slash commands in more languages**: the descriptions and choices of every command now also show in German, Italian, Brazilian Portuguese and Polish in Discord's `/` menu (Discord has no Arabic or Rude French), and `/help` follows the server's language for German, Italian, Portuguese and Polish
+- **Server logs**: every log (bans, kicks, boosts, channels, deleted and edited messages, roles, voice, confessions, `/setlogschannel` confirmations) is now a card: one colour per kind of event, the author's avatar, the date, and the deleted message's files shown in the card (its embeds follow just below). Edited messages show before and after
+- **Economy, guild config, anti-spam, 24/7, schedules, member count, invites**: every reply and panel is now a card, like moderation. The economy leaderboard shows your own rank and only its author turns the pages; the schedule list is paged
+- **Translations**: the last English texts are translated: automatic warn reasons (anti-spam, pic-only, anti-exe, advertising), the message shown when AutoMod blocks a message, the voice derogation role, the text on welcome images, HTML transcripts, playlist names, the `/updates` buttons and `/embed` errors. The welcome card counts the languages instead of saying 11
+- **Giveaways**: `/giveaway get-data` no longer fails on a giveaway without a winner

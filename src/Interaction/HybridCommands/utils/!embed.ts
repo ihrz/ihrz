@@ -67,7 +67,7 @@ interface DiscordUrlParts {
 	messageId: string;
 }
 
-function extractDiscordUrlParts(url: string): DiscordUrlParts {
+function extractDiscordUrlParts(url: string): DiscordUrlParts | null {
 	try {
 		const urlObj = new URL(url);
 		const pathSegments = urlObj.pathname
@@ -75,7 +75,7 @@ function extractDiscordUrlParts(url: string): DiscordUrlParts {
 			.filter((segment) => segment !== "");
 
 		if (pathSegments.length < 4 || pathSegments[0] !== "channels") {
-			throw new Error("URL Discord non valide");
+			return null;
 		}
 
 		return {
@@ -83,8 +83,8 @@ function extractDiscordUrlParts(url: string): DiscordUrlParts {
 			channelId: pathSegments[2],
 			messageId: pathSegments[3]
 		};
-	} catch (err) {
-		throw new Error("URL Discord non valide");
+	} catch {
+		return null;
 	}
 }
 
@@ -159,7 +159,9 @@ class EmbedManager {
 			case "footer":
 				this.embed.setFooter({
 					iconURL: url,
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":
@@ -183,7 +185,9 @@ class EmbedManager {
 			case "footer":
 				this.embed.setFooter({
 					iconURL: attachmentUrl,
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":
@@ -200,7 +204,9 @@ class EmbedManager {
 		switch (type) {
 			case "footer":
 				this.embed.setFooter({
-					text: this.embed.data.footer?.text || "Footer"
+					text:
+						this.embed.data.footer?.text ||
+						this.lang.embed_default_footer
 				});
 				break;
 			case "image":
@@ -252,8 +258,16 @@ class EmbedManager {
 		});
 	}
 
+	private badUrlMessage(): string {
+		return this.lang.embed_copy_bad_url_msg
+			.replace("${messageGuildId}", this.interaction.guildId ?? "guildId")
+			.replace("${channelId}", "channelId")
+			.replace("${id}", "messageId");
+	}
+
 	private async copyEmbed(messageUrl: string): Promise<void> {
 		const parts = extractDiscordUrlParts(messageUrl);
+		if (!parts) throw new Error(this.badUrlMessage());
 
 		if (parts.userIdOrGuildId !== this.interaction.guildId) {
 			throw new Error(
@@ -568,6 +582,7 @@ class EmbedManager {
 
 		try {
 			const parts = extractDiscordUrlParts(message.content || "none");
+			if (!parts) throw new Error(this.badUrlMessage());
 			message.delete().catch(() => {});
 
 			if (parts.userIdOrGuildId !== this.interaction.guildId) {

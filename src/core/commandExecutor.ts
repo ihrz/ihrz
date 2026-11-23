@@ -337,13 +337,11 @@ export async function preExecutionCooldown(
 
 async function handleExecutionError(ctx: ExecutionContext, error: any) {
 	const interaction = isInteractionSource(ctx.source);
-	const errorBlock = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${ctx.target.name}\nError: ${error}\`\`\`\n`;
+	const errorBlock = `${ctx.lang.command_error_title}\n\`\`\`TS\n/${ctx.target.name}\n${error}\`\`\`\n`;
 
 	if (interaction) {
 		await ctx.client.func.method.interactionSend(ctx.source, {
-			content:
-				errorBlock +
-				"**Let me suggest you to report this issue with `/report`.**"
+			content: errorBlock + ctx.lang.command_error_report
 		});
 	}
 

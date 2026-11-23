@@ -24,6 +24,7 @@ import { LanguageData } from "../../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { permissionLevel } from "./perm.js";
+import { notice, sendCard } from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -71,11 +72,16 @@ export const subCommand: SubCommand = {
 			)?.name;
 			let strRole = perm_role.toString();
 
-			client.func.method.interactionSend(interaction, {
-				content: lang.perm_edit_roles_command_ok
-					.replace("${permName}", String(permName))
-					.replace("${strRole}", strRole)
-			});
+			sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.perm_edit_roles_command_ok
+						.replace("${permName}", String(permName))
+						.replace("${strRole}", strRole)
+				)
+			);
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.perm_roles_error

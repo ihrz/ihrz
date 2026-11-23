@@ -41,7 +41,13 @@ export const command: Command = {
 		ru: "Включить/выключить автоответ при сообщении пользователя (только для fr-ME)",
 		"es-ES":
 			"Habilitar / Deshabilitar la respuesta automática cuando el usuario dice algo (solo en idioma fr-ME)",
-		ko: "특정 말에 대한 자동 응답을 켜거나 꺼요 (fr-ME 언어 전용)"
+		ko: "특정 말에 대한 자동 응답을 켜거나 꺼요 (fr-ME 언어 전용)",
+		uk: "Увімкнути / вимкнути автовідповідь на слова користувача (лише мовою fr-ME)",
+		de: "Autoantwort aktivieren/deaktivieren, wenn ein Nutzer etwas sagt (nur fr-ME)",
+		it: "Attiva/disattiva la risposta automatica quando un utente scrive (solo in fr-ME)",
+		"pt-BR":
+			"Ativar/desativar a resposta automática quando um usuário fala (só em fr-ME)",
+		pl: "Włącz/wyłącz automatyczną odpowiedź na wiadomości (tylko fr-ME)"
 	},
 
 	thinking: false,

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { ACCENT, botSignature, buildCard, sendCard } from "./uiCard.js";
 import {
 	BaseGuildTextChannel,
 	ChannelType,
@@ -135,6 +136,48 @@ export async function applyAllChannelsLock(
  * - unlock resets both to the default (null), waits for the edit (a failure
  *   rejects), then logs, then sends the confirmation as is.
  */
+/** The confirmation card of a lock / unlock (one channel or the whole server). */
+async function lockCard(
+	client: Client,
+	interaction: Interaction,
+	lang: LanguageData,
+	o: {
+		locking: boolean;
+		title: string;
+		channelId: string | null;
+		targetId: string;
+	}
+) {
+	const e = client.iHorizon_Emojis;
+	const guildId = interaction.guild!.id;
+	return buildCard({
+		accent: o.locking ? ACCENT.danger : ACCENT.success,
+		emoji: o.locking ? e.Lock : e.Unlock,
+		title: o.title,
+		fields: [
+			o.channelId
+				? {
+						emoji: e.Ticket_Hash,
+						label: lang.mod_label_channel,
+						value: `<#${o.channelId}>`
+					}
+				: null,
+			{
+				emoji: e.Ticket_Role,
+				label: lang.mod_label_target,
+				value:
+					o.targetId === guildId ? "@everyone" : `<@&${o.targetId}>`
+			},
+			{
+				emoji: e.Security,
+				label: lang.mod_label_moderator,
+				value: `<@${interaction.member!.user.id}>`
+			}
+		],
+		signature: await botSignature(client, guildId)
+	});
+}
+
 export async function setChannelLock(
 	client: Client,
 	interaction: Interaction,
@@ -169,12 +212,16 @@ export async function setChannelLock(
 	if (mode === "lock") {
 		applyChannelLock(channel, targetId, "lock")
 			.then(async () => {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.lock_embed_message_description.replaceAll(
-						"${authorId}",
-						interaction.member!.user.id
-					)
-				});
+				await sendCard(
+					client,
+					interaction,
+					await lockCard(client, interaction, lang, {
+						locking: true,
+						title: lang.lock_card_title,
+						channelId: channel.id,
+						targetId
+					})
+				);
 			})
 			.catch(() => {});
 
@@ -197,9 +244,16 @@ export async function setChannelLock(
 		interaction.channel.id
 	);
 
-	await client.func.method.interactionSend(interaction, {
-		content: lang.unlock_embed_message_description
-	});
+	await sendCard(
+		client,
+		interaction,
+		await lockCard(client, interaction, lang, {
+			locking: false,
+			title: lang.unlock_card_title,
+			channelId: channel.id,
+			targetId
+		})
+	);
 }
 
 /**
@@ -225,18 +279,25 @@ export async function setAllChannelsLock(
 	const role = resolveRole(client, interaction, args);
 	const locking = mode === "lock";
 
+	const targetId = role?.id || interaction.guild.roles.everyone.id;
 	await applyAllChannelsLock(
 		interaction.guild,
 		lang,
-		role?.id || interaction.guild.roles.everyone.id,
+		targetId,
 		mode,
 		interaction.member.user.id
 	);
 
-	await client.func.method.interactionSend(interaction, {
-		content: (locking
-			? lang.lockall_embed_message_description
-			: lang.unlockall_embed_message_description
-		).replaceAll("${authorId}", interaction.member.user.id)
-	});
+	await sendCard(
+		client,
+		interaction,
+		await lockCard(client, interaction, lang, {
+			locking,
+			title: locking
+				? lang.lockall_card_title
+				: lang.unlockall_card_title,
+			channelId: null,
+			targetId
+		})
+	);
 }

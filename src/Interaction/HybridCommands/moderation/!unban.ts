@@ -27,6 +27,12 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 import { unbanUser } from "../../../core/modules/moderationOps.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -70,8 +76,35 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.unban_is_now_unbanned.replaceAll("${userID}", userID)
-		});
+		const e = client.iHorizon_Emojis;
+		const user = await client.users.fetch(userID).catch(() => null);
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: e.Unlock,
+				title: lang.unban_card_title,
+				thumbnail: user?.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.var_user,
+						value: `<@${userID}> (\`${userID}\`)`
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					},
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: reason
+					}
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 	}
 };

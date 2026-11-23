@@ -400,7 +400,13 @@ export const subCommand: SubCommand = {
 									tracks,
 									(id) =>
 										client.users.cache.get(id)?.username ??
-										null
+										null,
+									{
+										title: lang.music_history_file_title,
+										requestedBy:
+											lang.music_history_requested_by,
+										live: lang.music_history_live
+									}
 								)
 							: [...(history.buffer ?? [])].join("\n") + "\n";
 					await i.reply({

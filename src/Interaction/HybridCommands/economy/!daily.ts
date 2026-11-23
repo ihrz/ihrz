@@ -19,18 +19,14 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	ChatInputCommandInteraction,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import { sendCard } from "../../../core/modules/uiCard.js";
+import { rewardCard } from "../../../core/modules/economyCards.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -104,19 +100,17 @@ export const subCommand: SubCommand = {
 				});
 				return;
 			} else {
-				const embed = new EmbedBuilder()
-					.setAuthor({
-						name: lang.daily_embed_title,
-						iconURL: (
-							interaction.member.user as User
-						).displayAvatarURL()
-					})
-					.setColor("#a4cb80")
-					.setDescription(lang.daily_embed_description)
-					.addFields({
-						name: lang.daily_embed_fields,
-						value: `${amount}${client.iHorizon_Emojis.Coin}`
-					});
+				const card = await rewardCard(
+					client,
+					interaction.member,
+					lang,
+					{
+						title: lang.daily_embed_title,
+						description: lang.daily_embed_description,
+						label: lang.daily_embed_fields
+					},
+					amount
+				);
 
 				await client.db.set(
 					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`,
@@ -126,9 +120,7 @@ export const subCommand: SubCommand = {
 					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
 					amount
 				);
-				await client.func.method.interactionSend(interaction, {
-					embeds: [embed]
-				});
+				await sendCard(client, interaction, card);
 				return;
 			}
 		} finally {

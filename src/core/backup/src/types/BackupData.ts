@@ -36,7 +36,6 @@ import {
 import { MemberData } from "./MemberData";
 import type { BackupComponent } from "../components";
 
-
 export interface StickerData {
 	name: string;
 	description: string | null;

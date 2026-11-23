@@ -28,6 +28,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { is_safe_key_segment } from "../../../core/database/lodash.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "add-react",
@@ -40,7 +41,13 @@ export const command: Command = {
 		ru: "Добавить реакцию iHorizon при отправке сообщения",
 		"es-ES":
 			"Añadir reacción de iHorizon cuando el usuario envía un mensaje",
-		ko: "사용자가 메시지를 보내면 iHorizon이 반응을 추가해요"
+		ko: "사용자가 메시지를 보내면 iHorizon이 반응을 추가해요",
+		uk: "Додати реакцію iHorizon, коли користувач надсилає повідомлення",
+		de: "iHorizon reagiert, wenn ein Nutzer eine Nachricht sendet",
+		it: "Aggiungi una reazione di iHorizon quando un utente invia un messaggio",
+		"pt-BR":
+			"Adicionar reação do iHorizon quando um usuário enviar mensagem",
+		pl: "Dodaj reakcję iHorizon, gdy użytkownik wyśle wiadomość"
 	},
 
 	thinking: false,
@@ -87,12 +94,17 @@ export const command: Command = {
 		}
 
 		await interaction.reply({
-			content: lang.add_react_command_work
-				.replace("${authorId}", interaction.member?.id!)
-				.replace("{emoji}", emojiMsg)
-				.replace("${message}", message.toLowerCase()),
-			allowedMentions: { repliedUser: false }
-		});
+			...cardPayload(
+				notice(
+					"success",
+					lang.add_react_command_work
+						.replace("${authorId}", interaction.member?.id!)
+						.replace("{emoji}", emojiMsg)
+						.replace("${message}", message.toLowerCase())
+				)
+			),
+			allowedMentions: { parse: [], repliedUser: false }
+		} as never);
 
 		await client.db.set(
 			`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`,

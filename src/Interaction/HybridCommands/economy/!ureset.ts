@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
@@ -50,10 +45,6 @@ export const subCommand: SubCommand = {
 
 		const opts = client.func.method.options(interaction, args);
 		const user = opts.member("user", 0) || interaction.member;
-
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.reset_ueconomy_are_you_sure,

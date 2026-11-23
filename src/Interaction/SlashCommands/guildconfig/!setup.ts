@@ -28,6 +28,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -65,12 +66,17 @@ export const subCommand: SubCommand = {
 				]
 			});
 
-			await interaction.editReply({
-				content: lang.setup_command_work.replace(
-					"${emoji_Yes}",
-					client.iHorizon_Emojis.Yes
-				)
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice(
+						"success",
+						lang.setup_command_work.replace(
+							"${emoji_Yes}",
+							client.iHorizon_Emojis.Yes
+						)
+					)
+				) as never
+			);
 			return;
 		} else {
 			await interaction.editReply({ content: lang.setup_command_error });

@@ -46,7 +46,13 @@ export const command: Command = {
 		ru: "Установить роли при реакции на сообщение с эмодзи",
 		"es-ES":
 			"Establecer roles cuando el usuario reacciona a un mensaje con emoji específico",
-		ko: "사용자가 메시지에 특정 이모지로 반응하면 역할을 지급해요"
+		ko: "사용자가 메시지에 특정 이모지로 반응하면 역할을 지급해요",
+		uk: "Встановити ролі за реакцію на повідомлення певним емодзі",
+		de: "Vergibt Rollen, wenn jemand mit einem Emoji auf eine Nachricht reagiert",
+		it: "Assegna ruoli quando un utente reagisce a un messaggio con un emoji",
+		"pt-BR":
+			"Define cargos quando alguém reage a uma mensagem com um emoji",
+		pl: "Nadaje role, gdy ktoś zareaguje na wiadomość danym emoji"
 	},
 
 	aliases: ["rolereact"],
@@ -60,7 +66,12 @@ export const command: Command = {
 				ja: "選択してください。",
 				ru: "Пожалуйста, сделайте выбор.",
 				"es-ES": "Por favor, haz tu elección.",
-				ko: "선택해 주세요."
+				ko: "선택해 주세요.",
+				uk: "Будь ласка, зробіть вибір.",
+				de: "Triff bitte deine Wahl.",
+				it: "Fai la tua scelta.",
+				"pt-BR": "Faça sua escolha.",
+				pl: "Dokonaj wyboru."
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -73,7 +84,12 @@ export const command: Command = {
 						ja: "add_another",
 						ru: "add_another",
 						"es-ES": "add_another",
-						ko: "하나 더 추가"
+						ko: "하나 더 추가",
+						uk: "Додати ще",
+						de: "Weitere hinzufügen",
+						it: "Aggiungine un altro",
+						"pt-BR": "Adicionar outro",
+						pl: "Dodaj kolejny"
 					},
 					value: "add"
 				},
@@ -84,7 +100,12 @@ export const command: Command = {
 						ja: "remove_one",
 						ru: "remove_one",
 						"es-ES": "remove_one",
-						ko: "하나 제거"
+						ko: "하나 제거",
+						uk: "Видалити один",
+						de: "Eines entfernen",
+						it: "Rimuovine uno",
+						"pt-BR": "Remover um",
+						pl: "Usuń jeden"
 					},
 					value: "remove"
 				}
@@ -102,7 +123,12 @@ export const command: Command = {
 				ja: "メッセージがあるチャンネル",
 				ru: "Канал, где находится сообщение",
 				"es-ES": "El canal donde está el mensaje",
-				ko: "메시지가 있는 채널"
+				ko: "메시지가 있는 채널",
+				uk: "Канал, у якому знаходиться повідомлення",
+				de: "Der Kanal, in dem die Nachricht ist",
+				it: "Il canale in cui si trova il messaggio",
+				"pt-BR": "O canal onde está a mensagem",
+				pl: "Kanał, w którym jest wiadomość"
 			},
 
 			channel_types: [ChannelType.GuildText],
@@ -123,7 +149,12 @@ export const command: Command = {
 				ru: "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить",
 				"es-ES":
 					"Por favor, copia el identificador del mensaje que quieres configurar",
-				ko: "설정할 메시지의 ID를 복사해 붙여 넣어 주세요"
+				ko: "설정할 메시지의 ID를 복사해 붙여 넣어 주세요",
+				uk: "Будь ласка, скопіюйте ідентифікатор повідомлення, яке хочете налаштувати",
+				de: "Kopiere die ID der Nachricht, die du konfigurieren möchtest",
+				it: "Copia l'ID del messaggio che vuoi configurare",
+				"pt-BR": "Copie o ID da mensagem que você quer configurar",
+				pl: "Skopiuj ID wiadomości, którą chcesz skonfigurować"
 			},
 
 			required: true,
@@ -140,7 +171,12 @@ export const command: Command = {
 				ja: "使用したい絵文字",
 				ru: "Эмодзи, которые вы хотите",
 				"es-ES": "Los emojis que deseas",
-				ko: "원하는 이모지"
+				ko: "원하는 이모지",
+				uk: "Будь ласка, скопіюйте ідентифікатор повідомлення, яке хочете налаштувати",
+				de: "Kopiere die ID der Nachricht, die du konfigurieren möchtest",
+				it: "Copia l'ID del messaggio che vuoi configurare",
+				"pt-BR": "Copie o ID da mensagem que você quer configurar",
+				pl: "Skopiuj ID wiadomości, którą chcesz skonfigurować"
 			},
 
 			required: false,
@@ -157,7 +193,12 @@ export const command: Command = {
 				ja: "設定したいロール",
 				ru: "Роль, которую вы хотите настроить",
 				"es-ES": "El rol que quieres configurar",
-				ko: "설정할 역할"
+				ko: "설정할 역할",
+				uk: "Роль, яку ви хочете налаштувати",
+				de: "Die Rolle, die du konfigurieren willst",
+				it: "Il ruolo da configurare",
+				"pt-BR": "O cargo que você quer configurar",
+				pl: "Rola do skonfigurowania"
 			},
 
 			required: false,
@@ -198,7 +239,7 @@ export const command: Command = {
 
 		const help_embed = new EmbedBuilder()
 			.setColor("#0000FF")
-			.setTitle("/reactionroles Help !")
+			.setTitle(lang.reactionroles_help_embed_title)
 			.setDescription(lang.reactionroles_embed_message_description_added);
 
 		if (type == "add") {

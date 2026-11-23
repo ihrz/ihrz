@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 	PermissionsBitField,
 	ActionRowBuilder,
@@ -32,7 +31,7 @@ import {
 	StringSelectMenuOptionBuilder,
 	TextInputStyle,
 	ComponentType,
-	Colors,
+	InteractionUpdateOptions,
 	ApplicationCommandType,
 	ChannelSelectMenuBuilder,
 	ChannelType
@@ -45,6 +44,14 @@ import {
 	isDiscordEmoji,
 	isSingleEmoji
 } from "../../../core/functions/emojiChecker.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	pageLabel
+} from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
 	name: "autoreact",
@@ -56,7 +63,13 @@ export const command: Command = {
 		ru: "Отправить эмодзи при новом сообщении в канале",
 		"es-ES":
 			"Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado",
-		ko: "지정한 채널에 새 메시지가 오면 지정한 이모지를 보내요"
+		ko: "지정한 채널에 새 메시지가 오면 지정한 이모지를 보내요",
+		uk: "Надсилати вказаний емодзі на нове повідомлення у вказаному каналі",
+		de: "Sendet ein Emoji bei neuer Nachricht im angegebenen Kanal",
+		it: "Invia l'emoji indicata a ogni nuovo messaggio nel canale scelto",
+		"pt-BR":
+			"Envia o emoji indicado a cada nova mensagem no canal escolhido",
+		pl: "Wysyła wybrane emoji przy nowej wiadomości na wybranym kanale"
 	},
 
 	thinking: true,
@@ -112,42 +125,50 @@ export const command: Command = {
 			);
 			const totalReact = channelEntries.length;
 
-			const embed = new EmbedBuilder()
-				.setColor(Colors.Blurple)
-				.setTitle(lang.autoreact_embed_title)
-				.setDescription(lang.autoreact_embed_desc)
-				.addFields(
+			return buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Sparkles,
+				title: lang.autoreact_embed_title,
+				description: lang.autoreact_embed_desc,
+				blocks:
 					pageValue.length > 0
-						? pageValue.map(([channelId, reactions]) => ({
-								name: `${interaction.guild?.channels.cache.get(channelId)?.toString() || lang.var_unknown}`,
-								value: lang.autoreact_embed_autofields_value.replace(
-									"${reaction}",
-									Array.isArray(reactions)
-										? reactions.join(" ")
-										: String(reactions)
-								),
-								inline: false
-							}))
+						? pageValue.map(
+								([channelId, reactions]) =>
+									`**${interaction.guild?.channels.cache.get(channelId)?.toString() || lang.var_unknown}**\n${lang.autoreact_embed_autofields_value.replace(
+										"${reaction}",
+										Array.isArray(reactions)
+											? reactions.join(" ")
+											: String(reactions)
+									)}`
+							)
 						: [
-								{
-									name: lang.var_no_set,
-									value: lang.autoreact_embed_autofields_none_value,
-									inline: false
-								}
-							]
-				)
-				.setFooter(
-					await client.func.displayBotName.footerPaginationBuilder(
-						interaction.guildId!,
-						lang,
-						currentPage,
-						totalPage
-					)
-				)
-				.setTimestamp();
-
-			return embed;
+								`**${lang.var_no_set}**\n${lang.autoreact_embed_autofields_none_value}`
+							],
+				signature: await botSignature(client, interaction.guildId),
+				footer: pageLabel(lang, currentPage - 1, totalPage)
+			});
 		};
+
+		// The panel: the card with its buttons.
+		const mainPayload = async () =>
+			cardPayload(
+				(
+					await createRankRolesEmbed(currentPage)
+				).addActionRowComponents(createActionRow())
+			) as never;
+
+		// A step of the add / remove flow: the prompt with its menus.
+		const promptPayload = (
+			prompt: string,
+			...rows: ActionRowBuilder<
+				| ButtonBuilder
+				| ChannelSelectMenuBuilder
+				| StringSelectMenuBuilder
+			>[]
+		) =>
+			cardPayload(
+				notice("info", prompt).addActionRowComponents(...rows)
+			) as InteractionUpdateOptions;
 
 		const createActionRow = () => {
 			const valueEntries = Object.entries(autoreactConfig || {});
@@ -189,10 +210,10 @@ export const command: Command = {
 			);
 		};
 
-		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [await createRankRolesEmbed(currentPage)],
-			components: [createActionRow()]
-		});
+		const message = await client.func.method.interactionSend(
+			interaction,
+			await mainPayload()
+		);
 
 		const collector = message.createMessageComponentCollector({
 			time: 180000,
@@ -210,10 +231,7 @@ export const command: Command = {
 
 			if (interaction2.customId === "prev_page") {
 				currentPage = Math.max(0, currentPage - 1);
-				await interaction2.update({
-					embeds: [await createRankRolesEmbed(currentPage)],
-					components: [createActionRow()]
-				});
+				await interaction2.update(await mainPayload());
 				return;
 			}
 
@@ -223,19 +241,12 @@ export const command: Command = {
 					Math.floor(valueEntries.length / itemsPerPage),
 					currentPage + 1
 				);
-				await interaction2.update({
-					embeds: [await createRankRolesEmbed(currentPage)],
-					components: [createActionRow()]
-				});
+				await interaction2.update(await mainPayload());
 				return;
 			}
 
 			if (interaction2.customId === "return_to_main") {
-				await interaction2.update({
-					content: null,
-					embeds: [await createRankRolesEmbed(currentPage)],
-					components: [createActionRow()]
-				});
+				await interaction2.update(await mainPayload());
 				return;
 			}
 
@@ -257,10 +268,13 @@ export const command: Command = {
 							.setChannelTypes(ChannelType.GuildText)
 					);
 
-				const awaiting = await interaction2.update({
-					content: lang.autoreact_awaiting1_msg,
-					components: [channelSelectRow, createReturnRow()]
-				});
+				const awaiting = await interaction2.update(
+					promptPayload(
+						lang.autoreact_awaiting1_msg,
+						channelSelectRow,
+						createReturnRow()
+					)
+				);
 
 				let response1;
 				try {
@@ -269,11 +283,7 @@ export const command: Command = {
 						componentType: ComponentType.ChannelSelect
 					});
 				} catch {
-					await message.edit({
-						content: null,
-						embeds: [await createRankRolesEmbed(currentPage)],
-						components: [createActionRow()]
-					});
+					await message.edit(await mainPayload());
 					return;
 				}
 
@@ -312,11 +322,7 @@ export const command: Command = {
 							flags: [1 << 6]
 						});
 
-						await message.edit({
-							content: null,
-							embeds: [await createRankRolesEmbed(currentPage)],
-							components: [createActionRow()]
-						});
+						await message.edit(await mainPayload());
 						return;
 					}
 				}
@@ -337,11 +343,7 @@ export const command: Command = {
 						);
 					}
 
-					await message.edit({
-						content: null,
-						embeds: [await createRankRolesEmbed(currentPage)],
-						components: [createActionRow()]
-					});
+					await message.edit(await mainPayload());
 
 					await response2?.reply({
 						content: lang.autoreact_add_command_ok,
@@ -361,11 +363,7 @@ export const command: Command = {
 						flags: [1 << 6]
 					});
 
-					await message.edit({
-						content: null,
-						embeds: [await createRankRolesEmbed(currentPage)],
-						components: [createActionRow()]
-					});
+					await message.edit(await mainPayload());
 					return;
 				}
 
@@ -390,10 +388,13 @@ export const command: Command = {
 							.addOptions(channelOptions)
 					);
 
-				const awaiting = await interaction2.update({
-					content: lang.autoreact_awaiting_remove_msg,
-					components: [removeRoleRow, createReturnRow()]
-				});
+				const awaiting = await interaction2.update(
+					promptPayload(
+						lang.autoreact_awaiting_remove_msg,
+						removeRoleRow,
+						createReturnRow()
+					)
+				);
 
 				let response1;
 				try {
@@ -402,11 +403,7 @@ export const command: Command = {
 						componentType: ComponentType.StringSelect
 					});
 				} catch {
-					await message.edit({
-						content: null,
-						embeds: [await createRankRolesEmbed(currentPage)],
-						components: [createActionRow()]
-					});
+					await message.edit(await mainPayload());
 					return;
 				}
 
@@ -418,11 +415,7 @@ export const command: Command = {
 					autoreactConfig
 				);
 
-				await message.edit({
-					content: null,
-					embeds: [await createRankRolesEmbed(currentPage)],
-					components: [createActionRow()]
-				});
+				await message.edit(await mainPayload());
 
 				await response1.reply({
 					content: lang.autoreact_remove_command_ok,
@@ -433,7 +426,13 @@ export const command: Command = {
 		});
 
 		collector.on("end", async () => {
-			await message.edit({ components: [] });
+			await message
+				.edit(
+					cardPayload(
+						await createRankRolesEmbed(currentPage)
+					) as never
+				)
+				.catch(() => null);
 		});
 	}
 };

@@ -28,7 +28,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
+	ContainerBuilder,
 	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -36,6 +36,12 @@ import { AntiSpam } from "../../../../types/antispam.js";
 import { invalidateAntiSpamConfig } from "../../../core/modules/antiSpamEngine.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -58,23 +64,12 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`
 			)) || ([] as AntiSpam.AntiSpamOptions["BYPASS_CHANNELS"]);
 
-		const embed = new EmbedBuilder()
-			.setColor("#6666ff")
-			.setTitle(lang.antispam_manage_embed_title)
-			.setDescription(lang.antispam_ignorechannels_embed_desc)
-			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-			.addFields({
-				name: lang.joinghostping_add_ok_embed_fields_name,
-				value:
-					Array.isArray(all_channels) && all_channels.length > 0
-						? all_channels.map((x) => `<#${x}>`).join(", ")
-						: lang.setjoinroles_var_none
-			})
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(
-					interaction.guildId!
-				)
-			);
+		const e = client.iHorizon_Emojis;
+		const signature = await botSignature(client, interaction.guildId);
+		const guildIcon = interaction.guild.iconURL({ size: 256 });
+
+		// Channel ids shown on the card: the saved list, then the selection.
+		let shown: string[] = Array.isArray(all_channels) ? all_channels : [];
 
 		const select = new ChannelSelectMenuBuilder()
 			.setCustomId("antispam-select-config")
@@ -102,22 +97,44 @@ export const subCommand: SubCommand = {
 			.setCustomId("antispam-manage-save-button")
 			.setLabel(lang.antispam_manage_button_label);
 
+		const selectRow =
+			new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+				select
+			);
+		const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			button
+		);
+		// Once the time is up, the card stays without its menu and button.
+		let closed = false;
+
+		function render(): ContainerBuilder {
+			const card = buildCard({
+				accent: ACCENT.info,
+				emoji: e.AutoMod_Spam,
+				title: lang.antispam_manage_embed_title,
+				description: lang.antispam_ignorechannels_embed_desc,
+				thumbnail: guildIcon,
+				fields: [
+					{
+						emoji: e.Ticket_Hash,
+						label: lang.joinghostping_add_ok_embed_fields_name,
+						value:
+							shown.map((x) => `<#${x}>`).join(", ") ||
+							lang.setjoinroles_var_none
+					}
+				],
+				signature
+			});
+			if (!closed)
+				card.addActionRowComponents(selectRow).addActionRowComponents(
+					buttonRow
+				);
+			return card;
+		}
+
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
-			{
-				embeds: [embed],
-				components: [
-					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-						select
-					),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-				],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			}
+			cardPayload(render()) as never
 		);
 
 		const collector = originalResponse.createMessageComponentCollector({
@@ -167,22 +184,20 @@ export const subCommand: SubCommand = {
 
 			await i.deferUpdate();
 
-			const values = i.values;
-
-			embed.setFields({
-				name: lang.joinghostping_add_ok_embed_fields_name,
-				value:
-					values.length === 0
-						? lang.setjoinroles_var_none
-						: values.map((x) => `<#${x}>`).join(",")
-			});
-
 			allchannel = i.values;
-			await originalResponse.edit({ embeds: [embed] });
+			shown = i.values;
+			// The card is sent again with its menu: keep the new selection in it.
+			select.setDefaultChannels(i.values);
+			await originalResponse
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
 		});
 
 		collector.on("end", async () => {
-			await originalResponse.edit({ components: [] });
+			closed = true;
+			await originalResponse
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
 		});
 	}
 };

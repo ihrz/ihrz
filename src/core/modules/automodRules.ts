@@ -30,11 +30,20 @@ import {
 } from "discord.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import getLanguageDataByCode from "../functions/getLanguageDataByCode.js";
 
 // The native Discord AutoMod rules behind /automod and the dashboard.
 
 export const DEFAULT_MENTION_LIMIT = 3;
-const AUTOMOD_CUSTOM_MESSAGE = "This message was prevented by iHorizon";
+
+/** Text Discord shows to the author of a blocked message, in the server's language. */
+async function blockedMessageText(guild: Guild): Promise<string> {
+	const lang = await Promise.resolve(
+		guild.client?.func?.getLanguageData?.(guild.id) ??
+			getLanguageDataByCode("en-US")
+	).catch(() => getLanguageDataByCode("en-US"));
+	return lang.automod_block_custom_message;
+}
 
 const SPAM_RULE_NAME = "Block spam by iHorizon";
 const MENTION_RULE_NAME = "Block mass-mention spam by iHorizon";
@@ -193,12 +202,13 @@ export function resolveRuleSettings(
 }
 
 export function ruleActions(
-	logsChannel: string | null
+	logsChannel: string | null,
+	customMessage: string
 ): AutoModerationActionOptions[] {
 	const actions: AutoModerationActionOptions[] = [
 		{
 			type: AutoModerationActionType.BlockMessage,
-			metadata: { customMessage: AUTOMOD_CUSTOM_MESSAGE }
+			metadata: { customMessage }
 		}
 	];
 
@@ -279,7 +289,10 @@ export async function enableNativeRule(
 	settings: RuleSettings
 ): Promise<void> {
 	const data = ruleDefinition(key, settings.mentionLimit);
-	const actions = ruleActions(settings.logsChannel);
+	const actions = ruleActions(
+		settings.logsChannel,
+		await blockedMessageText(guild)
+	);
 
 	if (existing) {
 		await existing.edit({
@@ -455,7 +468,9 @@ export async function saveAutomodLogs(
 	if (channelId) await db.set(path, channelId);
 	else await db.delete(path);
 	if (existing && enabled) {
-		await existing.edit({ actions: ruleActions(channelId) });
+		await existing.edit({
+			actions: ruleActions(channelId, await blockedMessageText(guild))
+		});
 	}
 }
 

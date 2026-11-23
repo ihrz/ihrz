@@ -49,7 +49,12 @@ export const command: Command = {
 		ja: "ユーザーをブラックリストに追加！",
 		ru: "Добавить пользователя в черный список!",
 		"es-ES": "Añadir un usuario a la lista negra!",
-		ko: "사용자를 블랙리스트에 추가해요!"
+		ko: "사용자를 블랙리스트에 추가해요!",
+		uk: "Додати користувача до чорного списку!",
+		de: "Füge einen Nutzer zur Blacklist hinzu!",
+		it: "Aggiungi un utente alla blacklist!",
+		"pt-BR": "Adicione um usuário à blacklist!",
+		pl: "Dodaj użytkownika do czarnej listy!"
 	},
 
 	options: [
@@ -63,7 +68,12 @@ export const command: Command = {
 				ja: "ブラックリストに入れたいユーザー...",
 				ru: "Пользователь, которого вы хотите добавить в черный список...",
 				"es-ES": "El usuario que quieres poner en lista negra...",
-				ko: "블랙리스트에 추가할 사용자..."
+				ko: "블랙리스트에 추가할 사용자...",
+				uk: "Користувач, якого ви хочете внести до чорного списку...",
+				de: "Das Mitglied, das du auf die Blacklist setzt ...",
+				it: "L'utente da mettere in blacklist...",
+				"pt-BR": "O usuário que você quer pôr na blacklist...",
+				pl: "Użytkownik do dodania na czarną listę..."
 			},
 
 			required: false,
@@ -81,7 +91,13 @@ export const command: Command = {
 				ru: "Причина добавления в черный список",
 				"es-ES":
 					"La razón por la que quieres poner en lista negra a este miembro",
-				ko: "이 멤버를 블랙리스트에 추가하는 사유"
+				ko: "이 멤버를 블랙리스트에 추가하는 사유",
+				uk: "Причина внесення цього учасника до чорного списку",
+				de: "Der Grund, warum du dieses Mitglied auf die Blacklist setzt",
+				it: "Il motivo per cui vuoi mettere in blacklist questo membro",
+				"pt-BR":
+					"O motivo pelo qual você quer pôr este membro na blacklist",
+				pl: "Powód dodania tego członka na czarną listę"
 			},
 
 			required: false,

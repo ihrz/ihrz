@@ -20,6 +20,12 @@
 */
 
 import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../../../core/modules/uiCard.js";
+import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
@@ -61,12 +67,35 @@ export async function clearMessage(
 			lang
 		);
 
-		const sent = await client.func.method.channelSend(interaction, {
-			content: lang.clear_confirmation_message.replace(
-				"${messageCount}",
-				count.toString()
+		const e = client.iHorizon_Emojis;
+		const sent = await client.func.method.channelSend(
+			interaction,
+			cardPayload(
+				buildCard({
+					accent: ACCENT.success,
+					emoji: e.Ticket_Trash,
+					title: lang.clear_card_title,
+					fields: [
+						{
+							emoji: e.Paper,
+							label: lang.mod_label_messages,
+							value: `**${count}**`
+						},
+						{
+							emoji: e.Ticket_Hash,
+							label: lang.mod_label_channel,
+							value: `<#${interaction.channelId}>`
+						},
+						{
+							emoji: e.Security,
+							label: lang.mod_label_moderator,
+							value: `<@${interaction.member!.user.id}>`
+						}
+					],
+					signature: await botSignature(client, interaction.guildId)
+				})
 			)
-		});
+		);
 
 		setTimeout(() => afterSent(sent, interaction), 5000);
 	} catch (error) {

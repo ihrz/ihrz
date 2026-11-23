@@ -122,9 +122,7 @@ export default async function handleButtonInteraction(
 		if (!action || !i.guild) return;
 
 		const embed = new EmbedBuilder()
-			.setDescription(
-				`## Modifications about your temporary voice channel`
-			)
+			.setDescription(lang.temporary_voice_title_embec)
 			.setColor(2829617)
 			.setImage(await client.func.bannerGenerator(interaction.guildId))
 			.setFooter(
@@ -138,7 +136,7 @@ export default async function handleButtonInteraction(
 			case "temporary_channel_unlock_channel_menu":
 				embed.setFields({
 					name: `${action}`,
-					value: `${value === "temporary_channel_lock_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseAccess : interaction.client.iHorizon_Emojis.VC_OpenAccess} **Yes**`,
+					value: `${value === "temporary_channel_lock_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseAccess : interaction.client.iHorizon_Emojis.VC_OpenAccess} **${lang.var_yes}**`,
 					inline: true
 				});
 				targetedChannel?.permissionOverwrites.edit(
@@ -163,7 +161,7 @@ export default async function handleButtonInteraction(
 			case "temporary_channel_visible_channel_menu":
 				embed.setFields({
 					name: `${action}`,
-					value: `${value === "temporary_channel_invisible_channel_menu" ? interaction.client.iHorizon_Emojis.VC_Unseeable : interaction.client.iHorizon_Emojis.VC_Seeable} **Yes**`,
+					value: `${value === "temporary_channel_invisible_channel_menu" ? interaction.client.iHorizon_Emojis.VC_Unseeable : interaction.client.iHorizon_Emojis.VC_Seeable} **${lang.var_yes}**`,
 					inline: true
 				});
 				targetedChannel?.permissionOverwrites.edit(
@@ -180,7 +178,7 @@ export default async function handleButtonInteraction(
 			case "temporary_channel_openchat_channel_menu":
 				embed.setFields({
 					name: `${action}`,
-					value: `${value === "temporary_channel_closechat_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseChat : interaction.client.iHorizon_Emojis.VC_OpenChat} **Yes**`,
+					value: `${value === "temporary_channel_closechat_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseChat : interaction.client.iHorizon_Emojis.VC_OpenChat} **${lang.var_yes}**`,
 					inline: true
 				});
 				targetedChannel?.permissionOverwrites.edit(

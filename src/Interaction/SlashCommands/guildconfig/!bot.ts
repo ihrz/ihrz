@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { cardPayload, notice } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -58,9 +59,11 @@ export const subCommand: SubCommand = {
 
 			await client.db.set(`${interaction.guildId}.GUILD.BLOCK_BOT`, true);
 
-			await interaction.editReply({
-				content: lang.blockbot_command_work_on_enable
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice("success", lang.blockbot_command_work_on_enable)
+				) as never
+			);
 			return;
 		} else if (action === "off") {
 			await client.func.ihorizon_logs(interaction, {
@@ -73,9 +76,11 @@ export const subCommand: SubCommand = {
 
 			await client.db.delete(`${interaction.guildId}.GUILD.BLOCK_BOT`);
 
-			await interaction.editReply({
-				content: lang.blockbot_command_work_on_disable
-			});
+			await interaction.editReply(
+				cardPayload(
+					notice("success", lang.blockbot_command_work_on_disable)
+				) as never
+			);
 			return;
 		}
 	}

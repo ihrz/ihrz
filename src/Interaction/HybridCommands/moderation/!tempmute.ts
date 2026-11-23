@@ -27,6 +27,12 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 import { SubCommand } from "../../../../types/command.js";
 import { tempmuteMember } from "../../../core/modules/moderationOps.js";
 
@@ -117,19 +123,55 @@ export const subCommand: SubCommand = {
 		}
 
 		const mutedUntil = result.mutedUntil;
-
-		let content = lang.tempmute_command_work
-			.replace("${tomuteId}", tomute.id)
-			.replace("${duration}", mutetimeString)
-			.replace("${reason}", reason || lang.var_no_set);
-
-		if (overflow) {
-			content += lang.tempmute_tomute_max_time_passed.replace(
-				"${emoji_VC_OpenChat}",
-				client.iHorizon_Emojis.VC_OpenChat
-			);
-		}
-		await client.func.method.interactionSend(interaction, content);
+		const e = client.iHorizon_Emojis;
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.danger,
+				emoji: e.Mute,
+				title: lang.tempmute_card_title,
+				thumbnail: tomute.displayAvatarURL({ size: 128 }),
+				fields: [
+					{
+						emoji: e.Ticket_User,
+						label: lang.utils_label_member,
+						value: `${tomute} (\`${tomute.id}\`)`
+					},
+					{
+						emoji: e.Security,
+						label: lang.mod_label_moderator,
+						value: interaction.member.toString()
+					},
+					{
+						emoji: e.Timer,
+						label: lang.mod_label_duration,
+						value: mutetimeString
+					},
+					mutedUntil
+						? {
+								emoji: e.Schedule,
+								label: lang.mod_label_ends,
+								value: `<t:${Math.floor(mutedUntil / 1000)}:R>`
+							}
+						: null,
+					{
+						emoji: e.Paper,
+						label: lang.var_reason,
+						value: reason || lang.var_no_set
+					}
+				],
+				blocks: [
+					overflow
+						? lang.tempmute_tomute_max_time_passed.replace(
+								"${emoji_VC_OpenChat}",
+								e.VC_OpenChat
+							)
+						: null
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 
 		if (mutetimeMS <= max_time_untill_not_warn) {
 			setTimeout(async () => {

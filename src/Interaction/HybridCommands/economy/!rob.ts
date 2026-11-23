@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
@@ -30,6 +29,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -142,15 +142,13 @@ export const subCommand: SubCommand = {
 
 			const random = client.func.random.secureRandomInt(1, 200);
 
-			const embed = new EmbedBuilder()
-				.setDescription(
-					lang.rob_embed_description
-						.replaceAll("${authorId}", interaction.member.user.id)
-						.replaceAll("${userId}", user.id)
-						.replaceAll("${random}", random.toString())
-				)
-				.setColor("#a4cb80")
-				.setTimestamp();
+			const card = notice(
+				"success",
+				`${client.iHorizon_Emojis.Wallet} ${lang.rob_embed_description
+					.replaceAll("${authorId}", interaction.member.user.id)
+					.replaceAll("${userId}", user.id)
+					.replaceAll("${random}", random.toString())}`
+			);
 
 			await client.db.set(
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`,
@@ -165,9 +163,7 @@ export const subCommand: SubCommand = {
 				random
 			);
 
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed]
-			});
+			await sendCard(client, interaction, card);
 			await client.func.economyLogs.rob(
 				interaction.guild,
 				interaction.member.user.id,

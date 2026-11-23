@@ -43,7 +43,12 @@ export const command: Command = {
 		ja: "rap vs reality ミームジェネレーター",
 		ru: "генератор мема rap vs reality",
 		"es-ES": "generador de meme rap vs reality",
-		ko: "랩 vs 현실 밈 생성기"
+		ko: "랩 vs 현실 밈 생성기",
+		uk: "генератор мемів rap vs reality",
+		de: "Meme-Generator „Rap vs. Realität“",
+		it: "Generatore di meme «rap vs realtà»",
+		"pt-BR": "Gerador de meme «rap vs realidade»",
+		pl: "Generator memów „rap kontra rzeczywistość”"
 	},
 	options: [
 		{
@@ -54,7 +59,12 @@ export const command: Command = {
 				ja: "before 側が最低",
 				ru: "before отстой",
 				"es-ES": "el before apesta",
-				ko: "이전이 별로야"
+				ko: "이전이 별로야",
+				uk: "before відстій",
+				de: "Das Vorher ist schlecht",
+				it: "Il prima fa schifo",
+				"pt-BR": "O antes é ruim",
+				pl: "Przed jest do bani"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -69,7 +79,12 @@ export const command: Command = {
 				ja: "after 側が最低",
 				ru: "after отстой",
 				"es-ES": "el after apesta",
-				ko: "이후가 별로야"
+				ko: "이후가 별로야",
+				uk: "after відстій",
+				de: "Das Nachher ist schlecht",
+				it: "Il dopo fa schifo",
+				"pt-BR": "O depois é ruim",
+				pl: "Po jest do bani"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

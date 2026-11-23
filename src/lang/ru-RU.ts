@@ -2452,15 +2452,12 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Я не могу удалить более 99 сообщений за один раз!",
 	clear_channel_message_deleted: "Удалено ${messageCount} сообщений!",
-	clear_confirmation_message: "${messageCount} сообщений было удалено!",
 	clear_logs_embed_title: "Логи удаления сообщений",
 	clear_logs_embed_description:
 		"<@${authorId}> удалил ${messageCount} сообщений в <#${channelId}>",
 	clear_command_no_message: "Нет сообщений для удаления в этом канале",
 
 	// /lock
-	lock_embed_message_description:
-		"Канал заблокирован пользователем <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на блокировку каналов.",
 	lock_logs_embed_title: "Логи блокировки каналов",
@@ -2468,7 +2465,6 @@ export default {
 		"<@${authorId}> заблокировал канал <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description: "Канал успешно разблокирован!",
 	unlock_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на разблокировку канала.",
 	unlock_logs_embed_title: "Логи разблокировки каналов",
@@ -2478,14 +2474,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на блокировку всех каналов.",
-	lockall_embed_message_description:
-		"Все каналы заблокированы пользователем <@${authorId}>.",
 	lockall_logs_embed_title: "Логи блокировки всех каналов",
 	lockall_logs_embed_description: "<@${authorId}> заблокировал все каналы!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Все каналы были разблокированы пользователем <@${authorId}>.",
 	unlockall_logs_embed_title: "Логи разблокировки всех каналов",
 	unlockall_logs_embed_description:
 		"<@${authorId}> разблокировал все каналы!",
@@ -2498,7 +2490,6 @@ export default {
 		"${emoji_No} | **На этом сервере нет забаненных участников!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **Указанный ID не забанен на этом сервере**!",
-	unban_is_now_unbanned: "<@${userID}> теперь разбанен на этом сервере!",
 	unban_logs_embed_title: "Логи разбанов",
 	unban_logs_embed_description:
 		"<@${userID}> теперь разбанен на сервере пользователем <@${authorId}>!",
@@ -2511,8 +2502,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Вы не можете временно заблокировать сами себя!",
 	tempmute_already_muted: "Этот пользователь уже заблокирован!",
-	tempmute_command_work:
-		"<@${tomuteId}> был замучен на ${duration}\n**Причина**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> был разблокирован!",
 	tempmute_logs_embed_title: "Логи временной блокировки",
 	tempmute_logs_embed_description:
@@ -2537,8 +2526,6 @@ export default {
 		"${emoji_No} | Вы не можете выдать временную роль самому себе!",
 	temprole_already_has_role:
 		"У этого пользователя уже есть эта временная роль!",
-	temprole_command_work:
-		"<@${tomuteId}> получил роль на ${duration}\n**Причина**: `${reason}`",
 	temprole_removed_by_time: "Временная роль <@${tomuteId}> была удалена!",
 	temprole_logs_embed_title: "Логи временных ролей",
 	temprole_logs_embed_description:
@@ -2559,24 +2546,16 @@ export default {
 	unmute_not_muted: "Этот пользователь не заблокирован!",
 	unmute_muted_role_doesnt_exist:
 		"Роль `muted` не существует. Пожалуйста, заблокируйте пользователя **перед** созданием ролей для блокировки...",
-	unmute_command_work: "<@${tomuteId}> был разблокирован!",
 	unmute_logs_embed_title: "Логи разблокировки",
 	unmute_logs_embed_description:
 		"<@${authorId}> разблокировал <@${tomuteId}>",
 	unmuteall_no_muted_members: "Заглушенные участники не найдены.",
 	unmuteall_audit_reason: "Снять заглушение со всех",
-	unmuteall_command_work:
-		"Снято заглушение с ${unmuted}/${total} участников.",
 	unmuteall_logs_embed_title: "Логи массового снятия заглушения",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> снял заглушение с ${unmuted}/${total} участников.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} получил предупреждение! **Причина**: `${reason}`\n__ID предупреждения__: `${warnId}`",
-	warn_logEmbed_title: "Журнал предупреждений",
-	warn_logEmbed_desc:
-		"${author} выдал предупреждение ${member} за `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | У вас нет разрешения на предупреждение участника на этом сервере Discord.",
 
@@ -2609,16 +2588,12 @@ export default {
 	var_ban_date: "Дата блокировки",
 
 	// /очистить-предупреждения
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** предупреждение(-я) участника ${member} удалено(-ы).",
 
 	// /tempban
 	tempban_dont_have_permission: "У вас нет прав временно банить участников.",
 	tempban_i_dont_have_permission: "У меня нет прав банить участников.",
 	tempban_cannot_ban_yourself: "Вы не можете забанить сами себя!",
 	tempban_already_banned: "Этот пользователь уже временно забанен!",
-	tempban_command_work:
-		"**<@${userId}>** был временно забанен на **${duration}**\n**Причина**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** был разбанен!",
 	tempban_logs_embed_title: "Логи временного бана",
 	tempban_logs_embed_description:
@@ -4246,17 +4221,23 @@ export default {
 	guild_create_btn_repos: "Репозитории iHorizon",
 	guild_create_btn_support: "Сервер поддержки",
 	guild_create_btn_docs: "Документация iHorizon",
-	welcome_server_intro: "Спасибо, что пригласили! Я **iHorizon**: модерация, тикеты, музыка, защита, логи и многое другое в одном **бесплатном** боте с **открытым исходным кодом**.",
+	welcome_server_intro:
+		"Спасибо, что пригласили! Я **iHorizon**: модерация, тикеты, музыка, защита, логи и многое другое в одном **бесплатном** боте с **открытым исходным кодом**.",
 	welcome_lang_title: "Язык",
-	welcome_lang_text: "Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из 11 языков.",
+	welcome_lang_text:
+		"Здесь я говорю на языке {language} — он выбран по региону вашего сервера.\nЧтобы сменить его, администратор может использовать {command}: в панели можно выбрать один из {count} языков.",
 	welcome_start_title: "С чего начать",
 	welcome_start_help: "{command} покажет все команды по категориям",
-	welcome_start_dashboard: "В [панели управления]({url}) всё настраивается прямо в браузере",
-	welcome_start_support: "Вопрос или ошибка? Наш [сервер поддержки]({url}) всегда поможет",
+	welcome_start_dashboard:
+		"В [панели управления]({url}) всё настраивается прямо в браузере",
+	welcome_start_support:
+		"Вопрос или ошибка? Наш [сервер поддержки]({url}) всегда поможет",
 	welcome_footer: "Бесплатно и с открытым кодом с 2020 года · ihorizon.org",
 	welcome_dm_title: "Спасибо, что добавили iHorizon!",
-	welcome_dm_intro: "iHorizon только что присоединился к {guild}. Вот всё, что нужно, чтобы начать.",
-	welcome_dm_outro: "> *Бесплатный бот может быть лучше платных.*\nЭто и есть iHorizon: сообщество и проект, который с 2020 года развивают увлечённые люди. Добро пожаловать!",
+	welcome_dm_intro:
+		"iHorizon только что присоединился к {guild}. Вот всё, что нужно, чтобы начать.",
+	welcome_dm_outro:
+		"> *Бесплатный бот может быть лучше платных.*\nЭто и есть iHorizon: сообщество и проект, который с 2020 года развивают увлечённые люди. Добро пожаловать!",
 	welcome_btn_dashboard: "Панель",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} команд`**\n> *« Сделано людьми с 2022 года для вашего сообщества. »*\n**https://www.ihorizon.org**",
@@ -4327,11 +4308,6 @@ export default {
 	var_off: "выключено",
 	global_command_cooldown_msg:
 		"${emoji} Вам нужно подождать **${time}** между каждым использованием **`${ctxCommandPath}`**",
-
-	global_warn_embed_title: "Вы получили предупреждение – Дело **`${id}`**",
-	global_warn_embed_desc:
-		"> **Причина:** ${reason}\n> **Ответственный:** @${authorUsername} (*${authorRolesHighestName}*)\nПредупреждение создано ${time}",
-	global_warn_component_button_label: "Отправлено с ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**",
@@ -4784,8 +4760,65 @@ export default {
 	mutelist_card_cleared_title: "Тайм-ауты сняты",
 	mutelist_card_cleared_desc: "Участники снова могут писать: ${count}.",
 	warnlist_card_title: "Предупреждения ${user}",
-	warnlist_card_count: "Предупреждений: ${count}",
 	unwarn_card_title: "Предупреждение снято",
+	warn_card_title: "Участник предупреждён",
+	warn_err_self: "${emoji_No} Нельзя выдать предупреждение самому себе.",
+	warn_err_bot: "${emoji_No} Ботам нельзя выдавать предупреждения.",
+	warn_err_above:
+		"${emoji_No} Нельзя предупредить участника, чья высшая роль равна вашей или выше.",
+	warn_dm_title: "Вы получили предупреждение",
+	warn_label_date: "Дата",
+	warn_label_active: "Активные предупреждения",
+	warn_label_note: "Заметка для стаффа",
+	warn_label_sanction: "Автоматическое наказание",
+	warn_auto_reason: "Автоматическое наказание: ${count} предупреждений",
+	warn_sanction_timeout: "Тайм-аут (${duration})",
+	warn_sanction_kick: "Кик",
+	warn_sanction_ban: "Бан",
+	warn_sanction_failed:
+		"${sanction}, не применено: iHorizon не может наказать этого участника",
+	warn_expire_note: "предупреждения истекают через ${days} дн.",
+	warnlist_expired: "истекло",
+	warnlist_card_active: "Активных: ${active} · всего: ${count}",
+	warnconfig_title: "Настройки предупреждений",
+	warnconfig_label_expiry: "Срок действия",
+	warnconfig_expiry_never: "Никогда: предупреждения действуют всегда",
+	warnconfig_expiry_days: "Через ${days} дн.",
+	warnconfig_label_rules: "Автоматические наказания",
+	warnconfig_no_rules:
+		"Нет: предупреждения сами по себе никогда не вызывают наказание",
+	warnconfig_rule_line: "**${count}** предупреждений → ${sanction}",
+	warnconfig_saved: "Настройки сохранены.",
+	warnconfig_err_duration:
+		"${emoji_No} Для тайм-аута нужна длительность от 1 минуты до 28 дней (например, `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} Порог должен быть от 1 до 100 предупреждений.",
+	warnconfig_err_rules:
+		"${emoji_No} Не больше 10 автоматических наказаний: сначала удалите одно.",
+	warnconfig_err_expiry:
+		"${emoji_No} Срок действия — от 0 (никогда) до 365 дней.",
+	warnconfig_err_sanction:
+		"${emoji_No} Выберите наказание для этого порога (или `none`, чтобы удалить его).",
+	warnconfig_hint:
+		"Добавить наказание: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · удалить: `sanction:none` · срок: `expire-days:30` (0 = никогда)",
+	clearwarn_card_title: "Предупреждения удалены",
+	clearwarn_card_desc: "Удалено предупреждений у ${member}: ${count}.",
+	clear_allwarns_card_title: "Все предупреждения удалены",
+	mod_label_duration: "Длительность",
+	mod_label_ends: "Окончание",
+	mod_label_channel: "Канал",
+	mod_label_messages: "Удалено сообщений",
+	mod_label_target: "Применяется к",
+	tempmute_card_title: "Участник в тайм-ауте",
+	unmute_card_title: "Тайм-аут снят",
+	unban_card_title: "Участник разбанен",
+	tempban_card_title: "Участник временно забанен",
+	temprole_card_title: "Выдана временная роль",
+	clear_card_title: "Сообщения удалены",
+	lock_card_title: "Канал закрыт",
+	unlock_card_title: "Канал открыт",
+	lockall_card_title: "Сервер закрыт",
+	unlockall_card_title: "Сервер открыт",
 	rolepanel_card_done_title: "Роли обновлены",
 	rolepanel_label_added: "Добавлены",
 	rolepanel_label_removed: "Сняты",
@@ -4985,5 +5018,99 @@ export default {
 	status_panel_card_col_history: "Последние 60 проверок",
 	status_panel_card_col_ping: "Пинг",
 	status_panel_card_col_uptime: "30д",
-	status_panel_card_chart: "Среднее время отклика"
+	status_panel_card_chart: "Среднее время отклика",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Пригласить iHorizon",
+	dm_only_server_desc:
+		"# Ой!\n\nВы используете iHorizon в личных сообщениях, но эта команда работает только на сервере Discord.\n\nДобавьте меня на сервер, чтобы ей пользоваться!",
+	topgg_vote_button: "Проголосовать за iHorizon",
+	dm_message_from: "Сообщение от ${guild}",
+	dm_message_by: "Сообщение от ${user}",
+	ticket_panel_button_saved: "Сохранено",
+	economy_balance_wallet_title: "Кошелёк ${user}",
+	reactionroles_help_embed_title: "Справка /reactionroles",
+	command_error_title: "**При выполнении команды возникла проблема.**",
+	command_error_report:
+		"**Пожалуйста, сообщите об этой проблеме через `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Здравствуйте, <@${ownerId}>. К сожалению, вы в чёрном списке iHorizon.\nПоэтому я покидаю ваш сервер. Если есть вопросы, свяжитесь с моими разработчиками.\n\nСпасибо за понимание.",
+	status_field_cpu: "ЦП",
+	status_field_memory: "Память",
+	status_field_machine_uptime: "Время работы машины",
+	status_field_bot_uptime: "Время работы бота",
+	status_field_os: "ОС",
+	status_field_bot_version: "Версия бота",
+	status_field_bun_version: "Версия Bun",
+	owner_guild_title: "Владельцы сервера",
+	var_discord_permission: "Право Discord",
+	rate_nothing: "ничего",
+	embed_default_footer: "Нижний колонтитул",
+	music_history_file_title:
+		"История музыки ${guild} (последние 30 дней, сначала новые)",
+	music_history_requested_by: "запросил(а) ${user}",
+	music_history_live: "прямой эфир",
+	tempvoice_region_singapore: "Сингапур",
+	tempvoice_region_sydney: "Австралия (Сидней)",
+	tempvoice_region_russia: "Россия",
+	tempvoice_region_india: "Индия",
+	tempvoice_region_hongkong: "Гонконг",
+	tempvoice_region_southafrica: "ЮАР",
+	tempvoice_region_rotterdam: "Нидерланды (Роттердам)",
+	tempvoice_region_japan: "Япония (Токио)",
+	tempvoice_region_southkorea: "Южная Корея",
+	tempvoice_region_useast: "США Восток",
+	tempvoice_region_ussouth: "США Юг",
+	tempvoice_region_uswest: "США Запад",
+	tempvoice_region_uscentral: "США Центр",
+	tempvoice_region_brazil: "Бразилия",
+
+	// logs V2 cards
+	logs_ban_add_title: "Участник забанен",
+	logs_ban_remove_title: "Участник разбанен",
+	logs_kick_title: "Участник выгнан",
+	logs_boost_add_title: "Новый буст",
+	logs_boost_remove_title: "Буст снят",
+	logs_channel_update_title: "Канал изменён",
+	logs_message_delete_title: "Сообщение удалено",
+	logs_message_update_title: "Сообщение изменено",
+	logs_roles_update_title: "Роли изменены",
+	logs_voice_title: "Голосовая активность",
+	logs_channel_label: "Канал",
+	logs_jump_to_message: "Перейти к сообщению",
+	logs_message_delete_embeds: "Эмбеды сообщения (${count}) показаны ниже.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "Напоминание #${scheduleCode} наступило!",
+
+	// invites V2 cards
+	invites_reset_title: "Сброс менеджера приглашений",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Ваше место: **#${rank}** из ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Вас пока нет в рейтинге.",
+	economy_leaderboard_count: "Участников в рейтинге: ${count}",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Уровень ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** включён: исполняемые файлы будут удаляться.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** выключен: исполняемые файлы снова разрешены.",
+	guildconfig_list_react_title: "Автоматические реакции",
+
+	// hard-coded strings
+	updates_button_releases: "Релизы",
+	updates_button_commit: "Коммит",
+	warn_reason_piconly:
+		"Автоматическое наказание: канал только для изображений",
+	warn_reason_antiexe: "Anti-Exe: отправлен исполняемый файл",
+	warn_reason_punishpub: "Автоматическое наказание: реклама",
+	warn_reason_antispam: "Автоматическое наказание: спам",
+	automod_block_custom_message: "Это сообщение заблокировано iHorizon",
+	derogation_role_name: "управляется iHorizon",
+	ticket_transcript_footer: "Экспортировано сообщений: {number}",
+	music_playlist_fallback_name: "Плейлист ${platform}",
+	music_apo_node_unreachable: "аудиосервер недоступен (${message})"
 } satisfies LanguageData;

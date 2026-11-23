@@ -2354,21 +2354,18 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | 한 번에 99개보다 많은 메시지는 삭제할 수 없어요!",
 	clear_channel_message_deleted: "메시지 ${messageCount}개를 삭제했어요!",
-	clear_confirmation_message: "메시지 ${messageCount}개가 삭제되었어요!",
 	clear_logs_embed_title: "메시지 삭제 로그",
 	clear_logs_embed_description:
 		"<@${authorId}> 님이 <#${channelId}>에서 메시지 ${messageCount}개를 삭제했어요",
 	clear_command_no_message: "이 채널에 삭제할 메시지가 없어요",
 
 	// /lock
-	lock_embed_message_description: "<@${authorId}> 님이 채널을 잠갔어요.",
 	lock_dont_have_permission: "${emoji_No} | 채널을 잠글 권한이 없어요.",
 	lock_logs_embed_title: "잠금 로그",
 	lock_logs_embed_description:
 		"<@${authorId}> 님이 <#${channelId}> 채널을 잠갔어요",
 
 	// /unlock
-	unlock_embed_message_description: "채널 잠금을 해제했어요!",
 	unlock_dont_have_permission:
 		"${emoji_No} | 채널 잠금을 해제할 권한이 없어요.",
 	unlock_logs_embed_title: "잠금 해제 로그",
@@ -2378,14 +2375,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | 모든 채널을 잠글 권한이 없어요.",
-	lockall_embed_message_description:
-		"<@${authorId}> 님이 모든 채널을 잠갔어요.",
 	lockall_logs_embed_title: "전체 잠금 로그",
 	lockall_logs_embed_description: "<@${authorId}> 님이 모든 채널을 잠갔어요!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"<@${authorId}> 님이 모든 채널의 잠금을 해제했어요.",
 	unlockall_logs_embed_title: "전체 잠금 해제 로그",
 	unlockall_logs_embed_description:
 		"<@${authorId}> 님이 모든 채널의 잠금을 해제했어요!",
@@ -2398,7 +2391,6 @@ export default {
 		"${emoji_No} | **이 서버에서 차단된 사람이 없어요!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **입력한 ID는 이 서버에서 차단되어 있지 않아요**!",
-	unban_is_now_unbanned: "<@${userID}> 님의 이 서버 차단을 해제했어요!",
 	unban_logs_embed_title: "차단 해제 로그",
 	unban_logs_embed_description:
 		"<@${authorId}> 님이 <@${userID}> 님의 서버 차단을 해제했어요!",
@@ -2411,8 +2403,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | 자기 자신에게 타임아웃을 적용할 수 없어요!",
 	tempmute_already_muted: "이 사용자는 이미 타임아웃 상태예요!",
-	tempmute_command_work:
-		"<@${tomuteId}> 님에게 ${duration} 동안 타임아웃을 적용했어요\n**사유**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> 님의 타임아웃이 해제되었어요!",
 	tempmute_logs_embed_title: "임시 타임아웃 로그",
 	tempmute_logs_embed_description:
@@ -2436,8 +2426,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | 자기 자신에게는 임시 역할을 추가할 수 없어요!",
 	temprole_already_has_role: "이 사용자는 이미 이 임시 역할을 가지고 있어요!",
-	temprole_command_work:
-		"<@${tomuteId}>님에게 ${duration} 동안 역할을 부여했어요\n**사유**: `${reason}`",
 	temprole_removed_by_time: "<@${tomuteId}>님의 임시 역할이 제거되었어요!",
 	temprole_logs_embed_title: "임시 역할 로그",
 	temprole_logs_embed_description:
@@ -2458,24 +2446,16 @@ export default {
 	unmute_not_muted: "이 사용자는 타임아웃 상태가 아니에요!",
 	unmute_muted_role_doesnt_exist:
 		"`muted` 역할이 존재하지 않아요. muted 역할이 생성되도록 먼저 사용자를 타임아웃해 주세요...",
-	unmute_command_work: "<@${tomuteId}>님의 타임아웃을 해제했어요!",
 	unmute_logs_embed_title: "타임아웃 해제 로그",
 	unmute_logs_embed_description:
 		"<@${authorId}>님이 <@${tomuteId}>님의 타임아웃을 해제했어요",
 	unmuteall_no_muted_members: "타임아웃된 멤버를 찾지 못했어요.",
 	unmuteall_audit_reason: "전체 타임아웃 해제",
-	unmuteall_command_work:
-		"멤버 ${unmuted}/${total}명의 타임아웃을 해제했어요.",
 	unmuteall_logs_embed_title: "전체 타임아웃 해제 로그",
 	unmuteall_logs_embed_description:
 		"<@${authorId}>님이 멤버 ${unmuted}/${total}명의 타임아웃을 해제했어요.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member}님에게 경고를 줬어요! **사유**: `${reason}`\n__경고 ID__: `${warnId}`",
-	warn_logEmbed_title: "경고 로그",
-	warn_logEmbed_desc:
-		"${author}님이 ${member}님에게 `${reason}` 사유로 경고를 줬어요",
 	warn_dont_have_permission:
 		"${emoji_No} | 이 Discord 서버에서 멤버에게 경고를 줄 권한이 없어요.",
 
@@ -2507,16 +2487,12 @@ export default {
 	var_ban_date: "차단 날짜",
 
 	// /clearwarn
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}님, ${member}님의 경고 **`${allWarnCount}`**개를 지웠어요.",
 
 	// /tempban
 	tempban_dont_have_permission: "멤버를 임시 차단할 권한이 없어요.",
 	tempban_i_dont_have_permission: "저에게 멤버를 차단할 권한이 없어요.",
 	tempban_cannot_ban_yourself: "자기 자신을 차단할 수 없어요!",
 	tempban_already_banned: "이 사용자는 이미 임시 차단되어 있어요!",
-	tempban_command_work:
-		"**<@${userId}>**님을 **${duration}** 동안 임시 차단했어요\n**사유**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>**님의 차단을 해제했어요!",
 	tempban_logs_embed_title: "임시 차단 로그",
 	tempban_logs_embed_description:
@@ -4080,17 +4056,23 @@ export default {
 	guild_create_btn_repos: "iHorizon 저장소",
 	guild_create_btn_support: "지원 서버",
 	guild_create_btn_docs: "iHorizon 문서",
-	welcome_server_intro: "초대해 주셔서 감사합니다! 저는 **iHorizon**입니다. 관리, 티켓, 음악, 보호, 로그 등 모든 것을 **무료** **오픈 소스** 봇 하나로.",
+	welcome_server_intro:
+		"초대해 주셔서 감사합니다! 저는 **iHorizon**입니다. 관리, 티켓, 음악, 보호, 로그 등 모든 것을 **무료** **오픈 소스** 봇 하나로.",
 	welcome_lang_title: "언어",
-	welcome_lang_text: "이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 11개 언어 중 고를 수 있습니다.",
+	welcome_lang_text:
+		"이 서버에서는 서버 지역에 따라 {language}(으)로 말합니다.\n바꾸려면 관리자가 {command}을(를) 사용하세요. 패널에서 {count}개 언어 중 고를 수 있습니다.",
 	welcome_start_title: "시작하기",
 	welcome_start_help: "{command}: 모든 명령어를 카테고리별로 보여줍니다",
-	welcome_start_dashboard: "[대시보드]({url})에서 브라우저로 모든 것을 설정할 수 있습니다",
-	welcome_start_support: "질문이나 버그가 있나요? [지원 서버]({url})가 도와드립니다",
+	welcome_start_dashboard:
+		"[대시보드]({url})에서 브라우저로 모든 것을 설정할 수 있습니다",
+	welcome_start_support:
+		"질문이나 버그가 있나요? [지원 서버]({url})가 도와드립니다",
 	welcome_footer: "2020년부터 무료 오픈 소스 · ihorizon.org",
 	welcome_dm_title: "iHorizon을 추가해 주셔서 감사합니다!",
-	welcome_dm_intro: "iHorizon이 {guild}에 합류했습니다. 시작하는 데 필요한 모든 것을 알려드릴게요.",
-	welcome_dm_outro: "> *무료 봇도 유료 봇보다 더 잘할 수 있습니다.*\n그것이 iHorizon입니다. 2020년부터 열정적인 사람들이 이어온 커뮤니티이자 프로젝트예요. 환영합니다!",
+	welcome_dm_intro:
+		"iHorizon이 {guild}에 합류했습니다. 시작하는 데 필요한 모든 것을 알려드릴게요.",
+	welcome_dm_outro:
+		"> *무료 봇도 유료 봇보다 더 잘할 수 있습니다.*\n그것이 iHorizon입니다. 2020년부터 열정적인 사람들이 이어온 커뮤니티이자 프로젝트예요. 환영합니다!",
 	welcome_btn_dashboard: "대시보드",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord 봇** **`명령어 +{count}개`**\n> *« 2022년부터 사람들이 만들어 온, 여러분의 커뮤니티를 위한 봇. »*\n**https://www.ihorizon.org**",
@@ -4164,11 +4146,6 @@ export default {
 	var_off: "사용 안 함",
 	global_command_cooldown_msg:
 		"${emoji} **`${ctxCommandPath}`** 사이에 **${time}** 기다려야 해요",
-
-	global_warn_embed_title: "경고를 받았어요 - 케이스 **`${id}`**",
-	global_warn_embed_desc:
-		"> **사유:** ${reason}\n> **담당자:** @${authorUsername} (*${authorRolesHighestName}*)\n경고 발행 ${time}",
-	global_warn_component_button_label: "${authorGuildName}에서 보냄",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}>님이 **${number}**에서 망쳤어요!! 다음 숫자는 **1**이에요. **연속으로 두 번 셀 수 없어요.**",
@@ -4618,8 +4595,64 @@ export default {
 	mutelist_card_cleared_title: "타임아웃 해제 완료",
 	mutelist_card_cleared_desc: "멤버 ${count}명이 다시 말할 수 있어요.",
 	warnlist_card_title: "${user}님의 경고",
-	warnlist_card_count: "경고 ${count}회",
 	unwarn_card_title: "경고 제거됨",
+	warn_card_title: "멤버에게 경고했습니다",
+	warn_err_self: "${emoji_No} 자기 자신에게 경고할 수 없습니다.",
+	warn_err_bot: "${emoji_No} 봇에게는 경고할 수 없습니다.",
+	warn_err_above:
+		"${emoji_No} 가장 높은 역할이 자신과 같거나 높은 멤버에게는 경고할 수 없습니다.",
+	warn_dm_title: "경고를 받았습니다",
+	warn_label_date: "날짜",
+	warn_label_active: "유효한 경고",
+	warn_label_note: "스태프 메모",
+	warn_label_sanction: "자동 처벌",
+	warn_auto_reason: "자동 처벌: 경고 ${count}회",
+	warn_sanction_timeout: "타임아웃 (${duration})",
+	warn_sanction_kick: "추방",
+	warn_sanction_ban: "차단",
+	warn_sanction_failed:
+		"${sanction}, 적용 안 됨: iHorizon이 이 멤버를 처벌할 수 없습니다",
+	warn_expire_note: "경고는 ${days}일 후 만료됩니다",
+	warnlist_expired: "만료됨",
+	warnlist_card_active: "유효 ${active}개 · 총 ${count}개",
+	warnconfig_title: "경고 설정",
+	warnconfig_label_expiry: "만료",
+	warnconfig_expiry_never: "없음: 경고가 영원히 유지됩니다",
+	warnconfig_expiry_days: "${days}일 후",
+	warnconfig_label_rules: "자동 처벌",
+	warnconfig_no_rules: "없음: 경고만으로는 처벌되지 않습니다",
+	warnconfig_rule_line: "경고 **${count}**회 → ${sanction}",
+	warnconfig_saved: "설정을 저장했습니다.",
+	warnconfig_err_duration:
+		"${emoji_No} 타임아웃은 1분에서 28일 사이의 기간이 필요합니다 (예: `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} 기준은 경고 1회에서 100회 사이여야 합니다.",
+	warnconfig_err_rules:
+		"${emoji_No} 자동 처벌은 최대 10개입니다. 먼저 하나를 삭제하세요.",
+	warnconfig_err_expiry:
+		"${emoji_No} 만료는 0(없음)에서 365일 사이여야 합니다.",
+	warnconfig_err_sanction:
+		"${emoji_No} 이 기준의 처벌을 선택하세요 (삭제하려면 `none`).",
+	warnconfig_hint:
+		"처벌 추가: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · 삭제: `sanction:none` · 만료: `expire-days:30` (0 = 없음)",
+	clearwarn_card_title: "경고를 지웠습니다",
+	clearwarn_card_desc: "${member}의 경고 ${count}개를 삭제했습니다.",
+	clear_allwarns_card_title: "모든 경고를 삭제했습니다",
+	mod_label_duration: "기간",
+	mod_label_ends: "종료",
+	mod_label_channel: "채널",
+	mod_label_messages: "삭제한 메시지",
+	mod_label_target: "적용 대상",
+	tempmute_card_title: "멤버를 타임아웃했습니다",
+	unmute_card_title: "타임아웃을 해제했습니다",
+	unban_card_title: "차단을 해제했습니다",
+	tempban_card_title: "멤버를 일시 차단했습니다",
+	temprole_card_title: "임시 역할을 부여했습니다",
+	clear_card_title: "메시지를 삭제했습니다",
+	lock_card_title: "채널을 잠갔습니다",
+	unlock_card_title: "채널 잠금을 해제했습니다",
+	lockall_card_title: "서버를 잠갔습니다",
+	unlockall_card_title: "서버 잠금을 해제했습니다",
 	rolepanel_card_done_title: "역할 업데이트 완료",
 	rolepanel_label_added: "추가됨",
 	rolepanel_label_removed: "제거됨",
@@ -4816,5 +4849,97 @@ export default {
 	status_panel_card_col_history: "최근 60회 점검",
 	status_panel_card_col_ping: "핑",
 	status_panel_card_col_uptime: "30일",
-	status_panel_card_chart: "평균 응답 시간"
+	status_panel_card_chart: "평균 응답 시간",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "iHorizon 초대하기",
+	dm_only_server_desc:
+		"# 이런!\n\nDM에서 iHorizon을 사용하고 있지만, 이 명령어는 Discord 서버에서만 작동해요.\n\n서버에 저를 추가해서 사용해 보세요!",
+	topgg_vote_button: "iHorizon에 투표하기",
+	dm_message_from: "${guild}에서 보낸 메시지",
+	dm_message_by: "${user} 님이 보낸 메시지",
+	ticket_panel_button_saved: "저장됨",
+	economy_balance_wallet_title: "${user} 님의 지갑",
+	reactionroles_help_embed_title: "/reactionroles 도움말",
+	command_error_title: "**명령어 실행 중 문제가 발생했어요.**",
+	command_error_report: "**`/report`로 이 문제를 신고해 주세요.**",
+	guild_blacklisted_leave_desc:
+		"<@${ownerId}> 님, 죄송하지만 iHorizon 블랙리스트에 등록되어 있어요.\n그래서 서버를 떠날게요. 궁금한 점은 개발자에게 문의해 주세요.\n\n양해해 주셔서 감사해요.",
+	status_field_cpu: "CPU",
+	status_field_memory: "메모리",
+	status_field_machine_uptime: "머신 가동 시간",
+	status_field_bot_uptime: "봇 가동 시간",
+	status_field_os: "OS",
+	status_field_bot_version: "봇 버전",
+	status_field_bun_version: "Bun 버전",
+	owner_guild_title: "서버 소유자",
+	var_discord_permission: "Discord 권한",
+	rate_nothing: "없음",
+	embed_default_footer: "바닥글",
+	music_history_file_title: "${guild}의 음악 기록 (최근 30일, 최신순)",
+	music_history_requested_by: "요청: ${user}",
+	music_history_live: "라이브",
+	tempvoice_region_singapore: "싱가포르",
+	tempvoice_region_sydney: "호주 (시드니)",
+	tempvoice_region_russia: "러시아",
+	tempvoice_region_india: "인도",
+	tempvoice_region_hongkong: "홍콩",
+	tempvoice_region_southafrica: "남아프리카 공화국",
+	tempvoice_region_rotterdam: "네덜란드 (로테르담)",
+	tempvoice_region_japan: "일본 (도쿄)",
+	tempvoice_region_southkorea: "대한민국",
+	tempvoice_region_useast: "미국 동부",
+	tempvoice_region_ussouth: "미국 남부",
+	tempvoice_region_uswest: "미국 서부",
+	tempvoice_region_uscentral: "미국 중부",
+	tempvoice_region_brazil: "브라질",
+
+	// logs V2 cards
+	logs_ban_add_title: "멤버 차단됨",
+	logs_ban_remove_title: "멤버 차단 해제됨",
+	logs_kick_title: "멤버 추방됨",
+	logs_boost_add_title: "새 부스트",
+	logs_boost_remove_title: "부스트 해제됨",
+	logs_channel_update_title: "채널 수정됨",
+	logs_message_delete_title: "메시지 삭제됨",
+	logs_message_update_title: "메시지 수정됨",
+	logs_roles_update_title: "역할 변경됨",
+	logs_voice_title: "음성 활동",
+	logs_channel_label: "채널",
+	logs_jump_to_message: "메시지로 이동",
+	logs_message_delete_embeds:
+		"메시지의 임베드(${count}개)는 바로 아래에 표시됩니다.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "알림 #${scheduleCode} 시간이 됐어요!",
+
+	// invites V2 cards
+	invites_reset_title: "초대 관리자 초기화",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"내 순위: ${count}명 중 **#${rank}** · ${wealth}",
+	economy_leaderboard_not_ranked: "아직 순위표에 없습니다.",
+	economy_leaderboard_count: "순위에 오른 멤버 ${count}명",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "레벨 ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** 활성화: 실행 파일은 삭제돼요.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** 비활성화: 실행 파일이 다시 허용돼요.",
+	guildconfig_list_react_title: "자동 반응",
+
+	// hard-coded strings
+	updates_button_releases: "릴리스",
+	updates_button_commit: "커밋",
+	warn_reason_piconly: "자동 처벌: 이미지 전용 채널",
+	warn_reason_antiexe: "Anti-Exe: 실행 파일 전송",
+	warn_reason_punishpub: "자동 처벌: 홍보",
+	warn_reason_antispam: "자동 처벌: 스팸",
+	automod_block_custom_message: "이 메시지는 iHorizon에 의해 차단되었습니다",
+	derogation_role_name: "iHorizon 관리",
+	ticket_transcript_footer: "내보낸 메시지: {number}",
+	music_playlist_fallback_name: "${platform} 플레이리스트",
+	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})"
 } satisfies LanguageData;

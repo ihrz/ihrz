@@ -37,7 +37,12 @@ export const command: Command = {
 		ja: "チャンネル内でカウント",
 		ru: "Считать число в канале",
 		"es-ES": "Contar número en un canal",
-		ko: "채널에서 숫자를 세요"
+		ko: "채널에서 숫자를 세요",
+		uk: "Рахувати числа в каналі",
+		de: "In einem Kanal zählen",
+		it: "Conta i numeri in un canale",
+		"pt-BR": "Contar números em um canal",
+		pl: "Licz liczby na kanale"
 	},
 
 	options: [
@@ -51,7 +56,12 @@ export const command: Command = {
 				ja: "カウンターモジュールのチャンネルを設定！",
 				ru: "Установить канал модуля счетчика!",
 				"es-ES": "Establecer el canal del módulo contador!",
-				ko: "카운터 모듈 채널을 설정해요!"
+				ko: "카운터 모듈 채널을 설정해요!",
+				uk: "Встановити канал модуля лічильника!",
+				de: "Legt den Kanal des Zähler-Moduls fest!",
+				it: "Imposta il canale del modulo contatore!",
+				"pt-BR": "Define o canal do módulo de contador!",
+				pl: "Ustawia kanał modułu licznika!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +76,12 @@ export const command: Command = {
 						ja: "チャンネル！",
 						ru: "Канал!",
 						"es-ES": "El canal!",
-						ko: "채널!"
+						ko: "채널!",
+						uk: "Канал!",
+						de: "Der Kanal!",
+						it: "Il canale!",
+						"pt-BR": "O canal!",
+						pl: "Kanał!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -89,7 +104,12 @@ export const command: Command = {
 				ja: "カウンターモジュールを有効化または無効化！",
 				ru: "Включить или отключить модуль счетчика!",
 				"es-ES": "Habilitar o Deshabilitar el módulo contador!",
-				ko: "카운터 모듈을 켜거나 꺼요!"
+				ko: "카운터 모듈을 켜거나 꺼요!",
+				uk: "Увімкнути або вимкнути модуль лічильника!",
+				de: "Zähler-Modul aktivieren oder deaktivieren!",
+				it: "Attiva o disattiva il modulo contatore!",
+				"pt-BR": "Ative ou desative o módulo de contador!",
+				pl: "Włącz lub wyłącz moduł licznika!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -104,7 +124,12 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					required: true,
@@ -116,7 +141,12 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути",
+								de: "Einschalten",
+								it: "Attiva",
+								"pt-BR": "Ligar",
+								pl: "Włącz"
 							},
 							value: "on"
 						},
@@ -127,7 +157,12 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути",
+								de: "Ausschalten",
+								it: "Disattiva",
+								"pt-BR": "Desligar",
+								pl: "Wyłącz"
 							},
 							value: "off"
 						}

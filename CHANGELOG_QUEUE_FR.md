@@ -4,6 +4,22 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🇺🇦 iHorizon parle ukrainien
+
+L'ukrainien devient une langue à part entière d'iHorizon : choisissez **Українська** avec `/setlang`. Chaque réponse, carte, menu et log est traduit, les commandes slash ont leurs descriptions en ukrainien dans une application Discord en ukrainien, et le dashboard a lui aussi sa version ukrainienne. Un serveur dont la région Discord est ukrainienne démarre en ukrainien. Le menu des langues affiche désormais chaque langue dans son propre nom (Français, Deutsch, 日本語…).
+
+---
+
+## ⚠️ Modération — un vrai système d'avertissements
+
+Les avertissements fonctionnent enfin comme dans les grands bots de modération. **`/mod warnconfig`** (administrateurs) règle des **sanctions automatiques** : 3 avertissements et c'est une exclusion d'une heure, 5 une expulsion, 7 un bannissement — les seuils que vous voulez, jusqu'à 10. Les avertissements peuvent **expirer** après un nombre de jours : ils restent dans l'historique mais ne comptent plus. Chaque avertissement peut porter une **note privée du staff**, visible dans `/mod warnlist`, les logs et le dashboard, jamais par le membre. Le membre averti reçoit une carte claire en message privé avec la raison et son nombre d'avertissements actifs. On ne peut plus s'avertir soi-même, avertir un bot ou quelqu'un au-dessus de soi. Tous les avertissements comptent, y compris les automatiques (anti-spam, exclusions…).
+
+Les mêmes réglages sont dans le dashboard, dans un nouveau module **Avertissements**, et le module **Sanctions** montre les notes, les avertissements expirés et la sanction déclenchée par un avertissement.
+
+Toutes les commandes `/mod` répondent désormais par une **carte Components V2** : warn, warnlist, warnconfig, clearwarn, clear-all-warns, tempmute, unmute, unmuteall, unban, tempban, temprole, clear, lock, unlock, lock-all et unlock-all rejoignent ban, kick, baninfo, banlist et mutelist.
+
+---
+
 ## 🎫 Tickets — les transcripts sur le web
 
 Quand un ticket est fermé ou supprimé, son transcript est désormais aussi conservé sur **ticket.ihorizon.org** : un bouton (📜 Transcript) accompagne le message de fermeture, le log du ticket, le MP à son auteur et `/ticket transcript` (qui enregistre aussi le ticket tel quel). La page montre toute la conversation comme dans Discord — messages, réponses, embeds, images et fichiers, badges staff et auteur — avec les personnes du ticket, une recherche et un bouton impression/PDF. Elle s'ouvre après connexion avec Discord sur le dashboard, et seulement pour les personnes du ticket, son staff et les gestionnaires du serveur. Le fichier HTML reste joint comme avant, et le transcript envoyé en message privé devient une carte (serveur, ticket, date, fichier et bouton). Les transcripts sont effacés quand iHorizon quitte le serveur.
@@ -270,7 +286,9 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Traductions** : les derniers textes écrits en dur sont traduits (pages d'aide, régions des salons vocaux temporaires, portefeuille, messages d'erreur, l'avis « serveurs uniquement » en MP, `/status`, le bouton top.gg…), et une commande utilisée en MP répond dans votre langue Discord
 - **Bienvenue** : quand iHorizon rejoint un serveur, son message (et le message privé à l'owner et à la personne qui l'a ajouté) devient une carte claire : ce que fait le bot, la langue qu'il parle et comment la changer avec `/setlang`, par où commencer (`/help`, le dashboard, le serveur support)
+- **Tickets** : le salon de logs des tickets reçoit des cartes au lieu des embeds (créé, fermé, rouvert, supprimé, membres ajoutés ou retirés), chacune avec sa couleur et son icône, et elles ne mentionnent plus personne
 - **Tickets** : sur l'iHorizon officiel, les transcripts ne sont plus envoyés en fichiers HTML (salon, logs, messages privés) : le bouton ticket.ihorizon.org les remplace
 - **Musique** : un titre en pause ne compte plus comme « rien en lecture » : passer, volume, arrêt et les autres commandes (boutons du panneau, `/music`, dashboard) fonctionnent depuis la pause, `/music nowplaying` affiche le titre en pause, `/music play` ajoute à la file sans relancer le titre en pause depuis le début, et `/tts join` / `/h247 join` ne prennent plus le salon vocal à une musique en pause
 - **`/setlogs`** : fonctionne sans la permission Administrateur. Avant, la commande plantait avec « Missing Permissions » : la catégorie `LOGS` qu'elle créait était aussi cachée à iHorizon, qui ne pouvait ni créer ses salons de logs ni y écrire. La catégorie laisse maintenant entrer iHorizon, et la commande indique la permission manquante (Gérer les salons sur le serveur, ou Voir les salons, Envoyer des messages et Intégrer des liens dans un salon de logs) au lieu d'enregistrer un salon où le bot ne peut pas écrire. Relancer `Configurer tous les canaux` remplace les salons enregistrés où il ne peut plus écrire
@@ -390,3 +408,9 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Titres likés** : le cœur du titre en cours ne disparaît plus pendant une minute après un like ou un unlike
 - **Musique — paroles** : les paroles synchronisées s'arrêtent quand la musique est en pause, même juste après le début d'un morceau, et suivent en quelques secondes une pause, un passage ou un saut faits ailleurs (une commande, un bouton de panneau, un autre auditeur) au lieu de continuer
 - **Dashboard — playlists** : la pochette d'une playlist est une mosaïque de ses premières pochettes (une seule, deux moitiés, une grande et deux petites, ou une grille 2×2), dans le lecteur, le menu « ajouter à une playlist » et sa page publique
+- **Polonais** : iHorizon parle maintenant polonais (`/setlang` → **Polski**), et un serveur dont la région est la Pologne démarre en polonais. Le dashboard est aussi disponible en polonais
+- **Commandes slash dans plus de langues** : les descriptions et les choix de chaque commande s'affichent aussi en allemand, italien, portugais brésilien et polonais dans le menu `/` de Discord (Discord n'a ni l'arabe ni le français vulgaire), et `/help` suit la langue du serveur en allemand, italien, portugais et polonais
+- **Logs du serveur** : chaque log (bans, expulsions, boosts, salons, messages supprimés et modifiés, rôles, vocal, confessions, confirmations de `/setlogschannel`) est maintenant une carte : une couleur par type d'événement, l'avatar de l'auteur, la date, et les fichiers du message supprimé montrés dans la carte (ses embeds suivent juste en dessous). Un message modifié montre l'avant et l'après
+- **Économie, config du serveur, anti-spam, 24/7, rappels, compteur de membres, invitations** : chaque réponse et chaque panneau est maintenant une carte, comme la modération. Le classement de l'économie montre votre rang et seul son auteur tourne les pages ; la liste des rappels est paginée
+- **Traductions** : les derniers textes en anglais sont traduits : raisons des avertissements automatiques (anti-spam, images seulement, anti-exe, publicité), le message affiché quand AutoMod bloque un message, le rôle de dérogation vocale, le texte des images de bienvenue, les transcripts HTML, les noms de playlists, les boutons de `/updates` et les erreurs de `/embed`. La carte de bienvenue compte les langues au lieu d'en annoncer 11
+- **Giveaways** : `/giveaway get-data` n'échoue plus sur un giveaway sans gagnant

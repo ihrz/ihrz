@@ -29,6 +29,7 @@ import {
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 import {
 	getH247Data,
 	setH247Data,
@@ -57,23 +58,33 @@ export const subCommand: SubCommand = {
 		const channel = await opts.voiceChannel("channel", 0);
 
 		if (!channel || channel.type !== ChannelType.GuildVoice) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_join_invalid_channel.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_join_invalid_channel.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 			return;
 		}
 
 		const existing = await getH247Data(client, interaction.guild.id);
 
 		if (existing?.enabled && existing.voiceChannelId === channel.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_join_already_active
-					.replace("${voiceChannel}", channel.toString())
-					.replace("${emoji_No}", client.iHorizon_Emojis.No)
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_join_already_active
+						.replace("${voiceChannel}", channel.toString())
+						.replace("${emoji_No}", client.iHorizon_Emojis.No)
+				)
+			);
 			return;
 		}
 
@@ -81,24 +92,34 @@ export const subCommand: SubCommand = {
 
 		// Paused music still holds the voice channel.
 		if (musicInUse(player)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_join_music_playing.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_join_music_playing.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 			return;
 		}
 
 		const ttsData = await getTTSData(client, interaction.guild.id);
 
 		if (ttsData?.enabled && ttsData.voiceChannelId !== channel.id) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_join_tts_active.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_join_tts_active.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 			return;
 		}
 
@@ -117,12 +138,17 @@ export const subCommand: SubCommand = {
 			);
 
 			if (!joined) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.h247_join_error.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
+				await sendCard(
+					client,
+					interaction,
+					notice(
+						"danger",
+						lang.h247_join_error.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
 					)
-				});
+				);
 				return;
 			}
 
@@ -131,21 +157,31 @@ export const subCommand: SubCommand = {
 				voiceChannelId: channel.id
 			});
 
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_joined
-					.replace("${voiceChannel}", channel.toString())
-					.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					lang.h247_joined
+						.replace("${voiceChannel}", channel.toString())
+						.replace("${emoji_Yes}", client.iHorizon_Emojis.Yes)
+				)
+			);
 		} catch (error) {
 			logger.err(
 				`H247 join error in guild ${interaction.guild.id}: ${error}`
 			);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.h247_join_error.replace(
-					"${emoji_No}",
-					client.iHorizon_Emojis.No
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.h247_join_error.replace(
+						"${emoji_No}",
+						client.iHorizon_Emojis.No
+					)
 				)
-			});
+			);
 		}
 	}
 };

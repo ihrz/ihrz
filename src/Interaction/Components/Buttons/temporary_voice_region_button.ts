@@ -61,46 +61,46 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			.setPlaceholder(lang.temporary_voice_region_menu_placeholder)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Singapore")
+					.setLabel(lang.tempvoice_region_singapore)
 					.setValue("singapore"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Australia/Sydney")
+					.setLabel(lang.tempvoice_region_sydney)
 					.setValue("sydney"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Russia")
+					.setLabel(lang.tempvoice_region_russia)
 					.setValue("russia"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("India")
+					.setLabel(lang.tempvoice_region_india)
 					.setValue("india"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Hong Kong")
+					.setLabel(lang.tempvoice_region_hongkong)
 					.setValue("hongkong"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("South Africa")
+					.setLabel(lang.tempvoice_region_southafrica)
 					.setValue("southafrica"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Netherland/Rotterdam")
+					.setLabel(lang.tempvoice_region_rotterdam)
 					.setValue("rotterdam"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Japan/Tokyo")
+					.setLabel(lang.tempvoice_region_japan)
 					.setValue("japan"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("South Korea")
+					.setLabel(lang.tempvoice_region_southkorea)
 					.setValue("south-korea"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("US/East")
+					.setLabel(lang.tempvoice_region_useast)
 					.setValue("us-east"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("US/South")
+					.setLabel(lang.tempvoice_region_ussouth)
 					.setValue("us-south"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("US/West")
+					.setLabel(lang.tempvoice_region_uswest)
 					.setValue("us-west"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("US/Central")
+					.setLabel(lang.tempvoice_region_uscentral)
 					.setValue("us-central"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Brazil")
+					.setLabel(lang.tempvoice_region_brazil)
 					.setValue("brazil")
 			);
 

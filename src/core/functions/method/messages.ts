@@ -209,7 +209,12 @@ export async function interactionSend(
 			await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")
 		) {
 			editOptions.components = await addTopggButonToTheActualComponents(
-				editOptions.components || []
+				editOptions.components || [],
+				(
+					await interaction.client.func.getLanguageData(
+						interaction.guildId
+					)
+				).topgg_vote_button
 			);
 		}
 

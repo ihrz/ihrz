@@ -2535,15 +2535,12 @@ export default {
 	clear_max_message_limit:
 		"${emoji_No} | Je ne peux pas supprimer plus de 99 messages à la fois !",
 	clear_channel_message_deleted: "${messageCount} messages supprimés !",
-	clear_confirmation_message: "${messageCount} messages ont été supprimés !",
 	clear_logs_embed_title: "Logs de suppression de messages",
 	clear_logs_embed_description:
 		"<@${authorId}> a supprimé ${messageCount} messages dans <#${channelId}>",
 	clear_command_no_message: "Aucun message à supprimer dans ce canal",
 
 	// /lock
-	lock_embed_message_description:
-		"Le salon a été verrouillé par <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | Tu n'avez pas la permission de verrouiller les salons.",
 	lock_logs_embed_title: "Logs de Verrouillage",
@@ -2551,8 +2548,6 @@ export default {
 		"<@${authorId}> a verrouillé le salon <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description:
-		"Le salon a été déverrouillé avec succès !",
 	unlock_dont_have_permission:
 		"${emoji_No} | Tu n'avez pas la permission de déverrouiller le salon.",
 	unlock_logs_embed_title: "Journal de déverrouillage",
@@ -2562,15 +2557,11 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | Tu n'avez pas la permission de verrouiller tous les canaux.",
-	lockall_embed_message_description:
-		"Tous les canaux ont été verrouillés par <@${authorId}>.",
 	lockall_logs_embed_title: "Logs de Verrouillage",
 	lockall_logs_embed_description:
 		"<@${authorId}> a verrouillé tous les canaux !",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Tous les canaux ont été déverrouillés par <@${authorId}>.",
 	unlockall_logs_embed_title: "Logs de Déverrouillage",
 	unlockall_logs_embed_description:
 		"<@${authorId}> a déverrouillé tous les canaux !",
@@ -2583,8 +2574,6 @@ export default {
 		"${emoji_No} | **Il n'y a personne banni de ce serveur !**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **L'ID indiqué n'est pas banni de ce serveur !**",
-	unban_is_now_unbanned:
-		"<@${userID}> est maintenant débanni de ce serveur !",
 	unban_logs_embed_title: "Logs de déban",
 	unban_logs_embed_description:
 		"<@${userID}> a été débanni du serveur par ${authorId} !",
@@ -2597,8 +2586,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | Tu ne peux pas tu rendre muet tu-même!",
 	tempmute_already_muted: "Cet utilisateur est déjà rendu muet !",
-	tempmute_command_work:
-		"<@${tomuteId}> a été rendu muet pendant ${duration}\n**Raison**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> a été réactivé!",
 	tempmute_logs_embed_title: "Logs de Tempmute",
 	tempmute_logs_embed_description:
@@ -2622,8 +2609,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | Vous ne pouvez pas vous ajouter un rôle temporaire à vous-même !",
 	temprole_already_has_role: "Cet utilisateur a déjà ce rôle temporaire !",
-	temprole_command_work:
-		"<@${tomuteId}> a reçu le rôle pour ${duration}\n**Raison** : `${reason}`",
 	temprole_removed_by_time:
 		"Le rôle temporaire de <@${tomuteId}> a été retiré !",
 	temprole_logs_embed_title: "Logs des rôles temporaires",
@@ -2645,24 +2630,16 @@ export default {
 	unmute_not_muted: "Cet utilisateur n'est pas en sourdine !",
 	unmute_muted_role_doesnt_exist:
 		"Le rôle sourdine n'existe pas. Veuille d'abord mettre en sourdine l'utilisateur pour créer le rôle de sourdine...",
-	unmute_command_work: "<@${tomuteId}> a été enlever de sa sourdine !",
 	unmute_logs_embed_title: "Logs de sourdine",
 	unmute_logs_embed_description:
 		"<@${authorId}> a enlever de sa sourdine <@${tomuteId}>",
 	unmuteall_no_muted_members: "Aucun membre en sourdine n'a été trouvé.",
 	unmuteall_audit_reason: "Retrait de sourdine global",
-	unmuteall_command_work:
-		"${unmuted}/${total} membres ont été retirés de leur sourdine.",
 	unmuteall_logs_embed_title: "Logs de retrait de sourdine global",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> a retiré la sourdine de ${unmuted}/${total} membres.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} a été averti ! **Raison** : `${reason}`\n__ID de l'avertissement__: `${warnId}`",
-	warn_logEmbed_title: "Historique des Avertissements",
-	warn_logEmbed_desc:
-		"${author} a averti ${member} pour la raison : `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | Vous n'avez pas la permission d'avertir un membre au seins de ce serveur discord.",
 
@@ -2695,8 +2672,6 @@ export default {
 	var_ban_date: "Date du bannissement",
 
 	// /effacer-avertissements
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, **`${allWarnCount}`** avertissement(s) de ${member} a/ont été effacé(s).",
 
 	// /tempban
 	tempban_dont_have_permission:
@@ -2705,8 +2680,6 @@ export default {
 		"Je n'ai pas la permission de bannir des membres.",
 	tempban_cannot_ban_yourself: "Vous ne pouvez pas vous bannir vous-même !",
 	tempban_already_banned: "Cet utilisateur est déjà banni temporairement !",
-	tempban_command_work:
-		"**<@${userId}>** a été banni temporairement pour **${duration}**\n**Raison** : `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** a été débanni !",
 	tempban_logs_embed_title: "Logs de bannissement temporaire",
 	tempban_logs_embed_description:
@@ -4409,17 +4382,24 @@ export default {
 	guild_create_btn_repos: "Dépôts iHorizon",
 	guild_create_btn_support: "Serveur Support",
 	guild_create_btn_docs: "Documentation iHorizon",
-	welcome_server_intro: "Wesh, merci de m'avoir invité ! Moi c'est **iHorizon** : modo, tickets, musique, protection, logs et tout le bordel, dans un seul bot **gratos** et **open source**.",
+	welcome_server_intro:
+		"Wesh, merci de m'avoir invité ! Moi c'est **iHorizon** : modo, tickets, musique, protection, logs et tout le bordel, dans un seul bot **gratos** et **open source**.",
 	welcome_lang_title: "Langue",
-	welcome_lang_text: "Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi 11 langues.",
+	welcome_lang_text:
+		"Ici je cause {language}, vu la région de ton serveur.\nPour changer, un admin balance {command} : un panneau te laisse choisir parmi {count} langues.",
 	welcome_start_title: "Pour commencer",
-	welcome_start_help: "{command} te sort toutes les commandes, rangées par catégorie",
-	welcome_start_dashboard: "Le [dashboard]({url}) te règle tout depuis ton navigateur",
-	welcome_start_support: "Une question, un bug ? Le [serveur support]({url}) est là, t'inquiète",
+	welcome_start_help:
+		"{command} te sort toutes les commandes, rangées par catégorie",
+	welcome_start_dashboard:
+		"Le [dashboard]({url}) te règle tout depuis ton navigateur",
+	welcome_start_support:
+		"Une question, un bug ? Le [serveur support]({url}) est là, t'inquiète",
 	welcome_footer: "Gratos et open source depuis 2020 · ihorizon.org",
 	welcome_dm_title: "Merci d'avoir ajouté iHorizon, t'es un bon !",
-	welcome_dm_intro: "iHorizon vient de débarquer sur {guild}. Voilà tout ce qu'il te faut pour démarrer.",
-	welcome_dm_outro: "> *Un bot gratos peut faire mieux que les bots payants.*\nC'est ça iHorizon : une commu et un projet tenus par des passionnés depuis 2020. Bienvenue dans la team !",
+	welcome_dm_intro:
+		"iHorizon vient de débarquer sur {guild}. Voilà tout ce qu'il te faut pour démarrer.",
+	welcome_dm_outro:
+		"> *Un bot gratos peut faire mieux que les bots payants.*\nC'est ça iHorizon : une commu et un projet tenus par des passionnés depuis 2020. Bienvenue dans la team !",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commandes`**\n> *« Fait par des gens depuis 2022, pour ta commu. »*\n**https://www.ihorizon.org**",
@@ -4493,11 +4473,6 @@ export default {
 	var_off: "désactivé",
 	global_command_cooldown_msg:
 		"${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctxCommandPath}`**",
-
-	global_warn_embed_title: "Tu as reçu un avertissement – Cas **`${id}`**",
-	global_warn_embed_desc:
-		"> **Raison :** ${reason}\n> **Responsable :** @${authorUsername} (*${authorRolesHighestName}*)\nAvertissement généré ${time}",
-	global_warn_component_button_label: "Envoyé depuis ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> S'EST TROMPÉ À **${number}**!! Le prochain nombre est **1**. **Vous ne pouvez pas compter deux fois d'affilée.**",
@@ -4957,8 +4932,64 @@ export default {
 	mutelist_card_cleared_title: "Exclusions retirées",
 	mutelist_card_cleared_desc: "${count} membres peuvent de nouveau parler.",
 	warnlist_card_title: "Avertissements de ${user}",
-	warnlist_card_count: "${count} avertissements",
 	unwarn_card_title: "Avertissement retiré",
+	warn_card_title: "Membre recadré",
+	warn_err_self: "${emoji_No} Tu vas pas te warn toi-même, t'es sérieux ?",
+	warn_err_bot: "${emoji_No} On warn pas les bots, ça sert à rien.",
+	warn_err_above:
+		"${emoji_No} Tu peux pas warn quelqu'un qui a un rôle aussi haut ou plus haut que toi.",
+	warn_dm_title: "T'as pris un avertissement",
+	warn_label_date: "Date",
+	warn_label_active: "Warns actifs",
+	warn_label_note: "Note du staff",
+	warn_label_sanction: "Sanction auto",
+	warn_auto_reason: "Sanction auto : ${count} warns",
+	warn_sanction_timeout: "Mute temporaire (${duration})",
+	warn_sanction_kick: "Kick",
+	warn_sanction_ban: "Ban",
+	warn_sanction_failed:
+		"${sanction}, pas appliquée : iHorizon peut pas toucher ce membre",
+	warn_expire_note: "les warns sautent après ${days} jours",
+	warnlist_expired: "expiré",
+	warnlist_card_active: "${active} actifs · ${count} en tout",
+	warnconfig_title: "Réglages des warns",
+	warnconfig_label_expiry: "Expiration",
+	warnconfig_expiry_never: "Jamais : les warns restent à vie",
+	warnconfig_expiry_days: "Après ${days} jours",
+	warnconfig_label_rules: "Sanctions auto",
+	warnconfig_no_rules: "Aucune : les warns déclenchent rien tout seuls",
+	warnconfig_rule_line: "**${count}** warns → ${sanction}",
+	warnconfig_saved: "C'est enregistré.",
+	warnconfig_err_duration:
+		"${emoji_No} Un mute temporaire veut une durée de 1 minute à 28 jours (genre `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} Le seuil c'est de 1 à 100 warns, pas plus.",
+	warnconfig_err_rules:
+		"${emoji_No} 10 sanctions auto max : vire-en une d'abord.",
+	warnconfig_err_expiry:
+		"${emoji_No} L'expiration c'est de 0 (jamais) à 365 jours.",
+	warnconfig_err_sanction:
+		"${emoji_No} Choisis une sanction pour ce seuil (ou `none` pour la virer).",
+	warnconfig_hint:
+		"Ajouter une sanction : `/mod warnconfig threshold:3 sanction:timeout duration:1h` · la virer : `sanction:none` · expiration : `expire-days:30` (0 = jamais)",
+	clearwarn_card_title: "Warns effacés",
+	clearwarn_card_desc: "Les ${count} warns de ${member} ont dégagé.",
+	clear_allwarns_card_title: "Tous les warns supprimés",
+	mod_label_duration: "Durée",
+	mod_label_ends: "Fin",
+	mod_label_channel: "Salon",
+	mod_label_messages: "Messages dégagés",
+	mod_label_target: "Pour qui",
+	tempmute_card_title: "Membre muté pour un moment",
+	unmute_card_title: "Mute retiré",
+	unban_card_title: "Membre débanni",
+	tempban_card_title: "Membre banni pour un moment",
+	temprole_card_title: "Rôle temporaire filé",
+	clear_card_title: "Messages dégagés",
+	lock_card_title: "Salon fermé à clé",
+	unlock_card_title: "Salon rouvert",
+	lockall_card_title: "Serveur fermé à clé",
+	unlockall_card_title: "Serveur rouvert",
 	rolepanel_card_done_title: "Rôles mis à jour",
 	rolepanel_label_added: "Ajoutés",
 	rolepanel_label_removed: "Retirés",
@@ -5160,5 +5191,103 @@ export default {
 	status_panel_card_col_history: "60 derniers contrôles",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30j",
-	status_panel_card_chart: "Temps de réponse moyen"
+	status_panel_card_chart: "Temps de réponse moyen",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Inviter iHorizon",
+	dm_only_server_desc:
+		"# Aïe !\n\nT'utilises iHorizon en MP, mais cette commande marche que sur un serveur Discord.\n\nAjoute-moi sur un serveur et on en reparle !",
+	topgg_vote_button: "Voter pour iHorizon",
+	dm_message_from: "Message de ${guild}",
+	dm_message_by: "Message de ${user}",
+	ticket_panel_button_saved: "Enregistré",
+	economy_balance_wallet_title: "Le portefeuille de ${user}",
+	reactionroles_help_embed_title: "Aide de /reactionroles",
+	command_error_title: "**La commande a planté.**",
+	command_error_report: "**Balance le problème avec `/report` stp.**",
+	guild_blacklisted_leave_desc:
+		"Wesh <@${ownerId}>, désolé mais t'es blacklisté d'iHorizon.\nDu coup je me barre de ton serveur. Une question ? Va voir mes devs.\n\nMerci de ta compréhension.",
+	status_field_cpu: "Processeur",
+	status_field_memory: "Mémoire",
+	status_field_machine_uptime: "Uptime de la machine",
+	status_field_bot_uptime: "Uptime du bot",
+	status_field_os: "Système",
+	status_field_bot_version: "Version du bot",
+	status_field_bun_version: "Version de Bun",
+	owner_guild_title: "Proprios du serveur",
+	var_discord_permission: "Permission Discord",
+	rate_nothing: "que dalle",
+	embed_default_footer: "Pied de page",
+	music_history_file_title:
+		"Historique musical de ${guild} (30 derniers jours, du plus récent au plus vieux)",
+	music_history_requested_by: "demandé par ${user}",
+	music_history_live: "en direct",
+	tempvoice_region_singapore: "Singapour",
+	tempvoice_region_sydney: "Australie (Sydney)",
+	tempvoice_region_russia: "Russie",
+	tempvoice_region_india: "Inde",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "Afrique du Sud",
+	tempvoice_region_rotterdam: "Pays-Bas (Rotterdam)",
+	tempvoice_region_japan: "Japon (Tokyo)",
+	tempvoice_region_southkorea: "Corée du Sud",
+	tempvoice_region_useast: "USA Est",
+	tempvoice_region_ussouth: "USA Sud",
+	tempvoice_region_uswest: "USA Ouest",
+	tempvoice_region_uscentral: "USA Centre",
+	tempvoice_region_brazil: "Brésil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Un gars s'est fait dégager à vie",
+	logs_ban_remove_title: "Un gars a été débanni, il a eu de la chance",
+	logs_kick_title: "Un gars s'est fait kick, ciao",
+	logs_boost_add_title: "Quelqu'un a lâché son boost, respect",
+	logs_boost_remove_title: "Un radin a retiré son boost",
+	logs_channel_update_title: "Quelqu'un a tripoté un salon",
+	logs_message_delete_title: "Un message a été effacé, louche",
+	logs_message_update_title: "Quelqu'un a retouché son message en douce",
+	logs_roles_update_title: "Ça a joué avec les rôles",
+	logs_voice_title: "Ça bouge en vocal",
+	logs_channel_label: "Salon",
+	logs_jump_to_message: "Va mater le message",
+	logs_message_delete_embeds:
+		"Les embeds du message (${count}) sont juste en dessous, régale-toi.",
+
+	// schedule V2 cards
+	schedule_reminder_title:
+		"Eh, ton rappel #${scheduleCode} il est tombé, bouge-toi !",
+
+	// invites V2 cards
+	invites_reset_title: "Tout péter dans le gestionnaire d'invites",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"T'es **#${rank}** sur ${count} · ${wealth}, pas mal le rat",
+	economy_leaderboard_not_ranked:
+		"T'es même pas dans le classement, fauché va.",
+	economy_leaderboard_count: "${count} clampin(s) dans le classement",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Niveau ${level} frérot",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** activé : les .exe de merde vont dégager direct.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** désactivé : les .exe peuvent revenir, tant pis pour vous.",
+	guildconfig_list_react_title: "Réactions auto de ouf",
+
+	// hard-coded strings
+	updates_button_releases: "Les versions",
+	updates_button_commit: "Le commit",
+	warn_reason_piconly:
+		"Sanction auto : t'as pas capté que c'est que des images ici",
+	warn_reason_antiexe: "Anti-Exe : t'as balancé un exécutable, gros malin",
+	warn_reason_punishpub: "Sanction auto : arrête ta pub de merde",
+	warn_reason_antispam: "Sanction auto : t'arrêtes de spammer ouais ?",
+	automod_block_custom_message:
+		"iHorizon a bloqué ton message, déso pas déso",
+	derogation_role_name: "géré par iHorizon",
+	ticket_transcript_footer: "Messages exportés : {number}, tranquille",
+	music_playlist_fallback_name: "Playlist ${platform}",
+	music_apo_node_unreachable:
+		"le serveur audio répond plus, il est mort (${message})"
 } satisfies LanguageData;

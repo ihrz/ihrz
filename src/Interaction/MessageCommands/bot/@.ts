@@ -31,7 +31,12 @@ export const command: Command = {
 		ja: "...",
 		ru: "...",
 		"es-ES": "...",
-		ko: "..."
+		ko: "...",
+		uk: "...",
+		de: "...",
+		it: "...",
+		"pt-BR": "...",
+		pl: "..."
 	},
 	thinking: false,
 	category: "404",

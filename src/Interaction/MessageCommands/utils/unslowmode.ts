@@ -37,7 +37,12 @@ export const command: Command = {
 		ja: "現在のチャンネルのクールダウンを解除",
 		ru: "Снять задержку с текущего канала",
 		"es-ES": "Eliminar el enfriamiento en el canal actual",
-		ko: "현재 채널의 쿨다운을 제거해요"
+		ko: "현재 채널의 쿨다운을 제거해요",
+		uk: "Зняти затримку з поточного каналу",
+		de: "Wartezeit im aktuellen Kanal entfernt",
+		it: "Rimosso il cooldown nel canale attuale",
+		"pt-BR": "Removeu o intervalo no canal atual",
+		pl: "Usunięto czas oczekiwania na bieżącym kanale"
 	},
 
 	thinking: false,

@@ -628,7 +628,7 @@ export const subCommand: SubCommand = {
 					new ActionRowBuilder<ButtonBuilder>().addComponents(
 						new ButtonBuilder()
 							.setCustomId("saved")
-							.setLabel("Saved")
+							.setLabel(lang.ticket_panel_button_saved)
 							.setStyle(ButtonStyle.Success)
 							.setEmoji(client.iHorizon_Emojis.Yes)
 							.setDisabled(true)

@@ -36,7 +36,12 @@ export const command: Command = {
 		ja: "テキストチャンネルの固定メッセージを管理",
 		ru: "Управление закрепленными сообщениями",
 		"es-ES": "Gestionar mensajes fijos en canales de texto",
-		ko: "텍스트 채널의 고정 메시지를 관리해요"
+		ko: "텍스트 채널의 고정 메시지를 관리해요",
+		uk: "Керування закріпленими повідомленнями в текстових каналах",
+		de: "Sticky-Nachrichten in Textkanälen verwalten",
+		it: "Gestisci i messaggi sticky nei canali di testo",
+		"pt-BR": "Gerencie mensagens fixas em canais de texto",
+		pl: "Zarządzaj przypiętymi wiadomościami na kanałach tekstowych"
 	},
 
 	options: [
@@ -49,7 +54,12 @@ export const command: Command = {
 				ja: "テキストの固定メッセージを作成または更新",
 				ru: "Создать или обновить закрепленное текстовое сообщение",
 				"es-ES": "Crear o actualizar un mensaje fijo de texto",
-				ko: "텍스트 고정 메시지를 만들거나 업데이트해요"
+				ko: "텍스트 고정 메시지를 만들거나 업데이트해요",
+				uk: "Створити або оновити закріплене текстове повідомлення",
+				de: "Text-Sticky-Nachricht erstellen oder aktualisieren",
+				it: "Crea o aggiorna un messaggio sticky di testo",
+				"pt-BR": "Crie ou atualize uma mensagem fixa de texto",
+				pl: "Utwórz lub zaktualizuj tekstową przypiętą wiadomość"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -61,7 +71,12 @@ export const command: Command = {
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
 						"es-ES": "El canal de texto",
-						ko: "텍스트 채널"
+						ko: "텍스트 채널",
+						uk: "Текстовий канал",
+						de: "Der Textkanal",
+						it: "Il canale di testo",
+						"pt-BR": "O canal de texto",
+						pl: "Kanał tekstowy"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -76,7 +91,12 @@ export const command: Command = {
 						ja: "固定メッセージの内容",
 						ru: "Содержание закрепленного сообщения",
 						"es-ES": "El contenido del mensaje fijo",
-						ko: "고정 메시지 내용"
+						ko: "고정 메시지 내용",
+						uk: "Вміст закріпленого повідомлення",
+						de: "Der Inhalt der Sticky-Nachricht",
+						it: "Il contenuto del messaggio sticky",
+						"pt-BR": "O conteúdo da mensagem sticky",
+						pl: "Treść przypiętej wiadomości"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -94,7 +114,12 @@ export const command: Command = {
 				ja: "埋め込みの固定メッセージを作成または更新",
 				ru: "Создать или обновить закрепленное сообщение-эмбед",
 				"es-ES": "Crear o actualizar un mensaje fijo con embed",
-				ko: "임베드 고정 메시지를 만들거나 업데이트해요"
+				ko: "임베드 고정 메시지를 만들거나 업데이트해요",
+				uk: "Створити або оновити закріплене повідомлення-ембед",
+				de: "Embed-Sticky-Nachricht erstellen oder aktualisieren",
+				it: "Crea o aggiorna un messaggio sticky con embed",
+				"pt-BR": "Crie ou atualize uma mensagem fixa com embed",
+				pl: "Utwórz lub zaktualizuj przypiętą wiadomość z embedem"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -106,7 +131,12 @@ export const command: Command = {
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
 						"es-ES": "El canal de texto",
-						ko: "텍스트 채널"
+						ko: "텍스트 채널",
+						uk: "Текстовий канал",
+						de: "Der Textkanal",
+						it: "Il canale di testo",
+						"pt-BR": "O canal de texto",
+						pl: "Kanał tekstowy"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -121,7 +151,12 @@ export const command: Command = {
 						ja: "埋め込み識別子",
 						ru: "Идентификатор эмбеда",
 						"es-ES": "El identificador del embed",
-						ko: "임베드 식별자"
+						ko: "임베드 식별자",
+						uk: "Ідентифікатор ембеда",
+						de: "Die Embed-ID",
+						it: "L'identificatore dell'embed",
+						"pt-BR": "O identificador do embed",
+						pl: "Identyfikator embeda"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -136,7 +171,12 @@ export const command: Command = {
 						ru: "Дополнительный текст с эмбедом",
 						"es-ES":
 							"Contenido de texto opcional enviado con el embed",
-						ko: "임베드와 함께 보낼 텍스트 (선택)"
+						ko: "임베드와 함께 보낼 텍스트 (선택)",
+						uk: "Необов'язковий текст, що надсилається з ембедом",
+						de: "Optionaler Text, der mit dem Embed gesendet wird",
+						it: "Testo facoltativo inviato con l'embed",
+						"pt-BR": "Texto opcional enviado com o embed",
+						pl: "Opcjonalny tekst wysyłany z embedem"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,
@@ -154,7 +194,12 @@ export const command: Command = {
 				ja: "1つのチャンネルの固定メッセージを無効化",
 				ru: "Отключить закрепленное сообщение в канале",
 				"es-ES": "Deshabilitar un mensaje fijo en un canal",
-				ko: "한 채널의 고정 메시지를 비활성화해요"
+				ko: "한 채널의 고정 메시지를 비활성화해요",
+				uk: "Вимкнути закріплене повідомлення в каналі",
+				de: "Sticky-Nachricht in einem Kanal deaktivieren",
+				it: "Disattiva un messaggio sticky in un canale",
+				"pt-BR": "Desative uma mensagem fixa em um canal",
+				pl: "Wyłącz przypiętą wiadomość na kanale"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -166,7 +211,12 @@ export const command: Command = {
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
 						"es-ES": "El canal de texto",
-						ko: "텍스트 채널"
+						ko: "텍스트 채널",
+						uk: "Текстовий канал",
+						de: "Der Textkanal",
+						it: "Il canale di testo",
+						"pt-BR": "O canal de texto",
+						pl: "Kanał tekstowy"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -185,7 +235,12 @@ export const command: Command = {
 				ja: "1つのチャンネルの固定設定を表示",
 				ru: "Показать конфигурацию закрепленных сообщений канала",
 				"es-ES": "Mostrar la configuración fija de un canal",
-				ko: "채널의 고정 메시지 설정을 보여줘요"
+				ko: "채널의 고정 메시지 설정을 보여줘요",
+				uk: "Показати налаштування закріпленого повідомлення каналу",
+				de: "Zeigt die Sticky-Konfiguration eines Kanals",
+				it: "Mostra la configurazione sticky di un canale",
+				"pt-BR": "Mostra a configuração sticky de um canal",
+				pl: "Pokazuje konfigurację przypiętej wiadomości kanału"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -197,7 +252,12 @@ export const command: Command = {
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
 						"es-ES": "El canal de texto",
-						ko: "텍스트 채널"
+						ko: "텍스트 채널",
+						uk: "Текстовий канал",
+						de: "Der Textkanal",
+						it: "Il canale di testo",
+						"pt-BR": "O canal de texto",
+						pl: "Kanał tekstowy"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -216,7 +276,12 @@ export const command: Command = {
 				ja: "全固定チャンネルを一覧表示",
 				ru: "Показать все закрепленные каналы",
 				"es-ES": "Listar todos los canales fijos",
-				ko: "고정 메시지가 있는 모든 채널 목록"
+				ko: "고정 메시지가 있는 모든 채널 목록",
+				uk: "Показати всі канали із закріпленими повідомленнями",
+				de: "Alle Sticky-Kanäle auflisten",
+				it: "Elenca tutti i canali con messaggio sticky",
+				"pt-BR": "Liste todos os canais com mensagem fixa",
+				pl: "Wyświetl wszystkie kanały z przypiętą wiadomością"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
@@ -230,7 +295,12 @@ export const command: Command = {
 				ja: "1つのチャンネルで固定メッセージを再投稿",
 				ru: "Переотправить закрепленное сообщение в канале",
 				"es-ES": "Volver a publicar el mensaje fijo en un canal",
-				ko: "한 채널에 고정 메시지를 다시 게시해요"
+				ko: "한 채널에 고정 메시지를 다시 게시해요",
+				uk: "Повторно надіслати закріплене повідомлення в каналі",
+				de: "Sticky-Nachricht in einem Kanal erneut senden",
+				it: "Ripubblica il messaggio sticky in un canale",
+				"pt-BR": "Repostar a mensagem fixa em um canal",
+				pl: "Opublikuj ponownie przypiętą wiadomość na kanale"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -242,7 +312,12 @@ export const command: Command = {
 						ja: "テキストチャンネル",
 						ru: "Текстовый канал",
 						"es-ES": "El canal de texto",
-						ko: "텍스트 채널"
+						ko: "텍스트 채널",
+						uk: "Текстовий канал",
+						de: "Der Textkanal",
+						it: "Il canale di testo",
+						"pt-BR": "O canal de texto",
+						pl: "Kanał tekstowy"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],

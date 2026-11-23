@@ -19,16 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	GuildChannel,
-	EmbedBuilder
-} from "discord.js";
+import { Client, ChatInputCommandInteraction, GuildChannel } from "discord.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -76,20 +77,6 @@ export const subCommand: SubCommand = {
 			Array.from(all_channels)
 		);
 
-		const embed = new EmbedBuilder()
-			.setTitle(lang.joinghostping_add_ok_embed_title)
-			.setColor("#475387")
-			.setDescription(lang.joinghostping_remove_ok_embed_desc)
-			.addFields({
-				name: lang.joinghostping_add_ok_embed_fields_name,
-				value:
-					all_channels.size > 0
-						? Array.from(all_channels)
-								.map((x) => `<#${x}>`)
-								.join("\n")
-						: lang.var_no_set
-			});
-
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.joinghostping_add_logs_embed_title,
 			description: lang.joinghostping_remove_logs_embed_desc
@@ -97,9 +84,26 @@ export const subCommand: SubCommand = {
 				.replace("${channel}", channel.toString())
 		});
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(
+			client,
+			interaction,
+			buildCard({
+				accent: ACCENT.success,
+				emoji: client.iHorizon_Emojis.Notification_Bell,
+				title: lang.joinghostping_add_ok_embed_title,
+				description: lang.joinghostping_remove_ok_embed_desc,
+				blocks: [
+					`**${lang.joinghostping_add_ok_embed_fields_name}**\n${
+						all_channels.size > 0
+							? Array.from(all_channels)
+									.map((x) => `<#${x}>`)
+									.join("\n")
+							: lang.var_no_set
+					}`
+				],
+				signature: await botSignature(client, interaction.guildId)
+			})
+		);
 		return;
 	}
 };

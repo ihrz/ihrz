@@ -37,7 +37,12 @@ export const command: Command = {
 		ja: "ユーティリティコマンドのサブコマンドカテゴリ",
 		ru: "Категория подкоманд для утилит",
 		"es-ES": "Categoría de subcomando para comandos de utilidad",
-		ko: "유틸리티 명령어의 하위 명령어"
+		ko: "유틸리티 명령어의 하위 명령어",
+		uk: "Категорія підкоманд для утиліт",
+		de: "Unterbefehl-Kategorie für Utils-Befehle",
+		it: "Categoria di sottocomandi per i comandi utils",
+		"pt-BR": "Categoria de subcomandos para comandos utils",
+		pl: "Kategoria podkomend dla komend utils"
 	},
 
 	options: [
@@ -52,7 +57,12 @@ export const command: Command = {
 				ru: "Заблокировать ник участника (нельзя изменить до +unlockname)!",
 				"es-ES":
 					"Bloquear el apodo de un miembro (no se puede cambiar hasta +unlockname)!",
-				ko: "멤버의 별명을 잠가요 (+unlockname 전까지 변경할 수 없어요)!"
+				ko: "멤버의 별명을 잠가요 (+unlockname 전까지 변경할 수 없어요)!",
+				uk: "Заблокувати нікнейм учасника (його не можна змінити до +unlockname)!",
+				de: "Sperre den Nickname eines Mitglieds (bis +unlockname)!",
+				it: "Blocca il nickname di un membro (finché non usi +unlockname)!",
+				"pt-BR": "Trave o apelido de um membro (até usar +unlockname)!",
+				pl: "Zablokuj pseudonim członka (do czasu +unlockname)!"
 			},
 
 			options: [
@@ -66,7 +76,12 @@ export const command: Command = {
 						ja: "ニックネームをロックしたいメンバー",
 						ru: "Участник, чей ник нужно заблокировать",
 						"es-ES": "El miembro cuyo apodo quieres bloquear",
-						ko: "별명을 잠글 멤버"
+						ko: "별명을 잠글 멤버",
+						uk: "Учасник, нікнейм якого потрібно заблокувати",
+						de: "Das Mitglied, dessen Spitzname gesperrt wird",
+						it: "Il membro di cui bloccare il nickname",
+						"pt-BR": "O membro cujo apelido você quer bloquear",
+						pl: "Członek, którego pseudonim zablokować"
 					},
 
 					required: true,
@@ -85,7 +100,13 @@ export const command: Command = {
 						ru: "Ник для установки и блокировки (пусто = оставить текущий)",
 						"es-ES":
 							"El apodo a definir y bloquear (vacío = mantener el actual)",
-						ko: "설정하고 잠글 별명 (비우면 현재 별명 유지)"
+						ko: "설정하고 잠글 별명 (비우면 현재 별명 유지)",
+						uk: "Нікнейм для встановлення й блокування (порожньо = залишити поточний)",
+						de: "Spitzname setzen und sperren (leer = aktuellen behalten)",
+						it: "Nickname da impostare e bloccare (vuoto = mantieni attuale)",
+						"pt-BR":
+							"Apelido a definir e bloquear (vazio = manter o atual)",
+						pl: "Pseudonim do ustawienia i blokady (puste = obecny)"
 					},
 
 					required: false,
@@ -107,7 +128,12 @@ export const command: Command = {
 				ja: "メンバーのニックネームのロックを解除！",
 				ru: "Разблокировать ник участника!",
 				"es-ES": "Desbloquear el apodo de un miembro!",
-				ko: "멤버의 별명 잠금을 해제해요!"
+				ko: "멤버의 별명 잠금을 해제해요!",
+				uk: "Розблокувати нікнейм учасника!",
+				de: "Entsperrt den Spitznamen eines Mitglieds!",
+				it: "Sblocca il nickname di un membro!",
+				"pt-BR": "Desbloqueia o apelido de um membro!",
+				pl: "Odblokowuje pseudonim członka!"
 			},
 
 			options: [
@@ -121,7 +147,12 @@ export const command: Command = {
 						ja: "ニックネームのロックを解除したいメンバー",
 						ru: "Участник, чей ник нужно разблокировать",
 						"es-ES": "El miembro cuyo apodo quieres desbloquear",
-						ko: "별명 잠금을 풀 멤버"
+						ko: "별명 잠금을 풀 멤버",
+						uk: "Учасник, нікнейм якого потрібно розблокувати",
+						de: "Das Mitglied, dessen Spitzname entsperrt wird",
+						it: "Il membro di cui sbloccare il nickname",
+						"pt-BR": "O membro cujo apelido você quer desbloquear",
+						pl: "Członek, którego pseudonim odblokować"
 					},
 
 					required: true,
@@ -143,7 +174,12 @@ export const command: Command = {
 				ja: "ロックされたニックネームのリストを表示！",
 				ru: "Показать список заблокированных ников!",
 				"es-ES": "Mostrar la lista de apodos bloqueados!",
-				ko: "잠긴 별명 목록을 보여줘요!"
+				ko: "잠긴 별명 목록을 보여줘요!",
+				uk: "Показати список заблокованих нікнеймів!",
+				de: "Zeigt die Liste gesperrter Spitznamen!",
+				it: "Mostra l'elenco dei nickname bloccati!",
+				"pt-BR": "Mostra a lista de apelidos bloqueados!",
+				pl: "Pokazuje listę zablokowanych pseudonimów!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -159,7 +195,12 @@ export const command: Command = {
 				ja: "サーバー内の有効なリードを一覧表示",
 				ru: "Показать все активные привязки на сервере",
 				"es-ES": "Listar todas las ataduras activas del servidor",
-				ko: "서버에서 활성화된 모든 목줄 목록"
+				ko: "서버에서 활성화된 모든 목줄 목록",
+				uk: "Показати всі активні повідці на сервері",
+				de: "Alle aktiven Leinen auf dem Server auflisten",
+				it: "Elenca tutti i guinzagli attivi nel server",
+				"pt-BR": "Liste todas as coleiras ativas no servidor",
+				pl: "Wyświetl wszystkie aktywne smycze na serwerze"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -176,7 +217,12 @@ export const command: Command = {
 				ru: "Установить голосовой регион текущего голосового канала на автоматический",
 				"es-ES":
 					"Establecer la región de voz de tu canal de voz actual en automático",
-				ko: "현재 음성 채널의 지역을 자동으로 설정해요"
+				ko: "현재 음성 채널의 지역을 자동으로 설정해요",
+				uk: "Встановити автоматичний регіон для поточного голосового каналу",
+				de: "Setzt die Sprachregion deines Sprachkanals auf automatisch",
+				it: "Imposta la regione del tuo canale vocale su automatica",
+				"pt-BR": "Define a região do seu canal de voz como automática",
+				pl: "Ustawia region twojego kanału głosowego na automatyczny"
 			},
 
 			aliases: ["rvc"],

@@ -22,14 +22,18 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
-	Message,
-	User
+	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
 import {
 	editMemberMoney,
 	isEconomyDisabled
@@ -73,17 +77,27 @@ export const subCommand: SubCommand = {
 			amount
 		);
 
-		const embed = new EmbedBuilder()
-			.setAuthor({
-				name: lang.removemoney_embed_title,
-				iconURL: (interaction.member.user as User).displayAvatarURL()
-			})
-			.addFields(
-				{ name: lang.removemoney_embed_fields, value: `${amount}$` },
-				{ name: lang.removemoney_embed_second_fields, value: `${bal}$` }
-			)
-			.setColor("#bc0116")
-			.setTimestamp();
+		const e = client.iHorizon_Emojis;
+		const card = buildCard({
+			accent: ACCENT.danger,
+			emoji: e.Wallet,
+			title: lang.removemoney_embed_title,
+			thumbnail: user.displayAvatarURL({ size: 256 }),
+			description: user.toString(),
+			fields: [
+				{
+					emoji: e.Minus,
+					label: lang.removemoney_embed_fields,
+					value: `${amount}${e.Coin}`
+				},
+				{
+					emoji: e.Coin,
+					label: lang.removemoney_embed_second_fields,
+					value: `${bal}${e.Coin}`
+				}
+			],
+			signature: await botSignature(client, interaction.guild.id)
+		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.removemoney_logs_embed_title,
@@ -93,9 +107,7 @@ export const subCommand: SubCommand = {
 				.replaceAll("${userId}", user.id)
 		});
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed]
-		});
+		await sendCard(client, interaction, card);
 
 		client.func.economyLogs.removeMoney(
 			interaction.guild,

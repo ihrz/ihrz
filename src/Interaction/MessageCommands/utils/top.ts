@@ -33,7 +33,12 @@ export const command: Command = {
 		ja: "チャンネル内の最初のメッセージのリンクを取得",
 		ru: "Получить ссылку первого сообщения в канале",
 		"es-ES": "Obtener el enlace del primer mensaje en el canal",
-		ko: "채널의 첫 메시지 링크를 받아요"
+		ko: "채널의 첫 메시지 링크를 받아요",
+		uk: "Отримати посилання на перше повідомлення в каналі",
+		de: "Link zur ersten Nachricht im Kanal anzeigen",
+		it: "Ottieni il link del primo messaggio del canale",
+		"pt-BR": "Veja o link da primeira mensagem do canal",
+		pl: "Pokaż link do pierwszej wiadomości na kanale"
 	},
 
 	aliases: ["first"],

@@ -2439,8 +2439,6 @@ export default {
 		"${emoji_No} | 一度に99以上のメッセージを削除することはできません！",
 	clear_channel_message_deleted:
 		"${messageCount} 個のメッセージが削除されました！",
-	clear_confirmation_message:
-		"${messageCount} 個のメッセージが削除されました！",
 	clear_logs_embed_title: "メッセージクリアログ",
 	clear_logs_embed_description:
 		"<@${authorId}> が <#${channelId}> で ${messageCount} 個のメッセージをクリアしました。",
@@ -2448,8 +2446,6 @@ export default {
 		"このチャンネルには削除できるメッセージがありません",
 
 	// /lock
-	lock_embed_message_description:
-		"<@${authorId}> によってチャンネルがロックされました。",
 	lock_dont_have_permission:
 		"${emoji_No} | チャンネルをロックする権限がありません。",
 	lock_logs_embed_title: "ロックログ",
@@ -2457,8 +2453,6 @@ export default {
 		"<@${authorId}> によって <#${channelId}> がロックされました。",
 
 	// /unlock
-	unlock_embed_message_description:
-		"チャンネルが正常にアンロックされました！",
 	unlock_dont_have_permission:
 		"${emoji_No} | チャンネルをアンロックする権限がありません。",
 	unlock_logs_embed_title: "アンロックログ",
@@ -2468,15 +2462,11 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | 全てのチャンネルをロックする権限がありません。",
-	lockall_embed_message_description:
-		"全てのチャンネルが <@${authorId}> によってロックされました。",
 	lockall_logs_embed_title: "ロックオールログ",
 	lockall_logs_embed_description:
 		"<@${authorId}> が全てのチャンネルをロックしました！",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"全てのチャンネルが <@${authorId}> によってアンロックされました。",
 	unlockall_logs_embed_title: "アンロックオールログ",
 	unlockall_logs_embed_description:
 		"<@${authorId}> が全てのチャンネルをアンロックしました！",
@@ -2489,8 +2479,6 @@ export default {
 		"${emoji_No} | **このサーバーから誰もBANされていません！**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **指定されたIDは、このサーバーからBANされていません！**",
-	unban_is_now_unbanned:
-		"<@${userID}> はこのサーバーからアンバンされました！",
 	unban_logs_embed_title: "アンバンログ",
 	unban_logs_embed_description:
 		"<@${authorId}>によって<@${userID}>がサーバーからアンバンされました！",
@@ -2503,8 +2491,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | 自分自身をミュートすることはできません！",
 	tempmute_already_muted: "このユーザーはすでにミュートされています！",
-	tempmute_command_work:
-		"<@${tomuteId}> は ${duration} の間ミュートされました\n**理由**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}>さんがミュート解除されました！",
 	tempmute_logs_embed_title: "Tempmute Logs",
 	tempmute_logs_embed_description:
@@ -2530,8 +2516,6 @@ export default {
 		"${emoji_No} | 自分に一時ロールを追加することはできません！",
 	temprole_already_has_role:
 		"このユーザーはすでにこの一時ロールを持っています！",
-	temprole_command_work:
-		"<@${tomuteId}> に ${duration} の間ロールが付与されました\n**理由**: `${reason}`",
 	temprole_removed_by_time: "<@${tomuteId}> の一時ロールが削除されました！",
 	temprole_logs_embed_title: "一時ロールログ",
 	temprole_logs_embed_description:
@@ -2552,25 +2536,17 @@ export default {
 	unmute_not_muted: "このユーザーはミュートされていません！",
 	unmute_muted_role_doesnt_exist:
 		"`muted` 役職が存在しません。ミュート役職を作成してから、ユーザーをミュートしてください...",
-	unmute_command_work: "<@${tomuteId}>さんがミュート解除されました！",
 	unmute_logs_embed_title: "Unmute Logs",
 	unmute_logs_embed_description:
 		"<@${authorId}>さんが<@${tomuteId}>さんのミュートを解除しました。",
 	unmuteall_no_muted_members:
 		"ミュートされているメンバーは見つかりませんでした。",
 	unmuteall_audit_reason: "全員のミュート解除",
-	unmuteall_command_work:
-		"${unmuted}/${total} 人のメンバーのミュートを解除しました。",
 	unmuteall_logs_embed_title: "全員ミュート解除ログ",
 	unmuteall_logs_embed_description:
 		"<@${authorId}>さんが ${unmuted}/${total} 人のメンバーのミュートを解除しました。",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ${member} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`",
-	warn_logEmbed_title: "警告ログ",
-	warn_logEmbed_desc:
-		"${author} が ${member} に警告しました。理由：`${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | このDiscordサーバーでメンバーに警告を与える権限がありません。",
 
@@ -2603,16 +2579,12 @@ export default {
 	var_ban_date: "BAN日時",
 
 	// /警告クリア
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}、${member} の **`${allWarnCount}`** 件の警告が削除されました。",
 
 	// /tempban
 	tempban_dont_have_permission: "メンバーを一時的にBANする権限がありません。",
 	tempban_i_dont_have_permission: "メンバーをBANする権限がありません。",
 	tempban_cannot_ban_yourself: "自分自身をBANすることはできません！",
 	tempban_already_banned: "このユーザーはすでに一時的にBANされています！",
-	tempban_command_work:
-		"**<@${userId}>** は **${duration}** の間、一時的にBANされました\n**理由**: `${reason}`",
 	tempban_unbanned_by_time: "**<@${userId}>** のBANが解除されました！",
 	tempban_logs_embed_title: "一時BANログ",
 	tempban_logs_embed_description:
@@ -4241,17 +4213,22 @@ export default {
 	guild_create_btn_repos: "iHorizonリポジトリ",
 	guild_create_btn_support: "サポートサーバー",
 	guild_create_btn_docs: "iHorizonドキュメント",
-	welcome_server_intro: "招待ありがとうございます！**iHorizon** です。モデレーション、チケット、音楽、保護、ログなどを、**無料**で**オープンソース**のひとつのボットで。",
+	welcome_server_intro:
+		"招待ありがとうございます！**iHorizon** です。モデレーション、チケット、音楽、保護、ログなどを、**無料**で**オープンソース**のひとつのボットで。",
 	welcome_lang_title: "言語",
-	welcome_lang_text: "このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから 11 の言語を選べます。",
+	welcome_lang_text:
+		"このサーバーでは {language} で話します（サーバーの地域から選択）。\n変更するには、管理者が {command} を使ってください。パネルから {count} の言語を選べます。",
 	welcome_start_title: "はじめに",
 	welcome_start_help: "{command} ですべてのコマンドをカテゴリ別に表示",
-	welcome_start_dashboard: "[ダッシュボード]({url}) でブラウザからすべて設定できます",
+	welcome_start_dashboard:
+		"[ダッシュボード]({url}) でブラウザからすべて設定できます",
 	welcome_start_support: "質問や不具合は [サポートサーバー]({url}) へどうぞ",
 	welcome_footer: "2020 年から無料・オープンソース · ihorizon.org",
 	welcome_dm_title: "iHorizon を追加していただきありがとうございます！",
-	welcome_dm_intro: "iHorizon が {guild} に参加しました。はじめるために必要なことをまとめました。",
-	welcome_dm_outro: "> *無料のボットでも、有料のボット以上のことができる。*\nそれが iHorizon。2020 年から情熱ある人たちが支えるコミュニティとプロジェクトです。ようこそ！",
+	welcome_dm_intro:
+		"iHorizon が {guild} に参加しました。はじめるために必要なことをまとめました。",
+	welcome_dm_outro:
+		"> *無料のボットでも、有料のボット以上のことができる。*\nそれが iHorizon。2020 年から情熱ある人たちが支えるコミュニティとプロジェクトです。ようこそ！",
 	welcome_btn_dashboard: "ダッシュボード",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} コマンド`**\n> *« 2022年から人々によって作られ、あなたのコミュニティのために。 »*\n**https://www.ihorizon.org**",
@@ -4325,11 +4302,6 @@ export default {
 	var_off: "無効",
 	global_command_cooldown_msg:
 		"${emoji} **`${ctxCommandPath}`** の使用間隔を **${time}** 待つ必要があります",
-
-	global_warn_embed_title: "警告を受けました – ケース **`${id}`**",
-	global_warn_embed_desc:
-		"> **理由:** ${reason}\n> **担当者:** @${authorUsername} (*${authorRolesHighestName}*)\n警告が生成されました ${time}",
-	global_warn_component_button_label: "${authorGuildName} から送信",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**",
@@ -4790,8 +4762,64 @@ export default {
 	mutelist_card_cleared_title: "タイムアウトを解除しました",
 	mutelist_card_cleared_desc: "${count} 人のメンバーが再び発言できます。",
 	warnlist_card_title: "${user} の警告",
-	warnlist_card_count: "警告数: ${count}",
 	unwarn_card_title: "警告を削除しました",
+	warn_card_title: "メンバーに警告しました",
+	warn_err_self: "${emoji_No} 自分自身に警告することはできません。",
+	warn_err_bot: "${emoji_No} ボットには警告できません。",
+	warn_err_above:
+		"${emoji_No} 自分と同じかそれより上のロールを持つメンバーには警告できません。",
+	warn_dm_title: "警告を受けました",
+	warn_label_date: "日時",
+	warn_label_active: "有効な警告",
+	warn_label_note: "スタッフ用メモ",
+	warn_label_sanction: "自動処罰",
+	warn_auto_reason: "自動処罰：警告 ${count} 回",
+	warn_sanction_timeout: "タイムアウト（${duration}）",
+	warn_sanction_kick: "キック",
+	warn_sanction_ban: "BAN",
+	warn_sanction_failed:
+		"${sanction}、未適用：iHorizon はこのメンバーを処罰できません",
+	warn_expire_note: "警告は ${days} 日後に失効します",
+	warnlist_expired: "失効",
+	warnlist_card_active: "有効 ${active} 件 · 合計 ${count} 件",
+	warnconfig_title: "警告の設定",
+	warnconfig_label_expiry: "有効期限",
+	warnconfig_expiry_never: "なし：警告はずっと有効です",
+	warnconfig_expiry_days: "${days} 日後",
+	warnconfig_label_rules: "自動処罰",
+	warnconfig_no_rules: "なし：警告だけで処罰されることはありません",
+	warnconfig_rule_line: "警告 **${count}** 回 → ${sanction}",
+	warnconfig_saved: "設定を保存しました。",
+	warnconfig_err_duration:
+		"${emoji_No} タイムアウトには 1 分から 28 日の期間が必要です（例：`1h`、`2d`）。",
+	warnconfig_err_count:
+		"${emoji_No} しきい値は 1 から 100 回の間で指定してください。",
+	warnconfig_err_rules:
+		"${emoji_No} 自動処罰は最大 10 件です。先にひとつ削除してください。",
+	warnconfig_err_expiry:
+		"${emoji_No} 有効期限は 0（なし）から 365 日の間で指定してください。",
+	warnconfig_err_sanction:
+		"${emoji_No} このしきい値の処罰を選んでください（削除する場合は `none`）。",
+	warnconfig_hint:
+		"処罰を追加：`/mod warnconfig threshold:3 sanction:timeout duration:1h` · 削除：`sanction:none` · 有効期限：`expire-days:30`（0 = なし）",
+	clearwarn_card_title: "警告を削除しました",
+	clearwarn_card_desc: "${member} の警告 ${count} 件を削除しました。",
+	clear_allwarns_card_title: "すべての警告を削除しました",
+	mod_label_duration: "期間",
+	mod_label_ends: "終了",
+	mod_label_channel: "チャンネル",
+	mod_label_messages: "削除したメッセージ",
+	mod_label_target: "対象",
+	tempmute_card_title: "メンバーをタイムアウトしました",
+	unmute_card_title: "タイムアウトを解除しました",
+	unban_card_title: "BAN を解除しました",
+	tempban_card_title: "メンバーを一時 BAN しました",
+	temprole_card_title: "一時ロールを付与しました",
+	clear_card_title: "メッセージを削除しました",
+	lock_card_title: "チャンネルをロックしました",
+	unlock_card_title: "チャンネルのロックを解除しました",
+	lockall_card_title: "サーバーをロックしました",
+	unlockall_card_title: "サーバーのロックを解除しました",
 	rolepanel_card_done_title: "ロールを更新しました",
 	rolepanel_label_added: "追加",
 	rolepanel_label_removed: "削除",
@@ -4991,5 +5019,98 @@ export default {
 	status_panel_card_col_history: "直近60回のチェック",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30日",
-	status_panel_card_chart: "平均応答時間"
+	status_panel_card_chart: "平均応答時間",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "iHorizon を招待",
+	dm_only_server_desc:
+		"# おっと!\n\niHorizon を DM で使っていますが、このコマンドは Discord サーバーでのみ動作します。\n\nサーバーに追加して使ってください!",
+	topgg_vote_button: "iHorizon に投票",
+	dm_message_from: "${guild} からのメッセージ",
+	dm_message_by: "${user} からのメッセージ",
+	ticket_panel_button_saved: "保存しました",
+	economy_balance_wallet_title: "${user} の財布",
+	reactionroles_help_embed_title: "/reactionroles のヘルプ",
+	command_error_title: "**コマンドの実行中に問題が発生しました。**",
+	command_error_report: "**`/report` でこの問題を報告してください。**",
+	guild_blacklisted_leave_desc:
+		"<@${ownerId}> さん、申し訳ありませんが、あなたは iHorizon のブラックリストに登録されています。\nそのため、サーバーから退出します。ご質問があれば開発者までご連絡ください。\n\nご理解ありがとうございます。",
+	status_field_cpu: "CPU",
+	status_field_memory: "メモリ",
+	status_field_machine_uptime: "マシンの稼働時間",
+	status_field_bot_uptime: "ボットの稼働時間",
+	status_field_os: "OS",
+	status_field_bot_version: "ボットのバージョン",
+	status_field_bun_version: "Bun のバージョン",
+	owner_guild_title: "サーバーのオーナー",
+	var_discord_permission: "Discord の権限",
+	rate_nothing: "なし",
+	embed_default_footer: "フッター",
+	music_history_file_title: "${guild} の音楽履歴（直近 30 日、新しい順）",
+	music_history_requested_by: "リクエスト: ${user}",
+	music_history_live: "ライブ",
+	tempvoice_region_singapore: "シンガポール",
+	tempvoice_region_sydney: "オーストラリア（シドニー）",
+	tempvoice_region_russia: "ロシア",
+	tempvoice_region_india: "インド",
+	tempvoice_region_hongkong: "香港",
+	tempvoice_region_southafrica: "南アフリカ",
+	tempvoice_region_rotterdam: "オランダ（ロッテルダム）",
+	tempvoice_region_japan: "日本（東京）",
+	tempvoice_region_southkorea: "韓国",
+	tempvoice_region_useast: "米国東部",
+	tempvoice_region_ussouth: "米国南部",
+	tempvoice_region_uswest: "米国西部",
+	tempvoice_region_uscentral: "米国中部",
+	tempvoice_region_brazil: "ブラジル",
+
+	// logs V2 cards
+	logs_ban_add_title: "メンバーがBANされました",
+	logs_ban_remove_title: "メンバーのBANが解除されました",
+	logs_kick_title: "メンバーがキックされました",
+	logs_boost_add_title: "新しいブースト",
+	logs_boost_remove_title: "ブーストが解除されました",
+	logs_channel_update_title: "チャンネルが更新されました",
+	logs_message_delete_title: "メッセージが削除されました",
+	logs_message_update_title: "メッセージが編集されました",
+	logs_roles_update_title: "ロールが更新されました",
+	logs_voice_title: "ボイスアクティビティ",
+	logs_channel_label: "チャンネル",
+	logs_jump_to_message: "メッセージへ移動",
+	logs_message_delete_embeds:
+		"メッセージの埋め込み（${count}件）はすぐ下に表示されます。",
+
+	// schedule V2 cards
+	schedule_reminder_title: "リマインダー #${scheduleCode} の時間です！",
+
+	// invites V2 cards
+	invites_reset_title: "招待マネージャーをリセット",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"あなたの順位: ${count} 人中 **#${rank}** · ${wealth}",
+	economy_leaderboard_not_ranked: "まだランキングに入っていません。",
+	economy_leaderboard_count: "ランキング参加者: ${count} 人",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "レベル ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** を有効にしました：実行ファイルは削除されます。",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** を無効にしました：実行ファイルが再び許可されます。",
+	guildconfig_list_react_title: "自動リアクション",
+
+	// hard-coded strings
+	updates_button_releases: "リリース",
+	updates_button_commit: "コミット",
+	warn_reason_piconly: "自動処罰: 画像専用チャンネル",
+	warn_reason_antiexe: "Anti-Exe: 実行ファイルを送信しました",
+	warn_reason_punishpub: "自動処罰: 宣伝行為",
+	warn_reason_antispam: "自動処罰: スパム",
+	automod_block_custom_message:
+		"このメッセージは iHorizon によってブロックされました",
+	derogation_role_name: "iHorizon が管理",
+	ticket_transcript_footer: "エクスポートしたメッセージ: {number}",
+	music_playlist_fallback_name: "${platform} のプレイリスト",
+	music_apo_node_unreachable: "音声サーバーに接続できません (${message})"
 } satisfies LanguageData;

@@ -19,14 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	EmbedBuilder,
-	Client,
-	GuildMember,
-	BaseGuildTextChannel
-} from "discord.js";
+import { Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -59,46 +55,37 @@ export const event: BotEvent = {
 
 		if (!Msgchannel) return;
 
-		const embed = new EmbedBuilder()
-			.setColor("#a27cec")
-			.setAuthor({
-				name: newMember?.user.username,
-				iconURL: newMember?.displayAvatarURL({
-					extension: "png",
-					forceStatic: false,
-					size: 512
-				})
+		const card = {
+			kind: "boost" as const,
+			emoji: client.iHorizon_Emojis.Boost_Gem,
+			thumbnail: newMember.displayAvatarURL({
+				extension: "png",
+				forceStatic: false,
+				size: 512
 			})
-			.setTimestamp();
+		};
+		const description = (text: string) =>
+			text
+				.replace("${newMemberUserId}", newMember.user.id)
+				.replace(
+					"${boostCount}",
+					newMember.guild.premiumSubscriptionCount?.toString()!
+				);
 
 		if (!oldPremiumSince && newPremiumSince && isRecentBoost) {
-			embed.setDescription(
-				data.event_boostlog_add
-					.replace("${newMemberUserId}", newMember.user.id)
-					.replace(
-						"${boostCount}",
-						newMember.guild.premiumSubscriptionCount?.toString()!
-					)
-			);
-
-			(Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [embed] })
-				.catch(() => {});
+			await sendLogCard(Msgchannel, {
+				...card,
+				title: data.logs_boost_add_title,
+				description: description(data.event_boostlog_add)
+			});
 			return;
 		}
 		if (oldPremiumSince && !newPremiumSince) {
-			embed.setDescription(
-				data.event_boostlog_sub
-					.replace("${newMemberUserId}", newMember.user.id)
-					.replace(
-						"${boostCount}",
-						newMember.guild.premiumSubscriptionCount?.toString()!
-					)
-			);
-
-			(Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [embed] })
-				.catch(() => {});
+			await sendLogCard(Msgchannel, {
+				...card,
+				title: data.logs_boost_remove_title,
+				description: description(data.event_boostlog_sub)
+			});
 			return;
 		}
 	}

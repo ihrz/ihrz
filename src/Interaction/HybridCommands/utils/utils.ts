@@ -38,7 +38,12 @@ export const command: Command = {
 		ja: "ユーティリティコマンドのサブコマンドカテゴリ",
 		ru: "Категория подкоманд для утилит",
 		"es-ES": "Categoría de subcomando para comandos de utilidad",
-		ko: "유틸리티 명령어의 하위 명령어"
+		ko: "유틸리티 명령어의 하위 명령어",
+		uk: "Категорія підкоманд для утиліт",
+		de: "Unterbefehl-Kategorie für Utils-Befehle",
+		it: "Categoria di sottocomandi per i comandi utils",
+		"pt-BR": "Categoria de subcomandos para comandos utils",
+		pl: "Kategoria podkomend dla komend utils"
 	},
 
 	options: [
@@ -51,7 +56,12 @@ export const command: Command = {
 				ja: "ユーザーのアバターを取得！",
 				ru: "Взять аватар пользователя!",
 				"es-ES": "Tomar el avatar de un usuario!",
-				ko: "사용자의 아바타를 가져와요!"
+				ko: "사용자의 아바타를 가져와요!",
+				uk: "Отримати аватар користувача!",
+				de: "Hol dir den Avatar eines Nutzers!",
+				it: "Prendi l'avatar di un utente!",
+				"pt-BR": "Pegue o avatar de um usuário!",
+				pl: "Pobierz awatar użytkownika!"
 			},
 
 			aliases: ["pfp", "pp", "pic"],
@@ -68,7 +78,12 @@ export const command: Command = {
 						ja: "ユーザー",
 						ru: "Пользователь",
 						"es-ES": "El usuario",
-						ko: "사용자"
+						ko: "사용자",
+						uk: "Користувач",
+						de: "Das Mitglied",
+						it: "L'utente",
+						"pt-BR": "O usuário",
+						pl: "Użytkownik"
 					},
 
 					required: false,
@@ -87,7 +102,12 @@ export const command: Command = {
 				ja: "サーバーのボイス状態を取得！",
 				ru: "Получить состояния голосовых каналов!",
 				"es-ES": "Obtener los estados de voz del servidor!",
-				ko: "서버의 음성 상태를 확인해요!"
+				ko: "서버의 음성 상태를 확인해요!",
+				uk: "Отримати голосові стани сервера!",
+				de: "Zeige die Sprachstatus des Servers!",
+				it: "Ottieni gli stati vocali del server!",
+				"pt-BR": "Veja os estados de voz do servidor!",
+				pl: "Pokaż stany głosowe serwera!"
 			},
 
 			options: [
@@ -100,7 +120,12 @@ export const command: Command = {
 						ja: "表示モード（大、簡易）",
 						ru: "Режим отображения (большой, краткий)",
 						"es-ES": "Modo de visualización (grande, breve)",
-						ko: "표시 방식 (자세히, 간단히)"
+						ko: "표시 방식 (자세히, 간단히)",
+						uk: "Режим показу (детальний, короткий)",
+						de: "Anzeigemodus (groß, kurz)",
+						it: "Modalità di visualizzazione (ampia, breve)",
+						"pt-BR": "Modo de exibição (grande, breve)",
+						pl: "Tryb wyświetlania (duży, krótki)"
 					},
 
 					choices: [
@@ -111,7 +136,12 @@ export const command: Command = {
 								ja: "large",
 								ru: "large",
 								"es-ES": "large",
-								ko: "크게"
+								ko: "크게",
+								uk: "Детальний",
+								de: "Groß",
+								it: "Grande",
+								"pt-BR": "Grande",
+								pl: "Duży"
 							},
 							value: "large"
 						},
@@ -122,7 +152,12 @@ export const command: Command = {
 								ja: "short",
 								ru: "short",
 								"es-ES": "short",
-								ko: "짧게"
+								ko: "짧게",
+								uk: "Короткий",
+								de: "Kurz",
+								it: "Breve",
+								"pt-BR": "Curto",
+								pl: "Krótki"
 							},
 							value: "short"
 						}
@@ -149,7 +184,13 @@ export const command: Command = {
 				ru: "Получить вашу персональную ссылку в формате discord.wf!",
 				"es-ES":
 					"Obtener tu propia URL de vanidad en formato discord.wf!",
-				ko: "discord.wf 형식의 나만의 맞춤 URL을 받아요!"
+				ko: "discord.wf 형식의 나만의 맞춤 URL을 받아요!",
+				uk: "Отримайте власне персональне посилання у форматі discord.wf!",
+				de: "Hol dir deine eigene Vanity-URL im Format discord.wf!",
+				it: "Ottieni il tuo URL personalizzato nel formato discord.wf!",
+				"pt-BR":
+					"Obtenha sua própria URL personalizada no formato discord.wf!",
+				pl: "Zdobądź własny adres vanity w formacie discord.wf!"
 			},
 
 			options: [
@@ -162,7 +203,12 @@ export const command: Command = {
 						ja: "バニティURLコード",
 						ru: "Код персональной ссылки",
 						"es-ES": "Código de URL de vanidad",
-						ko: "맞춤 URL 코드"
+						ko: "맞춤 URL 코드",
+						uk: "Код персонального посилання",
+						de: "Vanity-URL-Code",
+						it: "Codice dell'URL personalizzato",
+						"pt-BR": "Código da URL personalizada",
+						pl: "Kod niestandardowego adresu URL"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -186,7 +232,12 @@ export const command: Command = {
 				ja: "ユーザーの情報を取得！",
 				ru: "Получить информацию о пользователе!",
 				"es-ES": "Obtener información sobre un usuario!",
-				ko: "사용자 정보를 확인해요!"
+				ko: "사용자 정보를 확인해요!",
+				uk: "Отримати інформацію про користувача!",
+				de: "Infos zu einem Nutzer anzeigen!",
+				it: "Ottieni informazioni su un utente!",
+				"pt-BR": "Veja informações sobre um usuário!",
+				pl: "Pokaż informacje o użytkowniku!"
 			},
 
 			aliases: ["ui"],
@@ -202,7 +253,12 @@ export const command: Command = {
 						ja: "検索したいユーザー",
 						ru: "пользователь для поиска",
 						"es-ES": "usuario que quieres buscar",
-						ko: "조회할 사용자"
+						ko: "조회할 사용자",
+						uk: "користувач, якого потрібно знайти",
+						de: "Das Mitglied, das du nachschlagen willst",
+						it: "L'utente da cercare",
+						"pt-BR": "O usuário que você quer consultar",
+						pl: "Użytkownik do sprawdzenia"
 					},
 
 					required: false,
@@ -224,7 +280,12 @@ export const command: Command = {
 				ja: "このチャンネルで最後に削除されたメッセージを取得！",
 				ru: "Получить последнее удаленное сообщение в канале!",
 				"es-ES": "Obtener el último mensaje eliminado en este canal!",
-				ko: "이 채널에서 마지막으로 삭제된 메시지를 확인해요!"
+				ko: "이 채널에서 마지막으로 삭제된 메시지를 확인해요!",
+				uk: "Отримати останнє видалене повідомлення в цьому каналі!",
+				de: "Zeige die zuletzt gelöschte Nachricht in diesem Kanal!",
+				it: "Ottieni l'ultimo messaggio eliminato in questo canale!",
+				"pt-BR": "Veja a última mensagem apagada neste canal!",
+				pl: "Pokaż ostatnio usuniętą wiadomość na tym kanale!"
 			},
 
 			aliases: ["s", "snp"],
@@ -242,7 +303,12 @@ export const command: Command = {
 				ja: "サーバー内のメンバーをリードでつなぐ",
 				ru: "Привязать участника на сервере",
 				"es-ES": "Atar a un miembro en el servidor",
-				ko: "서버에서 멤버에게 목줄을 채워요"
+				ko: "서버에서 멤버에게 목줄을 채워요",
+				uk: "Взяти учасника сервера на повідець",
+				de: "Ein Mitglied auf dem Server an die Leine legen",
+				it: "Metti al guinzaglio un membro del server",
+				"pt-BR": "Coloque um membro do servidor na coleira",
+				pl: "Załóż smycz członkowi serwera"
 			},
 
 			options: [
@@ -256,7 +322,12 @@ export const command: Command = {
 						ja: "リードでつなぎたいメンバー",
 						ru: "участник для привязки",
 						"es-ES": "miembro que quieres atar",
-						ko: "목줄을 채울 멤버"
+						ko: "목줄을 채울 멤버",
+						uk: "учасник, якого потрібно взяти на повідець",
+						de: "Das Mitglied, das du an die Leine nimmst",
+						it: "Il membro da mettere al guinzaglio",
+						"pt-BR": "O membro que você quer pôr na coleira",
+						pl: "Członek do wzięcia na smycz"
 					},
 
 					required: true,
@@ -277,7 +348,12 @@ export const command: Command = {
 				ja: "サーバー内のメンバーのリードを外す",
 				ru: "Отвязать участника на сервере",
 				"es-ES": "Desatar a un miembro en el servidor",
-				ko: "서버에서 멤버의 목줄을 풀어요"
+				ko: "서버에서 멤버의 목줄을 풀어요",
+				uk: "Зняти учасника сервера з повідця",
+				de: "Nimmt ein Mitglied des Servers von der Leine",
+				it: "Libera un membro dal guinzaglio",
+				"pt-BR": "Solta um membro da coleira",
+				pl: "Spuszcza członka serwera ze smyczy"
 			},
 
 			options: [
@@ -291,7 +367,12 @@ export const command: Command = {
 						ja: "リードを外したいメンバー",
 						ru: "участник для отвязки",
 						"es-ES": "miembro que quieres desatar",
-						ko: "목줄을 풀 멤버"
+						ko: "목줄을 풀 멤버",
+						uk: "учасник, якого потрібно зняти з повідця",
+						de: "Das Mitglied, das du von der Leine lässt",
+						it: "Il membro da liberare dal guinzaglio",
+						"pt-BR": "O membro que você quer soltar da coleira",
+						pl: "Członek do spuszczenia ze smyczy"
 					},
 
 					required: true,
@@ -310,7 +391,12 @@ export const command: Command = {
 				ja: "dm",
 				ru: "dm",
 				"es-ES": "dm",
-				ko: "dm"
+				ko: "dm",
+				uk: "dm",
+				de: "dm",
+				it: "dm",
+				"pt-BR": "dm",
+				pl: "dm"
 			},
 
 			description: "Send a private message to the user1",
@@ -319,7 +405,12 @@ export const command: Command = {
 				ja: "ユーザー1にプライベートメッセージを送信",
 				ru: "Отправить личное сообщение пользователю1",
 				"es-ES": "Enviar un mensaje privado al usuario1",
-				ko: "user1에게 개인 메시지를 보내요"
+				ko: "user1에게 개인 메시지를 보내요",
+				uk: "Надіслати приватне повідомлення користувачу1",
+				de: "Sendet eine private Nachricht an das Mitglied",
+				it: "Invia un messaggio privato all'utente",
+				"pt-BR": "Envia uma mensagem privada ao usuário",
+				pl: "Wysyła prywatną wiadomość do użytkownika"
 			},
 
 			options: [
@@ -332,7 +423,12 @@ export const command: Command = {
 						ja: "非公開ですか？",
 						ru: "приватный?",
 						"es-ES": "es privado?",
-						ko: "비공개인가요?"
+						ko: "비공개인가요?",
+						uk: "приватне?",
+						de: "Ist privat?",
+						it: "È privato?",
+						"pt-BR": "É privado?",
+						pl: "Czy prywatne?"
 					},
 
 					choices: [
@@ -343,7 +439,12 @@ export const command: Command = {
 								ja: "yes",
 								ru: "yes",
 								"es-ES": "yes",
-								ko: "예"
+								ko: "예",
+								uk: "Так",
+								de: "Ja",
+								it: "Sì",
+								"pt-BR": "Sim",
+								pl: "Tak"
 							},
 							value: "yes"
 						},
@@ -354,7 +455,12 @@ export const command: Command = {
 								ja: "no",
 								ru: "no",
 								"es-ES": "no",
-								ko: "아니요"
+								ko: "아니요",
+								uk: "Ні",
+								de: "Nein",
+								it: "No",
+								"pt-BR": "Não",
+								pl: "Nie"
 							},
 							value: "no"
 						}
@@ -373,7 +479,12 @@ export const command: Command = {
 						ja: "対象のメンバー",
 						ru: "желаемый участник",
 						"es-ES": "el miembro que deseas",
-						ko: "원하는 멤버"
+						ko: "원하는 멤버",
+						uk: "бажаний учасник",
+						de: "Das gewünschte Mitglied",
+						it: "Il membro che vuoi",
+						"pt-BR": "O membro que você quer",
+						pl: "Wybrany członek"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -390,7 +501,12 @@ export const command: Command = {
 						ja: "プライベートメッセージ",
 						ru: "приватное сообщение",
 						"es-ES": "el mensaje privado",
-						ko: "개인 메시지"
+						ko: "개인 메시지",
+						uk: "приватне повідомлення",
+						de: "Die private Nachricht",
+						it: "Il messaggio privato",
+						"pt-BR": "A mensagem privada",
+						pl: "Prywatna wiadomość"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -415,7 +531,13 @@ export const command: Command = {
 				ru: "Определить разрешенные роли для команд addrole и delrole",
 				"es-ES":
 					"Definir roles permitidos para los comandos addrole y delrole",
-				ko: "addrole 및 delrole 명령어에 허용할 역할을 정해요"
+				ko: "addrole 및 delrole 명령어에 허용할 역할을 정해요",
+				uk: "Визначити дозволені ролі для команд addrole і delrole",
+				de: "Erlaubte Rollen für die Befehle addrole & delrole festlegen",
+				it: "Definisci i ruoli consentiti per i comandi addrole e delrole",
+				"pt-BR":
+					"Defina os cargos permitidos para os comandos addrole e delrole",
+				pl: "Zdefiniuj role dozwolone dla komend addrole i delrole"
 			},
 
 			aliases: ["wlrole"],
@@ -435,7 +557,13 @@ export const command: Command = {
 				ru: "Определить каналы только для картинок/видео (блокировать другое содержимое)",
 				"es-ES":
 					"Definir canales solo para enviar imágenes/videos (bloquear otro contenido)",
-				ko: "사진/동영상만 보낼 수 있는 채널을 정해요 (다른 콘텐츠 차단)"
+				ko: "사진/동영상만 보낼 수 있는 채널을 정해요 (다른 콘텐츠 차단)",
+				uk: "Визначити канали лише для фото/відео (блокувати інший вміст)",
+				de: "Kanäle nur für Bilder/Videos festlegen (anderes wird blockiert)",
+				it: "Definisci canali solo per immagini/video (blocca altri contenuti)",
+				"pt-BR":
+					"Defina canais só para imagens/vídeos (bloqueia outros conteúdos)",
+				pl: "Zdefiniuj kanały tylko na obrazy/filmy (inne treści są blokowane)"
 			},
 
 			aliases: ["piconly", "mediaonly"],
@@ -453,7 +581,12 @@ export const command: Command = {
 				ja: "ピンしたユーザーに特定のロールを付与！",
 				ru: "Дать определенную роль тому, кто меня упомянет!",
 				"es-ES": "Dar un rol específico al usuario que me mencione!",
-				ko: "저를 멘션한 사용자에게 특정 역할을 부여해요!"
+				ko: "저를 멘션한 사용자에게 특정 역할을 부여해요!",
+				uk: "Видати певну роль тому, хто мене згадає!",
+				de: "Gib dem Nutzer, der mich pingt, eine bestimmte Rolle!",
+				it: "Assegna un ruolo specifico all'utente che mi menziona!",
+				"pt-BR": "Dê um cargo específico ao usuário que me mencionar!",
+				pl: "Nadaj konkretną rolę użytkownikowi, który mnie spinguje!"
 			},
 
 			aliases: ["setrank", "setranks", "rankset"],
@@ -469,7 +602,12 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					required: true,
@@ -481,7 +619,12 @@ export const command: Command = {
 								ja: "power_off",
 								ru: "power_off",
 								"es-ES": "power_off",
-								ko: "끄기"
+								ko: "끄기",
+								uk: "Вимкнути",
+								de: "Ausschalten",
+								it: "Disattiva",
+								"pt-BR": "Desligar",
+								pl: "Wyłącz"
 							},
 							value: "off"
 						},
@@ -492,7 +635,12 @@ export const command: Command = {
 								ja: "power_on",
 								ru: "power_on",
 								"es-ES": "power_on",
-								ko: "켜기"
+								ko: "켜기",
+								uk: "Увімкнути",
+								de: "Einschalten",
+								it: "Attiva",
+								"pt-BR": "Ligar",
+								pl: "Włącz"
 							},
 							value: "on"
 						}
@@ -509,7 +657,12 @@ export const command: Command = {
 						ja: "付与する特定のロール！",
 						ru: "Конкретные роли для выдачи!",
 						"es-ES": "Los roles específicos a dar!",
-						ko: "지급할 역할!"
+						ko: "지급할 역할!",
+						uk: "Ролі, які потрібно видати!",
+						de: "Die bestimmten Rollen, die vergeben werden!",
+						it: "I ruoli specifici da assegnare!",
+						"pt-BR": "Os cargos específicos a dar!",
+						pl: "Konkretne role do nadania!"
 					},
 
 					required: false,
@@ -527,7 +680,12 @@ export const command: Command = {
 						ru: "Часть ника, которую вы хотите видеть в нике человека",
 						"es-ES":
 							"La parte del apodo que deseas que la persona tenga en su apodo",
-						ko: "상대의 별명에 포함되길 원하는 부분"
+						ko: "상대의 별명에 포함되길 원하는 부분",
+						uk: "Частина нікнейму, яку ви хочете бачити в нікнеймі людини",
+						de: "Der Teil des Nicknames, den die Person haben soll",
+						it: "La parte del nickname che la persona deve avere",
+						"pt-BR": "A parte do apelido que a pessoa deve ter",
+						pl: "Fragment pseudonimu, który ma mieć dana osoba"
 					},
 
 					required: false,
@@ -551,7 +709,13 @@ export const command: Command = {
 				ru: "Пересоздать канал (клонирование прав и всех настроек). Аналог nuke",
 				"es-ES":
 					"Recrear un canal (clonando permisos y todas las configuraciones). Equivalente a nuke",
-				ko: "채널을 다시 만들어요 (권한과 모든 설정 복제). nuke와 같아요"
+				ko: "채널을 다시 만들어요 (권한과 모든 설정 복제). nuke와 같아요",
+				uk: "Перестворити канал (зі збереженням прав і всіх налаштувань). Аналог nuke",
+				de: "Erstellt einen Kanal neu (Rechte und Einstellungen geklont), wie nuke",
+				it: "Ricrea un canale (clonando permessi e configurazioni), come nuke",
+				"pt-BR":
+					"Recria um canal (clonando permissões e configurações), como nuke",
+				pl: "Odtwarza kanał (klonując uprawnienia i ustawienia), jak nuke"
 			},
 
 			aliases: ["r", "rnw"],
@@ -571,7 +735,13 @@ export const command: Command = {
 				ru: "Найти пользователя Discord и посмотреть его предыдущие имена!",
 				"es-ES":
 					"Buscar un usuario de Discord y ver su nombre de usuario anterior!",
-				ko: "Discord 사용자를 조회하고 이전 사용자명을 확인해요!"
+				ko: "Discord 사용자를 조회하고 이전 사용자명을 확인해요!",
+				uk: "Знайти користувача Discord і переглянути його попередні імена!",
+				de: "Suche einen Discord-Nutzer und sieh seine früheren Namen!",
+				it: "Cerca un utente Discord e guarda i suoi nomi precedenti!",
+				"pt-BR":
+					"Busque um usuário do Discord e veja seus nomes anteriores!",
+				pl: "Wyszukaj użytkownika Discord i zobacz jego poprzednie nazwy!"
 			},
 
 			aliases: ["pvnames", "pvname", "prevname"],
@@ -587,7 +757,12 @@ export const command: Command = {
 						ja: "検索したいユーザー",
 						ru: "Пользователь, которого вы хотите найти",
 						"es-ES": "El usuario que quieres buscar",
-						ko: "검색할 사용자"
+						ko: "검색할 사용자",
+						uk: "Користувач, якого ви хочете знайти",
+						de: "Der Nutzer, den du suchen möchtest",
+						it: "L'utente che vuoi cercare",
+						"pt-BR": "O usuário que você quer buscar",
+						pl: "Użytkownik, którego chcesz wyszukać"
 					},
 
 					required: false,
@@ -611,7 +786,13 @@ export const command: Command = {
 				ru: "Выдать роли всем пользователям с указанными символами в имени!",
 				"es-ES":
 					"Dar roles a todos los usuarios que tengan un carácter específico en su nombre de usuario!",
-				ko: "사용자명에 지정한 문자가 있는 모든 사용자에게 역할을 부여해요!"
+				ko: "사용자명에 지정한 문자가 있는 모든 사용자에게 역할을 부여해요!",
+				uk: "Видати ролі всім користувачам із вказаними символами в імені!",
+				de: "Gib allen mit einem bestimmten Zeichen im Namen eine Rolle!",
+				it: "Assegna un ruolo a chi ha un certo carattere nel nome utente!",
+				"pt-BR":
+					"Dê um cargo a quem tem um caractere específico no nome de usuário!",
+				pl: "Nadaj rolę wszystkim z danym znakiem w nazwie użytkownika!"
 			},
 
 			options: [
@@ -625,7 +806,12 @@ export const command: Command = {
 						ja: "実行したいアクション",
 						ru: "Действие, которое вы хотите выполнить",
 						"es-ES": "La acción que quieres realizar",
-						ko: "실행할 작업"
+						ko: "실행할 작업",
+						uk: "Дія, яку ви хочете виконати",
+						de: "Die gewünschte Aktion",
+						it: "L'azione che vuoi eseguire",
+						"pt-BR": "A ação que você quer executar",
+						pl: "Akcja, którą chcesz wykonać"
 					},
 
 					required: true,
@@ -637,7 +823,12 @@ export const command: Command = {
 								ja: "add",
 								ru: "add",
 								"es-ES": "add",
-								ko: "추가"
+								ko: "추가",
+								uk: "Додати",
+								de: "Hinzufügen",
+								it: "Aggiungi",
+								"pt-BR": "Adicionar",
+								pl: "Dodaj"
 							},
 							value: "add"
 						},
@@ -648,7 +839,12 @@ export const command: Command = {
 								ja: "remove",
 								ru: "remove",
 								"es-ES": "remove",
-								ko: "제거"
+								ko: "제거",
+								uk: "Видалити",
+								de: "Entfernen",
+								it: "Rimuovi",
+								"pt-BR": "Remover",
+								pl: "Usuń"
 							},
 							value: "sub"
 						}
@@ -666,7 +862,12 @@ export const command: Command = {
 						ja: "ニックネームに含める部分",
 						ru: "Часть, включаемая в никнейм",
 						"es-ES": "La parte a incluir en el apodo",
-						ko: "별명에 포함된 문자열"
+						ko: "별명에 포함된 문자열",
+						uk: "Частина, що міститься в нікнеймі",
+						de: "Der im Spitznamen enthaltene Teil",
+						it: "La parte contenuta nel nickname",
+						"pt-BR": "A parte incluída no apelido",
+						pl: "Fragment zawarty w pseudonimie"
 					},
 
 					required: true,
@@ -683,7 +884,12 @@ export const command: Command = {
 						ja: "付与したいロール",
 						ru: "Роль, которую вы хотите выдать",
 						"es-ES": "El rol que quieres dar",
-						ko: "지급할 역할"
+						ko: "지급할 역할",
+						uk: "Роль, яку ви хочете видати",
+						de: "Die Rolle, die du vergeben willst",
+						it: "Il ruolo da assegnare",
+						"pt-BR": "O cargo que você quer dar",
+						pl: "Rola do nadania"
 					},
 
 					required: true,
@@ -707,7 +913,12 @@ export const command: Command = {
 				ru: "Переместить всех участников из одного голосового канала в другой",
 				"es-ES":
 					"Mover todos los miembros conectados en un canal de voz a otro",
-				ko: "음성 채널에 연결된 모든 멤버를 다른 채널로 옮겨요"
+				ko: "음성 채널에 연결된 모든 멤버를 다른 채널로 옮겨요",
+				uk: "Перемістити всіх учасників з одного голосового каналу в інший",
+				de: "Alle Mitglieder eines Sprachkanals in einen anderen verschieben",
+				it: "Sposta tutti i membri di un canale vocale in un altro",
+				"pt-BR": "Mova todos os membros de um canal de voz para outro",
+				pl: "Przenieś wszystkich członków kanału głosowego na inny"
 			},
 
 			options: [
@@ -723,7 +934,12 @@ export const command: Command = {
 						ja: "メンバーを移動する先のボイスチャンネル",
 						ru: "Голосовой канал, куда перемещать участников",
 						"es-ES": "El canal de voz al que mover miembros",
-						ko: "멤버를 옮길 음성 채널"
+						ko: "멤버를 옮길 음성 채널",
+						uk: "Голосовий канал, куди переміщувати учасників",
+						de: "Sprachkanal, in den Mitglieder verschoben werden",
+						it: "Canale vocale in cui spostare i membri",
+						"pt-BR": "Canal de voz para onde mover os membros",
+						pl: "Kanał głosowy, do którego przenieść członków"
 					},
 
 					required: true,
@@ -742,7 +958,12 @@ export const command: Command = {
 						ja: "メンバーを移動する元のボイスチャンネル",
 						ru: "Голосовой канал, откуда перемещать участников",
 						"es-ES": "El canal de voz desde donde mover miembros",
-						ko: "멤버를 옮겨 올 음성 채널"
+						ko: "멤버를 옮겨 올 음성 채널",
+						uk: "Голосовий канал, звідки переміщувати учасників",
+						de: "Sprachkanal, aus dem Mitglieder verschoben werden",
+						it: "Canale vocale da cui spostare i membri",
+						"pt-BR": "Canal de voz de onde mover os membros",
+						pl: "Kanał głosowy, z którego przenieść członków"
 					},
 
 					required: false,
@@ -768,7 +989,12 @@ export const command: Command = {
 				ja: "サーバー内の全員にロールを追加/削除",
 				ru: "Добавить/удалить роли всем на сервере",
 				"es-ES": "Añadir/Quitar roles a todos en el servidor",
-				ko: "서버의 모든 멤버에게 역할을 추가/제거해요"
+				ko: "서버의 모든 멤버에게 역할을 추가/제거해요",
+				uk: "Додати/видалити ролі всім на сервері",
+				de: "Rollen für alle auf dem Server hinzufügen/entfernen",
+				it: "Aggiungi/rimuovi ruoli a tutti sul server",
+				"pt-BR": "Adicione/remova cargos de todos no servidor",
+				pl: "Dodaj/usuń role wszystkim na serwerze"
 			},
 
 			aliases: ["massrole", "massroles"],
@@ -784,7 +1010,12 @@ export const command: Command = {
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
 						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?"
+						ko: "무엇을 할까요?",
+						uk: "Що ви хочете зробити?",
+						de: "Was möchtest du tun?",
+						it: "Cosa vuoi fare?",
+						"pt-BR": "O que você quer fazer?",
+						pl: "Co chcesz zrobić?"
 					},
 
 					required: true,
@@ -796,7 +1027,12 @@ export const command: Command = {
 								ja: "add",
 								ru: "add",
 								"es-ES": "add",
-								ko: "추가"
+								ko: "추가",
+								uk: "Додати",
+								de: "Hinzufügen",
+								it: "Aggiungi",
+								"pt-BR": "Adicionar",
+								pl: "Dodaj"
 							},
 							value: "add"
 						},
@@ -807,7 +1043,12 @@ export const command: Command = {
 								ja: "remove",
 								ru: "remove",
 								"es-ES": "remove",
-								ko: "제거"
+								ko: "제거",
+								uk: "Видалити",
+								de: "Entfernen",
+								it: "Rimuovi",
+								"pt-BR": "Remover",
+								pl: "Usuń"
 							},
 							value: "sub"
 						}
@@ -825,7 +1066,12 @@ export const command: Command = {
 						ja: "追加したい指定ロール",
 						ru: "Указанная роль для добавления",
 						"es-ES": "El rol especificado que quieres añadir",
-						ko: "추가할 역할"
+						ko: "추가할 역할",
+						uk: "Роль, яку ви хочете додати",
+						de: "Die angegebene Rolle, die du hinzufügen willst",
+						it: "Il ruolo indicato da aggiungere",
+						"pt-BR": "O cargo indicado que você quer adicionar",
+						pl: "Wskazana rola do dodania"
 					},
 
 					required: true,
@@ -850,7 +1096,12 @@ export const command: Command = {
 				ja: "サーバーの情報を取得！",
 				ru: "Получить информацию о сервере!",
 				"es-ES": "Obtener información sobre el servidor!",
-				ko: "서버 정보를 확인해요!"
+				ko: "서버 정보를 확인해요!",
+				uk: "Отримати інформацію про сервер!",
+				de: "Infos zum Server anzeigen!",
+				it: "Ottieni informazioni sul server!",
+				"pt-BR": "Veja informações sobre o servidor!",
+				pl: "Pokaż informacje o serwerze!"
 			},
 
 			aliases: ["si", "gi"],
@@ -868,7 +1119,12 @@ export const command: Command = {
 				ja: "サーバーに絵文字を簡単に追加",
 				ru: "Легко добавить эмодзи на сервер",
 				"es-ES": "Añadir emojis a tu servidor fácilmente",
-				ko: "서버에 이모지를 쉽게 추가해요"
+				ko: "서버에 이모지를 쉽게 추가해요",
+				uk: "Легко додавайте емодзі на свій сервер",
+				de: "Füge deinem Server ganz einfach Emojis hinzu",
+				it: "Aggiungi emoji al tuo server facilmente",
+				"pt-BR": "Adicione emojis ao seu servidor facilmente",
+				pl: "Łatwo dodawaj emotki na swój serwer"
 			},
 
 			aliases: ["addemoji", "create", "addemojis", "emoji", "emote"],
@@ -884,7 +1140,12 @@ export const command: Command = {
 						ja: "どの絵文字ですか？",
 						ru: "Какой эмодзи?",
 						"es-ES": "Cual es el emoji entonces?",
-						ko: "어떤 이모지인가요?"
+						ko: "어떤 이모지인가요?",
+						uk: "Який емодзі?",
+						de: "Welches Emoji dann?",
+						it: "Quale emoji allora?",
+						"pt-BR": "Qual emoji então?",
+						pl: "Jakie więc emoji?"
 					},
 
 					required: true,
@@ -905,7 +1166,12 @@ export const command: Command = {
 				ja: "美しい埋め込みを作成！",
 				ru: "Создать красивый эмбед!",
 				"es-ES": "Crear un embed hermoso!",
-				ko: "멋진 임베드를 만들어요!"
+				ko: "멋진 임베드를 만들어요!",
+				uk: "Створити гарний ембед!",
+				de: "Erstelle ein schönes Embed!",
+				it: "Crea un bell'embed!",
+				"pt-BR": "Crie um embed bonito!",
+				pl: "Utwórz ładny embed!"
 			},
 			options: [
 				{
@@ -917,7 +1183,12 @@ export const command: Command = {
 						ja: "埋め込みのIDがある場合！",
 						ru: "Если у вас есть ID эмбеда!",
 						"es-ES": "Si tienes un ID de embed!",
-						ko: "임베드 ID가 있다면 입력하세요!"
+						ko: "임베드 ID가 있다면 입력하세요!",
+						uk: "Якщо у вас є ID ембеда!",
+						de: "Falls du eine Embed-ID hast!",
+						it: "Se hai l'ID di un embed!",
+						"pt-BR": "Se você tiver o ID de um embed!",
+						pl: "Jeśli masz ID embeda!"
 					},
 					required: false,
 
@@ -938,7 +1209,12 @@ export const command: Command = {
 				ja: "メンバーの全ロールを削除",
 				ru: "Удалить все роли у участников",
 				"es-ES": "Eliminar todos los roles de los miembros",
-				ko: "멤버의 모든 역할을 제거해요"
+				ko: "멤버의 모든 역할을 제거해요",
+				uk: "Видалити всі ролі учасника",
+				de: "Alle Rollen eines Mitglieds entfernen",
+				it: "Rimuovi tutti i ruoli di un membro",
+				"pt-BR": "Remova todos os cargos de um membro",
+				pl: "Usuń wszystkie role członka"
 			},
 
 			options: [
@@ -952,7 +1228,12 @@ export const command: Command = {
 						ja: "ユーザー",
 						ru: "Пользователь",
 						"es-ES": "El usuario",
-						ko: "사용자"
+						ko: "사용자",
+						uk: "Користувач",
+						de: "Das Mitglied",
+						it: "L'utente",
+						"pt-BR": "O usuário",
+						pl: "Użytkownik"
 					},
 
 					required: true,
@@ -976,7 +1257,12 @@ export const command: Command = {
 				ru: "Получить список всех участников с правами администратора",
 				"es-ES":
 					"Obtener la lista de todos los miembros del servidor que tienen permisos de administrador",
-				ko: "관리자 권한이 있는 모든 서버 멤버 목록을 확인해요"
+				ko: "관리자 권한이 있는 모든 서버 멤버 목록을 확인해요",
+				uk: "Отримати список усіх учасників сервера з правами адміністратора",
+				de: "Liste aller Mitglieder mit Admin-Rechten anzeigen",
+				it: "Ottieni l'elenco dei membri con permessi admin",
+				"pt-BR": "Veja a lista dos membros com permissões de admin",
+				pl: "Pokaż listę członków z uprawnieniami admina"
 			},
 
 			aliases: ["alladmin", "allperms", "alladmins", "adminusers"],
@@ -994,7 +1280,12 @@ export const command: Command = {
 				ja: "サーバー内の全ボットのリストを取得",
 				ru: "Получить список всех ботов на сервере",
 				"es-ES": "Obtener la lista de todos los bots en el servidor",
-				ko: "서버의 모든 봇 목록을 확인해요"
+				ko: "서버의 모든 봇 목록을 확인해요",
+				uk: "Отримати список усіх ботів на сервері",
+				de: "Liste aller Bots auf dem Server anzeigen",
+				it: "Ottieni l'elenco di tutti i bot nel server",
+				"pt-BR": "Veja a lista de todos os bots do servidor",
+				pl: "Pokaż listę wszystkich botów na serwerze"
 			},
 
 			aliases: ["allb", "bots"],
@@ -1013,7 +1304,12 @@ export const command: Command = {
 				ja: "ユーザーにロールを追加",
 				ru: "Добавить роль пользователю",
 				"es-ES": "Añadir rol al usuario",
-				ko: "사용자에게 역할 추가"
+				ko: "사용자에게 역할 추가",
+				uk: "Додати роль користувачу",
+				de: "Rolle zu Nutzer hinzufügen",
+				it: "Aggiungi ruolo a un utente",
+				"pt-BR": "Adicionar cargo a um usuário",
+				pl: "Dodaj rolę użytkownikowi"
 			},
 
 			options: [
@@ -1026,7 +1322,12 @@ export const command: Command = {
 						ja: "ロールを追加したいユーザー",
 						ru: "Пользователь, которому нужно добавить роль",
 						"es-ES": "El usuario al que quieres añadir rol",
-						ko: "역할을 추가할 사용자"
+						ko: "역할을 추가할 사용자",
+						uk: "Користувач, якому потрібно додати роль",
+						de: "Das Mitglied, dem du eine Rolle geben willst",
+						it: "L'utente a cui aggiungere un ruolo",
+						"pt-BR": "O usuário a quem você quer dar um cargo",
+						pl: "Użytkownik, któremu dodać rolę"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -1044,7 +1345,12 @@ export const command: Command = {
 						ja: "ユーザーに追加したいロール",
 						ru: "Роль для добавления пользователю",
 						"es-ES": "El rol que quieres añadir al usuario",
-						ko: "사용자에게 추가할 역할"
+						ko: "사용자에게 추가할 역할",
+						uk: "Роль, яку потрібно додати користувачу",
+						de: "Die Rolle, die dem Mitglied hinzugefügt wird",
+						it: "Il ruolo da aggiungere all'utente",
+						"pt-BR": "O cargo que você quer dar ao usuário",
+						pl: "Rola do dodania użytkownikowi"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -1068,7 +1374,12 @@ export const command: Command = {
 				ja: "ユーザーからロールを削除",
 				ru: "Удалить роль у пользователя",
 				"es-ES": "Quitar rol al usuario",
-				ko: "사용자의 역할 제거"
+				ko: "사용자의 역할 제거",
+				uk: "Видалити роль у користувача",
+				de: "Rolle von Nutzer entfernen",
+				it: "Rimuovi ruolo a un utente",
+				"pt-BR": "Remover cargo de um usuário",
+				pl: "Usuń rolę użytkownikowi"
 			},
 
 			options: [
@@ -1081,7 +1392,12 @@ export const command: Command = {
 						ja: "ロールを削除したいユーザー",
 						ru: "Пользователь, у которого нужно удалить роль",
 						"es-ES": "El usuario al que quieres quitar el rol",
-						ko: "역할을 제거할 사용자"
+						ko: "역할을 제거할 사용자",
+						uk: "Користувач, у якого потрібно видалити роль",
+						de: "Das Mitglied, dem du eine Rolle entziehen willst",
+						it: "L'utente a cui rimuovere un ruolo",
+						"pt-BR": "O usuário de quem você quer remover um cargo",
+						pl: "Użytkownik, któremu odebrać rolę"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -1099,7 +1415,12 @@ export const command: Command = {
 						ja: "ユーザーから削除したいロール",
 						ru: "Роль, которую нужно убрать у пользователя",
 						"es-ES": "El rol que quieres quitar al usuario",
-						ko: "사용자에게서 제거할 역할"
+						ko: "사용자에게서 제거할 역할",
+						uk: "Роль, яку потрібно видалити в користувача",
+						de: "Die Rolle, die dem Mitglied entzogen wird",
+						it: "Il ruolo da rimuovere all'utente",
+						"pt-BR": "O cargo que você quer remover do usuário",
+						pl: "Rola do odebrania użytkownikowi"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -1124,7 +1445,12 @@ export const command: Command = {
 				ru: "Создать ZIP-файлы со всеми эмодзи сервера!",
 				"es-ES":
 					"Crear archivos zip con todos los emojis del servidor!",
-				ko: "서버의 모든 이모지를 담은 zip 파일을 만들어요!"
+				ko: "서버의 모든 이모지를 담은 zip 파일을 만들어요!",
+				uk: "Створити ZIP-файли з усіма емодзі сервера!",
+				de: "Erstelle eine ZIP-Datei mit allen Server-Emojis!",
+				it: "Crea uno zip con tutte le emoji del server!",
+				"pt-BR": "Crie um zip com todos os emojis do servidor!",
+				pl: "Utwórz plik ZIP ze wszystkimi emotkami serwera!"
 			},
 
 			aliases: ["zipemojis", "zip1"],

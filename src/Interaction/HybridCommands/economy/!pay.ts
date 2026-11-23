@@ -30,6 +30,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { acquireEconomyLock } from "../../../core/modules/economyLock.js";
+import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -120,19 +121,24 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
 				amount!
 			);
-			await client.func.method.interactionSend(interaction, {
-				content: lang.pay_command_work
-					.replaceAll(
-						"${authorUsername}",
-						(interaction.member.user as User).globalName ||
-							interaction.member.user.username
-					)
-					.replaceAll(
-						"${userUsername}",
-						user.user.globalName || user.user.displayName
-					)
-					.replaceAll("${amount}", amount.toString())
-			});
+			await sendCard(
+				client,
+				interaction,
+				notice(
+					"success",
+					`${client.iHorizon_Emojis.Yes} ${lang.pay_command_work
+						.replaceAll(
+							"${authorUsername}",
+							(interaction.member.user as User).globalName ||
+								interaction.member.user.username
+						)
+						.replaceAll(
+							"${userUsername}",
+							user.user.globalName || user.user.displayName
+						)
+						.replaceAll("${amount}", amount.toString())}`
+				)
+			);
 
 			await client.func.economyLogs.pay(
 				interaction.guild,

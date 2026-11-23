@@ -180,8 +180,6 @@ export async function disableTalkMode(
 	return { ok: true, channel: targetChannel, unmutedCount };
 }
 
-export const DEROGATION_ROLE_NAME = "managed by iHorizon";
-
 export type DerogationResult =
 	| {
 			ok: true;
@@ -225,8 +223,10 @@ export async function syncDerogation(
 	let created = false;
 
 	if (!role) {
+		// Found again by its stored id only: the name is just a label.
+		const lang = await client.func.getLanguageData(guild.id);
 		role = await guild.roles.create({
-			name: DEROGATION_ROLE_NAME,
+			name: lang.derogation_role_name,
 			permissions,
 			reason: `[Utils:Derogation] Created by ${authorTag}`
 		});

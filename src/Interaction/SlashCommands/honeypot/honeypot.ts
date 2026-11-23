@@ -35,7 +35,12 @@ export const command: Command = {
 		ja: "ハニーポット設定のサブコマンド！",
 		ru: "Подкоманда для настройки Honeypot!",
 		"es-ES": "Subcomando para la configuración de honeypot!",
-		ko: "허니팟 설정 하위 명령어!"
+		ko: "허니팟 설정 하위 명령어!",
+		uk: "Підкоманда для налаштування Honeypot!",
+		de: "Unterbefehle der Honeypot-Konfiguration!",
+		it: "Sottocomandi della configurazione honeypot!",
+		"pt-BR": "Subcomandos da configuração do honeypot!",
+		pl: "Podkomendy konfiguracji honeypota!"
 	},
 
 	options: [
@@ -48,7 +53,12 @@ export const command: Command = {
 				ja: "ハニーポット保護パネルを設定。",
 				ru: "Настроить панель защиты Honeypot.",
 				"es-ES": "Configurar el panel de protección Honeypot.",
-				ko: "허니팟 보호 패널을 설정해요."
+				ko: "허니팟 보호 패널을 설정해요.",
+				uk: "Налаштувати панель захисту Honeypot.",
+				de: "Konfiguriere das Honeypot-Schutzpanel.",
+				it: "Configura il pannello di protezione Honeypot.",
+				"pt-BR": "Configure o painel de proteção Honeypot.",
+				pl: "Skonfiguruj panel ochrony Honeypot."
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

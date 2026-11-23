@@ -19,18 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	EmbedBuilder,
-	Guild,
-	GuildBasedChannel
-} from "discord.js";
+import { BaseGuildTextChannel, Guild, GuildBasedChannel } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload
+} from "../modules/uiCard.js";
+
+type LogEmoji = "Plus" | "Minus" | "Boost_Gem" | "Gear" | "Wallet" | "Coin";
 
 async function getEconomyChannel(
 	guild: Guild
 ): Promise<GuildBasedChannel | null> {
-	const channelId = await client.db.get(
+	const channelId = await guild.client.db.get(
 		`${guild.id}.GUILD.SERVER_LOGS.economy`
 	);
 	if (!channelId) return null;
@@ -41,18 +44,23 @@ async function getEconomyChannel(
 	);
 }
 
-function sendEmbed(
+/** The economy log card: never pings the members it names. */
+async function sendLog(
 	channel: BaseGuildTextChannel,
 	title: string,
-	description: string
-): void {
-	const embed = new EmbedBuilder()
-		.setColor("#f1c232")
-		.setTitle(title)
-		.setDescription(description)
-		.setTimestamp();
-
-	channel.send({ embeds: [embed] });
+	description: string,
+	emoji: LogEmoji = "Coin"
+): Promise<void> {
+	const client = channel.guild.client;
+	const card = buildCard({
+		accent: ACCENT.warning,
+		emoji: client.iHorizon_Emojis[emoji],
+		title,
+		description,
+		footer: `<t:${Math.floor(Date.now() / 1000)}:f>`,
+		signature: await botSignature(client, channel.guild.id)
+	});
+	await channel.send(cardPayload(card) as never).catch(() => undefined);
 }
 
 export async function addMoney(
@@ -65,14 +73,15 @@ export async function addMoney(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_add_money_title,
 		lang.economy_logs_add_money_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{target}", `<@${target}>`)
 			.replace("{amount}", amount.toString())
-			.replace("{coin}", client.iHorizon_Emojis.Coin)
+			.replace("{coin}", guild.client.iHorizon_Emojis.Coin),
+		"Plus"
 	);
 }
 
@@ -86,14 +95,15 @@ export async function removeMoney(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_remove_money_title,
 		lang.economy_logs_remove_money_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{target}", `<@${target}>`)
 			.replace("{amount}", amount.toString())
-			.replace("{coin}", client.iHorizon_Emojis.Coin)
+			.replace("{coin}", guild.client.iHorizon_Emojis.Coin),
+		"Minus"
 	);
 }
 
@@ -107,13 +117,14 @@ export async function boostModifying(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_boost_role_title,
 		lang.economy_logs_boost_role_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{role}", `<@&${role}>`)
-			.replace("{amount}", amount.toString())
+			.replace("{amount}", amount.toString()),
+		"Boost_Gem"
 	);
 }
 
@@ -126,12 +137,13 @@ export async function config(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_config_title,
 		lang.economy_logs_config_desc
 			.replace("{author}", `<@${author}>`)
-			.replace("{state}", lang[`var_${target}`])
+			.replace("{state}", lang[`var_${target}`]),
+		"Gear"
 	);
 }
 
@@ -145,13 +157,14 @@ export async function roleAdd(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_role_add_title,
 		lang.economy_logs_role_add_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{role}", `<@&${role}>`)
-			.replace("{amount}", amount.toString())
+			.replace("{amount}", amount.toString()),
+		"Plus"
 	);
 }
 
@@ -164,12 +177,13 @@ export async function roleDelete(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_role_remove_title,
 		lang.economy_logs_role_remove_desc
 			.replace("{author}", `<@${author}>`)
-			.replace("{role}", `<@&${role}>`)
+			.replace("{role}", `<@&${role}>`),
+		"Minus"
 	);
 }
 
@@ -183,13 +197,14 @@ export async function pay(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_pay_title,
 		lang.economy_logs_pay_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{target}", `<@${target}>`)
-			.replace("{amount}", amount.toString())
+			.replace("{amount}", amount.toString()),
+		"Wallet"
 	);
 }
 
@@ -203,13 +218,14 @@ export async function rob(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_rob_title,
 		lang.economy_logs_rob_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{target}", `<@${target}>`)
-			.replace("{amount}", amount.toString())
+			.replace("{amount}", amount.toString()),
+		"Wallet"
 	);
 }
 
@@ -223,13 +239,14 @@ export async function setCooldown(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_set_cooldown_title,
 		lang.economy_logs_set_cooldown_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{type}", type.toUpperCase())
-			.replace("{time}", time)
+			.replace("{time}", time),
+		"Gear"
 	);
 }
 
@@ -243,13 +260,14 @@ export async function setMoney(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_set_money_title,
 		lang.economy_logs_set_money_desc
 			.replace("{author}", `<@${author}>`)
 			.replace("{type}", type.toUpperCase())
-			.replace("{money}", money.toString())
+			.replace("{money}", money.toString()),
+		"Gear"
 	);
 }
 
@@ -262,12 +280,13 @@ export async function withdraw(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_withdraw_title,
 		lang.economy_logs_withdraw_desc
 			.replace("{author}", `<@${author}>`)
-			.replace("{money}", money.toString())
+			.replace("{money}", money.toString()),
+		"Coin"
 	);
 }
 
@@ -280,11 +299,12 @@ export async function deposit(
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
-	sendEmbed(
+	await sendLog(
 		channel as BaseGuildTextChannel,
 		lang.economy_logs_deposit_title,
 		lang.economy_logs_deposit_desc
 			.replace("{author}", `<@${author}>`)
-			.replace("{money}", money.toString())
+			.replace("{money}", money.toString()),
+		"Coin"
 	);
 }

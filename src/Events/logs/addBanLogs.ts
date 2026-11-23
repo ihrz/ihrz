@@ -20,15 +20,14 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
 	PermissionsBitField,
 	AuditLogEvent,
 	GuildBan
 } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 import {
 	getLogs,
 	handledAuditLogEntrie_logs,
@@ -65,24 +64,20 @@ export const event: BotEvent = {
 		});
 		if (!relevantLog) return;
 
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setDescription(
-				data.event_srvLogs_banAdd_description
-					.replace("${executorId}", relevantLog?.executor?.id!)
-					.replace("${targetId}", relevantLog?.targetId!)
-			)
-			.addFields({
-				name: data.event_srvLogs_banAdd_fields_name,
-				value: data.event_srvLogs_banAdd_fields_value.replace(
+		await sendLogCard(Msgchannel, {
+			kind: "danger",
+			emoji: client.iHorizon_Emojis.Ban_Hammer,
+			title: data.logs_ban_add_title,
+			thumbnail: ban.user.displayAvatarURL(),
+			description: data.event_srvLogs_banAdd_description
+				.replace("${executorId}", relevantLog?.executor?.id!)
+				.replace("${targetId}", relevantLog?.targetId!),
+			blocks: [
+				`**${data.event_srvLogs_banAdd_fields_name}**\n${data.event_srvLogs_banAdd_fields_value.replace(
 					"{reason}",
 					relevantLog?.reason || data.blacklist_var_no_reason
-				)
-			})
-			.setTimestamp();
-
-		await (Msgchannel as BaseGuildTextChannel)
-			.send({ embeds: [logsEmbed] })
-			.catch(() => {});
+				)}`
+			]
+		});
 	}
 };

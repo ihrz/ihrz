@@ -21,14 +21,13 @@
 
 import {
 	AuditLogEvent,
-	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
 	GuildChannel,
 	PermissionFlagsBits
 } from "discord.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 import { LanguageData } from "../../../types/languageData.js";
 import {
 	getLogs,
@@ -172,33 +171,31 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (changes.length > 1024) {
-			changes = changes.substring(0, 1021) + "...";
+		if (changes.length > 3500) {
+			changes = changes.substring(0, 3497) + "...";
 		}
 
-		const icon = relevantLog?.executor?.displayAvatarURL();
+		const executor = relevantLog?.executor ?? relevantLog_2?.executor;
 
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setAuthor({
-				name: relevantLog?.executor?.username || lang.var_unknown,
-				iconURL: icon
-			})
-			.setDescription(
-				lang.event_srvLogs_channelUpdate_embed_desc.replace(
-					"${newChannel}",
-					newChannel.toString()
-				)
-			)
-			.addFields({
-				name: lang.event_srvLogs_messageUpdate_footer_2,
-				value: changes
-			});
-
-		logsEmbed.setTimestamp();
-
-		await (Msgchannel as BaseGuildTextChannel)
-			.send({ embeds: [logsEmbed] })
-			.catch(() => {});
+		await sendLogCard(Msgchannel, {
+			kind: "edit",
+			emoji: client.iHorizon_Emojis.Gear,
+			title: lang.logs_channel_update_title,
+			thumbnail: executor?.displayAvatarURL() ?? null,
+			description: lang.event_srvLogs_channelUpdate_embed_desc.replace(
+				"${newChannel}",
+				newChannel.toString()
+			),
+			fields: [
+				{
+					emoji: client.iHorizon_Emojis.Ticket_User,
+					label: lang.var_author,
+					value: executor ? `<@${executor.id}>` : lang.var_unknown
+				}
+			],
+			blocks: [
+				`**${lang.event_srvLogs_messageUpdate_footer_2}**\n${changes}`
+			]
+		});
 	}
 };

@@ -37,6 +37,7 @@ import {
 	ActionRowBuilder
 } from "discord.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
+import { sendLogCard } from "../../../core/modules/logCard.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { generatePassword } from "../../../core/functions/random.js";
 import maskLink from "../../../core/functions/maskLink.js";
@@ -316,16 +317,6 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			(await interaction.guild.channels
 				.fetch(someinfo)
 				.catch(() => null));
-		let components: (
-			| APIMessageTopLevelComponent
-			| JSONEncodable<APIMessageTopLevelComponent>
-			| TopLevelComponentData
-			| ActionRowData<
-					| MessageActionRowComponentData
-					| MessageActionRowComponentBuilder
-			  >
-		)[] = [];
-
 		if (!channel) {
 			await client.db.delete(
 				`${interaction.guildId}.GUILD.SERVER_LOGS.confession`
@@ -333,23 +324,20 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			return;
 		}
 
-		let msg = `## ${lang.confession_embed_logs_title}: ${code}
-${name}`;
-
-		components.push(
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Secondary)
-					.setCustomId(`confessionauthor%${interaction.user.id}`)
-					.setLabel(lang.userinfo_button_label)
-			)
-		);
-
-		let embed = new EmbedBuilder()
-			.setColor("#010101")
-			.setDescription(msg)
-			.setTimestamp();
-		(channel as BaseGuildTextChannel).send({ embeds: [embed], components });
+		await sendLogCard(channel, {
+			kind: "info",
+			emoji: interaction.client.iHorizon_Emojis.Pages,
+			title: `${lang.confession_embed_logs_title}: ${code}`,
+			description: name,
+			rows: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setStyle(ButtonStyle.Secondary)
+						.setLabel(lang.userinfo_button_label)
+						.setCustomId(`confessionauthor%${interaction.user.id}`)
+				)
+			]
+		});
 	}
 
 	return;

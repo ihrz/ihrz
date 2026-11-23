@@ -36,7 +36,12 @@ export const command: Command = {
 		ja: "Webhookを保護",
 		ru: "Защитить вебхук",
 		"es-ES": "Asegurar webhook",
-		ko: "보안 웹후크"
+		ko: "보안 웹후크",
+		uk: "Захищений вебхук",
+		de: "Sicherer Webhook",
+		it: "Webhook sicuro",
+		"pt-BR": "Webhook seguro",
+		pl: "Bezpieczny webhook"
 	},
 
 	thinking: false,
@@ -53,7 +58,12 @@ export const command: Command = {
 				ja: "実行するアクション",
 				ru: "Выполняемое действие",
 				"es-ES": "Acción a realizar",
-				ko: "수행할 작업"
+				ko: "수행할 작업",
+				uk: "Дія для виконання",
+				de: "Auszuführende Aktion",
+				it: "Azione da eseguire",
+				"pt-BR": "Ação a executar",
+				pl: "Akcja do wykonania"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -67,7 +77,12 @@ export const command: Command = {
 						ja: "create",
 						ru: "create",
 						"es-ES": "create",
-						ko: "생성"
+						ko: "생성",
+						uk: "Створити",
+						de: "erstellen",
+						it: "crea",
+						"pt-BR": "criar",
+						pl: "utwórz"
 					},
 					value: "create"
 				},
@@ -78,7 +93,12 @@ export const command: Command = {
 						ja: "delete",
 						ru: "delete",
 						"es-ES": "delete",
-						ko: "삭제"
+						ko: "삭제",
+						uk: "Видалити",
+						de: "löschen",
+						it: "elimina",
+						"pt-BR": "excluir",
+						pl: "usuń"
 					},
 					value: "delete"
 				},
@@ -89,7 +109,12 @@ export const command: Command = {
 						ja: "list",
 						ru: "list",
 						"es-ES": "list",
-						ko: "목록"
+						ko: "목록",
+						uk: "Список",
+						de: "auflisten",
+						it: "elenca",
+						"pt-BR": "listar",
+						pl: "lista"
 					},
 					value: "list"
 				}
@@ -105,7 +130,12 @@ export const command: Command = {
 				ja: "WebhookのURLまたはWebhookコード",
 				ru: "URL вебхука или код вебхука",
 				"es-ES": "URL del webhook o código del webhook",
-				ko: "웹후크 URL 또는 웹후크 코드"
+				ko: "웹후크 URL 또는 웹후크 코드",
+				uk: "URL вебхука або код вебхука",
+				de: "Webhook-URL oder Webhook-Code",
+				it: "URL o codice del webhook",
+				"pt-BR": "URL ou código do webhook",
+				pl: "URL lub kod webhooka"
 			},
 
 			type: ApplicationCommandOptionType.String,

@@ -19,14 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	EmbedBuilder,
-	Client,
-	VoiceState,
-	BaseGuildTextChannel
-} from "discord.js";
+import { Client, VoiceState } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -62,85 +58,76 @@ export const event: BotEvent = {
 
 		if (targetUser.id === client.user?.id) return;
 
-		const iconURL = targetUser.displayAvatarURL();
-
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setAuthor({ name: targetUser.username, iconURL: iconURL })
-			.setTimestamp();
+		const log = (
+			kind: "success" | "danger" | "info",
+			text: string,
+			channelId: string | null
+		) =>
+			sendLogCard(Msgchannel, {
+				kind,
+				emoji: client.iHorizon_Emojis.Voice_Channel,
+				title: data.logs_voice_title,
+				thumbnail: targetUser.displayAvatarURL(),
+				description: text
+					.replace("${targetUserId}", targetUser.id)
+					.replace("${OchannelID}", channelId?.toString()!)
+					.replace("${channelID}", channelId?.toString()!)
+			});
 
 		// JOIN/LEAVE
 		if (user && !channelID) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${OchannelID}", OchannelID?.toString()!)
+			await log(
+				"danger",
+				data.event_srvLogs_voiceStateUpdate_description,
+				OchannelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 
 		if (Ouser && !OchannelID) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_2_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${channelID}", channelID?.toString()!)
+			await log(
+				"success",
+				data.event_srvLogs_voiceStateUpdate_2_description,
+				channelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 
 		// MUTE CASQUE
 		if (!Ostatus.selfDeaf && status.selfDeaf) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_3_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${channelID}", channelID?.toString()!)
+			await log(
+				"info",
+				data.event_srvLogs_voiceStateUpdate_3_description,
+				channelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 
 		if (Ostatus.selfDeaf && !status.selfDeaf) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_4_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${channelID}", channelID?.toString()!)
+			await log(
+				"info",
+				data.event_srvLogs_voiceStateUpdate_4_description,
+				channelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 
 		// MUTE MICRO
 		if (!Ostatus.selfMute && status.selfMute) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_5_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${channelID}", channelID?.toString()!)
+			await log(
+				"info",
+				data.event_srvLogs_voiceStateUpdate_5_description,
+				channelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 
 		if (Ostatus.selfMute && !status.selfMute) {
-			logsEmbed.setDescription(
-				data.event_srvLogs_voiceStateUpdate_6_description
-					.replace("${targetUserId}", targetUser.id)
-					.replace("${channelID}", channelID?.toString()!)
+			await log(
+				"info",
+				data.event_srvLogs_voiceStateUpdate_6_description,
+				channelID
 			);
-			await (Msgchannel as BaseGuildTextChannel)
-				.send({ embeds: [logsEmbed] })
-				.catch(() => {});
 			return;
 		}
 	}

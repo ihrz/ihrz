@@ -41,7 +41,13 @@ export const command: Command = {
 		ru: "Добавить пользователя в список владельцев (не для обычных участников)!",
 		"es-ES":
 			"Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!",
-		ko: "사용자를 소유자 목록에 추가해요 (일반 멤버는 사용 불가)!"
+		ko: "사용자를 소유자 목록에 추가해요 (일반 멤버는 사용 불가)!",
+		uk: "Додати користувача до списку власників (недоступно звичайним учасникам)!",
+		de: "Fügt ein Mitglied zur Owner-Liste hinzu (nicht für normale Mitglieder)!",
+		it: "Aggiunge un utente alla lista proprietari (non per membri normali)!",
+		"pt-BR":
+			"Adiciona um usuário à lista de donos (não para membros comuns)!",
+		pl: "Dodaje użytkownika do listy właścicieli (nie dla zwykłych członków)!"
 	},
 
 	aliases: ["addowner", "owneradd", "owners", "ownerlist"],
@@ -59,7 +65,12 @@ export const command: Command = {
 				ru: "Участник, которого вы хотите сделать владельцем проектов iHorizon",
 				"es-ES":
 					"El miembro que quieres hacer propietario de los proyectos iHorizon",
-				ko: "iHorizon 프로젝트 소유자로 지정할 멤버"
+				ko: "iHorizon 프로젝트 소유자로 지정할 멤버",
+				uk: "Учасник, якого ви хочете зробити власником проєктів iHorizon",
+				de: "Mitglied, das Owner der iHorizon-Projekte wird",
+				it: "Membro da rendere proprietario dei progetti iHorizon",
+				"pt-BR": "Membro a tornar dono dos projetos iHorizon",
+				pl: "Członek, który zostanie właścicielem projektów iHorizon"
 			},
 
 			required: false,
@@ -213,7 +224,7 @@ export async function run_for_guild_owner(
 
 	const embed = new EmbedBuilder()
 		.setColor("#2E2EFE")
-		.setAuthor({ name: "Owners [Guild]" })
+		.setAuthor({ name: lang.owner_guild_title })
 		.setDescription(text)
 		.setFooter(
 			await client.func.displayBotName.footerBuilder(interaction.guildId!)

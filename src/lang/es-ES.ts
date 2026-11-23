@@ -2498,23 +2498,18 @@ export default {
 		"${emoji_No} | ¡No puedo eliminar más de 99 mensajes a la vez!",
 	clear_channel_message_deleted:
 		"¡Se han eliminado ${messageCount} mensajes!",
-	clear_confirmation_message: "¡Se han eliminado ${messageCount} mensajes!",
 	clear_logs_embed_title: "Registros de eliminación de mensajes",
 	clear_logs_embed_description:
 		"<@${authorId}> ha eliminado ${messageCount} mensajes en <#${channelId}>",
 	clear_command_no_message: "No hay mensajes para borrar en este canal",
 
 	// /lock
-	lock_embed_message_description:
-		"El canal ha sido bloqueado por <@${authorId}>.",
 	lock_dont_have_permission:
 		"${emoji_No} | No tienes permiso para bloquear canales.",
 	lock_logs_embed_title: "Registro de Bloqueos",
 	lock_logs_embed_description: "<@${authorId}> bloqueó <#${channelId}>",
 
 	// /unlock
-	unlock_embed_message_description:
-		"¡El canal ha sido desbloqueado correctamente!",
 	unlock_dont_have_permission:
 		"${emoji_No} | No tienes permiso para desbloquear canales.",
 	unlock_logs_embed_title: "Registro de Desbloqueos",
@@ -2523,14 +2518,10 @@ export default {
 	// /lockall
 	lockall_dont_have_permission:
 		"${emoji_No} | No tienes permiso para bloquear todos los canales.",
-	lockall_embed_message_description:
-		"Todos los canales han sido bloqueados por <@${authorId}>.",
 	lockall_logs_embed_title: "Registro de Bloqueo de Todos los Canales",
 	lockall_logs_embed_description: "<@${authorId}> bloqueó todos los canales!",
 
 	// /unlockall
-	unlockall_embed_message_description:
-		"Todos los canales han sido desbloqueados por <@${authorId}>.",
 	unlockall_logs_embed_title: "Registro de Desbloqueo de Todos los Canales",
 	unlockall_logs_embed_description:
 		"<@${authorId}> desbloqueó todos los canales!",
@@ -2543,8 +2534,6 @@ export default {
 		"${emoji_No} | **¡No hay nadie baneado de este servidor!**",
 	unban_the_member_is_not_banned:
 		"${emoji_No} | **¡El ID indicado no está baneado de este servidor!**",
-	unban_is_now_unbanned:
-		"¡<@${userID}> ahora ha sido desbaneado de este servidor!",
 	unban_logs_embed_title: "Registro de Desbaneos",
 	unban_logs_embed_description:
 		"<@${userID}> ¡Ha sido desbaneado del servidor por <@${authorId}>!",
@@ -2557,8 +2546,6 @@ export default {
 	tempmute_cannot_mute_yourself:
 		"${emoji_No} | ¡No puedes silenciarte a ti mismo!",
 	tempmute_already_muted: "¡Este usuario ya está silenciado!",
-	tempmute_command_work:
-		"<@${tomuteId}> ha sido silenciado durante ${duration}\n**Razón**: `${reason}`",
 	tempmute_unmuted_by_time: "<@${tomuteId}> ha sido desilenciado!",
 	tempmute_logs_embed_title: "Registros de silencio temporal",
 	tempmute_logs_embed_description:
@@ -2583,8 +2570,6 @@ export default {
 	temprole_cannot_add_yourself:
 		"${emoji_No} | ¡No puedes asignarte un rol temporal a ti mismo!",
 	temprole_already_has_role: "¡Este usuario ya tiene este rol temporal!",
-	temprole_command_work:
-		"<@${tomuteId}> ha recibido el rol durante ${duration}\n**Razón**: `${reason}`",
 	temprole_removed_by_time:
 		"¡El rol temporal de <@${tomuteId}> ha sido removido!",
 	temprole_logs_embed_title: "Registros de Roles Temporales",
@@ -2606,22 +2591,15 @@ export default {
 	unmute_not_muted: "¡Este usuario no está silenciado!",
 	unmute_muted_role_doesnt_exist:
 		"El rol 'muted' no existe. Por favor, silencia al usuario antes de crear el rol de silencio...",
-	unmute_command_work: "<@${tomuteId}> ha sido desilenciado!",
 	unmute_logs_embed_title: "Registros de desilencio",
 	unmute_logs_embed_description: "<@${authorId}> desilenció a <@${tomuteId}>",
 	unmuteall_no_muted_members: "No se encontraron miembros silenciados.",
 	unmuteall_audit_reason: "Desilenciar a todos",
-	unmuteall_command_work:
-		"${unmuted}/${total} miembros han sido desilenciados.",
 	unmuteall_logs_embed_title: "Registros de desilenciar a todos",
 	unmuteall_logs_embed_description:
 		"<@${authorId}> desilenció a ${unmuted}/${total} miembros.",
 
 	// /warn
-	warn_command_work:
-		"${emoji_Yes} ¡${member} ha sido advertido! **Razón**: `${reason}`\n__ID de advertencia__: `${warnId}`",
-	warn_logEmbed_title: "Registros de Advertencias",
-	warn_logEmbed_desc: "${author} ha advertido a ${member} por `${reason}`",
 	warn_dont_have_permission:
 		"${emoji_No} | No tienes permiso para advertir a un miembro en este servidor de Discord.",
 
@@ -2654,8 +2632,6 @@ export default {
 	var_ban_date: "Fecha del baneo",
 
 	// /borrar-advertencias
-	clearwarn_command_ok:
-		"${emoji_Yes} ${author}, se ha(n) eliminado **`${allWarnCount}`** advertencia(s) de ${member}",
 
 	// /tempban
 	tempban_dont_have_permission:
@@ -2664,8 +2640,6 @@ export default {
 		"No tengo permiso para banear a los miembros.",
 	tempban_cannot_ban_yourself: "¡No puedes banearte a ti mismo!",
 	tempban_already_banned: "¡Este usuario ya está temporalmente baneado!",
-	tempban_command_work:
-		"**<@${userId}>** ha sido baneado temporalmente por **${duration}**\n**Razón**: `${reason}`",
 	tempban_unbanned_by_time: "¡**<@${userId}>** ha sido desbaneado!",
 	tempban_logs_embed_title: "Registros de baneo temporal",
 	tempban_logs_embed_description:
@@ -4343,17 +4317,24 @@ export default {
 	guild_create_btn_repos: "Repositorios iHorizon",
 	guild_create_btn_support: "Servidor de Soporte",
 	guild_create_btn_docs: "Documentación iHorizon",
-	welcome_server_intro: "¡Gracias por recibirme! Soy **iHorizon**: moderación, tickets, música, protección, registros y mucho más, en un solo bot **gratuito** y de **código abierto**.",
+	welcome_server_intro:
+		"¡Gracias por recibirme! Soy **iHorizon**: moderación, tickets, música, protección, registros y mucho más, en un solo bot **gratuito** y de **código abierto**.",
 	welcome_lang_title: "Idioma",
-	welcome_lang_text: "Aquí hablo {language}, elegido según la región de tu servidor.\nPara cambiarlo, un administrador puede usar {command}: un panel permite elegir entre 11 idiomas.",
+	welcome_lang_text:
+		"Aquí hablo {language}, elegido según la región de tu servidor.\nPara cambiarlo, un administrador puede usar {command}: un panel permite elegir entre {count} idiomas.",
 	welcome_start_title: "Primeros pasos",
-	welcome_start_help: "{command} muestra todos los comandos, ordenados por categoría",
-	welcome_start_dashboard: "El [panel]({url}) lo configura todo desde tu navegador",
-	welcome_start_support: "¿Una pregunta o un error? Nuestro [servidor de soporte]({url}) está para ayudarte",
+	welcome_start_help:
+		"{command} muestra todos los comandos, ordenados por categoría",
+	welcome_start_dashboard:
+		"El [panel]({url}) lo configura todo desde tu navegador",
+	welcome_start_support:
+		"¿Una pregunta o un error? Nuestro [servidor de soporte]({url}) está para ayudarte",
 	welcome_footer: "Gratuito y de código abierto desde 2020 · ihorizon.org",
 	welcome_dm_title: "¡Gracias por añadir iHorizon!",
-	welcome_dm_intro: "iHorizon acaba de llegar a {guild}. Aquí tienes todo lo necesario para empezar.",
-	welcome_dm_outro: "> *Un bot gratuito puede hacerlo mejor que los bots de pago.*\nEso es iHorizon: una comunidad y un proyecto mantenidos por apasionados desde 2020. ¡Bienvenido a bordo!",
+	welcome_dm_intro:
+		"iHorizon acaba de llegar a {guild}. Aquí tienes todo lo necesario para empezar.",
+	welcome_dm_outro:
+		"> *Un bot gratuito puede hacerlo mejor que los bots de pago.*\nEso es iHorizon: una comunidad y un proyecto mantenidos por apasionados desde 2020. ¡Bienvenido a bordo!",
 	welcome_btn_dashboard: "Panel",
 	bot_server_bio:
 		"{wink_emoji} **iHorizon Discord Bot** **`+{count} comandos`**\n> *« Hecho por personas desde 2022, para tu comunidad. »*\n**https://www.ihorizon.org**",
@@ -4430,11 +4411,6 @@ export default {
 	var_off: "desactivado",
 	global_command_cooldown_msg:
 		"${emoji} Debes esperar **${time}** entre cada uso de **`${ctxCommandPath}`**",
-
-	global_warn_embed_title: "Has recibido una advertencia – Caso **`${id}`**",
-	global_warn_embed_desc:
-		"> **Motivo:** ${reason}\n> **Responsable:** @${authorUsername} (*${authorRolesHighestName}*)\nAdvertencia generada ${time}",
-	global_warn_component_button_label: "Enviado desde ${authorGuildName}",
 
 	counter_error_too_much_u:
 		"<@${messageAuthorId}> SE EQUIVOCÓ EN **${number}**!! El siguiente número es **1**. **No puedes contar dos veces seguidas.**",
@@ -4893,8 +4869,66 @@ export default {
 	mutelist_card_cleared_title: "Aislamientos quitados",
 	mutelist_card_cleared_desc: "${count} miembros pueden volver a hablar.",
 	warnlist_card_title: "Advertencias de ${user}",
-	warnlist_card_count: "${count} advertencias",
 	unwarn_card_title: "Advertencia eliminada",
+	warn_card_title: "Miembro advertido",
+	warn_err_self: "${emoji_No} No puedes advertirte a ti mismo.",
+	warn_err_bot: "${emoji_No} No se puede advertir a los bots.",
+	warn_err_above:
+		"${emoji_No} No puedes advertir a un miembro cuyo rol más alto es igual o superior al tuyo.",
+	warn_dm_title: "Has recibido una advertencia",
+	warn_label_date: "Fecha",
+	warn_label_active: "Advertencias activas",
+	warn_label_note: "Nota del staff",
+	warn_label_sanction: "Sanción automática",
+	warn_auto_reason: "Sanción automática: ${count} advertencias",
+	warn_sanction_timeout: "Aislamiento temporal (${duration})",
+	warn_sanction_kick: "Expulsión",
+	warn_sanction_ban: "Baneo",
+	warn_sanction_failed:
+		"${sanction}, no aplicada: iHorizon no puede sancionar a este miembro",
+	warn_expire_note: "las advertencias caducan a los ${days} días",
+	warnlist_expired: "caducada",
+	warnlist_card_active: "${active} activas · ${count} en total",
+	warnconfig_title: "Ajustes de advertencias",
+	warnconfig_label_expiry: "Caducidad",
+	warnconfig_expiry_never: "Nunca: las advertencias cuentan para siempre",
+	warnconfig_expiry_days: "A los ${days} días",
+	warnconfig_label_rules: "Sanciones automáticas",
+	warnconfig_no_rules:
+		"Ninguna: las advertencias nunca activan una sanción por sí solas",
+	warnconfig_rule_line: "**${count}** advertencias → ${sanction}",
+	warnconfig_saved: "Ajustes guardados.",
+	warnconfig_err_duration:
+		"${emoji_No} Un aislamiento necesita una duración de 1 minuto a 28 días (p. ej. `1h`, `2d`).",
+	warnconfig_err_count:
+		"${emoji_No} El umbral debe ir de 1 a 100 advertencias.",
+	warnconfig_err_rules:
+		"${emoji_No} 10 sanciones automáticas como máximo: quita una primero.",
+	warnconfig_err_expiry:
+		"${emoji_No} La caducidad debe ir de 0 (nunca) a 365 días.",
+	warnconfig_err_sanction:
+		"${emoji_No} Elige una sanción para este umbral (o `none` para quitarlo).",
+	warnconfig_hint:
+		"Añadir una sanción: `/mod warnconfig threshold:3 sanction:timeout duration:1h` · quitarla: `sanction:none` · caducidad: `expire-days:30` (0 = nunca)",
+	clearwarn_card_title: "Advertencias borradas",
+	clearwarn_card_desc:
+		"Se han quitado las ${count} advertencias de ${member}.",
+	clear_allwarns_card_title: "Todas las advertencias eliminadas",
+	mod_label_duration: "Duración",
+	mod_label_ends: "Termina",
+	mod_label_channel: "Canal",
+	mod_label_messages: "Mensajes eliminados",
+	mod_label_target: "Se aplica a",
+	tempmute_card_title: "Miembro aislado temporalmente",
+	unmute_card_title: "Aislamiento retirado",
+	unban_card_title: "Miembro desbaneado",
+	tempban_card_title: "Miembro baneado temporalmente",
+	temprole_card_title: "Rol temporal dado",
+	clear_card_title: "Mensajes eliminados",
+	lock_card_title: "Canal bloqueado",
+	unlock_card_title: "Canal desbloqueado",
+	lockall_card_title: "Servidor bloqueado",
+	unlockall_card_title: "Servidor desbloqueado",
 	rolepanel_card_done_title: "Roles actualizados",
 	rolepanel_label_added: "Añadidos",
 	rolepanel_label_removed: "Quitados",
@@ -5098,5 +5132,100 @@ export default {
 	status_panel_card_col_history: "Últimas 60 comprobaciones",
 	status_panel_card_col_ping: "Ping",
 	status_panel_card_col_uptime: "30d",
-	status_panel_card_chart: "Tiempo de respuesta medio"
+	status_panel_card_chart: "Tiempo de respuesta medio",
+
+	// i18n sweep 2026-11: buttons, embeds and selects that were hard-coded
+	button_invite_ihorizon: "Invitar a iHorizon",
+	dm_only_server_desc:
+		"# ¡Uy!\n\nEstás usando iHorizon en una conversación privada, pero este comando solo funciona en un servidor de Discord.\n\n¡Añádeme a un servidor para usarlo!",
+	topgg_vote_button: "Votar por iHorizon",
+	dm_message_from: "Mensaje de ${guild}",
+	dm_message_by: "Mensaje de ${user}",
+	ticket_panel_button_saved: "Guardado",
+	economy_balance_wallet_title: "Cartera de ${user}",
+	reactionroles_help_embed_title: "Ayuda de /reactionroles",
+	command_error_title: "**El comando tuvo un problema.**",
+	command_error_report:
+		"**Por favor, informa de este problema con `/report`.**",
+	guild_blacklisted_leave_desc:
+		"Hola <@${ownerId}>, lo siento, pero estás en la lista negra de iHorizon.\nPor eso abandono tu servidor. Si tienes preguntas, contacta con mis desarrolladores.\n\nGracias por tu comprensión.",
+	status_field_cpu: "CPU",
+	status_field_memory: "Memoria",
+	status_field_machine_uptime: "Tiempo activo de la máquina",
+	status_field_bot_uptime: "Tiempo activo del bot",
+	status_field_os: "SO",
+	status_field_bot_version: "Versión del bot",
+	status_field_bun_version: "Versión de Bun",
+	owner_guild_title: "Propietarios del servidor",
+	var_discord_permission: "Permiso de Discord",
+	rate_nothing: "nada",
+	embed_default_footer: "Pie de página",
+	music_history_file_title:
+		"Historial musical de ${guild} (últimos 30 días, de más reciente a más antiguo)",
+	music_history_requested_by: "pedido por ${user}",
+	music_history_live: "en directo",
+	tempvoice_region_singapore: "Singapur",
+	tempvoice_region_sydney: "Australia (Sídney)",
+	tempvoice_region_russia: "Rusia",
+	tempvoice_region_india: "India",
+	tempvoice_region_hongkong: "Hong Kong",
+	tempvoice_region_southafrica: "Sudáfrica",
+	tempvoice_region_rotterdam: "Países Bajos (Róterdam)",
+	tempvoice_region_japan: "Japón (Tokio)",
+	tempvoice_region_southkorea: "Corea del Sur",
+	tempvoice_region_useast: "EE. UU. Este",
+	tempvoice_region_ussouth: "EE. UU. Sur",
+	tempvoice_region_uswest: "EE. UU. Oeste",
+	tempvoice_region_uscentral: "EE. UU. Centro",
+	tempvoice_region_brazil: "Brasil",
+
+	// logs V2 cards
+	logs_ban_add_title: "Miembro baneado",
+	logs_ban_remove_title: "Miembro desbaneado",
+	logs_kick_title: "Miembro expulsado",
+	logs_boost_add_title: "Nuevo boost",
+	logs_boost_remove_title: "Boost retirado",
+	logs_channel_update_title: "Canal actualizado",
+	logs_message_delete_title: "Mensaje eliminado",
+	logs_message_update_title: "Mensaje editado",
+	logs_roles_update_title: "Roles actualizados",
+	logs_voice_title: "Actividad de voz",
+	logs_channel_label: "Canal",
+	logs_jump_to_message: "Ir al mensaje",
+	logs_message_delete_embeds:
+		"Los embeds del mensaje (${count}) se muestran justo debajo.",
+
+	// schedule V2 cards
+	schedule_reminder_title: "¡El recordatorio #${scheduleCode} ha vencido!",
+
+	// invites V2 cards
+	invites_reset_title: "Restablecer el gestor de invitaciones",
+
+	// economy V2 cards
+	economy_leaderboard_your_rank:
+		"Tu posición: **#${rank}** de ${count} · ${wealth}",
+	economy_leaderboard_not_ranked: "Todavía no estás en la clasificación.",
+	economy_leaderboard_count: "${count} miembro(s) clasificado(s)",
+
+	// guildconfig V2 cards
+	guildconfig_perm_level: "Nivel ${level}",
+	guildconfig_antiexe_enabled:
+		"🔐 **Anti-Bin** activado: los archivos ejecutables se eliminarán.",
+	guildconfig_antiexe_disabled:
+		"🔓 **Anti-Bin** desactivado: los archivos ejecutables vuelven a estar permitidos.",
+	guildconfig_list_react_title: "Reacciones automáticas",
+
+	// hard-coded strings
+	updates_button_releases: "Versiones",
+	updates_button_commit: "Commit",
+	warn_reason_piconly: "Sanción automática: canal solo de imágenes",
+	warn_reason_antiexe: "Anti-Exe: envió un archivo ejecutable",
+	warn_reason_punishpub: "Sanción automática: publicidad",
+	warn_reason_antispam: "Sanción automática: spam",
+	automod_block_custom_message: "iHorizon bloqueó este mensaje",
+	derogation_role_name: "gestionado por iHorizon",
+	ticket_transcript_footer: "Mensajes exportados: {number}",
+	music_playlist_fallback_name: "Lista de ${platform}",
+	music_apo_node_unreachable:
+		"no se puede contactar con el servidor de audio (${message})"
 } satisfies LanguageData;

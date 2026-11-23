@@ -19,14 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	GuildChannel,
-	GuildTextBasedChannel
-} from "discord.js";
+import { Client, GuildChannel } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 
 export const event: BotEvent = {
 	name: "channelCreate",
@@ -35,16 +31,12 @@ export const event: BotEvent = {
 
 		const data = await client.func.getLanguageData(channel.guild.id);
 
-		const setup_embed = new EmbedBuilder()
-			.setColor("#1e1d22")
-			.setTitle(data.event_channel_create_message_embed_title)
-			.setDescription(
-				data.event_channel_create_message_embed_description
-			);
-
-		await (channel as GuildTextBasedChannel)
-			.send({ embeds: [setup_embed] })
-			.catch(() => {});
+		await sendLogCard(channel, {
+			kind: "info",
+			emoji: client.iHorizon_Emojis.Logs,
+			title: data.event_channel_create_message_embed_title,
+			description: data.event_channel_create_message_embed_description
+		});
 
 		return;
 	}

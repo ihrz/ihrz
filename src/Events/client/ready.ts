@@ -24,14 +24,12 @@ import {
 	Collection,
 	PermissionsBitField,
 	ActivityType,
-	EmbedBuilder,
 	GuildFeature,
 	User,
 	BaseGuildTextChannel,
 	Vanity
 } from "discord.js";
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
-import { format } from "../../core/functions/date_and_time.js";
 
 import logger from "../../core/logger.js";
 
@@ -46,7 +44,7 @@ import {
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
-import { Expressions } from "../../core/functions/randomExpression.js";
+import { scheduleReminderPayload } from "../../core/modules/scheduleCards.js";
 import { recoverPendingGuildDataDeletions } from "./deleteDatabaseDataOnGuildLeave.js";
 import { usersNamesMap } from "../../core/prevnamesModule.js";
 import {
@@ -238,44 +236,22 @@ export const event: BotEvent = {
 							if (error?.code !== 10013) continue;
 						}
 
-						// Une description PAR rappel : un accumulateur partagé
+						// Une carte PAR rappel : un accumulateur partagé
 						// envoyait le contenu des rappels d'autres utilisateurs
 						// dans le DM de chacun (fuite + injection inter-users).
-						// Each block on its own lines: glued to the date and to each
-						// other, the fences broke and showed up as backticks. A fence
-						// typed in the text would close the block, so it is split.
-						const block = (text: unknown) =>
-							`\`\`\`\n${String(text ?? "").replaceAll("```", "`\u200b``")}\n\`\`\``;
-						const desc = [
-							format(
-								new Date(array.value[ScheduleId]?.expired),
-								"YYYY/MM/DD HH:mm:ss"
-							),
-							block(array.value[ScheduleId]?.title),
-							block(array.value[ScheduleId]?.description)
-						].join("\n");
-
-						const embed = new EmbedBuilder()
-							.setColor("#56a0d3")
-							.setTitle(
-								`#${ScheduleId} Schedule has been expired!`
-							)
-							.setDescription(desc)
-							.setThumbnail(Expressions.Nerd)
-							.setTimestamp()
-							.setFooter({
-								text: "iHorizon",
-								iconURL: "attachment://footer_icon.png"
-							});
-
+						// The card pings its author only (scheduleCards.ts).
 						try {
-							await member?.send({
-								content: member.toString(),
-								embeds: [embed],
-								files: [
-									await client.func.displayBotName.footerAttachmentBuilder()
-								]
-							});
+							if (member) {
+								await member.send(
+									(await scheduleReminderPayload(
+										client,
+										await client.func.getLanguageData(null),
+										member,
+										ScheduleId,
+										array.value[ScheduleId]
+									)) as never
+								);
+							}
 						} catch (error: any) {
 							if (error?.code !== 50007) continue;
 						}

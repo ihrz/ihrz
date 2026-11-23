@@ -46,7 +46,12 @@ export const command: Command = {
 		ja: "setlang",
 		ru: "setlang",
 		"es-ES": "setlang",
-		ko: "setlang"
+		ko: "setlang",
+		uk: "setlang",
+		de: "setlang",
+		it: "setlang",
+		"pt-BR": "setlang",
+		pl: "setlang"
 	},
 
 	aliases: ["setsrvlang", "lang"],
@@ -57,7 +62,12 @@ export const command: Command = {
 		ja: "サーバーの言語を設定！",
 		ru: "Установить язык сервера!",
 		"es-ES": "Establecer el idioma del servidor!",
-		ko: "서버 언어를 설정해요!"
+		ko: "서버 언어를 설정해요!",
+		uk: "Встановити мову сервера!",
+		de: "Legt die Serversprache fest!",
+		it: "Imposta la lingua del server!",
+		"pt-BR": "Define o idioma do servidor!",
+		pl: "Ustawia język serwera!"
 	},
 
 	thinking: false,

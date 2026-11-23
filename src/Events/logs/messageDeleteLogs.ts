@@ -22,14 +22,87 @@
 import {
 	Attachment,
 	AttachmentBuilder,
-	BaseGuildTextChannel,
 	Client,
 	EmbedBuilder,
 	Message
 } from "discord.js";
-import { AxiosResponse, axios } from "../../core/functions/axios.js";
+import { axios } from "../../core/functions/axios.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { LanguageData } from "../../../types/languageData.js";
+import {
+	LogAttachment,
+	LogCardOptions,
+	safeAttachmentName,
+	sendLogCard
+} from "../../core/modules/logCard.js";
+
+/** A deleted message's attachment, re-uploaded (the original URL dies). */
+async function download(
+	file: Attachment,
+	index: number
+): Promise<LogAttachment | null> {
+	try {
+		const response = await axios.get(file.url, {
+			responseType: "arrayBuffer"
+		});
+		return {
+			file: new AttachmentBuilder(
+				Buffer.from(response.data as ArrayBuffer),
+				{
+					name: safeAttachmentName(file.name, index)
+				}
+			),
+			image: !!file.contentType?.startsWith("image/")
+		};
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * The log card of a deleted message: who, where, what it said, and its
+ * attachments (images in the gallery, other files as files). Its embeds
+ * can't be inside a Components V2 message: they are returned to be sent
+ * as-is in a second message, right after the card.
+ */
+export function deletedMessageLog(
+	message: Pick<Message, "author" | "channelId" | "content" | "embeds">,
+	lang: LanguageData,
+	emojis: Record<string, string>,
+	attachments: LogAttachment[]
+): { card: LogCardOptions; embeds: EmbedBuilder[] } {
+	const embeds = message.embeds
+		.slice(0, 10)
+		.map((embed) => EmbedBuilder.from(embed));
+	return {
+		card: {
+			kind: "danger",
+			emoji: emojis.Ticket_Trash,
+			title: lang.logs_message_delete_title,
+			thumbnail: message.author.displayAvatarURL(),
+			fields: [
+				{
+					emoji: emojis.Ticket_User,
+					label: lang.var_author,
+					value: `<@${message.author.id}>`
+				},
+				{
+					emoji: emojis.Ticket_Hash,
+					label: lang.logs_channel_label,
+					value: `<#${message.channelId}>`
+				}
+			],
+			blocks: [
+				message.content,
+				embeds.length > 0 &&
+					`-# ${lang.logs_message_delete_embeds.replace("${count}", String(embeds.length))}`
+			],
+			attachments
+		},
+		embeds
+	};
+}
 
 export const event: BotEvent = {
 	name: "messageDelete",
@@ -50,103 +123,27 @@ export const event: BotEvent = {
 		const Msgchannel = message.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		const iconURL = message.author.displayAvatarURL();
-		const saves_emb: EmbedBuilder[] = [];
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setAuthor({
-				name: message.author.username,
-				iconURL: iconURL
-			})
-			.setDescription(
-				data.event_srvLogs_messageDelete_description
-					.replace("${messageChannelId}", message.channel.id)
-					.replace("${messageContent}", " " + message.content)
+		const files = (
+			await Promise.all(
+				[...message.attachments.values()].map((file, i) =>
+					download(file, i)
+				)
 			)
-			.setTimestamp();
+		).filter((file): file is LogAttachment => !!file);
 
-		if (message.attachments.size >= 1) {
-			const attachments = message.attachments;
-			const attachment = attachments.first();
-			if (!attachment || !attachment.contentType) return;
+		const { card, embeds } = deletedMessageLog(
+			message,
+			data,
+			client.iHorizon_Emojis,
+			files
+		);
 
-			if (attachments.size >= 2) {
-				const files: AttachmentBuilder[] = [];
-
-				async function getFile(file: Attachment) {
-					const response = await axios.get(
-						file["attachment"] as string,
-						{ responseType: "arrayBuffer" }
-					);
-					const attachment = new AttachmentBuilder(
-						Buffer.from(response.data, "base64"),
-						{ name: file?.name }
-					);
-					files.push(attachment);
-				}
-
-				const filePromises = attachments.map(async (file) => {
-					await getFile(file);
-				});
-
-				await Promise.all(filePromises);
-
-				await (Msgchannel as BaseGuildTextChannel)
-					.send({ embeds: [logsEmbed], files: files })
-					.catch(() => {});
-				return;
-			} else if (
-				attachment &&
-				attachment.contentType.startsWith("image/")
-			) {
-				let snipedImage: AttachmentBuilder;
-
-				await axios
-					.get(attachment["attachment"] as string, {
-						responseType: "arrayBuffer"
-					})
-					.then((response: AxiosResponse) => {
-						snipedImage = new AttachmentBuilder(
-							Buffer.from(response.data, "base64"),
-							{ name: "sniped-image-by-ihorizon.png" }
-						);
-						logsEmbed.setImage(
-							`attachment://sniped-image-by-ihorizon.png`
-						);
-					});
-
-				await (Msgchannel as BaseGuildTextChannel)
-					.send({ embeds: [logsEmbed], files: [snipedImage!] })
-					.catch(() => {});
-				return;
-			} else if (attachment) {
-				let snipedFiles: AttachmentBuilder;
-
-				await axios
-					.get(attachment["attachment"] as string, {
-						responseType: "arrayBuffer"
-					})
-					.then((response: AxiosResponse) => {
-						snipedFiles = new AttachmentBuilder(
-							Buffer.from(response.data, "base64"),
-							{ name: attachment?.name }
-						);
-					});
-
-				await (Msgchannel as BaseGuildTextChannel)
-					.send({ embeds: [logsEmbed], files: [snipedFiles!] })
-					.catch(() => {});
-				return;
-			}
-		} else if (message.embeds) {
-			for (const embed in message.embeds) {
-				saves_emb.push(EmbedBuilder.from(message.embeds[embed]));
-			}
+		const sent = await sendLogCard(Msgchannel, card);
+		if (sent && embeds.length && Msgchannel.isSendable()) {
+			await Msgchannel.send({
+				embeds,
+				allowedMentions: { parse: [] }
+			}).catch(() => {});
 		}
-
-		await (Msgchannel as BaseGuildTextChannel)
-			.send({ embeds: [logsEmbed, ...saves_emb] })
-			.catch(() => {});
-		return;
 	}
 };

@@ -20,15 +20,14 @@
 */
 
 import {
-	EmbedBuilder,
 	PermissionsBitField,
 	AuditLogEvent,
 	Client,
-	GuildMember,
-	BaseGuildTextChannel
+	GuildMember
 } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { sendLogCard } from "../../core/modules/logCard.js";
 import {
 	getLogs,
 	handledAuditLogEntrie_logs,
@@ -96,18 +95,6 @@ export const event: BotEvent = {
 		const removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
 		let user = newMember.guild.members.cache.get(firstEntry.targetId);
 
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setAuthor({
-				name: user?.user.username!,
-				iconURL: user?.user?.displayAvatarURL({
-					extension: "png",
-					forceStatic: false,
-					size: 512
-				})
-			})
-			.setTimestamp();
-
 		let desc = " ";
 
 		if (removeObjects.length >= 1) {
@@ -137,10 +124,22 @@ export const event: BotEvent = {
 				)
 				.replace("${oldMemberUserUsername}", user?.user?.username!);
 		}
-		logsEmbed.setDescription(desc);
-
-		(Msgchannel as BaseGuildTextChannel)
-			.send({ embeds: [logsEmbed] })
-			.catch(() => {});
+		await sendLogCard(Msgchannel, {
+			kind:
+				removeObjects.length && newObjects.length
+					? "edit"
+					: removeObjects.length
+						? "danger"
+						: "success",
+			emoji: client.iHorizon_Emojis.Ticket_Role,
+			title: data.logs_roles_update_title,
+			thumbnail:
+				user?.user?.displayAvatarURL({
+					extension: "png",
+					forceStatic: false,
+					size: 512
+				}) ?? null,
+			description: desc.trim()
+		});
 	}
 };

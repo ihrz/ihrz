@@ -19,71 +19,55 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	Client,
-	EmbedBuilder,
-	Message
-} from "discord.js";
+import { Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
+import { LanguageData } from "../../../types/languageData.js";
+import { LogCardOptions, sendLogCard } from "../../core/modules/logCard.js";
 
-export function getDetailedDiff(oldText: string, newText: string): string {
-	const oldLines = oldText.trim().split("\n");
-	const newLines = newText.trim().split("\n");
+/** Each version gets half of what a card can hold. */
+const VERSION_MAX = 1800;
 
-	const diff: string[] = [];
-	const maxLineLength = 30;
-
-	const maxLines = Math.max(oldLines.length, newLines.length);
-
-	for (let i = 0; i < maxLines; i++) {
-		const oldLine = oldLines[i] || "";
-		const newLine = newLines[i] || "";
-
-		let truncatedOldLine = oldLine;
-		let truncatedNewLine = newLine;
-
-		if (oldLine.length > maxLineLength) {
-			const diffIndex = getDifferenceIndex(oldLine, newLine);
-			truncatedOldLine = getTruncatedLine(oldLine, diffIndex);
-		}
-
-		if (newLine.length > maxLineLength) {
-			const diffIndex = getDifferenceIndex(oldLine, newLine);
-			truncatedNewLine = getTruncatedLine(newLine, diffIndex);
-		}
-
-		if (oldLine && !newLine) {
-			diff.push(`- ${truncatedOldLine}`);
-		} else if (!oldLine && newLine) {
-			diff.push(`+ ${truncatedNewLine}`);
-		} else if (oldLine !== newLine) {
-			diff.push(`- ${truncatedOldLine}`);
-			diff.push(`+ ${truncatedNewLine}`);
-		}
-	}
-	return `\`\`\`diff\n${diff.join("\n")}\n\`\`\``;
+function quote(text: string): string {
+	const clipped =
+		text.length > VERSION_MAX ? `${text.slice(0, VERSION_MAX - 1)}…` : text;
+	return `>>> ${clipped}`;
 }
 
-function getDifferenceIndex(oldLine: string, newLine: string): number {
-	let diffIndex = -1;
-	for (let i = 0; i < Math.min(oldLine.length, newLine.length); i++) {
-		if (oldLine[i] !== newLine[i]) {
-			diffIndex = i;
-			break;
-		}
-	}
-	return diffIndex === -1
-		? Math.max(oldLine.length, newLine.length)
-		: diffIndex;
-}
-
-function getTruncatedLine(line: string, diffIndex: number): string {
-	const maxLineLength = 30;
-	const start = Math.max(0, diffIndex - Math.floor(maxLineLength / 2));
-	const end = Math.min(line.length, start + maxLineLength);
-
-	return line.substring(start, end);
+/** The log card of an edited message: before and after, as two blocks. */
+export function editedMessageLog(
+	oldMessage: Pick<Message, "guildId" | "channelId" | "id" | "content">,
+	newMessage: Pick<Message, "author" | "content">,
+	lang: LanguageData,
+	emojis: Record<string, string>
+): LogCardOptions {
+	const link = `https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id}`;
+	return {
+		kind: "edit",
+		emoji: emojis.Paper,
+		title: lang.logs_message_update_title,
+		thumbnail: newMessage.author.displayAvatarURL(),
+		fields: [
+			{
+				emoji: emojis.Ticket_User,
+				label: lang.var_author,
+				value: `<@${newMessage.author.id}>`
+			},
+			{
+				emoji: emojis.Ticket_Hash,
+				label: lang.logs_channel_label,
+				value: `<#${oldMessage.channelId}>`
+			},
+			{
+				emoji: emojis.Link_Icon,
+				label: lang.var_message,
+				value: `[${lang.logs_jump_to_message}](${link})`
+			}
+		],
+		blocks: [
+			`**${lang.event_srvLogs_messageUpdate_footer_1}**\n${quote(oldMessage.content)}`,
+			`**${lang.event_srvLogs_messageUpdate_footer_2}**\n${quote(newMessage.content)}`
+		]
+	};
 }
 
 export const event: BotEvent = {
@@ -110,8 +94,6 @@ export const event: BotEvent = {
 		const Msgchannel = oldMessage.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		const icon = newMessage.author.displayAvatarURL();
-
 		if (
 			oldMessage.partial ||
 			newMessage.content === "" ||
@@ -121,43 +103,14 @@ export const event: BotEvent = {
 			return;
 		}
 
-		const logsEmbed = new EmbedBuilder()
-			.setColor("#010101")
-			.setAuthor({ name: newMessage.author.username, iconURL: icon })
-			.setDescription(
-				data.event_srvLogs_messageUpdate_description
-					.replace("${oldMessageChannelId}", oldMessage.channelId)
-					.replace(
-						"(xxx)",
-						`(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`
-					)
-			);
-
-		if (
-			oldMessage.content.length > 160 ||
-			newMessage.content.length > 160
-		) {
-			logsEmbed.setFields({
-				name: data.var_message,
-				value: getDetailedDiff(oldMessage.content, newMessage.content)
-			});
-		} else {
-			logsEmbed.setFields(
-				{
-					name: data.event_srvLogs_messageUpdate_footer_1,
-					value: oldMessage.content
-				},
-				{
-					name: data.event_srvLogs_messageUpdate_footer_2,
-					value: newMessage.content
-				}
-			);
-		}
-
-		logsEmbed.setTimestamp();
-
-		await (Msgchannel as BaseGuildTextChannel)
-			.send({ embeds: [logsEmbed] })
-			.catch(() => {});
+		await sendLogCard(
+			Msgchannel,
+			editedMessageLog(
+				oldMessage,
+				newMessage,
+				data,
+				client.iHorizon_Emojis
+			)
+		);
 	}
 };

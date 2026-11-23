@@ -23,7 +23,9 @@ import {
 	Client,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	EmbedBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	ContainerBuilder,
 	ActionRowBuilder,
 	ComponentType,
 	TextInputStyle,
@@ -33,11 +35,26 @@ import {
 	ModalSubmitInteraction,
 	ApplicationCommandType,
 	Message,
+	MessageFlags,
 	User,
 	ModalData
 } from "discord.js";
 
-import { format } from "../../../core/functions/date_and_time.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	notice,
+	pageLabel,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+import {
+	fence,
+	scheduleBlock,
+	scheduleDate,
+	ScheduleEntry
+} from "../../../core/modules/scheduleCards.js";
 
 import { Command } from "../../../../types/command.js";
 import { generatePassword } from "../../../core/functions/random.js";
@@ -45,10 +62,16 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { scheduleTable } from "../../../Events/client/ready.js";
 
-// A reminder list is shown in one embed (25 fields at most), and the delay is
+// At most 25 reminders per member, and the delay is
 // bounded so entries cannot be parked in the shared table forever.
 const MAX_SCHEDULES_PER_USER = 25;
 const MAX_SCHEDULE_DELAY_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+
+// A Components V2 message holds 4000 characters of text: the list is paged.
+const LIST_PER_PAGE = 5;
+const LIST_PAGE_CHARS = 2800;
+const LIST_PREVIOUS = "schedule-list-previous";
+const LIST_NEXT = "schedule-list-next";
 
 export const command: Command = {
 	name: "schedule",
@@ -58,7 +81,12 @@ export const command: Command = {
 		ja: "スケジュールカテゴリの管理！",
 		ru: "Управление категорией расписания!",
 		"es-ES": "Gestor para la categoría de horarios!",
-		ko: "일정 카테고리 관리!"
+		ko: "일정 카테고리 관리!",
+		uk: "Керування категорією розкладу!",
+		de: "Verwaltung der Zeitplan-Kategorie!",
+		it: "Gestione della categoria pianificazione!",
+		"pt-BR": "Gerenciador da categoria de agendamentos!",
+		pl: "Zarządzanie kategorią harmonogramów!"
 	},
 	category: "schedule",
 	thinking: false,
@@ -78,6 +106,11 @@ export const command: Command = {
 			!interaction.channel
 		)
 			return;
+
+		const e = client.iHorizon_Emojis;
+		const user = interaction.member.user as User;
+		const signature = await botSignature(client, interaction.guildId);
+		const avatar = user.displayAvatarURL({ extension: "png", size: 512 });
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId("starter")
@@ -101,19 +134,74 @@ export const command: Command = {
 					.setValue("3")
 			);
 
+		const home = () =>
+			buildCard({
+				accent: ACCENT.info,
+				emoji: e.Schedule,
+				title: lang.schedule_modal_title,
+				description: lang.schedule_menu_placeholder,
+				thumbnail: avatar,
+				signature
+			});
+
+		// The list, cut in pages that fit in one message.
+		let listPages: string[][] = [];
+		let listPage = 0;
+		const listCard = () =>
+			buildCard({
+				accent: ACCENT.info,
+				emoji: e.Ticket_List,
+				title: lang.schedule_list_title_embed,
+				description: lang.schedule_list_content_message,
+				thumbnail: avatar,
+				blocks: listPages[listPage] ?? [],
+				footer:
+					listPages.length > 1
+						? pageLabel(lang, listPage, listPages.length)
+						: null,
+				signature
+			});
+
+		// The card above the menu: home first, then the last action's result.
+		// The panel is a Components V2 message: every edit sends it whole.
+		let current: () => ContainerBuilder = home;
+
+		function render(): ContainerBuilder {
+			const card = current().addActionRowComponents(
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					select
+				)
+			);
+			if (current === listCard && listPages.length > 1) {
+				card.addActionRowComponents(
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId(LIST_PREVIOUS)
+							.setLabel(lang.var_previous)
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(!!select.data.disabled),
+						new ButtonBuilder()
+							.setCustomId(LIST_NEXT)
+							.setLabel(lang.var_next)
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(!!select.data.disabled)
+					)
+				);
+			}
+			return card;
+		}
+
+		const show = (card: () => ContainerBuilder) => {
+			current = card;
+			return original_interaction
+				.edit(cardPayload(render()) as never)
+				.catch(() => undefined);
+		};
+
 		const original_interaction = await client.func.method.interactionSend(
 			interaction,
-			{
-				content: interaction.member.user.toString(),
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						select
-					)
-				]
-			}
+			cardPayload(render()) as never
 		);
-
-		const user = interaction.member.user as User;
 
 		try {
 			const collector =
@@ -121,6 +209,14 @@ export const command: Command = {
 					filter: (member) =>
 						member.user.id === interaction.member?.user.id,
 					componentType: ComponentType.StringSelect,
+					time: 420_000
+				});
+
+			const pageCollector =
+				original_interaction.createMessageComponentCollector({
+					filter: (member) =>
+						member.user.id === interaction.member?.user.id,
+					componentType: ComponentType.Button,
 					time: 420_000
 				});
 
@@ -135,26 +231,48 @@ export const command: Command = {
 				await chooseAction(i);
 			});
 
+			pageCollector.on("collect", async (i) => {
+				if (current !== listCard || listPages.length < 2) {
+					await i.deferUpdate();
+					return;
+				}
+				const pages = listPages.length;
+				if (i.customId === LIST_PREVIOUS)
+					listPage = (listPage - 1 + pages) % pages;
+				else if (i.customId === LIST_NEXT)
+					listPage = (listPage + 1) % pages;
+				await i.update(cardPayload(render()) as never);
+			});
+
 			collector.on("end", () => {
-				original_interaction.edit({
-					content: null,
-					embeds: [],
-					files: [],
-					components: [
-						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-							select.setDisabled(true)
-						)
-					]
-				});
+				pageCollector.stop();
+				select.setDisabled(true);
+				show(home);
 			});
-		} catch (e) {
-			return await client.func.method.interactionSend(interaction, {
-				content: lang.embed_timeout_getbtn.replace(
-					"${authorId}",
-					interaction.member!.user.id
+		} catch {
+			return await sendCard(
+				client,
+				interaction,
+				notice(
+					"danger",
+					lang.embed_timeout_getbtn.replace(
+						"${authorId}",
+						interaction.member!.user.id
+					)
 				)
-			});
+			);
 		}
+
+		/** A question asked under the panel; the answer is the next message. */
+		const ask = (
+			i: StringSelectMenuInteraction | ModalSubmitInteraction,
+			question: string
+		) =>
+			i.reply({
+				components: [notice("info", question)],
+				flags: MessageFlags.IsComponentsV2,
+				allowedMentions: { parse: [] }
+			});
 
 		async function chooseAction(i: StringSelectMenuInteraction) {
 			switch (i.values[0]) {
@@ -190,10 +308,7 @@ export const command: Command = {
 					executeAfterModal(modal);
 					break;
 				case "1":
-					const u = await i.reply({
-						content: lang.schedule_delete_question,
-						ephemeral: false
-					});
+					const u = await ask(i, lang.schedule_delete_question);
 
 					const deleteCollector =
 						interaction.channel?.createMessageCollector({
@@ -210,10 +325,7 @@ export const command: Command = {
 					});
 					break;
 				case "2":
-					const u2 = await i.reply({
-						content: lang.schedule_deleteall_question,
-						ephemeral: false
-					});
+					const u2 = await ask(i, lang.schedule_deleteall_question);
 					const deleteAllCollector =
 						interaction.channel?.createMessageCollector({
 							filter: (m) =>
@@ -249,50 +361,33 @@ export const command: Command = {
 				);
 
 				if (!fetched || !fetched[arg0]) {
-					await original_interaction.edit({
-						content: lang.schedule_delete_not_found.replace(
-							"${arg0}",
-							arg0
-						),
-						embeds: [],
-						files: []
-					});
-					return;
-				} else {
-					const embed = new EmbedBuilder()
-						.setAuthor({
-							name: user.globalName || user.username,
-							iconURL: (
-								interaction.member?.user as User
-							).displayAvatarURL({ extension: "png", size: 512 })
-						})
-						.setTitle(
-							lang.schedule_delete_title_embed.replace(
+					await show(() =>
+						notice(
+							"danger",
+							`${e.No} ${lang.schedule_delete_not_found.replace(
 								"${arg0}",
 								arg0
-							)
+							)}`
 						)
-						.setThumbnail(interaction.guild?.iconURL() as string)
-						.setColor("#ff0a0a")
-						.setFooter(
-							await client.func.displayBotName.footerBuilder(
-								interaction.guildId!
-							)
-						)
-						.setTimestamp();
-
+					);
+					return;
+				} else {
 					await scheduleTable.delete(
 						`${interaction.member?.user.id}.${arg0}`
 					);
-					await original_interaction.edit({
-						content: lang.schedule_delete_confirm,
-						embeds: [embed],
-						files: [
-							await interaction.client.func.displayBotName.footerAttachmentBuilder(
-								interaction
-							)
-						]
-					});
+					await show(() =>
+						buildCard({
+							accent: ACCENT.danger,
+							emoji: e.Ticket_Trash,
+							title: lang.schedule_delete_title_embed.replace(
+								"${arg0}",
+								arg0
+							),
+							description: `${e.Yes} ${lang.schedule_delete_confirm}`,
+							thumbnail: avatar,
+							signature
+						})
+					);
 					return;
 				}
 			}
@@ -303,97 +398,55 @@ export const command: Command = {
 						`${interaction.member?.user.id}`
 					);
 
-					const embed = new EmbedBuilder()
-						.setColor("#ff0a0a")
-						.setAuthor({
-							name: user.globalName || user.username,
-							iconURL: user.displayAvatarURL({
-								extension: "png",
-								size: 512
-							})
+					await show(() =>
+						buildCard({
+							accent: ACCENT.danger,
+							emoji: e.Ticket_Trash,
+							title: lang.schedule_deleteall_title_embed,
+							description: `${e.Yes} ${lang.schedule_deleteall_desc_embed}`,
+							thumbnail: avatar,
+							signature
 						})
-						.setFooter(
-							await client.func.displayBotName.footerBuilder(
-								interaction.guildId!
-							)
-						)
-						.setTitle(lang.schedule_deleteall_title_embed)
-						.setDescription(lang.schedule_deleteall_desc_embed);
-
-					await original_interaction.edit({
-						content: lang.schedule_deleteall_confirm,
-						embeds: [embed],
-						files: [
-							await interaction.client.func.displayBotName.footerAttachmentBuilder(
-								interaction
-							)
-						]
-					});
+					);
 				} else {
-					await original_interaction.edit({
-						content: lang.schedule_deleteall_cancel,
-						embeds: [],
-						files: []
-					});
+					await show(() =>
+						notice("info", lang.schedule_deleteall_cancel)
+					);
 					return;
 				}
 			}
 
 			async function __3() {
-				const fetched = await scheduleTable.get(
+				const fetched = (await scheduleTable.get(
 					`${interaction.member?.user.id}`
-				);
+				)) as Record<string, ScheduleEntry> | null;
 
-				if (!fetched) {
-					await original_interaction.edit({
-						content: lang.schedule_list_not_schedule,
-						embeds: [],
-						files: []
-					});
+				if (!fetched || Object.keys(fetched).length === 0) {
+					await show(() =>
+						notice("info", lang.schedule_list_not_schedule)
+					);
 					return;
 				}
 
-				const embed = new EmbedBuilder()
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-					.setTitle(lang.schedule_list_title_embed)
-					.setColor("#60BEE0")
-					.setAuthor({
-						name: user.globalName || user.username,
-						iconURL: user.displayAvatarURL({
-							extension: "png",
-							size: 512
-						})
-					});
-
-				for (const i in fetched) {
-					embed.addFields({
-						name: `#${i}`,
-						value: lang.schedule_list_fields_embed
-							.replace(
-								"${expiresAt}",
-								format(
-									new Date(fetched[i]?.expired),
-									"YYYY/MM/DD HH:mm:ss"
-								)
-							)
-							.replace("${title}", fetched[i]?.title)
-							.replace("${description}", fetched[i]?.description)
-					});
+				listPages = [];
+				let size = 0;
+				for (const code in fetched) {
+					const block = scheduleBlock(client, code, fetched[code]);
+					const last = listPages[listPages.length - 1];
+					if (
+						!last ||
+						last.length >= LIST_PER_PAGE ||
+						size + block.length > LIST_PAGE_CHARS
+					) {
+						listPages.push([block]);
+						size = block.length;
+					} else {
+						last.push(block);
+						size += block.length;
+					}
 				}
-
-				await original_interaction.edit({
-					content: lang.schedule_list_content_message,
-					embeds: [embed],
-					files: [
-						await interaction.client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
-				});
+				listPage = 0;
+				await show(listCard);
 			}
 
 			async function executeAfterModal(
@@ -401,39 +454,19 @@ export const command: Command = {
 			) {
 				const nameValue = i.fields.getTextInputValue("name");
 				const descValue = i.fields.getTextInputValue("desc");
+				const preview = `${fence(nameValue)}\n${fence(descValue)}`;
 
-				const embed = new EmbedBuilder()
-					.setDescription(
-						`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``
-					)
-					.setAuthor({
-						name: user.globalName || user.username,
-						iconURL: user.displayAvatarURL({
-							extension: "png",
-							size: 512
-						})
+				await show(() =>
+					buildCard({
+						accent: ACCENT.info,
+						emoji: e.Schedule,
+						title: lang.schedule_create_title_embed,
+						thumbnail: avatar,
+						blocks: [preview],
+						signature
 					})
-					.setTitle(lang.schedule_create_title_embed)
-					.setThumbnail(interaction.guild?.iconURL() as string)
-					.setColor("#00549f")
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							interaction.guildId!
-						)
-					)
-					.setTimestamp();
-
-				await original_interaction.edit({
-					embeds: [embed],
-					files: [
-						await interaction.client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					]
-				});
-				const u = await i.reply({
-					content: lang.schedule_create_when_question
-				});
+				);
+				const u = await ask(i, lang.schedule_create_when_question);
 
 				const dateCollector =
 					interaction.channel?.createMessageCollector({
@@ -459,40 +492,42 @@ export const command: Command = {
 						date0 <= 0 ||
 						date0 > MAX_SCHEDULE_DELAY_MS
 					) {
-						original_interaction.edit({
-							embeds: [],
-							content:
-								lang.schedule_create_not_number_time.replace(
+						show(() =>
+							notice(
+								"danger",
+								`${e.No} ${lang.schedule_create_not_number_time.replace(
 									"${author}",
 									user.toString()
-								),
-							files: []
-						});
+								)}`
+							)
+						);
 						return;
 					}
 
-					original_interaction.edit({
-						embeds: [
-							embed
-								.addFields({
-									name: lang.schedule_create_embed_fields_name_confirm,
-									value: format(
-										Date.now() + date0,
-										"YYYY/MM/DD HH:mm:ss"
-									),
-									inline: true
-								})
-								.setTitle(
-									lang.schedule_create_embed_title_confirm.replace(
-										"${scheduleCode}",
-										scheduleCode
-									)
-								)
-						],
-						content: lang.schedule_create_confirm_msg
-							.replace("${author}", user.toString())
-							.replace("${scheduleCode}", scheduleCode)
-					});
+					const notifiedAt = Date.now() + date0;
+					show(() =>
+						buildCard({
+							accent: ACCENT.success,
+							emoji: e.Schedule,
+							title: lang.schedule_create_embed_title_confirm.replace(
+								"${scheduleCode}",
+								scheduleCode
+							),
+							description: lang.schedule_create_confirm_msg
+								.replace("${author}", user.toString())
+								.replace("${scheduleCode}", scheduleCode),
+							thumbnail: avatar,
+							fields: [
+								{
+									emoji: e.Timer,
+									label: lang.schedule_create_embed_fields_name_confirm,
+									value: scheduleDate(notifiedAt)
+								}
+							],
+							blocks: [preview],
+							signature
+						})
+					);
 
 					const existing =
 						((await scheduleTable.get(user.id)) as Record<
@@ -502,16 +537,17 @@ export const command: Command = {
 					if (
 						Object.keys(existing).length >= MAX_SCHEDULES_PER_USER
 					) {
-						original_interaction.edit({
-							embeds: [],
-							content: lang.schedule_create_limit_reached
-								.replace("${author}", user.toString())
-								.replace(
-									"${max}",
-									String(MAX_SCHEDULES_PER_USER)
-								),
-							files: []
-						});
+						show(() =>
+							notice(
+								"danger",
+								`${e.No} ${lang.schedule_create_limit_reached
+									.replace("${author}", user.toString())
+									.replace(
+										"${max}",
+										String(MAX_SCHEDULES_PER_USER)
+									)}`
+							)
+						);
 						return;
 					}
 

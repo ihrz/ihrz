@@ -185,12 +185,14 @@ export function safeHttpUrl(value?: string | null): string | null {
 export function exportText(
 	guildName: string,
 	tracks: Track[],
-	userName: (id: string) => string | null
+	userName: (id: string) => string | null,
+	words: { title: string; requestedBy: string; live: string } = {
+		title: "Music history of ${guild} (last 30 days, newest first)",
+		requestedBy: "requested by ${user}",
+		live: "live"
+	}
 ): string {
-	const lines = [
-		`Music history of ${guildName} (last 30 days, newest first)`,
-		""
-	];
+	const lines = [words.title.replace("${guild}", guildName), ""];
 	for (const t of newestFirst(tracks)) {
 		const when =
 			new Date(t.at).toISOString().replace("T", " ").slice(0, 16) +
@@ -201,9 +203,9 @@ export function exportText(
 		const parts = [
 			when,
 			t.author ? `${t.title} - ${t.author}` : t.title,
-			formatTrackDuration(t.duration) ?? "live",
+			formatTrackDuration(t.duration) ?? words.live,
 			t.source ?? "-",
-			`requested by ${who}`,
+			words.requestedBy.replace("${user}", who),
 			t.uri ?? ""
 		];
 		lines.push(parts.filter(Boolean).join(" | "));

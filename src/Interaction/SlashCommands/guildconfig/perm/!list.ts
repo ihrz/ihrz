@@ -22,7 +22,6 @@
 import {
 	Client,
 	ChatInputCommandInteraction,
-	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle
@@ -30,6 +29,13 @@ import {
 import { LanguageData } from "../../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import { SubCommand } from "../../../../../types/command.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	pageLabel
+} from "../../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -69,11 +75,9 @@ export const subCommand: SubCommand = {
 			Math.ceil(allUsers.length / itemsPerPage)
 		);
 
-		const generateEmbed = async (page: number) => {
-			const embed = new EmbedBuilder()
-				.setTitle(lang.perm_list_embed_title)
-				.setColor("#475387");
+		const signature = await botSignature(client, interaction.guildId);
 
+		const generateEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
 			const endIndex = Math.min(
 				startIndex + itemsPerPage,
@@ -96,22 +100,22 @@ export const subCommand: SubCommand = {
 				}
 			}
 
-			Object.entries(groupedUsers).forEach(([group, users]) => {
-				embed.addFields({
-					name: `Perm ${group}`,
-					value: users.join("\n") || lang.perm_list_no_user
-				});
-			});
-
-			embed.setFooter(
-				await client.func.displayBotName.footerPaginationBuilder(
-					interaction.guildId!,
-					lang,
-					page + 1,
-					totalPages
-				)
+			const blocks = Object.entries(groupedUsers).map(
+				([group, users]) =>
+					`**${lang.guildconfig_perm_level.replace("${level}", group)}**\n${users.join("\n") || lang.perm_list_no_user}`
 			);
-			return embed;
+
+			const container = buildCard({
+				accent: ACCENT.neutral,
+				emoji: client.iHorizon_Emojis.Crown,
+				title: lang.perm_list_embed_title,
+				description: blocks.length ? null : lang.perm_list_no_user,
+				blocks,
+				signature,
+				footer: pageLabel(lang, page, totalPages)
+			});
+			container.addActionRowComponents(generateButtons(page));
+			return container;
 		};
 
 		const generateButtons = (page: number) => {
@@ -130,10 +134,9 @@ export const subCommand: SubCommand = {
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [await generateEmbed(currentPage)],
-			components: [generateButtons(currentPage)],
+			...cardPayload(await generateEmbed(currentPage)),
 			withResponse: true
-		});
+		} as never);
 
 		const collector = message.createMessageComponentCollector({
 			time: 60_000 * 5
@@ -146,16 +149,18 @@ export const subCommand: SubCommand = {
 				currentPage++;
 			}
 
-			await i.update({
-				embeds: [await generateEmbed(currentPage)],
-				components: [generateButtons(currentPage)]
-			});
+			await i.update(
+				cardPayload(await generateEmbed(currentPage)) as never
+			);
 		});
 
 		collector.on("end", async () => {
-			await message.edit({
-				components: []
-			});
+			// Same card without the buttons.
+			const container = await generateEmbed(currentPage);
+			container.spliceComponents(-1, 1);
+			await message
+				.edit(cardPayload(container) as never)
+				.catch(() => null);
 		});
 	}
 };

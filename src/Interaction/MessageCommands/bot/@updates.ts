@@ -47,7 +47,12 @@ export const command: Command = {
 		ru: "Получить последние обновления и список изменений iHorizon!",
 		"es-ES":
 			"Obtén las últimas actualizaciones y el changelog de iHorizon!",
-		ko: "iHorizon의 최신 업데이트와 변경 사항을 확인해요!"
+		ko: "iHorizon의 최신 업데이트와 변경 사항을 확인해요!",
+		uk: "Отримати останні оновлення та список змін iHorizon!",
+		de: "Die neuesten iHorizon-Updates und das Changelog!",
+		it: "Gli ultimi aggiornamenti e il changelog di iHorizon!",
+		"pt-BR": "As últimas atualizações e o changelog do iHorizon!",
+		pl: "Najnowsze aktualizacje i lista zmian iHorizon!"
 	},
 
 	thinking: false,
@@ -101,12 +106,12 @@ export const command: Command = {
 				.setStyle(ButtonStyle.Link)
 				.setURL(version.git_remote),
 			new ButtonBuilder()
-				.setLabel("Releases")
+				.setLabel(lang.updates_button_releases)
 				.setEmoji(client.iHorizon_Emojis.Sparkles)
 				.setStyle(ButtonStyle.Link)
 				.setURL(releaseUrl),
 			new ButtonBuilder()
-				.setLabel("Commit")
+				.setLabel(lang.updates_button_commit)
 				.setEmoji(client.iHorizon_Emojis.Crown)
 				.setStyle(ButtonStyle.Link)
 				.setURL(version.git_commit_url)

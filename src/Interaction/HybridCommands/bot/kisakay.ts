@@ -39,7 +39,12 @@ export const command: Command = {
 		ru: "Получить информацию о разработчике Kisakay",
 		"es-ES":
 			"Obtener información necesaria sobre mi desarrollador, Kisakay",
-		ko: "제 개발자 Kisakay에 대한 꼭 필요한 정보"
+		ko: "제 개발자 Kisakay에 대한 꼭 필요한 정보",
+		uk: "Отримати потрібну інформацію про мою розробницю Kisakay",
+		de: "Wichtige Infos zu meiner Entwicklerin Kisakay",
+		it: "Informazioni utili sulla mia sviluppatrice, Kisakay",
+		"pt-BR": "Informações necessárias sobre minha desenvolvedora, Kisakay",
+		pl: "Najważniejsze informacje o mojej programistce, Kisakay"
 	},
 
 	aliases: ["anaïs", "anais", "kisa"],

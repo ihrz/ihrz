@@ -36,7 +36,12 @@ export const command: Command = {
 		ja: "サーバー設定カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории настройки сервера!",
 		"es-ES": "Subcomando para la categoría de configuración del servidor!",
-		ko: "서버 설정 하위 명령어!"
+		ko: "서버 설정 하위 명령어!",
+		uk: "Підкоманда для категорії налаштувань сервера!",
+		de: "Unterbefehle der Serverkonfigurations-Kategorie!",
+		it: "Sottocomandi della categoria configurazione server!",
+		"pt-BR": "Subcomandos da categoria configuração do servidor!",
+		pl: "Podkomendy kategorii konfiguracji serwera!"
 	},
 
 	options: [
@@ -50,7 +55,12 @@ export const command: Command = {
 				ru: "Управление каналами для модуля Join GhostPing",
 				"es-ES":
 					"Manipulación de canales para el módulo Join GhostPing",
-				ko: "입장 고스트 핑 모듈의 채널 관리"
+				ko: "입장 고스트 핑 모듈의 채널 관리",
+				uk: "Керування каналами модуля Join GhostPing",
+				de: "Kanalverwaltung für das Join-GhostPing-Modul",
+				it: "Gestione dei canali per il modulo Join GhostPing",
+				"pt-BR": "Gerenciar canais do módulo Join GhostPing",
+				pl: "Zarządzanie kanałami modułu Join GhostPing"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -65,7 +75,12 @@ export const command: Command = {
 						ja: "チャンネルを追加",
 						ru: "Добавить канал",
 						"es-ES": "Añadir un canal",
-						ko: "채널 추가"
+						ko: "채널 추가",
+						uk: "Додати канал",
+						de: "Einen Kanal hinzufügen",
+						it: "Aggiungi un canale",
+						"pt-BR": "Adicionar um canal",
+						pl: "Dodaj kanał"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -82,7 +97,12 @@ export const command: Command = {
 								ja: "希望するチャンネル",
 								ru: "Желаемый канал",
 								"es-ES": "El canal que deseas",
-								ko: "원하는 채널"
+								ko: "원하는 채널",
+								uk: "Бажаний канал",
+								de: "Der gewünschte Kanal",
+								it: "Il canale che vuoi",
+								"pt-BR": "O canal que você quer",
+								pl: "Wybrany kanał"
 							},
 
 							required: true,
@@ -101,7 +121,12 @@ export const command: Command = {
 						ja: "チャンネルを削除",
 						ru: "Удалить канал",
 						"es-ES": "Eliminar un canal",
-						ko: "채널 삭제"
+						ko: "채널 삭제",
+						uk: "Видалити канал",
+						de: "Einen Kanal löschen",
+						it: "Elimina un canale",
+						"pt-BR": "Excluir um canal",
+						pl: "Usuń kanał"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -118,7 +143,12 @@ export const command: Command = {
 								ja: "希望するチャンネル",
 								ru: "Желаемый канал",
 								"es-ES": "El canal que deseas",
-								ko: "원하는 채널"
+								ko: "원하는 채널",
+								uk: "Бажаний канал",
+								de: "Der gewünschte Kanal",
+								it: "Il canale che vuoi",
+								"pt-BR": "O canal que você quer",
+								pl: "Wybrany kanał"
 							},
 
 							required: true,

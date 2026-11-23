@@ -112,7 +112,7 @@ export const event: BotEvent = {
 				client.func.method.warnMember(
 					message.guild!.members.me!,
 					message.member!,
-					"[Anti-Exe] sending binary file",
+					lang.warn_reason_antiexe,
 					lang
 				)
 			).catch(() => {});

@@ -205,7 +205,7 @@ export const subCommand: SubCommand = {
 				client.player.getPlayer(guild.id)?.node ??
 				client.player.nodeManager.leastUsedNodes("playingPlayers")[0];
 			if (!node) return { ok: false, error: no(lang.music_apo_no_node) };
-			const check = await checkApo(node, text);
+			const check = await checkApo(node, text, lang);
 			if (check.ok)
 				return {
 					ok: true,

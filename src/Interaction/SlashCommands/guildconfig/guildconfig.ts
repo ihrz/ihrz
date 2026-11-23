@@ -36,7 +36,12 @@ export const command: Command = {
 		ja: "サーバー設定カテゴリのサブコマンド！",
 		ru: "Подкоманда для категории настройки сервера!",
 		"es-ES": "Subcomando para la categoría de configuración del servidor!",
-		ko: "서버 설정 하위 명령어!"
+		ko: "서버 설정 하위 명령어!",
+		uk: "Підкоманда для категорії налаштувань сервера!",
+		de: "Unterbefehle der Serverkonfigurations-Kategorie!",
+		it: "Sottocomandi della categoria configurazione server!",
+		"pt-BR": "Subcomandos da categoria configuração do servidor!",
+		pl: "Podkomendy kategorii konfiguracji serwera!"
 	},
 
 	options: [
@@ -49,7 +54,12 @@ export const command: Command = {
 				ja: "ボットのログチャンネルを設定！",
 				ru: "Настроить канал логов бота!",
 				"es-ES": "Configurar el canal de registros sobre el bot!",
-				ko: "봇 로그 채널을 설정해요!"
+				ko: "봇 로그 채널을 설정해요!",
+				uk: "Налаштувати канал логів бота!",
+				de: "Richtet den Log-Kanal für den Bot ein!",
+				it: "Configura il canale dei log del bot!",
+				"pt-BR": "Configura o canal de logs do bot!",
+				pl: "Konfiguruje kanał logów bota!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +76,13 @@ export const command: Command = {
 				ru: "Заблокировать/защитить что-либо на этом сервере!",
 				"es-ES":
 					"Bloquear/Proteger algo/comportamientos en este servidor!",
-				ko: "이 서버에서 특정 항목/행동을 차단하거나 보호해요!"
+				ko: "이 서버에서 특정 항목/행동을 차단하거나 보호해요!",
+				uk: "Заблокувати/захистити щось на цьому сервері!",
+				de: "Blockiere/schütze Dinge und Verhalten auf diesem Server!",
+				it: "Blocca/proteggi cose e comportamenti in questo server!",
+				"pt-BR":
+					"Bloqueie/proteja coisas e comportamentos neste servidor!",
+				pl: "Blokuj/chroń rzeczy i zachowania na tym serwerze!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -82,7 +98,13 @@ export const command: Command = {
 						ru: "Заблокировать возможность добавления новых ботов на сервер",
 						"es-ES":
 							"Bloquear la capacidad de añadir nuevos bots a este servidor",
-						ko: "이 서버에 새 봇을 추가하지 못하게 막아요"
+						ko: "이 서버에 새 봇을 추가하지 못하게 막아요",
+						uk: "Заблокувати можливість додавати нових ботів на сервер",
+						de: "Verhindere das Hinzufügen neuer Bots zu diesem Server",
+						it: "Blocca la possibilità di aggiungere nuovi bot a questo server",
+						"pt-BR":
+							"Bloqueie a adição de novos bots a este servidor",
+						pl: "Zablokuj dodawanie nowych botów na tym serwerze"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -97,7 +119,12 @@ export const command: Command = {
 								ja: "何をしたいですか？",
 								ru: "Что вы хотите сделать?",
 								"es-ES": "Que quieres hacer?",
-								ko: "무엇을 할까요?"
+								ko: "무엇을 할까요?",
+								uk: "Що ви хочете зробити?",
+								de: "Was möchtest du tun?",
+								it: "Cosa vuoi fare?",
+								"pt-BR": "O que você quer fazer?",
+								pl: "Co chcesz zrobić?"
 							},
 
 							required: true,
@@ -109,7 +136,12 @@ export const command: Command = {
 										ja: "power_on",
 										ru: "power_on",
 										"es-ES": "power_on",
-										ko: "켜기"
+										ko: "켜기",
+										uk: "Увімкнути",
+										de: "Einschalten",
+										it: "Attiva",
+										"pt-BR": "Ligar",
+										pl: "Włącz"
 									},
 									value: "on"
 								},
@@ -120,7 +152,12 @@ export const command: Command = {
 										ja: "power_off",
 										ru: "power_off",
 										"es-ES": "power_off",
-										ko: "끄기"
+										ko: "끄기",
+										uk: "Вимкнути",
+										de: "Ausschalten",
+										it: "Disattiva",
+										"pt-BR": "Desligar",
+										pl: "Wyłącz"
 									},
 									value: "off"
 								}
@@ -139,7 +176,12 @@ export const command: Command = {
 						ja: "too-new-account",
 						ru: "too-new-account",
 						"es-ES": "too-new-account",
-						ko: "too-new-account"
+						ko: "too-new-account",
+						uk: "too-new-account",
+						de: "too-new-account",
+						it: "too-new-account",
+						"pt-BR": "too-new-account",
+						pl: "too-new-account"
 					},
 
 					description:
@@ -150,7 +192,13 @@ export const command: Command = {
 						ru: "Блокировать слишком новые аккаунты от входа на сервер",
 						"es-ES":
 							"Bloquear cuentas demasiado nuevas para unirse a tu servidor",
-						ko: "너무 최근에 만든 계정이 서버에 참여하지 못하게 막아요"
+						ko: "너무 최근에 만든 계정이 서버에 참여하지 못하게 막아요",
+						uk: "Не пускати на сервер надто нові акаунти",
+						de: "Verhindere, dass zu neue Accounts deinem Server beitreten",
+						it: "Impedisci agli account troppo recenti di entrare nel tuo server",
+						"pt-BR":
+							"Impeça que contas muito novas entrem no seu servidor",
+						pl: "Blokuj za nowe konta przed dołączeniem do serwera"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -165,7 +213,12 @@ export const command: Command = {
 								ja: "何をしたいですか？",
 								ru: "Что вы хотите сделать?",
 								"es-ES": "Que quieres hacer?",
-								ko: "무엇을 할까요?"
+								ko: "무엇을 할까요?",
+								uk: "Що ви хочете зробити?",
+								de: "Was möchtest du tun?",
+								it: "Cosa vuoi fare?",
+								"pt-BR": "O que você quer fazer?",
+								pl: "Co chcesz zrobić?"
 							},
 
 							required: true,
@@ -177,7 +230,12 @@ export const command: Command = {
 										ja: "power_on",
 										ru: "power_on",
 										"es-ES": "power_on",
-										ko: "켜기"
+										ko: "켜기",
+										uk: "Увімкнути",
+										de: "Einschalten",
+										it: "Attiva",
+										"pt-BR": "Ligar",
+										pl: "Włącz"
 									},
 									value: "on"
 								},
@@ -188,7 +246,12 @@ export const command: Command = {
 										ja: "power_off",
 										ru: "power_off",
 										"es-ES": "power_off",
-										ko: "끄기"
+										ko: "끄기",
+										uk: "Вимкнути",
+										de: "Ausschalten",
+										it: "Disattiva",
+										"pt-BR": "Desligar",
+										pl: "Wyłącz"
 									},
 									value: "off"
 								}
@@ -206,7 +269,12 @@ export const command: Command = {
 								ja: "最低アカウント経過時間",
 								ru: "Минимальное время существования аккаунта",
 								"es-ES": "Tiempo mínimo de antigüedad",
-								ko: "최소 계정 나이"
+								ko: "최소 계정 나이",
+								uk: "Мінімальний вік акаунта",
+								de: "Mindestdauer der Mitgliedschaft",
+								it: "Anzianità minima",
+								"pt-BR": "Tempo mínimo de antiguidade",
+								pl: "Minimalny staż"
 							},
 
 							required: false,
@@ -223,7 +291,13 @@ export const command: Command = {
 								ja: "バン前の最大参加回数",
 								ru: "Максимум входов до бана",
 								"es-ES": "Máximo de uniones antes del ban",
-								ko: "차단 전 최대 입장 수"
+								ko: "차단 전 최대 입장 수",
+								uk: "Максимум входів до бану",
+								de: "Maximale Beitritte vor dem Bann",
+								it: "Ingressi massimi prima del ban",
+								"pt-BR":
+									"Máximo de entradas antes do banimento",
+								pl: "Maks. liczba dołączeń przed banem"
 							},
 
 							required: false,
@@ -246,7 +320,12 @@ export const command: Command = {
 				ja: "このサーバー内の何か/行動を設定！",
 				ru: "Установить что-либо на этом сервере!",
 				"es-ES": "Establecer algo/comportamientos en este servidor!",
-				ko: "이 서버의 설정과 동작을 변경해요!"
+				ko: "이 서버의 설정과 동작을 변경해요!",
+				uk: "Налаштувати щось на цьому сервері!",
+				de: "Legt Einstellungen/Verhalten für diesen Server fest!",
+				it: "Imposta qualcosa/comportamenti in questo server!",
+				"pt-BR": "Define configurações/comportamentos deste servidor!",
+				pl: "Ustawia opcje/zachowania na tym serwerze!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -262,7 +341,13 @@ export const command: Command = {
 						ru: "Настроить модуль приветствия (сообщения, каналы, изображение)!",
 						"es-ES":
 							"Configurar el módulo de bienvenida (mensajes, canales, imagen)!",
-						ko: "환영 모듈을 설정해요 (메시지, 채널, 이미지)!"
+						ko: "환영 모듈을 설정해요 (메시지, 채널, 이미지)!",
+						uk: "Налаштувати модуль привітань (повідомлення, канали, зображення)!",
+						de: "Konfiguriere das Willkommensmodul (Nachrichten, Kanäle, Bild)!",
+						it: "Configura il modulo di benvenuto (messaggi, canali, immagine)!",
+						"pt-BR":
+							"Configure o módulo de boas-vindas (mensagens, canais, imagem)!",
+						pl: "Skonfiguruj moduł powitań (wiadomości, kanały, obraz)!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -282,7 +367,12 @@ export const command: Command = {
 				ja: "ボット内の何か/行動を設定！",
 				ru: "Установить что-либо в боте!",
 				"es-ES": "Establecer algo/comportamientos en el bot!",
-				ko: "봇의 설정과 동작을 변경해요!"
+				ko: "봇의 설정과 동작을 변경해요!",
+				uk: "Налаштувати щось у боті!",
+				de: "Legt Einstellungen/Verhalten des Bots fest!",
+				it: "Imposta qualcosa/comportamenti nel bot!",
+				"pt-BR": "Define configurações/comportamentos do bot!",
+				pl: "Ustawia opcje/zachowania bota!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -298,7 +388,13 @@ export const command: Command = {
 						ru: "Изменить префикс текстовых команд на сервере!",
 						"es-ES":
 							"Cambiar el prefijo de los comandos de mensaje en este servidor!",
-						ko: "이 서버의 메시지 명령어 접두사를 변경해요!"
+						ko: "이 서버의 메시지 명령어 접두사를 변경해요!",
+						uk: "Змінити префікс текстових команд на цьому сервері!",
+						de: "Ändere das Präfix der Nachrichtenbefehle auf diesem Server!",
+						it: "Cambia il prefisso dei comandi testuali in questo server!",
+						"pt-BR":
+							"Altere o prefixo dos comandos de mensagem neste servidor!",
+						pl: "Zmień prefiks komend tekstowych na tym serwerze!"
 					},
 
 					options: [
@@ -311,7 +407,12 @@ export const command: Command = {
 								ja: "何をしたいですか？",
 								ru: "Что вы хотите сделать?",
 								"es-ES": "Que quieres hacer?",
-								ko: "무엇을 할까요?"
+								ko: "무엇을 할까요?",
+								uk: "Що ви хочете зробити?",
+								de: "Was möchtest du tun?",
+								it: "Cosa vuoi fare?",
+								"pt-BR": "O que você quer fazer?",
+								pl: "Co chcesz zrobić?"
 							},
 
 							choices: [
@@ -322,7 +423,12 @@ export const command: Command = {
 										ja: "default_prefix",
 										ru: "default_prefix",
 										"es-ES": "default_prefix",
-										ko: "기본 접두사"
+										ko: "기본 접두사",
+										uk: "Типовий префікс",
+										de: "Aktion",
+										it: "azione",
+										"pt-BR": "ação",
+										pl: "akcja"
 									},
 									value: "mention"
 								},
@@ -333,7 +439,12 @@ export const command: Command = {
 										ja: "change_prefix",
 										ru: "change_prefix",
 										"es-ES": "change_prefix",
-										ko: "접두사 변경"
+										ko: "접두사 변경",
+										uk: "Змінити префікс",
+										de: "Präfix ändern",
+										it: "Cambia prefisso",
+										"pt-BR": "Alterar prefixo",
+										pl: "Zmień prefiks"
 									},
 									value: "change"
 								}
@@ -353,7 +464,12 @@ export const command: Command = {
 								ja: "新しいプレフィックス",
 								ru: "Новый префикс",
 								"es-ES": "El nuevo prefijo",
-								ko: "새 접두사"
+								ko: "새 접두사",
+								uk: "Новий префікс",
+								de: "Das neue Präfix",
+								it: "Il nuovo prefisso",
+								"pt-BR": "O novo prefixo",
+								pl: "Nowy prefiks"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -380,7 +496,13 @@ export const command: Command = {
 				ru: "Подкоманда для сохранения/восстановления конфигурации iHorizon",
 				"es-ES":
 					"Subcomando para restaurar/guardar la configuración del servidor de iHorizon",
-				ko: "iHorizon 서버 설정 저장/복원 하위 명령어"
+				ko: "iHorizon 서버 설정 저장/복원 하위 명령어",
+				uk: "Підкоманда для збереження/відновлення конфігурації сервера iHorizon",
+				de: "Unterbefehle zum Speichern/Wiederherstellen der iHorizon-Serverkonfiguration",
+				it: "Sottocomandi per salvare/ripristinare la configurazione iHorizon del server",
+				"pt-BR":
+					"Subcomandos para salvar/restaurar a configuração do iHorizon do servidor",
+				pl: "Podkomendy zapisu/przywracania konfiguracji iHorizon serwera"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -395,7 +517,12 @@ export const command: Command = {
 						ja: "サーバー設定を取得！",
 						ru: "Получить конфигурацию сервера!",
 						"es-ES": "Obtener la configuración del servidor!",
-						ko: "서버 설정을 확인해요!"
+						ko: "서버 설정을 확인해요!",
+						uk: "Отримати конфігурацію сервера!",
+						de: "Zeige die Server-Konfiguration!",
+						it: "Ottieni la configurazione del server!",
+						"pt-BR": "Veja a configuração do servidor!",
+						pl: "Pokaż konfigurację serwera!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -411,7 +538,12 @@ export const command: Command = {
 						ja: "バックアップを復元",
 						ru: "Восстановить резервную копию",
 						"es-ES": "Restaurar una copia de seguridad",
-						ko: "백업 복원"
+						ko: "백업 복원",
+						uk: "Відновити резервну копію",
+						de: "Ein Backup wiederherstellen",
+						it: "Ripristina un backup",
+						"pt-BR": "Restaurar um backup",
+						pl: "Przywróć kopię zapasową"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -426,7 +558,12 @@ export const command: Command = {
 								ja: "読み込むバックアップ",
 								ru: "Резервная копия для загрузки",
 								"es-ES": "La copia de seguridad a cargar",
-								ko: "불러올 백업"
+								ko: "불러올 백업",
+								uk: "Резервна копія для завантаження",
+								de: "Das zu ladende Backup",
+								it: "Il backup da caricare",
+								"pt-BR": "O backup a carregar",
+								pl: "Kopia zapasowa do wczytania"
 							},
 
 							type: ApplicationCommandOptionType.Attachment,
@@ -448,7 +585,12 @@ export const command: Command = {
 						ja: "バックアップを保存",
 						ru: "Сохранить резервную копию",
 						"es-ES": "Guardar una copia de seguridad",
-						ko: "백업 저장"
+						ko: "백업 저장",
+						uk: "Зберегти резервну копію",
+						de: "Ein Backup speichern",
+						it: "Salva un backup",
+						"pt-BR": "Salvar um backup",
+						pl: "Zapisz kopię zapasową"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,

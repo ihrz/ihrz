@@ -47,7 +47,12 @@ export const command: Command = {
 		ja: "ブラックリスト理由を編集",
 		ru: "изменить причину черного списка",
 		"es-ES": "editar razón de lista negra",
-		ko: "블랙리스트 사유를 편집해요"
+		ko: "블랙리스트 사유를 편집해요",
+		uk: "Змінити причину внесення до чорного списку",
+		de: "Bearbeitet den Blacklist-Grund",
+		it: "Modifica il motivo della blacklist",
+		"pt-BR": "Edita o motivo da blacklist",
+		pl: "Edytuje powód wpisu na czarnej liście"
 	},
 
 	options: [
@@ -61,7 +66,12 @@ export const command: Command = {
 				ja: "理由を編集したいユーザー",
 				ru: "Пользователь, для которого нужно изменить причину",
 				"es-ES": "El usuario del que quieres editar la razón",
-				ko: "사유를 편집할 사용자"
+				ko: "사유를 편집할 사용자",
+				uk: "Користувач, для якого ви хочете змінити причину",
+				de: "Das Mitglied, dessen Grund du bearbeiten willst",
+				it: "L'utente di cui modificare il motivo",
+				"pt-BR": "O usuário cujo motivo você quer editar",
+				pl: "Użytkownik, którego powód edytować"
 			},
 
 			required: true,
@@ -78,7 +88,12 @@ export const command: Command = {
 				ja: "新しい理由",
 				ru: "новая причина",
 				"es-ES": "la nueva razón",
-				ko: "새 사유"
+				ko: "새 사유",
+				uk: "Нова причина",
+				de: "Der neue Grund",
+				it: "Il nuovo motivo",
+				"pt-BR": "O novo motivo",
+				pl: "Nowy powód"
 			},
 
 			permission: null,

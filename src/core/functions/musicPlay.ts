@@ -51,6 +51,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
+import getLanguageDataByCode from "./getLanguageDataByCode.js";
 import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
 import { getH247Data } from "../modules/h247Manager.js";
 
@@ -165,10 +166,20 @@ export function isTidalURL(url: string): boolean {
 	}
 }
 
+/** Name of a playlist the site gave no title for, e.g. "Spotify playlist". */
+async function fallbackPlaylistName(
+	lang: LanguageData | undefined,
+	platform: string
+): Promise<string> {
+	const l = lang ?? (await getLanguageDataByCode("en-US"));
+	return l.music_playlist_fallback_name.replace("${platform}", platform);
+}
+
 export async function handleSpotify(
 	requester: User,
 	node: LavalinkNode,
-	query: string
+	query: string,
+	lang?: LanguageData
 ): Promise<SearchResult | undefined> {
 	const spotifyRes = await spotify.getDetails(query);
 
@@ -217,12 +228,14 @@ export async function handleSpotify(
 		return undefined;
 	}
 
+	const spotifyName = await fallbackPlaylistName(lang, "Spotify");
+
 	return {
 		loadType: "playlist",
 		tracks: foundTracks,
 		playlistInfo: {
-			name: "Spotify Playlist",
-			title: "Spotify Playlist",
+			name: spotifyName,
+			title: spotifyName,
 			duration: foundTracks.reduce(
 				(total, track) => total + track.info.duration,
 				0
@@ -358,7 +371,8 @@ export async function handleYoutube(
 export async function handleAppleMusic(
 	requester: User,
 	node: LavalinkNode,
-	query: string
+	query: string,
+	lang?: LanguageData
 ): Promise<SearchResult | undefined> {
 	try {
 		const res = await appleMusic(query);
@@ -410,12 +424,15 @@ export async function handleAppleMusic(
 				return undefined;
 			}
 
+			const playlistTitle =
+				res.title ?? (await fallbackPlaylistName(lang, "Apple Music"));
+
 			return {
 				loadType: "playlist",
 				tracks: foundTracks,
 				playlistInfo: {
-					name: res.title ?? "Apple Music Playlist",
-					title: res.title ?? "Apple Music Playlist",
+					name: playlistTitle,
+					title: playlistTitle,
 					duration: foundTracks.reduce(
 						(total, track) => total + track.info.duration,
 						0
@@ -457,7 +474,8 @@ export async function mapLimit<T, R>(
 export async function handleTidalMusic(
 	requester: User,
 	node: LavalinkNode,
-	query: string
+	query: string,
+	lang?: LanguageData
 ): Promise<SearchResult | undefined> {
 	try {
 		const res = await tidalMusic(query);
@@ -509,12 +527,15 @@ export async function handleTidalMusic(
 				return undefined;
 			}
 
+			const playlistTitle =
+				res.title ?? (await fallbackPlaylistName(lang, "TIDAL"));
+
 			return {
 				loadType: "playlist",
 				tracks: foundTracks,
 				playlistInfo: {
-					name: res.title ?? "Tidal Playlist",
-					title: res.title ?? "Tidal Playlist",
+					name: playlistTitle,
+					title: playlistTitle,
 					duration: foundTracks.reduce(
 						(total, track) => total + track.info.duration,
 						0
@@ -536,7 +557,8 @@ export async function handleTidalMusic(
 export async function handleAmazonMusic(
 	requester: User,
 	node: LavalinkNode,
-	query: string
+	query: string,
+	lang?: LanguageData
 ): Promise<SearchResult | undefined> {
 	try {
 		const res = await amazonMusic(query);
@@ -588,12 +610,15 @@ export async function handleAmazonMusic(
 				return undefined;
 			}
 
+			const playlistTitle =
+				res.title ?? (await fallbackPlaylistName(lang, "Amazon Music"));
+
 			return {
 				loadType: "playlist",
 				tracks: foundTracks,
 				playlistInfo: {
-					name: res.title ?? "Apple Music Playlist",
-					title: res.title ?? "Apple Music Playlist",
+					name: playlistTitle,
+					title: playlistTitle,
 					duration: foundTracks.reduce(
 						(total, track) => total + track.info.duration,
 						0
@@ -626,19 +651,20 @@ export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
 	query: string,
-	requester: User
+	requester: User,
+	lang?: LanguageData
 ): Promise<SearchResult | undefined> {
 	// SPOTIFY PART
 	if (isSpotifyURL(query)) {
-		return await handleSpotify(requester, node, query);
+		return await handleSpotify(requester, node, query, lang);
 	} else if (isYoutubeURL(query)) {
 		return await handleYoutube(requester, node, query);
 	} else if (isAppleMusicURL(query)) {
-		return await handleAppleMusic(requester, node, query);
+		return await handleAppleMusic(requester, node, query, lang);
 	} else if (isAmazonMusicURL(query)) {
-		return await handleAmazonMusic(requester, node, query);
+		return await handleAmazonMusic(requester, node, query, lang);
 	} else if (isTidalURL(query)) {
-		return await handleTidalMusic(requester, node, query);
+		return await handleTidalMusic(requester, node, query, lang);
 	} else if (isUrlQuery(query)) {
 		let deezerRes: SearchResult | undefined;
 		try {
@@ -769,7 +795,8 @@ export async function searchMusicQuery(
 	client: Client,
 	query: string,
 	requester: User,
-	preferredNode?: LavalinkNode
+	preferredNode?: LavalinkNode,
+	lang?: LanguageData
 ): Promise<SearchMusicQueryResult> {
 	const nodes = preferredNode
 		? [preferredNode]
@@ -778,7 +805,13 @@ export async function searchMusicQuery(
 			);
 
 	for (const node of nodes) {
-		const res = await searchQueryOnNode(client, node, query, requester);
+		const res = await searchQueryOnNode(
+			client,
+			node,
+			query,
+			requester,
+			lang
+		);
 
 		if (res?.tracks.length && res.tracks.length > 0) {
 			return { node, res };
@@ -1002,7 +1035,13 @@ export async function enqueueMusicQueries({
 	for (const item of items) {
 		const { node, res } =
 			typeof item === "string"
-				? await searchMusicQuery(client, item, requester, currentNode)
+				? await searchMusicQuery(
+						client,
+						item,
+						requester,
+						currentNode,
+						lang
+					)
 				: {
 						node: currentNode ?? libraryNode(client, guild.id),
 						res: item
