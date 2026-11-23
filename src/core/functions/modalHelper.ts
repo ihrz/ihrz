@@ -125,8 +125,10 @@ export function iHorizonModalBuilder(
 					.setCustomId(o.customId)
 					.setStyle(o.style)
 					.setRequired(o.required)
-					.setMaxLength(o.maxLength || 20)
-					.setMinLength(o.minLength || 5);
+					.setMaxLength(o.maxLength || 20);
+				// No implicit minimum: a hidden 5-character floor refused "1h",
+				// "VIP", "Help"… Fields that need one set `minLength`.
+				if (o.minLength) input.setMinLength(o.minLength);
 
 				if (o.placeHolder) input.setPlaceholder(o.placeHolder);
 				if (o.value) input.setValue(o.value);

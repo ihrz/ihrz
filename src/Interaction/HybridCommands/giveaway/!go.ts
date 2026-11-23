@@ -301,6 +301,8 @@ export const subCommand: SubCommand = {
 							label: lang.gw_go_modal_duration_label,
 							style: TextInputStyle.Short,
 							required: true,
+							// "1h", "5m": the helper's default minimum (5) refused short durations.
+							minLength: 2,
 							maxLength: 32
 						}
 					]
