@@ -5082,7 +5082,10 @@ const enUS = {
 	derogation_role_name: "managed by iHorizon",
 	ticket_transcript_footer: "Messages exported: {number}",
 	music_playlist_fallback_name: "${platform} playlist",
-	music_apo_node_unreachable: "the music node can't be reached (${message})"
+	music_apo_node_unreachable: "the music node can't be reached (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Only the server owner and the members of the server's owner list can use this command."
 };
 
 export default enUS;

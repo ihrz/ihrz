@@ -4228,5 +4228,8 @@ export default {
 	derogation_role_name: "zarządzane przez iHorizon",
 	ticket_transcript_footer: "Wyeksportowane wiadomości: {number}",
 	music_playlist_fallback_name: "Playlista ${platform}",
-	music_apo_node_unreachable: "serwer audio jest nieosiągalny (${message})"
+	music_apo_node_unreachable: "serwer audio jest nieosiągalny (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Tej komendy mogą używać tylko właściciel serwera i członkowie listy właścicieli serwera."
 } satisfies LanguageData;

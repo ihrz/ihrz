@@ -5166,5 +5166,8 @@ export default {
 	ticket_transcript_footer: "Mensagens exportadas: {number}",
 	music_playlist_fallback_name: "Playlist do ${platform}",
 	music_apo_node_unreachable:
-		"não é possível contactar o servidor de áudio (${message})"
+		"não é possível contactar o servidor de áudio (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Só o dono do servidor e os membros da lista de donos do servidor podem usar este comando."
 } satisfies LanguageData;

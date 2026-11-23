@@ -285,7 +285,8 @@ export async function warnCard(
 function activeLine(issued: IssuedWarn, lang: LanguageData): string {
 	const base = `**${issued.active}**`;
 	return issued.config.expireDays > 0
-		? `${base} · -# ${lang.warn_expire_note.replace("${days}", String(issued.config.expireDays))}`
+		? // Subtext only renders at the start of a line.
+			`${base}\n-# ${lang.warn_expire_note.replace("${days}", String(issued.config.expireDays))}`
 		: base;
 }
 
@@ -346,8 +347,15 @@ async function sendWarnDm(
 			}
 		],
 		blocks: [
+			// Sent BEFORE the sanction (a kicked or banned member can't be
+			// reached afterwards): announce the sanction the rule applies.
 			issued.sanction
-				? sanctionBlock(issued.sanction, issued.active, lang, guild)
+				? sanctionBlock(
+						{ ...issued.sanction, applied: true },
+						issued.active,
+						lang,
+						guild
+					)
 				: null
 		],
 		signature: await botSignature(guild.client, guild.id)

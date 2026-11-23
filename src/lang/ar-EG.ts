@@ -4874,5 +4874,8 @@ export default {
 	derogation_role_name: "تحت إدارة iHorizon",
 	ticket_transcript_footer: "الرسايل اللي اتصدّرت: {number}",
 	music_playlist_fallback_name: "بلاي ليست ${platform}",
-	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})"
+	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "الأمر ده لصاحب السيرفر وأعضاء قايمة أصحاب السيرفر بس."
 } satisfies LanguageData;

@@ -5112,5 +5112,8 @@ export default {
 	derogation_role_name: "iHorizon が管理",
 	ticket_transcript_footer: "エクスポートしたメッセージ: {number}",
 	music_playlist_fallback_name: "${platform} のプレイリスト",
-	music_apo_node_unreachable: "音声サーバーに接続できません (${message})"
+	music_apo_node_unreachable: "音声サーバーに接続できません (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "このコマンドはサーバーのオーナーと、サーバーのオーナーリストのメンバーだけが使えます。"
 } satisfies LanguageData;

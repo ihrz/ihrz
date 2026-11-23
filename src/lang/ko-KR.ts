@@ -4941,5 +4941,8 @@ export default {
 	derogation_role_name: "iHorizon 관리",
 	ticket_transcript_footer: "내보낸 메시지: {number}",
 	music_playlist_fallback_name: "${platform} 플레이리스트",
-	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})"
+	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "이 명령어는 서버 소유자와 서버 소유자 목록의 멤버만 사용할 수 있어요."
 } satisfies LanguageData;

@@ -137,7 +137,10 @@ async function checkUserCommandPermission(
 		checkRoleHierarchy(member, guildPerm, cmdPermData),
 		checkExplicitRolePermission(member, cmdPermData),
 		checkUserPermLevel(userId, guildPerm, cmdPermData),
-		await isOnTheOwnerList(guildId, member?.id!)
+		// The Discord owner always counts, even before being stored in the
+		// owner list (as ownerHelper.isGuildOwner does for limits and Protection).
+		(!!member && member.guild.ownerId === member.id) ||
+			(await isOnTheOwnerList(guildId, member?.id!))
 	]);
 
 	// If any permission check returns true, allow the command

@@ -416,3 +416,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Giveaways**: `/giveaway get-data` no longer fails on a giveaway without a winner
 - **Durations**: times shown by the bot (usage limits, cooldowns…) are spaced and readable, "42 minute(s) 10 second(s)" instead of "42minute(s)10second(s)583ms"
 - **`/util talk` / `/util untalk`**: they did the opposite of their description since they were added: `/util talk` now turns talk mode on (mutes everyone in your voice channel but you) and `/util untalk` turns it off
+- **`/owner`, `/unowner`, `/blacklist`, `/unblacklist`, `/bledit`, `/blinfo`**: a member who isn't allowed now gets an answer instead of "The application did not respond"
+- **`/bledit`**: editing the reason of someone who isn't blacklisted no longer adds them to the blacklist by mistake
+- **Permission rules**: the Discord server owner always passes `/perm` rules, even right after the bot restarts
+- **Warnings**: the member's DM no longer says the automatic sanction was "not applied" when it was, and the expiry note shows as small text instead of a literal `-#`

@@ -5227,5 +5227,8 @@ export default {
 	ticket_transcript_footer: "Mensajes exportados: {number}",
 	music_playlist_fallback_name: "Lista de ${platform}",
 	music_apo_node_unreachable:
-		"no se puede contactar con el servidor de audio (${message})"
+		"no se puede contactar con el servidor de audio (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Solo el propietario del servidor y los miembros de la lista de propietarios del servidor pueden usar este comando."
 } satisfies LanguageData;

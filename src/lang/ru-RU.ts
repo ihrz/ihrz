@@ -5112,5 +5112,8 @@ export default {
 	derogation_role_name: "управляется iHorizon",
 	ticket_transcript_footer: "Экспортировано сообщений: {number}",
 	music_playlist_fallback_name: "Плейлист ${platform}",
-	music_apo_node_unreachable: "аудиосервер недоступен (${message})"
+	music_apo_node_unreachable: "аудиосервер недоступен (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Эту команду могут использовать только владелец сервера и участники списка владельцев сервера."
 } satisfies LanguageData;

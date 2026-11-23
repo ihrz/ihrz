@@ -5289,5 +5289,8 @@ export default {
 	ticket_transcript_footer: "Messages exportés : {number}, tranquille",
 	music_playlist_fallback_name: "Playlist ${platform}",
 	music_apo_node_unreachable:
-		"le serveur audio répond plus, il est mort (${message})"
+		"le serveur audio répond plus, il est mort (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Y a que le proprio du serveur et les gens de la liste des proprios qui peuvent utiliser cette commande, désolé chef."
 } satisfies LanguageData;

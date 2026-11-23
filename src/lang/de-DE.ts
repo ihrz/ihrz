@@ -5266,5 +5266,8 @@ export default {
 	ticket_transcript_footer: "Exportierte Nachrichten: {number}",
 	music_playlist_fallback_name: "${platform}-Playlist",
 	music_apo_node_unreachable:
-		"der Audioserver ist nicht erreichbar (${message})"
+		"der Audioserver ist nicht erreichbar (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed: "Nur der Serverbesitzer und die Mitglieder der Besitzerliste des Servers können diesen Befehl verwenden."
 } satisfies LanguageData;
