@@ -152,20 +152,25 @@ export class iHorizonTimeCalculator {
 			{ unit: "ms", factor: 1, longName: "millisecond", shortName: "ms" } // ← ajout
 		];
 
-		let result = "";
-		for (const { unit, factor, longName, shortName } of timeUnits) {
+		// With a language, units are words ("hour(s)", "heure(s)", "時間"): spaced out,
+		// "42 minute(s) 10 second(s)". Without, letters stay compact: "42m10s".
+		const spaced = longFormat || !!lang;
+		const parts: string[] = [];
+		for (const { factor, longName, shortName } of timeUnits) {
+			// Milliseconds only for a duration under a second.
+			if (factor === 1 && parts.length) break;
 			if (milliseconds >= factor) {
 				const value = Math.floor(milliseconds / factor);
-				result += `${value}${longFormat ? " " + longName + (value > 1 ? "s" : "") : shortName}`;
+				const name = longFormat
+					? longName + (value > 1 ? "s" : "")
+					: shortName;
+				parts.push(spaced ? `${value} ${name}` : `${value}${name}`);
 				milliseconds %= factor;
-				if (milliseconds > 0) {
-					result += longFormat ? " " : "";
-				} else {
-					break;
-				}
+				if (milliseconds === 0) break;
 			}
 		}
 
-		return result === "" ? "0" + (lang ? lang.var_m : "m") : result.trim();
+		if (!parts.length) return lang ? `0 ${lang.var_m}` : "0m";
+		return parts.join(spaced ? " " : "");
 	}
 }
