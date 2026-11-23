@@ -19,9 +19,9 @@
 [![Discord](https://img.shields.io/discord/972538524790304788?style=for-the-badge&logo=discord&color=7289DA&label=Support%20Server)](http://discord.ihorizon.org/)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-**iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
+**iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture: **710 commands** in **36 categories**, **13 languages**, a full **web dashboard**, and modern Discord cards (Components V2) everywhere.
 
-[**📚 Documentation (BETA)**](https://www.ihorizon.org/docs) • [**🔍 Command Search**](https://www.ihorizon.org/search) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
+[**📚 Documentation (BETA)**](https://www.ihorizon.org/docs) • [**🖥️ Dashboard**](https://dash.ihorizon.org) • [**🔍 Command Search**](https://www.ihorizon.org/search) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
 ---
 
@@ -31,9 +31,11 @@
 
 ### 🛡️ **Moderation & Security**
 
-- **Complete Moderation Tools**: Ban, kick, warn, tempmute with detailed reason tracking
+- **Complete Moderation Tools**: Ban, kick, warn, tempban, tempmute, temprole with detailed reason tracking, all answered with clean Components V2 cards
+- **Smart Warn System**: Private staff notes, automatic expiry, and automatic sanctions per threshold (timeout, kick or ban at N active warnings), configurable with `/mod warnconfig` or the dashboard
 - **Infraction Management**: Track, remove, and clear warnings across members
-- **Advanced Logging**: Comprehensive audit logs for all moderation actions
+- **Advanced Logging**: Every server log (bans, kicks, boosts, channels, deleted and edited messages with their files, roles, voice, tickets, economy) as a colour-coded card
+- **Native AutoMod & Honeypot**: Discord AutoMod rules set up for you, and a trap channel that catches raid bots
 - **Anti-Spam Protection**: Intelligent spam detection with customizable thresholds and auto-punishments
 - **Mass Moderation**: Unban all, clear all warns, and bulk role operations
 - **Channel Control**: Lock/unlock channels, hide/unhide, and permission management
@@ -42,7 +44,7 @@
 ### 🎉 **Community Engagement & Events**
 
 - **Giveaway System**: Create timed giveaways with custom requirements, winner selection, and reroll capabilities
-- **Advanced Ticket System**: Customizable support tickets with panels, transcripts, member management, and category organization
+- **Advanced Ticket System**: Customizable support tickets with panels, member management, and category organization, plus web transcripts at `ticket.ihorizon.org` that look like Discord (sign-in required, readable only by the ticket's members and the server staff)
 - **Suggestion Module**: Structured suggestion system with accept/deny/reply functionality
 - **Role Management**: Role reactions, role buttons, role selection menus, and automated role assignment
 - **Invite Tracking**: Complete invite system with leaderboards, add/remove invites, and detailed analytics
@@ -80,12 +82,16 @@
 
 ### 🎵 **Music Player**
 
-- **Full Music Bot**: Play music from multiple sources with queue management
+- **Full Music Bot**: Play music from YouTube, Spotify, Deezer, SoundCloud, Apple Music, TIDAL and more, with queue management
+- **Web & Discord Activity Player**: Control the music from the dashboard, or open the player right inside Discord from a voice channel
+- **Playlists & Likes**: Personal playlists and liked tracks, importable from music sites and shareable on `music.ihorizon.org`
+- **Synced Lyrics**: Karaoke-style lyrics that follow the track, Equalizer APO presets and 24/7 mode
 - **Playback Controls**: Play, pause, resume, skip, stop, and shuffle
 - **Queue System**: View current queue and song history
 - **Loop Modes**: Track loop, queue loop, and autoplay
 - **Now Playing**: Real-time display of current track with progress
 - **Lyrics Finder**: Search and display song lyrics instantly
+- **Last.fm & TTS**: Scrobbling stats and a text-to-speech voice in voice channels
 
 ### 🔧 **Advanced Utilities**
 
@@ -109,7 +115,7 @@
 
 ### 📢 **Content Notifications**
 
-- **Multi-Platform Support**: Track Streamers, YouTubers, and Twitchers across platforms
+- **Multi-Platform Support**: Track YouTube channels, Twitch streamers, and blogs (Blogger)
 - **Custom Notifications**: Set custom messages for new content alerts
 - **Channel Routing**: Designate specific channels for notification delivery
 - **Author Management**: Add, remove, and list followed content creators
@@ -126,6 +132,7 @@
 
 - **Bot Appearance**: Custom name, avatar, banner, and bio per server
 - **User Profiles**: Set age, gender, pronouns, birthday, and personal description
+- **Public Profile Card**: An opt-in public card at `discord.wf/@username` with badges, links, Last.fm and stats
 - **Profile Display**: Rich profile cards with statistics and customization
 - **Support Badges**: Auto-role for members with server info in bio
 - **Auto-React**: Set automatic emoji reactions in specific channels
@@ -143,7 +150,8 @@
 
 - **Permission System**: Granular command permissions, custom roles, and user-specific access
 - **Prefix Customization**: Change bot prefix per server
-- **Language Selection**: Choose from 10 supported languages
+- **Language Selection**: Choose from 13 supported languages with `/setlang`
+- **Web Dashboard**: Configure every module, read the activity journal, manage sanctions, members, tickets, giveaways and backups at [dash.ihorizon.org](https://dash.ihorizon.org)
 - **Module Toggles**: Enable/disable entire feature categories
 - **Join/Leave System**: Custom messages, ghost ping prevention, and welcome DMs
 - **Auto-Moderation**: Link blocking, invite filtering, and configurable punishments
@@ -161,6 +169,7 @@
 ### 🎫 **Tags & Quick Responses**
 
 - **Custom Tags**: Create reusable text snippets and commands
+- **Sticky Messages & Starboard**: Messages that stay at the bottom of a channel, starboard and skullboard
 - **Role Restrictions**: Whitelist roles for tag creation and usage
 - **Embed Support**: Rich embed tags with formatting
 - **Tag Management**: Edit, delete, list, and get info on all tags
@@ -172,15 +181,19 @@ _**And dozens of other features**_
 
 ## 🌍 Supported Languages
 
-iHorizon supports **10 languages** for an optimal international experience:
+iHorizon speaks **13 languages**, and the dashboard is translated into all of them:
 
 | Language           | Code    | Language      | Code    |
 | ------------------ | ------- | ------------- | ------- |
 | 🇪🇬 Egyptian Arabic | `ar-EG` | 🇯🇵 Japanese   | `jp-JP` |
-| 🇬🇧 English         | `en-US` | 🇪🇸 Spanish    | `es-ES` |
-| 🇫🇷 French          | `fr-FR` | 🇷🇺 Russian    | `ru-RU` |
+| 🇬🇧 English         | `en-US` | 🇰🇷 Korean     | `ko-KR` |
+| 🇫🇷 French          | `fr-FR` | 🇵🇱 Polish     | `pl-PL` |
 | 🤬 Rude French     | `fr-ME` | 🇵🇹 Portuguese | `pt-PT` |
-| 🇮🇹 Italian         | `it-IT` | 🇩🇪 German     | `de-DE` |
+| 🇩🇪 German          | `de-DE` | 🇷🇺 Russian    | `ru-RU` |
+| 🇮🇹 Italian         | `it-IT` | 🇪🇸 Spanish    | `es-ES` |
+|                    |         | 🇺🇦 Ukrainian  | `uk-UA` |
+
+Slash command descriptions and choices are also translated in Discord's `/` menu for French, German, Italian, Spanish, Brazilian Portuguese, Polish, Russian, Ukrainian, Japanese and Korean (they follow each member's Discord language).
 
 ---
 
@@ -190,8 +203,11 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 | Metric                   | Value                   |
 | ------------------------ | ----------------------- |
-| 👥 **Users**             | 450,000+                |
-| 🏢 **Servers**           | 3,200+                  |
+| 👥 **Users**             | 460,000+                |
+| 🏢 **Servers**           | 3,250+                  |
+| 🧩 **Shards**            | 6                       |
+| ⌨️ **Commands**          | 710 in 36 categories    |
+| 🌍 **Languages**         | 13                      |
 | ✅ **Discord Certified** | Verified since Jun 2023 |
 | ⭐ **GitHub Stars**      | 80+                     |
 
@@ -215,8 +231,9 @@ That's it! The script handles everything for you: dependencies (Bun), configurat
 
 | Resource                          | Link                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------- |
-| 📖 **Full Documentation**         | [www.ihorizon.org/docs](https://www.ihorizon.org/docs)                                  |
-| 🔍 **Command Search**             | [www.ihorizon.org/search](https://www.ihorizon.org/search)                          |
+| 🖥️ **Dashboard**                  | [dash.ihorizon.org](https://dash.ihorizon.org)                                  |
+| 📖 **Full Documentation**         | [www.ihorizon.org/docs](https://www.ihorizon.org/docs)                          |
+| 🔍 **Command Search**             | [www.ihorizon.org/search](https://www.ihorizon.org/search)                      |
 | 💬 **Main Discord Server**        | [discord.ihorizon.org](http://discord.ihorizon.org/)                            |
 | 🔗 **Backup Discord Server Link** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                          |
 | 🤖 **Invite iHorizon**            | [Click Here](https://discord.com/oauth2/authorize?client_id=945202900907470899) |
