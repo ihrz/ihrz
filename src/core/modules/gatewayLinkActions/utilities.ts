@@ -30,10 +30,10 @@ import { ActionGroup, fail } from "./types.js";
 // Talk mode and the night-mode derogation, which only the bot can apply
 // (it mutes members, creates a role and edits every channel).
 export const utilitiesActions: ActionGroup = {
-	// /util untalk ENABLES talk mode (names swapped in the bot): the
-	// dashboard picks the channel instead of the author's current one.
+	// Mirror of /util talk (turns talk mode on): the dashboard picks the
+	// channel instead of the author's current one.
 	"voice.talk-on": {
-		command: "util untalk",
+		command: "util talk",
 		run: async ({ guild, actor, params, lang }) => {
 			const channel = guild.channels.cache.get(params.id("channelId"));
 			if (
@@ -76,7 +76,7 @@ export const utilitiesActions: ActionGroup = {
 		}
 	},
 	"voice.talk-off": {
-		command: "util talk",
+		command: "util untalk",
 		run: async ({ guild, actor, lang }) => {
 			const own = actor.voice.channel;
 			const r = await disableTalkMode(

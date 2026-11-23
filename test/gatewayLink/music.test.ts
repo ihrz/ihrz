@@ -42,7 +42,9 @@ mock.module("../../src/core/functions/musicPlay.js", () => ({
 	announceMusicPlay: async () => calls.push("announce"),
 	recordMusicPlay: async () => calls.push("record"),
 	isUrlQuery: (q: string) => /^https?:\/\//.test(q),
-	stripChoiceDuration: (q: string) => q
+	stripChoiceDuration: (q: string) => q,
+	// Imported by musicLibrary.ts (playlist import), loaded in the same process.
+	searchMusicQuery: async () => ({ res: undefined })
 }));
 mock.module("../../src/core/modules/musicAutocomplete.js", () => ({
 	searchTrackSuggestions: async () => []

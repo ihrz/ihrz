@@ -24,19 +24,21 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	GuildMember,
+	PermissionFlagsBits,
 	ChannelType
 } from "discord.js";
 
 import logger from "../../../../core/logger.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
-import { disableTalkMode } from "../../../../core/modules/voiceModes.js";
+import { enableTalkMode } from "../../../../core/modules/voiceModes.js";
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData
+		lang: LanguageData,
+		args?: string[]
 	) => {
 		if (
 			!client.user ||
@@ -47,30 +49,37 @@ export const subCommand: SubCommand = {
 			return;
 
 		const member = interaction.member as GuildMember;
-		const currentVoiceChannel = member.voice.channel;
-		const result = await disableTalkMode(
-			interaction.guild,
-			currentVoiceChannel?.type === ChannelType.GuildVoice
-				? currentVoiceChannel
-				: null,
-			member,
-			lang
-		);
+		const voiceChannel = member.voice.channel;
 
-		if (!result.ok) {
+		if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice) {
 			await client.func.method.interactionSend(interaction, {
-				content:
-					result.code === "not_in_vc"
-						? lang.util_not_in_vc
-						: lang.util_untalk_nothing_active
+				content: lang.util_talk_not_in_vc
 			});
 			return;
 		}
 
+		const result = await enableTalkMode(
+			interaction.guild,
+			voiceChannel,
+			member,
+			lang
+		);
+		if (!result.ok) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_talk_already_active.replace(
+					"${voiceChannel}",
+					`<#${result.channelId}>`
+				)
+			});
+			return;
+		}
+		const { mutedCount, skippedCount } = result;
+
 		await client.func.method.interactionSend(interaction, {
-			content: lang.util_untalk_command_work
-				.replace("${voiceChannel}", result.channel.toString())
-				.replace("${unmutedCount}", result.unmutedCount.toString())
+			content: lang.util_talk_command_work
+				.replace("${voiceChannel}", voiceChannel.toString())
+				.replace("${mutedCount}", mutedCount.toString())
+				.replace("${skippedCount}", skippedCount.toString())
 		});
 		return;
 	}

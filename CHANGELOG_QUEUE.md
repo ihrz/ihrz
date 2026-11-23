@@ -415,3 +415,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Translations**: the last English texts are translated: automatic warn reasons (anti-spam, pic-only, anti-exe, advertising), the message shown when AutoMod blocks a message, the voice derogation role, the text on welcome images, HTML transcripts, playlist names, the `/updates` buttons and `/embed` errors. The welcome card counts the languages instead of saying 11
 - **Giveaways**: `/giveaway get-data` no longer fails on a giveaway without a winner
 - **Durations**: times shown by the bot (usage limits, cooldowns…) are spaced and readable, "42 minute(s) 10 second(s)" instead of "42minute(s)10second(s)583ms"
+- **`/util talk` / `/util untalk`**: they did the opposite of their description since they were added: `/util talk` now turns talk mode on (mutes everyone in your voice channel but you) and `/util untalk` turns it off
