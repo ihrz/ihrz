@@ -1364,7 +1364,8 @@ export default {
 	util_unfreeze_command_work: "음성 채널 동결이 해제되었어요.",
 
 	// /util leash
-	util_leash_too_naugthy: "이 장난꾸러기, 3명 넘게 목줄을 채울 순 없어요 :D",
+	util_leash_too_naugthy:
+		"이 장난꾸러기, ${max}명 넘게 목줄을 채울 순 없어요 :D",
 	util_leah_already_owned:
 		"이 장난꾸러기, 이 귀염둥이들은 이미 당신 거예요 :smirk:",
 	util_leash_confirm_message:
@@ -1878,7 +1879,7 @@ export default {
 		"입력한 시간이 올바르지 않아요! **올바른 시간 예시**: `3h; 30m; 4mo; 4w; 4y` -> 3시간; 30분; 4개월; 4주; 4년",
 	too_new_account_logEmbed_title: "신규 계정 차단 모듈",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} 님이 신규 계정 차단 모듈을 켰어요. 이제 계정은 최소 ${beautifulTime} 이상 되어야 하며, 사용자가 `${maxJoin}`번보다 많이 입장하면 차단돼요.",
+		"${author} 님이 신규 계정 차단 모듈을 켰어요. 이제 계정은 최소 ${beautifulTime} 이상 되어야 하며, 사용자가 `${maxJoin}`번째로 입장하면 차단돼요.",
 	too_new_account_command_work_on_enable:
 		"${author} 님, 이제 계정 나이가 `${beautifulTime}` 미만인 채로 **${guildName}**에 입장하는 새 멤버는 추방돼요.",
 	too_new_account_command_work_on_enable2:
@@ -2821,7 +2822,8 @@ export default {
 		"<@${authorId}>님, **이 임베드를 어느 채널에 보낼까요?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>님, **응답 시간이 너무 오래 걸려서 진행 중인 작업을 중단할게요!**",
-	embed_choose_0: "임베드에 어떤 메시지를 넣을까요?",
+	embed_choose_0:
+		"임베드를 복사할 메시지의 링크를 보내 주세요 (메시지 우클릭 → 메시지 링크 복사).",
 	embed_choose_1: "임베드에 어떤 제목을 넣을까요?",
 	embed_choose_2: "임베드 제목을 삭제했어요!",
 	embed_choose_3: "임베드에 어떤 설명을 넣을까요?",
@@ -3539,7 +3541,7 @@ export default {
 	// /authrestore delete
 	rc_delete_config_not_found: "이 서버의 모듈 설정을 찾을 수 없어요!",
 	rc_delete_command_ok:
-		'${author}님, "AuthRestore" 모듈 설정을 삭제했어요. 보안(데이터) 상의 이유로 지금은 버튼만 삭제하고, OAuth2 데이터와 비밀 코드는 48시간 후에 삭제돼요!',
+		'${author}, "AuthRestore" 버튼을 제거했어요. 이제 멤버가 이 버튼으로 인증할 수 없어요. 키와 이미 인증한 멤버는 그대로 남으니 `/authrestore force-join`으로 다시 데려올 수 있어요.',
 
 	// /authrestore get
 	rc_get_mainEmbed_title: "AuthRestore 일반 정보",
@@ -4944,5 +4946,43 @@ export default {
 	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})",
 
 	// owner list refusal
-	owner_list_not_allowed: "이 명령어는 서버 소유자와 서버 소유자 목록의 멤버만 사용할 수 있어요."
+	owner_list_not_allowed:
+		"이 명령어는 서버 소유자와 서버 소유자 목록의 멤버만 사용할 수 있어요.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"소유자 목록에서 누군가를 제거하거나 소유자 목록의 멤버를 블랙리스트에 추가할 수 있는 사람은 서버 소유자(Discord 소유자)뿐입니다.",
+
+	// warnings fix
+	warn_err_owner: "${emoji_No} 서버 소유자에게는 경고할 수 없습니다.",
+	warn_sanction_kept:
+		"${sanction} 미적용: 멤버의 현재 타임아웃이 더 길어 유지됩니다 (종료 ${until})",
+	clear_allwarns_log_desc:
+		"멤버 ${members}명의 경고 ${count}개가 삭제되었습니다.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"제가 직접 보낸 메시지의 임베드만 바꿀 수 있어요!",
+	embed_save_uploads_dropped:
+		"-# 파일로 올린 이미지는 저장된 임베드에 남지 않아요. 이 메시지에만 있어요. 이 ID를 쓰는 모든 곳에 이미지가 보이게 하려면 이미지 링크를 사용하세요.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"인증된 멤버가 모두 이미 이 서버에 있어요. 추가할 사람이 없어요. 키는 바뀌지 않았어요.",
+	rc_forcejoin_failed:
+		"강제 참가를 시작할 수 없었어요. HorizonGateway가 거부했거나 연결할 수 없어요. 아무도 추가되지 않았고 키도 바뀌지 않았어요.",
+	rc_forcejoin_stopped:
+		"강제 참가가 끝나기 전에 멈췄어요. 위에 집계된 멤버는 추가되었고, 키는 이미 교체되었어요. 새 키를 이어서 보내 드려요.",
+
+	// logs fix
+	logs_antispam_title_mute: "[안티스팸] 새 뮤트",
+	logs_antispam_title_kick: "[안티스팸] 새 추방",
+	logs_antispam_title_ban: "[안티스팸] 새 차단",
+	logs_antispam_desc_mute: "${bot}이(가) ${user}을(를) **뮤트**했습니다",
+	logs_antispam_desc_kick: "${bot}이(가) ${user}을(를) **추방**했습니다",
+	logs_antispam_desc_ban: "${bot}이(가) ${user}을(를) **차단**했습니다",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"여기서는 서버 소유자만 백업을 사용할 수 있어요. 소유자는 `/backup manage`로 모든 관리자에게 열어 줄 수 있어요."
 } satisfies LanguageData;

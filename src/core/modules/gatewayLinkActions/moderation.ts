@@ -30,7 +30,9 @@ import {
 	getWarnConfig,
 	isWarnExpired,
 	issueWarn,
-	WARN_LIMITS
+	sendWarnsClearedLog,
+	WARN_LIMITS,
+	warnRefusal
 } from "../warnSystem.js";
 import {
 	BaseGuildTextChannel,
@@ -315,14 +317,12 @@ export const moderationActions: ActionGroup = {
 			const reason = ctx.params.str("reason", { max: WARN_REASON_MAX });
 			const note = ctx.params.optStr("note", WARN_LIMITS.note);
 			// The same guards as /mod warn: a warn can sanction automatically.
-			if (member.id === ctx.actor.id)
-				return fail("you cannot warn yourself");
-			if (member.user.bot) return fail("bots cannot be warned");
-			if (
-				ctx.guild.ownerId !== ctx.actor.id &&
-				member.roles.highest.position >=
-					ctx.actor.roles.highest.position
-			)
+			const refusal = warnRefusal(ctx.actor, member);
+			if (refusal === "self") return fail("you cannot warn yourself");
+			if (refusal === "bot") return fail("bots cannot be warned");
+			if (refusal === "owner")
+				return fail("forbidden: the server owner cannot be warned");
+			if (refusal === "above")
 				return fail(
 					"forbidden: this member's highest role is equal to or above yours"
 				);
@@ -376,6 +376,12 @@ export const moderationActions: ActionGroup = {
 			const userId = ctx.params.id("userId");
 			const result = await clearWarns(ctx.guild, userId);
 			if (!result.ok) return fail("this member has no warns");
+			await sendWarnsClearedLog(
+				ctx.guild,
+				ctx.actor.toString(),
+				{ count: result.count, member: `<@${userId}>` },
+				ctx.lang
+			);
 			return { cleared: result.count };
 		}
 	},

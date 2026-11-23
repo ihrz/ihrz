@@ -420,3 +420,42 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **`/bledit`**: editing the reason of someone who isn't blacklisted no longer adds them to the blacklist by mistake
 - **Permission rules**: the Discord server owner always passes `/perm` rules, even right after the bot restarts
 - **Warnings**: the member's DM no longer says the automatic sanction was "not applied" when it was, and the expiry note shows as small text instead of a literal `-#`
+- **Bot blocker**: members of the server's `/owner` list can add bots again without the bot being banned and themselves deranked (as with Protection)
+- **Too-new accounts**: the account is now banned on the join that reaches `maximum-join`, as the command says (it used to take one more join)
+- **PunishPub**: it now uses the bypass roles of the AutoMod "Links & advertising" rule, instead of those of whichever keyword rule came first (Telegram or Discord invites)
+- **Night mode**: when iHorizon couldn't take Administrator away (or give it back in the morning), for example because its role wasn't the highest, it now tries again every minute until it works instead of waiting for the next night, and warns the owner only once
+- **Night mode**: turning it off during the night (from `/nightmode` or the dashboard) now gives Administrator back to the roles it was taken from
+- **`/nightmode`**: closing or letting the panel expire no longer puts back an old night state, which could leave roles without Administrator or skip a night
+- **Owner list**: only the Discord server owner can now remove someone from the owner list (`/unowner`) or blacklist / edit the blacklist entry of an owner (`/blacklist`, `/bledit`); the other owners can still add owners and blacklist regular members
+- **Permissions**: the owner list (and the Discord owner) still passes every `/perm` rule, but a command without a rule now asks them for its Discord permission like everyone else
+- **Warnings**: a threshold timeout no longer shortens a longer timeout already running (a 2-day tempmute that reached "3 = timeout 1h" ended after 1 hour): the longer one is kept and the log says so
+- **Warnings**: the warning log (with the staff note) and the unwarn log no longer go to a `mods` or `ihorizon-logs` channel that `@everyone` can see; the `/setlogs` moderation channel is still used as chosen
+- **`/mod clearwarn`, `/mod clear-all-warns`**: clearing warnings (also from the dashboard) now posts a staff log with the moderator and how many warnings were removed
+- **`/mod warn`**: the server owner can no longer be warned, even by a member with a higher role (also in the dashboard)
+- **`/mod unwarn`**: a wrong warn ID now names the member instead of the moderator
+- **`/guildconfig setup`**: the `ihorizon-logs` channel now lets iHorizon post in it even when the bot isn't an administrator, and a failed creation (missing Manage Channels) is reported instead of a false "Channel Setup"
+- **`/setlogs`**: unbans (moderation logs) and channel changes (channel logs) are logged again when iHorizon isn't an administrator; like the ban, kick and role logs, they need View Audit Log and Manage Server
+- **Welcomer, join roles**: one deleted role, or a role now above iHorizon's, no longer stops every join role from being given; the others are still given
+- **Welcomer, welcome card**: the panel no longer shows the card as Enabled when it was never switched on (new members didn't get it)
+- **Invite Manager**: when iHorizon hadn't yet noted a server's invite counts (no Manage Server or View Audit Log at startup), the first arrival was credited to whoever owned an old invite; that arrival is now credited to nobody and counting starts from there
+- **`/utils embed`**: images uploaded as files are no longer saved into the embed (they only existed on the builder's message, so tags, sticky messages, tickets and the welcomer showed the embed without them); the save message now says so and suggests an image link
+- **`/utils embed`**: an uploaded image and an uploaded thumbnail no longer overwrite each other
+- **`/utils embed`**: **Replace embed** on a message iHorizon didn't send now explains that only its own messages can be edited, instead of Discord's raw error; a deleted message is reported as unreachable when copying or replacing
+- **`/utils embed`**: **Copy an embed** now asks for the message link instead of "What message do you want to include in your Embed?"
+- **`/authrestore force-join`**: servers with more than 500 verified members to bring back are now restored in batches (it used to do nothing at all), and a refused or empty force-join now says so instead of staying silent; the new key is always handed over, even if a batch fails midway
+- **`/authrestore set`, `/authrestore force-join`**: the key DM no longer reports both "blocked DMs" and "I sent you the code"; a refused setup no longer shows `undefined` as the key; the force-join DM names the server the key belongs to; the `role` option is now required, as the verification needs it
+- **`/authrestore delete`**: the confirmation no longer claims the key and verified members are erased after 48 hours: they are kept, and `/authrestore force-join` still works
+- **`/util talk`, `/util freeze`**: the member who turned talk mode on is no longer muted by it when they rejoin the channel, and the member who froze a channel is no longer disconnected from it; talk mode leaves members already muted by a moderator as they were, so leaving the channel no longer lifts that mute
+- **`/utils leash`**: a leashed member can no longer escape by moving out of the holder's channel; leashes now last the duration set in the dashboard (they always stopped after 30 minutes), expired leashes no longer count toward the limit, the limit message shows the configured maximum, and the "isn't in a voice channel" confirmation only appears when the member really isn't in voice
+- **Backups**: an administrator refused on `/backup create` or `/backup load` is told the owner can open backups with `/backup manage`, instead of an "abuse attempt" warning
+- **`/util vkick`**: no longer errors after saying the member isn't on the server
+- **Welcome messages, ticket embeds**: when the inviter isn't found, `{inviterUsername}` and `{inviterMention}` show "Unknown" in the server's language and `{invitesCount}` shows 0, instead of `unknow_user` and 1337
+- **`/ticket panel`**: an unknown code in **Change ticket channel embed** no longer errors ("already replied"): the editor says the embed does not exist
+- **`/ticket panel`, `/guildconfig set welcomer`**: an invalid embed code (with a dot, like `CODE.embedSource`) is refused like an unknown one, instead of being saved and then sending nothing
+- **Sticky messages**: if the embed of a sticky that also has a text is deleted, the text keeps being reposted alone (only a sticky with nothing left to post stops)
+- **Blacklist**: a member blacklisted both globally and on the server gets one DM and one ban (the global one), not two of each
+- **Dashboard › Embeds**: the ticket channel embed and the per-option embeds of ticket panels are listed with the server's embeds, in "Used by" and in the Tickets menus
+- **`ihorizon-logs`**: the logs are now cards like the other log channels (bot name and date at the bottom, no pings), and are only posted in an `ihorizon-logs` channel `@everyone` can't see: a public one is skipped (the unwarn log then goes to a private `mods` channel or the moderation logs)
+- **Honeypot**: the catch report in the honeypot logs channel is now a card like the other logs
+- **Anti-spam logs**: the card names the punishment actually applied, translated ("New mute", "has muted…"), instead of "has **sanction**" and a raw `mute`/`kick`/`ban`
+- **`/setlogs` › Delete all settings**: nothing is logged in `ihorizon-logs` when there were no log settings to delete

@@ -54,6 +54,8 @@ export const event: BotEvent = {
 					})
 					.catch(() => {})
 					.then(() => {});
+				// Global wins: one DM and one ban, never both lists' ones.
+				return;
 			}
 
 			const data2 = await client.db.get(

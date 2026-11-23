@@ -1468,7 +1468,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D",
+		"Petit coquin, tu ne peux pas mettre plus de ${max} personnes en laisse :D",
 	util_leah_already_owned:
 		"Petit coquin, tu possèdes déjà ces petites merveilles :smirk:",
 	util_leash_confirm_message:
@@ -2026,7 +2026,7 @@ export default {
 		"Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 2mo ; 4w ; 4y` -> 3 heures ; 30 minutes ; 2 mois ; 4 semaines ; 4 ans",
 	too_new_account_logEmbed_title: "Module TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime}, si l'utilisateur rejoins plus de `${maxJoin}` fois, il se feras bannir.",
+		"${author} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime}, si l'utilisateur rejoins `${maxJoin}` fois, il se feras bannir direct.",
 	too_new_account_command_work_on_enable:
 		"${author}, les nouveaux membres rejoignant **${guildName}** avec des comptes âgés de moins de `${beautifulTime}` seront désormais expulsés.",
 	too_new_account_command_work_on_enable2:
@@ -3042,7 +3042,8 @@ export default {
 		"<@${authorId}>, **Dans quel cannal je dois envoyez cette embed ?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **Tu as mis trop de temps à répondre, je coupe l'opération en cours!**",
-	embed_choose_0: "Quel message tu veux inclure dans ton Embed?",
+	embed_choose_0:
+		"Balance le lien du message dont tu veux copier l'embed (clic droit sur le message, Copier le lien du message).",
 	embed_choose_1: "Quel titre tu veux inclure dans ton Embed?",
 	embed_choose_2: "Le titre de l'embed à été correctement Supprimer !",
 	embed_choose_3: "Quelle description tu veux inclure dans ton Embed?",
@@ -3824,7 +3825,7 @@ export default {
 	rc_delete_config_not_found:
 		"La configuration du module sur ce serveur n'a pas pu être trouvée!",
 	rc_delete_command_ok:
-		'${author}, vous venez de supprimer la configuration du module "AuthRestore". Pour des raisons de sécurité (données), je ne supprimerai que le bouton, mais les données oauth2 et le code secret seront supprimés dans 48 heures!',
+		'${author}, t\'as viré le bouton "AuthRestore", plus personne peut se vérifier avec. Ta clé et les membres déjà vérifiés restent là, tu peux toujours les ramener avec `/authrestore force-join`.',
 
 	// /authrestore get
 	rc_get_mainEmbed_title: "Informations Générales AuthRestore",
@@ -5292,5 +5293,46 @@ export default {
 		"le serveur audio répond plus, il est mort (${message})",
 
 	// owner list refusal
-	owner_list_not_allowed: "Y a que le proprio du serveur et les gens de la liste des proprios qui peuvent utiliser cette commande, désolé chef."
+	owner_list_not_allowed:
+		"Y a que le proprio du serveur et les gens de la liste des proprios qui peuvent utiliser cette commande, désolé chef.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Y a que le vrai proprio du serveur (celui de Discord) qui peut virer quelqu'un de la liste des proprios ou blacklister un mec de cette liste, calme-toi.",
+
+	// warnings fix
+	warn_err_owner:
+		"${emoji_No} Tu vas pas warn le proprio du serveur, t'es malade ou quoi.",
+	warn_sanction_kept:
+		"${sanction} pas appliquée : il est déjà au coin pour plus longtemps, on lui laisse (fin ${until})",
+	clear_allwarns_log_desc:
+		"${count} warns de ${members} membres sont partis à la poubelle.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"J'peux remplacer que l'embed d'un message que j'ai envoyé moi-même, t'es con ou quoi ?",
+	embed_save_uploads_dropped:
+		"-# Les images balancées en fichier sont pas gardées dans l'embed sauvegardé : elles existent que sur ce message. Mets un lien d'image si tu veux qu'elle s'affiche partout où t'utilises cet ID, bordel.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Tous les membres vérifiés sont déjà là, y'a personne à ramener putain. Ta clé a pas bougé.",
+	rc_forcejoin_failed:
+		"L'ajout forcé a pas pu démarrer, HorizonGateway a dit non ou il répond pas. Personne a été ajouté et ta clé a pas bougé.",
+	rc_forcejoin_stopped:
+		"L'ajout forcé s'est arrêté en plein milieu. Les membres comptés au-dessus sont rentrés, et ta clé a déjà été changée, la nouvelle arrive.",
+
+	// logs fix
+	logs_antispam_title_mute:
+		"[BloqueurDeBranleur] Un relou de plus fermé sa gueule",
+	logs_antispam_title_kick: "[BloqueurDeBranleur] Un relou de plus dégagé",
+	logs_antispam_title_ban:
+		"[BloqueurDeBranleur] Un relou de plus banni à vie",
+	logs_antispam_desc_mute: "${bot} a **fermé la gueule** de ${user}",
+	logs_antispam_desc_kick: "${bot} a **dégagé** ${user}",
+	logs_antispam_desc_ban: "${bot} a **ban** ${user} direct",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Y a que le proprio du serveur qui touche aux sauvegardes ici. Il peut les filer à tous les admins avec `/backup manage`."
 } satisfies LanguageData;

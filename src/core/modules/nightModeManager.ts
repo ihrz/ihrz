@@ -54,7 +54,61 @@ export function keepsDerank(
 	);
 }
 
+/** Settings the /nightmode panel edits. `last_state` / `changed_roles` belong to the manager. */
+const SETTING_KEYS = [
+	"enabled",
+	"notify",
+	"time",
+	"derankBot",
+	"wlBots",
+	"utc"
+] as const;
+
+/**
+ * Saves the panel's settings one sub-key at a time: a whole-section write
+ * from a panel opened before a transition would put back an old
+ * `last_state` / `changed_roles` (roles never given back, or stripped twice).
+ */
+export async function saveNightModeSettings(
+	db: { set: (key: string, value: unknown) => Promise<unknown> },
+	guildId: string,
+	data: Partial<DatabaseStructure.NightMode>
+): Promise<void> {
+	for (const key of SETTING_KEYS) {
+		if (data[key] === undefined) continue;
+		await db.set(`${guildId}.UTILS.NIGHT_MODE.${key}`, data[key]);
+	}
+}
+
+/** Whether a guild's night mode has something to do on this tick (or later). */
+function needsPass(data: DatabaseStructure.NightMode | undefined | null) {
+	if (!data) return false;
+	if (data.enabled) return true;
+	// Turned off (command, panel or dashboard) while roles were still taken.
+	return (
+		(data.changed_roles?.length ?? 0) > 0 || data.last_state === "started"
+	);
+}
+
+type nightTarget = checked_nightmode_response | "disabled";
+type passResult = {
+	ok: boolean;
+	changed: string[];
+	im_on_top: boolean;
+	im_self_admin: boolean;
+};
+/** A transition not done yet: retried every tick, the owner is warned once. */
+type pendingTransition = {
+	target: nightTarget;
+	warned: boolean;
+	changed: string[];
+	logged: Set<string>;
+};
+
 class NightModeManager {
+	private pending = new Map<string, pendingTransition>();
+	private running = new Set<string>();
+
 	public async init() {
 		this.Refresh(await this.GetNightModeData());
 		setInterval(async () => {
@@ -70,62 +124,130 @@ class NightModeManager {
 			const nightMode = await client.db.get<DatabaseStructure.NightMode>(
 				`${guild.id}.UTILS.NIGHT_MODE`
 			);
-			const data = nightMode?.enabled ? nightMode : undefined;
-			if (data) result.push({ guildId: guild.id, data });
+			if (needsPass(nightMode))
+				result.push({ guildId: guild.id, data: nightMode! });
 		}
 
 		return result;
 	}
 
+	/** Runs one guild's pass now (the panel calls it after saving). */
+	public async refreshGuild(guildId: string): Promise<void> {
+		const data = await client.db.get<DatabaseStructure.NightMode>(
+			`${guildId}.UTILS.NIGHT_MODE`
+		);
+		if (!needsPass(data)) {
+			this.pending.delete(guildId);
+			return;
+		}
+		await this.Refresh([{ guildId, data: data! }]);
+	}
+
 	private async Refresh(nightModeData: nightModeData) {
 		for (const guildObject of nightModeData) {
+			// A slow pass must not overlap the next tick or a panel save.
+			if (this.running.has(guildObject.guildId)) continue;
+			this.running.add(guildObject.guildId);
 			try {
 				const guild = await client.guilds
 					.fetch(guildObject.guildId)
 					.catch(() => null);
 				if (!guild) continue;
-
-				// Check if the time is between the start and end of the night
-				const response = await this.calculate_window_time(
-					guildObject.data!
-				);
-				if (
-					response === "started" &&
-					!(await this.isAlreadyHandled("started", guild))
-				) {
-					const lang = await client.func.getLanguageData(guild.id);
-
-					// If the owner should be notified
-					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, {
-							type: "started",
-							guildObject: guildObject.data,
-							lang
-						});
-					}
-					// Remove all PA
-					await this.Remove_All_PA(guild, guildObject, lang);
-				} else if (
-					response === "ended" &&
-					!(await this.isAlreadyHandled("ended", guild))
-				) {
-					const lang = await client.func.getLanguageData(guild.id);
-
-					// If the owner should be notified
-					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, {
-							type: "ended",
-							guildObject: guildObject.data,
-							lang
-						});
-					}
-					// Add all PA
-					await this.Add_All_PA(guild, guildObject, lang);
-				}
+				await this.runGuild(guild, guildObject);
 			} catch (err) {
 				logger.err(err);
+			} finally {
+				this.running.delete(guildObject.guildId);
 			}
 		}
+	}
+
+	/**
+	 * `last_state` is written only once the transition is fully done: a pass
+	 * that could not strip (or give back) every role is retried on the next
+	 * tick, instead of waiting for the next transition.
+	 */
+	private async runGuild(guild: Guild, guildObject: nightModeData[0]) {
+		const data = guildObject.data!;
+		const target: nightTarget = data.enabled
+			? await this.calculate_window_time(data)
+			: "disabled";
+		const done =
+			target === "disabled"
+				? !needsPass(data)
+				: data.last_state === target;
+		if (done) {
+			this.pending.delete(guild.id);
+			return;
+		}
+
+		let entry = this.pending.get(guild.id);
+		const firstTry = entry?.target !== target;
+		if (!entry || firstTry) {
+			entry = { target, warned: false, changed: [], logged: new Set() };
+			this.pending.set(guild.id, entry);
+		}
+
+		const lang = await client.func.getLanguageData(guild.id);
+		const direction: checked_nightmode_response =
+			target === "started" ? "started" : "ended";
+
+		if (firstTry && data.notify && target !== "disabled") {
+			await this.Notify_Server_Owner(guild, {
+				type: direction,
+				guildObject: data,
+				lang
+			});
+		}
+
+		const result =
+			target === "started"
+				? await this.Remove_All_PA(
+						guild,
+						guildObject,
+						lang,
+						entry.logged
+					)
+				: await this.Add_All_PA(guild, guildObject, lang, entry.logged);
+		entry.changed.push(...result.changed);
+
+		if (!result.ok) {
+			// Once per failure episode, not on every retry.
+			if (!entry.warned && data.notify) {
+				this.warn_owner(guild, {
+					type: direction,
+					im_on_top: result.im_on_top,
+					im_self_admin: result.im_self_admin,
+					lang
+				});
+			}
+			entry.warned = true;
+			return;
+		}
+
+		await guild.client.db.set(
+			`${guild.id}.UTILS.NIGHT_MODE.last_state`,
+			direction
+		);
+		this.pending.delete(guild.id);
+
+		// Turned off with nothing to give back: no message.
+		if (!data.notify || (target === "disabled" && !entry.changed.length))
+			return;
+		let msg =
+			direction === "started"
+				? lang.var_nm_start_main
+				: lang.var_nm_end_main;
+		if (entry.changed.length > 0) {
+			msg +=
+				lang.var_nm_edited_roles +
+				`\n>>> ${entry.changed.map((x) => "@" + x).join("\n")}`;
+		}
+		await this.Notify_Server_Owner(guild, {
+			type: direction,
+			msg: { content: msg },
+			lang
+		});
 	}
 
 	private async calculate_window_time(
@@ -173,39 +295,41 @@ class NightModeManager {
 		}
 	}
 
+	/** Gives Administrator back to the saved roles; the failed ones stay saved. */
 	private async Add_All_PA(
 		guild: Guild,
 		guildObject: nightModeData[0],
-		lang: LanguageData
-	): Promise<void> {
+		lang: LanguageData,
+		logged?: Set<string>
+	): Promise<passResult> {
+		const all_changed_roles: string[] =
+			((await guild.client.db.get(
+				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
+			)) as DatabaseStructure.NightMode["changed_roles"]) || [];
+
+		// Nothing to give back: done, whatever the bot's own role looks like.
+		if (all_changed_roles.length === 0)
+			return {
+				ok: true,
+				changed: [],
+				im_on_top: true,
+				im_self_admin: true
+			};
+
 		// Check: check if the bot is Administrator
 		const { im_self_admin, im_on_top, is_admin } = this.Basics_Check(guild);
-
-		await guild.client.db.set(
-			`${guild.id}.UTILS.NIGHT_MODE.last_state`,
-			"ended"
-		);
-
 		if (!im_self_admin || !im_on_top || !is_admin) {
-			if (guildObject.data?.notify)
-				this.warn_owner(guild, {
-					type: "ended",
-					im_on_top,
-					im_self_admin: im_self_admin || false,
-					lang
-				});
-			return;
+			return {
+				ok: false,
+				changed: [],
+				im_on_top: !!im_on_top,
+				im_self_admin: !!im_self_admin
+			};
 		}
 
-		// if all conditions is passed. Do the job
-		const all_changed_roles: DatabaseStructure.NightMode["changed_roles"] =
-			(await guild.client.db.get(
-				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
-			)) || [];
-		let changed_roles: string[] = [];
-		// Roles whose update failed stay saved, to be given back next time.
+		const changed_roles: string[] = [];
+		// Roles whose update failed stay saved, to be given back next tick.
 		const failed_roles: string[] = [];
-		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
 			const roleObject = await guild.roles.fetch(role).catch(() => null);
 			if (!roleObject) continue;
@@ -218,29 +342,14 @@ class NightModeManager {
 				changed_roles.push(roleObject.name);
 			} catch (error) {
 				failed_roles.push(role);
-				logger.err(
-					`nightmode: unable to restore the role ${role} in ${guild.id}: ${error}`
-				);
+				if (!logged?.has(role)) {
+					logged?.add(role);
+					logger.err(
+						`nightmode: unable to restore the role ${role} in ${guild.id}: ${error}`
+					);
+				}
 			}
 		}
-
-		let msg = "";
-		msg += lang.var_nm_end_main;
-
-		if (changed_roles.length > 0) {
-			msg +=
-				lang.var_nm_edited_roles +
-				`\n>>> ${changed_roles.map((x) => "@" + x + "").join("\n")}`;
-		}
-
-		if (guildObject.data?.notify)
-			this.Notify_Server_Owner(guild, {
-				type: "ended",
-				msg: {
-					content: msg
-				},
-				lang
-			});
 
 		if (failed_roles.length > 0) {
 			await guild.client.db.set(
@@ -252,6 +361,13 @@ class NightModeManager {
 				`${guild.id}.UTILS.NIGHT_MODE.changed_roles`
 			);
 		}
+
+		return {
+			ok: failed_roles.length === 0,
+			changed: changed_roles,
+			im_on_top: true,
+			im_self_admin: true
+		};
 	}
 
 	public Basics_Check(guild: Guild) {
@@ -313,28 +429,23 @@ class NightModeManager {
 		});
 	}
 
+	/** Takes Administrator away; a role that could not be edited keeps it and is retried. */
 	private async Remove_All_PA(
 		guild: Guild,
 		guildObject: nightModeData[0],
-		lang: LanguageData
-	): Promise<void> {
+		lang: LanguageData,
+		logged?: Set<string>
+	): Promise<passResult> {
 		// Check: check if the bot is Administrator
 		const { im_self_admin, im_on_top, is_admin } = this.Basics_Check(guild);
 
-		await guild.client.db.set(
-			`${guild.id}.UTILS.NIGHT_MODE.last_state`,
-			"started"
-		);
-
 		if (!im_self_admin || !im_on_top || !is_admin) {
-			if (guildObject.data?.notify)
-				this.warn_owner(guild, {
-					type: "started",
-					im_on_top,
-					im_self_admin: im_self_admin || false,
-					lang
-				});
-			return;
+			return {
+				ok: false,
+				changed: [],
+				im_on_top: !!im_on_top,
+				im_self_admin: !!im_self_admin
+			};
 		}
 
 		// if all conditions is passed. Do the job
@@ -354,7 +465,8 @@ class NightModeManager {
 			keepsDerank(role, guildObject.data)
 		);
 
-		const changed_roles: Role[] = [];
+		const changed_roles: string[] = [];
+		let failed = 0;
 		// Roles still waiting to be given back from an earlier night are kept.
 		const saved_role_ids = new Set<string>(
 			((await guild.client.db.get(
@@ -369,36 +481,29 @@ class NightModeManager {
 
 			try {
 				await role.setPermissions(newPermissions);
-				changed_roles.push(role);
+				changed_roles.push(role.name);
 				saved_role_ids.add(role.id);
 				await guild.client.db.set(
 					`${guild.id}.UTILS.NIGHT_MODE.changed_roles`,
 					[...saved_role_ids]
 				);
 			} catch (error) {
-				logger.err(
-					`nightmode: unable to edit the role ${role.id} in ${guild.id}: ${error}`
-				);
+				failed++;
+				if (!logged?.has(role.id)) {
+					logged?.add(role.id);
+					logger.err(
+						`nightmode: unable to edit the role ${role.id} in ${guild.id}: ${error}`
+					);
+				}
 			}
 		}
 
-		let msg = "";
-		msg += lang.var_nm_start_main;
-
-		if (changed_roles.length > 0) {
-			msg +=
-				lang.var_nm_edited_roles +
-				`\n>>> ${changed_roles.map((x) => "@" + x.name + "").join("\n")}`;
-		}
-
-		if (guildObject.data?.notify)
-			this.Notify_Server_Owner(guild, {
-				type: "started",
-				msg: {
-					content: msg
-				},
-				lang
-			});
+		return {
+			ok: failed === 0,
+			changed: changed_roles,
+			im_on_top: true,
+			im_self_admin: true
+		};
 	}
 
 	private async Notify_Server_Owner(

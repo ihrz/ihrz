@@ -260,6 +260,20 @@ export async function run_for_guild_owner(
 		return;
 	}
 
+	// Same rule as /blacklist: an owner's entry is the Discord owner's call.
+	if (
+		await client.func.ownerHelper.isOwnerListProtected(
+			interaction.member.user.id,
+			user.id,
+			interaction.guild
+		)
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.owner_list_only_discord_owner
+		});
+		return;
+	}
+
 	const userObj = await client.db.get(
 		`${interaction.guildId}.BLACKLIST.${user.id}`
 	);

@@ -133,6 +133,30 @@ export interface RuleSettings {
 	mentionLimit: number | null;
 }
 
+function isLegacyAdRuleWith(rule: AutoModerationRule, marker: string): boolean {
+	return (
+		rule.triggerType === AutoModerationRuleTriggerType.Keyword &&
+		rule.name === LEGACY_AD_RULE_NAME &&
+		(rule.triggerMetadata.regexPatterns ?? []).some((pattern) =>
+			pattern.includes(marker)
+		)
+	);
+}
+
+/**
+ * The iHorizon "Links & advertising" rule (`antipub`) among a guild's rules.
+ * Its exempt roles are the ones PunishPub honours: the "Discord invites"
+ * and Telegram rules are keyword rules too, but not this one.
+ */
+export function findAntipubRule(
+	rules: Iterable<AutoModerationRule>
+): AutoModerationRule | undefined {
+	for (const rule of rules) {
+		if (isLegacyAdRuleWith(rule, ANTIPUB_MARKER)) return rule;
+	}
+	return undefined;
+}
+
 export async function fetchNativeRules(guild: Guild): Promise<NativeRules> {
 	const fetched = await guild.autoModerationRules.fetch();
 
@@ -153,15 +177,9 @@ export async function fetchNativeRules(guild: Guild): Promise<NativeRules> {
 				rule.triggerType === AutoModerationRuleTriggerType.MentionSpam
 		),
 		telegram: keywordRules.find((rule) => rule.name === TELEGRAM_RULE_NAME),
-		antipub: legacyAdRules.find((rule) =>
-			(rule.triggerMetadata.regexPatterns ?? []).some((pattern) =>
-				pattern.includes(ANTIPUB_MARKER)
-			)
-		),
+		antipub: findAntipubRule(fetched.values()),
 		media: legacyAdRules.find((rule) =>
-			(rule.triggerMetadata.regexPatterns ?? []).some((pattern) =>
-				pattern.includes(INVITE_MARKER)
-			)
+			isLegacyAdRuleWith(rule, INVITE_MARKER)
 		)
 	};
 }

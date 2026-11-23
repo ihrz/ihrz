@@ -45,6 +45,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { utcTimezones } from "../../../core/locales.js";
+import { saveNightModeSettings } from "../../../core/modules/nightModeManager.js";
 
 export const command: Command = {
 	name: "nightmode",
@@ -273,11 +274,22 @@ export const command: Command = {
 			await ogResponse.edit({
 				components: getComponent(true)
 			});
-			await client.db.set(
-				`${interaction.guildId}.UTILS.NIGHT_MODE`,
+			await saveSettings();
+		});
+
+		// Only the settings this panel edits: the night state (current phase,
+		// roles to give back) may have moved since the panel was opened.
+		async function saveSettings() {
+			await saveNightModeSettings(
+				client.db,
+				interaction.guildId!,
 				baseData
 			);
-		});
+			// Turned off during the night: roles are given back right away.
+			client.nightmodeManager
+				.refreshGuild(interaction.guildId!)
+				.catch((err) => logger.err(err));
+		}
 
 		async function editOwnerNotify(fieldsNumber: number) {
 			baseData.notify = !baseData.notify;
@@ -484,10 +496,7 @@ export const command: Command = {
 				await ogResponse.edit({
 					components: getComponent(true)
 				});
-				await client.db.set(
-					`${interaction.guildId}.UTILS.NIGHT_MODE`,
-					baseData
-				);
+				await saveSettings();
 			}
 		});
 

@@ -50,6 +50,7 @@ import {
 	RoleRefusal
 } from "../functions/permissonsCalculator.js";
 import { ACCENT, buildCard, cardPayload } from "./uiCard.js";
+import { isStaffOnlyChannel } from "./warnSystem.js";
 
 export type Refused<C extends string> = { ok: false; code: C };
 export type Outcome<C extends string, T = {}> = ({ ok: true } & T) | Refused<C>;
@@ -121,7 +122,7 @@ export async function removeWarn(
 	return { ok: true, removed };
 }
 
-// The `/mod unwarn` log: iHorizon logs channel, else a "mods" channel,
+// The `/mod unwarn` log: iHorizon logs channel, else a "mods" channel hidden from @everyone,
 // else the moderation logs channel.
 export async function sendUnwarnLog(
 	guild: Guild,
@@ -162,7 +163,11 @@ export async function sendUnwarnLog(
 	});
 
 	const modsChannel = guild.channels.cache.find(
-		(channel) => channel.name.includes("mods") && channel.isTextBased()
+		(channel) =>
+			channel.name.includes("mods") &&
+			channel.isTextBased() &&
+			// A public "mods" channel is skipped (warnSystem.ts).
+			isStaffOnlyChannel(channel)
 	) as BaseGuildTextChannel | undefined;
 	if (modsChannel) {
 		await modsChannel.send(cardPayload(card)).catch(() => {});

@@ -24,7 +24,6 @@ import {
 	PermissionsBitField,
 	Message,
 	GuildMember,
-	AutoModerationRuleTriggerType,
 	Guild
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
@@ -32,6 +31,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { UnifiedDatabase } from "../../core/database/types.js";
 import { tempTable } from "../client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
+import { findAntipubRule } from "../../core/modules/automodRules.js";
 
 // Hosts whose links are allowed (subdomains included).
 const WHITELIST = [
@@ -151,9 +151,9 @@ async function automodExemptRoleIds(guild: Guild): Promise<string[]> {
 		automodFetchedAt.set(guild.id, Date.now());
 		await guild.autoModerationRules.fetch().catch(() => null);
 	}
-	const rule = guild.autoModerationRules.cache.find(
-		(entry) => entry.triggerType === AutoModerationRuleTriggerType.Keyword
-	);
+	// The "Links & advertising" rule only: the first keyword rule found
+	// could be the Telegram or "Discord invites" one, with other roles.
+	const rule = findAntipubRule(guild.autoModerationRules.cache.values());
 	return rule ? [...rule.exemptRoles.keys()] : [];
 }
 

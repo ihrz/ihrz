@@ -32,6 +32,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
+import { sendWarnsClearedLog } from "../../../core/modules/warnSystem.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,7 +52,7 @@ export const subCommand: SubCommand = {
 
 		const DbData = (await client.db.get(
 			`${interaction.guild?.id}.USER`
-		)) as DatabaseStructure.DbGuildUserObject[];
+		)) as DatabaseStructure.DbGuildUserObject | null;
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.clear_allwarns_confirmation_message,
@@ -61,7 +62,14 @@ export const subCommand: SubCommand = {
 		});
 
 		if (response) {
+			let count = 0;
+			let members = 0;
 			for (const entries in DbData) {
+				const warns = DbData?.[entries]?.WARNS;
+				if (Array.isArray(warns) && warns.length > 0) {
+					count += warns.length;
+					members++;
+				}
 				await client.db.delete(
 					`${interaction.guild?.id}.USER.${entries}.WARNS`
 				);
@@ -86,6 +94,13 @@ export const subCommand: SubCommand = {
 					signature: await botSignature(client, interaction.guildId)
 				})
 			);
+			if (count > 0)
+				await sendWarnsClearedLog(
+					interaction.guild,
+					interaction.member.toString(),
+					{ count, members },
+					lang
+				);
 		} else {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setjoinroles_action_canceled,

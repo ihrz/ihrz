@@ -23,12 +23,44 @@ import {
 	Client,
 	ChannelType,
 	PermissionFlagsBits,
-	ChatInputCommandInteraction
+	ChatInputCommandInteraction,
+	Guild,
+	OverwriteResolvable,
+	OverwriteType
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { cardPayload, notice } from "../../../core/modules/uiCard.js";
+
+/**
+ * The ihorizon-logs channel is hidden from @everyone; without its own overwrite a bot that is not an administrator
+ * would lock itself out of the channel it just created (no log could ever be posted there).
+ */
+export function ihorizonLogsOverwrites(
+	guild: Guild,
+	botId: string
+): OverwriteResolvable[] {
+	return [
+		{
+			id: guild.roles.everyone.id,
+			deny: [
+				PermissionFlagsBits.ViewChannel,
+				PermissionFlagsBits.SendMessages,
+				PermissionFlagsBits.ReadMessageHistory
+			]
+		},
+		{
+			id: botId,
+			type: OverwriteType.Member,
+			allow: [
+				PermissionFlagsBits.ViewChannel,
+				PermissionFlagsBits.SendMessages,
+				PermissionFlagsBits.EmbedLinks
+			]
+		}
+	];
+}
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -51,20 +83,23 @@ export const subCommand: SubCommand = {
 			channel.name.includes("ihorizon-logs")
 		);
 		if (!logchannel) {
-			interaction.guild.channels.create({
-				name: "ihorizon-logs",
-				type: ChannelType.GuildText,
-				permissionOverwrites: [
-					{
-						id: interaction.guild.roles.everyone,
-						deny: [
-							PermissionFlagsBits.ViewChannel,
-							PermissionFlagsBits.SendMessages,
-							PermissionFlagsBits.ReadMessageHistory
-						]
-					}
-				]
-			});
+			// Awaited: a refused creation (missing Manage Channels) used to be reported as a success.
+			const created = await interaction.guild.channels
+				.create({
+					name: "ihorizon-logs",
+					type: ChannelType.GuildText,
+					permissionOverwrites: ihorizonLogsOverwrites(
+						interaction.guild,
+						client.user.id
+					)
+				})
+				.catch(() => null);
+			if (!created) {
+				await interaction.editReply({
+					content: lang.setup_command_error
+				});
+				return;
+			}
 
 			await interaction.editReply(
 				cardPayload(

@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 			await sendCard(
 				client,
 				interaction,
-				notice("danger", lang.backup_manage_nique_tes_mort)
+				notice("danger", lang.backup_use_not_allowed)
 			);
 			return;
 		}

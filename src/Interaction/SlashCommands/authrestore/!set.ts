@@ -32,7 +32,8 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import {
 	createAuthRestore,
-	createOauth2LinkWithGuild
+	createOauth2LinkWithGuild,
+	sendKeyByDm
 } from "../../../core/functions/authRestoreHelper.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -92,6 +93,15 @@ export const subCommand: SubCommand = {
 					author: interaction.user
 				})
 					.then(async (res) => {
+						// A refused config has no key: never show "undefined".
+						if (res?.status !== "OK" || !res.secretCode) {
+							await client.func.method.interactionSend(
+								interaction,
+								{ content: lang.rc_command_horizongw_down }
+							);
+							return;
+						}
+						const secretCode = res.secretCode;
 						msg.edit({
 							components: [
 								new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -111,35 +121,29 @@ export const subCommand: SubCommand = {
 									"${author}",
 									interaction.user.toString()
 								)
-								.replace(
-									"${secretCode}",
-									String(res.secretCode)
-								)
+								.replace("${secretCode}", secretCode)
 								.replace("${msgLink}", msgLink),
 							flags: [1 << 6]
 						});
 
-						await interaction.user
-							.send(
-								lang.rc_command_ok_dm
-									.replace(
-										"${guildName}",
-										interaction.guild.name
-									)
-									.replace("${secretCode}", res.secretCode!)
-							)
-							.catch(() =>
+						await sendKeyByDm(
+							() =>
+								interaction.user.send(
+									lang.rc_command_ok_dm
+										.replace(
+											"${guildName}",
+											interaction.guild.name
+										)
+										.replace("${secretCode}", secretCode)
+								),
+							(delivered) =>
 								interaction.followUp({
-									content: lang.rc_command_dm_failed,
+									content: delivered
+										? lang.rc_command_dm_ok
+										: lang.rc_command_dm_failed,
 									flags: [1 << 6]
 								})
-							)
-							.then(() =>
-								interaction.followUp({
-									content: lang.rc_command_dm_ok,
-									flags: [1 << 6]
-								})
-							);
+						);
 
 						await client.db.set(
 							`${interaction.guildId}.GUILD.RESTORECORD`,

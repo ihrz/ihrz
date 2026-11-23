@@ -159,7 +159,10 @@ export const command: Command = {
 			return;
 		}
 
+		// Same as permissonsCalculator: the Discord owner and the owner
+		// list pass the rules (only rule-gated commands are listed here).
 		const isOwner =
+			member.guild.ownerId === member.user.id ||
 			(await client.db.get(
 				`${interaction.guildId}.OWNER.${member.user.id}.owner`
 			)) === true;

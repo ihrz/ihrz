@@ -22,6 +22,16 @@
 import { Client, VoiceState } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import {
+	activeLeashes,
+	getLeashConfig
+} from "../../core/modules/memberToolsManager.js";
+
+// A leashed member follows the one who holds the leash: when the holder
+// changes voice channel, the members they hold are moved there; a held
+// member who goes to another channel is brought back. Leashes last
+// `UTILS.LEASH_CONFIG.maxLeashTime` (30 minutes by default), like
+// `/utilss leashlist` shows.
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -29,18 +39,15 @@ export const event: BotEvent = {
 		const baseData = (await client.db.get(
 			`${newState.guild.id}.UTILS.LEASH`
 		)) as DatabaseStructure.UtilsData["LEASH"];
-		const currentTime = Date.now();
+		if (!baseData?.length) return;
 
-		const validEntries =
-			baseData?.filter(
-				(entry) => currentTime - entry.timestamp <= 30 * 60 * 1000
-			) || [];
-		const expiredEntries =
-			baseData?.filter(
-				(entry) => currentTime - entry.timestamp > 30 * 60 * 1000
-			) || [];
+		const { maxLeashTime } = await getLeashConfig(
+			client,
+			newState.guild.id
+		);
+		const validEntries = activeLeashes(baseData, maxLeashTime);
 
-		if (expiredEntries.length > 0) {
+		if (validEntries.length !== baseData.length) {
 			await client.db.set(
 				`${newState.guild.id}.UTILS.LEASH`,
 				validEntries
@@ -67,11 +74,15 @@ export const event: BotEvent = {
 
 			const changingMemberId = newState.member?.id || oldState.member?.id;
 			const isDom = changingMemberId === pairing.dom;
-			const targetChannel = isDom ? newState.channel : oldState.channel;
+			const targetChannel = newState.channel;
 
 			if (isDom && targetChannel) {
 				for (const subMember of subMembers) {
-					if (subMember!.voice.channel !== targetChannel) {
+					// Discord can only move a member who is in voice.
+					if (
+						subMember!.voice.channelId &&
+						subMember!.voice.channelId !== targetChannel.id
+					) {
 						try {
 							await subMember!.voice.setChannel(targetChannel);
 						} catch (error) {
@@ -84,8 +95,9 @@ export const event: BotEvent = {
 				}
 			} else if (
 				!isDom &&
+				targetChannel &&
 				domMember.voice.channel &&
-				targetChannel !== domMember.voice.channel
+				targetChannel.id !== domMember.voice.channel.id
 			) {
 				try {
 					const movingMember = subMembers.find(

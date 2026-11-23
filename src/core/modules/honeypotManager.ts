@@ -37,6 +37,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
 import logger from "../logger.js";
+import { LogCardOptions, sendLogCard } from "./logCard.js";
 import wait from "../functions/wait.js";
 
 const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
@@ -306,6 +307,84 @@ async function applyConfiguredAction(
 	}
 }
 
+/** The honeypot log entry: a Components V2 log card (logCard.ts), like the other log channels, no pings. */
+export function honeypotLogCard(
+	message: Message,
+	lang: LanguageData,
+	deletedCount: number,
+	dmDelivered: boolean,
+	actionResult: HoneypotActionResult,
+	triggerCount: number
+): LogCardOptions {
+	const attachmentUrls = message.attachments
+		.map((attachment) => attachment.url)
+		.join("\n");
+	const stickerList = message.stickers
+		.map((sticker) => sticker.name)
+		.join("\n");
+
+	const firstImageAttachment = message.attachments.find(
+		(attachment) =>
+			attachment.contentType?.startsWith("image/") || attachment.width
+	);
+	const result = getLogActionLabel(actionResult, lang);
+	const e = message.client.iHorizon_Emojis;
+
+	return {
+		kind: actionResult === "none" ? "edit" : "danger",
+		emoji: e?.Honey_Pot,
+		title: lang.honeypot_log_title.replace("${action}", result),
+		thumbnail: message.author.displayAvatarURL(),
+		fields: [
+			{
+				emoji: e?.Ticket_User,
+				label: lang.honeypot_log_field_author,
+				value: `${message.author.toString()} (\`${message.author.id}\`)`
+			},
+			{
+				emoji: e?.Ticket_Hash,
+				label: lang.honeypot_log_field_channel,
+				value: message.channel.toString()
+			},
+			{
+				label: lang.honeypot_log_field_triggered_messages,
+				value: `\`${triggerCount}\``
+			},
+			{
+				label: lang.honeypot_log_field_deleted_messages,
+				value: `\`${deletedCount}\``
+			},
+			{
+				label: lang.honeypot_log_field_embeds,
+				value: `\`${message.embeds.length}\``
+			},
+			{
+				label: lang.honeypot_log_field_dm_status,
+				value: dmDelivered
+					? lang.honeypot_log_dm_open
+					: lang.honeypot_log_dm_closed
+			},
+			{
+				label: lang.honeypot_log_field_result,
+				value: result
+			}
+		],
+		blocks: [
+			`**${lang.honeypot_log_field_message}**\n${truncate(
+				message.content || lang.honeypot_log_no_content
+			)}`,
+			`**${lang.honeypot_log_field_attachments}**\n${truncate(
+				attachmentUrls || lang.var_none
+			)}`,
+			`**${lang.honeypot_log_field_stickers}**\n${truncate(
+				stickerList || lang.var_none
+			)}`
+		],
+		images: [firstImageAttachment?.url],
+		timestamp: message.createdTimestamp
+	};
+}
+
 async function sendLogs(
 	message: Message,
 	lang: LanguageData,
@@ -333,95 +412,20 @@ async function sendLogs(
 		return;
 	}
 
-	const attachmentUrls = message.attachments
-		.map((attachment) => attachment.url)
-		.join("\n");
-	const stickerList = message.stickers
-		.map((sticker) => sticker.name)
-		.join("\n");
-
-	const logEmbed = new EmbedBuilder()
-		.setColor(HONEYPOT_EMBED_COLOR)
-		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-		.setTitle(
-			lang.honeypot_log_title.replace(
-				"${action}",
-				getLogActionLabel(actionResult, lang)
-			)
+	const sent = await sendLogCard(
+		logsChannel,
+		honeypotLogCard(
+			message,
+			lang,
+			deletedCount,
+			dmDelivered,
+			actionResult,
+			triggerCount
 		)
-		.setTimestamp(message.createdAt)
-		.addFields(
-			{
-				name: lang.honeypot_log_field_author,
-				value: truncate(
-					`${message.author.toString()}\n\`${message.author.id}\``
-				),
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_channel,
-				value: message.channel.toString(),
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_triggered_messages,
-				value: `\`${triggerCount}\``,
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_deleted_messages,
-				value: `\`${deletedCount}\``,
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_embeds,
-				value: `\`${message.embeds.length}\``,
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_dm_status,
-				value: dmDelivered
-					? lang.honeypot_log_dm_open
-					: lang.honeypot_log_dm_closed,
-				inline: true
-			},
-			{
-				name: lang.honeypot_log_field_message,
-				value: truncate(
-					message.content || lang.honeypot_log_no_content
-				),
-				inline: false
-			},
-			{
-				name: lang.honeypot_log_field_attachments,
-				value: truncate(attachmentUrls || lang.var_none),
-				inline: false
-			},
-			{
-				name: lang.honeypot_log_field_stickers,
-				value: truncate(stickerList || lang.var_none),
-				inline: false
-			},
-			{
-				name: lang.honeypot_log_field_result,
-				value: getLogActionLabel(actionResult, lang),
-				inline: true
-			}
-		);
-
-	const firstImageAttachment = message.attachments.find(
-		(attachment) =>
-			attachment.contentType?.startsWith("image/") || attachment.width
 	);
-	if (firstImageAttachment) {
-		logEmbed.setImage(firstImageAttachment.url);
+	if (!sent) {
+		logger.warn(`Honeypot log send failed for guild ${message.guildId}`);
 	}
-
-	await logsChannel.send({ embeds: [logEmbed] }).catch((error: unknown) => {
-		logger.warn(
-			`Honeypot log send failed for guild ${message.guildId}: ${String(error)}`
-		);
-	});
 }
 
 export async function processHoneypotTrigger(

@@ -247,8 +247,16 @@ export async function resolveInvite(
 ): Promise<Invite | null> {
 	const invites = await fetchInvitesOnce(guild);
 
+	// No snapshot of the counts yet (iHorizon lacked Manage Server or View
+	// Audit Log at startup): every invite ever used looked "new", and the
+	// first one got the credit. Take the snapshot, credit nobody this time.
+	if (!oldInvites) {
+		clientInviteCache(guild, invites);
+		return null;
+	}
+
 	const invite = invites.find((i: Invite) => {
-		const oldInvite = oldInvites?.get(i.code);
+		const oldInvite = oldInvites.get(i.code);
 		return i.uses && i.uses > (oldInvite?.uses || 0);
 	});
 

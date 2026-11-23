@@ -136,7 +136,7 @@ export const command: Command = {
 						pl: "Rola do skonfigurowania"
 					},
 
-					required: false,
+					required: true,
 
 					permission: null
 				}

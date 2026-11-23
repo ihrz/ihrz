@@ -281,7 +281,7 @@ export function backupLoadRefusalText(
 	reason: BackupLoadRefusal
 ): string {
 	return {
-		not_allowed: lang.backup_manage_nique_tes_mort,
+		not_allowed: lang.backup_use_not_allowed,
 		bot_not_admin: lang.backup_i_dont_have_perm_on_load,
 		invalid_id: lang.backup_unvalid_id_on_load,
 		not_yours: lang.backup_this_is_not_your_backup,

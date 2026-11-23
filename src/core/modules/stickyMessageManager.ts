@@ -100,11 +100,11 @@ export async function buildStickyPayload(
 			`EMBED.${config.embedId}`
 		)) as StickyEmbedRecord | null;
 
-		if (!embed?.embedSource) {
-			return null;
+		// A deleted embed only drops the embed: a sticky that also has text
+		// keeps being reposted with its text alone.
+		if (embed?.embedSource) {
+			payload.embeds = [embed.embedSource];
 		}
-
-		payload.embeds = [embed.embedSource];
 	}
 
 	if (!payload.content && !payload.embeds?.length) {

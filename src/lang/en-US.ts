@@ -1394,7 +1394,7 @@ const enUS = {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"You little rascal, you can't leash more than 3 people :D",
+		"You little rascal, you can't leash more than ${max} people :D",
 	util_leah_already_owned:
 		"You little rascal, you already own these little wonders :smirk:",
 	util_leash_confirm_message:
@@ -1931,7 +1931,7 @@ const enUS = {
 		"The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4 month(s); 4 weeks; 4 years",
 	too_new_account_logEmbed_title: "TooNewAccount Module",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} enabled the TooNewAccount module. Accounts must now be at least ${beautifulTime} old, and if a user joins more than `${maxJoin}` times, they will be banned.",
+		"${author} enabled the TooNewAccount module. Accounts must now be at least ${beautifulTime} old, and a user is banned as soon as they have joined `${maxJoin}` times.",
 	too_new_account_command_work_on_enable:
 		"${author}, new members joining **${guildName}** with accounts younger than `${beautifulTime}` will now be kicked.",
 	too_new_account_command_work_on_enable2:
@@ -2901,7 +2901,8 @@ const enUS = {
 		"<@${authorId}>, **In which channel should I send this embed?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **You took too long to respond, I'm aborting the ongoing operation!**",
-	embed_choose_0: "What message do you want to include in your Embed?",
+	embed_choose_0:
+		"Send the link of the message whose embed you want to copy (right click on the message, Copy Message Link).",
 	embed_choose_1: "What title do you want to include in your Embed?",
 	embed_choose_2: "The title of the Embed has been successfully deleted!",
 	embed_choose_3: "What description do you want to include in your Embed?",
@@ -3654,7 +3655,7 @@ const enUS = {
 	rc_delete_config_not_found:
 		"The module configuration on this server could not be found!",
 	rc_delete_command_ok:
-		'${author}, you have just deleted the configuration of the "AuthRestore" module. For security (data) reasons, I will only delete the button, but the oauth2 data and the secret code will be deleted in 48 hours!',
+		'${author}, you have just removed the "AuthRestore" button: members can no longer verify from it. Your key and the members already verified are kept, so you can still bring them back with `/authrestore force-join`.',
 
 	// /authrestore get
 	rc_get_mainEmbed_title: "AuthRestore General Infos",
@@ -5085,7 +5086,45 @@ const enUS = {
 	music_apo_node_unreachable: "the music node can't be reached (${message})",
 
 	// owner list refusal
-	owner_list_not_allowed: "Only the server owner and the members of the server's owner list can use this command."
+	owner_list_not_allowed:
+		"Only the server owner and the members of the server's owner list can use this command.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Only the server owner (the Discord owner) can remove someone from the owner list, or blacklist a member of the owner list.",
+
+	// warnings fix
+	warn_err_owner: "${emoji_No} You cannot warn the server owner.",
+	warn_sanction_kept:
+		"${sanction} not applied: the member's current timeout lasts longer and is kept (ends ${until})",
+	clear_allwarns_log_desc:
+		"${count} warnings of ${members} members have been removed.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"I can only replace the embed of a message I sent myself!",
+	embed_save_uploads_dropped:
+		"-# Uploaded images are not kept in a saved embed: they only exist on this message. Use an image link so the image shows everywhere this ID is used.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Every verified member is already on this server: there is nobody to add. Your key has not changed.",
+	rc_forcejoin_failed:
+		"The force-join could not start: HorizonGateway refused it or could not be reached. Nobody was added and your key has not changed.",
+	rc_forcejoin_stopped:
+		"The force-join stopped before the end. The members counted above were added, and your key has already been replaced: the new one follows.",
+
+	// logs fix
+	logs_antispam_title_mute: "[AntiSpam] New mute",
+	logs_antispam_title_kick: "[AntiSpam] New kick",
+	logs_antispam_title_ban: "[AntiSpam] New ban",
+	logs_antispam_desc_mute: "${bot} has **muted** ${user}",
+	logs_antispam_desc_kick: "${bot} has **kicked** ${user}",
+	logs_antispam_desc_ban: "${bot} has **banned** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Only the server owner can use backups here. The owner can open them to every administrator with `/backup manage`."
 };
 
 export default enUS;

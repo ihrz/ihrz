@@ -19,10 +19,26 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Guild } from "discord.js";
+import { BaseGuildTextChannel, Guild } from "discord.js";
+
+import { isStaffOnlyChannel } from "../modules/warnSystem.js";
+
+/**
+ * The server's iHorizon logs channel: the first text channel whose name contains "ihorizon-logs" that @everyone
+ * cannot see. A public channel with that name is never used: the logs name members and moderators and quote
+ * reasons, which the whole server would then read.
+ */
+export function findIhorizonLogsChannel(
+	guild: Guild | null | undefined
+): BaseGuildTextChannel | undefined {
+	return guild?.channels.cache.find(
+		(channel) =>
+			channel.name.includes("ihorizon-logs") &&
+			channel.isTextBased() &&
+			isStaffOnlyChannel(channel)
+	) as BaseGuildTextChannel | undefined;
+}
 
 export default function hasIhorizonLogs(guild: Guild): boolean {
-	return guild.channels.cache.some((channel) =>
-		channel.name.includes("ihorizon-logs")
-	);
+	return !!findIhorizonLogsChannel(guild);
 }

@@ -49,6 +49,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { getPermissionByValue } from "../permissonsCalculator.js";
 import { boldStringifyOption, hasSubCommand } from "./args.js";
+import { LangsData, languageForLocale } from "../getLanguageData.js";
 import {
 	addTopggButonToTheActualComponents,
 	shouldAdvertiseTheTopggVoteButton
@@ -421,6 +422,20 @@ export async function reply(
 	return await message.reply(replyOptions);
 }
 
+/**
+ * "Unknown" in the guild's language, for the inviter variables of a member
+ * whose inviter could not be found. The caller loaded that language already
+ * (it is in the cache); `guildLocal` is a bot code ("fr-FR") or a Discord
+ * locale ("fr"). English otherwise.
+ */
+function unknownInGuildLanguage(guildLocal: string | null | undefined): string {
+	const lang =
+		(guildLocal ? LangsData[guildLocal] : undefined) ??
+		LangsData[languageForLocale(guildLocal)] ??
+		LangsData["en-US"];
+	return lang?.var_unknown || "Unknown";
+}
+
 export function generateCustomMessagePreview(
 	message: string,
 	input: {
@@ -450,6 +465,8 @@ export function generateCustomMessagePreview(
 		};
 	}
 ): string {
+	const unknown = unknownInGuildLanguage(input.guildLocal);
+
 	return message
 		.replaceAll("{memberUsername}", input.user.username)
 		.replaceAll("{memberMention}", input.user.toString())
@@ -465,15 +482,12 @@ export function generateCustomMessagePreview(
 		.replaceAll("{guildName}", input.guild.name)
 		.replaceAll(
 			"{inviterUsername}",
-			input.inviter?.user.username || `unknow_user`
+			input.inviter?.user.username || unknown
 		)
-		.replaceAll(
-			"{inviterMention}",
-			input.inviter?.user.mention || `@unknow_user`
-		)
+		.replaceAll("{inviterMention}", input.inviter?.user.mention || unknown)
 		.replaceAll(
 			"{invitesCount}",
-			input.inviter?.invitesAmount.toString() || "1337"
+			input.inviter?.invitesAmount.toString() || "0"
 		)
 		.replaceAll("{xpLevel}", input.ranks?.level.toString() || "1337")
 		.replaceAll("{artistAuthor}", input.notifier?.artistAuthor || "Ninja")

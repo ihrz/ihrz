@@ -30,8 +30,9 @@ import {
 } from "discord.js";
 import WebSocket from "ws";
 import {
-	forceJoinAuthRestore,
-	getGuildDataPerSecretCode
+	forceJoinInBatches,
+	getGuildDataPerSecretCode,
+	sendKeyByDm
 } from "../../../core/functions/authRestoreHelper.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -127,17 +128,31 @@ export const subCommand: SubCommand = {
 			await i.deferUpdate();
 
 			if (i.customId === "yes") {
-				const totalMembers = Data.data.members.length;
-				let addedCount = 0;
-				let lastUpdateTime = Date.now();
+				collector.stop();
 
-				const updateEmbed = () => {
+				const forceJoinMembers = members.filter(
+					(userId) => !interaction.guild.members.cache.has(userId)
+				);
+				// The gateway refuses an empty list: nothing would ever happen.
+				if (!forceJoinMembers.length) {
+					await interaction.editReply({
+						embeds: [
+							embed.setDescription(lang.rc_forcejoin_nobody)
+						],
+						components: []
+					});
+					return;
+				}
+
+				let addedCount = 0;
+				let lastUpdateTime = 0;
+				const updateEmbed = (force = false) => {
+					if (!force && Date.now() - lastUpdateTime < 2_000) return;
+					lastUpdateTime = Date.now();
 					embed.setFields(
 						{
 							name: lang.rc_forceJoin_embed_2_field1,
-							value: String(
-								totalMembers - membersAlreadyHere.length
-							),
+							value: String(forceJoinMembers.length),
 							inline: true
 						},
 						{
@@ -146,107 +161,79 @@ export const subCommand: SubCommand = {
 							inline: true
 						}
 					);
-					interaction.editReply({ embeds: [embed] });
+					interaction
+						.editReply({ embeds: [embed] })
+						.catch(() => undefined);
 				};
 
-				const forceJoinMembers = members
-					.filter((userId) => {
-						return !interaction.guild.members.cache.has(userId);
-					})
-					.map((x) => x);
-
-				const updateInterval = 5;
-				const maxUpdateInterval = 10000;
-
-				forceJoinAuthRestore({
-					membersToForceJoin: forceJoinMembers,
+				const result = await forceJoinInBatches({
+					members: forceJoinMembers,
 					apiToken: client.config.api.apiToken,
 					targetGuildId: interaction.guildId,
 					guildId: Data.id,
-					secretCode
-				}).then((res) => {
-					const data = res.message.split("%");
-					const ws = new WebSocket(data[0]);
-
-					ws.on("error", (err) => logger.err(err));
-
-					ws.on("open", function open() {
-						ws.send("forceJoin%" + data[1]);
-					});
-
-					ws.on("message", async function message(messageData) {
-						const messageParts = messageData.toString().split(":");
-						const value = messageParts[1];
-						const value2 = messageParts.slice(2).join(":") || "";
-
-						switch (value) {
-							case "size":
-								embed.setDescription(
-									lang.rc_forceJoin_ws_size.replace(
-										"${value2}",
-										value2
-									)
-								);
-								break;
-							case "start":
-								embed.setDescription(
-									lang.rc_forceJoin_ws_start
-								);
-								break;
-							case "add":
-								addedCount++;
-								if (
-									Date.now() - lastUpdateTime >
-										maxUpdateInterval ||
-									addedCount % updateInterval === 0
-								) {
-									updateEmbed();
-									lastUpdateTime = Date.now();
-								}
-								break;
-							case "end":
-								embed.setDescription(lang.rc_forceJoin_ws_end);
-								await interaction.followUp({
-									content:
-										lang.rc_forceJoin_ws_end_renew_msg.replace(
-											"${value2}",
-											value2
-										),
-									flags: [1 << 6]
-								});
-
-								await interaction.user
-									.send(
-										lang.rc_command_ok_dm
-											.replace(
-												"${guildName}",
-												interaction.guild.name
-											)
-											.replace("${secretCode}", value2)
-									)
-									.catch(() =>
-										interaction.followUp({
-											content: lang.rc_command_dm_failed,
-											flags: [1 << 6]
-										})
-									)
-									.then(() =>
-										interaction.followUp({
-											content: lang.rc_command_dm_ok,
-											flags: [1 << 6]
-										})
-									);
-								break;
-						}
+					secretCode,
+					openSocket: (url) => {
+						const ws = new WebSocket(url);
+						ws.on("error", (err) => logger.err(err));
+						return ws;
+					},
+					onSize: (total) => {
+						embed.setDescription(
+							lang.rc_forceJoin_ws_size.replace(
+								"${value2}",
+								String(total)
+							)
+						);
+						updateEmbed(true);
+					},
+					onStart: () => {
+						embed.setDescription(lang.rc_forceJoin_ws_start);
+						updateEmbed(true);
+					},
+					onAdd: () => {
+						addedCount++;
 						updateEmbed();
-					});
-
-					ws.on("close", function () {
-						ws.terminate();
-					});
+					}
 				});
 
-				collector.stop();
+				if (result.error) {
+					logger.err(`AuthRestore force-join: ${result.error}`);
+				}
+				embed.setDescription(
+					result.error
+						? result.renewed
+							? lang.rc_forcejoin_stopped
+							: lang.rc_forcejoin_failed
+						: lang.rc_forceJoin_ws_end
+				);
+				updateEmbed(true);
+
+				// The old key no longer works: hand over the new one.
+				if (!result.renewed) return;
+				await interaction.followUp({
+					content: lang.rc_forceJoin_ws_end_renew_msg.replace(
+						"${value2}",
+						result.secretCode
+					),
+					flags: [1 << 6]
+				});
+				const keyGuildName =
+					client.guilds.cache.get(Data.id)?.name ?? Data.id;
+				await sendKeyByDm(
+					() =>
+						interaction.user.send(
+							lang.rc_command_ok_dm
+								.replace("${guildName}", keyGuildName)
+								.replace("${secretCode}", result.secretCode)
+						),
+					(delivered) =>
+						interaction.followUp({
+							content: delivered
+								? lang.rc_command_dm_ok
+								: lang.rc_command_dm_failed,
+							flags: [1 << 6]
+						})
+				);
 			} else {
 				await response.delete();
 				collector.stop();

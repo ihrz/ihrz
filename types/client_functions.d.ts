@@ -336,6 +336,11 @@ declare namespace Client_Functions {
 
 	// From embedHelper.ts
 	export namespace embedHelper {
+		export type EmbedMediaKind = "footer" | "image" | "thumbnail";
+		export function canReplaceEmbedOf(
+			message: { author: { id: string } },
+			botId: string | undefined
+		): boolean;
 		export function getMediaByMessage(message: Message<boolean>): {
 			name: string;
 			attachment: string;
@@ -343,6 +348,14 @@ declare namespace Client_Functions {
 		export function isValidColor(color: string): boolean;
 		export function isValidEmbedId(id: unknown): boolean;
 		export function isValidLink(url: string): boolean;
+		export function uploadedMediaName(
+			kind: EmbedMediaKind,
+			name: string
+		): string;
+		export function withoutUploadedMedia(embed: APIEmbed): {
+			embed: APIEmbed;
+			dropped: boolean;
+		};
 	}
 
 	// From emojiChecker.ts
@@ -805,6 +818,11 @@ declare namespace Client_Functions {
 		export function isBotOwner(userId: string): Promise<boolean>;
 		export function isGuildOwner(
 			userId: string,
+			guild: Guild
+		): Promise<boolean>;
+		export function isOwnerListProtected(
+			actorId: string,
+			targetId: string,
 			guild: Guild
 		): Promise<boolean>;
 		export function removeBotOwner(userId: string): Promise<void>;

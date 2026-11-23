@@ -75,7 +75,18 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (filteredLog.executorId !== member.guild.ownerId) {
+		// Trusted: the Discord owner and the server owner list (`/owner`),
+		// like Protection. Anyone else adding a bot is deranked.
+		const executorId = filteredLog.executorId;
+		const trusted =
+			!!executorId &&
+			(executorId === member.guild.ownerId ||
+				(await client.func.ownerHelper.isGuildOwner(
+					executorId,
+					member.guild
+				)));
+
+		if (!trusted) {
 			await member
 				.ban({ reason: "The BlockBot function is enabled!" })
 				.catch((error: unknown) => {

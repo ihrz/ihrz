@@ -131,6 +131,13 @@ async function checkUserCommandPermission(
 	// Get command permission data
 	const cmdPermData = getCmdPermData(command, guildPerm);
 
+	// A command without a /perm rule is not decided here: `allowed: false`
+	// sends the caller to the command's Discord permission. The owner list
+	// (and the Discord owner) passes the RULES, never Discord permissions.
+	if (!hasCommandPermissionRequirements(cmdPermData)) {
+		return { allowed: false, permissionData: cmdPermData };
+	}
+
 	// Check permissions in order of priority
 	const checkResults = await Promise.all([
 		checkExplicitUserPermission(userId, cmdPermData),
@@ -140,7 +147,7 @@ async function checkUserCommandPermission(
 		// The Discord owner always counts, even before being stored in the
 		// owner list (as ownerHelper.isGuildOwner does for limits and Protection).
 		(!!member && member.guild.ownerId === member.id) ||
-			(await isOnTheOwnerList(guildId, member?.id!))
+			(!!member && (await isOnTheOwnerList(guildId, member.id)))
 	]);
 
 	// If any permission check returns true, allow the command

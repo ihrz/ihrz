@@ -1431,7 +1431,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"Pecadorzinho, não podes colocar mais de 3 pessoas na trela :D",
+		"Pecadorzinho, não podes colocar mais de ${max} pessoas na trela :D",
 	util_leah_already_owned:
 		"Pecadorzinho, já possuis estas pequenas maravilhas :smirk:",
 	util_leash_confirm_message:
@@ -1979,7 +1979,7 @@ export default {
 		"O tempo que você inseriu não é válido! **Exemplo de tempo válido**: `3h; 30m; 4w; 4y` -> 3 horas; 30 minutos; 4 semanas; 4 anos",
 	too_new_account_logEmbed_title: "Módulo TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} ativou o módulo TooNewAccount. As contas agora devem ter pelo menos ${beautifulTime} de idade, e se um usuário entrar mais de `${maxJoin}` vezes, será banido.",
+		"${author} ativou o módulo TooNewAccount. As contas agora devem ter pelo menos ${beautifulTime} de idade, e um utilizador será banido quando entrar pela `${maxJoin}`.ª vez.",
 	too_new_account_command_work_on_enable:
 		"${author}, novos membros que entrarem em **${guildName}** com contas criadas há menos de `${beautifulTime}` serão expulsos.",
 	too_new_account_command_work_on_enable2:
@@ -2968,7 +2968,8 @@ export default {
 		"<@${authorId}>, **Em qual canal devo enviar este embed?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **Você demorou muito para responder, estou abortando a operação em andamento!**",
-	embed_choose_0: "Qual mensagem você quer incluir no seu Embed?",
+	embed_choose_0:
+		"Envia a ligação da mensagem cujo embed queres copiar (clique direito na mensagem, Copiar ligação da mensagem).",
 	embed_choose_1: "Qual título você quer incluir no seu Embed?",
 	embed_choose_2: "O título do Embed foi excluído com sucesso!",
 	embed_choose_3: "Qual descrição você quer incluir no seu Embed?",
@@ -3730,7 +3731,7 @@ export default {
 	rc_delete_config_not_found:
 		"A configuração do módulo neste servidor não foi encontrada!",
 	rc_delete_command_ok:
-		'${author}, você acabou de excluir a configuração do módulo "AuthRestore". Por motivos de segurança (dados), excluirei apenas o botão, mas os dados OAuth2 e o código secreto serão excluídos em 48 horas!',
+		'${author}, acabaste de remover o botão "AuthRestore": os membros já não se podem verificar a partir dele. A tua chave e os membros já verificados mantêm-se, por isso ainda os podes trazer de volta com `/authrestore force-join`.',
 
 	// /authrestore obter
 	rc_get_mainEmbed_title: "Informações Gerais do AuthRestore",
@@ -5169,5 +5170,44 @@ export default {
 		"não é possível contactar o servidor de áudio (${message})",
 
 	// owner list refusal
-	owner_list_not_allowed: "Só o dono do servidor e os membros da lista de donos do servidor podem usar este comando."
+	owner_list_not_allowed:
+		"Só o dono do servidor e os membros da lista de donos do servidor podem usar este comando.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Só o dono do servidor (o dono no Discord) pode retirar alguém da lista de donos ou pôr na lista negra um membro dessa lista.",
+
+	// warnings fix
+	warn_err_owner:
+		"${emoji_No} Não podes advertir o proprietário do servidor.",
+	warn_sanction_kept:
+		"${sanction} não aplicado: o castigo atual do membro dura mais e é mantido (termina ${until})",
+	clear_allwarns_log_desc:
+		"Foram removidas ${count} advertências de ${members} membros.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"Só consigo substituir o embed de uma mensagem que eu próprio enviei!",
+	embed_save_uploads_dropped:
+		"-# As imagens carregadas como ficheiro não ficam guardadas num embed guardado: só existem nesta mensagem. Usa uma ligação de imagem para que apareça em todo o lado onde este ID for usado.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Todos os membros verificados já estão neste servidor: não há ninguém para adicionar. A tua chave não mudou.",
+	rc_forcejoin_failed:
+		"A entrada forçada não conseguiu começar: o HorizonGateway recusou-a ou não está acessível. Ninguém foi adicionado e a tua chave não mudou.",
+	rc_forcejoin_stopped:
+		"A entrada forçada parou antes do fim. Os membros contados acima foram adicionados e a tua chave já foi substituída: segue a nova.",
+
+	// logs fix
+	logs_antispam_title_mute: "[AntiSpam] Novo silenciamento",
+	logs_antispam_title_kick: "[AntiSpam] Nova expulsão",
+	logs_antispam_title_ban: "[AntiSpam] Novo banimento",
+	logs_antispam_desc_mute: "${bot} **silenciou** ${user}",
+	logs_antispam_desc_kick: "${bot} **expulsou** ${user}",
+	logs_antispam_desc_ban: "${bot} **baniu** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Só o dono do servidor pode usar as cópias de segurança aqui. Pode abri-las a todos os administradores com `/backup manage`."
 } satisfies LanguageData;

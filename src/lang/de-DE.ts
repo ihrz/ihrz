@@ -1456,7 +1456,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"Du kleiner Frechdachs, du kannst nicht mehr als 3 Personen an die Leine nehmen :D",
+		"Du kleiner Frechdachs, du kannst nicht mehr als ${max} Personen an die Leine nehmen :D",
 	util_leah_already_owned:
 		"Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:",
 	util_leash_confirm_message:
@@ -2006,7 +2006,7 @@ export default {
 		"Die eingegebene Zeit ist nicht gültig! **Beispiel für gültige Zeit**: `3h; 30m; 4w; 4y` -> 3 Stunden; 30 Minuten; 4 Wochen; 4 Jahre",
 	too_new_account_logEmbed_title: "TooNewAccount Modul",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} hat das TooNewAccount-Modul aktiviert. Konten müssen nun mindestens ${beautifulTime} alt sein, und wenn ein Benutzer mehr als `${maxJoin}` Mal beitritt, wird er gebannt.",
+		"${author} hat das TooNewAccount-Modul aktiviert. Konten müssen nun mindestens ${beautifulTime} alt sein, und beim `${maxJoin}`. Beitritt wird ein Benutzer gebannt.",
 	too_new_account_command_work_on_enable:
 		"${author}, neue Mitglieder, die **${guildName}** beitreten, deren Konten jünger als `${beautifulTime}` sind, werden jetzt entfernt.",
 	too_new_account_command_work_on_enable2:
@@ -3024,7 +3024,7 @@ export default {
 	embed_timeout_getbtn:
 		"<@${authorId}>, **Du hast zu lange gebraucht, um zu antworten. Ich breche die laufende Operation ab!**",
 	embed_choose_0:
-		"Welche Nachricht möchtest du in deine Einbettung aufnehmen?",
+		"Sende den Link der Nachricht, deren Embed du kopieren möchtest (Rechtsklick auf die Nachricht, Nachrichtenlink kopieren).",
 	embed_choose_1: "Welchen Titel möchtest du in deine Einbettung aufnehmen?",
 	embed_choose_2: "Der Titel der Einbettung wurde erfolgreich gelöscht!",
 	embed_choose_3:
@@ -3802,7 +3802,7 @@ export default {
 	rc_delete_config_not_found:
 		"Die Modulkonfiguration auf diesem Server konnte nicht gefunden werden!",
 	rc_delete_command_ok:
-		'${author}, Sie haben gerade die Konfiguration des "AuthRestore"-Moduls gelöscht. Aus Sicherheitsgründen (Daten) werde ich nur die Schaltfläche löschen, aber die OAuth2-Daten und der geheime Code werden in 48 Stunden gelöscht!',
+		'${author}, du hast gerade den "AuthRestore"-Button entfernt: Mitglieder können sich darüber nicht mehr verifizieren. Dein Schlüssel und die bereits verifizierten Mitglieder bleiben erhalten, du kannst sie also weiterhin mit `/authrestore force-join` zurückholen.',
 
 	// /authrestore get
 	rc_get_mainEmbed_title: "AuthRestore Allgemeine Informationen",
@@ -5269,5 +5269,43 @@ export default {
 		"der Audioserver ist nicht erreichbar (${message})",
 
 	// owner list refusal
-	owner_list_not_allowed: "Nur der Serverbesitzer und die Mitglieder der Besitzerliste des Servers können diesen Befehl verwenden."
+	owner_list_not_allowed:
+		"Nur der Serverbesitzer und die Mitglieder der Besitzerliste des Servers können diesen Befehl verwenden.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Nur der Serverbesitzer (der Discord-Besitzer) kann jemanden von der Owner-Liste entfernen oder ein Mitglied der Owner-Liste auf die Blacklist setzen.",
+
+	// warnings fix
+	warn_err_owner: "${emoji_No} Du kannst den Serverbesitzer nicht verwarnen.",
+	warn_sanction_kept:
+		"${sanction} nicht angewendet: Das laufende Timeout des Mitglieds dauert länger und bleibt bestehen (Ende ${until})",
+	clear_allwarns_log_desc:
+		"${count} Verwarnungen von ${members} Mitgliedern wurden entfernt.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"Ich kann nur das Embed einer Nachricht ersetzen, die ich selbst gesendet habe!",
+	embed_save_uploads_dropped:
+		"-# Hochgeladene Bilder werden in einem gespeicherten Embed nicht behalten: Sie existieren nur in dieser Nachricht. Verwende einen Bildlink, damit das Bild überall angezeigt wird, wo diese ID verwendet wird.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Alle verifizierten Mitglieder sind bereits auf diesem Server: Es gibt niemanden hinzuzufügen. Dein Schlüssel wurde nicht geändert.",
+	rc_forcejoin_failed:
+		"Der erzwungene Beitritt konnte nicht starten: HorizonGateway hat ihn abgelehnt oder ist nicht erreichbar. Niemand wurde hinzugefügt und dein Schlüssel wurde nicht geändert.",
+	rc_forcejoin_stopped:
+		"Der erzwungene Beitritt wurde vor dem Ende abgebrochen. Die oben gezählten Mitglieder wurden hinzugefügt, und dein Schlüssel wurde bereits ersetzt: Der neue folgt.",
+
+	// logs fix
+	logs_antispam_title_mute: "[AntiSpam] Neue Stummschaltung",
+	logs_antispam_title_kick: "[AntiSpam] Neuer Kick",
+	logs_antispam_title_ban: "[AntiSpam] Neuer Bann",
+	logs_antispam_desc_mute: "${bot} hat ${user} **stummgeschaltet**",
+	logs_antispam_desc_kick: "${bot} hat ${user} **gekickt**",
+	logs_antispam_desc_ban: "${bot} hat ${user} **gebannt**",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Nur der Serverbesitzer kann hier Backups verwenden. Er kann sie mit `/backup manage` für alle Administratoren freigeben."
 } satisfies LanguageData;
