@@ -414,3 +414,4 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Economy, guild config, anti-spam, 24/7, schedules, member count, invites**: every reply and panel is now a card, like moderation. The economy leaderboard shows your own rank and only its author turns the pages; the schedule list is paged
 - **Translations**: the last English texts are translated: automatic warn reasons (anti-spam, pic-only, anti-exe, advertising), the message shown when AutoMod blocks a message, the voice derogation role, the text on welcome images, HTML transcripts, playlist names, the `/updates` buttons and `/embed` errors. The welcome card counts the languages instead of saying 11
 - **Giveaways**: `/giveaway get-data` no longer fails on a giveaway without a winner
+- **Durations**: times shown by the bot (usage limits, cooldowns…) are spaced and readable, "42 minute(s) 10 second(s)" instead of "42minute(s)10second(s)583ms"
