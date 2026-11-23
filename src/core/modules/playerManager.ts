@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { forgetFailedTrack } from "./musicSearchCache.js";
 import { markTrackStart } from "./trackClock.js";
 import { watchAudioNodes } from "./audioNode.js";
 import { BaseGuildTextChannel, Client, User } from "discord.js";
@@ -208,6 +209,12 @@ export default async (client: Client) => {
 
 	client.player.on("trackError", async (player, x, y) => {
 		let t0 = performance.now();
+
+		// A remembered search that served a dead track: forget it, the next
+		// identical search asks the node again (music_search).
+		forgetFailedTrack(x?.encoded ?? y?.track?.encoded).catch((err) =>
+			logger.warn("music search cache: forget failed:", err)
+		);
 
 		if (lavalink_error_channel instanceof BaseGuildTextChannel) {
 			let error_log = `

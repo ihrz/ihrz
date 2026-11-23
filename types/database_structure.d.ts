@@ -1126,4 +1126,54 @@ export namespace DatabaseStructure {
 	export interface LibraryFavoritesIndex {
 		pages: string[][];
 	}
+
+	// Remembered text searches, table `music_search`
+	// (src/core/modules/musicSearchCache.ts), shared by every shard. Keys
+	// never hold a dot: `Q_{sha1(q + "|" + source)}` (a record) and
+	// `B_{source}_{hex of the UTF-8 of q's first 2 characters}` (the fuzzy
+	// index). No user id is stored.
+
+	/** A track as the node returned it (rebuilt with ManagerUtils.buildTrack). */
+	export interface MusicSearchTrack {
+		encoded: string;
+		info: {
+			identifier: string;
+			title: string;
+			author: string;
+			// ms
+			length: number;
+			artworkUrl: string | null;
+			uri: string | null;
+			sourceName: string;
+			isSeekable: boolean;
+			isStream: boolean;
+			isrc: string | null;
+		};
+		pluginInfo: Record<string, unknown>;
+	}
+
+	/** `Q_…`: the answer to a normalized text query, trusted 14 days after `at`. */
+	export interface MusicSearchRecord {
+		// Normalized query (lowercase, NFKC, no punctuation or "(official video)").
+		q: string;
+		// Last raw query that saved it (≤ 200 characters).
+		raw: string;
+		// Search pipeline: "auto" (play) or "suggest" (autocomplete, dashboard).
+		source: "auto" | "suggest";
+		// First results (5 for "auto", 10 for "suggest").
+		tracks: MusicSearchTrack[];
+		loadType: "search" | "track";
+		// When the node answered (Unix ms): the record expires 14 days later.
+		at: number;
+		// Times it answered instead of the node (counted at most once per
+		// hour per shard).
+		hits: number;
+		// Last counted hit (Unix ms).
+		lastHit?: number;
+	}
+
+	/** `B_…`: normalized queries sharing a prefix, most recently used first (≤ 500). */
+	export interface MusicSearchBucket {
+		entries: Array<{ q: string; at: number }>;
+	}
 }

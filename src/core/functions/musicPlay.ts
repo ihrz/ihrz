@@ -32,6 +32,12 @@ import {
 import type { DatabaseStructure } from "../../../types/database_structure.js";
 import { audioAvailable, musicInUse } from "../modules/audioNode.js";
 import {
+	SEARCH_SOURCE,
+	cachedResult,
+	lookupSearch,
+	saveSearch
+} from "../modules/musicSearchCache.js";
+import {
 	BaseGuildTextChannel,
 	CacheType,
 	ChatInputCommandInteraction,
@@ -747,6 +753,19 @@ export async function searchQueryOnNode(
 		return soundcloudScore > deezerScore ? soundcloudRes : deezerRes;
 	}
 
+	// Already answered (same or slightly misspelled text): no search.
+	const hit = await lookupSearch(query, SEARCH_SOURCE.play).catch((err) => {
+		logger.warn("music search cache: lookup failed:", err);
+		return null;
+	});
+	if (hit) {
+		try {
+			return cachedResult(client, hit, requester);
+		} catch (err) {
+			logger.warn("music search cache: unusable record:", err);
+		}
+	}
+
 	let res: SearchResult | undefined;
 
 	try {
@@ -787,6 +806,9 @@ export async function searchQueryOnNode(
 			res = undefined;
 		}
 	}
+
+	// Fire-and-forget: the record is copied now, written in the background.
+	if (responseExist(res)) saveSearch(query, SEARCH_SOURCE.play, res);
 
 	return res;
 }

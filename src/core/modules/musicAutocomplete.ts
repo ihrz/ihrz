@@ -36,11 +36,21 @@ import {
 	responseExist,
 	stripChoiceDuration
 } from "../functions/musicPlay.js";
+import {
+	SEARCH_SOURCE,
+	cachedResult,
+	lookupSearch,
+	saveSearch
+} from "./musicSearchCache.js";
 
 const MIN_QUERY_LENGTH = 2;
 const MAX_QUERY_LENGTH = 100;
 const MAX_CHOICES = 10;
 const SEARCH_TIMEOUT_MS = 2_000;
+// Part of SEARCH_TIMEOUT_MS given to the remembered searches (music_search).
+const CACHE_LOOKUP_TIMEOUT_MS = 600;
+// Shortest text whose suggestions are remembered.
+const SAVE_MIN_LENGTH = 6;
 const CACHE_TTL_MS = 60_000;
 const CACHE_MAX_ENTRIES = 500;
 // Discord limit for choice names and values.
@@ -115,16 +125,35 @@ export async function searchTrackSuggestions(
 
 	const deadline = Date.now() + SEARCH_TIMEOUT_MS;
 	let res: SearchResult | null = null;
-	for (const source of ["deezer", "soundcloud"] as const) {
-		const remaining = deadline - Date.now();
-		if (remaining <= 0) break;
-		res = await withTimeout(
-			node.search({ query, source }, user),
-			remaining
-		);
-		if (res && responseExist(res)) break;
+	// Remembered answer (same or close text), within its own share of the
+	// time budget so a slow database still leaves room for the node.
+	const hit = await withTimeout(
+		lookupSearch(query, SEARCH_SOURCE.suggest),
+		CACHE_LOOKUP_TIMEOUT_MS
+	);
+	if (hit) {
+		try {
+			res = cachedResult(client, hit, user);
+		} catch {
+			res = null;
+		}
 	}
-	if (!res || !responseExist(res)) return [];
+	if (!res || !responseExist(res)) {
+		for (const source of ["deezer", "soundcloud"] as const) {
+			const remaining = deadline - Date.now();
+			if (remaining <= 0) break;
+			res = await withTimeout(
+				node.search({ query, source }, user),
+				remaining
+			);
+			if (res && responseExist(res)) break;
+		}
+		if (!res || !responseExist(res)) return [];
+		// Partial words typed letter by letter are not worth a record.
+		if (query.trim().length >= SAVE_MIN_LENGTH) {
+			saveSearch(query, SEARCH_SOURCE.suggest, res);
+		}
+	}
 
 	const seen = new Set<string>();
 	const found: TrackSuggestion[] = [];
