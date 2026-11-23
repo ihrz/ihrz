@@ -135,17 +135,17 @@ test("/authrestore set still runs after /authrestore delete removed the button",
 	);
 });
 
-test("every language explains the refusal and names /authrestore delete", () => {
+test("every language explains the refusal and names /authrestore delete", async () => {
 	const dir = "src/lang";
 	const files = readdirSync(dir).filter((f) =>
 		/^[a-z]{2}-[A-Z]{2}\.ts$/.test(f)
 	);
 	expect(files.length).toBe(13);
 	for (const file of files) {
-		const source = readFileSync(`${dir}/${file}`, "utf8");
-		const at = source.indexOf("\trc_set_key_already_set:");
-		expect(at).toBeGreaterThan(-1);
-		const text = source.slice(at, source.indexOf("\n\t", at + 1));
+		// The loaded value, not the source text: Prettier may wrap it.
+		const lang = (await import(`../../${dir}/${file}`)).default;
+		const text: string = lang.rc_set_key_already_set;
+		expect(typeof text).toBe("string");
 		expect(text).toContain("/authrestore delete");
 		expect(text).toContain("/authrestore set");
 	}
