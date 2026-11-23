@@ -27,59 +27,59 @@ import {
 	GuildMember,
 	SnowflakeUtil
 } from "discord.js";
-import { BotEvent } from "../../../types/event.js";
+/**
+ * Join DM, part of the welcome side (`core/modules/memberArrival.ts`): sent
+ * once the gates let the member in, after the captcha when it is on.
+ */
+export async function sendJoinDm(
+	client: Client,
+	member: GuildMember
+): Promise<void> {
+	try {
+		let msg_dm = await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`
+		);
+		const guildLocal =
+			(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
+			"en-US";
 
-export const event: BotEvent = {
-	name: "guildMemberAdd",
-	run: async (client: Client, member: GuildMember) => {
-		try {
-			let msg_dm = await client.db.get(
-				`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`
+		if (!msg_dm || msg_dm === "off") return;
+
+		/**
+		 * Why doing this?
+		 * On iHorizon Production, we have some ~problems~ 👎
+		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
+		 */
+		const nonce = SnowflakeUtil.generate().toString();
+
+		msg_dm = client.func.method.generateCustomMessagePreview(msg_dm, {
+			user: member.user,
+			guild: member.guild,
+			guildLocal: guildLocal
+		});
+
+		const button = new ButtonBuilder()
+			.setDisabled(true)
+			.setCustomId("join-dm-from-server")
+			.setStyle(ButtonStyle.Secondary)
+			.setLabel(
+				(
+					await client.func.getLanguageData(member.guild.id)
+				).dm_message_from
+					.replace("${guild}", member.guild.name)
+					.slice(0, 80)
 			);
-			const guildLocal =
-				(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
-				"en-US";
 
-			if (!msg_dm || msg_dm === "off") return;
-
-			/**
-			 * Why doing this?
-			 * On iHorizon Production, we have some ~problems~ 👎
-			 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-			 */
-			const nonce = SnowflakeUtil.generate().toString();
-
-			msg_dm = client.func.method.generateCustomMessagePreview(msg_dm, {
-				user: member.user,
-				guild: member.guild,
-				guildLocal: guildLocal
-			});
-
-			const button = new ButtonBuilder()
-				.setDisabled(true)
-				.setCustomId("join-dm-from-server")
-				.setStyle(ButtonStyle.Secondary)
-				.setLabel(
-					(
-						await client.func.getLanguageData(member.guild.id)
-					).dm_message_from
-						.replace("${guild}", member.guild.name)
-						.slice(0, 80)
-				);
-
-			member
-				.send({
-					content: msg_dm,
-					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							button
-						)
-					],
-					enforceNonce: true,
-					nonce: nonce
-				})
-				.catch(() => {})
-				.then(() => {});
-		} catch {}
-	}
-};
+		member
+			.send({
+				content: msg_dm,
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(button)
+				],
+				enforceNonce: true,
+				nonce: nonce
+			})
+			.catch(() => {})
+			.then(() => {});
+	} catch {}
+}

@@ -211,3 +211,160 @@ export async function changeRoleAuthRestore(
 		).data || {}
 	);
 }
+
+/** The gateway refuses a force-join of more members than this in one call. */
+export const FORCE_JOIN_BATCH = 500;
+
+/** The bits of a `ws` socket the force-join uses (faked in tests). */
+export interface ForceJoinSocket {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	on(event: string, listener: (...args: any[]) => void): unknown;
+	send(data: string): unknown;
+	terminate(): unknown;
+}
+
+export interface ForceJoinRun {
+	/** Members of the key's server to bring in (not already on the target). */
+	members: string[];
+	secretCode: string;
+	/** The server the key belongs to. */
+	guildId: string;
+	/** The server the members are added to. */
+	targetGuildId: string;
+	apiToken: string;
+	post?: typeof forceJoinAuthRestore;
+	openSocket: (url: string) => ForceJoinSocket;
+	onSize?: (total: number) => void;
+	onStart?: () => void;
+	onAdd?: () => void;
+}
+
+export interface ForceJoinResult {
+	added: number;
+	/** The key now in force: each finished batch replaces it. */
+	secretCode: string;
+	/** True when the key changed (at least one batch went through). */
+	renewed: boolean;
+	/** Set when a batch could not run; the batches before it did. */
+	error?: string;
+}
+
+/** One gateway force-join; resolves with the key that replaces the old one. */
+function runBatch(
+	run: ForceJoinRun,
+	members: string[],
+	secretCode: string,
+	progress: { size: number; added: number }
+): Promise<string> {
+	const post = run.post ?? forceJoinAuthRestore;
+	return post({
+		membersToForceJoin: members,
+		apiToken: run.apiToken,
+		targetGuildId: run.targetGuildId,
+		guildId: run.guildId,
+		secretCode
+	}).then(
+		(res) =>
+			new Promise<string>((resolve, reject) => {
+				const [url, code] = String(res?.message ?? "").split("%");
+				if (res?.status !== "OK" || !url || !code) {
+					reject(new Error(res?.message || "force-join refused"));
+					return;
+				}
+				let socket: ForceJoinSocket;
+				try {
+					socket = run.openSocket(url);
+				} catch (error) {
+					reject(error);
+					return;
+				}
+				let ended = false;
+				socket.on("error", (error: unknown) => {
+					if (!ended) reject(error);
+				});
+				socket.on("open", () => socket.send(`forceJoin%${code}`));
+				socket.on("message", (raw: { toString(): string }) => {
+					const parts = raw.toString().split(":");
+					const value = parts.slice(2).join(":");
+					switch (parts[1]) {
+						case "size":
+							progress.size += Number(value) || 0;
+							run.onSize?.(progress.size);
+							break;
+						case "start":
+							run.onStart?.();
+							break;
+						case "add":
+							progress.added++;
+							run.onAdd?.();
+							break;
+						case "end":
+							ended = true;
+							if (value) resolve(value);
+							else reject(new Error("no new key"));
+							break;
+					}
+				});
+				socket.on("close", () => {
+					socket.terminate();
+					if (!ended) reject(new Error("closed before the end"));
+				});
+			})
+	);
+}
+
+/**
+ * Brings the members in by batches the gateway accepts. Every batch replaces
+ * the key, so the next one runs with the new key, and the caller always gets
+ * the key in force, even when a later batch fails.
+ */
+export async function forceJoinInBatches(
+	run: ForceJoinRun
+): Promise<ForceJoinResult> {
+	const progress = { size: 0, added: 0 };
+	let secretCode = run.secretCode;
+	let renewed = false;
+	for (let i = 0; i < run.members.length; i += FORCE_JOIN_BATCH) {
+		const batch = run.members.slice(i, i + FORCE_JOIN_BATCH);
+		try {
+			secretCode = await runBatch(run, batch, secretCode, progress);
+			renewed = true;
+		} catch (error) {
+			return {
+				added: progress.added,
+				secretCode,
+				renewed,
+				error: String(error)
+			};
+		}
+	}
+	return { added: progress.added, secretCode, renewed };
+}
+
+/** DMs the key; tells the author whether the DM went through, once. */
+export async function sendKeyByDm(
+	send: () => Promise<unknown>,
+	notify: (delivered: boolean) => Promise<unknown>
+): Promise<boolean> {
+	const delivered = await send().then(
+		() => true,
+		() => false
+	);
+	await notify(delivered).catch(() => undefined);
+	return delivered;
+}
+
+/**
+ * True when `/authrestore set` already gave this server a key that is still
+ * in force: the verify button is recorded (`/authrestore delete` clears it)
+ * and the gateway holds a key for the server. Running `set` again would
+ * replace that key, so the command refuses until the button is deleted.
+ */
+export function authRestoreKeyInForce(
+	record: { channelId?: unknown; messageId?: unknown } | null | undefined,
+	entry: Partial<GuildAuthRestore> | null | undefined
+): boolean {
+	if (!record || typeof record !== "object") return false;
+	const code = entry?.config?.securityCode;
+	return typeof code === "string" && code.length > 0;
+}

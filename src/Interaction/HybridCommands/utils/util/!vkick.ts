@@ -54,6 +54,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_member_not_in_guild
 			});
+			return;
 		}
 
 		// Get instance of GuildMember

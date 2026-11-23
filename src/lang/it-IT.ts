@@ -1438,7 +1438,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"Piccolo birichino, non puoi mettere più di 3 persone al guinzaglio :D",
+		"Piccolo birichino, non puoi mettere più di ${max} persone al guinzaglio :D",
 	util_leah_already_owned:
 		"Piccolo birichino, possiedi già queste piccole meraviglie :smirk:",
 	util_leash_confirm_message:
@@ -1987,7 +1987,7 @@ export default {
 		"Il tempo inserito non è valido! **Esempio di tempo valido**: `3h; 30m; 4w; 4y` -> 3 ore; 30 minuti; 4 settimane; 4 anni",
 	too_new_account_logEmbed_title: "Modulo TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} ha attivato il modulo TooNewAccount. Gli account devono ora avere almeno ${beautifulTime} di età e, se un utente si unisce più di `${maxJoin}` volte, verrà bannato.",
+		"${author} ha attivato il modulo TooNewAccount. Gli account devono ora avere almeno ${beautifulTime} di età e, quando un utente si unisce per la `${maxJoin}`ª volta, verrà bannato.",
 	too_new_account_command_work_on_enable:
 		"${author}, i nuovi membri che si uniscono a **${guildName}** con account più giovani di `${beautifulTime}` saranno ora espulsi.",
 	too_new_account_command_work_on_enable2:
@@ -2983,7 +2983,8 @@ export default {
 		"<@${authorId}>, **In quale canale dovrei inviare questo embed?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **Hai impiegato troppo tempo per rispondere, interrompo l'operazione in corso!**",
-	embed_choose_0: "Quale messaggio desideri includere nel tuo Embed?",
+	embed_choose_0:
+		"Invia il link del messaggio di cui vuoi copiare l'embed (clic destro sul messaggio, Copia link del messaggio).",
 	embed_choose_1: "Quale titolo desideri includere nel tuo Embed?",
 	embed_choose_2: "Il titolo dell'Embed è stato eliminato con successo!",
 	embed_choose_3: "Quale descrizione desideri includere nel tuo Embed?",
@@ -3758,7 +3759,7 @@ export default {
 	rc_delete_config_not_found:
 		"La configurazione del modulo su questo server non è stata trovata!",
 	rc_delete_command_ok:
-		'${author}, hai appena eliminato la configurazione del modulo "AuthRestore". Per motivi di sicurezza (dati), eliminerò solo il pulsante, ma i dati oauth2 e il codice segreto verranno eliminati tra 48 ore!',
+		'${author}, hai appena rimosso il pulsante "AuthRestore": i membri non possono più verificarsi da lì. La tua chiave e i membri già verificati restano, quindi puoi ancora riportarli con `/authrestore force-join`.',
 
 	// /authrestore get
 	rc_get_mainEmbed_title: "Informazioni Generali AuthRestore",
@@ -5203,5 +5204,51 @@ export default {
 	ticket_transcript_footer: "Messaggi esportati: {number}",
 	music_playlist_fallback_name: "Playlist ${platform}",
 	music_apo_node_unreachable:
-		"il server audio non è raggiungibile (${message})"
+		"il server audio non è raggiungibile (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed:
+		"Solo il proprietario del server e i membri della lista dei proprietari del server possono usare questo comando.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Solo il proprietario del server (il proprietario su Discord) può rimuovere qualcuno dalla lista dei proprietari o mettere in blacklist un membro di quella lista.",
+
+	// warnings fix
+	warn_err_owner:
+		"${emoji_No} Non puoi avvertire il proprietario del server.",
+	warn_sanction_kept:
+		"${sanction} non applicato: il timeout attuale del membro dura di più e viene mantenuto (fine ${until})",
+	clear_allwarns_log_desc:
+		"Sono stati rimossi ${count} avvertimenti di ${members} membri.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"Posso sostituire solo l'embed di un messaggio che ho inviato io!",
+	embed_save_uploads_dropped:
+		"-# Le immagini caricate come file non vengono conservate in un embed salvato: esistono solo in questo messaggio. Usa un link all'immagine perché venga mostrata ovunque sia usato questo ID.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Tutti i membri verificati sono già su questo server: non c'è nessuno da aggiungere. La tua chiave non è cambiata.",
+	rc_forcejoin_failed:
+		"L'ingresso forzato non è potuto partire: HorizonGateway l'ha rifiutato o non è raggiungibile. Nessuno è stato aggiunto e la tua chiave non è cambiata.",
+	rc_forcejoin_stopped:
+		"L'ingresso forzato si è fermato prima della fine. I membri contati sopra sono stati aggiunti e la tua chiave è già stata sostituita: ecco la nuova.",
+
+	// logs fix
+	logs_antispam_title_mute: "[AntiSpam] Nuovo silenziamento",
+	logs_antispam_title_kick: "[AntiSpam] Nuova espulsione",
+	logs_antispam_title_ban: "[AntiSpam] Nuovo ban",
+	logs_antispam_desc_mute: "${bot} ha **silenziato** ${user}",
+	logs_antispam_desc_kick: "${bot} ha **espulso** ${user}",
+	logs_antispam_desc_ban: "${bot} ha **bannato** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Solo il proprietario del server può usare i backup qui. Può aprirli a tutti gli amministratori con `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Questo server ha già una chiave AuthRestore, quindi non ne ho creata una nuova: rieseguire `/authrestore set` la sostituirebbe e la chiave attuale smetterebbe di funzionare.\nPer ripartire con una nuova chiave, esegui prima `/authrestore delete` (rimuove il pulsante di verifica; i membri già verificati vengono mantenuti), poi esegui di nuovo `/authrestore set`."
 } satisfies LanguageData;

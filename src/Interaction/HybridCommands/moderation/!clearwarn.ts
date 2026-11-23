@@ -29,6 +29,7 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { clearWarns } from "../../../core/modules/moderationOps.js";
+import { sendWarnsClearedLog } from "../../../core/modules/warnSystem.js";
 import {
 	ACCENT,
 	botSignature,
@@ -93,6 +94,12 @@ export const subCommand: SubCommand = {
 			})
 		);
 
+		await sendWarnsClearedLog(
+			interaction.guild,
+			interaction.member.toString(),
+			{ count: result.count, member: member!.toString() },
+			lang
+		);
 		return;
 	}
 };

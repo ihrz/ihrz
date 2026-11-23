@@ -431,7 +431,10 @@ export const subCommand: SubCommand = {
 		});
 
 		collector.on("end", async () => {
-			await message.edit({ components: [] });
+			// An ephemeral reply is only editable through the interaction.
+			await interaction
+				.editReply({ components: [] })
+				.catch(() => undefined);
 		});
 	}
 };

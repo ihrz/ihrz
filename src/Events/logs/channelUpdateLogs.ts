@@ -126,9 +126,12 @@ export const event: BotEvent = {
 
 		if (!oldChannel || !oldChannel?.guild) return;
 
+		// Same as the other audit log based logs: an Administrator requirement
+		// silently dropped every channel log.
 		if (
 			!oldChannel.guild.members.me?.permissions.has([
-				PermissionFlagsBits.Administrator
+				PermissionFlagsBits.ViewAuditLog,
+				PermissionFlagsBits.ManageGuild
 			])
 		)
 			return;

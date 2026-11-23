@@ -53,7 +53,36 @@ import {
 	isSingleEmoji
 } from "../../../core/functions/emojiChecker.js";
 import { metasTable } from "../../../Events/client/ready.js";
+import { readSavedEmbed } from "../../../core/functions/embedHelper.js";
 import { SubCommand } from "../../../../types/command.js";
+
+/**
+ * Answers the "ticket channel embed" modal ONCE and returns the code to keep.
+ * An unknown or invalid code removes the embed (the field is required: it is
+ * the only way back to the default one) and says so; a known one updates the
+ * panel silently. Replying then deferring the same modal threw "already
+ * replied" and left the panel unchanged.
+ */
+export async function answerChannelPanelModal(
+	modal: {
+		reply(options: { flags: number[]; content: string }): Promise<unknown>;
+		deferUpdate(): Promise<unknown>;
+	},
+	rawCode: string,
+	get: (key: string) => Promise<unknown>,
+	notFound: string
+): Promise<string | undefined> {
+	const code = rawCode.trim();
+	const embed = await readSavedEmbed(code, get);
+
+	if (embed) {
+		await modal.deferUpdate();
+		return code;
+	}
+
+	await modal.reply({ flags: [1 << 6], content: notFound });
+	return undefined;
+}
 
 export type TicketPanelMode = "simple" | "advanced";
 
@@ -1320,8 +1349,10 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			const embedId = modal.fields.getTextInputValue("embed_id");
-			const embed = await metasTable.get(`EMBED.${embedId}`);
+			const embedId = modal.fields.getTextInputValue("embed_id").trim();
+			const embed = await readSavedEmbed(embedId, (key) =>
+				metasTable.get(key)
+			);
 
 			if (!embed) {
 				return modal.reply({
@@ -1368,21 +1399,13 @@ export const subCommand: SubCommand = {
 				flags: MessageFlags.Ephemeral
 			});
 
-			let embedId: string | undefined =
-				modal.fields.getTextInputValue("embed_id");
-			const embed = await metasTable.get(`EMBED.${embedId}`);
-
-			if (!embed) {
-				await modal.reply({
-					flags: [1 << 6],
-					content: lang.ticket_panel_change_embed_dont_exist
-				});
-				embedId = undefined;
-			}
-
-			baseData.ticketChannelPanel = embedId;
+			baseData.ticketChannelPanel = await answerChannelPanelModal(
+				modal,
+				modal.fields.getTextInputValue("embed_id"),
+				(key) => metasTable.get(key),
+				lang.ticket_panel_change_embed_dont_exist
+			);
 			isSaved = false;
-			await modal.deferUpdate();
 			await refreshPanelMessage();
 		}
 
@@ -1872,8 +1895,10 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			const embedId = modal.fields.getTextInputValue("embed_id");
-			const embed = await metasTable.get(`EMBED.${embedId}`);
+			const embedId = modal.fields.getTextInputValue("embed_id").trim();
+			const embed = await readSavedEmbed(embedId, (key) =>
+				metasTable.get(key)
+			);
 
 			if (!embed) {
 				await refreshPanelMessage();

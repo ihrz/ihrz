@@ -126,6 +126,11 @@ export const command: Command = {
 			)
 		) {
 			run_for_guild_owner(client, interaction, lang, args);
+		} else {
+			// Neither a bot owner nor on the server's owner list: say so (no silent timeout).
+			await client.func.method.interactionSend(interaction, {
+				content: lang.owner_list_not_allowed
+			});
 		}
 	}
 };
@@ -175,8 +180,6 @@ export async function run_for_bot_owner(
 
 	const userObj = await blacklistTable.get(user.id);
 
-	await blacklistTable.set(`${user.id}.reason`, newReason);
-
 	if (!userObj) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
@@ -186,6 +189,8 @@ export async function run_for_bot_owner(
 		});
 		return;
 	}
+
+	await blacklistTable.set(`${user.id}.reason`, newReason);
 
 	await client.func.method.interactionSend(interaction, {
 		embeds: [
@@ -255,13 +260,22 @@ export async function run_for_guild_owner(
 		return;
 	}
 
+	// Same rule as /blacklist: an owner's entry is the Discord owner's call.
+	if (
+		await client.func.ownerHelper.isOwnerListProtected(
+			interaction.member.user.id,
+			user.id,
+			interaction.guild
+		)
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.owner_list_only_discord_owner
+		});
+		return;
+	}
+
 	const userObj = await client.db.get(
 		`${interaction.guildId}.BLACKLIST.${user.id}`
-	);
-
-	await client.db.set(
-		`${interaction.guildId}.BLACKLIST.${user.id}.reason`,
-		newReason
 	);
 
 	if (!userObj) {
@@ -273,6 +287,11 @@ export async function run_for_guild_owner(
 		});
 		return;
 	}
+
+	await client.db.set(
+		`${interaction.guildId}.BLACKLIST.${user.id}.reason`,
+		newReason
+	);
 
 	await client.func.method.interactionSend(interaction, {
 		embeds: [

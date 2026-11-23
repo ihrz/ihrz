@@ -22,7 +22,8 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	GuildTextBasedChannel
+	GuildTextBasedChannel,
+	Message
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -55,45 +56,46 @@ export const subCommand: SubCommand = {
 				content: lang.rc_delete_config_not_found
 			});
 
-		(
-			interaction.guild.channels.cache.get(result?.channelId!) as
-				GuildTextBasedChannel | undefined
-		)?.messages
-			.fetch(result?.messageId)
-			.then(async (msg) => {
-				if (msg?.author.id !== client.user?.id) {
-					return await client.func.method.interactionSend(
-						interaction,
-						{
-							content:
-								lang.buttonreaction_message_other_user_error
-						}
-					);
-				}
-
-				msg.edit({
-					components: []
-				});
-
-				await client.db.delete(
-					`${interaction.guildId}.GUILD.RESTORECORD`
-				);
-
-				await client.func.method.interactionSend(interaction, {
-					content: lang.rc_delete_command_ok.replace(
-						"${author}",
-						interaction.user.toString()
-					),
-					flags: [1 << 6]
-				});
-			})
-			.catch(async (err) => {
-				logger.err(err);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.reactionroles_cant_fetched_reaction_remove
-				});
-				return;
+		const done = async () => {
+			await client.db.delete(`${interaction.guildId}.GUILD.RESTORECORD`);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.rc_delete_command_ok.replace(
+					"${author}",
+					interaction.user.toString()
+				),
+				flags: [1 << 6]
 			});
+		};
+
+		const channel = interaction.guild.channels.cache.get(
+			result.channelId
+		) as GuildTextBasedChannel | undefined;
+
+		// The button's message or channel is gone: nothing to edit, but the
+		// record must go, or `/authrestore set` stays refused for good.
+		if (!channel?.messages) return await done();
+
+		let msg: Message;
+		try {
+			msg = await channel.messages.fetch(result.messageId);
+		} catch (err) {
+			const code = (err as { code?: unknown } | null)?.code;
+			// Unknown Message / Unknown Channel: deleted since.
+			if (code === 10008 || code === 10003) return await done();
+			logger.err(err as Error);
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.reactionroles_cant_fetched_reaction_remove
+			});
+		}
+
+		if (msg?.author.id !== client.user?.id) {
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.buttonreaction_message_other_user_error
+			});
+		}
+
+		await msg.edit({ components: [] }).catch(() => undefined);
+		await done();
 		return;
 	}
 };

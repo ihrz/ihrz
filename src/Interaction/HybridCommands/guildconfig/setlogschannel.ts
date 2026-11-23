@@ -745,19 +745,15 @@ export const command: Command = {
 
 		if (type === "off") {
 			try {
-				await client.func.ihorizon_logs(interaction, {
-					title: lang.setlogschannel_logs_embed_title,
-					description:
-						lang.setlogschannel_logs_embed_description_on_off.replaceAll(
-							"${authorId}",
-							interaction.member.user.id!
-						)
-				});
-
 				const checkData = await client.db.get(
 					`${interaction.guildId}.GUILD.SERVER_LOGS`
 				);
-				if (!checkData) {
+				// Nothing set (or an empty leftover): nothing deleted, nothing logged.
+				if (
+					!checkData ||
+					(typeof checkData === "object" &&
+						Object.keys(checkData).length === 0)
+				) {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.setlogschannel_already_deleted
 					});
@@ -767,6 +763,15 @@ export const command: Command = {
 				await client.db.delete(
 					`${interaction.guildId}.GUILD.SERVER_LOGS`
 				);
+				// Logged only once something was actually deleted.
+				await client.func.ihorizon_logs(interaction, {
+					title: lang.setlogschannel_logs_embed_title,
+					description:
+						lang.setlogschannel_logs_embed_description_on_off.replaceAll(
+							"${authorId}",
+							interaction.member.user.id!
+						)
+				});
 				await sendCard(
 					client,
 					interaction,

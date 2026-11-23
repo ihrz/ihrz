@@ -30,7 +30,11 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { sendCard } from "../../../core/modules/uiCard.js";
-import { issueWarn, warnCard } from "../../../core/modules/warnSystem.js";
+import {
+	issueWarn,
+	warnCard,
+	warnRefusal
+} from "../../../core/modules/warnSystem.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -66,16 +70,15 @@ export const subCommand: SubCommand = {
 			return;
 		}
 		// A warn can sanction automatically: the same guards as a sanction.
-		const refusal =
-			member.id === author.id
-				? lang.warn_err_self
-				: member.user.bot
-					? lang.warn_err_bot
-					: interaction.guild.ownerId !== author.id &&
-						  member.roles.highest.position >=
-								author.roles.highest.position
-						? lang.warn_err_above
-						: null;
+		const code = warnRefusal(author, member);
+		const refusal = code
+			? {
+					self: lang.warn_err_self,
+					bot: lang.warn_err_bot,
+					owner: lang.warn_err_owner,
+					above: lang.warn_err_above
+				}[code]
+			: null;
 		if (refusal) {
 			await client.func.method.interactionSend(interaction, {
 				content: refusal.replace("${emoji_No}", e.No)

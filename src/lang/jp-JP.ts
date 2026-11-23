@@ -1406,7 +1406,7 @@ export default {
 	util_unfreeze_command_work: "ボイスチャンネルはもう凍結されていません。",
 
 	// /util leash
-	util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D",
+	util_leash_too_naugthy: "やんちゃ坊主、${max}人以上はリードに繋げないよ :D",
 	util_leah_already_owned:
 		"やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:",
 	util_leash_confirm_message:
@@ -1942,7 +1942,7 @@ export default {
 		"入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年",
 	too_new_account_logEmbed_title: "TooNewAccount モジュール",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} が TooNewAccount モジュールを有効にしました。アカウントは最低でも ${beautifulTime} 経過している必要があり、ユーザーが `${maxJoin}` 回以上参加するとBANされます。",
+		"${author} が TooNewAccount モジュールを有効にしました。アカウントは最低でも ${beautifulTime} 経過している必要があり、ユーザーが `${maxJoin}` 回目に参加した時点でBANされます。",
 	too_new_account_command_work_on_enable:
 		"${author}、**${guildName}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。",
 	too_new_account_command_work_on_enable2:
@@ -2938,7 +2938,8 @@ export default {
 		"<@${authorId}>さん、**この埋め込みをどのチャンネルに送信しますか？**",
 	embed_timeout_getbtn:
 		"<@${authorId}>さん、**回答に時間がかかりすぎました。操作を中止します！**",
-	embed_choose_0: "埋め込みに含めるメッセージは何ですか？",
+	embed_choose_0:
+		"埋め込みをコピーしたいメッセージのリンクを送信してください（メッセージを右クリック →「メッセージリンクをコピー」）。",
 	embed_choose_1: "埋め込みに含めるタイトルは何ですか？",
 	embed_choose_2: "埋め込みのタイトルが正常に削除されました！",
 	embed_choose_3: "埋め込みに含める説明は何ですか？",
@@ -3681,7 +3682,7 @@ export default {
 	rc_delete_config_not_found:
 		"このサーバーでのモジュール設定が見つかりません！",
 	rc_delete_command_ok:
-		'${author}、"AuthRestore" モジュールの設定を削除しました。セキュリティ上（データ保護）、ボタンのみ削除し、OAuth2データとシークレットコードは48時間以内に削除されます。',
+		'${author}、"AuthRestore" ボタンを削除しました。メンバーはこのボタンから認証できなくなります。キーと認証済みのメンバーは残るので、`/authrestore force-join` で呼び戻すことはできます。',
 
 	// /authrestore 取得
 	rc_get_mainEmbed_title: "AuthRestore 一般情報",
@@ -5112,5 +5113,51 @@ export default {
 	derogation_role_name: "iHorizon が管理",
 	ticket_transcript_footer: "エクスポートしたメッセージ: {number}",
 	music_playlist_fallback_name: "${platform} のプレイリスト",
-	music_apo_node_unreachable: "音声サーバーに接続できません (${message})"
+	music_apo_node_unreachable: "音声サーバーに接続できません (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed:
+		"このコマンドはサーバーのオーナーと、サーバーのオーナーリストのメンバーだけが使えます。",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"オーナーリストから誰かを削除したり、オーナーリストのメンバーをブラックリストに追加したりできるのは、サーバーの所有者（Discord上の所有者）だけです。",
+
+	// warnings fix
+	warn_err_owner:
+		"${emoji_No} サーバーのオーナーに警告することはできません。",
+	warn_sanction_kept:
+		"${sanction} は適用されませんでした：現在のタイムアウトの方が長いため維持されます（終了 ${until}）",
+	clear_allwarns_log_desc:
+		"${members} 人のメンバーの警告 ${count} 件を削除しました。",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"埋め込みを置き換えられるのは、私自身が送信したメッセージだけです！",
+	embed_save_uploads_dropped:
+		"-# ファイルとしてアップロードした画像は保存された埋め込みには残りません（このメッセージにのみ存在します）。このIDを使うすべての場所で表示するには、画像のリンクを使ってください。",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"認証済みのメンバーは全員すでにこのサーバーにいます。追加する人はいません。キーは変更されていません。",
+	rc_forcejoin_failed:
+		"強制参加を開始できませんでした。HorizonGateway が拒否したか、接続できません。誰も追加されず、キーも変更されていません。",
+	rc_forcejoin_stopped:
+		"強制参加は途中で止まりました。上に数えられたメンバーは追加済みで、キーはすでに置き換えられています。新しいキーを続けて送ります。",
+
+	// logs fix
+	logs_antispam_title_mute: "[アンチスパム] 新しいミュート",
+	logs_antispam_title_kick: "[アンチスパム] 新しいキック",
+	logs_antispam_title_ban: "[アンチスパム] 新しいBAN",
+	logs_antispam_desc_mute: "${bot} が ${user} を**ミュート**しました",
+	logs_antispam_desc_kick: "${bot} が ${user} を**キック**しました",
+	logs_antispam_desc_ban: "${bot} が ${user} を**BAN**しました",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"ここでバックアップを使えるのはサーバーのオーナーだけです。オーナーは `/backup manage` で全管理者に開放できます。",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"このサーバーにはすでにAuthRestoreキーがあるため、新しいキーは作成しませんでした。`/authrestore set` をもう一度実行するとキーが置き換えられ、現在のキーは使えなくなります。\n新しいキーでやり直すには、まず `/authrestore delete` を実行し（認証ボタンが削除されます。認証済みのメンバーは残ります）、その後もう一度 `/authrestore set` を実行してください。"
 } satisfies LanguageData;

@@ -39,6 +39,16 @@ import { apiTable } from "../client/ready.js";
 import resolveWelcomerEmbed, {
 	WelcomerEmbedVariables
 } from "../../core/functions/welcomerEmbed.js";
+import {
+	beginArrival,
+	setWelcomeSteps,
+	settleArrival,
+	WelcomeContext
+} from "../../core/modules/memberArrival.js";
+import { giveJoinRoles } from "./joinRole.js";
+import { sendJoinDm } from "./joinDm.js";
+import { ghostPingNewMember } from "./ghostPingModule.js";
+import { restoreSavedRoles } from "../rolesaver/onMemberJoin.js";
 
 const INVITE_RESOLVE_TIMEOUT_MS = 1200;
 
@@ -247,8 +257,16 @@ export async function resolveInvite(
 ): Promise<Invite | null> {
 	const invites = await fetchInvitesOnce(guild);
 
+	// No snapshot of the counts yet (iHorizon lacked Manage Server or View
+	// Audit Log at startup): every invite ever used looked "new", and the
+	// first one got the credit. Take the snapshot, credit nobody this time.
+	if (!oldInvites) {
+		clientInviteCache(guild, invites);
+		return null;
+	}
+
 	const invite = invites.find((i: Invite) => {
-		const oldInvite = oldInvites?.get(i.code);
+		const oldInvite = oldInvites.get(i.code);
 		return i.uses && i.uses > (oldInvite?.uses || 0);
 	});
 
@@ -306,246 +324,262 @@ const WELCOME_ACCENT_COLOR = 0x57f287;
 const WELCOME_AVATAR_ATTACHMENT_NAME = "welcomer-avatar.png";
 const WELCOME_BANNER_ATTACHMENT_NAME = "image.png";
 
+/**
+ * Invite tracking, on join (never delayed by the gates or the captcha): the
+ * invite used is credited now, and what the welcome message needs to name
+ * the inviter is returned, kept with the arrival until the welcome runs.
+ */
+export async function trackArrivalInvite(
+	client: Client,
+	member: GuildMember
+): Promise<WelcomeContext> {
+	if (
+		!member.guild.members.me?.permissions.has(
+			PermissionsBitField.Flags.ManageGuild
+		)
+	)
+		return {};
+
+	const oldInvites = client.invites.get(member.guild.id);
+
+	let statsRecorded = false;
+	const recordStatsOnce = async (resolved: Invite | null) => {
+		if (statsRecorded || !resolved?.inviterId) return;
+		statsRecorded = true;
+		try {
+			await recordInviterStats(client, member.guild, member, resolved);
+		} catch (e) {
+			logger.err(member.guild.name, "Invite stats error: " + e);
+		}
+	};
+
+	const inviteResultPromise = resolveInvite(member.guild, oldInvites).catch(
+		(e) => {
+			logger.err(member.guild.name, "Invite resolve error: " + e);
+			return null;
+		}
+	);
+
+	const invite = await withTimeout(
+		inviteResultPromise,
+		INVITE_RESOLVE_TIMEOUT_MS
+	);
+
+	// Resolved too late for the welcome message: still credited.
+	inviteResultPromise.then(recordStatsOnce);
+
+	if (invite?.inviterId) {
+		await recordStatsOnce(invite);
+		const cachedInvite = client.invites
+			.get(member.guild.id)
+			?.get(invite.code);
+		return {
+			invite: {
+				code: invite.code,
+				inviterId: invite.inviterId,
+				inviterUsername:
+					invite.inviter?.username ||
+					cachedInvite?.inviterUsername ||
+					null
+			}
+		};
+	}
+
+	// The vanity link is only checked for a welcome message (one request).
+	if (!member.guild.features.includes(GuildFeature.VanityURL)) return {};
+	const wChan = await client.db.get(
+		`${member.guild.id}.GUILD.GUILD_CONFIG.join`
+	);
+	if (!wChan) return {};
+
+	const VanityURL: Vanity | null = await member.guild
+		.fetchVanityData()
+		.catch(() => null);
+	if (!VanityURL) return {};
+	const vanityInviteCache = client.vanityInvites.get(member.guild.id);
+	client.vanityInvites.set(member.guild.id, VanityURL);
+	if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
+		return {
+			vanity: { code: VanityURL.code!, uses: VanityURL.uses ?? 0 }
+		};
+	}
+	return {};
+}
+
+/** Welcome message and card, part of the welcome side. */
+export async function sendWelcomeMessage(
+	client: Client,
+	member: GuildMember,
+	ctx: WelcomeContext
+): Promise<void> {
+	try {
+		if (
+			!member.guild.members.me?.permissions.has(
+				PermissionsBitField.Flags.ManageGuild
+			)
+		)
+			return;
+
+		const [data, guildLocalRaw, config] = await Promise.all([
+			client.func.getLanguageData(member.guild.id),
+			client.db.get(`${member.guild.id}.GUILD.LANG.lang`),
+			client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`)
+		]);
+
+		const guildLocal = guildLocalRaw || "en-US";
+		const {
+			joinmessage: joinMessage,
+			joinbannerStates: ImageBannerStates,
+			join: wChan,
+			joinbanner: JoinBannerOptions,
+			joinEmbedId,
+			joinTextEnabled,
+			joinComponentsEnabled
+		} = (config ?? {}) as DatabaseStructure.GuildConfigSchema;
+
+		const textEnabled = joinTextEnabled !== false;
+		const componentsEnabled = joinComponentsEnabled !== false;
+
+		logger.debug(
+			member.guild.name,
+			joinMessage,
+			JoinBannerOptions,
+			wChan,
+			ImageBannerStates,
+			ctx
+		);
+
+		if (!wChan) return;
+
+		const channel =
+			member.guild.channels.cache.get(wChan) ||
+			(await member.guild.channels.fetch(wChan).catch(() => null));
+
+		if (!channel) return;
+
+		let bannerImage: Buffer | undefined;
+		if (ImageBannerStates === "on") {
+			try {
+				bannerImage = await generateJoinImage(
+					member,
+					JoinBannerOptions
+				);
+			} catch (e) {
+				logger.err(member.guild.name, "Join image error: " + e);
+			}
+		}
+
+		async function sendWelcome(
+			msg: string,
+			variables: WelcomerEmbedVariables
+		): Promise<void> {
+			const embed = await resolveWelcomerEmbed(joinEmbedId, variables);
+			await member.client.func.welcomerMessage(
+				channel as BaseGuildTextChannel,
+				member,
+				{
+					message: textEnabled ? msg : null,
+					embed,
+					useComponents: embed ? false : componentsEnabled,
+					accentColor: WELCOME_ACCENT_COLOR,
+					avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
+					bannerImage,
+					bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
+				}
+			);
+		}
+
+		const variables: WelcomerEmbedVariables = {
+			user: member.user,
+			guild: member.guild,
+			guildLocal: guildLocal
+		};
+
+		if (ctx.invite) {
+			const { inviterId, code } = ctx.invite;
+			const inviterUsername =
+				ctx.invite.inviterUsername || `@${inviterId}`;
+			const invitesAmount = await client.db.get(
+				`${member.guild.id}.USER.${inviterId}.INVITES.invites`
+			);
+
+			// Is discord.wf link
+			const CustomVanityInvite = await apiTable.get(
+				`VANITY.${member.guild.id}`
+			);
+			const isCustomVanity =
+				inviterId === client.user?.id &&
+				CustomVanityInvite?.invite === code;
+
+			variables.inviter = {
+				user: {
+					username: isCustomVanity
+						? ".wf/" + CustomVanityInvite.vanity
+						: inviterUsername,
+					mention: isCustomVanity
+						? "discord.wf/" + CustomVanityInvite.vanity
+						: `<@${inviterId}>`
+				},
+				invitesAmount: invitesAmount
+			};
+
+			await sendWelcome(
+				client.func.method.generateCustomMessagePreview(
+					joinMessage || data.event_welcomer_inviter,
+					variables
+				),
+				variables
+			);
+			return;
+		}
+
+		if (ctx.vanity) {
+			variables.inviter = {
+				user: {
+					username: ".gg/" + ctx.vanity.code,
+					mention: ctx.vanity.code
+				},
+				invitesAmount: ctx.vanity.uses
+			};
+		}
+
+		await sendWelcome(
+			client.func.method.generateCustomMessagePreview(
+				joinMessage || data.event_welcomer_default,
+				variables
+			),
+			variables
+		);
+	} catch (error) {
+		logger.err(error);
+	}
+}
+
+setWelcomeSteps({
+	roles: [giveJoinRoles, restoreSavedRoles],
+	messages: [sendWelcomeMessage, sendJoinDm, ghostPingNewMember]
+});
+
+/**
+ * The one `guildMemberAdd` handler of the welcome side: credits the invite
+ * now, then lets `memberArrival` wait for the gates (and the captcha) before
+ * the join roles, role saver, welcome message, join DM and ghost pings.
+ */
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
+		const startedAt = Date.now();
+		beginArrival(member);
+
+		let ctx: WelcomeContext = {};
 		try {
-			if (
-				!member.guild.members.me?.permissions.has(
-					PermissionsBitField.Flags.ManageGuild
-				)
-			)
-				return;
+			ctx = await trackArrivalInvite(client, member);
+		} catch (error) {
+			logger.err(error);
+		}
 
-			const [data, guildLocalRaw, config] = await Promise.all([
-				client.func.getLanguageData(member.guild.id),
-				client.db.get(`${member.guild.id}.GUILD.LANG.lang`),
-				client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`)
-			]);
-
-			const guildLocal = guildLocalRaw || "en-US";
-			// A server that never configured anything has no GUILD_CONFIG: its
-			// invites are still counted below, only the welcome is skipped.
-			const {
-				joinmessage: joinMessage,
-				joinbannerStates: ImageBannerStates,
-				join: wChan,
-				joinbanner: JoinBannerOptions,
-				joinEmbedId,
-				joinTextEnabled,
-				joinComponentsEnabled
-			} = (config ?? {}) as DatabaseStructure.GuildConfigSchema;
-
-			const textEnabled = joinTextEnabled !== false;
-			const componentsEnabled = joinComponentsEnabled !== false;
-
-			async function sendWelcome(
-				msg: string,
-				variables: WelcomerEmbedVariables
-			): Promise<void> {
-				const embed = await resolveWelcomerEmbed(
-					joinEmbedId,
-					variables
-				);
-				await member.client.func.welcomerMessage(
-					channel as BaseGuildTextChannel,
-					member,
-					{
-						message: textEnabled ? msg : null,
-						embed,
-						useComponents: embed ? false : componentsEnabled,
-						accentColor: WELCOME_ACCENT_COLOR,
-						avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
-						bannerImage,
-						bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
-					}
-				);
-			}
-
-			const oldInvites = client.invites.get(member.guild.id);
-
-			let statsRecorded = false;
-			const recordStatsOnce = async (resolved: Invite | null) => {
-				if (statsRecorded || !resolved?.inviterId) return;
-				statsRecorded = true;
-				try {
-					await recordInviterStats(
-						client,
-						member.guild,
-						member,
-						resolved
-					);
-				} catch (e) {
-					logger.err(member.guild.name, "Invite stats error: " + e);
-				}
-			};
-
-			const inviteResultPromise = resolveInvite(
-				member.guild,
-				oldInvites
-			).catch((e) => {
-				logger.err(member.guild.name, "Invite resolve error: " + e);
-				return null;
-			});
-
-			const invite = await withTimeout(
-				inviteResultPromise,
-				INVITE_RESOLVE_TIMEOUT_MS
-			);
-
-			inviteResultPromise.then(recordStatsOnce);
-
-			if (invite?.inviterId) {
-				await recordStatsOnce(invite);
-			}
-
-			logger.debug(
-				member.guild.name,
-				joinMessage,
-				JoinBannerOptions,
-				wChan,
-				ImageBannerStates,
-				invite?.toJSON()
-			);
-
-			if (!wChan) return;
-
-			const channel =
-				member.guild.channels.cache.get(wChan) ||
-				(await member.guild.channels.fetch(wChan).catch(() => null));
-
-			if (!channel) return;
-
-			let bannerImage: Buffer | undefined;
-			if (ImageBannerStates === "on") {
-				try {
-					bannerImage = await generateJoinImage(
-						member,
-						JoinBannerOptions
-					);
-				} catch (e) {
-					logger.err(member.guild.name, "Join image error: " + e);
-				}
-			}
-
-			if (invite?.inviterId) {
-				const cachedInvite = client.invites
-					.get(member.guild.id)
-					?.get(invite.code);
-				const inviterId = invite.inviterId;
-				const inviterUsername =
-					invite.inviter?.username ||
-					cachedInvite?.inviterUsername ||
-					`@${inviterId}`;
-				const inviterMention = `<@${inviterId}>`;
-
-				const invitesAmount = await client.db.get(
-					`${member.guild.id}.USER.${inviterId}.INVITES.invites`
-				);
-
-				let isCustomVanity = false; // Is discord.wf link
-				const CustomVanityInvite = await apiTable.get(
-					`VANITY.${member.guild.id}`
-				);
-				if (
-					inviterId === client.user?.id &&
-					CustomVanityInvite?.invite === invite.code
-				) {
-					isCustomVanity = true;
-				}
-
-				const msg = client.func.method.generateCustomMessagePreview(
-					joinMessage || data.event_welcomer_inviter,
-					{
-						user: member.user,
-						guild: member.guild,
-						guildLocal: guildLocal,
-						inviter: {
-							user: {
-								username: isCustomVanity
-									? ".wf/" + CustomVanityInvite.vanity
-									: inviterUsername,
-								mention: isCustomVanity
-									? "discord.wf/" + CustomVanityInvite.vanity
-									: inviterMention
-							},
-							invitesAmount: invitesAmount
-						}
-					}
-				);
-
-				const inviterVariables: WelcomerEmbedVariables = {
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal,
-					inviter: {
-						user: {
-							username: isCustomVanity
-								? ".wf/" + CustomVanityInvite.vanity
-								: inviterUsername,
-							mention: isCustomVanity
-								? "discord.wf/" + CustomVanityInvite.vanity
-								: inviterMention
-						},
-						invitesAmount: invitesAmount
-					}
-				};
-
-				await sendWelcome(msg, inviterVariables);
-				return;
-			}
-
-			if (member.guild.features.includes(GuildFeature.VanityURL)) {
-				const VanityURL: Vanity = await member.guild.fetchVanityData();
-				const vanityInviteCache = client.vanityInvites.get(
-					member.guild.id
-				);
-				client.vanityInvites.set(member.guild.id, VanityURL);
-
-				const vanityVariables: WelcomerEmbedVariables = {
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal
-				};
-				let msg: string;
-				if (
-					vanityInviteCache &&
-					vanityInviteCache.uses! < VanityURL.uses!
-				) {
-					vanityVariables.inviter = {
-						user: {
-							username: ".gg/" + VanityURL.code,
-							mention: VanityURL.code!
-						},
-						invitesAmount: VanityURL.uses
-					};
-					msg = client.func.method.generateCustomMessagePreview(
-						joinMessage || data.event_welcomer_default,
-						vanityVariables
-					);
-				} else {
-					msg = client.func.method.generateCustomMessagePreview(
-						joinMessage || data.event_welcomer_default,
-						vanityVariables
-					);
-				}
-
-				await sendWelcome(msg, vanityVariables);
-				return;
-			}
-
-			const defaultVariables: WelcomerEmbedVariables = {
-				user: member.user,
-				guild: member.guild,
-				guildLocal: guildLocal
-			};
-
-			const msg = client.func.method.generateCustomMessagePreview(
-				joinMessage || data.event_welcomer_default,
-				defaultVariables
-			);
-
-			await sendWelcome(msg, defaultVariables);
+		try {
+			await settleArrival(client, member, ctx, startedAt);
 		} catch (error) {
 			logger.err(error);
 		}

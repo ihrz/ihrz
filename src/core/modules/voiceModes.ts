@@ -32,15 +32,16 @@ import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import logger from "../logger.js";
 
-// Talk mode and the night-mode derogation: what /util untalk, /util talk and
+// Talk mode and the night-mode derogation: what /util talk, /util untalk and
 // /util derogation do, shared with the dashboard actions
 // (`gatewayLinkActions/utilities.ts`). Formats: `UTILS.VOICE_TALK`,
 // `UTILS.VOICE_TALK_MUTED`, `GUILD.UTILS.DEROGATION`.
 
 /**
- * /util untalk (it ENABLES talk mode, despite its name): server-mutes
- * everyone in the channel but bots, the author, administrators and channel
- * managers, records them, and remembers the channel.
+ * /util talk: server-mutes everyone in the channel but bots, the author,
+ * administrators and channel managers, records them, and remembers the
+ * channel. Members already server-muted are left as they were (skipped and
+ * not recorded): leaving the talk channel must not undo a moderator mute.
  */
 export async function enableTalkMode(
 	guild: Guild,
@@ -77,7 +78,8 @@ export async function enableTalkMode(
 	for (const target of targets.values()) {
 		if (
 			target.permissions.has(PermissionFlagsBits.Administrator) ||
-			target.permissions.has(PermissionFlagsBits.ManageChannels)
+			target.permissions.has(PermissionFlagsBits.ManageChannels) ||
+			target.voice.serverMute
 		) {
 			skippedCount++;
 			continue;
@@ -121,7 +123,7 @@ export type TalkOffResult =
 	| { ok: false; code: "not_in_vc" | "nothing_active" };
 
 /**
- * /util talk (it DISABLES talk mode): unmutes everyone in the talk channel
+ * /util untalk: unmutes everyone in the talk channel
  * (or `fallback`, the author's channel, when none is recorded) and forgets it.
  */
 export async function disableTalkMode(

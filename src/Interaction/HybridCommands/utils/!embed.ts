@@ -178,8 +178,9 @@ class EmbedManager {
 		name: string,
 		attachment: string
 	): void {
-		const attachmentUrl = "attachment://" + name;
-		this.setFile(type, { attachment, name });
+		const fileName = client.func.embedHelper.uploadedMediaName(type, name);
+		const attachmentUrl = "attachment://" + fileName;
+		this.setFile(type, { attachment, name: fileName });
 
 		switch (type) {
 			case "footer":
@@ -288,7 +289,9 @@ class EmbedManager {
 			throw new Error(this.lang.embed_copy_bad_channel_msg);
 		}
 
-		const targetMessage = await channel.messages.fetch(parts.messageId);
+		const targetMessage = await channel.messages
+			.fetch(parts.messageId)
+			.catch(() => null);
 		if (!targetMessage) {
 			throw new Error(this.lang.embed_copy_bad_message_msg);
 		}
@@ -452,7 +455,12 @@ class EmbedManager {
 	}
 
 	// Optimized embed operations
-	private async saveEmbed(arg?: string): Promise<string> {
+	private async saveEmbed(
+		arg?: string
+	): Promise<{ code: string; dropped: boolean }> {
+		const { embed: embedSource, dropped } =
+			client.func.embedHelper.withoutUploadedMedia(this.embed.toJSON());
+
 		if (
 			typeof arg === "string" &&
 			client.func.embedHelper.isValidEmbedId(arg)
@@ -466,18 +474,18 @@ class EmbedManager {
 			) {
 				await metasTable.set(`EMBED.${arg}`, {
 					embedOwner: this.interaction.member?.user.id!,
-					embedSource: this.embed.toJSON()
+					embedSource
 				});
-				return arg;
+				return { code: arg, dropped };
 			}
 		}
 
 		const password = generatePassword({ length: 16 });
 		await metasTable.set(`EMBED.${password}`, {
 			embedOwner: this.interaction.member?.user.id!,
-			embedSource: this.embed.toJSON()
+			embedSource
 		});
-		return password;
+		return { code: password, dropped };
 	}
 
 	private async sendEmbed(
@@ -607,9 +615,21 @@ class EmbedManager {
 				throw new Error(this.lang.embed_copy_bad_channel_msg);
 			}
 
-			const targetMessage = await channel.messages.fetch(parts.messageId);
+			const targetMessage = await channel.messages
+				.fetch(parts.messageId)
+				.catch(() => null);
 			if (!targetMessage) {
 				throw new Error(this.lang.embed_copy_bad_message_msg);
+			}
+
+			// Discord only lets a bot edit its own messages.
+			if (
+				!client.func.embedHelper.canReplaceEmbedOf(
+					targetMessage,
+					client.user?.id
+				)
+			) {
+				throw new Error(this.lang.embed_replace_not_bot_message);
 			}
 
 			if (targetMessage.embeds.length === 0) {
@@ -847,14 +867,17 @@ class EmbedManager {
 
 				switch (confirmation.customId) {
 					case "save":
-						const embedId = await this.saveEmbed(arg);
+						const saved = await this.saveEmbed(arg);
+						const savedMessage = this.lang.embed_save_message
+							.replace(
+								"${authorId}",
+								this.interaction.member?.user.id!
+							)
+							.replace("${embedId}", saved.code);
 						await confirmation.update({
-							content: this.lang.embed_save_message
-								.replace(
-									"${authorId}",
-									this.interaction.member?.user.id!
-								)
-								.replace("${embedId}", embedId),
+							content: saved.dropped
+								? `${savedMessage}\n${this.lang.embed_save_uploads_dropped}`
+								: savedMessage,
 							components: [],
 							embeds: [],
 							files: []

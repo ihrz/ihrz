@@ -27,6 +27,8 @@ import {
 	activeWarns,
 	issueWarn,
 	normalizeWarnConfig,
+	sendWarnsClearedLog,
+	warnRefusal,
 	ruleForCount,
 	validateWarnConfig
 } from "../../src/core/modules/warnSystem.ts";
@@ -109,7 +111,23 @@ describe("warn settings", () => {
 	});
 });
 
-function fakeServer(config: unknown, existing = 2, moderatable = true) {
+// A text channel; `everyone` = whether @everyone can view it.
+function fakeChannel(name: string, everyone: boolean, sent: any[], id = name) {
+	return {
+		id,
+		name,
+		isTextBased: () => true,
+		permissionsFor: () => ({ has: () => everyone }),
+		send: async (p: any) => sent.push([id, p])
+	};
+}
+
+function fakeServer(
+	config: unknown,
+	existing = 2,
+	moderatable = true,
+	opts: { channels?: (sent: any[]) => any[]; logsId?: string } = {}
+) {
 	const store: Record<string, any> = {
 		"9.USER.2.WARNS": Array.from({ length: existing }, (_, i) => ({
 			id: "w" + i,
@@ -117,9 +135,13 @@ function fakeServer(config: unknown, existing = 2, moderatable = true) {
 			authorID: "1",
 			timestamp: Date.now()
 		})),
-		"9.GUILD.WARN_CONFIG": config
+		"9.GUILD.WARN_CONFIG": config,
+		"9.GUILD.SERVER_LOGS.moderation": opts.logsId ?? null
 	};
 	const sent: any[] = [];
+	const channels = opts.channels
+		? opts.channels(sent)
+		: [fakeChannel("mods", false, sent, "log")];
 	const sanctions: any[] = [];
 	const client: any = {
 		iHorizon_Emojis: emojis,
@@ -142,13 +164,12 @@ function fakeServer(config: unknown, existing = 2, moderatable = true) {
 		name: "Server one",
 		client,
 		iconURL: () => null,
+		ownerId: "0",
+		roles: { everyone: { id: "9" } },
 		channels: {
 			cache: {
-				find: () => ({
-					isTextBased: () => true,
-					send: async (p: any) => sent.push(["log", p])
-				}),
-				get: () => undefined
+				find: (fn: (c: any) => boolean) => channels.find(fn),
+				get: (id: string) => channels.find((c) => c.id === id)
 			}
 		},
 		bans: { create: async (id: string) => sanctions.push(["ban", id]) }
@@ -161,6 +182,7 @@ function fakeServer(config: unknown, existing = 2, moderatable = true) {
 		bannable: moderatable,
 		toString: () => "<@2>",
 		displayAvatarURL: () => "https://cdn.discordapp.com/a.png",
+		communicationDisabledUntilTimestamp: null as number | null,
 		send: async (p: any) => sent.push(["dm", p]),
 		timeout: async (ms: number) => sanctions.push(["timeout", ms]),
 		kick: async () => sanctions.push(["kick"])
@@ -169,7 +191,8 @@ function fakeServer(config: unknown, existing = 2, moderatable = true) {
 		user: { id: "1", username: "mod" },
 		toString: () => "<@1>"
 	};
-	return { store, sent, sanctions, member, author };
+	for (const c of channels) c.guild = guild;
+	return { store, sent, sanctions, member, author, guild };
 }
 
 describe("issueWarn", () => {
@@ -220,5 +243,134 @@ describe("issueWarn", () => {
 		const issued = await issueWarn(s.author, s.member, "spam", enUS);
 		expect(issued.sanction).toBeNull();
 		expect(s.sanctions).toEqual([]);
+	});
+});
+
+const cardText = (p: any) =>
+	JSON.stringify(p.components.map((c: any) => c.toJSON()));
+
+describe("a threshold timeout never shortens a longer one", () => {
+	const rule = {
+		rules: [{ count: 3, action: "timeout", duration: 3_600_000 }]
+	};
+
+	test("a 2-day timeout already running is kept", async () => {
+		const s = fakeServer(rule);
+		const until = Date.now() + 2 * DAY;
+		s.member.communicationDisabledUntilTimestamp = until;
+		const issued = await issueWarn(s.author, s.member, "spam", enUS);
+		expect(s.sanctions).toEqual([]);
+		expect(issued.sanction).toEqual({
+			rule: { count: 3, action: "timeout", duration: 3_600_000 },
+			applied: true,
+			keptUntil: until
+		});
+		const log = cardText(s.sent.find(([k]) => k === "log")![1]);
+		const dm = cardText(s.sent.find(([k]) => k === "dm")![1]);
+		const kept = `<t:${Math.floor(until / 1000)}:f>`;
+		expect(log).toContain(kept);
+		expect(dm).toContain(kept);
+	});
+
+	test("a shorter running timeout is replaced", async () => {
+		const s = fakeServer(rule);
+		s.member.communicationDisabledUntilTimestamp = Date.now() + 600_000;
+		const issued = await issueWarn(s.author, s.member, "spam", enUS);
+		expect(s.sanctions).toEqual([["timeout", 3_600_000]]);
+		expect(issued.sanction?.keptUntil).toBeUndefined();
+	});
+});
+
+describe("the staff log never goes to a public channel picked by name", () => {
+	const note = "private staff note";
+
+	test("a public mods channel is skipped for a hidden one", async () => {
+		const s = fakeServer(null, 0, true, {
+			channels: (sent) => [
+				fakeChannel("mods-chat", true, sent),
+				fakeChannel("mods-private", false, sent)
+			]
+		});
+		await issueWarn(s.author, s.member, "spam", enUS, note);
+		const logs = s.sent.filter(([k]) => k !== "dm");
+		expect(logs.map(([k]) => k)).toEqual(["mods-private"]);
+		expect(cardText(logs[0][1])).toContain(note);
+	});
+
+	test("a public ihorizon-logs or mods channel falls back to /setlogs", async () => {
+		const s = fakeServer(null, 0, true, {
+			logsId: "setlogs",
+			channels: (sent) => [
+				fakeChannel("ihorizon-logs", true, sent),
+				fakeChannel("mods", true, sent),
+				// Chosen by the admins: used even if public.
+				fakeChannel("general", true, sent, "setlogs")
+			]
+		});
+		s.guild.client.func.hasIhorizonLogs = () => true;
+		await issueWarn(s.author, s.member, "spam", enUS, note);
+		expect(s.sent.filter(([k]) => k !== "dm").map(([k]) => k)).toEqual([
+			"setlogs"
+		]);
+	});
+
+	test("only public channels and no /setlogs: no log at all", async () => {
+		const s = fakeServer(null, 0, true, {
+			channels: (sent) => [fakeChannel("mods", true, sent)]
+		});
+		await issueWarn(s.author, s.member, "spam", enUS, note);
+		expect(s.sent.filter(([k]) => k !== "dm")).toEqual([]);
+	});
+});
+
+describe("clearing warnings is logged", () => {
+	test("one member: who, whom, how many", async () => {
+		const s = fakeServer(null);
+		expect(
+			await sendWarnsClearedLog(
+				s.guild,
+				"<@1>",
+				{ count: 4, member: "<@2>" },
+				enUS
+			)
+		).toBe(true);
+		const text = cardText(s.sent[0][1]);
+		expect(text).toContain(enUS.clearwarn_card_title);
+		expect(text).toContain("4 warnings of <@2>");
+		expect(text).toContain("<@1>");
+	});
+
+	test("the whole server: how many warnings and members", async () => {
+		const s = fakeServer(null);
+		await sendWarnsClearedLog(
+			s.guild,
+			"<@1>",
+			{ count: 7, members: 3 },
+			enUS
+		);
+		const text = cardText(s.sent[0][1]);
+		expect(text).toContain(enUS.clear_allwarns_card_title);
+		expect(text).toContain("7 warnings of 3 members");
+	});
+});
+
+describe("who can be warned", () => {
+	const m = (id: string, position: number, bot = false): any => ({
+		id,
+		user: { id, bot },
+		guild: { ownerId: "OWNER" },
+		roles: { highest: { position } }
+	});
+
+	test("the server owner never, even by a higher role", () => {
+		expect(warnRefusal(m("1", 50), m("OWNER", 1))).toBe("owner");
+	});
+
+	test("self, bots, equal or higher roles; the owner warns anyone", () => {
+		expect(warnRefusal(m("1", 5), m("1", 5))).toBe("self");
+		expect(warnRefusal(m("1", 5), m("2", 1, true))).toBe("bot");
+		expect(warnRefusal(m("1", 5), m("2", 5))).toBe("above");
+		expect(warnRefusal(m("OWNER", 1), m("2", 9))).toBeNull();
+		expect(warnRefusal(m("1", 5), m("2", 4))).toBeNull();
 	});
 });

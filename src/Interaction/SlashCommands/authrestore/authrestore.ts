@@ -136,7 +136,7 @@ export const command: Command = {
 						pl: "Rola do skonfigurowania"
 					},
 
-					required: false,
+					required: true,
 
 					permission: null
 				}
@@ -216,6 +216,11 @@ export const command: Command = {
 					permission: null
 				}
 			],
+
+			// The reply lists the verified members: only the author sees it.
+			thinking: true,
+			ephemeral: true,
+
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator

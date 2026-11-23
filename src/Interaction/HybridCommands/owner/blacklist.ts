@@ -131,6 +131,11 @@ export const command: Command = {
 			)
 		) {
 			run_for_guild_owner(client, interaction, lang, args);
+		} else {
+			// Neither a bot owner nor on the server's owner list: say so (no silent timeout).
+			await client.func.method.interactionSend(interaction, {
+				content: lang.owner_list_not_allowed
+			});
 		}
 	}
 };
@@ -523,9 +528,26 @@ export async function run_for_guild_owner(
 		? interaction.guild.members.cache.get(targetUser?.id)
 		: null;
 
-	if (member?.user.id === interaction.guild.ownerId) {
+	// The Discord owner, even when not cached as a member.
+	if (targetUser?.id === interaction.guild.ownerId) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_cant_unowner_creator
+		});
+		return;
+	}
+
+	// A member of the owner list is blacklisted (banned) by the Discord
+	// owner only, never by a fellow owner.
+	if (
+		targetUser &&
+		(await client.func.ownerHelper.isOwnerListProtected(
+			interaction.member.user.id,
+			targetUser.id,
+			interaction.guild
+		))
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.owner_list_only_discord_owner
 		});
 		return;
 	}

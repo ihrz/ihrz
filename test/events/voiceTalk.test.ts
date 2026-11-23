@@ -121,3 +121,87 @@ test("joining the talk channel mutes and records the member", async () => {
 	expect(calls).toEqual([true]);
 	expect(store.get("g.UTILS.VOICE_TALK_MUTED.u")).toBe(true);
 });
+
+test("the member who turned talk mode on is not muted when they come back", async () => {
+	const { client, store } = setup();
+	store.set("g.UTILS.VOICE_TALK", { channelId: TALK, enabledBy: "host" });
+	const calls: boolean[] = [];
+	const m = member("host", calls);
+
+	await event.run(client, state(OTHER, false, m), state(TALK, false, m));
+
+	expect(calls).toEqual([]);
+	expect(store.has("g.UTILS.VOICE_TALK_MUTED.host")).toBe(false);
+});
+
+function freezeSetup(enabledBy: string, allowedUsers: string[] = []) {
+	const { client, store } = setup();
+	store.delete("g.UTILS.VOICE_TALK");
+	store.set("g.UTILS.VOICE_FREEZE", {
+		channelId: TALK,
+		enabledBy,
+		allowedUsers
+	});
+	const frozen = { type: 2, members: { size: 1 } };
+	const frozenGuild = {
+		id: "g",
+		channels: { cache: new Map([[TALK, frozen]]) }
+	};
+	const at = (channelId: string | null, m: unknown) =>
+		({
+			channelId,
+			serverMute: false,
+			member: m,
+			guild: frozenGuild
+		}) as any;
+	return { client, store, at };
+}
+
+function freezeMember(id: string, log: string[], timeoutFails = false) {
+	const m: any = {
+		id,
+		user: { bot: false },
+		permissions: { has: () => false },
+		voice: {
+			channelId: TALK,
+			setChannel: async () => {
+				log.push("disconnect");
+			}
+		},
+		timeout: async () => {
+			log.push("timeout");
+			if (timeoutFails) throw new Error("Missing Permissions");
+		}
+	};
+	return m;
+}
+
+test("a frozen channel disconnects whoever is not allowed", async () => {
+	const { client, at } = freezeSetup("host");
+	const log: string[] = [];
+	const m = freezeMember("u", log);
+
+	await event.run(client, at(OTHER, m), at(TALK, m));
+
+	expect(log).toEqual(["disconnect", "timeout"]);
+});
+
+test("the member who froze the channel can come back in", async () => {
+	const { client, at } = freezeSetup("host");
+	const log: string[] = [];
+	const m = freezeMember("host", log);
+
+	await event.run(client, at(OTHER, m), at(TALK, m));
+
+	expect(log).toEqual([]);
+});
+
+test("a refused short timeout does not throw out of the freeze", async () => {
+	const { client, at } = freezeSetup("host");
+	const log: string[] = [];
+	const m = freezeMember("u", log, true);
+
+	await event.run(client, at(OTHER, m), at(TALK, m));
+
+	expect(log).toEqual(["disconnect", "timeout"]);
+});

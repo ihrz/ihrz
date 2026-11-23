@@ -24,7 +24,6 @@ import {
 	PermissionsBitField,
 	AuditLogEvent,
 	GuildBan,
-	PermissionFlagsBits,
 	User
 } from "discord.js";
 
@@ -41,17 +40,13 @@ export const event: BotEvent = {
 	run: async (client: Client, ban: GuildBan) => {
 		const data = await client.func.getLanguageData(ban.guild.id);
 
+		// Same as the ban and kick logs: reading the audit log is enough (an
+		// Administrator requirement silently dropped every unban log).
 		if (
 			!ban.guild.members.me ||
-			!ban.guild.members.me.permissions.has(
-				PermissionsBitField.Flags.ViewAuditLog
-			)
-		)
-			return;
-
-		if (
-			!ban.guild.members.me?.permissions.has([
-				PermissionFlagsBits.Administrator
+			!ban.guild.members.me.permissions.has([
+				PermissionsBitField.Flags.ViewAuditLog,
+				PermissionsBitField.Flags.ManageGuild
 			])
 		)
 			return;

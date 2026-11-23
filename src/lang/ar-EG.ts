@@ -1341,7 +1341,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"أيها الشقي الصغير، لا يمكنك وضع أكثر من 3 أشخاص في الحبل :D",
+		"أيها الشقي الصغير، لا يمكنك وضع أكثر من ${max} أشخاص في الحبل :D",
 	util_leah_already_owned:
 		"أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:",
 	util_leash_confirm_message:
@@ -1853,7 +1853,7 @@ export default {
 		"الوقت الذي أدخلته غير صالح! **مثال على الوقت الصحيح**: `3h; 30m; 4w; 4y` -> 3 ساعات؛ 30 دقيقة؛ 4 أسابيع؛ 4 سنوات",
 	too_new_account_logEmbed_title: "وحدة الحسابات الجديدة جدًا",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} قام بتفعيل وحدة TooNewAccount. يجب أن يكون عمر الحسابات الآن على الأقل ${beautifulTime}، وإذا انضم المستخدم أكثر من `${maxJoin}` مرة، سيتم حظره.",
+		"${author} قام بتفعيل وحدة TooNewAccount. يجب أن يكون عمر الحسابات الآن على الأقل ${beautifulTime}، وأول ما المستخدم يدخل للمرة رقم `${maxJoin}`، هيتحظر.",
 	too_new_account_command_work_on_enable:
 		"${author}, الآن، سيتم طرد الأعضاء الجدد الذين ينضمون إلى **${guildName}** بحسابات أقل من `${beautifulTime}`.",
 	too_new_account_command_work_on_enable2:
@@ -2784,7 +2784,8 @@ export default {
 		"<@${authorId}>, **في أي قناة يجب أن أرسل هذا الإيمبد؟**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **لقد استغرقت وقتاً طويلاً للرد، سأقوم بإلغاء العملية الجارية!**",
-	embed_choose_0: "ما الرسالة التي تريد تضمينها في الإيمبد الخاص بك؟",
+	embed_choose_0:
+		"ابعت لينك الرسالة اللي عايز تنسخ الإيمبد بتاعها (كليك يمين على الرسالة، نسخ رابط الرسالة).",
 	embed_choose_1: "ما العنوان الذي تريد تضمينه في الإيمبد الخاص بك؟",
 	embed_choose_2: "تم حذف عنوان الإيمبد بنجاح!",
 	embed_choose_3: "ما الوصف الذي تريد تضمينه في الإيمبد الخاص بك؟",
@@ -3494,7 +3495,7 @@ export default {
 	// /authrestore حذف
 	rc_delete_config_not_found: "إعداد الوحدة في السيرفر ده مش موجود!",
 	rc_delete_command_ok:
-		'${author}، لقد قمت بحذف إعداد وحدة "AuthRestore". لأسباب أمنية (البيانات)، هحذف الزر فقط، بس بيانات oauth2 والكود السري هيتم حذفهم بعد 48 ساعة!',
+		'${author}، إنت شيلت زرار "AuthRestore": الأعضاء مش هيقدروا يتحققوا منه تاني. المفتاح بتاعك والأعضاء اللي اتحققوا قبل كده محفوظين، فتقدر ترجّعهم بـ `/authrestore force-join`.',
 
 	// /authrestore الحصول على
 	rc_get_mainEmbed_title: "معلومات عامة عن AuthRestore",
@@ -4874,5 +4875,49 @@ export default {
 	derogation_role_name: "تحت إدارة iHorizon",
 	ticket_transcript_footer: "الرسايل اللي اتصدّرت: {number}",
 	music_playlist_fallback_name: "بلاي ليست ${platform}",
-	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})"
+	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed:
+		"الأمر ده لصاحب السيرفر وأعضاء قايمة أصحاب السيرفر بس.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"صاحب السيرفر بس (صاحبه على ديسكورد) هو اللي يقدر يشيل حد من ليستة الملّاك، أو يحط حد من الليستة دي في البلاك ليست.",
+
+	// warnings fix
+	warn_err_owner: "${emoji_No} مينفعش تدّي تحذير لصاحب السيرفر.",
+	warn_sanction_kept:
+		"${sanction} ماتطبّقتش: التايم آوت اللي على العضو دلوقتي أطول وهيفضل زي ما هو (بيخلص ${until})",
+	clear_allwarns_log_desc: "اتشالوا ${count} تحذير من ${members} عضو.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"أنا أقدر أغيّر الإيمبد بتاع رسالة أنا اللي بعتها بس!",
+	embed_save_uploads_dropped:
+		"-# الصور اللي اترفعت كملف مش بتتحفظ في الإيمبد المحفوظ: موجودة في الرسالة دي بس. استخدم لينك للصورة عشان تظهر في كل مكان بيستخدم الـ ID ده.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"كل الأعضاء المتحققين موجودين في السيرفر ده خلاص: مفيش حد نضيفه. المفتاح بتاعك ما اتغيرش.",
+	rc_forcejoin_failed:
+		"الإضافة الإجبارية ما بدأتش: HorizonGateway رفضها أو مش بيرد. محدش اتضاف والمفتاح بتاعك ما اتغيرش.",
+	rc_forcejoin_stopped:
+		"الإضافة الإجبارية وقفت قبل ما تخلص. الأعضاء اللي متعدين فوق اتضافوا، والمفتاح بتاعك اتغير خلاص: الجديد جاي.",
+
+	// logs fix
+	logs_antispam_title_mute: "[مضاد السبام] كتم جديد",
+	logs_antispam_title_kick: "[مضاد السبام] طرد جديد",
+	logs_antispam_title_ban: "[مضاد السبام] حظر جديد",
+	logs_antispam_desc_mute: "${bot} **كتم** ${user}",
+	logs_antispam_desc_kick: "${bot} **طرد** ${user}",
+	logs_antispam_desc_ban: "${bot} **حظر** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"صاحب السيرفر بس اللي يقدر يستخدم النسخ الاحتياطية هنا. يقدر يفتحها لكل الأدمنز بـ `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"السيرفر ده عنده مفتاح AuthRestore أصلاً، فأنا ما عملتش مفتاح جديد: لو شغّلت `/authrestore set` تاني هيستبدله، والمفتاح الحالي مش هيشتغل تاني.\nعشان تبدأ من الأول بمفتاح جديد، شغّل الأول `/authrestore delete` (بيشيل زرار التحقق، والأعضاء اللي اتحققوا قبل كده بيفضلوا محفوظين)، وبعدين شغّل `/authrestore set` تاني."
 } satisfies LanguageData;

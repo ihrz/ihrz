@@ -70,6 +70,8 @@ export interface LogCardOptions {
 	/** Markdown blocks, each after a separator. */
 	blocks?: (string | null | undefined | false)[];
 	attachments?: LogAttachment[];
+	/** Images already hosted elsewhere (e.g. a Discord attachment URL), shown after the attached ones. */
+	images?: (string | null | undefined)[];
 	/** Buttons under the entry (kept inside the card). */
 	rows?: ActionRowBuilder<ButtonBuilder>[];
 	/** When it happened (ms), defaults to now. */
@@ -101,7 +103,10 @@ export function buildLogCard(
 		thumbnail: o.thumbnail,
 		fields: o.fields,
 		blocks: o.blocks,
-		images: images.map((a) => `attachment://${a.file.name}`)
+		images: [
+			...images.map((a) => `attachment://${a.file.name}`),
+			...(o.images ?? []).filter((u): u is string => !!u)
+		].slice(0, GALLERY_MAX)
 	});
 
 	if (others.length) {

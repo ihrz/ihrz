@@ -19,7 +19,14 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, EmbedBuilder, Guild } from "discord.js";
+// The iHorizon logs channel (created by /guildconfig setup): ~60 commands log what they did there with a title
+// and a description. Posted as a Components V2 log card (logCard.ts: accent, `## emoji title`, the bot name and
+// the time, no pings), and only in a channel @everyone cannot see (hasIhorizonLogs.ts).
+
+import { Guild } from "discord.js";
+
+import { sendLogCard } from "../modules/logCard.js";
+import { findIhorizonLogsChannel } from "./hasIhorizonLogs.js";
 
 export default async function send(
 	// An interaction, a message, or anything with the guild (dashboard actions).
@@ -30,18 +37,15 @@ export default async function send(
 	}
 ): Promise<void> {
 	try {
-		const logEmbed = new EmbedBuilder()
-			.setColor("#bf0bb9")
-			.setTitle(embed.title)
-			.setDescription(embed.description);
+		const guild = interaction.guild;
+		const channel = findIhorizonLogsChannel(guild);
+		if (!guild || !channel) return;
 
-		const logchannel = interaction.guild?.channels.cache.find((channel) =>
-			channel.name.includes("ihorizon-logs")
-		);
-
-		if (!logchannel) return;
-		(logchannel as BaseGuildTextChannel)
-			.send({ embeds: [logEmbed] })
-			.catch(() => {});
+		await sendLogCard(channel, {
+			kind: "info",
+			emoji: guild.client.iHorizon_Emojis?.Logs,
+			title: embed.title,
+			description: embed.description
+		});
 	} catch {}
 }

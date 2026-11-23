@@ -23,48 +23,58 @@ import { Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		if (!member.guild || member.user.bot) return;
+		// The welcome side waits for this check (`memberArrival`).
+		const release = holdArrival(member);
+		try {
+			if (!member.guild || member.user.bot) return;
 
-		const baseData = (await client.db.get(
-			`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`
-		)) as DatabaseStructure.BlockNewAccountSchema;
+			const baseData = (await client.db.get(
+				`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`
+			)) as DatabaseStructure.BlockNewAccountSchema;
 
-		// No age set (a dashboard save can enable it alone): `accountAge >=
-		// undefined` is false, and every new member would be kicked.
-		if (!baseData?.state || !baseData.req) return;
+			// No age set (a dashboard save can enable it alone): `accountAge >=
+			// undefined` is false, and every new member would be kicked.
+			if (!baseData?.state || !baseData.req) return;
 
-		const accountCreationDate = member.user.createdAt;
-		const currentTime = Date.now();
-		const accountAge = currentTime - accountCreationDate.getTime();
+			const accountCreationDate = member.user.createdAt;
+			const currentTime = Date.now();
+			const accountAge = currentTime - accountCreationDate.getTime();
 
-		if (accountAge >= baseData.req) return;
+			if (accountAge >= baseData.req) return;
 
-		let joinCount =
-			(await client.db.get(
-				`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`
-			)) || 0;
+			let joinCount =
+				(await client.db.get(
+					`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`
+				)) || 0;
 
-		joinCount++;
+			joinCount++;
 
-		await client.db.set(
-			`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`,
-			joinCount
-		);
+			await client.db.set(
+				`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`,
+				joinCount
+			);
 
-		if (baseData.maxJoin && joinCount > baseData.maxJoin) {
-			member
-				.ban({ reason: "[TooNewAccount] User join too much." })
-				.catch(() => {})
-				.then(() => {});
-		} else {
-			member
-				.kick("[TooNewAccount] Account is too new")
-				.catch(() => {})
-				.then(() => {});
+			const ban = !!baseData.maxJoin && joinCount >= baseData.maxJoin;
+			// Not welcomed, unless iHorizon can't remove them (then they stay).
+			if (ban ? member.bannable : member.kickable) markRejected(member);
+			if (ban) {
+				member
+					.ban({ reason: "[TooNewAccount] User join too much." })
+					.catch(() => {})
+					.then(() => {});
+			} else {
+				member
+					.kick("[TooNewAccount] Account is too new")
+					.catch(() => {})
+					.then(() => {});
+			}
+		} finally {
+			release();
 		}
 	}
 };

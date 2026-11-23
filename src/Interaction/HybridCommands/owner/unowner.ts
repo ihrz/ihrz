@@ -98,6 +98,11 @@ export const command: Command = {
 			)
 		) {
 			run_for_guild_owner(client, interaction, lang, args);
+		} else {
+			// Neither a bot owner nor on the server's owner list: say so (no silent timeout).
+			await client.func.method.interactionSend(interaction, {
+				content: lang.owner_list_not_allowed
+			});
 		}
 	}
 };
@@ -179,6 +184,15 @@ export async function run_for_guild_owner(
 	if (interaction.guild.ownerId === member?.id) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_cant_unowner_creator
+		});
+		return;
+	}
+
+	// Only the Discord owner removes owners: a member of the list can't
+	// take the others (or the one who added them) off it.
+	if (interaction.member.user.id !== interaction.guild.ownerId) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.owner_list_only_discord_owner
 		});
 		return;
 	}

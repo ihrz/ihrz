@@ -26,6 +26,10 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { isInVoiceChannel } from "../../../core/functions/leashModuleHelper.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import {
+	activeLeashes,
+	getLeashConfig
+} from "../../../core/modules/memberToolsManager.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -48,24 +52,23 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const user = opts.member("member", 0)!;
 
-		const baseData =
-			(await client.db.get(
-				`${interaction.guildId}.UTILS.LEASH_CONFIG`
-			)) ||
-			({
-				maxLeashedByUsers: 3,
-				maxLeashTime: client.timeCalculator.to_ms("30min")
-			} as DatabaseStructure.LeashConfig);
-		const fetchedData = ((await client.db.get(
-			`${interaction.guildId}.UTILS.LEASH`
-		)) || []) as DatabaseStructure.LeashData[];
+		const baseData = await getLeashConfig(client, interaction.guild.id);
+		// Expired leashes no longer count (nor stay stored).
+		const fetchedData = activeLeashes(
+			((await client.db.get(`${interaction.guildId}.UTILS.LEASH`)) ||
+				[]) as DatabaseStructure.LeashData[],
+			baseData.maxLeashTime
+		);
 		const filteredData =
 			fetchedData.filter((x) => x.dom === interaction.member?.user.id) ||
 			[];
 
 		if (filteredData.length >= baseData.maxLeashedByUsers) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_leash_too_naugthy
+				content: lang.util_leash_too_naugthy.replace(
+					"${max}",
+					String(baseData.maxLeashedByUsers)
+				)
 			});
 			return;
 		}
@@ -77,7 +80,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (!isInVoiceChannel(user) || isInVoiceChannel(interaction.member)) {
+		// The prompt warns that the member isn't in voice: only ask then.
+		if (!isInVoiceChannel(user)) {
 			const response = await promptYesOrNo(interaction, {
 				content: lang.util_leash_confirm_message
 					.replace(

@@ -1101,7 +1101,7 @@ export default {
 		"${author} zdjął aktywne zamrożenie kanału głosowego.",
 	util_unfreeze_command_work: "Kanał głosowy nie jest już zamrożony.",
 	util_leash_too_naugthy:
-		"Ty mały łobuzie, nie możesz wziąć na smycz więcej niż 3 osób :D",
+		"Ty mały łobuzie, nie możesz wziąć na smycz więcej niż ${max} osób :D",
 	util_leah_already_owned:
 		"Ty mały łobuzie, te maluchy już należą do ciebie :smirk:",
 	util_leash_confirm_message:
@@ -1570,7 +1570,7 @@ export default {
 		"Podany czas jest nieprawidłowy! **Przykład prawidłowego czasu**: `3h; 30m; 4mo; 4w; 4y` -> 3 godziny; 30 minut; 4 miesiące; 4 tygodnie; 4 lata",
 	too_new_account_logEmbed_title: "Moduł TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} włączył moduł TooNewAccount. Konta muszą mieć teraz co najmniej ${beautifulTime}, a jeśli użytkownik dołączy więcej niż `${maxJoin}` razy, zostanie zbanowany.",
+		"${author} włączył moduł TooNewAccount. Konta muszą mieć teraz co najmniej ${beautifulTime}, a użytkownik zostanie zbanowany przy `${maxJoin}`. dołączeniu.",
 	too_new_account_command_work_on_enable:
 		"${author}, nowi członkowie dołączający do **${guildName}** z kontami młodszymi niż `${beautifulTime}` będą teraz wyrzucani.",
 	too_new_account_command_work_on_enable2:
@@ -2406,7 +2406,8 @@ export default {
 		"<@${authorId}>, **na którym kanale mam wysłać ten embed?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **zbyt długo zwlekałeś(-aś) z odpowiedzią, przerywam bieżącą operację!**",
-	embed_choose_0: "Jaką wiadomość chcesz umieścić w swoim embedzie?",
+	embed_choose_0:
+		"Wyślij link do wiadomości, której embed chcesz skopiować (prawy klik na wiadomości, Kopiuj link do wiadomości).",
 	embed_choose_1: "Jaki tytuł chcesz umieścić w swoim embedzie?",
 	embed_choose_2: "Tytuł embeda został pomyślnie usunięty!",
 	embed_choose_3: "Jaki opis chcesz umieścić w swoim embedzie?",
@@ -2980,7 +2981,7 @@ export default {
 	rc_delete_config_not_found:
 		"Nie znaleziono konfiguracji modułu na tym serwerze!",
 	rc_delete_command_ok:
-		"${author}, właśnie usunąłeś konfigurację modułu „AuthRestore”. Ze względów bezpieczeństwa (danych) usunę tylko przycisk, a dane oauth2 i tajny kod zostaną usunięte za 48 godzin!",
+		'${author}, właśnie usunąłeś przycisk "AuthRestore": członkowie nie mogą się już przez niego weryfikować. Twój klucz i już zweryfikowani członkowie zostają, więc nadal możesz ich przywrócić przez `/authrestore force-join`.',
 	rc_get_mainEmbed_title: "Informacje ogólne AuthRestore",
 	rc_get_mainEmbed_field1_name: "ID serwera",
 	rc_get_mainEmbed_field2_name: "Rola nadawana po weryfikacji",
@@ -4228,5 +4229,50 @@ export default {
 	derogation_role_name: "zarządzane przez iHorizon",
 	ticket_transcript_footer: "Wyeksportowane wiadomości: {number}",
 	music_playlist_fallback_name: "Playlista ${platform}",
-	music_apo_node_unreachable: "serwer audio jest nieosiągalny (${message})"
+	music_apo_node_unreachable: "serwer audio jest nieosiągalny (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed:
+		"Tej komendy mogą używać tylko właściciel serwera i członkowie listy właścicieli serwera.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Tylko właściciel serwera (właściciel na Discordzie) może usunąć kogoś z listy właścicieli lub dodać członka tej listy do czarnej listy.",
+
+	// warnings fix
+	warn_err_owner: "${emoji_No} Nie możesz ostrzec właściciela serwera.",
+	warn_sanction_kept:
+		"${sanction} nie zastosowano: obecne wyciszenie członka trwa dłużej i zostaje zachowane (koniec ${until})",
+	clear_allwarns_log_desc:
+		"Usunięto ${count} ostrzeżeń od ${members} członków.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"Mogę zastąpić embed tylko w wiadomości, którą sam wysłałem!",
+	embed_save_uploads_dropped:
+		"-# Obrazy przesłane jako plik nie są zachowywane w zapisanym embedzie: istnieją tylko w tej wiadomości. Użyj linku do obrazu, aby był widoczny wszędzie, gdzie używany jest ten ID.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Wszyscy zweryfikowani członkowie są już na tym serwerze: nie ma kogo dodać. Twój klucz się nie zmienił.",
+	rc_forcejoin_failed:
+		"Nie udało się rozpocząć wymuszonego dołączania: HorizonGateway odmówił lub jest nieosiągalny. Nikt nie został dodany, a twój klucz się nie zmienił.",
+	rc_forcejoin_stopped:
+		"Wymuszone dołączanie zatrzymało się przed końcem. Policzeni wyżej członkowie zostali dodani, a twój klucz został już zastąpiony: nowy poniżej.",
+
+	// logs fix
+	logs_antispam_title_mute: "[AntiSpam] Nowe wyciszenie",
+	logs_antispam_title_kick: "[AntiSpam] Nowe wyrzucenie",
+	logs_antispam_title_ban: "[AntiSpam] Nowy ban",
+	logs_antispam_desc_mute: "${bot} **wyciszył** ${user}",
+	logs_antispam_desc_kick: "${bot} **wyrzucił** ${user}",
+	logs_antispam_desc_ban: "${bot} **zbanował** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Tutaj z kopii zapasowych może korzystać tylko właściciel serwera. Może je udostępnić wszystkim administratorom przez `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"Ten serwer ma już klucz AuthRestore, więc nie utworzyłem nowego: ponowne uruchomienie `/authrestore set` zastąpiłoby go, a obecny klucz przestałby działać.\nAby zacząć od nowa z nowym kluczem, najpierw uruchom `/authrestore delete` (usuwa przycisk weryfikacji; już zweryfikowani członkowie zostają), a potem ponownie `/authrestore set`."
 } satisfies LanguageData;

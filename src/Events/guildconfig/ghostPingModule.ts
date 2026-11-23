@@ -26,40 +26,43 @@ import {
 	SnowflakeUtil,
 	PermissionsBitField
 } from "discord.js";
-import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
-export const event: BotEvent = {
-	name: "guildMemberAdd",
-	run: async (client: Client, member: GuildMember) => {
-		const all_channels = (await client.db.get(
-			`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`
-		)) as DatabaseStructure.GhostPingData["channels"];
+/**
+ * Ghost pings, part of the welcome side: after the captcha when it is on, so
+ * the member already has the roles that open the pinged channels.
+ */
+export async function ghostPingNewMember(
+	client: Client,
+	member: GuildMember
+): Promise<void> {
+	const all_channels = (await client.db.get(
+		`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`
+	)) as DatabaseStructure.GhostPingData["channels"];
 
-		if (!all_channels) return;
+	if (!all_channels) return;
 
-		for (const i of all_channels) {
-			const channel = member.guild.channels.cache.get(
-				i
-			) as BaseGuildTextChannel;
-			if (
-				!channel ||
-				!channel.guild.members.me?.permissions.has(
-					PermissionsBitField.Flags.Administrator
-				)
+	for (const i of all_channels) {
+		const channel = member.guild.channels.cache.get(
+			i
+		) as BaseGuildTextChannel;
+		if (
+			!channel ||
+			!channel.guild.members.me?.permissions.has(
+				PermissionsBitField.Flags.Administrator
 			)
-				continue;
+		)
+			continue;
 
-			try {
-				const nonce = SnowflakeUtil.generate().toString();
-				const msg = await client.func.method.channelSend(channel, {
-					content: member.user.toString(),
-					enforceNonce: true,
-					nonce: nonce
-				});
+		try {
+			const nonce = SnowflakeUtil.generate().toString();
+			const msg = await client.func.method.channelSend(channel, {
+				content: member.user.toString(),
+				enforceNonce: true,
+				nonce: nonce
+			});
 
-				await msg.delete();
-			} catch {}
-		}
+			await msg.delete();
+		} catch {}
 	}
-};
+}

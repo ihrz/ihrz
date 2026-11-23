@@ -32,6 +32,8 @@ import { BotEvent } from "../../../types/event.js";
 // (kept across restarts): only they are unmuted, so a moderator mute is left
 // alone. Discord refuses to unmute someone outside voice, so the unmute
 // happens as soon as a recorded member is in any channel but the talk one.
+// The member who turned talk mode on (or froze the channel) is never muted
+// (or disconnected) by it when they come back.
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -41,10 +43,14 @@ export const event: BotEvent = {
 		const guildId = newState.guild.id;
 		const talkData = (await client.db.get(
 			`${guildId}.UTILS.VOICE_TALK`
-		)) as { channelId?: string } | null;
+		)) as { channelId?: string; enabledBy?: string } | null;
 		const freezeData = (await client.db.get(
 			`${guildId}.UTILS.VOICE_FREEZE`
-		)) as { channelId?: string; allowedUsers?: string[] } | null;
+		)) as {
+			channelId?: string;
+			enabledBy?: string;
+			allowedUsers?: string[];
+		} | null;
 
 		const voiceMember = newState.member;
 		if (
@@ -83,6 +89,7 @@ export const event: BotEvent = {
 				const member = newState.member;
 				const canBypass =
 					member.user.bot ||
+					member.id === talkData.enabledBy ||
 					member.permissions.has(PermissionFlagsBits.Administrator) ||
 					member.permissions.has(PermissionFlagsBits.ManageChannels);
 
@@ -128,6 +135,7 @@ export const event: BotEvent = {
 				const member = newState.member;
 				const canBypass =
 					member.user.bot ||
+					member.id === freezeData.enabledBy ||
 					member.permissions.has(PermissionFlagsBits.Administrator) ||
 					member.permissions.has(
 						PermissionFlagsBits.ManageChannels
@@ -143,7 +151,7 @@ export const event: BotEvent = {
 							null,
 							"voice freeze enforcement"
 						);
-						member.timeout(5000);
+						await member.timeout(5000);
 					} catch (error) {
 						logger.err(error);
 					}

@@ -22,10 +22,15 @@
 import { PermissionsBitField, Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
+import { noteDeparture } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
+		// Turned away or gone before the welcome side (which gives the saved
+		// roles back): their previous note stays, not the captcha's Pending
+		// role they leave with.
+		if (!noteDeparture(member)) return;
 		if (
 			await client.db.get(
 				`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`

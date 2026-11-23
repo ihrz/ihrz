@@ -32,6 +32,21 @@ export async function isGuildOwner(
 	return owners.includes(userId);
 }
 
+/**
+ * No ranks inside the owner list but one: only the Discord owner of the
+ * server may remove an owner (`/unowner`) or blacklist / edit the blacklist
+ * entry of an owner (`/blacklist`, `/bledit`). True when `actorId` must be
+ * refused for `targetId`.
+ */
+export async function isOwnerListProtected(
+	actorId: string,
+	targetId: string,
+	guild: Guild
+): Promise<boolean> {
+	if (actorId === guild.ownerId) return false;
+	return isGuildOwner(targetId, guild);
+}
+
 export async function isBotOwner(userId: string): Promise<boolean> {
 	const owners = await getBotOwner();
 

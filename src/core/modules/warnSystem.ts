@@ -27,7 +27,13 @@
 // Automatic sanctions act directly (timeout, kick, ban) instead of through moderationOps: tempmuteMember adds a
 // warn itself, which could reach another threshold and loop.
 
-import { BaseGuildTextChannel, Guild, GuildMember } from "discord.js";
+import {
+	BaseGuildTextChannel,
+	Guild,
+	GuildBasedChannel,
+	GuildMember,
+	PermissionFlagsBits
+} from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
@@ -187,32 +193,73 @@ export function sanctionLabel(
 		: lang.warn_sanction_ban;
 }
 
-/** Applies a threshold's sanction. False when Discord or the hierarchy refuses it. */
+type SanctionOutcome = { applied: boolean; keptUntil?: number };
+
+/** The end of a running timeout that outlasts this threshold's timeout, else null. */
+export function longerTimeoutEnd(
+	member: GuildMember,
+	rule: Rule,
+	now = Date.now()
+): number | null {
+	if (rule.action !== "timeout") return null;
+	const until = member.communicationDisabledUntilTimestamp ?? 0;
+	return until > now + (rule.duration ?? WARN_LIMITS.minTimeout)
+		? until
+		: null;
+}
+
+/**
+ * Applies a threshold's sanction. `applied: false` when Discord or the hierarchy refuses it. A timeout never
+ * shortens a longer one already running (a 2-day tempmute stays 2 days): it is kept, `keptUntil` = its end.
+ */
 async function applySanction(
 	member: GuildMember,
 	rule: Rule,
 	count: number,
 	lang: LanguageData
-): Promise<boolean> {
+): Promise<SanctionOutcome> {
 	const reason = lang.warn_auto_reason.replace("${count}", String(count));
 	try {
 		if (rule.action === "timeout") {
-			if (!member.moderatable) return false;
+			const keptUntil = longerTimeoutEnd(member, rule);
+			if (keptUntil) return { applied: true, keptUntil };
+			if (!member.moderatable) return { applied: false };
 			await member.timeout(
 				rule.duration ?? WARN_LIMITS.minTimeout,
 				reason
 			);
 		} else if (rule.action === "kick") {
-			if (!member.kickable) return false;
+			if (!member.kickable) return { applied: false };
 			await member.kick(reason);
 		} else {
-			if (!member.bannable) return false;
+			if (!member.bannable) return { applied: false };
 			await member.guild.bans.create(member.id, { reason });
 		}
-		return true;
+		return { applied: true };
 	} catch {
-		return false;
+		return { applied: false };
 	}
+}
+
+export type WarnRefusal = "self" | "bot" | "owner" | "above";
+
+/**
+ * Why `author` cannot warn `member` (a warn can sanction automatically: the same guards as a sanction), or null.
+ * Shared by /mod warn and the dashboard (`warns.add`).
+ */
+export function warnRefusal(
+	author: GuildMember,
+	member: GuildMember
+): WarnRefusal | null {
+	if (member.id === author.id) return "self";
+	if (member.user.bot) return "bot";
+	if (member.id === member.guild.ownerId) return "owner";
+	if (
+		member.guild.ownerId !== author.id &&
+		member.roles.highest.position >= author.roles.highest.position
+	)
+		return "above";
+	return null;
 }
 
 export interface IssuedWarn {
@@ -221,7 +268,8 @@ export interface IssuedWarn {
 	active: number;
 	total: number;
 	config: WarnConfig;
-	sanction: { rule: Rule; applied: boolean } | null;
+	/** `keptUntil`: a longer timeout was already running, kept as is (counts as applied). */
+	sanction: { rule: Rule; applied: boolean; keptUntil?: number } | null;
 }
 
 /** The card of a new warn: the command's reply and the staff log. */
@@ -285,7 +333,8 @@ export async function warnCard(
 function activeLine(issued: IssuedWarn, lang: LanguageData): string {
 	const base = `**${issued.active}**`;
 	return issued.config.expireDays > 0
-		? `${base} · -# ${lang.warn_expire_note.replace("${days}", String(issued.config.expireDays))}`
+		? // Subtext only renders at the start of a line.
+			`${base}\n-# ${lang.warn_expire_note.replace("${days}", String(issued.config.expireDays))}`
 		: base;
 }
 
@@ -297,6 +346,13 @@ function sanctionBlock(
 ) {
 	const e = guild.client.iHorizon_Emojis;
 	const label = sanctionLabel(sanction.rule, lang, guild);
+	if (sanction.applied && sanction.keptUntil)
+		return `${e.Warning_Icon} **${lang.warn_label_sanction}** : ${lang.warn_sanction_kept
+			.replace("${sanction}", label)
+			.replace(
+				"${until}",
+				`<t:${Math.floor(sanction.keptUntil / 1000)}:f>`
+			)}`;
 	return sanction.applied
 		? `${e.Ban_Hammer} **${lang.warn_label_sanction}** : ${label} · ${lang.warn_auto_reason.replace("${count}", String(count))}`
 		: `${e.Warning_Icon} **${lang.warn_label_sanction}** : ${lang.warn_sanction_failed.replace("${sanction}", label)}`;
@@ -346,8 +402,15 @@ async function sendWarnDm(
 			}
 		],
 		blocks: [
+			// Sent BEFORE the sanction (a kicked or banned member can't be
+			// reached afterwards): announce the sanction the rule applies.
 			issued.sanction
-				? sanctionBlock(issued.sanction, issued.active, lang, guild)
+				? sanctionBlock(
+						{ ...issued.sanction, applied: true },
+						issued.active,
+						lang,
+						guild
+					)
 				: null
 		],
 		signature: await botSignature(guild.client, guild.id)
@@ -355,15 +418,25 @@ async function sendWarnDm(
 	await member.send(cardPayload(card)).catch(() => null);
 }
 
-/** The staff log: the iHorizon logs channel, else a "mods" channel, else the moderation logs channel. */
-async function sendWarnLog(
-	author: GuildMember,
-	member: GuildMember,
-	issued: IssuedWarn,
-	lang: LanguageData
-) {
-	const guild = member.guild;
-	const payload = cardPayload(await warnCard(author, member, issued, lang));
+/**
+ * Only @everyone-hidden channels are picked by name: a public "mods" (or "ihorizon-logs") channel would show the
+ * staff notes to everyone.
+ */
+export function isStaffOnlyChannel(channel: GuildBasedChannel): boolean {
+	const everyone = channel.guild.roles.everyone;
+	const perms = channel.permissionsFor(everyone);
+	return !!perms && !perms.has(PermissionFlagsBits.ViewChannel);
+}
+
+/**
+ * Sends a staff log card: the iHorizon logs channel, else a "mods" channel (both only when @everyone cannot see
+ * them), else the moderation logs channel chosen with /setlogs. Shared by the warn, clearwarn and clear-all-warns
+ * logs. True when a channel took it.
+ */
+export async function sendStaffLog(
+	guild: Guild,
+	payload: ReturnType<typeof cardPayload>
+): Promise<boolean> {
 	const sendTo = async (channel: BaseGuildTextChannel | null | undefined) => {
 		if (!channel || !channel.isTextBased()) return false;
 		return channel.send(payload).then(
@@ -371,24 +444,78 @@ async function sendWarnLog(
 			() => false
 		);
 	};
-	if (guild.client.func.hasIhorizonLogs(guild)) {
-		const logs = guild.channels.cache.find(
-			(c) => c.name.includes("ihorizon-logs") && c.isTextBased()
+	const byName = (part: string) =>
+		guild.channels.cache.find(
+			(c) =>
+				c.name.includes(part) &&
+				c.isTextBased() &&
+				isStaffOnlyChannel(c)
 		) as BaseGuildTextChannel | undefined;
-		if (await sendTo(logs)) return;
+	if (guild.client.func.hasIhorizonLogs(guild)) {
+		if (await sendTo(byName("ihorizon-logs"))) return true;
 	}
-	const mods = guild.channels.cache.find(
-		(c) => c.name.includes("mods") && c.isTextBased()
-	) as BaseGuildTextChannel | undefined;
-	if (await sendTo(mods)) return;
+	if (await sendTo(byName("mods"))) return true;
 	const moderationLogsId = (await guild.client.db.get(
 		`${guild.id}.GUILD.SERVER_LOGS.moderation`
 	)) as string | null;
-	if (!moderationLogsId) return;
-	await sendTo(
+	if (!moderationLogsId) return false;
+	return sendTo(
 		guild.channels.cache.get(moderationLogsId) as
 			BaseGuildTextChannel | undefined
 	);
+}
+
+async function sendWarnLog(
+	author: GuildMember,
+	member: GuildMember,
+	issued: IssuedWarn,
+	lang: LanguageData
+) {
+	await sendStaffLog(
+		member.guild,
+		cardPayload(await warnCard(author, member, issued, lang))
+	);
+}
+
+/**
+ * The log of /mod clearwarn (`member` given) and /mod clear-all-warns (`members` = how many members had
+ * warnings), also used by the dashboard's clear action.
+ */
+export async function sendWarnsClearedLog(
+	guild: Guild,
+	authorMention: string,
+	cleared: { count: number } & (
+		| { member: string; members?: undefined }
+		| { members: number; member?: undefined }
+	),
+	lang: LanguageData
+): Promise<boolean> {
+	const e = guild.client.iHorizon_Emojis;
+	const card = buildCard({
+		accent: ACCENT.success,
+		emoji: e.Logs,
+		title:
+			cleared.member !== undefined
+				? lang.clearwarn_card_title
+				: lang.clear_allwarns_card_title,
+		description:
+			cleared.member !== undefined
+				? lang.clearwarn_card_desc
+						.replace("${count}", String(cleared.count))
+						.replace("${member}", cleared.member)
+				: lang.clear_allwarns_log_desc
+						.replace("${count}", String(cleared.count))
+						.replace("${members}", String(cleared.members)),
+		fields: [
+			{
+				emoji: e.Security,
+				label: lang.mod_label_moderator,
+				value: authorMention
+			}
+		],
+		signature: await botSignature(guild.client, guild.id)
+	});
+	return sendStaffLog(guild, cardPayload(card)).catch(() => false);
 }
 
 /**
@@ -427,13 +554,16 @@ export async function issueWarn(
 		config,
 		sanction: rule ? { rule, applied: false } : null
 	};
+	// The DM announces what will happen: a longer running timeout is kept.
+	const keptUntil = rule ? longerTimeoutEnd(member, rule) : null;
+	if (issued.sanction && keptUntil) issued.sanction.keptUntil = keptUntil;
 
 	// Before a kick or a ban: afterwards the member can no longer be reached.
 	await sendWarnDm(author, member, issued, lang).catch(() => {});
 	if (rule)
 		issued.sanction = {
 			rule,
-			applied: await applySanction(member, rule, active, lang)
+			...(await applySanction(member, rule, active, lang))
 		};
 	await sendWarnLog(author, member, issued, lang).catch(() => {});
 	return issued;

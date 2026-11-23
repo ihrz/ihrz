@@ -32,112 +32,133 @@ import {
 	handledAuditLogEntrie_logs,
 	handledAuditLogEntries
 } from "../protection/auditLogs.js";
+import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		// Avoid all upside down if user is not bot
-		if (!member.user.bot) return;
+		// The welcome side waits for this check (`memberArrival`).
+		const release = holdArrival(member);
+		try {
+			// Avoid all upside down if user is not bot
+			if (!member.user.bot) return;
 
-		const data =
-			(await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`)) ||
-			false;
-		// Disabled: skip the REST audit log fetch below.
-		if (data !== true) return;
+			const data =
+				(await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`)) ||
+				false;
+			// Disabled: skip the REST audit log fetch below.
+			if (data !== true) return;
 
-		if (
-			!member.guild.members.me?.permissions.has([
-				PermissionsBitField.Flags.Administrator
-			])
-		)
-			return;
+			if (
+				!member.guild.members.me?.permissions.has([
+					PermissionsBitField.Flags.Administrator
+				])
+			)
+				return;
 
-		const fetchLog = () =>
-			getLogs({
-				guild: member.guild,
-				target: member.id,
-				type: "NONE",
-				actionType: AuditLogEvent.BotAdd
-			});
-
-		let filteredLog = await fetchLog();
-
-		// The audit log entry can be written after the member add event
-		if (!filteredLog) {
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-			filteredLog = await fetchLog();
-		}
-
-		if (!filteredLog) {
-			logger.warn(
-				`[BlockBot] No audit log entry for bot ${member.id} in ${member.guild.id}, not banned`
-			);
-			return;
-		}
-
-		if (filteredLog.executorId !== member.guild.ownerId) {
-			await member
-				.ban({ reason: "The BlockBot function is enabled!" })
-				.catch((error: unknown) => {
-					logger.warn(
-						`[BlockBot] Ban failed in ${member.guild.id}: ${String(error)}`
-					);
+			const fetchLog = () =>
+				getLogs({
+					guild: member.guild,
+					target: member.id,
+					type: "NONE",
+					actionType: AuditLogEvent.BotAdd
 				});
-			const executor = member.guild.members.cache.get(
-				filteredLog.executorId!
-			);
 
-			executor &&
-				(await client.func.method.punish(
-					{ SANCTION: "simply+derank" },
-					executor,
-					"Attempt to add a Discord bot into this guild! -> Derank"
-				));
+			let filteredLog = await fetchLog();
 
-			const owner = member.guild.members.cache.get(member.guild.ownerId);
-			const lang = await client.func.getLanguageData(member.guild.id);
+			// The audit log entry can be written after the member add event
+			if (!filteredLog) {
+				await new Promise((resolve) => setTimeout(resolve, 1500));
+				filteredLog = await fetchLog();
+			}
 
-			const embed = new EmbedBuilder()
-				.setColor(2829617)
-				.setTitle(
-					lang.protection_blockbot_embed_title.replace(
-						"${memberGuildName}",
-						member.guild.name
-					)
-				)
-				.setDescription(lang.protection_blockbot_embed_desc)
-				.setFields(
-					{
-						name: lang.var_user,
-						value:
-							filteredLog?.executor?.toString() ||
-							`\`${lang.var_not_detected}\``,
-						inline: true
-					},
-					{
-						name: lang.var_target_bot,
-						value: member.toString(),
-						inline: true
-					}
-				)
-				.setTimestamp()
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						member.guild.id
-					)
+			if (!filteredLog) {
+				logger.warn(
+					`[BlockBot] No audit log entry for bot ${member.id} in ${member.guild.id}, not banned`
+				);
+				return;
+			}
+
+			// Trusted: the Discord owner and the server owner list (`/owner`),
+			// like Protection. Anyone else adding a bot is deranked.
+			const executorId = filteredLog.executorId;
+			const trusted =
+				!!executorId &&
+				(executorId === member.guild.ownerId ||
+					(await client.func.ownerHelper.isGuildOwner(
+						executorId,
+						member.guild
+					)));
+
+			if (!trusted) {
+				if (member.bannable) markRejected(member);
+				await member
+					.ban({ reason: "The BlockBot function is enabled!" })
+					.catch((error: unknown) => {
+						logger.warn(
+							`[BlockBot] Ban failed in ${member.guild.id}: ${String(error)}`
+						);
+					});
+				const executor = member.guild.members.cache.get(
+					filteredLog.executorId!
 				);
 
-			owner
-				?.send({
-					embeds: [embed],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							member.guild
+				executor &&
+					(await client.func.method.punish(
+						{ SANCTION: "simply+derank" },
+						executor,
+						"Attempt to add a Discord bot into this guild! -> Derank"
+					));
+
+				const owner = member.guild.members.cache.get(
+					member.guild.ownerId
+				);
+				const lang = await client.func.getLanguageData(member.guild.id);
+
+				const embed = new EmbedBuilder()
+					.setColor(2829617)
+					.setTitle(
+						lang.protection_blockbot_embed_title.replace(
+							"${memberGuildName}",
+							member.guild.name
 						)
-					]
-				})
-				.catch(() => {})
-				.then(() => {});
+					)
+					.setDescription(lang.protection_blockbot_embed_desc)
+					.setFields(
+						{
+							name: lang.var_user,
+							value:
+								filteredLog?.executor?.toString() ||
+								`\`${lang.var_not_detected}\``,
+							inline: true
+						},
+						{
+							name: lang.var_target_bot,
+							value: member.toString(),
+							inline: true
+						}
+					)
+					.setTimestamp()
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							member.guild.id
+						)
+					);
+
+				owner
+					?.send({
+						embeds: [embed],
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								member.guild
+							)
+						]
+					})
+					.catch(() => {})
+					.then(() => {});
+			}
+		} finally {
+			release();
 		}
 	}
 };

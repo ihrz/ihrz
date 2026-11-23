@@ -1417,7 +1417,7 @@ export default {
 
 	// /util leash
 	util_leash_too_naugthy:
-		"Шалунишка, ты не можешь привязать больше 3 человек :D",
+		"Шалунишка, ты не можешь привязать больше ${max} человек :D",
 	util_leah_already_owned:
 		"Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:",
 	util_leash_confirm_message:
@@ -1958,7 +1958,7 @@ export default {
 		"Введенное вами время недействительно! **Пример допустимого времени**: `3h; 30m; 4w; 4y` -> 3 часа; 30 минут; 4 недели; 4 года",
 	too_new_account_logEmbed_title: "Модуль TooNewAccount",
 	too_new_account_logEmbed_desc_on_enable:
-		"${author} включил модуль TooNewAccount. Теперь аккаунтам должно быть не менее ${beautifulTime}, и если пользователь присоединится более `${maxJoin}` раз, он будет забанен.",
+		"${author} включил модуль TooNewAccount. Теперь аккаунтам должно быть не менее ${beautifulTime}, и пользователь будет забанен при `${maxJoin}`-м входе.",
 	too_new_account_command_work_on_enable:
 		"${author}, новые участники, присоединившиеся к **${guildName}** с аккаунтами младше `${beautifulTime}`, будут удалены.",
 	too_new_account_command_work_on_enable2:
@@ -2942,7 +2942,8 @@ export default {
 		"<@${authorId}>, **В каком канале вы хотите отправить это встраивание?**",
 	embed_timeout_getbtn:
 		"<@${authorId}>, **Вы слишком долго не отвечали, я прерываю текущую операцию!**",
-	embed_choose_0: "Какое сообщение вы хотите включить во встраивание?",
+	embed_choose_0:
+		"Отправьте ссылку на сообщение, встраивание которого вы хотите скопировать (правый клик по сообщению, «Копировать ссылку на сообщение»).",
 	embed_choose_1: "Какой заголовок вы хотите включить во встраивание?",
 	embed_choose_2: "Заголовок встраивания успешно удален!",
 	embed_choose_3: "Какое описание вы хотите включить во встраивание?",
@@ -3684,7 +3685,7 @@ export default {
 	// /authrestore удалить
 	rc_delete_config_not_found: "Настройка модуля на этом сервере не найдена!",
 	rc_delete_command_ok:
-		'${author}, вы удалили настройку модуля "AuthRestore". По соображениям безопасности (данные) я удалю только кнопку, но данные OAuth2 и секретный код будут удалены через 48 часов!',
+		'${author}, вы удалили кнопку "AuthRestore": участники больше не могут пройти проверку через неё. Ваш ключ и уже проверенные участники сохранены, поэтому вы всё ещё можете вернуть их через `/authrestore force-join`.',
 
 	// /authrestore получить
 	rc_get_mainEmbed_title: "Общая информация о AuthRestore",
@@ -5112,5 +5113,51 @@ export default {
 	derogation_role_name: "управляется iHorizon",
 	ticket_transcript_footer: "Экспортировано сообщений: {number}",
 	music_playlist_fallback_name: "Плейлист ${platform}",
-	music_apo_node_unreachable: "аудиосервер недоступен (${message})"
+	music_apo_node_unreachable: "аудиосервер недоступен (${message})",
+
+	// owner list refusal
+	owner_list_not_allowed:
+		"Эту команду могут использовать только владелец сервера и участники списка владельцев сервера.",
+
+	// owner list & permission rules fix
+	owner_list_only_discord_owner:
+		"Только владелец сервера (владелец в Discord) может удалить кого-либо из списка владельцев или внести участника этого списка в чёрный список.",
+
+	// warnings fix
+	warn_err_owner:
+		"${emoji_No} Нельзя выдать предупреждение владельцу сервера.",
+	warn_sanction_kept:
+		"${sanction} не применено: текущий тайм-аут участника длится дольше и сохраняется (до ${until})",
+	clear_allwarns_log_desc:
+		"Удалено предупреждений: ${count}, участников: ${members}.",
+
+	// embeds fix
+	embed_replace_not_bot_message:
+		"Я могу заменить эмбед только в сообщении, которое отправил сам!",
+	embed_save_uploads_dropped:
+		"-# Загруженные файлом изображения не сохраняются во встраивании: они есть только в этом сообщении. Используйте ссылку на изображение, чтобы оно показывалось везде, где используется этот ID.",
+
+	// authrestore fix
+	rc_forcejoin_nobody:
+		"Все проверенные участники уже на этом сервере: добавлять некого. Ваш ключ не изменился.",
+	rc_forcejoin_failed:
+		"Принудительное добавление не удалось запустить: HorizonGateway отказал или недоступен. Никто не добавлен, ваш ключ не изменился.",
+	rc_forcejoin_stopped:
+		"Принудительное добавление остановилось раньше времени. Учтённые выше участники добавлены, а ваш ключ уже заменён: новый ниже.",
+
+	// logs fix
+	logs_antispam_title_mute: "[АнтиСпам] Новый мут",
+	logs_antispam_title_kick: "[АнтиСпам] Новое исключение",
+	logs_antispam_title_ban: "[АнтиСпам] Новый бан",
+	logs_antispam_desc_mute: "${bot} **заглушил** ${user}",
+	logs_antispam_desc_kick: "${bot} **исключил** ${user}",
+	logs_antispam_desc_ban: "${bot} **забанил** ${user}",
+
+	// backup refusal
+	backup_use_not_allowed:
+		"Здесь резервными копиями может пользоваться только владелец сервера. Он может открыть их всем администраторам через `/backup manage`.",
+
+	// authrestore fix
+	rc_set_key_already_set:
+		"У этого сервера уже есть ключ AuthRestore, поэтому новый я не создал: повторный `/authrestore set` заменил бы его, и текущий ключ перестал бы работать.\nЧтобы начать заново с новым ключом, сначала выполните `/authrestore delete` (убирает кнопку проверки; уже проверенные участники сохраняются), затем снова `/authrestore set`."
 } satisfies LanguageData;

@@ -247,6 +247,28 @@ function queueDelete(guildId: string, messages: TrackedMessage[]): void {
 	if (scheduleFlush) setTimeout(() => flushDeletes(guildId), DELETE_FLUSH_MS);
 }
 
+/**
+ * Title and description of the anti-spam log card, with the action that was really applied, translated
+ * ("[AntiSpam] New mute", "@iHorizon has **muted** @user").
+ */
+export function antiSpamLogText(
+	lang: LanguageData,
+	action: string | undefined,
+	bot: string,
+	user: string
+): { title: string; description: string } {
+	const [title, description] =
+		action === "ban"
+			? [lang.logs_antispam_title_ban, lang.logs_antispam_desc_ban]
+			: action === "kick"
+				? [lang.logs_antispam_title_kick, lang.logs_antispam_desc_kick]
+				: [lang.logs_antispam_title_mute, lang.logs_antispam_desc_mute];
+	return {
+		title,
+		description: description.replace("${bot}", bot).replace("${user}", user)
+	};
+}
+
 async function flushDeletes(guildId: string): Promise<void> {
 	const channels = pendingDeletes.get(guildId);
 	pendingDeletes.delete(guildId);
@@ -384,14 +406,12 @@ async function flushReport(guildId: string): Promise<void> {
 	const card = buildCard({
 		accent: ACCENT.danger,
 		emoji: client.iHorizon_Emojis.AutoMod_Spam,
-		title: lang.antispam_log_embed_title.replace(
-			"${actionType}",
-			report.options.punishment_type
+		...antiSpamLogText(
+			lang,
+			report.options.punishment_type,
+			client.user!.toString(),
+			mentions
 		),
-		description: lang.antispam_log_embed_desc
-			.replace("${bot}", client.user!.toString())
-			.replace("${actionType}", lang.var_sanction.toLowerCase())
-			.replace("${user}", mentions),
 		footer: time(new Date(), "f"),
 		signature: await botSignature(client, guildId)
 	});

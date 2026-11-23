@@ -59,6 +59,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { generateJoinImage } from "../../../Events/guildconfig/joinMessage.js";
 import { metasTable } from "../../../Events/client/ready.js";
+import { readSavedEmbed } from "../../../core/functions/embedHelper.js";
 import logger from "../../../core/logger.js";
 import {
 	ACCENT,
@@ -111,6 +112,15 @@ interface WelcomerPanelState {
 	leaveTextEnabled: boolean;
 	joinUseComponents: boolean;
 	leaveUseComponents: boolean;
+}
+
+/**
+ * The card is only sent when `joinbannerStates` is exactly "on"
+ * (`joinMessage.ts`, the dashboard): an unset state is "off", not "on", or the
+ * panel showed Enabled for a card nobody received.
+ */
+export function bannerStateFrom(stored: unknown): "on" | "off" {
+	return stored === "on" ? "on" : "off";
 }
 
 const isValidColor = (color: string): boolean =>
@@ -514,7 +524,7 @@ export async function openWelcomerPanel(
 		joinChannel: (storedJoinChannel as string | undefined) ?? null,
 		leaveChannel: (storedLeaveChannel as string | undefined) ?? null,
 		banner: bannerConfig,
-		bannerState: (storedBannerState as string | undefined) || "on",
+		bannerState: bannerStateFrom(storedBannerState),
 		picker: null,
 		joinEmbedId: (storedJoinEmbedId as string | undefined) ?? null,
 		leaveEmbedId: (storedLeaveEmbedId as string | undefined) ?? null,
@@ -962,11 +972,13 @@ export async function openWelcomerPanel(
 				.getTextInputValue(`welcomer-${kind}-embed-input`)
 				.trim();
 
-			const record = (await metasTable.get(`EMBED.${embedId}`)) as {
-				embedSource?: unknown;
-			} | null;
+			// An invalid code (`CODE.embedSource`…) is refused like an unknown
+			// one: saved, it would never send anything.
+			const record = await readSavedEmbed(embedId, (key) =>
+				metasTable.get(key)
+			);
 
-			if (!record?.embedSource) {
+			if (!record) {
 				await modal.reply({
 					content: lang.welcomer_embed_not_found.replace(
 						"${embed_id}",
