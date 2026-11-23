@@ -204,7 +204,7 @@ Slash command descriptions and choices are also translated in Discord's `/` menu
 | Metric                   | Value                   |
 | ------------------------ | ----------------------- |
 | 👥 **Users**             | 460,000+                |
-| 🏢 **Servers**           | 3,250+                  |
+| 🏢 **Servers**           | 3,300+                  |
 | 🧩 **Shards**            | 6                       |
 | ⌨️ **Commands**          | 710 in 36 categories    |
 | 🌍 **Languages**         | 13                      |
