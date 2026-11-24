@@ -1247,6 +1247,12 @@ export namespace DatabaseStructure {
 		>;
 		/** Unix ms of the last refused submission. */
 		lastRefusedAt?: number;
+		/**
+		 * Unix ms of the last signed check sent by the script's `install()`
+		 * (written by the gateway, read by the dashboard's setup steps; never a
+		 * response, nothing is posted).
+		 */
+		installedAt?: number;
 	}
 
 	/** One stored response; a page `R_…` holds 50 at most, newest last, 90 days at most. */
