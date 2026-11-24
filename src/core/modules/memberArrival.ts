@@ -37,6 +37,8 @@
 
 import { Client, GuildMember } from "discord.js";
 
+import logger from "../logger.js";
+
 /** How long the captcha waits for an answer (2 min 30 s). */
 export const CAPTCHA_TIMEOUT_MS = 60_000 * 2 + 30_000;
 
@@ -257,8 +259,15 @@ export async function runWelcomeSide(
 	member: GuildMember,
 	ctx: WelcomeContext
 ): Promise<void> {
+	// One failing step never stops the others, but it is logged (it used to
+	// vanish: a welcome that never came left no trace).
 	const run = (step: WelcomeStep) =>
-		step(client, member, ctx).catch(() => null);
+		step(client, member, ctx).catch((error) => {
+			logger.err(
+				`[arrival] ${step.name || "welcome step"} failed in ${member.guild.id}: ${String(error)}`
+			);
+			return null;
+		});
 	await Promise.all(steps.roles.map(run));
 	await Promise.all(steps.messages.map(run));
 }
