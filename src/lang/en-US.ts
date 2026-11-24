@@ -4206,7 +4206,7 @@ const enUS = {
 		"> *A free bot can do better than paid bots.*\nThat's iHorizon: a community and a project kept alive by passionate people since 2020. Welcome aboard!",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
-		"{logo_tl}{logo_tr} **iHorizon** **`+{count} commands`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> 2027 Update Soon™",
+		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commands`**\n> *« Made by people since 2022, for your community. »*\n**https://www.ihorizon.org**",
 	guild_leave_data_clear_notice_title: "iHorizon has left ${guildName}",
 	guild_leave_data_clear_notice_description:
 		"Waaah, this is sad. You kicked the bot from `${guildName}`. The server data will be cleared ${deleteAt} if iHorizon is not back before then.",

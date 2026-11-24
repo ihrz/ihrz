@@ -8,6 +8,7 @@ const { buildServerBio } =
 
 // The longest a real emoji can be with the short names (19-digit ids).
 const emojis = {
+	Wink: "<:iHorizon_Wink:1574776263028121685>",
 	ih1: "<:ih1:1574776263028121684>",
 	ih2: "<:ih2:1574776257885896764>",
 	ih3: "<:ih3:1574776261556052029>",
@@ -30,6 +31,12 @@ describe("server bio", () => {
 		expect(buildServerBio("{logo_tl}A{logo_br}", {}, 1)).toBe("A");
 	});
 
+	test("fills the wink emoji", () => {
+		expect(buildServerBio("{wink_emoji} **iHorizon**", emojis, 1)).toBe(
+			`${emojis.Wink} **iHorizon**`
+		);
+	});
+
 	test("every language fits Discord's 190 characters, all three lines kept", async () => {
 		const files = readdirSync("src/lang").filter((f) =>
 			/^[a-z]{2}-[A-Z]{2}\.ts$/.test(f)
@@ -41,8 +48,8 @@ describe("server bio", () => {
 			const bio = buildServerBio(lang.bot_server_bio, emojis, 999);
 			expect(bio.length, file).toBeLessThanOrEqual(190);
 			expect(bio.split("\n").length, file).toBe(3);
-			for (const e of Object.values(emojis))
-				expect(bio, file).toContain(e);
+			expect(bio, file).toContain(emojis.Wink);
+			expect(bio, file).not.toContain("{");
 			expect(bio, file).toContain("https://www.ihorizon.org");
 		}
 	});

@@ -134,17 +134,20 @@ export async function applyLanguageBio(
 	return changeGuildBotBio(guild, buildServerBio(lang.bot_server_bio));
 }
 
-// The 2x2 iHorizon logo (src/assets/emojis/ih1..ih4.png: top-left, top-right,
-// bottom-left, bottom-right). Short names on purpose: a server bio is capped at
-// 190 characters and `<:ih1:id>` takes 25 where `<:iHorizon_Logo_TL:id>` took 39.
-const BIO_LOGO = {
+// Emoji slots of the server bio templates (`bot_server_bio`), filled with the
+// application emojis (src/assets/emojis, `iHorizon_` prefix dropped). The 2x2
+// logo (ih1..ih4) keeps short names on purpose: a server bio is capped at 190
+// characters and a `<:name:id>` counts in full.
+const BIO_EMOJIS = {
+	wink_emoji: "Wink",
+	home_emoji: "Home",
 	logo_tl: "ih1",
 	logo_tr: "ih2",
 	logo_bl: "ih3",
 	logo_br: "ih4"
 };
 
-/** The server bio of a language: command count and the 2x2 logo filled in. */
+/** The server bio of a language: command count and emojis filled in. */
 export function buildServerBio(
 	template: string,
 	emojis: Record<
@@ -154,7 +157,7 @@ export function buildServerBio(
 	commandCount: number = client.content.length
 ): string {
 	let bio = template.replaceAll("{count}", String(commandCount));
-	for (const [slot, name] of Object.entries(BIO_LOGO)) {
+	for (const [slot, name] of Object.entries(BIO_EMOJIS)) {
 		// Not created yet (first boot of a new instance): leave the slot empty.
 		bio = bio.replaceAll(`{${slot}}`, emojis[name] ?? "");
 	}

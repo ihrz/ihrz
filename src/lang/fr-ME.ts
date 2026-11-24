@@ -4403,7 +4403,7 @@ export default {
 		"> *Un bot gratos peut faire mieux que les bots payants.*\nC'est ça iHorizon : une commu et un projet tenus par des passionnés depuis 2020. Bienvenue dans la team !",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
-		"{logo_tl}{logo_tr} **iHorizon** **`+{count} commandes`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> La MAJ 2027 arrive™",
+		"{wink_emoji} **iHorizon Discord Bot** **`+{count} commandes`**\n> *« Fait par des gens depuis 2022, pour ta commu. »*\n**https://www.ihorizon.org**",
 	guild_leave_data_clear_notice_title: "iHorizon a quitté ${guildName}",
 	guild_leave_data_clear_notice_description:
 		"Mouin mouin, c'est triste. T'as kick le bot de `${guildName}`. Les données du serveur seront clear ${deleteAt} si iHorizon n'est pas de retour avant.",
