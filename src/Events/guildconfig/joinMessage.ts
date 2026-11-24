@@ -406,6 +406,9 @@ export async function trackArrivalInvite(
 	return {};
 }
 
+// Long enough for a gateway retry (svg2png), short enough not to be noticed.
+const WELCOME_CARD_TIMEOUT_MS = 12_000;
+
 /** Welcome message and card, part of the welcome side. */
 export async function sendWelcomeMessage(
 	client: Client,
@@ -460,10 +463,16 @@ export async function sendWelcomeMessage(
 		let bannerImage: Buffer | undefined;
 		if (ImageBannerStates === "on") {
 			try {
-				bannerImage = await generateJoinImage(
-					member,
-					JoinBannerOptions
-				);
+				// The welcome never waits on its card: past this, it goes out without it.
+				bannerImage =
+					(await withTimeout(
+						generateJoinImage(member, JoinBannerOptions),
+						WELCOME_CARD_TIMEOUT_MS
+					)) ?? undefined;
+				if (!bannerImage)
+					logger.warn(
+						`[welcome] card not ready after ${WELCOME_CARD_TIMEOUT_MS} ms in ${member.guild.id}: sent without it`
+					);
 			} catch (e) {
 				logger.err(member.guild.name, "Join image error: " + e);
 			}

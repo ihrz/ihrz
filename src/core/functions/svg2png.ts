@@ -72,8 +72,34 @@ async function withRenderSlot<T>(task: () => Promise<T>): Promise<T> {
 // engine (fonts loaded once) for every shard, instead of ~170 MB of native
 // memory per shard. Local rendering is the fallback (dev, gateway down).
 const GATEWAY_TIMEOUT_MS = 15_000;
-const GATEWAY_RETRY_AFTER_MS = 30_000;
+// After a failure the gateway is skipped for a while (local renders)…
+const GATEWAY_RETRY_AFTER_MS = 10_000;
+// …but a refused connection is first retried a few times: it is usually the
+// gateway restarting (~30 s), and an image made locally costs ~170 MB per shard.
+const GATEWAY_RETRY_DELAYS_MS = [1_000, 3_000];
+// A local render taking longer than this is given up (the caller gets an
+// error and moves on, e.g. the welcome message goes out without its card).
+const LOCAL_RENDER_TIMEOUT_MS = 15_000;
 let gatewayDownUntil = 0;
+
+const sleep = (ms: number) =>
+	new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/** Rejects after `ms`: the task keeps running, its result is dropped. */
+export function withTimeout<T>(
+	task: Promise<T>,
+	ms: number,
+	what: string
+): Promise<T> {
+	let timer: ReturnType<typeof setTimeout>;
+	const timeout = new Promise<never>((_, reject) => {
+		timer = setTimeout(
+			() => reject(new Error(`${what} timed out after ${ms} ms`)),
+			ms
+		);
+	});
+	return Promise.race([task, timeout]).finally(() => clearTimeout(timer));
+}
 
 async function renderOnGateway(
 	svg: string,
@@ -83,6 +109,26 @@ async function renderOnGateway(
 	if (!config?.HorizonGateway && !config?.HorizonGatewayLocal) return null;
 	if (!config.apiToken || Date.now() < gatewayDownUntil) return null;
 
+	for (let attempt = 0; ; attempt++) {
+		const result = await renderOnGatewayOnce(svg, options, config.apiToken);
+		if (result !== "unreachable") return result;
+		const delay = GATEWAY_RETRY_DELAYS_MS[attempt];
+		if (delay === undefined) break;
+		await sleep(delay);
+	}
+	gatewayDownUntil = Date.now() + GATEWAY_RETRY_AFTER_MS;
+	logger.warn(
+		`[svg2png] Gateway unreachable, rendering locally for ${GATEWAY_RETRY_AFTER_MS / 1000}s`
+	);
+	return null;
+}
+
+/** One try: the PNG, null (render locally), or "unreachable" (worth a retry). */
+async function renderOnGatewayOnce(
+	svg: string,
+	options: Svg2PngOptions,
+	apiToken: string
+): Promise<Buffer | null | "unreachable"> {
 	try {
 		const response = await fetch(
 			HorizonGatewayInternal(GatewayMethod.SvgRendering),
@@ -90,7 +136,7 @@ async function renderOnGateway(
 				method: "POST",
 				headers: {
 					"content-type": "application/json",
-					"x-admin-key": config.apiToken
+					"x-admin-key": apiToken
 				},
 				body: JSON.stringify({
 					svg,
@@ -113,10 +159,8 @@ async function renderOnGateway(
 			`[svg2png] Gateway render failed (HTTP ${response.status}), rendering locally`
 		);
 	} catch (error) {
-		gatewayDownUntil = Date.now() + GATEWAY_RETRY_AFTER_MS;
-		logger.warn(
-			`[svg2png] Gateway unreachable (${String(error)}), rendering locally for ${GATEWAY_RETRY_AFTER_MS / 1000}s`
-		);
+		logger.warn(`[svg2png] Gateway unreachable (${String(error)})`);
+		return "unreachable";
 	}
 	return null;
 }
@@ -127,7 +171,14 @@ export default async function svg2png(
 ): Promise<Buffer> {
 	return (
 		(await renderOnGateway(svg, options)) ??
-		withRenderSlot(() => render(svg, options))
+		// A stuck render must not hold the slot (every later image waits on it).
+		withRenderSlot(() =>
+			withTimeout(
+				render(svg, options),
+				LOCAL_RENDER_TIMEOUT_MS,
+				"local svg render"
+			)
+		)
 	);
 }
 
