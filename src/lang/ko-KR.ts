@@ -4077,7 +4077,7 @@ export default {
 		"> *무료 봇도 유료 봇보다 더 잘할 수 있습니다.*\n그것이 iHorizon입니다. 2020년부터 열정적인 사람들이 이어온 커뮤니티이자 프로젝트예요. 환영합니다!",
 	welcome_btn_dashboard: "대시보드",
 	bot_server_bio:
-		"{logo_tl}{logo_tr} **iHorizon** **`+{count} 명령어`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> 2027 업데이트 곧 공개™",
+		"{wink_emoji} **iHorizon Discord 봇** **`명령어 +{count}개`**\n> *« 2022년부터 사람들이 만들어 온, 여러분의 커뮤니티를 위한 봇. »*\n**https://www.ihorizon.org**",
 	guild_leave_data_clear_notice_title: "iHorizon이 ${guildName}에서 나갔어요",
 	guild_leave_data_clear_notice_description:
 		"으앙, 슬퍼요. `${guildName}`에서 봇을 추방하셨네요. 그 전에 iHorizon이 돌아오지 않으면 서버 데이터는 ${deleteAt} 삭제돼요.",
