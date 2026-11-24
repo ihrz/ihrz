@@ -21,7 +21,6 @@
 
 import { Guild } from "discord.js";
 import { axios } from "./axios.js";
-import { metasTable } from "../../Events/client/ready.js";
 
 // https://discord.com/developers/docs/resources/guild#modify-current-member
 export const GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL =
@@ -93,14 +92,19 @@ export async function changeGuildBotAvatar(
 	return res.status === 200;
 }
 
-export async function changeGuildBotBio(
-	guild: Guild,
-	bio: string
-): Promise<boolean> {
+/** The bio sent to Discord: null clears it (the application's description shows). */
+export function guildBioPayload(bio: string | null): string | null {
+	if (bio === null) return null;
 	const sanitizeBio =
 		bio.length <= 190 ? bio : bio.split("\n").slice(0, 2).join("\n");
+	return [...sanitizeBio].slice(0, 190).join("");
+}
 
-	const finalBio = [...sanitizeBio].slice(0, 190).join("");
+export async function changeGuildBotBio(
+	guild: Guild,
+	bio: string | null
+): Promise<boolean> {
+	const finalBio = guildBioPayload(bio);
 
 	const res = await fetch(
 		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
@@ -160,13 +164,11 @@ export function buildServerBio(
 // /custom bio refuses 400 characters and more.
 export const MAX_CUSTOM_BIO_LENGTH = 399;
 
-// /custom bio reset: the bot's own profile description.
+// /custom bio reset: no server bio at all, so Discord shows the
+// application's own description (the full "About me", links included) —
+// copying it here was cut at 190 characters and went stale when it changed.
 export async function resetGuildBotBio(guild: Guild): Promise<boolean> {
-	return changeGuildBotBio(
-		guild,
-		((await metasTable.get("BOT.user.bio")) as string | null) ||
-			client.user!.username
-	);
+	return changeGuildBotBio(guild, null);
 }
 
 // /custom banner: the image goes as a data URI, like the commands send it.

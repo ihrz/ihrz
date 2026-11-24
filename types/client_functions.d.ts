@@ -197,7 +197,7 @@ declare namespace Client_Functions {
 		): Promise<boolean>;
 		export function changeGuildBotBio(
 			guild: Guild,
-			bio: string
+			bio: string | null
 		): Promise<boolean>;
 		export function changeGuildBotName(
 			guild: Guild,

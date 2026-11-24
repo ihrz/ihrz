@@ -47,3 +47,18 @@ describe("server bio", () => {
 		}
 	});
 });
+
+describe("bio sent to Discord", () => {
+	test("reset sends null: Discord shows the application's description", async () => {
+		const { guildBioPayload } =
+			await import("../../src/core/functions/customProfileHelper.ts");
+		expect(guildBioPayload(null)).toBeNull();
+		expect(guildBioPayload("short")).toBe("short");
+		const long =
+			"a".repeat(120) + "\n" + "b".repeat(60) + "\n" + "c".repeat(40);
+		// Over 190: the first two lines are kept.
+		expect(guildBioPayload(long)).toBe(
+			"a".repeat(120) + "\n" + "b".repeat(60)
+		);
+	});
+});
