@@ -289,7 +289,7 @@ export const command: Command = {
 									style: TextInputStyle.Short,
 									required: true,
 									maxLength: 30,
-									minLength: 5
+									minLength: 1
 								},
 								{
 									customId: "desc",
@@ -297,7 +297,7 @@ export const command: Command = {
 									style: TextInputStyle.Paragraph,
 									required: true,
 									maxLength: 400,
-									minLength: 10
+									minLength: 1
 								}
 							]
 						},

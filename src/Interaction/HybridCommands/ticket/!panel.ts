@@ -1252,7 +1252,7 @@ export const subCommand: SubCommand = {
 							style: TextInputStyle.Short,
 							required: true,
 							maxLength: 100,
-							minLength: 4
+							minLength: 1
 						}
 					]
 				},
@@ -1498,7 +1498,7 @@ export const subCommand: SubCommand = {
 							style: TextInputStyle.Short,
 							required: true,
 							maxLength: 128,
-							minLength: 4
+							minLength: 1
 						},
 						{
 							customId: "desc",
@@ -1506,7 +1506,7 @@ export const subCommand: SubCommand = {
 							style: TextInputStyle.Short,
 							required: false,
 							maxLength: 130,
-							minLength: 4
+							minLength: 1
 						},
 						{
 							customId: "emoji",
@@ -1654,7 +1654,7 @@ export const subCommand: SubCommand = {
 							style: TextInputStyle.Short,
 							required: true,
 							maxLength: 128,
-							minLength: 4
+							minLength: 1
 						},
 						{
 							customId: "questionPlaceholder",
@@ -1662,7 +1662,7 @@ export const subCommand: SubCommand = {
 							style: TextInputStyle.Short,
 							required: false,
 							maxLength: 130,
-							minLength: 4
+							minLength: 1
 						}
 					]
 				},

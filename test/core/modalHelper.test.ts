@@ -30,6 +30,7 @@ describe("modal text inputs", () => {
 			})
 		);
 		expect(input.min_length).toBeUndefined();
+		expect(input.max_length).toBe(64);
 	});
 
 	test('the /gw go duration accepts two characters ("1h")', () => {
@@ -51,5 +52,26 @@ describe("modal text inputs", () => {
 			})
 		);
 		expect(input.min_length).toBe(2);
+	});
+
+	test("no hidden 20-character maximum when the field sets none", () => {
+		const [input] = textInputs(
+			iHorizonModalBuilder({
+				customId: "m",
+				title: "t",
+				deferUpdate: false,
+				fields: [
+					{
+						customId: "value",
+						label: "Value",
+						style: TextInputStyle.Short,
+						required: true,
+						minLength: 1
+					}
+				]
+			})
+		);
+		expect(input.max_length).toBeUndefined();
+		expect(input.min_length).toBe(1);
 	});
 });

@@ -1424,7 +1424,7 @@ export async function openWelcomerPanel(
 								style: TextInputStyle.Short,
 								required: true,
 								maxLength: 100,
-								minLength: 15
+								minLength: 1
 							}
 						]
 					},

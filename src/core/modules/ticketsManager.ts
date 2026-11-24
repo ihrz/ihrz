@@ -328,7 +328,7 @@ async function CreateChannel(
 						style: TextInputStyle.Short,
 						required: true,
 						maxLength: 350,
-						minLength: 8
+						minLength: 1
 					}
 				]
 			},

@@ -124,8 +124,10 @@ export function iHorizonModalBuilder(
 				const input = new TextInputBuilder()
 					.setCustomId(o.customId)
 					.setStyle(o.style)
-					.setRequired(o.required)
-					.setMaxLength(o.maxLength || 20);
+					.setRequired(o.required);
+				// No implicit maximum either (Discord's own is 4000): a hidden 20
+				// would cut a field that forgot to set one.
+				if (o.maxLength) input.setMaxLength(o.maxLength);
 				// No implicit minimum: a hidden 5-character floor refused "1h",
 				// "VIP", "Help"… Fields that need one set `minLength`.
 				if (o.minLength) input.setMinLength(o.minLength);
