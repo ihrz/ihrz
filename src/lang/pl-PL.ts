@@ -3428,7 +3428,7 @@ export default {
 		"> *Darmowy bot może więcej niż płatne boty.*\nTak właśnie jest z iHorizon: to społeczność i projekt utrzymywany przy życiu przez pasjonatów od 2020 roku. Witamy na pokładzie!",
 	welcome_btn_dashboard: "Dashboard",
 	bot_server_bio:
-		"{wink_emoji} **Bot Discord iHorizon** **`+{count} komend`**\n> *« Tworzony przez ludzi od 2022 roku, dla Twojej społeczności. »*\n**https://www.ihorizon.org**",
+		"{logo_tl}{logo_tr} **iHorizon** **`+{count} komend`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> Nowości 2027 wkrótce™",
 	guild_leave_data_clear_notice_title: "iHorizon opuścił ${guildName}",
 	guild_leave_data_clear_notice_description:
 		"Ojej, to smutne. Wyrzuciłeś bota z `${guildName}`. Dane serwera zostaną wyczyszczone ${deleteAt}, jeśli iHorizon nie wróci wcześniej.",

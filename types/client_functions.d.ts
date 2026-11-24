@@ -182,6 +182,11 @@ declare namespace Client_Functions {
 			guild: Guild,
 			langCode: string
 		): Promise<boolean>;
+		export function buildServerBio(
+			template: string,
+			emojis?: Record<string, string>,
+			commandCount?: number
+		): string;
 		export function changeGuildBotAvatar(
 			guild: Guild,
 			avatar: string
