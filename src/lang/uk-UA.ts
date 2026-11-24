@@ -3425,7 +3425,7 @@ export default {
 		"> *Безкоштовний бот може бути кращим за платних.*\nЦе і є iHorizon: спільнота й проєкт, які з 2020 року підтримують ентузіасти. Ласкаво просимо на борт!",
 	welcome_btn_dashboard: "Панель керування",
 	bot_server_bio:
-		"{wink_emoji} **iHorizon Discord Bot** **`+{count} команд`**\n> *« Створено людьми з 2022 року для вашої спільноти. »*\n**https://www.ihorizon.org**",
+		"{logo_tl}{logo_tr} **iHorizon** **`+{count} команд`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> Оновлення 2027 незабаром™",
 	guild_leave_data_clear_notice_title: "iHorizon покинув ${guildName}",
 	guild_leave_data_clear_notice_description:
 		"Ох, як сумно. Ви вигнали бота з `${guildName}`. Дані сервера буде видалено ${deleteAt}, якщо iHorizon до того часу не повернеться.",

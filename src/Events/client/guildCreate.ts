@@ -406,12 +406,9 @@ Guild Info:
 			const lang = await client.func.getLanguageData(guild.id);
 			if (!lang.bot_server_bio) return;
 
-			const commandCount = client.content.length.toString();
-
-			const bio = lang.bot_server_bio
-				.replace("{count}", commandCount)
-				.replace("{wink_emoji}", client.iHorizon_Emojis.Wink)
-				.replace("{home_emoji}", client.iHorizon_Emojis.Home);
+			const bio = client.func.customProfileHelper.buildServerBio(
+				lang.bot_server_bio
+			);
 
 			client.func.customProfileHelper
 				.changeGuildBotBio(guild, bio)

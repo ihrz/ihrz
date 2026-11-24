@@ -4021,7 +4021,7 @@ export default {
 		"> *بوت ببلاش ممكن يعمل أحسن من البوتات المدفوعة.*\nده iHorizon: مجتمع ومشروع شايلينه ناس بتحبه من 2020. أهلًا بيك!",
 	welcome_btn_dashboard: "الداشبورد",
 	bot_server_bio:
-		"{wink_emoji} **iHorizon Discord Bot** **`+{count} أمر`**\n> *« صُنع بواسطة أشخاص منذ عام 2022، من أجل مجتمعك. »*\n**https://www.ihorizon.org**",
+		"{logo_tl}{logo_tr} **iHorizon** **`+{count} أمر`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> تحديث 2027 قريب™",
 	guild_leave_data_clear_notice_title: "غادر iHorizon ${guildName}",
 	guild_leave_data_clear_notice_description:
 		"واااه، هذا محزن. لقد طردت البوت من `${guildName}`. سيتم حذف بيانات الخادم ${deleteAt} إذا لم يعد iHorizon قبل ذلك.",

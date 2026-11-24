@@ -127,13 +127,34 @@ export async function applyLanguageBio(
 
 	if (!lang.bot_server_bio) return false;
 
-	return changeGuildBotBio(
-		guild,
-		lang.bot_server_bio
-			.replace("{count}", client.content.length.toString())
-			.replace("{wink_emoji}", client.iHorizon_Emojis.Wink)
-			.replace("{home_emoji}", client.iHorizon_Emojis.Home)
-	);
+	return changeGuildBotBio(guild, buildServerBio(lang.bot_server_bio));
+}
+
+// The 2x2 iHorizon logo (src/assets/emojis/ih1..ih4.png: top-left, top-right,
+// bottom-left, bottom-right). Short names on purpose: a server bio is capped at
+// 190 characters and `<:ih1:id>` takes 25 where `<:iHorizon_Logo_TL:id>` took 39.
+const BIO_LOGO = {
+	logo_tl: "ih1",
+	logo_tr: "ih2",
+	logo_bl: "ih3",
+	logo_br: "ih4"
+};
+
+/** The server bio of a language: command count and the 2x2 logo filled in. */
+export function buildServerBio(
+	template: string,
+	emojis: Record<
+		string,
+		string
+	> = client.iHorizon_Emojis as unknown as Record<string, string>,
+	commandCount: number = client.content.length
+): string {
+	let bio = template.replaceAll("{count}", String(commandCount));
+	for (const [slot, name] of Object.entries(BIO_LOGO)) {
+		// Not created yet (first boot of a new instance): leave the slot empty.
+		bio = bio.replaceAll(`{${slot}}`, emojis[name] ?? "");
+	}
+	return bio;
 }
 
 // /custom bio refuses 400 characters and more.

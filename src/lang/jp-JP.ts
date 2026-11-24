@@ -4232,7 +4232,7 @@ export default {
 		"> *無料のボットでも、有料のボット以上のことができる。*\nそれが iHorizon。2020 年から情熱ある人たちが支えるコミュニティとプロジェクトです。ようこそ！",
 	welcome_btn_dashboard: "ダッシュボード",
 	bot_server_bio:
-		"{wink_emoji} **iHorizon Discord Bot** **`+{count} コマンド`**\n> *« 2022年から人々によって作られ、あなたのコミュニティのために。 »*\n**https://www.ihorizon.org**",
+		"{logo_tl}{logo_tr} **iHorizon** **`+{count} コマンド`**\n{logo_bl}{logo_br} https://www.ihorizon.org\n> 2027年アップデート近日公開™",
 	guild_leave_data_clear_notice_title: "iHorizonが${guildName}を退出しました",
 	guild_leave_data_clear_notice_description:
 		"えーん、悲しいです。`${guildName}`からボットをキックしました。iHorizonがそれまでに戻らない場合、サーバーデータは${deleteAt}に削除されます。",
