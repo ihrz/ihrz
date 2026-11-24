@@ -79,8 +79,10 @@ function answerText(answer: unknown): string {
 
 /**
  * The member named by the answer to the link's member question: a user id
- * (or a mention) is fetched; anything else must match a username or display
- * name exactly, case-insensitive (Discord's member search is a prefix search).
+ * (or a mention) is fetched; anything else must match a USERNAME exactly,
+ * case-insensitive (Discord's member search is a prefix search). Display
+ * names and nicknames are not unique, so they never match: the role could go
+ * to someone else.
  */
 export async function resolveMember(
 	guild: Guild,
@@ -97,9 +99,7 @@ export async function resolveMember(
 	q = q.replace(/^@/, "").replace(/#0$/, "").toLowerCase();
 	// Usernames are 2..32 characters.
 	if (q.length < 1 || q.length > 32) return null;
-	const matches = (m: GuildMember) =>
-		m.user.username.toLowerCase() === q ||
-		(m.user.globalName ?? "").toLowerCase() === q;
+	const matches = (m: GuildMember) => m.user.username.toLowerCase() === q;
 
 	const cached = guild.members.cache.find(matches);
 	if (cached) return cached;

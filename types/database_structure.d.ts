@@ -1236,6 +1236,17 @@ export namespace DatabaseStructure {
 		seen: string[];
 		/** Keys of the response pages (`R_…`), newest first, 10 at most. */
 		pages: string[];
+		/**
+		 * Submissions of this link the gateway refused, per reason (absent
+		 * until the first one): link switched off, bad or expired signature
+		 * (e.g. a script with an old secret), more than 60 per minute, body too
+		 * big or malformed. Unknown links are not counted.
+		 */
+		refused?: Partial<
+			Record<"disabled" | "signature" | "rateLimited" | "invalid", number>
+		>;
+		/** Unix ms of the last refused submission. */
+		lastRefusedAt?: number;
 	}
 
 	/** One stored response; a page `R_…` holds 50 at most, newest last, 90 days at most. */
@@ -1246,5 +1257,11 @@ export namespace DatabaseStructure {
 		answers: Array<{ question: string; answer: string | string[] }>;
 		/** The member the bot identified (ack of `guild.form.submitted`), else null. */
 		memberId: string | null;
+		/**
+		 * "found" (memberId set), "not_found" (looked up, nobody matched),
+		 * "no_question" (the link has no member question), "unknown" (no ack
+		 * in time: bot offline, late or failing). Absent on older records.
+		 */
+		memberStatus?: "found" | "not_found" | "no_question" | "unknown";
 	}
 }

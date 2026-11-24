@@ -240,8 +240,16 @@ describe("resolveMember", () => {
 		const g = guild();
 		expect(await resolveMember(g, "ALICE")).toBe(alice);
 		expect(await resolveMember(g, "@alicia")).toBe(alicia);
-		expect(await resolveMember(g, "alice w")).toBe(alice);
 		expect(g.searches).toContain("alice");
+	});
+
+	test("a display name never matches (not unique: the role could go to someone else)", async () => {
+		// Bob's display name is "lina.wav"; the real lina.wav is not on the server.
+		const bob = fakeMember(OTHER, "bob", { globalName: "lina.wav" });
+		const g = fakeGuild({ members: [alice, bob], cachedMembers: [bob] });
+		expect(await resolveMember(g, "lina.wav")).toBeNull();
+		expect(await resolveMember(g, "Alice W")).toBeNull();
+		expect(await resolveMember(g, "bob")).toBe(bob);
 	});
 
 	test("a prefix is not a match; nothing found ⇒ null", async () => {
