@@ -4919,5 +4919,15 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"السيرفر ده عنده مفتاح AuthRestore أصلاً، فأنا ما عملتش مفتاح جديد: لو شغّلت `/authrestore set` تاني هيستبدله، والمفتاح الحالي مش هيشتغل تاني.\nعشان تبدأ من الأول بمفتاح جديد، شغّل الأول `/authrestore delete` (بيشيل زرار التحقق، والأعضاء اللي اتحققوا قبل كده بيفضلوا محفوظين)، وبعدين شغّل `/authrestore set` تاني."
+		"السيرفر ده عنده مفتاح AuthRestore أصلاً، فأنا ما عملتش مفتاح جديد: لو شغّلت `/authrestore set` تاني هيستبدله، والمفتاح الحالي مش هيشتغل تاني.\nعشان تبدأ من الأول بمفتاح جديد، شغّل الأول `/authrestore delete` (بيشيل زرار التحقق، والأعضاء اللي اتحققوا قبل كده بيفضلوا محفوظين)، وبعدين شغّل `/authrestore set` تاني.",
+
+	// google forms
+	gforms_new_response: "رد جديد على **${form}**",
+	gforms_test_mark: "رد تجريبي: مش بيتحسب في الإحصائيات",
+	gforms_label_member: "العضو",
+	gforms_member_not_found: "${query} (مش موجود في السيرفر)",
+	gforms_label_submitted: "اتبعت",
+	gforms_no_answer: "مفيش رد",
+	gforms_more_answers: "+${count} ردود كمان",
+	gforms_role_reason: "رد على Google Forms (${name})"
 } satisfies LanguageData;

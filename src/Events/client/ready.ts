@@ -92,8 +92,10 @@ export const event: BotEvent = {
 			"profilTable",
 			"authRestoreTable",
 			"prevnamesTable",
-			// Before recoverPendingGuildDataDeletions: leaving a server erases its transcripts.
-			"ticketTranscriptsTable"
+			// Before recoverPendingGuildDataDeletions: leaving a server erases its
+			// transcripts and its Google Forms responses.
+			"ticketTranscriptsTable",
+			"googleFormsTable"
 		]);
 		await recoverPendingGuildDataDeletions(client);
 		await initTables(client, [

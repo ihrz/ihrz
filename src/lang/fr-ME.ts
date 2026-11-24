@@ -5338,5 +5338,16 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"Ce serveur a déjà une putain de clé AuthRestore, alors j'en ai pas refait une : si tu relances `/authrestore set` ça l'écrase, et l'ancienne clé sert plus à rien.\nTu veux une nouvelle clé ? Fais d'abord `/authrestore delete` (ça vire le bouton de vérif, les membres déjà vérifiés restent), puis relance `/authrestore set`, bordel."
+		"Ce serveur a déjà une putain de clé AuthRestore, alors j'en ai pas refait une : si tu relances `/authrestore set` ça l'écrase, et l'ancienne clé sert plus à rien.\nTu veux une nouvelle clé ? Fais d'abord `/authrestore delete` (ça vire le bouton de vérif, les membres déjà vérifiés restent), puis relance `/authrestore set`, bordel.",
+
+	// google forms
+	gforms_new_response: "Y'a un mec qui a répondu à **${form}**, wesh",
+	gforms_test_mark:
+		"Réponse bidon pour tester : on la compte pas dans les stats",
+	gforms_label_member: "Le gus",
+	gforms_member_not_found: "${query} (connais pas ce zigoto sur le serv)",
+	gforms_label_submitted: "Balancée le",
+	gforms_no_answer: "Que dalle",
+	gforms_more_answers: "+${count} réponses en rab",
+	gforms_role_reason: "A répondu au Google Forms (${name})"
 } satisfies LanguageData;
