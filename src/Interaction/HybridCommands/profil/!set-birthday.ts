@@ -279,7 +279,7 @@ export const subCommand: SubCommand = {
 							style: 1,
 							required: true,
 							maxLength: 2,
-							minLength: 2
+							minLength: 1
 						}
 					]
 				},
@@ -289,7 +289,11 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the month
-			const month = modal.fields.getTextInputValue("month");
+			// "5" is May: stored as "05", the two-digit format it always had.
+			const month = modal.fields
+				.getTextInputValue("month")
+				.trim()
+				.padStart(2, "0");
 
 			// check if the month is valid
 			if (
@@ -348,7 +352,7 @@ export const subCommand: SubCommand = {
 							style: 1,
 							required: true,
 							maxLength: 2,
-							minLength: 2
+							minLength: 1
 						}
 					]
 				},
@@ -358,7 +362,10 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the day
-			const day = modal.fields.getTextInputValue("day");
+			const day = modal.fields
+				.getTextInputValue("day")
+				.trim()
+				.padStart(2, "0");
 
 			// check if the day is valid
 			if (

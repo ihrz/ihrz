@@ -307,7 +307,7 @@ export const command: Command = {
 							customId: "case_title",
 							style: TextInputStyle.Short,
 							maxLength: 50,
-							minLength: 4,
+							minLength: 1,
 							placeHolder:
 								lang.roleselect_modal1_fields2_placeholder,
 							required: true
@@ -523,7 +523,7 @@ export const command: Command = {
 							style: TextInputStyle.Short,
 							placeHolder: lang.roleselect_modal2_placeholder,
 							maxLength: 50,
-							minLength: 8,
+							minLength: 1,
 							required: true
 						}
 					],
