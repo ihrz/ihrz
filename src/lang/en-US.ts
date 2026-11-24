@@ -5128,7 +5128,17 @@ const enUS = {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"This server already has an AuthRestore key, so I did not create a new one: running `/authrestore set` again would replace it, and the current key would stop working.\nTo start over with a new key, first run `/authrestore delete` (it removes the verify button; the members already verified are kept), then run `/authrestore set` again."
+		"This server already has an AuthRestore key, so I did not create a new one: running `/authrestore set` again would replace it, and the current key would stop working.\nTo start over with a new key, first run `/authrestore delete` (it removes the verify button; the members already verified are kept), then run `/authrestore set` again.",
+
+	// google forms
+	gforms_new_response: "New response to **${form}**",
+	gforms_test_mark: "Test response: not counted in the statistics",
+	gforms_label_member: "Member",
+	gforms_member_not_found: "${query} (not found on the server)",
+	gforms_label_submitted: "Submitted",
+	gforms_no_answer: "No answer",
+	gforms_more_answers: "+${count} more answers",
+	gforms_role_reason: "Google Forms response (${name})"
 };
 
 export default enUS;

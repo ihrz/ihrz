@@ -5159,5 +5159,15 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"У этого сервера уже есть ключ AuthRestore, поэтому новый я не создал: повторный `/authrestore set` заменил бы его, и текущий ключ перестал бы работать.\nЧтобы начать заново с новым ключом, сначала выполните `/authrestore delete` (убирает кнопку проверки; уже проверенные участники сохраняются), затем снова `/authrestore set`."
+		"У этого сервера уже есть ключ AuthRestore, поэтому новый я не создал: повторный `/authrestore set` заменил бы его, и текущий ключ перестал бы работать.\nЧтобы начать заново с новым ключом, сначала выполните `/authrestore delete` (убирает кнопку проверки; уже проверенные участники сохраняются), затем снова `/authrestore set`.",
+
+	// google forms
+	gforms_new_response: "Новый ответ на **${form}**",
+	gforms_test_mark: "Тестовый ответ: не учитывается в статистике",
+	gforms_label_member: "Участник",
+	gforms_member_not_found: "${query} (не найден на сервере)",
+	gforms_label_submitted: "Отправлено",
+	gforms_no_answer: "Нет ответа",
+	gforms_more_answers: "Ещё ответов: ${count}",
+	gforms_role_reason: "Ответ в Google Forms (${name})"
 } satisfies LanguageData;

@@ -5250,5 +5250,15 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"Questo server ha già una chiave AuthRestore, quindi non ne ho creata una nuova: rieseguire `/authrestore set` la sostituirebbe e la chiave attuale smetterebbe di funzionare.\nPer ripartire con una nuova chiave, esegui prima `/authrestore delete` (rimuove il pulsante di verifica; i membri già verificati vengono mantenuti), poi esegui di nuovo `/authrestore set`."
+		"Questo server ha già una chiave AuthRestore, quindi non ne ho creata una nuova: rieseguire `/authrestore set` la sostituirebbe e la chiave attuale smetterebbe di funzionare.\nPer ripartire con una nuova chiave, esegui prima `/authrestore delete` (rimuove il pulsante di verifica; i membri già verificati vengono mantenuti), poi esegui di nuovo `/authrestore set`.",
+
+	// google forms
+	gforms_new_response: "Nuova risposta a **${form}**",
+	gforms_test_mark: "Risposta di prova: non conteggiata nelle statistiche",
+	gforms_label_member: "Membro",
+	gforms_member_not_found: "${query} (non trovato sul server)",
+	gforms_label_submitted: "Inviata",
+	gforms_no_answer: "Nessuna risposta",
+	gforms_more_answers: "+${count} altre risposte",
+	gforms_role_reason: "Risposta Google Forms (${name})"
 } satisfies LanguageData;

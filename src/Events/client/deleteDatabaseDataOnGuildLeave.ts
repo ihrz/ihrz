@@ -25,6 +25,7 @@ import { BotEvent } from "../../../types/event.js";
 import logger from "../../core/logger.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 import { deleteGuildTranscripts } from "../../core/modules/ticketTranscripts.js";
+import { deleteGuildForms } from "../../core/modules/googleForms.js";
 
 const GUILD_DELETE_DELAY = 10 * 60 * 60 * 1000;
 const GUILD_DELETE_QUEUE_KEY = "GUILD_DELETE_QUEUE_KEY";
@@ -78,6 +79,8 @@ async function updatePendingGuildDeletionQueue<T>(
 async function clearGuildData(client: Client, guildId: string) {
 	if (client.guilds.cache.has(guildId)) return;
 
+	// Before the guild document goes: the links of GUILD.GOOGLE_FORMS name the keys.
+	await deleteGuildForms(client, guildId).catch(() => null);
 	await client.db.delete(`${guildId}`);
 	await client.backup.removeSchedule(guildId);
 	await deleteGuildTranscripts(guildId).catch(() => null);

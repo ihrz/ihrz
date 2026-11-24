@@ -5159,5 +5159,15 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"このサーバーにはすでにAuthRestoreキーがあるため、新しいキーは作成しませんでした。`/authrestore set` をもう一度実行するとキーが置き換えられ、現在のキーは使えなくなります。\n新しいキーでやり直すには、まず `/authrestore delete` を実行し（認証ボタンが削除されます。認証済みのメンバーは残ります）、その後もう一度 `/authrestore set` を実行してください。"
+		"このサーバーにはすでにAuthRestoreキーがあるため、新しいキーは作成しませんでした。`/authrestore set` をもう一度実行するとキーが置き換えられ、現在のキーは使えなくなります。\n新しいキーでやり直すには、まず `/authrestore delete` を実行し（認証ボタンが削除されます。認証済みのメンバーは残ります）、その後もう一度 `/authrestore set` を実行してください。",
+
+	// google forms
+	gforms_new_response: "**${form}** に新しい回答",
+	gforms_test_mark: "テスト回答：統計には含まれません",
+	gforms_label_member: "メンバー",
+	gforms_member_not_found: "${query}（サーバーに見つかりません）",
+	gforms_label_submitted: "送信日時",
+	gforms_no_answer: "回答なし",
+	gforms_more_answers: "ほか ${count} 件の回答",
+	gforms_role_reason: "Google フォームの回答（${name}）"
 } satisfies LanguageData;

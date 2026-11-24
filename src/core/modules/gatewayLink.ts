@@ -29,6 +29,7 @@ import {
 } from "../functions/apiUrlParser.js";
 import { applyConfigChanges } from "./gatewayLinkHandlers.js";
 import { ActionError, runAction } from "./gatewayLinkActions/index.js";
+import { handleFormSubmitted } from "./googleForms.js";
 import { DiscordAPIError } from "discord.js";
 import logger from "../logger.js";
 
@@ -129,7 +130,11 @@ export class GatewayLink {
 				logger.log(
 					`Gateway link ready (shard #${this.client.shard?.ids[0] ?? 0})`
 				);
-			} else if (frame.op === "event" && frame.type === "guild.action") {
+			} else if (
+				frame.op === "event" &&
+				(frame.type === "guild.action" ||
+					frame.type === "guild.form.submitted")
+			) {
 				// Independent of config events: never queued behind them.
 				void this.handle(frame);
 			} else if (frame.op === "event") {
@@ -173,6 +178,11 @@ export class GatewayLink {
 					ok: true,
 					data: data ?? null
 				});
+				return;
+			}
+			if (event.type === "guild.form.submitted") {
+				const data = await handleFormSubmitted(this.client, event);
+				this.send({ op: "ack", id: event.id, ok: true, data });
 				return;
 			}
 			if (event.type !== "guild.config.updated") {

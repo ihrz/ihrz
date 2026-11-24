@@ -80,7 +80,43 @@ export namespace GatewayLink {
 		write?: boolean;
 	}
 
-	export type Event = ConfigUpdatedEvent | ActionEvent;
+	// One answer of a Google Forms response (grids flattened to "row: value").
+	export interface FormAnswer {
+		question: string;
+		answer: string | string[];
+	}
+
+	// A response to a linked Google Form (`GUILD.GOOGLE_FORMS`), already
+	// verified (HMAC) and stored by the gateway. The bot reads the link from
+	// the config again (enabled, channelId, roleId), posts the card and gives
+	// the role (src/core/modules/googleForms.ts). Independent of config events.
+	export interface FormSubmittedEvent {
+		op: "event";
+		id: string;
+		type: "guild.form.submitted";
+		guildId: string;
+		linkId: string;
+		// Link name when the response came in (the config's name wins).
+		name: string;
+		formTitle: string;
+		// Unix ms.
+		submittedAt: number;
+		answers: FormAnswer[];
+		// The answer to the link's memberQuestion: a user id or a username.
+		memberQuery: string | null;
+		// "Send a test response" of the dashboard: the card says so, no role is given.
+		test?: boolean;
+	}
+
+	// `Ack.data` of `guild.form.submitted`.
+	export interface FormSubmittedAck {
+		posted: boolean;
+		// The member holds the role now (given, or already had it).
+		roleGiven: boolean;
+		memberId: string | null;
+	}
+
+	export type Event = ConfigUpdatedEvent | ActionEvent | FormSubmittedEvent;
 
 	export interface ChangeResult {
 		path: string;
@@ -94,7 +130,8 @@ export namespace GatewayLink {
 		ok: boolean;
 		error?: string;
 		results?: ChangeResult[];
-		// `guild.action`: what the action answers (JSON).
+		// `guild.action`: what the action answers (JSON);
+		// `guild.form.submitted`: FormSubmittedAck.
 		data?: unknown;
 	}
 }

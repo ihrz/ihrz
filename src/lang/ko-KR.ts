@@ -4988,5 +4988,15 @@ export default {
 
 	// authrestore fix
 	rc_set_key_already_set:
-		"이 서버에는 이미 AuthRestore 키가 있어서 새 키를 만들지 않았어요. `/authrestore set`을 다시 실행하면 키가 교체되고 지금 키는 더 이상 작동하지 않아요.\n새 키로 다시 시작하려면 먼저 `/authrestore delete`를 실행한 뒤(인증 버튼이 삭제되고, 이미 인증된 멤버는 유지돼요) `/authrestore set`을 다시 실행해 주세요."
+		"이 서버에는 이미 AuthRestore 키가 있어서 새 키를 만들지 않았어요. `/authrestore set`을 다시 실행하면 키가 교체되고 지금 키는 더 이상 작동하지 않아요.\n새 키로 다시 시작하려면 먼저 `/authrestore delete`를 실행한 뒤(인증 버튼이 삭제되고, 이미 인증된 멤버는 유지돼요) `/authrestore set`을 다시 실행해 주세요.",
+
+	// google forms
+	gforms_new_response: "**${form}**에 새 응답",
+	gforms_test_mark: "테스트 응답: 통계에 포함되지 않습니다",
+	gforms_label_member: "멤버",
+	gforms_member_not_found: "${query} (서버에서 찾을 수 없음)",
+	gforms_label_submitted: "제출 시각",
+	gforms_no_answer: "응답 없음",
+	gforms_more_answers: "응답 ${count}개 더 있음",
+	gforms_role_reason: "Google Forms 응답 (${name})"
 } satisfies LanguageData;
