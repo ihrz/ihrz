@@ -9346,6 +9346,51 @@
                 "commandFullName": "music play"
             },
             {
+                "name": "playlist",
+                "description": "See your playlists and liked tracks!",
+                "description_localizations": {
+                    "fr": "Voir tes playlists et tes titres likés !",
+                    "ja": "プレイリストとお気に入りの曲を見る！",
+                    "ru": "Посмотреть свои плейлисты и любимые треки!",
+                    "es-ES": "¡Mira tus playlists y tus canciones favoritas!",
+                    "ko": "내 플레이리스트와 좋아요 표시한 곡을 봐요!",
+                    "uk": "Переглянути свої плейлисти та вподобані треки!",
+                    "de": "Sieh dir deine Playlists und Lieblingssongs an!",
+                    "it": "Guarda le tue playlist e i tuoi brani preferiti!",
+                    "pt-BR": "Veja suas playlists e músicas favoritas!",
+                    "pl": "Zobacz swoje playlisty i polubione utwory!"
+                },
+                "aliases": [
+                    "playlists",
+                    "library"
+                ],
+                "type": 1,
+                "options": [
+                    {
+                        "name": "name",
+                        "type": 3,
+                        "description": "A playlist to open directly",
+                        "description_localizations": {
+                            "fr": "Une playlist à ouvrir directement",
+                            "ja": "直接開くプレイリスト",
+                            "ru": "Плейлист, который нужно сразу открыть",
+                            "es-ES": "Una playlist para abrir directamente",
+                            "ko": "바로 열 플레이리스트",
+                            "uk": "Плейлист, який відкрити одразу",
+                            "de": "Eine Playlist, die direkt geöffnet wird",
+                            "it": "Una playlist da aprire subito",
+                            "pt-BR": "Uma playlist para abrir direto",
+                            "pl": "Playlista do otwarcia od razu"
+                        },
+                        "required": false,
+                        "autocomplete": true,
+                        "commandFullName": "music playlist name"
+                    }
+                ],
+                "ephemeral": true,
+                "commandFullName": "music playlist"
+            },
+            {
                 "name": "volume",
                 "description": "change the volume of the player in the guild",
                 "description_localizations": {

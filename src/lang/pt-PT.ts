@@ -5287,5 +5287,32 @@ export default {
 		"Guardado, o painel publicado foi atualizado.",
 	confession_panel_saved_not_refreshed:
 		"Guardado. Não foi possível atualizar o painel publicado: escolha de novo o seu canal para o publicar outra vez.",
-	confession_panel_expired: "Este painel expirou, execute o comando de novo."
+	confession_panel_expired: "Este painel expirou, execute o comando de novo.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Gosto",
+	music_love_added: "❤️ **${track}** está agora nas tuas ${playlist}.",
+	music_love_already: "**${track}** já está nas tuas ${playlist}.",
+	music_love_remove_button: "Remover de ${playlist}",
+	music_love_removed: "**${track}** foi removida das tuas ${playlist}.",
+	music_love_limit:
+		"As tuas ${playlist} estão cheias (${max} no máximo): remove algumas primeiro no leitor do painel.",
+	music_love_unavailable:
+		"**${track}** não pode ser adicionada às tuas ${playlist}.",
+	music_playlist_title: "A tua biblioteca de música",
+	music_playlist_stats: "Playlists: ${playlists}/${max}",
+	music_playlist_tracks: "Músicas: ${count}",
+	music_playlist_no_playlists:
+		"Ainda sem playlists: cria-as no leitor do painel.",
+	music_playlist_empty:
+		"A tua biblioteca está vazia por agora. Carrega em **${button}** no leitor para guardar a música atual nas tuas ${playlist}, ou cria playlists no painel: ${url}",
+	music_playlist_select: "Abrir uma playlist",
+	music_playlist_play: "Reproduzir",
+	music_playlist_back: "Voltar",
+	music_playlist_no_tracks: "Esta lista está vazia.",
+	music_playlist_queued:
+		"**${name}** foi adicionada à fila (músicas: ${count}).",
+	music_playlist_not_found:
+		"Nenhuma playlist encontrada com esse nome: eis a tua biblioteca.",
+	music_playlist_gone: "Esta playlist já não existe."
 } satisfies LanguageData;

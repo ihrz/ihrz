@@ -5325,5 +5325,32 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"Salvato. Non è stato possibile aggiornare il pannello pubblicato: scegli di nuovo il suo canale per ripubblicarlo.",
 	confession_panel_expired:
-		"Questo pannello è scaduto, esegui di nuovo il comando."
+		"Questo pannello è scaduto, esegui di nuovo il comando.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Mi piace",
+	music_love_added: "❤️ **${track}** ora è tra i tuoi ${playlist}.",
+	music_love_already: "**${track}** è già tra i tuoi ${playlist}.",
+	music_love_remove_button: "Rimuovi da ${playlist}",
+	music_love_removed: "**${track}** è stato rimosso dai tuoi ${playlist}.",
+	music_love_limit:
+		"I tuoi ${playlist} sono pieni (al massimo ${max}): rimuovine qualcuno dal lettore della dashboard.",
+	music_love_unavailable:
+		"**${track}** non può essere aggiunto ai tuoi ${playlist}.",
+	music_playlist_title: "La tua libreria musicale",
+	music_playlist_stats: "Playlist: ${playlists}/${max}",
+	music_playlist_tracks: "Brani: ${count}",
+	music_playlist_no_playlists:
+		"Ancora nessuna playlist: creale dal lettore della dashboard.",
+	music_playlist_empty:
+		"La tua libreria è vuota per ora. Premi **${button}** sul lettore per tenere il brano in riproduzione nei tuoi ${playlist}, oppure crea playlist sulla dashboard: ${url}",
+	music_playlist_select: "Apri una playlist",
+	music_playlist_play: "Riproduci",
+	music_playlist_back: "Indietro",
+	music_playlist_no_tracks: "Questa lista è vuota.",
+	music_playlist_queued:
+		"**${name}** è stato aggiunto alla coda (brani: ${count}).",
+	music_playlist_not_found:
+		"Nessuna playlist trovata con questo nome: ecco la tua libreria.",
+	music_playlist_gone: "Questa playlist non esiste più."
 } satisfies LanguageData;

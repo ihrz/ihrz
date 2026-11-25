@@ -5060,5 +5060,30 @@ export default {
 		"저장했어요. 게시된 패널도 업데이트됐어요.",
 	confession_panel_saved_not_refreshed:
 		"저장했어요. 게시된 패널을 업데이트하지 못했어요: 채널을 다시 선택해 새로 게시하세요.",
-	confession_panel_expired: "이 패널이 만료됐어요. 명령어를 다시 실행하세요."
+	confession_panel_expired: "이 패널이 만료됐어요. 명령어를 다시 실행하세요.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "좋아요",
+	music_love_added: "❤️ **${track}** 곡을 ${playlist}에 추가했어요.",
+	music_love_already: "**${track}** 곡은 이미 ${playlist}에 있어요.",
+	music_love_remove_button: "${playlist}에서 삭제",
+	music_love_removed: "**${track}** 곡을 ${playlist}에서 삭제했어요.",
+	music_love_limit:
+		"${playlist}이 가득 찼어요 (최대 ${max}곡). 먼저 대시보드 플레이어에서 몇 곡을 지워 주세요.",
+	music_love_unavailable: "**${track}** 곡은 ${playlist}에 추가할 수 없어요.",
+	music_playlist_title: "내 음악 라이브러리",
+	music_playlist_stats: "플레이리스트: ${playlists}/${max}",
+	music_playlist_tracks: "곡 수: ${count}",
+	music_playlist_no_playlists:
+		"아직 플레이리스트가 없어요. 대시보드 플레이어에서 만들어 보세요.",
+	music_playlist_empty:
+		"라이브러리가 아직 비어 있어요. 플레이어에서 **${button}**을 누르면 재생 중인 곡이 ${playlist}에 저장돼요. 대시보드에서 플레이리스트도 만들 수 있어요: ${url}",
+	music_playlist_select: "플레이리스트 열기",
+	music_playlist_play: "재생",
+	music_playlist_back: "뒤로",
+	music_playlist_no_tracks: "이 목록은 비어 있어요.",
+	music_playlist_queued: "**${name}**을 대기열에 추가했어요 (${count}곡).",
+	music_playlist_not_found:
+		"그 이름의 플레이리스트가 없어요. 라이브러리를 보여 드릴게요.",
+	music_playlist_gone: "이 플레이리스트는 더 이상 없어요."
 } satisfies LanguageData;

@@ -30,6 +30,8 @@
  *   live panel per guild keeps the edit rate low).
  * - The card is re-rendered only when its time or pause state changed, and
  *   an edit is skipped when nothing visible changed.
+ * - Love (second row, musicLove.ts) keeps the track in the clicker's own
+ *   liked tracks: personal, so open to anyone who sees the panel.
  * - `notes` are extra lines (added to the queue, Last.fm tip) shown until
  *   the first track change.
  *
@@ -42,6 +44,7 @@ import { markPaused, trackPosition } from "./trackClock.js";
 import { destroyPlayerSafely, playerNodeReady } from "./audioNode.js";
 import { crossfadeSkip } from "./musicCrossfadeSkip.js";
 import { musicRights } from "./musicControls.js";
+import { handleLoveClick, LOVE_BUTTON, loveButton } from "./musicLove.js";
 import {
 	ActionRowBuilder,
 	AttachmentBuilder,
@@ -401,6 +404,11 @@ export async function openNowPlayingPanel(
 					.setLabel(lang.nowplaying_button_stop)
 					.setStyle(ButtonStyle.Danger)
 					.setDisabled(ended)
+			),
+			// The first row is full (5 buttons). The heart is the same for
+			// everyone: what it does depends on who clicks (musicLove.ts).
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				loveButton(lang, ended)
 			)
 		);
 
@@ -552,6 +560,12 @@ export async function openNowPlayingPanel(
 		try {
 			if (i.customId === BUTTON.lyrics) {
 				await sendLyrics(i);
+				return;
+			}
+
+			// Personal (the clicker's own library): no voice or rights check.
+			if (i.customId === LOVE_BUTTON) {
+				await handleLoveClick(client, lang, i, view.track);
 				return;
 			}
 

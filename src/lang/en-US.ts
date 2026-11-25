@@ -5200,7 +5200,33 @@ const enUS = {
 	confession_panel_saved_refreshed: "Saved, the posted panel is updated.",
 	confession_panel_saved_not_refreshed:
 		"Saved. The posted panel could not be updated: pick its channel again to post it anew.",
-	confession_panel_expired: "This panel has expired, run the command again."
+	confession_panel_expired: "This panel has expired, run the command again.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Love",
+	music_love_added: "❤️ **${track}** is now in your ${playlist}.",
+	music_love_already: "**${track}** is already in your ${playlist}.",
+	music_love_remove_button: "Remove from ${playlist}",
+	music_love_removed: "**${track}** was removed from your ${playlist}.",
+	music_love_limit:
+		"Your ${playlist} are full (${max} at most): remove some first, from the dashboard's music player.",
+	music_love_unavailable: "**${track}** can't be added to your ${playlist}.",
+	music_playlist_title: "Your music library",
+	music_playlist_stats: "Playlists: ${playlists}/${max}",
+	music_playlist_tracks: "Tracks: ${count}",
+	music_playlist_no_playlists:
+		"No playlist yet: create them from the dashboard's music player.",
+	music_playlist_empty:
+		"Your library is empty for now. Press **${button}** on the music player to keep the track playing in your ${playlist}, or build playlists on the dashboard: ${url}",
+	music_playlist_select: "Open a playlist",
+	music_playlist_play: "Play",
+	music_playlist_back: "Back",
+	music_playlist_no_tracks: "This list is empty.",
+	music_playlist_queued:
+		"**${name}** was added to the queue (tracks: ${count}).",
+	music_playlist_not_found:
+		"No playlist found with that name: here is your library.",
+	music_playlist_gone: "This playlist no longer exists."
 };
 
 export default enUS;

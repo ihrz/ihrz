@@ -5414,5 +5414,33 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"Enregistré. Le panneau publié a pas voulu se mettre à jour : rechoisis son salon pour le republier.",
 	confession_panel_expired:
-		"Ce panneau a expiré, relance la commande, feignasse."
+		"Ce panneau a expiré, relance la commande, feignasse.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "J'kiffe",
+	music_love_added:
+		"❤️ **${track}** est dans ${playlist} maintenant, t'as du goût.",
+	music_love_already: "**${track}** est déjà dans ${playlist}, réveille-toi.",
+	music_love_remove_button: "Virer de ${playlist}",
+	music_love_removed: "**${track}** a dégagé de ${playlist}, bon débarras.",
+	music_love_limit:
+		"${playlist} c'est blindé (${max} max) : vire des sons depuis le lecteur du dashboard d'abord.",
+	music_love_unavailable:
+		"**${track}** peut pas aller dans ${playlist}, désolé chef.",
+	music_playlist_title: "Ta zik",
+	music_playlist_stats: "Playlists : ${playlists}/${max}",
+	music_playlist_tracks: "Sons : ${count}",
+	music_playlist_no_playlists:
+		"Zéro playlist : va t'en faire sur le lecteur du dashboard.",
+	music_playlist_empty:
+		"C'est vide ici. Tape sur **${button}** sur le lecteur pour mettre le son dans ${playlist}, ou fais-toi des playlists sur le dashboard : ${url}",
+	music_playlist_select: "Ouvre une playlist",
+	music_playlist_play: "Balance",
+	music_playlist_back: "Retour",
+	music_playlist_no_tracks: "Y'a que dalle là-dedans.",
+	music_playlist_queued:
+		"**${name}** est dans la file (sons : ${count}), ça va envoyer.",
+	music_playlist_not_found:
+		"Connais pas cette playlist : tiens, v'là ta zik.",
+	music_playlist_gone: "Cette playlist a disparu, RIP."
 } satisfies LanguageData;

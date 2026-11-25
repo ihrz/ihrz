@@ -5349,5 +5349,32 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"Guardado. No se pudo actualizar el panel publicado: elige de nuevo su canal para volver a publicarlo.",
 	confession_panel_expired:
-		"Este panel ha caducado, vuelve a ejecutar el comando."
+		"Este panel ha caducado, vuelve a ejecutar el comando.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Me gusta",
+	music_love_added: "❤️ **${track}** ya está en tus ${playlist}.",
+	music_love_already: "**${track}** ya está en tus ${playlist}.",
+	music_love_remove_button: "Quitar de ${playlist}",
+	music_love_removed: "**${track}** se quitó de tus ${playlist}.",
+	music_love_limit:
+		"Tus ${playlist} están llenas (${max} como máximo): quita algunas primero desde el reproductor del panel.",
+	music_love_unavailable:
+		"**${track}** no se puede añadir a tus ${playlist}.",
+	music_playlist_title: "Tu biblioteca musical",
+	music_playlist_stats: "Playlists: ${playlists}/${max}",
+	music_playlist_tracks: "Canciones: ${count}",
+	music_playlist_no_playlists:
+		"Aún no hay playlists: créalas desde el reproductor del panel.",
+	music_playlist_empty:
+		"Tu biblioteca está vacía por ahora. Pulsa **${button}** en el reproductor para guardar la canción actual en tus ${playlist}, o crea playlists en el panel: ${url}",
+	music_playlist_select: "Abrir una playlist",
+	music_playlist_play: "Reproducir",
+	music_playlist_back: "Volver",
+	music_playlist_no_tracks: "Esta lista está vacía.",
+	music_playlist_queued:
+		"**${name}** se añadió a la cola (canciones: ${count}).",
+	music_playlist_not_found:
+		"No se encontró ninguna playlist con ese nombre: aquí está tu biblioteca.",
+	music_playlist_gone: "Esta playlist ya no existe."
 } satisfies LanguageData;
