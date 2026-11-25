@@ -45,6 +45,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { utcTimezones } from "../../../core/locales.js";
+import { utcSelectMenus } from "../../../core/functions/utcSelect.js";
 import { saveNightModeSettings } from "../../../core/modules/nightModeManager.js";
 
 export const command: Command = {
@@ -320,53 +321,43 @@ export const command: Command = {
 			i: StringSelectMenuInteraction<CacheType>,
 			fieldsNumber: number
 		) {
-			const options = Object.entries(utcTimezones).map(
-				([offset, name]) => {
-					const offsetNum = Number(offset);
-					const displayOffset =
-						offsetNum >= 0 ? `UTC+${offsetNum}` : `UTC${offsetNum}`;
-
-					return new StringSelectMenuOptionBuilder()
-						.setLabel(name)
-						.setValue(offset)
-						.setDescription(displayOffset);
-				}
+			// Two menus: 26 zones don't fit in one (25 options at most).
+			const menus = utcSelectMenus(
+				lang.nightmode_change_timezone_question,
+				baseData.utc
 			);
-
-			let wait = await i.reply({
-				components: [
+			const wait = await i.reply({
+				components: menus.map((m) =>
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-						new StringSelectMenuBuilder()
-							.setCustomId("utc_choice")
-							.setPlaceholder(
-								lang.nightmode_change_timezone_question
-							)
-							.addOptions(options)
+						m
 					)
-				],
+				),
 				flags: MessageFlags.Ephemeral
 			});
 
-			let collector2con = wait.createMessageComponentCollector({
+			const collector2con = wait.createMessageComponentCollector({
 				time,
 				componentType: ComponentType.StringSelect,
 				filter: (x) =>
-					x.user.id === i.user.id && x.customId === "utc_choice"
+					x.user.id === i.user.id &&
+					(x.customId === "utc_choice_west" ||
+						x.customId === "utc_choice_east")
 			});
 
-			collector2con.on("collect", async (i) => {
-				let utc = i.values?.[0];
-				if (utc) {
-					baseData.utc = Number(utc);
-					embed.data.fields![fieldsNumber]!.value =
-						`${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`;
-					refreshogResponse();
-					collector2con.stop();
-				}
+			collector2con.on("collect", async (pick) => {
+				// Acknowledged at once: Discord shows a failure otherwise.
+				await pick.deferUpdate().catch(() => null);
+				const utc = pick.values?.[0];
+				if (utc === undefined) return;
+				baseData.utc = Number(utc);
+				embed.data.fields![fieldsNumber]!.value =
+					`${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`;
+				refreshogResponse();
+				collector2con.stop();
 			});
 
 			collector2con.on("end", async () => {
-				wait.delete();
+				await wait.delete().catch(() => null);
 			});
 		}
 		function parseTimeInput(
