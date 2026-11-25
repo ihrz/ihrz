@@ -5169,5 +5169,69 @@ export default {
 	gforms_label_submitted: "Отправлено",
 	gforms_no_answer: "Нет ответа",
 	gforms_more_answers: "Ещё ответов: ${count}",
-	gforms_role_reason: "Ответ в Google Forms (${name})"
+	gforms_role_reason: "Ответ в Google Forms (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "Признаться",
+	confession_panel_title: "Панель признаний",
+	confession_panel_state_on: "Признания включены",
+	confession_panel_state_off: "Признания выключены",
+	confession_panel_field_channel: "Канал панели",
+	confession_panel_no_channel: "ещё не опубликована",
+	confession_panel_field_threads: "Ветки обсуждения",
+	confession_panel_value_on: "включены",
+	confession_panel_value_off: "выключены",
+	confession_panel_field_cooldown: "Задержка",
+	confession_panel_field_embed: "Embed",
+	confession_panel_embed_default: "по умолчанию",
+	confession_panel_embed_missing:
+		"`${code}` не найден, показан embed по умолчанию",
+	confession_panel_field_button: "Кнопка",
+	confession_panel_channel_placeholder: "Опубликовать панель в…",
+	confession_panel_action_enable: "Включить",
+	confession_panel_action_disable: "Выключить",
+	confession_panel_action_threads_on: "Включить ветки",
+	confession_panel_action_threads_off: "Выключить ветки",
+	confession_panel_action_cooldown: "Задержка",
+	confession_panel_action_edit_button: "Текст и эмодзи",
+	confession_panel_action_reset_button: "Сбросить кнопку",
+	confession_panel_action_embed: "Код embed",
+	confession_panel_style_placeholder: "Цвет кнопки",
+	confession_panel_style_primary: "Синий",
+	confession_panel_style_secondary: "Серый",
+	confession_panel_style_success: "Зелёный",
+	confession_panel_style_danger: "Красный",
+	confession_panel_modal_cooldown_title: "Задержка признаний",
+	confession_panel_modal_cooldown_label: "Время между двумя признаниями",
+	confession_panel_modal_cooldown_desc: "Например 30s, 10m или 3h.",
+	confession_panel_modal_button_title: "Кнопка панели",
+	confession_panel_modal_label_label: "Текст",
+	confession_panel_modal_label_desc:
+		"От 1 до 80 символов. Пусто: «${default}».",
+	confession_panel_modal_emoji_label: "Эмодзи",
+	confession_panel_modal_emoji_desc:
+		"Эмодзи Unicode или сервера (<:name:id>). Пусто: без эмодзи.",
+	confession_panel_modal_embed_title: "Embed панели",
+	confession_panel_modal_embed_label: "Код embed",
+	confession_panel_modal_embed_desc:
+		"Код, сохранённый через /embed. Пусто: embed по умолчанию.",
+	confession_panel_emoji_invalid:
+		"Это не эмодзи, которое можно поставить на кнопку.",
+	confession_panel_emoji_unusable:
+		"Я не могу использовать это эмодзи: оно должно быть с этого сервера.",
+	confession_panel_embed_not_found: "Embed с кодом `${code}` не найден.",
+	confession_panel_cooldown_invalid:
+		"Неверное время. Используйте, например, 30s, 10m или 3h.",
+	confession_panel_channel_no_access:
+		"Вы должны видеть ${channel} и иметь право писать в нём.",
+	confession_panel_send_failed:
+		"Не удалось опубликовать панель в ${channel}: проверьте мои права там.",
+	confession_panel_posted: "Панель опубликована в ${channel}.",
+	confession_panel_saved: "Сохранено.",
+	confession_panel_saved_refreshed:
+		"Сохранено, опубликованная панель обновлена.",
+	confession_panel_saved_not_refreshed:
+		"Сохранено. Не удалось обновить опубликованную панель: выберите её канал ещё раз, чтобы опубликовать заново.",
+	confession_panel_expired:
+		"Срок действия панели истёк, запустите команду снова."
 } satisfies LanguageData;

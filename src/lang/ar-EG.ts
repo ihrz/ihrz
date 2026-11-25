@@ -4929,5 +4929,65 @@ export default {
 	gforms_label_submitted: "اتبعت",
 	gforms_no_answer: "مفيش رد",
 	gforms_more_answers: "+${count} ردود كمان",
-	gforms_role_reason: "رد على Google Forms (${name})"
+	gforms_role_reason: "رد على Google Forms (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "اعترف",
+	confession_panel_title: "لوحة الاعترافات",
+	confession_panel_state_on: "الاعترافات مفعّلة",
+	confession_panel_state_off: "الاعترافات معطّلة",
+	confession_panel_field_channel: "قناة اللوحة",
+	confession_panel_no_channel: "لم تُنشر بعد",
+	confession_panel_field_threads: "سلاسل النقاش",
+	confession_panel_value_on: "مفعّلة",
+	confession_panel_value_off: "معطّلة",
+	confession_panel_field_cooldown: "مدة الانتظار",
+	confession_panel_field_embed: "التضمين",
+	confession_panel_embed_default: "الافتراضي",
+	confession_panel_embed_missing:
+		"لم يُعثر على `${code}`، يُعرض التضمين الافتراضي",
+	confession_panel_field_button: "الزر",
+	confession_panel_channel_placeholder: "انشر اللوحة في…",
+	confession_panel_action_enable: "تفعيل",
+	confession_panel_action_disable: "تعطيل",
+	confession_panel_action_threads_on: "تفعيل السلاسل",
+	confession_panel_action_threads_off: "تعطيل السلاسل",
+	confession_panel_action_cooldown: "مدة الانتظار",
+	confession_panel_action_edit_button: "النص والرمز التعبيري",
+	confession_panel_action_reset_button: "إعادة ضبط الزر",
+	confession_panel_action_embed: "رمز التضمين",
+	confession_panel_style_placeholder: "لون الزر",
+	confession_panel_style_primary: "أزرق",
+	confession_panel_style_secondary: "رمادي",
+	confession_panel_style_success: "أخضر",
+	confession_panel_style_danger: "أحمر",
+	confession_panel_modal_cooldown_title: "مدة الانتظار بين الاعترافات",
+	confession_panel_modal_cooldown_label: "الوقت بين اعترافين",
+	confession_panel_modal_cooldown_desc: "مثلًا 30s أو 10m أو 3h.",
+	confession_panel_modal_button_title: "زر اللوحة",
+	confession_panel_modal_label_label: "النص",
+	confession_panel_modal_label_desc: "من 1 إلى 80 حرفًا. فارغ: «${default}».",
+	confession_panel_modal_emoji_label: "الرمز التعبيري",
+	confession_panel_modal_emoji_desc:
+		"رمز يونيكود أو رمز من الخادم (<:name:id>). فارغ: بدون.",
+	confession_panel_modal_embed_title: "تضمين اللوحة",
+	confession_panel_modal_embed_label: "رمز التضمين",
+	confession_panel_modal_embed_desc:
+		"رمز محفوظ عبر /embed. فارغ: التضمين الافتراضي.",
+	confession_panel_emoji_invalid: "هذا ليس رمزًا تعبيريًا يمكن وضعه على زر.",
+	confession_panel_emoji_unusable:
+		"لا يمكنني استخدام هذا الرمز: يجب أن يكون من هذا الخادم.",
+	confession_panel_embed_not_found: "لم يُعثر على تضمين بالرمز `${code}`.",
+	confession_panel_cooldown_invalid:
+		"هذه المدة غير صالحة. استخدم مثلًا 30s أو 10m أو 3h.",
+	confession_panel_channel_no_access:
+		"يجب أن تتمكن من رؤية ${channel} وإرسال الرسائل فيها.",
+	confession_panel_send_failed:
+		"تعذّر نشر اللوحة في ${channel}: تحقّق من صلاحياتي هناك.",
+	confession_panel_posted: "نُشرت اللوحة في ${channel}.",
+	confession_panel_saved: "تم الحفظ.",
+	confession_panel_saved_refreshed: "تم الحفظ، وحُدّثت اللوحة المنشورة.",
+	confession_panel_saved_not_refreshed:
+		"تم الحفظ. تعذّر تحديث اللوحة المنشورة: اختر قناتها مجددًا لإعادة نشرها.",
+	confession_panel_expired: "انتهت صلاحية هذه اللوحة، شغّل الأمر مجددًا."
 } satisfies LanguageData;

@@ -53,7 +53,11 @@ import {
 	deleteTTSData
 } from "./ttsManager.js";
 import { getH247Data } from "./h247Manager.js";
-import { sendConfessionPanel } from "./confessionManager.js";
+import {
+	deleteConfessionPanelMessage,
+	refreshConfessionPanel,
+	sendConfessionPanel
+} from "./confessionManager.js";
 import { generateSelectMenu } from "../functions/roleSelectMenu.js";
 import { createOauth2LinkWithGuild } from "../functions/authRestoreHelper.js";
 import { authRestoreTable } from "../../Events/client/ready.js";
@@ -533,32 +537,53 @@ const handlers: Record<string, ChangeHandler> = {
 		await client.db.set(path, config);
 	},
 
-	// /confession channel (a new panel channel without an explicit message)
+	// /confession panel: a new panel channel is posted with the stored
+	// appearance (the previous panel message goes); a new button or embed
+	// edits the posted panel in place.
 	"GUILD.CONFESSION": async (client, guild, change, actorId) => {
-		type Panel = { channelId?: string; messageId?: string } | undefined;
-		const prev = (change.old as { panel?: Panel } | null)?.panel;
-		const next = (change.new as { panel?: Panel } | null)?.panel;
+		const prevConfig =
+			change.old as DatabaseStructure.ConfessionSchema | null;
+		const nextConfig =
+			change.new as DatabaseStructure.ConfessionSchema | null;
+		const prev = prevConfig?.panel;
+		const next = nextConfig?.panel;
 
-		if (!next?.channelId || next.channelId === prev?.channelId) return;
-		// Pointing at an existing message: nothing to post.
-		if (next.messageId && next.messageId !== prev?.messageId) return;
+		if (next?.channelId && next.channelId !== prev?.channelId) {
+			// Pointing at an existing message: nothing to post.
+			if (next.messageId && next.messageId !== prev?.messageId) return;
 
-		const channel = textChannel(guild, next.channelId);
-		if (!channel) throw "panel channel not found";
-		await assertActorCanSend(guild, channel, actorId);
+			const channel = textChannel(guild, next.channelId);
+			if (!channel) throw "panel channel not found";
+			await assertActorCanSend(guild, channel, actorId);
 
-		const lang = await client.func.getLanguageData(guild.id);
-		const message = await sendConfessionPanel(
-			client,
-			channel,
-			lang,
-			"+",
-			guild
-		);
-		await client.db.set(`${guild.id}.GUILD.CONFESSION.panel`, {
-			channelId: message.channelId,
-			messageId: message.id
-		});
+			// Rebuilt from the database: it is the source of truth.
+			const path = `${guild.id}.GUILD.CONFESSION`;
+			const config = (await client.db.get(
+				path
+			)) as DatabaseStructure.ConfessionSchema | null;
+			const lang = await client.func.getLanguageData(guild.id);
+			const message = await sendConfessionPanel(
+				client,
+				channel,
+				lang,
+				config
+			);
+			await deleteConfessionPanelMessage(client, guild, prev);
+			await client.db.set(`${path}.panel`, {
+				channelId: message.channelId,
+				messageId: message.id
+			});
+			return;
+		}
+
+		const same = (a: unknown, b: unknown) =>
+			JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+		if (
+			!same(prevConfig?.button, nextConfig?.button) ||
+			!same(prevConfig?.embedId, nextConfig?.embedId)
+		) {
+			await refreshConfessionPanel(client, guild);
+		}
 	},
 
 	// /tempban (add) · early unban (entry removed). Same guards as the

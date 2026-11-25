@@ -22,7 +22,6 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	ChannelType,
 	PermissionFlagsBits
 } from "discord.js";
 
@@ -47,278 +46,27 @@ export const command: Command = {
 
 	options: [
 		{
-			name: "channel",
-			prefixName: "confess-channel",
+			name: "panel",
+			prefixName: "confess-panel",
 
-			description: "Set the confession module's channel!",
+			description:
+				"Set up the confession module: channel, cooldown, threads, button and embed!",
 			description_localizations: {
-				fr: "Définir le canal du module confession",
-				ja: "告白モジュールのチャンネルを設定！",
-				ru: "Установить канал модуля признаний!",
-				"es-ES": "Establecer el canal del módulo de confesiones!",
-				ko: "고백 모듈 채널을 설정해요!",
-				uk: "Встановити канал модуля зізнань!",
-				de: "Legt den Kanal des Geständnis-Moduls fest!",
-				it: "Imposta il canale del modulo confessioni!",
-				"pt-BR": "Define o canal do módulo de confissões!",
-				pl: "Ustawia kanał modułu wyznań!"
+				fr: "Configurer les confessions : salon, délai, fils, bouton et embed",
+				ja: "告白モジュールを設定：チャンネル、クールダウン、スレッド、ボタン、埋め込み！",
+				ru: "Настроить признания: канал, задержка, ветки, кнопка и embed!",
+				"es-ES":
+					"Configura las confesiones: canal, espera, hilos, botón y embed!",
+				ko: "고백 모듈 설정: 채널, 쿨다운, 스레드, 버튼, 임베드!",
+				uk: "Налаштувати зізнання: канал, затримка, гілки, кнопка та embed!",
+				de: "Geständnisse einrichten: Kanal, Wartezeit, Threads, Button und Embed!",
+				it: "Configura le confessioni: canale, attesa, thread, pulsante ed embed!",
+				"pt-BR":
+					"Configure as confissões: canal, intervalo, tópicos, botão e embed!",
+				pl: "Skonfiguruj wyznania: kanał, czas, wątki, przycisk i embed!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "channel",
-					type: ApplicationCommandOptionType.Channel,
-
-					description: "The channel!",
-					description_localizations: {
-						fr: "Le channel",
-						ja: "チャンネル！",
-						ru: "Канал!",
-						"es-ES": "El canal!",
-						ko: "채널!",
-						uk: "Канал!",
-						de: "Der Kanal!",
-						it: "Il canale!",
-						"pt-BR": "O canal!",
-						pl: "Kanał!"
-					},
-
-					channel_types: [ChannelType.GuildText],
-
-					required: true,
-
-					permission: null
-				},
-				{
-					name: "button-title",
-					type: ApplicationCommandOptionType.String,
-
-					description: "The button title",
-					description_localizations: {
-						fr: "Le titre du bouton",
-						ja: "ボタンのタイトル",
-						ru: "Название кнопки",
-						"es-ES": "El título del botón",
-						ko: "버튼 제목",
-						uk: "Назва кнопки",
-						de: "Der Button-Titel",
-						it: "Il titolo del pulsante",
-						"pt-BR": "O título do botão",
-						pl: "Tytuł przycisku"
-					},
-
-					required: true,
-
-					permission: null
-				}
-			],
-
-			permission: PermissionFlagsBits.Administrator
-		},
-		{
-			name: "config",
-			prefixName: "confess-config",
-
-			description: "Enable or Disable the confession module!",
-			description_localizations: {
-				fr: "Activer ou désactiver le module",
-				ja: "告白モジュールを有効化または無効化！",
-				ru: "Включить или отключить модуль признаний!",
-				"es-ES": "Habilitar o Deshabilitar el módulo de confesiones!",
-				ko: "고백 모듈을 켜거나 꺼요!",
-				uk: "Увімкнути або вимкнути модуль зізнань!",
-				de: "Geständnis-Modul aktivieren oder deaktivieren!",
-				it: "Attiva o disattiva il modulo confessioni!",
-				"pt-BR": "Ative ou desative o módulo de confissões!",
-				pl: "Włącz lub wyłącz moduł wyznań!"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "action",
-					type: ApplicationCommandOptionType.String,
-
-					description: "What do you want to do ?",
-					description_localizations: {
-						fr: "Que voulez-vous faire ?",
-						ja: "何をしたいですか？",
-						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?",
-						de: "Was möchtest du tun?",
-						it: "Cosa vuoi fare?",
-						"pt-BR": "O que você quer fazer?",
-						pl: "Co chcesz zrobić?"
-					},
-
-					required: true,
-					choices: [
-						{
-							name: "Power On",
-							name_localizations: {
-								fr: "Activer",
-								ja: "power_on",
-								ru: "power_on",
-								"es-ES": "power_on",
-								ko: "켜기",
-								uk: "Увімкнути",
-								de: "Einschalten",
-								it: "Attiva",
-								"pt-BR": "Ligar",
-								pl: "Włącz"
-							},
-							value: "on"
-						},
-						{
-							name: "Power Off",
-							name_localizations: {
-								fr: "Désactiver",
-								ja: "power_off",
-								ru: "power_off",
-								"es-ES": "power_off",
-								ko: "끄기",
-								uk: "Вимкнути",
-								de: "Ausschalten",
-								it: "Disattiva",
-								"pt-BR": "Desligar",
-								pl: "Wyłącz"
-							},
-							value: "off"
-						}
-					],
-
-					permission: null
-				}
-			],
-
-			permission: PermissionFlagsBits.Administrator
-		},
-		{
-			name: "thread",
-			prefixName: "confthread",
-
-			description: "Create an thread upside the confession ?",
-			description_localizations: {
-				fr: "Créer un fil de discussion en dessous de la confession ?",
-				ja: "告白の上にスレッドを作成しますか？",
-				ru: "Создать ветку над признанием?",
-				"es-ES": "Crear un hilo encima de la confesión?",
-				ko: "고백 위에 스레드를 만들까요?",
-				uk: "Створювати гілку під зізнанням?",
-				de: "Thread zum Geständnis erstellen?",
-				it: "Creare un thread per la confessione?",
-				"pt-BR": "Criar um tópico para a confissão?",
-				pl: "Utworzyć wątek przy wyznaniu?"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "action",
-					type: ApplicationCommandOptionType.String,
-
-					description: "What do you want to do ?",
-					description_localizations: {
-						fr: "Que voulez-vous faire ?",
-						ja: "何をしたいですか？",
-						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?",
-						ko: "무엇을 할까요?",
-						uk: "Що ви хочете зробити?",
-						de: "Was möchtest du tun?",
-						it: "Cosa vuoi fare?",
-						"pt-BR": "O que você quer fazer?",
-						pl: "Co chcesz zrobić?"
-					},
-
-					required: true,
-					choices: [
-						{
-							name: "Create thread",
-							name_localizations: {
-								fr: "Créer un fil",
-								ja: "create_thread",
-								ru: "create_thread",
-								"es-ES": "create_thread",
-								ko: "스레드 만들기",
-								uk: "Створювати гілку",
-								de: "Thread erstellen",
-								it: "Crea thread",
-								"pt-BR": "Criar tópico",
-								pl: "Utwórz wątek"
-							},
-							value: "yes"
-						},
-						{
-							name: "Don´t create thread",
-							name_localizations: {
-								fr: "Ne pas créer un fil",
-								ja: "don_t_create_thread",
-								ru: "don_t_create_thread",
-								"es-ES": "don_t_create_thread",
-								ko: "스레드 만들지 않기",
-								uk: "Не створювати гілку",
-								de: "Keinen Thread erstellen",
-								it: "Non creare thread",
-								"pt-BR": "Não criar tópico",
-								pl: "Nie twórz wątku"
-							},
-							value: "no"
-						}
-					],
-
-					permission: null
-				}
-			],
-
-			permission: PermissionFlagsBits.Administrator
-		},
-		{
-			name: "cooldown",
-			prefixName: "confess-cooldown",
-
-			description: "Change the cooldown between confession!",
-			description_localizations: {
-				fr: "Changer le cooldown entre les confession",
-				ja: "告白間のクールダウンを変更！",
-				ru: "Изменить задержку между признаниями!",
-				"es-ES": "Cambiar el enfriamiento entre confesiones!",
-				ko: "고백 사이의 쿨다운을 변경해요!",
-				uk: "Змінити затримку між зізнаннями!",
-				de: "Ändere die Wartezeit zwischen Geständnissen!",
-				it: "Cambia il tempo di attesa tra le confessioni!",
-				"pt-BR": "Altere o intervalo entre confissões!",
-				pl: "Zmień czas oczekiwania między wyznaniami!"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "time",
-					type: ApplicationCommandOptionType.String,
-
-					description: "Coolodwn's time like 3h/30m/10s...",
-					description_localizations: {
-						fr: "Le temps comme 3h/30m/10s...",
-						ja: "クールダウン時間（例: 3h/30m/10s...）",
-						ru: "Время задержки, например 3ч/30м/10с...",
-						"es-ES": "Tiempo de enfriamiento como 3h/30m/10s...",
-						ko: "쿨다운 시간 (예: 3h/30m/10s...)",
-						uk: "Тривалість затримки, наприклад 3h/30m/10s...",
-						de: "Wartezeit, z. B. 3h/30m/10s...",
-						it: "Tempo di attesa, es. 3h/30m/10s...",
-						"pt-BR": "Tempo de espera, ex.: 3h/30m/10s...",
-						pl: "Czas oczekiwania, np. 3h/30m/10s..."
-					},
-
-					required: true,
-
-					permission: null
-				}
-			],
 
 			permission: PermissionFlagsBits.Administrator
 		},

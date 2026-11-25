@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🤫 Confessions — un seul panneau pour tout
+
+`/confession channel`, `/confession config`, `/confession thread` et `/confession cooldown` sont remplacées par **`/confession panel`** (administrateurs) : une seule carte pour publier le panneau dans un salon, activer ou couper les confessions et les fils, régler le délai, et **personnaliser le panneau** : texte, emoji (unicode ou du serveur) et couleur du bouton (bleu, gris, vert, rouge), et un **embed enregistré avec `/embed`** affiché à la place de celui par défaut, grâce à son code. Chaque changement met à jour le panneau publié tout de suite, et la carte montre un aperçu du bouton. `/confession delete`, `ban` et `unban` ne changent pas.
+
+---
+
 ## 🇺🇦 iHorizon parle ukrainien
 
 L'ukrainien devient une langue à part entière d'iHorizon : choisissez **Українська** avec `/setlang`. Chaque réponse, carte, menu et log est traduit, les commandes slash ont leurs descriptions en ukrainien dans une application Discord en ukrainien, et le dashboard a lui aussi sa version ukrainienne. Un serveur dont la région Discord est ukrainienne démarre en ukrainien. Le menu des langues affiche désormais chaque langue dans son propre nom (Français, Deutsch, 日本語…).

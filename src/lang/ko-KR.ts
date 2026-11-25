@@ -4998,5 +4998,67 @@ export default {
 	gforms_label_submitted: "제출 시각",
 	gforms_no_answer: "응답 없음",
 	gforms_more_answers: "응답 ${count}개 더 있음",
-	gforms_role_reason: "Google Forms 응답 (${name})"
+	gforms_role_reason: "Google Forms 응답 (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "고백하기",
+	confession_panel_title: "고백 패널",
+	confession_panel_state_on: "고백이 켜져 있어요",
+	confession_panel_state_off: "고백이 꺼져 있어요",
+	confession_panel_field_channel: "패널 채널",
+	confession_panel_no_channel: "아직 게시되지 않았어요",
+	confession_panel_field_threads: "토론 스레드",
+	confession_panel_value_on: "켜짐",
+	confession_panel_value_off: "꺼짐",
+	confession_panel_field_cooldown: "쿨다운",
+	confession_panel_field_embed: "임베드",
+	confession_panel_embed_default: "기본",
+	confession_panel_embed_missing:
+		"`${code}`을(를) 찾을 수 없어 기본 임베드를 보여줘요",
+	confession_panel_field_button: "버튼",
+	confession_panel_channel_placeholder: "패널을 게시할 채널…",
+	confession_panel_action_enable: "켜기",
+	confession_panel_action_disable: "끄기",
+	confession_panel_action_threads_on: "스레드 켜기",
+	confession_panel_action_threads_off: "스레드 끄기",
+	confession_panel_action_cooldown: "쿨다운",
+	confession_panel_action_edit_button: "텍스트와 이모지",
+	confession_panel_action_reset_button: "버튼 초기화",
+	confession_panel_action_embed: "임베드 코드",
+	confession_panel_style_placeholder: "버튼 색상",
+	confession_panel_style_primary: "파란색",
+	confession_panel_style_secondary: "회색",
+	confession_panel_style_success: "초록색",
+	confession_panel_style_danger: "빨간색",
+	confession_panel_modal_cooldown_title: "고백 쿨다운",
+	confession_panel_modal_cooldown_label: "두 고백 사이의 시간",
+	confession_panel_modal_cooldown_desc: "예: 30s, 10m, 3h",
+	confession_panel_modal_button_title: "패널 버튼",
+	confession_panel_modal_label_label: "텍스트",
+	confession_panel_modal_label_desc: "1~80자. 비우면: “${default}”",
+	confession_panel_modal_emoji_label: "이모지",
+	confession_panel_modal_emoji_desc:
+		"유니코드 또는 서버 이모지 (<:name:id>). 비우면: 없음",
+	confession_panel_modal_embed_title: "패널 임베드",
+	confession_panel_modal_embed_label: "임베드 코드",
+	confession_panel_modal_embed_desc:
+		"/embed로 저장한 코드. 비우면: 기본 임베드",
+	confession_panel_emoji_invalid: "버튼에 넣을 수 있는 이모지가 아니에요.",
+	confession_panel_emoji_unusable:
+		"이 이모지는 사용할 수 없어요: 이 서버의 이모지여야 해요.",
+	confession_panel_embed_not_found:
+		"`${code}` 코드의 임베드를 찾을 수 없어요.",
+	confession_panel_cooldown_invalid:
+		"올바르지 않은 시간이에요. 예: 30s, 10m, 3h",
+	confession_panel_channel_no_access:
+		"${channel}을(를) 보고 메시지를 보낼 수 있어야 해요.",
+	confession_panel_send_failed:
+		"${channel}에 패널을 게시하지 못했어요: 그곳의 제 권한을 확인해 주세요.",
+	confession_panel_posted: "${channel}에 패널을 게시했어요.",
+	confession_panel_saved: "저장했어요.",
+	confession_panel_saved_refreshed:
+		"저장했어요. 게시된 패널도 업데이트됐어요.",
+	confession_panel_saved_not_refreshed:
+		"저장했어요. 게시된 패널을 업데이트하지 못했어요: 채널을 다시 선택해 새로 게시하세요.",
+	confession_panel_expired: "이 패널이 만료됐어요. 명령어를 다시 실행하세요."
 } satisfies LanguageData;

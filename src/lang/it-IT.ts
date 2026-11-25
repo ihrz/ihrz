@@ -5260,5 +5260,70 @@ export default {
 	gforms_label_submitted: "Inviata",
 	gforms_no_answer: "Nessuna risposta",
 	gforms_more_answers: "+${count} altre risposte",
-	gforms_role_reason: "Risposta Google Forms (${name})"
+	gforms_role_reason: "Risposta Google Forms (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "Confessa",
+	confession_panel_title: "Pannello confessioni",
+	confession_panel_state_on: "Le confessioni sono attive",
+	confession_panel_state_off: "Le confessioni sono disattivate",
+	confession_panel_field_channel: "Canale del pannello",
+	confession_panel_no_channel: "non ancora pubblicato",
+	confession_panel_field_threads: "Thread di discussione",
+	confession_panel_value_on: "attivi",
+	confession_panel_value_off: "disattivati",
+	confession_panel_field_cooldown: "Tempo di attesa",
+	confession_panel_field_embed: "Embed",
+	confession_panel_embed_default: "predefinito",
+	confession_panel_embed_missing:
+		"`${code}` non trovato, viene mostrato l'embed predefinito",
+	confession_panel_field_button: "Pulsante",
+	confession_panel_channel_placeholder: "Pubblica il pannello in…",
+	confession_panel_action_enable: "Attiva",
+	confession_panel_action_disable: "Disattiva",
+	confession_panel_action_threads_on: "Attiva thread",
+	confession_panel_action_threads_off: "Disattiva thread",
+	confession_panel_action_cooldown: "Tempo di attesa",
+	confession_panel_action_edit_button: "Testo ed emoji",
+	confession_panel_action_reset_button: "Ripristina pulsante",
+	confession_panel_action_embed: "Codice embed",
+	confession_panel_style_placeholder: "Colore del pulsante",
+	confession_panel_style_primary: "Blu",
+	confession_panel_style_secondary: "Grigio",
+	confession_panel_style_success: "Verde",
+	confession_panel_style_danger: "Rosso",
+	confession_panel_modal_cooldown_title: "Attesa tra le confessioni",
+	confession_panel_modal_cooldown_label: "Tempo tra due confessioni",
+	confession_panel_modal_cooldown_desc: "Per esempio 30s, 10m o 3h.",
+	confession_panel_modal_button_title: "Pulsante del pannello",
+	confession_panel_modal_label_label: "Testo",
+	confession_panel_modal_label_desc:
+		"Da 1 a 80 caratteri. Vuoto: «${default}».",
+	confession_panel_modal_emoji_label: "Emoji",
+	confession_panel_modal_emoji_desc:
+		"Un'emoji unicode o del server (<:nome:id>). Vuoto: nessuna.",
+	confession_panel_modal_embed_title: "Embed del pannello",
+	confession_panel_modal_embed_label: "Codice embed",
+	confession_panel_modal_embed_desc:
+		"Un codice salvato con /embed. Vuoto: l'embed predefinito.",
+	confession_panel_emoji_invalid:
+		"Questa non è un'emoji utilizzabile su un pulsante.",
+	confession_panel_emoji_unusable:
+		"Non posso usare questa emoji: deve provenire da questo server.",
+	confession_panel_embed_not_found:
+		"Nessun embed trovato con il codice `${code}`.",
+	confession_panel_cooldown_invalid:
+		"Questo tempo non è valido. Usa per esempio 30s, 10m o 3h.",
+	confession_panel_channel_no_access:
+		"Devi poter vedere ${channel} e inviarvi messaggi.",
+	confession_panel_send_failed:
+		"Non ho potuto pubblicare il pannello in ${channel}: controlla i miei permessi lì.",
+	confession_panel_posted: "Pannello pubblicato in ${channel}.",
+	confession_panel_saved: "Salvato.",
+	confession_panel_saved_refreshed:
+		"Salvato, il pannello pubblicato è aggiornato.",
+	confession_panel_saved_not_refreshed:
+		"Salvato. Non è stato possibile aggiornare il pannello pubblicato: scegli di nuovo il suo canale per ripubblicarlo.",
+	confession_panel_expired:
+		"Questo pannello è scaduto, esegui di nuovo il comando."
 } satisfies LanguageData;

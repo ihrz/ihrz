@@ -5169,5 +5169,67 @@ export default {
 	gforms_label_submitted: "送信日時",
 	gforms_no_answer: "回答なし",
 	gforms_more_answers: "ほか ${count} 件の回答",
-	gforms_role_reason: "Google フォームの回答（${name}）"
+	gforms_role_reason: "Google フォームの回答（${name}）",
+
+	// /confession panel
+	confession_panel_button_default_label: "告白する",
+	confession_panel_title: "告白パネル",
+	confession_panel_state_on: "告白は有効です",
+	confession_panel_state_off: "告白は無効です",
+	confession_panel_field_channel: "パネルのチャンネル",
+	confession_panel_no_channel: "まだ投稿されていません",
+	confession_panel_field_threads: "ディスカッションスレッド",
+	confession_panel_value_on: "オン",
+	confession_panel_value_off: "オフ",
+	confession_panel_field_cooldown: "クールダウン",
+	confession_panel_field_embed: "埋め込み",
+	confession_panel_embed_default: "デフォルト",
+	confession_panel_embed_missing:
+		"`${code}` が見つかりません。デフォルトの埋め込みを表示しています",
+	confession_panel_field_button: "ボタン",
+	confession_panel_channel_placeholder: "パネルを投稿するチャンネル…",
+	confession_panel_action_enable: "有効にする",
+	confession_panel_action_disable: "無効にする",
+	confession_panel_action_threads_on: "スレッドをオン",
+	confession_panel_action_threads_off: "スレッドをオフ",
+	confession_panel_action_cooldown: "クールダウン",
+	confession_panel_action_edit_button: "テキストと絵文字",
+	confession_panel_action_reset_button: "ボタンをリセット",
+	confession_panel_action_embed: "埋め込みコード",
+	confession_panel_style_placeholder: "ボタンの色",
+	confession_panel_style_primary: "青",
+	confession_panel_style_secondary: "グレー",
+	confession_panel_style_success: "緑",
+	confession_panel_style_danger: "赤",
+	confession_panel_modal_cooldown_title: "告白のクールダウン",
+	confession_panel_modal_cooldown_label: "2回の告白の間隔",
+	confession_panel_modal_cooldown_desc: "例：30s、10m、3h",
+	confession_panel_modal_button_title: "パネルのボタン",
+	confession_panel_modal_label_label: "テキスト",
+	confession_panel_modal_label_desc: "1〜80文字。空欄：「${default}」",
+	confession_panel_modal_emoji_label: "絵文字",
+	confession_panel_modal_emoji_desc:
+		"Unicode絵文字またはサーバー絵文字（<:name:id>）。空欄：なし",
+	confession_panel_modal_embed_title: "パネルの埋め込み",
+	confession_panel_modal_embed_label: "埋め込みコード",
+	confession_panel_modal_embed_desc:
+		"/embed で保存したコード。空欄：デフォルトの埋め込み",
+	confession_panel_emoji_invalid: "ボタンに使える絵文字ではありません。",
+	confession_panel_emoji_unusable:
+		"この絵文字は使えません。このサーバーの絵文字を使ってください。",
+	confession_panel_embed_not_found:
+		"コード `${code}` の埋め込みが見つかりません。",
+	confession_panel_cooldown_invalid: "無効な時間です。例：30s、10m、3h",
+	confession_panel_channel_no_access:
+		"${channel} を閲覧してメッセージを送信できる必要があります。",
+	confession_panel_send_failed:
+		"${channel} にパネルを投稿できませんでした。そこでの権限を確認してください。",
+	confession_panel_posted: "${channel} にパネルを投稿しました。",
+	confession_panel_saved: "保存しました。",
+	confession_panel_saved_refreshed:
+		"保存しました。投稿済みのパネルも更新されました。",
+	confession_panel_saved_not_refreshed:
+		"保存しました。投稿済みのパネルを更新できませんでした。チャンネルを選び直して再投稿してください。",
+	confession_panel_expired:
+		"このパネルの有効期限が切れました。もう一度コマンドを実行してください。"
 } satisfies LanguageData;

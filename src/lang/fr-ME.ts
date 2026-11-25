@@ -5349,5 +5349,70 @@ export default {
 	gforms_label_submitted: "Balancée le",
 	gforms_no_answer: "Que dalle",
 	gforms_more_answers: "+${count} réponses en rab",
-	gforms_role_reason: "A répondu au Google Forms (${name})"
+	gforms_role_reason: "A répondu au Google Forms (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "Balance ton truc",
+	confession_panel_title: "Panneau des confessions de merde",
+	confession_panel_state_on: "Les confessions sont activées, lâchez-vous",
+	confession_panel_state_off: "Les confessions sont coupées, fermez-la",
+	confession_panel_field_channel: "Salon du panneau",
+	confession_panel_no_channel: "toujours pas posté, bordel",
+	confession_panel_field_threads: "Fils de discussion",
+	confession_panel_value_on: "activés",
+	confession_panel_value_off: "désactivés",
+	confession_panel_field_cooldown: "Délai",
+	confession_panel_field_embed: "Embed",
+	confession_panel_embed_default: "celui de base",
+	confession_panel_embed_missing:
+		"`${code}` introuvable, putain, l'embed de base est affiché",
+	confession_panel_field_button: "Bouton",
+	confession_panel_channel_placeholder: "Balancer le panneau dans…",
+	confession_panel_action_enable: "Activer ce bordel",
+	confession_panel_action_disable: "Couper ce bordel",
+	confession_panel_action_threads_on: "Activer les fils",
+	confession_panel_action_threads_off: "Virer les fils",
+	confession_panel_action_cooldown: "Délai",
+	confession_panel_action_edit_button: "Texte et emoji",
+	confession_panel_action_reset_button: "Remettre le bouton à zéro",
+	confession_panel_action_embed: "Code d'embed",
+	confession_panel_style_placeholder: "Couleur du bouton",
+	confession_panel_style_primary: "Bleu",
+	confession_panel_style_secondary: "Gris",
+	confession_panel_style_success: "Vert",
+	confession_panel_style_danger: "Rouge",
+	confession_panel_modal_cooldown_title: "Délai entre les confessions",
+	confession_panel_modal_cooldown_label: "Temps entre deux confessions",
+	confession_panel_modal_cooldown_desc: "Genre 30s, 10m ou 3h.",
+	confession_panel_modal_button_title: "Bouton du panneau",
+	confession_panel_modal_label_label: "Texte",
+	confession_panel_modal_label_desc:
+		"1 à 80 caractères. Vide : « ${default} », démerde-toi.",
+	confession_panel_modal_emoji_label: "Emoji",
+	confession_panel_modal_emoji_desc:
+		"Un emoji unicode ou du serveur (<:nom:id>). Vide : que dalle.",
+	confession_panel_modal_embed_title: "Embed du panneau",
+	confession_panel_modal_embed_label: "Code d'embed",
+	confession_panel_modal_embed_desc:
+		"Un code sauvé avec /embed. Vide : l'embed de base.",
+	confession_panel_emoji_invalid:
+		"C'est pas un emoji qu'on peut foutre sur un bouton.",
+	confession_panel_emoji_unusable:
+		"Je peux pas utiliser cet emoji de merde : il doit venir de ce serveur.",
+	confession_panel_embed_not_found:
+		"Y a aucun embed avec le code `${code}`, abruti.",
+	confession_panel_cooldown_invalid:
+		"Cette durée est pétée. Mets genre 30s, 10m ou 3h.",
+	confession_panel_channel_no_access:
+		"Faut que tu puisses voir ${channel} et y écrire, bordel.",
+	confession_panel_send_failed:
+		"J'ai pas pu balancer le panneau dans ${channel} : vérifie mes putains de permissions.",
+	confession_panel_posted: "Panneau balancé dans ${channel}.",
+	confession_panel_saved: "C'est enregistré.",
+	confession_panel_saved_refreshed:
+		"Enregistré, le panneau est à jour, t'as vu.",
+	confession_panel_saved_not_refreshed:
+		"Enregistré. Le panneau publié a pas voulu se mettre à jour : rechoisis son salon pour le republier.",
+	confession_panel_expired:
+		"Ce panneau a expiré, relance la commande, feignasse."
 } satisfies LanguageData;
