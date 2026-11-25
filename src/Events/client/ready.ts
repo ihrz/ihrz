@@ -39,6 +39,7 @@ import { recoverActiveSessions } from "../stats/onVoiceUpdate.js";
 import { writeFileSync } from "node:fs";
 import {
 	readablePermissionField,
+	sortedOptions,
 	withReadablePermissions
 } from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
@@ -534,7 +535,9 @@ export const event: BotEvent = {
 
 								category: x.category,
 								...readablePermissionField(x.permission),
-								options: withReadablePermissions(x.options),
+								options: sortedOptions(
+									withReadablePermissions(x.options)
+								),
 								aliases: x.aliases,
 								thinking: x.thinking,
 								ephemeral: x.ephemeral
