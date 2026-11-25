@@ -37,6 +37,7 @@ export type MethodTypes = [
 
 // Every runtime export of method.ts before it was split into ./method/.
 const EXPECTED = [
+	"findRole",
 	"addCoins",
 	"addTopggButonToTheActualComponents",
 	"boldStringifyOption",
@@ -70,6 +71,7 @@ const EXPECTED = [
 	"punish",
 	"reply",
 	"role",
+	"roleKey",
 	"shouldAdvertiseTheTopggVoteButton",
 	"string",
 	"stringifyOption",
