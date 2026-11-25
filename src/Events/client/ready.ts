@@ -85,6 +85,12 @@ export {
 export const event: BotEvent = {
 	name: "clientReady",
 	run: async (client: Client) => {
+		// First of all: Discord keeps the voice session of the stopped bot for
+		// ~95 s, the H24/7 takeover has to happen inside that window (it only
+		// needs the guild cache and client.db, both ready here).
+		recoverH247Sessions(client).catch((err) => {
+			logger.err("H24/7 session recovery failed:", err);
+		});
 		await initTables(client, [
 			"tempTable",
 			"blacklistTable",
@@ -435,9 +441,6 @@ export const event: BotEvent = {
 			})
 			.then(() => {});
 		recoverActiveSessions(client).then(() => {});
-		recoverH247Sessions(client).catch((err) => {
-			logger.err("H24/7 session recovery failed:", err);
-		});
 		client.memberCountManager.init().then(() => {});
 		client.gatewayLink.start();
 		// Command logs: boot purge, and on shard 0 the old log file moved
