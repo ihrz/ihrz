@@ -5231,5 +5231,31 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"保存しました。投稿済みのパネルを更新できませんでした。チャンネルを選び直して再投稿してください。",
 	confession_panel_expired:
-		"このパネルの有効期限が切れました。もう一度コマンドを実行してください。"
+		"このパネルの有効期限が切れました。もう一度コマンドを実行してください。",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "いいね",
+	music_love_added: "❤️ **${track}** を「${playlist}」に追加しました。",
+	music_love_already: "**${track}** はすでに「${playlist}」にあります。",
+	music_love_remove_button: "「${playlist}」から削除",
+	music_love_removed: "**${track}** を「${playlist}」から削除しました。",
+	music_love_limit:
+		"「${playlist}」がいっぱいです（最大 ${max} 曲）。先にダッシュボードのプレーヤーから削除してください。",
+	music_love_unavailable: "**${track}** は「${playlist}」に追加できません。",
+	music_playlist_title: "あなたの音楽ライブラリ",
+	music_playlist_stats: "プレイリスト: ${playlists}/${max}",
+	music_playlist_tracks: "曲数: ${count}",
+	music_playlist_no_playlists:
+		"プレイリストはまだありません。ダッシュボードのプレーヤーで作成できます。",
+	music_playlist_empty:
+		"ライブラリはまだ空です。プレーヤーの **${button}** を押すと再生中の曲を「${playlist}」に保存できます。ダッシュボードでプレイリストも作れます: ${url}",
+	music_playlist_select: "プレイリストを開く",
+	music_playlist_play: "再生",
+	music_playlist_back: "戻る",
+	music_playlist_no_tracks: "このリストは空です。",
+	music_playlist_queued:
+		"**${name}** をキューに追加しました（${count} 曲）。",
+	music_playlist_not_found:
+		"その名前のプレイリストは見つかりませんでした。ライブラリを表示します。",
+	music_playlist_gone: "このプレイリストはもう存在しません。"
 } satisfies LanguageData;

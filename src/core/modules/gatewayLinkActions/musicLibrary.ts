@@ -29,15 +29,8 @@
 import type { Track } from "lavalink-client";
 
 import type { DatabaseStructure } from "../../../../types/database_structure.js";
-import {
-	announceMusicPlay,
-	enqueueMusicQueries,
-	isUrlQuery,
-	recordMusicPlay,
-	searchMusicQuery
-} from "../../functions/musicPlay.js";
+import { isUrlQuery, searchMusicQuery } from "../../functions/musicPlay.js";
 import { audioAvailable } from "../audioNode.js";
-import logger from "../../logger.js";
 import {
 	addToPlaylist,
 	allFavorites,
@@ -66,7 +59,8 @@ import {
 	toLibraryTrack,
 	trackKey
 } from "../musicLibrary.js";
-import { AUDIO_UNAVAILABLE, canPostIn, PLAY_ERRORS } from "./music.js";
+import { playLibraryTracks } from "../musicLibraryPlay.js";
+import { AUDIO_UNAVAILABLE, PLAY_ERRORS } from "./music.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
 
 type LibraryTrack = DatabaseStructure.LibraryTrack;
@@ -144,44 +138,23 @@ async function playList(
 	single = false
 ) {
 	const { client, guild, actor, lang } = ctx;
-	if (!tracks.length) fail("nothing to play");
-	if (ctx.params.bool("shuffle")) {
-		tracks = [...tracks];
-		for (let i = tracks.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[tracks[i], tracks[j]] = [tracks[j]!, tracks[i]!];
-		}
-	}
-	if (!actor.voice.channel) fail(PLAY_ERRORS.not_in_voice);
-	const existing = client.player.getPlayer(guild.id);
-	const panelId = existing?.textChannelId ?? actor.voice.channel!.id;
-	const panelChannel = guild.channels.cache.get(panelId);
-	const canPost = canPostIn(panelChannel, actor);
-	const result = await enqueueMusicQueries({
+	const result = await playLibraryTracks({
 		client,
 		lang,
 		guild,
 		member: actor,
-		requester: actor.user,
-		queries: [],
-		results: { name, tracks: tracks.slice(0, MAX_PLAYLIST_TRACKS), single },
-		textChannelId: panelId,
-		sourceChannelId: canPost ? panelId : null
+		name,
+		tracks,
+		single,
+		shuffle: ctx.params.bool("shuffle")
 	});
-	if (!result.ok) return fail(PLAY_ERRORS[result.reason]);
-	const after =
-		canPost && panelChannel && !existing?.queue.current
-			? announceMusicPlay({
-					client,
-					lang,
-					player: result.player,
-					firstResult: result.firstResult,
-					requester: actor.user,
-					send: (payload) => (panelChannel as any).send(payload)
-				})
-			: recordMusicPlay(client, result.player, result.firstResult);
-	after.catch((error) => logger.err(error));
-	return { queued: result.firstResult.tracks.length };
+	if (!result.ok)
+		return fail(
+			result.reason === "empty"
+				? "nothing to play"
+				: PLAY_ERRORS[result.reason]
+		);
+	return { queued: result.queued };
 }
 
 const LIMITS = {

@@ -5385,5 +5385,32 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"Gespeichert. Das gepostete Panel konnte nicht aktualisiert werden: Wähle seinen Kanal erneut, um es neu zu posten.",
 	confession_panel_expired:
-		"Dieses Panel ist abgelaufen, führe den Befehl erneut aus."
+		"Dieses Panel ist abgelaufen, führe den Befehl erneut aus.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Gefällt mir",
+	music_love_added: "❤️ **${track}** ist jetzt in deinen ${playlist}.",
+	music_love_already: "**${track}** ist schon in deinen ${playlist}.",
+	music_love_remove_button: "Aus ${playlist} entfernen",
+	music_love_removed: "**${track}** wurde aus deinen ${playlist} entfernt.",
+	music_love_limit:
+		"Deine ${playlist} sind voll (höchstens ${max}): entferne zuerst welche im Musikplayer des Dashboards.",
+	music_love_unavailable:
+		"**${track}** kann nicht zu deinen ${playlist} hinzugefügt werden.",
+	music_playlist_title: "Deine Musikbibliothek",
+	music_playlist_stats: "Playlists: ${playlists}/${max}",
+	music_playlist_tracks: "Titel: ${count}",
+	music_playlist_no_playlists:
+		"Noch keine Playlist: erstelle sie im Musikplayer des Dashboards.",
+	music_playlist_empty:
+		"Deine Bibliothek ist noch leer. Drücke **${button}** im Musikplayer, um den laufenden Titel in deinen ${playlist} zu behalten, oder erstelle Playlists im Dashboard: ${url}",
+	music_playlist_select: "Eine Playlist öffnen",
+	music_playlist_play: "Abspielen",
+	music_playlist_back: "Zurück",
+	music_playlist_no_tracks: "Diese Liste ist leer.",
+	music_playlist_queued:
+		"**${name}** wurde zur Warteschlange hinzugefügt (Titel: ${count}).",
+	music_playlist_not_found:
+		"Keine Playlist mit diesem Namen gefunden: hier ist deine Bibliothek.",
+	music_playlist_gone: "Diese Playlist gibt es nicht mehr."
 } satisfies LanguageData;

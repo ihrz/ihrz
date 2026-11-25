@@ -5233,5 +5233,31 @@ export default {
 	confession_panel_saved_not_refreshed:
 		"Сохранено. Не удалось обновить опубликованную панель: выберите её канал ещё раз, чтобы опубликовать заново.",
 	confession_panel_expired:
-		"Срок действия панели истёк, запустите команду снова."
+		"Срок действия панели истёк, запустите команду снова.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "Нравится",
+	music_love_added: "❤️ **${track}** теперь в разделе «${playlist}».",
+	music_love_already: "**${track}** уже в разделе «${playlist}».",
+	music_love_remove_button: "Убрать из «${playlist}»",
+	music_love_removed: "**${track}** убран из раздела «${playlist}».",
+	music_love_limit:
+		"Раздел «${playlist}» заполнен (не больше ${max}): сначала удалите что-нибудь в плеере панели управления.",
+	music_love_unavailable:
+		"**${track}** нельзя добавить в раздел «${playlist}».",
+	music_playlist_title: "Ваша музыкальная библиотека",
+	music_playlist_stats: "Плейлисты: ${playlists}/${max}",
+	music_playlist_tracks: "Треки: ${count}",
+	music_playlist_no_playlists:
+		"Плейлистов пока нет: создайте их в плеере панели управления.",
+	music_playlist_empty:
+		"Ваша библиотека пока пуста. Нажмите **${button}** в плеере, чтобы сохранить текущий трек в «${playlist}», или создайте плейлисты в панели управления: ${url}",
+	music_playlist_select: "Открыть плейлист",
+	music_playlist_play: "Слушать",
+	music_playlist_back: "Назад",
+	music_playlist_no_tracks: "Этот список пуст.",
+	music_playlist_queued: "**${name}** добавлен в очередь (треков: ${count}).",
+	music_playlist_not_found:
+		"Плейлист с таким названием не найден: вот ваша библиотека.",
+	music_playlist_gone: "Этого плейлиста больше нет."
 } satisfies LanguageData;

@@ -27,6 +27,7 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { musicTrackAutocomplete } from "../../../core/modules/musicAutocomplete.js";
+import { musicLibraryAutocomplete } from "../../../core/modules/musicLibraryPanel.js";
 
 const VOLUMES = [
 	"10",
@@ -439,6 +440,55 @@ export const command: Command = {
 			permission: null
 		},
 		{
+			name: "playlist",
+
+			description: "See your playlists and liked tracks!",
+			description_localizations: {
+				fr: "Voir tes playlists et tes titres likés !",
+				ja: "プレイリストとお気に入りの曲を見る！",
+				ru: "Посмотреть свои плейлисты и любимые треки!",
+				"es-ES": "¡Mira tus playlists y tus canciones favoritas!",
+				ko: "내 플레이리스트와 좋아요 표시한 곡을 봐요!",
+				uk: "Переглянути свої плейлисти та вподобані треки!",
+				de: "Sieh dir deine Playlists und Lieblingssongs an!",
+				it: "Guarda le tue playlist e i tuoi brani preferiti!",
+				"pt-BR": "Veja suas playlists e músicas favoritas!",
+				pl: "Zobacz swoje playlisty i polubione utwory!"
+			},
+
+			aliases: ["playlists", "library"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "name",
+					type: ApplicationCommandOptionType.String,
+
+					description: "A playlist to open directly",
+					description_localizations: {
+						fr: "Une playlist à ouvrir directement",
+						ja: "直接開くプレイリスト",
+						ru: "Плейлист, который нужно сразу открыть",
+						"es-ES": "Una playlist para abrir directamente",
+						ko: "바로 열 플레이리스트",
+						uk: "Плейлист, який відкрити одразу",
+						de: "Eine Playlist, die direkt geöffnet wird",
+						it: "Una playlist da aprire subito",
+						"pt-BR": "Uma playlist para abrir direto",
+						pl: "Playlista do otwarcia od razu"
+					},
+
+					required: false,
+					autocomplete: true,
+
+					permission: null
+				}
+			],
+			ephemeral: true,
+
+			permission: null
+		},
+		{
 			name: "volume",
 
 			description: "change the volume of the player in the guild",
@@ -698,6 +748,8 @@ export const command: Command = {
 			(sub === "lyrics" && focused === "query")
 		) {
 			await musicTrackAutocomplete(client, interaction);
+		} else if (sub === "playlist" && focused === "name") {
+			await musicLibraryAutocomplete(client, interaction);
 		}
 	}
 };

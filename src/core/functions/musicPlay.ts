@@ -1202,6 +1202,31 @@ export async function recordMusicPlay(
 	);
 }
 
+// What a refused play request answers (/music play, /music playlist).
+export function musicPlayRefusalPayload(
+	client: Client,
+	lang: LanguageData,
+	reason: MusicPlayRefusal
+): { content?: string; embeds?: EmbedBuilder[] } {
+	const no = client.iHorizon_Emojis.No;
+	switch (reason) {
+		case "not_in_voice":
+			return { content: lang.p_not_in_voice_channel };
+		case "h247_refused":
+			return {
+				content: lang.h247_play_refused.replace("${emoji_No}", no)
+			};
+		case "music_cannot":
+			return { content: lang.music_cannot.replace("${emoji_No}", no) };
+		case "not_allowed":
+			return { content: lang.p_not_allowed };
+		case "no_result":
+			return { embeds: [buildNoResultEmbed(lang)] };
+		case "audio_unavailable":
+			return { content: lang.music_audio_unavailable };
+	}
+}
+
 export async function handleMusicPlay({
 	client,
 	interaction,
@@ -1233,36 +1258,8 @@ export async function handleMusicPlay({
 	});
 
 	if (!result.ok) {
-		switch (result.reason) {
-			case "not_in_voice":
-				await respond({ content: lang.p_not_in_voice_channel });
-				return;
-			case "h247_refused":
-				await respond({
-					content: lang.h247_play_refused.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-				return;
-			case "music_cannot":
-				await respond({
-					content: lang.music_cannot.replace(
-						"${emoji_No}",
-						client.iHorizon_Emojis.No
-					)
-				});
-				return;
-			case "not_allowed":
-				await respond({ content: lang.p_not_allowed });
-				return;
-			case "no_result":
-				await respond({ embeds: [buildNoResultEmbed(lang)] });
-				return;
-			case "audio_unavailable":
-				await respond({ content: lang.music_audio_unavailable });
-				return;
-		}
+		await respond(musicPlayRefusalPayload(client, lang, result.reason));
+		return;
 	}
 
 	// The reply is the live now playing panel.

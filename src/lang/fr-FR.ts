@@ -5376,5 +5376,32 @@ export default {
 		"Enregistré, le panneau publié est à jour.",
 	confession_panel_saved_not_refreshed:
 		"Enregistré. Le panneau publié n'a pas pu être mis à jour : choisissez à nouveau son salon pour le republier.",
-	confession_panel_expired: "Ce panneau a expiré, relancez la commande."
+	confession_panel_expired: "Ce panneau a expiré, relancez la commande.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "J'aime",
+	music_love_added: "❤️ **${track}** est maintenant dans tes ${playlist}.",
+	music_love_already: "**${track}** est déjà dans tes ${playlist}.",
+	music_love_remove_button: "Retirer des ${playlist}",
+	music_love_removed: "**${track}** a été retiré de tes ${playlist}.",
+	music_love_limit:
+		"Tes ${playlist} sont pleins (${max} au plus) : retires-en d'abord depuis le lecteur du dashboard.",
+	music_love_unavailable:
+		"**${track}** ne peut pas être ajouté à tes ${playlist}.",
+	music_playlist_title: "Ta bibliothèque musicale",
+	music_playlist_stats: "Playlists : ${playlists}/${max}",
+	music_playlist_tracks: "Titres : ${count}",
+	music_playlist_no_playlists:
+		"Pas encore de playlist : crée-les depuis le lecteur du dashboard.",
+	music_playlist_empty:
+		"Ta bibliothèque est vide pour l'instant. Appuie sur **${button}** sur le lecteur pour garder le titre en cours dans tes ${playlist}, ou crée des playlists sur le dashboard : ${url}",
+	music_playlist_select: "Ouvrir une playlist",
+	music_playlist_play: "Lire",
+	music_playlist_back: "Retour",
+	music_playlist_no_tracks: "Cette liste est vide.",
+	music_playlist_queued:
+		"**${name}** a été ajouté à la file d'attente (titres : ${count}).",
+	music_playlist_not_found:
+		"Aucune playlist trouvée avec ce nom : voici ta bibliothèque.",
+	music_playlist_gone: "Cette playlist n'existe plus."
 } satisfies LanguageData;

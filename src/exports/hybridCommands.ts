@@ -181,199 +181,200 @@ import * as m155 from "../Interaction/HybridCommands/music/!lyrics.ts";
 import * as m156 from "../Interaction/HybridCommands/music/!nowplaying.ts";
 import * as m157 from "../Interaction/HybridCommands/music/!pause.ts";
 import * as m158 from "../Interaction/HybridCommands/music/!play.ts";
-import * as m159 from "../Interaction/HybridCommands/music/!queue.ts";
-import * as m160 from "../Interaction/HybridCommands/music/!resume.ts";
-import * as m161 from "../Interaction/HybridCommands/music/!shuffle.ts";
-import * as m162 from "../Interaction/HybridCommands/music/!skip.ts";
-import * as m163 from "../Interaction/HybridCommands/music/!stop.ts";
-import * as m164 from "../Interaction/HybridCommands/music/!trackinfo.ts";
-import * as m165 from "../Interaction/HybridCommands/music/!volume.ts";
-import * as m166 from "../Interaction/HybridCommands/music/init.json" with { type: "json" };
-import * as m167 from "../Interaction/HybridCommands/music/music.ts";
-import * as m168 from "../Interaction/HybridCommands/newfeatures/!lines.ts";
-import * as m169 from "../Interaction/HybridCommands/newfeatures/counter/!channel.ts";
-import * as m170 from "../Interaction/HybridCommands/newfeatures/counter/!config.ts";
-import * as m171 from "../Interaction/HybridCommands/newfeatures/counter/counter.ts";
-import * as m172 from "../Interaction/HybridCommands/newfeatures/gitlines.ts";
-import * as m173 from "../Interaction/HybridCommands/newfeatures/nightmode.ts";
-import * as m174 from "../Interaction/HybridCommands/owner/blacklist.ts";
-import * as m175 from "../Interaction/HybridCommands/owner/bledit.ts";
-import * as m176 from "../Interaction/HybridCommands/owner/blinfo.ts";
-import * as m177 from "../Interaction/HybridCommands/owner/eval.ts";
-import * as m178 from "../Interaction/HybridCommands/owner/init.json" with { type: "json" };
-import * as m179 from "../Interaction/HybridCommands/owner/owner.ts";
-import * as m180 from "../Interaction/HybridCommands/owner/unblacklist.ts";
-import * as m181 from "../Interaction/HybridCommands/owner/unowner.ts";
-import * as m182 from "../Interaction/HybridCommands/pfps/!channel.ts";
-import * as m183 from "../Interaction/HybridCommands/pfps/!config.ts";
-import * as m184 from "../Interaction/HybridCommands/pfps/init.json" with { type: "json" };
-import * as m185 from "../Interaction/HybridCommands/pfps/pfps.ts";
-import * as m186 from "../Interaction/HybridCommands/profil/!set-age.ts";
-import * as m187 from "../Interaction/HybridCommands/profil/!set-birthday.ts";
-import * as m188 from "../Interaction/HybridCommands/profil/!set-description.ts";
-import * as m189 from "../Interaction/HybridCommands/profil/!set-gender.ts";
-import * as m190 from "../Interaction/HybridCommands/profil/!set-pronoun.ts";
-import * as m191 from "../Interaction/HybridCommands/profil/!show.ts";
-import * as m192 from "../Interaction/HybridCommands/profil/init.json" with { type: "json" };
-import * as m193 from "../Interaction/HybridCommands/profil/profil.ts";
-import * as m194 from "../Interaction/HybridCommands/protection/allowlist/!add.ts";
-import * as m195 from "../Interaction/HybridCommands/protection/allowlist/!remove.ts";
-import * as m196 from "../Interaction/HybridCommands/protection/allowlist/!show.ts";
-import * as m197 from "../Interaction/HybridCommands/protection/allowlist/allowlist.ts";
-import * as m198 from "../Interaction/HybridCommands/protection/init.json" with { type: "json" };
-import * as m199 from "../Interaction/HybridCommands/protection/protect.ts";
-import * as m200 from "../Interaction/HybridCommands/protection/protectPanel.ts";
-import * as m201 from "../Interaction/HybridCommands/ranks/!channel.ts";
-import * as m202 from "../Interaction/HybridCommands/ranks/!config.ts";
-import * as m203 from "../Interaction/HybridCommands/ranks/!greset.ts";
-import * as m204 from "../Interaction/HybridCommands/ranks/!ignore-channels.ts";
-import * as m205 from "../Interaction/HybridCommands/ranks/!leaderboard.ts";
-import * as m206 from "../Interaction/HybridCommands/ranks/!message.ts";
-import * as m207 from "../Interaction/HybridCommands/ranks/!roles.ts";
-import * as m208 from "../Interaction/HybridCommands/ranks/!show.ts";
-import * as m209 from "../Interaction/HybridCommands/ranks/!ureset.ts";
-import * as m210 from "../Interaction/HybridCommands/ranks/init.json" with { type: "json" };
-import * as m211 from "../Interaction/HybridCommands/ranks/ranks.ts";
-import * as m212 from "../Interaction/HybridCommands/rolereactions/init.json" with { type: "json" };
-import * as m213 from "../Interaction/HybridCommands/rolereactions/rolebutton.ts";
-import * as m214 from "../Interaction/HybridCommands/rolereactions/rolereaction.ts";
-import * as m215 from "../Interaction/HybridCommands/rolereactions/roleselect.ts";
-import * as m216 from "../Interaction/HybridCommands/schedule/init.json" with { type: "json" };
-import * as m217 from "../Interaction/HybridCommands/schedule/schedule.ts";
-import * as m218 from "../Interaction/HybridCommands/security/!channel.ts";
-import * as m219 from "../Interaction/HybridCommands/security/!config.ts";
-import * as m220 from "../Interaction/HybridCommands/security/!role-to-give.ts";
-import * as m221 from "../Interaction/HybridCommands/security/!role-to-remove.ts";
-import * as m222 from "../Interaction/HybridCommands/security/init.json" with { type: "json" };
-import * as m223 from "../Interaction/HybridCommands/security/security.ts";
-import * as m224 from "../Interaction/HybridCommands/starboard/!channel.ts";
-import * as m225 from "../Interaction/HybridCommands/starboard/!config.ts";
-import * as m226 from "../Interaction/HybridCommands/starboard/!create-thread.ts";
-import * as m227 from "../Interaction/HybridCommands/starboard/!threshold.ts";
-import * as m228 from "../Interaction/HybridCommands/starboard/init.json" with { type: "json" };
-import * as m229 from "../Interaction/HybridCommands/starboard/skullboard/!channel.ts";
-import * as m230 from "../Interaction/HybridCommands/starboard/skullboard/!config.ts";
-import * as m231 from "../Interaction/HybridCommands/starboard/skullboard/!create-thread.ts";
-import * as m232 from "../Interaction/HybridCommands/starboard/skullboard/!threshold.ts";
-import * as m233 from "../Interaction/HybridCommands/starboard/skullboard/skullboard.ts";
-import * as m234 from "../Interaction/HybridCommands/starboard/starboard.ts";
-import * as m235 from "../Interaction/HybridCommands/stats/!channel-stats.ts";
-import * as m236 from "../Interaction/HybridCommands/stats/!compare.ts";
-import * as m237 from "../Interaction/HybridCommands/stats/!gstats.ts";
-import * as m238 from "../Interaction/HybridCommands/stats/!top-messages.ts";
-import * as m239 from "../Interaction/HybridCommands/stats/!top-voice.ts";
-import * as m240 from "../Interaction/HybridCommands/stats/!ustats.ts";
-import * as m241 from "../Interaction/HybridCommands/stats/init.json" with { type: "json" };
-import * as m242 from "../Interaction/HybridCommands/stats/stats.ts";
-import * as m243 from "../Interaction/HybridCommands/sticky/!disable.ts";
-import * as m244 from "../Interaction/HybridCommands/sticky/!embed.ts";
-import * as m245 from "../Interaction/HybridCommands/sticky/!list.ts";
-import * as m246 from "../Interaction/HybridCommands/sticky/!refresh.ts";
-import * as m247 from "../Interaction/HybridCommands/sticky/!show.ts";
-import * as m248 from "../Interaction/HybridCommands/sticky/!text.ts";
-import * as m249 from "../Interaction/HybridCommands/sticky/init.json" with { type: "json" };
-import * as m250 from "../Interaction/HybridCommands/sticky/sticky.ts";
-import * as m251 from "../Interaction/HybridCommands/tag/!create.ts";
-import * as m252 from "../Interaction/HybridCommands/tag/!delete.ts";
-import * as m253 from "../Interaction/HybridCommands/tag/!edit.ts";
-import * as m254 from "../Interaction/HybridCommands/tag/!info.ts";
-import * as m255 from "../Interaction/HybridCommands/tag/!list.ts";
-import * as m256 from "../Interaction/HybridCommands/tag/!use.ts";
-import * as m257 from "../Interaction/HybridCommands/tag/!wlroles-create.ts";
-import * as m258 from "../Interaction/HybridCommands/tag/!wlroles-use.ts";
-import * as m259 from "../Interaction/HybridCommands/tag/init.json" with { type: "json" };
-import * as m260 from "../Interaction/HybridCommands/tag/tag.ts";
-import * as m261 from "../Interaction/HybridCommands/ticket/!add-member.ts";
-import * as m262 from "../Interaction/HybridCommands/ticket/!close.ts";
-import * as m263 from "../Interaction/HybridCommands/ticket/!config.ts";
-import * as m264 from "../Interaction/HybridCommands/ticket/!delete.ts";
-import * as m265 from "../Interaction/HybridCommands/ticket/!log-channel.ts";
-import * as m266 from "../Interaction/HybridCommands/ticket/!open.ts";
-import * as m267 from "../Interaction/HybridCommands/ticket/!panel.ts";
-import * as m268 from "../Interaction/HybridCommands/ticket/!remind.ts";
-import * as m269 from "../Interaction/HybridCommands/ticket/!remove-member.ts";
-import * as m270 from "../Interaction/HybridCommands/ticket/!rename.ts";
-import * as m271 from "../Interaction/HybridCommands/ticket/!set-category.ts";
-import * as m272 from "../Interaction/HybridCommands/ticket/!transcript.ts";
-import * as m273 from "../Interaction/HybridCommands/ticket/!unlink.ts";
-import * as m274 from "../Interaction/HybridCommands/ticket/init.json" with { type: "json" };
-import * as m275 from "../Interaction/HybridCommands/ticket/ticket.ts";
-import * as m276 from "../Interaction/HybridCommands/tts/!info.ts";
-import * as m277 from "../Interaction/HybridCommands/tts/!join.ts";
-import * as m278 from "../Interaction/HybridCommands/tts/!lang.ts";
-import * as m279 from "../Interaction/HybridCommands/tts/!leave.ts";
-import * as m280 from "../Interaction/HybridCommands/tts/init.json" with { type: "json" };
-import * as m281 from "../Interaction/HybridCommands/tts/tts.ts";
-import * as m282 from "../Interaction/HybridCommands/utils/!addrole.ts";
-import * as m283 from "../Interaction/HybridCommands/utils/!admin-users.ts";
-import * as m284 from "../Interaction/HybridCommands/utils/!allbots.ts";
-import * as m285 from "../Interaction/HybridCommands/utils/!avatar.ts";
-import * as m286 from "../Interaction/HybridCommands/utils/!delrole.ts";
-import * as m287 from "../Interaction/HybridCommands/utils/!derank.ts";
-import * as m288 from "../Interaction/HybridCommands/utils/!dm.ts";
-import * as m289 from "../Interaction/HybridCommands/utils/!embed.ts";
-import * as m290 from "../Interaction/HybridCommands/utils/!emojis.ts";
-import * as m291 from "../Interaction/HybridCommands/utils/!leash.ts";
-import * as m292 from "../Interaction/HybridCommands/utils/!massiverole.ts";
-import * as m293 from "../Interaction/HybridCommands/utils/!massmove.ts";
-import * as m294 from "../Interaction/HybridCommands/utils/!media-only.ts";
-import * as m295 from "../Interaction/HybridCommands/utils/!nickrole.ts";
-import * as m296 from "../Interaction/HybridCommands/utils/!prevnames.ts";
-import * as m297 from "../Interaction/HybridCommands/utils/!renew.ts";
-import * as m298 from "../Interaction/HybridCommands/utils/!serverinfo.ts";
-import * as m299 from "../Interaction/HybridCommands/utils/!setmentionrole.ts";
-import * as m300 from "../Interaction/HybridCommands/utils/!snipe.ts";
-import * as m301 from "../Interaction/HybridCommands/utils/!unleash.ts";
-import * as m302 from "../Interaction/HybridCommands/utils/!userinfo.ts";
-import * as m303 from "../Interaction/HybridCommands/utils/!vanity-generator.ts";
-import * as m304 from "../Interaction/HybridCommands/utils/!vc.ts";
-import * as m305 from "../Interaction/HybridCommands/utils/!wlroles.ts";
-import * as m306 from "../Interaction/HybridCommands/utils/!zip-emojis.ts";
-import * as m307 from "../Interaction/HybridCommands/utils/banner/!server.ts";
-import * as m308 from "../Interaction/HybridCommands/utils/banner/!user.ts";
-import * as m309 from "../Interaction/HybridCommands/utils/banner/banner.ts";
-import * as m310 from "../Interaction/HybridCommands/utils/chanel/!hide.ts";
-import * as m311 from "../Interaction/HybridCommands/utils/chanel/!hideall.ts";
-import * as m312 from "../Interaction/HybridCommands/utils/chanel/!unhide.ts";
-import * as m313 from "../Interaction/HybridCommands/utils/chanel/!unhideall.ts";
-import * as m314 from "../Interaction/HybridCommands/utils/chanel/channel.ts";
-import * as m315 from "../Interaction/HybridCommands/utils/init.json" with { type: "json" };
-import * as m316 from "../Interaction/HybridCommands/utils/unbanall/!all.ts";
-import * as m317 from "../Interaction/HybridCommands/utils/unbanall/!undo.ts";
-import * as m318 from "../Interaction/HybridCommands/utils/unbanall/unbanall.ts";
-import * as m319 from "../Interaction/HybridCommands/utils/util/!addrolereact.ts";
-import * as m320 from "../Interaction/HybridCommands/utils/util/!admin-roles.ts";
-import * as m321 from "../Interaction/HybridCommands/utils/util/!allwebhooks.ts";
-import * as m322 from "../Interaction/HybridCommands/utils/util/!autorenew.ts";
-import * as m323 from "../Interaction/HybridCommands/utils/util/!bringall.ts";
-import * as m324 from "../Interaction/HybridCommands/utils/util/!cooldown.ts";
-import * as m325 from "../Interaction/HybridCommands/utils/util/!derogation.ts";
-import * as m326 from "../Interaction/HybridCommands/utils/util/!freeze.ts";
-import * as m327 from "../Interaction/HybridCommands/utils/util/!inviteinfo.ts";
-import * as m328 from "../Interaction/HybridCommands/utils/util/!move.ts";
-import * as m329 from "../Interaction/HybridCommands/utils/util/!nick-kicker.ts";
-import * as m330 from "../Interaction/HybridCommands/utils/util/!role-members.ts";
-import * as m331 from "../Interaction/HybridCommands/utils/util/!rolelimit.ts";
-import * as m332 from "../Interaction/HybridCommands/utils/util/!serverpic.ts";
-import * as m333 from "../Interaction/HybridCommands/utils/util/!sync.ts";
-import * as m334 from "../Interaction/HybridCommands/utils/util/!talk.ts";
-import * as m335 from "../Interaction/HybridCommands/utils/util/!unfreeze.ts";
-import * as m336 from "../Interaction/HybridCommands/utils/util/!untalk.ts";
-import * as m337 from "../Interaction/HybridCommands/utils/util/!unwlvc.ts";
-import * as m338 from "../Interaction/HybridCommands/utils/util/!unzip-emojis.ts";
-import * as m339 from "../Interaction/HybridCommands/utils/util/!vkick.ts";
-import * as m340 from "../Interaction/HybridCommands/utils/util/!wakeup.ts";
-import * as m341 from "../Interaction/HybridCommands/utils/util/!where.ts";
-import * as m342 from "../Interaction/HybridCommands/utils/util/!wlvc.ts";
-import * as m343 from "../Interaction/HybridCommands/utils/util/!zip-stickers.ts";
-import * as m344 from "../Interaction/HybridCommands/utils/util/util.ts";
-import * as m345 from "../Interaction/HybridCommands/utils/utils.ts";
-import * as m346 from "../Interaction/HybridCommands/utils/utilss/!leashlist.ts";
-import * as m347 from "../Interaction/HybridCommands/utils/utilss/!lockname.ts";
-import * as m348 from "../Interaction/HybridCommands/utils/utilss/!locknamelist.ts";
-import * as m349 from "../Interaction/HybridCommands/utils/utilss/!renewvc.ts";
-import * as m350 from "../Interaction/HybridCommands/utils/utilss/!unlockname.ts";
-import * as m351 from "../Interaction/HybridCommands/utils/utilss/utilss.ts";
+import * as m159 from "../Interaction/HybridCommands/music/!playlist.ts";
+import * as m160 from "../Interaction/HybridCommands/music/!queue.ts";
+import * as m161 from "../Interaction/HybridCommands/music/!resume.ts";
+import * as m162 from "../Interaction/HybridCommands/music/!shuffle.ts";
+import * as m163 from "../Interaction/HybridCommands/music/!skip.ts";
+import * as m164 from "../Interaction/HybridCommands/music/!stop.ts";
+import * as m165 from "../Interaction/HybridCommands/music/!trackinfo.ts";
+import * as m166 from "../Interaction/HybridCommands/music/!volume.ts";
+import * as m167 from "../Interaction/HybridCommands/music/init.json" with { type: "json" };
+import * as m168 from "../Interaction/HybridCommands/music/music.ts";
+import * as m169 from "../Interaction/HybridCommands/newfeatures/!lines.ts";
+import * as m170 from "../Interaction/HybridCommands/newfeatures/counter/!channel.ts";
+import * as m171 from "../Interaction/HybridCommands/newfeatures/counter/!config.ts";
+import * as m172 from "../Interaction/HybridCommands/newfeatures/counter/counter.ts";
+import * as m173 from "../Interaction/HybridCommands/newfeatures/gitlines.ts";
+import * as m174 from "../Interaction/HybridCommands/newfeatures/nightmode.ts";
+import * as m175 from "../Interaction/HybridCommands/owner/blacklist.ts";
+import * as m176 from "../Interaction/HybridCommands/owner/bledit.ts";
+import * as m177 from "../Interaction/HybridCommands/owner/blinfo.ts";
+import * as m178 from "../Interaction/HybridCommands/owner/eval.ts";
+import * as m179 from "../Interaction/HybridCommands/owner/init.json" with { type: "json" };
+import * as m180 from "../Interaction/HybridCommands/owner/owner.ts";
+import * as m181 from "../Interaction/HybridCommands/owner/unblacklist.ts";
+import * as m182 from "../Interaction/HybridCommands/owner/unowner.ts";
+import * as m183 from "../Interaction/HybridCommands/pfps/!channel.ts";
+import * as m184 from "../Interaction/HybridCommands/pfps/!config.ts";
+import * as m185 from "../Interaction/HybridCommands/pfps/init.json" with { type: "json" };
+import * as m186 from "../Interaction/HybridCommands/pfps/pfps.ts";
+import * as m187 from "../Interaction/HybridCommands/profil/!set-age.ts";
+import * as m188 from "../Interaction/HybridCommands/profil/!set-birthday.ts";
+import * as m189 from "../Interaction/HybridCommands/profil/!set-description.ts";
+import * as m190 from "../Interaction/HybridCommands/profil/!set-gender.ts";
+import * as m191 from "../Interaction/HybridCommands/profil/!set-pronoun.ts";
+import * as m192 from "../Interaction/HybridCommands/profil/!show.ts";
+import * as m193 from "../Interaction/HybridCommands/profil/init.json" with { type: "json" };
+import * as m194 from "../Interaction/HybridCommands/profil/profil.ts";
+import * as m195 from "../Interaction/HybridCommands/protection/allowlist/!add.ts";
+import * as m196 from "../Interaction/HybridCommands/protection/allowlist/!remove.ts";
+import * as m197 from "../Interaction/HybridCommands/protection/allowlist/!show.ts";
+import * as m198 from "../Interaction/HybridCommands/protection/allowlist/allowlist.ts";
+import * as m199 from "../Interaction/HybridCommands/protection/init.json" with { type: "json" };
+import * as m200 from "../Interaction/HybridCommands/protection/protect.ts";
+import * as m201 from "../Interaction/HybridCommands/protection/protectPanel.ts";
+import * as m202 from "../Interaction/HybridCommands/ranks/!channel.ts";
+import * as m203 from "../Interaction/HybridCommands/ranks/!config.ts";
+import * as m204 from "../Interaction/HybridCommands/ranks/!greset.ts";
+import * as m205 from "../Interaction/HybridCommands/ranks/!ignore-channels.ts";
+import * as m206 from "../Interaction/HybridCommands/ranks/!leaderboard.ts";
+import * as m207 from "../Interaction/HybridCommands/ranks/!message.ts";
+import * as m208 from "../Interaction/HybridCommands/ranks/!roles.ts";
+import * as m209 from "../Interaction/HybridCommands/ranks/!show.ts";
+import * as m210 from "../Interaction/HybridCommands/ranks/!ureset.ts";
+import * as m211 from "../Interaction/HybridCommands/ranks/init.json" with { type: "json" };
+import * as m212 from "../Interaction/HybridCommands/ranks/ranks.ts";
+import * as m213 from "../Interaction/HybridCommands/rolereactions/init.json" with { type: "json" };
+import * as m214 from "../Interaction/HybridCommands/rolereactions/rolebutton.ts";
+import * as m215 from "../Interaction/HybridCommands/rolereactions/rolereaction.ts";
+import * as m216 from "../Interaction/HybridCommands/rolereactions/roleselect.ts";
+import * as m217 from "../Interaction/HybridCommands/schedule/init.json" with { type: "json" };
+import * as m218 from "../Interaction/HybridCommands/schedule/schedule.ts";
+import * as m219 from "../Interaction/HybridCommands/security/!channel.ts";
+import * as m220 from "../Interaction/HybridCommands/security/!config.ts";
+import * as m221 from "../Interaction/HybridCommands/security/!role-to-give.ts";
+import * as m222 from "../Interaction/HybridCommands/security/!role-to-remove.ts";
+import * as m223 from "../Interaction/HybridCommands/security/init.json" with { type: "json" };
+import * as m224 from "../Interaction/HybridCommands/security/security.ts";
+import * as m225 from "../Interaction/HybridCommands/starboard/!channel.ts";
+import * as m226 from "../Interaction/HybridCommands/starboard/!config.ts";
+import * as m227 from "../Interaction/HybridCommands/starboard/!create-thread.ts";
+import * as m228 from "../Interaction/HybridCommands/starboard/!threshold.ts";
+import * as m229 from "../Interaction/HybridCommands/starboard/init.json" with { type: "json" };
+import * as m230 from "../Interaction/HybridCommands/starboard/skullboard/!channel.ts";
+import * as m231 from "../Interaction/HybridCommands/starboard/skullboard/!config.ts";
+import * as m232 from "../Interaction/HybridCommands/starboard/skullboard/!create-thread.ts";
+import * as m233 from "../Interaction/HybridCommands/starboard/skullboard/!threshold.ts";
+import * as m234 from "../Interaction/HybridCommands/starboard/skullboard/skullboard.ts";
+import * as m235 from "../Interaction/HybridCommands/starboard/starboard.ts";
+import * as m236 from "../Interaction/HybridCommands/stats/!channel-stats.ts";
+import * as m237 from "../Interaction/HybridCommands/stats/!compare.ts";
+import * as m238 from "../Interaction/HybridCommands/stats/!gstats.ts";
+import * as m239 from "../Interaction/HybridCommands/stats/!top-messages.ts";
+import * as m240 from "../Interaction/HybridCommands/stats/!top-voice.ts";
+import * as m241 from "../Interaction/HybridCommands/stats/!ustats.ts";
+import * as m242 from "../Interaction/HybridCommands/stats/init.json" with { type: "json" };
+import * as m243 from "../Interaction/HybridCommands/stats/stats.ts";
+import * as m244 from "../Interaction/HybridCommands/sticky/!disable.ts";
+import * as m245 from "../Interaction/HybridCommands/sticky/!embed.ts";
+import * as m246 from "../Interaction/HybridCommands/sticky/!list.ts";
+import * as m247 from "../Interaction/HybridCommands/sticky/!refresh.ts";
+import * as m248 from "../Interaction/HybridCommands/sticky/!show.ts";
+import * as m249 from "../Interaction/HybridCommands/sticky/!text.ts";
+import * as m250 from "../Interaction/HybridCommands/sticky/init.json" with { type: "json" };
+import * as m251 from "../Interaction/HybridCommands/sticky/sticky.ts";
+import * as m252 from "../Interaction/HybridCommands/tag/!create.ts";
+import * as m253 from "../Interaction/HybridCommands/tag/!delete.ts";
+import * as m254 from "../Interaction/HybridCommands/tag/!edit.ts";
+import * as m255 from "../Interaction/HybridCommands/tag/!info.ts";
+import * as m256 from "../Interaction/HybridCommands/tag/!list.ts";
+import * as m257 from "../Interaction/HybridCommands/tag/!use.ts";
+import * as m258 from "../Interaction/HybridCommands/tag/!wlroles-create.ts";
+import * as m259 from "../Interaction/HybridCommands/tag/!wlroles-use.ts";
+import * as m260 from "../Interaction/HybridCommands/tag/init.json" with { type: "json" };
+import * as m261 from "../Interaction/HybridCommands/tag/tag.ts";
+import * as m262 from "../Interaction/HybridCommands/ticket/!add-member.ts";
+import * as m263 from "../Interaction/HybridCommands/ticket/!close.ts";
+import * as m264 from "../Interaction/HybridCommands/ticket/!config.ts";
+import * as m265 from "../Interaction/HybridCommands/ticket/!delete.ts";
+import * as m266 from "../Interaction/HybridCommands/ticket/!log-channel.ts";
+import * as m267 from "../Interaction/HybridCommands/ticket/!open.ts";
+import * as m268 from "../Interaction/HybridCommands/ticket/!panel.ts";
+import * as m269 from "../Interaction/HybridCommands/ticket/!remind.ts";
+import * as m270 from "../Interaction/HybridCommands/ticket/!remove-member.ts";
+import * as m271 from "../Interaction/HybridCommands/ticket/!rename.ts";
+import * as m272 from "../Interaction/HybridCommands/ticket/!set-category.ts";
+import * as m273 from "../Interaction/HybridCommands/ticket/!transcript.ts";
+import * as m274 from "../Interaction/HybridCommands/ticket/!unlink.ts";
+import * as m275 from "../Interaction/HybridCommands/ticket/init.json" with { type: "json" };
+import * as m276 from "../Interaction/HybridCommands/ticket/ticket.ts";
+import * as m277 from "../Interaction/HybridCommands/tts/!info.ts";
+import * as m278 from "../Interaction/HybridCommands/tts/!join.ts";
+import * as m279 from "../Interaction/HybridCommands/tts/!lang.ts";
+import * as m280 from "../Interaction/HybridCommands/tts/!leave.ts";
+import * as m281 from "../Interaction/HybridCommands/tts/init.json" with { type: "json" };
+import * as m282 from "../Interaction/HybridCommands/tts/tts.ts";
+import * as m283 from "../Interaction/HybridCommands/utils/!addrole.ts";
+import * as m284 from "../Interaction/HybridCommands/utils/!admin-users.ts";
+import * as m285 from "../Interaction/HybridCommands/utils/!allbots.ts";
+import * as m286 from "../Interaction/HybridCommands/utils/!avatar.ts";
+import * as m287 from "../Interaction/HybridCommands/utils/!delrole.ts";
+import * as m288 from "../Interaction/HybridCommands/utils/!derank.ts";
+import * as m289 from "../Interaction/HybridCommands/utils/!dm.ts";
+import * as m290 from "../Interaction/HybridCommands/utils/!embed.ts";
+import * as m291 from "../Interaction/HybridCommands/utils/!emojis.ts";
+import * as m292 from "../Interaction/HybridCommands/utils/!leash.ts";
+import * as m293 from "../Interaction/HybridCommands/utils/!massiverole.ts";
+import * as m294 from "../Interaction/HybridCommands/utils/!massmove.ts";
+import * as m295 from "../Interaction/HybridCommands/utils/!media-only.ts";
+import * as m296 from "../Interaction/HybridCommands/utils/!nickrole.ts";
+import * as m297 from "../Interaction/HybridCommands/utils/!prevnames.ts";
+import * as m298 from "../Interaction/HybridCommands/utils/!renew.ts";
+import * as m299 from "../Interaction/HybridCommands/utils/!serverinfo.ts";
+import * as m300 from "../Interaction/HybridCommands/utils/!setmentionrole.ts";
+import * as m301 from "../Interaction/HybridCommands/utils/!snipe.ts";
+import * as m302 from "../Interaction/HybridCommands/utils/!unleash.ts";
+import * as m303 from "../Interaction/HybridCommands/utils/!userinfo.ts";
+import * as m304 from "../Interaction/HybridCommands/utils/!vanity-generator.ts";
+import * as m305 from "../Interaction/HybridCommands/utils/!vc.ts";
+import * as m306 from "../Interaction/HybridCommands/utils/!wlroles.ts";
+import * as m307 from "../Interaction/HybridCommands/utils/!zip-emojis.ts";
+import * as m308 from "../Interaction/HybridCommands/utils/banner/!server.ts";
+import * as m309 from "../Interaction/HybridCommands/utils/banner/!user.ts";
+import * as m310 from "../Interaction/HybridCommands/utils/banner/banner.ts";
+import * as m311 from "../Interaction/HybridCommands/utils/chanel/!hide.ts";
+import * as m312 from "../Interaction/HybridCommands/utils/chanel/!hideall.ts";
+import * as m313 from "../Interaction/HybridCommands/utils/chanel/!unhide.ts";
+import * as m314 from "../Interaction/HybridCommands/utils/chanel/!unhideall.ts";
+import * as m315 from "../Interaction/HybridCommands/utils/chanel/channel.ts";
+import * as m316 from "../Interaction/HybridCommands/utils/init.json" with { type: "json" };
+import * as m317 from "../Interaction/HybridCommands/utils/unbanall/!all.ts";
+import * as m318 from "../Interaction/HybridCommands/utils/unbanall/!undo.ts";
+import * as m319 from "../Interaction/HybridCommands/utils/unbanall/unbanall.ts";
+import * as m320 from "../Interaction/HybridCommands/utils/util/!addrolereact.ts";
+import * as m321 from "../Interaction/HybridCommands/utils/util/!admin-roles.ts";
+import * as m322 from "../Interaction/HybridCommands/utils/util/!allwebhooks.ts";
+import * as m323 from "../Interaction/HybridCommands/utils/util/!autorenew.ts";
+import * as m324 from "../Interaction/HybridCommands/utils/util/!bringall.ts";
+import * as m325 from "../Interaction/HybridCommands/utils/util/!cooldown.ts";
+import * as m326 from "../Interaction/HybridCommands/utils/util/!derogation.ts";
+import * as m327 from "../Interaction/HybridCommands/utils/util/!freeze.ts";
+import * as m328 from "../Interaction/HybridCommands/utils/util/!inviteinfo.ts";
+import * as m329 from "../Interaction/HybridCommands/utils/util/!move.ts";
+import * as m330 from "../Interaction/HybridCommands/utils/util/!nick-kicker.ts";
+import * as m331 from "../Interaction/HybridCommands/utils/util/!role-members.ts";
+import * as m332 from "../Interaction/HybridCommands/utils/util/!rolelimit.ts";
+import * as m333 from "../Interaction/HybridCommands/utils/util/!serverpic.ts";
+import * as m334 from "../Interaction/HybridCommands/utils/util/!sync.ts";
+import * as m335 from "../Interaction/HybridCommands/utils/util/!talk.ts";
+import * as m336 from "../Interaction/HybridCommands/utils/util/!unfreeze.ts";
+import * as m337 from "../Interaction/HybridCommands/utils/util/!untalk.ts";
+import * as m338 from "../Interaction/HybridCommands/utils/util/!unwlvc.ts";
+import * as m339 from "../Interaction/HybridCommands/utils/util/!unzip-emojis.ts";
+import * as m340 from "../Interaction/HybridCommands/utils/util/!vkick.ts";
+import * as m341 from "../Interaction/HybridCommands/utils/util/!wakeup.ts";
+import * as m342 from "../Interaction/HybridCommands/utils/util/!where.ts";
+import * as m343 from "../Interaction/HybridCommands/utils/util/!wlvc.ts";
+import * as m344 from "../Interaction/HybridCommands/utils/util/!zip-stickers.ts";
+import * as m345 from "../Interaction/HybridCommands/utils/util/util.ts";
+import * as m346 from "../Interaction/HybridCommands/utils/utils.ts";
+import * as m347 from "../Interaction/HybridCommands/utils/utilss/!leashlist.ts";
+import * as m348 from "../Interaction/HybridCommands/utils/utilss/!lockname.ts";
+import * as m349 from "../Interaction/HybridCommands/utils/utilss/!locknamelist.ts";
+import * as m350 from "../Interaction/HybridCommands/utils/utilss/!renewvc.ts";
+import * as m351 from "../Interaction/HybridCommands/utils/utilss/!unlockname.ts";
+import * as m352 from "../Interaction/HybridCommands/utils/utilss/utilss.ts";
 
 const files: Record<string, any> = {
 	"antispam/!bypass-roles.ts": m0,
@@ -535,199 +536,200 @@ const files: Record<string, any> = {
 	"music/!nowplaying.ts": m156,
 	"music/!pause.ts": m157,
 	"music/!play.ts": m158,
-	"music/!queue.ts": m159,
-	"music/!resume.ts": m160,
-	"music/!shuffle.ts": m161,
-	"music/!skip.ts": m162,
-	"music/!stop.ts": m163,
-	"music/!trackinfo.ts": m164,
-	"music/!volume.ts": m165,
-	"music/init.json": m166,
-	"music/music.ts": m167,
-	"newfeatures/!lines.ts": m168,
-	"newfeatures/counter/!channel.ts": m169,
-	"newfeatures/counter/!config.ts": m170,
-	"newfeatures/counter/counter.ts": m171,
-	"newfeatures/gitlines.ts": m172,
-	"newfeatures/nightmode.ts": m173,
-	"owner/blacklist.ts": m174,
-	"owner/bledit.ts": m175,
-	"owner/blinfo.ts": m176,
-	"owner/eval.ts": m177,
-	"owner/init.json": m178,
-	"owner/owner.ts": m179,
-	"owner/unblacklist.ts": m180,
-	"owner/unowner.ts": m181,
-	"pfps/!channel.ts": m182,
-	"pfps/!config.ts": m183,
-	"pfps/init.json": m184,
-	"pfps/pfps.ts": m185,
-	"profil/!set-age.ts": m186,
-	"profil/!set-birthday.ts": m187,
-	"profil/!set-description.ts": m188,
-	"profil/!set-gender.ts": m189,
-	"profil/!set-pronoun.ts": m190,
-	"profil/!show.ts": m191,
-	"profil/init.json": m192,
-	"profil/profil.ts": m193,
-	"protection/allowlist/!add.ts": m194,
-	"protection/allowlist/!remove.ts": m195,
-	"protection/allowlist/!show.ts": m196,
-	"protection/allowlist/allowlist.ts": m197,
-	"protection/init.json": m198,
-	"protection/protect.ts": m199,
-	"protection/protectPanel.ts": m200,
-	"ranks/!channel.ts": m201,
-	"ranks/!config.ts": m202,
-	"ranks/!greset.ts": m203,
-	"ranks/!ignore-channels.ts": m204,
-	"ranks/!leaderboard.ts": m205,
-	"ranks/!message.ts": m206,
-	"ranks/!roles.ts": m207,
-	"ranks/!show.ts": m208,
-	"ranks/!ureset.ts": m209,
-	"ranks/init.json": m210,
-	"ranks/ranks.ts": m211,
-	"rolereactions/init.json": m212,
-	"rolereactions/rolebutton.ts": m213,
-	"rolereactions/rolereaction.ts": m214,
-	"rolereactions/roleselect.ts": m215,
-	"schedule/init.json": m216,
-	"schedule/schedule.ts": m217,
-	"security/!channel.ts": m218,
-	"security/!config.ts": m219,
-	"security/!role-to-give.ts": m220,
-	"security/!role-to-remove.ts": m221,
-	"security/init.json": m222,
-	"security/security.ts": m223,
-	"starboard/!channel.ts": m224,
-	"starboard/!config.ts": m225,
-	"starboard/!create-thread.ts": m226,
-	"starboard/!threshold.ts": m227,
-	"starboard/init.json": m228,
-	"starboard/skullboard/!channel.ts": m229,
-	"starboard/skullboard/!config.ts": m230,
-	"starboard/skullboard/!create-thread.ts": m231,
-	"starboard/skullboard/!threshold.ts": m232,
-	"starboard/skullboard/skullboard.ts": m233,
-	"starboard/starboard.ts": m234,
-	"stats/!channel-stats.ts": m235,
-	"stats/!compare.ts": m236,
-	"stats/!gstats.ts": m237,
-	"stats/!top-messages.ts": m238,
-	"stats/!top-voice.ts": m239,
-	"stats/!ustats.ts": m240,
-	"stats/init.json": m241,
-	"stats/stats.ts": m242,
-	"sticky/!disable.ts": m243,
-	"sticky/!embed.ts": m244,
-	"sticky/!list.ts": m245,
-	"sticky/!refresh.ts": m246,
-	"sticky/!show.ts": m247,
-	"sticky/!text.ts": m248,
-	"sticky/init.json": m249,
-	"sticky/sticky.ts": m250,
-	"tag/!create.ts": m251,
-	"tag/!delete.ts": m252,
-	"tag/!edit.ts": m253,
-	"tag/!info.ts": m254,
-	"tag/!list.ts": m255,
-	"tag/!use.ts": m256,
-	"tag/!wlroles-create.ts": m257,
-	"tag/!wlroles-use.ts": m258,
-	"tag/init.json": m259,
-	"tag/tag.ts": m260,
-	"ticket/!add-member.ts": m261,
-	"ticket/!close.ts": m262,
-	"ticket/!config.ts": m263,
-	"ticket/!delete.ts": m264,
-	"ticket/!log-channel.ts": m265,
-	"ticket/!open.ts": m266,
-	"ticket/!panel.ts": m267,
-	"ticket/!remind.ts": m268,
-	"ticket/!remove-member.ts": m269,
-	"ticket/!rename.ts": m270,
-	"ticket/!set-category.ts": m271,
-	"ticket/!transcript.ts": m272,
-	"ticket/!unlink.ts": m273,
-	"ticket/init.json": m274,
-	"ticket/ticket.ts": m275,
-	"tts/!info.ts": m276,
-	"tts/!join.ts": m277,
-	"tts/!lang.ts": m278,
-	"tts/!leave.ts": m279,
-	"tts/init.json": m280,
-	"tts/tts.ts": m281,
-	"utils/!addrole.ts": m282,
-	"utils/!admin-users.ts": m283,
-	"utils/!allbots.ts": m284,
-	"utils/!avatar.ts": m285,
-	"utils/!delrole.ts": m286,
-	"utils/!derank.ts": m287,
-	"utils/!dm.ts": m288,
-	"utils/!embed.ts": m289,
-	"utils/!emojis.ts": m290,
-	"utils/!leash.ts": m291,
-	"utils/!massiverole.ts": m292,
-	"utils/!massmove.ts": m293,
-	"utils/!media-only.ts": m294,
-	"utils/!nickrole.ts": m295,
-	"utils/!prevnames.ts": m296,
-	"utils/!renew.ts": m297,
-	"utils/!serverinfo.ts": m298,
-	"utils/!setmentionrole.ts": m299,
-	"utils/!snipe.ts": m300,
-	"utils/!unleash.ts": m301,
-	"utils/!userinfo.ts": m302,
-	"utils/!vanity-generator.ts": m303,
-	"utils/!vc.ts": m304,
-	"utils/!wlroles.ts": m305,
-	"utils/!zip-emojis.ts": m306,
-	"utils/banner/!server.ts": m307,
-	"utils/banner/!user.ts": m308,
-	"utils/banner/banner.ts": m309,
-	"utils/chanel/!hide.ts": m310,
-	"utils/chanel/!hideall.ts": m311,
-	"utils/chanel/!unhide.ts": m312,
-	"utils/chanel/!unhideall.ts": m313,
-	"utils/chanel/channel.ts": m314,
-	"utils/init.json": m315,
-	"utils/unbanall/!all.ts": m316,
-	"utils/unbanall/!undo.ts": m317,
-	"utils/unbanall/unbanall.ts": m318,
-	"utils/util/!addrolereact.ts": m319,
-	"utils/util/!admin-roles.ts": m320,
-	"utils/util/!allwebhooks.ts": m321,
-	"utils/util/!autorenew.ts": m322,
-	"utils/util/!bringall.ts": m323,
-	"utils/util/!cooldown.ts": m324,
-	"utils/util/!derogation.ts": m325,
-	"utils/util/!freeze.ts": m326,
-	"utils/util/!inviteinfo.ts": m327,
-	"utils/util/!move.ts": m328,
-	"utils/util/!nick-kicker.ts": m329,
-	"utils/util/!role-members.ts": m330,
-	"utils/util/!rolelimit.ts": m331,
-	"utils/util/!serverpic.ts": m332,
-	"utils/util/!sync.ts": m333,
-	"utils/util/!talk.ts": m334,
-	"utils/util/!unfreeze.ts": m335,
-	"utils/util/!untalk.ts": m336,
-	"utils/util/!unwlvc.ts": m337,
-	"utils/util/!unzip-emojis.ts": m338,
-	"utils/util/!vkick.ts": m339,
-	"utils/util/!wakeup.ts": m340,
-	"utils/util/!where.ts": m341,
-	"utils/util/!wlvc.ts": m342,
-	"utils/util/!zip-stickers.ts": m343,
-	"utils/util/util.ts": m344,
-	"utils/utils.ts": m345,
-	"utils/utilss/!leashlist.ts": m346,
-	"utils/utilss/!lockname.ts": m347,
-	"utils/utilss/!locknamelist.ts": m348,
-	"utils/utilss/!renewvc.ts": m349,
-	"utils/utilss/!unlockname.ts": m350,
-	"utils/utilss/utilss.ts": m351
+	"music/!playlist.ts": m159,
+	"music/!queue.ts": m160,
+	"music/!resume.ts": m161,
+	"music/!shuffle.ts": m162,
+	"music/!skip.ts": m163,
+	"music/!stop.ts": m164,
+	"music/!trackinfo.ts": m165,
+	"music/!volume.ts": m166,
+	"music/init.json": m167,
+	"music/music.ts": m168,
+	"newfeatures/!lines.ts": m169,
+	"newfeatures/counter/!channel.ts": m170,
+	"newfeatures/counter/!config.ts": m171,
+	"newfeatures/counter/counter.ts": m172,
+	"newfeatures/gitlines.ts": m173,
+	"newfeatures/nightmode.ts": m174,
+	"owner/blacklist.ts": m175,
+	"owner/bledit.ts": m176,
+	"owner/blinfo.ts": m177,
+	"owner/eval.ts": m178,
+	"owner/init.json": m179,
+	"owner/owner.ts": m180,
+	"owner/unblacklist.ts": m181,
+	"owner/unowner.ts": m182,
+	"pfps/!channel.ts": m183,
+	"pfps/!config.ts": m184,
+	"pfps/init.json": m185,
+	"pfps/pfps.ts": m186,
+	"profil/!set-age.ts": m187,
+	"profil/!set-birthday.ts": m188,
+	"profil/!set-description.ts": m189,
+	"profil/!set-gender.ts": m190,
+	"profil/!set-pronoun.ts": m191,
+	"profil/!show.ts": m192,
+	"profil/init.json": m193,
+	"profil/profil.ts": m194,
+	"protection/allowlist/!add.ts": m195,
+	"protection/allowlist/!remove.ts": m196,
+	"protection/allowlist/!show.ts": m197,
+	"protection/allowlist/allowlist.ts": m198,
+	"protection/init.json": m199,
+	"protection/protect.ts": m200,
+	"protection/protectPanel.ts": m201,
+	"ranks/!channel.ts": m202,
+	"ranks/!config.ts": m203,
+	"ranks/!greset.ts": m204,
+	"ranks/!ignore-channels.ts": m205,
+	"ranks/!leaderboard.ts": m206,
+	"ranks/!message.ts": m207,
+	"ranks/!roles.ts": m208,
+	"ranks/!show.ts": m209,
+	"ranks/!ureset.ts": m210,
+	"ranks/init.json": m211,
+	"ranks/ranks.ts": m212,
+	"rolereactions/init.json": m213,
+	"rolereactions/rolebutton.ts": m214,
+	"rolereactions/rolereaction.ts": m215,
+	"rolereactions/roleselect.ts": m216,
+	"schedule/init.json": m217,
+	"schedule/schedule.ts": m218,
+	"security/!channel.ts": m219,
+	"security/!config.ts": m220,
+	"security/!role-to-give.ts": m221,
+	"security/!role-to-remove.ts": m222,
+	"security/init.json": m223,
+	"security/security.ts": m224,
+	"starboard/!channel.ts": m225,
+	"starboard/!config.ts": m226,
+	"starboard/!create-thread.ts": m227,
+	"starboard/!threshold.ts": m228,
+	"starboard/init.json": m229,
+	"starboard/skullboard/!channel.ts": m230,
+	"starboard/skullboard/!config.ts": m231,
+	"starboard/skullboard/!create-thread.ts": m232,
+	"starboard/skullboard/!threshold.ts": m233,
+	"starboard/skullboard/skullboard.ts": m234,
+	"starboard/starboard.ts": m235,
+	"stats/!channel-stats.ts": m236,
+	"stats/!compare.ts": m237,
+	"stats/!gstats.ts": m238,
+	"stats/!top-messages.ts": m239,
+	"stats/!top-voice.ts": m240,
+	"stats/!ustats.ts": m241,
+	"stats/init.json": m242,
+	"stats/stats.ts": m243,
+	"sticky/!disable.ts": m244,
+	"sticky/!embed.ts": m245,
+	"sticky/!list.ts": m246,
+	"sticky/!refresh.ts": m247,
+	"sticky/!show.ts": m248,
+	"sticky/!text.ts": m249,
+	"sticky/init.json": m250,
+	"sticky/sticky.ts": m251,
+	"tag/!create.ts": m252,
+	"tag/!delete.ts": m253,
+	"tag/!edit.ts": m254,
+	"tag/!info.ts": m255,
+	"tag/!list.ts": m256,
+	"tag/!use.ts": m257,
+	"tag/!wlroles-create.ts": m258,
+	"tag/!wlroles-use.ts": m259,
+	"tag/init.json": m260,
+	"tag/tag.ts": m261,
+	"ticket/!add-member.ts": m262,
+	"ticket/!close.ts": m263,
+	"ticket/!config.ts": m264,
+	"ticket/!delete.ts": m265,
+	"ticket/!log-channel.ts": m266,
+	"ticket/!open.ts": m267,
+	"ticket/!panel.ts": m268,
+	"ticket/!remind.ts": m269,
+	"ticket/!remove-member.ts": m270,
+	"ticket/!rename.ts": m271,
+	"ticket/!set-category.ts": m272,
+	"ticket/!transcript.ts": m273,
+	"ticket/!unlink.ts": m274,
+	"ticket/init.json": m275,
+	"ticket/ticket.ts": m276,
+	"tts/!info.ts": m277,
+	"tts/!join.ts": m278,
+	"tts/!lang.ts": m279,
+	"tts/!leave.ts": m280,
+	"tts/init.json": m281,
+	"tts/tts.ts": m282,
+	"utils/!addrole.ts": m283,
+	"utils/!admin-users.ts": m284,
+	"utils/!allbots.ts": m285,
+	"utils/!avatar.ts": m286,
+	"utils/!delrole.ts": m287,
+	"utils/!derank.ts": m288,
+	"utils/!dm.ts": m289,
+	"utils/!embed.ts": m290,
+	"utils/!emojis.ts": m291,
+	"utils/!leash.ts": m292,
+	"utils/!massiverole.ts": m293,
+	"utils/!massmove.ts": m294,
+	"utils/!media-only.ts": m295,
+	"utils/!nickrole.ts": m296,
+	"utils/!prevnames.ts": m297,
+	"utils/!renew.ts": m298,
+	"utils/!serverinfo.ts": m299,
+	"utils/!setmentionrole.ts": m300,
+	"utils/!snipe.ts": m301,
+	"utils/!unleash.ts": m302,
+	"utils/!userinfo.ts": m303,
+	"utils/!vanity-generator.ts": m304,
+	"utils/!vc.ts": m305,
+	"utils/!wlroles.ts": m306,
+	"utils/!zip-emojis.ts": m307,
+	"utils/banner/!server.ts": m308,
+	"utils/banner/!user.ts": m309,
+	"utils/banner/banner.ts": m310,
+	"utils/chanel/!hide.ts": m311,
+	"utils/chanel/!hideall.ts": m312,
+	"utils/chanel/!unhide.ts": m313,
+	"utils/chanel/!unhideall.ts": m314,
+	"utils/chanel/channel.ts": m315,
+	"utils/init.json": m316,
+	"utils/unbanall/!all.ts": m317,
+	"utils/unbanall/!undo.ts": m318,
+	"utils/unbanall/unbanall.ts": m319,
+	"utils/util/!addrolereact.ts": m320,
+	"utils/util/!admin-roles.ts": m321,
+	"utils/util/!allwebhooks.ts": m322,
+	"utils/util/!autorenew.ts": m323,
+	"utils/util/!bringall.ts": m324,
+	"utils/util/!cooldown.ts": m325,
+	"utils/util/!derogation.ts": m326,
+	"utils/util/!freeze.ts": m327,
+	"utils/util/!inviteinfo.ts": m328,
+	"utils/util/!move.ts": m329,
+	"utils/util/!nick-kicker.ts": m330,
+	"utils/util/!role-members.ts": m331,
+	"utils/util/!rolelimit.ts": m332,
+	"utils/util/!serverpic.ts": m333,
+	"utils/util/!sync.ts": m334,
+	"utils/util/!talk.ts": m335,
+	"utils/util/!unfreeze.ts": m336,
+	"utils/util/!untalk.ts": m337,
+	"utils/util/!unwlvc.ts": m338,
+	"utils/util/!unzip-emojis.ts": m339,
+	"utils/util/!vkick.ts": m340,
+	"utils/util/!wakeup.ts": m341,
+	"utils/util/!where.ts": m342,
+	"utils/util/!wlvc.ts": m343,
+	"utils/util/!zip-stickers.ts": m344,
+	"utils/util/util.ts": m345,
+	"utils/utils.ts": m346,
+	"utils/utilss/!leashlist.ts": m347,
+	"utils/utilss/!lockname.ts": m348,
+	"utils/utilss/!locknamelist.ts": m349,
+	"utils/utilss/!renewvc.ts": m350,
+	"utils/utilss/!unlockname.ts": m351,
+	"utils/utilss/utilss.ts": m352
 };
 
 export default files;

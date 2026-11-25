@@ -4989,5 +4989,31 @@ export default {
 	confession_panel_saved_refreshed: "تم الحفظ، وحُدّثت اللوحة المنشورة.",
 	confession_panel_saved_not_refreshed:
 		"تم الحفظ. تعذّر تحديث اللوحة المنشورة: اختر قناتها مجددًا لإعادة نشرها.",
-	confession_panel_expired: "انتهت صلاحية هذه اللوحة، شغّل الأمر مجددًا."
+	confession_panel_expired: "انتهت صلاحية هذه اللوحة، شغّل الأمر مجددًا.",
+
+	// Music library on Discord: Love button, /music playlist
+	music_love_button: "أعجبني",
+	music_love_added: "❤️ أصبحت **${track}** في ${playlist}.",
+	music_love_already: "**${track}** موجودة بالفعل في ${playlist}.",
+	music_love_remove_button: "إزالة من ${playlist}",
+	music_love_removed: "تمت إزالة **${track}** من ${playlist}.",
+	music_love_limit:
+		"${playlist} ممتلئة (${max} كحد أقصى): احذف بعضها أولًا من مشغل لوحة التحكم.",
+	music_love_unavailable: "لا يمكن إضافة **${track}** إلى ${playlist}.",
+	music_playlist_title: "مكتبتك الموسيقية",
+	music_playlist_stats: "قوائم التشغيل: ${playlists}/${max}",
+	music_playlist_tracks: "الأغاني: ${count}",
+	music_playlist_no_playlists:
+		"لا توجد قوائم تشغيل بعد: أنشئها من مشغل لوحة التحكم.",
+	music_playlist_empty:
+		"مكتبتك فارغة حاليًا. اضغط **${button}** في المشغل لحفظ الأغنية الحالية في ${playlist}، أو أنشئ قوائم تشغيل من لوحة التحكم: ${url}",
+	music_playlist_select: "افتح قائمة تشغيل",
+	music_playlist_play: "تشغيل",
+	music_playlist_back: "رجوع",
+	music_playlist_no_tracks: "هذه القائمة فارغة.",
+	music_playlist_queued:
+		"تمت إضافة **${name}** إلى قائمة الانتظار (الأغاني: ${count}).",
+	music_playlist_not_found:
+		"لم يتم العثور على قائمة تشغيل بهذا الاسم: إليك مكتبتك.",
+	music_playlist_gone: "قائمة التشغيل هذه لم تعد موجودة."
 } satisfies LanguageData;
