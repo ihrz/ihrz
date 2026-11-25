@@ -178,19 +178,24 @@ class EmojisManager {
 				}[];
 			};
 
-			return fetched_emojis_data.items
-				.map((x) => {
-					const extension: ApplicationEmojiData["Extension"] =
-						x.animated ? "gif" : "png";
+			return (
+				fetched_emojis_data.items
+					.map((x) => {
+						const extension: ApplicationEmojiData["Extension"] =
+							x.animated ? "gif" : "png";
 
-					return {
-						Name: x.name,
-						Extension: extension,
-						Id: x.id,
-						FormatedName: `<${x.animated ? "a" : ""}:${x.name}:${x.id}>`
-					};
-				})
-				.filter((x) => x.Name?.startsWith("iHorizon"));
+						return {
+							Name: x.name,
+							Extension: extension,
+							Id: x.id,
+							FormatedName: `<${x.animated ? "a" : ""}:${x.name}:${x.id}>`
+						};
+					})
+					// Every named emoji: matched by exact name with the local files
+					// (ih1..ih4 don't start with "iHorizon": filtered out, they were
+					// seen as missing and their creation refused as "already taken").
+					.filter((x) => !!x.Name)
+			);
 		}
 
 		const fetched_emojis_data = await client.application?.emojis.fetch();
@@ -207,7 +212,10 @@ class EmojisManager {
 							FormatedName: x.toString()
 						};
 					})
-					.filter((x) => x.Name?.startsWith("iHorizon"))
+					// Every named emoji: matched by exact name with the local files
+					// (ih1..ih4 don't start with "iHorizon": filtered out, they were
+					// seen as missing and their creation refused as "already taken").
+					.filter((x) => !!x.Name)
 			: [];
 	}
 
