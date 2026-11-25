@@ -117,6 +117,25 @@ export function withReadablePermissions(obj: any): any {
 	return cleanedObj;
 }
 
+// commands.json export only: options sorted A→Z by name at every level
+// (subcommands, groups, arguments), plain code point order like the
+// commands, so the file stays stable between boots. Never for the Discord
+// sync, where required options must come first.
+export function sortedOptions(options: unknown): unknown {
+	if (!Array.isArray(options)) return options;
+	return [...options]
+		.map((option) =>
+			option && typeof option === "object" && "options" in option
+				? { ...option, options: sortedOptions(option.options) }
+				: option
+		)
+		.sort((a, b) => {
+			const x = String(a?.name ?? "");
+			const y = String(b?.name ?? "");
+			return x < y ? -1 : x > y ? 1 : 0;
+		});
+}
+
 export async function synchronizeCommands(client: Client): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		try {
