@@ -4290,5 +4290,69 @@ export default {
 	gforms_label_submitted: "Надіслано",
 	gforms_no_answer: "Немає відповіді",
 	gforms_more_answers: "Ще відповідей: ${count}",
-	gforms_role_reason: "Відповідь у Google Forms (${name})"
+	gforms_role_reason: "Відповідь у Google Forms (${name})",
+
+	// /confession panel
+	confession_panel_button_default_label: "Зізнатися",
+	confession_panel_title: "Панель зізнань",
+	confession_panel_state_on: "Зізнання увімкнено",
+	confession_panel_state_off: "Зізнання вимкнено",
+	confession_panel_field_channel: "Канал панелі",
+	confession_panel_no_channel: "ще не опубліковано",
+	confession_panel_field_threads: "Гілки обговорення",
+	confession_panel_value_on: "увімкнено",
+	confession_panel_value_off: "вимкнено",
+	confession_panel_field_cooldown: "Затримка",
+	confession_panel_field_embed: "Embed",
+	confession_panel_embed_default: "за замовчуванням",
+	confession_panel_embed_missing:
+		"`${code}` не знайдено, показано embed за замовчуванням",
+	confession_panel_field_button: "Кнопка",
+	confession_panel_channel_placeholder: "Опублікувати панель у…",
+	confession_panel_action_enable: "Увімкнути",
+	confession_panel_action_disable: "Вимкнути",
+	confession_panel_action_threads_on: "Увімкнути гілки",
+	confession_panel_action_threads_off: "Вимкнути гілки",
+	confession_panel_action_cooldown: "Затримка",
+	confession_panel_action_edit_button: "Текст і емодзі",
+	confession_panel_action_reset_button: "Скинути кнопку",
+	confession_panel_action_embed: "Код embed",
+	confession_panel_style_placeholder: "Колір кнопки",
+	confession_panel_style_primary: "Синій",
+	confession_panel_style_secondary: "Сірий",
+	confession_panel_style_success: "Зелений",
+	confession_panel_style_danger: "Червоний",
+	confession_panel_modal_cooldown_title: "Затримка зізнань",
+	confession_panel_modal_cooldown_label: "Час між двома зізнаннями",
+	confession_panel_modal_cooldown_desc: "Наприклад 30s, 10m або 3h.",
+	confession_panel_modal_button_title: "Кнопка панелі",
+	confession_panel_modal_label_label: "Текст",
+	confession_panel_modal_label_desc:
+		"Від 1 до 80 символів. Порожньо: «${default}».",
+	confession_panel_modal_emoji_label: "Емодзі",
+	confession_panel_modal_emoji_desc:
+		"Емодзі Unicode або сервера (<:name:id>). Порожньо: без емодзі.",
+	confession_panel_modal_embed_title: "Embed панелі",
+	confession_panel_modal_embed_label: "Код embed",
+	confession_panel_modal_embed_desc:
+		"Код, збережений через /embed. Порожньо: embed за замовчуванням.",
+	confession_panel_emoji_invalid:
+		"Це не емодзі, яке можна поставити на кнопку.",
+	confession_panel_emoji_unusable:
+		"Я не можу використати це емодзі: воно має бути з цього сервера.",
+	confession_panel_embed_not_found: "Embed з кодом `${code}` не знайдено.",
+	confession_panel_cooldown_invalid:
+		"Неправильний час. Використайте, наприклад, 30s, 10m або 3h.",
+	confession_panel_channel_no_access:
+		"Ви маєте бачити ${channel} і мати змогу писати в ньому.",
+	confession_panel_send_failed:
+		"Не вдалося опублікувати панель у ${channel}: перевірте мої дозволи там.",
+	confession_panel_posted: "Панель опубліковано в ${channel}.",
+	confession_panel_saved: "Збережено.",
+	confession_panel_saved_refreshed:
+		"Збережено, опубліковану панель оновлено.",
+	confession_panel_saved_not_refreshed:
+		"Збережено. Не вдалося оновити опубліковану панель: виберіть її канал ще раз, щоб опублікувати знову.",
+	confession_panel_expired:
+		"Термін дії панелі минув, запустіть команду знову."
 } satisfies LanguageData;

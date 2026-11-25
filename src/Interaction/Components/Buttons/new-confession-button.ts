@@ -43,6 +43,7 @@ import { generatePassword } from "../../../core/functions/random.js";
 import maskLink from "../../../core/functions/maskLink.js";
 import { tempTable } from "../../../Events/client/ready.js";
 import {
+	confessionPanelPayload,
 	isConfessionBanned,
 	pruneConfessions
 } from "../../../core/modules/confessionManager.js";
@@ -273,21 +274,36 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		.catch(() => false);
 
 	if (panelMessage && panelDeleted) {
-		const newPanelFromOldData: MessageReplyOptions = {
-			embeds: [
-				EmbedBuilder.from(panelMessage.embeds[0]).setFooter(
-					await interaction.client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-			],
-			components: [panelMessage.components[0]],
-			files: [
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(
-					interaction
-				)
-			]
-		};
+		// A customised panel (button / embed code) is rebuilt from the
+		// database; an older one is copied as it was (its button label was
+		// never stored).
+		const customised =
+			!!allDataConfession.button || !!allDataConfession.embedId;
+		const newPanelFromOldData: MessageReplyOptions = customised
+			? {
+					...(await confessionPanelPayload(
+						interaction.client,
+						interaction.guild,
+						allDataConfession,
+						lang
+					)),
+					allowedMentions: { parse: [] }
+				}
+			: {
+					embeds: [
+						EmbedBuilder.from(panelMessage.embeds[0]).setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
+					],
+					components: [panelMessage.components[0]],
+					files: [
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
+				};
 
 		interaction.client.func.method
 			.channelSend(interaction.message, newPanelFromOldData)

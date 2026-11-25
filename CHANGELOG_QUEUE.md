@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🤫 Confessions — one panel for everything
+
+`/confession channel`, `/confession config`, `/confession thread` and `/confession cooldown` are replaced by **`/confession panel`** (administrators): one card to post the panel in a channel, turn confessions and threads on or off, set the cooldown, and **customise the panel**: the button's text, emoji (a unicode one or one of the server's) and colour (blue, grey, green, red), and an **embed saved with `/embed`** shown instead of the default one, by its code. Every change updates the posted panel at once, and the card shows a preview of the button. `/confession delete`, `ban` and `unban` do not change.
+
+---
+
 ## 🇺🇦 iHorizon speaks Ukrainian
 
 Ukrainian is now a full language of iHorizon: pick **Українська** with `/setlang`. Every reply, card, menu and log is translated, slash commands show Ukrainian descriptions in a Ukrainian Discord app, and the dashboard has a Ukrainian version too. A server whose Discord region is Ukrainian starts in Ukrainian. The language menu now shows every language in its own name (Français, Deutsch, 日本語…).

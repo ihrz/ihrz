@@ -290,6 +290,16 @@ export namespace DatabaseStructure {
 		cooldown?: number;
 		thread?: "yes" | "no";
 		banned?: ConfessionBan[];
+		/** The panel's "new confession" button. Absent fields = defaults (the translated default label, no emoji, secondary). */
+		button?: {
+			/** 1..80 characters. */
+			label?: string | null;
+			/** A unicode emoji, or a custom one as `<:name:id>` / `<a:name:id>` (an emoji the bot can use). */
+			emoji?: string | null;
+			style?: "primary" | "secondary" | "success" | "danger";
+		};
+		/** `EMBED.{code}` (metas) shown above the button instead of the default embed; missing/invalid code = default embed. */
+		embedId?: string | null;
 	}
 
 	export interface ConfessionBan {
