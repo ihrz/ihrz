@@ -679,7 +679,16 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 			DatabaseStructure.DbGuildObject["H247_TAKEOVER"]
 		>(`${guild.id}.GUILD.H247_TAKEOVER`);
 
-		if (takeover) hydrateH247Takeover(guild, data, takeover);
+		const adopted = takeover
+			? hydrateH247Takeover(guild, data, takeover)
+			: false;
+		// Why the boot re-adopts the session (no leave/join) or has to rejoin
+		// (a leave/join the channel's members see): logged at info level, the
+		// rejoin path was invisible in production.
+		const cached = guild.members.me?.voice;
+		logger.log(
+			`H24/7 boot ${guild.id}: ${adopted ? "takeover (same voice session)" : "rejoin"} — cache voice=${cached?.channelId ?? "none"} (expected ${data.voiceChannelId}), session ${!takeover ? "no saved credentials" : cached?.sessionId === takeover.sessionId ? "matches" : `differs (cache ${cached?.sessionId ?? "none"}, saved ${takeover.sessionId}, ${Math.round((Date.now() - takeover.updatedAt) / 1000)} s old)`}`
+		);
 
 		// Force the join: the freshly restored cache can report the bot
 		// as connected while nobody actually holds the session (pre-restart
