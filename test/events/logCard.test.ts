@@ -234,7 +234,7 @@ describe("message logs", () => {
 		expect(payload.files).toHaveLength(2);
 	});
 
-	test("edited message: before and after as two blocks", () => {
+	test("edited message: one diff block, no >>> quote", () => {
 		const card = editedMessageLog(
 			{ guildId: "9", channelId: "77", id: "88", content: "old text" },
 			{ author, content: "new text" } as any,
@@ -244,14 +244,12 @@ describe("message logs", () => {
 		const texts = flatten(logCardPayload(card, null))
 			.filter((c) => c.type === ComponentType.TextDisplay)
 			.map((c) => c.content);
-		const before = texts.find((t) =>
-			t.startsWith(`**${enUS.event_srvLogs_messageUpdate_footer_1}**`)
+		const diff = texts.find((t) => t.includes("```diff"));
+		expect(diff).toContain(
+			`**${enUS.event_srvLogs_messageUpdate_footer_1}** → **${enUS.event_srvLogs_messageUpdate_footer_2}**`
 		);
-		const after = texts.find((t) =>
-			t.startsWith(`**${enUS.event_srvLogs_messageUpdate_footer_2}**`)
-		);
-		expect(before).toContain("old text");
-		expect(after).toContain("new text");
+		expect(diff).toContain("- old text\n+ new text");
+		expect(texts.join("\n")).not.toContain(">>>");
 		expect(texts.join("\n")).toContain(
 			"https://discord.com/channels/9/77/88"
 		);
