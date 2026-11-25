@@ -37,6 +37,11 @@ import {
 } from "@discordjs/voice";
 
 import type { Player, VoicePacket, VoiceState } from "lavalink-client";
+import {
+	currentShardId,
+	H247SessionMap,
+	readOwnH247Hint
+} from "./h247ShardHint.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
@@ -61,7 +66,8 @@ const H247_CONNECTION_RECOVERY_COOLDOWN_MS = 60_000;
 
 // In-memory mirror of the enabled H24/7 sessions, required to keep the
 // "playerQueueEmptyEnd" handling synchronous against the internal destroy.
-const h247Sessions = new Map<string, string>();
+// Also tells the next restart which shards to start first (h247ShardHint).
+const h247Sessions = new H247SessionMap();
 
 // Guilds resolved as "H24/7 not enabled" with the resolution timestamp.
 // Avoids a database read for every guild on each watchdog tick.
@@ -659,7 +665,14 @@ function hydrateH247Takeover(
 }
 
 export async function recoverH247Sessions(client: Client): Promise<void> {
-	for (const guild of client.guilds.cache.values()) {
+	// The servers that were H24/7 last time first: one database read per
+	// guild, and the takeover only works within ~95 s of the shutdown.
+	const hinted = new Set(await readOwnH247Hint(currentShardId()));
+	const guilds = [...client.guilds.cache.values()].sort(
+		(a, b) => Number(hinted.has(b.id)) - Number(hinted.has(a.id))
+	);
+
+	for (const guild of guilds) {
 		// Only the sub-key is needed: never pull the whole guild document.
 		const data = await client.db.get<
 			DatabaseStructure.DbGuildObject["H247"]

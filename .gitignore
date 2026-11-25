@@ -167,6 +167,7 @@ tools/main.js
 tools/test.ts
 src/files/.ihrz-cache
 src/files/db.json
+src/files/h247/
 draft
 bun.lock
 src/files/host.key.pub

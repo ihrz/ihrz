@@ -32,6 +32,11 @@ import { installShardShutdown } from "./core/modules/shardShutdown.js";
 import { checkExports } from "./core/modules/exportsManifest.js";
 import { buildShardBundle } from "./core/modules/shardBundle.js";
 import { createShardLog } from "./core/modules/shardLogChannel.js";
+import {
+	h247Shards,
+	prioritizedShardList,
+	readH247Hints
+} from "./core/modules/h247ShardHint.js";
 import { extractResources, IS_STANDALONE } from "./core/modules/resources.js";
 import pkg from "../package.json";
 
@@ -140,8 +145,21 @@ if (IS_STANDALONE) {
 	shardEntry = await buildShardBundle();
 }
 
+// Shards hosting a H24/7 server start first: the takeover of their voice
+// session only works within ~95 s of the shutdown (h247ShardHint).
+const h247GuildIds = await readH247Hints();
+const shardList = prioritizedShardList(totalShards, h247GuildIds);
+const firstShards = h247Shards(totalShards, h247GuildIds);
+
+if (firstShards.length) {
+	logger.log(
+		`[Gateway] H24/7 shards start first: ${firstShards.join(", ")}`.cyan
+	);
+}
+
 const manager = new ShardingManager(shardEntry, {
 	totalShards,
+	shardList,
 	token,
 	respawn: true
 });
