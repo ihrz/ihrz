@@ -35,59 +35,61 @@ import * as m9 from "../Interaction/SlashCommands/blogger/!remove.ts";
 import * as m10 from "../Interaction/SlashCommands/blogger/!status.ts";
 import * as m11 from "../Interaction/SlashCommands/blogger/blogger.ts";
 import * as m12 from "../Interaction/SlashCommands/blogger/init.json" with { type: "json" };
-import * as m13 from "../Interaction/SlashCommands/guildconfig/!bot.ts";
-import * as m14 from "../Interaction/SlashCommands/guildconfig/!prefix.ts";
-import * as m15 from "../Interaction/SlashCommands/guildconfig/!restore.ts";
-import * as m16 from "../Interaction/SlashCommands/guildconfig/!save.ts";
-import * as m17 from "../Interaction/SlashCommands/guildconfig/!setup.ts";
-import * as m18 from "../Interaction/SlashCommands/guildconfig/!show.ts";
-import * as m19 from "../Interaction/SlashCommands/guildconfig/!too-new-account.ts";
-import * as m20 from "../Interaction/SlashCommands/guildconfig/!welcomer.ts";
-import * as m21 from "../Interaction/SlashCommands/guildconfig/guildconfig.ts";
-import * as m22 from "../Interaction/SlashCommands/guildconfig/init.json" with { type: "json" };
-import * as m23 from "../Interaction/SlashCommands/guildconfig/join-ghostping/!add.ts";
-import * as m24 from "../Interaction/SlashCommands/guildconfig/join-ghostping/!remove.ts";
-import * as m25 from "../Interaction/SlashCommands/guildconfig/join-ghostping/join-ghostping.ts";
-import * as m26 from "../Interaction/SlashCommands/guildconfig/perm/!command.ts";
-import * as m27 from "../Interaction/SlashCommands/guildconfig/perm/!create-roles.ts";
-import * as m28 from "../Interaction/SlashCommands/guildconfig/perm/!edit-roles.ts";
-import * as m29 from "../Interaction/SlashCommands/guildconfig/perm/!list.ts";
-import * as m30 from "../Interaction/SlashCommands/guildconfig/perm/!set-user.ts";
-import * as m31 from "../Interaction/SlashCommands/guildconfig/perm/perm.ts";
-import * as m32 from "../Interaction/SlashCommands/guildconfig/welcomerPanel.ts";
-import * as m33 from "../Interaction/SlashCommands/honeypot/!config.ts";
-import * as m34 from "../Interaction/SlashCommands/honeypot/honeypot.ts";
-import * as m35 from "../Interaction/SlashCommands/honeypot/init.json" with { type: "json" };
-import * as m36 from "../Interaction/SlashCommands/lastfm/!config.ts";
-import * as m37 from "../Interaction/SlashCommands/lastfm/!login.ts";
-import * as m38 from "../Interaction/SlashCommands/lastfm/init.json" with { type: "json" };
-import * as m39 from "../Interaction/SlashCommands/lastfm/lastfm.ts";
-import * as m40 from "../Interaction/SlashCommands/newfeatures/init.json" with { type: "json" };
-import * as m41 from "../Interaction/SlashCommands/newfeatures/punishpub.ts";
-import * as m42 from "../Interaction/SlashCommands/newfeatures/report.ts";
-import * as m43 from "../Interaction/SlashCommands/newfeatures/rolesaver.ts";
-import * as m44 from "../Interaction/SlashCommands/notifier/!add.ts";
-import * as m45 from "../Interaction/SlashCommands/notifier/!channel.ts";
-import * as m46 from "../Interaction/SlashCommands/notifier/!list.ts";
-import * as m47 from "../Interaction/SlashCommands/notifier/!message.ts";
-import * as m48 from "../Interaction/SlashCommands/notifier/!remove.ts";
-import * as m49 from "../Interaction/SlashCommands/notifier/init.json" with { type: "json" };
-import * as m50 from "../Interaction/SlashCommands/notifier/notifier.ts";
-import * as m51 from "../Interaction/SlashCommands/suggestion/init.json" with { type: "json" };
-import * as m52 from "../Interaction/SlashCommands/suggestion/setsuggest/!channel.ts";
-import * as m53 from "../Interaction/SlashCommands/suggestion/setsuggest/!config.ts";
-import * as m54 from "../Interaction/SlashCommands/suggestion/setsuggest/!staff-role.ts";
-import * as m55 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
-import * as m56 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
-import * as m57 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
-import * as m58 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
-import * as m59 from "../Interaction/SlashCommands/suggestion/suggest/!list.ts";
-import * as m60 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
-import * as m61 from "../Interaction/SlashCommands/suggestion/suggest/!status.ts";
-import * as m62 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
-import * as m63 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
-import * as m64 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
-import * as m65 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
+import * as m13 from "../Interaction/SlashCommands/guildconfig/!boost-message.ts";
+import * as m14 from "../Interaction/SlashCommands/guildconfig/!bot.ts";
+import * as m15 from "../Interaction/SlashCommands/guildconfig/!prefix.ts";
+import * as m16 from "../Interaction/SlashCommands/guildconfig/!restore.ts";
+import * as m17 from "../Interaction/SlashCommands/guildconfig/!save.ts";
+import * as m18 from "../Interaction/SlashCommands/guildconfig/!setup.ts";
+import * as m19 from "../Interaction/SlashCommands/guildconfig/!show.ts";
+import * as m20 from "../Interaction/SlashCommands/guildconfig/!too-new-account.ts";
+import * as m21 from "../Interaction/SlashCommands/guildconfig/!welcomer.ts";
+import * as m22 from "../Interaction/SlashCommands/guildconfig/boostMessagePanel.ts";
+import * as m23 from "../Interaction/SlashCommands/guildconfig/guildconfig.ts";
+import * as m24 from "../Interaction/SlashCommands/guildconfig/init.json" with { type: "json" };
+import * as m25 from "../Interaction/SlashCommands/guildconfig/join-ghostping/!add.ts";
+import * as m26 from "../Interaction/SlashCommands/guildconfig/join-ghostping/!remove.ts";
+import * as m27 from "../Interaction/SlashCommands/guildconfig/join-ghostping/join-ghostping.ts";
+import * as m28 from "../Interaction/SlashCommands/guildconfig/perm/!command.ts";
+import * as m29 from "../Interaction/SlashCommands/guildconfig/perm/!create-roles.ts";
+import * as m30 from "../Interaction/SlashCommands/guildconfig/perm/!edit-roles.ts";
+import * as m31 from "../Interaction/SlashCommands/guildconfig/perm/!list.ts";
+import * as m32 from "../Interaction/SlashCommands/guildconfig/perm/!set-user.ts";
+import * as m33 from "../Interaction/SlashCommands/guildconfig/perm/perm.ts";
+import * as m34 from "../Interaction/SlashCommands/guildconfig/welcomerPanel.ts";
+import * as m35 from "../Interaction/SlashCommands/honeypot/!config.ts";
+import * as m36 from "../Interaction/SlashCommands/honeypot/honeypot.ts";
+import * as m37 from "../Interaction/SlashCommands/honeypot/init.json" with { type: "json" };
+import * as m38 from "../Interaction/SlashCommands/lastfm/!config.ts";
+import * as m39 from "../Interaction/SlashCommands/lastfm/!login.ts";
+import * as m40 from "../Interaction/SlashCommands/lastfm/init.json" with { type: "json" };
+import * as m41 from "../Interaction/SlashCommands/lastfm/lastfm.ts";
+import * as m42 from "../Interaction/SlashCommands/newfeatures/init.json" with { type: "json" };
+import * as m43 from "../Interaction/SlashCommands/newfeatures/punishpub.ts";
+import * as m44 from "../Interaction/SlashCommands/newfeatures/report.ts";
+import * as m45 from "../Interaction/SlashCommands/newfeatures/rolesaver.ts";
+import * as m46 from "../Interaction/SlashCommands/notifier/!add.ts";
+import * as m47 from "../Interaction/SlashCommands/notifier/!channel.ts";
+import * as m48 from "../Interaction/SlashCommands/notifier/!list.ts";
+import * as m49 from "../Interaction/SlashCommands/notifier/!message.ts";
+import * as m50 from "../Interaction/SlashCommands/notifier/!remove.ts";
+import * as m51 from "../Interaction/SlashCommands/notifier/init.json" with { type: "json" };
+import * as m52 from "../Interaction/SlashCommands/notifier/notifier.ts";
+import * as m53 from "../Interaction/SlashCommands/suggestion/init.json" with { type: "json" };
+import * as m54 from "../Interaction/SlashCommands/suggestion/setsuggest/!channel.ts";
+import * as m55 from "../Interaction/SlashCommands/suggestion/setsuggest/!config.ts";
+import * as m56 from "../Interaction/SlashCommands/suggestion/setsuggest/!staff-role.ts";
+import * as m57 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
+import * as m58 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
+import * as m59 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
+import * as m60 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
+import * as m61 from "../Interaction/SlashCommands/suggestion/suggest/!list.ts";
+import * as m62 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
+import * as m63 from "../Interaction/SlashCommands/suggestion/suggest/!status.ts";
+import * as m64 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
+import * as m65 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
+import * as m66 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
+import * as m67 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
 
 const files: Record<string, any> = {
 	"authrestore/!delete.ts": m0,
@@ -103,59 +105,61 @@ const files: Record<string, any> = {
 	"blogger/!status.ts": m10,
 	"blogger/blogger.ts": m11,
 	"blogger/init.json": m12,
-	"guildconfig/!bot.ts": m13,
-	"guildconfig/!prefix.ts": m14,
-	"guildconfig/!restore.ts": m15,
-	"guildconfig/!save.ts": m16,
-	"guildconfig/!setup.ts": m17,
-	"guildconfig/!show.ts": m18,
-	"guildconfig/!too-new-account.ts": m19,
-	"guildconfig/!welcomer.ts": m20,
-	"guildconfig/guildconfig.ts": m21,
-	"guildconfig/init.json": m22,
-	"guildconfig/join-ghostping/!add.ts": m23,
-	"guildconfig/join-ghostping/!remove.ts": m24,
-	"guildconfig/join-ghostping/join-ghostping.ts": m25,
-	"guildconfig/perm/!command.ts": m26,
-	"guildconfig/perm/!create-roles.ts": m27,
-	"guildconfig/perm/!edit-roles.ts": m28,
-	"guildconfig/perm/!list.ts": m29,
-	"guildconfig/perm/!set-user.ts": m30,
-	"guildconfig/perm/perm.ts": m31,
-	"guildconfig/welcomerPanel.ts": m32,
-	"honeypot/!config.ts": m33,
-	"honeypot/honeypot.ts": m34,
-	"honeypot/init.json": m35,
-	"lastfm/!config.ts": m36,
-	"lastfm/!login.ts": m37,
-	"lastfm/init.json": m38,
-	"lastfm/lastfm.ts": m39,
-	"newfeatures/init.json": m40,
-	"newfeatures/punishpub.ts": m41,
-	"newfeatures/report.ts": m42,
-	"newfeatures/rolesaver.ts": m43,
-	"notifier/!add.ts": m44,
-	"notifier/!channel.ts": m45,
-	"notifier/!list.ts": m46,
-	"notifier/!message.ts": m47,
-	"notifier/!remove.ts": m48,
-	"notifier/init.json": m49,
-	"notifier/notifier.ts": m50,
-	"suggestion/init.json": m51,
-	"suggestion/setsuggest/!channel.ts": m52,
-	"suggestion/setsuggest/!config.ts": m53,
-	"suggestion/setsuggest/!staff-role.ts": m54,
-	"suggestion/setsuggest/setsuggest.ts": m55,
-	"suggestion/suggest/!accept.ts": m56,
-	"suggestion/suggest/!delete.ts": m57,
-	"suggestion/suggest/!deny.ts": m58,
-	"suggestion/suggest/!list.ts": m59,
-	"suggestion/suggest/!reply.ts": m60,
-	"suggestion/suggest/!status.ts": m61,
-	"suggestion/suggest/suggest.ts": m62,
-	"voicedashboard/!tempvoice.ts": m63,
-	"voicedashboard/init.json": m64,
-	"voicedashboard/voicedashboard.ts": m65
+	"guildconfig/!boost-message.ts": m13,
+	"guildconfig/!bot.ts": m14,
+	"guildconfig/!prefix.ts": m15,
+	"guildconfig/!restore.ts": m16,
+	"guildconfig/!save.ts": m17,
+	"guildconfig/!setup.ts": m18,
+	"guildconfig/!show.ts": m19,
+	"guildconfig/!too-new-account.ts": m20,
+	"guildconfig/!welcomer.ts": m21,
+	"guildconfig/boostMessagePanel.ts": m22,
+	"guildconfig/guildconfig.ts": m23,
+	"guildconfig/init.json": m24,
+	"guildconfig/join-ghostping/!add.ts": m25,
+	"guildconfig/join-ghostping/!remove.ts": m26,
+	"guildconfig/join-ghostping/join-ghostping.ts": m27,
+	"guildconfig/perm/!command.ts": m28,
+	"guildconfig/perm/!create-roles.ts": m29,
+	"guildconfig/perm/!edit-roles.ts": m30,
+	"guildconfig/perm/!list.ts": m31,
+	"guildconfig/perm/!set-user.ts": m32,
+	"guildconfig/perm/perm.ts": m33,
+	"guildconfig/welcomerPanel.ts": m34,
+	"honeypot/!config.ts": m35,
+	"honeypot/honeypot.ts": m36,
+	"honeypot/init.json": m37,
+	"lastfm/!config.ts": m38,
+	"lastfm/!login.ts": m39,
+	"lastfm/init.json": m40,
+	"lastfm/lastfm.ts": m41,
+	"newfeatures/init.json": m42,
+	"newfeatures/punishpub.ts": m43,
+	"newfeatures/report.ts": m44,
+	"newfeatures/rolesaver.ts": m45,
+	"notifier/!add.ts": m46,
+	"notifier/!channel.ts": m47,
+	"notifier/!list.ts": m48,
+	"notifier/!message.ts": m49,
+	"notifier/!remove.ts": m50,
+	"notifier/init.json": m51,
+	"notifier/notifier.ts": m52,
+	"suggestion/init.json": m53,
+	"suggestion/setsuggest/!channel.ts": m54,
+	"suggestion/setsuggest/!config.ts": m55,
+	"suggestion/setsuggest/!staff-role.ts": m56,
+	"suggestion/setsuggest/setsuggest.ts": m57,
+	"suggestion/suggest/!accept.ts": m58,
+	"suggestion/suggest/!delete.ts": m59,
+	"suggestion/suggest/!deny.ts": m60,
+	"suggestion/suggest/!list.ts": m61,
+	"suggestion/suggest/!reply.ts": m62,
+	"suggestion/suggest/!status.ts": m63,
+	"suggestion/suggest/suggest.ts": m64,
+	"voicedashboard/!tempvoice.ts": m65,
+	"voicedashboard/init.json": m66,
+	"voicedashboard/voicedashboard.ts": m67
 };
 
 export default files;

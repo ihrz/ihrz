@@ -5259,5 +5259,63 @@ export default {
 	music_playlist_queued: "**${name}** добавлен в очередь (треков: ${count}).",
 	music_playlist_not_found:
 		"Плейлист с таким названием не найден: вот ваша библиотека.",
-	music_playlist_gone: "Этого плейлиста больше нет."
+	music_playlist_gone: "Этого плейлиста больше нет.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Сообщение о бусте",
+	boostmsg_panel_desc:
+		"Благодарите участников, бустящих сервер, и прощайтесь, когда их буст заканчивается.",
+	boostmsg_side_boost: "Буст",
+	boostmsg_side_unboost: "Снятие буста",
+	boostmsg_field_status: "Статус:",
+	boostmsg_field_channel: "Канал:",
+	boostmsg_field_dm: "Личное сообщение:",
+	boostmsg_field_text: "Текст:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Сообщение",
+	boostmsg_field_variables: "Переменные",
+	boostmsg_on: "Включено",
+	boostmsg_off: "Выключено",
+	boostmsg_none: "Нет",
+	boostmsg_default_label: "текст по умолчанию",
+	boostmsg_text_needed_hint: "Без embed текст всё равно отправляется.",
+	boostmsg_no_target_hint:
+		"Включено, но ничего не будет отправлено: выберите канал или включите личное сообщение.",
+	boostmsg_variables_help:
+		"{boostCount}: число бустов сервера · {boostTier}: уровень буста (от 0 до 3)",
+	boostmsg_button_enable: "Включить",
+	boostmsg_button_disable: "Выключить",
+	boostmsg_button_dm_enable: "Включить ЛС",
+	boostmsg_button_dm_disable: "Выключить ЛС",
+	boostmsg_button_text_enable: "Включить текст",
+	boostmsg_button_text_disable: "Выключить текст",
+	boostmsg_button_message: "Изменить сообщение",
+	boostmsg_button_embed: "Код embed",
+	boostmsg_button_test: "Отправить тест",
+	boostmsg_channel_placeholder: "Канал для сообщения (пусто = нет)",
+	boostmsg_channel_invalid:
+		"Этот канал нельзя использовать: выберите текстовый канал или канал объявлений.",
+	boostmsg_channel_no_access:
+		"Чтобы выбрать ${channel}, вы должны видеть его и писать в нём.",
+	boostmsg_channel_bot_no_access:
+		"Я не вижу ${channel} или не могу писать в нём: сначала дайте мне доступ.",
+	boostmsg_modal_message_title: "Сообщение о бусте",
+	boostmsg_modal_message_label: "Сообщение (пусто = по умолчанию)",
+	boostmsg_modal_embed_title: "Код embed",
+	boostmsg_modal_embed_label: "Код embed (пусто = без embed)",
+	boostmsg_embed_not_found:
+		"Под кодом `${embed_id}` нет сохранённого embed: ничего не изменено.",
+	boostmsg_test_tag: "Тест сообщения о бусте (${side})",
+	boostmsg_test_nothing:
+		"Нечего отправлять: выберите канал или включите личное сообщение.",
+	boostmsg_test_channel_ok: "Тест отправлен в ${channel}.",
+	boostmsg_test_channel_fail:
+		"Не удалось отправить тест в ${channel} (нет прав?).",
+	boostmsg_test_dm_ok: "Тест отправлен вам в ЛС.",
+	boostmsg_test_dm_fail:
+		"Не удалось доставить ЛС (личные сообщения закрыты?).",
+	boostmsg_default_boost:
+		"💎 Огромное спасибо, {memberMention}, за буст **{guildName}**! Благодаря тебе у сервера теперь {boostCount} бустов (уровень {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} больше не бустит **{guildName}**. Спасибо за поддержку всё это время! 💜"
 } satisfies LanguageData;

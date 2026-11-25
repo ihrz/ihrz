@@ -5352,5 +5352,64 @@ export default {
 		"**${name}** è stato aggiunto alla coda (brani: ${count}).",
 	music_playlist_not_found:
 		"Nessuna playlist trovata con questo nome: ecco la tua libreria.",
-	music_playlist_gone: "Questa playlist non esiste più."
+	music_playlist_gone: "Questa playlist non esiste più.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Messaggio di boost",
+	boostmsg_panel_desc:
+		"Ringrazia i membri che potenziano il server e salutali quando il loro boost finisce.",
+	boostmsg_side_boost: "Boost",
+	boostmsg_side_unboost: "Fine del boost",
+	boostmsg_field_status: "Stato:",
+	boostmsg_field_channel: "Canale:",
+	boostmsg_field_dm: "Messaggio privato:",
+	boostmsg_field_text: "Testo:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Messaggio",
+	boostmsg_field_variables: "Variabili",
+	boostmsg_on: "Attivo",
+	boostmsg_off: "Disattivo",
+	boostmsg_none: "Nessuno",
+	boostmsg_default_label: "testo predefinito",
+	boostmsg_text_needed_hint: "Senza embed, il testo viene comunque inviato.",
+	boostmsg_no_target_hint:
+		"Attivo, ma non verrà inviato nulla: scegli un canale o attiva il messaggio privato.",
+	boostmsg_variables_help:
+		"{boostCount}: numero di boost del server · {boostTier}: livello di boost (da 0 a 3)",
+	boostmsg_button_enable: "Attiva",
+	boostmsg_button_disable: "Disattiva",
+	boostmsg_button_dm_enable: "Attiva DM",
+	boostmsg_button_dm_disable: "Disattiva DM",
+	boostmsg_button_text_enable: "Attiva testo",
+	boostmsg_button_text_disable: "Disattiva testo",
+	boostmsg_button_message: "Modifica messaggio",
+	boostmsg_button_embed: "Codice embed",
+	boostmsg_button_test: "Invia un test",
+	boostmsg_channel_placeholder:
+		"Canale dove pubblicare il messaggio (vuoto = nessuno)",
+	boostmsg_channel_invalid:
+		"Questo canale non può essere usato: scegli un canale testuale o di annunci.",
+	boostmsg_channel_no_access:
+		"Devi poter vedere ${channel} e scriverci per sceglierlo.",
+	boostmsg_channel_bot_no_access:
+		"Non posso vedere ${channel} o scriverci: dammi prima l'accesso.",
+	boostmsg_modal_message_title: "Messaggio di boost",
+	boostmsg_modal_message_label: "Messaggio (vuoto = testo predefinito)",
+	boostmsg_modal_embed_title: "Codice embed",
+	boostmsg_modal_embed_label: "Codice embed (vuoto = nessuno)",
+	boostmsg_embed_not_found:
+		"Nessun embed salvato con il codice `${embed_id}`: non è stato modificato nulla.",
+	boostmsg_test_tag: "Test del messaggio di boost (${side})",
+	boostmsg_test_nothing:
+		"Niente da inviare: scegli un canale o attiva il messaggio privato.",
+	boostmsg_test_channel_ok: "Test pubblicato in ${channel}.",
+	boostmsg_test_channel_fail:
+		"Impossibile pubblicare il test in ${channel} (permessi mancanti?).",
+	boostmsg_test_dm_ok: "Test inviato in messaggio privato.",
+	boostmsg_test_dm_fail:
+		"Impossibile consegnare il DM (messaggi privati chiusi?).",
+	boostmsg_default_boost:
+		"💎 Grazie mille {memberMention} per aver potenziato **{guildName}**! Grazie a te, il server ora ha {boostCount} boost (livello {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} non potenzia più **{guildName}**. Grazie per il tuo supporto in tutto questo tempo! 💜"
 } satisfies LanguageData;

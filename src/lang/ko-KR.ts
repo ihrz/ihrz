@@ -5085,5 +5085,61 @@ export default {
 	music_playlist_queued: "**${name}**을 대기열에 추가했어요 (${count}곡).",
 	music_playlist_not_found:
 		"그 이름의 플레이리스트가 없어요. 라이브러리를 보여 드릴게요.",
-	music_playlist_gone: "이 플레이리스트는 더 이상 없어요."
+	music_playlist_gone: "이 플레이리스트는 더 이상 없어요.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "부스트 메시지",
+	boostmsg_panel_desc:
+		"서버를 부스트한 멤버에게 감사를 전하고, 부스트가 끝나면 작별 인사를 보내요.",
+	boostmsg_side_boost: "부스트",
+	boostmsg_side_unboost: "부스트 해제",
+	boostmsg_field_status: "상태:",
+	boostmsg_field_channel: "채널:",
+	boostmsg_field_dm: "DM:",
+	boostmsg_field_text: "텍스트:",
+	boostmsg_field_embed: "임베드:",
+	boostmsg_field_message: "메시지",
+	boostmsg_field_variables: "변수",
+	boostmsg_on: "켜짐",
+	boostmsg_off: "꺼짐",
+	boostmsg_none: "없음",
+	boostmsg_default_label: "기본 텍스트",
+	boostmsg_text_needed_hint: "임베드가 없으면 텍스트는 그대로 보내져요.",
+	boostmsg_no_target_hint:
+		"켜져 있지만 아무것도 보내지지 않아요: 채널을 고르거나 DM을 켜 주세요.",
+	boostmsg_variables_help:
+		"{boostCount}: 서버 부스트 수 · {boostTier}: 부스트 레벨 (0~3)",
+	boostmsg_button_enable: "켜기",
+	boostmsg_button_disable: "끄기",
+	boostmsg_button_dm_enable: "DM 켜기",
+	boostmsg_button_dm_disable: "DM 끄기",
+	boostmsg_button_text_enable: "텍스트 켜기",
+	boostmsg_button_text_disable: "텍스트 끄기",
+	boostmsg_button_message: "메시지 수정",
+	boostmsg_button_embed: "임베드 코드",
+	boostmsg_button_test: "테스트 보내기",
+	boostmsg_channel_placeholder: "메시지를 올릴 채널 (비우면 없음)",
+	boostmsg_channel_invalid:
+		"이 채널은 사용할 수 없어요: 텍스트 채널이나 공지 채널을 골라 주세요.",
+	boostmsg_channel_no_access:
+		"${channel} 채널을 고르려면 그 채널을 보고 메시지를 보낼 수 있어야 해요.",
+	boostmsg_channel_bot_no_access:
+		"${channel} 채널을 보거나 메시지를 보낼 수 없어요: 먼저 권한을 주세요.",
+	boostmsg_modal_message_title: "부스트 메시지",
+	boostmsg_modal_message_label: "메시지 (비우면 기본 텍스트)",
+	boostmsg_modal_embed_title: "임베드 코드",
+	boostmsg_modal_embed_label: "임베드 코드 (비우면 없음)",
+	boostmsg_embed_not_found:
+		"`${embed_id}` 코드로 저장된 임베드가 없어요: 아무것도 바뀌지 않았어요.",
+	boostmsg_test_tag: "부스트 메시지 테스트 (${side})",
+	boostmsg_test_nothing: "보낼 것이 없어요: 채널을 고르거나 DM을 켜 주세요.",
+	boostmsg_test_channel_ok: "${channel} 채널에 테스트를 올렸어요.",
+	boostmsg_test_channel_fail:
+		"${channel} 채널에 테스트를 올리지 못했어요 (권한 부족?).",
+	boostmsg_test_dm_ok: "DM으로 테스트를 보냈어요.",
+	boostmsg_test_dm_fail: "DM을 보내지 못했어요 (DM이 닫혀 있나요?).",
+	boostmsg_default_boost:
+		"💎 {memberMention}님, **{guildName}** 서버를 부스트해 주셔서 정말 고마워요! 덕분에 서버 부스트가 {boostCount}개(레벨 {boostTier})가 되었어요.",
+	boostmsg_default_unboost:
+		"{memberMention}님이 **{guildName}** 부스트를 멈췄어요. 그동안 응원해 주셔서 고마워요! 💜"
 } satisfies LanguageData;

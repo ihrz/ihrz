@@ -4373,5 +4373,63 @@ export default {
 	music_playlist_queued: "Dodano **${name}** do kolejki (utwory: ${count}).",
 	music_playlist_not_found:
 		"Nie znaleziono playlisty o tej nazwie: oto twoja biblioteka.",
-	music_playlist_gone: "Ta playlista już nie istnieje."
+	music_playlist_gone: "Ta playlista już nie istnieje.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Wiadomość o boostach",
+	boostmsg_panel_desc:
+		"Podziękuj członkom, którzy boostują serwer, i pożegnaj się, gdy ich boost się skończy.",
+	boostmsg_side_boost: "Boost",
+	boostmsg_side_unboost: "Koniec boosta",
+	boostmsg_field_status: "Status:",
+	boostmsg_field_channel: "Kanał:",
+	boostmsg_field_dm: "Wiadomość prywatna:",
+	boostmsg_field_text: "Tekst:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Wiadomość",
+	boostmsg_field_variables: "Zmienne",
+	boostmsg_on: "Włączone",
+	boostmsg_off: "Wyłączone",
+	boostmsg_none: "Brak",
+	boostmsg_default_label: "tekst domyślny",
+	boostmsg_text_needed_hint: "Bez embeda tekst i tak zostanie wysłany.",
+	boostmsg_no_target_hint:
+		"Włączone, ale nic nie zostanie wysłane: wybierz kanał lub włącz wiadomość prywatną.",
+	boostmsg_variables_help:
+		"{boostCount}: liczba boostów serwera · {boostTier}: poziom boosta (od 0 do 3)",
+	boostmsg_button_enable: "Włącz",
+	boostmsg_button_disable: "Wyłącz",
+	boostmsg_button_dm_enable: "Włącz DM",
+	boostmsg_button_dm_disable: "Wyłącz DM",
+	boostmsg_button_text_enable: "Włącz tekst",
+	boostmsg_button_text_disable: "Wyłącz tekst",
+	boostmsg_button_message: "Edytuj wiadomość",
+	boostmsg_button_embed: "Kod embeda",
+	boostmsg_button_test: "Wyślij test",
+	boostmsg_channel_placeholder: "Kanał wiadomości (puste = brak)",
+	boostmsg_channel_invalid:
+		"Tego kanału nie można użyć: wybierz kanał tekstowy lub ogłoszeń.",
+	boostmsg_channel_no_access:
+		"Musisz widzieć ${channel} i móc w nim pisać, aby go wybrać.",
+	boostmsg_channel_bot_no_access:
+		"Nie widzę ${channel} lub nie mogę w nim pisać: najpierw daj mi dostęp.",
+	boostmsg_modal_message_title: "Wiadomość o boostach",
+	boostmsg_modal_message_label: "Wiadomość (puste = tekst domyślny)",
+	boostmsg_modal_embed_title: "Kod embeda",
+	boostmsg_modal_embed_label: "Kod embeda (puste = brak)",
+	boostmsg_embed_not_found:
+		"Pod kodem `${embed_id}` nie zapisano żadnego embeda: nic nie zmieniono.",
+	boostmsg_test_tag: "Test wiadomości o boostach (${side})",
+	boostmsg_test_nothing:
+		"Nie ma czego wysłać: wybierz kanał lub włącz wiadomość prywatną.",
+	boostmsg_test_channel_ok: "Test wysłany na ${channel}.",
+	boostmsg_test_channel_fail:
+		"Nie udało się wysłać testu na ${channel} (brak uprawnień?).",
+	boostmsg_test_dm_ok: "Test wysłany w wiadomości prywatnej.",
+	boostmsg_test_dm_fail:
+		"Nie udało się dostarczyć DM (zamknięte wiadomości prywatne?).",
+	boostmsg_default_boost:
+		"💎 Ogromne dzięki, {memberMention}, za boosta **{guildName}**! Dzięki tobie serwer ma teraz {boostCount} boostów (poziom {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} nie boostuje już **{guildName}**. Dzięki za wsparcie przez cały ten czas! 💜"
 } satisfies LanguageData;

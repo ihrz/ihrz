@@ -5412,5 +5412,63 @@ export default {
 		"**${name}** wurde zur Warteschlange hinzugefügt (Titel: ${count}).",
 	music_playlist_not_found:
 		"Keine Playlist mit diesem Namen gefunden: hier ist deine Bibliothek.",
-	music_playlist_gone: "Diese Playlist gibt es nicht mehr."
+	music_playlist_gone: "Diese Playlist gibt es nicht mehr.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Boost-Nachricht",
+	boostmsg_panel_desc:
+		"Danke Mitgliedern, die den Server boosten, und verabschiede dich, wenn ihr Boost endet.",
+	boostmsg_side_boost: "Boost",
+	boostmsg_side_unboost: "Boost beendet",
+	boostmsg_field_status: "Status:",
+	boostmsg_field_channel: "Kanal:",
+	boostmsg_field_dm: "Direktnachricht:",
+	boostmsg_field_text: "Text:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Nachricht",
+	boostmsg_field_variables: "Variablen",
+	boostmsg_on: "Aktiviert",
+	boostmsg_off: "Deaktiviert",
+	boostmsg_none: "Keine",
+	boostmsg_default_label: "Standardtext",
+	boostmsg_text_needed_hint: "Ohne Embed wird der Text trotzdem gesendet.",
+	boostmsg_no_target_hint:
+		"Aktiviert, aber nichts wird gesendet: Wähle einen Kanal oder aktiviere die Direktnachricht.",
+	boostmsg_variables_help:
+		"{boostCount}: Anzahl der Boosts des Servers · {boostTier}: Boost-Stufe (0 bis 3)",
+	boostmsg_button_enable: "Aktivieren",
+	boostmsg_button_disable: "Deaktivieren",
+	boostmsg_button_dm_enable: "DM aktivieren",
+	boostmsg_button_dm_disable: "DM deaktivieren",
+	boostmsg_button_text_enable: "Text aktivieren",
+	boostmsg_button_text_disable: "Text deaktivieren",
+	boostmsg_button_message: "Nachricht bearbeiten",
+	boostmsg_button_embed: "Embed-Code",
+	boostmsg_button_test: "Test senden",
+	boostmsg_channel_placeholder: "Kanal für die Nachricht (leer = keiner)",
+	boostmsg_channel_invalid:
+		"Dieser Kanal kann nicht genutzt werden: Wähle einen Text- oder Ankündigungskanal.",
+	boostmsg_channel_no_access:
+		"Du musst ${channel} sehen und dort schreiben können, um ihn zu wählen.",
+	boostmsg_channel_bot_no_access:
+		"Ich kann ${channel} nicht sehen oder dort schreiben: Gib mir zuerst Zugriff.",
+	boostmsg_modal_message_title: "Boost-Nachricht",
+	boostmsg_modal_message_label: "Nachricht (leer = Standardtext)",
+	boostmsg_modal_embed_title: "Embed-Code",
+	boostmsg_modal_embed_label: "Embed-Code (leer = kein Embed)",
+	boostmsg_embed_not_found:
+		"Unter dem Code `${embed_id}` ist kein Embed gespeichert: Nichts wurde geändert.",
+	boostmsg_test_tag: "Test der Boost-Nachricht (${side})",
+	boostmsg_test_nothing:
+		"Nichts zu senden: Wähle einen Kanal oder aktiviere die Direktnachricht.",
+	boostmsg_test_channel_ok: "Test in ${channel} gepostet.",
+	boostmsg_test_channel_fail:
+		"Der Test konnte nicht in ${channel} gepostet werden (fehlende Berechtigungen?).",
+	boostmsg_test_dm_ok: "Test als Direktnachricht gesendet.",
+	boostmsg_test_dm_fail:
+		"Die Direktnachricht konnte nicht zugestellt werden (DMs geschlossen?).",
+	boostmsg_default_boost:
+		"💎 Vielen Dank, {memberMention}, dass du **{guildName}** boostest! Dank dir hat der Server jetzt {boostCount} Boosts (Stufe {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} boostet **{guildName}** nicht mehr. Danke für deine Unterstützung die ganze Zeit! 💜"
 } satisfies LanguageData;

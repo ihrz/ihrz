@@ -5894,6 +5894,26 @@
                         "permissions": [
                             "Administrator"
                         ]
+                    },
+                    {
+                        "name": "boost-message",
+                        "description": "Configure the message sent when a member boosts or stops boosting!",
+                        "description_localizations": {
+                            "fr": "Configurer le message envoyé quand un membre boost ou arrête de booster",
+                            "ja": "メンバーがブーストした時・ブーストをやめた時のメッセージを設定！",
+                            "ru": "Настроить сообщение, когда участник бустит сервер или убирает буст!",
+                            "es-ES": "Configurar el mensaje enviado cuando un miembro mejora o deja de mejorar el servidor!",
+                            "ko": "멤버가 부스트하거나 부스트를 멈출 때 보낼 메시지를 설정해요!",
+                            "uk": "Налаштувати повідомлення, коли учасник бустить сервер або прибирає буст!",
+                            "de": "Konfiguriere die Nachricht, wenn ein Mitglied boostet oder aufhört zu boosten!",
+                            "it": "Configura il messaggio inviato quando un membro potenzia o smette di potenziare il server!",
+                            "pt-BR": "Configure a mensagem enviada quando um membro impulsiona ou deixa de impulsionar o servidor!",
+                            "pl": "Skonfiguruj wiadomość, gdy członek boostuje serwer lub przestaje go boostować!"
+                        },
+                        "type": 1,
+                        "permissions": [
+                            "Administrator"
+                        ]
                     }
                 ]
             },
