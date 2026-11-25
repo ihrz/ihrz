@@ -22,18 +22,13 @@
 import { Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { LanguageData } from "../../../types/languageData.js";
+import { messageDiff } from "../../core/functions/messageDiff.js";
 import { LogCardOptions, sendLogCard } from "../../core/modules/logCard.js";
 
-/** Each version gets half of what a card can hold. */
-const VERSION_MAX = 1800;
-
-function quote(text: string): string {
-	const clipped =
-		text.length > VERSION_MAX ? `${text.slice(0, VERSION_MAX - 1)}…` : text;
-	return `>>> ${clipped}`;
-}
-
-/** The log card of an edited message: before and after, as two blocks. */
+/**
+ * The log card of an edited message: one ```diff block, `-` before (red) and
+ * `+` after (green), only what changed (no `>>>` quote swallowing the card).
+ */
 export function editedMessageLog(
 	oldMessage: Pick<Message, "guildId" | "channelId" | "id" | "content">,
 	newMessage: Pick<Message, "author" | "content">,
@@ -64,8 +59,7 @@ export function editedMessageLog(
 			}
 		],
 		blocks: [
-			`**${lang.event_srvLogs_messageUpdate_footer_1}**\n${quote(oldMessage.content)}`,
-			`**${lang.event_srvLogs_messageUpdate_footer_2}**\n${quote(newMessage.content)}`
+			`**${lang.event_srvLogs_messageUpdate_footer_1}** → **${lang.event_srvLogs_messageUpdate_footer_2}**\n\`\`\`diff\n${messageDiff(oldMessage.content, newMessage.content)}\n\`\`\``
 		]
 	};
 }
