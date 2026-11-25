@@ -11,6 +11,7 @@
 		"type:func": "bun run tools/Client_Func_Typator.ts",
 		"gen:exports": "bun run tools/Exports_Generator.ts",
 		"check:exports": "bun run tools/Exports_Generator.ts --check",
+		"hooks": "git config core.hooksPath .githooks",
 		"config:env": "bun run tools/Config_To_Env.ts",
 		"build:binary": "bun run tools/Standalone_Build.ts",
 		"check:lang": "bun run tools/LangsChecker-Tools.ts",

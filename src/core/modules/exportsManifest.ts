@@ -175,7 +175,30 @@ async function scanSpec(spec: ExportSpec): Promise<string[]> {
 	}
 
 	// Deterministic order: the same tree always renders the same file.
-	return files.sort();
+	return withoutIgnored(spec.root, files).sort();
+}
+
+/**
+ * Keeps only the files git knows (tracked or staged): an ignored file
+ * (`*.txt` licences) or a new file not added yet exists on one machine only,
+ * and exporting it made the generated file differ between machines and broke
+ * the import on the others (and in the commit that did not contain it).
+ * Without git (a tarball), every file on disk is kept.
+ */
+function withoutIgnored(root: string, files: string[]): string[] {
+	if (files.length === 0) return files;
+	const dir = path.join("src", root).split(path.sep).join("/");
+	const res = Bun.spawnSync(
+		["git", "ls-files", "--cached", "-z", "--", dir],
+		{
+			cwd: process.cwd(),
+			stdout: "pipe",
+			stderr: "ignore"
+		}
+	);
+	if (res.exitCode !== 0) return files;
+	const known = new Set(res.stdout.toString().split("\0").filter(Boolean));
+	return files.filter((f) => known.has(`${dir}/${f}`));
 }
 
 function renderSpec(spec: ExportSpec, files: string[]): string {

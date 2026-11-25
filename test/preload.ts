@@ -43,3 +43,23 @@ Object.defineProperty(globalThis, "logger", {
 	get: () => loggerStandIn,
 	set: () => {}
 });
+
+// Enables the versioned git hooks (.githooks/pre-commit regenerates
+// src/exports at every commit). bunfig.toml blocks install scripts
+// (ignoreScripts), so a postinstall can't do it: running the tests once does.
+// Idempotent; nothing happens outside a git checkout.
+{
+	const current = Bun.spawnSync(["git", "config", "core.hooksPath"], {
+		stdout: "pipe",
+		stderr: "ignore"
+	});
+	if (
+		current.exitCode !== 128 &&
+		current.stdout.toString().trim() !== ".githooks"
+	) {
+		Bun.spawnSync(["git", "config", "core.hooksPath", ".githooks"], {
+			stdout: "ignore",
+			stderr: "ignore"
+		});
+	}
+}

@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# Regenerates src/exports before every commit (`bun run gen:exports`) and adds
+# it to the commit: a new or removed command, event, function or asset can no
+# longer be committed without its export (the bot would not load it).
+#
+# Enabled by `bun install` (package.json "prepare":
+# `git config core.hooksPath .githooks`). Skip once: `git commit --no-verify`
+# (the `check:exports` test still fails on stale exports).
+set -e
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "[pre-commit] bun not found: src/exports not regenerated" >&2
+  exit 0
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+bun run --silent gen:exports >/dev/null
+git add src/exports
