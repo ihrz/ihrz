@@ -5015,5 +5015,62 @@ export default {
 		"تمت إضافة **${name}** إلى قائمة الانتظار (الأغاني: ${count}).",
 	music_playlist_not_found:
 		"لم يتم العثور على قائمة تشغيل بهذا الاسم: إليك مكتبتك.",
-	music_playlist_gone: "قائمة التشغيل هذه لم تعد موجودة."
+	music_playlist_gone: "قائمة التشغيل هذه لم تعد موجودة.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "رسالة التعزيز",
+	boostmsg_panel_desc:
+		"اشكر الأعضاء الذين يعززون الخادم، وودّعهم عند انتهاء تعزيزهم.",
+	boostmsg_side_boost: "تعزيز",
+	boostmsg_side_unboost: "إلغاء التعزيز",
+	boostmsg_field_status: "الحالة:",
+	boostmsg_field_channel: "القناة:",
+	boostmsg_field_dm: "رسالة خاصة:",
+	boostmsg_field_text: "النص:",
+	boostmsg_field_embed: "التضمين:",
+	boostmsg_field_message: "الرسالة",
+	boostmsg_field_variables: "المتغيرات",
+	boostmsg_on: "مفعّل",
+	boostmsg_off: "معطّل",
+	boostmsg_none: "لا شيء",
+	boostmsg_default_label: "النص الافتراضي",
+	boostmsg_text_needed_hint: "بدون تضمين، يُرسل النص على أي حال.",
+	boostmsg_no_target_hint:
+		"مفعّل، لكن لن يُرسل شيء: اختر قناة أو فعّل الرسالة الخاصة.",
+	boostmsg_variables_help:
+		"{boostCount}: عدد تعزيزات الخادم · {boostTier}: مستوى التعزيز (من 0 إلى 3)",
+	boostmsg_button_enable: "تفعيل",
+	boostmsg_button_disable: "تعطيل",
+	boostmsg_button_dm_enable: "تفعيل الخاص",
+	boostmsg_button_dm_disable: "تعطيل الخاص",
+	boostmsg_button_text_enable: "تفعيل النص",
+	boostmsg_button_text_disable: "تعطيل النص",
+	boostmsg_button_message: "تعديل الرسالة",
+	boostmsg_button_embed: "رمز التضمين",
+	boostmsg_button_test: "إرسال تجربة",
+	boostmsg_channel_placeholder:
+		"القناة التي تُنشر فيها الرسالة (فارغ = لا شيء)",
+	boostmsg_channel_invalid:
+		"لا يمكن استخدام هذه القناة: اختر قناة نصية أو قناة إعلانات.",
+	boostmsg_channel_no_access:
+		"يجب أن تتمكن من رؤية ${channel} وإرسال الرسائل فيها لاختيارها.",
+	boostmsg_channel_bot_no_access:
+		"لا أستطيع رؤية ${channel} أو إرسال الرسائل فيها: امنحني الوصول أولًا.",
+	boostmsg_modal_message_title: "رسالة التعزيز",
+	boostmsg_modal_message_label: "الرسالة (فارغ = النص الافتراضي)",
+	boostmsg_modal_embed_title: "رمز التضمين",
+	boostmsg_modal_embed_label: "رمز التضمين (فارغ = بدون)",
+	boostmsg_embed_not_found:
+		"لا يوجد تضمين محفوظ بالرمز `${embed_id}`: لم يتغير شيء.",
+	boostmsg_test_tag: "تجربة رسالة التعزيز (${side})",
+	boostmsg_test_nothing: "لا شيء لإرساله: اختر قناة أو فعّل الرسالة الخاصة.",
+	boostmsg_test_channel_ok: "تم نشر التجربة في ${channel}.",
+	boostmsg_test_channel_fail:
+		"تعذّر نشر التجربة في ${channel} (صلاحيات ناقصة؟).",
+	boostmsg_test_dm_ok: "تم إرسال التجربة إليك في الخاص.",
+	boostmsg_test_dm_fail: "تعذّر إيصال الرسالة الخاصة (الرسائل الخاصة مغلقة؟).",
+	boostmsg_default_boost:
+		"💎 شكرًا جزيلًا {memberMention} على تعزيز **{guildName}**! بفضلك أصبح لدى الخادم الآن {boostCount} تعزيزات (المستوى {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} لم يعد يعزز **{guildName}**. شكرًا على دعمك طوال هذا الوقت! 💜"
 } satisfies LanguageData;

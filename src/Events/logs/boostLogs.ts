@@ -23,6 +23,7 @@ import { Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
+import { boostChange } from "../../core/modules/boostMessage.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -31,18 +32,8 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
-		const MAX_RECENT_BOOST_DELAY_MS = 10 * 60 * 1000;
-		const oldPremiumSince = oldMember.partial
-			? (oldMember.premiumSinceTimestamp ?? null)
-			: (oldMember.premiumSince?.getTime() ?? null);
-		const newPremiumSince = newMember.partial
-			? (newMember.premiumSinceTimestamp ?? null)
-			: (newMember.premiumSince?.getTime() ?? null);
-		const isRecentBoost =
-			newPremiumSince !== null &&
-			Date.now() - newPremiumSince <= MAX_RECENT_BOOST_DELAY_MS;
-
-		if (oldPremiumSince === newPremiumSince) return;
+		const change = boostChange(oldMember, newMember);
+		if (!change) return;
 
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
@@ -72,7 +63,7 @@ export const event: BotEvent = {
 					newMember.guild.premiumSubscriptionCount?.toString()!
 				);
 
-		if (!oldPremiumSince && newPremiumSince && isRecentBoost) {
+		if (change === "boost") {
 			await sendLogCard(Msgchannel, {
 				...card,
 				title: data.logs_boost_add_title,
@@ -80,7 +71,7 @@ export const event: BotEvent = {
 			});
 			return;
 		}
-		if (oldPremiumSince && !newPremiumSince) {
+		if (change === "unboost") {
 			await sendLogCard(Msgchannel, {
 				...card,
 				title: data.logs_boost_remove_title,

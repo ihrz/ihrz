@@ -5314,5 +5314,64 @@ export default {
 		"**${name}** foi adicionada à fila (músicas: ${count}).",
 	music_playlist_not_found:
 		"Nenhuma playlist encontrada com esse nome: eis a tua biblioteca.",
-	music_playlist_gone: "Esta playlist já não existe."
+	music_playlist_gone: "Esta playlist já não existe.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Mensagem de impulso",
+	boostmsg_panel_desc:
+		"Agradeça aos membros que impulsionam o servidor e despeça-se quando o impulso terminar.",
+	boostmsg_side_boost: "Impulso",
+	boostmsg_side_unboost: "Fim do impulso",
+	boostmsg_field_status: "Estado:",
+	boostmsg_field_channel: "Canal:",
+	boostmsg_field_dm: "Mensagem direta:",
+	boostmsg_field_text: "Texto:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Mensagem",
+	boostmsg_field_variables: "Variáveis",
+	boostmsg_on: "Ativado",
+	boostmsg_off: "Desativado",
+	boostmsg_none: "Nenhum",
+	boostmsg_default_label: "texto predefinido",
+	boostmsg_text_needed_hint: "Sem embed, o texto é enviado mesmo assim.",
+	boostmsg_no_target_hint:
+		"Ativado, mas nada será enviado: escolha um canal ou ative a mensagem direta.",
+	boostmsg_variables_help:
+		"{boostCount}: número de impulsos do servidor · {boostTier}: nível de impulso (0 a 3)",
+	boostmsg_button_enable: "Ativar",
+	boostmsg_button_disable: "Desativar",
+	boostmsg_button_dm_enable: "Ativar DM",
+	boostmsg_button_dm_disable: "Desativar DM",
+	boostmsg_button_text_enable: "Ativar texto",
+	boostmsg_button_text_disable: "Desativar texto",
+	boostmsg_button_message: "Editar mensagem",
+	boostmsg_button_embed: "Código do embed",
+	boostmsg_button_test: "Enviar um teste",
+	boostmsg_channel_placeholder:
+		"Canal onde a mensagem é publicada (vazio = nenhum)",
+	boostmsg_channel_invalid:
+		"Este canal não pode ser usado: escolha um canal de texto ou de anúncios.",
+	boostmsg_channel_no_access:
+		"Você precisa ver ${channel} e enviar mensagens nele para escolhê-lo.",
+	boostmsg_channel_bot_no_access:
+		"Não consigo ver ${channel} ou enviar mensagens nele: dê-me acesso primeiro.",
+	boostmsg_modal_message_title: "Mensagem de impulso",
+	boostmsg_modal_message_label: "Mensagem (vazio = texto predefinido)",
+	boostmsg_modal_embed_title: "Código do embed",
+	boostmsg_modal_embed_label: "Código do embed (vazio = nenhum)",
+	boostmsg_embed_not_found:
+		"Nenhum embed está salvo com o código `${embed_id}`: nada foi alterado.",
+	boostmsg_test_tag: "Teste da mensagem de impulso (${side})",
+	boostmsg_test_nothing:
+		"Nada para enviar: escolha um canal ou ative a mensagem direta.",
+	boostmsg_test_channel_ok: "Teste publicado em ${channel}.",
+	boostmsg_test_channel_fail:
+		"Não foi possível publicar o teste em ${channel} (faltam permissões?).",
+	boostmsg_test_dm_ok: "Teste enviado por mensagem direta.",
+	boostmsg_test_dm_fail:
+		"Não foi possível entregar a DM (mensagens diretas fechadas?).",
+	boostmsg_default_boost:
+		"💎 Muito obrigado, {memberMention}, por impulsionar **{guildName}**! Graças a ti, o servidor tem agora {boostCount} impulsos (nível {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} já não impulsiona **{guildName}**. Obrigado pelo teu apoio durante todo este tempo! 💜"
 } satisfies LanguageData;

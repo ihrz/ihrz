@@ -858,6 +858,41 @@ export namespace DatabaseStructure {
 		H247_TAKEOVER?: H247TakeoverSchema;
 		MUSIC_APO?: MusicApoSchema;
 		GOOGLE_FORMS?: GoogleFormsConfig;
+		BOOST_MESSAGE?: BoostMessageSchema;
+	}
+
+	// ---- Boost message (`{guildId}.GUILD.BOOST_MESSAGE`, table `json`) ----
+	// Written by `/guildconfig set boost-message` (Administrator,
+	// src/Interaction/SlashCommands/guildconfig/boostMessagePanel.ts) and the
+	// dashboard; read on demand by src/Events/guildconfig/boostMessage.ts
+	// (`guildMemberUpdate`, same boost detection as the boost logs:
+	// src/core/modules/boostMessage.ts::boostChange). No gateway-link handler.
+	//
+	// Variables replaced in `message` and in the embed's strings
+	// (`BOOST_MESSAGE_VARS`): {memberMention}, {memberUsername},
+	// {memberCount}, {guildName}, {createdAt}, {accountCreationTimestamp}
+	// (as in the welcomer), {boostCount} (`guild.premiumSubscriptionCount`)
+	// and {boostTier} (`guild.premiumTier`, 0–3).
+	export interface BoostMessageSide {
+		/** Off unless true. */
+		enabled?: boolean;
+		/** Text channel (or announcement) where the message is posted, the member mentioned; null/absent = no channel post. */
+		channelId?: string | null;
+		/** Also (or only) send it to the member in DM. */
+		dm?: boolean;
+		/** Text with variables (≤ 2000); null/empty = the translated default text. */
+		message?: string | null;
+		/** `EMBED.{code}` (metas, same as the welcomer's joinEmbedId); null = no embed. */
+		embedId?: string | null;
+		/** Send the text (default true); false = embed only (ignored if there is no embed). */
+		textEnabled?: boolean;
+	}
+
+	export interface BoostMessageSchema {
+		/** Sent when a member starts boosting the server. */
+		boost?: BoostMessageSide;
+		/** Sent when a member stops boosting the server. */
+		unboost?: BoostMessageSide;
 	}
 
 	// ---- Google Forms (`{guildId}.GUILD.GOOGLE_FORMS`, src/core/modules/googleForms.ts) ----

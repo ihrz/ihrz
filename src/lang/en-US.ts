@@ -5226,7 +5226,66 @@ const enUS = {
 		"**${name}** was added to the queue (tracks: ${count}).",
 	music_playlist_not_found:
 		"No playlist found with that name: here is your library.",
-	music_playlist_gone: "This playlist no longer exists."
+	music_playlist_gone: "This playlist no longer exists.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Boost message",
+	boostmsg_panel_desc:
+		"Thank members who boost the server, and say goodbye when their boost ends.",
+	boostmsg_side_boost: "Boost",
+	boostmsg_side_unboost: "Unboost",
+	boostmsg_field_status: "Status:",
+	boostmsg_field_channel: "Channel:",
+	boostmsg_field_dm: "Direct message:",
+	boostmsg_field_text: "Text:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Message",
+	boostmsg_field_variables: "Variables",
+	boostmsg_on: "Enabled",
+	boostmsg_off: "Disabled",
+	boostmsg_none: "None",
+	boostmsg_default_label: "default text",
+	boostmsg_text_needed_hint: "Without an embed, the text is sent anyway.",
+	boostmsg_no_target_hint:
+		"Enabled, but nothing will be sent: choose a channel or enable the direct message.",
+	boostmsg_variables_help:
+		"{boostCount}: number of boosts of the server · {boostTier}: boost level (0 to 3)",
+	boostmsg_button_enable: "Enable",
+	boostmsg_button_disable: "Disable",
+	boostmsg_button_dm_enable: "Enable DM",
+	boostmsg_button_dm_disable: "Disable DM",
+	boostmsg_button_text_enable: "Enable text",
+	boostmsg_button_text_disable: "Disable text",
+	boostmsg_button_message: "Edit message",
+	boostmsg_button_embed: "Embed code",
+	boostmsg_button_test: "Send a test",
+	boostmsg_channel_placeholder:
+		"Channel where the message is posted (empty = none)",
+	boostmsg_channel_invalid:
+		"This channel can't be used: pick a text or announcement channel.",
+	boostmsg_channel_no_access:
+		"You need to see and send messages in ${channel} to choose it.",
+	boostmsg_channel_bot_no_access:
+		"I can't see or send messages in ${channel}: give me access first.",
+	boostmsg_modal_message_title: "Boost message",
+	boostmsg_modal_message_label: "Message (empty = default text)",
+	boostmsg_modal_embed_title: "Embed code",
+	boostmsg_modal_embed_label: "Embed code (empty = no embed)",
+	boostmsg_embed_not_found:
+		"No embed is saved under the code `${embed_id}`: nothing was changed.",
+	boostmsg_test_tag: "Test of the boost message (${side})",
+	boostmsg_test_nothing:
+		"Nothing to send: choose a channel or enable the direct message.",
+	boostmsg_test_channel_ok: "Test posted in ${channel}.",
+	boostmsg_test_channel_fail:
+		"The test could not be posted in ${channel} (missing permissions?).",
+	boostmsg_test_dm_ok: "Test sent to you in DM.",
+	boostmsg_test_dm_fail:
+		"The DM could not be delivered (closed direct messages?).",
+	boostmsg_default_boost:
+		"💎 Thank you so much {memberMention} for boosting **{guildName}**! Thanks to you, the server now has {boostCount} boosts (level {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} is no longer boosting **{guildName}**. Thank you for your support all this time! 💜"
 };
 
 export default enUS;

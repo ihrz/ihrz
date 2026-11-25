@@ -4380,5 +4380,63 @@ export default {
 	music_playlist_queued: "**${name}** додано до черги (треків: ${count}).",
 	music_playlist_not_found:
 		"Плейлист із такою назвою не знайдено: ось ваша бібліотека.",
-	music_playlist_gone: "Цього плейлиста більше немає."
+	music_playlist_gone: "Цього плейлиста більше немає.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Повідомлення про буст",
+	boostmsg_panel_desc:
+		"Дякуйте учасникам, які бустять сервер, і прощайтеся, коли їхній буст закінчується.",
+	boostmsg_side_boost: "Буст",
+	boostmsg_side_unboost: "Зняття бусту",
+	boostmsg_field_status: "Статус:",
+	boostmsg_field_channel: "Канал:",
+	boostmsg_field_dm: "Особисте повідомлення:",
+	boostmsg_field_text: "Текст:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Повідомлення",
+	boostmsg_field_variables: "Змінні",
+	boostmsg_on: "Увімкнено",
+	boostmsg_off: "Вимкнено",
+	boostmsg_none: "Немає",
+	boostmsg_default_label: "типовий текст",
+	boostmsg_text_needed_hint: "Без embed текст однаково надсилається.",
+	boostmsg_no_target_hint:
+		"Увімкнено, але нічого не буде надіслано: виберіть канал або увімкніть особисте повідомлення.",
+	boostmsg_variables_help:
+		"{boostCount}: кількість бустів сервера · {boostTier}: рівень бусту (від 0 до 3)",
+	boostmsg_button_enable: "Увімкнути",
+	boostmsg_button_disable: "Вимкнути",
+	boostmsg_button_dm_enable: "Увімкнути ОП",
+	boostmsg_button_dm_disable: "Вимкнути ОП",
+	boostmsg_button_text_enable: "Увімкнути текст",
+	boostmsg_button_text_disable: "Вимкнути текст",
+	boostmsg_button_message: "Змінити повідомлення",
+	boostmsg_button_embed: "Код embed",
+	boostmsg_button_test: "Надіслати тест",
+	boostmsg_channel_placeholder: "Канал для повідомлення (порожньо = немає)",
+	boostmsg_channel_invalid:
+		"Цей канал не можна використати: виберіть текстовий канал або канал оголошень.",
+	boostmsg_channel_no_access:
+		"Щоб вибрати ${channel}, ви маєте бачити його й писати в ньому.",
+	boostmsg_channel_bot_no_access:
+		"Я не бачу ${channel} або не можу писати в ньому: спершу надайте мені доступ.",
+	boostmsg_modal_message_title: "Повідомлення про буст",
+	boostmsg_modal_message_label: "Повідомлення (порожньо = типове)",
+	boostmsg_modal_embed_title: "Код embed",
+	boostmsg_modal_embed_label: "Код embed (порожньо = без embed)",
+	boostmsg_embed_not_found:
+		"Під кодом `${embed_id}` немає збереженого embed: нічого не змінено.",
+	boostmsg_test_tag: "Тест повідомлення про буст (${side})",
+	boostmsg_test_nothing:
+		"Нічого надсилати: виберіть канал або увімкніть особисте повідомлення.",
+	boostmsg_test_channel_ok: "Тест надіслано в ${channel}.",
+	boostmsg_test_channel_fail:
+		"Не вдалося надіслати тест у ${channel} (бракує прав?).",
+	boostmsg_test_dm_ok: "Тест надіслано вам в особисті.",
+	boostmsg_test_dm_fail:
+		"Не вдалося доставити повідомлення (особисті закрито?).",
+	boostmsg_default_boost:
+		"💎 Щиро дякуємо, {memberMention}, за буст **{guildName}**! Завдяки тобі сервер тепер має {boostCount} бустів (рівень {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} більше не бустить **{guildName}**. Дякуємо за підтримку весь цей час! 💜"
 } satisfies LanguageData;

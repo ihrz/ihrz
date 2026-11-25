@@ -38,7 +38,9 @@ export interface WelcomerEmbedVariables {
 
 export default async function resolveWelcomerEmbed(
 	embedId: string | null | undefined,
-	variables: WelcomerEmbedVariables
+	variables: WelcomerEmbedVariables,
+	/** Applied to each string before the welcomer variables (boost message: {boostCount}, {boostTier}). */
+	prepare?: (value: string) => string
 ): Promise<APIEmbed | null> {
 	if (!embedId) return null;
 
@@ -49,7 +51,10 @@ export default async function resolveWelcomerEmbed(
 
 	const source = JSON.parse(JSON.stringify(record.embedSource)) as APIEmbed;
 	const apply = (value: string): string =>
-		client.func.method.generateCustomMessagePreview(value, variables);
+		client.func.method.generateCustomMessagePreview(
+			prepare ? prepare(value) : value,
+			variables
+		);
 
 	if (source.title) source.title = apply(source.title);
 	if (source.description) source.description = apply(source.description);

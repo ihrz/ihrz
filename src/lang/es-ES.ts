@@ -5376,5 +5376,64 @@ export default {
 		"**${name}** se añadió a la cola (canciones: ${count}).",
 	music_playlist_not_found:
 		"No se encontró ninguna playlist con ese nombre: aquí está tu biblioteca.",
-	music_playlist_gone: "Esta playlist ya no existe."
+	music_playlist_gone: "Esta playlist ya no existe.",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "Mensaje de mejora",
+	boostmsg_panel_desc:
+		"Agradece a los miembros que mejoran el servidor y despídete cuando su mejora termine.",
+	boostmsg_side_boost: "Mejora",
+	boostmsg_side_unboost: "Fin de mejora",
+	boostmsg_field_status: "Estado:",
+	boostmsg_field_channel: "Canal:",
+	boostmsg_field_dm: "Mensaje directo:",
+	boostmsg_field_text: "Texto:",
+	boostmsg_field_embed: "Embed:",
+	boostmsg_field_message: "Mensaje",
+	boostmsg_field_variables: "Variables",
+	boostmsg_on: "Activado",
+	boostmsg_off: "Desactivado",
+	boostmsg_none: "Ninguno",
+	boostmsg_default_label: "texto predeterminado",
+	boostmsg_text_needed_hint: "Sin embed, el texto se envía de todos modos.",
+	boostmsg_no_target_hint:
+		"Activado, pero no se enviará nada: elige un canal o activa el mensaje directo.",
+	boostmsg_variables_help:
+		"{boostCount}: número de mejoras del servidor · {boostTier}: nivel de mejora (0 a 3)",
+	boostmsg_button_enable: "Activar",
+	boostmsg_button_disable: "Desactivar",
+	boostmsg_button_dm_enable: "Activar MD",
+	boostmsg_button_dm_disable: "Desactivar MD",
+	boostmsg_button_text_enable: "Activar texto",
+	boostmsg_button_text_disable: "Desactivar texto",
+	boostmsg_button_message: "Editar mensaje",
+	boostmsg_button_embed: "Código de embed",
+	boostmsg_button_test: "Enviar una prueba",
+	boostmsg_channel_placeholder:
+		"Canal donde se publica el mensaje (vacío = ninguno)",
+	boostmsg_channel_invalid:
+		"Este canal no se puede usar: elige un canal de texto o de anuncios.",
+	boostmsg_channel_no_access:
+		"Necesitas ver ${channel} y enviar mensajes allí para elegirlo.",
+	boostmsg_channel_bot_no_access:
+		"No puedo ver ${channel} ni enviar mensajes allí: dame acceso primero.",
+	boostmsg_modal_message_title: "Mensaje de mejora",
+	boostmsg_modal_message_label: "Mensaje (vacío = texto predeterminado)",
+	boostmsg_modal_embed_title: "Código de embed",
+	boostmsg_modal_embed_label: "Código de embed (vacío = ninguno)",
+	boostmsg_embed_not_found:
+		"No hay ningún embed guardado con el código `${embed_id}`: no se cambió nada.",
+	boostmsg_test_tag: "Prueba del mensaje de mejora (${side})",
+	boostmsg_test_nothing:
+		"Nada que enviar: elige un canal o activa el mensaje directo.",
+	boostmsg_test_channel_ok: "Prueba publicada en ${channel}.",
+	boostmsg_test_channel_fail:
+		"No se pudo publicar la prueba en ${channel} (¿faltan permisos?).",
+	boostmsg_test_dm_ok: "Prueba enviada por mensaje directo.",
+	boostmsg_test_dm_fail:
+		"No se pudo entregar el MD (¿mensajes directos cerrados?).",
+	boostmsg_default_boost:
+		"💎 ¡Muchísimas gracias, {memberMention}, por mejorar **{guildName}**! Gracias a ti, el servidor tiene ahora {boostCount} mejoras (nivel {boostTier}).",
+	boostmsg_default_unboost:
+		"{memberMention} ya no mejora **{guildName}**. ¡Gracias por tu apoyo durante todo este tiempo! 💜"
 } satisfies LanguageData;

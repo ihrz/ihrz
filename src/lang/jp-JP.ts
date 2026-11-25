@@ -5257,5 +5257,63 @@ export default {
 		"**${name}** をキューに追加しました（${count} 曲）。",
 	music_playlist_not_found:
 		"その名前のプレイリストは見つかりませんでした。ライブラリを表示します。",
-	music_playlist_gone: "このプレイリストはもう存在しません。"
+	music_playlist_gone: "このプレイリストはもう存在しません。",
+
+	// Boost message (/guildconfig set boost-message)
+	boostmsg_panel_title: "ブーストメッセージ",
+	boostmsg_panel_desc:
+		"サーバーをブーストしたメンバーにお礼を伝え、ブーストが終わった時にはお別れを伝えましょう。",
+	boostmsg_side_boost: "ブースト",
+	boostmsg_side_unboost: "ブースト解除",
+	boostmsg_field_status: "状態：",
+	boostmsg_field_channel: "チャンネル：",
+	boostmsg_field_dm: "DM：",
+	boostmsg_field_text: "テキスト：",
+	boostmsg_field_embed: "埋め込み：",
+	boostmsg_field_message: "メッセージ",
+	boostmsg_field_variables: "変数",
+	boostmsg_on: "有効",
+	boostmsg_off: "無効",
+	boostmsg_none: "なし",
+	boostmsg_default_label: "デフォルトのテキスト",
+	boostmsg_text_needed_hint:
+		"埋め込みがない場合、テキストはそのまま送信されます。",
+	boostmsg_no_target_hint:
+		"有効ですが何も送信されません：チャンネルを選ぶか DM を有効にしてください。",
+	boostmsg_variables_help:
+		"{boostCount}：サーバーのブースト数 · {boostTier}：ブーストレベル（0〜3）",
+	boostmsg_button_enable: "有効にする",
+	boostmsg_button_disable: "無効にする",
+	boostmsg_button_dm_enable: "DMを有効化",
+	boostmsg_button_dm_disable: "DMを無効化",
+	boostmsg_button_text_enable: "テキストを有効化",
+	boostmsg_button_text_disable: "テキストを無効化",
+	boostmsg_button_message: "メッセージを編集",
+	boostmsg_button_embed: "埋め込みコード",
+	boostmsg_button_test: "テスト送信",
+	boostmsg_channel_placeholder: "メッセージを投稿するチャンネル（空 = なし）",
+	boostmsg_channel_invalid:
+		"このチャンネルは使えません：テキストチャンネルかアナウンスチャンネルを選んでください。",
+	boostmsg_channel_no_access:
+		"${channel} を選ぶには、そのチャンネルを閲覧してメッセージを送れる必要があります。",
+	boostmsg_channel_bot_no_access:
+		"${channel} を閲覧できないか、メッセージを送れません：先にアクセス権を付与してください。",
+	boostmsg_modal_message_title: "ブーストメッセージ",
+	boostmsg_modal_message_label: "メッセージ（空 = デフォルト）",
+	boostmsg_modal_embed_title: "埋め込みコード",
+	boostmsg_modal_embed_label: "埋め込みコード（空 = なし）",
+	boostmsg_embed_not_found:
+		"コード `${embed_id}` で保存された埋め込みはありません：何も変更されていません。",
+	boostmsg_test_tag: "ブーストメッセージのテスト（${side}）",
+	boostmsg_test_nothing:
+		"送信するものがありません：チャンネルを選ぶか DM を有効にしてください。",
+	boostmsg_test_channel_ok: "${channel} にテストを投稿しました。",
+	boostmsg_test_channel_fail:
+		"${channel} にテストを投稿できませんでした（権限不足？）。",
+	boostmsg_test_dm_ok: "DMでテストを送信しました。",
+	boostmsg_test_dm_fail: "DMを届けられませんでした（DMが閉じられている？）。",
+	boostmsg_default_boost:
+		"💎 {memberMention} さん、**{guildName}** をブーストしてくれて本当にありがとう！おかげでサーバーのブーストは {boostCount} 回（レベル {boostTier}）になりました。",
+	boostmsg_default_unboost:
+		"{memberMention} さんは **{guildName}** のブーストを終了しました。これまでの応援、本当にありがとう！💜"
 } satisfies LanguageData;
