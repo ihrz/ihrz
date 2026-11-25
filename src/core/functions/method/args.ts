@@ -34,6 +34,7 @@ import {
 	Attachment
 } from "discord.js";
 import { Command } from "../../../../types/command.js";
+import { similarity } from "../music_proximity.js";
 import { Option } from "../../../../types/option.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -194,18 +195,63 @@ export async function channel(
 	return null;
 }
 
+/** Letters and digits only, lower case: `pic_perm`, `Pic Perm` and `⭐・pic-perm` are the same key. */
+export function roleKey(name: string): string {
+	return name
+		.normalize("NFKC")
+		.toLowerCase()
+		.replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+/** Fuzzy match only when it is close AND clearly better than the next role (a role can grant permissions). */
+const ROLE_FUZZY_MIN = 0.8;
+const ROLE_FUZZY_GAP = 0.1;
+
+/**
+ * A role from a prefix-command argument (arguments are split on spaces, so a
+ * name like "pic perm" is typed `pic_perm`): mention or id, exact name, same
+ * name ignoring case, same letters and digits (spaces, `_`, `-`, emojis
+ * ignored), then the closest name by Levenshtein when it is unambiguous.
+ */
+export function findRole(
+	guild: Guild | null | undefined,
+	arg: string | undefined
+): Role | null {
+	if (!guild || !arg) return null;
+	const roles = [...guild.roles.cache.values()].filter(
+		(r) => r.id !== guild.id
+	);
+	const id =
+		/^<@&(\d+)>$/.exec(arg)?.[1] ?? (/^\d{17,20}$/.test(arg) ? arg : null);
+	if (id) return guild.roles.cache.get(id) ?? null;
+
+	const exact = roles.find((r) => r.name === arg);
+	if (exact) return exact;
+	const lower = arg.toLowerCase();
+	const sameCase = roles.filter((r) => r.name.toLowerCase() === lower);
+	if (sameCase.length === 1) return sameCase[0];
+
+	const key = roleKey(arg);
+	if (key.length === 0) return null;
+	const sameKey = roles.filter((r) => roleKey(r.name) === key);
+	if (sameKey.length === 1) return sameKey[0];
+	if (sameKey.length > 1 || key.length < 3) return null;
+
+	const scored = roles
+		.map((r) => ({ r, score: similarity(key, roleKey(r.name)) }))
+		.sort((a, b) => b.score - a.score);
+	const [best, next] = scored;
+	if (!best || best.score < ROLE_FUZZY_MIN) return null;
+	if (next && best.score - next.score < ROLE_FUZZY_GAP) return null;
+	return best.r;
+}
+
 export function role(
 	interaction: Message,
 	args: string[],
 	argsNumber: number
 ): Role | null {
-	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, "");
-	return (
-		interaction.mentions.roles.map((x) => x)[argsNumber] ||
-		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) ||
-		interaction.guild?.roles.cache.find((x) => x.name === roleEntry) ||
-		null
-	);
+	return findRole(interaction.guild, args[argsNumber]);
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -566,11 +612,8 @@ async function isValidArgument(
 					undefined
 			);
 		case "roles":
-			return (
-				/^<@&(\d+)>$/.test(arg) ||
-				!isNaN(Number(arg)) ||
-				guild.roles.cache.find((x) => x.name === arg)?.id !== undefined
-			);
+			// The same lookup as role(): what the check accepts, the command finds.
+			return findRole(guild, arg) !== null;
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel": {
