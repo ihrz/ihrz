@@ -21,7 +21,6 @@
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { profilTable } from "../../../Events/client/ready.js";
@@ -35,7 +34,7 @@ export const subCommand: SubCommand = {
 	) => {
 		const opts = client.func.method.options(interaction, args);
 		const age = opts.number("age", 0)!;
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 
 		await profilTable.set(`${user.id}.age`, age);
 

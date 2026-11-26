@@ -24,12 +24,9 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	TextChannel,
-	User
+	User,
+	ChannelType
 } from "discord.js";
-import {
-	ChannelType,
-	isChannelOfType
-} from "../../../../core/functions/typeGuards.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { LanguageData } from "../../../../../types/languageData.js";
@@ -88,7 +85,12 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (!isChannelOfType(interaction.channel, ChannelType.GuildText)) {
+			if (
+				!client.func.typeGuards.isChannelOfType(
+					interaction.channel,
+					ChannelType.GuildText
+				)
+			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.addrolereact_must_be_text_channel
 				});

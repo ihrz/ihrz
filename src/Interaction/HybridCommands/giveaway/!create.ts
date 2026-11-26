@@ -26,7 +26,6 @@ import {
 	Client,
 	Message
 } from "discord.js";
-import { isSlash } from "../../../core/functions/method/source.js";
 
 import {
 	checkGiveawayOptions,
@@ -61,7 +60,7 @@ export const subCommand: SubCommand = {
 			"none" | "invites" | "messages" | "roles";
 		const giveawayPrize = opts.string("prize", 3);
 		const giveawayRequirementValue = opts.string("requirement-value", 4);
-		const imageUrl = isSlash(interaction)
+		const imageUrl = client.func.method.isSlash(interaction)
 			? (interaction.options.getString("image") as string)
 			: "";
 

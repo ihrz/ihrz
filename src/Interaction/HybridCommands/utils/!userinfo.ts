@@ -30,7 +30,6 @@ import {
 	UserContextMenuCommandInteraction,
 	GuildMember
 } from "discord.js";
-import { isInteraction } from "../../../core/functions/method/source.js";
 
 import { axios } from "../../../core/functions/axios.js";
 import { SubCommand } from "../../../../types/command.js";
@@ -255,7 +254,7 @@ export const subCommand: SubCommand = {
 
 		let member: User;
 		// Slash command or user context menu: both carry the "user" option.
-		if (isInteraction(interaction)) {
+		if (client.func.method.isInteraction(interaction)) {
 			member = interaction.options.getUser("user") || interaction.user;
 		} else {
 			member =

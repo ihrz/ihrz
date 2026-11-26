@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import type { ChannelType, ComponentType, DiscordAPIError } from "discord.js";
 import type { DatabaseStructure } from "./database_structure.d.ts";
 import type { LanguageData } from "./languageData.d.ts";
 import type { GatewayMethod } from "../src/core/functions/apiUrlParser.js";
@@ -466,6 +467,17 @@ declare namespace Client_Functions {
 
 	// From method.ts
 	export namespace method {
+		// From method/source.ts: where a hybrid command comes from (slash or prefix message), without instanceof.
+		export function isInteraction(
+			source: Message | Interaction
+		): source is Interaction;
+		export function isMessage(
+			source: Message | Interaction
+		): source is Message;
+		export function isSlash<C extends ChatInputCommandInteraction>(
+			source: C | Message | Interaction
+		): source is C;
+		export function authorOf(source: Message | Interaction): User;
 		export function addCoins(
 			member: GuildMember,
 			coins: number
@@ -940,6 +952,37 @@ declare namespace Client_Functions {
 	export namespace retrieveMyself {
 		export function retrieveBanner(): string;
 		export function retrieveBio(): Promise<string | null>;
+	}
+
+	// From typeGuards.ts: shape checks used instead of instanceof (an ESLint rule forbids it).
+	export namespace typeGuards {
+		export function isError(value: unknown): value is Error;
+		export function errorMessage(value: unknown): string;
+		export function hasErrorName(
+			value: unknown,
+			name: string
+		): value is Error;
+		export function isDiscordApiError(
+			value: unknown
+		): value is DiscordAPIError;
+		export function isDate(value: unknown): value is Date;
+		export function isMap(value: unknown): value is Map<unknown, unknown>;
+		export function isObjectLike(value: unknown): value is object;
+		export function isGuildMember(value: unknown): value is GuildMember;
+		export function isRole(value: unknown): value is Role;
+		export function isGuild(value: unknown): value is Guild;
+		export function isUser(value: unknown): value is User;
+		export function isComponentBuilder(
+			value: unknown,
+			type: ComponentType
+		): boolean;
+		export function isChannelOfType(
+			value: unknown,
+			...types: ChannelType[]
+		): boolean;
+		export function isGuildTextChannel(
+			value: unknown
+		): value is BaseGuildTextChannel;
 	}
 
 	// From roleSelectMenu.ts (no default export: client.func.roleSelectMenu is the module)

@@ -34,7 +34,6 @@ import {
 	MessageResolvable,
 	Snowflake
 } from "discord.js";
-import { isMessage } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -49,7 +48,7 @@ export async function afterSent(
 	interaction: ChatInputCommandInteraction<"cached"> | Message
 ): Promise<void> {
 	if (sent.deletable) await sent.delete().catch(() => null);
-	if (isMessage(interaction) && interaction.deletable) {
+	if (client.func.method.isMessage(interaction) && interaction.deletable) {
 		await interaction.delete().catch(() => null);
 	}
 }

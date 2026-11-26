@@ -25,7 +25,6 @@ import {
 	GuildMember,
 	Message
 } from "discord.js";
-import { isMessage } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -58,7 +57,9 @@ export const subCommand: SubCommand = {
 		// Slash: the option only; prefix: falls back to the author.
 		const member =
 			client.func.method.options(interaction, args).member("member", 0) ||
-			(isMessage(interaction) ? interaction.member : null);
+			(client.func.method.isMessage(interaction)
+				? interaction.member
+				: null);
 
 		if (!member) {
 			await client.func.method.interactionSend(interaction, {

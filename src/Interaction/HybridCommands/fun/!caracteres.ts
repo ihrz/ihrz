@@ -36,7 +36,6 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 export const fontStyles = {
 	Original: [
@@ -216,7 +215,10 @@ export const subCommand: SubCommand = {
 		});
 
 		collector.on("collect", async (selectInteraction) => {
-			if (selectInteraction.user.id !== authorOf(interaction).id) {
+			if (
+				selectInteraction.user.id !==
+				client.func.method.authorOf(interaction).id
+			) {
 				await selectInteraction.reply({
 					content: lang.help_not_for_you,
 					ephemeral: true

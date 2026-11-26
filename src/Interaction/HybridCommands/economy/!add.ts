@@ -27,7 +27,6 @@ import {
 	PermissionsBitField,
 	Role
 } from "discord.js";
-import { isSlash } from "../../../core/functions/method/source.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
@@ -135,7 +134,7 @@ export const subCommand: SubCommand = {
 		);
 		// The confirmation prompt is a plain message, which can't become a
 		// Components V2 card on edit: the card follows it instead.
-		if (prompted && isSlash(interaction)) {
+		if (prompted && client.func.method.isSlash(interaction)) {
 			await interaction.followUp(cardPayload(card));
 		} else {
 			await sendCard(client, interaction, card);

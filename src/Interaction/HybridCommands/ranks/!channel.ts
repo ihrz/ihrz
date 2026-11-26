@@ -26,7 +26,6 @@ import {
 	Client,
 	Message
 } from "discord.js";
-import { isMessage } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -52,7 +51,9 @@ export const subCommand: SubCommand = {
 		const type = opts.string("action", 0);
 		// Slash: the option only; prefix: falls back to the current channel.
 		const argsid = ((await opts.channel("channel", 1)) ||
-			(isMessage(interaction) ? interaction.channel : null)) as Channel;
+			(client.func.method.isMessage(interaction)
+				? interaction.channel
+				: null)) as Channel;
 
 		if (type === "on") {
 			if (!argsid) {

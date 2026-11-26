@@ -28,7 +28,6 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
-import { isSlash } from "../../../core/functions/method/source.js";
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { sayPayload } from "../../../core/modules/communityMessages.js";
@@ -111,7 +110,7 @@ export const command: Command = {
 				.options(interaction, args)
 				.longString("content", 0) ?? "";
 
-		if (isSlash(interaction)) {
+		if (client.func.method.isSlash(interaction)) {
 			if (await interaction.deferReply()) await interaction.deleteReply();
 		}
 		await client.func.method.channelSend(

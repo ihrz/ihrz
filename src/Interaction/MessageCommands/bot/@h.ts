@@ -41,7 +41,6 @@ import {
 import { BotContent } from "../../../../types/botContent.js";
 import { CategoryData } from "../../../../types/category.js";
 import { guildPrefix } from "../../../core/functions/prefix.js";
-import { isComponentBuilder } from "../../../core/functions/typeGuards.js";
 
 type HelpRow =
 	ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>;
@@ -273,7 +272,7 @@ function setupHelpCategoryCollector(
 			disabledSelectMenuRows.forEach((row) => {
 				row.components.forEach((component) => {
 					if (
-						isComponentBuilder(
+						client.func.typeGuards.isComponentBuilder(
 							component,
 							ComponentType.StringSelect
 						)
@@ -291,7 +290,12 @@ function setupHelpCategoryCollector(
 			if (navigationRow) {
 				// Disable navigation buttons
 				navigationRow.components.forEach((button) => {
-					if (isComponentBuilder(button, ComponentType.Button)) {
+					if (
+						client.func.typeGuards.isComponentBuilder(
+							button,
+							ComponentType.Button
+						)
+					) {
 						button.setDisabled(true);
 					}
 				});

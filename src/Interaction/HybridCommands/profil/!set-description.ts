@@ -20,7 +20,6 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -37,7 +36,7 @@ export const subCommand: SubCommand = {
 			client.func.method
 				.options(interaction, args)
 				.longString("description", 0) || "None";
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 
 		await profilTable.set(`${user.id}.desc`, desc);
 

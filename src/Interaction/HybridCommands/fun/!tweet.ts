@@ -26,7 +26,6 @@ import {
 	Message,
 	User
 } from "discord.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -58,7 +57,8 @@ export const subCommand: SubCommand = {
 		}
 		const opts = client.func.method.options(interaction, args);
 		const user: User =
-			(await opts.user("user", 0)) || authorOf(interaction);
+			(await opts.user("user", 0)) ||
+			client.func.method.authorOf(interaction);
 		const entry = opts.longString("comment", 1);
 		const messageArgs = entry!.split(" ");
 

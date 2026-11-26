@@ -24,7 +24,6 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { isSlash } from "../../../core/functions/method/source.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
@@ -46,7 +45,7 @@ export const subCommand: SubCommand = {
 
 		const opts = client.func.method.options(interaction, args);
 		// The prefix form only changes the prefix (no action argument).
-		const action: string = isSlash(interaction)
+		const action: string = client.func.method.isSlash(interaction)
 			? opts.string("action", 0, true)
 			: "change";
 		const prefix: string | null = opts.string("name", 0);

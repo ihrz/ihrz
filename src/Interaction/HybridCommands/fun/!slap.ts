@@ -20,7 +20,6 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { axios } from "../../../core/functions/axios.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
@@ -52,7 +51,7 @@ export const subCommand: SubCommand = {
 		}
 		const opts = client.func.method.options(interaction, args);
 		const slap = (await opts.user("user", 0)) as User;
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 
 		const url = apiUrlParser.assetsFinder(client.assets, "slap");
 
