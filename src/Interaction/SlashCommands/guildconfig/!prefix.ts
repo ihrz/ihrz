@@ -24,6 +24,7 @@ import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
@@ -43,15 +44,12 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let action: string;
-		let prefix: string | null;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			action = interaction.options.getString("action", true);
-			prefix = interaction.options.getString("name");
-		} else {
-			action = "change";
-			prefix = client.func.method.string(args!, 0);
-		}
+		const opts = client.func.method.options(interaction, args);
+		// The prefix form only changes the prefix (no action argument).
+		const action: string = isSlash(interaction)
+			? opts.string("action", 0, true)
+			: "change";
+		const prefix: string | null = opts.string("name", 0);
 
 		if (action === "mention") {
 			await client.db.delete(`${interaction.guildId}.BOT.prefix`);

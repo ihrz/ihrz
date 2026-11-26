@@ -50,7 +50,10 @@ export type ActionGroup = Record<string, ActionDef>;
 
 // Errors sent back to the dashboard as they are (English, no internals).
 // "forbidden: …" → 403, "… not found" → 404, anything else → 400.
-export class ActionError extends Error {}
+export class ActionError extends Error {
+	// Recognised by its name (hasErrorName), never with instanceof.
+	override name = "ActionError";
+}
 
 export const fail = (message: string): never => {
 	throw new ActionError(message);

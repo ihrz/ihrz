@@ -41,9 +41,9 @@ export const subCommand: SubCommand = {
 			return;
 
 		const languageChoice =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("language")!
-				: args?.[0] || "en-US";
+			client.func.method
+				.options(interaction, args)
+				.string("language", 0) || "en-US";
 
 		const ttsData = await getTTSData(client, interaction.guild.id);
 

@@ -19,7 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -32,15 +33,11 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		let desc: string;
-		let user: User;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			desc = interaction.options.getString("description")!;
-			user = interaction.user;
-		} else {
-			desc = args?.join(" ") || "None";
-			user = interaction.author;
-		}
+		const desc =
+			client.func.method
+				.options(interaction, args)
+				.longString("description", 0) || "None";
+		const user = authorOf(interaction);
 
 		await profilTable.set(`${user.id}.desc`, desc);
 

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { authorOf } from "./method/source.js";
 import {
 	youtubeListId,
 	youtubePlaylist,
@@ -1243,8 +1244,7 @@ export async function handleMusicPlay({
 		return;
 	}
 
-	const requester =
-		interaction instanceof Message ? interaction.author : interaction.user;
+	const requester = authorOf(interaction);
 
 	const result = await enqueueMusicQueries({
 		client,

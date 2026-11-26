@@ -42,6 +42,7 @@ import {
 	TextDisplayBuilder,
 	ThumbnailBuilder
 } from "discord.js";
+import { authorOf } from "../functions/method/source.js";
 
 import { LanguageData } from "../../../types/languageData.js";
 
@@ -246,10 +247,7 @@ export interface PaginatedOptions {
  */
 export async function sendPaginatedCard(o: PaginatedOptions): Promise<Message> {
 	const { client, interaction, lang, pages } = o;
-	const authorId =
-		interaction instanceof Message
-			? interaction.author.id
-			: interaction.user.id;
+	const authorId = authorOf(interaction).id;
 	let page = 0;
 
 	const withNav = async (

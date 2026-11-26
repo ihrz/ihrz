@@ -21,6 +21,7 @@
 
 import { format } from "../functions/date_and_time.js";
 import logger from "../logger.js";
+import { isError } from "../functions/typeGuards.js";
 
 import fs from "node:fs";
 import { Client, RESTJSONErrorCodes } from "discord.js";
@@ -36,12 +37,11 @@ const errorLogPath = (): string => `${process.cwd()}/src/files/error.log`;
  * socket, so the shard never recovered.
  */
 const appendErrorLog = (error: unknown): void => {
-	const detail =
-		error instanceof Error
-			? error.stack || error.message
-			: typeof error === "string"
-				? error
-				: JSON.stringify(error);
+	const detail = isError(error)
+		? error.stack || error.message
+		: typeof error === "string"
+			? error
+			: JSON.stringify(error);
 	const entry = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${detail}\r\n`;
 	fs.appendFile(errorLogPath(), entry, () => {});
 };
@@ -89,9 +89,7 @@ export const uncaughtExceptionHandler = (client: Client) => {
 		if (isIgnored(err)) return;
 		// Printed in every mode (it used to be a raw console dump), and saved
 		// to error.log in production.
-		logger.err(
-			err instanceof Error ? err.stack || err.message : String(err)
-		);
+		logger.err(isError(err) ? err.stack || err.message : String(err));
 		if (!client.config.core.devMode) appendErrorLog(err);
 	});
 };

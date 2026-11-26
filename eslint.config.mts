@@ -20,6 +20,16 @@ export default [
 		},
 		rules: {
 			"unused-imports/no-unused-imports": "error",
+			// No instanceof anywhere: a second copy of a package (discord.js…) or a test double fails it while
+			// having the right shape. Use the shape checks instead.
+			"no-restricted-syntax": [
+				"error",
+				{
+					selector: "BinaryExpression[operator='instanceof']",
+					message:
+						"instanceof is not used in iHorizon: hybrid sources → isSlash / isMessage / authorOf + options() (core/functions/method/source.ts, args.ts); interactions → interaction.isButton() etc.; channels → isChannelOfType / isGuildTextChannel / channel.isTextBased(); errors, dates, maps, members, roles, builders → core/functions/typeGuards.ts"
+				}
+			],
 			"unused-imports/no-unused-vars": [
 				"warn",
 				{

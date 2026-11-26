@@ -28,6 +28,7 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
+import { isSlash } from "../../../core/functions/method/source.js";
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { sayPayload } from "../../../core/modules/communityMessages.js";
@@ -105,14 +106,12 @@ export const command: Command = {
 		)
 			return;
 
-		let toSay: string;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			toSay = interaction.options.getString("content")!;
-		} else {
-			toSay = args?.join(" ") as string;
-		}
+		const toSay =
+			client.func.method
+				.options(interaction, args)
+				.longString("content", 0) ?? "";
 
-		if (interaction instanceof ChatInputCommandInteraction) {
+		if (isSlash(interaction)) {
 			if (await interaction.deferReply()) await interaction.deleteReply();
 		}
 		await client.func.method.channelSend(

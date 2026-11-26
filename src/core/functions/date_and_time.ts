@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isDate } from "./typeGuards.js";
+
 export function format(date: Date | number, formatString: string): string {
 	const months: string[] = [
 		"Jan",
@@ -38,7 +40,7 @@ export function format(date: Date | number, formatString: string): string {
 
 	if (typeof date === "number") {
 		date = new Date(date);
-	} else if (!(date instanceof Date)) {
+	} else if (!isDate(date)) {
 		throw new Error("Invalid date format");
 	}
 

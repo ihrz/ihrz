@@ -21,6 +21,7 @@
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -45,10 +46,7 @@ export const subCommand: SubCommand = {
 		}
 		const opts = client.func.method.options(interaction, args);
 		const pollMessage = opts.longString("message", 0);
-		const user =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.user
-				: interaction.author;
+		const user = authorOf(interaction);
 
 		const msg = await sendCard(
 			client,

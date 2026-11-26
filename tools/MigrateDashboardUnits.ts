@@ -53,6 +53,22 @@ const AMOUNTS = ["daily", "weekly", "monthly"];
 
 type Change = { path: string; from: unknown; to: unknown };
 
+/** The parts of a guild document this migration reads (all in the bot's DbGuildObject). */
+type MigratedDoc = {
+	GUILD?: {
+		ANTISPAM?: { punishTime?: unknown };
+		SERVER_LOGS?: Record<string, unknown>;
+		TICKET?: { logs?: unknown };
+		BLOCK_NEW_ACCOUNT?: { state?: unknown; req?: unknown };
+	};
+	ECONOMY?: {
+		settings?: Record<
+			string,
+			{ cooldown?: unknown; amount?: unknown } | undefined
+		>;
+	};
+};
+
 const positive = (v: unknown): v is number =>
 	typeof v === "number" && Number.isFinite(v) && v > 0;
 
@@ -83,7 +99,7 @@ const run = async () => {
 		if (!value || typeof value !== "object") continue;
 		scanned++;
 		const row = { id, value };
-		const doc = row.value as Record<string, any>;
+		const doc = row.value as MigratedDoc;
 		const changes: Change[] = [];
 		const toCheck: string[] = [];
 

@@ -19,18 +19,14 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	Client,
-	GuildMember,
-	TextChannel
-} from "discord.js";
+import { Client, GuildMember, TextChannel } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 import { sendTicketLog } from "../../core/modules/ticketsManager.js";
 import { saveTicketTranscript } from "../../core/modules/ticketTranscripts.js";
+import { isGuildTextChannel } from "../../core/functions/typeGuards.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -56,15 +52,14 @@ export const event: BotEvent = {
 				: undefined;
 
 			// The web transcript (transcript.ihorizon.org) outlives the channel.
-			const webUrl =
-				channel instanceof BaseGuildTextChannel
-					? await saveTicketTranscript(
-							channel,
-							member.user.id,
-							null,
-							"delete"
-						)
-					: null;
+			const webUrl = isGuildTextChannel(channel)
+				? await saveTicketTranscript(
+						channel,
+						member.user.id,
+						null,
+						"delete"
+					)
+				: null;
 
 			if (channel?.isTextBased() && logsChannel?.isSendable()) {
 				// The link replaces the HTML file when there is a web transcript.

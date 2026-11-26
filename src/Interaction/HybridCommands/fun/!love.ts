@@ -30,6 +30,7 @@ import {
 	buildCard,
 	sendCardWithFiles
 } from "../../../core/modules/uiCard.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -48,11 +49,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 		const opts = client.func.method.options(interaction, args);
-		const user1 =
-			(await opts.user("user1", 0)) ||
-			(interaction instanceof ChatInputCommandInteraction
-				? interaction.user
-				: interaction.author);
+		const user1 = (await opts.user("user1", 0)) || authorOf(interaction);
 		const user2 =
 			(await opts.user("user2", 1)) ||
 			(interaction.guild?.members.cache.random()?.user as User);

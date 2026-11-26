@@ -60,19 +60,10 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const fromChannel = await opts.voiceChannel("from", 0);
 
-		let category: CategoryChannel | null;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			category = interaction.options.getChannel(
-				"category"
-			) as CategoryChannel | null;
-		} else {
-			const categoryId = client.func.method.string(args!, 1);
-			category = categoryId
-				? (interaction.guild.channels.cache.get(
-						categoryId
-					) as CategoryChannel | null)
-				: null;
-		}
+		const category = (await opts.channel(
+			"category",
+			1
+		)) as CategoryChannel | null;
 
 		// Validate inputs
 		if (!fromChannel) {

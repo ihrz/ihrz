@@ -51,12 +51,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		const picked =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getChannel("channel")
-				: args?.length
-					? await client.func.method.channel(interaction, args, 0)
-					: null;
+		const picked = await client.func.method
+			.options(interaction, args)
+			.channel("channel", 0);
 		const channel = picked ?? interaction.channel;
 		const allowed = [
 			ChannelType.GuildText,

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isError } from "../functions/typeGuards.js";
 import { spawn } from "node:child_process";
 import { platform } from "node:os";
 import { isIPv6 } from "node:net";
@@ -215,7 +216,7 @@ export class Ping {
 				} catch (error) {
 					reject(
 						new Error(
-							`Failed to parse ping output: ${error instanceof Error ? error.message : "Unknown error"}`
+							`Failed to parse ping output: ${isError(error) ? error.message : "Unknown error"}`
 						)
 					);
 				}

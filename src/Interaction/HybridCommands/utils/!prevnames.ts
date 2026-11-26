@@ -29,6 +29,7 @@ import {
 	Message,
 	MessageFlags
 } from "discord.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -97,10 +98,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 		const user =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getUser("user") || interaction.user
-				: (await client.func.method.user(interaction, args!, 0)) ||
-					interaction.member.user;
+			(await client.func.method
+				.options(interaction, args)
+				.user("user", 0)) || authorOf(interaction);
 
 		const stored = await prevnamesTable.get(`${user.id}`);
 		const char = loadHistory(stored);

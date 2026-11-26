@@ -21,7 +21,7 @@
 
 import { expect, test } from "bun:test";
 
-import { Client, TextChannel } from "discord.js";
+import { ChannelType, Client, TextChannel } from "discord.js";
 
 import { event } from "../../src/Events/starboard/onNewReact.ts";
 
@@ -42,6 +42,8 @@ test("concurrent stars give one post, and its count ends up right", async () => 
 		edit: async (o: { content: string }) => edits.push(o.content)
 	};
 	const board = Object.assign(Object.create(TextChannel.prototype), {
+		// A text channel, as a real one says it is (reactionBoard checks the channel type).
+		type: ChannelType.GuildText,
 		send: async (o: { content: string }) => {
 			sent.push(o.content);
 			await sendGate;

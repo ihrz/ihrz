@@ -39,6 +39,7 @@ import {
 	User,
 	Message
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -419,7 +420,7 @@ export const command: Command = {
 
 			if (!startTime) {
 				refreshogResponse();
-				if (interaction instanceof ChatInputCommandInteraction) {
+				if (isSlash(interaction)) {
 					interaction.followUp({
 						content: lang.nightmode_invalid_hour_morning.replace(
 							"${emoji_No}",
@@ -440,7 +441,7 @@ export const command: Command = {
 
 			if (!endTime) {
 				refreshogResponse();
-				if (interaction instanceof ChatInputCommandInteraction) {
+				if (isSlash(interaction)) {
 					interaction.followUp({
 						content: lang.nightmode_invalid_hour_night.replace(
 							"${emoji_No}",

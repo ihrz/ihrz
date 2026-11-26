@@ -37,6 +37,7 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	Client,
+	ComponentType,
 	ContainerBuilder,
 	Guild,
 	GuildMember,
@@ -56,12 +57,12 @@ import type { DatabaseStructure } from "../../../types/database_structure.js";
 import type { LanguageData } from "../../../types/languageData.js";
 import { musicPlayRefusalPayload } from "../functions/musicPlay.js";
 import logger from "../logger.js";
+import { hasErrorName, isComponentBuilder } from "../functions/typeGuards.js";
 import { DASHBOARD_URL } from "./guildWelcome.js";
 import {
 	allFavorites,
 	favoritesCount,
 	favoritesPage,
-	LibraryError,
 	listPlaylists,
 	MAX_PLAYLIST_TRACKS,
 	MAX_PLAYLISTS,
@@ -173,7 +174,7 @@ export async function openLibraryPanel(
 			page = clampPage(page, tracks.length);
 			return { kind: "playlist", playlist, tracks };
 		} catch (error) {
-			if (!(error instanceof LibraryError)) throw error;
+			if (!hasErrorName(error, "LibraryError")) throw error;
 			note = lang.music_playlist_gone;
 			page = 0;
 			return home();
@@ -203,9 +204,11 @@ export async function openLibraryPanel(
 	const build = (): ContainerBuilder => {
 		const container = new ContainerBuilder().setAccentColor(ACCENT);
 		const add = (part: TextDisplayBuilder | SectionBuilder) =>
-			part instanceof SectionBuilder
-				? container.addSectionComponents(part)
-				: container.addTextDisplayComponents(part);
+			isComponentBuilder(part, ComponentType.Section)
+				? container.addSectionComponents(part as SectionBuilder)
+				: container.addTextDisplayComponents(
+						part as TextDisplayBuilder
+					);
 		const separator = () =>
 			container.addSeparatorComponents(
 				new SeparatorBuilder()
@@ -410,7 +413,8 @@ export async function openLibraryPanel(
 							name = fresh.playlist.name;
 							tracks = fresh.tracks;
 						} catch (error) {
-							if (!(error instanceof LibraryError)) throw error;
+							if (!hasErrorName(error, "LibraryError"))
+								throw error;
 							await i.editReply({
 								content: lang.music_playlist_gone
 							});

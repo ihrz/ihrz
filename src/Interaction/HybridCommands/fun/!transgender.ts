@@ -25,6 +25,7 @@ import {
 	Client,
 	Message
 } from "discord.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { AxiosResponse, axios } from "../../../core/functions/axios.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -54,11 +55,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 		const opts = client.func.method.options(interaction, args);
-		const member1 =
-			(await opts.user("user", 0)) ||
-			(interaction instanceof ChatInputCommandInteraction
-				? interaction.user
-				: interaction.author);
+		const member1 = (await opts.user("user", 0)) || authorOf(interaction);
 
 		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: "png", size: 1024 }))}`;
 

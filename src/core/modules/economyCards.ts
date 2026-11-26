@@ -37,6 +37,7 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
+import { authorOf } from "../functions/method/source.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import {
 	ACCENT,
@@ -132,10 +133,7 @@ export async function sendPaginatedCardWithFiles(
 	o: PaginatedWithFilesOptions
 ): Promise<Message> {
 	const { client, interaction, lang, pages } = o;
-	const authorId =
-		interaction instanceof Message
-			? interaction.author.id
-			: interaction.user.id;
+	const authorId = authorOf(interaction).id;
 	let page = 0;
 
 	const withNav = async (

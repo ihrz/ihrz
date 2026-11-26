@@ -24,7 +24,9 @@ import {
 	ChatInputCommandInteraction,
 	type Client,
 	Collection,
-	type Message
+	type Message,
+	InteractionType,
+	ApplicationCommandType
 } from "discord.js";
 
 // method.ts imports the database layer; stub the global client it reads.
@@ -46,6 +48,9 @@ function slashInteraction(calls: Record<string, unknown>) {
 			return calls[kind];
 		};
 	const fake = Object.create(ChatInputCommandInteraction.prototype);
+	// What makes it a slash command for discord.js (isChatInputCommand), as a real one has.
+	fake.type = InteractionType.ApplicationCommand;
+	fake.commandType = ApplicationCommandType.ChatInput;
 	fake.options = {
 		getString: handler("getString"),
 		getNumber: handler("getNumber"),

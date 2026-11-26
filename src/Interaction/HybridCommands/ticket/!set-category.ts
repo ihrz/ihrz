@@ -26,6 +26,10 @@ import {
 	ChatInputCommandInteraction,
 	Message
 } from "discord.js";
+import {
+	ChannelType,
+	isChannelOfType
+} from "../../../core/functions/typeGuards.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -59,7 +63,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (!(category instanceof CategoryChannel)) {
+		if (!isChannelOfType(category, ChannelType.GuildCategory)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setticketcategory_not_a_category
 			});
@@ -80,7 +84,10 @@ export const subCommand: SubCommand = {
 			.setColor("#00FFFF")
 			.setDescription(
 				lang.setticketcategory_command_work
-					.replace("${categoryName}", category.name)
+					.replace(
+						"${categoryName}",
+						(category as CategoryChannel).name
+					)
 					.replace("${authorId}", interaction.member.user.id)
 			);
 

@@ -26,6 +26,7 @@ import {
 	Client,
 	Message
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 
 import {
 	checkGiveawayOptions,
@@ -60,10 +61,9 @@ export const subCommand: SubCommand = {
 			"none" | "invites" | "messages" | "roles";
 		const giveawayPrize = opts.string("prize", 3);
 		const giveawayRequirementValue = opts.string("requirement-value", 4);
-		const imageUrl =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getString("image") as string)
-				: "";
+		const imageUrl = isSlash(interaction)
+			? (interaction.options.getString("image") as string)
+			: "";
 
 		const giveawayDurationFormated = client.timeCalculator.to_ms(
 			giveawayDuration!

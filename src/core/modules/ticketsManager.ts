@@ -55,6 +55,7 @@ import {
 	GuildMember,
 	OverwriteType
 } from "discord.js";
+import { authorOf, isMessage } from "../functions/method/source.js";
 
 import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
@@ -134,7 +135,7 @@ async function CreateTicketChannel(
 ) {
 	if (await refuseIfDisabled(interaction)) return;
 
-	if (interaction instanceof ButtonInteraction) {
+	if (interaction.isButton()) {
 		const result = await interaction.client.db.get(
 			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
 		);
@@ -343,7 +344,7 @@ async function CreateChannel(
 			type: ChannelType.GuildText,
 			parent:
 				interaction.guild.channels.cache.get(
-					interaction instanceof StringSelectMenuInteraction
+					interaction.isStringSelectMenu()
 						? (result.selection?.find(
 								(item) =>
 									item.id === parseInt(interaction.values[0])
@@ -375,7 +376,7 @@ async function CreateChannel(
 				EmbedLinks: true
 			});
 
-			if (interaction instanceof ButtonInteraction) {
+			if (interaction.isButton()) {
 				await interaction.editReply({
 					content: lang.event_ticket_whenCreated_msg
 						.replace("${author}", interaction.user.toString())
@@ -400,7 +401,7 @@ async function CreateChannel(
 
 			const embeds: EmbedBuilder[] = [];
 
-			if (interaction instanceof StringSelectMenuInteraction) {
+			if (interaction.isStringSelectMenu()) {
 				embeds.push(
 					new EmbedBuilder()
 						.setColor(2829617)
@@ -1052,9 +1053,7 @@ function transcriptLinkRow(link: { url: string; label: string }) {
 }
 
 function interactionUser(interaction: Interaction<"cached"> | Message): User {
-	return interaction instanceof Message
-		? interaction.author
-		: interaction.user;
+	return authorOf(interaction);
 }
 
 /**
@@ -1210,7 +1209,7 @@ async function denyUnlessTicketStaff(
 		"ManageChannels"
 	);
 
-	if (interaction instanceof Message) {
+	if (isMessage(interaction)) {
 		await interaction.client.func.method.interactionSend(interaction, {
 			content
 		});

@@ -30,8 +30,11 @@ import {
 	GuildTextBasedChannel,
 	Message,
 	PermissionFlagsBits,
-	VoiceChannel
+	type TextChannel,
+	type VoiceChannel
 } from "discord.js";
+
+import { errorMessage, isChannelOfType } from "../functions/typeGuards.js";
 
 import { automodToggles, setNativeRuleEnabled } from "./automodRules.js";
 import { GatewayLink } from "../../../types/gateway_link.js";
@@ -74,9 +77,8 @@ const MESSAGE_LOOKUP_MAX_CHANNELS = 50;
 
 function textChannel(guild: Guild, id?: string | null) {
 	const channel = id ? guild.channels.cache.get(id) : undefined;
-	return channel instanceof BaseGuildTextChannel &&
-		channel.type === ChannelType.GuildText
-		? channel
+	return isChannelOfType(channel, ChannelType.GuildText)
+		? (channel as TextChannel)
 		: null;
 }
 
@@ -473,9 +475,7 @@ const handlers: Record<string, ChangeHandler> = {
 			try {
 				await setNativeRuleEnabled(guild, key, enabled, panel);
 			} catch (error) {
-				failed.push(
-					`AutoMod ${key}: ${error instanceof Error ? error.message : error}`
-				);
+				failed.push(`AutoMod ${key}: ${errorMessage(error)}`);
 				const path = `${guild.id}.GUILD.GUILD_CONFIG.${key}`;
 				const previous = before?.[key];
 				if (previous === undefined) await client.db.delete(path);
@@ -731,9 +731,10 @@ const handlers: Record<string, ChangeHandler> = {
 			return;
 		}
 
-		const channel = guild.channels.cache.get(next!.voiceChannelId);
-		if (!(channel instanceof VoiceChannel))
+		const found = guild.channels.cache.get(next!.voiceChannelId);
+		if (!isChannelOfType(found, ChannelType.GuildVoice))
 			return revert("voice channel not found");
+		const channel = found as VoiceChannel;
 		const music = client.player.getPlayer(guild.id);
 		if (!wasOn && musicInUse(music))
 			return revert("music is playing in this server");
@@ -873,7 +874,7 @@ export async function applyConfigChanges(
 			results.push({
 				path: change.path,
 				ok: false,
-				error: error instanceof Error ? error.message : String(error)
+				error: errorMessage(error)
 			});
 		}
 	}

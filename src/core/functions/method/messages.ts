@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isInteraction } from "./source.js";
+import { isGuildTextChannel } from "../typeGuards.js";
 import {
 	Message,
 	User,
@@ -196,11 +198,8 @@ export async function interactionSend(
 ): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 
-	if (
-		interaction instanceof ChatInputCommandInteraction ||
-		interaction instanceof StringSelectMenuInteraction ||
-		interaction instanceof ModalSubmitInteraction
-	) {
+	// Every accepted interaction (slash, select menu, modal) is answered as an interaction, a message as a message.
+	if (isInteraction(interaction)) {
 		const editOptions: InteractionReplyOptions =
 			typeof options === "string"
 				? { content: options }
@@ -279,7 +278,7 @@ export async function channelSend(
 	const channelId =
 		typeof interaction === "string"
 			? interaction
-			: interaction instanceof BaseGuildTextChannel
+			: isGuildTextChannel(interaction)
 				? interaction.id
 				: interaction.channel?.id;
 

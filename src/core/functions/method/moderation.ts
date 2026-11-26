@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isGuildMember } from "../typeGuards.js";
 import {
 	GuildMember,
 	PermissionFlagsBits,
@@ -35,7 +36,7 @@ export type PunishTarget = GuildMember | { guild: Guild; id: string };
 async function resolvePunishTarget(
 	target: PunishTarget
 ): Promise<GuildMember | null> {
-	if (target instanceof GuildMember) return target;
+	if (isGuildMember(target)) return target;
 	return target.guild.members.fetch(target.id).catch(() => null);
 }
 

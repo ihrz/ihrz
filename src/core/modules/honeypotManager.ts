@@ -29,9 +29,10 @@ import {
 	Guild,
 	Message,
 	Snowflake,
-	TextChannel,
+	type TextChannel,
 	VoiceChannel
 } from "discord.js";
+import { isChannelOfType } from "../functions/typeGuards.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -398,7 +399,7 @@ async function sendLogs(
 ): Promise<void> {
 	if (!config.logsChannelId) return;
 
-	const logsChannel = await message.guild?.channels
+	const fetchedLogs = await message.guild?.channels
 		.fetch(config.logsChannelId)
 		.catch((error: unknown) => {
 			logger.warn(
@@ -407,12 +408,13 @@ async function sendLogs(
 			return null;
 		});
 
-	if (!(logsChannel instanceof TextChannel)) {
+	if (!isChannelOfType(fetchedLogs, ChannelType.GuildText)) {
 		logger.warn(
 			`Honeypot logs channel unavailable for guild ${message.guildId}: ${config.logsChannelId}`
 		);
 		return;
 	}
+	const logsChannel = fetchedLogs as TextChannel;
 
 	const sent = await sendLogCard(
 		logsChannel,
@@ -646,8 +648,8 @@ async function ensureTrapChannel(
 		const existingChannel = await guild.channels
 			.fetch(config.channelId)
 			.catch(() => null);
-		if (existingChannel instanceof TextChannel) {
-			return existingChannel;
+		if (isChannelOfType(existingChannel, ChannelType.GuildText)) {
+			return existingChannel as TextChannel;
 		}
 	}
 
@@ -659,7 +661,10 @@ async function ensureTrapChannel(
 		})
 		.catch(() => null);
 
-	if (!(createdChannel instanceof TextChannel)) {
+	if (
+		!createdChannel ||
+		!isChannelOfType(createdChannel, ChannelType.GuildText)
+	) {
 		return null;
 	}
 

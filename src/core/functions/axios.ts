@@ -46,11 +46,27 @@ interface AxiosRequestConfig {
 	method?: string;
 	baseURL?: string;
 	headers?: Record<string, string>;
-	/** Accepted for axios compatibility, not sent (never was). */
-	params?: unknown;
+	/** Query string parameters, added to the URL like axios does (null / undefined left out). */
+	params?: Record<string, string | number | boolean | null | undefined>;
 	data?: unknown;
 	timeout?: number;
 	responseType?: "json" | "arrayBuffer" | "arraybuffer";
+}
+
+/** The URL with `params` as its query string, appended to any it already has. */
+export function withParams(
+	url: string,
+	params: AxiosRequestConfig["params"]
+): string {
+	if (!params) return url;
+	const query = new URLSearchParams();
+	for (const [key, value] of Object.entries(params)) {
+		if (value !== null && value !== undefined)
+			query.append(key, String(value));
+	}
+	const qs = query.toString();
+	if (!qs) return url;
+	return url + (url.includes("?") ? "&" : "?") + qs;
 }
 
 class AxiosClass {
@@ -64,9 +80,10 @@ class AxiosClass {
 			headers = {},
 			data,
 			timeout,
+			params,
 			responseType = "json"
 		} = config;
-		const requestUrl = baseURL ? baseURL + url : url;
+		const requestUrl = withParams(baseURL ? baseURL + url : url, params);
 
 		const options: RequestInit = {
 			method,

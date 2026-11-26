@@ -40,6 +40,7 @@ import {
 	TextDisplayBuilder,
 	escapeMarkdown
 } from "discord.js";
+import { authorOf } from "../functions/method/source.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -897,10 +898,7 @@ export async function sendStatsCard(
 	spec: CardSpec
 ): Promise<void> {
 	const { client, interaction, lang } = ctx;
-	const authorId =
-		interaction instanceof Message
-			? interaction.author.id
-			: interaction.user.id;
+	const authorId = authorOf(interaction).id;
 	const cache = new Map<string, { image: Buffer; insights: string[] }>();
 	const render = async (id: string) => {
 		let hit = cache.get(id);

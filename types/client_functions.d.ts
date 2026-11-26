@@ -942,17 +942,14 @@ declare namespace Client_Functions {
 		export function retrieveBio(): Promise<string | null>;
 	}
 
-	// From roleSelectMenu.ts
-	export function roleSelectMenu(
-		data: Array<{
-			roleId: string;
-			emoji?: string;
-			desc?: string;
-			label: string;
-		}>,
-		messageId: string,
-		placeholder: string
-	): StringSelectMenuBuilder;
+	// From roleSelectMenu.ts (no default export: client.func.roleSelectMenu is the module)
+	export namespace roleSelectMenu {
+		export function generateSelectMenu(
+			data: DatabaseStructure.RoleReactData,
+			messageId: string,
+			placeholder: string
+		): StringSelectMenuBuilder;
+	}
 
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(

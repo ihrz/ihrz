@@ -238,14 +238,15 @@ export class FunctionAnalyzer {
 		const sourceFile = this.program.getSourceFile(fileName);
 		if (!sourceFile) return;
 
-		for (const param of parameters) {
+		// One walk per parameter, as before (the parameter itself is not read yet).
+		parameters.forEach(() => {
 			// Find type references in the source file that match our parameter type
 			const visit = (node: ts.Node) => {
 				ts.forEachChild(node, visit);
 			};
 
 			ts.forEachChild(sourceFile, visit);
-		}
+		});
 	}
 
 	private analyzeFunctionNode(

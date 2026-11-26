@@ -32,6 +32,7 @@ import {
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { metasTable } from "../../../Events/client/ready.js";
@@ -130,12 +131,7 @@ export const subCommand: SubCommand = {
 
 		collector.on("collect", async (i: ButtonInteraction) => {
 			// Verify interaction user
-			if (
-				i.user.id !==
-				(interaction instanceof Message
-					? interaction.author.id
-					: interaction.user.id)
-			) {
+			if (i.user.id !== authorOf(interaction).id) {
 				await i.reply({
 					content: lang.embed_interaction_not_for_you,
 					flags: [1 << 6]

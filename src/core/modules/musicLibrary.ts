@@ -87,7 +87,10 @@ export function newShareId(): string {
 	}
 }
 
-export class LibraryError extends Error {}
+export class LibraryError extends Error {
+	// Recognised by its name (hasErrorName), never with instanceof.
+	override name = "LibraryError";
+}
 const refuse = (message: string): never => {
 	throw new LibraryError(message);
 };

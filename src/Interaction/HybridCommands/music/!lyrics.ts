@@ -48,9 +48,9 @@ export const subCommand: SubCommand = {
 			return;
 
 		const title =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("query")!
-				: ((args?.join(" ") || " ") as string);
+			client.func.method
+				.options(interaction, args)
+				.longString("query", 0) ?? " ";
 
 		try {
 			const response = await client.func.searchLyrics(title);

@@ -19,9 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, DMChannel, Message } from "discord.js";
+import { BaseGuildTextChannel, Client, Message } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
+import {
+	ChannelType,
+	isChannelOfType
+} from "../../core/functions/typeGuards.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -67,7 +71,7 @@ export const event: BotEvent = {
 				setTimeout(() => sentmsg.delete().catch(() => null), 5000); // errors ignored - someone else deleted
 			} else if (
 				sentmsg.channel.partial ||
-				sentmsg.channel instanceof DMChannel ||
+				isChannelOfType(sentmsg.channel, ChannelType.DM) ||
 				(sentmsg.guild?.members.me &&
 					sentmsg.channel
 						.permissionsFor(sentmsg.guild.members.me)

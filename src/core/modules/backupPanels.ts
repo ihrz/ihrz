@@ -44,7 +44,7 @@ import {
 import type { BackupReport } from "../backup/src/load.js";
 import type { BackupData, BackupInfos } from "../backup/src/types/index.js";
 import { componentsOf } from "../backup/src/components.js";
-import { BackupBusyError } from "../backup/src/index.js";
+import { hasErrorName } from "../functions/typeGuards.js";
 import { ACCENT, buildCard, cardPayload, notice } from "./uiCard.js";
 
 export const BACKUP_PANEL_TIMEOUT = 180_000;
@@ -315,7 +315,7 @@ export async function runBackupLoad(
 			signature
 		});
 	} catch (error) {
-		if (error instanceof BackupBusyError) {
+		if (hasErrorName(error, "BackupBusyError")) {
 			return notice("warning", lang.backup_busy);
 		}
 		logger.err(`Backup load failed: ${error}`);

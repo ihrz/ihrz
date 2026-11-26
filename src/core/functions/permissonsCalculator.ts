@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { authorOf } from "./method/source.js";
 import {
 	ChatInputCommandInteraction,
 	Client,
@@ -73,10 +74,7 @@ export async function checkCommandPermission(
 	allowed: boolean;
 	permissionData: command;
 }> {
-	const usr =
-		interaction instanceof ChatInputCommandInteraction
-			? interaction.user
-			: interaction.author;
+	const usr = authorOf(interaction);
 
 	return checkUserCommandPermission(
 		interaction.client.db,

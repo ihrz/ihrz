@@ -22,7 +22,8 @@
 import { forgetFailedTrack } from "./musicSearchCache.js";
 import { markTrackStart } from "./trackClock.js";
 import { watchAudioNodes } from "./audioNode.js";
-import { BaseGuildTextChannel, Client, User } from "discord.js";
+import { type BaseGuildTextChannel, Client, User } from "discord.js";
+import { isGuildTextChannel } from "../functions/typeGuards.js";
 import { LavalinkManager } from "lavalink-client";
 
 import logger from "../logger.js";
@@ -216,7 +217,7 @@ export default async (client: Client) => {
 			logger.warn("music search cache: forget failed:", err)
 		);
 
-		if (lavalink_error_channel instanceof BaseGuildTextChannel) {
+		if (isGuildTextChannel(lavalink_error_channel)) {
 			const error_log = `
 ==================================================================================
 

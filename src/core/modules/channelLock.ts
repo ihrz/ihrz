@@ -41,10 +41,7 @@ function resolveRole(
 	interaction: Interaction,
 	args?: string[]
 ) {
-	if (interaction instanceof ChatInputCommandInteraction) {
-		return interaction.options.getRole("role");
-	}
-	return client.func.method.role(interaction, args!, 0);
+	return client.func.method.options(interaction, args).role("role", 0);
 }
 
 /**

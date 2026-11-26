@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isError } from "../../functions/typeGuards.js";
 import { HorizonDB as HorizonDBClient, type Json } from "horizondb";
 import { ErrorKind, StoredValue } from "../types.ts";
 
@@ -260,7 +261,7 @@ export class HorizonDB<D = StoredValue> {
 				: await this.sdk.add(key, amount)) as unknown as
 				number | undefined;
 		} catch (error) {
-			if (error instanceof Error && /non-numeric/i.test(error.message)) {
+			if (isError(error) && /non-numeric/i.test(error.message)) {
 				throw this.createError(
 					`Current value with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -307,7 +308,7 @@ export class HorizonDB<D = StoredValue> {
 				)) as unknown as Json[] | undefined;
 			}
 		} catch (error) {
-			if (error instanceof Error && /not an array/i.test(error.message)) {
+			if (isError(error) && /not an array/i.test(error.message)) {
 				throw this.createError(
 					`Current value with key: (${key}) is not an array`,
 					ErrorKind.InvalidType
@@ -427,7 +428,7 @@ export class HorizonDB<D = StoredValue> {
 				)) as unknown as Json[] | undefined;
 			}
 		} catch (error) {
-			if (error instanceof Error && /not an array/i.test(error.message)) {
+			if (isError(error) && /not an array/i.test(error.message)) {
 				throw this.createError(
 					`Current value with key: (${key}) is not an array`,
 					ErrorKind.InvalidType

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isObjectLike } from "../../functions/typeGuards.js";
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { DataLike, ErrorKind, StoredValue, Table } from "../types.ts";
 import { existsSync, readFileSync } from "node:fs";
@@ -306,7 +307,7 @@ export class Json<D = StoredValue> {
 			);
 
 			let obj: object;
-			if (result instanceof Object == false) {
+			if (isObjectLike(result) == false) {
 				obj = {};
 			} else {
 				obj = result as object;

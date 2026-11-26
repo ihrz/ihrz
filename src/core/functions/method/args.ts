@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isSlash } from "./source.js";
 import {
 	Message,
 	Channel,
@@ -293,7 +294,7 @@ export function options(
 	interaction: ChatInputCommandInteraction | Message,
 	args: string[] = []
 ): HybridOptions {
-	const slash = interaction instanceof ChatInputCommandInteraction;
+	const slash = isSlash(interaction);
 
 	function read_string(name: string, index: number, required: true): string;
 	function read_string(
