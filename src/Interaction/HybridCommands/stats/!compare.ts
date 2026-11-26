@@ -46,11 +46,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let a: User | null;
-		let b: User | null;
 		const opts = client.func.method.options(interaction, args);
-		a = (await opts.user("user1", 0)) ?? null;
-		b = (await opts.user("user2", 1)) ?? null;
+		const a: User | null = (await opts.user("user1", 0)) ?? null;
+		const b: User | null = (await opts.user("user2", 1)) ?? null;
 		if (!a || !b || a.id === b.id) {
 			await sendCard(
 				client,

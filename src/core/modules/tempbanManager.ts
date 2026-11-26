@@ -79,7 +79,7 @@ export class TempbanManager {
 			});
 
 			return true;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -100,7 +100,7 @@ export class TempbanManager {
 				(await this.client.db.get(dbPath)) || {};
 
 			return userId in tempBans;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -122,7 +122,7 @@ export class TempbanManager {
 			await this.client.db.delete(`${guildId}.GUILD.TEMPBAN.${userId}`);
 
 			return true;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}

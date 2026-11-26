@@ -27,7 +27,6 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
-import { LanguageData } from "../../../types/languageData.js";
 import { Command } from "../../../types/command.js";
 
 export const command: Command = {
@@ -58,9 +57,7 @@ export const command: Command = {
 	type: ApplicationCommandType.ChatInput,
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		interaction: ChatInputCommandInteraction<"cached"> | Message
 	) => {
 		// Guard's Typing
 		if (

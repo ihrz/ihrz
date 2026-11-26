@@ -256,7 +256,9 @@ export const subCommand: SubCommand = {
 				// A V2 message cannot be left empty: put the card back
 				// without its menu when nothing was picked.
 				if (!picked) await response.edit({ components: [intro()] });
-			} catch (error) {}
+			} catch {
+				// message already deleted or not editable: nothing to restore.
+			}
 		});
 
 		return;

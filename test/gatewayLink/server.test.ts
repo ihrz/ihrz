@@ -23,6 +23,7 @@ import { readyTables } from "../readyTables.ts";
 import { describe, expect, mock, test } from "bun:test";
 import {
 	Collection,
+	type Guild,
 	PermissionFlagsBits,
 	PermissionsBitField
 } from "discord.js";
@@ -61,7 +62,8 @@ const OWNER = "200000000000000000";
 const ACTOR = "300000000000000000";
 const BOT = "400000000000000000";
 
-(globalThis as any).client = {
+const g = globalThis as { client?: unknown; logger?: unknown };
+g.client = {
 	func: {
 		validImageType: (t: string | null) =>
 			["image/png", "image/jpeg", "image/gif", "image/webp"].includes(
@@ -69,7 +71,7 @@ const BOT = "400000000000000000";
 			)
 	}
 };
-(globalThis as any).logger = { err: () => undefined };
+g.logger = { err: () => undefined };
 
 const PNG = Buffer.from([
 	0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0
@@ -112,8 +114,21 @@ function fakeMember(id: string, o: { bot?: boolean; admin?: boolean } = {}) {
 	};
 }
 
+type FakeRole = {
+	id: string;
+	name: string;
+	position: number;
+	color: number;
+	managed: boolean;
+	permissions: PermissionsBitField;
+	members: Collection<string, unknown>;
+};
+
+// What `roles.members` answers (the fields checked here).
+type MembersPage = { members: { id: string }[]; nextCursor: string | null };
+
 function fakeGuild(members: ReturnType<typeof fakeMember>[], botPerms = 0n) {
-	const roles = new Collection<string, any>([
+	const roles = new Collection<string, FakeRole>([
 		[
 			"500000000000000001",
 			{
@@ -166,14 +181,18 @@ function fakeGuild(members: ReturnType<typeof fakeMember>[], botPerms = 0n) {
 	};
 }
 
-function ctx(guild: any, params: Record<string, unknown>, client: any = {}) {
+function ctx(
+	guild: unknown,
+	params: Record<string, unknown>,
+	client: unknown = {}
+) {
 	return {
 		client,
 		guild,
 		actor: { id: ACTOR, user: { id: ACTOR } },
 		params: new Params(params),
 		lang: {}
-	} as any;
+	} as never;
 }
 
 describe("server actions: images", () => {
@@ -235,14 +254,13 @@ describe("server actions: audit", () => {
 	const guild = fakeGuild(members);
 
 	test("admins: roles highest first, members without owner nor this bot", () => {
-		expect(adminRoles(guild as any).map((r) => r.name)).toEqual([
-			"high admin",
-			"low admin"
-		]);
-		expect(adminMembers(guild as any).map((m) => m.id)).toEqual([
-			"600000000000000003"
-		]);
-		expect(guildBots(guild as any).map((m) => m.id)).toEqual([
+		expect(
+			adminRoles(guild as unknown as Guild).map((r) => r.name)
+		).toEqual(["high admin", "low admin"]);
+		expect(
+			adminMembers(guild as unknown as Guild).map((m) => m.id)
+		).toEqual(["600000000000000003"]);
+		expect(guildBots(guild as unknown as Guild).map((m) => m.id)).toEqual([
 			BOT,
 			"700000000000000001"
 		]);
@@ -252,8 +270,8 @@ describe("server actions: audit", () => {
 		const run = serverActions["roles.members"].run;
 		const first = (await run(
 			ctx(guild, { roleId: "500000000000000001", limit: "2" })
-		)) as any;
-		expect(first.members.map((m: any) => m.id)).toEqual([OWNER, BOT]);
+		)) as MembersPage;
+		expect(first.members.map((m) => m.id)).toEqual([OWNER, BOT]);
 		expect(first.nextCursor).toBe(BOT);
 		const second = (await run(
 			ctx(guild, {
@@ -261,10 +279,8 @@ describe("server actions: audit", () => {
 				limit: "2",
 				after: first.nextCursor
 			})
-		)) as any;
-		expect(second.members.map((m: any) => m.id)).toEqual([
-			"600000000000000003"
-		]);
+		)) as MembersPage;
+		expect(second.members.map((m) => m.id)).toEqual(["600000000000000003"]);
 		expect(second.nextCursor).toBeNull();
 		expect(
 			await refused(run(ctx(guild, { roleId: "599999999999999999" })))
@@ -299,7 +315,9 @@ describe("server actions: audit", () => {
 		};
 		const out = await serverActions["audit.webhooks"].run(ctx(g, {}));
 		expect(JSON.stringify(out)).not.toContain("SECRET");
-		expect((out as any).webhooks[0].ownerId).toBe("3");
+		expect(
+			(out as { webhooks: { ownerId: string }[] }).webhooks[0].ownerId
+		).toBe("3");
 	});
 });
 
@@ -363,8 +381,14 @@ describe("server actions: backups", () => {
 		};
 		const admin = fakeGuild([], PermissionFlagsBits.Administrator);
 		expect(
-			(await prepareBackupLoad(client as any, admin as any, ACTOR, "1"))
-				.ok
+			(
+				await prepareBackupLoad(
+					client as never,
+					admin as never,
+					ACTOR,
+					"1"
+				)
+			).ok
 		).toBe(false);
 		expect(
 			await refused(

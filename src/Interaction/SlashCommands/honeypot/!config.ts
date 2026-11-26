@@ -68,20 +68,6 @@ async function canManageHoneypot(
 	return allowlist?.list?.[interaction.user.id]?.allowed === true;
 }
 
-function getLogActionLabel(
-	action: DatabaseStructure.HoneypotSchema["action"],
-	lang: LanguageData
-): string {
-	switch (action) {
-		case "ban":
-			return lang.honeypot_log_action_ban;
-		case "kick":
-			return lang.honeypot_log_action_kick;
-		default:
-			return lang.honeypot_action_none;
-	}
-}
-
 function ActionInEmbed(
 	action: DatabaseStructure.HoneypotSchema["action"],
 	lang: LanguageData

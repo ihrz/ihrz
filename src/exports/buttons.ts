@@ -45,7 +45,7 @@ import * as m19 from "../Interaction/Components/Buttons/temporary_voice_unblock_
 import * as m20 from "../Interaction/Components/Buttons/temporary_voice_untrust_button.ts";
 import * as m21 from "../Interaction/Components/Buttons/ticket-open-button-v2.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"button_reaction.ts": m0,
 	"confessionauthor.ts": m1,
 	"confessionres.ts": m2,

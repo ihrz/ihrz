@@ -42,8 +42,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		const birthday = (await profilTable.get(
 			`${interaction.member?.user.id}.birthday`
@@ -87,7 +86,7 @@ export const subCommand: SubCommand = {
 		const introduction = lang.profil_birthday_embed_introduction
 			.replaceAll("${emoji_Sparkles}", client.iHorizon_Emojis.Sparkles)
 			.replace("${emoji_Crown}", client.iHorizon_Emojis.Crown)
-			.replace("${author}", interaction.member?.toString()!);
+			.replace("${author}", interaction.member?.toString() as string);
 
 		// function to get the current birthday
 		function getBirthdayString(): string {
@@ -134,7 +133,9 @@ export const subCommand: SubCommand = {
 
 				embed.setColor(randomColor() as ColorResolvable);
 				og_interaction.edit({ embeds: [embed] }).catch(() => false);
-			} catch (error) {}
+			} catch {
+				// best effort: a failed colour tick is ignored.
+			}
 		}, 3500);
 
 		const collector = og_interaction.createMessageComponentCollector({

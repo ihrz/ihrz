@@ -44,8 +44,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -153,8 +152,8 @@ export const subCommand: SubCommand = {
 					selectedRoles.push(role[1] as Role);
 
 					if (
-						interaction.guild?.members.me?.roles.highest
-							.position! <= role[1].position
+						(interaction.guild?.members.me?.roles.highest
+							.position as number) <= role[1].position
 					) {
 						if (!tooHighterRoles.has(role[1].id)) {
 							too_highter_roles.push({

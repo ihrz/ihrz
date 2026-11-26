@@ -6,9 +6,13 @@ import { iHorizonModalBuilder } from "../../src/core/functions/modalHelper.ts";
 // The text inputs of a built modal, as sent to Discord.
 function textInputs(modal: ReturnType<typeof iHorizonModalBuilder>) {
 	// Already the API payload.
-	return (modal as unknown as { components: any[] }).components.map(
-		(label) => label.component
-	);
+	return (
+		modal as unknown as {
+			components: {
+				component: { min_length?: number; max_length?: number };
+			}[];
+		}
+	).components.map((label) => label.component);
 }
 
 describe("modal text inputs", () => {

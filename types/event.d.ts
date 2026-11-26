@@ -24,15 +24,17 @@ import { Client, ClientEvents, RestEvents } from "discord.js";
 export interface BotEvent {
 	/**
 	 * @description The name of the event.
-	 * @type {keyof ClientEvents | keyof RestEvents}
+	 * `"raw"` (every gateway packet) is emitted by discord.js but missing
+	 * from its `ClientEvents` typings.
+	 * @type {keyof ClientEvents | keyof RestEvents | "raw"}
 	 * @memberof BotEvent
 	 */
-	name: keyof ClientEvents | keyof RestEvents;
+	name: keyof ClientEvents | keyof RestEvents | "raw";
 
 	/**
 	 * @description The function to run when the event is called.
-	 * @type {(client: Client, ...args: any[]) => Promise<any>}
+	 * @type {(client: Client, ...args: unknown[]) => Promise<unknown>}
 	 * @memberof BotEvent
 	 */
-	run(client: Client, ...args: any[]): Promise<any>;
+	run(client: Client, ...args: unknown[]): Promise<unknown>;
 }

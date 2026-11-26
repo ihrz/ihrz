@@ -54,7 +54,7 @@ async function getMessage(channel: GuildTextBasedChannel, messageId: string) {
 	let fetchedMessage = null;
 	try {
 		fetchedMessage = await channel.messages.fetch(messageId);
-	} catch (error) {
+	} catch {
 		fetchedMessage = null;
 	}
 	return fetchedMessage;
@@ -217,7 +217,7 @@ export const command: Command = {
 		function updateConfiguration(data: DatabaseStructure.RoleReactData) {
 			embed.setFields([]);
 
-			data.forEach((item, index) => {
+			data.forEach((item) => {
 				embed.addFields({
 					name: `[${item.emoji || lang.var_none}] ・ ${item.label}`,
 					value: `${lang.var_roles}: ${interaction.guild?.roles.cache.get(item.roleId)?.toString() || lang.var_unknown}\n${lang.roleselect_modal1_fields3_label}: ${item.desc || lang.var_none}`,
@@ -333,7 +333,7 @@ export const command: Command = {
 				undefined;
 			const label = modal?.fields
 				.getTextInputValue("case_title")
-				?.trim()!;
+				?.trim() as string;
 			const desc =
 				modal?.fields.getTextInputValue("case_desc")?.trim() ||
 				undefined;
@@ -491,7 +491,7 @@ export const command: Command = {
 					content: lang.roleselect_save_command_ok,
 					flags: [1 << 6]
 				});
-			} catch (error) {
+			} catch {
 				await interaction2.reply({
 					content: lang.roleselect_failed_to_save_config,
 					flags: [1 << 6]
@@ -534,7 +534,7 @@ export const command: Command = {
 
 			placeholder = modal2?.fields
 				.getTextInputValue("placeholder")
-				?.trim()!;
+				?.trim() as string;
 			updateConfiguration(baseData);
 			await interaction2.editReply({
 				embeds: [embed],

@@ -41,17 +41,19 @@ const RULES = [
 ];
 
 // Nested-key store, like the bot's database drivers.
-function makeDb(initial: Record<string, unknown>) {
-	const root: Record<string, any> = structuredClone(initial);
+type Tree = Record<string, unknown>;
+
+function makeDb(initial: Tree) {
+	const root: Tree = structuredClone(initial);
 	const walk = (key: string, create: boolean) => {
 		const parts = key.split(".");
-		let node: any = root;
+		let node: Tree = root;
 		for (const part of parts.slice(0, -1)) {
 			if (node[part] === undefined) {
 				if (!create) return [undefined, parts.at(-1)!] as const;
 				node[part] = {};
 			}
-			node = node[part];
+			node = node[part] as Tree;
 		}
 		return [node, parts.at(-1)!] as const;
 	};
@@ -63,7 +65,7 @@ function makeDb(initial: Record<string, unknown>) {
 		},
 		set: async (key: string, value: unknown) => {
 			const [node, last] = walk(key, true);
-			node[last] = structuredClone(value);
+			node![last] = structuredClone(value);
 		},
 		delete: async (key: string) => {
 			const [node, last] = walk(key, false);
@@ -72,21 +74,33 @@ function makeDb(initial: Record<string, unknown>) {
 	};
 }
 
+// The parts of a panel component the test reads.
+type PanelComponent = {
+	custom_id?: string;
+	disabled?: boolean;
+	options?: { value: string }[];
+	components?: PanelComponent[];
+};
+
+type StoredRule = { mode?: string; sanction?: string };
+
 test("All rules: enable, set mode and sanction, then disable every rule", async () => {
 	const db = makeDb({
 		g: { PROTECTION: { webhook: { mode: "allowlist" } } }
 	});
 	const collector = new EventEmitter();
 	const feedback: string[] = [];
-	let panel: any = null;
-	const message: any = {
-		edit: async (payload: any) => {
+	let panel = null as { components: PanelComponent[] } | null;
+	const message = {
+		edit: async (payload: {
+			components: { toJSON(): { components: PanelComponent[] } }[];
+		}) => {
 			panel = payload.components[0].toJSON();
 		},
 		createMessageComponentCollector: () => collector
 	};
-	const lang = new Proxy({}, { get: (_t, k) => String(k) }) as any;
-	const client: any = {
+	const lang = new Proxy({}, { get: (_t, k) => String(k) }) as never;
+	const client = {
 		user: { id: "bot" },
 		db,
 		iHorizon_Emojis: new Proxy(
@@ -94,8 +108,8 @@ test("All rules: enable, set mode and sanction, then disable every rule", async 
 			{ get: () => "<:icon:123456789012345678>" }
 		),
 		func: { method: { interactionSend: async () => message } }
-	};
-	const interaction: any = {
+	} as never;
+	const interaction = {
 		guildId: "g",
 		member: { user: { id: "owner" } },
 		channel: {},
@@ -103,7 +117,7 @@ test("All rules: enable, set mode and sanction, then disable every rule", async 
 			id: "g",
 			members: { me: { permissions: { has: () => true } } }
 		}
-	};
+	} as never;
 
 	await openProtectPanel(client, interaction, lang);
 
@@ -115,18 +129,19 @@ test("All rules: enable, set mode and sanction, then disable every rule", async 
 			isStringSelectMenu: () => values !== undefined,
 			isButton: () => values === undefined,
 			deferUpdate: async () => {},
-			followUp: async (x: any) => feedback.push(x.content)
+			followUp: async (x: { content: string }) => feedback.push(x.content)
 		});
 		await Bun.sleep(20);
 	};
 	const text = () => JSON.stringify(panel);
-	const stored = () => db.root.g.PROTECTION;
+	const stored = () =>
+		(db.root.g as { PROTECTION: Record<string, StoredRule> }).PROTECTION;
 
 	// The rule select offers "All rules" first.
-	const ruleSelect = panel.components
-		.flatMap((c: any) => c.components ?? [])
-		.find((c: any) => c.custom_id === "protect-panel-rule-select");
-	expect(ruleSelect.options[0].value).toBe("all");
+	const ruleSelect = panel!.components
+		.flatMap((c) => c.components ?? [])
+		.find((c) => c.custom_id === "protect-panel-rule-select")!;
+	expect(ruleSelect.options![0].value).toBe("all");
 	expect(ruleSelect.options).toHaveLength(RULES.length + 1);
 
 	await click("protect-panel-rule-select", ["all"]);
@@ -161,14 +176,14 @@ test("All rules: enable, set mode and sanction, then disable every rule", async 
 	).toBe(true);
 
 	// No rule left: the bulk mode and sanction menus are locked.
-	const selects = panel.components
-		.flatMap((c: any) => c.components ?? [])
+	const selects = panel!.components
+		.flatMap((c) => c.components ?? [])
 		.filter(
-			(c: any) =>
+			(c) =>
 				c.custom_id === "protect-panel-mode" ||
 				c.custom_id === "protect-panel-sanction"
 		);
 	expect(selects).toHaveLength(2);
-	expect(selects.every((c: any) => c.disabled)).toBe(true);
+	expect(selects.every((c) => c.disabled)).toBe(true);
 	collector.emit("end");
 });

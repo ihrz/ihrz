@@ -83,8 +83,6 @@ export async function tempvoiceConfigPanel(
 			: []
 	};
 
-	const ownerId = interaction.member.user.id as string;
-
 	function settingsLabels(): string {
 		return [
 			`**${client.iHorizon_Emojis.VC_Limit} ${lang.tempvoice_cfg_hub} :** ${state.voice_channel ? `<#${state.voice_channel}>` : lang.var_no_set}`,

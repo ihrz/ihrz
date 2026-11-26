@@ -29,18 +29,21 @@ import {
 	BaseGuildTextChannel,
 	ComponentType,
 	ButtonBuilder,
-	ButtonStyle
+	ButtonStyle,
+	ButtonInteraction,
+	StringSelectMenuInteraction
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { Command } from "../../../../types/command.js";
+import {
+	Command,
+	DescriptionLocalizations
+} from "../../../../types/command.js";
+import { BotContent } from "../../../../types/botContent.js";
 import { CategoryData } from "../../../../types/category.js";
 import { guildPrefix } from "../../../core/functions/prefix.js";
 
-interface SelectMenuPage {
-	categories: CategoryData[];
-	pageIndex: number;
-	totalPages: number;
-}
+type HelpRow =
+	ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>;
 
 export function chunkCategories(
 	categories: CategoryData[],
@@ -147,7 +150,7 @@ function setupHelpCategoryCollector(
 	});
 
 	async function updateMessagePage(
-		interaction: any,
+		interaction: StringSelectMenuInteraction | ButtonInteraction,
 		pageIndex: number,
 		selectedCat?: string
 	) {
@@ -165,7 +168,7 @@ function setupHelpCategoryCollector(
 			lang
 		);
 
-		const components: any[] = [...selectMenuRows];
+		const components: HelpRow[] = [...selectMenuRows];
 		if (navigationRow) {
 			components.push(navigationRow);
 		}
@@ -288,7 +291,7 @@ function setupHelpCategoryCollector(
 				});
 			}
 
-			const components: any[] = [...disabledSelectMenuRows];
+			const components: HelpRow[] = [...disabledSelectMenuRows];
 			if (navigationRow) {
 				components.push(navigationRow);
 			}
@@ -326,12 +329,7 @@ export const command: Command = {
 	category: "bot",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (
-		client: Client,
-		interaction: Message,
-		lang: LanguageData,
-		args?: string[]
-	) => {
+	run: async (client: Client, interaction: Message, lang: LanguageData) => {
 		const categoryEmbeds: { [key: string]: EmbedBuilder[] } = {};
 
 		const skidBot = {
@@ -374,8 +372,11 @@ export const command: Command = {
 					.setColor(skidBot.color as ColorResolvable)
 					.setFooter({ text: skidBot.footer });
 
-				const suiteCategories: { name: string; commands: any[] }[] = [];
-				let currentSuiteCommands: any[] = [];
+				const suiteCategories: {
+					name: string;
+					commands: BotContent[];
+				}[] = [];
+				let currentSuiteCommands: BotContent[] = [];
 
 				commands.forEach((cmd, index) => {
 					if (fieldCount >= 24) {
@@ -405,7 +406,10 @@ export const command: Command = {
 					currentEmbed.addFields({
 						name: fields_name,
 						value: (() => {
-							const langMap: Record<string, string> = {
+							const langMap: Record<
+								string,
+								keyof DescriptionLocalizations
+							> = {
 								"fr-FR": "fr",
 								"fr-ME": "fr",
 								"jp-JP": "ja",
@@ -419,9 +423,9 @@ export const command: Command = {
 								"es-ES": "es-ES"
 							};
 							const key = langMap[skidBot.lang] as
-								string | undefined;
-							return key && (cmd.desc_localized as any)[key]
-								? (cmd.desc_localized as any)[key]
+								keyof DescriptionLocalizations | undefined;
+							return key && cmd.desc_localized[key]
+								? cmd.desc_localized[key]
 								: cmd.desc;
 						})()
 					});
@@ -517,7 +521,7 @@ export const command: Command = {
 			lang
 		);
 
-		const initialComponents: any[] = [...initialSelectMenuRows];
+		const initialComponents: HelpRow[] = [...initialSelectMenuRows];
 		if (initialNavigationRow) {
 			initialComponents.push(initialNavigationRow);
 		}
@@ -537,7 +541,7 @@ export const command: Command = {
 			categoryEmbeds,
 			categories,
 			lang,
-			interaction.member?.user.id!
+			interaction.member?.user.id as string
 		);
 	}
 };

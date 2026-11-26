@@ -26,7 +26,7 @@ import * as m0 from "../Interaction/MessageApplicationCommands/play.ts";
 import * as m1 from "../Interaction/MessageApplicationCommands/question.ts";
 import * as m2 from "../Interaction/MessageApplicationCommands/sound_to_video.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"play.ts": m0,
 	"question.ts": m1,
 	"sound_to_video.ts": m2

@@ -44,8 +44,9 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let { botMsg, toDelete, lang } =
-			await client.githubLinesManager.handleMessage(message);
+		const handled = await client.githubLinesManager.handleMessage(message);
+		const { toDelete, lang } = handled;
+		let botMsg = handled.botMsg;
 
 		if (botMsg !== null) {
 			if (

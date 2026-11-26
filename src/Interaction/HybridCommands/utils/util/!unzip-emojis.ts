@@ -46,7 +46,7 @@ async function readCapped(
 
 	const chunks: Uint8Array[] = [];
 	let total = 0;
-	for await (const chunk of response.body as any as AsyncIterable<Uint8Array>) {
+	for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
 		total += chunk.byteLength;
 		if (total > maxBytes) return null;
 		chunks.push(chunk);
@@ -150,7 +150,12 @@ export const subCommand: SubCommand = {
 
 				if (emojis.length >= MAX_EMOJIS) return false;
 
-				const declaredSize = (file as any)._data?.uncompressedSize;
+				// JSZip keeps the size from the zip header in a private field.
+				const declaredSize = (
+					file as JSZip.JSZipObject & {
+						_data?: { uncompressedSize?: unknown };
+					}
+				)._data?.uncompressedSize;
 				if (
 					typeof declaredSize !== "number" ||
 					declaredSize > MAX_EMOJI_BYTES
@@ -160,7 +165,7 @@ export const subCommand: SubCommand = {
 				const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
 				if (!match) return false;
 
-				const [, name, id, extension] = match;
+				const [, name] = match;
 				const cleanedName = name.replace(/_/g, " ");
 				const emojiName = cleanedName
 					.replace(/[^\w\s]/g, "")
@@ -197,7 +202,7 @@ export const subCommand: SubCommand = {
 					.replace("${emojiCount}", String(createdEmojis.length)),
 				flags: [1 << 6]
 			});
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unzip_emojis_command_error,
 				flags: [1 << 6]

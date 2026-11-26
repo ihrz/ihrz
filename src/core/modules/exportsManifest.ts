@@ -233,8 +233,8 @@ function renderSpec(spec: ExportSpec, files: string[]): string {
 		spec.kind === "text" || spec.kind === "file"
 			? "string"
 			: spec.kind === "lazy"
-				? "() => Promise<any>"
-				: "any";
+				? "() => Promise<{ default: unknown }>"
+				: "unknown";
 
 	return (
 		LICENCE_HEADER +
@@ -288,4 +288,7 @@ export async function writeExports(): Promise<string[]> {
 }
 
 // Files of a command tree export, keyed by path relative to its root.
+// Each loader reads its own shape (`default`, `command`, `event`…) from
+// modules imported dynamically: there is no common type to give them.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ExportedFiles = Record<string, any>;

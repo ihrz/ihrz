@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message, PermissionFlagsBits } from "discord.js";
+import { Client, GuildMember, Message, PermissionFlagsBits } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
@@ -107,7 +107,7 @@ export const event: BotEvent = {
 						);
 						await client.func.method
 							.warnMember(
-								message.guild?.members.me!,
+								message.guild?.members.me as GuildMember,
 								message.member!,
 								lang.warn_reason_piconly,
 								lang
@@ -122,7 +122,9 @@ export const event: BotEvent = {
 								)
 							})
 							.catch(() => false);
-					} catch {}
+					} catch {
+						// timeout or warning failed (missing permission, member left): ignored.
+					}
 				} else {
 					await message.author
 						.send({

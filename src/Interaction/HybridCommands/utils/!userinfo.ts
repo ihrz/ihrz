@@ -252,14 +252,13 @@ export const subCommand: SubCommand = {
 				.join("");
 		}
 
+		let member: User;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member =
-				interaction.options.getUser("user") || interaction.user;
+			member = interaction.options.getUser("user") || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
-			var member =
-				interaction.options.getUser("user") || interaction.user;
+			member = interaction.options.getUser("user") || interaction.user;
 		} else {
-			var member =
+			member =
 				(await client.func.method.user(interaction, args!, 0)) ||
 				interaction.author;
 		}
@@ -288,7 +287,7 @@ export const subCommand: SubCommand = {
 
 			banner = user_1.banner;
 
-			let badges = getBadges(member.flags?.bitfield!);
+			let badges = getBadges(member.flags?.bitfield as number);
 			const nitro = await GetNitro();
 			badges += nitro.badge;
 
@@ -296,7 +295,9 @@ export const subCommand: SubCommand = {
 				badges += `${client.iHorizon_Emojis.App_1}${client.iHorizon_Emojis.App_2}`;
 
 			if (member.id === client.user?.id)
-				badges += getSelfBadges(client.application?.flags.bitfield!);
+				badges += getSelfBadges(
+					client.application?.flags.bitfield as number
+				);
 
 			const platformBadges = getPlatformBadges(user.id);
 			badges += platformBadges;
@@ -410,6 +411,7 @@ export const subCommand: SubCommand = {
 			if (member.bot) return { badge, type };
 
 			try {
+				let input: number | undefined;
 				if (client.config.api.HorizonGateway?.startsWith("http")) {
 					const result = await axios.post(
 						apiUrlParser.HorizonGatewayInternal(
@@ -420,7 +422,7 @@ export const subCommand: SubCommand = {
 							adminKey: client.config.api.apiToken
 						}
 					);
-					var input = result.data.premium_type;
+					input = result.data.premium_type;
 				}
 
 				if (!input) {
@@ -449,7 +451,7 @@ export const subCommand: SubCommand = {
 						type = "Nitro Basic";
 						break;
 				}
-			} catch (e) {
+			} catch {
 				badge = "";
 				type = "";
 			}

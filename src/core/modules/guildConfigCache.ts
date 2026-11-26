@@ -32,7 +32,7 @@
  * corrupting the cache.
  */
 
-import { UnifiedDatabase } from "../database/types.js";
+import { StoredValue, UnifiedDatabase } from "../database/types.js";
 
 const DEFAULT_TTL_MS = 30_000;
 const SWEEP_INTERVAL_MS = 60_000;
@@ -81,7 +81,7 @@ function clone<T>(value: T): T {
 }
 
 /** `client.db.get(key)` served from the cache for `ttlMs`. */
-export function getCachedGuildValue<T = any>(
+export function getCachedGuildValue<T = StoredValue>(
 	key: string,
 	ttlMs: number = DEFAULT_TTL_MS
 ): Promise<T | null> {

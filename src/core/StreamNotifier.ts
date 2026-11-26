@@ -31,6 +31,17 @@ import {
 
 import { DatabaseStructure } from "../../types/database_structure.js";
 import logger from "./logger.js";
+
+// One result of the YouTube Data API `search.list` (fields read here).
+interface YoutubeSearchItem {
+	id: { videoId: string };
+	snippet: {
+		channelId: string;
+		title: string;
+		publishedAt: string;
+		channelTitle: string;
+	};
+}
 import { axios } from "./functions/axios.js";
 
 export type Platform = "kick" | "youtube" | "twitch";
@@ -152,8 +163,11 @@ export class StreamNotifier {
 			}
 
 			return response.data.items
-				.filter((item: any) => item.snippet.channelId === channelId)
-				.map((item: any) => ({
+				.filter(
+					(item: YoutubeSearchItem) =>
+						item.snippet.channelId === channelId
+				)
+				.map((item: YoutubeSearchItem) => ({
 					title: item.snippet.title,
 					link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
 					pubDate: new Date(item.snippet.publishedAt),
@@ -244,7 +258,7 @@ export class StreamNotifier {
 			} else {
 				return null;
 			}
-		} catch (error) {
+		} catch {
 			return null;
 		}
 	}
@@ -382,8 +396,10 @@ export class StreamNotifier {
 			});
 
 			return { state: response.data?.data.length > 0 };
-		} catch (error: any) {
-			if (error.response && error.response.status === 404) {
+		} catch (error) {
+			const response = (error as { response?: { status?: number } })
+				.response;
+			if (response && response.status === 404) {
 				return { state: false };
 			}
 			throw error;
@@ -476,7 +492,7 @@ export class StreamNotifier {
 	}
 
 	// Fix a bug with a "undefined"
-	private isValidVideo(entry: Record<any, any>): boolean {
+	private isValidVideo(entry: object): boolean {
 		const objectValues = Object.values(entry);
 
 		for (const value of objectValues) {

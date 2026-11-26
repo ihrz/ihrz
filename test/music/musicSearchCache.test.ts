@@ -29,6 +29,9 @@ import {
 	test
 } from "bun:test";
 
+import type { Track } from "lavalink-client";
+
+import type { DatabaseStructure } from "../../types/database_structure.js";
 import { Memory } from "../../src/core/database/driver/memory.ts";
 import {
 	initTables,
@@ -66,10 +69,20 @@ const result = (tracks: ReturnType<typeof track>[], loadType = "search") =>
 	}) as never;
 
 // lavalink-client's buildTrack, reduced to what the cache relies on.
-const client = {
+const baseClient = {
 	player: {
 		utils: {
-			buildTrack: (data: any, requester: unknown) => ({
+			buildTrack: (
+				data: {
+					encoded: string;
+					info: Record<string, unknown> & {
+						duration?: number;
+						length?: number;
+					};
+					pluginInfo?: unknown;
+				},
+				requester: unknown
+			) => ({
 				encoded: data.encoded,
 				info: {
 					...data.info,
@@ -84,7 +97,8 @@ const client = {
 	func: {
 		music_proximity: { isSimilar: () => true, similarity: () => 1 }
 	}
-} as never;
+};
+const client = baseClient as never;
 
 function fakeNode(answer: (query: string) => unknown) {
 	const calls: string[] = [];
@@ -208,12 +222,9 @@ describe("lookups", () => {
 		await save("Bohemian Rhapsody", "auto", result([track(1), track(2)]));
 		const hit = await cache.lookupSearch("bohemian  rhapsody!", "auto");
 		expect(hit?.fuzzy).toBe(false);
-		const res = cache.cachedResult(client, hit!, { id: "2" }) as any;
+		const res = cache.cachedResult(client, hit!, { id: "2" });
 		expect(res.loadType).toBe("search");
-		expect(res.tracks.map((t: any) => t.encoded)).toEqual([
-			"enc-1",
-			"enc-2"
-		]);
+		expect(res.tracks.map((t) => t.encoded)).toEqual(["enc-1", "enc-2"]);
 		expect(res.tracks[0].requester).toEqual({ id: "2" });
 		expect(res.tracks[0].info.duration).toBe(1000);
 		expect(res.tracks[0].pluginInfo).toEqual({ albumName: "Album" });
@@ -273,7 +284,7 @@ describe("lookups", () => {
 		expect(await musicSearchTable.get(hit!.key)).toBeNull();
 		const bucket = (await musicSearchTable.get(
 			cache.bucketKey("dead track song", "auto")
-		)) as any;
+		)) as DatabaseStructure.MusicSearchBucket;
 		expect(bucket.entries).toEqual([]);
 		expect(await cache.lookupSearch("dead track song", "auto")).toBeNull();
 		// A track that did not come from a record changes nothing.
@@ -289,7 +300,9 @@ describe("lookups", () => {
 			}))
 		});
 		await save("aa newest song", "auto", result([track(1)]));
-		const bucket = (await musicSearchTable.get(key)) as any;
+		const bucket = (await musicSearchTable.get(
+			key
+		)) as DatabaseStructure.MusicSearchBucket;
 		expect(bucket.entries).toHaveLength(cache.BUCKET_CAP);
 		expect(bucket.entries[0].q).toBe("aa newest song");
 	});
@@ -319,7 +332,7 @@ describe("search path (searchQueryOnNode)", () => {
 		);
 		expect(calls).toHaveLength(1);
 		expect(again?.tracks[0]?.encoded).toBe("enc-1");
-		expect((again?.tracks[0] as any).requester).toEqual({ id: "2" });
+		expect((again?.tracks[0] as Track).requester).toEqual({ id: "2" });
 
 		const typo = await searchQueryOnNode(
 			client,
@@ -353,9 +366,9 @@ describe("suggestions (autocomplete and dashboard search)", () => {
 			result([1, 2, 3].map((n) => track(n, `Daft Punk ${n}`)))
 		);
 		const withNode = {
-			...(client as any),
+			...baseClient,
 			player: {
-				...(client as any).player,
+				...baseClient.player,
 				nodeManager: { nodes: new Map([["n", node]]) }
 			}
 		} as never;
@@ -385,9 +398,9 @@ describe("suggestions (autocomplete and dashboard search)", () => {
 			await import("../../src/core/modules/musicAutocomplete.ts");
 		const { node } = fakeNode(() => result([track(1)]));
 		const withNode = {
-			...(client as any),
+			...baseClient,
 			player: {
-				...(client as any).player,
+				...baseClient.player,
 				nodeManager: { nodes: new Map([["n", node]]) }
 			}
 		} as never;

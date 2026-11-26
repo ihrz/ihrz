@@ -168,10 +168,8 @@ export const event: BotEvent = {
 
 		const options = (interaction as ChatInputCommandInteraction)
 			.options as CommandInteractionOptionResolver;
-		const optionsList: string[] = (
-			(options as any)["_hoistedOptions"] ?? []
-		).map(
-			(element: { name: string; value: unknown }) =>
+		const optionsList: string[] = (options["_hoistedOptions"] ?? []).map(
+			(element) =>
 				`${element.name}:"${sanitizeInteractionOptionValue(element.name, element.value)}"`
 		);
 

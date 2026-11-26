@@ -30,16 +30,20 @@ import {
 	rmSync,
 	writeFileSync
 } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // A plain CommonJS helper of the pm2 launcher, which runs on Node before any
 // dependency is installed: it has no type declarations.
-const {
-	findBotProcesses,
-	isBotProcess,
-	killPhantoms
-} = require("../scripts/killPhantoms.cjs");
+const loadCjs = createRequire(import.meta.url);
+const { findBotProcesses, isBotProcess, killPhantoms } = loadCjs(
+	"../scripts/killPhantoms.cjs"
+) as {
+	findBotProcesses(root: string): number[];
+	isBotProcess(argv: string[], cwd: string, root: string): boolean;
+	killPhantoms(root: string, options?: { termWaitMs?: number }): number[];
+};
 
 const ROOT = "/srv/bot";
 

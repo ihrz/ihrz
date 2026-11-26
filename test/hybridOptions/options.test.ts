@@ -22,15 +22,18 @@
 import { describe, expect, test } from "bun:test";
 import {
 	ChatInputCommandInteraction,
+	type Client,
 	Collection,
 	type Message
 } from "discord.js";
 
 // method.ts imports the database layer; stub the global client it reads.
-(globalThis as any).client = (globalThis as any).client ?? {
-	user: { id: "bot" },
-	func: {}
-};
+globalThis.client =
+	globalThis.client ??
+	({
+		user: { id: "bot" },
+		func: {}
+	} as unknown as Client);
 
 const { options } = await import("../../src/core/functions/method.js");
 
@@ -57,7 +60,7 @@ function slashInteraction(calls: Record<string, unknown>) {
 }
 
 function prefixMessage(extra: Record<string, unknown> = {}) {
-	const members = new Collection<string, any>();
+	const members = new Collection<string, unknown>();
 	const fake = {};
 	Object.assign(fake, {
 		content: "",
@@ -70,8 +73,8 @@ function prefixMessage(extra: Record<string, unknown> = {}) {
 			members: {
 				cache: members
 			},
-			channels: { cache: new Collection<string, any>() },
-			roles: { cache: new Collection<string, any>() }
+			channels: { cache: new Collection<string, unknown>() },
+			roles: { cache: new Collection<string, unknown>() }
 		},
 		attachments: { first: () => undefined },
 		...extra
@@ -115,12 +118,12 @@ describe("options on the slash side", () => {
 			getAttachment: att
 		});
 		const o = options(fake);
-		expect(o.member("x", 0)).toBe(member as any);
-		expect(await o.user("x", 0)).toBe(user as any);
-		expect(await o.channel("x", 0)).toBe(chan as any);
-		expect(await o.voiceChannel("y", 0)).toBe(chan as any);
-		expect(o.role("x", 0)).toBe(role as any);
-		expect(o.attachment("x")).toBe(att as any);
+		expect(o.member("x", 0)).toBe(member as never);
+		expect(await o.user("x", 0)).toBe(user as never);
+		expect(await o.channel("x", 0)).toBe(chan as never);
+		expect(await o.voiceChannel("y", 0)).toBe(chan as never);
+		expect(o.role("x", 0)).toBe(role as never);
+		expect(o.attachment("x")).toBe(att as never);
 		expect(seen.map((x) => x[1])).toEqual([
 			["x"],
 			["x"],
@@ -163,30 +166,39 @@ describe("options on the prefix side", () => {
 
 	test("member resolves mention, id and username like method.member", () => {
 		const m = { id: "123", user: { username: "bob" } };
-		(msg.guild!.members.cache as any).set("123", m);
+		(
+			msg.guild!.members.cache as unknown as Collection<string, unknown>
+		).set("123", m);
 		const o = options(msg, ["<@123>", "123", "bob", "nobody"]);
-		expect(o.member("a", 0)).toBe(m as any);
-		expect(o.member("a", 1)).toBe(m as any);
-		expect(o.member("a", 2)).toBe(m as any);
+		expect(o.member("a", 0)).toBe(m as never);
+		expect(o.member("a", 1)).toBe(m as never);
+		expect(o.member("a", 2)).toBe(m as never);
 		expect(o.member("a", 3)).toBeNull();
 	});
 
 	test("role resolves mention entries, id and name", () => {
 		const r = { id: "9", name: "staff" };
 		const message = prefixMessage();
-		(message.guild!.roles.cache as any).set("9", r);
+		(
+			message.guild!.roles.cache as unknown as Collection<string, unknown>
+		).set("9", r);
 		const o = options(message, ["<@&9>", "staff", "none"]);
-		expect(o.role("a", 0)).toBe(r as any);
-		expect(o.role("a", 1)).toBe(r as any);
+		expect(o.role("a", 0)).toBe(r as never);
+		expect(o.role("a", 1)).toBe(r as never);
 		expect(o.role("a", 2)).toBeNull();
 	});
 
 	test("channel resolves by name and mention", async () => {
 		const c = { id: "5", name: "general" };
 		const message = prefixMessage();
-		(message.guild!.channels.cache as any).set("5", c);
+		(
+			message.guild!.channels.cache as unknown as Collection<
+				string,
+				unknown
+			>
+		).set("5", c);
 		const o = options(message, ["general", "zzz"]);
-		expect(await o.channel("a", 0)).toBe(c as any);
+		expect(await o.channel("a", 0)).toBe(c as never);
 		expect(await o.channel("a", 1)).toBeNull();
 	});
 
@@ -206,13 +218,13 @@ describe("options on the prefix side", () => {
 			}
 		});
 		const o = options(message, ["<@7>"]);
-		expect(await o.user("a", 0)).toBe(u as any);
+		expect(await o.user("a", 0)).toBe(u as never);
 	});
 
 	test("attachment returns the first one or null", () => {
 		const att = { id: "a" };
 		expect(options(msg).attachment("f")).toBeNull();
 		const withAtt = prefixMessage({ attachments: { first: () => att } });
-		expect(options(withAtt).attachment("f")).toBe(att as any);
+		expect(options(withAtt).attachment("f")).toBe(att as never);
 	});
 });

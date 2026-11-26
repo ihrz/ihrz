@@ -91,14 +91,14 @@ export const subCommand: SubCommand = {
 			description: lang.vkick_logEmbed_desc
 				.replace("${author}", interaction.member.user.toString())
 				.replace("${member}", member.toString())
-				.replace("${voiceChannel}", voiceChannel?.toString()!)
+				.replace("${voiceChannel}", voiceChannel?.toString() as string)
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.vkick_command_work
 				.replace("${member}", member.toString())
 				.replace("${author}", interaction.member.user.toString())
-				.replace("${voiceChannel}", voiceChannel?.toString()!)
+				.replace("${voiceChannel}", voiceChannel?.toString() as string)
 		});
 		return;
 	}

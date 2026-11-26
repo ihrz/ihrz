@@ -32,11 +32,21 @@ export enum ErrorKind {
 	InvalidType = "INVALID_TYPE"
 }
 
-export type DataLike<T = any> = { id: string; value: T };
-export type Table = Map<string, any>;
+// What a key holds when the caller does not say (`db.get(key)`): stored
+// values are untyped JSON and the bot's hundreds of call sites read them
+// without a type argument. `get<T>()` is the typed way in.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type StoredValue = any;
+
+export type DataLike<T = StoredValue> = { id: string; value: T };
+export type Table = Map<string, unknown>;
 
 export type UnifiedDatabase =
-	Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | HorizonDB<any>;
+	| Sqlite<StoredValue>
+	| Json<StoredValue>
+	| Memory<StoredValue>
+	| Postgres<StoredValue>
+	| HorizonDB<StoredValue>;
 
 export type PostgresOptions = {
 	table?: string;

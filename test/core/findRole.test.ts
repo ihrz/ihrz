@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
+import type { Guild } from "discord.js";
 
 mock.module("../../src/core/core.js", () => ({ default: {} }));
 const { findRole, roleKey } =
@@ -14,9 +15,9 @@ const guildWith = (names: string[]) => {
 			name
 		})
 	);
-	return { id: G, roles: { cache: roles } } as any;
+	return { id: G, roles: { cache: roles } } as unknown as Guild;
 };
-const name = (g: any, arg: string) => findRole(g, arg)?.name ?? null;
+const name = (g: Guild, arg: string) => findRole(g, arg)?.name ?? null;
 
 describe("role argument of prefix commands", () => {
 	const g = guildWith([

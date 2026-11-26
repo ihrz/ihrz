@@ -21,6 +21,9 @@
 
 import { expect, test } from "bun:test";
 
+import type { Client } from "discord.js";
+import type { Player, StoredQueue } from "lavalink-client";
+
 import {
 	nextTrackQueueWatcher,
 	resyncNextTrack,
@@ -60,7 +63,8 @@ function fakePlayer(opts: {
 		getData: (k: string) => data.get(k),
 		setData: (k: string, v: unknown) => data.set(k, v)
 	};
-	return { player: player as any, sent };
+	// `fake` is the same object, typed as built, for the tests that change it.
+	return { player: player as unknown as Player, fake: player, sent };
 }
 
 test("sends the head of the queue once", async () => {
@@ -71,11 +75,11 @@ test("sends the head of the queue once", async () => {
 });
 
 test("follows queue changes and clears when the queue empties", async () => {
-	const { player, sent } = fakePlayer({ tracks: ["B"] });
+	const { player, fake, sent } = fakePlayer({ tracks: ["B"] });
 	await syncNextTrack(player);
-	player.queue.tracks = [{ encoded: "C" }, { encoded: "B" }];
+	fake.queue.tracks = [{ encoded: "C" }, { encoded: "B" }];
 	await syncNextTrack(player);
-	player.queue.tracks = [];
+	fake.queue.tracks = [];
 	await syncNextTrack(player);
 	expect(sent).toEqual(["B", "C", null]);
 });
@@ -106,10 +110,10 @@ test("a track start sends the next track again", async () => {
 });
 
 test("a failed update is retried on the next sync", async () => {
-	const { player, sent } = fakePlayer({ tracks: ["B"] });
+	const { player, fake, sent } = fakePlayer({ tracks: ["B"] });
 	let fail = true;
-	const record = player.node.updatePlayer;
-	player.node.updatePlayer = async (d: Sent) => {
+	const record = fake.node.updatePlayer;
+	fake.node.updatePlayer = async (d: Sent) => {
 		if (fail) throw new Error("down");
 		return record(d);
 	};
@@ -123,8 +127,8 @@ test("the queue watcher syncs the guild's player", async () => {
 	const { player, sent } = fakePlayer({ tracks: ["B"] });
 	const watcher = nextTrackQueueWatcher({
 		player: { getPlayer: () => player }
-	} as any);
-	watcher.tracksAdd("1", [], 0, {} as any, {} as any);
+	} as unknown as Client);
+	watcher.tracksAdd("1", [], 0, {} as StoredQueue, {} as StoredQueue);
 	await new Promise((r) => setTimeout(r, 0));
 	expect(sent).toEqual(["B"]);
 });
@@ -139,7 +143,9 @@ test("lavalink-client accepts the queue watcher", async () => {
 			sendToShard: () => {},
 			client: { id: "1" },
 			queueOptions: {
-				queueChangesWatcher: nextTrackQueueWatcher({} as any)
+				queueChangesWatcher: nextTrackQueueWatcher(
+					{} as unknown as Client
+				)
 			}
 		});
 	expect(build).not.toThrow();

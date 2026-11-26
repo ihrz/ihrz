@@ -96,13 +96,11 @@ export const subCommand: SubCommand = {
 			!interaction.channel
 		)
 			return;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getUser("user") || interaction.user;
-		} else {
-			var user =
-				(await client.func.method.user(interaction, args!, 0)) ||
-				interaction.member.user;
-		}
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getUser("user") || interaction.user
+				: (await client.func.method.user(interaction, args!, 0)) ||
+					interaction.member.user;
 
 		const stored = await prevnamesTable.get(`${user.id}`);
 		const char = loadHistory(stored);

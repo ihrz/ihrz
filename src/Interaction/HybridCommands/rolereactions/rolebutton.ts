@@ -316,11 +316,15 @@ export const command: Command = {
 									lang.buttonreaction_logs_embed_description_added
 										.replace(
 											"${authorId}",
-											interaction.member?.user.id!
+											interaction.member?.user
+												.id as string
 										)
 										.replace("${messagei}", messagei!)
 										.replace("${reaction}", reaction)
-										.replace("${role}", role?.toString()!)
+										.replace(
+											"${role}",
+											role?.toString() as string
+										)
 							});
 
 							await client.func.method.interactionSend(
@@ -332,7 +336,7 @@ export const command: Command = {
 											.replace("${reaction}", reaction)
 											.replace(
 												"${role}",
-												role?.toString()!
+												role?.toString() as string
 											),
 									flags: [1 << 6]
 								}

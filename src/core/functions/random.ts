@@ -120,7 +120,7 @@ export function generatePassword(options: PasswordOptions): string {
 			symbols: symbols && charSets.symbols
 		};
 
-		Object.entries(requirements).forEach(([type, chars]) => {
+		Object.entries(requirements).forEach(([, chars]) => {
 			if (chars && !passwordArray.some((char) => chars.includes(char))) {
 				const position = crypto.randomInt(0, length);
 				passwordArray[position] =

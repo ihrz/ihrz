@@ -161,16 +161,20 @@ class GithubLinesManager {
 				)
 					return null;
 
-				const files = json.files as Record<string, any>;
+				const files = json.files as Record<
+					string,
+					{ content?: string } | undefined
+				>;
 				text =
-					files[dotFilename]?.content ||
-					files[
-						Object.keys(files).find(
-							(key) =>
-								key.toLowerCase().replace(/\W+/g, "-") ===
-								filename.toLowerCase()
-						) || ""
-					]?.content;
+					(files[dotFilename]?.content ||
+						files[
+							Object.keys(files).find(
+								(key) =>
+									key.toLowerCase().replace(/\W+/g, "-") ===
+									filename.toLowerCase()
+							) || ""
+						]?.content) ??
+					null;
 
 				if (!text) return null;
 			}

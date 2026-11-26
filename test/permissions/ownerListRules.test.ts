@@ -24,7 +24,12 @@
 
 import { readyTables } from "../readyTables.ts";
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import { PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import {
+	type Client,
+	type GuildMember,
+	PermissionFlagsBits,
+	PermissionsBitField
+} from "discord.js";
 
 mock.module("../../src/Events/client/ready.js", () => readyTables());
 
@@ -55,13 +60,13 @@ function setup(utils: unknown, id: string, perms = 0n) {
 				cooldown: async () => false,
 				getCooldownTimestamp: async () => null
 			}
-		} as any,
+		},
 		commands: new Map([
 			["ban", { name: "ban", permission: PermissionFlagsBits.BanMembers }]
 		]),
 		subCommands: new Map()
 	};
-	(globalThis as any).client = client;
+	globalThis.client = client as unknown as Client;
 	const member = {
 		id,
 		client,
@@ -69,11 +74,14 @@ function setup(utils: unknown, id: string, perms = 0n) {
 		permissions: new PermissionsBitField(perms),
 		roles: { cache: new Map() }
 	};
-	return { client: client as any, member: member as any };
+	return {
+		client: client as unknown as Client,
+		member: member as unknown as GuildMember
+	};
 }
 
 afterEach(() => {
-	delete (globalThis as any).client;
+	delete (globalThis as { client?: Client }).client;
 });
 
 describe("owner list and /perm rules", () => {

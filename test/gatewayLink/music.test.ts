@@ -20,12 +20,24 @@
 */
 
 import { describe, expect, mock, test } from "bun:test";
-import { PermissionsBitField } from "discord.js";
+import {
+	type Client,
+	type Guild,
+	type GuildMember,
+	PermissionsBitField
+} from "discord.js";
+
+import type { MusicStateView } from "../../src/core/modules/gatewayLinkActions/music.ts";
+import type { ActionContext } from "../../src/core/modules/gatewayLinkActions/types.ts";
+import type { MusicPlayer } from "../../src/core/modules/musicControls.ts";
 
 const calls: string[] = [];
 let ttsEnabled = false;
 let enqueueResult: unknown = { ok: false, reason: "no_result" };
-let enqueueArgs: any = null;
+let enqueueArgs: {
+	textChannelId?: string | null;
+	sourceChannelId?: string | null;
+} | null = null;
 
 mock.module("../../src/core/modules/ttsManager.js", () => ({
 	getTTSData: async () => (ttsEnabled ? { enabled: true } : null),
@@ -36,7 +48,7 @@ mock.module("../../src/core/modules/musicCrossfadeSkip.js", () => ({
 }));
 mock.module("../../src/core/functions/musicPlay.js", () => ({
 	enqueueMusicQueries: async (args: unknown) => {
-		enqueueArgs = args;
+		enqueueArgs = args as typeof enqueueArgs;
 		return enqueueResult;
 	},
 	announceMusicPlay: async () => calls.push("announce"),
@@ -77,8 +89,33 @@ function track(id: string, duration = 180_000, stream = false) {
 	};
 }
 
-function makePlayer(over: Record<string, unknown> = {}) {
-	const p: any = {
+type FakeTrack = ReturnType<typeof track>;
+// A track the bot played again: flagged by the "previous" control.
+type ReplayedTrack = FakeTrack & {
+	pluginInfo: { clientData: { previousTrack?: boolean } };
+};
+
+// The fake lavalink player: what the tests read and change on it.
+interface FakePlayer {
+	[key: string]: unknown;
+	paused: boolean;
+	volume: number;
+	customVolume?: number;
+	repeatMode: string;
+	position: number;
+	queue: {
+		current: FakeTrack | null;
+		tracks: FakeTrack[];
+		previous: FakeTrack[];
+		shiftPrevious(): Promise<FakeTrack | null>;
+		add(t: FakeTrack, at: number): Promise<void>;
+		shuffle(): Promise<unknown>;
+		splice(s: number, n: number): Promise<void>;
+	};
+}
+
+function makePlayer(over: Record<string, unknown> = {}): FakePlayer {
+	const p: FakePlayer = {
 		guildId: "100000000000000000",
 		voiceChannelId: BOT_VC,
 		textChannelId: TEXT,
@@ -94,9 +131,9 @@ function makePlayer(over: Record<string, unknown> = {}) {
 		queue: {
 			current: track("a"),
 			tracks: [track("b"), track("c", 0, true)],
-			previous: [] as any[],
+			previous: [] as FakeTrack[],
 			shiftPrevious: async () => p.queue.previous.shift() ?? null,
-			add: async (t: any, at: number) => {
+			add: async (t: FakeTrack, at: number) => {
 				p.queue.tracks.splice(at, 0, t);
 			},
 			shuffle: async () => calls.push("shuffle"),
@@ -111,7 +148,7 @@ function makePlayer(over: Record<string, unknown> = {}) {
 			p.paused = false;
 		},
 		stopPlaying: async () => calls.push("stopPlaying"),
-		play: async ({ clientTrack }: any) => {
+		play: async ({ clientTrack }: { clientTrack: FakeTrack }) => {
 			p.queue.current = clientTrack;
 		},
 		setRepeatMode: async (m: string) => {
@@ -126,7 +163,14 @@ function makePlayer(over: Record<string, unknown> = {}) {
 }
 
 // A text channel nobody can post in unless a test says otherwise.
-const fakeChannel = (id: string, name: string): any => ({
+type FakeChannel = {
+	id: string;
+	name: string;
+	isTextBased: () => boolean;
+	permissionsFor: () => unknown;
+	send: (m: unknown) => Promise<unknown>;
+};
+const fakeChannel = (id: string, name: string): FakeChannel => ({
 	id,
 	name,
 	isTextBased: () => true,
@@ -134,17 +178,26 @@ const fakeChannel = (id: string, name: string): any => ({
 	send: async () => null
 });
 
-function setup(actorVoice: string | null, player?: any, botVoice = BOT_VC) {
-	const channels = new Map<string, any>([
+function setup(
+	actorVoice: string | null,
+	player?: FakePlayer,
+	botVoice = BOT_VC
+) {
+	const channels = new Map<string, FakeChannel>([
 		[BOT_VC, fakeChannel(BOT_VC, "Music")],
 		[TEXT, fakeChannel(TEXT, "music-text")]
 	]);
-	const guild: any = {
+	const guild = {
 		id: "100000000000000000",
 		channels: { cache: channels },
-		members: { me: { voice: { channelId: botVoice } } }
+		members: {
+			me: { voice: { channelId: botVoice } } as {
+				voice: { channelId: string };
+				displayAvatarURL?: () => string;
+			}
+		}
 	};
-	const actor: any = {
+	const actor = {
 		id: "300000000000000000",
 		guild,
 		user: { id: "300000000000000000" },
@@ -159,21 +212,26 @@ function setup(actorVoice: string | null, player?: any, botVoice = BOT_VC) {
 		},
 		toString: () => "<@300000000000000000>"
 	};
-	const client: any = {
+	const client: {
+		player: { getPlayer: () => FakePlayer | undefined };
+		iHorizon_Emojis: Record<string, string>;
+		func?: { searchLyrics: (t: unknown) => Promise<unknown> };
+	} = {
 		player: { getPlayer: () => player },
 		iHorizon_Emojis: { Music_Icon: "" }
 	};
-	const lang: any = {
+	const lang = {
 		event_mp_playerSkip: "skip ${trackTitle}",
 		queue_jumped: "${author} ${track}"
 	};
-	const ctx = (params: Record<string, unknown> = {}) => ({
-		client,
-		guild,
-		actor,
-		lang,
-		params: new Params(params)
-	});
+	const ctx = (params: Record<string, unknown> = {}) =>
+		({
+			client,
+			guild,
+			actor,
+			lang,
+			params: new Params(params)
+		}) as unknown as ActionContext;
 	return { client, guild, actor, ctx };
 }
 
@@ -189,7 +247,9 @@ const refused = async (p: Promise<unknown>) => {
 describe("music.state", () => {
 	test("no player: inactive, no side effect", async () => {
 		const { ctx } = setup(null);
-		const s: any = await musicActions["music.state"].run(ctx() as any);
+		const s = (await musicActions["music.state"].run(
+			ctx()
+		)) as MusicStateView;
 		expect(s.active).toBe(false);
 		expect(s.queue).toEqual([]);
 		expect(s.actor).toEqual({
@@ -204,13 +264,13 @@ describe("music.state", () => {
 	test("the bot's avatar on the server, for the player's header", async () => {
 		const { ctx, guild } = setup(null);
 		expect(
-			((await musicActions["music.state"].run(ctx() as any)) as any)
+			((await musicActions["music.state"].run(ctx())) as MusicStateView)
 				.botAvatar
 		).toBeNull();
 		guild.members.me.displayAvatarURL = () =>
 			"https://cdn.discordapp.com/guilds/1/users/2/avatars/a.png";
 		expect(
-			((await musicActions["music.state"].run(ctx() as any)) as any)
+			((await musicActions["music.state"].run(ctx())) as MusicStateView)
 				.botAvatar
 		).toBe("https://cdn.discordapp.com/guilds/1/users/2/avatars/a.png");
 	});
@@ -218,11 +278,13 @@ describe("music.state", () => {
 	test("player: current track, queue and totals", async () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
-		const s: any = await musicActions["music.state"].run(ctx() as any);
+		const s = (await musicActions["music.state"].run(
+			ctx()
+		)) as MusicStateView;
 		expect(s.voiceChannel).toEqual({ id: BOT_VC, name: "Music" });
 		expect(s.textChannel).toEqual({ id: TEXT, name: "music-text" });
-		expect(s.current.title).toBe("Title a");
-		expect(s.current.requesterId).toBe("900000000000000000");
+		expect(s.current!.title).toBe("Title a");
+		expect(s.current!.requesterId).toBe("900000000000000000");
 		expect(s.position).toBe(60_000);
 		expect(s.queueLength).toBe(2);
 		// The live stream doesn't count.
@@ -237,14 +299,19 @@ describe("music.state", () => {
 		const player = makePlayer({ position: 999_999_999 });
 		player.queue.tracks = tracks;
 		const { guild, actor } = setup(null, player);
-		const s = musicState(guild, actor, player, {
-			manager: false,
-			current: false
-		});
+		const s = musicState(
+			guild as unknown as Guild,
+			actor as unknown as GuildMember,
+			player as unknown as MusicPlayer,
+			{
+				manager: false,
+				current: false
+			}
+		);
 		expect(s.queue.length).toBe(QUEUE_MAX);
 		expect(s.queueLength).toBe(150);
 		expect(s.position).toBe(180_000);
-		expect(trackView(track("x", 0) as any).isStream).toBe(true);
+		expect(trackView(track("x", 0) as never).isStream).toBe(true);
 	});
 });
 
@@ -253,14 +320,17 @@ describe("music controls", () => {
 		const player = makePlayer();
 		const away = setup(OTHER_VC, player);
 		expect(
-			await refused(musicActions["music.pause"].run(away.ctx() as any))
+			await refused(musicActions["music.pause"].run(away.ctx()))
 		).toContain("forbidden");
 		const none = setup(null, player);
-		expect(
-			await refused(musicActions["music.pause"].run(none.ctx() as any))
-		).toBe("you must be in a voice channel");
+		expect(await refused(musicActions["music.pause"].run(none.ctx()))).toBe(
+			"you must be in a voice channel"
+		);
 		const ok = setup(BOT_VC, player);
-		const r: any = await musicActions["music.pause"].run(ok.ctx() as any);
+		const r = (await musicActions["music.pause"].run(ok.ctx())) as {
+			paused: boolean;
+			state: MusicStateView;
+		};
 		expect(r.paused).toBe(true);
 		expect(r.state.paused).toBe(true);
 	});
@@ -268,31 +338,33 @@ describe("music controls", () => {
 	test("previous replays the last track and puts the current one back first", async () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
-		expect(
-			await refused(musicActions["music.previous"].run(ctx() as any))
-		).toBe("no previous track to go back to");
+		expect(await refused(musicActions["music.previous"].run(ctx()))).toBe(
+			"no previous track to go back to"
+		);
 		player.queue.previous.push(track("z"));
 		player.paused = true;
-		const r: any = await musicActions["music.previous"].run(ctx() as any);
+		const r = (await musicActions["music.previous"].run(ctx())) as {
+			title: string;
+			state: MusicStateView;
+		};
 		expect(r.title).toBe("Title z");
-		expect(player.queue.current.info.identifier).toBe("z");
+		const replayed = player.queue.current as ReplayedTrack;
+		expect(replayed.info.identifier).toBe("z");
 		// Flagged: it won't go back into the history when it ends.
-		expect(player.queue.current.pluginInfo.clientData.previousTrack).toBe(
-			true
-		);
+		expect(replayed.pluginInfo.clientData.previousTrack).toBe(true);
 		expect(player.queue.tracks[0].info.identifier).toBe("a");
 		expect(player.paused).toBe(false);
 		expect(r.state.hasPrevious).toBe(false);
 		const away = setup(OTHER_VC, player);
 		expect(
-			await refused(musicActions["music.previous"].run(away.ctx() as any))
+			await refused(musicActions["music.previous"].run(away.ctx()))
 		).toContain("forbidden");
 	});
 
 	test("resume does not throw when not paused", async () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
-		await musicActions["music.resume"].run(ctx() as any);
+		await musicActions["music.resume"].run(ctx());
 		expect(player.paused).toBe(false);
 	});
 
@@ -301,11 +373,11 @@ describe("music controls", () => {
 		player.queue.tracks = [track("b")];
 		const { ctx } = setup(BOT_VC, player);
 		expect(
-			await refused(musicActions["music.shuffle"].run(ctx() as any))
+			await refused(musicActions["music.shuffle"].run(ctx()))
 		).toContain("at least 2");
 		const idle = setup(BOT_VC, undefined);
 		expect(
-			await refused(musicActions["music.shuffle"].run(idle.ctx() as any))
+			await refused(musicActions["music.shuffle"].run(idle.ctx()))
 		).toBe("nothing is playing");
 	});
 
@@ -314,9 +386,11 @@ describe("music controls", () => {
 		const sent: unknown[] = [];
 		const player = makePlayer();
 		const { ctx, guild } = setup(BOT_VC, player);
-		guild.channels.cache.get(TEXT).send = async (m: unknown) =>
+		guild.channels.cache.get(TEXT)!.send = async (m: unknown) =>
 			sent.push(m);
-		const r: any = await musicActions["music.skip"].run(ctx() as any);
+		const r = (await musicActions["music.skip"].run(ctx())) as {
+			skipped: string;
+		};
 		expect(calls).toContain("crossfade:0");
 		expect(sent.length).toBe(1);
 		expect(r.skipped).toBe("Title a");
@@ -326,7 +400,9 @@ describe("music controls", () => {
 		calls.length = 0;
 		ttsEnabled = true;
 		const { ctx } = setup(BOT_VC, makePlayer());
-		const r: any = await musicActions["music.stop"].run(ctx() as any);
+		const r = (await musicActions["music.stop"].run(ctx())) as {
+			tts: boolean;
+		};
 		ttsEnabled = false;
 		expect(r.tts).toBe(true);
 		expect(calls).toEqual(["cleanupTTS"]);
@@ -335,7 +411,9 @@ describe("music controls", () => {
 	test("clear empties the upcoming tracks", async () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
-		const r: any = await musicActions["music.clear"].run(ctx() as any);
+		const r = (await musicActions["music.clear"].run(ctx())) as {
+			removed: number;
+		};
 		expect(r.removed).toBe(2);
 		expect(player.queue.tracks.length).toBe(0);
 	});
@@ -344,18 +422,14 @@ describe("music controls", () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
 		expect(
-			await refused(
-				musicActions["music.loop"].run(ctx({ mode: "all" }) as any)
-			)
+			await refused(musicActions["music.loop"].run(ctx({ mode: "all" })))
 		).toBe("invalid parameter: mode");
-		await musicActions["music.loop"].run(ctx({ mode: "queue" }) as any);
+		await musicActions["music.loop"].run(ctx({ mode: "queue" }));
 		expect(player.repeatMode).toBe("queue");
 		expect(
-			await refused(
-				musicActions["music.volume"].run(ctx({ value: 500 }) as any)
-			)
+			await refused(musicActions["music.volume"].run(ctx({ value: 500 })))
 		).toContain("at most");
-		await musicActions["music.volume"].run(ctx({ value: 40 }) as any);
+		await musicActions["music.volume"].run(ctx({ value: 40 }));
 		expect(player.volume).toBe(40);
 		expect(player.customVolume).toBe(40);
 	});
@@ -363,8 +437,8 @@ describe("music controls", () => {
 	test("volume, like the command, works from another voice channel", async () => {
 		const player = makePlayer();
 		const r = await controls.setMusicVolume(
-			setup(OTHER_VC, player).client,
-			setup(OTHER_VC, player).actor,
+			setup(OTHER_VC, player).client as unknown as Client,
+			setup(OTHER_VC, player).actor as unknown as GuildMember,
 			30
 		);
 		expect(r.ok).toBe(true);
@@ -375,19 +449,17 @@ describe("music controls", () => {
 		const player = makePlayer();
 		const { ctx } = setup(BOT_VC, player);
 		expect(
-			await refused(
-				musicActions["music.skip-to"].run(ctx({ index: 5 }) as any)
-			)
+			await refused(musicActions["music.skip-to"].run(ctx({ index: 5 })))
 		).toBe("track not found");
 		expect(
 			await refused(
 				musicActions["music.skip-to"].run(
-					ctx({ index: 0, identifier: "zzz" }) as any
+					ctx({ index: 0, identifier: "zzz" })
 				)
 			)
 		).toContain("queue changed");
 		await musicActions["music.skip-to"].run(
-			ctx({ index: 1, identifier: "c" }) as any
+			ctx({ index: 1, identifier: "c" })
 		);
 		expect(calls).toEqual(["crossfade:2"]);
 	});
@@ -399,7 +471,7 @@ describe("music.play", () => {
 		const { ctx } = setup(null);
 		expect(
 			await refused(
-				musicActions["music.play"].run(ctx({ query: "song" }) as any)
+				musicActions["music.play"].run(ctx({ query: "song" }))
 			)
 		).toContain("voice channel");
 		expect(enqueueArgs).toBeNull();
@@ -407,13 +479,13 @@ describe("music.play", () => {
 
 	test("an explicit text channel must be one the user can post in", async () => {
 		const { ctx, guild } = setup(BOT_VC);
-		guild.channels.cache.get(TEXT).isTextBased = () => true;
-		guild.channels.cache.get(TEXT).permissionsFor = () =>
+		guild.channels.cache.get(TEXT)!.isTextBased = () => true;
+		guild.channels.cache.get(TEXT)!.permissionsFor = () =>
 			new PermissionsBitField(0n);
 		expect(
 			await refused(
 				musicActions["music.play"].run(
-					ctx({ query: "song", channelId: TEXT }) as any
+					ctx({ query: "song", channelId: TEXT })
 				)
 			)
 		).toContain("forbidden");
@@ -423,7 +495,7 @@ describe("music.play", () => {
 					ctx({
 						query: "song",
 						channelId: "730000000000000000"
-					}) as any
+					})
 				)
 			)
 		).toBe("channel not found");
@@ -434,7 +506,7 @@ describe("music.play", () => {
 		enqueueResult = { ok: false, reason: "music_cannot" };
 		expect(
 			await refused(
-				musicActions["music.play"].run(ctx({ query: "song" }) as any)
+				musicActions["music.play"].run(ctx({ query: "song" }))
 			)
 		).toContain("forbidden");
 
@@ -446,11 +518,11 @@ describe("music.play", () => {
 			firstResult: { loadType: "track", tracks: [track("n")] }
 		};
 		// The voice channel's chat is not postable here (no permissionsFor).
-		const r: any = await musicActions["music.play"].run(
-			ctx({ query: "song" }) as any
-		);
-		expect(enqueueArgs.textChannelId).toBe(BOT_VC);
-		expect(enqueueArgs.sourceChannelId).toBeNull();
+		const r = (await musicActions["music.play"].run(
+			ctx({ query: "song" })
+		)) as { panelChannelId: string | null; track: { title: string } };
+		expect(enqueueArgs!.textChannelId).toBe(BOT_VC);
+		expect(enqueueArgs!.sourceChannelId).toBeNull();
 		expect(r.panelChannelId).toBeNull();
 		expect(r.track.title).toBe("Title n");
 		await Promise.resolve();
@@ -463,13 +535,11 @@ describe("music.search / music.lyrics", () => {
 		const { ctx } = setup(null);
 		expect(
 			await musicActions["music.search"].run(
-				ctx({ query: "https://x.y/z" }) as any
+				ctx({ query: "https://x.y/z" })
 			)
 		).toEqual({ url: true, results: [] });
 		expect(
-			await refused(
-				musicActions["music.search"].run(ctx({ query: "a" }) as any)
-			)
+			await refused(musicActions["music.search"].run(ctx({ query: "a" })))
 		).toContain("at least");
 	});
 
@@ -479,19 +549,19 @@ describe("music.search / music.lyrics", () => {
 			"https://music.apple.com/fr/album/a-very-long-album-name-that-goes-on-and-on/1234567890?i=1234567891&l=en-GB";
 		expect(link.length).toBeGreaterThan(100);
 		expect(
-			await musicActions["music.search"].run(ctx({ query: link }) as any)
+			await musicActions["music.search"].run(ctx({ query: link }))
 		).toEqual({ url: true, results: [] });
 		expect(
 			await refused(
 				musicActions["music.search"].run(
-					ctx({ query: "a".repeat(101) }) as any
+					ctx({ query: "a".repeat(101) })
 				)
 			)
 		).toBe("parameter too long: query");
 		expect(
 			await refused(
 				musicActions["music.search"].run(
-					ctx({ query: "https://x.y/" + "a".repeat(500) }) as any
+					ctx({ query: "https://x.y/" + "a".repeat(500) })
 				)
 			)
 		).toBe("parameter too long: query");
@@ -500,16 +570,19 @@ describe("music.search / music.lyrics", () => {
 	test("lyrics of the current track need something playing", async () => {
 		const { ctx, client } = setup(null, undefined);
 		client.func = { searchLyrics: async () => null };
-		expect(
-			await refused(musicActions["music.lyrics"].run(ctx() as any))
-		).toBe("nothing is playing");
+		expect(await refused(musicActions["music.lyrics"].run(ctx()))).toBe(
+			"nothing is playing"
+		);
 		const player = makePlayer();
 		client.player.getPlayer = () => player;
-		client.func.searchLyrics = async (t: any) => ({
+		client.func.searchLyrics = async (t: unknown) => ({
 			track: t,
 			res: { text: "la la", provider: "lyrics.ovh" }
 		});
-		const r: any = await musicActions["music.lyrics"].run(ctx() as any);
+		const r = (await musicActions["music.lyrics"].run(ctx())) as {
+			text: string;
+			track: { title: string };
+		};
 		expect(r.text).toBe("la la");
 		expect(r.track.title).toBe("Title a");
 	});

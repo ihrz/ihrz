@@ -142,11 +142,11 @@ async function processCommandOptions(
 								process.exit(1);
 							}
 
-							(subOption as any).run =
+							(subOption as unknown as Command).run =
 								commandModule.subCommand.run;
 							client.subCommands.set(
 								fullSubCommandName,
-								subOption as any
+								subOption as unknown as Command
 							);
 						}
 					}
@@ -170,8 +170,12 @@ async function processCommandOptions(
 						process.exit(1);
 					}
 
-					(option as any).run = commandModule.subCommand.run;
-					client.subCommands.set(fullName, option as any);
+					(option as unknown as Command).run =
+						commandModule.subCommand.run;
+					client.subCommands.set(
+						fullName,
+						option as unknown as Command
+					);
 				}
 			}
 		}

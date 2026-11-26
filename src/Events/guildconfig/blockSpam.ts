@@ -98,7 +98,7 @@ async function applySanction(
 				if (!member) break;
 				await member.timeout(40000, "Timeout by PunishPUB");
 				await client.func.method.warnMember(
-					message.guild?.members.me!,
+					message.guild?.members.me as GuildMember,
 					member,
 					lang.warn_reason_punishpub,
 					lang
@@ -203,7 +203,9 @@ export const event: BotEvent = {
 
 		try {
 			await message.delete();
-		} catch {}
+		} catch {
+			// the message may already be gone or not deletable
+		}
 
 		const newFlagsCount = (flags || 0) + 1;
 		await tempTable.set(

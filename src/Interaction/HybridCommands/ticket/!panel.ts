@@ -581,7 +581,7 @@ export const subCommand: SubCommand = {
 				: lang.var_no_set;
 		}
 
-		function generateUniqueOptionFieldValue(usedValues: Set<string>) {
+		function generateUniqueOptionFieldValue() {
 			return `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
 		}
 
@@ -594,7 +594,7 @@ export const subCommand: SubCommand = {
 					typeof option.value === "string" ? option.value.trim() : "";
 
 				if (!currentValue || usedValues.has(currentValue)) {
-					option.value = generateUniqueOptionFieldValue(usedValues);
+					option.value = generateUniqueOptionFieldValue();
 					hasChanged = true;
 				} else {
 					option.value = currentValue;
@@ -1222,7 +1222,7 @@ export const subCommand: SubCommand = {
 				const category = i.values[0];
 				await i.deferUpdate();
 
-				const fetchChannel = await i.guild?.channels.fetch(category)!;
+				await i.guild?.channels.fetch(category);
 
 				baseData.category = category;
 				isSaved = false;
@@ -1536,13 +1536,7 @@ export const subCommand: SubCommand = {
 				name,
 				desc,
 				emoji,
-				value: generateUniqueOptionFieldValue(
-					new Set(
-						baseData.config.optionFields.map(
-							(option) => option.value
-						)
-					)
-				),
+				value: generateUniqueOptionFieldValue(),
 				rolesToPing: []
 			});
 

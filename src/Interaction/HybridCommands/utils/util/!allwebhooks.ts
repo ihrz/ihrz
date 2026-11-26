@@ -54,8 +54,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		const fetchedWebhooks = await interaction.guild?.fetchWebhooks();
 		const webhookArray = fetchedWebhooks?.map((webhook) => webhook);

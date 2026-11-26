@@ -275,7 +275,8 @@ async function control<T extends object>(
 ) {
 	const result = await run();
 	if (!result.ok) return fail(CONTROL_ERRORS[result.reason]);
-	const { ok: _ok, ...extra } = result;
+	const { ok, ...extra } = result;
+	void ok; // dropped from the reply on purpose
 	return { ...extra, state: await stateOf(ctx) };
 }
 

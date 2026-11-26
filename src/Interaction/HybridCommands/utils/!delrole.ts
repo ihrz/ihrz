@@ -87,7 +87,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await user.roles.remove(role?.id!, `[DelRole] Author: ${author.id}`);
+		await user.roles.remove(
+			role?.id as string,
+			`[DelRole] Author: ${author.id}`
+		);
 
 		await sendCard(
 			client,
@@ -96,7 +99,7 @@ export const subCommand: SubCommand = {
 				"success",
 				`${client.iHorizon_Emojis.Yes} ${lang.utils_delrole_command_ok
 					.replace("${author}", author.toString())
-					.replace("${role}", role?.toString()!)
+					.replace("${role}", role?.toString() as string)
 					.replace("${user}", user.toString())}`
 			)
 		);

@@ -96,7 +96,7 @@ export const event: BotEvent = {
 		if (removeObjects.length >= 1) {
 			desc +=
 				data.event_srvLogs_guildMemberUpdate_description
-					.replace("${executorId}", firstEntry.executor?.id!)
+					.replace("${executorId}", firstEntry.executor?.id as string)
 					.replace(
 						"${removedRoles}",
 						removeObjectIds
@@ -105,20 +105,23 @@ export const event: BotEvent = {
 					)
 					.replace(
 						"${oldMemberUserUsername}",
-						user?.user?.username!
+						user?.user?.username as string
 					) + "\n";
 		}
 
 		if (newObjects.length >= 1) {
 			desc += data.event_srvLogs_guildMemberUpdate_2_description
-				.replace("${executorId}", firstEntry.executor?.id!)
+				.replace("${executorId}", firstEntry.executor?.id as string)
 				.replace(
 					"${addedRoles}",
 					newObjectsnewObjectIds
 						.map((value) => `<@&${value}>`)
 						.toString()
 				)
-				.replace("${oldMemberUserUsername}", user?.user?.username!);
+				.replace(
+					"${oldMemberUserUsername}",
+					user?.user?.username as string
+				);
 		}
 		await sendLogCard(Msgchannel, {
 			kind:

@@ -118,13 +118,13 @@ export const command: Command = {
 	) => {
 		if (
 			await client.func.ownerHelper.isBotOwner(
-				interaction.member?.user.id!
+				interaction.member?.user.id as string
 			)
 		) {
 			run_for_bot_owner(client, interaction, lang, args);
 		} else if (
 			await client.func.ownerHelper.isGuildOwner(
-				interaction.member?.user.id!,
+				interaction.member?.user.id as string,
 				interaction.guild!
 			)
 		) {
@@ -174,7 +174,7 @@ export async function run_for_bot_owner(
 		? interaction.guild.members.cache.get(targetUser?.id)
 		: null;
 
-	if (client.func.ownerHelper.isBotDev(member?.id!)) {
+	if (client.func.ownerHelper.isBotDev(member?.id as string)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_cant_unowner_creator
 		});

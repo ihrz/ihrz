@@ -29,7 +29,10 @@ import { profilTable } from "../../Events/client/ready.js";
 import { decrypt, encrypt } from "../functions/encryptDecryptMethod.js";
 import logger from "../logger.js";
 
-interface LastFMApiResponse<T = any> {
+// Last.fm JSON: only `auth.getSession` is read (`session.name`, `.key`).
+interface LastFMApiResponse<
+	T = { session?: { name?: unknown; key?: unknown } }
+> {
 	ok: boolean;
 	data?: T;
 	errorCode?: number;
@@ -365,8 +368,8 @@ export class LastFMScrobblerManager {
 	}
 
 	private normalizeTrack(track: Track): LastFMTrackData {
-		const pluginInfo = (track as any).pluginInfo as
-			{ albumName?: string } | undefined;
+		const pluginInfo = (track as { pluginInfo?: { albumName?: string } })
+			.pluginInfo;
 
 		return {
 			album: pluginInfo?.albumName,

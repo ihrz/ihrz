@@ -40,8 +40,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -96,15 +95,17 @@ export const subCommand: SubCommand = {
 				// setup, a lifted blacklist or spent balances. A field this
 				// server has no data for at all (fresh server, migration) is
 				// taken from the backup instead of being lost.
-				const {
-					guildId: _sourceGuildId,
-					OWNER: _owner,
-					PROTECTION: _protection,
-					ALLOWLIST: _allowlist,
-					BLACKLIST: _blacklist,
-					USER: _user,
-					...data
-				} = res;
+				const data: Record<string, unknown> = { ...res };
+				for (const field of [
+					"guildId",
+					"OWNER",
+					"PROTECTION",
+					"ALLOWLIST",
+					"BLACKLIST",
+					"USER"
+				]) {
+					delete data[field];
+				}
 				const current =
 					((await client.db.get(`${interaction.guildId}`)) as Record<
 						string,
@@ -126,7 +127,7 @@ export const subCommand: SubCommand = {
 					...kept
 				});
 				invalidateProtectionContext(interaction.guildId);
-			} catch (error) {
+			} catch {
 				await interaction.editReply({
 					content: lang.guildconfig_config_restore_err_msg
 				});

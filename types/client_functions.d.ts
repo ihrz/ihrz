@@ -54,6 +54,7 @@ import {
 	ModalSubmitInteraction,
 	PrimaryEntryPointCommandInteraction,
 	Role,
+	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	TopLevelComponentData,
 	User,
@@ -370,7 +371,7 @@ declare namespace Client_Functions {
 
 	// From generateProgressBar.ts
 	export function generateProgressBar(
-		emojis: any,
+		emojis: { Bar: string; Pointer: string },
 		currentTimeMs: number,
 		totalTimeMs: number
 	): { bar: string; currentTime: string; totalTime: string };
@@ -951,7 +952,7 @@ declare namespace Client_Functions {
 		}>,
 		messageId: string,
 		placeholder: string
-	): any;
+	): StringSelectMenuBuilder;
 
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
@@ -1033,12 +1034,12 @@ declare namespace Client_Functions {
 			content: string,
 			options: TextOptions
 		): Promise<SvgMarkup>;
-		export function uid(prefix?: any): string;
+		export function uid(prefix?: string): string;
 		export function wrap(
 			text: string,
 			maxWidth: number,
 			style: TextStyle,
-			maxLines?: any
+			maxLines?: number
 		): Promise<Array<string>>;
 	}
 

@@ -25,6 +25,7 @@
 import { describe, expect, mock, test } from "bun:test";
 
 import enUS from "../../src/lang/en-US.ts";
+import type { LanguageData } from "../../types/languageData.ts";
 import emojis from "../../src/files/emojis.json";
 
 // The confirmation of clear-all-warns: always "yes" here (no test imports it).
@@ -49,11 +50,17 @@ const MOD = "300000000000000000";
 const TARGET = "400000000000000000";
 const OTHER = "500000000000000000";
 
-const cardText = (p: any) =>
-	JSON.stringify(p.components.map((c: any) => c.toJSON()));
+// A Components V2 payload (what the logs and replies carry).
+type Card = { content?: string; components: { toJSON(): unknown }[] };
+type Node = Record<string, unknown>;
+// The store as the tests read it back: nested objects.
+type Tree = { [key: string]: Tree };
+
+const cardText = (p: Card) =>
+	JSON.stringify(p.components.map((c) => c.toJSON()));
 
 function server() {
-	const store: Record<string, any> = {
+	const store: Node = {
 		[GUILD]: {
 			USER: {
 				[TARGET]: {
@@ -74,25 +81,30 @@ function server() {
 	const path = (k: string) => k.split(".");
 	const db = {
 		get: async (k: string) =>
-			path(k).reduce((o: any, p) => (o == null ? o : o[p]), store) ??
-			null,
-		set: async (k: string, v: any) => {
+			path(k).reduce<unknown>(
+				(o, p) => (o == null ? o : (o as Node)[p]),
+				store
+			) ?? null,
+		set: async (k: string, v: unknown) => {
 			const parts = path(k);
 			const last = parts.pop()!;
-			let o: any = store;
-			for (const p of parts) o = o[p] ??= {};
+			let o = store;
+			for (const p of parts) o = (o[p] ??= {}) as Node;
 			o[last] = v;
 		},
 		delete: async (k: string) => {
 			const parts = path(k);
 			const last = parts.pop()!;
-			const o = parts.reduce((o: any, p) => o?.[p], store);
+			const o = parts.reduce<Node | undefined>(
+				(o, p) => o?.[p] as Node | undefined,
+				store
+			);
 			if (o) delete o[last];
 		}
 	};
-	const logs: any[] = [];
-	const replies: any[] = [];
-	const client: any = {
+	const logs: Card[] = [];
+	const replies: Card[] = [];
+	const client = {
 		user: { id: "9" },
 		iHorizon_Emojis: emojis,
 		db,
@@ -103,8 +115,8 @@ function server() {
 				footerBuilder: async () => ({ text: "iHorizon", iconURL: "" })
 			},
 			method: {
-				interactionSend: async (_i: any, p: any) => replies.push(p)
-			}
+				interactionSend: async (_i: unknown, p: Card) => replies.push(p)
+			} as Record<string, unknown>
 		}
 	};
 	const staff = {
@@ -112,22 +124,22 @@ function server() {
 		name: "mods",
 		isTextBased: () => true,
 		permissionsFor: () => ({ has: () => false }),
-		send: async (p: any) => logs.push(p)
+		send: async (p: Card) => logs.push(p)
 	};
-	const guild: any = {
+	const guild = {
 		id: GUILD,
 		ownerId: OWNER,
 		client,
 		roles: { everyone: { id: GUILD } },
 		channels: {
 			cache: {
-				find: (fn: any) => [staff].find(fn),
+				find: (fn: (c: typeof staff) => boolean) => [staff].find(fn),
 				get: () => undefined
 			}
 		}
 	};
-	(staff as any).guild = guild;
-	const member = (id: string, position: number): any => ({
+	Object.assign(staff, { guild });
+	const member = (id: string, position: number) => ({
 		id,
 		guild,
 		user: { id, bot: false, username: "u" + id.slice(0, 1) },
@@ -143,42 +155,47 @@ function server() {
 			member(OTHER, 2)
 		].map((m) => [m.id, m])
 	);
-	guild.members = {
-		cache: members,
-		fetch: async (id: string) => {
-			const m = members.get(id);
-			if (!m) throw new Error("unknown");
-			return m;
+	Object.assign(guild, {
+		members: {
+			cache: members,
+			fetch: async (id: string) => {
+				const m = members.get(id);
+				if (!m) throw new Error("unknown");
+				return m;
+			}
 		}
-	};
-	const interaction = (): any => ({
-		member: members.get(MOD),
-		guild,
-		guildId: GUILD,
-		channel: {}
 	});
-	client.func.method.options = (_i: any, _a: any) => ({
+	const interaction = () =>
+		({
+			member: members.get(MOD),
+			guild,
+			guildId: GUILD,
+			channel: {}
+		}) as never;
+	client.func.method.options = () => ({
 		member: () => optsMember,
 		longString: () => optsText
 	});
-	let optsMember: any = null;
+	let optsMember: unknown = null;
 	let optsText = "";
-	const setOpts = (m: any, t = "") => {
+	const setOpts = (m: unknown, t = "") => {
 		optsMember = m;
 		optsText = t;
 	};
-	const ctx = (params: Record<string, unknown>, actor = MOD): any => ({
-		client,
-		guild,
-		actor: members.get(actor),
-		params: new Params(params),
-		lang: enUS
-	});
+	const ctx = (params: Record<string, unknown>, actor = MOD) =>
+		({
+			client,
+			guild,
+			actor: members.get(actor),
+			params: new Params(params),
+			lang: enUS
+		}) as never;
 	return {
-		store,
+		store: store as unknown as Tree,
 		logs,
 		replies,
-		client,
+		// Partial mocks: only what the commands read.
+		client: client as never,
 		guild,
 		members,
 		interaction,
@@ -191,7 +208,7 @@ describe("/mod unwarn", () => {
 	test("an unknown warn ID names the member, not the moderator", async () => {
 		const s = server();
 		s.setOpts(s.members.get(TARGET), "nope");
-		await unwarn.run(s.client, s.interaction(), enUS as any);
+		await unwarn.run(s.client, s.interaction(), enUS as LanguageData);
 		expect(s.replies[0].content).toContain(`<@${TARGET}>`);
 		expect(s.replies[0].content).not.toContain(`<@${MOD}>`);
 	});
@@ -201,7 +218,7 @@ describe("clearing warnings posts a staff log", () => {
 	test("/mod clearwarn", async () => {
 		const s = server();
 		s.setOpts(s.members.get(TARGET));
-		await clearwarn.run(s.client, s.interaction(), enUS as any);
+		await clearwarn.run(s.client, s.interaction(), enUS as LanguageData);
 		expect(s.logs).toHaveLength(1);
 		const text = cardText(s.logs[0]);
 		expect(text).toContain(`2 warnings of <@${TARGET}>`);
@@ -212,7 +229,7 @@ describe("clearing warnings posts a staff log", () => {
 
 	test("/mod clear-all-warns", async () => {
 		const s = server();
-		await clearAll.run(s.client, s.interaction(), enUS as any);
+		await clearAll.run(s.client, s.interaction(), enUS as LanguageData);
 		expect(s.logs).toHaveLength(1);
 		expect(cardText(s.logs[0])).toContain("3 warnings of 2 members");
 		expect(s.store[GUILD].USER[OTHER].WARNS).toBeUndefined();

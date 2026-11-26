@@ -20,7 +20,6 @@
 */
 
 import { Client, Message } from "discord.js";
-import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
@@ -42,12 +41,7 @@ export const command: Command = {
 	category: "404",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (
-		client: Client,
-		interaction: Message,
-		lang: LanguageData,
-		args?: string[]
-	) => {
+	run: async (client: Client, interaction: Message) => {
 		await interaction.reply({
 			content: "kly ( @hjcbebcbknckehcbckb ) le plus beau"
 		});

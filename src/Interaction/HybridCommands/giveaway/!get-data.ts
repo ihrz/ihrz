@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 						iconURL: interaction.guild?.iconURL({
 							size: 512,
 							forceStatic: false
-						})!
+						}) as string
 					})
 					.setColor("#0099ff")
 					.setTitle(lang.gw_getdata_embed_title)
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 							name: lang.gw_getdata_embed_fields_amountWinner,
 							value: lang.gw_getdata_embed_fields_value_amountWinner.replace(
 								"${winnerCount}",
-								giveawayData.winnerCount
+								String(giveawayData.winnerCount)
 							),
 							inline: true
 						},

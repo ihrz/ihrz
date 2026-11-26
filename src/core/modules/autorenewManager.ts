@@ -66,7 +66,7 @@ class AutoRenew {
 			}
 
 			return result;
-		} catch (error) {
+		} catch {
 			return [];
 		}
 	}
@@ -170,13 +170,15 @@ class AutoRenew {
 								})
 								.catch(() => false);
 						}
-					} catch (error) {
+					} catch {
 						await client.db.delete(
 							`${guild.id}.UTILS.renew_channel.${channelId}`
 						);
 					}
 				}
-			} catch {}
+			} catch {
+				// Best effort: a guild that fails is retried on the next run.
+			}
 		}
 	}
 }

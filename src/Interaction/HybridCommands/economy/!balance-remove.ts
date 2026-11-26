@@ -112,7 +112,7 @@ export const subCommand: SubCommand = {
 		client.func.economyLogs.removeMoney(
 			interaction.guild,
 			interaction.member.user.id,
-			user?.id!,
+			user?.id as string,
 			amount,
 			lang
 		);

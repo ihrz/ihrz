@@ -75,7 +75,7 @@ export const event: BotEvent = {
 			title: data.logs_ban_remove_title,
 			thumbnail: ban.user.displayAvatarURL(),
 			description: data.event_srvLogs_banRemove_description
-				.replace("${executorId}", relevantLog?.executor?.id!)
+				.replace("${executorId}", relevantLog?.executor?.id as string)
 				.replace("${targetUsername}", user.username),
 			blocks: [
 				`**${data.event_srvLogs_banAdd_fields_name}**\n${data.event_srvLogs_banAdd_fields_value.replace(

@@ -94,7 +94,8 @@ export function withoutUploadedMedia(embed: APIEmbed): {
 		dropped = true;
 	}
 	if (result.footer && isUploaded(result.footer.icon_url)) {
-		const { icon_url: _icon, ...footer } = result.footer;
+		const footer = { ...result.footer };
+		delete footer.icon_url;
 		result.footer = footer;
 		dropped = true;
 	}

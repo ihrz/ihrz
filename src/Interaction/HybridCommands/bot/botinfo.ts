@@ -129,8 +129,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (

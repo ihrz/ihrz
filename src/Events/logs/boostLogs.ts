@@ -60,7 +60,7 @@ export const event: BotEvent = {
 				.replace("${newMemberUserId}", newMember.user.id)
 				.replace(
 					"${boostCount}",
-					newMember.guild.premiumSubscriptionCount?.toString()!
+					newMember.guild.premiumSubscriptionCount?.toString() as string
 				);
 
 		if (change === "boost") {

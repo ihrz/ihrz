@@ -76,13 +76,13 @@ export interface Command {
 	autocomplete?(
 		client: Client,
 		interaction: AutocompleteInteraction
-	): Promise<any>;
+	): Promise<unknown>;
 	run?(
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		args?: string[]
-	): Promise<any>;
+	): Promise<unknown>;
 	cooldown?: number;
 }
 
@@ -92,7 +92,7 @@ export interface SubCommand {
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		args?: string[]
-	): Promise<any>;
+	): Promise<unknown>;
 }
 
 export interface SubCommandModule {

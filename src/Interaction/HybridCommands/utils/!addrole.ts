@@ -87,7 +87,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await user.roles.add(role?.id!, `[AddRole] Author: ${author.id}`);
+		await user.roles.add(
+			role?.id as string,
+			`[AddRole] Author: ${author.id}`
+		);
 
 		await sendCard(
 			client,
@@ -96,7 +99,7 @@ export const subCommand: SubCommand = {
 				"success",
 				`${client.iHorizon_Emojis.Yes} ${lang.utils_addrole_command_ok
 					.replace("${author}", author.toString())
-					.replace("${role}", role?.toString()!)
+					.replace("${role}", role?.toString() as string)
 					.replace("${user}", user.toString())}`
 			)
 		);

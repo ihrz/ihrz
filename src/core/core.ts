@@ -26,7 +26,11 @@ import * as errorManager from "./modules/errorManager.js";
 import playerManager from "./modules/playerManager.js";
 
 import { VanityInviteData } from "../../types/vanityUrlData.js";
-import { InviteCacheData } from "../../types/client.js";
+import {
+	ButtonComponentHandler,
+	InviteCacheData,
+	SelectMenuComponentHandler
+} from "../../types/client.js";
 
 import {
 	Client,
@@ -104,8 +108,8 @@ export async function main(client: Client) {
 	>();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.kdenlive = new KdenLive();
-	client.selectmenu = new Collection<string, Function>();
-	client.buttons = new Collection<string, Function>();
+	client.selectmenu = new Collection<string, SelectMenuComponentHandler>();
+	client.buttons = new Collection<string, ButtonComponentHandler>();
 	client.func = {} as typeof Client_Functions;
 	client.svgfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();

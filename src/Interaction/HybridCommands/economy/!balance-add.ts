@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 			notice(
 				"success",
 				`${client.iHorizon_Emojis.Yes} ${lang.addmoney_command_work
-					.replace("${userId}", user?.id!)
+					.replace("${userId}", user?.id as string)
 					.replace("${amountValue}", amount.toString())}`
 			)
 		);
@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
 		await editMemberMoney(
 			client,
 			interaction.guild.id,
-			user?.id!,
+			user?.id as string,
 			"add",
 			amount
 		);
@@ -83,13 +83,13 @@ export const subCommand: SubCommand = {
 			description: lang.addmoney_logs_embed_description
 				.replaceAll("${authorId}", interaction.member.user.id)
 				.replaceAll("${amountValue}", amount.toString())
-				.replaceAll("${userId}", user?.id!)
+				.replaceAll("${userId}", user?.id as string)
 		});
 
 		client.func.economyLogs.addMoney(
 			interaction.guild,
 			interaction.member.user.id,
-			user?.id!,
+			user?.id as string,
 			amount,
 			lang
 		);

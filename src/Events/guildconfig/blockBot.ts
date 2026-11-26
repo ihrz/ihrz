@@ -99,12 +99,13 @@ export const event: BotEvent = {
 					filteredLog.executorId!
 				);
 
-				executor &&
-					(await client.func.method.punish(
+				if (executor) {
+					await client.func.method.punish(
 						{ SANCTION: "simply+derank" },
 						executor,
 						"Attempt to add a Discord bot into this guild! -> Derank"
-					));
+					);
+				}
 
 				const owner = member.guild.members.cache.get(
 					member.guild.ownerId

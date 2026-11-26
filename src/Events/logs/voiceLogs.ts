@@ -70,8 +70,8 @@ export const event: BotEvent = {
 				thumbnail: targetUser.displayAvatarURL(),
 				description: text
 					.replace("${targetUserId}", targetUser.id)
-					.replace("${OchannelID}", channelId?.toString()!)
-					.replace("${channelID}", channelId?.toString()!)
+					.replace("${OchannelID}", channelId?.toString() as string)
+					.replace("${channelID}", channelId?.toString() as string)
 			});
 
 		// JOIN/LEAVE

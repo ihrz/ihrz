@@ -110,9 +110,8 @@ class EmojisManager {
 		logger.log(
 			`${this.getLogEmoji("OK")} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`
 		);
-		result.cant >= 1
-			? logger.warn(`I got issue with ${result.cant} emoji(s)!`)
-			: null;
+		if (result.cant >= 1)
+			logger.warn(`I got issue with ${result.cant} emoji(s)!`);
 		this.writeFinalJSON();
 	}
 
@@ -278,7 +277,8 @@ class EmojisManager {
 
 	private writeInClient() {
 		if (!global.client) return;
-		client.iHorizon_Emojis = this.final_appEmojis as any;
+		client.iHorizon_Emojis = this
+			.final_appEmojis as typeof client.iHorizon_Emojis;
 		// Languages are cached with their emojis resolved: drop them so the
 		// next load uses the synced emoji ids.
 		for (const code of Object.keys(LangsData)) delete LangsData[code];

@@ -193,7 +193,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			collector?.stop();
 		});
 
-		collector?.on("end", (i) => {
+		collector?.on("end", () => {
 			response.delete();
 		});
 	}

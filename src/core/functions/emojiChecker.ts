@@ -20,7 +20,7 @@
 */
 
 export function isSingleEmoji(text: string): boolean {
-	const regex = /^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u;
+	const regex = /^[\p{Emoji}](?:[\uFE0E\uFE0F]|[\u{1F3FB}-\u{1F3FF}])?$/u;
 	return regex.test(text);
 }
 

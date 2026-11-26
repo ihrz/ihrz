@@ -20,7 +20,7 @@
 */
 
 import { HorizonDB as HorizonDBClient, type Json } from "horizondb";
-import { ErrorKind } from "../types.ts";
+import { ErrorKind, StoredValue } from "../types.ts";
 
 export interface HorizonDBDriverOptions {
 	table?: string;
@@ -44,7 +44,7 @@ export interface HorizonDBDriverOptions {
  * `delete` → existed). Older servers that do not report it fall back to an
  * extra `get`/`has`, exactly like before.
  */
-export class HorizonDB<D = any> {
+export class HorizonDB<D = StoredValue> {
 	private readonly sdk: HorizonDBClient;
 	private readonly tableName: string;
 	/**
@@ -166,7 +166,7 @@ export class HorizonDB<D = any> {
 			);
 		}
 
-		const data = (await this.get<any>(key)) ?? {};
+		const data = (await this.get<Record<string, unknown>>(key)) ?? {};
 		if (typeof data != "object" || Array.isArray(data)) {
 			throw this.createError(
 				`The current data is not an object, update only works on objects`,
@@ -175,7 +175,7 @@ export class HorizonDB<D = any> {
 		}
 
 		Object.assign(data, object);
-		return await this.set(key, data);
+		return (await this.set(key, data)) as T;
 	}
 
 	async has(key: string): Promise<boolean> {
@@ -238,7 +238,7 @@ export class HorizonDB<D = any> {
 		if (typeof amount != "number") {
 			try {
 				amount = parseFloat(amount as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Value to add/subtract with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -404,7 +404,10 @@ export class HorizonDB<D = any> {
 				if (
 					Array.isArray(value)
 						? value.includes(currentArr[i])
-						: (value as any)(currentArr[i], i)
+						: (value as (data: T, index: string) => boolean)(
+								currentArr[i],
+								i
+							)
 				)
 					continue;
 				data.push(currentArr[i]);
@@ -468,7 +471,7 @@ export class HorizonDB<D = any> {
 		});
 	}
 
-	public async export(): Promise<{ id: string; value: any }[]> {
+	public async export(): Promise<{ id: string; value: D }[]> {
 		return this.all();
 	}
 

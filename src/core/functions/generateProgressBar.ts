@@ -20,7 +20,7 @@
 */
 
 export default function generateProgressBar(
-	emojis: any,
+	emojis: { Bar: string; Pointer: string },
 	currentTimeMs: number,
 	totalTimeMs: number
 ): {

@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
-					.replace("${member}", member?.toString()!)
+					.replace("${member}", member?.toString() as string)
 			});
 			return;
 		}

@@ -376,7 +376,7 @@ import * as m350 from "../Interaction/HybridCommands/utils/utilss/!renewvc.ts";
 import * as m351 from "../Interaction/HybridCommands/utils/utilss/!unlockname.ts";
 import * as m352 from "../Interaction/HybridCommands/utils/utilss/utilss.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"antispam/!bypass-roles.ts": m0,
 	"antispam/!ignore-channels.ts": m1,
 	"antispam/!manage.ts": m2,

@@ -93,8 +93,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -274,7 +273,7 @@ export const command: Command = {
 
 		async function chooseAction(i: StringSelectMenuInteraction) {
 			switch (i.values[0]) {
-				case "0":
+				case "0": {
 					const modal = await iHorizonModalResolve(
 						{
 							customId: "modal",
@@ -305,7 +304,8 @@ export const command: Command = {
 					if (!modal) return;
 					executeAfterModal(modal);
 					break;
-				case "1":
+				}
+				case "1": {
 					const u = await ask(i, lang.schedule_delete_question);
 
 					const deleteCollector =
@@ -317,12 +317,13 @@ export const command: Command = {
 						});
 
 					deleteCollector?.on("collect", async (message) => {
-						(await message.delete()) && u.delete();
+						if (await message.delete()) u.delete();
 						deleteCollector?.stop();
 						__1(message.content);
 					});
 					break;
-				case "2":
+				}
+				case "2": {
 					const u2 = await ask(i, lang.schedule_deleteall_question);
 					const deleteAllCollector =
 						interaction.channel?.createMessageCollector({
@@ -333,7 +334,7 @@ export const command: Command = {
 						});
 
 					deleteAllCollector?.on("collect", async (message) => {
-						(await message.delete()) && u2.delete();
+						if (await message.delete()) u2.delete();
 						deleteAllCollector?.stop();
 						if (
 							message.content.toLowerCase() === "y" ||
@@ -345,6 +346,7 @@ export const command: Command = {
 						}
 					});
 					break;
+				}
 				case "3":
 					await i.deferUpdate();
 					__3();
@@ -474,7 +476,7 @@ export const command: Command = {
 					});
 
 				dateCollector?.on("collect", async (message) => {
-					(await message.delete()) && u.delete();
+					if (await message.delete()) u.delete();
 					dateCollector?.stop();
 					__0(client.timeCalculator.to_ms(message.content)!, [
 						nameValue,

@@ -20,20 +20,24 @@
 */
 
 import { expect, test } from "bun:test";
+import type { SQL } from "bun";
 
 import { Postgres } from "../../../src/core/database/driver/postgres.ts";
 
-function stubSql(select: () => Promise<any[]>) {
+function stubSql(select: () => Promise<unknown[]>) {
 	const writes: string[] = [];
-	const sql: any = (strings: TemplateStringsArray) => {
+	const query = (strings: TemplateStringsArray) => {
 		const text = strings.join("?");
 		if (text.includes("SELECT")) return select();
 		writes.push(text);
 		return Promise.resolve([]);
 	};
-	sql.connect = () => Promise.resolve();
-	sql.unsafe = (name: string) => name;
-	return { sql, writes };
+	const sql = Object.assign(query, {
+		connect: () => Promise.resolve(),
+		unsafe: (name: string) => name
+	});
+	// Only the calls the driver makes are stubbed.
+	return { sql: sql as unknown as SQL, writes };
 }
 
 test("postgres get and set surface a failed SELECT instead of treating it as a missing row", async () => {

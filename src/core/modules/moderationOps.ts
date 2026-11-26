@@ -56,7 +56,8 @@ import { isStaffOnlyChannel } from "./warnSystem.js";
 import { saveClearTranscript, transcriptLinkRow } from "./ticketTranscripts.js";
 
 export type Refused<C extends string> = { ok: false; code: C };
-export type Outcome<C extends string, T = {}> = ({ ok: true } & T) | Refused<C>;
+export type Outcome<C extends string, T = unknown> =
+	({ ok: true } & T) | Refused<C>;
 
 const refuse = <C extends string>(code: C): Refused<C> => ({ ok: false, code });
 

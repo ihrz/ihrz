@@ -35,11 +35,11 @@ const client = {
 			footerBuilder: async () => ({ text: "iHorizon", iconURL: "" })
 		}
 	}
-} as any;
+} as never;
 const lang = {
 	schedule_reminder_title: "Reminder #${scheduleCode} is due!"
-} as any;
-const user = { id: "42", toString: () => "<@42>" } as any;
+} as never;
+const user = { id: "42", toString: () => "<@42>" } as never;
 const entry = {
 	title: "Title",
 	description: "a ``` b",

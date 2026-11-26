@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found
 					.replace("${emoji_No}", client.iHorizon_Emojis.No)
-					.replace("${member}", member?.toString()!)
+					.replace("${member}", member?.toString() as string)
 			});
 			return;
 		}
@@ -130,7 +130,7 @@ export const subCommand: SubCommand = {
 		await sendUnwarnLog(
 			interaction.guild,
 			interaction.member.toString(),
-			member?.toString()!,
+			member?.toString() as string,
 			removedWarn,
 			lang
 		);

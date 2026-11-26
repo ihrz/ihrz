@@ -20,9 +20,15 @@
 */
 
 import { expect, test } from "bun:test";
-import { Collection } from "discord.js";
+import {
+	Collection,
+	type Guild,
+	type GuildMember,
+	type VoiceChannel
+} from "discord.js";
 
 import { enableTalkMode } from "../../src/core/modules/voiceModes.ts";
+import type { LanguageData } from "../../types/languageData.js";
 
 function voiceMember(id: string, serverMute: boolean, calls: string[]) {
 	return {
@@ -41,7 +47,7 @@ function voiceMember(id: string, serverMute: boolean, calls: string[]) {
 test("talk mode leaves a member already muted by a moderator as they were", async () => {
 	const store = new Map<string, unknown>();
 	const calls: string[] = [];
-	const guild: any = {
+	const guild = {
 		id: "g",
 		channels: { cache: new Map() },
 		client: {
@@ -53,23 +59,27 @@ test("talk mode leaves a member already muted by a moderator as they were", asyn
 			},
 			func: { ihorizon_logs: async () => {} }
 		}
-	};
-	const members = new Collection<string, any>([
+	} as unknown as Guild;
+	const members = new Collection<string, ReturnType<typeof voiceMember>>([
 		["host", voiceMember("host", false, calls)],
 		["a", voiceMember("a", false, calls)],
 		["muted", voiceMember("muted", true, calls)]
 	]);
-	const channel: any = { id: "vc", members, toString: () => "<#vc>" };
-	const lang: any = {
+	const channel = {
+		id: "vc",
+		members,
+		toString: () => "<#vc>"
+	} as unknown as VoiceChannel;
+	const lang = {
 		util_talk_audit_reason: "talk",
 		util_talk_logs_title: "t",
 		util_talk_logs_description: "d"
-	};
+	} as unknown as LanguageData;
 
 	const result = await enableTalkMode(
 		guild,
 		channel,
-		members.get("host"),
+		members.get("host") as unknown as GuildMember,
 		lang
 	);
 

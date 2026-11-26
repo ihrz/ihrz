@@ -23,10 +23,10 @@ import { expect, test } from "bun:test";
 
 // StreamNotifier imports the real logger, which replaces the preload
 // stand-in: put the stand-in back so later test files keep it.
-const previousLogger = (globalThis as any).logger;
+const previousLogger = globalThis.logger;
 const { trimLastMediaNotified } =
 	await import("../../src/core/StreamNotifier.ts");
-(globalThis as any).logger = previousLogger;
+globalThis.logger = previousLogger;
 
 const entry = (userId: string, n: number) => ({
 	userId,

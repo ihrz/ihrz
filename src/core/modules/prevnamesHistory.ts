@@ -59,8 +59,9 @@ const LEGACY_ENTRY =
 const LINE_BREAKING = /[\p{Cc}\p{Zl}\p{Zp}]/gu;
 // Bidi overrides, zero-width spaces, soft hyphens, lone surrogates. The
 // zero-width joiners stay: emoji sequences and Persian need them.
-const INVISIBLE = /[\p{Cs}­͏؜᠎​‎‏‪-‮⁠-⁯︀-︎﻿]/gu;
-const HAS_VISIBLE = /[^\s‌‍️\p{Mn}\p{Me}]/u;
+const INVISIBLE =
+	/[\p{Cs}\u00AD\u061C\u180E\u200B\u200E\u200F\u202A-\u202E\u2060-\u206F\uFEFF]|[\u034F\uFE00-\uFE0E]/gu;
+const HAS_VISIBLE = /[^\s\p{Mn}\p{Me}\u200C\u200D]/u;
 
 /** A name safe to store, or null when nothing usable is left. */
 export function sanitizeName(value: unknown): string | null {

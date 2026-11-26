@@ -49,8 +49,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		const state = await client.db.get(
 			`${interaction.guildId}.UTILS.antiExe`

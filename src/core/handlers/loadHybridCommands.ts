@@ -228,8 +228,9 @@ async function processCommandOptions(
 					continue;
 				}
 
-				(option as any).run = commandModule.subCommand.run;
-				client.subCommands.set(fullName, option as any);
+				(option as unknown as Command).run =
+					commandModule.subCommand.run;
+				client.subCommands.set(fullName, option as unknown as Command);
 
 				const aliases = option.aliases || [];
 				for (const alias of aliases) {
@@ -240,12 +241,15 @@ async function processCommandOptions(
 						);
 						process.exit(1);
 					}
-					client.message_commands.set(alias, option as any);
+					client.message_commands.set(
+						alias,
+						option as unknown as Command
+					);
 				}
-				client.subCommands.set(fullName, option as any);
+				client.subCommands.set(fullName, option as unknown as Command);
 				client.message_commands.set(
 					option.prefixName || option.name,
-					option as any
+					option as unknown as Command
 				);
 			}
 		}

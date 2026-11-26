@@ -470,7 +470,10 @@ export function generateCustomMessagePreview(
 	return message
 		.replaceAll("{memberUsername}", input.user.username)
 		.replaceAll("{memberMention}", input.user.toString())
-		.replaceAll("{memberCount}", input.guild.memberCount?.toString()!)
+		.replaceAll(
+			"{memberCount}",
+			input.guild.memberCount?.toString() as string
+		)
 		.replaceAll(
 			"{createdAt}",
 			input.user.createdAt.toLocaleDateString(input.guildLocal)

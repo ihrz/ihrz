@@ -108,8 +108,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -175,7 +174,7 @@ export const subCommand: SubCommand = {
 					};
 				}
 				return {
-					text: new TextDecoder().decode(bytes).replace(/^﻿/, "")
+					text: new TextDecoder().decode(bytes).replace(/^\uFEFF/, "")
 				};
 			} catch {
 				return { error: no(lang.music_apo_download_failed) };

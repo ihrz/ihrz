@@ -180,7 +180,7 @@ export async function runTempVoiceBlock(
 			collector?.stop();
 		});
 
-		collector?.on("end", (i) => {
+		collector?.on("end", () => {
 			response.delete();
 		});
 	}

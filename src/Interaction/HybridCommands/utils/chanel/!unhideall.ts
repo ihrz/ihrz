@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 					.replace("{unhiddenCount}", changed.toString())
 					.replace("{errorCount}", errors.toString())
 			});
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.channel_unhideall_error
 			});

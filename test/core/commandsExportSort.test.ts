@@ -4,7 +4,10 @@ import path from "node:path";
 
 import { sortedOptions } from "../../src/core/commandsSync.js";
 
-const names = (options: any[] | undefined) =>
+// A command option as commands.json stores it (only what is walked here).
+type Opt = { name: string; options?: Opt[] };
+
+const names = (options: Opt[] | undefined) =>
 	(options ?? []).map((o) => o.name);
 const isSorted = (list: string[]) =>
 	list.every((n, i) => i === 0 || list[i - 1]! <= n);
@@ -23,10 +26,10 @@ describe("commands.json export: options A→Z", () => {
 				]
 			}
 		];
-		const out = sortedOptions(input) as any[];
+		const out = sortedOptions(input) as Opt[];
 		expect(names(out)).toEqual(["Zeta", "add", "manage", "set"]);
 		expect(names(out[2].options)).toEqual(["a", "b"]);
-		expect(names(out[2].options[1].options)).toEqual(["x", "y"]);
+		expect(names(out[2].options![1].options)).toEqual(["x", "y"]);
 		expect(names(out[3].options)).toEqual(["channel", "role"]);
 		expect(names(input)).toEqual(["set", "add", "Zeta", "manage"]);
 		expect(sortedOptions(undefined)).toBeUndefined();
@@ -34,9 +37,9 @@ describe("commands.json export: options A→Z", () => {
 
 	test("the committed src/files/commands.json is sorted", () => {
 		const file = path.join(process.cwd(), "src", "files", "commands.json");
-		const commands = JSON.parse(readFileSync(file, "utf8")) as any[];
+		const commands = JSON.parse(readFileSync(file, "utf8")) as Opt[];
 		const unsorted: string[] = [];
-		const walk = (list: any[] | undefined, at: string) => {
+		const walk = (list: Opt[] | undefined, at: string) => {
 			if (!isSorted(names(list))) unsorted.push(at);
 			for (const o of list ?? []) walk(o.options, `${at} ${o.name}`);
 		};

@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 								member.nickname
 									.toLowerCase()
 									.includes(part_of_nickname!))) &&
-						member.roles.cache.has(role?.id!) !== adding &&
+						member.roles.cache.has(role?.id as string) !== adding &&
 						(adding ||
 							authorIsOwner ||
 							(member.id !== guildOwnerId &&
@@ -159,7 +159,7 @@ export const subCommand: SubCommand = {
 									{
 										emoji: emojis.Ticket_Role,
 										label: lang.utils_label_role,
-										value: role?.toString()!
+										value: role?.toString() as string
 									},
 									{
 										emoji: emojis.Search,
@@ -198,7 +198,9 @@ export const subCommand: SubCommand = {
 					}
 				);
 				return;
-			} catch (error) {}
+			} catch {
+				// best effort: the command ends silently if the batch cannot start.
+			}
 		}
 		return;
 	}

@@ -20,6 +20,7 @@
 */
 
 import { expect, test } from "bun:test";
+import type { Client, VoiceState } from "discord.js";
 
 import { event } from "../../src/Events/utils/voiceTalkFreeze.ts";
 
@@ -33,7 +34,7 @@ function setup(records: Record<string, true> = {}) {
 	for (const id of Object.keys(records)) {
 		store.set(`g.UTILS.VOICE_TALK_MUTED.${id}`, true);
 	}
-	const client: any = {
+	const client = {
 		db: {
 			get: async (key: string) => store.get(key) ?? null,
 			set: async (key: string, value: unknown) => {
@@ -43,7 +44,7 @@ function setup(records: Record<string, true> = {}) {
 				store.delete(key);
 			}
 		}
-	};
+	} as unknown as Client;
 	return { client, store };
 }
 
@@ -62,7 +63,7 @@ function member(id: string, calls: boolean[]) {
 
 const guild = { id: "g", channels: { cache: new Map() } };
 const state = (channelId: string | null, serverMute: boolean, m: unknown) =>
-	({ channelId, serverMute, member: m, guild }) as any;
+	({ channelId, serverMute, member: m, guild }) as unknown as VoiceState;
 
 test("a member muted by the talk mode is unmuted in another channel", async () => {
 	const { client, store } = setup({ u: true });
@@ -153,12 +154,12 @@ function freezeSetup(enabledBy: string, allowedUsers: string[] = []) {
 			serverMute: false,
 			member: m,
 			guild: frozenGuild
-		}) as any;
+		}) as unknown as VoiceState;
 	return { client, store, at };
 }
 
 function freezeMember(id: string, log: string[], timeoutFails = false) {
-	const m: any = {
+	const m = {
 		id,
 		user: { bot: false },
 		permissions: { has: () => false },

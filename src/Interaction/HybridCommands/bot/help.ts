@@ -33,13 +33,21 @@ import {
 	Message,
 	ApplicationCommandOptionType,
 	ButtonStyle,
-	ButtonBuilder
+	ButtonBuilder,
+	ButtonInteraction,
+	InteractionCollector,
+	MessageActionRowComponentBuilder
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { CategoryData } from "../../../../types/category.js";
 import { Command } from "../../../../types/command.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+
+// The help message remembers its page collector, to stop it on a new category.
+type HelpMessage = Message & {
+	buttonCollector?: InteractionCollector<ButtonInteraction>;
+};
 
 function createNavigationRow(
 	currentPage: number,
@@ -79,10 +87,12 @@ async function updatePage(
 	message: Message,
 	embeds: EmbedBuilder[],
 	currentPage: number,
-	menuRows: ActionRowBuilder<any>[],
+	menuRows: ActionRowBuilder<MessageActionRowComponentBuilder>[],
 	navigationRow: ActionRowBuilder<ButtonBuilder>
 ) {
-	const components = [...menuRows];
+	const components: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [
+		...menuRows
+	];
 	if (embeds.length > 1) {
 		components.push(navigationRow);
 	}
@@ -97,13 +107,13 @@ async function handleCategorySelect(
 	i: StringSelectMenuInteraction,
 	response: Message,
 	categories: CategoryData[],
-	menuRows: ActionRowBuilder<any>[],
+	menuRows: ActionRowBuilder<MessageActionRowComponentBuilder>[],
 	client: Client,
 	lang: LanguageData,
 	bot_prefix: { type: "prefix" | "mention"; string: string },
 	Commands: DatabaseStructure.UtilsPermsData | undefined
 ) {
-	const previousCollector = (response as any).buttonCollector;
+	const previousCollector = (response as HelpMessage).buttonCollector;
 	if (previousCollector && !previousCollector.ended) {
 		previousCollector.stop();
 	}
@@ -305,7 +315,7 @@ async function handleCategorySelect(
 		time: 840_000
 	});
 
-	(response as any).buttonCollector = buttonCollector;
+	(response as HelpMessage).buttonCollector = buttonCollector;
 
 	buttonCollector.on("collect", async (interaction) => {
 		if (interaction.user.id !== i.user.id) {
@@ -494,7 +504,7 @@ export const command: Command = {
 				selectMenus.push(selectMenu);
 			}
 
-			const rows = selectMenus.map((selectMenu, index) => {
+			const rows = selectMenus.map((selectMenu) => {
 				return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 					selectMenu
 				);
@@ -570,7 +580,7 @@ export const command: Command = {
 			});
 			const bot_prefix = await client.func.prefix.guildPrefix(
 				client,
-				interaction.guild?.id!
+				interaction.guild?.id as string
 			);
 
 			collector.on("collect", async (i: StringSelectMenuInteraction) => {
@@ -596,8 +606,8 @@ export const command: Command = {
 				);
 			});
 
-			collector.on("end", async (i) => {
-				rows.forEach((comp, i) => {
+			collector.on("end", async () => {
+				rows.forEach((comp) => {
 					comp.components.forEach((component) => {
 						component.setDisabled(true);
 					});

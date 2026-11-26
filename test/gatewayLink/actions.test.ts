@@ -21,7 +21,13 @@
 
 import { readyTables } from "../readyTables.ts";
 import { describe, expect, mock, test } from "bun:test";
-import { PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import {
+	type Client,
+	type GuildMember,
+	PermissionFlagsBits,
+	PermissionsBitField
+} from "discord.js";
+import commandsCatalog from "../../src/files/commands.json";
 
 const blacklisted = new Set<string>();
 mock.module("../../src/Events/client/ready.js", () =>
@@ -57,7 +63,7 @@ function setup(utils: unknown, perms: bigint, id = MOD, roles: string[] = []) {
 				cooldown: async () => false,
 				getCooldownTimestamp: async () => null
 			}
-		} as any,
+		},
 		commands: new Map([
 			["ban", { name: "ban", permission: PermissionFlagsBits.BanMembers }]
 		]),
@@ -65,7 +71,7 @@ function setup(utils: unknown, perms: bigint, id = MOD, roles: string[] = []) {
 			["music play", { name: "play", permission: null }]
 		])
 	};
-	(globalThis as any).client = client;
+	globalThis.client = client as unknown as Client;
 	const member = {
 		id,
 		client,
@@ -73,7 +79,10 @@ function setup(utils: unknown, perms: bigint, id = MOD, roles: string[] = []) {
 		permissions: new PermissionsBitField(perms),
 		roles: { cache: new Map(roles.map((r) => [r, {}])) }
 	};
-	return { client: client as any, member: member as any };
+	return {
+		client: client as unknown as Client,
+		member: member as unknown as GuildMember
+	};
 }
 
 const refused = async (p: Promise<unknown>) => {
@@ -166,9 +175,14 @@ describe("gateway actions: authorize", () => {
 
 	test("a write counts as a use: the command's cooldown applies, reads are free", async () => {
 		const { client, member } = setup(null, PermissionFlagsBits.BanMembers);
-		client.commands.get("ban").cooldown = 60_000;
+		// The fake, changed in place.
+		const fake = client as unknown as {
+			commands: Map<string, { cooldown?: number }>;
+			func: unknown;
+		};
+		fake.commands.get("ban")!.cooldown = 60_000;
 		const used = new Set<string>();
-		client.func = {
+		fake.func = {
 			ownerHelper: { isGuildOwner: async () => false },
 			helper: {
 				cooldown: async (id: string, path: string) => {
@@ -209,12 +223,14 @@ describe("gateway actions: authorize", () => {
 
 	test("every action is guarded by a real command (or is owner-only)", () => {
 		// The bot's own catalog (commands.json): "cmd", "cmd sub", "cmd group sub".
-		const catalog = require("../../src/files/commands.json") as {
+		type CatalogNode = {
 			name: string;
-			options?: { name: string; type: number; options?: unknown[] }[];
-		}[];
+			type?: number;
+			options?: CatalogNode[];
+		};
+		const catalog = commandsCatalog as unknown as CatalogNode[];
 		const paths = new Set<string>();
-		const walk = (c: any, prefix: string) => {
+		const walk = (c: CatalogNode, prefix: string) => {
 			const path = prefix ? `${prefix} ${c.name}` : c.name;
 			paths.add(path);
 			for (const o of c.options ?? [])

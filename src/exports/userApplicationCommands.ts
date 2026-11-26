@@ -25,7 +25,7 @@
 import * as m0 from "../Interaction/UserApplicationCommands/lookup.ts";
 import * as m1 from "../Interaction/UserApplicationCommands/love.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"lookup.ts": m0,
 	"love.ts": m1
 };

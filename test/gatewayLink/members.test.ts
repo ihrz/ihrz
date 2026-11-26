@@ -22,6 +22,8 @@
 import { describe, expect, test } from "bun:test";
 import {
 	ChannelType,
+	type Guild,
+	type GuildMember,
 	PermissionFlagsBits,
 	PermissionsBitField
 } from "discord.js";
@@ -48,38 +50,45 @@ const MOD = "300000000000000000";
 const TARGET = "400000000000000000";
 const CHAN = "500000000000000000";
 
+type Node = Record<string, unknown>;
+// The store as the tests read it back: nested objects (`root[g].USER[id]`).
+type Tree = { [key: string]: Tree };
+
 // In-memory `client.db` with the dotted keys of HorizonDB.
 function fakeDb(initial: Record<string, unknown> = {}) {
-	const root: Record<string, any> = structuredClone(initial);
-	const walk = (key: string, create: boolean) => {
+	const root: Node = structuredClone(initial);
+	const walk = (
+		key: string,
+		create: boolean
+	): readonly [Node | undefined, string] => {
 		const parts = key.split(".");
-		let node: any = root;
+		let node: Node = root;
 		for (const p of parts.slice(0, -1)) {
 			if (node[p] === undefined || node[p] === null) {
 				if (!create) return [undefined, parts.at(-1)!] as const;
 				node[p] = {};
 			}
-			node = node[p];
+			node = node[p] as Node;
 		}
 		return [node, parts.at(-1)!] as const;
 	};
 	return {
-		root,
+		root: root as unknown as Tree,
 		get: async (key: string) => {
 			const [n, k] = walk(key, false);
 			return n?.[k] ?? null;
 		},
 		set: async (key: string, v: unknown) => {
 			const [n, k] = walk(key, true);
-			n[k] = v;
+			n![k] = v;
 		},
 		add: async (key: string, v: number) => {
 			const [n, k] = walk(key, true);
-			n[k] = (n[k] ?? 0) + v;
+			n![k] = ((n![k] as number) ?? 0) + v;
 		},
 		sub: async (key: string, v: number) => {
 			const [n, k] = walk(key, true);
-			n[k] = (n[k] ?? 0) - v;
+			n![k] = ((n![k] as number) ?? 0) - v;
 		},
 		delete: async (key: string) => {
 			const [n, k] = walk(key, false);
@@ -107,17 +116,17 @@ function member(
 			channel: opts.voice ? { id: opts.voice, name: "vc" } : null,
 			setChannel: async () => {}
 		}
-	} as any;
+	} as unknown as GuildMember;
 }
 
 function ctx(
 	params: Record<string, unknown>,
 	db = fakeDb(),
-	members: any[] = [],
+	members: GuildMember[] = [],
 	actor = member(MOD, { position: 5 })
 ) {
 	const logs: string[] = [];
-	const guild: any = {
+	const guild = {
 		id: GUILD,
 		ownerId: OWNER,
 		members: {
@@ -130,7 +139,7 @@ function ctx(
 		},
 		channels: { cache: new Map() }
 	};
-	const client: any = {
+	const client = {
 		db,
 		subCommands: new Map(),
 		func: {
@@ -140,7 +149,7 @@ function ctx(
 			economyLogs: { addMoney: () => {}, removeMoney: () => {} }
 		}
 	};
-	const lang = new Proxy({}, { get: (_, k) => String(k) }) as any;
+	const lang = new Proxy({}, { get: (_, k) => String(k) });
 	return {
 		c: { client, guild, actor, params: new Params(params), lang },
 		logs,
@@ -159,7 +168,7 @@ const refused = async (p: Promise<unknown>) => {
 
 describe("member tools: pure guards", () => {
 	test("nick lock hierarchy mirrors /utilss lockname", () => {
-		const guild = { ownerId: OWNER } as any;
+		const guild = { ownerId: OWNER } as Guild;
 		const mod = member(MOD, { position: 5 });
 		expect(
 			canManageNickLock(guild, mod, member(TARGET, { position: 4 }))
@@ -220,21 +229,21 @@ describe("member tools: pure guards", () => {
 describe("member tools: database format", () => {
 	test("invites add/remove keep the /inv format", async () => {
 		const db = fakeDb();
-		const client = { db } as any;
+		const client = { db } as never;
 		expect(await editMemberInvites(client, GUILD, TARGET, "add", 5)).toBe(
 			5
 		);
 		expect(
 			await editMemberInvites(client, GUILD, TARGET, "remove", 2)
 		).toBe(3);
-		expect(db.root[GUILD].USER[TARGET].INVITES).toEqual({
+		expect(db.root[GUILD].USER[TARGET].INVITES as unknown).toEqual({
 			regular: 0,
 			bonus: 3,
 			leaves: 0,
 			invites: 3
 		});
 		expect(await resetGuildInvites(client, GUILD)).toBe(1);
-		expect(db.root[GUILD].USER[TARGET].INVITES).toEqual({});
+		expect(db.root[GUILD].USER[TARGET].INVITES as unknown).toEqual({});
 	});
 
 	test("greset drops one section of every member", async () => {
@@ -246,10 +255,12 @@ describe("member tools: database format", () => {
 				}
 			}
 		});
-		expect(await resetGuildSection({ db } as any, GUILD, "ECONOMY")).toBe(
+		expect(await resetGuildSection({ db } as never, GUILD, "ECONOMY")).toBe(
 			2
 		);
-		expect(db.root[GUILD].USER[TARGET]).toEqual({ XP_LEVELING: { xp: 1 } });
+		expect(db.root[GUILD].USER[TARGET] as unknown).toEqual({
+			XP_LEVELING: { xp: 1 }
+		});
 	});
 
 	test("unleash only releases the actor's own leash", async () => {
@@ -258,10 +269,10 @@ describe("member tools: database format", () => {
 				UTILS: { LEASH: [{ dom: MOD, sub: TARGET, timestamp: 1 }] }
 			}
 		});
-		const client = { db } as any;
+		const client = { db } as never;
 		expect(await releaseLeash(client, GUILD, OWNER, TARGET)).toBe(false);
 		expect(await releaseLeash(client, GUILD, MOD, TARGET)).toBe(true);
-		expect(db.root[GUILD].UTILS.LEASH).toEqual([]);
+		expect(db.root[GUILD].UTILS.LEASH as unknown).toEqual([]);
 	});
 });
 
@@ -283,7 +294,7 @@ describe("member actions", () => {
 		const t = ctx({ userId: TARGET, amount: 3 }, fakeDb(), [
 			member(TARGET)
 		]);
-		expect(await membersActions["invites.add"].run(t.c as any)).toEqual({
+		expect(await membersActions["invites.add"].run(t.c as never)).toEqual({
 			userId: TARGET,
 			invites: 3
 		});
@@ -292,11 +303,11 @@ describe("member actions", () => {
 			member(TARGET)
 		]);
 		expect(
-			await refused(membersActions["invites.remove"].run(zero.c as any))
+			await refused(membersActions["invites.remove"].run(zero.c as never))
 		).toContain("at least");
 		const gone = ctx({ userId: TARGET, amount: 1 });
 		expect(
-			await refused(membersActions["invites.add"].run(gone.c as any))
+			await refused(membersActions["invites.add"].run(gone.c as never))
 		).toContain("not found");
 	});
 
@@ -304,7 +315,7 @@ describe("member actions", () => {
 		const db = fakeDb({ [GUILD]: { ECONOMY: { disabled: true } } });
 		const t = ctx({ userId: TARGET, amount: 3 }, db, [member(TARGET)]);
 		expect(
-			await refused(membersActions["economy.add"].run(t.c as any))
+			await refused(membersActions["economy.add"].run(t.c as never))
 		).toContain("disabled");
 		const big = ctx(
 			{ userId: TARGET, amount: MAX_MONEY_AMOUNT + 1 },
@@ -312,17 +323,17 @@ describe("member actions", () => {
 			[member(TARGET)]
 		);
 		expect(
-			await refused(membersActions["economy.add"].run(big.c as any))
+			await refused(membersActions["economy.add"].run(big.c as never))
 		).toContain("at most");
 		const ok = ctx({ userId: TARGET, amount: 2 }, fakeDb(), [
 			member(TARGET)
 		]);
-		expect(await membersActions["economy.remove"].run(ok.c as any)).toEqual(
-			{
-				userId: TARGET,
-				money: -2
-			}
-		);
+		expect(
+			await membersActions["economy.remove"].run(ok.c as never)
+		).toEqual({
+			userId: TARGET,
+			money: -2
+		});
 	});
 
 	test("locknames.lock refuses a member above the actor", async () => {
@@ -330,7 +341,7 @@ describe("member actions", () => {
 			member(TARGET, { position: 9 })
 		]);
 		expect(
-			await refused(membersActions["locknames.lock"].run(t.c as any))
+			await refused(membersActions["locknames.lock"].run(t.c as never))
 		).toContain("forbidden");
 	});
 
@@ -349,7 +360,7 @@ describe("member actions", () => {
 				new PermissionsBitField(PermissionFlagsBits.ViewChannel)
 		});
 		expect(
-			await refused(membersActions["voice.move"].run(t.c as any))
+			await refused(membersActions["voice.move"].run(t.c as never))
 		).toContain("administrator");
 		t.c.guild.channels.cache.set(CHAN, {
 			id: CHAN,
@@ -357,7 +368,7 @@ describe("member actions", () => {
 			permissionsFor: () => new PermissionsBitField(0n)
 		});
 		expect(
-			await refused(membersActions["voice.move"].run(t.c as any))
+			await refused(membersActions["voice.move"].run(t.c as never))
 		).toContain("can't see");
 	});
 });

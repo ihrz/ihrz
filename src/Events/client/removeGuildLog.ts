@@ -129,7 +129,7 @@ Guild Info:
 					]
 				}
 			);
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		}
 	}

@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 					.replace("{errorCount}", errors.toString())
 					.replace("@everyone", `<@&${role_to_edit}>`)
 			});
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.channel_hideall_error
 			});

@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 				);
 				return;
 			})
-			.catch(async (err) => {
+			.catch(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.fun_var_down_api
 				});

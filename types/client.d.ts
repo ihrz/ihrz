@@ -22,7 +22,13 @@
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
-import { Collection, Snowflake } from "discord.js";
+import {
+	AnySelectMenuInteraction,
+	ButtonInteraction,
+	Collection,
+	Snowflake
+} from "discord.js";
+import type { LanguageData } from "./languageData.js";
 import { LavalinkManager } from "lavalink-client";
 
 import { AnotherCommand } from "./anotherCommand.js";
@@ -62,6 +68,16 @@ import { Mailer } from "../src/core/Mailer.ts";
 import { LastFMScrobblerManager } from "../src/core/modules/lastFMScrobblerManager.ts";
 import { Team } from "./teams";
 
+// Default export of a file of Interaction/Components (loadAnotherStuff.ts):
+// buttonHandler.ts passes the language, a forwarded call may not.
+export type ButtonComponentHandler = (
+	interaction: ButtonInteraction,
+	lang?: LanguageData
+) => unknown;
+export type SelectMenuComponentHandler = (
+	interaction: AnySelectMenuInteraction
+) => unknown;
+
 declare module "discord.js" {
 	export interface Client {
 		func: typeof Client_Functions;
@@ -72,8 +88,8 @@ declare module "discord.js" {
 		player: LavalinkManager;
 		invites: Collection<string, Collection<string, InviteCacheData>>;
 		vanityInvites: Collection<Snowflake, VanityInviteData | null>;
-		buttons: Collection<string, any>;
-		selectmenu: Collection<string, any>;
+		buttons: Collection<string, ButtonComponentHandler>;
+		selectmenu: Collection<string, SelectMenuComponentHandler>;
 		db: UnifiedDatabase;
 		applicationsCommands: Collection<string, AnotherCommand>;
 		iHorizon_Emojis: typeof emojis;

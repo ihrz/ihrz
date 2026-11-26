@@ -27,10 +27,15 @@ import {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ColorResolvable,
-	GuildMember
+	GuildMember,
+	StringSelectMenuBuilder,
+	ButtonBuilder
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { Command } from "../../../../types/command.js";
+import {
+	Command,
+	DescriptionLocalizations
+} from "../../../../types/command.js";
 import { CategoryData } from "../../../../types/category.js";
 import { BotContent } from "../../../../types/botContent.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
@@ -71,7 +76,7 @@ function formatPermGate(
 }
 
 function localizedDesc(entry: BotContent, guildLang: string): string {
-	const langMap: Record<string, string> = {
+	const langMap: Record<string, keyof DescriptionLocalizations> = {
 		"fr-FR": "fr",
 		"fr-ME": "fr",
 		"jp-JP": "ja",
@@ -85,8 +90,8 @@ function localizedDesc(entry: BotContent, guildLang: string): string {
 		"es-ES": "es-ES"
 	};
 	const key = langMap[guildLang];
-	return key && (entry.desc_localized as any)[key]
-		? (entry.desc_localized as any)[key]
+	return key && entry.desc_localized[key]
+		? entry.desc_localized[key]
 		: entry.desc;
 }
 
@@ -110,12 +115,7 @@ export const command: Command = {
 	category: "bot",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (
-		client: Client,
-		interaction: Message,
-		lang: LanguageData,
-		args?: string[]
-	) => {
+	run: async (client: Client, interaction: Message, lang: LanguageData) => {
 		if (!interaction.guild) return;
 
 		const botPrefix = (await guildPrefix(client, interaction.guildId!))
@@ -293,7 +293,9 @@ export const command: Command = {
 			selectedCat?: string,
 			disabled: boolean = false
 		) => {
-			const components: ActionRowBuilder<any>[] = createSelectMenuRows(
+			const components: ActionRowBuilder<
+				StringSelectMenuBuilder | ButtonBuilder
+			>[] = createSelectMenuRows(
 				categoryChunks[pageIndex],
 				lang,
 				pageIndex,

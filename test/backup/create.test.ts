@@ -21,6 +21,7 @@
 
 import { readyTables } from "../readyTables.ts";
 import { expect, mock, test } from "bun:test";
+import { Collection } from "discord.js";
 
 const saved = new Map<string, unknown>();
 const table = {
@@ -49,7 +50,7 @@ function fakeGuild(overrides: Record<string, unknown> = {}) {
 		verificationLevel: 0,
 		explicitContentFilter: 0,
 		defaultMessageNotifications: 0,
-		emojis: { cache: new (require("discord.js").Collection)() },
+		emojis: { cache: new Collection() },
 		bans: { fetch: async () => new Map() },
 		...overrides
 	} as never;
@@ -99,8 +100,7 @@ function fakeRole(id: string, name: string, position: number) {
 }
 
 function roleCache(roles: ReturnType<typeof fakeRole>[]) {
-	const { Collection } = require("discord.js");
-	return new Collection(roles.map((r) => [r.id, r]));
+	return new Collection(roles.map((r) => [r.id, r] as const));
 }
 
 test("a restore keeps the roles the backup has", async () => {

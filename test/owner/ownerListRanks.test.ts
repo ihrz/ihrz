@@ -24,6 +24,7 @@
 
 import { readyTables } from "../readyTables.ts";
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import type { LanguageData } from "../../types/languageData.ts";
 
 mock.module("../../src/Events/client/ready.js", () => readyTables());
 
@@ -41,7 +42,9 @@ const LISTED_A = "300000000000000000";
 const LISTED_B = "310000000000000000";
 const REGULAR = "400000000000000000";
 
-const lang = new Proxy({} as any, { get: (_t, key) => String(key) });
+const lang = new Proxy({} as LanguageData, {
+	get: (_t, key) => String(key)
+});
 
 let store: Map<string, unknown>;
 let sent: string[];
@@ -51,7 +54,7 @@ function user(id: string) {
 }
 
 function run(actor: string, target: string) {
-	const client: any = {
+	const client = {
 		user: { id: "1" },
 		db: {
 			get: async (key: string) => {
@@ -79,7 +82,10 @@ function run(actor: string, target: string) {
 					user: async () => user(target),
 					longString: () => "new reason"
 				}),
-				interactionSend: async (_i: unknown, msg: any) => {
+				interactionSend: async (
+					_i: unknown,
+					msg: { content?: string }
+				) => {
 					sent.push(msg.content ?? "embed");
 					return {};
 				}
@@ -90,8 +96,8 @@ function run(actor: string, target: string) {
 			}
 		}
 	};
-	(globalThis as any).client = client;
-	const interaction: any = {
+	(globalThis as { client?: unknown }).client = client;
+	const interaction = {
 		client,
 		guildId: GUILD,
 		channel: {},
@@ -102,7 +108,8 @@ function run(actor: string, target: string) {
 			members: { cache: new Map() }
 		}
 	};
-	return { client, interaction };
+	// Partial mocks: only what the commands read.
+	return { client: client as never, interaction: interaction as never };
 }
 
 beforeEach(() => {
@@ -111,7 +118,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	delete (globalThis as any).client;
+	delete (globalThis as { client?: unknown }).client;
 });
 
 describe("/unowner (server mode)", () => {

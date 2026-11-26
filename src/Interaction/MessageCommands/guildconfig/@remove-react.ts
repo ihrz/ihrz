@@ -83,7 +83,7 @@ export const command: Command = {
 				notice(
 					"success",
 					lang.remove_react_command_work
-						.replace("${authorId}", interaction.member?.id!)
+						.replace("${authorId}", String(interaction.member?.id))
 						.replace("${message}", message?.toLowerCase())
 				)
 			),

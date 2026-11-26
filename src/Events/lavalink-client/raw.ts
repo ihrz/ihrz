@@ -24,9 +24,11 @@ import { Client } from "discord.js";
 import { handleH247RawVoicePacket } from "../../core/modules/h247Manager.js";
 
 export const event: BotEvent = {
-	// @ts-ignore
 	name: "raw",
-	run: async (client: Client, data: any) => {
+	run: async (
+		client: Client,
+		data: Parameters<Client["player"]["sendRawData"]>[0]
+	) => {
 		handleH247RawVoicePacket(client, data);
 		client.player.sendRawData(data);
 	}

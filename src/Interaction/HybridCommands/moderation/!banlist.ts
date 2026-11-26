@@ -37,8 +37,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		const fetchedBan = await interaction.guild?.bans.fetch();
 		const bansArray = fetchedBan?.map((ban) => ban);

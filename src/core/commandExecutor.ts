@@ -94,8 +94,8 @@ async function deferIfNeeded(ctx: ExecutionContext) {
 	if (!isInteractionSource(ctx.source)) return;
 	if (ctx.source.deferred || ctx.source.replied) return;
 
-	const command = ctx.command as any;
-	const target = ctx.target as any;
+	const command = ctx.command;
+	const target = ctx.target;
 	const isSubCommand = ctx.target !== ctx.command;
 	const shouldDefer = isSubCommand
 		? target.thinking || command.thinking || target.ephemeral
@@ -113,7 +113,7 @@ export function formatPermissionName(
 	lang: LanguageData,
 	permission: unknown
 ): string | null {
-	const perm = getPermissionByValue(permission as any);
+	const perm = getPermissionByValue(permission as bigint | bigint[]);
 	if (!perm) return null;
 
 	if (Array.isArray(perm)) {
@@ -135,7 +135,10 @@ export function rawPermissionName(permission: unknown): string {
 	}
 }
 
-async function checkCustomSdkGate(ctx: ExecutionContext): Promise<boolean> {
+// Exported so the paywall can be turned back on (call commented out in runCommand).
+export async function checkCustomSdkGate(
+	ctx: ExecutionContext
+): Promise<boolean> {
 	if (
 		ctx.client.version.env !== "production" ||
 		ctx.command.name !== "custom" ||
@@ -334,7 +337,7 @@ export async function preExecutionCooldown(
 	return client.func.helper.cooldown(source.author.id, "msg_commands", 1000);
 }
 
-async function handleExecutionError(ctx: ExecutionContext, error: any) {
+async function handleExecutionError(ctx: ExecutionContext, error: unknown) {
 	const interaction = isInteractionSource(ctx.source);
 	const errorBlock = `${ctx.lang.command_error_title}\n\`\`\`TS\n/${ctx.target.name}\n${error}\`\`\`\n`;
 
@@ -460,7 +463,7 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 
 		const run = ctx.target.run!;
 		void Promise.resolve(
-			run(ctx.client, ctx.source as any, ctx.lang, ctx.args)
+			run(ctx.client, ctx.source, ctx.lang, ctx.args)
 		).catch((error) => handleExecutionError(ctx, error));
 	} catch (error) {
 		await handleExecutionError(ctx, error);

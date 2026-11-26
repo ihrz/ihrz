@@ -186,7 +186,7 @@ export const subCommand: SubCommand = {
 					await client.func.method.channelSend(interaction, {
 						content: lang.tempmute_unmuted_by_time.replace(
 							"${tomuteId}",
-							tomute?.id!
+							tomute?.id as string
 						)
 					});
 				}

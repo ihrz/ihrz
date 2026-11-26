@@ -74,7 +74,10 @@ export const command: AnotherCommand = {
 				.setDescription(
 					lang.love_embed_description
 						.replace("${user1Username}", user1.globalName!)
-						.replace("${user2Username}", user2?.globalName!)
+						.replace(
+							"${user2Username}",
+							user2?.globalName as string
+						)
 						.replace("${randomNumber}", randomNumber.toString())
 				)
 				.setFooter(

@@ -20,11 +20,10 @@
 */
 
 import { BotEvent } from "../../../types/event.js";
-import { Client, VoiceState } from "discord.js";
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
-	run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
+	run: async () => {
 		// if (client.player.getPlayer(oldState.guild.id)) {
 		// 	let player = client.player.getPlayer(oldState.guild.id)!;
 		// 	let channel_played = oldState.guild.channels.cache.get(player?.voiceChannelId!) || await oldState.guild.channels.fetch(player?.voiceChannelId!);

@@ -81,7 +81,10 @@ export const event: BotEvent = {
 			}) as DatabaseStructure.CounterData;
 			// BACKPORTABILITY
 			if (typeof lastNumber === "number")
-				lastNumber = { amount: lastNumber, userId: client.user?.id! };
+				lastNumber = {
+					amount: lastNumber,
+					userId: client.user?.id as string
+				};
 
 			const lang = await client.func.getLanguageData(message.guildId);
 

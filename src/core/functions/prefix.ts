@@ -38,7 +38,9 @@ export async function guildPrefix(
 
 	return {
 		string: prefix_string,
-		type: prefix_string?.includes(client.user?.id!) ? "mention" : "prefix"
+		type: prefix_string?.includes(client.user?.id as string)
+			? "mention"
+			: "prefix"
 	};
 }
 

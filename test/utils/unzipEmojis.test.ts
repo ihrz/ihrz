@@ -56,12 +56,19 @@ test("a small entry is read whole", async () => {
 test("an entry lying about its size is cut off at the limit", async () => {
 	// 50 MB of zeros compress to a few KB and claim to be 100 bytes.
 	const entry = await load(new Uint8Array(50 * 1024 * 1024), 100);
-	expect((entry as any)._data.uncompressedSize).toBe(100);
+	// JSZip internals, reached on purpose.
+	const internals = entry as unknown as {
+		_data: { uncompressedSize: number };
+		internalStream(type: string): {
+			on(event: "data", listener: (chunk: Uint8Array) => void): unknown;
+		};
+	};
+	expect(internals._data.uncompressedSize).toBe(100);
 
 	// Count what the stream really inflates.
 	let inflated = 0;
-	const internalStream = (entry as any).internalStream.bind(entry);
-	(entry as any).internalStream = (type: string) => {
+	const internalStream = internals.internalStream.bind(entry);
+	internals.internalStream = (type: string) => {
 		const stream = internalStream(type);
 		stream.on("data", (chunk: Uint8Array) => {
 			inflated += chunk.byteLength;

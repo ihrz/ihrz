@@ -59,7 +59,7 @@ export async function user(
 		if (prefix_mention) {
 			user = message.mentions.parsedUsers
 				.map((x) => x)
-				.filter((x) => x.id !== client.user?.id!)[argsNumber];
+				.filter((x) => x.id !== client.user?.id)[argsNumber];
 		} else {
 			user = message.mentions.parsedUsers.map((x) => x)?.[argsNumber];
 		}
@@ -661,18 +661,15 @@ async function sendErrorMessage(
 	errorIndex: number
 ): Promise<void> {
 	const argument: string[] = [];
-	let fullNameCommand: string;
-
 	expectedArgs.forEach((arg) =>
 		argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`)
 	);
 
-	let currentCommand: Command | Option;
 	let wrongArgumentName: string = "";
 	let errorPosition = "";
 
-	fullNameCommand = command.prefixName || command.name!;
-	currentCommand = command;
+	const fullNameCommand: string = command.prefixName || command.name!;
+	const currentCommand: Command | Option = command;
 
 	errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 

@@ -26,6 +26,14 @@ import { Command } from "../../../../types/command.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { apiTable } from "../../../Events/client/ready.js";
 
+// One entry of `api/WH_SEC` (written by the gateway's securewebhook route).
+interface SecureWebhookEntry {
+	userId: string;
+	code: string;
+	token: string;
+	use: number;
+}
+
 export const command: Command = {
 	name: "securewebhook",
 	aliases: ["securehook"],
@@ -206,11 +214,10 @@ export const command: Command = {
 		} else if (action == "delete") {
 			const data = (await apiTable.get("WH_SEC")) || {};
 
-			const datas = Object.values(data) || [];
+			const datas = (Object.values(data) || []) as SecureWebhookEntry[];
 
 			const filtered_wh =
-				datas.filter((wh: any) => wh.userId === message.author.id) ||
-				[];
+				datas.filter((wh) => wh.userId === message.author.id) || [];
 
 			// Check if the webhook is owned by the user
 			if (filtered_wh.length == 0) {
@@ -220,7 +227,7 @@ export const command: Command = {
 				return;
 			}
 
-			if (!filtered_wh.some((wh: any) => wh.code === input)) {
+			if (!filtered_wh.some((wh) => wh.code === input)) {
 				await client.func.method.channelSend(message, {
 					content: lang.util_securewebhook_action_delete_not_owner
 				});
@@ -258,15 +265,15 @@ export const command: Command = {
 		} else if (action == "list") {
 			const data = (await apiTable.get("WH_SEC")) || {};
 
-			const datas = Object.values(data) || [];
+			const datas = (Object.values(data) || []) as SecureWebhookEntry[];
 
 			const filtered_wh = datas.filter(
-				(wh: any) => wh.userId === message.author.id
+				(wh) => wh.userId === message.author.id
 			);
 			const webhook_base_url = `${client.config.api.HorizonGateway}/api/webhooks/{id}/{token}`;
 			const all_whs = filtered_wh
 				.map(
-					(wh: any) =>
+					(wh) =>
 						`> [${wh.code}](${webhook_base_url.replace("{id}", wh.code).replace("{token}", wh.token)}) - ${wh.use} use(s)`
 				)
 				.join("\n");

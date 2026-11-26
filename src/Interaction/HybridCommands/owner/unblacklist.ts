@@ -93,13 +93,13 @@ export const command: Command = {
 	) => {
 		if (
 			await client.func.ownerHelper.isBotOwner(
-				interaction.member?.user.id!
+				interaction.member?.user.id as string
 			)
 		) {
 			run_for_bot_owner(client, interaction, lang, args);
 		} else if (
 			await client.func.ownerHelper.isGuildOwner(
-				interaction.member?.user.id!,
+				interaction.member?.user.id as string,
 				interaction.guild!
 			)
 		) {
@@ -146,7 +146,7 @@ export async function run_for_bot_owner(
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
 				"${memberId}",
-				member?.id!
+				member?.id as string
 			)
 		});
 		return;
@@ -261,7 +261,7 @@ export async function run_for_bot_owner(
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_command_work.replaceAll(
 				"${memberId}",
-				member?.id!
+				member?.id as string
 			)
 		});
 
@@ -291,7 +291,7 @@ export async function run_for_bot_owner(
 		});
 
 		return;
-	} catch (e) {
+	} catch {
 		await blacklistTable.delete(`${member?.id}`);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_unblacklisted_but_can_unban_him.replace(
@@ -341,7 +341,7 @@ export async function run_for_guild_owner(
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_not_blacklisted.replace(
 				"${memberId}",
-				member?.id!
+				member?.id as string
 			)
 		});
 		return;
@@ -368,7 +368,7 @@ export async function run_for_guild_owner(
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unblacklist_command_work.replaceAll(
 			"${memberId}",
-			member?.id!
+			member?.id as string
 		)
 	});
 

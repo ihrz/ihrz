@@ -22,7 +22,7 @@
 // Generated from src/lang by src/core/modules/exportsManifest.ts.
 // Do not edit: `bun run dev` or `bun run gen:exports` rewrites it.
 
-const files: Record<string, () => Promise<any>> = {
+const files: Record<string, () => Promise<{ default: unknown }>> = {
 	"ar-EG.ts": () => import("../lang/ar-EG.ts"),
 	"de-DE.ts": () => import("../lang/de-DE.ts"),
 	"en-US.ts": () => import("../lang/en-US.ts"),

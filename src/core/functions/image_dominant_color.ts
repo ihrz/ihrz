@@ -184,8 +184,8 @@ export default async function getVibrantAndDarkColors(
 
 		// Filter and sort colors
 		const colors = Array.from(colorMap.entries())
-			.filter(([_, value]) => value.count > totalPixels / 100) // Ignore rare colors
-			.map(([_, value]) => ({
+			.filter(([, value]) => value.count > totalPixels / 100) // Ignore rare colors
+			.map(([, value]) => ({
 				rgb: value.color,
 				hsl: rgbToHsl(value.color),
 				count: value.count

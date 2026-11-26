@@ -37,8 +37,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (
 			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===

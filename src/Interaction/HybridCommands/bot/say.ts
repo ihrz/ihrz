@@ -105,15 +105,16 @@ export const command: Command = {
 		)
 			return;
 
+		let toSay: string;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var toSay = interaction.options.getString("content")!;
+			toSay = interaction.options.getString("content")!;
 		} else {
-			var toSay = args?.join(" ")!;
+			toSay = args?.join(" ") as string;
 		}
 
-		if (interaction instanceof ChatInputCommandInteraction)
-			(await interaction.deferReply()) &&
-				(await interaction.deleteReply());
+		if (interaction instanceof ChatInputCommandInteraction) {
+			if (await interaction.deferReply()) await interaction.deleteReply();
+		}
 		await client.func.method.channelSend(
 			interaction,
 			sayPayload(lang, toSay, interaction.member.user)

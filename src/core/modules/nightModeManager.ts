@@ -539,7 +539,7 @@ class NightModeManager {
 								{
 									name: opt.lang
 										.var_nm_ping_embed_fields_0_name,
-									value: `${this.time_beautifuer(opt.guildObject?.time!)} (${opt.lang.nightmode_utc_timezone_on} ${utcTimezones[opt.guildObject?.utc!]})`,
+									value: `${this.time_beautifuer(opt.guildObject?.time as number[])} (${opt.lang.nightmode_utc_timezone_on} ${utcTimezones[opt.guildObject?.utc as number]})`,
 									inline: true
 								}
 							]

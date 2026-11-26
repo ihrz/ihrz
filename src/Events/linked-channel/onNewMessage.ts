@@ -20,14 +20,10 @@
 */
 
 import { BotEvent } from "../../../types/event.js";
-import { Client, Message } from "discord.js";
 
-interface LinkedChannelStructure {
-	channels: { to_lang: string; in: string; out: string }[];
-}
 export const event: BotEvent = {
 	name: "messageCreate",
-	run: async (client: Client, message: Message) => {
+	run: async () => {
 		// if (!message.guild || message.author.bot || !message.channel) return;
 		// //  await client.db.get(`${message.guildId}.GUILD.LINKED_CHANNEL`)
 		// let baseData = { channels: [{ to_lang: "fr", in: message.channel.id, out: "1257295087948271697" }] } as LinkedChannelStructure;

@@ -28,8 +28,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -48,7 +47,7 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.security_role_to_give_command_work
 				.replace("${author}", interaction.user.toString())
-				.replace("${role}", role?.toString()!)
+				.replace("${role}", role?.toString() as string)
 		});
 
 		return;

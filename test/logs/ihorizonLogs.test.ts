@@ -28,7 +28,10 @@
 
 import { describe, expect, test } from "bun:test";
 import {
+	type Client,
 	Collection,
+	type Guild,
+	type Message,
 	MessageFlags,
 	PermissionFlagsBits,
 	PermissionsBitField
@@ -45,23 +48,39 @@ import en from "../../src/lang/en-US.ts";
 
 const EVERYONE = { id: "g" };
 
+type LogTarget = Parameters<typeof ihorizonLogs>[0];
+type LogEntry = Parameters<typeof ihorizonLogs>[1];
+
+// The parts of a sent message the tests read.
+type Payload = {
+	embeds?: unknown;
+	flags?: unknown[];
+	allowedMentions?: unknown;
+	components: { toJSON(): unknown }[];
+};
+
 function makeGuild(channels: { name: string; public: boolean }[]) {
-	const sent: Record<string, any[]> = {};
-	const client: any = {
+	const sent: Record<string, Payload[]> = {};
+	// Typed loosely: the tests plug more functions in.
+	const client: {
+		iHorizon_Emojis: Record<string, string>;
+		func: Record<string, unknown>;
+		db: { get: () => Promise<null> };
+	} = {
 		iHorizon_Emojis: { Logs: "<:Logs:1>" },
 		func: {
 			displayBotName: {
 				footerBuilder: async () => ({ text: "iHorizon" })
 			},
-			hasIhorizonLogs: (g: any) => hasIhorizonLogs(g)
+			hasIhorizonLogs: (g: Guild) => hasIhorizonLogs(g)
 		},
 		db: { get: async () => null }
 	};
-	const guild: any = {
+	const guild = {
 		id: "g",
 		client,
 		roles: { everyone: EVERYONE },
-		channels: { cache: new Collection<string, any>() }
+		channels: { cache: new Collection<string, unknown>() }
 	};
 	channels.forEach((c, i) => {
 		const id = String(i + 1);
@@ -78,17 +97,17 @@ function makeGuild(channels: { name: string; public: boolean }[]) {
 				new PermissionsBitField(
 					c.public ? [PermissionFlagsBits.ViewChannel] : []
 				),
-			send: async (payload: any) => {
+			send: async (payload: Payload) => {
 				sent[c.name].push(payload);
 				return payload;
 			}
 		});
 	});
-	return { guild, sent };
+	return { guild: guild as unknown as Guild, client, sent };
 }
 
-function texts(payload: any): string {
-	return JSON.stringify(payload.components.map((c: any) => c.toJSON()));
+function texts(payload: Payload): string {
+	return JSON.stringify(payload.components.map((c) => c.toJSON()));
 }
 
 describe("ihorizon_logs", () => {
@@ -146,29 +165,29 @@ describe("unwarn log", () => {
 		reason: "spam",
 		authorID: "2",
 		timestamp: 0
-	} as any;
+	};
 
 	test("a public ihorizon-logs channel never gets it (private mods channel does)", async () => {
-		const { guild, sent } = makeGuild([
+		const { guild, client, sent } = makeGuild([
 			{ name: "ihorizon-logs", public: true },
 			{ name: "mods", public: false }
 		]);
-		guild.client.func.ihorizon_logs = (i: any, e: any) =>
+		client.func.ihorizon_logs = (i: LogTarget, e: LogEntry) =>
 			ihorizonLogs(i, e);
-		guild.client.iHorizon_Emojis = new Proxy({}, { get: () => "" });
-		await sendUnwarnLog(guild, "<@2>", "<@3>", removed, en as any);
+		client.iHorizon_Emojis = new Proxy({}, { get: () => "" });
+		await sendUnwarnLog(guild, "<@2>", "<@3>", removed, en);
 		expect(sent["ihorizon-logs"]).toHaveLength(0);
 		expect(sent.mods).toHaveLength(1);
 	});
 
 	test("a private ihorizon-logs channel gets it", async () => {
-		const { guild, sent } = makeGuild([
+		const { guild, client, sent } = makeGuild([
 			{ name: "ihorizon-logs", public: false },
 			{ name: "mods", public: false }
 		]);
-		guild.client.func.ihorizon_logs = (i: any, e: any) =>
+		client.func.ihorizon_logs = (i: LogTarget, e: LogEntry) =>
 			ihorizonLogs(i, e);
-		await sendUnwarnLog(guild, "<@2>", "<@3>", removed, en as any);
+		await sendUnwarnLog(guild, "<@2>", "<@3>", removed, en);
 		expect(sent["ihorizon-logs"]).toHaveLength(1);
 		expect(sent.mods).toHaveLength(0);
 	});
@@ -176,7 +195,7 @@ describe("unwarn log", () => {
 
 describe("honeypot log", () => {
 	test("is a V2 log card with every detail of the trigger", () => {
-		const attachments = new Collection<string, any>([
+		const attachments = new Collection<string, unknown>([
 			[
 				"a",
 				{
@@ -186,7 +205,7 @@ describe("honeypot log", () => {
 				}
 			]
 		]);
-		const message: any = {
+		const message = {
 			client: { iHorizon_Emojis: { Honey_Pot: "<:Honey:1>" } },
 			author: {
 				id: "42",
@@ -199,8 +218,8 @@ describe("honeypot log", () => {
 			attachments,
 			stickers: new Collection(),
 			createdTimestamp: 1_700_000_000_000
-		};
-		const card = honeypotLogCard(message, en as any, 3, false, "ban", 2);
+		} as unknown as Message;
+		const card = honeypotLogCard(message, en, 3, false, "ban", 2);
 		expect(card.kind).toBe("danger");
 		const json = JSON.stringify(buildLogCard(card, "iHorizon").toJSON());
 		expect(json).toContain(
@@ -226,7 +245,7 @@ describe("anti-spam log", () => {
 			["ban", "banned"]
 		]) {
 			const { title, description } = antiSpamLogText(
-				en as any,
+				en,
 				action,
 				"<@1>",
 				"<@2>"
@@ -254,7 +273,7 @@ describe("anti-spam log", () => {
 describe("/setlogs Delete all settings", () => {
 	function run(stored: unknown) {
 		const calls: string[] = [];
-		const client: any = {
+		const client = {
 			user: { id: "1" },
 			db: {
 				get: async () => stored,
@@ -268,7 +287,10 @@ describe("/setlogs Delete all settings", () => {
 						string: () => "off",
 						channel: async () => null
 					}),
-					interactionSend: async (_: any, p: any) => {
+					interactionSend: async (
+						_: unknown,
+						p: { content?: string }
+					) => {
 						calls.push(
 							p.content ? "reply:" + p.content : "reply:card"
 						);
@@ -278,16 +300,14 @@ describe("/setlogs Delete all settings", () => {
 					calls.push("log");
 				}
 			}
-		};
-		const interaction: any = {
+		} as unknown as Client;
+		const interaction = {
 			guildId: "g",
 			guild: { name: "G" },
 			channel: {},
 			member: { user: { id: "9" } }
-		};
-		return setlogs.run!(client, interaction, en as any, []).then(
-			() => calls
-		);
+		} as never;
+		return setlogs.run!(client, interaction, en, []).then(() => calls);
 	}
 
 	test("nothing set: no deletion, no log", async () => {

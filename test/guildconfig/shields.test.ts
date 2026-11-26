@@ -24,6 +24,7 @@ import { describe, expect, mock, test } from "bun:test";
 import {
 	AutoModerationRuleTriggerType,
 	Collection,
+	type AutoModerationRule,
 	type Client,
 	type Guild,
 	type GuildMember
@@ -95,7 +96,7 @@ describe("bot blocker", () => {
 				}
 			}
 		} as unknown as Client;
-		(globalThis as any).client = client;
+		globalThis.client = client;
 		return { client, member, ban, punish };
 	}
 
@@ -189,7 +190,7 @@ describe("PunishPub bypass rule", () => {
 			await setNativeRuleEnabled(guild, key, true, null);
 		}
 		return create.mock.calls.map((call, i) => {
-			const data = (call as unknown[])[0] as Record<string, any>;
+			const data = (call as unknown[])[0] as Record<string, unknown>;
 			return {
 				id: String(i),
 				name: data.name,
@@ -209,7 +210,7 @@ describe("PunishPub bypass rule", () => {
 			telegram,
 			invites,
 			links
-		] as unknown as Iterable<any>);
+		] as unknown as Iterable<AutoModerationRule>);
 		expect(found?.id).toBe(links.id);
 		expect([...found!.exemptRoles.keys()]).toEqual(["role-2"]);
 	});
@@ -217,7 +218,10 @@ describe("PunishPub bypass rule", () => {
 	test("no Links & advertising rule: no bypass rule", async () => {
 		const [telegram, invites] = await createdRules();
 		expect(
-			findAntipubRule([telegram, invites] as unknown as Iterable<any>)
+			findAntipubRule([
+				telegram,
+				invites
+			] as unknown as Iterable<AutoModerationRule>)
 		).toBeUndefined();
 	});
 });

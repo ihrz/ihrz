@@ -50,5 +50,7 @@ export default async function send(
 			description: embed.description,
 			rows: embed.rows
 		});
-	} catch {}
+	} catch {
+		// best effort: logging must never throw
+	}
 }

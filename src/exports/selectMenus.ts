@@ -28,7 +28,7 @@ import * as m2 from "../Interaction/Components/SelectMenu/temporary_voice_action
 import * as m3 from "../Interaction/Components/SelectMenu/ticket-open-selection-v2.ts";
 import * as m4 from "../Interaction/Components/SelectMenu/ticket-open-selection.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"roleselect_roles.ts": m0,
 	"t-embed-select-user.ts": m1,
 	"temporary_voice_actions_menu.ts": m2,

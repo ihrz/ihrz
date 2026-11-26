@@ -80,7 +80,7 @@ class InfrastructureMonitoring {
 		if (HorizonGatewayURL) {
 			try {
 				const startTime = Date.now();
-				const response = await axios.get(HorizonGatewayURL, {
+				await axios.get(HorizonGatewayURL, {
 					timeout: this.timeout
 				});
 				const latency = Date.now() - startTime;
@@ -89,7 +89,7 @@ class InfrastructureMonitoring {
 					up: true,
 					latency: latency
 				};
-			} catch (error) {
+			} catch {
 				return {
 					up: false,
 					latency: 0
@@ -134,7 +134,7 @@ class InfrastructureMonitoring {
 				up: response.status >= 200 && response.status < 300,
 				latency: latency
 			};
-		} catch (error) {
+		} catch {
 			return {
 				up: false,
 				latency: 0
@@ -146,16 +146,14 @@ class InfrastructureMonitoring {
 		const PublicBot = client;
 		if (PublicBot) {
 			try {
-				const startTime = Date.now();
 				// Check if the bot is connected to Discord
 				const isReady = PublicBot.ws.status === 0; // 0 means READY state
-				const latency = Date.now() - startTime;
 
 				return {
 					up: isReady,
 					latency: PublicBot.ws.ping // Use Discord websocket ping
 				};
-			} catch (error) {
+			} catch {
 				return {
 					up: false,
 					latency: 0

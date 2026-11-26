@@ -147,7 +147,17 @@ interface DmResult {
 	retryAfterMs?: number;
 }
 
-function classifyDmError(err: any): DmResult {
+// What a discord.js REST / DiscordAPIError exposes (fields read here).
+type DmError = {
+	code?: number | string;
+	status?: number;
+	httpStatus?: number;
+	retryAfter?: unknown;
+	rawError?: { code?: number | string; retry_after?: unknown };
+} | null;
+
+function classifyDmError(error: unknown): DmResult {
+	const err = error as DmError | undefined;
 	const code = err?.code ?? err?.rawError?.code;
 	const status = err?.status ?? err?.httpStatus;
 
@@ -200,7 +210,7 @@ async function sendDm(
 		}
 		if (!user) return { outcome: "blocked", code: "unknown-user" };
 
-		const files: any[] = [];
+		const files: AttachmentBuilder[] = [];
 		if (pdf) {
 			files.push(new AttachmentBuilder(pdf.data, { name: pdf.name }));
 		}
@@ -257,10 +267,11 @@ async function getAllGuildOwnerData(
 			);
 
 			return results.flat();
-		} catch (err: any) {
+		} catch (err) {
+			const e = err as { name?: string; message?: unknown } | null;
 			const isShardingInProcess =
-				err?.name?.includes("ShardingInProcess") ||
-				String(err?.message ?? err).includes("still being spawned");
+				e?.name?.includes("ShardingInProcess") ||
+				String(e?.message ?? err).includes("still being spawned");
 			if (!isShardingInProcess || attempt > SHARD_READY_MAX_RETRIES) {
 				throw err;
 			}
@@ -463,15 +474,22 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		heartbeat = setInterval(() => {
 			metasTable
 				.get(lockKey)
-				.then((current: any) => {
-					if (current?.owner === processId && !current?.finished) {
-						return metasTable.set(lockKey, {
-							...current,
-							updatedAt: Date.now(),
-							...progress
-						});
+				.then(
+					(
+						current: { owner?: string; finished?: boolean } | null
+					) => {
+						if (
+							current?.owner === processId &&
+							!current?.finished
+						) {
+							return metasTable.set(lockKey, {
+								...current,
+								updatedAt: Date.now(),
+								...progress
+							});
+						}
 					}
-				})
+				)
 				.catch(() => {});
 		}, LOCK_HEARTBEAT_MS);
 
@@ -556,7 +574,9 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 
 				const guildId = guildIdByOwner.get(ownerId) ?? "";
 				const lang = await getOwnerLang(client, guildId);
-				const pdfLang = (lang as any)?._code?.startsWith("fr")
+				const pdfLang = (
+					lang as LanguageData & { _code?: string }
+				)?._code?.startsWith("fr")
 					? "fr"
 					: "en";
 				const pdf =

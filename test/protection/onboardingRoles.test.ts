@@ -21,7 +21,12 @@
 
 import { afterEach, beforeEach, expect, test } from "bun:test";
 
-import { AuditLogEvent, PermissionFlagsBits } from "discord.js";
+import {
+	AuditLogEvent,
+	type Guild,
+	type GuildAuditLogsEntry,
+	PermissionFlagsBits
+} from "discord.js";
 
 import { handleProtectionEntry } from "../../src/core/modules/protectionEngine.ts";
 
@@ -41,7 +46,7 @@ beforeEach(() => {
 	removed = [];
 	added = [];
 
-	(globalThis as any).client = {
+	(globalThis as { client?: unknown }).client = {
 		user: { id: "1" },
 		db: {
 			get: async (key: string) =>
@@ -76,7 +81,7 @@ beforeEach(() => {
 
 // Other test files check for a global client to detect a running bot.
 afterEach(() => {
-	delete (globalThis as any).client;
+	delete (globalThis as { client?: unknown }).client;
 });
 
 function role(id: string, admin = false) {
@@ -115,7 +120,7 @@ function makeGuild(fetchOnboarding?: () => Promise<unknown>) {
 					["p", { options: new Map([["o", { roles: offered }]]) }]
 				])
 			}))
-	} as any;
+	} as unknown as Guild;
 }
 
 function roleEntry(
@@ -129,7 +134,7 @@ function roleEntry(
 		executorId,
 		targetId,
 		changes: [{ key, new: roleIds.map((id) => ({ id })) }]
-	} as any;
+	} as unknown as GuildAuditLogsEntry;
 }
 
 test("a member picking or dropping an onboarding role is left alone", async () => {
@@ -219,7 +224,7 @@ test("the onboarding is read once, and again after it changed", async () => {
 			executorId: MODERATOR,
 			targetId: guild.id,
 			changes: []
-		} as any,
+		} as unknown as GuildAuditLogsEntry,
 		guild
 	);
 	await handleProtectionEntry(roleEntry("$add", [OFFERED]), guild);

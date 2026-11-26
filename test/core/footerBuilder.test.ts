@@ -20,13 +20,14 @@
 */
 
 import { afterEach, expect, test } from "bun:test";
+import type { Client } from "discord.js";
 
 import { footerBuilder } from "../../src/core/functions/displayBotName";
 
 const reads: string[] = [];
 
 // HorizonDB's rule (db/src/values.rs, parse_key): an empty segment is a "malformed key".
-(globalThis as any).client = {
+globalThis.client = {
 	db: {
 		get: async (key: string) => {
 			reads.push(key);
@@ -35,7 +36,7 @@ const reads: string[] = [];
 			return key === "1554502642938675241.BOT.botName" ? "Ora" : null;
 		}
 	}
-};
+} as unknown as Client;
 
 afterEach(() => {
 	reads.length = 0;

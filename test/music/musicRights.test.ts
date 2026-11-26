@@ -20,7 +20,13 @@
 */
 
 import { describe, expect, mock, test } from "bun:test";
-import { Collection, PermissionFlagsBits } from "discord.js";
+import {
+	type Client,
+	Collection,
+	type GuildMember,
+	PermissionFlagsBits
+} from "discord.js";
+import type { MusicPlayer } from "../../src/core/modules/musicControls.ts";
 
 // iHorizon's owners: read from the BOT document in production.
 const BOT_OWNERS = new Set(["999"]);
@@ -35,18 +41,23 @@ const VC = "500";
 type Fake = { id: string; perms?: bigint[]; vc?: string | null; bot?: boolean };
 
 function server(listeners: Fake[], owner = "1") {
-	const guild: any = { id: "g", ownerId: owner, members: {} };
-	const make = (f: Fake): any => ({
-		id: f.id,
-		guild,
-		user: { id: f.id, bot: !!f.bot },
-		permissions: { has: (p: bigint) => (f.perms ?? []).includes(p) },
-		voice: {
-			channelId: f.vc === undefined ? VC : f.vc,
-			channel: (f.vc === undefined ? VC : f.vc) ? { id: VC } : null
-		}
-	});
-	const members = new Collection<string, any>();
+	const guild = {
+		id: "g",
+		ownerId: owner,
+		members: {} as { me?: unknown }
+	};
+	const make = (f: Fake): GuildMember =>
+		({
+			id: f.id,
+			guild,
+			user: { id: f.id, bot: !!f.bot },
+			permissions: { has: (p: bigint) => (f.perms ?? []).includes(p) },
+			voice: {
+				channelId: f.vc === undefined ? VC : f.vc,
+				channel: (f.vc === undefined ? VC : f.vc) ? { id: VC } : null
+			}
+		}) as unknown as GuildMember;
+	const members = new Collection<string, GuildMember>();
 	for (const f of listeners) members.set(f.id, make(f));
 	members.set("bot", make({ id: "bot", bot: true }));
 	guild.members.me = {
@@ -72,9 +83,10 @@ function player(current: string | null, queue: [string, string | null][] = []) {
 			tracks,
 			splice: async (i: number, n: number) => tracks.splice(i, n)
 		}
-	} as any;
+	} as unknown as MusicPlayer;
 }
-const clientWith = (p: any) => ({ player: { getPlayer: () => p } }) as any;
+const clientWith = (p: MusicPlayer) =>
+	({ player: { getPlayer: () => p } }) as unknown as Client;
 
 describe("music rights", () => {
 	test("managers: the owner, Administrator, Manage Server, iHorizon's owners", async () => {
@@ -138,7 +150,7 @@ describe("the queue", () => {
 		]);
 		const mine = await clearMusicQueue(clientWith(p), member("10"));
 		expect(mine).toEqual({ ok: true, removed: 2, own: true });
-		expect(p.queue.tracks.map((t: any) => t.info.identifier)).toEqual([
+		expect(p.queue.tracks.map((t) => t.info.identifier)).toEqual([
 			"b",
 			"d"
 		]);

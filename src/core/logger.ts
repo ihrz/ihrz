@@ -49,7 +49,7 @@ function getCurrentTime(): string {
 	return `SHARD#${shardId} ${timestamp}`;
 }
 
-function formatValue(value: any): string {
+function formatValue(value: unknown): string {
 	if (value instanceof Error) {
 		return value.stack || `${value.name}: ${value.message}`;
 	}
@@ -67,8 +67,8 @@ function formatValue(value: any): string {
 
 function formatMessage(
 	level: LogLevel,
-	message: any,
-	...optionalParams: any[]
+	message: unknown,
+	...optionalParams: unknown[]
 ): string {
 	const timestamp = getCurrentTime();
 	const prefix = `[${timestamp} ${level}]:`;
@@ -101,7 +101,7 @@ function applyColorToPrefix(prefix: string, level: LogLevel): string {
 }
 
 const logger: Logger = {
-	log(message: any, ...optionalParams: any[]): void {
+	log(message: unknown, ...optionalParams: unknown[]): void {
 		const formattedMessage = formatMessage(
 			LogLevel.LOG,
 			message,
@@ -110,7 +110,7 @@ const logger: Logger = {
 		_(formattedMessage);
 	},
 
-	warn(message: any, ...optionalParams: any[]): void {
+	warn(message: unknown, ...optionalParams: unknown[]): void {
 		const formattedMessage = formatMessage(
 			LogLevel.WARN,
 			message,
@@ -119,7 +119,7 @@ const logger: Logger = {
 		_(formattedMessage);
 	},
 
-	err(message: any, ...optionalParams: any[]): void {
+	err(message: unknown, ...optionalParams: unknown[]): void {
 		const formattedMessage = formatMessage(
 			LogLevel.ERROR,
 			message,
@@ -132,7 +132,7 @@ const logger: Logger = {
 		}
 	},
 
-	legacy(message: any, ...optionalParams: any[]): void {
+	legacy(message: unknown, ...optionalParams: unknown[]): void {
 		if (optionalParams.length > 0) {
 			_(message, ...optionalParams);
 		} else {
@@ -140,7 +140,7 @@ const logger: Logger = {
 		}
 	},
 
-	debug(message: any, ...optionalParams: any[]): void {
+	debug(message: unknown, ...optionalParams: unknown[]): void {
 		// A client without config (tests, tools) counts as not in dev mode:
 		// a debug line must never throw in the code it describes.
 		if (global?.client && !global.client.config?.core?.devMode) return;
@@ -151,7 +151,7 @@ const logger: Logger = {
 		}
 	},
 
-	returnLog(message: any, ...optionalParams: any[]): string {
+	returnLog(message: unknown, ...optionalParams: unknown[]): string {
 		return formatMessage(LogLevel.LOG, message, ...optionalParams);
 	}
 };

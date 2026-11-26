@@ -47,7 +47,9 @@ const GUILD = "100000000000000001";
 
 describe("join roles", () => {
 	function setup(roleIds: string[]) {
-		const add = mock(async (_roles: unknown, _reason?: string) => {});
+		const add = mock<(roles: unknown, reason?: string) => Promise<void>>(
+			async () => {}
+		);
 		const roles = new Collection<
 			string,
 			{ position: number; managed: boolean }

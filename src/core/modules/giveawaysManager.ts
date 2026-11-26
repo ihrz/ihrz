@@ -113,90 +113,77 @@ class GiveawayManager {
 		}, this.options.config?.forceUpdateEvery);
 	}
 
-	public create(
+	public async create(
 		channel: BaseGuildTextChannel,
 		data: GiveawayCreateOptions
 	): Promise<Message> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const lang = await getLanguageData(channel.guildId);
-				const confirm = new ButtonBuilder()
-					.setCustomId("confirm-entry-giveaway")
-					.setEmoji(this.options.config.reaction)
-					.setStyle(ButtonStyle.Primary);
-				const entriesList = new ButtonBuilder()
-					.setCustomId("giveaway-list-entries")
-					.setLabel(lang.event_gw_entries_button_title)
-					.setStyle(ButtonStyle.Secondary);
+		const lang = await getLanguageData(channel.guildId);
+		const confirm = new ButtonBuilder()
+			.setCustomId("confirm-entry-giveaway")
+			.setEmoji(this.options.config.reaction)
+			.setStyle(ButtonStyle.Primary);
+		const entriesList = new ButtonBuilder()
+			.setCustomId("giveaway-list-entries")
+			.setLabel(lang.event_gw_entries_button_title)
+			.setStyle(ButtonStyle.Secondary);
 
-				const gw = new EmbedBuilder()
-					.setColor(
-						this.options.config?.embedColor as ColorResolvable
-					)
-					.setTitle(data.prize)
-					.setDescription(
-						renderGiveawayDescription(
-							lang,
-							{
-								expireIn: Date.now() + data.duration,
-								hostedBy: data.hostedBy,
-								winnerCount: data.winnerCount
-							},
-							0
-						)
-					)
-					.setTimestamp(new Date(Date.now() + data.duration))
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							channel.guildId
-						)
-					)
-					.setImage(data.embedImageURL);
-
-				const response = await channel.client.func.method.channelSend(
-					channel,
+		const gw = new EmbedBuilder()
+			.setColor(this.options.config?.embedColor as ColorResolvable)
+			.setTitle(data.prize)
+			.setDescription(
+				renderGiveawayDescription(
+					lang,
 					{
-						embeds: [gw],
-						components: [
-							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								confirm,
-								entriesList
-							)
-						],
-						files: [
-							await client.func.displayBotName.footerAttachmentBuilder(
-								channel.guild
-							)
-						]
-					}
-				);
-
-				const requirement = data.requirement;
-
-				await db.Create(
-					{
-						channelId: response.channelId,
-						guildId: response.guildId!,
-
-						winnerCount: data.winnerCount,
-						prize: data.prize,
+						expireIn: Date.now() + data.duration,
 						hostedBy: data.hostedBy,
-						expireIn: new Date(Date.now() + data.duration),
-						ended: GiveawayEndedStatus.NOT_ENDED,
-						entries: [],
-						winners: [],
-						isValid: true,
-						embedImageURL: data.embedImageURL,
-						requirement
+						winnerCount: data.winnerCount
 					},
-					response.id
-				);
+					0
+				)
+			)
+			.setTimestamp(new Date(Date.now() + data.duration))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(channel.guildId)
+			)
+			.setImage(data.embedImageURL);
 
-				resolve(response);
-			} catch (error) {
-				reject(error);
-			}
+		const response = await channel.client.func.method.channelSend(channel, {
+			embeds: [gw],
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					confirm,
+					entriesList
+				)
+			],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					channel.guild
+				)
+			]
 		});
+
+		const requirement = data.requirement;
+
+		await db.Create(
+			{
+				channelId: response.channelId,
+				guildId: response.guildId!,
+
+				winnerCount: data.winnerCount,
+				prize: data.prize,
+				hostedBy: data.hostedBy,
+				expireIn: new Date(Date.now() + data.duration),
+				ended: GiveawayEndedStatus.NOT_ENDED,
+				entries: [],
+				winners: [],
+				isValid: true,
+				embedImageURL: data.embedImageURL,
+				requirement
+			},
+			response.id
+		);
+
+		return response;
 	}
 
 	public async addEntries(interaction: ButtonInteraction<"cached">) {
@@ -365,67 +352,48 @@ class GiveawayManager {
 		});
 	}
 
-	public isValid(giveawayId: string): Promise<boolean> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const fetch = await db.GetGiveawayData(giveawayId);
+	public async isValid(giveawayId: string): Promise<boolean> {
+		const fetch = await db.GetGiveawayData(giveawayId);
 
-				if (fetch) {
-					resolve(true);
-				} else {
-					resolve(false);
-				}
-			} catch (error) {
-				reject(error);
-			}
-		});
+		if (fetch) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-	public isEnded(giveawayId: string): Promise<boolean> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const fetch = await db.GetGiveawayData(giveawayId);
+	public async isEnded(giveawayId: string): Promise<boolean> {
+		const fetch = await db.GetGiveawayData(giveawayId);
 
-				if (fetch?.ended === GiveawayEndedStatus.ENDED) {
-					resolve(true);
-				} else {
-					resolve(false);
-				}
-			} catch (error) {
-				reject(error);
-			}
-		});
+		if (fetch?.ended === GiveawayEndedStatus.ENDED) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-	end(client: Client, giveawayId: string): Promise<void> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
+	async end(client: Client, giveawayId: string): Promise<void> {
+		const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
-				if (!client.inShard(giveawayData.guildId)) {
-					resolve();
-					return;
-				}
+		if (!client.inShard(giveawayData.guildId)) {
+			return;
+		}
 
-				if (
-					giveawayData.isValid &&
-					giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
-				) {
-					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
-					await this.finish(
-						client,
-						giveawayId,
-						giveawayData.guildId,
-						giveawayData.channelId
-					);
-					resolve();
-				} else {
-					reject(new Error("Invalid Giveaway"));
-				}
-			} catch (error) {
-				reject(error);
-			}
-		});
+		if (
+			giveawayData.isValid &&
+			giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
+		) {
+			await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
+			await this.finish(
+				client,
+				giveawayId,
+				giveawayData.guildId,
+				giveawayData.channelId
+			);
+			return;
+		} else {
+			throw new Error("Invalid Giveaway");
+		}
 	}
 
 	public async finish(
@@ -553,87 +521,78 @@ class GiveawayManager {
 		return winners;
 	}
 
-	public reroll(client: Client, giveawayId: string): Promise<void> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const fetch = (await db.GetGiveawayData(giveawayId))!;
+	public async reroll(client: Client, giveawayId: string): Promise<void> {
+		const fetch = (await db.GetGiveawayData(giveawayId))!;
 
-				const guild = await client.guilds.fetch(fetch.guildId);
-				const channel = await guild.channels.fetch(fetch.channelId);
+		const guild = await client.guilds.fetch(fetch.guildId);
+		const channel = await guild.channels.fetch(fetch.channelId);
 
-				const lang = await getLanguageData(guild.id);
+		const lang = await getLanguageData(guild.id);
 
-				const message = (await (
-					channel as BaseGuildTextChannel
-				).messages
-					.fetch(giveawayId)
-					.catch(async () => {
-						await this.delete(giveawayId);
-						resolve();
-						return;
-					})) as Message;
+		// Message gone: the giveaway is deleted and nothing else runs.
+		const message = await (channel as BaseGuildTextChannel).messages
+			.fetch(giveawayId)
+			.catch(() => null);
+		if (!message) {
+			await this.delete(giveawayId);
+			return;
+		}
 
-				const winner = this.selectWinners(
-					{ entries: fetch.entries, winners: fetch.winners },
-					fetch.winnerCount
-				);
+		const winner = this.selectWinners(
+			{ entries: fetch.entries, winners: fetch.winners },
+			fetch.winnerCount
+		);
 
-				const winners = winner
-					? winner.map((winner: string) => `<@${winner}>`)
-					: [];
-				const ended = time(new Date(fetch.expireIn), "R");
-				const time2 = time(new Date(fetch.expireIn), "D");
-				const hostedBy = fetch.hostedBy;
-				const entries = fetch.entries.length.toString();
+		const winners = winner
+			? winner.map((winner: string) => `<@${winner}>`)
+			: [];
+		const ended = time(new Date(fetch.expireIn), "R");
+		const time2 = time(new Date(fetch.expireIn), "D");
+		const hostedBy = fetch.hostedBy;
+		const entries = fetch.entries.length.toString();
 
-				const embeds = new EmbedBuilder()
-					.setColor(
-						this.options.config.embedColorEnd as ColorResolvable
-					)
-					.setTitle(fetch.prize)
-					.setImage(fetch.embedImageURL)
-					.setDescription(
-						lang.event_gw_ended_word
-							.replace("${winners}", winners.toString())
-							.replace("${ended}", ended)
-							.replace("${time2}", time2)
-							.replace("${hostedBy}", hostedBy)
-							.replace("${entries}", entries)
-					)
-					.setTimestamp()
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							message.guild?.id!
-						)
-					);
+		const embeds = new EmbedBuilder()
+			.setColor(this.options.config.embedColorEnd as ColorResolvable)
+			.setTitle(fetch.prize)
+			.setImage(fetch.embedImageURL)
+			.setDescription(
+				lang.event_gw_ended_word
+					.replace("${winners}", winners.toString())
+					.replace("${ended}", ended)
+					.replace("${time2}", time2)
+					.replace("${hostedBy}", hostedBy)
+					.replace("${entries}", entries)
+			)
+			.setTimestamp()
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					message.guild?.id
+				)
+			);
 
-				await message?.edit({
-					embeds: [embeds],
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							message.guild!
-						)
-					]
-				});
-
-				if (winner.length > 0 && winner[0] !== "None") {
-					await client.func.method.reply(message, {
-						content: lang.event_gw_reroll_win_msg
-							.replace("${winners}", winners.toString())
-							.replace("${prize}", fetch.prize)
-					});
-				} else {
-					await client.func.method.reply(message, {
-						content: lang.event_gw_finnish_cannot_msg
-					});
-				}
-
-				await db.SetWinners(giveawayId, winner || "None");
-				resolve();
-			} catch (error) {
-				reject(error);
-			}
+		await message?.edit({
+			embeds: [embeds],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					message.guild!
+				)
+			]
 		});
+
+		if (winner.length > 0 && winner[0] !== "None") {
+			await client.func.method.reply(message, {
+				content: lang.event_gw_reroll_win_msg
+					.replace("${winners}", winners.toString())
+					.replace("${prize}", fetch.prize)
+			});
+		} else {
+			await client.func.method.reply(message, {
+				content: lang.event_gw_finnish_cannot_msg
+			});
+		}
+
+		await db.SetWinners(giveawayId, winner || "None");
+		return;
 	}
 
 	public async listEntries(
@@ -713,8 +672,9 @@ class GiveawayManager {
 					? [row as ActionRowBuilder<ButtonBuilder>]
 					: [];
 
+			let messageEmbed: Message;
 			if (interaction instanceof ChatInputCommandInteraction) {
-				var messageEmbed = await interaction.editReply({
+				messageEmbed = await interaction.editReply({
 					embeds: [await createEmbed()],
 					components
 				});
@@ -724,9 +684,9 @@ class GiveawayManager {
 					components,
 					flags: [1 << 6]
 				});
-				var messageEmbed = await interaction.fetchReply();
+				messageEmbed = await interaction.fetchReply();
 			} else {
-				var messageEmbed = (await interaction.reply({
+				messageEmbed = (await interaction.reply({
 					embeds: [await createEmbed()],
 					components
 				})) as Message<true>;
@@ -763,7 +723,9 @@ class GiveawayManager {
 					await messageEmbed.edit({
 						components: [row as ActionRowBuilder<ButtonBuilder>]
 					});
-				} catch {}
+				} catch {
+					// The list was deleted meanwhile: nothing to disable.
+				}
 			});
 		}
 	}
@@ -814,39 +776,27 @@ class GiveawayManager {
 		}
 	}
 
-	public getGiveawayData(giveawayId: string): Promise<any> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const fetch = await db.GetGiveawayData(giveawayId);
+	public async getGiveawayData(giveawayId: string) {
+		const fetch = await db.GetGiveawayData(giveawayId);
 
-				if (fetch) {
-					resolve(fetch);
-				} else {
-					reject(new Error("Giveaway non trouvé"));
-				}
-			} catch (error) {
-				reject(error);
-			}
-		});
+		if (fetch) {
+			return fetch;
+		} else {
+			throw new Error("Giveaway non trouvé");
+		}
 	}
 
 	public async getAllGiveawayData() {
 		return await db.GetAllGiveawaysData();
 	}
 
-	public delete(giveawayId: string): Promise<boolean> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				if (await this.isValid(giveawayId)) {
-					await db.DeleteGiveaway(giveawayId);
-					resolve(true);
-				} else {
-					reject(new Error("Giveaway non valide"));
-				}
-			} catch (error) {
-				reject(error);
-			}
-		});
+	public async delete(giveawayId: string): Promise<boolean> {
+		if (await this.isValid(giveawayId)) {
+			await db.DeleteGiveaway(giveawayId);
+			return true;
+		} else {
+			throw new Error("Giveaway non valide");
+		}
 	}
 }
 export { GiveawayManager };

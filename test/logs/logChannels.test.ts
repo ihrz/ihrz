@@ -44,10 +44,21 @@ const BOT = "100";
 const lang = {
 	setup_command_work: "${emoji_Yes} | Channel Setup",
 	setup_command_error: "setup error"
-} as any;
+} as never;
 
-function setupInteraction(create: (options: any) => Promise<unknown>) {
-	const replies: any[] = [];
+// What /guildconfig setup passes to `channels.create` (fields checked here).
+type CreateOptions = { name: string; permissionOverwrites: { id: string }[] };
+type Overwrite = {
+	id: string;
+	type?: number;
+	allow?: bigint[];
+	deny?: bigint[];
+};
+
+function setupInteraction(
+	create: (options: CreateOptions) => Promise<unknown>
+) {
+	const replies: { content?: string }[] = [];
 	const guild = {
 		id: "g",
 		roles: { everyone: { id: "g" } },
@@ -58,25 +69,28 @@ function setupInteraction(create: (options: any) => Promise<unknown>) {
 		user: { id: "u" },
 		channel: {},
 		guild,
-		editReply: async (reply: unknown) => {
+		editReply: async (reply: { content?: string }) => {
 			replies.push(reply);
 		}
-	} as any;
-	const client = { user: { id: BOT }, iHorizon_Emojis: { Yes: "✅" } } as any;
+	} as never;
+	const client = {
+		user: { id: BOT },
+		iHorizon_Emojis: { Yes: "✅" }
+	} as never;
 	return { interaction, client, replies, guild };
 }
 
 describe("/guildconfig setup", () => {
 	test("the channel is hidden from @everyone but open to the bot", () => {
 		const overwrites = ihorizonLogsOverwrites(
-			{ roles: { everyone: { id: "g" } } } as any,
+			{ roles: { everyone: { id: "g" } } } as never,
 			BOT
-		) as any[];
+		) as Overwrite[];
 		const everyone = overwrites.find((o) => o.id === "g");
 		const bot = overwrites.find((o) => o.id === BOT);
-		expect(everyone.deny).toContain(PermissionFlagsBits.ViewChannel);
-		expect(bot.type).toBe(OverwriteType.Member);
-		expect(bot.allow).toEqual([
+		expect(everyone!.deny).toContain(PermissionFlagsBits.ViewChannel);
+		expect(bot!.type).toBe(OverwriteType.Member);
+		expect(bot!.allow).toEqual([
 			PermissionFlagsBits.ViewChannel,
 			PermissionFlagsBits.SendMessages,
 			PermissionFlagsBits.EmbedLinks
@@ -84,16 +98,16 @@ describe("/guildconfig setup", () => {
 	});
 
 	test("creates the channel with the bot's overwrite and says so", async () => {
-		let options: any = null;
+		let options = null as CreateOptions | null;
 		const { interaction, client, replies } = setupInteraction(async (o) => {
 			options = o;
 			return { id: "c" };
 		});
 		await setup.run!(client, interaction, lang);
-		expect(options.name).toBe("ihorizon-logs");
-		expect(
-			options.permissionOverwrites.some((o: any) => o.id === BOT)
-		).toBe(true);
+		expect(options!.name).toBe("ihorizon-logs");
+		expect(options!.permissionOverwrites.some((o) => o.id === BOT)).toBe(
+			true
+		);
 		expect(replies).toHaveLength(1);
 		expect(replies[0].content).toBeUndefined();
 	});
@@ -145,8 +159,8 @@ function logGuild(entry: Record<string, unknown>, sent: unknown[]) {
 			getLanguageData: async () =>
 				new Proxy({}, { get: (_, key) => String(key) })
 		}
-	} as any;
-	(globalThis as any).client = client;
+	} as never;
+	(globalThis as { client?: unknown }).client = client;
 	const guild = {
 		id: "g",
 		members: { me: { permissions: NOT_ADMIN } },
@@ -180,7 +194,7 @@ describe("audit log based logs without Administrator", () => {
 			sent
 		);
 		const user = { id: "target", displayAvatarURL: () => "" };
-		await unbanLogs.run(client, { guild, user } as any);
+		await unbanLogs.run(client, { guild, user } as never);
 		expect(sent).toHaveLength(1);
 	});
 
@@ -195,7 +209,7 @@ describe("audit log based logs without Administrator", () => {
 				name,
 				permissionOverwrites: { cache: new Map() },
 				toString: () => "<#chan>"
-			}) as any;
+			}) as never;
 		await channelLogs.run(client, channel("general"), channel("chat"));
 		expect(sent).toHaveLength(1);
 	});

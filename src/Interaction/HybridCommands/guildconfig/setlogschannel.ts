@@ -445,7 +445,7 @@ export const command: Command = {
 									)
 									.replace(
 										"${authorId}",
-										interaction.member?.user.id!
+										interaction.member?.user.id as string
 									)
 									.replace("${typeOfLogs}", typeOfLogs)
 							)
@@ -482,7 +482,7 @@ export const command: Command = {
 						lang.setlogschannel_logs_embed_description_on_enable
 							.replaceAll(
 								"${authorId}",
-								interaction.member?.user.id!
+								interaction.member?.user.id as string
 							)
 							.replace("${argsidId}", channel.id)
 							.replace("${typeOfLogs}", typeOfLogs)

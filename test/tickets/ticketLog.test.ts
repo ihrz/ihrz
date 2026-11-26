@@ -20,12 +20,20 @@
 */
 
 import { describe, expect, test } from "bun:test";
-import { AttachmentBuilder, MessageFlags } from "discord.js";
+import { AttachmentBuilder, MessageFlags, type Guild } from "discord.js";
 
 import emojis from "../../src/files/emojis.json";
 import { sendTicketLog } from "../../src/core/modules/ticketsManager.ts";
 
-const fakeGuild = (sent: any[], logs: string | null = "500") =>
+// What the tests read back from a sent payload.
+type SentPayload = {
+	flags?: unknown;
+	allowedMentions?: unknown;
+	embeds?: unknown;
+	components: { toJSON(): unknown }[];
+};
+
+const fakeGuild = (sent: SentPayload[], logs: string | null = "500") =>
 	({
 		id: "9",
 		client: {
@@ -46,16 +54,16 @@ const fakeGuild = (sent: any[], logs: string | null = "500") =>
 					"500",
 					{
 						isSendable: () => true,
-						send: async (p: any) => sent.push(p)
+						send: async (p: SentPayload) => sent.push(p)
 					}
 				]
 			])
 		}
-	}) as any;
+	}) as unknown as Guild;
 
 describe("ticket log", () => {
 	test("a Components V2 card that pings nobody", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		await sendTicketLog(fakeGuild(sent), {
 			kind: "closed",
 			title: "Ticket closed",
@@ -65,7 +73,10 @@ describe("ticket log", () => {
 					name: "9-transcript.html"
 				})
 			],
-			link: { url: "https://transcript.ihorizon.org/2", label: "Transcript" }
+			link: {
+				url: "https://transcript.ihorizon.org/2",
+				label: "Transcript"
+			}
 		});
 		expect(sent).toHaveLength(1);
 		const [payload] = sent;
@@ -81,7 +92,7 @@ describe("ticket log", () => {
 	});
 
 	test("no log channel, nothing sent", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		await sendTicketLog(fakeGuild(sent, null), {
 			kind: "created",
 			title: "t",

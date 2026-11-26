@@ -117,7 +117,7 @@ export async function openBoostMessagePanel(
 	lang: LanguageData
 ): Promise<void> {
 	const guildId = interaction.guildId!;
-	const authorId = interaction.member?.user.id!;
+	const authorId = interaction.member?.user.id as string;
 	const dbKey = (kind: BoostKind) => `${guildId}.GUILD.BOOST_MESSAGE.${kind}`;
 
 	const stored = ((await client.db.get(`${guildId}.GUILD.BOOST_MESSAGE`)) ??

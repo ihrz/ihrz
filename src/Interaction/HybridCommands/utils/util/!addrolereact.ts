@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 
 			const opts = client.func.method.options(interaction, args);
 			const messageId = opts.string("message_id", 0, true);
-			const roleId = opts.role("role", 1)?.id!;
+			const roleId = opts.role("role", 1)?.id as string;
 
 			const guild = interaction.guild;
 			const role = guild.roles.cache.get(roleId);
@@ -146,7 +146,9 @@ export const subCommand: SubCommand = {
 							);
 							totalUsersAffected++;
 						}
-					} catch (error) {}
+					} catch {
+						// member gone or role not assignable: skip this user.
+					}
 				}
 			}
 
@@ -156,7 +158,7 @@ export const subCommand: SubCommand = {
 					.replace("{role}", role.name)
 					.replace("{count}", totalUsersAffected.toString())
 			);
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.addrolereact_error
 			});
