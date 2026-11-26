@@ -2356,6 +2356,7 @@ export default {
 		"${emoji_No} | 한 번에 99개보다 많은 메시지는 삭제할 수 없어요!",
 	clear_channel_message_deleted: "메시지 ${messageCount}개를 삭제했어요!",
 	clear_logs_embed_title: "메시지 삭제 로그",
+	clear_logs_button_transcript: "기록",
 	clear_logs_embed_description:
 		"<@${authorId}> 님이 <#${channelId}>에서 메시지 ${messageCount}개를 삭제했어요",
 	clear_command_no_message: "이 채널에 삭제할 메시지가 없어요",

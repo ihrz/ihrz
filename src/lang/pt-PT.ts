@@ -2480,6 +2480,7 @@ export default {
 		"${emoji_No} | Eu não posso deletar mais de 99 mensagens de uma vez!",
 	clear_channel_message_deleted: "${messageCount} mensagens deletadas!",
 	clear_logs_embed_title: "Logs de Mensagens Limpas",
+	clear_logs_button_transcript: "Transcrição",
 	clear_logs_embed_description:
 		"<@${authorId}> limpou ${messageCount} mensagens em <#${channelId}>",
 	clear_command_no_message: "Não há mensagens para apagar neste canal",

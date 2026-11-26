@@ -1975,6 +1975,7 @@ export default {
 		"${emoji_No} | Nie mogę usunąć więcej niż 99 wiadomości naraz!",
 	clear_channel_message_deleted: "Usunięto wiadomości: ${messageCount}!",
 	clear_logs_embed_title: "Logi czyszczenia wiadomości",
+	clear_logs_button_transcript: "Transkrypcja",
 	clear_logs_embed_description:
 		"<@${authorId}> usunął(-ęła) wiadomości (${messageCount}) na <#${channelId}>",
 	clear_command_no_message: "Na tym kanale nie ma wiadomości do usunięcia",

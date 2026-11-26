@@ -2440,6 +2440,7 @@ export default {
 	clear_channel_message_deleted:
 		"${messageCount} 個のメッセージが削除されました！",
 	clear_logs_embed_title: "メッセージクリアログ",
+	clear_logs_button_transcript: "トランスクリプト",
 	clear_logs_embed_description:
 		"<@${authorId}> が <#${channelId}> で ${messageCount} 個のメッセージをクリアしました。",
 	clear_command_no_message:

@@ -71,6 +71,7 @@ export namespace DatabaseStructure {
 	// ---- Ticket transcripts (table `ticket_transcripts`, src/core/modules/ticketTranscripts.ts) ----
 	// `{channelId}` = TicketTranscriptSchema, written when a ticket is closed or deleted (the latest wins);
 	// `G_{guildId}` = string[] of the server's transcript channel ids (erased with the server's data).
+	// `{clearId}` = TicketTranscriptSchema with reason "clear": the messages a /clear deleted (moderationOps.bulkClear).
 	// Read by the gateway (transcript.ihorizon.org/<channelId>), after a dashboard login: participants, staff
 	// roles, server managers and bot owners only.
 	export interface TicketTranscriptUser {
@@ -112,15 +113,17 @@ export namespace DatabaseStructure {
 		guildId: string;
 		guildName: string;
 		guildIcon: string | null;
+		/** The ticket's channel = the key. For a clear: the transcript's own id (a snowflake), the key too. */
 		channelId: string;
 		channelName: string;
-		/** Who opened the ticket (TicketChannelData.author). */
+		/** Who opened the ticket (TicketChannelData.author). For a clear: the moderator. */
 		authorId: string;
 		openedAt: number;
 		closedAt: number;
 		closedBy: string | null;
 		/** "transcript" = exported by /ticket transcript while the ticket was open (closedAt = export time). */
-		reason: "close" | "delete" | "transcript";
+		/** "clear" = messages deleted by /clear (or the dashboard's clear): no channel of its own, see channelId. */
+		reason: "close" | "delete" | "transcript" | "clear";
 		/** Author, everyone who wrote, members let into the channel. */
 		participants: string[];
 		/** Participants who could manage the ticket (Administrator or ManageChannels on it). */

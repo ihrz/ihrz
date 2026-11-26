@@ -47,6 +47,7 @@ import {
 	Message,
 	OverwriteType,
 	PermissionFlagsBits,
+	SnowflakeUtil,
 	User
 } from "discord.js";
 
@@ -337,19 +338,105 @@ export async function saveTicketTranscript(
 			reason
 		);
 		await ticketTranscriptsTable.set(channel.id, doc);
-		const indexKey = `G_${channel.guildId}`;
-		const index =
-			((await ticketTranscriptsTable.get(indexKey)) as string[] | null) ??
-			[];
-		if (!index.includes(channel.id))
-			await ticketTranscriptsTable.set(
-				indexKey,
-				[...index, channel.id].slice(-MAX_INDEX)
-			);
+		await indexTranscript(channel.guildId, channel.id);
 		return transcriptUrl(channel.client, channel.id);
 	} catch (error) {
 		logger.warn(
 			`[Tickets] transcript not saved for ${channel.id}: ${String(error)}`
+		);
+		return null;
+	}
+}
+
+/** Listed under the server, so that it is erased when the bot leaves it. */
+async function indexTranscript(guildId: string, id: string): Promise<void> {
+	const indexKey = `G_${guildId}`;
+	const index =
+		((await ticketTranscriptsTable.get(indexKey)) as string[] | null) ?? [];
+	if (!index.includes(id))
+		await ticketTranscriptsTable.set(
+			indexKey,
+			[...index, id].slice(-MAX_INDEX)
+		);
+}
+
+/**
+ * The messages a /clear deleted, as a transcript (same page as a ticket's). A clear has no channel of its own:
+ * the transcript gets its own id, which is the key and `channelId` (the gateway reads `{channelId}`). Readers, as
+ * the gateway decides: the moderator (`authorId`), server managers, bot owners.
+ */
+export function buildClearTranscript(
+	channel: BaseGuildTextChannel,
+	messages: Message[],
+	moderator: User,
+	id: string,
+	now: number = Date.now()
+): DatabaseStructure.TicketTranscriptSchema {
+	const sorted = [...messages].sort(
+		(a, b) => a.createdTimestamp - b.createdTimestamp
+	);
+	const users: Record<string, DatabaseStructure.TicketTranscriptUser> = {};
+	const roles: Record<string, { name: string; color: string | null }> = {};
+	const channels: Record<string, { name: string }> = {};
+	for (const m of sorted) {
+		users[m.author.id] ??= userEntry(m.author, m.member);
+		for (const u of m.mentions.users.values())
+			users[u.id] ??= userEntry(u, channel.guild.members.cache.get(u.id));
+		for (const r of m.mentions.roles.values())
+			roles[r.id] ??= {
+				name: r.name,
+				color: r.color ? r.hexColor : null
+			};
+		for (const c of m.mentions.channels.values())
+			if ("name" in c && c.name) channels[c.id] ??= { name: c.name };
+	}
+	users[moderator.id] ??= userEntry(
+		moderator,
+		channel.guild.members.cache.get(moderator.id)
+	);
+	return {
+		v: 1,
+		guildId: channel.guildId,
+		guildName: channel.guild.name,
+		guildIcon: channel.guild.icon,
+		channelId: id,
+		channelName: channel.name,
+		authorId: moderator.id,
+		openedAt: sorted[0]?.createdTimestamp ?? now,
+		closedAt: now,
+		closedBy: moderator.id,
+		reason: "clear",
+		participants: [moderator.id],
+		staff: [moderator.id],
+		staffRoles: [],
+		users,
+		roles,
+		channels,
+		messages: sorted.map(toMessage),
+		truncated: false
+	};
+}
+
+/**
+ * Saves the messages of a /clear and returns the transcript's web address, or null: no transcript site on this
+ * instance (nothing is stored then), nothing to keep, or a failed write. Never throws: the clear is done anyway.
+ */
+export async function saveClearTranscript(
+	channel: BaseGuildTextChannel,
+	messages: Message[],
+	moderator: User
+): Promise<string | null> {
+	if (messages.length === 0) return null;
+	if (!transcriptUrl(channel.client, "0")) return null;
+	try {
+		const id = SnowflakeUtil.generate().toString();
+		const doc = buildClearTranscript(channel, messages, moderator, id);
+		await ticketTranscriptsTable.set(id, doc);
+		await indexTranscript(channel.guildId, id);
+		return transcriptUrl(channel.client, id);
+	} catch (error) {
+		logger.warn(
+			`[clear] transcript not saved for ${channel.id}: ${String(error)}`
 		);
 		return null;
 	}

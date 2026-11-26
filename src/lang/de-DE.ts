@@ -2512,6 +2512,7 @@ export default {
 		"${emoji_No} | Ich kann nicht mehr als 99 Nachrichten auf einmal löschen!",
 	clear_channel_message_deleted: "${messageCount} Nachrichten gelöscht!",
 	clear_logs_embed_title: "Löschen von Nachrichten-Logs",
+	clear_logs_button_transcript: "Transkript",
 	clear_logs_embed_description:
 		"<@${authorId}> hat ${messageCount} Nachrichten in <#${channelId}> gelöscht",
 	clear_command_no_message: "Keine Nachrichten zum Löschen in diesem Kanal",

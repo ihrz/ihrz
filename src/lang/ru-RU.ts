@@ -2453,6 +2453,7 @@ export default {
 		"${emoji_No} | Я не могу удалить более 99 сообщений за один раз!",
 	clear_channel_message_deleted: "Удалено ${messageCount} сообщений!",
 	clear_logs_embed_title: "Логи удаления сообщений",
+	clear_logs_button_transcript: "Транскрипт",
 	clear_logs_embed_description:
 		"<@${authorId}> удалил ${messageCount} сообщений в <#${channelId}>",
 	clear_command_no_message: "Нет сообщений для удаления в этом канале",
