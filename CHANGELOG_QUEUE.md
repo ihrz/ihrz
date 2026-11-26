@@ -4,6 +4,47 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 💎 Boost messages — thank your boosters
+
+A new **boost message**, set with **`/guildconfig set boost-message`** (administrators) or the dashboard's new **Boost messages** module: when a member **boosts** the server, or **stops boosting**, iHorizon posts a message in the channel you pick, sends it by private message, or both. Write your own text (markdown, the server's emojis, the member variables plus `{boostCount}` and `{boostTier}`) or keep the translated default, add an **embed saved with `/embed`**, or send the embed alone. Boost and boost-ended each have their own settings, a **Send a test** button tries them, and the dashboard shows a live Discord preview. Only the member is ever mentioned.
+
+---
+
+## 📣 Notifier — Kick, Bluesky, Mastodon, and a channel per account
+
+The notifier follows three new platforms: **Kick** (a message when the streamer goes live, like Twitch), **Bluesky** and **Mastodon** (a message for each new post — not replies, reposts or boosts). Add them with `/notifier add` or from the dashboard: paste a link, an `@handle` or an ID, and iHorizon stores the right account (a Bluesky account is kept by its permanent ID, so it is still followed after a change of handle).
+
+Each followed account can now post in **its own channel**: pick one in the dashboard, next to the account, or with the new `channel` option of `/notifier add`. Accounts without one post in the default channel, as before.
+
+---
+
+## 📜 Transcripts — cleared messages, and every transcript in the dashboard
+
+Messages deleted with **`/clear`** (or the dashboard's channel tools) are now kept as a transcript too: the clear's log entry in `ihorizon-logs` gets a **📜 Transcript** button that opens them on **transcript.ihorizon.org**, as a ticket's transcript. Only the moderator who cleared, the server's managers and iHorizon's team can read it, never the authors of the deleted messages.
+
+The dashboard has a new **Transcripts** module (Tickets & support): every transcript of the server, tickets and clears, newest first, with who opened or cleared, when, and an **Open** button.
+
+---
+
+## 💜 Music — Love button and `/music playlist`
+
+The now-playing panel has a **Love** heart: one click puts the track in your liked tracks (if it already is, a **Remove** button is offered for a minute). **`/music playlist`** opens your library in Discord: your liked tracks and playlists, a menu to open one, 10 tracks per page, and **Play** — the same library as the dashboard's player.
+
+---
+
+## 🖥️ Dashboard — one message editor everywhere, and more
+
+- Every long message field (welcome, leave and DM messages, boost messages, level-up, tags, sticky messages, embeds, the notifier, suggestions, messages sent in a channel…) now has the same tools: the formatting bar, the variables, a channel link and an **emoji picker** with two tabs, the **server's emojis** and **Discord's own emojis** (1,898, searchable by name)
+- **Night mode** has its own module (Protection group)
+- **Bot profile**: set the bot's name on your server from the same page as its bio, banner and avatar
+- **Confessions**: the panel's appearance (button text, emoji, colour, embed) is editable with a live preview, and administrators see who wrote each confession
+- **Level-up message**: its variables are shown as chips you can click
+- **Server info**: a bot without an avatar shows Discord's default avatar instead of a blank space
+- **Music player**: the silent sound that gives the page its media keys only plays while the bot is playing, no longer on every click of the page
+- The music player's lyrics no longer jump back to the previous line for an instant, and a shared playlist page shows its owner's avatar again
+
+---
+
 ## 🤫 Confessions — one panel for everything
 
 `/confession channel`, `/confession config`, `/confession thread` and `/confession cooldown` are replaced by **`/confession panel`** (administrators): one card to post the panel in a channel, turn confessions and threads on or off, set the cooldown, and **customise the panel**: the button's text, emoji (a unicode one or one of the server's) and colour (blue, grey, green, red), and an **embed saved with `/embed`** shown instead of the default one, by its code. Every change updates the posted panel at once, and the card shows a preview of the button. `/confession delete`, `ban` and `unban` do not change.
@@ -477,3 +518,12 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 - **Google Forms**: the member named in a response is matched only by their Discord ID, a mention or their exact username (upper and lower case ignored), no longer by display name: display names are not unique, so the role could go to someone else
 - **`/custom bio reset`** (and the dashboard): the server bio is cleared, so Discord shows the bot's own description in full, links included, instead of a copy cut at 190 characters
 - **Welcome messages**: no longer lost when the image renderer is briefly unavailable (gateway restarting): the render is retried, a stuck render is given up after 15 s, and the welcome goes out without its card after 12 s rather than never
+- **H24/7**: after a restart, iHorizon takes its voice session back without leaving the channel again (the channel's streak is kept): the shards that host a 24/7 server start first, and the 24/7 is restored before anything else at startup — with many shards, a late one came back after Discord had already dropped the session
+- **Slash commands**: new and changed commands are published to Discord again (since the Discord Activity was enabled, Discord refused every update, so `/guildconfig set boost-message` and other recent changes never appeared)
+- **Night mode**: the time zone picker answers again (26 zones, now split into two menus: Discord allows 25 options, and the whole reply was refused)
+- **Prefix commands**: a role typed by name is found even with other upper or lower case, spaces typed as `_` or `-`, decorations around it, or a small typo (when only one role is that close)
+- **Message logs**: an edited message is shown as a coloured diff of what changed, with a little context around it, instead of the whole text twice
+- **Notifier**: missing Twitch keys no longer stop the other platforms (YouTube kept silent too), and a post can no longer be announced again on every check
+- **Startup**: the logo emojis are no longer re-uploaded on every start
+- **Self-hosting**: `.env.example` has `KICK_CLIENT_ID` and `KICK_CLIENT_SECRET` for the Kick notifier (an app from Kick's developer settings); Bluesky and Mastodon need no key
+- **Developers**: the whole codebase passes ESLint (real types instead of `any`, dead code removed, same behaviour), and a pre-commit hook regenerates `src/exports` on every commit (enabled by `bun test` or `bun run hooks`); a test fails if they are stale

@@ -4,6 +4,47 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 💎 Messages de boost — remerciez vos boosters
+
+Un nouveau **message de boost**, réglé avec **`/guildconfig set boost-message`** (administrateurs) ou le nouveau module **Messages de boost** du dashboard : quand un membre **booste** le serveur, ou **arrête de le booster**, iHorizon poste un message dans le salon choisi, l'envoie en message privé, ou les deux. Écrivez votre texte (markdown, emojis du serveur, variables du membre plus `{boostCount}` et `{boostTier}`) ou gardez le texte par défaut traduit, ajoutez un **embed enregistré avec `/embed`**, ou envoyez l'embed seul. Le boost et la fin de boost ont chacun leurs réglages, un bouton **Envoyer un test** permet de les essayer, et le dashboard montre un aperçu Discord en direct. Seul le membre est mentionné.
+
+---
+
+## 📣 Notifier — Kick, Bluesky, Mastodon, et un salon par compte
+
+Le notifier suit trois nouvelles plateformes : **Kick** (un message quand le streamer lance son live, comme Twitch), **Bluesky** et **Mastodon** (un message à chaque nouveau post — pas les réponses, reposts ni partages). Ajoutez-les avec `/notifier add` ou depuis le dashboard : collez un lien, un `@pseudo` ou un ID, et iHorizon enregistre le bon compte (un compte Bluesky est gardé par son identifiant permanent : il reste suivi s'il change de pseudo).
+
+Chaque compte suivi peut maintenant publier dans **son propre salon** : choisissez-le dans le dashboard, à côté du compte, ou avec la nouvelle option `channel` de `/notifier add`. Les comptes sans salon publient dans le salon par défaut, comme avant.
+
+---
+
+## 📜 Transcripts — messages supprimés, et tous les transcripts dans le dashboard
+
+Les messages supprimés avec **`/clear`** (ou les outils de salon du dashboard) sont désormais gardés en transcript eux aussi : l'entrée du clear dans `ihorizon-logs` reçoit un bouton **📜 Transcript** qui les ouvre sur **transcript.ihorizon.org**, comme le transcript d'un ticket. Seuls le modérateur qui a fait le clear, les gestionnaires du serveur et l'équipe d'iHorizon peuvent le lire, jamais les auteurs des messages supprimés.
+
+Le dashboard a un nouveau module **Transcripts** (Tickets & support) : tous les transcripts du serveur, tickets et clears, du plus récent au plus ancien, avec qui l'a ouvert ou a fait le clear, quand, et un bouton **Ouvrir**.
+
+---
+
+## 💜 Musique — bouton Love et `/music playlist`
+
+Le panneau du titre en cours a un cœur **Love** : un clic ajoute le titre à vos titres likés (s'il l'est déjà, un bouton **Retirer** est proposé pendant une minute). **`/music playlist`** ouvre votre bibliothèque dans Discord : vos titres likés et vos playlists, un menu pour en ouvrir une, 10 titres par page, et **Lire** — la même bibliothèque que le lecteur du dashboard.
+
+---
+
+## 🖥️ Dashboard — un seul éditeur de message partout, et plus
+
+- Chaque long champ de message (messages de bienvenue, de départ et en MP, messages de boost, passage de niveau, tags, messages épinglés, embeds, notifier, suggestions, messages envoyés dans un salon…) a maintenant les mêmes outils : la barre de mise en forme, les variables, un lien de salon et un **sélecteur d'emojis** à deux onglets, les **emojis du serveur** et **ceux de Discord** (1 898, cherchables par nom)
+- Le **mode nuit** a son propre module (groupe Protection)
+- **Profil du bot** : changez le nom du bot sur votre serveur depuis la même page que sa bio, sa bannière et son avatar
+- **Confessions** : l'apparence du panneau (texte du bouton, emoji, couleur, embed) se règle avec un aperçu en direct, et les administrateurs voient qui a écrit chaque confession
+- **Message de passage de niveau** : ses variables s'affichent en pastilles cliquables
+- **Infos serveur** : un bot sans avatar affiche l'avatar par défaut de Discord au lieu d'un vide
+- **Lecteur musical** : le son silencieux qui donne à la page ses touches multimédia ne joue que quand le bot joue, plus à chaque clic sur la page
+- Les paroles du lecteur ne sautent plus un instant à la ligne précédente, et la page d'une playlist partagée affiche de nouveau l'avatar de son propriétaire
+
+---
+
 ## 🤫 Confessions — un seul panneau pour tout
 
 `/confession channel`, `/confession config`, `/confession thread` et `/confession cooldown` sont remplacées par **`/confession panel`** (administrateurs) : une seule carte pour publier le panneau dans un salon, activer ou couper les confessions et les fils, régler le délai, et **personnaliser le panneau** : texte, emoji (unicode ou du serveur) et couleur du bouton (bleu, gris, vert, rouge), et un **embed enregistré avec `/embed`** affiché à la place de celui par défaut, grâce à son code. Chaque changement met à jour le panneau publié tout de suite, et la carte montre un aperçu du bouton. `/confession delete`, `ban` et `unban` ne changent pas.
@@ -477,3 +518,12 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 - **Google Forms** : le membre indiqué dans une réponse n'est plus reconnu que par son ID Discord, une mention ou son nom d'utilisateur exact (majuscules et minuscules ignorées), plus par son nom d'affichage : il n'est pas unique, le rôle pouvait aller à quelqu'un d'autre
 - **`/custom bio reset`** (et le dashboard) : la bio du serveur est effacée, Discord affiche donc la description du bot en entier, liens compris, au lieu d'une copie coupée à 190 caractères
 - **Messages de bienvenue** : plus perdus quand le rendu d'images est brièvement indisponible (gateway qui redémarre) : le rendu est retenté, un rendu bloqué est abandonné après 15 s, et la bienvenue part sans sa carte après 12 s au lieu de jamais
+- **H24/7** : après un redémarrage, iHorizon reprend sa session vocale sans quitter le salon (la série du salon est gardée) : les shards qui hébergent un serveur en 24/7 démarrent en premier, et le 24/7 est restauré avant tout le reste au démarrage — avec beaucoup de shards, un shard tardif revenait après que Discord avait déjà lâché la session
+- **Commandes slash** : les commandes nouvelles ou modifiées sont de nouveau publiées sur Discord (depuis l'activation de l'Activité Discord, Discord refusait toute mise à jour : `/guildconfig set boost-message` et d'autres changements récents n'apparaissaient jamais)
+- **Mode nuit** : le choix du fuseau horaire répond de nouveau (26 fuseaux, désormais répartis sur deux menus : Discord autorise 25 options et refusait toute la réponse)
+- **Commandes en préfixe** : un rôle donné par son nom est trouvé même avec d'autres majuscules ou minuscules, des espaces tapés `_` ou `-`, des décorations autour, ou une petite faute de frappe (quand un seul rôle est aussi proche)
+- **Logs de messages** : un message modifié s'affiche en diff coloré de ce qui a changé, avec un peu de contexte, au lieu du texte entier deux fois
+- **Notifier** : des clés Twitch absentes n'arrêtent plus les autres plateformes (YouTube se taisait aussi), et un post ne peut plus être annoncé de nouveau à chaque vérification
+- **Démarrage** : les emojis du logo ne sont plus renvoyés à chaque démarrage
+- **Auto-hébergement** : `.env.example` contient `KICK_CLIENT_ID` et `KICK_CLIENT_SECRET` pour le notifier Kick (une application créée dans les paramètres développeur de Kick) ; Bluesky et Mastodon ne demandent aucune clé
+- **Développeurs** : tout le code passe ESLint (de vrais types au lieu de `any`, code mort retiré, même comportement), et un hook pre-commit régénère `src/exports` à chaque commit (activé par `bun test` ou `bun run hooks`) ; un test échoue s'ils ne sont pas à jour
