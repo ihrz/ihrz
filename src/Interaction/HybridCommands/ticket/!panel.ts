@@ -582,8 +582,16 @@ export const subCommand: SubCommand = {
 				: lang.var_no_set;
 		}
 
+		// A value no option of this panel uses yet (12 random characters: a clash is unlikely, never kept).
 		function generateUniqueOptionFieldValue() {
-			return `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
+			const taken = new Set(
+				baseData.config.optionFields.map((o) => o.value)
+			);
+			let value: string;
+			do {
+				value = `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
+			} while (taken.has(value));
+			return value;
 		}
 
 		function ensureUniqueOptionFieldValues() {
