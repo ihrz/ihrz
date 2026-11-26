@@ -53,11 +53,13 @@ export async function user(
 
 	if (message.mentions.parsedUsers.size >= 1) {
 		// if the prefix is the bot mention we have to do a specific traitment
-		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
+		const prefix_mention = message.content.startsWith(
+			`<@${client.user?.id}`
+		);
 		if (prefix_mention) {
 			user = message.mentions.parsedUsers
 				.map((x) => x)
-				.filter((x) => x.id !== client.user?.id!)[argsNumber];
+				.filter((x) => x.id !== client.user?.id)[argsNumber];
 		} else {
 			user = message.mentions.parsedUsers.map((x) => x)?.[argsNumber];
 		}
@@ -659,18 +661,15 @@ async function sendErrorMessage(
 	errorIndex: number
 ): Promise<void> {
 	const argument: string[] = [];
-	let fullNameCommand: string;
-
 	expectedArgs.forEach((arg) =>
 		argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`)
 	);
 
-	let currentCommand: Command | Option;
 	let wrongArgumentName: string = "";
 	let errorPosition = "";
 
-	fullNameCommand = command.prefixName || command.name!;
-	currentCommand = command;
+	const fullNameCommand: string = command.prefixName || command.name!;
+	const currentCommand: Command | Option = command;
 
 	errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 

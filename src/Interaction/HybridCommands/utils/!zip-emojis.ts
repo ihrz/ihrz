@@ -31,8 +31,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		const time = Date.now();
 
@@ -93,7 +92,7 @@ export const subCommand: SubCommand = {
 				],
 				flags: [1 << 6]
 			});
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.zip_emojis_command_error,
 				flags: [1 << 6]

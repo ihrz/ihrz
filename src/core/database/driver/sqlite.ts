@@ -20,10 +20,10 @@
 */
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
-import { ErrorKind } from "../types.ts";
+import { DataLike, ErrorKind, StoredValue } from "../types.ts";
 import { Database } from "bun:sqlite";
 
-export class Sqlite<D = any> {
+export class Sqlite<D = StoredValue> {
 	private tableName: string;
 	private path: string;
 	private db: Database;
@@ -71,12 +71,15 @@ export class Sqlite<D = any> {
 		}
 	}
 
-	private async getAllRows(
+	private async getAllRows<T = unknown>(
 		table: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		const stmt = this.db.prepare(`SELECT ID, json FROM ${table} `);
 		const rows = stmt.all() as { ID: string; json: string }[];
-		return rows.map((row) => ({ id: row.ID, value: JSON.parse(row.json) }));
+		return rows.map((row) => ({
+			id: row.ID,
+			value: JSON.parse(row.json) as T
+		}));
 	}
 
 	private async getRowByKey<T>(
@@ -92,21 +95,24 @@ export class Sqlite<D = any> {
 		}
 	}
 
-	private async getStartsWith(
+	private async getStartsWith<T = unknown>(
 		table: string,
 		query: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		const stmt = this.db.prepare(
 			`SELECT ID, json FROM ${table} WHERE ID LIKE ? `
 		);
 		const rows = stmt.all(`${query}% `) as { ID: string; json: string }[];
-		return rows.map((row) => ({ id: row.ID, value: JSON.parse(row.json) }));
+		return rows.map((row) => ({
+			id: row.ID,
+			value: JSON.parse(row.json) as T
+		}));
 	}
 
 	private async setRowByKey<T>(
 		table: string,
 		key: string,
-		value: any,
+		value: unknown,
 		update: boolean
 	): Promise<T> {
 		const jsonValue = JSON.stringify(value);
@@ -121,8 +127,11 @@ export class Sqlite<D = any> {
 					`INSERT INTO ${table} (ID, json) VALUES(?, ?)`
 				);
 				stmt.run(key, jsonValue);
-			} catch (e: any) {
-				if (e?.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
+			} catch (e) {
+				if (
+					(e as { code?: unknown } | null)?.code ===
+					"SQLITE_CONSTRAINT_PRIMARYKEY"
+				) {
 					const stmt = this.db.prepare(
 						`UPDATE ${table} SET json = ? WHERE ID = ? `
 					);
@@ -141,7 +150,7 @@ export class Sqlite<D = any> {
 
 	private async deleteAllRows(table: string): Promise<number> {
 		const stmt = this.db.prepare(`DELETE FROM ${table} `);
-		const result = stmt.run();
+		stmt.run();
 		await this.snapshot();
 		for (const mirror of this.mirrors) {
 			await mirror.deleteAllRows(table);
@@ -183,7 +192,7 @@ export class Sqlite<D = any> {
 		if (typeof currentNumber != "number") {
 			try {
 				currentNumber = parseFloat(currentNumber as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Current value with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -193,14 +202,15 @@ export class Sqlite<D = any> {
 		if (typeof value != "number") {
 			try {
 				value = parseFloat(value as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Value to add/subtract with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
 				);
 			}
 		}
-		sub ? (currentNumber -= value) : (currentNumber += value);
+		if (sub) currentNumber -= value;
+		else currentNumber += value;
 		await this.set<number>(key, currentNumber);
 		return currentNumber;
 	}
@@ -233,7 +243,10 @@ export class Sqlite<D = any> {
 				this.tableName,
 				keySplit[0]
 			);
-			return get_property(result, keySplit.slice(1).join("."));
+			return get_property(
+				result,
+				keySplit.slice(1).join(".")
+			) as T | null;
 		}
 		const [result] = await this.getRowByKey<T>(this.tableName, key);
 		return result;
@@ -293,7 +306,7 @@ export class Sqlite<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
-		const data = (await this.get<any>(key)) ?? {};
+		const data = (await this.get<Record<string, unknown>>(key)) ?? {};
 		if (typeof data != "object" || Array.isArray(data)) {
 			throw this.createError(
 				`The current data is not an object, update only works on objects`,
@@ -303,7 +316,7 @@ export class Sqlite<D = any> {
 		for (const [k, v] of Object.entries(object)) {
 			data[k] = v;
 		}
-		return await this.set(key, data);
+		return (await this.set(key, data)) as T;
 	}
 
 	async has(key: string): Promise<boolean> {
@@ -319,7 +332,8 @@ export class Sqlite<D = any> {
 		}
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
-			const obj = (await this.get<any>(keySplit[0])) ?? {};
+			const obj =
+				(await this.get<Record<string, unknown>>(keySplit[0])) ?? {};
 			unset_property(obj, keySplit.slice(1).join("."));
 
 			return (await this.set(keySplit[0], obj)) as unknown as number;
@@ -427,7 +441,10 @@ export class Sqlite<D = any> {
 			if (
 				Array.isArray(value)
 					? value.includes(currentArr[i])
-					: (value as any)(currentArr[i], i)
+					: (value as (data: T, index: string) => boolean)(
+							currentArr[i],
+							i
+						)
 			)
 				continue;
 			data.push(currentArr[i]);
@@ -445,7 +462,7 @@ export class Sqlite<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
-		const results = await this.getStartsWith(this.tableName, query);
+		const results = await this.getStartsWith<T>(this.tableName, query);
 		return results;
 	}
 

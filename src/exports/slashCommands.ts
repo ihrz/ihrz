@@ -91,7 +91,7 @@ import * as m65 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts"
 import * as m66 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
 import * as m67 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"authrestore/!delete.ts": m0,
 	"authrestore/!force-join.ts": m1,
 	"authrestore/!get.ts": m2,

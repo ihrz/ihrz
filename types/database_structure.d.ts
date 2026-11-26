@@ -380,8 +380,11 @@ export namespace DatabaseStructure {
 	}
 
 	export interface NotifierUserSchema {
+		/** YouTube channel id, Twitch login, Kick slug, Bluesky DID, Mastodon `user@instance` (StreamNotifier.resolveAuthor). */
 		id_or_username: string;
 		platform: Platform;
+		/** This account's own channel; absent or null = NotifierSchema.channelId. */
+		channelId?: string | null;
 	}
 
 	export interface NotifierLastNotifiedMedias {

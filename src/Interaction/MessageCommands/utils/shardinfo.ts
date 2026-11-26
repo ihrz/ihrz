@@ -60,12 +60,7 @@ export const command: Command = {
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: null,
-	run: async (
-		client: Client,
-		message: Message<true>,
-		lang: LanguageData,
-		options?: string[]
-	) => {
+	run: async (client: Client, message: Message<true>, lang: LanguageData) => {
 		if (!(await client.func.ownerHelper.isBotOwner(message.author.id))) {
 			return;
 		}

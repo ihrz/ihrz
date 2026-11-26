@@ -64,8 +64,18 @@ function fakeGuild(rules: ReturnType<typeof rule>[]) {
 	return { guild, create };
 }
 
+// The fields of a rule payload (create / edit) the tests read.
+interface RulePayload {
+	name: string;
+	enabled: boolean;
+	triggerType: AutoModerationRuleTriggerType;
+	triggerMetadata: { mentionTotalLimit?: number };
+	exemptRoles: string[];
+	actions: { metadata: { channel?: string } }[];
+}
+
 const firstArg = (fn: ReturnType<typeof mock>) =>
-	(fn.mock.calls[0] as unknown[])[0] as Record<string, any>;
+	(fn.mock.calls[0] as unknown[])[0] as RulePayload;
 
 describe("setNativeRuleEnabled", () => {
 	test("creates a missing rule with the panel's roles and logs", async () => {
@@ -120,7 +130,7 @@ describe("setNativeRuleEnabled", () => {
 		await setNativeRuleEnabled(guild, "antipub", true, null);
 		await setNativeRuleEnabled(guild, "media", true, null);
 		const [links, invites] = create.mock.calls.map(
-			(call) => (call as unknown[])[0] as Record<string, any>
+			(call) => (call as unknown[])[0] as RulePayload
 		);
 		expect(links.name).toBe(invites.name);
 

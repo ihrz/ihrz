@@ -34,7 +34,7 @@ export default async function (
 	if (!value?.startsWith("temporary_voice_")) return;
 
 	const handler = interaction.client.buttons.get(value) as
-		((button: ButtonInteraction<"cached">) => Promise<any>) | undefined;
+		((button: ButtonInteraction<"cached">) => Promise<unknown>) | undefined;
 
 	if (!handler) return await interaction.deferUpdate();
 

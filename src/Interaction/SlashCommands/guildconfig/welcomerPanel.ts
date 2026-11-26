@@ -451,7 +451,7 @@ export async function openWelcomerPanel(
 	lang: LanguageData
 ): Promise<void> {
 	const guildId = interaction.guildId!;
-	const authorId = interaction.member?.user.id!;
+	const authorId = interaction.member?.user.id as string;
 
 	const [
 		storedJoin,
@@ -1034,8 +1034,7 @@ export async function openWelcomerPanel(
 	}
 
 	async function askForDm(
-		source: ButtonInteraction<"cached">,
-		message: Message<true>
+		source: ButtonInteraction<"cached">
 	): Promise<string | null> {
 		const modal = await iHorizonModalResolve(
 			{
@@ -1715,7 +1714,7 @@ export async function openWelcomerPanel(
 						break;
 					}
 					case "welcomer-dm-set": {
-						const response = await askForDm(source, placeholder);
+						const response = await askForDm(source);
 
 						if (response) {
 							state.joinDm = response;

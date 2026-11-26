@@ -81,5 +81,7 @@ export async function sendJoinDm(
 			})
 			.catch(() => {})
 			.then(() => {});
-	} catch {}
+	} catch {
+		// best effort: the member may not accept DMs
+	}
 }

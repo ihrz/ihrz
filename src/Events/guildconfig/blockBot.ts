@@ -27,11 +27,7 @@ import {
 	PermissionsBitField
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {
@@ -103,12 +99,13 @@ export const event: BotEvent = {
 					filteredLog.executorId!
 				);
 
-				executor &&
-					(await client.func.method.punish(
+				if (executor) {
+					await client.func.method.punish(
 						{ SANCTION: "simply+derank" },
 						executor,
 						"Attempt to add a Discord bot into this guild! -> Derank"
-					));
+					);
+				}
 
 				const owner = member.guild.members.cache.get(
 					member.guild.ownerId

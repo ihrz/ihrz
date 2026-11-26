@@ -47,12 +47,7 @@ export const command: Command = {
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: null,
-	run: async (
-		client: Client,
-		message: Message<true>,
-		lang: LanguageData,
-		options?: string[]
-	) => {
+	run: async (client: Client, message: Message<true>, lang: LanguageData) => {
 		if (message.reference) {
 			const msg = await message.channel.messages.fetch(
 				message.reference.messageId || ""
@@ -64,7 +59,7 @@ export const command: Command = {
 				});
 			} else {
 				const sticker = msg.stickers.first()!;
-				var cool_name = sticker.name;
+				let cool_name = sticker.name;
 
 				if (message.guild.vanityURLCode !== null) {
 					cool_name += ` /${message.guild.vanityURLCode}`;

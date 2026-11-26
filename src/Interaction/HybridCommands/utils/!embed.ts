@@ -247,7 +247,8 @@ class EmbedManager {
 		const messageCollector = (
 			this.interaction.channel as BaseGuildTextChannel
 		)?.createMessageCollector({
-			filter: (m) => m.author.id === this.interaction.member?.user.id!,
+			filter: (m) =>
+				m.author.id === (this.interaction.member?.user.id as string),
 			max: 1,
 			time: this.time_maximum
 		});
@@ -274,7 +275,7 @@ class EmbedManager {
 			throw new Error(
 				this.lang.embed_copy_bad_guild_msg.replace(
 					"${guildName}",
-					this.interaction.guild?.name!
+					this.interaction.guild?.name as string
 				)
 			);
 		}
@@ -470,10 +471,11 @@ class EmbedManager {
 			)) as DatabaseStructure.DbEmbedObject["EMBED"];
 
 			if (
-				potentialEmbed?.embedOwner === this.interaction.member?.user.id!
+				potentialEmbed?.embedOwner ===
+				(this.interaction.member?.user.id as string)
 			) {
 				await metasTable.set(`EMBED.${arg}`, {
-					embedOwner: this.interaction.member?.user.id!,
+					embedOwner: this.interaction.member?.user.id as string,
 					embedSource
 				});
 				return { code: arg, dropped };
@@ -482,7 +484,7 @@ class EmbedManager {
 
 		const password = generatePassword({ length: 16 });
 		await metasTable.set(`EMBED.${password}`, {
-			embedOwner: this.interaction.member?.user.id!,
+			embedOwner: this.interaction.member?.user.id as string,
 			embedSource
 		});
 		return { code: password, dropped };
@@ -503,7 +505,7 @@ class EmbedManager {
 		await confirmation.update({
 			content: this.lang.embed_send_message.replace(
 				"${authorId}",
-				this.interaction.member?.user.id!
+				this.interaction.member?.user.id as string
 			),
 			components: [channelSelectMenu],
 			files: this.getFilesArray()
@@ -513,7 +515,7 @@ class EmbedManager {
 			this.interaction.channel as BaseGuildTextChannel
 		)?.createMessageComponentCollector({
 			filter: (m) =>
-				m.user.id === this.interaction.member?.user.id! &&
+				m.user.id === (this.interaction.member?.user.id as string) &&
 				m.customId === "embed-save-channel",
 			max: 1,
 			time: this.time_maximum,
@@ -523,7 +525,7 @@ class EmbedManager {
 		seCollector?.on("collect", async (result) => {
 			if (result instanceof ChannelSelectMenuInteraction) {
 				const channel = this.interaction.guild?.channels.cache.get(
-					result.channels.first()?.id!
+					result.channels.first()?.id as string
 				);
 				if (!channel) return;
 
@@ -553,7 +555,7 @@ class EmbedManager {
 					content: this.lang.embed_send_embed_work
 						.replace(
 							"${authorId}",
-							this.interaction.member?.user.id!
+							this.interaction.member?.user.id as string
 						)
 						.replace("${messageContent}", channel.id),
 					embeds: [],
@@ -580,7 +582,8 @@ class EmbedManager {
 		const response2 = await (
 			this.interaction.channel as BaseGuildTextChannel
 		)?.awaitMessages({
-			filter: (m) => m.author.id === this.interaction.member?.user.id!,
+			filter: (m) =>
+				m.author.id === (this.interaction.member?.user.id as string),
 			max: 1,
 			time: this.time_maximum
 		});
@@ -597,7 +600,7 @@ class EmbedManager {
 				throw new Error(
 					this.lang.embed_copy_bad_guild_msg.replace(
 						"${guildName}",
-						this.interaction.guild?.name!
+						this.interaction.guild?.name as string
 					)
 				);
 			}
@@ -645,7 +648,7 @@ class EmbedManager {
 				content: this.lang.embed_replace_message
 					.replace(
 						"{user}",
-						this.interaction.member?.user.toString()!
+						this.interaction.member?.user.toString() as string
 					)
 					.replace("{messageUrl}", message.content!),
 				files: [],
@@ -835,7 +838,9 @@ class EmbedManager {
 		selectCollector.on(
 			"collect",
 			async (i: StringSelectMenuInteraction<"cached">) => {
-				if (i.user.id !== this.interaction.member?.user.id!) {
+				if (
+					i.user.id !== (this.interaction.member?.user.id as string)
+				) {
 					await i.reply({
 						content: this.lang.embed_interaction_not_for_you,
 						flags: [1 << 6]
@@ -856,7 +861,8 @@ class EmbedManager {
 			"collect",
 			async (confirmation: ButtonInteraction<"cached">) => {
 				if (
-					confirmation.user.id !== this.interaction.member?.user.id!
+					confirmation.user.id !==
+					(this.interaction.member?.user.id as string)
 				) {
 					await confirmation.reply({
 						content: this.lang.embed_interaction_not_for_you,
@@ -866,12 +872,12 @@ class EmbedManager {
 				}
 
 				switch (confirmation.customId) {
-					case "save":
+					case "save": {
 						const saved = await this.saveEmbed(arg);
 						const savedMessage = this.lang.embed_save_message
 							.replace(
 								"${authorId}",
-								this.interaction.member?.user.id!
+								this.interaction.member?.user.id as string
 							)
 							.replace("${embedId}", saved.code);
 						await confirmation.update({
@@ -884,11 +890,12 @@ class EmbedManager {
 						});
 						buttonCollector.stop();
 						break;
+					}
 					case "cancel":
 						await confirmation.update({
 							content: this.lang.embed_cancel_message.replace(
 								"${authorId}",
-								this.interaction.member?.user.id!
+								this.interaction.member?.user.id as string
 							),
 							components: [],
 							embeds: [],

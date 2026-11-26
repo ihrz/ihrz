@@ -38,7 +38,6 @@ import {
 	ACCENT,
 	botSignature,
 	buildCard,
-	cardPayload,
 	notice,
 	pageLabel,
 	sendCard
@@ -58,8 +57,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -224,7 +222,7 @@ export const subCommand: SubCommand = {
 							)
 							.catch(() => false);
 						good++;
-					} catch (err) {
+					} catch {
 						bad++;
 					}
 				}

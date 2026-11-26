@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			var res = await captions(image.url!, query);
+			const res = await captions(image.url!, query);
 
 			client.func.method.interactionSend(interaction, {
 				files: [

@@ -23,7 +23,6 @@ import { Client, Message } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { getTTSData, speakTTS } from "../../core/modules/ttsManager.js";
-import logger from "../../core/logger.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 
 const DETECTORS: Array<{ regex: RegExp; locale: string }> = [
@@ -59,7 +58,7 @@ async function getServerLocale(
 
 export function isUrl(str: string): boolean {
 	try {
-		let url = new URL(str);
+		const url = new URL(str);
 		return url.protocol ? true : false;
 	} catch {
 		return false;

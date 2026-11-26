@@ -21,7 +21,7 @@
 
 import { afterEach, expect, test } from "bun:test";
 
-import { ChannelType } from "discord.js";
+import { ChannelType, type Client, type Guild } from "discord.js";
 import { getVoiceConnection } from "@discordjs/voice";
 
 import {
@@ -90,7 +90,7 @@ function makeGuild(store: Map<string, unknown>) {
 		updatedAt: 1
 	});
 
-	return { guild: guild as any, payloads, voice };
+	return { guild: guild as unknown as Guild, payloads, voice };
 }
 
 async function until(check: () => boolean): Promise<void> {
@@ -107,7 +107,10 @@ const socketClosed = () =>
 afterEach(async () => {
 	for (const id of usedGuildIds.splice(0)) {
 		getVoiceConnection(id)?.destroy();
-		await deleteH247Data({ db: { delete: async () => {} } } as any, id);
+		await deleteH247Data(
+			{ db: { delete: async () => {} } } as unknown as Client,
+			id
+		);
 	}
 });
 

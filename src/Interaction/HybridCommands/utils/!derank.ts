@@ -54,13 +54,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member") as GuildMember;
-		} else {
-			var member =
-				client.func.method.member(interaction, args!, 0) ||
-				interaction.member;
-		}
+		const member =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getMember("member") as GuildMember)
+				: client.func.method.member(interaction, args!, 0) ||
+					interaction.member;
 
 		if (!member) {
 			await client.func.method.interactionSend(interaction, {

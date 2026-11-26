@@ -43,15 +43,15 @@ async function loadEvents(client: Client): Promise<void> {
 			client.on(
 				(imported.event as BotEvent).name as keyof ClientEvents,
 				(imported.event as BotEvent).run.bind(null, client) as (
-					...args: any[]
-				) => Promise<any>
+					...args: unknown[]
+				) => Promise<unknown>
 			);
 		} else if (imported.restEvent) {
 			client.rest.on(
 				(imported.restEvent as BotEvent).name as keyof RestEvents,
 				(imported.restEvent as BotEvent).run.bind(null, client) as (
-					...args: any[]
-				) => Promise<any>
+					...args: unknown[]
+				) => Promise<unknown>
 			);
 		}
 	}

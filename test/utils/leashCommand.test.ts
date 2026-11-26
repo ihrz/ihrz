@@ -24,8 +24,10 @@
 // member really isn't in voice.
 
 import { expect, mock, test } from "bun:test";
+import type { ChatInputCommandInteraction, Client } from "discord.js";
 
 import enUS from "../../src/lang/en-US.ts";
+import type { LanguageData } from "../../types/languageData.js";
 
 const prompts: string[] = [];
 mock.module("../../src/core/functions/awaitingResponse.js", () => ({
@@ -52,7 +54,7 @@ function run(
 		id: "sub",
 		voice: { channel: targetInVoice ? { id: "vc" } : null }
 	};
-	const client: any = {
+	const client = {
 		user: {},
 		db: {
 			get: async (key: string) => store.get(key) ?? null,
@@ -73,15 +75,15 @@ function run(
 				}
 			}
 		}
-	};
-	const interaction: any = {
+	} as unknown as Client;
+	const interaction = {
 		guildId: "g",
 		guild: { id: "g" },
 		channel: {},
 		member: { user: { id: "dom" }, voice: { channel: { id: "vc" } } }
-	};
+	} as unknown as ChatInputCommandInteraction<"cached">;
 	return leash
-		.run(client, interaction, enUS as any, [])
+		.run(client, interaction, enUS as LanguageData, [])
 		.then(() => ({ sent, store }));
 }
 

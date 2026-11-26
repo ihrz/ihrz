@@ -101,7 +101,9 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	}
 
-	const channel = interaction.guild?.channels.cache.get(panel?.channelId!);
+	const channel = panel?.channelId
+		? interaction.guild?.channels.cache.get(panel.channelId)
+		: undefined;
 
 	if (
 		panel?.channelId !== interaction.channelId ||
@@ -198,8 +200,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		view = false;
 	}
 
-	allDataConfession.thread === "yes" &&
-		(async () => {
+	if (allDataConfession.thread === "yes")
+		void (async () => {
 			const respondButton = new ButtonBuilder()
 				.setStyle(ButtonStyle.Secondary)
 				.setLabel(lang.confession_channel_button_name)
@@ -328,7 +330,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		`${interaction.guildId}.GUILD.SERVER_LOGS.confession`
 	);
 	if (someinfo) {
-		let channel =
+		const channel =
 			interaction.guild.channels.cache.get(someinfo) ||
 			(await interaction.guild.channels
 				.fetch(someinfo)

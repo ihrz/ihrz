@@ -53,12 +53,7 @@ export const command: Command = {
 	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (
-		client: Client,
-		interaction: Message,
-		lang: LanguageData,
-		args?: string[]
-	) => {
+	run: async (client: Client, interaction: Message, lang: LanguageData) => {
 		subCommand.run(client, interaction, lang);
 	}
 };

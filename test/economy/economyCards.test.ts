@@ -23,6 +23,7 @@ import { describe, expect, test } from "bun:test";
 import { MessageFlags } from "discord.js";
 
 import enUS from "../../src/lang/en-US.ts";
+import type { LanguageData } from "../../types/languageData.ts";
 import emojis from "../../src/files/emojis.json";
 import {
 	rewardCard,
@@ -31,7 +32,7 @@ import {
 } from "../../src/core/modules/economyCards.ts";
 import * as economyLogs from "../../src/core/functions/economyLogs.ts";
 
-const lang = enUS as any;
+const lang = enUS as LanguageData;
 
 const fakeClient = (stored: unknown = null) =>
 	({
@@ -42,9 +43,18 @@ const fakeClient = (stored: unknown = null) =>
 				footerBuilder: async () => ({ text: "iHorizon", iconURL: "" })
 			}
 		}
-	}) as any;
+	}) as never;
 
-const json = (container: any) => JSON.stringify(container.toJSON());
+const json = (container: { toJSON(): unknown }) =>
+	JSON.stringify(container.toJSON());
+
+// What economyLogs sends (the fields checked here).
+type SentPayload = {
+	flags?: unknown;
+	allowedMentions?: unknown;
+	embeds?: unknown;
+	components: { toJSON(): unknown }[];
+};
 
 describe("economy cards", () => {
 	test("roles are listed most expensive first, with price and boost", () => {
@@ -72,7 +82,7 @@ describe("economy cards", () => {
 		const member = {
 			guild: { id: "9" },
 			displayAvatarURL: () => "https://cdn.discordapp.com/a.png"
-		} as any;
+		} as never;
 		const card = json(
 			await rewardCard(
 				fakeClient(),
@@ -93,11 +103,11 @@ describe("economy cards", () => {
 });
 
 describe("economy log channel", () => {
-	const fakeGuild = (sent: any[], logs: string | null = "500") => {
+	const fakeGuild = (sent: SentPayload[], logs: string | null = "500") => {
 		const client = fakeClient(logs);
 		const channel = {
 			guild: { id: "9", client },
-			send: async (p: any) => sent.push(p)
+			send: async (p: SentPayload) => sent.push(p)
 		};
 		return {
 			id: "9",
@@ -106,11 +116,11 @@ describe("economy log channel", () => {
 				cache: new Map([["500", channel]]),
 				fetch: async () => null
 			}
-		} as any;
+		} as never;
 	};
 
 	test("a Components V2 card that pings nobody", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		await economyLogs.pay(fakeGuild(sent), "1", "2", 300, lang);
 		expect(sent).toHaveLength(1);
 		const [payload] = sent;
@@ -125,7 +135,7 @@ describe("economy log channel", () => {
 	});
 
 	test("no log channel, nothing sent", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		await economyLogs.deposit(fakeGuild(sent, null), "1", 5, lang);
 		expect(sent).toHaveLength(0);
 	});

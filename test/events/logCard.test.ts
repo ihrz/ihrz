@@ -27,7 +27,9 @@ import {
 	ActionRowBuilder,
 	ComponentType,
 	EmbedBuilder,
-	MessageFlags
+	type Message,
+	MessageFlags,
+	type User
 } from "discord.js";
 
 import emojis from "../../src/files/emojis.json";
@@ -41,45 +43,58 @@ import {
 import { deletedMessageLog } from "../../src/Events/logs/messageDeleteLogs.ts";
 import { editedMessageLog } from "../../src/Events/logs/messageUpdateLogs.ts";
 
-const fakeChannel = (sent: any[], sendable = true) =>
-	({
-		id: "500",
-		guildId: "9",
-		client: {
-			func: {
-				displayBotName: {
-					footerBuilder: async () => ({
-						text: "iHorizon",
-						iconURL: ""
-					})
-				}
+/** The parts of a component's JSON the tests read. */
+type CardNode = {
+	type?: number;
+	content?: string;
+	custom_id?: string;
+	accent_color?: number;
+	media?: { url: string };
+	file?: { url: string };
+	items?: { media: { url: string } }[];
+	components?: CardNode[];
+	accessory?: CardNode;
+};
+type SentPayload = { components: { toJSON(): unknown }[] };
+
+const fakeChannel = (sent: SentPayload[], sendable = true) => ({
+	id: "500",
+	guildId: "9",
+	client: {
+		func: {
+			displayBotName: {
+				footerBuilder: async () => ({
+					text: "iHorizon",
+					iconURL: ""
+				})
 			}
-		},
-		isSendable: () => sendable,
-		send: async (p: any) => {
-			sent.push(p);
-			return { id: "m" };
 		}
-	}) as any;
+	},
+	isSendable: () => sendable,
+	send: async (p: SentPayload) => {
+		sent.push(p);
+		return { id: "m" };
+	}
+});
 
 const author = {
 	id: "1",
 	username: "alice",
 	displayAvatarURL: () => "https://cdn.discordapp.com/avatars/1/a.png"
-} as any;
+} as unknown as User;
 
 const file = (name: string) =>
 	new AttachmentBuilder(Buffer.from("x"), { name });
 
 /** Every component of the card, flattened (type + JSON). */
-function flatten(payload: any): any[] {
-	const out: any[] = [];
-	const walk = (c: any) => {
+function flatten(payload: SentPayload): CardNode[] {
+	const out: CardNode[] = [];
+	const walk = (c: CardNode) => {
 		out.push(c);
 		for (const child of c.components ?? []) walk(child);
 		if (c.accessory) walk(c.accessory);
 	};
-	for (const c of payload.components) walk(c.toJSON());
+	for (const c of payload.components) walk(c.toJSON() as CardNode);
 	return out;
 }
 
@@ -98,9 +113,9 @@ describe("log card", () => {
 		);
 		expect(payload.flags).toEqual([MessageFlags.IsComponentsV2]);
 		expect(payload.allowedMentions).toEqual({ parse: [] });
-		expect((payload as any).embeds).toBeUndefined();
-		expect((payload as any).content).toBeUndefined();
-		const card = payload.components[0].toJSON() as any;
+		expect((payload as { embeds?: unknown }).embeds).toBeUndefined();
+		expect((payload as { content?: unknown }).content).toBeUndefined();
+		const card = payload.components[0].toJSON() as CardNode;
 		expect(card.accent_color).toBe(LOG_ACCENT.danger);
 		const json = JSON.stringify(card);
 		expect(json).toContain(`## ${emojis.Ban_Hammer} Member banned`);
@@ -109,7 +124,7 @@ describe("log card", () => {
 		const thumb = flatten(payload).find(
 			(c) => c.type === ComponentType.Thumbnail
 		);
-		expect(thumb.media.url).toBe(author.displayAvatarURL());
+		expect(thumb!.media!.url).toBe(author.displayAvatarURL());
 	});
 
 	test("images go to a gallery, other files to file components", () => {
@@ -130,11 +145,11 @@ describe("log card", () => {
 		]);
 		const all = flatten(payload);
 		const gallery = all.find((c) => c.type === ComponentType.MediaGallery);
-		expect(gallery.items.map((i: any) => i.media.url)).toEqual([
+		expect(gallery!.items!.map((i) => i.media.url)).toEqual([
 			"attachment://0_cat.png"
 		]);
 		const files = all.filter((c) => c.type === ComponentType.File);
-		expect(files.map((f) => f.file.url)).toEqual([
+		expect(files.map((f) => f.file!.url)).toEqual([
 			"attachment://1_notes.txt"
 		]);
 	});
@@ -158,7 +173,7 @@ describe("log card", () => {
 		const button = flatten(payload).find(
 			(c) => c.type === ComponentType.Button
 		);
-		expect(button.custom_id).toBe("confessionauthor%1");
+		expect(button!.custom_id).toBe("confessionauthor%1");
 	});
 
 	test("attachment names are safe and unique", () => {
@@ -171,7 +186,7 @@ describe("log card", () => {
 	});
 
 	test("sendLogCard sends once, with the guild's bot name", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		await sendLogCard(fakeChannel(sent), { kind: "info", title: "x" });
 		expect(sent).toHaveLength(1);
 		expect(JSON.stringify(sent[0].components[0].toJSON())).toContain(
@@ -180,7 +195,7 @@ describe("log card", () => {
 	});
 
 	test("sendLogCard ignores channels it can't post in, never throws", async () => {
-		const sent: any[] = [];
+		const sent: SentPayload[] = [];
 		expect(
 			await sendLogCard(fakeChannel(sent, false), {
 				kind: "info",
@@ -211,7 +226,7 @@ describe("message logs", () => {
 				channelId: "77",
 				content: "hello @everyone",
 				embeds: [new EmbedBuilder().setTitle("Preview").toJSON()]
-			} as any,
+			} as unknown as Message,
 			enUS,
 			emojis,
 			[
@@ -223,7 +238,7 @@ describe("message logs", () => {
 		expect(embeds[0].data.title).toBe("Preview");
 
 		const payload = logCardPayload(card, "iHorizon");
-		expect((payload as any).embeds).toBeUndefined();
+		expect((payload as { embeds?: unknown }).embeds).toBeUndefined();
 		expect(payload.allowedMentions).toEqual({ parse: [] });
 		const json = JSON.stringify(payload.components[0].toJSON());
 		expect(json).toContain(enUS.logs_message_delete_title);
@@ -237,13 +252,13 @@ describe("message logs", () => {
 	test("edited message: one diff block, no >>> quote", () => {
 		const card = editedMessageLog(
 			{ guildId: "9", channelId: "77", id: "88", content: "old text" },
-			{ author, content: "new text" } as any,
+			{ author, content: "new text" },
 			enUS,
 			emojis
 		);
 		const texts = flatten(logCardPayload(card, null))
 			.filter((c) => c.type === ComponentType.TextDisplay)
-			.map((c) => c.content);
+			.map((c) => c.content!);
 		const diff = texts.find((t) => t.includes("```diff"));
 		expect(diff).toContain(
 			`**${enUS.event_srvLogs_messageUpdate_footer_1}** → **${enUS.event_srvLogs_messageUpdate_footer_2}**`

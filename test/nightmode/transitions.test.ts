@@ -31,34 +31,54 @@ import {
 	NightModeManager,
 	saveNightModeSettings
 } from "../../src/core/modules/nightModeManager.ts";
+import type { DatabaseStructure } from "../../types/database_structure.ts";
+import type { LanguageData } from "../../types/languageData.ts";
+
+type Node = Record<string, unknown>;
+// The store as the tests read it back: nested objects.
+type Tree = { [key: string]: Tree };
+type NightModeState = { last_state?: string; changed_roles?: string[] };
+// The manager with its Discord-facing internals replaced.
+type TestableNightMode = {
+	Basics_Check: () => unknown;
+	Notify_Server_Owner: (
+		guild: unknown,
+		opt: { msg?: { content?: string }; type?: string }
+	) => Promise<void>;
+	calculate_window_time: () => Promise<string>;
+	Refresh: (data: unknown) => Promise<unknown>;
+	GetNightModeData: () => Promise<unknown>;
+};
 
 const ADMIN = PermissionFlagsBits.Administrator;
-const lang = new Proxy({}, { get: (_, k) => String(k) }) as any;
-const NM = "g.UTILS.NIGHT_MODE";
+const lang = new Proxy({} as LanguageData, { get: (_, k) => String(k) });
 
 /** Dotted-path store, like the bot's database. */
-function makeDb(root: Record<string, any> = {}) {
-	const walk = (key: string, create: boolean) => {
+function makeDb(root: Node = {}) {
+	const walk = (
+		key: string,
+		create: boolean
+	): { node: Node | undefined; last: string } => {
 		const parts = key.split(".");
-		let node: any = root;
+		let node: Node = root;
 		for (const part of parts.slice(0, -1)) {
 			if (node[part] === undefined) {
 				if (!create) return { node: undefined, last: "" };
 				node[part] = {};
 			}
-			node = node[part];
+			node = node[part] as Node;
 		}
 		return { node, last: parts[parts.length - 1] };
 	};
 	return {
-		root,
+		root: root as unknown as Tree,
 		get: async (key: string) => {
 			const { node, last } = walk(key, false);
 			return node?.[last];
 		},
 		set: async (key: string, value: unknown) => {
 			const { node, last } = walk(key, true);
-			node[last] = structuredClone(value);
+			node![last] = structuredClone(value);
 		},
 		delete: async (key: string) => {
 			const { node, last } = walk(key, false);
@@ -68,14 +88,16 @@ function makeDb(root: Record<string, any> = {}) {
 }
 
 function makeRole(id: string, admin = true) {
-	const role: any = {
+	const role = {
 		id,
 		name: id,
 		managed: false,
 		fails: false,
 		permissions: new PermissionsBitField(admin ? ADMIN : 0n),
 		guild: { members: { me: { roles: { botRole: null } } } },
-		setPermissions: async (permissions: PermissionsBitField) => {
+		setPermissions: async (
+			permissions: PermissionsBitField
+		): Promise<void> => {
 			if (role.fails) throw new Error(`cannot edit ${id}`);
 			role.permissions = new PermissionsBitField(permissions);
 		}
@@ -85,17 +107,20 @@ function makeRole(id: string, admin = true) {
 
 let dms: string[];
 
-function setup(nightMode: Record<string, any>, roles: any[]) {
+function setup(
+	nightMode: Record<string, unknown>,
+	roles: ReturnType<typeof makeRole>[]
+) {
 	const db = makeDb({ g: { UTILS: { NIGHT_MODE: nightMode } } });
-	const byId = new Collection<string, any>(roles.map((r) => [r.id, r]));
-	const guild: any = {
+	const byId = new Collection(roles.map((r) => [r.id, r]));
+	const guild = {
 		id: "g",
 		client: { db },
 		roles: {
 			fetch: async (id?: string) => (id ? (byId.get(id) ?? null) : byId)
 		}
 	};
-	(globalThis as any).client = {
+	(globalThis as { client?: unknown }).client = {
 		db,
 		guilds: {
 			cache: new Collection([["g", guild]]),
@@ -104,10 +129,10 @@ function setup(nightMode: Record<string, any>, roles: any[]) {
 		func: { getLanguageData: async () => lang },
 		iHorizon_Emojis: { Warning_Icon: "!" }
 	};
-	const manager = new NightModeManager() as any;
+	const manager = new NightModeManager() as unknown as TestableNightMode;
 	const checks = { im_self_admin: true, im_on_top: true, is_admin: true };
 	manager.Basics_Check = () => checks;
-	manager.Notify_Server_Owner = async (_: any, opt: any) => {
+	manager.Notify_Server_Owner = async (_, opt) => {
 		dms.push(opt.msg?.content ?? `embed:${opt.type}`);
 	};
 	let phase: "started" | "ended" = "started";
@@ -122,7 +147,8 @@ function setup(nightMode: Record<string, any>, roles: any[]) {
 	};
 }
 
-const state = (db: any) => db.root.g.UTILS.NIGHT_MODE;
+const state = (db: { root: Tree }) =>
+	db.root.g.UTILS.NIGHT_MODE as unknown as NightModeState;
 const warnings = () => dms.filter((m) => m.startsWith("var_nm_error_occured"));
 
 beforeEach(() => {
@@ -130,7 +156,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	delete (globalThis as any).client;
+	delete (globalThis as { client?: unknown }).client;
 });
 
 test("night start blocked by the bot's role is retried next tick, owner warned once", async () => {
@@ -277,7 +303,7 @@ test("the panel saves its settings without touching the night state", async () =
 		}
 	});
 	// Snapshot the panel took before the night started.
-	const stale: any = {
+	const stale: DatabaseStructure.NightMode = {
 		enabled: false,
 		notify: true,
 		time: [22, 0, 7, 0],
@@ -288,7 +314,7 @@ test("the panel saves its settings without touching the night state", async () =
 		changed_roles: []
 	};
 	await saveNightModeSettings(db, "g", stale);
-	expect(db.root.g.UTILS.NIGHT_MODE).toEqual({
+	expect(db.root.g.UTILS.NIGHT_MODE as unknown).toEqual({
 		enabled: false,
 		notify: true,
 		time: [22, 0, 7, 0],

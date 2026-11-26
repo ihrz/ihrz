@@ -43,12 +43,14 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
+		let action: string;
+		let prefix: string | null;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action", true);
-			var prefix = interaction.options.getString("name");
+			action = interaction.options.getString("action", true);
+			prefix = interaction.options.getString("name");
 		} else {
-			var action = "change";
-			var prefix = client.func.method.string(args!, 0);
+			action = "change";
+			prefix = client.func.method.string(args!, 0);
 		}
 
 		if (action === "mention") {

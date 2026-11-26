@@ -152,7 +152,9 @@ describe("cover mosaic", () => {
 		// An older document: no `covers`.
 		const { musicLibraryTable } =
 			await import("../../src/core/database/tables.ts");
-		const doc = (await musicLibraryTable.get(`PL_${U}`)) as any;
+		const doc = (await musicLibraryTable.get(`PL_${U}`)) as {
+			playlists: { covers?: unknown }[];
+		};
 		delete doc.playlists[0].covers;
 		await musicLibraryTable.set(`PL_${U}`, doc);
 		const listed = await lib.listPlaylistsWithCovers(U);
@@ -215,10 +217,14 @@ describe("liked tracks", () => {
 		const { musicLibraryTable } =
 			await import("../../src/core/database/tables.ts");
 		const get = musicLibraryTable.get.bind(musicLibraryTable);
+		// The table's reads, swapped for slow ones.
+		const table = musicLibraryTable as unknown as {
+			get: (key: string) => Promise<unknown>;
+		};
 		let release!: () => void;
 		const gate = new Promise<void>((r) => (release = r));
 		let held = false;
-		(musicLibraryTable as any).get = async (key: string) => {
+		table.get = async (key: string) => {
 			const value = await get(key);
 			if (key === `FI_${U}` && !held) {
 				held = true;
@@ -238,7 +244,7 @@ describe("liked tracks", () => {
 			held = false;
 			let release2!: () => void;
 			const gate2 = new Promise<void>((r) => (release2 = r));
-			(musicLibraryTable as any).get = async (key: string) => {
+			table.get = async (key: string) => {
 				const value = await get(key);
 				if (key === `FI_${U}` && !held) {
 					held = true;
@@ -254,7 +260,7 @@ describe("liked tracks", () => {
 			await stale2;
 			expect((await lib.favoriteKeys(U)).has(track(1).key)).toBe(false);
 		} finally {
-			(musicLibraryTable as any).get = get;
+			table.get = get;
 		}
 	});
 

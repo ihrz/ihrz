@@ -30,7 +30,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
 async function VanityCodeAlreadyExist(
-	AllVanityGuild: any,
+	AllVanityGuild: Record<string, { vanity?: string } | null | undefined>,
 	code: string
 ): Promise<boolean> {
 	let _ = false;

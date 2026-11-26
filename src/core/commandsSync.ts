@@ -28,7 +28,7 @@ import {
 } from "discord.js";
 import logger from "./logger.js";
 
-export function removePermissionProperties(obj: any): any {
+export function removePermissionProperties(obj: unknown): unknown {
 	// If obj is an array, map through its elements
 	if (Array.isArray(obj)) {
 		return obj.map((item) => removePermissionProperties(item));
@@ -40,7 +40,7 @@ export function removePermissionProperties(obj: any): any {
 	}
 
 	// Create a new object to store cleaned properties
-	const cleanedObj: any = {};
+	const cleanedObj: Record<string, unknown> = {};
 
 	// Iterate through object properties
 	for (const [key, value] of Object.entries(obj)) {
@@ -92,7 +92,10 @@ export function readablePermissionField(permission: unknown): {
 // Same walk as removePermissionProperties, but a "permission" is exported as
 // a readable "permissions" array of PermissionFlagsBits names (never a bigint).
 // Only meant for the commands.json export, never for the Discord sync.
-export function withReadablePermissions(obj: any): any {
+// The result keeps the input's shape (minus perm/permission): its readers
+// (ready.ts, tests) walk it freely, so it stays untyped on the way out.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function withReadablePermissions(obj: unknown): any {
 	if (Array.isArray(obj)) {
 		return obj.map((item) => withReadablePermissions(item));
 	}
@@ -101,7 +104,7 @@ export function withReadablePermissions(obj: any): any {
 		return obj;
 	}
 
-	const cleanedObj: any = {};
+	const cleanedObj: Record<string, unknown> = {};
 
 	for (const [key, value] of Object.entries(obj)) {
 		if (key === "perm") continue;
@@ -171,66 +174,61 @@ export function entryPointCommands(
 }
 
 export async function synchronizeCommands(client: Client): Promise<void> {
-	return new Promise(async (resolve, reject) => {
-		try {
-			const rest = new REST().setToken(
-				process.env.BOT_TOKEN || client.config.discord.token
-			);
-			const appCmds = client.applicationsCommands.map((command) => ({
-				name: command.name,
-				type: command.type,
-				integration_types: command.integration_types,
-				contexts: command.contexts
-			}));
+	try {
+		const rest = new REST().setToken(
+			process.env.BOT_TOKEN || client.config.discord.token
+		);
+		const appCmds = client.applicationsCommands.map((command) => ({
+			name: command.name,
+			type: command.type,
+			integration_types: command.integration_types,
+			contexts: command.contexts
+		}));
 
-			const slashCommands =
-				client.commands?.map((command) => {
-					const commandData = {
-						name: command.name,
-						name_localizations: command.name_localizations,
-						type: command.type,
-						description: command.description,
-						description_localizations:
-							command.description_localizations,
-						options:
-							removePermissionProperties(command.options) || [],
-						integration_types: command.integration_types || [0],
-						contexts: command.contexts || [0]
-					};
-					return commandData;
-				}) || [];
+		const slashCommands =
+			client.commands?.map((command) => {
+				const commandData = {
+					name: command.name,
+					name_localizations: command.name_localizations,
+					type: command.type,
+					description: command.description,
+					description_localizations:
+						command.description_localizations,
+					options: removePermissionProperties(command.options) || [],
+					integration_types: command.integration_types || [0],
+					contexts: command.contexts || [0]
+				};
+				return commandData;
+			}) || [];
 
-			// Kept as is: Discord refuses a bulk update that would remove it.
-			const entryPoints = entryPointCommands(
-				await rest
-					.get(Routes.applicationCommands(client.user?.id!))
-					.catch(() => [])
-			);
-			const allCommands = [...slashCommands, ...appCmds, ...entryPoints];
+		// Kept as is: Discord refuses a bulk update that would remove it.
+		const entryPoints = entryPointCommands(
+			await rest
+				.get(Routes.applicationCommands(String(client.user?.id)))
+				.catch(() => [])
+		);
+		const allCommands = [...slashCommands, ...appCmds, ...entryPoints];
 
-			logger.log(
-				`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`
-					.white
-			);
-			logger.log(
-				`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`
-					.white
-			);
+		logger.log(
+			`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`
+				.white
+		);
+		logger.log(
+			`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`
+				.white
+		);
 
-			const data = await rest.put(
-				Routes.applicationCommands(client.user?.id!),
-				{ body: allCommands }
-			);
+		const data = await rest.put(
+			Routes.applicationCommands(String(client.user?.id)),
+			{ body: allCommands }
+		);
 
-			logger.log(
-				`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`
-					.white
-			);
-
-			resolve();
-		} catch (error: any) {
-			logger.err(error);
-			reject(error);
-		}
-	});
+		logger.log(
+			`${client.config.console.emojis.OK} >> Currently, ${(data as ApplicationCommand[]).length} applications are now synchronized.`
+				.white
+		);
+	} catch (error) {
+		logger.err(error);
+		throw error;
+	}
 }

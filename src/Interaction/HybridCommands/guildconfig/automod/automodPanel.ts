@@ -44,7 +44,6 @@ import {
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
-import { DatabaseStructure } from "../../../../../types/database_structure.js";
 import logger from "../../../../core/logger.js";
 import {
 	type AutomodRuleKey,
@@ -107,7 +106,6 @@ export async function openAutomodPanel(
 	};
 
 	let nativeRules: Partial<Record<AutomodRuleKey, AutoModerationRule>> = {};
-	let storedPanel: DatabaseStructure.AutomodPanelSchema = {};
 
 	function ruleEmoji(key: AutomodRuleKey): string {
 		switch (key) {
@@ -178,7 +176,6 @@ export async function openAutomodPanel(
 	async function loadPanelState(): Promise<void> {
 		const loaded = await loadAutomodState(guild, client.db);
 		nativeRules = loaded.native;
-		storedPanel = loaded.stored;
 		state.rules = loaded.rules;
 	}
 

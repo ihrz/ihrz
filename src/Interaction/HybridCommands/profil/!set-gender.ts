@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -33,12 +33,14 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
+		let gender: string;
+		let user: User;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var gender = interaction.options.getString("gender")!;
-			var user = interaction.user;
+			gender = interaction.options.getString("gender")!;
+			user = interaction.user;
 		} else {
-			var gender = args?.join(" ") || "None";
-			var user = interaction.author;
+			gender = args?.join(" ") || "None";
+			user = interaction.author;
 		}
 
 		switch (gender) {

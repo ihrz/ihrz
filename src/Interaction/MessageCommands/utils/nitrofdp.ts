@@ -24,8 +24,7 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-	PermissionsBitField
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";

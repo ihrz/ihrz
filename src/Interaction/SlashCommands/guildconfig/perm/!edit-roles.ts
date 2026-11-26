@@ -30,8 +30,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (
 			!interaction.member ||
@@ -67,10 +66,10 @@ export const subCommand: SubCommand = {
 				updatedRoles
 			);
 
-			let permName = permissionLevel.find(
+			const permName = permissionLevel.find(
 				(x) => x.value === String(perm_level)
 			)?.name;
-			let strRole = perm_role.toString();
+			const strRole = perm_role.toString();
 
 			sendCard(
 				client,
@@ -82,7 +81,7 @@ export const subCommand: SubCommand = {
 						.replace("${strRole}", strRole)
 				)
 			);
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.perm_roles_error
 			});

@@ -141,6 +141,54 @@ export const command: Command = {
 										pl: "Twitch"
 									},
 									value: "twitch"
+								},
+								{
+									name: "Kick",
+									name_localizations: {
+										fr: "Kick",
+										ja: "Kick",
+										ru: "Kick",
+										"es-ES": "Kick",
+										ko: "Kick",
+										uk: "Kick",
+										de: "Kick",
+										it: "Kick",
+										"pt-BR": "Kick",
+										pl: "Kick"
+									},
+									value: "kick"
+								},
+								{
+									name: "Bluesky",
+									name_localizations: {
+										fr: "Bluesky",
+										ja: "Bluesky",
+										ru: "Bluesky",
+										"es-ES": "Bluesky",
+										ko: "Bluesky",
+										uk: "Bluesky",
+										de: "Bluesky",
+										it: "Bluesky",
+										"pt-BR": "Bluesky",
+										pl: "Bluesky"
+									},
+									value: "bluesky"
+								},
+								{
+									name: "Mastodon",
+									name_localizations: {
+										fr: "Mastodon",
+										ja: "Mastodon",
+										ru: "Mastodon",
+										"es-ES": "Mastodon",
+										ko: "Mastodon",
+										uk: "Mastodon",
+										de: "Mastodon",
+										it: "Mastodon",
+										"pt-BR": "Mastodon",
+										pl: "Mastodon"
+									},
+									value: "mastodon"
 								}
 							],
 
@@ -168,6 +216,37 @@ export const command: Command = {
 							type: ApplicationCommandOptionType.String,
 
 							required: true,
+
+							permission: null
+						},
+						{
+							name: "channel",
+
+							description:
+								"Where this account posts (default: the notifier channel)",
+							description_localizations: {
+								fr: "Où ce compte publie (par défaut : le salon du notifier)",
+								ja: "このアカウントの通知先（既定：通知チャンネル）",
+								ru: "Куда публикует этот аккаунт (по умолчанию: канал уведомлений)",
+								"es-ES":
+									"Dónde publica esta cuenta (por defecto: el canal del notificador)",
+								ko: "이 계정이 알림을 보낼 채널 (기본: 알림 채널)",
+								uk: "Куди публікує цей акаунт (за замовчуванням: канал сповіщень)",
+								de: "Wohin dieses Konto postet (Standard: der Benachrichtigungskanal)",
+								it: "Dove pubblica questo account (predefinito: il canale delle notifiche)",
+								"pt-BR":
+									"Onde esta conta publica (padrão: o canal de notificações)",
+								pl: "Gdzie publikuje to konto (domyślnie: kanał powiadomień)"
+							},
+
+							type: ApplicationCommandOptionType.Channel,
+
+							channel_types: [
+								ChannelType.GuildText,
+								ChannelType.GuildAnnouncement
+							],
+
+							required: false,
 
 							permission: null
 						}
@@ -250,6 +329,54 @@ export const command: Command = {
 										pl: "Twitch"
 									},
 									value: "twitch"
+								},
+								{
+									name: "Kick",
+									name_localizations: {
+										fr: "Kick",
+										ja: "Kick",
+										ru: "Kick",
+										"es-ES": "Kick",
+										ko: "Kick",
+										uk: "Kick",
+										de: "Kick",
+										it: "Kick",
+										"pt-BR": "Kick",
+										pl: "Kick"
+									},
+									value: "kick"
+								},
+								{
+									name: "Bluesky",
+									name_localizations: {
+										fr: "Bluesky",
+										ja: "Bluesky",
+										ru: "Bluesky",
+										"es-ES": "Bluesky",
+										ko: "Bluesky",
+										uk: "Bluesky",
+										de: "Bluesky",
+										it: "Bluesky",
+										"pt-BR": "Bluesky",
+										pl: "Bluesky"
+									},
+									value: "bluesky"
+								},
+								{
+									name: "Mastodon",
+									name_localizations: {
+										fr: "Mastodon",
+										ja: "Mastodon",
+										ru: "Mastodon",
+										"es-ES": "Mastodon",
+										ko: "Mastodon",
+										uk: "Mastodon",
+										de: "Mastodon",
+										it: "Mastodon",
+										"pt-BR": "Mastodon",
+										pl: "Mastodon"
+									},
+									value: "mastodon"
 								}
 							],
 

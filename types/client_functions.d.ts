@@ -54,6 +54,7 @@ import {
 	ModalSubmitInteraction,
 	PrimaryEntryPointCommandInteraction,
 	Role,
+	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	TopLevelComponentData,
 	User,
@@ -88,22 +89,12 @@ import {
 	BatchProcessorOptions,
 	BatchProcessorResult
 } from "../src/core/functions/batchProcessor.ts";
-import { Sqlite } from "../src/core/database/driver/sqlite.ts";
-import { Json } from "../src/core/database/driver/json.ts";
-import { Memory } from "../src/core/database/driver/memory.ts";
-import { Postgres } from "../src/core/database/driver/postgres.ts";
 import { TrackEmbbeded } from "../src/core/functions/music_proximity.ts";
-import {
-	LavalinkNode,
-	LyricsResult,
-	SearchResult,
-	Track
-} from "lavalink-client";
+import { LavalinkNode, SearchResult, Track } from "lavalink-client";
 import { components } from "../src/core/functions/method.ts";
 import { Player } from "lavalink-client";
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from "./musicPlay";
 import {
-	BannerExtension,
 	BannerSource,
 	BannerUrlOptions
 } from "../src/core/functions/bannerURL.ts";
@@ -380,7 +371,7 @@ declare namespace Client_Functions {
 
 	// From generateProgressBar.ts
 	export function generateProgressBar(
-		emojis: any,
+		emojis: { Bar: string; Pointer: string },
 		currentTimeMs: number,
 		totalTimeMs: number
 	): { bar: string; currentTime: string; totalTime: string };
@@ -961,7 +952,7 @@ declare namespace Client_Functions {
 		}>,
 		messageId: string,
 		placeholder: string
-	): any;
+	): StringSelectMenuBuilder;
 
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
@@ -1043,12 +1034,12 @@ declare namespace Client_Functions {
 			content: string,
 			options: TextOptions
 		): Promise<SvgMarkup>;
-		export function uid(prefix?: any): string;
+		export function uid(prefix?: string): string;
 		export function wrap(
 			text: string,
 			maxWidth: number,
 			style: TextStyle,
-			maxLines?: any
+			maxLines?: number
 		): Promise<Array<string>>;
 	}
 

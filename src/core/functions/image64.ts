@@ -34,7 +34,7 @@ export async function image64(arg: string): Promise<Buffer | undefined> {
 		});
 
 		return Buffer.from(response.data);
-	} catch (error) {
+	} catch {
 		return undefined;
 	}
 }

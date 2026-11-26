@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export type LoggerMessageType = any;
+export type LoggerMessageType = unknown;
 export interface Logger {
 	log: (
 		message: LoggerMessageType,

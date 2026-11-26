@@ -19,18 +19,25 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-interface AxiosResponse<T = any> {
+/**
+ * Default body type, as in axios: callers read `data` without declaring
+ * its shape (about thirty call sites do).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- axios-compatible untyped default for response bodies
+type AnyBody = any;
+
+interface AxiosResponse<T = AnyBody> {
 	data: T;
 	status: number;
 	statusText: string;
-	headers: any;
-	config?: any;
+	headers: Headers;
+	config?: AxiosRequestConfig;
 }
 
-interface AxiosError<T = any> extends Error {
-	config?: any;
+interface AxiosError<T = AnyBody> extends Error {
+	config?: AxiosRequestConfig;
 	code?: string;
-	request?: any;
+	request?: unknown;
 	response?: AxiosResponse<T>;
 }
 
@@ -39,14 +46,15 @@ interface AxiosRequestConfig {
 	method?: string;
 	baseURL?: string;
 	headers?: Record<string, string>;
-	params?: any;
-	data?: any;
+	/** Accepted for axios compatibility, not sent (never was). */
+	params?: unknown;
+	data?: unknown;
 	timeout?: number;
 	responseType?: "json" | "arrayBuffer" | "arraybuffer";
 }
 
 class AxiosClass {
-	async request<T = any>(
+	async request<T = AnyBody>(
 		config: AxiosRequestConfig
 	): Promise<AxiosResponse<T>> {
 		const {
@@ -54,7 +62,6 @@ class AxiosClass {
 			method = "GET",
 			baseURL = "",
 			headers = {},
-			params,
 			data,
 			timeout,
 			responseType = "json"
@@ -112,38 +119,38 @@ class AxiosClass {
 		}
 	}
 
-	async head<T = any>(
+	async head<T = AnyBody>(
 		url: string,
 		config?: AxiosRequestConfig
 	): Promise<AxiosResponse<T>> {
 		return this.request({ ...config, url, method: "HEAD" });
 	}
 
-	get<T = any>(
+	get<T = AnyBody>(
 		url: string,
 		config?: AxiosRequestConfig
 	): Promise<AxiosResponse<T>> {
 		return this.request({ ...config, url, method: "GET" });
 	}
 
-	post<T = any>(
+	post<T = AnyBody>(
 		url: string,
-		data?: any,
+		data?: unknown,
 		config?: AxiosRequestConfig
 	): Promise<AxiosResponse<T>> {
 		return this.request({ ...config, url, method: "POST", data });
 	}
 
-	put<T = any>(
+	put<T = AnyBody>(
 		url: string,
-		data?: any,
+		data?: unknown,
 		config?: AxiosRequestConfig
 	): Promise<AxiosResponse<T>> {
 		return this.request({ ...config, url, method: "PUT", data });
 	}
 
-	private handleRequestError<T = any>(error: any): AxiosError<T> {
-		return error;
+	private handleRequestError<T = AnyBody>(error: unknown): AxiosError<T> {
+		return error as AxiosError<T>;
 	}
 }
 

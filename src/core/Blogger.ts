@@ -24,7 +24,6 @@ import {
 	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
-	Client,
 	EmbedBuilder,
 	Guild,
 	SnowflakeUtil
@@ -57,50 +56,59 @@ interface ParsedFeed {
 	items: RssFeedItem[];
 }
 
-type XmlNode = Record<string, any>;
+// Bun.XML.parse output: tags as keys ("@attr" for attributes, "#text" for
+// text), arrays for repeated tags, strings for text leaves. Every lookup may
+// miss; the leaves are read through the helpers below, which take `unknown`.
+type XmlNode = { readonly [key: string]: XmlNode | undefined };
+type XmlRecord = Record<string, unknown>;
 
 function asArray<T>(value: T | T[] | null | undefined): T[] {
 	if (value === null || value === undefined) return [];
 	return Array.isArray(value) ? value : [value];
 }
 
-function xmlText(value: any): string {
+function xmlText(value: unknown): string {
 	if (value === null || value === undefined) return "";
 	if (typeof value === "string" || typeof value === "number") {
 		return String(value);
 	}
 	if (Array.isArray(value)) return xmlText(value[0]);
 	if (typeof value === "object") {
-		return xmlText(value["#text"] ?? value._ ?? "");
+		const node = value as XmlRecord;
+		return xmlText(node["#text"] ?? node._ ?? "");
 	}
 	return "";
 }
 
-function xmlLink(value: any): string {
+function xmlLink(value: unknown): string {
 	const links = asArray(value);
 	const alternate =
 		links.find(
 			(link) =>
 				typeof link !== "object" ||
-				!link["@rel"] ||
-				link["@rel"] === "alternate"
+				!(link as XmlRecord)["@rel"] ||
+				(link as XmlRecord)["@rel"] === "alternate"
 		) ?? links[0];
 
 	if (alternate === null || alternate === undefined) return "";
 	if (typeof alternate === "string") return alternate;
-	return alternate["@href"] ?? xmlText(alternate);
+	return (
+		((alternate as XmlRecord)["@href"] as string | undefined) ??
+		xmlText(alternate)
+	);
 }
 
-function xmlAuthor(value: any): string {
+function xmlAuthor(value: unknown): string {
 	const author = asArray(value)[0];
 	if (author === null || author === undefined) return "";
 	if (typeof author === "object") {
-		return xmlText(author.name ?? author["dc:creator"] ?? author);
+		const node = author as XmlRecord;
+		return xmlText(node.name ?? node["dc:creator"] ?? author);
 	}
 	return xmlText(author);
 }
 
-function xmlDate(value: any): Date {
+function xmlDate(value: unknown): Date {
 	const date = new Date(xmlText(value));
 	return Number.isNaN(date.getTime()) ? new Date() : date;
 }
@@ -182,9 +190,9 @@ export class BloggerNotifier {
 		const channel = rss?.channel;
 
 		if (channel) {
-			const rawItems = asArray(channel.item).length
-				? asArray(channel.item)
-				: asArray(rss.item);
+			const rawItems = asArray<XmlNode>(channel.item).length
+				? asArray<XmlNode>(channel.item)
+				: asArray<XmlNode>(rss.item);
 
 			return {
 				title: xmlText(channel.title),
@@ -215,7 +223,7 @@ export class BloggerNotifier {
 		if (feed) {
 			return {
 				title: xmlText(feed.title),
-				items: asArray(feed.entry).map((entry) => ({
+				items: asArray<XmlNode>(feed.entry).map((entry) => ({
 					title: xmlText(entry.title) || "No title",
 					link: xmlLink(entry.link),
 					pubDate: xmlDate(

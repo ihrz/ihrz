@@ -21,7 +21,7 @@
 
 import { expect, test } from "bun:test";
 
-import { TextChannel } from "discord.js";
+import { Client, TextChannel } from "discord.js";
 
 import { event } from "../../src/Events/starboard/onNewReact.ts";
 
@@ -39,10 +39,10 @@ test("concurrent stars give one post, and its count ends up right", async () => 
 
 	const posted = {
 		id: "post",
-		edit: async (o: any) => edits.push(o.content)
+		edit: async (o: { content: string }) => edits.push(o.content)
 	};
 	const board = Object.assign(Object.create(TextChannel.prototype), {
-		send: async (o: any) => {
+		send: async (o: { content: string }) => {
 			sent.push(o.content);
 			await sendGate;
 			return { ...posted, startThread: async () => null };
@@ -54,7 +54,7 @@ test("concurrent stars give one post, and its count ends up right", async () => 
 		id: "g",
 		channels: { cache: new Map([["board", board]]) }
 	};
-	const message: any = {
+	const message = {
 		id: "m",
 		channelId: "c",
 		guild,
@@ -70,13 +70,13 @@ test("concurrent stars give one post, and its count ends up right", async () => 
 		createdAt: new Date(0),
 		attachments: { first: () => undefined }
 	};
-	const reaction: any = {
+	const reaction = {
 		partial: false,
 		emoji: { name: "⭐" },
 		count: 2,
 		message
 	};
-	const client: any = {
+	const client = {
 		db: {
 			get: async (key: string) => store.get(key) ?? null,
 			set: async (key: string, value: unknown) => {
@@ -94,8 +94,8 @@ test("concurrent stars give one post, and its count ends up right", async () => 
 				})
 			}
 		}
-	};
-	const user: any = { bot: false };
+	} as unknown as Client;
+	const user = { bot: false };
 
 	const first = event.run(client, reaction, user);
 	await Bun.sleep(10);

@@ -88,8 +88,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -238,7 +237,7 @@ export const subCommand: SubCommand = {
 
 		function beautifyValue(
 			key: string,
-			value: any,
+			value: AntiSpam.AntiSpamOptions[AntiSpamOptionKey],
 			lang: LanguageData
 		): string {
 			switch (key) {
@@ -257,13 +256,13 @@ export const subCommand: SubCommand = {
 				case "maxDuplicatesInterval":
 				case "maxInterval":
 					return client.timeCalculator.to_beautiful_string(
-						value.toString() + "ms",
+						value!.toString() + "ms",
 						lang
 					)
-						? `\`${client.timeCalculator.to_beautiful_string(value.toString() + "ms", lang)}\``
+						? `\`${client.timeCalculator.to_beautiful_string(value!.toString() + "ms", lang)}\``
 						: `\`⏲️ ${lang.setjoinroles_var_none}\``;
 				default:
-					return `\`${value.toString()}\``;
+					return `\`${value!.toString()}\``;
 			}
 		}
 

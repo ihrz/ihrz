@@ -19,8 +19,6 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import path from "path";
-
 import svg2png from "./functions/svg2png.js";
 import { resourcePath } from "./modules/resources.js";
 import {

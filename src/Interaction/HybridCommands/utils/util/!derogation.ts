@@ -23,23 +23,19 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionFlagsBits,
-	PermissionsBitField
+	PermissionFlagsBits
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { syncDerogation } from "../../../../core/modules/voiceModes.js";
-import { role } from "../../../../core/functions/method.js";
-import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (
 			!interaction.member ||

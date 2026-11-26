@@ -32,7 +32,6 @@ import {
 	Message,
 	MessageFlags,
 	PermissionFlagsBits,
-	PermissionsBitField,
 	Role,
 	RoleSelectMenuBuilder,
 	RoleSelectMenuInteraction

@@ -37,7 +37,7 @@
 		"email": "anais.saraiva@ihorizon.org",
 		"name": "Kisakay",
 		"legalName": "Anaïs Saraiva",
-		"url": "https://www.anais-saraiva.pro"
+		"url": "https://v.bzh"
 	},
 	"license": "CC-BY-NC-SA-4.0",
 	"bugs": {
@@ -49,7 +49,7 @@
 		"@resvg/resvg-js": "^2.6.2",
 		"discord.js": "^14.28.1",
 		"gifwrap": "^0.10.1",
-		"horizondb": "https://gitlab.com/ihrz/db.git#1cbdb2acc0b717b546c663d25ca9bc549047bb3e",
+		"horizondb": "https://gitlab.com/ihrz/db.git#9b681afea7a01bc077fb18439618ddc4050ee334",
 		"jimp": "0.22.12",
 		"jszip": "^3.10.2",
 		"lavalink-client": "^2.11.2",

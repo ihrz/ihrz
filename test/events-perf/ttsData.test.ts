@@ -20,15 +20,18 @@
 */
 
 import { afterAll, beforeAll, expect, test } from "bun:test";
+import type { Client } from "discord.js";
+
+import type { DatabaseStructure } from "../../types/database_structure.js";
 
 import { installGuildConfigCache } from "../../src/core/modules/guildConfigCache";
 
 // Importing ttsManager installs the real logger as the global one; keep the
 // preload stand-in so the other test files are not affected.
-const stubLogger = (globalThis as any).logger;
+const stubLogger = globalThis.logger;
 const { getTTSData, setTTSData } =
 	await import("../../src/core/modules/ttsManager");
-(globalThis as any).logger = stubLogger;
+globalThis.logger = stubLogger;
 
 const store = new Map<string, unknown>();
 let reads = 0;
@@ -43,28 +46,28 @@ const db = {
 	}
 };
 
-installGuildConfigCache(db as any);
+installGuildConfigCache(db as never);
 let previousClient: unknown;
 let hadClient = false;
 
 beforeAll(() => {
 	hadClient = "client" in globalThis;
-	previousClient = (globalThis as any).client;
-	(globalThis as any).client = { db };
+	previousClient = globalThis.client;
+	globalThis.client = { db } as unknown as Client;
 });
 
 afterAll(() => {
-	if (hadClient) (globalThis as any).client = previousClient;
-	else delete (globalThis as any).client;
+	if (hadClient) globalThis.client = previousClient as Client;
+	else delete (globalThis as { client?: Client }).client;
 });
 
 test("getTTSData reads the database once for repeated calls", async () => {
 	store.set("g1.GUILD.TTS", { enabled: true, voiceChannelId: "v1" });
 	reads = 0;
 
-	await getTTSData(client as any, "g1");
-	await getTTSData(client as any, "g1");
-	const data = await getTTSData(client as any, "g1");
+	await getTTSData(client, "g1");
+	await getTTSData(client, "g1");
+	const data = await getTTSData(client, "g1");
 
 	expect(reads).toBe(1);
 	expect(data?.voiceChannelId).toBe("v1");
@@ -72,19 +75,19 @@ test("getTTSData reads the database once for repeated calls", async () => {
 
 test("getTTSData sees a write made through the database", async () => {
 	store.set("g2.GUILD.TTS", { enabled: true, voiceChannelId: "v1" });
-	await getTTSData(client as any, "g2");
+	await getTTSData(client, "g2");
 
-	await setTTSData(client as any, "g2", {
+	await setTTSData(client, "g2", {
 		enabled: true,
 		voiceChannelId: "v2"
-	} as any);
+	} as DatabaseStructure.TTSData);
 
-	expect((await getTTSData(client as any, "g2"))?.voiceChannelId).toBe("v2");
+	expect((await getTTSData(client, "g2"))?.voiceChannelId).toBe("v2");
 });
 
 test("getTTSData returns null when disabled or missing", async () => {
 	store.set("g3.GUILD.TTS", { enabled: false });
 
-	expect(await getTTSData(client as any, "g3")).toBeNull();
-	expect(await getTTSData(client as any, "g4")).toBeNull();
+	expect(await getTTSData(client, "g3")).toBeNull();
+	expect(await getTTSData(client, "g4")).toBeNull();
 });

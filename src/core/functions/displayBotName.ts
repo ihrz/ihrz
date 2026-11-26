@@ -88,7 +88,7 @@ export async function footerAttachmentBuilder(
 	name: string;
 }> {
 	const res = await displayBotPP(
-		entry instanceof Guild ? entry.id : entry?.guild?.id!
+		entry instanceof Guild ? entry.id : (entry?.guild?.id as string)
 	);
 
 	if (res.type === 1) {
@@ -114,7 +114,7 @@ export async function displayBotPP(
 	)) as DatabaseStructure.DbGuildBotObject["botPFP"];
 
 	if (!botPFP) {
-		botPFP = global.client.user?.displayAvatarURL({ size: 1024 })!;
+		botPFP = global.client.user?.displayAvatarURL({ size: 1024 }) as string;
 
 		return { type: 1, string: botPFP };
 	} else {

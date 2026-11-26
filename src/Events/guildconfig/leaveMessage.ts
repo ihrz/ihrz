@@ -147,7 +147,7 @@ export const event: BotEvent = {
 				lChan
 			) as BaseGuildTextChannel;
 			await sendGoodbye(lChanManager, messageContent, variables);
-		} catch (e) {
+		} catch {
 			try {
 				const lChanManager = member.guild.channels.cache.get(
 					lChan
@@ -165,7 +165,9 @@ export const event: BotEvent = {
 					),
 					fallbackVariables
 				);
-			} catch {}
+			} catch {
+				// best effort: the goodbye channel may be unusable
+			}
 		}
 	}
 };

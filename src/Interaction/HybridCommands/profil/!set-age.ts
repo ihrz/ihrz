@@ -34,11 +34,10 @@ export const subCommand: SubCommand = {
 	) => {
 		const opts = client.func.method.options(interaction, args);
 		const age = opts.number("age", 0)!;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.user;
-		} else {
-			var user = interaction.author;
-		}
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.user
+				: interaction.author;
 
 		await profilTable.set(`${user.id}.age`, age);
 

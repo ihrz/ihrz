@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	Message
 } from "discord.js";
@@ -52,10 +51,6 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const user =
 			(opts.member("user", 0) as GuildMember) || interaction.member;
-
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.reset_uranks_are_you_sure,

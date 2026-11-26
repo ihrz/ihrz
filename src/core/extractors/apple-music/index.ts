@@ -62,11 +62,31 @@ export interface RawPlaylist {
 
 export type AppleMusicResult = MetadataResult;
 
+interface JsonLdPerson {
+	name?: string;
+	url?: string;
+}
+
+/** The schema.org fields read from an Apple Music JSON-LD block. */
+interface JsonLdNode {
+	"@type"?: string;
+	name?: string;
+	description?: string;
+	url?: string;
+	duration?: string;
+	audio?: unknown;
+	byArtist?: JsonLdPerson[];
+	author?: JsonLdPerson;
+	creator?: JsonLdPerson;
+	tracks?: JsonLdNode[];
+	track?: JsonLdNode[];
+}
+
 /**
  * Collects every JSON-LD script block of the page with the Bun native
  * HTMLRewriter (streaming, no third-party parser).
  */
-async function extractJsonLdBlocks(html: string): Promise<any[]> {
+async function extractJsonLdBlocks(html: string): Promise<JsonLdNode[]> {
 	const blocks: string[] = [];
 	let current = -1;
 
@@ -85,11 +105,11 @@ async function extractJsonLdBlocks(html: string): Promise<any[]> {
 		.transform(new Response(html))
 		.text();
 
-	const parsed: any[] = [];
+	const parsed: JsonLdNode[] = [];
 
 	for (const block of blocks) {
 		try {
-			parsed.push(JSON.parse(block));
+			parsed.push(JSON.parse(block) as JsonLdNode);
 		} catch {
 			// malformed or empty JSON-LD block, ignore it
 		}
@@ -98,7 +118,7 @@ async function extractJsonLdBlocks(html: string): Promise<any[]> {
 	return parsed;
 }
 
-function getRawAlbum(blocks: any[]): RawAlbum {
+function getRawAlbum(blocks: JsonLdNode[]): RawAlbum {
 	const data = blocks.find(
 		(block) => block && block["@type"] === "MusicAlbum"
 	);
@@ -114,9 +134,10 @@ function getRawAlbum(blocks: any[]): RawAlbum {
 
 	const tracks: Track[] = (data.tracks ?? [])
 		.filter(
-			(track: any) => track["@type"] === "MusicRecording" && track.audio
+			(track: JsonLdNode) =>
+				track["@type"] === "MusicRecording" && track.audio
 		)
-		.map((track: any) => ({
+		.map((track: JsonLdNode) => ({
 			artist,
 			title: track.name ?? "",
 			duration: isoDurationToSeconds(track.duration ?? "PT0S"),
@@ -134,7 +155,7 @@ function getRawAlbum(blocks: any[]): RawAlbum {
 	};
 }
 
-function getRawPlaylist(blocks: any[]): RawPlaylist {
+function getRawPlaylist(blocks: JsonLdNode[]): RawPlaylist {
 	const data = blocks.find(
 		(block) => block && block["@type"] === "MusicPlaylist"
 	);
@@ -150,13 +171,14 @@ function getRawPlaylist(blocks: any[]): RawPlaylist {
 		url: data.author?.url ?? data.creator?.url ?? ""
 	};
 
-	const rawTracks: any[] = data.tracks ?? data.track ?? [];
+	const rawTracks: JsonLdNode[] = data.tracks ?? data.track ?? [];
 
 	const tracks: Track[] = rawTracks
 		.filter(
-			(track: any) => track["@type"] === "MusicRecording" && track.audio
+			(track: JsonLdNode) =>
+				track["@type"] === "MusicRecording" && track.audio
 		)
-		.map((track: any) => ({
+		.map((track: JsonLdNode) => ({
 			artist: {
 				name: track.byArtist?.[0]?.name ?? creator.name,
 				url: track.byArtist?.[0]?.url ?? creator.url
@@ -227,7 +249,7 @@ function linkType(url: string): "song" | "album" | "playlist" {
  * on song URLs, instead of the `MusicAlbum` block they used to ship.
  * That is enough to resolve the track in a single request.
  */
-function getRawSongFromComposition(blocks: any[]): Track | undefined {
+function getRawSongFromComposition(blocks: JsonLdNode[]): Track | undefined {
 	const data = blocks.find(
 		(block) => block && block["@type"] === "MusicComposition"
 	);

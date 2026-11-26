@@ -881,8 +881,8 @@ export async function renderCompare(p: ComparePage): Promise<Buffer> {
 		);
 	}
 	y = top + h + 50;
-	let parts: Part[];
-	[parts, y] = await footer(p.footerLeft, p.footerRight, y);
+	const [parts, footerEnd] = await footer(p.footerLeft, p.footerRight, y);
+	y = footerEnd;
 	body.push(...parts);
 	return png(y, body);
 }

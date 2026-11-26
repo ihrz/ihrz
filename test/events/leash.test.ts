@@ -20,6 +20,7 @@
 */
 
 import { expect, test } from "bun:test";
+import type { Client, VoiceState } from "discord.js";
 
 import { event } from "../../src/Events/utils/leashModule.ts";
 
@@ -28,7 +29,7 @@ const MIN = 60_000;
 function setup(leashes: unknown[], config?: unknown) {
 	const store = new Map<string, unknown>([["g.UTILS.LEASH", leashes]]);
 	if (config) store.set("g.UTILS.LEASH_CONFIG", config);
-	const client: any = {
+	const client = {
 		db: {
 			get: async (key: string) => store.get(key) ?? null,
 			set: async (key: string, value: unknown) => {
@@ -36,16 +37,16 @@ function setup(leashes: unknown[], config?: unknown) {
 			}
 		},
 		timeCalculator: { to_ms: () => 30 * MIN }
-	};
-	const cache = new Map<string, any>();
+	} as unknown as Client;
+	const cache = new Map<string, unknown>();
 	const guild = { id: "g", members: { cache } };
 	const moves: string[] = [];
 	const add = (id: string, channelId: string | null) => {
-		const m: any = {
+		const m = {
 			id,
 			voice: {
 				channelId,
-				get channel() {
+				get channel(): { id: string } | null {
 					return m.voice.channelId ? { id: m.voice.channelId } : null;
 				},
 				setChannel: async (to: { id: string }) => {
@@ -57,13 +58,13 @@ function setup(leashes: unknown[], config?: unknown) {
 		cache.set(id, m);
 		return m;
 	};
-	const state = (m: any, channelId: string | null) =>
+	const state = (m: unknown, channelId: string | null) =>
 		({
 			member: m,
 			guild,
 			channelId,
 			channel: channelId ? { id: channelId } : null
-		}) as any;
+		}) as unknown as VoiceState;
 	return { client, store, add, state, moves };
 }
 

@@ -35,11 +35,17 @@ function is_safe_key_segment(value: string): boolean {
 	);
 }
 
-function get_property(obj: any, path: string, defaultValue: any = null): any {
+type Node = Record<string, unknown>;
+
+function get_property(
+	obj: unknown,
+	path: string,
+	defaultValue: unknown = null
+): unknown {
 	if (!obj) return defaultValue;
 	const keys = path.split(".");
 	if (has_reserved_key(keys)) return defaultValue;
-	let current = obj;
+	let current: unknown = obj;
 
 	for (const key of keys) {
 		if (
@@ -50,17 +56,18 @@ function get_property(obj: any, path: string, defaultValue: any = null): any {
 		) {
 			return defaultValue;
 		}
-		current = current[key];
+		current = (current as Node)[key];
 	}
 
 	return current !== undefined ? current : defaultValue;
 }
 
-function set_property(obj: any, path: string, value: any): any {
+function set_property(obj: unknown, path: string, value: unknown): Node {
 	if (!obj || typeof obj !== "object") obj = {};
+	const root = obj as Node;
 	const keys = path.split(".");
-	if (has_reserved_key(keys)) return obj;
-	let current = obj;
+	if (has_reserved_key(keys)) return root;
+	let current = root;
 
 	for (let i = 0; i < keys.length - 1; i++) {
 		const key = keys[i];
@@ -71,18 +78,18 @@ function set_property(obj: any, path: string, value: any): any {
 		) {
 			current[key] = {};
 		}
-		current = current[key];
+		current = current[key] as Node;
 	}
 
 	current[keys[keys.length - 1]] = value;
-	return obj;
+	return root;
 }
 
-function unset_property(obj: any, path: string): boolean {
+function unset_property(obj: unknown, path: string): boolean {
 	if (!obj) return false;
 	const keys = path.split(".");
 	if (has_reserved_key(keys)) return false;
-	let current = obj;
+	let current = obj as Node;
 
 	for (let i = 0; i < keys.length - 1; i++) {
 		const key = keys[i];
@@ -93,7 +100,7 @@ function unset_property(obj: any, path: string): boolean {
 		) {
 			return false;
 		}
-		current = current[key];
+		current = current[key] as Node;
 	}
 
 	return delete current[keys[keys.length - 1]];

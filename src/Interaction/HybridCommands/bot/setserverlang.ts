@@ -77,8 +77,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (
 			!client.user ||
@@ -266,7 +265,7 @@ export const command: Command = {
 							newLang.setserverlang_logs_embed_description_on_enable
 								.replace(
 									"${authorId}",
-									interaction.member?.user.id!
+									interaction.member?.user.id as string
 								)
 								.replace("${type}", selectedLang)
 					});

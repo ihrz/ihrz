@@ -80,8 +80,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (
 			!interaction.member ||

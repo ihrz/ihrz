@@ -105,7 +105,7 @@ function scheduleGuildDataDeletion(
 	const remainingTime = pending.deleteAt - Date.now();
 
 	if (remainingTime <= 0) {
-		clearGuildData(client, pending.guildId).catch((error: any) =>
+		clearGuildData(client, pending.guildId).catch((error: unknown) =>
 			logger.err(error)
 		);
 		return;
@@ -114,7 +114,7 @@ function scheduleGuildDataDeletion(
 	pendingGuildDeletionTimeouts.set(
 		pending.guildId,
 		setTimeout(() => {
-			clearGuildData(client, pending.guildId).catch((error: any) =>
+			clearGuildData(client, pending.guildId).catch((error: unknown) =>
 				logger.err(error)
 			);
 		}, remainingTime)

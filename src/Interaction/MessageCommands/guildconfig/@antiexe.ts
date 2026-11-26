@@ -19,17 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-	PermissionsBitField
-} from "discord.js";
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import {
-	isDiscordEmoji,
-	isSingleEmoji
-} from "../../../core/functions/emojiChecker.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { cardPayload, notice } from "../../../core/modules/uiCard.js";
@@ -58,8 +49,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		const state = await client.db.get(
 			`${interaction.guildId}.UTILS.antiExe`

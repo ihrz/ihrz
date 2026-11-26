@@ -20,6 +20,7 @@
 */
 
 import { describe, expect, test } from "bun:test";
+import type { Guild, GuildMember } from "discord.js";
 
 import enUS from "../../src/lang/en-US.ts";
 import emojis from "../../src/files/emojis.json";
@@ -111,24 +112,29 @@ describe("warn settings", () => {
 	});
 });
 
+// A message as sent, and where: a channel id, or "dm".
+type Card = { components: { toJSON(): unknown }[] };
+type Sent = [string, Card];
+
 // A text channel; `everyone` = whether @everyone can view it.
-function fakeChannel(name: string, everyone: boolean, sent: any[], id = name) {
+function fakeChannel(name: string, everyone: boolean, sent: Sent[], id = name) {
 	return {
 		id,
 		name,
 		isTextBased: () => true,
 		permissionsFor: () => ({ has: () => everyone }),
-		send: async (p: any) => sent.push([id, p])
+		send: async (p: Card) => sent.push([id, p])
 	};
 }
+type FakeChannel = ReturnType<typeof fakeChannel> & { guild?: unknown };
 
 function fakeServer(
 	config: unknown,
 	existing = 2,
 	moderatable = true,
-	opts: { channels?: (sent: any[]) => any[]; logsId?: string } = {}
+	opts: { channels?: (sent: Sent[]) => FakeChannel[]; logsId?: string } = {}
 ) {
-	const store: Record<string, any> = {
+	const store: Record<string, unknown> = {
 		"9.USER.2.WARNS": Array.from({ length: existing }, (_, i) => ({
 			id: "w" + i,
 			reason: "",
@@ -138,19 +144,19 @@ function fakeServer(
 		"9.GUILD.WARN_CONFIG": config,
 		"9.GUILD.SERVER_LOGS.moderation": opts.logsId ?? null
 	};
-	const sent: any[] = [];
-	const channels = opts.channels
+	const sent: Sent[] = [];
+	const channels: FakeChannel[] = opts.channels
 		? opts.channels(sent)
 		: [fakeChannel("mods", false, sent, "log")];
-	const sanctions: any[] = [];
-	const client: any = {
+	const sanctions: unknown[] = [];
+	const client = {
 		iHorizon_Emojis: emojis,
 		timeCalculator: { to_beautiful_string: () => "1h" },
 		db: {
 			get: async (k: string) => store[k] ?? null,
-			set: async (k: string, v: any) => (store[k] = v),
-			push: async (k: string, v: any) =>
-				(store[k] = [...(store[k] ?? []), v])
+			set: async (k: string, v: unknown) => (store[k] = v),
+			push: async (k: string, v: unknown) =>
+				(store[k] = [...((store[k] as unknown[] | undefined) ?? []), v])
 		},
 		func: {
 			hasIhorizonLogs: () => false,
@@ -159,7 +165,7 @@ function fakeServer(
 			}
 		}
 	};
-	const guild: any = {
+	const guild = {
 		id: "9",
 		name: "Server one",
 		client,
@@ -168,13 +174,13 @@ function fakeServer(
 		roles: { everyone: { id: "9" } },
 		channels: {
 			cache: {
-				find: (fn: (c: any) => boolean) => channels.find(fn),
+				find: (fn: (c: FakeChannel) => boolean) => channels.find(fn),
 				get: (id: string) => channels.find((c) => c.id === id)
 			}
 		},
 		bans: { create: async (id: string) => sanctions.push(["ban", id]) }
 	};
-	const member: any = {
+	const member = {
 		id: "2",
 		guild,
 		moderatable,
@@ -183,16 +189,25 @@ function fakeServer(
 		toString: () => "<@2>",
 		displayAvatarURL: () => "https://cdn.discordapp.com/a.png",
 		communicationDisabledUntilTimestamp: null as number | null,
-		send: async (p: any) => sent.push(["dm", p]),
+		send: async (p: Card) => sent.push(["dm", p]),
 		timeout: async (ms: number) => sanctions.push(["timeout", ms]),
 		kick: async () => sanctions.push(["kick"])
 	};
-	const author: any = {
+	const author = {
 		user: { id: "1", username: "mod" },
 		toString: () => "<@1>"
 	};
 	for (const c of channels) c.guild = guild;
-	return { store, sent, sanctions, member, author, guild };
+	return {
+		store,
+		sent,
+		sanctions,
+		member: member as unknown as GuildMember,
+		author: author as unknown as GuildMember,
+		guild: guild as unknown as Guild,
+		// The fakes themselves, for the tests that change them.
+		fake: { member, guild }
+	};
 }
 
 describe("issueWarn", () => {
@@ -246,8 +261,8 @@ describe("issueWarn", () => {
 	});
 });
 
-const cardText = (p: any) =>
-	JSON.stringify(p.components.map((c: any) => c.toJSON()));
+const cardText = (p: Card) =>
+	JSON.stringify(p.components.map((c) => c.toJSON()));
 
 describe("a threshold timeout never shortens a longer one", () => {
 	const rule = {
@@ -257,7 +272,7 @@ describe("a threshold timeout never shortens a longer one", () => {
 	test("a 2-day timeout already running is kept", async () => {
 		const s = fakeServer(rule);
 		const until = Date.now() + 2 * DAY;
-		s.member.communicationDisabledUntilTimestamp = until;
+		s.fake.member.communicationDisabledUntilTimestamp = until;
 		const issued = await issueWarn(s.author, s.member, "spam", enUS);
 		expect(s.sanctions).toEqual([]);
 		expect(issued.sanction).toEqual({
@@ -274,7 +289,8 @@ describe("a threshold timeout never shortens a longer one", () => {
 
 	test("a shorter running timeout is replaced", async () => {
 		const s = fakeServer(rule);
-		s.member.communicationDisabledUntilTimestamp = Date.now() + 600_000;
+		s.fake.member.communicationDisabledUntilTimestamp =
+			Date.now() + 600_000;
 		const issued = await issueWarn(s.author, s.member, "spam", enUS);
 		expect(s.sanctions).toEqual([["timeout", 3_600_000]]);
 		expect(issued.sanction?.keptUntil).toBeUndefined();
@@ -307,7 +323,7 @@ describe("the staff log never goes to a public channel picked by name", () => {
 				fakeChannel("general", true, sent, "setlogs")
 			]
 		});
-		s.guild.client.func.hasIhorizonLogs = () => true;
+		s.fake.guild.client.func.hasIhorizonLogs = () => true;
 		await issueWarn(s.author, s.member, "spam", enUS, note);
 		expect(s.sent.filter(([k]) => k !== "dm").map(([k]) => k)).toEqual([
 			"setlogs"
@@ -355,12 +371,13 @@ describe("clearing warnings is logged", () => {
 });
 
 describe("who can be warned", () => {
-	const m = (id: string, position: number, bot = false): any => ({
-		id,
-		user: { id, bot },
-		guild: { ownerId: "OWNER" },
-		roles: { highest: { position } }
-	});
+	const m = (id: string, position: number, bot = false) =>
+		({
+			id,
+			user: { id, bot },
+			guild: { ownerId: "OWNER" },
+			roles: { highest: { position } }
+		}) as unknown as GuildMember;
 
 	test("the server owner never, even by a higher role", () => {
 		expect(warnRefusal(m("1", 50), m("OWNER", 1))).toBe("owner");

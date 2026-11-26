@@ -31,24 +31,24 @@ describe("database lodash helpers", () => {
 	test("set_property rejects __proto__ segments", () => {
 		set_property({}, "__proto__.polluted", true);
 		set_property({}, "a.__proto__.polluted", true);
-		expect(({} as any).polluted).toBeUndefined();
+		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
 	});
 
 	test("set_property rejects constructor.prototype segments", () => {
 		set_property({}, "constructor.prototype.polluted", true);
-		expect(({} as any).polluted).toBeUndefined();
+		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
 	});
 
 	test("unset_property does not walk reserved segments", () => {
-		(Object.prototype as any).keep = 1;
+		(Object.prototype as Record<string, unknown>).keep = 1;
 		try {
 			expect(unset_property({}, "__proto__.keep")).toBe(false);
 			expect(unset_property({}, "constructor.prototype.keep")).toBe(
 				false
 			);
-			expect(({} as any).keep).toBe(1);
+			expect(({} as Record<string, unknown>).keep).toBe(1);
 		} finally {
-			delete (Object.prototype as any).keep;
+			delete (Object.prototype as Record<string, unknown>).keep;
 		}
 	});
 
@@ -87,7 +87,7 @@ describe("database lodash helpers", () => {
 	});
 
 	test("nested paths still work", () => {
-		const obj: any = {};
+		const obj: Record<string, unknown> = {};
 		set_property(obj, "a.b.c", 1);
 		expect(obj).toEqual({ a: { b: { c: 1 } } });
 		expect(get_property(obj, "a.b.c")).toBe(1);

@@ -90,13 +90,13 @@ export const command: Command = {
 	) => {
 		if (
 			await client.func.ownerHelper.isBotOwner(
-				interaction.member?.user.id!
+				interaction.member?.user.id as string
 			)
 		) {
 			run_for_bot_owner(client, interaction, lang, args);
 		} else if (
 			await client.func.ownerHelper.isGuildOwner(
-				interaction.member?.user.id!,
+				interaction.member?.user.id as string,
 				interaction.guild!
 			)
 		) {

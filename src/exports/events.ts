@@ -110,7 +110,7 @@ import * as m84 from "../Events/utils/supportModule.ts";
 import * as m85 from "../Events/utils/voiceTalkFreeze.ts";
 import * as m86 from "../Events/voicedashboard/voiceState.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"antispam/onNewMessage.ts": m0,
 	"client/blacklistFetcher.ts": m1,
 	"client/deleteDatabaseDataOnGuildLeave.ts": m2,

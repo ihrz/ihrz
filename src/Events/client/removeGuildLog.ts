@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from "discord.js";
+import { Client, Guild, EmbedBuilder } from "discord.js";
 
 import logger from "../../core/logger.js";
 
@@ -129,7 +129,7 @@ Guild Info:
 					]
 				}
 			);
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		}
 	}

@@ -280,7 +280,7 @@ async function applyConfiguredAction(
 			.catch(() => null));
 
 	switch (action) {
-		case "kick":
+		case "kick": {
 			if (!member?.kickable) {
 				return "failed";
 			}
@@ -289,7 +289,8 @@ async function applyConfiguredAction(
 				.kick("Honeypot triggered")
 				.catch(() => null);
 			return kickResult ? "kick" : "failed";
-		case "ban":
+		}
+		case "ban": {
 			// A spam bot that already left can still be banned by id.
 			if (member && !member.bannable) {
 				return "failed";
@@ -302,6 +303,7 @@ async function applyConfiguredAction(
 				})
 				.catch(() => null);
 			return banResult ? "ban" : "failed";
+		}
 		default:
 			return "none";
 	}

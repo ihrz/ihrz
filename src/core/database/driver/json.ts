@@ -20,10 +20,10 @@
 */
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
-import { DataLike, ErrorKind, Table } from "../types.ts";
+import { DataLike, ErrorKind, StoredValue, Table } from "../types.ts";
 import { existsSync, readFileSync } from "node:fs";
 
-export class Json<D = any> {
+export class Json<D = StoredValue> {
 	private tableName: string;
 	private path: string;
 	private store = new Map<string, Table>();
@@ -125,11 +125,11 @@ export class Json<D = any> {
 		}
 	}
 
-	private async getAllRows(
+	private async getAllRows<T = unknown>(
 		table: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		const store = this.getOrCreateTable(table);
-		return [...store.entries()].map(([k, v]) => ({ id: k, value: v }));
+		return [...store.entries()].map(([k, v]) => ({ id: k, value: v as T }));
 	}
 
 	private async getRowByKey<T>(
@@ -141,20 +141,20 @@ export class Json<D = any> {
 		return [val == null ? null : val, val == null ? false : true];
 	}
 
-	private async getStartsWith(
+	private async getStartsWith<T = unknown>(
 		table: string,
 		query: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		const store = this.getOrCreateTable(table);
 		return [...store.entries()]
 			.filter(([k]) => k.startsWith(query))
-			.map(([k, v]) => ({ id: k, value: v }));
+			.map(([k, v]) => ({ id: k, value: v as T }));
 	}
 
 	private async setRowByKey<T>(
 		table: string,
 		key: string,
-		value: any,
+		value: unknown,
 		update: boolean
 	): Promise<T> {
 		const store = this.getOrCreateTable(table);
@@ -217,7 +217,7 @@ export class Json<D = any> {
 		if (typeof currentNumber != "number") {
 			try {
 				currentNumber = parseFloat(currentNumber as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Current value with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -228,7 +228,7 @@ export class Json<D = any> {
 		if (typeof value != "number") {
 			try {
 				value = parseFloat(value as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Value to add/subtract with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -236,7 +236,8 @@ export class Json<D = any> {
 			}
 		}
 
-		sub ? (currentNumber -= value) : (currentNumber += value);
+		if (sub) currentNumber -= value;
+		else currentNumber += value;
 		await this.set<number>(key, currentNumber);
 		return currentNumber;
 	}
@@ -272,7 +273,10 @@ export class Json<D = any> {
 				this.tableName,
 				keySplit[0]
 			);
-			return get_property(result, keySplit.slice(1).join("."));
+			return get_property(
+				result,
+				keySplit.slice(1).join(".")
+			) as T | null;
 		}
 
 		const [result] = await this.getRowByKey<T>(this.tableName, key);
@@ -340,7 +344,7 @@ export class Json<D = any> {
 			);
 		}
 
-		const data = (await this.get<any>(key)) ?? {};
+		const data = (await this.get<Record<string, unknown>>(key)) ?? {};
 		if (typeof data != "object" || Array.isArray(data)) {
 			throw this.createError(
 				`The current data is not an object, update only works on objects`,
@@ -352,7 +356,7 @@ export class Json<D = any> {
 			data[k] = v;
 		}
 
-		return await this.set(key, data);
+		return (await this.set(key, data)) as T;
 	}
 
 	async has(key: string): Promise<boolean> {
@@ -369,9 +373,11 @@ export class Json<D = any> {
 
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
-			const obj = (await this.get<any>(keySplit[0])) ?? {};
+			const obj =
+				(await this.get<Record<string, unknown>>(keySplit[0])) ?? {};
 			unset_property(obj, keySplit.slice(1).join("."));
-			return this.set(keySplit[0], obj);
+			// Returns the object, not a count: kept as is.
+			return this.set<unknown>(keySplit[0], obj) as Promise<number>;
 		}
 
 		return this.deleteRowByKey(this.tableName, key);
@@ -489,7 +495,10 @@ export class Json<D = any> {
 			if (
 				Array.isArray(value)
 					? value.includes(currentArr[i])
-					: (value as any)(currentArr[i], i)
+					: (value as (data: T, index: string) => boolean)(
+							currentArr[i],
+							i
+						)
 			)
 				continue;
 			data.push(currentArr[i]);
@@ -509,7 +518,7 @@ export class Json<D = any> {
 			);
 		}
 
-		const results = await this.getStartsWith(this.tableName, query);
+		const results = await this.getStartsWith<T>(this.tableName, query);
 		return results;
 	}
 

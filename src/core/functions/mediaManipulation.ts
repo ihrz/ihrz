@@ -45,29 +45,25 @@ export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 	if (!fitsDecodeBudget(buffer)) {
 		throw new Error("Image too large to decode");
 	}
-	try {
-		const image = await Jimp.read(buffer);
-		const metadata = { width: image.getWidth(), height: image.getHeight() };
+	const image = await Jimp.read(buffer);
+	const metadata = { width: image.getWidth(), height: image.getHeight() };
 
-		const width = 1920;
-		const height = 1080;
-		const aspectRatio = metadata.width / metadata.height;
+	const width = 1920;
+	const height = 1080;
+	const aspectRatio = metadata.width / metadata.height;
 
-		let newWidth, newHeight;
-		if (aspectRatio > width / height) {
-			newWidth = width;
-			newHeight = Math.round(width / aspectRatio);
-		} else {
-			newHeight = height;
-			newWidth = Math.round(height * aspectRatio);
-		}
-
-		image.resize(newWidth, newHeight);
-
-		return await image.getBufferAsync(Jimp.MIME_PNG);
-	} catch (error) {
-		throw error;
+	let newWidth, newHeight;
+	if (aspectRatio > width / height) {
+		newWidth = width;
+		newHeight = Math.round(width / aspectRatio);
+	} else {
+		newHeight = height;
+		newWidth = Math.round(height * aspectRatio);
 	}
+
+	image.resize(newWidth, newHeight);
+
+	return await image.getBufferAsync(Jimp.MIME_PNG);
 }
 
 export async function adjustImageQuality(imagePath: string): Promise<void> {

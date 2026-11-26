@@ -22,10 +22,26 @@
 import { readyTables } from "../readyTables.ts";
 import { describe, expect, mock, test } from "bun:test";
 import {
+	type GuildMember,
+	type Message,
 	OverwriteType,
 	PermissionFlagsBits,
 	PermissionsBitField
 } from "discord.js";
+
+// What `tickets.list` answers (the fields checked here).
+type TicketsPage = {
+	tickets: {
+		channelId: string;
+		closed: boolean;
+		members: { id: string }[];
+	}[];
+	nextCursor: string | null;
+};
+// A message mock whose channel cache the tests fill.
+type FakeMessage = Message & {
+	channel: { messages: { cache: Map<string, unknown> } };
+};
 
 mock.module("../../src/Events/client/ready.js", () =>
 	readyTables({
@@ -84,7 +100,7 @@ function fakeGuild(disabled = false) {
 			return null;
 		}
 	};
-	const channel = (id: string, overwrites: any[]) => ({
+	const channel = (id: string, overwrites: ReturnType<typeof ow>[]) => ({
 		id,
 		type: 0,
 		name: `ticket-${id.slice(-1)}`,
@@ -128,7 +144,7 @@ function actor(id: string, perms = 0n) {
 					? 0n
 					: PermissionFlagsBits.ViewChannel | perms
 			)
-	} as any;
+	} as unknown as GuildMember;
 }
 
 const run = (
@@ -138,11 +154,11 @@ const run = (
 ) => {
 	const { client, guild } = fakeGuild();
 	return ticketsActions[name].run({
-		client: client as any,
-		guild: guild as any,
+		client: client as never,
+		guild: guild as never,
 		actor: a,
 		params: new Params(params),
-		lang: {} as any
+		lang: {} as never
 	});
 };
 
@@ -158,11 +174,13 @@ const refused = async (p: Promise<unknown>) => {
 describe("tickets: data helpers", () => {
 	test("TICKET_ALL is flattened and searched by channel", async () => {
 		const { client } = fakeGuild();
-		expect(await listTicketEntries(client as any, GUILD)).toHaveLength(4);
-		const found = await findTicketByChannel(client as any, GUILD, HIDDEN);
+		expect(await listTicketEntries(client as never, GUILD)).toHaveLength(4);
+		const found = await findTicketByChannel(client as never, GUILD, HIDDEN);
 		expect(found?.key).toBe(OTHER);
 		expect(found?.data.author).toBe(OTHER);
-		expect(await findTicketByChannel(client as any, GUILD, "1")).toBeNull();
+		expect(
+			await findTicketByChannel(client as never, GUILD, "1")
+		).toBeNull();
 	});
 
 	test("closed state and added members come from the overwrites", () => {
@@ -177,7 +195,7 @@ describe("tickets: data helpers", () => {
 					PermissionFlagsBits.ViewChannel,
 					OverwriteType.Role
 				)
-			] as any,
+			] as never,
 			AUTHOR,
 			BOT
 		);
@@ -210,22 +228,24 @@ describe("tickets: data helpers", () => {
 
 describe("tickets: actions", () => {
 	test("list only returns the tickets the actor can see", async () => {
-		const res = (await run("tickets.list", {})) as any;
-		expect(res.tickets.map((t: any) => t.channelId)).toEqual([T2, T1]);
+		const res = (await run("tickets.list", {})) as TicketsPage;
+		expect(res.tickets.map((t) => t.channelId)).toEqual([T2, T1]);
 		expect(res.tickets[1].closed).toBe(true);
-		expect(res.tickets[1].members.map((m: any) => m.id)).toEqual([STAFF]);
+		expect(res.tickets[1].members.map((m) => m.id)).toEqual([STAFF]);
 		expect(res.nextCursor).toBeNull();
 	});
 
 	test("list paginates with before/limit", async () => {
-		const first = (await run("tickets.list", { limit: "1" })) as any;
-		expect(first.tickets.map((t: any) => t.channelId)).toEqual([T2]);
+		const first = (await run("tickets.list", {
+			limit: "1"
+		})) as TicketsPage;
+		expect(first.tickets.map((t) => t.channelId)).toEqual([T2]);
 		expect(first.nextCursor).toBe(T2);
 		const next = (await run("tickets.list", {
 			limit: "1",
 			before: first.nextCursor
-		})) as any;
-		expect(next.tickets.map((t: any) => t.channelId)).toEqual([T1]);
+		})) as TicketsPage;
+		expect(next.tickets.map((t) => t.channelId)).toEqual([T1]);
 		expect(next.nextCursor).toBeNull();
 	});
 
@@ -260,11 +280,11 @@ describe("tickets: actions", () => {
 	test("a disabled ticket module refuses actions", async () => {
 		const { client, guild } = fakeGuild(true);
 		const p = ticketsActions["tickets.close"].run({
-			client: client as any,
-			guild: guild as any,
+			client: client as never,
+			guild: guild as never,
 			actor: actor(STAFF),
 			params: new Params({ channelId: T1 }),
-			lang: {} as any
+			lang: {} as never
 		});
 		expect(await refused(p)).toContain("disabled");
 	});
@@ -281,9 +301,9 @@ describe("tickets: actions", () => {
 describe("tickets.transcript: messages as the dashboard shows them", () => {
 	const coll = <T extends { id: string }>(items: T[]) =>
 		new Map(items.map((x) => [x.id, x]));
-	const message = (over: Record<string, unknown> = {}): any => {
-		const cache = new Map<string, any>();
-		const m: any = {
+	const message = (over: Record<string, unknown> = {}) => {
+		const cache = new Map<string, unknown>();
+		const m = {
 			id: "910000000000000001",
 			channelId: "920000000000000001",
 			author: {
@@ -327,7 +347,7 @@ describe("tickets.transcript: messages as the dashboard shows them", () => {
 			channel: { messages: { cache } },
 			...over
 		};
-		return m;
+		return m as unknown as FakeMessage;
 	};
 
 	test("mentions get names, attachments their size and spoiler, embeds their colour, stickers", () => {

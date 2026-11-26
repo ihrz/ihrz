@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 			notice(
 				"success",
 				`${client.iHorizon_Emojis.Yes} ${lang.util_move_command_ok
-					.replace("${member}", member?.toString()!)
+					.replace("${member}", member?.toString() as string)
 					.replace("${channel}", channel.toString())}`
 			)
 		);

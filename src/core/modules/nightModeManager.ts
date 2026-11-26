@@ -20,7 +20,6 @@
 */
 
 import {
-	Client,
 	Guild,
 	MessageCreateOptions,
 	PermissionFlagsBits,
@@ -268,8 +267,9 @@ class NightModeManager {
 		const currentTimeInMinutes = currentHour * 60 + currentMinute;
 
 		// New format: [startHour, startMinute, endHour, endMinute]
-		let startTimeInMinutes = guildObject.time[0] * 60 + guildObject.time[1];
-		let endTimeInMinutes = guildObject.time[2] * 60 + guildObject.time[3];
+		const startTimeInMinutes =
+			guildObject.time[0] * 60 + guildObject.time[1];
+		const endTimeInMinutes = guildObject.time[2] * 60 + guildObject.time[3];
 
 		// Handle overnight periods (e.g., 22:30 to 06:15)
 		if (startTimeInMinutes > endTimeInMinutes) {
@@ -371,14 +371,14 @@ class NightModeManager {
 	}
 
 	public Basics_Check(guild: Guild) {
-		let is_admin = guild.members.me?.permissions.has(
+		const is_admin = guild.members.me?.permissions.has(
 			PermissionFlagsBits.Administrator
 		);
-		let bot_role = guild.members.me?.roles.botRole;
-		let im_self_admin = bot_role?.permissions.has(
+		const bot_role = guild.members.me?.roles.botRole;
+		const im_self_admin = bot_role?.permissions.has(
 			PermissionFlagsBits.Administrator
 		);
-		let im_on_top =
+		const im_on_top =
 			guild.roles.cache
 				.sort((a, b) => b.position - a.position)
 				.first() === bot_role;
@@ -399,7 +399,7 @@ class NightModeManager {
 			lang: LanguageData;
 		}
 	) {
-		let type =
+		const type =
 			opt.type === "started"
 				? opt.lang.var_nm_running
 				: opt.lang.var_nm_stopping;
@@ -474,7 +474,7 @@ class NightModeManager {
 			)) as DatabaseStructure.NightMode["changed_roles"]) || []
 		);
 
-		for (let role of filtered_pa_roles) {
+		for (const role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(
 				role.permissions
 			).remove(PermissionFlagsBits.Administrator);
@@ -515,8 +515,8 @@ class NightModeManager {
 			lang: LanguageData;
 		}
 	) {
-		let server_owner = await guild.fetchOwner();
-		let type =
+		const server_owner = await guild.fetchOwner();
+		const type =
 			opt.type === "started"
 				? opt.lang.var_nm_running2
 				: opt.lang.var_nm_stopping2;
@@ -539,7 +539,7 @@ class NightModeManager {
 								{
 									name: opt.lang
 										.var_nm_ping_embed_fields_0_name,
-									value: `${this.time_beautifuer(opt.guildObject?.time!)} (${opt.lang.nightmode_utc_timezone_on} ${utcTimezones[opt.guildObject?.utc!]})`,
+									value: `${this.time_beautifuer(opt.guildObject?.time as number[])} (${opt.lang.nightmode_utc_timezone_on} ${utcTimezones[opt.guildObject?.utc as number]})`,
 									inline: true
 								}
 							]

@@ -26,7 +26,6 @@ import {
 	PermissionsBitField
 } from "discord.js";
 
-import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
@@ -56,9 +55,7 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		interaction: ChatInputCommandInteraction<"cached"> | Message<true>
 	) => {
 		if (
 			(await client.db.get(

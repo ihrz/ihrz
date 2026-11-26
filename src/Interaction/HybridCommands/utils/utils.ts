@@ -27,7 +27,6 @@ import {
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
-import { cooldown } from "../../../core/functions/helper.js";
 
 export const command: Command = {
 	name: "utils",
@@ -1179,7 +1178,7 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.String,
 					description: "If you have an embed's ID!",
 					description_localizations: {
-						fr: "Si vous disposez d\'un identifiant d\'un embed précèdement enregistrer",
+						fr: "Si vous disposez d'un identifiant d'un embed précèdement enregistrer",
 						ja: "埋め込みのIDがある場合！",
 						ru: "Если у вас есть ID эмбеда!",
 						"es-ES": "Si tienes un ID de embed!",

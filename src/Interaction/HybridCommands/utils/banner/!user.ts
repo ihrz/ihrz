@@ -48,11 +48,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
+		let user: User | undefined;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user: User | undefined =
-				interaction.options.getUser("user") || interaction.user;
+			user = interaction.options.getUser("user") || interaction.user;
 		} else {
-			var user: User | undefined =
+			user =
 				(await client.func.method.user(interaction, args!, 0)) ||
 				interaction.author;
 		}

@@ -87,13 +87,13 @@ export const command: Command = {
 	) => {
 		if (
 			await client.func.ownerHelper.isBotOwner(
-				interaction.member?.user.id!
+				interaction.member?.user.id as string
 			)
 		) {
 			run_for_bot_owner(client, interaction, lang, args);
 		} else if (
 			await client.func.ownerHelper.isGuildOwner(
-				interaction.member?.user.id!,
+				interaction.member?.user.id as string,
 				interaction.guild!
 			)
 		) {
@@ -133,19 +133,19 @@ export async function run_for_bot_owner(
 	const opts = client.func.method.options(interaction, args);
 	const member = await opts.user("member", 0);
 
-	if (client.func.ownerHelper.isBotDev(member?.id!)) {
+	if (client.func.ownerHelper.isBotDev(member?.id as string)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_cant_unowner_creator
 		});
 		return;
 	}
 
-	await client.func.ownerHelper.removeBotOwner(member?.id!);
+	await client.func.ownerHelper.removeBotOwner(member?.id as string);
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unowner_command_work.replaceAll(
 			"${memberUsername}",
-			member?.username!
+			member?.username as string
 		)
 	});
 	return;
@@ -198,14 +198,14 @@ export async function run_for_guild_owner(
 	}
 
 	await client.func.ownerHelper.removeGuildOwner(
-		member?.id!,
+		member?.id as string,
 		interaction.guild.id
 	);
 
 	await client.func.method.interactionSend(interaction, {
 		content: lang.unowner_command_work.replaceAll(
 			"${memberUsername}",
-			member?.username!
+			member?.username as string
 		)
 	});
 	return;

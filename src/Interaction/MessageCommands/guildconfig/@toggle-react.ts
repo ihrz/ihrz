@@ -57,8 +57,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		const state = await client.db.get(
 			`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`
@@ -78,7 +77,7 @@ export const command: Command = {
 					"success",
 					lang.toggle_react_command_work
 						.replace("{activeMsg}", activeMsg)
-						.replace("${authorId}", interaction.member?.id!)
+						.replace("${authorId}", String(interaction.member?.id))
 				)
 			),
 			allowedMentions: { parse: [], repliedUser: false }

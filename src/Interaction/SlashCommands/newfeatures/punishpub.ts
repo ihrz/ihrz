@@ -204,8 +204,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -257,7 +256,7 @@ export const command: Command = {
 				description: lang.punishpub_logs_embed_description
 					.replace("${authorId}", interaction.user.id)
 					.replace("${amount}", amount.toString())
-					.replace("${punishement}", punishment?.toString()!)
+					.replace("${punishement}", punishment?.toString() as string)
 			});
 
 			await client.func.method.interactionSend(interaction, {

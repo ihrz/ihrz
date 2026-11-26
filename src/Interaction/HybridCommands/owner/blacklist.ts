@@ -27,10 +27,8 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 	ChatInputCommandInteraction,
-	GuildMember,
 	ApplicationCommandType,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import { format } from "../../../core/functions/date_and_time.js";
@@ -120,13 +118,13 @@ export const command: Command = {
 	) => {
 		if (
 			await client.func.ownerHelper.isBotOwner(
-				interaction.member?.user.id!
+				interaction.member?.user.id as string
 			)
 		) {
 			run_for_bot_owner(client, interaction, lang, args);
 		} else if (
 			await client.func.ownerHelper.isGuildOwner(
-				interaction.member?.user.id!,
+				interaction.member?.user.id as string,
 				interaction.guild!
 			)
 		) {
@@ -176,7 +174,7 @@ export async function run_for_bot_owner(
 		? interaction.guild.members.cache.get(targetUser?.id)
 		: null;
 
-	if (client.func.ownerHelper.isBotDev(member?.id!)) {
+	if (client.func.ownerHelper.isBotDev(member?.id as string)) {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unowner_cant_unowner_creator
 		});
@@ -410,8 +408,8 @@ export async function run_for_bot_owner(
 		setImmediate(async () => {
 			const { totalSuccess, totalGuilds } =
 				await broadcastBanAcrossShards(member.user.id, reason);
-			let score = `${totalSuccess}/${totalGuilds}`;
-			let username = member?.user.username;
+			const score = `${totalSuccess}/${totalGuilds}`;
+			const username = member?.user.username;
 
 			// Final notification
 			await client.func.method.channelSend(interaction, {
@@ -469,10 +467,10 @@ export async function run_for_bot_owner(
 		setImmediate(async () => {
 			const { totalSuccess, totalGuilds } =
 				await broadcastBanAcrossShards(targetUser!.id, reason);
-			let username = String(
+			const username = String(
 				targetUser?.globalName || targetUser?.username
 			);
-			let score = `${totalSuccess}/${totalGuilds}`;
+			const score = `${totalSuccess}/${totalGuilds}`;
 
 			// Final notification
 			await client.func.method.channelSend(interaction, {

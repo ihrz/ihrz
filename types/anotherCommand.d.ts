@@ -39,5 +39,5 @@ export interface AnotherCommand {
 		interaction:
 			| MessageContextMenuCommandInteraction<CacheType>
 			| UserContextMenuCommandInteraction<CacheType>
-	): Promise<any>;
+	): Promise<unknown>;
 }

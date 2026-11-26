@@ -74,8 +74,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		if (interaction.guild!.ownerId !== interaction.member!.user.id) {
 			return await client.func.method.interactionSend(interaction, {
@@ -83,7 +82,7 @@ export const command: Command = {
 			});
 		}
 
-		let baseData = ((await client.db.get(
+		const baseData = ((await client.db.get(
 			`${interaction.guildId}.UTILS.NIGHT_MODE`
 		)) || {
 			enabled: false,
@@ -94,7 +93,7 @@ export const command: Command = {
 			utc: 1
 		}) as DatabaseStructure.NightMode;
 
-		let check = client.nightmodeManager.Basics_Check(interaction.guild!);
+		const check = client.nightmodeManager.Basics_Check(interaction.guild!);
 		let warn_msg = (await interaction.guild!.fetchOwner()).toString();
 		warn_msg += "\n";
 
@@ -119,7 +118,7 @@ export const command: Command = {
 			);
 		}
 
-		let time = client.timeCalculator.to_ms("30m");
+		const time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
 			.setColor("#010101")
@@ -412,50 +411,52 @@ export const command: Command = {
 				i
 			);
 
-			let start_value = modal?.fields.getTextInputValue("start");
-			let end_value = modal?.fields.getTextInputValue("end");
+			const start_value = modal?.fields.getTextInputValue("start");
+			const end_value = modal?.fields.getTextInputValue("end");
 
 			const startTime = parseTimeInput(start_value!);
 			const endTime = parseTimeInput(end_value!);
 
 			if (!startTime) {
 				refreshogResponse();
-				interaction instanceof ChatInputCommandInteraction
-					? interaction.followUp({
-							content:
-								lang.nightmode_invalid_hour_morning.replace(
-									"${emoji_No}",
-									client.iHorizon_Emojis.No
-								),
-							flags: MessageFlags.Ephemeral
-						})
-					: await client.func.method.interactionSend(interaction, {
-							content:
-								lang.nightmode_invalid_hour_morning.replace(
-									"${emoji_No}",
-									client.iHorizon_Emojis.No
-								)
-						});
+				if (interaction instanceof ChatInputCommandInteraction) {
+					interaction.followUp({
+						content: lang.nightmode_invalid_hour_morning.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						),
+						flags: MessageFlags.Ephemeral
+					});
+				} else {
+					await client.func.method.interactionSend(interaction, {
+						content: lang.nightmode_invalid_hour_morning.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						)
+					});
+				}
 				return;
 			}
 
 			if (!endTime) {
 				refreshogResponse();
-				interaction instanceof ChatInputCommandInteraction
-					? interaction.followUp({
-							content: lang.nightmode_invalid_hour_night.replace(
-								"${emoji_No}",
-								client.iHorizon_Emojis.No
-							),
-							flags: MessageFlags.Ephemeral
-						})
-					: await client.func.method.interactionSend(interaction, {
-							content: lang.nightmode_invalid_hour_night.replace(
-								"${emoji_No}",
-								client.iHorizon_Emojis.No
-							),
-							flags: MessageFlags.Ephemeral
-						});
+				if (interaction instanceof ChatInputCommandInteraction) {
+					interaction.followUp({
+						content: lang.nightmode_invalid_hour_night.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						),
+						flags: MessageFlags.Ephemeral
+					});
+				} else {
+					await client.func.method.interactionSend(interaction, {
+						content: lang.nightmode_invalid_hour_night.replace(
+							"${emoji_No}",
+							client.iHorizon_Emojis.No
+						),
+						flags: MessageFlags.Ephemeral
+					});
+				}
 				return;
 			}
 

@@ -37,7 +37,7 @@ export function generateSelectMenu(
 		.setCustomId(`roleselect_roles%${messageId}`)
 		.setPlaceholder(placeholder);
 
-	data.forEach((item, index) => {
+	data.forEach((item) => {
 		const selectMenuOption = new StringSelectMenuOptionBuilder()
 			.setLabel(item.label)
 			.setValue(`role_${item.roleId}`);

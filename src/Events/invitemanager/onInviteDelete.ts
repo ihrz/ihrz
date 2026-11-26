@@ -26,6 +26,7 @@ import { BotEvent } from "../../../types/event.js";
 export const event: BotEvent = {
 	name: "inviteDelete",
 	run: async (client: Client, invite: Invite) => {
-		client.invites.get(invite.guild?.id!)?.delete(invite.code);
+		if (invite.guild)
+			client.invites.get(invite.guild.id)?.delete(invite.code);
 	}
 };

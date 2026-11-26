@@ -46,14 +46,10 @@ class KdenLive {
 			tempDir,
 			`merged_video_${randomUUID()}.mp4`
 		);
-		try {
-			const command = `xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`;
-			await execAsync(command);
-			await rm(projectPath);
-			return exportPath;
-		} catch (error) {
-			throw error;
-		}
+		const command = `xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`;
+		await execAsync(command);
+		await rm(projectPath);
+		return exportPath;
 	}
 }
 

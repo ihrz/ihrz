@@ -22,9 +22,17 @@
 import { describe, expect, test } from "bun:test";
 import {
 	ChannelType,
+	type Guild,
+	type GuildMember,
 	PermissionFlagsBits,
-	PermissionsBitField
+	PermissionsBitField,
+	type Role,
+	type User
 } from "discord.js";
+import type { LanguageData } from "../../types/languageData.ts";
+
+// A member mock: what the guards read, `bannable` and `guild` writable.
+type FakeMember = GuildMember & { bannable: boolean; guild: Guild };
 
 const ops = await import("../../src/core/modules/moderationOps.ts");
 const {
@@ -59,8 +67,9 @@ async function commandPaths(): Promise<Map<string, unknown>> {
 	// The definitions read `client.timeCalculator` at import.
 	const { iHorizonTimeCalculator } =
 		await import("../../src/core/functions/ms.ts");
-	(globalThis as any).client ??= {};
-	(globalThis as any).client.timeCalculator ??= new iHorizonTimeCalculator();
+	const g = globalThis as { client?: { timeCalculator?: unknown } };
+	g.client ??= {};
+	g.client.timeCalculator ??= new iHorizonTimeCalculator();
 	const paths = new Map<string, unknown>();
 	for (const file of definitions) {
 		const { command } = await import(file);
@@ -78,9 +87,9 @@ function member(
 		perms?: bigint;
 		muted?: boolean;
 		bannable?: boolean;
-		guild?: any;
+		guild?: Guild;
 	} = {}
-): any {
+): FakeMember {
 	return {
 		id,
 		user: { id, username: `u${id.slice(0, 2)}`, globalName: null },
@@ -90,12 +99,13 @@ function member(
 		bannable: opts.bannable ?? true,
 		isCommunicationDisabled: () => opts.muted ?? false,
 		toString: () => `<@${id}>`
-	};
+	} as unknown as FakeMember;
 }
 
-function guildWith(members: any[], botPerms: bigint, botPosition = 50) {
+function guildWith(members: FakeMember[], botPerms: bigint, botPosition = 50) {
 	const db = new Map<string, unknown>();
-	const guild: any = {
+	const me = member("900000000000000000", botPosition, { perms: botPerms });
+	const fake = {
 		id: GUILD,
 		name: "g",
 		ownerId: OWNER,
@@ -108,7 +118,7 @@ function guildWith(members: any[], botPerms: bigint, botPosition = 50) {
 			func: { ihorizon_logs: async () => {} }
 		},
 		members: {
-			me: member("900000000000000000", botPosition, { perms: botPerms }),
+			me,
 			cache: new Map(members.map((m) => [m.id, m])),
 			fetch: async (id: string) => {
 				const m = members.find((x) => x.id === id);
@@ -126,12 +136,13 @@ function guildWith(members: any[], botPerms: bigint, botPosition = 50) {
 		roles: { cache: new Map() },
 		channels: { cache: new Map() }
 	};
+	const guild = fake as unknown as Guild;
 	for (const m of members) m.guild = guild;
-	guild.members.me.guild = guild;
+	me.guild = guild;
 	return { guild, db };
 }
 
-const lang: any = new Proxy({}, { get: (_t, k) => String(k) });
+const lang = new Proxy({} as LanguageData, { get: (_t, k) => String(k) });
 
 describe("moderation actions: contract", () => {
 	test("names and mirrored commands exist", async () => {
@@ -162,14 +173,19 @@ describe("moderation ops: the commands' guards", () => {
 		const target = member(TARGET, 10);
 		const { guild } = guildWith([target], PermissionFlagsBits.BanMembers);
 		const mod = member(MOD, 10, { guild });
-		const user: any = { id: TARGET, send: async () => ({}) };
+		const user = { id: TARGET, send: async () => ({}) } as unknown as User;
 
 		expect(await ops.banUser(mod, user, "r", lang)).toEqual({
 			ok: false,
 			code: "target_above_author"
 		});
 		expect(
-			await ops.banUser(mod, { ...user, id: MOD } as any, "r", lang)
+			await ops.banUser(
+				mod,
+				{ ...user, id: MOD } as unknown as User,
+				"r",
+				lang
+			)
 		).toEqual({ ok: false, code: "self" });
 
 		const higher = member(MOD, 20, { guild });
@@ -182,7 +198,10 @@ describe("moderation ops: the commands' guards", () => {
 		});
 
 		// A user who left can be banned (no hierarchy to check).
-		const gone: any = { id: "700000000000000000", send: async () => ({}) };
+		const gone = {
+			id: "700000000000000000",
+			send: async () => ({})
+		} as unknown as User;
 		expect((await ops.banUser(higher, gone, "r", lang)).ok).toBe(true);
 
 		// The owner outranks everyone.
@@ -212,7 +231,7 @@ describe("moderation ops: the commands' guards", () => {
 		});
 		const { guild } = guildWith([admin], perms, 50);
 		const mod = member(MOD, 40, { guild });
-		const run = (t: any) =>
+		const run = (t: GuildMember) =>
 			ops.tempmuteMember(mod, t, 1000, "1s", null, lang);
 
 		expect(await run(admin)).toEqual({
@@ -291,13 +310,14 @@ describe("moderation ops: the commands' guards", () => {
 
 	test("role refusals: managed, above the bot, above the author, permissions", () => {
 		const { guild } = guildWith([], PermissionFlagsBits.Administrator, 50);
-		const role = (position: number, perms = 0n, managed = false): any => ({
-			id: ROLE,
-			guild,
-			position,
-			managed,
-			permissions: new PermissionsBitField(perms)
-		});
+		const role = (position: number, perms = 0n, managed = false) =>
+			({
+				id: ROLE,
+				guild,
+				position,
+				managed,
+				permissions: new PermissionsBitField(perms)
+			}) as unknown as Role;
 		const mod = member(MOD, 30, {
 			guild,
 			perms: PermissionFlagsBits.ManageRoles
@@ -318,7 +338,7 @@ describe("moderation ops: the commands' guards", () => {
 
 	test("hide/unhide only change what needs to", async () => {
 		const deny = new Set<string>();
-		const channel: any = {
+		const channel = {
 			manageable: true,
 			permissionOverwrites: {
 				cache: new Map(),
@@ -334,32 +354,39 @@ describe("moderation ops: the commands' guards", () => {
 				}
 			}
 		};
-		expect(await ops.setChannelHidden(channel, GUILD, false)).toBe(
+		expect(await ops.setChannelHidden(channel as never, GUILD, false)).toBe(
 			"unchanged"
 		);
-		expect(await ops.setChannelHidden(channel, GUILD, true)).toBe("ok");
-		expect(await ops.setChannelHidden(channel, GUILD, true)).toBe(
+		expect(await ops.setChannelHidden(channel as never, GUILD, true)).toBe(
+			"ok"
+		);
+		expect(await ops.setChannelHidden(channel as never, GUILD, true)).toBe(
 			"unchanged"
 		);
-		expect(await ops.setChannelHidden(channel, GUILD, false)).toBe("ok");
+		expect(await ops.setChannelHidden(channel as never, GUILD, false)).toBe(
+			"ok"
+		);
 		channel.manageable = false;
-		expect(await ops.setChannelHidden(channel, GUILD, true)).toBe(
+		expect(await ops.setChannelHidden(channel as never, GUILD, true)).toBe(
 			"not_manageable"
 		);
 	});
 });
 
 describe("moderation actions: parameters", () => {
-	function ctx(params: Record<string, unknown>, channels: any[] = []) {
+	function ctx(
+		params: Record<string, unknown>,
+		channels: { id: string }[] = []
+	) {
 		const { guild } = guildWith([], 0n);
-		for (const c of channels) guild.channels.cache.set(c.id, c);
+		for (const c of channels) guild.channels.cache.set(c.id, c as never);
 		return {
 			client: guild.client,
 			guild,
 			actor: member(MOD, 10, { guild }),
 			params: new Params(params),
 			lang
-		} as any;
+		} as never;
 	}
 
 	const channel = (over: Record<string, unknown> = {}) => ({

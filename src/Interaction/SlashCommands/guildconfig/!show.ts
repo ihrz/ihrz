@@ -48,8 +48,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -466,7 +465,7 @@ function picOnlyConfigToString(
 ): string {
 	return picOnlyConfig === undefined
 		? lang.var_none
-		: `\- ${lang.utils_piconly_embed_fields_3_name}: ${client.timeCalculator.to_beautiful_string(picOnlyConfig.muteTime || 0, lang)}\n\- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`;
+		: `- ${lang.utils_piconly_embed_fields_3_name}: ${client.timeCalculator.to_beautiful_string(picOnlyConfig.muteTime || 0, lang)}\n- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`;
 }
 
 function wlRolesToString(
@@ -498,11 +497,11 @@ function antispamToString(
 	return antispamConfig === undefined
 		? lang.var_none
 		: `
-\- ${lang.antispam_manage_choices_1_label}: \`${antispamConfig.Enabled ? "🟢" : "🔴"}\`
-\- ${lang.antispam_manage_choices_6_desc}: \`${antispamConfig.removeMessages ? lang.var_yes : lang.var_no}\`
-\- ${lang.antispam_manage_choices_3_label}: \`${antispamConfig.punishment_type}\`
-\- ${lang.antispam_manage_choices_4_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.punishTime || 0, lang)}\`
-\- ${lang.antispam_manage_choices_7_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.maxInterval || 0, lang)}\`
+- ${lang.antispam_manage_choices_1_label}: \`${antispamConfig.Enabled ? "🟢" : "🔴"}\`
+- ${lang.antispam_manage_choices_6_desc}: \`${antispamConfig.removeMessages ? lang.var_yes : lang.var_no}\`
+- ${lang.antispam_manage_choices_3_label}: \`${antispamConfig.punishment_type}\`
+- ${lang.antispam_manage_choices_4_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.punishTime || 0, lang)}\`
+- ${lang.antispam_manage_choices_7_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.maxInterval || 0, lang)}\`
 `;
 }
 
@@ -532,9 +531,9 @@ function roleSaverToString(
 	return rs === undefined || rs.enable === false
 		? lang.var_none
 		: `
-\- ${lang.rolesaver_embed_fields_1_name}: \`${rs.enable ? "🟢" : "🔴"}\`
-\- ${lang.rolesaver_embed_fields_2_name}: \`${rs.admin ? lang.var_yes : lang.var_no}\`
-\- ${lang.rolesaver_embed_fields_3_name}: \`${client.timeCalculator.to_beautiful_string(rs.timeout || 0, lang)}\`
+- ${lang.rolesaver_embed_fields_1_name}: \`${rs.enable ? "🟢" : "🔴"}\`
+- ${lang.rolesaver_embed_fields_2_name}: \`${rs.admin ? lang.var_yes : lang.var_no}\`
+- ${lang.rolesaver_embed_fields_3_name}: \`${client.timeCalculator.to_beautiful_string(rs.timeout || 0, lang)}\`
 `;
 }
 
@@ -544,7 +543,7 @@ function pfpsToString(
 ) {
 	return pfps === undefined || pfps.disable === true
 		? lang.var_no_set
-		: `\- ${lang.var_text_channel}: <#${pfps.channel}>`;
+		: `- ${lang.var_text_channel}: <#${pfps.channel}>`;
 }
 
 function securityToString(
@@ -554,8 +553,8 @@ function securityToString(
 	return sec === undefined || sec.disable === true
 		? lang.var_no_set
 		: `
-\- ${lang.var_text_channel}: <#${sec.channel}>
-\- ${lang.var_roles}: <@$${sec.role}>
+- ${lang.var_text_channel}: <#${sec.channel}>
+- ${lang.var_roles}: <@$${sec.role}>
 `;
 }
 
@@ -581,8 +580,8 @@ function voiceDashToString(
 	return vc === undefined || !vc.voice_channel
 		? lang.var_no_set
 		: `
-\- ${lang.var_voice_channel}: <#${vc.voice_channel}>
-\- ${lang.var_text_channel}: <#${vc.voice_channel}>
-\- 💂‍♀️: ${formatStaffRoles()}
+- ${lang.var_voice_channel}: <#${vc.voice_channel}>
+- ${lang.var_text_channel}: <#${vc.voice_channel}>
+- 💂‍♀️: ${formatStaffRoles()}
 `;
 }

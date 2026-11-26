@@ -52,7 +52,8 @@ function channel(ids: bigint[], cached: string[] = []) {
 			return new Map(page.map((id) => [String(id), msg(String(id))]));
 		}
 	};
-	return { ch: { messages } as any, calls };
+	// Only `messages.cache` / `messages.fetch` are read.
+	return { ch: { messages } as never, calls };
 }
 
 const BASE = 1300000000000000000n;

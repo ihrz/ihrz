@@ -23,6 +23,7 @@ import {
 	Client,
 	EmbedBuilder,
 	AttachmentBuilder,
+	AttachmentPayload,
 	Message,
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -59,12 +60,7 @@ export const command: Command = {
 	category: "bot",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (
-		client: Client,
-		interaction: Message,
-		lang: LanguageData,
-		args?: string[]
-	) => {
+	run: async (client: Client, interaction: Message, lang: LanguageData) => {
 		if (!client.user || !interaction.guild || !interaction.channel) return;
 
 		const version = client.version;
@@ -117,7 +113,7 @@ export const command: Command = {
 				.setURL(version.git_commit_url)
 		);
 
-		const components: any[] = [buttons];
+		const components: ActionRowBuilder<ButtonBuilder>[] = [buttons];
 
 		// Add newsletter button for everyone
 		const bl = (await metasTable.get("newsletter_bl")) as Record<
@@ -168,7 +164,7 @@ export const command: Command = {
 			}
 		}
 
-		const files: any[] = [
+		const files: (AttachmentBuilder | AttachmentPayload)[] = [
 			await client.func.displayBotName.footerAttachmentBuilder(
 				interaction
 			)

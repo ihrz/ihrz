@@ -59,20 +59,44 @@ const lavalinkTrack = (n: number, over: Record<string, unknown> = {}) =>
 		}
 	}) as never;
 
+// The parts of a reply the tests read.
+type Payload = {
+	embeds?: unknown[];
+	flags?: number[];
+	allowedMentions?: unknown;
+	content?: string;
+	components: {
+		toJSON(): {
+			components: {
+				custom_id?: string;
+				style?: number;
+				disabled?: boolean;
+			}[];
+		};
+	}[];
+};
+type CollectorOptions = {
+	time?: number;
+	max?: number;
+	filter(i: { user: { id: string }; customId: string }): boolean;
+};
+
 // A button press: records its replies; the remove offer's message hands out
 // a collector the test drives.
 function press(userId = U) {
-	const replies: any[] = [];
-	const edits: any[] = [];
-	const collectors: EventEmitter[] = [];
+	const replies: Payload[] = [];
+	const edits: Payload[] = [];
+	const collectors: (EventEmitter & { opts: CollectorOptions })[] = [];
 	const i = {
 		user: { id: userId },
-		reply: async (payload: any) => {
+		reply: async (payload: Payload) => {
 			replies.push(payload);
 			return {
 				resource: {
 					message: {
-						createMessageComponentCollector: (opts: any) => {
+						createMessageComponentCollector: (
+							opts: CollectorOptions
+						) => {
 							const c = Object.assign(new EventEmitter(), {
 								opts
 							});
@@ -83,7 +107,7 @@ function press(userId = U) {
 				}
 			};
 		},
-		editReply: async (payload: any) => edits.push(payload)
+		editReply: async (payload: Payload) => edits.push(payload)
 	};
 	return { i: i as never, replies, edits, collectors };
 }
@@ -134,7 +158,7 @@ describe("Love button", () => {
 		expect(button.style).toBe(4);
 		expect(button.disabled).toBe(false);
 
-		const collector = collectors[0] as any;
+		const collector = collectors[0]!;
 		expect(collector.opts.time).toBe(60_000);
 		expect(collector.opts.max).toBe(1);
 		expect(
@@ -144,9 +168,9 @@ describe("Love button", () => {
 			})
 		).toBe(false);
 
-		const updates: any[] = [];
+		const updates: Payload[] = [];
 		collector.emit("collect", {
-			update: async (p: any) => updates.push(p)
+			update: async (p: Payload) => updates.push(p)
 		});
 		await new Promise((r) => setTimeout(r, 20));
 		expect(updates[0].components).toEqual([]);

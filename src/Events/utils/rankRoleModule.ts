@@ -26,7 +26,6 @@ import {
 	ChannelType,
 	Message,
 	ClientUser,
-	SnowflakeUtil,
 	GuildChannel
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
@@ -61,7 +60,7 @@ export const event: BotEvent = {
 			`${message.guild.id}.GUILD.RANK_ROLES`
 		)) as DatabaseStructure.DbGuildObject["RANK_ROLES"];
 		const prefix = (await guildPrefix(client, message.guildId!)).string;
-		var text = lang.ping_bot_show_info_msg
+		let text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
 			.replace("${messageAuthor}", message.author.toString())
 			.replace(

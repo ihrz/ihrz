@@ -49,12 +49,7 @@ export const command: Command = {
 	permission: null,
 
 	category: "utils",
-	run: async (
-		client: Client,
-		message: Message<true>,
-		lang: LanguageData,
-		options?: string[]
-	) => {
+	run: async (client: Client, message: Message<true>, lang: LanguageData) => {
 		const channel = message.channel;
 		channel.messages.fetch({ after: "0", limit: 1 }).then((messages) => {
 			const firstMessage = messages.first();

@@ -20,7 +20,7 @@
 */
 
 import { describe, expect, test } from "bun:test";
-import { MessageFlags } from "discord.js";
+import { Client, Guild, MessageFlags } from "discord.js";
 
 import enUS from "../../src/lang/en-US.ts";
 import emojis from "../../src/files/emojis.json";
@@ -49,8 +49,12 @@ const client = {
 				])
 		}
 	}
-} as any;
-const guild = { id: "9", name: "Server one", iconURL: () => null } as any;
+} as unknown as Client;
+const guild = {
+	id: "9",
+	name: "Server one",
+	iconURL: () => null
+} as unknown as Guild;
 
 describe("guild welcome", () => {
 	test("the server card says the language and how to change it", async () => {

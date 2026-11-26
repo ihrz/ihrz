@@ -22,7 +22,6 @@
 import {
 	SnowflakeUtil,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 	GuildTextBasedChannel,
 	Message,

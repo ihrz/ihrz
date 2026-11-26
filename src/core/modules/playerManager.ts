@@ -89,7 +89,7 @@ export default async (client: Client) => {
 			lavalink_error_channel === null &&
 			client.config.core.lavalinkLogsChannelID
 		) {
-			let channel = await client.channels
+			const channel = await client.channels
 				.fetch(client.config.core.lavalinkLogsChannelID)
 				.catch(() => null);
 			if (channel) {
@@ -103,7 +103,7 @@ export default async (client: Client) => {
 			.fetch(player.guildId)
 			.catch(() => null);
 
-		let channel = await guild?.channels
+		const channel = await guild?.channels
 			.fetch(player.textChannelId!)
 			.catch(() => null);
 
@@ -208,7 +208,7 @@ export default async (client: Client) => {
 	watchAudioNodes(client);
 
 	client.player.on("trackError", async (player, x, y) => {
-		let t0 = performance.now();
+		const t0 = performance.now();
 
 		// A remembered search that served a dead track: forget it, the next
 		// identical search asks the node again (music_search).
@@ -217,7 +217,7 @@ export default async (client: Client) => {
 		);
 
 		if (lavalink_error_channel instanceof BaseGuildTextChannel) {
-			let error_log = `
+			const error_log = `
 ==================================================================================
 
 # Oops! Lavalink issue when lavalink-client "trackError" event.

@@ -82,7 +82,7 @@ export class TemproleManager {
 			await this.client.db.set(memberPath, memberRoles);
 
 			return true;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -113,7 +113,7 @@ export class TemproleManager {
 			return tempRoles[memberId].some(
 				(tempRole) => tempRole.roleId === role.id
 			);
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}
@@ -154,7 +154,7 @@ export class TemproleManager {
 			}
 
 			return true;
-		} catch (error) {
+		} catch {
 			return false;
 		}
 	}

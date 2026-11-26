@@ -26,7 +26,11 @@ import * as errorManager from "./modules/errorManager.js";
 import playerManager from "./modules/playerManager.js";
 
 import { VanityInviteData } from "../../types/vanityUrlData.js";
-import { InviteCacheData } from "../../types/client.js";
+import {
+	ButtonComponentHandler,
+	InviteCacheData,
+	SelectMenuComponentHandler
+} from "../../types/client.js";
 
 import {
 	Client,
@@ -41,7 +45,6 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { StreamNotifier } from "./StreamNotifier.js";
 import { KdenLive } from "./functions/kdenliveManipulator.js";
 import { Command } from "../../types/command.js";
-import { mkdir } from "node:fs/promises";
 import { MemberCountModule } from "./modules/memberCountManager.js";
 import { GatewayLink } from "./modules/gatewayLink.js";
 import { AutoRenew } from "./modules/autorenewManager.js";
@@ -69,7 +72,7 @@ const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
 
 if (fs.existsSync(old_slash_logs_file)) {
-	let _ = new DiscordSlashLogParser().parse(
+	const _ = new DiscordSlashLogParser().parse(
 		readFileSync(old_slash_logs_file, "utf-8")
 	);
 	writeFileSync(slash_logs_file, JSON.stringify(_));
@@ -105,8 +108,8 @@ export async function main(client: Client) {
 	>();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.kdenlive = new KdenLive();
-	client.selectmenu = new Collection<string, Function>();
-	client.buttons = new Collection<string, Function>();
+	client.selectmenu = new Collection<string, SelectMenuComponentHandler>();
+	client.buttons = new Collection<string, ButtonComponentHandler>();
 	client.func = {} as typeof Client_Functions;
 	client.svgfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
@@ -180,7 +183,9 @@ export async function main(client: Client) {
 	client.notifier = new StreamNotifier(
 		process.env.TWITCH_APPLICATION_ID || "",
 		process.env.TWITCH_APPLICATION_SECRET || "",
-		process.env.YOUTUBE_API_KEY || ""
+		process.env.YOUTUBE_API_KEY || "",
+		process.env.KICK_CLIENT_ID || "",
+		process.env.KICK_CLIENT_SECRET || ""
 	);
 	client.blogger = new BloggerNotifier();
 	client.githubLinesManager = new GithubLinesManager(

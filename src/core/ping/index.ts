@@ -203,7 +203,7 @@ export class Ping {
 				reject(new Error(`Failed to execute ping: ${error.message}`));
 			});
 
-			child.on("close", (code) => {
+			child.on("close", () => {
 				const output = stdout + stderr;
 
 				try {

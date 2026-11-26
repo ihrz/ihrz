@@ -61,8 +61,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		const button_add_me = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)

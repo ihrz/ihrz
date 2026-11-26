@@ -1020,6 +1020,8 @@ async function restoreDeletedRole(
 		} catch {
 			// Gradient colors / icon / emoji need guild features: retry without them.
 			const { colors, icon, unicode_emoji, ...basic } = body;
+			void icon; // dropped on purpose (needs a guild feature)
+			void unicode_emoji;
 			created = (await client.rest.post(Routes.guildRoles(guild.id), {
 				body: {
 					...basic,

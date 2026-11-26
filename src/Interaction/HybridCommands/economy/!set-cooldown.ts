@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 			time
 		);
 
-		let stime = client.timeCalculator.to_beautiful_string(time, lang);
+		const stime = client.timeCalculator.to_beautiful_string(time, lang);
 
 		await sendCard(
 			client,

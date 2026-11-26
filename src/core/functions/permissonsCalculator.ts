@@ -298,22 +298,22 @@ export async function sendErrorMessage(
 		const hasRoles = permissionData.roles.length > 0;
 		const hasUsers = permissionData.users.length > 0;
 
-		(permissionData.level ?? 0) > 0
-			? (neededPerm += `\`${permissionData.level}\` \n`)
-			: "";
-		hasRoles
-			? (neededPerm += `${lang.var_roles}: ${permissionData.roles.map((x) => `<@&${x}>`).join(", ")} \n`)
-			: "";
-		hasUsers
-			? (neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map((x) => `<@${x}>`).join(", ")} \n`)
-			: "";
+		if ((permissionData.level ?? 0) > 0) {
+			neededPerm += `\`${permissionData.level}\` \n`;
+		}
+		if (hasRoles) {
+			neededPerm += `${lang.var_roles}: ${permissionData.roles.map((x) => `<@&${x}>`).join(", ")} \n`;
+		}
+		if (hasUsers) {
+			neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map((x) => `<@${x}>`).join(", ")} \n`;
+		}
 	} else {
 		neededPerm = `**\`${lang.var_discord_permission}\`**`;
 	}
 
 	return await interaction.client.func.method.interactionSend(interaction, {
 		content: lang.event_permission_wrong
-			.replace("${author}", interaction.member?.user.toString()!)
+			.replace("${author}", interaction.member?.user.toString() as string)
 			.replace("${neededPerm}", neededPerm),
 		flags: [1 << 6]
 	});

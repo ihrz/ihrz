@@ -51,8 +51,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: Message<true>,
-		lang: LanguageData,
-		options?: string[]
+		lang: LanguageData
 	) => {
 		cool_command.run!(client, interaction, lang, ["auto"]);
 	}

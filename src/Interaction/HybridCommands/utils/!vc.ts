@@ -87,7 +87,9 @@ export const subCommand = {
 			).color1;
 			const parsed = parseInt(String(color).replace("#", ""), 16);
 			if (!Number.isNaN(parsed)) accent = parsed;
-		} catch {}
+		} catch {
+			// no icon or unreadable image: keep the default accent.
+		}
 
 		const stats: StatEntry[] = [
 			{

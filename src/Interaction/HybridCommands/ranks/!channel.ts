@@ -47,12 +47,14 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
+		let type: string | null;
+		let argsid: Channel;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("action");
-			var argsid = interaction.options.getChannel("channel") as Channel;
+			type = interaction.options.getString("action");
+			argsid = interaction.options.getChannel("channel") as Channel;
 		} else {
-			var type = client.func.method.string(args!, 0);
-			var argsid =
+			type = client.func.method.string(args!, 0);
+			argsid =
 				(await client.func.method.channel(interaction, args!, 1)) ||
 				interaction.channel;
 		}
@@ -99,7 +101,7 @@ export const subCommand: SubCommand = {
 					)
 				});
 				return;
-			} catch (e) {
+			} catch {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setxpchannels_command_error_enable
 				});
@@ -134,7 +136,7 @@ export const subCommand: SubCommand = {
 					content: lang.setxpchannels_command_work_disable
 				});
 				return;
-			} catch (e) {
+			} catch {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setxpchannels_command_error_disable
 				});

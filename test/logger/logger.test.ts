@@ -20,12 +20,12 @@
 
 import { afterAll, expect, spyOn, test } from "bun:test";
 
-const previous = (globalThis as any).logger;
+const previous = globalThis.logger;
 const { default: logger } = await import("../../src/core/logger.js");
 
 // Importing the real logger replaces the preload stand-in: put it back.
 afterAll(() => {
-	(globalThis as any).logger = previous;
+	globalThis.logger = previous;
 });
 
 test("logger: an Error is rendered with its message and stack", () => {
@@ -51,7 +51,7 @@ test("logger: an Error without a stack falls back to name and message", () => {
 });
 
 test("logger: a circular object does not throw", () => {
-	const circular: any = { name: "loop" };
+	const circular: { name: string; self?: unknown } = { name: "loop" };
 	circular.self = circular;
 
 	expect(() => logger.returnLog("circular:", circular)).not.toThrow();

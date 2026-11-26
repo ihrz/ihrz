@@ -28,11 +28,7 @@ import {
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -72,7 +68,7 @@ export const event: BotEvent = {
 			title: data.logs_kick_title,
 			thumbnail: member.user.displayAvatarURL(),
 			description: data.event_srvLogs_guildMemberRemove_description
-				.replace("${executorId}", firstEntry.executor?.id!)
+				.replace("${executorId}", firstEntry.executor?.id as string)
 				.replace("${targetId}", firstEntry.targetId!),
 			blocks: [
 				`**${data.event_srvLogs_banAdd_fields_name}**\n${data.event_srvLogs_banAdd_fields_value.replace(

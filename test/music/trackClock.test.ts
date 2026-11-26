@@ -27,14 +27,15 @@ import {
 	markTrackStart,
 	trackPosition
 } from "../../src/core/modules/trackClock.ts";
+import type { Player } from "lavalink-client";
 
-function makePlayer(over: Record<string, unknown> = {}) {
+function makePlayer(over: Record<string, unknown> = {}): Player {
 	const data = new Map<string, unknown>();
-	const p: any = {
+	const p = {
 		paused: false,
 		lastPosition: 0,
 		lastPositionChange: null as number | null,
-		get position() {
+		get position(): number {
 			return (
 				p.lastPosition +
 				(p.lastPositionChange ? Date.now() - p.lastPositionChange : 0)
@@ -50,7 +51,7 @@ function makePlayer(over: Record<string, unknown> = {}) {
 		setData: (k: string, v: unknown) => data.set(k, v),
 		...over
 	};
-	return p;
+	return p as unknown as Player;
 }
 
 describe("trackPosition", () => {
@@ -87,7 +88,7 @@ describe("trackPosition", () => {
 		p.queue.current = {
 			encoded: "enc-b",
 			info: { identifier: "b", duration: 180_000 }
-		};
+		} as never;
 		markTrackStart(p, p.queue.current, Date.now() - 1_500);
 		const pos = trackPosition(p);
 		expect(pos).toBeGreaterThanOrEqual(1_500);
@@ -131,7 +132,7 @@ describe("trackPosition", () => {
 		p.queue.current = {
 			encoded: "enc-b",
 			info: { identifier: "b", duration: 180_000 }
-		};
+		} as never;
 		markTrackStart(p, p.queue.current, Date.now() - 1_000, 3_500);
 		// Wavyzon reports deck A (the previous track) at 2 min while mixing.
 		p.lastPosition = 120_000;

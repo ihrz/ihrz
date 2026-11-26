@@ -34,12 +34,8 @@ import {
 import { axios } from "../../../core/functions/axios.js";
 import { SubCommand } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import {
-	createOauth2LinkWithoutGuild,
-	oauth2Member
-} from "../../../core/functions/authRestoreHelper.js";
+import { createOauth2LinkWithoutGuild } from "../../../core/functions/authRestoreHelper.js";
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
-import { authRestoreTable } from "../../../Events/client/ready.js";
 import {
 	ACCENT,
 	botSignature,
@@ -212,7 +208,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function getVencordDonator(userId: string): Promise<boolean> {
-			let result = await axios
+			const result = await axios
 				.get("https://badges.vencord.dev/badges.json", { timeout: 833 })
 				.catch(() => null);
 			if (result?.status !== 200) return false;
@@ -220,8 +216,8 @@ export const subCommand: SubCommand = {
 		}
 
 		async function getEquiboAndOthersData(userId: string): Promise<string> {
-			let badges = new Set<string>();
-			let result = await axios
+			const badges = new Set<string>();
+			const result = await axios
 				.get(`https://badges.equicord.org/${userId}`, { timeout: 833 })
 				.catch(() => null);
 			if (result?.status !== 200) return "";
@@ -231,12 +227,12 @@ export const subCommand: SubCommand = {
 				result.data?.["badges"] &&
 				Array.isArray(result.data?.["badges"])
 			) {
-				let badgesData = result.data?.["badges"];
-				let serverMaps = badgesData.map(
+				const badgesData = result.data?.["badges"];
+				const serverMaps = badgesData.map(
 					(x) => x?.["badge"]
 				) as string[];
 
-				for (let link of serverMaps) {
+				for (const link of serverMaps) {
 					if (new URL(link).host === "badge.equicord.org") {
 						badges.add(client.iHorizon_Emojis.Equicord_Donator);
 					}
@@ -246,7 +242,7 @@ export const subCommand: SubCommand = {
 			return badges.values().toArray().join("");
 		}
 
-		var banner: string | null = null;
+		let banner: string | null = null;
 
 		function getSelfBadges(flags: number): string {
 			const badgeValues = Object.values(botBadges);
@@ -256,14 +252,13 @@ export const subCommand: SubCommand = {
 				.join("");
 		}
 
+		let member: User;
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member =
-				interaction.options.getUser("user") || interaction.user;
+			member = interaction.options.getUser("user") || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
-			var member =
-				interaction.options.getUser("user") || interaction.user;
+			member = interaction.options.getUser("user") || interaction.user;
 		} else {
-			var member =
+			member =
 				(await client.func.method.user(interaction, args!, 0)) ||
 				interaction.author;
 		}
@@ -292,7 +287,7 @@ export const subCommand: SubCommand = {
 
 			banner = user_1.banner;
 
-			let badges = getBadges(member.flags?.bitfield!);
+			let badges = getBadges(member.flags?.bitfield as number);
 			const nitro = await GetNitro();
 			badges += nitro.badge;
 
@@ -300,12 +295,14 @@ export const subCommand: SubCommand = {
 				badges += `${client.iHorizon_Emojis.App_1}${client.iHorizon_Emojis.App_2}`;
 
 			if (member.id === client.user?.id)
-				badges += getSelfBadges(client.application?.flags.bitfield!);
+				badges += getSelfBadges(
+					client.application?.flags.bitfield as number
+				);
 
 			const platformBadges = getPlatformBadges(user.id);
 			badges += platformBadges;
 
-			let guildMember = interaction.guild?.members.cache.get(user.id);
+			const guildMember = interaction.guild?.members.cache.get(user.id);
 			if (guildMember) {
 				const serverBadges = getServerBadges(guildMember);
 				badges += serverBadges;
@@ -414,6 +411,7 @@ export const subCommand: SubCommand = {
 			if (member.bot) return { badge, type };
 
 			try {
+				let input: number | undefined;
 				if (client.config.api.HorizonGateway?.startsWith("http")) {
 					const result = await axios.post(
 						apiUrlParser.HorizonGatewayInternal(
@@ -424,7 +422,7 @@ export const subCommand: SubCommand = {
 							adminKey: client.config.api.apiToken
 						}
 					);
-					var input = result.data.premium_type;
+					input = result.data.premium_type;
 				}
 
 				if (!input) {
@@ -453,7 +451,7 @@ export const subCommand: SubCommand = {
 						type = "Nitro Basic";
 						break;
 				}
-			} catch (e) {
+			} catch {
 				badge = "";
 				type = "";
 			}

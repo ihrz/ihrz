@@ -48,7 +48,9 @@ test("sqlite driver opens the database in WAL mode with a busy timeout", async (
 	probe.close();
 	expect(mode.journal_mode).toBe("wal");
 
-	const own = (driver as any).db.query("PRAGMA busy_timeout").get() as {
+	const own = (driver as unknown as { db: Database }).db
+		.query("PRAGMA busy_timeout")
+		.get() as {
 		timeout: number;
 	};
 	expect(own.timeout).toBe(5000);

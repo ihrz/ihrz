@@ -26,7 +26,6 @@
 
 import type { DatabaseStructure } from "../../../types/database_structure.js";
 
-type Message = DatabaseStructure.StatsMessage;
 type Voice = DatabaseStructure.StatsVoice;
 type UserStats = DatabaseStructure.UserStats;
 

@@ -47,7 +47,7 @@ import * as m21 from "../Interaction/MessageCommands/utils/sticker.ts";
 import * as m22 from "../Interaction/MessageCommands/utils/top.ts";
 import * as m23 from "../Interaction/MessageCommands/utils/unslowmode.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"bot/@.ts": m0,
 	"bot/@h.ts": m1,
 	"bot/@helpall.ts": m2,

@@ -66,7 +66,7 @@ export async function initializeDatabase(
 	database: ConfigData["database"]
 ): Promise<UnifiedDatabase> {
 	try {
-		client;
+		void client;
 		client.inShard("0");
 		isClient = true;
 	} catch {

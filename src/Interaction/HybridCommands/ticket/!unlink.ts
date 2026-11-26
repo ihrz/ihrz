@@ -27,7 +27,6 @@ import {
 	TextChannel
 } from "discord.js";
 
-import { TicketTranscript } from "../../../core/modules/ticketsManager.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -36,8 +35,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -68,14 +66,14 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let ticketChannel = interaction.channel as TextChannel;
+		const ticketChannel = interaction.channel as TextChannel;
 
 		// Change name of the ticket
 		await ticketChannel.setName(
 			ticketChannel.name.replace("ticket", "channel")
 		);
 
-		let panelMessage = (
+		const panelMessage = (
 			await ticketChannel.messages.fetch({ after: "0", limit: 1 })
 		).first();
 

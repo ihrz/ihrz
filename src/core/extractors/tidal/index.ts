@@ -141,7 +141,7 @@ async function fetchEmbed(type: string, id: string): Promise<string> {
 	return html;
 }
 
-function parseAlbumEmbed(html: string, albumId: string): RawAlbum {
+function parseAlbumEmbed(html: string): RawAlbum {
 	// Extract album title from <h1 class="media-album">
 	const titleMatch = html.match(
 		/<h1\s+class="media-album"[^>]*>[\s\S]*?<a[^>]*>([^<]+)<\/a>/i
@@ -307,7 +307,7 @@ export async function album(input: string): Promise<RawAlbum> {
 	logger.debug("tidal metadata: album", id);
 
 	const html = await fetchEmbed("album", id);
-	return parseAlbumEmbed(html, id);
+	return parseAlbumEmbed(html);
 }
 
 /**

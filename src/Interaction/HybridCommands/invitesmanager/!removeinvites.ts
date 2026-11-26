@@ -48,13 +48,11 @@ export const subCommand: SubCommand = {
 			return;
 
 		const opts = client.func.method.options(interaction, args);
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("member") as GuildMember;
-		} else {
-			var user =
-				client.func.method.member(interaction, args!, 0) ||
-				interaction.member;
-		}
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getMember("member") as GuildMember)
+				: client.func.method.member(interaction, args!, 0) ||
+					interaction.member;
 		const amount = opts.number("amount", 1)!;
 
 		const total = await editMemberInvites(

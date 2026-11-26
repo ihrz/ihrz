@@ -17,14 +17,21 @@ describe("application emojis", () => {
 			})
 		};
 		const manager = new EmojisManager({
-			rest: rest as any,
+			rest: rest as never,
 			applicationId: "123"
 		});
-		const list = await (manager as any).fetchCurrentApplicationEmojis();
-		const names = list.map((e: { Name: string }) => e.Name);
+		// Private method, reached on purpose.
+		const list = await (
+			manager as unknown as {
+				fetchCurrentApplicationEmojis(): Promise<
+					{ Name: string; FormatedName: string }[]
+				>;
+			}
+		).fetchCurrentApplicationEmojis();
+		const names = list.map((e) => e.Name);
 		expect(names).toEqual(["iHorizon_Wink", "ih1", "ih4"]);
-		expect(
-			list.find((e: { Name: string }) => e.Name === "ih4").FormatedName
-		).toBe("<a:ih4:3>");
+		expect(list.find((e) => e.Name === "ih4")!.FormatedName).toBe(
+			"<a:ih4:3>"
+		);
 	});
 });

@@ -27,7 +27,6 @@ import {
 	ChannelType
 } from "discord.js";
 
-import logger from "../../../../core/logger.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { disableTalkMode } from "../../../../core/modules/voiceModes.js";

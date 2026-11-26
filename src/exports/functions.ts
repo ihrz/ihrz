@@ -86,7 +86,7 @@ import * as m60 from "../core/functions/wait.ts";
 import * as m61 from "../core/functions/welcomerEmbed.ts";
 import * as m62 from "../core/functions/welcomerMessage.ts";
 
-const files: Record<string, any> = {
+const files: Record<string, unknown> = {
 	"apiUrlParser.ts": m0,
 	"assetsCalc.ts": m1,
 	"authRestoreHelper.ts": m2,

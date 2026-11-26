@@ -54,8 +54,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -261,7 +260,9 @@ export const subCommand: SubCommand = {
 
 				const calculedTime =
 					client.timeCalculator.to_ms(
-						response?.fields.getTextInputValue("case_value")!
+						response?.fields.getTextInputValue(
+							"case_value"
+						) as string
 					) || 600000;
 
 				baseData.muteTime =
@@ -299,7 +300,7 @@ export const subCommand: SubCommand = {
 				);
 
 				const threshold = parseInt(
-					response?.fields.getTextInputValue("case_value")!
+					response?.fields.getTextInputValue("case_value") as string
 				);
 
 				baseData.threshold = 15 < threshold ? 3 : threshold;

@@ -23,16 +23,13 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Guild,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { SearchResult } from "lavalink-client";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -50,11 +47,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var title = interaction.options.getString("query")!;
-		} else {
-			var title = (args?.join(" ") || " ") as string;
-		}
+		const title =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("query")!
+				: ((args?.join(" ") || " ") as string);
 
 		try {
 			const response = await client.func.searchLyrics(title);

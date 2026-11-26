@@ -20,6 +20,7 @@
 */
 
 import {
+	AttachmentPayload,
 	TextDisplayBuilder,
 	SeparatorBuilder,
 	FileBuilder,
@@ -40,22 +41,13 @@ import {
 	UserSelectMenuInteraction,
 	Role,
 	StringSelectMenuInteraction,
-	ComponentType,
 	TextInputStyle,
-	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder,
-	ChannelSelectMenuBuilder,
 	ModalSubmitInteraction,
 	APIEmbed,
-	ActionRowData,
 	APIMessageTopLevelComponent,
 	JSONEncodable,
-	MessageActionRowComponentBuilder,
-	MessageActionRowComponentData,
-	TopLevelComponentData,
 	Message,
 	MessageFlags,
-	Collection,
 	PermissionFlagsBits,
 	BaseMessageOptions,
 	Client,
@@ -64,7 +56,6 @@ import {
 	OverwriteType
 } from "discord.js";
 
-import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
 import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
 import {
@@ -337,9 +328,9 @@ async function CreateChannel(
 
 		if (!response) return;
 		try {
-			reason = response?.fields.getTextInputValue("ticket_reason")!;
+			reason = response.fields.getTextInputValue("ticket_reason");
 			reasonInteraction = response;
-		} catch (error) {
+		} catch {
 			return;
 		}
 	} else {
@@ -429,7 +420,7 @@ async function CreateChannel(
 										(item) =>
 											item.id ===
 											parseInt(interaction.values[0])
-									)?.name!
+									)?.name as string
 								)
 						)
 						.setFooter(
@@ -524,7 +515,7 @@ async function CreateChannel(
 				.then(async (msg) => {
 					await msg.pin("Ticket Panel").catch(() => {});
 				})
-				.catch((err: any) => {
+				.catch((err: unknown) => {
 					logger.err(err);
 				});
 
@@ -539,7 +530,7 @@ async function CreateChannel(
 							.replace("${channelId}", channel.id)
 				});
 				return;
-			} catch (e) {
+			} catch {
 				return;
 			}
 		})
@@ -570,7 +561,7 @@ async function CreateChannelV2(
 
 	const category = chosenCategory?.categoryId || result.category;
 
-	if (chosenCategory?.form?.length! >= 1) {
+	if ((chosenCategory?.form?.length ?? 0) >= 1) {
 		const modalFields = chosenCategory?.form!.map((field) => {
 			return {
 				customId: field.questionId.toString(),
@@ -702,7 +693,7 @@ async function CreateChannelV2(
 			}
 
 			const embeds: EmbedBuilder[] = [];
-			const files: any[] = [];
+			const files: AttachmentPayload[] = [];
 
 			const welcome = lang.event_ticket_embed_description.replace(
 				"${userUsername}",
@@ -728,7 +719,7 @@ async function CreateChannelV2(
 				);
 
 			if (chosenCategory?.panelId) {
-				var embed_from_db = await metasTable.get(
+				let embed_from_db: APIEmbed | null = await metasTable.get(
 					`EMBED.${chosenCategory?.panelId}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
@@ -758,7 +749,7 @@ async function CreateChannelV2(
 					embeds.push(og_embed);
 				}
 			} else if (result.ticketChannelPanel) {
-				var embed_from_db = await metasTable.get(
+				let embed_from_db: APIEmbed | null = await metasTable.get(
 					`EMBED.${result.ticketChannelPanel}.embedSource`
 				);
 				// do this hack for replacing category in descriptions, fields ,etc
@@ -822,7 +813,7 @@ async function CreateChannelV2(
 				}
 			);
 
-			let components: JSONEncodable<APIMessageTopLevelComponent>[] = [];
+			const components: JSONEncodable<APIMessageTopLevelComponent>[] = [];
 
 			const selectUsersMenu = new UserSelectMenuBuilder()
 				.setCustomId("t-embed-select-user")
@@ -840,7 +831,7 @@ async function CreateChannelV2(
 				);
 			}
 
-			let row = new ActionRowBuilder<ButtonBuilder>();
+			const row = new ActionRowBuilder<ButtonBuilder>();
 
 			if (result.config.deleteButton !== false) {
 				row.addComponents(
@@ -903,7 +894,7 @@ async function CreateChannelV2(
 				.then(async (msg) => {
 					await msg.pin("Ticket Panel").catch(() => {});
 				})
-				.catch((err: any) => {
+				.catch((err: unknown) => {
 					logger.err(err);
 				});
 
@@ -918,7 +909,7 @@ async function CreateChannelV2(
 							.replace("${channelId}", channel.id)
 				});
 				return;
-			} catch (e) {
+			} catch {
 				return;
 			}
 		})
@@ -1050,7 +1041,9 @@ async function sendTicketLog(
 			flags: MessageFlags.IsComponentsV2,
 			allowedMentions: { parse: [] }
 		});
-	} catch {}
+	} catch {
+		// The log is best effort: the ticket action itself already happened.
+	}
 }
 
 /** Link button to the transcript on the web (transcript.ihorizon.org/<channelId>). */
@@ -1365,7 +1358,7 @@ async function TicketRemoveMember(
 	await client.func.method.interactionSend(interaction, {
 		content: data.remove_command_work.replaceAll(
 			"${memberTag}",
-			member?.username!
+			String(member?.username)
 		)
 	});
 }
@@ -1414,7 +1407,7 @@ async function TicketAddMember(
 			interactionUser(interaction),
 			data
 		);
-	} catch (e) {
+	} catch {
 		await client.func.method.interactionSend(interaction, {
 			content: data.add_command_error
 		});
@@ -1474,7 +1467,7 @@ async function TicketReOpen(
 			interactionUser(interaction),
 			lang
 		);
-	} catch (e) {
+	} catch {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.open_command_error
 		});
@@ -1483,7 +1476,7 @@ async function TicketReOpen(
 	await client.func.method.interactionSend(interaction, {
 		content: lang.open_command_work.replaceAll(
 			"${channel}",
-			interaction.channel?.toString()!
+			String(interaction.channel?.toString())
 		)
 	});
 }
@@ -1585,7 +1578,7 @@ async function deleteTicketChannel(
 			() => true,
 			() => false
 		);
-	} catch (e) {
+	} catch {
 		return false;
 	}
 }
@@ -1631,7 +1624,7 @@ async function TicketAddMember_2(
 	const listmembersArray: string[] = [];
 
 	interaction.members.each(async (i) => {
-		membersArray.push(i.user?.id!);
+		membersArray.push(i.user?.id as string);
 	});
 
 	(interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
@@ -1709,7 +1702,7 @@ async function TicketAddMember_2(
 				addedMembers.map((memberId) => `<@${memberId}>`).join(" ") ||
 					data.var_none
 			)
-			.replace("${channel}", interaction.channel?.toString()!)
+			.replace("${channel}", String(interaction.channel?.toString()))
 	});
 }
 
@@ -1819,7 +1812,7 @@ async function TicketRemind(
 		client.func.method.interactionSend(interaction, {
 			content: lang.utils_dm_cant
 				.replace("${emoji_No}", client.iHorizon_Emojis.No)
-				.replace("${targetMember}", result.owner?.toString()!)
+				.replace("${targetMember}", String(result.owner?.toString()))
 		});
 	} else {
 		client.func.method.interactionSend(interaction, {

@@ -54,7 +54,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return await interaction.deferUpdate();
 
 	let isTemporaryChannel = false;
-	for (const [userId, channelId] of Object.entries(allChannel)) {
+	for (const channelId of Object.values(allChannel)) {
 		if (channelId === targetedChannel?.id) {
 			isTemporaryChannel = true;
 			break;
@@ -125,7 +125,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`,
 			targetedChannel?.id
 		);
-		let username =
+		const username =
 			interaction.user.displayName || interaction.user.username;
 
 		// change the voice channel name

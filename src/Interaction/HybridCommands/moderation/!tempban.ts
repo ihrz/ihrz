@@ -24,8 +24,7 @@ import {
 	Client,
 	GuildMember,
 	Message,
-	PermissionsBitField,
-	User
+	PermissionsBitField
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";

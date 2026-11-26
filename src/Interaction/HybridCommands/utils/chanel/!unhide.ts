@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0);
 
-		let role_to_edit = role?.id || interaction.guild.id;
+		const role_to_edit = role?.id || interaction.guild.id;
 		let channel = interaction.channel as BaseGuildTextChannel;
 
 		if (!interaction.guild.channels.cache.get(channel.id)) {

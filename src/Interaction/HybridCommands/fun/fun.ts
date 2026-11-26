@@ -20,7 +20,6 @@
 */
 
 import {
-	APIApplicationCommandPermissionsConstant,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	PermissionFlagsBits

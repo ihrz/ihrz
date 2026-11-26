@@ -41,7 +41,6 @@ import {
 	findFavorite,
 	freeName,
 	LibraryError,
-	listPlaylists,
 	listPlaylistsWithCovers,
 	MAX_FAVORITES,
 	MAX_PLAYLIST_TRACKS,

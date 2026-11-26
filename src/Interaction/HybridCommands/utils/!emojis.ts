@@ -48,13 +48,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var str = (interaction.options.getString("emojis") as string).split(
-				" "
-			);
-		} else {
-			var str = args!;
-		}
+		const str =
+			interaction instanceof ChatInputCommandInteraction
+				? (interaction.options.getString("emojis") as string).split(" ")
+				: args!;
 
 		let cnt: number = 0;
 		let nemj: string = "";

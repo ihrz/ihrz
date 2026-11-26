@@ -70,7 +70,7 @@ const ANTIPUB_REGEX_PATTERNS: RegExp[] = [
 	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
 	/(?:%[0-9a-fA-F]{2}){2,}/i,
 	/(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*/i,
-	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
+	/discord:\/-\/invite\/[a-zA-Z0-9\-_]+/i,
 	/^(https?:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i
 ];
 
@@ -100,7 +100,7 @@ const ANTIPUB_ALLOW_LIST: string[] = [
 const INVITE_REGEX_PATTERNS: RegExp[] = [
 	/(discord\.gg\/|\.gg\/|gg\/)/i,
 	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
-	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
+	/discord:\/-\/invite\/[a-zA-Z0-9\-_]+/i,
 	/^(?:[a-z]+:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
 	/(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\/[a-zA-Z0-9\-_]+)?/i
 ];
@@ -379,7 +379,7 @@ export function automodToggles(
 
 export interface AutomodDb {
 	get(key: string): Promise<unknown>;
-	set(key: string, value: any): Promise<unknown>;
+	set(key: string, value: unknown): Promise<unknown>;
 	delete(key: string): Promise<unknown>;
 }
 

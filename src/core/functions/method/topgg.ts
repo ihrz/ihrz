@@ -34,6 +34,8 @@ import {
 export async function shouldAdvertiseTheTopggVoteButton(
 	authorId: string
 ): Promise<boolean> {
+	// The vote reminder is switched off; `authorId` stays for the check below.
+	void authorId;
 	return false;
 	// const lastVoteTimestamp = (await apiTable.get(`topgg_vote.${authorId}.timestamp`));
 	// const isAlreadyNotified = (await apiTable.get(`topgg_vote.${authorId}.notified`) || false);

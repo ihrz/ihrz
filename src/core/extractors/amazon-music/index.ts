@@ -93,12 +93,40 @@ interface AmazonDomainConfig {
 	};
 }
 
+interface AmazonLink {
+	deeplink?: string;
+}
+
+interface AmazonWidgetItem {
+	primaryText?: string;
+	primaryTextLink?: AmazonLink;
+	secondaryText?: string;
+	secondaryText2?: string;
+	secondaryText2Link?: AmazonLink;
+	secondaryText3?: string;
+}
+
+/** The part of a skill API `template` the extractor reads. */
+interface AmazonCatalogTemplate {
+	headerText?: { text?: string };
+	headerPrimaryText?: string;
+	headerPrimaryTextLink?: AmazonLink;
+	headerTertiaryText?: string;
+	widgets?: Array<{ items?: AmazonWidgetItem[] }>;
+}
+
+interface AmazonCatalogResponse {
+	methods?: Array<{ template?: AmazonCatalogTemplate }>;
+}
+
 /**
  * Unwraps `methods[0].template` of a skill API payload and rejects the
  * localized "service error" template the endpoint answers with when the
  * web player session is refused (empty headerText means no real data).
  */
-function catalogTemplate(data: any): any {
+function catalogTemplate(
+	data: AmazonCatalogResponse | null | undefined
+): AmazonCatalogTemplate {
 	const template = data?.methods?.[0]?.template;
 
 	if (!template || !template.headerText) {
@@ -110,7 +138,7 @@ function catalogTemplate(data: any): any {
 	return template;
 }
 
-async function fetchDomainConfig(domain: string): Promise<any> {
+async function fetchDomainConfig(domain: string): Promise<AmazonDomainConfig> {
 	const res = await fetch(`https://${domain}/config.json`, {
 		headers: {
 			accept: "*/*",
@@ -124,7 +152,7 @@ async function fetchDomainConfig(domain: string): Promise<any> {
 		throw new Error(`config.json HTTP ${res.status}`);
 	}
 
-	return await res.json();
+	return (await res.json()) as AmazonDomainConfig;
 }
 
 function buildAmazonHeaders(
@@ -188,7 +216,7 @@ async function fetchCatalog(
 	id: string,
 	domain: string,
 	pageUrl: string
-) {
+): Promise<AmazonCatalogResponse> {
 	const region = REGION_CONFIG_MAP[domain];
 
 	if (!region) {
@@ -227,7 +255,7 @@ async function fetchCatalog(
 		throw new Error(`${endpoint} HTTP ${res.status}`);
 	}
 
-	return await res.json();
+	return (await res.json()) as AmazonCatalogResponse;
 }
 
 export function extractAlbumId(input: string): string {
@@ -271,7 +299,9 @@ export function extractTrackId(input: string): string {
 		if (trackAsin && /^[A-Z0-9]{10}$/i.test(trackAsin)) {
 			return trackAsin;
 		}
-	} catch {}
+	} catch {
+		// not a valid URL: fall through to the default
+	}
 
 	const match = input.match(/\/tracks\/([A-Z0-9]{10})/i);
 
@@ -303,18 +333,20 @@ export function detectType(
 		if (url.pathname.includes("/playlists/")) {
 			return "playlist";
 		}
-	} catch {}
+	} catch {
+		// not a valid URL: fall through to the default
+	}
 
 	return "unknown";
 }
 
-function toRawPlaylist(data: any): RawPlaylist {
+function toRawPlaylist(data: AmazonCatalogResponse): RawPlaylist {
 	const playlist = catalogTemplate(data);
 
 	const items =
-		playlist.widgets?.flatMap((widget: any) => widget.items ?? []) ?? [];
+		playlist.widgets?.flatMap((widget) => widget.items ?? []) ?? [];
 
-	const tracks: RawTrack[] = items.map((item: any) => {
+	const tracks: RawTrack[] = items.map((item) => {
 		const id = item.primaryTextLink?.deeplink?.split("/tracks/")[1] ?? "";
 
 		return {
@@ -340,29 +372,7 @@ function toRawPlaylist(data: any): RawPlaylist {
 	};
 }
 
-function toRawTrack(data: any, id: string): RawTrack {
-	const track = catalogTemplate(data);
-
-	return {
-		artist: {
-			name: track.headerPrimaryText ?? "",
-
-			url: track.headerPrimaryTextLink?.deeplink
-				? `https://music.amazon.com${track.headerPrimaryTextLink.deeplink}`
-				: ""
-		},
-
-		title: track.headerText?.text ?? "",
-
-		duration: clockToSeconds(track.headerTertiaryText),
-
-		url: `https://music.amazon.com/tracks/${id}`,
-
-		type: "song"
-	};
-}
-
-function toRawAlbum(data: any): RawAlbum {
+function toRawAlbum(data: AmazonCatalogResponse): RawAlbum {
 	const album = catalogTemplate(data);
 
 	const artist: Artist = {
@@ -373,10 +383,9 @@ function toRawAlbum(data: any): RawAlbum {
 			: ""
 	};
 
-	const items =
-		album.widgets?.flatMap((widget: any) => widget.items ?? []) ?? [];
+	const items = album.widgets?.flatMap((widget) => widget.items ?? []) ?? [];
 
-	const tracks: RawTrack[] = items.map((item: any) => {
+	const tracks: RawTrack[] = items.map((item) => {
 		const id = item.primaryTextLink?.deeplink?.split("/tracks/")[1] ?? "";
 
 		return {

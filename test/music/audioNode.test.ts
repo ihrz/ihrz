@@ -23,6 +23,34 @@
 // players put back on its new session, stop that still works.
 import { EventEmitter } from "node:events";
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import type { Client, GuildMember } from "discord.js";
+import type { Player } from "lavalink-client";
+import type { LanguageData } from "../../types/languageData.ts";
+
+// What the module sends to the node (`updatePlayer`), fields checked here.
+type NodeUpdate = {
+	guildId: string;
+	noReplace?: boolean;
+	playerOptions: Record<string, unknown>;
+};
+type FakeNode = {
+	id: string;
+	connected: boolean;
+	sessionId: string | null;
+	options: { sessionId?: string };
+	sessions: { resuming: boolean; timeout?: number; session: string | null }[];
+	updateSession: (resuming: boolean, timeout?: number) => Promise<void>;
+	updates: NodeUpdate[];
+	updatePlayer: (data: NodeUpdate) => Promise<object>;
+};
+// Mocks typed as the real objects, plus what the tests write or read.
+type FakePlayer = Player & { destroyed: boolean };
+type FakeClient = Client & {
+	player: EventEmitter & {
+		nodeManager: EventEmitter;
+		players: Map<string, FakePlayer>;
+	};
+};
 
 const apo: string[] = [];
 mock.module("../../src/core/modules/musicApo.js", () => ({
@@ -34,17 +62,17 @@ const controls = await import("../../src/core/modules/musicControls.ts");
 const tick = () => new Promise((r) => setTimeout(r, 30));
 
 function makeNode(id = "main") {
-	const node: any = {
+	const node: FakeNode = {
 		id,
 		connected: true,
 		sessionId: "s1",
-		options: {} as { sessionId?: string },
-		sessions: [] as any[],
+		options: {},
+		sessions: [],
 		updateSession: async (resuming: boolean, timeout?: number) => {
 			node.sessions.push({ resuming, timeout, session: node.sessionId });
 		},
-		updates: [] as any[],
-		updatePlayer: async (data: any) => {
+		updates: [],
+		updatePlayer: async (data) => {
 			node.updates.push(data);
 			return {};
 		}
@@ -52,9 +80,9 @@ function makeNode(id = "main") {
 	return node;
 }
 
-function makePlayer(node: any, over: Record<string, unknown> = {}) {
+function makePlayer(node: FakeNode, over: Record<string, unknown> = {}) {
 	const data = new Map<string, unknown>();
-	const p: any = {
+	const p: FakePlayer = {
 		guildId: "100000000000000000",
 		voiceChannelId: "700000000000000000",
 		node,
@@ -86,22 +114,24 @@ function makePlayer(node: any, over: Record<string, unknown> = {}) {
 			p.destroyed = true;
 		},
 		...over
-	};
+	} as unknown as FakePlayer;
 	return p;
 }
 
-function makeClient(node: any, players: any[]) {
-	const nodeManager: any = new EventEmitter();
-	nodeManager.nodes = new Map([[node.id, node]]);
+function makeClient(node: FakeNode, players: FakePlayer[]) {
+	const nodeManager = Object.assign(new EventEmitter(), {
+		nodes: new Map([[node.id, node]])
+	});
 	const map = new Map(players.map((p) => [p.guildId, p]));
-	const manager: any = new EventEmitter();
+	const manager = new EventEmitter();
 	Object.assign(manager, {
 		nodeManager,
 		players: map,
 		getPlayer: (id: string) => map.get(id)
 	});
-	for (const p of players) p.LavalinkManager = manager;
-	return { player: manager } as any;
+	for (const p of players)
+		(p as { LavalinkManager?: unknown }).LavalinkManager = manager;
+	return { player: manager } as unknown as FakeClient;
 }
 
 // The module state is shared with the other test files of the run.
@@ -211,9 +241,7 @@ describe("audio node restart", () => {
 		expect(kept.playing).toBe(true);
 		expect(kept.lastPosition).toBe(90_000);
 		// Only the guild the node no longer had is put back.
-		expect(node.updates.map((u: any) => u.guildId)).toEqual([
-			dropped.guildId
-		]);
+		expect(node.updates.map((u) => u.guildId)).toEqual([dropped.guildId]);
 		// Resuming already on for this session.
 		expect(node.sessions).toEqual([]);
 	});
@@ -312,7 +340,7 @@ describe("music controls while the node is away", () => {
 		audio.watchAudioNodes(client);
 		node.connected = false;
 		client.player.nodeManager.emit("disconnect", node, { code: 1006 });
-		const member: any = {
+		const member = {
 			guild: {
 				id: player.guildId,
 				members: { me: { voice: { channelId: player.voiceChannelId } } }
@@ -321,7 +349,7 @@ describe("music controls while the node is away", () => {
 				channelId: player.voiceChannelId,
 				channel: { id: player.voiceChannelId }
 			}
-		};
+		} as unknown as GuildMember;
 		return { client, player, member };
 	};
 
@@ -335,7 +363,7 @@ describe("music controls while the node is away", () => {
 			ok: false,
 			reason: "audio_unavailable"
 		});
-		const lang: any = {};
+		const lang = {} as LanguageData;
 		expect(await controls.skipMusic(client, member, lang, null)).toEqual({
 			ok: false,
 			reason: "audio_unavailable"
@@ -373,7 +401,7 @@ describe("music controls while paused", () => {
 			setVolume: async () => null
 		});
 		const client = makeClient(node, [player]);
-		const member: any = {
+		const member = {
 			id: "300000000000000000",
 			guild: {
 				id: player.guildId,
@@ -387,13 +415,13 @@ describe("music controls while paused", () => {
 				channelId: player.voiceChannelId,
 				channel: { id: player.voiceChannelId, members: new Map() }
 			}
-		};
+		} as unknown as GuildMember;
 		return { client, player, member, skips };
 	};
 
 	test("skip works from pause and plays the next track", async () => {
 		const { client, player, member, skips } = setup();
-		const lang: any = { event_mp_playerSkip: "" };
+		const lang = { event_mp_playerSkip: "" } as LanguageData;
 		const res = await controls.skipMusic(client, member, lang, null);
 		expect(res.ok).toBe(true);
 		expect(skips.length).toBe(1);
@@ -417,7 +445,7 @@ describe("music controls while paused", () => {
 	test("a paused player with no track is still 'nothing playing'", async () => {
 		const { client, player, member } = setup();
 		player.queue.current = null;
-		const lang: any = {};
+		const lang = {} as LanguageData;
 		expect(await controls.skipMusic(client, member, lang, null)).toEqual({
 			ok: false,
 			reason: "nothing_playing"
@@ -430,7 +458,7 @@ describe("music controls while paused", () => {
 // restart the paused track from its start.
 describe("musicInUse", () => {
 	const player = (playing: boolean, paused: boolean, current: unknown) =>
-		({ playing, paused, queue: { current } }) as any;
+		({ playing, paused, queue: { current } }) as unknown as Player;
 
 	test("playing, or paused on a track", () => {
 		expect(audio.musicInUse(player(true, false, {}))).toBe(true);

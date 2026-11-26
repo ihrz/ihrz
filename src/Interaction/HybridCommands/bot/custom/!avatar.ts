@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 				`data:image/png;base64,${base64String}`
 			);
 
-			let x = interaction.guild.members.me?.avatarURL({ size: 4096 });
+			const x = interaction.guild.members.me?.avatarURL({ size: 4096 });
 
 			await client.db.set(
 				`${interaction.guildId}.BOT.botPFP`,

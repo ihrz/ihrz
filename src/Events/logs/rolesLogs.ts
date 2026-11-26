@@ -28,11 +28,7 @@ import {
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -93,14 +89,14 @@ export const event: BotEvent = {
 			(obj) => obj.id
 		);
 		const removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
-		let user = newMember.guild.members.cache.get(firstEntry.targetId);
+		const user = newMember.guild.members.cache.get(firstEntry.targetId);
 
 		let desc = " ";
 
 		if (removeObjects.length >= 1) {
 			desc +=
 				data.event_srvLogs_guildMemberUpdate_description
-					.replace("${executorId}", firstEntry.executor?.id!)
+					.replace("${executorId}", firstEntry.executor?.id as string)
 					.replace(
 						"${removedRoles}",
 						removeObjectIds
@@ -109,20 +105,23 @@ export const event: BotEvent = {
 					)
 					.replace(
 						"${oldMemberUserUsername}",
-						user?.user?.username!
+						user?.user?.username as string
 					) + "\n";
 		}
 
 		if (newObjects.length >= 1) {
 			desc += data.event_srvLogs_guildMemberUpdate_2_description
-				.replace("${executorId}", firstEntry.executor?.id!)
+				.replace("${executorId}", firstEntry.executor?.id as string)
 				.replace(
 					"${addedRoles}",
 					newObjectsnewObjectIds
 						.map((value) => `<@&${value}>`)
 						.toString()
 				)
-				.replace("${oldMemberUserUsername}", user?.user?.username!);
+				.replace(
+					"${oldMemberUserUsername}",
+					user?.user?.username as string
+				);
 		}
 		await sendLogCard(Msgchannel, {
 			kind:

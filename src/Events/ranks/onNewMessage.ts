@@ -25,8 +25,7 @@ import {
 	ChannelType,
 	Message,
 	GuildTextBasedChannel,
-	ClientUser,
-	SnowflakeUtil
+	ClientUser
 } from "discord.js";
 
 import { parseMessageCommand } from "../interaction/messageCommandHandler.js";
@@ -86,7 +85,7 @@ export const event: BotEvent = {
 				)
 			]);
 
-			if (level * 500 < baseData?.xp!) {
+			if (level * 500 < (baseData?.xp as number)) {
 				await client.db.add(
 					`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`,
 					1
@@ -184,7 +183,7 @@ export const event: BotEvent = {
 				)
 					return;
 
-				const xpChan = ranksConfig?.xpchannels!;
+				const xpChan = ranksConfig?.xpchannels as string;
 				const MsgChannel = message.guild.channels.cache.get(
 					xpChan
 				) as GuildTextBasedChannel | null;

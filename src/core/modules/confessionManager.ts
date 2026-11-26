@@ -330,6 +330,7 @@ export async function pruneConfessions(
 
 		changed = true;
 		const { userId, ...anonymous } = entry;
+		void userId; // dropped on purpose: the author is forgotten
 		return anonymous;
 	});
 

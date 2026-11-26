@@ -28,19 +28,21 @@ import {
 	recordPrevname,
 	sanitizeName
 } from "../../src/core/modules/prevnamesHistory.ts";
+import type { UnifiedDatabase } from "../../src/core/database/types.js";
 
 /** Just enough of a table: get and set on a Map. */
 function fakeTable(initial?: unknown) {
 	const data = new Map<string, unknown>();
 	if (initial !== undefined) data.set("1", initial);
-	return {
+	const table = {
 		data,
 		get: async (key: string) => data.get(key) ?? null,
 		set: async (key: string, value: unknown) => {
 			data.set(key, value);
 			return value;
 		}
-	} as any;
+	};
+	return table as typeof table & UnifiedDatabase;
 }
 
 const AT = new Date(1_700_000_000_000);

@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		)) as BaseGuildTextChannel | null;
 
 		if (channel) {
-			let baseData: DatabaseStructure.CounterSchema = {
+			const baseData: DatabaseStructure.CounterSchema = {
 				channelId: channel.id,
 				config: "on"
 			};

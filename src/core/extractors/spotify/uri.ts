@@ -39,15 +39,6 @@ export interface ParsedSpotifyLink {
 	id: string;
 }
 
-const ENTITY_TYPES: SpotifyEntityType[] = [
-	"album",
-	"artist",
-	"episode",
-	"playlist",
-	"show",
-	"track"
-];
-
 const TYPE_PATTERN = "(album|artist|episode|playlist|show|track)";
 
 const URI_PATTERN = new RegExp(

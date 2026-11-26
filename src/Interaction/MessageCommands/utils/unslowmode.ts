@@ -50,12 +50,7 @@ export const command: Command = {
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: PermissionFlagsBits.ManageChannels,
-	run: async (
-		client: Client,
-		message: Message<true>,
-		lang: LanguageData,
-		options?: string[]
-	) => {
+	run: async (client: Client, message: Message<true>, lang: LanguageData) => {
 		subCommand.run(client, message, lang, ["0"]);
 	}
 };

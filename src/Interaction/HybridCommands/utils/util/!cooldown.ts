@@ -66,8 +66,8 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const duration = opts.string("duration", 0, true);
 
-		let channel = interaction.channel;
-		let duration_in_string = client.timeCalculator.to_beautiful_string(
+		const channel = interaction.channel;
+		const duration_in_string = client.timeCalculator.to_beautiful_string(
 			duration,
 			lang
 		);

@@ -140,10 +140,10 @@ function setup(
 				actor,
 				lang,
 				params: new Params(params)
-			}) as any,
-		client: client as any,
-		guild: guild as any,
-		actor: actor as any
+			}) as never,
+		client: client as never,
+		guild: guild as never,
+		actor: actor as never
 	};
 }
 

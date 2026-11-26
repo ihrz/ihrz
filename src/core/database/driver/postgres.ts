@@ -20,10 +20,13 @@
 */
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
-import { ErrorKind, PostgresOptions } from "../types.ts";
+import { DataLike, ErrorKind, PostgresOptions, StoredValue } from "../types.ts";
+
+// A row as Bun SQL returns it: `value` is JSONB (parsed) or text (not yet).
+type PostgresRow = { id: string; value: unknown };
 import { SQL } from "bun";
 
-export class Postgres<D = any> {
+export class Postgres<D = StoredValue> {
 	private tableName: string;
 	private connectionString: string | undefined;
 	private sql: SQL;
@@ -57,18 +60,17 @@ export class Postgres<D = any> {
 		return error;
 	}
 
-	public async export(): Promise<{ id: string; value: any }[]> {
+	public async export(): Promise<DataLike<D>[]> {
 		await this.ensureTableExists(this.tableName);
 		try {
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(this.tableName)}
             `;
-			return rows.map((row: any) => ({
+			return (rows as PostgresRow[]).map((row) => ({
 				id: row.id,
-				value:
-					typeof row.value === "string"
-						? JSON.parse(row.value)
-						: row.value
+				value: (typeof row.value === "string"
+					? JSON.parse(row.value)
+					: row.value) as D
 			}));
 		} catch (err) {
 			logger.err("Error exporting ", err);
@@ -95,20 +97,19 @@ export class Postgres<D = any> {
 		}
 	}
 
-	private async getAllRows(
+	private async getAllRows<T = unknown>(
 		table: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		await this.ensureTableExists(table.toLowerCase());
 		try {
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())}
             `;
-			return rows.map((row: any) => ({
+			return (rows as PostgresRow[]).map((row) => ({
 				id: row.id,
-				value:
-					typeof row.value === "string"
-						? JSON.parse(row.value)
-						: row.value
+				value: (typeof row.value === "string"
+					? JSON.parse(row.value)
+					: row.value) as T
 			}));
 		} catch (err) {
 			logger.err(
@@ -145,21 +146,20 @@ export class Postgres<D = any> {
 		}
 	}
 
-	private async getStartsWith(
+	private async getStartsWith<T = unknown>(
 		table: string,
 		query: string
-	): Promise<{ id: string; value: any }[]> {
+	): Promise<DataLike<T>[]> {
 		await this.ensureTableExists(table);
 		try {
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" LIKE ${query + "%"}
             `;
-			return rows.map((row: any) => ({
+			return (rows as PostgresRow[]).map((row) => ({
 				id: row.id,
-				value:
-					typeof row.value === "string"
-						? JSON.parse(row.value)
-						: row.value
+				value: (typeof row.value === "string"
+					? JSON.parse(row.value)
+					: row.value) as T
 			}));
 		} catch (err) {
 			logger.err(
@@ -173,7 +173,7 @@ export class Postgres<D = any> {
 	private async setRowByKey<T>(
 		table: string,
 		key: string,
-		value: any,
+		value: unknown,
 		_update: boolean
 	): Promise<T> {
 		await this.ensureTableExists(table.toLowerCase());
@@ -264,7 +264,7 @@ export class Postgres<D = any> {
 		if (typeof currentNumber != "number") {
 			try {
 				currentNumber = parseFloat(currentNumber as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Current value with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
@@ -274,14 +274,15 @@ export class Postgres<D = any> {
 		if (typeof value != "number") {
 			try {
 				value = parseFloat(value as string);
-			} catch (_) {
+			} catch {
 				throw this.createError(
 					`Value to add/subtract with key: (${key}) is not a number and couldn't be parsed to a number`,
 					ErrorKind.InvalidType
 				);
 			}
 		}
-		sub ? (currentNumber -= value) : (currentNumber += value);
+		if (sub) currentNumber -= value;
+		else currentNumber += value;
 		await this.set<number>(key, currentNumber);
 		return currentNumber;
 	}
@@ -314,7 +315,10 @@ export class Postgres<D = any> {
 				this.tableName,
 				keySplit[0]
 			);
-			return get_property(result, keySplit.slice(1).join("."));
+			return get_property(
+				result,
+				keySplit.slice(1).join(".")
+			) as T | null;
 		}
 		const [result] = await this.getRowByKey<T>(this.tableName, key);
 		return result;
@@ -374,7 +378,7 @@ export class Postgres<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
-		const data = (await this.get<any>(key)) ?? {};
+		const data = (await this.get<Record<string, unknown>>(key)) ?? {};
 		if (typeof data != "object" || Array.isArray(data)) {
 			throw this.createError(
 				`The current data is not an object, update only works on objects`,
@@ -383,7 +387,7 @@ export class Postgres<D = any> {
 		}
 
 		Object.assign(data, object);
-		return await this.set(key, data);
+		return (await this.set(key, data)) as T;
 	}
 
 	async has(key: string): Promise<boolean> {
@@ -399,7 +403,8 @@ export class Postgres<D = any> {
 		}
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
-			const obj = (await this.get<any>(keySplit[0])) ?? {};
+			const obj =
+				(await this.get<Record<string, unknown>>(keySplit[0])) ?? {};
 			unset_property(obj, keySplit.slice(1).join("."));
 
 			return this.set(keySplit[0], obj) as unknown as number;
@@ -507,7 +512,10 @@ export class Postgres<D = any> {
 			if (
 				Array.isArray(value)
 					? value.includes(currentArr[i])
-					: (value as any)(currentArr[i], i)
+					: (value as (data: T, index: string) => boolean)(
+							currentArr[i],
+							i
+						)
 			)
 				continue;
 			data.push(currentArr[i]);
@@ -525,7 +533,7 @@ export class Postgres<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
-		const results = await this.getStartsWith(this.tableName, query);
+		const results = await this.getStartsWith<T>(this.tableName, query);
 		return results;
 	}
 

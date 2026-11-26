@@ -66,5 +66,7 @@ export async function giveJoinRoles(
 		await member.roles
 			.add(roles, "[AutoRole] Assign role for new member")
 			.catch(() => null);
-	} catch {}
+	} catch {
+		// best effort: the auto role must never break the join flow
+	}
 }

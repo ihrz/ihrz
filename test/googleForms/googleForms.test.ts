@@ -24,10 +24,14 @@
 import { beforeEach, describe, expect, test } from "bun:test";
 import {
 	ChannelType,
+	type Client,
 	Collection,
+	type Guild,
+	type GuildMember,
 	MessageFlags,
 	PermissionFlagsBits,
-	PermissionsBitField
+	PermissionsBitField,
+	type Role
 } from "discord.js";
 
 import enUS from "../../src/lang/en-US.ts";
@@ -77,32 +81,35 @@ function fakeMember(
 		},
 		permissions: new PermissionsBitField(opts.perms ?? 0n),
 		permissionsIn: () => new PermissionsBitField(opts.perms ?? 0n)
-	} as any;
+	} as unknown as GuildMember & { added: string[] };
 }
 
 function fakeRole(id: string, position: number, managed = false) {
-	return { id, position, managed } as any;
+	return { id, position, managed } as unknown as Role;
 }
+
+// The parts of a sent message the tests read.
+type SentPayload = { allowedMentions?: unknown; components?: unknown };
 
 function fakeGuild(
 	opts: {
-		members?: any[];
-		roles?: any[];
+		members?: GuildMember[];
+		roles?: Role[];
 		botPosition?: number;
 		botPerms?: bigint;
-		cachedMembers?: any[];
+		cachedMembers?: GuildMember[];
 	} = {}
 ) {
 	const members = opts.members ?? [];
-	const cache = new Collection<string, any>(
+	const cache = new Collection<string, GuildMember>(
 		(opts.cachedMembers ?? []).map((m) => [m.id, m])
 	);
-	const sent: any[] = [];
+	const sent: SentPayload[] = [];
 	const searches: string[] = [];
 	const channel = {
 		id: CHAN,
 		type: ChannelType.GuildText,
-		send: async (payload: any) => {
+		send: async (payload: SentPayload) => {
 			sent.push(payload);
 			return {};
 		}
@@ -121,7 +128,7 @@ function fakeGuild(
 		searches,
 		channels: { cache: new Collection([[CHAN, channel]]) },
 		roles: {
-			cache: new Collection<string, any>(
+			cache: new Collection<string, Role>(
 				(opts.roles ?? []).map((r) => [r.id, r])
 			)
 		},
@@ -150,7 +157,7 @@ function fakeGuild(
 				);
 			}
 		}
-	} as any;
+	} as unknown as Guild & { sent: SentPayload[]; searches: string[] };
 }
 
 function link(overrides: Record<string, unknown> = {}) {
@@ -168,7 +175,7 @@ function link(overrides: Record<string, unknown> = {}) {
 	};
 }
 
-function fakeClient(guild: any, config: unknown) {
+function fakeClient(guild: Guild, config: unknown) {
 	const db: Record<string, unknown> = {
 		[`${GUILD}.GUILD.GOOGLE_FORMS`]: config
 	};
@@ -187,7 +194,7 @@ function fakeClient(guild: any, config: unknown) {
 			}
 		},
 		iHorizon_Emojis: {}
-	} as any;
+	} as unknown as Client;
 }
 
 function event(overrides: Record<string, unknown> = {}) {
@@ -206,16 +213,16 @@ function event(overrides: Record<string, unknown> = {}) {
 		],
 		memberQuery: "Alice",
 		...overrides
-	} as any;
+	} as never;
 }
 
 // Every text display of a card, joined.
-function cardText(card: any): string {
+function cardText(card: { toJSON(): unknown }): string {
 	const out: string[] = [];
-	const walk = (node: any) => {
+	const walk = (node: unknown) => {
 		if (!node || typeof node !== "object") return;
-		if (node.type === 10 && typeof node.content === "string")
-			out.push(node.content);
+		const { type, content } = node as { type?: unknown; content?: unknown };
+		if (type === 10 && typeof content === "string") out.push(content);
 		for (const v of Object.values(node)) {
 			if (Array.isArray(v)) v.forEach(walk);
 			else if (v && typeof v === "object") walk(v);
@@ -491,7 +498,7 @@ describe("handleFormSubmitted", () => {
 
 	test("unknown guild ⇒ refused (the gateway records an error)", async () => {
 		const client = fakeClient(fakeGuild(), { links: [link()] });
-		client.guilds.cache = new Collection();
+		(client.guilds as { cache: unknown }).cache = new Collection();
 		await expect(handleFormSubmitted(client, event())).rejects.toBe(
 			"guild not found"
 		);

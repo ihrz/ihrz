@@ -63,6 +63,8 @@ export async function ghostPingNewMember(
 			});
 
 			await msg.delete();
-		} catch {}
+		} catch {
+			// best effort: the channel or message may be unavailable
+		}
 	}
 }

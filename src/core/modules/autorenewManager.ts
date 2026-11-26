@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, time } from "discord.js";
+import { BaseGuildTextChannel, time } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 type AutorenewData = {
@@ -66,7 +66,7 @@ class AutoRenew {
 			}
 
 			return result;
-		} catch (error) {
+		} catch {
 			return [];
 		}
 	}
@@ -170,13 +170,15 @@ class AutoRenew {
 								})
 								.catch(() => false);
 						}
-					} catch (error) {
+					} catch {
 						await client.db.delete(
 							`${guild.id}.UTILS.renew_channel.${channelId}`
 						);
 					}
 				}
-			} catch {}
+			} catch {
+				// Best effort: a guild that fails is retried on the next run.
+			}
 		}
 	}
 }

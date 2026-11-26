@@ -29,7 +29,7 @@ const channel = (icon: string | null) =>
 		id: "1234567890123456789",
 		name: "ticket-member",
 		guild: { name: "Server one", iconURL: () => icon }
-	}) as any;
+	}) as never;
 
 const build = (webUrl: string | null, icon: string | null = null) =>
 	transcriptDmPayload({

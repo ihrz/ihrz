@@ -88,6 +88,7 @@ export interface ImageOptions {
 const ELLIPSIS = "…";
 // Emoji are drawn as square images of the font size, sitting on the baseline.
 const EMOJI_ASCENT = 0.86;
+// eslint-disable-next-line no-control-regex -- strips the control characters XML 1.0 forbids, on purpose
 const INVALID_XML = /[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g;
 
 let idCounter = 0;

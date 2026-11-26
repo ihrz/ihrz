@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Collection } from "discord.js";
+import { Collection, type User } from "discord.js";
 
 import {
 	buildClearTranscript,
@@ -7,8 +7,14 @@ import {
 } from "../../src/core/modules/ticketTranscripts.js";
 
 const user = (id: string, username: string) =>
-	({ id, username, globalName: null, avatar: null, bot: false }) as any;
-const msg = (id: string, author: any, at: number, content: string) =>
+	({
+		id,
+		username,
+		globalName: null,
+		avatar: null,
+		bot: false
+	}) as unknown as User;
+const msg = (id: string, author: User, at: number, content: string) =>
 	({
 		id,
 		author,
@@ -26,7 +32,7 @@ const msg = (id: string, author: any, at: number, content: string) =>
 			roles: new Collection(),
 			channels: new Collection()
 		}
-	}) as any;
+	}) as never;
 const channel = (env: string | undefined, apiToken = "") =>
 	({
 		id: "1500000000000000001",
@@ -39,7 +45,7 @@ const channel = (env: string | undefined, apiToken = "") =>
 			members: { cache: new Collection() }
 		},
 		client: { version: { env }, config: { api: { apiToken } } }
-	}) as any;
+	}) as never;
 
 describe("/clear transcript", () => {
 	const mod = user("1300000000000000001", "mod");

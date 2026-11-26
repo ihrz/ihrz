@@ -26,7 +26,12 @@
  * /music playlist.
  */
 
-import type { Client, Guild, GuildMember } from "discord.js";
+import type {
+	BaseGuildTextChannel,
+	Client,
+	Guild,
+	GuildMember
+} from "discord.js";
 
 import type { DatabaseStructure } from "../../../types/database_structure.js";
 import type { LanguageData } from "../../../types/languageData.js";
@@ -103,7 +108,8 @@ export async function playLibraryTracks({
 					player: result.player,
 					firstResult: result.firstResult,
 					requester: member.user,
-					send: (payload) => (panelChannel as any).send(payload)
+					send: (payload) =>
+						(panelChannel as BaseGuildTextChannel).send(payload)
 				})
 			: recordMusicPlay(client, result.player, result.firstResult);
 	after.catch((error) => logger.err(error));

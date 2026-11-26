@@ -21,7 +21,6 @@
 
 import {
 	ChannelType,
-	Client,
 	Guild,
 	GuildMember,
 	PermissionFlagsBits,
@@ -197,8 +196,6 @@ export const BACKUP_LOAD_ERRORS: Record<BackupLoadRefusal, string> = {
 
 // ---------------------------------------------------------------------------
 // Serializers
-
-const ms = (d: Date | null | undefined) => (d ? d.getTime() : null);
 
 function userView(user: User) {
 	return {

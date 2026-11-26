@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 					{
 						emoji: emojis.Ticket_Role,
 						label: lang.utils_label_role,
-						value: role?.toString()!
+						value: role?.toString() as string
 					},
 					{
 						emoji: emojis.Yes,
@@ -195,7 +195,9 @@ export const subCommand: SubCommand = {
 					})
 					.catch(() => {});
 				return;
-			} catch (error) {}
+			} catch {
+				// best effort: the command ends silently if the batch cannot start.
+			}
 
 			await showResult(adding);
 			return;

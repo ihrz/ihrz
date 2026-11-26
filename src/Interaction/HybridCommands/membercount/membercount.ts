@@ -303,7 +303,7 @@ export const command: Command = {
 				description:
 					lang.setmembercount_logs_embed_description_on_enable
 						.replaceAll("${authorId}", interaction.member.user.id)
-						.replaceAll("${channelId}", channel?.id!)
+						.replaceAll("${channelId}", channel?.id as string)
 						.replaceAll("${messagei}", messagei)
 			});
 

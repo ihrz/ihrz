@@ -98,7 +98,7 @@ export const command: Command = {
 				notice(
 					"success",
 					lang.add_react_command_work
-						.replace("${authorId}", interaction.member?.id!)
+						.replace("${authorId}", String(interaction.member?.id))
 						.replace("{emoji}", emojiMsg)
 						.replace("${message}", message.toLowerCase())
 				)

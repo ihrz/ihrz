@@ -81,8 +81,7 @@ export const command: Command = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -123,7 +122,6 @@ export const command: Command = {
 				1,
 				Math.ceil(channelEntries.length / itemsPerPage)
 			);
-			const totalReact = channelEntries.length;
 
 			return buildCard({
 				accent: ACCENT.neutral,
@@ -369,7 +367,7 @@ export const command: Command = {
 
 				const channelOptions = Object.entries(
 					autoreactConfig || {}
-				).map(([channelId, _]) =>
+				).map(([channelId]) =>
 					new StringSelectMenuOptionBuilder()
 						.setLabel(
 							lang.var_text_channel +

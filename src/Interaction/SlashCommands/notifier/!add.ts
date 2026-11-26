@@ -30,8 +30,7 @@ export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached">,
-		lang: LanguageData,
-		args?: string[]
+		lang: LanguageData
 	) => {
 		// Guard's Typing
 		if (
@@ -46,13 +45,28 @@ export const subCommand: SubCommand = {
 		const platform = interaction.options.getString("platform") as Platform;
 		const author = interaction.options.getString("author") as string;
 
-		if (await client.notifier.authorExistOnPlatform(platform, author)) {
+		// This account's own channel (optional), else the notifier's channel.
+		const channel = interaction.options.getChannel("channel");
+		// Stored as the platform's canonical value (a Bluesky @handle becomes its DID…), like the dashboard.
+		const resolved = await client.notifier.resolveAuthor(platform, author);
+		if (resolved) {
 			const fetched = (await client.db.get(
 				`${interaction.guildId}.NOTIFIER`
 			)) as DatabaseStructure.NotifierSchema | null;
-			const fetchedUsers = fetched?.users || [];
+			const fetchedUsers = (fetched?.users || []).filter(
+				(u) =>
+					!(
+						u.platform === platform &&
+						u.id_or_username.toLowerCase() ===
+							resolved.id.toLowerCase()
+					)
+			);
 
-			fetchedUsers.push({ id_or_username: author, platform: platform });
+			fetchedUsers.push({
+				id_or_username: resolved.id,
+				platform: platform,
+				...(channel ? { channelId: channel.id } : {})
+			});
 
 			const uniqueArray =
 				fetchedUsers.filter(

@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0);
 
-		let role_to_edit = role?.id || interaction.guild.id;
+		const role_to_edit = role?.id || interaction.guild.id;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.channel_unhideall_in_progress
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 					.replace("{unhiddenCount}", changed.toString())
 					.replace("{errorCount}", errors.toString())
 			});
-		} catch (error) {
+		} catch {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.channel_unhideall_error
 			});
