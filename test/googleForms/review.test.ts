@@ -31,12 +31,15 @@ const GUILD = "100000000000000000";
 const BOT = "900000000000000000";
 const OWNER = "800000000000000000";
 const APPLICANT = "400000000000000000";
+const OTHER_APPLICANT = "430000000000000000";
 const STAFF = "410000000000000000";
 const NOBODY = "420000000000000000";
 const CHAN = "500000000000000000";
 const ROLE = "600000000000000000";
 const REFUSED = "610000000000000000";
 const REVIEWERS = "620000000000000000";
+const EXTRA = "630000000000000000";
+const TOO_HIGH = "640000000000000000";
 const LINK = "abcd1234";
 
 function fakeMember(
@@ -110,9 +113,12 @@ function fakeGuild(members: GuildMember[]) {
 		edits,
 		channels: { cache: new Collection([[CHAN, channel]]) },
 		roles: {
-			cache: new Collection<string, Role>(
-				[ROLE, REFUSED, REVIEWERS].map((r) => [r, role(r, 5)])
-			)
+			cache: new Collection<string, Role>([
+				...[ROLE, REFUSED, REVIEWERS, EXTRA].map(
+					(r) => [r, role(r, 5)] as [string, Role]
+				),
+				[TOO_HIGH, role(TOO_HIGH, 50)]
+			])
 		},
 		members: {
 			me,
@@ -332,7 +338,11 @@ describe("applications (Google Forms review mode)", () => {
 		const reviews = (await googleFormsTable.get(
 			reviewsKey(GUILD, LINK)
 		)) as Record<string, { reason: string; decidedBy: string }>;
-		expect(Object.values(reviews)[0]).toMatchObject({ reason: "Too young", decidedBy: STAFF, decidedByName: "staff" });
+		expect(Object.values(reviews)[0]).toMatchObject({
+			reason: "Too young",
+			decidedBy: STAFF,
+			decidedByName: "staff"
+		});
 		expect(JSON.stringify(g.edits[0].components)).toContain("Too young");
 	});
 
@@ -407,5 +417,60 @@ describe("applications (Google Forms review mode)", () => {
 		} as unknown as Client;
 		await deleteGuildForms(client, GUILD);
 		expect(await googleFormsTable.get(reviewsKey(GUILD, LINK))).toBeNull();
+	});
+
+	test("several roles on acceptance and on refusal; one the bot cannot give never stops the others", async () => {
+		const applicant = fakeMember(APPLICANT, "alice");
+		const staff = fakeMember(STAFF, "staff", { roles: [REVIEWERS] });
+		const g = fakeGuild([applicant, staff]);
+		const l = link({ roleId: ROLE, roleIds: [ROLE, EXTRA, TOO_HIGH] });
+		const client = fakeClient(g, l);
+		await handleFormSubmitted(client, submitted());
+		const ack = await decideReview(client, {
+			guild: g,
+			link: l as never,
+			reviewId: reviewIdOf(g.sent[0]),
+			actor: staff,
+			decision: "accept"
+		});
+		expect(applicant.added).toEqual([ROLE, EXTRA]);
+		// The role above the bot is not held: not every role was given.
+		expect(ack.roleGiven).toBe(false);
+
+		const bob = fakeMember(OTHER_APPLICANT, "bob");
+		const g2 = fakeGuild([bob, staff]);
+		const l2 = link({ refusedRoleIds: [REFUSED, EXTRA] });
+		const client2 = fakeClient(g2, l2);
+		await handleFormSubmitted(
+			client2,
+			submitted({ memberQuery: OTHER_APPLICANT, responseId: "resp-2" })
+		);
+		const ack2 = await decideReview(client2, {
+			guild: g2,
+			link: l2 as never,
+			reviewId: reviewIdOf(g2.sent[0]),
+			actor: staff,
+			decision: "refuse"
+		});
+		expect(bob.added).toEqual([REFUSED, EXTRA]);
+		expect(ack2.roleGiven).toBe(true);
+	});
+
+	test("without review mode every role is given at once; an older config's single role still works", async () => {
+		const applicant = fakeMember(APPLICANT, "alice");
+		const g = fakeGuild([applicant]);
+		await handleFormSubmitted(
+			fakeClient(g, link({ review: false, roleIds: [ROLE, EXTRA] })),
+			submitted()
+		);
+		expect(applicant.added).toEqual([ROLE, EXTRA]);
+
+		const bob = fakeMember(APPLICANT, "alice");
+		const g2 = fakeGuild([bob]);
+		await handleFormSubmitted(
+			fakeClient(g2, link({ review: false, roleId: ROLE })),
+			submitted()
+		);
+		expect(bob.added).toEqual([ROLE]);
 	});
 });

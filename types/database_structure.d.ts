@@ -916,8 +916,10 @@ export namespace DatabaseStructure {
 		enabled: boolean;
 		/** Where the card is posted (null = no card). */
 		channelId: string | null;
-		/** Role given to the identified member (null = none). */
+		/** Role given to the identified member (null = none). Kept = roleIds[0] for older readers. */
 		roleId: string | null;
+		/** Roles given to the identified member (10 at most; on acceptance in review mode). Wins over roleId. */
+		roleIds?: string[];
 		/** Exact question title whose answer is a Discord user id (17-20 digits) or a username. */
 		memberQuestion: string | null;
 		/**
@@ -927,8 +929,10 @@ export namespace DatabaseStructure {
 		review?: boolean;
 		/** Who may accept or refuse, besides administrators and the owner (null = them only). */
 		reviewerRoleId?: string | null;
-		/** Given when an application is refused (null = nothing more). */
+		/** Given when an application is refused (null = nothing more). Kept = refusedRoleIds[0]. */
 		refusedRoleId?: string | null;
+		/** Roles given when an application is refused (10 at most). Wins over refusedRoleId. */
+		refusedRoleIds?: string[];
 		/** Private message to the applicant with the decision (and the refusal reason). Absent = true. */
 		notifyApplicant?: boolean;
 		createdBy: string;
