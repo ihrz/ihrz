@@ -2420,6 +2420,7 @@ const enUS = {
 		"${emoji_No} | I can't delete more than 99 messages at one time!",
 	clear_channel_message_deleted: "${messageCount} messages deleted!",
 	clear_logs_embed_title: "Clear Message Logs",
+	clear_logs_button_transcript: "Transcript",
 	clear_logs_embed_description:
 		"<@${authorId}> cleared ${messageCount} messages in <#${channelId}>",
 	clear_command_no_message: "No messages to delete in this channel",

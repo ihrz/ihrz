@@ -25,6 +25,8 @@
 // command turns it into its localised message, the action into English.
 
 import {
+	ButtonBuilder,
+	ActionRowBuilder,
 	AuditLogEvent,
 	BaseGuildTextChannel,
 	CategoryChannel,
@@ -51,6 +53,7 @@ import {
 } from "../functions/permissonsCalculator.js";
 import { ACCENT, buildCard, cardPayload } from "./uiCard.js";
 import { isStaffOnlyChannel } from "./warnSystem.js";
+import { saveClearTranscript, transcriptLinkRow } from "./ticketTranscripts.js";
 
 export type Refused<C extends string> = { ok: false; code: C };
 export type Outcome<C extends string, T = {}> = ({ ok: true } & T) | Refused<C>;
@@ -66,7 +69,11 @@ const outranks = (author: GuildMember, target: GuildMember) =>
 
 const ihorizonLogs = (
 	guild: Guild,
-	embed: { title: string; description: string }
+	embed: {
+		title: string;
+		description: string;
+		rows?: ActionRowBuilder<ButtonBuilder>[];
+	}
 ) => guild.client.func.ihorizon_logs({ guild }, embed);
 
 /* ------------------------------- warns -------------------------------- */
@@ -747,12 +754,25 @@ export async function bulkClear(
 		filteredBody = body.filter((m) => keepBulkDeletable([m]).length > 0);
 	}
 	const messages = await channel.bulkDelete(filteredBody, true);
+	// The deleted messages, readable on the transcript site (📜 button of the log entry).
+	const deleted = [...messages.values()].filter(
+		(m): m is Message => !!m && !m.partial && !!m.author
+	);
+	const moderator = authorId
+		? await channel.client.users.fetch(authorId).catch(() => null)
+		: null;
+	const transcript = moderator
+		? await saveClearTranscript(channel, deleted, moderator)
+		: null;
 	await ihorizonLogs(channel.guild, {
 		title: lang.clear_logs_embed_title,
 		description: lang.clear_logs_embed_description
 			.replace("${authorId}", String(authorId))
 			.replace("${messageCount}", messages.size.toString())
-			.replace("${channelId}", String(channel.id))
+			.replace("${channelId}", String(channel.id)),
+		rows: transcript
+			? [transcriptLinkRow(transcript, lang.clear_logs_button_transcript)]
+			: undefined
 	});
 	return messages.size;
 }

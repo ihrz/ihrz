@@ -2513,6 +2513,7 @@ export default {
 		"${emoji_No} | Je ne peux pas supprimer plus de 99 messages à la fois !",
 	clear_channel_message_deleted: "${messageCount} messages supprimés !",
 	clear_logs_embed_title: "Logs de suppression de messages",
+	clear_logs_button_transcript: "Transcript",
 	clear_logs_embed_description:
 		"<@${authorId}> a supprimé ${messageCount} messages dans <#${channelId}>",
 	clear_command_no_message: "Aucun message à supprimer dans ce canal",

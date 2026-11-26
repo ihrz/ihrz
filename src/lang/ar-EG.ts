@@ -2316,6 +2316,7 @@ export default {
 		"${emoji_No} | لا أستطيع حذف أكثر من 99 رسالة في مرة واحدة!",
 	clear_channel_message_deleted: "${messageCount} رسالة تم حذفها!",
 	clear_logs_embed_title: "سجلات حذف الرسائل",
+	clear_logs_button_transcript: "النص",
 	clear_logs_embed_description:
 		"<@${authorId}> حذف ${messageCount} رسالة في <#${channelId}>",
 	clear_command_no_message: "لا توجد رسائل لحذفها في هذه القناة",

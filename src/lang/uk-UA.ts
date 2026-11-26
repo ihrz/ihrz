@@ -1977,6 +1977,7 @@ export default {
 		"${emoji_No} | Я не можу видалити більше 99 повідомлень за один раз!",
 	clear_channel_message_deleted: "Видалено ${messageCount} повідомлень!",
 	clear_logs_embed_title: "Логи видалення повідомлень",
+	clear_logs_button_transcript: "Транскрипт",
 	clear_logs_embed_description:
 		"<@${authorId}> видалив ${messageCount} повідомлень в <#${channelId}>",
 	clear_command_no_message: "У цьому каналі немає повідомлень для видалення",

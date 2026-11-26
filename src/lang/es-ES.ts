@@ -2499,6 +2499,7 @@ export default {
 	clear_channel_message_deleted:
 		"¡Se han eliminado ${messageCount} mensajes!",
 	clear_logs_embed_title: "Registros de eliminación de mensajes",
+	clear_logs_button_transcript: "Transcripción",
 	clear_logs_embed_description:
 		"<@${authorId}> ha eliminado ${messageCount} mensajes en <#${channelId}>",
 	clear_command_no_message: "No hay mensajes para borrar en este canal",

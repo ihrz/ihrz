@@ -2487,6 +2487,7 @@ export default {
 		"${emoji_No} | Non posso eliminare più di 99 messaggi in una volta!",
 	clear_channel_message_deleted: "${messageCount} messaggi eliminati!",
 	clear_logs_embed_title: "Log eliminazione messaggi",
+	clear_logs_button_transcript: "Trascrizione",
 	clear_logs_embed_description:
 		"<@${authorId}> ha eliminato ${messageCount} messaggi in <#${channelId}>",
 	clear_command_no_message:

@@ -23,7 +23,7 @@
 // and a description. Posted as a Components V2 log card (logCard.ts: accent, `## emoji title`, the bot name and
 // the time, no pings), and only in a channel @everyone cannot see (hasIhorizonLogs.ts).
 
-import { Guild } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, Guild } from "discord.js";
 
 import { sendLogCard } from "../modules/logCard.js";
 import { findIhorizonLogsChannel } from "./hasIhorizonLogs.js";
@@ -34,6 +34,8 @@ export default async function send(
 	embed: {
 		title: string;
 		description: string;
+		/** Buttons under the entry (e.g. the /clear transcript). */
+		rows?: ActionRowBuilder<ButtonBuilder>[];
 	}
 ): Promise<void> {
 	try {
@@ -45,7 +47,8 @@ export default async function send(
 			kind: "info",
 			emoji: guild.client.iHorizon_Emojis?.Logs,
 			title: embed.title,
-			description: embed.description
+			description: embed.description,
+			rows: embed.rows
 		});
 	} catch {}
 }
