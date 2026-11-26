@@ -136,6 +136,40 @@ export function sortedOptions(options: unknown): unknown {
 		});
 }
 
+// The Entry Point command ("Launch", type 4) that Discord creates when the app's Activities are enabled: a bulk
+// overwrite without it is refused WHOLE ("You cannot remove this app's Entry Point command in a bulk update
+// operation"), so no slash command was published anymore. It is sent back as Discord has it (id, handler…).
+export const PRIMARY_ENTRY_POINT = 4;
+
+export function entryPointCommands(
+	existing: unknown
+): Record<string, unknown>[] {
+	if (!Array.isArray(existing)) return [];
+	return existing
+		.filter(
+			(c): c is Record<string, unknown> =>
+				!!c && typeof c === "object" && c.type === PRIMARY_ENTRY_POINT
+		)
+		.map((c) => {
+			const keep: Record<string, unknown> = {};
+			for (const k of [
+				"id",
+				"name",
+				"name_localizations",
+				"description",
+				"description_localizations",
+				"type",
+				"handler",
+				"integration_types",
+				"contexts",
+				"default_member_permissions",
+				"nsfw"
+			])
+				if (c[k] !== undefined) keep[k] = c[k];
+			return keep;
+		});
+}
+
 export async function synchronizeCommands(client: Client): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		try {
@@ -166,7 +200,13 @@ export async function synchronizeCommands(client: Client): Promise<void> {
 					return commandData;
 				}) || [];
 
-			const allCommands = [...slashCommands, ...appCmds];
+			// Kept as is: Discord refuses a bulk update that would remove it.
+			const entryPoints = entryPointCommands(
+				await rest
+					.get(Routes.applicationCommands(client.user?.id!))
+					.catch(() => [])
+			);
+			const allCommands = [...slashCommands, ...appCmds, ...entryPoints];
 
 			logger.log(
 				`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`
