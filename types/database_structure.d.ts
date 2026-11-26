@@ -1300,6 +1300,8 @@ export namespace DatabaseStructure {
 		/** Unix ms: when the response came in. */
 		at: number;
 		decidedBy?: string;
+		/** The reviewer's name on the server at the time (shown in the dashboard without a profile lookup). */
+		decidedByName?: string;
 		decidedAt?: number;
 		/** Refusal reason (≤ 1000), sent to the applicant. */
 		reason?: string | null;

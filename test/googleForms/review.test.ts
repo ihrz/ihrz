@@ -332,10 +332,7 @@ describe("applications (Google Forms review mode)", () => {
 		const reviews = (await googleFormsTable.get(
 			reviewsKey(GUILD, LINK)
 		)) as Record<string, { reason: string; decidedBy: string }>;
-		expect(Object.values(reviews)[0]).toMatchObject({
-			reason: "Too young",
-			decidedBy: STAFF
-		});
+		expect(Object.values(reviews)[0]).toMatchObject({ reason: "Too young", decidedBy: STAFF, decidedByName: "staff" });
 		expect(JSON.stringify(g.edits[0].components)).toContain("Too young");
 	});
 

@@ -505,6 +505,7 @@ export async function decideReview(
 		if (review.status !== "pending") throw "already decided";
 		review.status = decision === "accept" ? "accepted" : "refused";
 		review.decidedBy = actor.id;
+		review.decidedByName = actor.displayName || actor.user.username;
 		review.decidedAt = Date.now();
 		review.reason = reason;
 		return { ...review };

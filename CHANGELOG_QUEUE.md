@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 📝 Google Forms — applications: accept or refuse
+
+A linked Google Form can now run **applications**: turn it on per form in the dashboard. Each response arrives as a card with **Accept** and **Refuse** buttons, for the form's **reviewer role**, administrators and the owner. The role is given **only when the application is accepted**; a refusal can give a **refused role** instead, or nothing. The applicant gets a **private message** with the decision and, when refused, the reason you wrote (optional, and the message can be turned off). The card then shows who decided and when, in place of the buttons. In the dashboard, the latest responses show each application's state (waiting, accepted or refused, by whom, with the reason) and can be accepted or refused from there too. Forms without applications work as before: the role is given at once.
+
+---
+
 ## 💎 Boost messages — thank your boosters
 
 A new **boost message**, set with **`/guildconfig set boost-message`** (administrators) or the dashboard's new **Boost messages** module: when a member **boosts** the server, or **stops boosting**, iHorizon posts a message in the channel you pick, sends it by private message, or both. Write your own text (markdown, the server's emojis, the member variables plus `{boostCount}` and `{boostTier}`) or keep the translated default, add an **embed saved with `/embed`**, or send the embed alone. Boost and boost-ended each have their own settings, a **Send a test** button tries them, and the dashboard shows a live Discord preview. Only the member is ever mentioned.
