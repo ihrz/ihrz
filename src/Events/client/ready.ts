@@ -23,11 +23,8 @@ import {
 	Client,
 	Collection,
 	PermissionsBitField,
-	ActivityType,
 	GuildFeature,
-	User,
-	BaseGuildTextChannel,
-	Vanity
+	User
 } from "discord.js";
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 
@@ -82,6 +79,12 @@ export {
 	backupsTable,
 	backupSchedulesTable
 } from "../../core/database/tables.js";
+
+/** Discord's error code of a failed REST call (10013 unknown user, 50007 DMs closed…), if any. */
+const discordErrorCode = (error: unknown): unknown =>
+	error && typeof error === "object" && "code" in error
+		? (error as { code: unknown }).code
+		: undefined;
 
 export const event: BotEvent = {
 	name: "clientReady",
@@ -183,7 +186,7 @@ export const event: BotEvent = {
 							} else {
 								client.vanityInvites.set(guild.id, null);
 							}
-						} catch (error: any) {
+						} catch (error) {
 							logger.err(
 								`Error fetching invites for guild ${guild.id}: ${error}`
 							);
@@ -233,7 +236,7 @@ export const event: BotEvent = {
 
 			const dateNow = Date.now();
 
-			Object.entries(listAll).forEach(async ([userId, array]) => {
+			Object.entries(listAll).forEach(async ([, array]) => {
 				for (const ScheduleId in array.value) {
 					if (array.value[ScheduleId]?.expired <= dateNow) {
 						// A reminder is removed once sent, or when it can never
@@ -242,8 +245,8 @@ export const event: BotEvent = {
 						let member: User | null = null;
 						try {
 							member = await client.users.fetch(array.id);
-						} catch (error: any) {
-							if (error?.code !== 10013) continue;
+						} catch (error) {
+							if (discordErrorCode(error) !== 10013) continue;
 						}
 
 						// Une carte PAR rappel : un accumulateur partagé
@@ -262,8 +265,8 @@ export const event: BotEvent = {
 									)) as never
 								);
 							}
-						} catch (error: any) {
-							if (error?.code !== 50007) continue;
+						} catch (error) {
+							if (discordErrorCode(error) !== 50007) continue;
 						}
 
 						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
@@ -319,7 +322,11 @@ export const event: BotEvent = {
 						writerShard: client.shard?.ids[0] ?? 0
 					});
 					return;
-				} catch (error: any) {
+				} catch (caught) {
+					const error = caught as {
+						name?: string;
+						message?: string;
+					} | null;
 					const isShardingInProcess =
 						error?.name?.includes("ShardingInProcess") ||
 						String(error?.message ?? error).includes(
@@ -461,21 +468,21 @@ export const event: BotEvent = {
 
 		await client.email.init(true);
 
-		(setInterval(quotesPresence, 120_000),
-			setInterval(refreshSchedule, 50_000),
-			setInterval(() => {
-				client.backup.runDueBackupSchedules(client).catch((err) => {
-					logger.err("Scheduled backups failed:", err);
-				});
-			}, 300_000),
-			setInterval(() => recoverCustomVoiceChannels(client), 120_000),
-			setInterval(
-				() =>
-					watchdogH247Sessions(client).catch((err) => {
-						logger.err("H24/7 watchdog failed:", err);
-					}),
-				60_000
-			));
+		setInterval(quotesPresence, 120_000);
+		setInterval(refreshSchedule, 50_000);
+		setInterval(() => {
+			client.backup.runDueBackupSchedules(client).catch((err) => {
+				logger.err("Scheduled backups failed:", err);
+			});
+		}, 300_000);
+		setInterval(() => recoverCustomVoiceChannels(client), 120_000);
+		setInterval(
+			() =>
+				watchdogH247Sessions(client).catch((err) => {
+					logger.err("H24/7 watchdog failed:", err);
+				}),
+			60_000
+		);
 
 		if (client.isMainShard()) {
 			logger.log(
@@ -486,11 +493,12 @@ export const event: BotEvent = {
 			}, 45_000);
 		}
 
-		(fetchInvites(),
-			refreshDatabaseModel(),
-			quotesPresence(),
-			refreshSchedule(),
-			statsRefresher());
+		// First run now, then on their interval; none is awaited (the boot goes on).
+		void fetchInvites();
+		void refreshDatabaseModel();
+		void quotesPresence();
+		void refreshSchedule();
+		void statsRefresher();
 
 		// BOT push is main-shard only: every shard overwriting the key at
 		// boot raced, and non-main shards have no use for broadcastEval here.
