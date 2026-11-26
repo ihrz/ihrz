@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 📝 Google Forms — candidatures : accepter ou refuser
+
+Un formulaire Google lié peut maintenant servir de **candidatures** : à activer pour chaque formulaire dans le dashboard. Chaque réponse arrive en carte avec les boutons **Accepter** et **Refuser**, pour le **rôle examinateurs** du formulaire, les administrateurs et l'owner. Le rôle n'est donné **qu'à l'acceptation** ; un refus peut donner un **rôle « refusé »** à la place, ou rien. Le candidat reçoit un **message privé** avec la décision et, en cas de refus, la raison écrite (facultative, et le message peut être désactivé). La carte affiche ensuite qui a décidé et quand, à la place des boutons. Dans le dashboard, les dernières réponses montrent l'état de chaque candidature (en attente, acceptée ou refusée, par qui, avec la raison), et on peut aussi les accepter ou les refuser de là. Les formulaires sans candidatures marchent comme avant : le rôle est donné tout de suite.
+
+---
+
 ## 💎 Messages de boost — remerciez vos boosters
 
 Un nouveau **message de boost**, réglé avec **`/guildconfig set boost-message`** (administrateurs) ou le nouveau module **Messages de boost** du dashboard : quand un membre **booste** le serveur, ou **arrête de le booster**, iHorizon poste un message dans le salon choisi, l'envoie en message privé, ou les deux. Écrivez votre texte (markdown, emojis du serveur, variables du membre plus `{boostCount}` et `{boostTier}`) ou gardez le texte par défaut traduit, ajoutez un **embed enregistré avec `/embed`**, ou envoyez l'embed seul. Le boost et la fin de boost ont chacun leurs réglages, un bouton **Envoyer un test** permet de les essayer, et le dashboard montre un aperçu Discord en direct. Seul le membre est mentionné.
