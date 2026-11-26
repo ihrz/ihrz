@@ -30,17 +30,17 @@ const withUrl = (ticketTranscriptUrl?: string) =>
 describe("transcriptUrl", () => {
 	test("links to the channel on the transcript site", () => {
 		expect(
-			transcriptUrl(withUrl("https://ticket.ihorizon.org"), "123")
-		).toBe("https://ticket.ihorizon.org/123");
+			transcriptUrl(withUrl("https://transcript.ihorizon.org"), "123")
+		).toBe("https://transcript.ihorizon.org/123");
 		expect(
-			transcriptUrl(withUrl("https://ticket.ihorizon.org//"), "123")
-		).toBe("https://ticket.ihorizon.org/123");
+			transcriptUrl(withUrl("https://transcript.ihorizon.org//"), "123")
+		).toBe("https://transcript.ihorizon.org/123");
 	});
 
 	test("no site, no link", () => {
 		expect(transcriptUrl(withUrl(undefined), "123")).toBeNull();
 		expect(transcriptUrl(withUrl(""), "123")).toBeNull();
-		expect(transcriptUrl(withUrl("ticket.ihorizon.org"), "123")).toBeNull();
+		expect(transcriptUrl(withUrl("transcript.ihorizon.org"), "123")).toBeNull();
 	});
 
 	test("the production branch links to the official site by default", () => {
@@ -50,7 +50,7 @@ describe("transcriptUrl", () => {
 				version: { env: "production" }
 			}) as unknown as Client;
 		expect(transcriptUrl(prod(undefined), "123")).toBe(
-			"https://ticket.ihorizon.org/123"
+			"https://transcript.ihorizon.org/123"
 		);
 		expect(transcriptUrl(prod("https://t.example.org"), "123")).toBe(
 			"https://t.example.org/123"

@@ -71,7 +71,7 @@ export namespace DatabaseStructure {
 	// ---- Ticket transcripts (table `ticket_transcripts`, src/core/modules/ticketTranscripts.ts) ----
 	// `{channelId}` = TicketTranscriptSchema, written when a ticket is closed or deleted (the latest wins);
 	// `G_{guildId}` = string[] of the server's transcript channel ids (erased with the server's data).
-	// Read by the gateway (ticket.ihorizon.org/<channelId>), after a dashboard login: participants, staff
+	// Read by the gateway (transcript.ihorizon.org/<channelId>), after a dashboard login: participants, staff
 	// roles, server managers and bot owners only.
 	export interface TicketTranscriptUser {
 		username: string;

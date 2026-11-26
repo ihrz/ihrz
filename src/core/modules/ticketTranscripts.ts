@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-// Ticket transcripts kept in the database and shown on the web (ticket.ihorizon.org/<channelId>, gateway
+// Ticket transcripts kept in the database and shown on the web (transcript.ihorizon.org/<channelId>, gateway
 // `ticket_host.rs`), next to the HTML file the bot still attaches. Written when a ticket is closed or deleted
 // (the latest one wins: a reopened then closed ticket keeps its whole history).
 //
@@ -61,7 +61,7 @@ const MAX_ATTACHMENTS = 10;
 const MAX_INDEX = 5000;
 
 /** The official transcript site, used by the production bot when TICKET_TRANSCRIPT_URL is not set. */
-export const OFFICIAL_TRANSCRIPT_URL = "https://ticket.ihorizon.org";
+export const OFFICIAL_TRANSCRIPT_URL = "https://transcript.ihorizon.org";
 
 /**
  * Where a transcript can be read, or null when this instance has no transcript site: TICKET_TRANSCRIPT_URL, else

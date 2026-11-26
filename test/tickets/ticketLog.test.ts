@@ -65,7 +65,7 @@ describe("ticket log", () => {
 					name: "9-transcript.html"
 				})
 			],
-			link: { url: "https://ticket.ihorizon.org/2", label: "Transcript" }
+			link: { url: "https://transcript.ihorizon.org/2", label: "Transcript" }
 		});
 		expect(sent).toHaveLength(1);
 		const [payload] = sent;
@@ -76,7 +76,7 @@ describe("ticket log", () => {
 		expect(json).toContain("Ticket closed");
 		expect(json).toContain("<@1> closed <#2>");
 		expect(json).toContain("attachment://9-transcript.html");
-		expect(json).toContain("https://ticket.ihorizon.org/2");
+		expect(json).toContain("https://transcript.ihorizon.org/2");
 		expect(json).toContain(emojis.Lock);
 	});
 

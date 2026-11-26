@@ -46,7 +46,7 @@ const build = (webUrl: string | null, icon: string | null = null) =>
 describe("transcriptDmPayload", () => {
 	test("a Components V2 message with the HTML file and the web link", () => {
 		const payload = build(
-			"https://ticket.ihorizon.org/1234567890123456789",
+			"https://transcript.ihorizon.org/1234567890123456789",
 			"https://cdn.discordapp.com/icons/1/a.png"
 		);
 		expect(payload.flags).toBe(MessageFlags.IsComponentsV2);
@@ -54,7 +54,7 @@ describe("transcriptDmPayload", () => {
 		const json = JSON.stringify(payload.components[0].toJSON());
 		expect(json).toContain("attachment://1-transcript.html");
 		expect(json).toContain(
-			"https://ticket.ihorizon.org/1234567890123456789"
+			"https://transcript.ihorizon.org/1234567890123456789"
 		);
 		expect(json).toContain("<#1234567890123456789>");
 		expect(json).toContain("https://cdn.discordapp.com/icons/1/a.png");
@@ -62,7 +62,7 @@ describe("transcriptDmPayload", () => {
 
 	test("no web transcript, no button", () => {
 		const json = JSON.stringify(build(null).components[0].toJSON());
-		expect(json).not.toContain("ticket.ihorizon.org");
+		expect(json).not.toContain("transcript.ihorizon.org");
 		expect(json).toContain("attachment://1-transcript.html");
 	});
 
@@ -72,14 +72,14 @@ describe("transcriptDmPayload", () => {
 			title: "Ticket transcript",
 			text: "Here is the transcript.",
 			file: null,
-			webUrl: "https://ticket.ihorizon.org/1234567890123456789",
+			webUrl: "https://transcript.ihorizon.org/1234567890123456789",
 			buttonLabel: "Transcript"
 		});
 		expect(payload.files).toEqual([]);
 		const json = JSON.stringify(payload.components[0].toJSON());
 		expect(json).not.toContain("attachment://");
 		expect(json).toContain(
-			"https://ticket.ihorizon.org/1234567890123456789"
+			"https://transcript.ihorizon.org/1234567890123456789"
 		);
 	});
 });
