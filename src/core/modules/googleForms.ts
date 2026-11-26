@@ -138,6 +138,51 @@ export function roleRefusal(
 	return null;
 }
 
+/** Roles of the link, 10 at most: the list, else the single role of older configs. */
+function rolesOf(list: unknown, single: string | null | undefined): string[] {
+	const ids = Array.isArray(list)
+		? list.filter(
+				(id): id is string =>
+					typeof id === "string" && SNOWFLAKE.test(id)
+			)
+		: [];
+	if (ids.length) return [...new Set(ids)].slice(0, 10);
+	return single && SNOWFLAKE.test(single) ? [single] : [];
+}
+
+/** Given to the member (at once, or on acceptance in review mode). */
+export function acceptRoles(link: Link): string[] {
+	return rolesOf(link.roleIds, link.roleId);
+}
+
+/** Given when an application is refused. */
+export function refuseRoles(link: Link): string[] {
+	return rolesOf(link.refusedRoleIds, link.refusedRoleId);
+}
+
+/**
+ * Gives every role the bot can give (each one checked like before: below the bot, not managed, Manage Roles),
+ * one request per missing role. True when the member holds all of them afterwards; one it cannot give never stops the others.
+ */
+export async function giveRoles(
+	guild: Guild,
+	member: GuildMember,
+	roleIds: string[],
+	reason: string
+): Promise<boolean> {
+	const roles = roleIds.map((id) => guild.roles.cache.get(id));
+	const givable = roles.filter(
+		(r): r is Role => !!r && !roleRefusal(guild, r, member)
+	);
+	const missing = givable.filter((r) => !member.roles.cache.has(r.id));
+	if (missing.length) {
+		for (const role of missing) {
+			await member.roles.add(role, reason).catch(() => null);
+		}
+	}
+	return roleIds.every((id) => member.roles.cache.has(id));
+}
+
 export interface FormCardInput {
 	name: string;
 	formTitle: string;
@@ -317,18 +362,15 @@ export async function handleFormSubmitted(
 	}
 
 	let roleGiven = false;
-	// A test response never gives the role: its answers are made up. An application waits for a reviewer.
-	if (link.roleId && member && !test && !reviewing) {
-		const role = guild.roles.cache.get(link.roleId);
-		const refusal = roleRefusal(guild, role, member);
-		if (!refusal && role) {
-			roleGiven =
-				member.roles.cache.has(role.id) ||
-				(await member.roles
-					.add(role, lang.gforms_role_reason.replace("${name}", name))
-					.then(() => true)
-					.catch(() => false));
-		}
+	// A test response never gives the roles: its answers are made up. An application waits for a reviewer.
+	const roles = acceptRoles(link);
+	if (roles.length && member && !test && !reviewing) {
+		roleGiven = await giveRoles(
+			guild,
+			member,
+			roles,
+			lang.gforms_role_reason.replace("${name}", name)
+		);
 	}
 
 	return { posted, roleGiven, memberId: member?.id ?? null };
@@ -514,21 +556,15 @@ export async function decideReview(
 	const member = decided.memberId
 		? await guild.members.fetch(decided.memberId).catch(() => null)
 		: null;
-	const roleId = decision === "accept" ? link.roleId : link.refusedRoleId;
+	const roles = decision === "accept" ? acceptRoles(link) : refuseRoles(link);
 	let roleGiven = false;
-	if (roleId && member) {
-		const role = guild.roles.cache.get(roleId);
-		if (!roleRefusal(guild, role, member) && role) {
-			roleGiven =
-				member.roles.cache.has(role.id) ||
-				(await member.roles
-					.add(
-						role,
-						lang.gforms_role_reason.replace("${name}", link.name)
-					)
-					.then(() => true)
-					.catch(() => false));
-		}
+	if (roles.length && member) {
+		roleGiven = await giveRoles(
+			guild,
+			member,
+			roles,
+			lang.gforms_role_reason.replace("${name}", link.name)
+		);
 	}
 
 	let dmSent = false;
