@@ -30,7 +30,6 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
-import { hasErrorName } from "../../../core/functions/typeGuards.js";
 import {
 	BACKUP_COMPONENTS,
 	DEFAULT_BACKUP_COMPONENTS,
@@ -224,14 +223,26 @@ export const subCommand: SubCommand = {
 					})
 				);
 			} catch (error) {
-				const text = hasErrorName(error, "BackupLimitError")
+				const text = client.func.typeGuards.hasErrorName(
+					error,
+					"BackupLimitError"
+				)
 					? lang.backup_limit_reached.replace("${max}", max)
-					: hasErrorName(error, "BackupBusyError")
+					: client.func.typeGuards.hasErrorName(
+								error,
+								"BackupBusyError"
+						  )
 						? lang.backup_busy
 						: lang.backup_create_failed;
 				if (
-					!hasErrorName(error, "BackupLimitError") &&
-					!hasErrorName(error, "BackupBusyError")
+					!client.func.typeGuards.hasErrorName(
+						error,
+						"BackupLimitError"
+					) &&
+					!client.func.typeGuards.hasErrorName(
+						error,
+						"BackupBusyError"
+					)
 				) {
 					logger.err(`Backup creation failed: ${error}`);
 				}

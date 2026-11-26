@@ -43,7 +43,6 @@ import {
 	TextDisplayBuilder,
 	TextInputStyle
 } from "discord.js";
-import { isMessage } from "../../../core/functions/method/source.js";
 
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -89,7 +88,7 @@ export const subCommand: SubCommand = {
 			imageUrl: null
 		};
 
-		if (isMessage(interaction)) {
+		if (client.func.method.isMessage(interaction)) {
 			const winnersArg = client.func.method.number(args!, 0);
 			const durationArg = client.func.method.string(args!, 1);
 			const requirementArg = client.func.method.string(args!, 2) as

@@ -27,7 +27,6 @@ import {
 	time
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { profilTable } from "../../../Events/client/ready.js";
@@ -40,7 +39,9 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		const opts = client.func.method.options(interaction, args);
-		const member = (await opts.user("user", 0)) || authorOf(interaction);
+		const member =
+			(await opts.user("user", 0)) ||
+			client.func.method.authorOf(interaction);
 
 		let description = await profilTable.get(`${member.id}.desc`);
 		if (!description) description = lang.profil_not_description_set;

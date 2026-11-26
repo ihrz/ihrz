@@ -78,7 +78,12 @@ const EXPECTED = [
 	"subCoins",
 	"user",
 	"voiceChannel",
-	"warnMember"
+	"warnMember",
+	// method/source.ts: slash or prefix, without instanceof.
+	"authorOf",
+	"isInteraction",
+	"isMessage",
+	"isSlash"
 ];
 
 test("method.ts still exposes every previous export", () => {

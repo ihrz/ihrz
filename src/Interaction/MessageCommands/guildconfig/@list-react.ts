@@ -25,15 +25,12 @@ import {
 	ButtonStyle,
 	Client,
 	Message,
-	PermissionsBitField
+	PermissionsBitField,
+	ComponentType
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
-import {
-	ComponentType,
-	isComponentBuilder
-} from "../../../core/functions/typeGuards.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import {
 	ACCENT,
@@ -148,7 +145,12 @@ export const command: Command = {
 
 		collector.on("end", () => {
 			row.components.forEach((component) => {
-				if (isComponentBuilder(component, ComponentType.Button)) {
+				if (
+					client.func.typeGuards.isComponentBuilder(
+						component,
+						ComponentType.Button
+					)
+				) {
 					(component as ButtonBuilder).setDisabled(true);
 				}
 			});

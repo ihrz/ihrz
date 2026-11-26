@@ -26,7 +26,6 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 import { sendTicketLog } from "../../core/modules/ticketsManager.js";
 import { saveTicketTranscript } from "../../core/modules/ticketTranscripts.js";
-import { isGuildTextChannel } from "../../core/functions/typeGuards.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -52,7 +51,7 @@ export const event: BotEvent = {
 				: undefined;
 
 			// The web transcript (transcript.ihorizon.org) outlives the channel.
-			const webUrl = isGuildTextChannel(channel)
+			const webUrl = client.func.typeGuards.isGuildTextChannel(channel)
 				? await saveTicketTranscript(
 						channel,
 						member.user.id,

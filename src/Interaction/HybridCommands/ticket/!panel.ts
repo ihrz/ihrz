@@ -43,7 +43,6 @@ import {
 	TextDisplayBuilder,
 	TextInputStyle
 } from "discord.js";
-import { isSlash } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -437,7 +436,7 @@ export const subCommand: SubCommand = {
 			buildPanelMessage()
 		);
 
-		if (isSlash(interaction)) {
+		if (client.func.method.isSlash(interaction)) {
 			await interaction.followUp({
 				content: "https://youtu.be/TehLPQ_WCwQ",
 				flags: [1 << 6]

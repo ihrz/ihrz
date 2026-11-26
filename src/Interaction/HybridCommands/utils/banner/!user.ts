@@ -20,7 +20,6 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
-import { authorOf } from "../../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
 import { axios } from "../../../../core/functions/axios.js";
@@ -52,7 +51,7 @@ export const subCommand: SubCommand = {
 		const user: User | undefined =
 			(await client.func.method
 				.options(interaction, args)
-				.user("user", 0)) || authorOf(interaction);
+				.user("user", 0)) || client.func.method.authorOf(interaction);
 
 		const config = {
 			headers: {

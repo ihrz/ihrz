@@ -31,3 +31,4 @@ export * from "./method/moderation.js";
 export * from "./method/tickets.js";
 export * from "./method/topgg.js";
 export * from "./method/voice.js";
+export * from "./method/source.js";

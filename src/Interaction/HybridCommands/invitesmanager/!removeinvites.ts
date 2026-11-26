@@ -25,7 +25,6 @@ import {
 	GuildMember,
 	Message
 } from "discord.js";
-import { isMessage } from "../../../core/functions/method/source.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -51,7 +50,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		// Slash: the option only; prefix: falls back to the author.
 		const user = (opts.member("member", 0) ||
-			(isMessage(interaction)
+			(client.func.method.isMessage(interaction)
 				? interaction.member
 				: null)) as GuildMember;
 		const amount = opts.number("amount", 1)!;

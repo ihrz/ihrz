@@ -20,7 +20,6 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -38,7 +37,7 @@ export const subCommand: SubCommand = {
 			client.func.method
 				.options(interaction, args)
 				.longString("gender", 0) || "None";
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 
 		switch (gender) {
 			case "female":

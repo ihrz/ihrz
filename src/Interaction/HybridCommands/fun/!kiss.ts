@@ -20,7 +20,6 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -51,7 +50,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 		const opts = client.func.method.options(interaction, args);
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 		const kiss = (await opts.user("user", 0)) || user;
 
 		const url = apiUrlParser.assetsFinder(client.assets, "kiss");

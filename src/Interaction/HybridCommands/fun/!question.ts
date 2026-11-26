@@ -21,7 +21,6 @@
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import {
@@ -49,7 +48,7 @@ export const subCommand: SubCommand = {
 		}
 		const opts = client.func.method.options(interaction, args);
 		const question = opts.longString("question", 0) as string;
-		const user = authorOf(interaction);
+		const user = client.func.method.authorOf(interaction);
 
 		const text = question?.split(" ");
 

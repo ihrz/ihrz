@@ -24,12 +24,9 @@ import {
 	EmbedBuilder,
 	CategoryChannel,
 	ChatInputCommandInteraction,
-	Message
+	Message,
+	ChannelType
 } from "discord.js";
-import {
-	ChannelType,
-	isChannelOfType
-} from "../../../core/functions/typeGuards.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -63,7 +60,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (!isChannelOfType(category, ChannelType.GuildCategory)) {
+		if (
+			!client.func.typeGuards.isChannelOfType(
+				category,
+				ChannelType.GuildCategory
+			)
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setticketcategory_not_a_category
 			});
