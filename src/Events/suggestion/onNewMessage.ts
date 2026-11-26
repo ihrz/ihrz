@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, Message, SnowflakeUtil } from "discord.js";
+import { Client, EmbedBuilder, Message } from "discord.js";
 import { generatePassword } from "../../core/functions/random.js";
 
 import { BotEvent } from "../../../types/event.js";

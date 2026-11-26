@@ -22,7 +22,7 @@
 import { metasTable } from "../../Events/client/ready.ts";
 
 export default async function databaseLatency(): Promise<number> {
-	let _0 = Date.now();
+	const _0 = Date.now();
 	try {
 		await metasTable.get("LAST_WRITE");
 	} catch {}

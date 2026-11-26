@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		const channel = (await opts.channel("to", 0)) as BaseGuildTextChannel;
 
-		let baseData: DatabaseStructure.SkullboardConfigSchema =
+		const baseData: DatabaseStructure.SkullboardConfigSchema =
 			(await client.db.get(
 				`${interaction.guildId}.GUILD.SKULLBOARD`
 			)) || {

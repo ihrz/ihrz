@@ -23,11 +23,7 @@ import {
 	Client,
 	EmbedBuilder,
 	ApplicationCommandOptionType,
-	ButtonBuilder,
-	ButtonStyle,
-	ActionRowBuilder,
 	ChatInputCommandInteraction,
-	GuildMember,
 	ApplicationCommandType,
 	Message
 } from "discord.js";

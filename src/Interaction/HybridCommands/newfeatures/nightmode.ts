@@ -83,7 +83,7 @@ export const command: Command = {
 			});
 		}
 
-		let baseData = ((await client.db.get(
+		const baseData = ((await client.db.get(
 			`${interaction.guildId}.UTILS.NIGHT_MODE`
 		)) || {
 			enabled: false,
@@ -94,7 +94,7 @@ export const command: Command = {
 			utc: 1
 		}) as DatabaseStructure.NightMode;
 
-		let check = client.nightmodeManager.Basics_Check(interaction.guild!);
+		const check = client.nightmodeManager.Basics_Check(interaction.guild!);
 		let warn_msg = (await interaction.guild!.fetchOwner()).toString();
 		warn_msg += "\n";
 
@@ -119,7 +119,7 @@ export const command: Command = {
 			);
 		}
 
-		let time = client.timeCalculator.to_ms("30m");
+		const time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
 			.setColor("#010101")
@@ -412,8 +412,8 @@ export const command: Command = {
 				i
 			);
 
-			let start_value = modal?.fields.getTextInputValue("start");
-			let end_value = modal?.fields.getTextInputValue("end");
+			const start_value = modal?.fields.getTextInputValue("start");
+			const end_value = modal?.fields.getTextInputValue("end");
 
 			const startTime = parseTimeInput(start_value!);
 			const endTime = parseTimeInput(end_value!);

@@ -20,7 +20,7 @@
 */
 
 import { BotEvent } from "../../../types/event.js";
-import { ChannelType, Client, VoiceState } from "discord.js";
+import { Client, VoiceState } from "discord.js";
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",

@@ -25,7 +25,7 @@ export const BANNER_URL =
 export default async function bannerGenerator(
 	guildId: string | null
 ): Promise<string> {
-	let countryCode =
+	const countryCode =
 		(await client.db.get(`${guildId}.GUILD.LANG.lang`)) || "en-US";
 	return BANNER_URL.replace("{countryCode}", countryCode);
 }

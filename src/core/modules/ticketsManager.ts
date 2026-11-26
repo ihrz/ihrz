@@ -40,22 +40,13 @@ import {
 	UserSelectMenuInteraction,
 	Role,
 	StringSelectMenuInteraction,
-	ComponentType,
 	TextInputStyle,
-	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder,
-	ChannelSelectMenuBuilder,
 	ModalSubmitInteraction,
 	APIEmbed,
-	ActionRowData,
 	APIMessageTopLevelComponent,
 	JSONEncodable,
-	MessageActionRowComponentBuilder,
-	MessageActionRowComponentData,
-	TopLevelComponentData,
 	Message,
 	MessageFlags,
-	Collection,
 	PermissionFlagsBits,
 	BaseMessageOptions,
 	Client,
@@ -64,7 +55,6 @@ import {
 	OverwriteType
 } from "discord.js";
 
-import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
 import { iHorizonModalResolve } from "../functions/modalHelper.js";
 import logger from "../logger.js";
 import {
@@ -822,7 +812,7 @@ async function CreateChannelV2(
 				}
 			);
 
-			let components: JSONEncodable<APIMessageTopLevelComponent>[] = [];
+			const components: JSONEncodable<APIMessageTopLevelComponent>[] = [];
 
 			const selectUsersMenu = new UserSelectMenuBuilder()
 				.setCustomId("t-embed-select-user")
@@ -840,7 +830,7 @@ async function CreateChannelV2(
 				);
 			}
 
-			let row = new ActionRowBuilder<ButtonBuilder>();
+			const row = new ActionRowBuilder<ButtonBuilder>();
 
 			if (result.config.deleteButton !== false) {
 				row.addComponents(

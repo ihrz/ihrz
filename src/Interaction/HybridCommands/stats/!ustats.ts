@@ -20,12 +20,10 @@
 */
 
 import {
-	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";

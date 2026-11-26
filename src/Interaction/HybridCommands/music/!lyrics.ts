@@ -23,16 +23,13 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Guild,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { SearchResult } from "lavalink-client";
 
 export const subCommand: SubCommand = {
 	run: async (

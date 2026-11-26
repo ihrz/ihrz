@@ -28,11 +28,7 @@ import {
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -93,7 +89,7 @@ export const event: BotEvent = {
 			(obj) => obj.id
 		);
 		const removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
-		let user = newMember.guild.members.cache.get(firstEntry.targetId);
+		const user = newMember.guild.members.cache.get(firstEntry.targetId);
 
 		let desc = " ";
 

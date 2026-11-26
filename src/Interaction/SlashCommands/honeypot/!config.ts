@@ -258,7 +258,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let config =
+		const config =
 			((await client.db.get(
 				`${interaction.guildId}.GUILD.HONEYPOT`
 			)) as DatabaseStructure.HoneypotSchema | null) ||

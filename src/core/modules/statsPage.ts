@@ -30,15 +30,7 @@
  */
 
 import svg2png from "../functions/svg2png.js";
-import {
-	ellipsize,
-	escape,
-	image,
-	measure,
-	raw,
-	text,
-	uid
-} from "../functions/svgKit.js";
+import { escape, image, measure, raw, text, uid } from "../functions/svgKit.js";
 
 export interface StatsRow {
 	avatar?: Buffer | null;

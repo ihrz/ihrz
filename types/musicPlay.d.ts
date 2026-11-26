@@ -28,7 +28,7 @@ import {
 	MessageReplyOptions
 } from "discord.js";
 
-import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
+import { LavalinkNode, SearchResult } from "lavalink-client";
 
 import { LanguageData } from "./languageData.js";
 

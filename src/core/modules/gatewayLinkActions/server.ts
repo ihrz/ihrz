@@ -21,7 +21,6 @@
 
 import {
 	ChannelType,
-	Client,
 	Guild,
 	GuildMember,
 	PermissionFlagsBits,

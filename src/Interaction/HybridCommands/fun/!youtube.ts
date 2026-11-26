@@ -27,7 +27,6 @@ import {
 	User
 } from "discord.js";
 
-import { AxiosResponse, axios } from "../../../core/functions/axios.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { sanitizing } from "../../../core/functions/sanitizer.js";

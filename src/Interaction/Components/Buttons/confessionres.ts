@@ -133,7 +133,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			`${interaction.guildId}.GUILD.SERVER_LOGS.confession`
 		);
 		if (someinfo) {
-			let channel =
+			const channel =
 				interaction.guild.channels.cache.get(someinfo) ||
 				(await interaction.guild.channels
 					.fetch(someinfo)

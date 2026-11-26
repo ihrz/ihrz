@@ -22,11 +22,7 @@
 import {
 	ApplicationCommandType,
 	ApplicationCommandOptionType,
-	PermissionFlagsBits,
-	EmbedBuilder,
-	Message,
-	time,
-	ChatInputCommandInteraction
+	PermissionFlagsBits
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";

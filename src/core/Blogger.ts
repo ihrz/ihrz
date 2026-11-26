@@ -24,7 +24,6 @@ import {
 	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
-	Client,
 	EmbedBuilder,
 	Guild,
 	SnowflakeUtil

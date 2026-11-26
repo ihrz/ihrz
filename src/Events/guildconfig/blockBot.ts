@@ -27,11 +27,7 @@ import {
 	PermissionsBitField
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 import { holdArrival, markRejected } from "../../core/modules/memberArrival.js";
 
 export const event: BotEvent = {

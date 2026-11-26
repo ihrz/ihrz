@@ -64,7 +64,7 @@ export const command: Command = {
 				});
 			} else {
 				const sticker = msg.stickers.first()!;
-				var cool_name = sticker.name;
+				let cool_name = sticker.name;
 
 				if (message.guild.vanityURLCode !== null) {
 					cool_name += ` /${message.guild.vanityURLCode}`;

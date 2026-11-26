@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, time } from "discord.js";
+import { BaseGuildTextChannel, time } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 type AutorenewData = {

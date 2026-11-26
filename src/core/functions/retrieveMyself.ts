@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
+const res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
 	headers: {
 		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`
 	}

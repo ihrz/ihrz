@@ -27,7 +27,6 @@ import {
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
-import { cooldown } from "../../../core/functions/helper.js";
 
 export const command: Command = {
 	name: "utils",

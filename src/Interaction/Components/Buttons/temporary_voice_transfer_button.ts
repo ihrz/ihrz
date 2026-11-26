@@ -119,7 +119,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 				`CUSTOM_VOICE.${interaction.guildId}.${newOwner?.user?.id}`,
 				getChannelId
 			);
-			let username = newOwner.displayName || newOwner.user.username;
+			const username = newOwner.displayName || newOwner.user.username;
 
 			// change the voice channel name
 			if (result?.voice_channel_name) {

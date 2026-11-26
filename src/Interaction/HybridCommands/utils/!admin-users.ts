@@ -38,7 +38,6 @@ import {
 	ACCENT,
 	botSignature,
 	buildCard,
-	cardPayload,
 	notice,
 	pageLabel,
 	sendCard

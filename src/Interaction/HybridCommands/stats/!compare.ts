@@ -19,14 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChannelType,
-	ChatInputCommandInteraction,
-	Client,
-	GuildMember,
-	Message,
-	User
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message, User } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";

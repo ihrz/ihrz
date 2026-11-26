@@ -153,7 +153,7 @@ export const subCommand: SubCommand = {
 				currentPage = (currentPage + 1) % pages;
 			} else if (i.customId === "trash-mutelist-embed") {
 				await i.deferUpdate();
-				for (let member of char) {
+				for (const member of char) {
 					await member.timeout(null).catch(() => {});
 				}
 				cleared = buildCard({

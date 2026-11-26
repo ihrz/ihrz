@@ -86,7 +86,7 @@ export const event: BotEvent = {
 			const lang = await client.func.getLanguageData(message.guildId);
 
 			if (client.func.method.isNumber(message.content)) {
-				let number = Number(message.content);
+				const number = Number(message.content);
 
 				if (
 					number === lastNumber.amount + 1 &&

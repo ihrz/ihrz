@@ -287,7 +287,7 @@ export const command: Command = {
 
 			await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`, config);
 
-			let Message: string =
+			const Message: string =
 				type === "tag"
 					? lang.support_command_work_2
 							.replace("${guildName}", interaction.guild.name)

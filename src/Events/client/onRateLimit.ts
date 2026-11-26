@@ -26,7 +26,7 @@ import { BotEvent } from "../../../types/event.js";
 export const restEvent: BotEvent = {
 	name: "rateLimited",
 	run: async (client: Client, data: RateLimitData) => {
-		let msg =
+		const msg =
 			"⚠️ Rate limit detected\nRoute: " +
 			data.route +
 			"\nURL: " +

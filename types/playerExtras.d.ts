@@ -19,6 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+// Keeps this file a MODULE: without an import, `declare module "lavalink-client"` below would replace the
+// package's types instead of extending them (an "unused" import that lint must not remove).
+// eslint-disable-next-line unused-imports/no-unused-imports, @typescript-eslint/no-unused-vars
 import { Player } from "lavalink-client";
 
 declare module "lavalink-client" {

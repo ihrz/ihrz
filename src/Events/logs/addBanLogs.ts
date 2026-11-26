@@ -28,11 +28,7 @@ import {
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildBanAdd",

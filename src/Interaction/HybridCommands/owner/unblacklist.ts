@@ -279,7 +279,7 @@ export async function run_for_bot_owner(
 					bannedMember.id,
 					bannedMember.username
 				);
-			let score = `${totalSuccess}/${totalGuilds}`;
+			const score = `${totalSuccess}/${totalGuilds}`;
 
 			// Send final result when processing is complete
 			await client.func.method.channelSend(interaction, {

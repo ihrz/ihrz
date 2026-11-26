@@ -53,7 +53,9 @@ export async function user(
 
 	if (message.mentions.parsedUsers.size >= 1) {
 		// if the prefix is the bot mention we have to do a specific traitment
-		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
+		const prefix_mention = message.content.startsWith(
+			`<@${client.user?.id}`
+		);
 		if (prefix_mention) {
 			user = message.mentions.parsedUsers
 				.map((x) => x)

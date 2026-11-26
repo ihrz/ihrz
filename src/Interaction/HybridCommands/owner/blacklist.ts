@@ -27,10 +27,8 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 	ChatInputCommandInteraction,
-	GuildMember,
 	ApplicationCommandType,
-	Message,
-	User
+	Message
 } from "discord.js";
 
 import { format } from "../../../core/functions/date_and_time.js";
@@ -410,8 +408,8 @@ export async function run_for_bot_owner(
 		setImmediate(async () => {
 			const { totalSuccess, totalGuilds } =
 				await broadcastBanAcrossShards(member.user.id, reason);
-			let score = `${totalSuccess}/${totalGuilds}`;
-			let username = member?.user.username;
+			const score = `${totalSuccess}/${totalGuilds}`;
+			const username = member?.user.username;
 
 			// Final notification
 			await client.func.method.channelSend(interaction, {
@@ -469,10 +467,10 @@ export async function run_for_bot_owner(
 		setImmediate(async () => {
 			const { totalSuccess, totalGuilds } =
 				await broadcastBanAcrossShards(targetUser!.id, reason);
-			let username = String(
+			const username = String(
 				targetUser?.globalName || targetUser?.username
 			);
-			let score = `${totalSuccess}/${totalGuilds}`;
+			const score = `${totalSuccess}/${totalGuilds}`;
 
 			// Final notification
 			await client.func.method.channelSend(interaction, {

@@ -88,22 +88,12 @@ import {
 	BatchProcessorOptions,
 	BatchProcessorResult
 } from "../src/core/functions/batchProcessor.ts";
-import { Sqlite } from "../src/core/database/driver/sqlite.ts";
-import { Json } from "../src/core/database/driver/json.ts";
-import { Memory } from "../src/core/database/driver/memory.ts";
-import { Postgres } from "../src/core/database/driver/postgres.ts";
 import { TrackEmbbeded } from "../src/core/functions/music_proximity.ts";
-import {
-	LavalinkNode,
-	LyricsResult,
-	SearchResult,
-	Track
-} from "lavalink-client";
+import { LavalinkNode, SearchResult, Track } from "lavalink-client";
 import { components } from "../src/core/functions/method.ts";
 import { Player } from "lavalink-client";
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from "./musicPlay";
 import {
-	BannerExtension,
 	BannerSource,
 	BannerUrlOptions
 } from "../src/core/functions/bannerURL.ts";

@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
@@ -49,7 +44,7 @@ export const subCommand: SubCommand = {
 		const opts = client.func.method.options(interaction, args);
 		let amount = opts.number("amount", 0, true);
 
-		let baseData: DatabaseStructure.StarboardConfigSchema =
+		const baseData: DatabaseStructure.StarboardConfigSchema =
 			(await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`)) || {
 				channel: "",
 				createThread: false,

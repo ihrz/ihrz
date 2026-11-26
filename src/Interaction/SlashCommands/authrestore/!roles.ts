@@ -27,7 +27,6 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
-import { authRestoreTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
 	run: async (

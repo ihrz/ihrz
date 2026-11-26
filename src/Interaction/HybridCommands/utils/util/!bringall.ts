@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 				"category"
 			) as CategoryChannel | null;
 		} else {
-			var categoryId = client.func.method.string(args!, 1);
+			const categoryId = client.func.method.string(args!, 1);
 			var category = categoryId
 				? (interaction.guild.channels.cache.get(
 						categoryId

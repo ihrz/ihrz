@@ -193,8 +193,8 @@ class GithubLinesManager {
 			toDisplay = lines[lineStart - 1].trim().replace(/``/g, "`\u200b`");
 			lineLength = 1;
 		} else {
-			let start = Math.max(1, Math.min(lineStart, lineEnd));
-			let end = Math.min(lines.length, Math.max(lineStart, lineEnd));
+			const start = Math.max(1, Math.min(lineStart, lineEnd));
+			const end = Math.min(lines.length, Math.max(lineStart, lineEnd));
 			lineLength = end - start + 1;
 			toDisplay = GithubLinesManager.formatIndent(
 				lines.slice(start - 1, end).join("\n")

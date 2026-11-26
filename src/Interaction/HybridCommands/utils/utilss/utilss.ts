@@ -22,7 +22,6 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	ChannelType,
 	PermissionFlagsBits
 } from "discord.js";
 

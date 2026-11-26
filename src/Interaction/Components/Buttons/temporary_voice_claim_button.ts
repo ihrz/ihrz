@@ -125,7 +125,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`,
 			targetedChannel?.id
 		);
-		let username =
+		const username =
 			interaction.user.displayName || interaction.user.username;
 
 		// change the voice channel name

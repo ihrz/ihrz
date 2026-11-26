@@ -24,11 +24,9 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	GuildMember,
-	PermissionFlagsBits,
 	ChannelType
 } from "discord.js";
 
-import logger from "../../../../core/logger.js";
 import { LanguageData } from "../../../../../types/languageData.js";
 import { SubCommand } from "../../../../../types/command.js";
 import { enableTalkMode } from "../../../../core/modules/voiceModes.js";

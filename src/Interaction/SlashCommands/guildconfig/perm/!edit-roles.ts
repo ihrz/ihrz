@@ -67,10 +67,10 @@ export const subCommand: SubCommand = {
 				updatedRoles
 			);
 
-			let permName = permissionLevel.find(
+			const permName = permissionLevel.find(
 				(x) => x.value === String(perm_level)
 			)?.name;
-			let strRole = perm_role.toString();
+			const strRole = perm_role.toString();
 
 			sendCard(
 				client,

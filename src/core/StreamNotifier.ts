@@ -24,7 +24,6 @@ import {
 	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
-	Client,
 	EmbedBuilder,
 	Guild,
 	SnowflakeUtil
@@ -435,7 +434,7 @@ export class StreamNotifier {
 					link = `https://twitch.tv/${author.id_or_username}`;
 					break;
 			}
-			let author_name = await this.getChannelNameById(
+			const author_name = await this.getChannelNameById(
 				author.platform,
 				author.id_or_username
 			);
@@ -478,9 +477,9 @@ export class StreamNotifier {
 
 	// Fix a bug with a "undefined"
 	private isValidVideo(entry: Record<any, any>): boolean {
-		let objectValues = Object.values(entry);
+		const objectValues = Object.values(entry);
 
-		for (let value of objectValues) {
+		for (const value of objectValues) {
 			if (value == null || value == undefined) {
 				return true;
 			} else if (typeof value === "object") {

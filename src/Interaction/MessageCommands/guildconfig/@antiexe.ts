@@ -19,17 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-	PermissionsBitField
-} from "discord.js";
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import {
-	isDiscordEmoji,
-	isSingleEmoji
-} from "../../../core/functions/emojiChecker.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { cardPayload, notice } from "../../../core/modules/uiCard.js";

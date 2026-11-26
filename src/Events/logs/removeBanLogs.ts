@@ -29,11 +29,7 @@ import {
 
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 export const event: BotEvent = {
 	name: "guildBanRemove",
@@ -71,7 +67,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let user = relevantLog.target as User;
+		const user = relevantLog.target as User;
 
 		await sendLogCard(Msgchannel, {
 			kind: "success",

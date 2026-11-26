@@ -29,11 +29,7 @@ import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
 import { BotEvent } from "../../../types/event.js";
 import { sendLogCard } from "../../core/modules/logCard.js";
 import { LanguageData } from "../../../types/languageData.js";
-import {
-	getLogs,
-	handledAuditLogEntrie_logs,
-	handledAuditLogEntries
-} from "../protection/auditLogs.js";
+import { getLogs } from "../protection/auditLogs.js";
 
 function getDiff(
 	oldChannel: GuildChannel,

@@ -87,7 +87,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let config = (await getCachedGuildValue(
+		const config = (await getCachedGuildValue(
 			`${message.guildId}.UTILS.antiExe`
 		)) as DatabaseStructure.UtilsData["antiExe"];
 		if (config !== "on") return;

@@ -21,7 +21,7 @@
 
 import { secureRandomFloat } from "./random.js";
 
-let baseUrl = "https://www.ihorizon.org";
+const baseUrl = "https://www.ihorizon.org";
 
 export const Expressions = Object.freeze({
 	Blushed: baseUrl + "/assets/img/bot/expression/ihorizon_blushed.png",

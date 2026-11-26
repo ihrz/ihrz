@@ -25,8 +25,7 @@ import {
 	ChannelType,
 	Message,
 	GuildTextBasedChannel,
-	ClientUser,
-	SnowflakeUtil
+	ClientUser
 } from "discord.js";
 
 import { parseMessageCommand } from "../interaction/messageCommandHandler.js";

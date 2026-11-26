@@ -41,7 +41,6 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { StreamNotifier } from "./StreamNotifier.js";
 import { KdenLive } from "./functions/kdenliveManipulator.js";
 import { Command } from "../../types/command.js";
-import { mkdir } from "node:fs/promises";
 import { MemberCountModule } from "./modules/memberCountManager.js";
 import { GatewayLink } from "./modules/gatewayLink.js";
 import { AutoRenew } from "./modules/autorenewManager.js";
@@ -69,7 +68,7 @@ const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
 
 if (fs.existsSync(old_slash_logs_file)) {
-	let _ = new DiscordSlashLogParser().parse(
+	const _ = new DiscordSlashLogParser().parse(
 		readFileSync(old_slash_logs_file, "utf-8")
 	);
 	writeFileSync(slash_logs_file, JSON.stringify(_));

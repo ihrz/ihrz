@@ -468,7 +468,7 @@ export const event: BotEvent = {
 											})
 											.catch(() => null);
 									} else {
-										for (let roleId of baseData.staff_role) {
+										for (const roleId of baseData.staff_role) {
 											if (
 												newState.guild.roles.cache.get(
 													roleId

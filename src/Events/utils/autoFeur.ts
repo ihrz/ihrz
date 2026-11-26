@@ -84,7 +84,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		let guildLang = await getCachedGuildValue(
+		const guildLang = await getCachedGuildValue(
 			`${message.guild?.id}.GUILD.LANG.lang`
 		);
 

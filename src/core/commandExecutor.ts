@@ -35,7 +35,6 @@ import { Command } from "../../types/command";
 import { getPermissionByValue } from "./functions/permissonsCalculator.js";
 import { Expressions } from "./functions/randomExpression.js";
 import { tempTable } from "../Events/client/ready.js";
-import { Option } from "../../types/option.js";
 
 export type CommandSource = Message | ChatInputCommandInteraction<"cached">;
 

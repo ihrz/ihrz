@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 		let imgs: AttachmentBuilder | undefined;
 
 		try {
-			let image = await catsay(baseImg[0].url, text || "");
+			const image = await catsay(baseImg[0].url, text || "");
 			imgs = new AttachmentBuilder(image, { name: "catsay.png" });
 
 			if (imgs) {

@@ -29,15 +29,13 @@ import {
 	ActionRowBuilder,
 	ComponentType,
 	TextInputStyle,
-	Collection,
 	ChatInputCommandInteraction,
 	StringSelectMenuInteraction,
 	ModalSubmitInteraction,
 	ApplicationCommandType,
 	Message,
 	MessageFlags,
-	User,
-	ModalData
+	User
 } from "discord.js";
 
 import {

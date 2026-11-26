@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChannelType,
-	Client,
-	TextChannel,
-	VoiceBasedChannel
-} from "discord.js";
+import { ChannelType, TextChannel, VoiceBasedChannel } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import formatNumber from "../functions/numberBeautifuer.js";
 import logger from "../logger.js";
