@@ -133,7 +133,7 @@ export interface ConfigData {
 		apiToken: string;
 
 		/**
-		 * @example "https://ticket.ihorizon.org"
+		 * @example "https://transcript.ihorizon.org"
 		 * @description Not required for Self-Hosting. Site of the HorizonGateway that shows ticket transcripts (`<url>/<channelId>`). Empty: transcripts are only sent as HTML files.
 		 */
 		ticketTranscriptUrl?: string;

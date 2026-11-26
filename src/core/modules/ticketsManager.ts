@@ -1053,7 +1053,7 @@ async function sendTicketLog(
 	} catch {}
 }
 
-/** Link button to the transcript on the web (ticket.ihorizon.org/<channelId>). */
+/** Link button to the transcript on the web (transcript.ihorizon.org/<channelId>). */
 function transcriptLinkRow(link: { url: string; label: string }) {
 	return webTranscriptRow(link.url, link.label);
 }
@@ -1261,7 +1261,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				)
 					return;
 
-				// The web transcript (ticket.ihorizon.org); its link replaces the
+				// The web transcript (transcript.ihorizon.org); its link replaces the
 				// HTML file when there is one (production).
 				const webUrl = await saveTicketTranscript(
 					interactionChannel,

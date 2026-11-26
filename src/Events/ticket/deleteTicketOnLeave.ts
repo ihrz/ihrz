@@ -55,7 +55,7 @@ export const event: BotEvent = {
 				? member.guild.channels.cache.get(ticket.channel)
 				: undefined;
 
-			// The web transcript (ticket.ihorizon.org) outlives the channel.
+			// The web transcript (transcript.ihorizon.org) outlives the channel.
 			const webUrl =
 				channel instanceof BaseGuildTextChannel
 					? await saveTicketTranscript(

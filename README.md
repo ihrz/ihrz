@@ -44,7 +44,7 @@
 ### 🎉 **Community Engagement & Events**
 
 - **Giveaway System**: Create timed giveaways with custom requirements, winner selection, and reroll capabilities
-- **Advanced Ticket System**: Customizable support tickets with panels, member management, and category organization, plus web transcripts at `ticket.ihorizon.org` that look like Discord (sign-in required, readable only by the ticket's members and the server staff)
+- **Advanced Ticket System**: Customizable support tickets with panels, member management, and category organization, plus web transcripts at `transcript.ihorizon.org` that look like Discord (sign-in required, readable only by the ticket's members and the server staff)
 - **Suggestion Module**: Structured suggestion system with accept/deny/reply functionality
 - **Role Management**: Role reactions, role buttons, role selection menus, and automated role assignment
 - **Invite Tracking**: Complete invite system with leaderboards, add/remove invites, and detailed analytics
