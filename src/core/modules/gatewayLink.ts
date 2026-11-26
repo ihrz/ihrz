@@ -29,7 +29,7 @@ import {
 } from "../functions/apiUrlParser.js";
 import { applyConfigChanges } from "./gatewayLinkHandlers.js";
 import { runAction } from "./gatewayLinkActions/index.js";
-import { handleFormSubmitted } from "./googleForms.js";
+import { handleFormReview, handleFormSubmitted } from "./googleForms.js";
 import {
 	errorMessage,
 	hasErrorName,
@@ -137,7 +137,8 @@ export class GatewayLink {
 			} else if (
 				frame.op === "event" &&
 				(frame.type === "guild.action" ||
-					frame.type === "guild.form.submitted")
+					frame.type === "guild.form.submitted" ||
+					frame.type === "guild.form.review")
 			) {
 				// Independent of config events: never queued behind them.
 				void this.handle(frame);
@@ -186,6 +187,12 @@ export class GatewayLink {
 			}
 			if (event.type === "guild.form.submitted") {
 				const data = await handleFormSubmitted(this.client, event);
+				this.send({ op: "ack", id: event.id, ok: true, data });
+				return;
+			}
+			// A refusal ("forbidden: …", "already decided"…) is the ack's error.
+			if (event.type === "guild.form.review") {
+				const data = await handleFormReview(this.client, event);
 				this.send({ op: "ack", id: event.id, ok: true, data });
 				return;
 			}

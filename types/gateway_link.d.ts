@@ -106,6 +106,32 @@ export namespace GatewayLink {
 		memberQuery: string | null;
 		// "Send a test response" of the dashboard: the card says so, no role is given.
 		test?: boolean;
+		// Google's response id: links a review (GoogleFormReview) to the stored response.
+		responseId?: string;
+	}
+
+	// A decision taken in the dashboard on an application (a link in review mode). The bot checks the actor
+	// is a reviewer, applies it like the card's buttons (googleForms.ts::decideReview) and answers
+	// FormReviewAck; refusals are errors: "forbidden: …", "… not found", "already decided".
+	export interface FormReviewEvent {
+		op: "event";
+		id: string;
+		type: "guild.form.review";
+		guildId: string;
+		linkId: string;
+		responseId: string;
+		decision: "accept" | "refuse";
+		// ≤ 1000, refusals only, sent to the applicant.
+		reason?: string | null;
+		actorId: string;
+	}
+
+	// `Ack.data` of `guild.form.review`.
+	export interface FormReviewAck {
+		status: "accepted" | "refused";
+		// The role of the decision (accepted: roleId, refused: refusedRoleId) is held now.
+		roleGiven: boolean;
+		dmSent: boolean;
 	}
 
 	// `Ack.data` of `guild.form.submitted`.
@@ -116,7 +142,8 @@ export namespace GatewayLink {
 		memberId: string | null;
 	}
 
-	export type Event = ConfigUpdatedEvent | ActionEvent | FormSubmittedEvent;
+	export type Event =
+		ConfigUpdatedEvent | ActionEvent | FormSubmittedEvent | FormReviewEvent;
 
 	export interface ChangeResult {
 		path: string;
@@ -131,7 +158,7 @@ export namespace GatewayLink {
 		error?: string;
 		results?: ChangeResult[];
 		// `guild.action`: what the action answers (JSON);
-		// `guild.form.submitted`: FormSubmittedAck.
+		// `guild.form.submitted`: FormSubmittedAck; `guild.form.review`: FormReviewAck.
 		data?: unknown;
 	}
 }

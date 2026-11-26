@@ -920,6 +920,17 @@ export namespace DatabaseStructure {
 		roleId: string | null;
 		/** Exact question title whose answer is a Discord user id (17-20 digits) or a username. */
 		memberQuestion: string | null;
+		/**
+		 * Applications: the role is given only when a reviewer accepts (buttons on the card, or the dashboard).
+		 * Absent or false: the role is given at once, as before.
+		 */
+		review?: boolean;
+		/** Who may accept or refuse, besides administrators and the owner (null = them only). */
+		reviewerRoleId?: string | null;
+		/** Given when an application is refused (null = nothing more). */
+		refusedRoleId?: string | null;
+		/** Private message to the applicant with the decision (and the refusal reason). Absent = true. */
+		notifyApplicant?: boolean;
 		createdBy: string;
 		/** Unix ms. */
 		createdAt: number;
@@ -1272,6 +1283,29 @@ export namespace DatabaseStructure {
 		answered: number;
 		/** Choice questions: count per answer, 50 distinct answers at most (others summed under "…"). */
 		counts?: Record<string, number>;
+	}
+
+	/**
+	 * `V_{guildId}_{linkId}` = { [reviewId]: GoogleFormReview }: the applications of a link in review mode.
+	 * Written by the BOT only (googleForms.ts: on a response, then on a decision — card buttons or the
+	 * dashboard's `guild.form.review`); the gateway reads it for the dashboard. 500 entries at most (the oldest
+	 * decided ones go first). Erased with the link's data when the bot leaves the server.
+	 */
+	export interface GoogleFormReview {
+		/** Google's response id (GoogleFormResponse.responseId). */
+		responseId: string;
+		/** The applicant the bot identified, null if none. */
+		memberId: string | null;
+		status: "pending" | "accepted" | "refused";
+		/** Unix ms: when the response came in. */
+		at: number;
+		decidedBy?: string;
+		decidedAt?: number;
+		/** Refusal reason (≤ 1000), sent to the applicant. */
+		reason?: string | null;
+		/** The card with the buttons, when one was posted. */
+		channelId?: string | null;
+		messageId?: string | null;
 	}
 
 	/** `S_{guildId}_{linkId}`. */

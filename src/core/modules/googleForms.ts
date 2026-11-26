@@ -25,14 +25,20 @@
 // `guild.form.submitted` here: the bot posts the card and gives the role.
 
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChannelType,
 	Client,
 	escapeMarkdown,
 	Guild,
 	GuildMember,
+	MessageFlags,
 	PermissionFlagsBits,
-	Role
+	Role,
+	TextDisplayBuilder
 } from "discord.js";
+import { randomBytes } from "node:crypto";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { GatewayLink } from "../../../types/gateway_link.js";
@@ -42,6 +48,8 @@ import logger from "../logger.js";
 import { ACCENT, botSignature, buildCard, cardPayload } from "./uiCard.js";
 
 type Link = DatabaseStructure.GoogleFormLink;
+type Review = DatabaseStructure.GoogleFormReview;
+type Reviews = Record<string, Review>;
 
 /** Answers shown on the card; the others are counted in "+N more". */
 export const CARD_MAX_ANSWERS = 20;
@@ -138,6 +146,8 @@ export interface FormCardInput {
 	member: GuildMember | null;
 	memberQuery: string | null;
 	test: boolean;
+	/** An application waiting for a reviewer (link in review mode). */
+	pending?: boolean;
 	lang: LanguageData;
 	emojis?: Partial<Record<"Ticket_Form" | "Ticket_User" | "Timer", string>>;
 	signature?: string | null;
@@ -175,7 +185,8 @@ export function formCard(o: FormCardInput) {
 			"${form}",
 			escapeMarkdown(clipText(o.formTitle || o.name, 100))
 		),
-		o.test ? `-# ${lang.gforms_test_mark}` : null
+		o.test ? `-# ${lang.gforms_test_mark}` : null,
+		o.pending ? `-# ⏳ ${lang.gforms_review_pending}` : null
 	]
 		.filter(Boolean)
 		.join("\n");
@@ -261,7 +272,12 @@ export async function handleFormSubmitted(
 	const lang = await client.func.getLanguageData(guild.id);
 	const name = link.name || event.name;
 
+	// Applications: no role now, a reviewer decides (a test response is never reviewed).
+	const reviewing = link.review === true && !test;
+	const reviewId = reviewing ? randomBytes(6).toString("hex") : null;
+
 	let posted = false;
+	let messageId: string | null = null;
 	const channel = postableChannel(guild, link.channelId);
 	if (channel) {
 		const card = formCard({
@@ -272,19 +288,37 @@ export async function handleFormSubmitted(
 			member,
 			memberQuery: link.memberQuestion ? event.memberQuery : null,
 			test,
+			pending: reviewing,
 			lang,
 			emojis: client.iHorizon_Emojis,
 			signature: await botSignature(client, guild.id)
 		});
-		posted = await channel
-			.send(cardPayload(card) as never)
-			.then(() => true)
-			.catch(() => false);
+		const payload = cardPayload(card) as {
+			components: unknown[];
+		};
+		if (reviewId)
+			payload.components.push(reviewButtons(link.id, reviewId, lang));
+		const sent = await channel.send(payload as never).catch(() => null);
+		posted = !!sent;
+		messageId = sent?.id ?? null;
+	}
+
+	if (reviewId) {
+		await withReviews(event.guildId, link.id, (reviews) => {
+			reviews[reviewId] = {
+				responseId: event.responseId ?? "",
+				memberId: member?.id ?? null,
+				status: "pending",
+				at: event.submittedAt || Date.now(),
+				channelId: posted ? link.channelId : null,
+				messageId
+			};
+		});
 	}
 
 	let roleGiven = false;
-	// A test response never gives the role: its answers are made up.
-	if (link.roleId && member && !test) {
+	// A test response never gives the role: its answers are made up. An application waits for a reviewer.
+	if (link.roleId && member && !test && !reviewing) {
 		const role = guild.roles.cache.get(link.roleId);
 		const refusal = roleRefusal(guild, role, member);
 		if (!refusal && role) {
@@ -325,5 +359,251 @@ export async function deleteGuildForms(
 		await googleFormsTable
 			.delete(statsKey)
 			.catch((e) => logger.warn(`Google Forms cleanup: ${e}`));
+		await googleFormsTable
+			.delete(reviewsKey(guildId, link.id))
+			.catch(() => null);
 	}
+}
+
+// ------------------------------------------------------------ applications ---
+// A link in review mode: each response is an application, accepted or refused by a reviewer (the card's
+// buttons, gform-review.ts, or the dashboard's guild.form.review). The role is given on acceptance only.
+
+/** Applications kept per link: the oldest decided ones go first. */
+export const REVIEW_MAX = 500;
+/** customId: `gform-review%{accept|refuse}%{linkId}%{reviewId}` (buttons/gform-review.ts). */
+export const REVIEW_BUTTON = "gform-review";
+const REASON_MAX = 1000;
+
+export function reviewsKey(guildId: string, linkId: string): string {
+	return `V_${guildId}_${linkId}`;
+}
+
+/** At most `max` applications: decided ones dropped first (oldest first), then the oldest pending. */
+export function trimReviews(
+	reviews: Reviews,
+	max: number = REVIEW_MAX
+): Reviews {
+	const entries = Object.entries(reviews);
+	if (entries.length <= max) return reviews;
+	const order = entries.sort(([, a], [, b]) => {
+		const decided =
+			Number(a.status === "pending") - Number(b.status === "pending");
+		return decided !== 0 ? decided : (a.at ?? 0) - (b.at ?? 0);
+	});
+	return Object.fromEntries(order.slice(entries.length - max));
+}
+
+// One writer at a time per link (two reviewers clicking together decide once).
+const reviewLocks = new Map<string, Promise<unknown>>();
+async function withReviews<T>(
+	guildId: string,
+	linkId: string,
+	fn: (reviews: Reviews) => T | Promise<T>
+): Promise<T> {
+	const key = reviewsKey(guildId, linkId);
+	const previous = reviewLocks.get(key) ?? Promise.resolve();
+	const run = previous.then(async () => {
+		const stored = await googleFormsTable.get(key).catch(() => null);
+		const reviews: Reviews =
+			stored && typeof stored === "object" && !Array.isArray(stored)
+				? { ...(stored as Reviews) }
+				: {};
+		const result = await fn(reviews);
+		await googleFormsTable.set(key, trimReviews(reviews));
+		return result;
+	});
+	reviewLocks.set(
+		key,
+		run.catch(() => undefined)
+	);
+	return run;
+}
+
+/** The server's owner, administrators, and the link's reviewer role. */
+export function isReviewer(member: GuildMember, link: Link): boolean {
+	if (member.id === member.guild.ownerId) return true;
+	if (member.permissions.has(PermissionFlagsBits.Administrator)) return true;
+	return !!link.reviewerRoleId && member.roles.cache.has(link.reviewerRoleId);
+}
+
+export function reviewButtons(
+	linkId: string,
+	reviewId: string,
+	lang: LanguageData
+) {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId(`${REVIEW_BUTTON}%accept%${linkId}%${reviewId}`)
+			.setStyle(ButtonStyle.Success)
+			.setEmoji("✅")
+			.setLabel(lang.gforms_review_accept),
+		new ButtonBuilder()
+			.setCustomId(`${REVIEW_BUTTON}%refuse%${linkId}%${reviewId}`)
+			.setStyle(ButtonStyle.Danger)
+			.setEmoji("❌")
+			.setLabel(lang.gforms_review_refuse)
+	);
+}
+
+/** The decision line that replaces the buttons on the card. */
+export function reviewStatusText(review: Review, lang: LanguageData): string {
+	const when = `<t:${Math.floor((review.decidedAt ?? Date.now()) / 1000)}:R>`;
+	const who = review.decidedBy ? `<@${review.decidedBy}>` : "?";
+	const line = (
+		review.status === "accepted"
+			? lang.gforms_review_accepted
+			: lang.gforms_review_refused
+	)
+		.replace("${user}", who)
+		.replace("${time}", when);
+	return review.reason
+		? `${line}\n> ${lang.gforms_review_reason.replace("${reason}", escapeMarkdown(review.reason))}`
+		: line;
+}
+
+export interface DecideInput {
+	guild: Guild;
+	link: Link;
+	/** The card's buttons know the review; the dashboard knows the response. */
+	reviewId?: string;
+	responseId?: string;
+	actor: GuildMember;
+	decision: "accept" | "refuse";
+	reason?: string | null;
+}
+
+/**
+ * Accepts or refuses an application: the role of the decision (accept: roleId, refuse: refusedRoleId), the
+ * private message to the applicant (unless the link turns it off), and the card's buttons replaced by the
+ * decision. Throws "forbidden: …", "application not found" or "already decided" (the ack's error).
+ */
+export async function decideReview(
+	client: Client,
+	o: DecideInput
+): Promise<GatewayLink.FormReviewAck> {
+	const { guild, link, actor, decision } = o;
+	if (!isReviewer(actor, link))
+		throw "forbidden: not a reviewer of this form";
+	const lang = await client.func.getLanguageData(guild.id);
+	const reason =
+		decision === "refuse" && o.reason?.trim()
+			? o.reason.trim().slice(0, REASON_MAX)
+			: null;
+
+	const decided = await withReviews(guild.id, link.id, (reviews) => {
+		const id =
+			o.reviewId && reviews[o.reviewId]
+				? o.reviewId
+				: Object.keys(reviews).find(
+						(k) =>
+							!!o.responseId &&
+							reviews[k]?.responseId === o.responseId
+					);
+		const review = id ? reviews[id] : undefined;
+		if (!id || !review) throw "application not found";
+		if (review.status !== "pending") throw "already decided";
+		review.status = decision === "accept" ? "accepted" : "refused";
+		review.decidedBy = actor.id;
+		review.decidedAt = Date.now();
+		review.reason = reason;
+		return { ...review };
+	});
+
+	const member = decided.memberId
+		? await guild.members.fetch(decided.memberId).catch(() => null)
+		: null;
+	const roleId = decision === "accept" ? link.roleId : link.refusedRoleId;
+	let roleGiven = false;
+	if (roleId && member) {
+		const role = guild.roles.cache.get(roleId);
+		if (!roleRefusal(guild, role, member) && role) {
+			roleGiven =
+				member.roles.cache.has(role.id) ||
+				(await member.roles
+					.add(
+						role,
+						lang.gforms_role_reason.replace("${name}", link.name)
+					)
+					.then(() => true)
+					.catch(() => false));
+		}
+	}
+
+	let dmSent = false;
+	if (member && link.notifyApplicant !== false) {
+		const text = (
+			decision === "accept"
+				? lang.gforms_review_dm_accepted
+				: lang.gforms_review_dm_refused
+		)
+			.replace("${name}", escapeMarkdown(link.name))
+			.replace("${guild}", escapeMarkdown(guild.name));
+		const card = buildCard({
+			accent: decision === "accept" ? ACCENT.success : ACCENT.danger,
+			title: lang.gforms_review_dm_title,
+			description: reason
+				? `${text}\n> ${lang.gforms_review_reason.replace("${reason}", escapeMarkdown(reason))}`
+				: text,
+			signature: await botSignature(client, guild.id)
+		});
+		dmSent = await member
+			.send(cardPayload(card) as never)
+			.then(() => true)
+			.catch(() => false);
+	}
+
+	// The card: its buttons replaced by the decision.
+	if (decided.channelId && decided.messageId) {
+		const channel = guild.channels.cache.get(decided.channelId);
+		const message =
+			channel && channel.isTextBased()
+				? await channel.messages
+						.fetch(decided.messageId)
+						.catch(() => null)
+				: null;
+		const first = message?.components?.[0];
+		if (message && first) {
+			await message
+				.edit({
+					components: [
+						first.toJSON(),
+						new TextDisplayBuilder().setContent(
+							reviewStatusText(decided, lang)
+						)
+					],
+					flags: [MessageFlags.IsComponentsV2],
+					allowedMentions: { parse: [] }
+				} as never)
+				.catch(() => null);
+		}
+	}
+
+	return {
+		status: decided.status as "accepted" | "refused",
+		roleGiven,
+		dmSent
+	};
+}
+
+/** `guild.form.review`: a decision taken in the dashboard (the actor must be a reviewer). */
+export async function handleFormReview(
+	client: Client,
+	event: GatewayLink.FormReviewEvent
+): Promise<GatewayLink.FormReviewAck> {
+	const guild = client.guilds.cache.get(event.guildId);
+	if (!guild) throw "guild not found";
+	const link = await getLink(client, event.guildId, event.linkId);
+	if (!link) throw "form not found";
+	if (link.review !== true) throw "this form does not review applications";
+	const actor = await guild.members.fetch(event.actorId).catch(() => null);
+	if (!actor) throw "forbidden: not a member of the server";
+	return decideReview(client, {
+		guild,
+		link,
+		responseId: event.responseId,
+		actor,
+		decision: event.decision === "refuse" ? "refuse" : "accept",
+		reason: event.reason ?? null
+	});
 }
