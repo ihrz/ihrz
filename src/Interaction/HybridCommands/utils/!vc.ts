@@ -28,6 +28,7 @@ import {
 	VoiceState,
 	BaseGuildTextChannel
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import {
@@ -151,7 +152,7 @@ export const subCommand = {
 			cardPayload(container)
 		);
 
-		if (interaction instanceof ChatInputCommandInteraction) {
+		if (isSlash(interaction)) {
 			await interaction.reply({
 				content: `${client.iHorizon_Emojis.GreenTick}`,
 				ephemeral: true

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isError } from "./functions/typeGuards.js";
 import { Logger } from "../../types/logger.js";
 import { log as _ } from "console";
 import { inspect } from "util";
@@ -50,7 +51,7 @@ function getCurrentTime(): string {
 }
 
 function formatValue(value: unknown): string {
-	if (value instanceof Error) {
+	if (isError(value)) {
 		return value.stack || `${value.name}: ${value.message}`;
 	}
 

@@ -30,6 +30,7 @@
  * ../common/parse.ts (extractScriptTags).
  */
 
+import { errorMessage } from "../../functions/typeGuards.js";
 import { Buffer } from "node:buffer";
 import { extractScriptTags } from "../common/parse.js";
 import { formatSpotifyEmbedUrl, formatSpotifyOpenUrl } from "./uri.js";
@@ -272,10 +273,7 @@ export function parseData(html: string): SpotifyEntityData {
 				break;
 			}
 		} catch (err) {
-			logger.debug(
-				"spotify-metadata:",
-				err instanceof Error ? err.message : String(err)
-			);
+			logger.debug("spotify-metadata:", errorMessage(err));
 		}
 	}
 

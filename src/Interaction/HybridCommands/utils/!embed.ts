@@ -35,7 +35,6 @@ import {
 	ChannelSelectMenuBuilder,
 	ChannelType,
 	ButtonInteraction,
-	ChannelSelectMenuInteraction,
 	GuildBasedChannel,
 	Message,
 	PermissionFlagsBits,
@@ -523,7 +522,7 @@ class EmbedManager {
 		});
 
 		seCollector?.on("collect", async (result) => {
-			if (result instanceof ChannelSelectMenuInteraction) {
+			if (result.isChannelSelectMenu()) {
 				const channel = this.interaction.guild?.channels.cache.get(
 					result.channels.first()?.id as string
 				);

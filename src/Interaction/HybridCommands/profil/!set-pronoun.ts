@@ -34,9 +34,9 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		const pronoun =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("pronoun")!
-				: client.func.method.string(args!, 0) || lang.var_none;
+			client.func.method
+				.options(interaction, args)
+				.string("pronoun", 0) || lang.var_none;
 
 		await profilTable.set(
 			`${interaction.member?.user.id}.pronoun`,

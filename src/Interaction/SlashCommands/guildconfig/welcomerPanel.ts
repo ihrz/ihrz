@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isChannelOfType } from "../../../core/functions/typeGuards.js";
 import {
 	ActionRowBuilder,
 	AttachmentBuilder,
@@ -50,7 +51,6 @@ import {
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
-	TextChannel,
 	TextDisplayBuilder,
 	TextInputStyle
 } from "discord.js";
@@ -1468,7 +1468,7 @@ export async function openWelcomerPanel(
 				.fetch(channelId as string)
 				.catch(() => null));
 
-		if (!(channel instanceof TextChannel)) {
+		if (!isChannelOfType(channel, ChannelType.GuildText)) {
 			await safeFollowUp(source, {
 				content: lang.setchannels_not_a_text_channel.replace(
 					"${emoji_Warning_Icon}",

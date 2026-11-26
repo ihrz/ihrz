@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isSlash } from "./functions/method/source.js";
 import {
 	ChatInputCommandInteraction,
 	Client,
@@ -41,7 +42,7 @@ export type CommandSource = Message | ChatInputCommandInteraction<"cached">;
 export function isInteractionSource(
 	source: CommandSource
 ): source is ChatInputCommandInteraction<"cached"> {
-	return "isChatInputCommand" in source;
+	return isSlash(source);
 }
 
 export interface ExecutionContext {

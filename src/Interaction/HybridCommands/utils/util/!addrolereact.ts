@@ -26,6 +26,10 @@ import {
 	TextChannel,
 	User
 } from "discord.js";
+import {
+	ChannelType,
+	isChannelOfType
+} from "../../../../core/functions/typeGuards.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 import { LanguageData } from "../../../../../types/languageData.js";
@@ -84,13 +88,13 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			const channel = interaction.channel;
-			if (!(channel instanceof TextChannel)) {
+			if (!isChannelOfType(interaction.channel, ChannelType.GuildText)) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.addrolereact_must_be_text_channel
 				});
 				return;
 			}
+			const channel = interaction.channel as TextChannel;
 
 			const message = await channel.messages
 				.fetch(messageId)

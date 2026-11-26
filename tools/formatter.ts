@@ -20,7 +20,6 @@
 */
 
 import * as fs from "node:fs";
-import * as path from "path";
 import * as ts from "typescript";
 import logger from "../src/core/logger.ts";
 

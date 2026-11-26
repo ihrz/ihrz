@@ -57,10 +57,9 @@ export const subCommand: SubCommand = {
 
 		// Fetch user ou soit même
 		const user =
-			(interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getUser("user")
-				: client.func.method.member(interaction, args!, 0)) ||
-			interaction.member!;
+			(await client.func.method
+				.options(interaction, args)
+				.user("user", 0)) || interaction.member!;
 
 		await sendCard(
 			client,

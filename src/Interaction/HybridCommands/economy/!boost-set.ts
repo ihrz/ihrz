@@ -26,6 +26,7 @@ import {
 	PermissionsBitField,
 	Role
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
@@ -63,10 +64,9 @@ export const subCommand: SubCommand = {
 
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0) as Role;
-		const boost =
-			interaction instanceof ChatInputCommandInteraction
-				? parseInt(opts.string("boost", 1)!)
-				: opts.number("boost", 1, true);
+		const boost = isSlash(interaction)
+			? parseInt(opts.string("boost", 1)!)
+			: opts.number("boost", 1, true);
 
 		let roleData = (await client.db.get(
 			`${interaction.guildId}.ECONOMY.buyableRoles`

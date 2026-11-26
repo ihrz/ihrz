@@ -25,6 +25,7 @@ import {
 	GuildMember,
 	Message
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -56,10 +57,9 @@ export const subCommand: SubCommand = {
 		const member = opts.member("member", 0) as GuildMember | null;
 		const reason = opts.longString("reason", 1)!;
 		// Slash only: in a prefix command the reason takes the rest of the message.
-		const note =
-			interaction instanceof ChatInputCommandInteraction
-				? interaction.options.getString("note")
-				: null;
+		const note = isSlash(interaction)
+			? interaction.options.getString("note")
+			: null;
 		const author = interaction.member as GuildMember;
 		const e = client.iHorizon_Emojis;
 

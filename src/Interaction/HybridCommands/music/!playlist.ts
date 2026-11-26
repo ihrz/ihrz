@@ -20,6 +20,7 @@
 */
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { authorOf, isMessage } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -44,10 +45,7 @@ export const subCommand: SubCommand = {
 			return;
 
 		const opts = client.func.method.options(interaction, args);
-		const userId =
-			interaction instanceof Message
-				? interaction.author.id
-				: interaction.user.id;
+		const userId = authorOf(interaction).id;
 
 		let sent: Message | null = null;
 		await openLibraryPanel({
@@ -63,7 +61,7 @@ export const subCommand: SubCommand = {
 				)),
 			// The slash reply is ephemeral: only the interaction can edit it.
 			edit: (payload) =>
-				interaction instanceof Message
+				isMessage(interaction)
 					? sent!.edit(payload)
 					: interaction.editReply(payload)
 		});

@@ -23,10 +23,11 @@ import {
 	Client,
 	EmbedBuilder,
 	MessageReaction,
-	NewsChannel,
-	TextChannel,
+	type NewsChannel,
+	type TextChannel,
 	User
 } from "discord.js";
+import { isGuildTextChannel } from "../functions/typeGuards.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 /**
@@ -140,8 +141,8 @@ export function createReactionBoard(
 			guild.channels.cache.get(id) ||
 			(await guild.channels.fetch(id).catch(() => null));
 		// Announcement channels accept the same posts (/starboard and the dashboard both offer them).
-		return channel instanceof TextChannel || channel instanceof NewsChannel
-			? channel
+		return isGuildTextChannel(channel)
+			? (channel as TextChannel | NewsChannel)
 			: null;
 	}
 

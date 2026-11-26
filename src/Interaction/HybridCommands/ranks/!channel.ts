@@ -26,6 +26,7 @@ import {
 	Client,
 	Message
 } from "discord.js";
+import { isMessage } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 
@@ -47,17 +48,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let type: string | null;
-		let argsid: Channel;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			type = interaction.options.getString("action");
-			argsid = interaction.options.getChannel("channel") as Channel;
-		} else {
-			type = client.func.method.string(args!, 0);
-			argsid =
-				(await client.func.method.channel(interaction, args!, 1)) ||
-				interaction.channel;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const type = opts.string("action", 0);
+		// Slash: the option only; prefix: falls back to the current channel.
+		const argsid = ((await opts.channel("channel", 1)) ||
+			(isMessage(interaction) ? interaction.channel : null)) as Channel;
 
 		if (type === "on") {
 			if (!argsid) {

@@ -32,9 +32,12 @@ import {
 	Message,
 	ButtonInteraction,
 	ColorResolvable,
+	ComponentType,
 	Guild,
 	GuildMember
 } from "discord.js";
+import { isInteraction, isSlash } from "../functions/method/source.js";
+import { isComponentBuilder } from "../functions/typeGuards.js";
 
 import {
 	Giveaway,
@@ -609,11 +612,11 @@ class GiveawayManager {
 			const char: string[] = fetch.entries;
 
 			if (char.length == 0) {
-				if (interaction instanceof ChatInputCommandInteraction) {
+				if (isSlash(interaction)) {
 					await interaction.editReply({
 						content: lang.history_no_entries
 					});
-				} else if (interaction instanceof ButtonInteraction) {
+				} else if (isInteraction(interaction)) {
 					await interaction.reply({
 						content: lang.history_no_entries,
 						flags: [1 << 6]
@@ -673,12 +676,12 @@ class GiveawayManager {
 					: [];
 
 			let messageEmbed: Message;
-			if (interaction instanceof ChatInputCommandInteraction) {
+			if (isSlash(interaction)) {
 				messageEmbed = await interaction.editReply({
 					embeds: [await createEmbed()],
 					components
 				});
-			} else if (interaction instanceof ButtonInteraction) {
+			} else if (isInteraction(interaction)) {
 				await interaction.reply({
 					embeds: [await createEmbed()],
 					components,
@@ -714,8 +717,8 @@ class GiveawayManager {
 
 			collector.on("end", async () => {
 				row.components.forEach((component) => {
-					if (component instanceof ButtonBuilder) {
-						component.setDisabled(true);
+					if (isComponentBuilder(component, ComponentType.Button)) {
+						(component as ButtonBuilder).setDisabled(true);
 					}
 				});
 

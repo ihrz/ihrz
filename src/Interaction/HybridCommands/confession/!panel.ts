@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonInteraction,
 	ButtonStyle,
@@ -49,6 +48,8 @@ import {
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { authorOf, isMessage } from "../../../core/functions/method/source.js";
+import { isGuildTextChannel } from "../../../core/functions/typeGuards.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import logger from "../../../core/logger.js";
@@ -129,10 +130,7 @@ export const subCommand: SubCommand = {
 		const guild = interaction.guild;
 		const emojis = client.iHorizon_Emojis;
 		const path = `${guild.id}.GUILD.CONFESSION`;
-		const authorId =
-			interaction instanceof Message
-				? interaction.author.id
-				: interaction.user.id;
+		const authorId = authorOf(interaction).id;
 		const signature = await botSignature(client, guild.id);
 		const no = (text: string) => `${emojis.No} ${text}`;
 		const yes = (text: string) => `${emojis.Yes} ${text}`;
@@ -334,19 +332,18 @@ export const subCommand: SubCommand = {
 			allowedMentions: { parse: [] }
 		});
 
-		const message =
-			interaction instanceof Message
-				? await client.func.method.interactionSend(
-						interaction,
-						await payload(await load())
-					)
-				: await client.func.method.interactionSend(interaction, {
-						...(await payload(await load())),
-						flags: [
-							MessageFlags.IsComponentsV2,
-							MessageFlags.Ephemeral
-						] as const
-					});
+		const message = isMessage(interaction)
+			? await client.func.method.interactionSend(
+					interaction,
+					await payload(await load())
+				)
+			: await client.func.method.interactionSend(interaction, {
+					...(await payload(await load())),
+					flags: [
+						MessageFlags.IsComponentsV2,
+						MessageFlags.Ephemeral
+					] as const
+				});
 
 		// A modal opened from a button; the unique id ignores stale submits.
 		const askModal = async (
@@ -416,7 +413,7 @@ export const subCommand: SubCommand = {
 
 		const postPanel = async (i: ChannelSelectMenuInteraction) => {
 			const channel = guild.channels.cache.get(i.values[0]);
-			if (!(channel instanceof BaseGuildTextChannel)) {
+			if (!isGuildTextChannel(channel)) {
 				flash = no(
 					lang.confession_panel_send_failed.replace(
 						"${channel}",
@@ -714,7 +711,7 @@ export const subCommand: SubCommand = {
 		collector.on("end", async () => {
 			flash = null;
 			const last = await payload(await load().catch(() => ({})), true);
-			if (interaction instanceof Message) {
+			if (isMessage(interaction)) {
 				await message.edit(last).catch(() => undefined);
 			} else {
 				await interaction.editReply(last).catch(() => undefined);

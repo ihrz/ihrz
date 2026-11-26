@@ -36,6 +36,7 @@ import {
 	RoleSelectMenuBuilder,
 	RoleSelectMenuInteraction
 } from "discord.js";
+import { isSlash } from "../../../core/functions/method/source.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
@@ -327,7 +328,7 @@ async function resolveTargetMember(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	args?: string[]
 ): Promise<GuildMember | null> {
-	if (interaction instanceof ChatInputCommandInteraction) {
+	if (isSlash(interaction)) {
 		return (
 			(interaction.options.getMember("member") as GuildMember | null) ||
 			(interaction.member as GuildMember)

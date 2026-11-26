@@ -49,7 +49,7 @@ import {
 	type BackupComponent,
 	type BackupFrequencyKey
 } from "../../backup/src/components.js";
-import { BackupBusyError, BackupLimitError } from "../../backup/src/index.js";
+import { hasErrorName } from "../../functions/typeGuards.js";
 import {
 	canUseBackups,
 	createBackupLogged,
@@ -79,13 +79,7 @@ import {
 	resetGuildBotBanner,
 	resetGuildBotBio
 } from "../../functions/customProfileHelper.js";
-import {
-	ActionContext,
-	ActionError,
-	ActionGroup,
-	fail,
-	Params
-} from "./types.js";
+import { ActionContext, ActionGroup, fail, Params } from "./types.js";
 
 // Server tools of the dashboard: audit lists, server and member info,
 // emojis, backups, AutoMod and the bot's profile on the server.
@@ -645,11 +639,11 @@ export const serverActions: ActionGroup = {
 					max: MAX_BACKUPS_PER_USER
 				}),
 				(error: unknown) => {
-					if (error instanceof BackupLimitError)
+					if (hasErrorName(error, "BackupLimitError"))
 						return fail(
 							`backup limit reached (${MAX_BACKUPS_PER_USER} per user)`
 						);
-					if (error instanceof BackupBusyError)
+					if (hasErrorName(error, "BackupBusyError"))
 						return fail(
 							"a backup is already running for you or this server"
 						);
@@ -897,7 +891,7 @@ export const serverActions: ActionGroup = {
 				}
 				state = await loadAutomodState(guild, client.db);
 			} catch (error) {
-				if (error instanceof ActionError) throw error;
+				if (hasErrorName(error, "ActionError")) throw error;
 				logger.err(error);
 				return fail("Discord refused the AutoMod change");
 			}

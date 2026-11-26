@@ -50,6 +50,7 @@ import {
 	type RESTPostAPIGuildChannelJSONBody,
 	type RESTPostAPIGuildRoleJSONBody
 } from "discord.js";
+import { isGuildMember, isRole } from "../functions/typeGuards.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
@@ -763,9 +764,8 @@ function overwriteTarget(
 	const extra = entry.extra as
 		Role | GuildMember | { id?: string; type?: AuditLogOptionsType } | null;
 	if (!extra?.id) return null;
-	if (extra instanceof Role)
-		return { id: extra.id, type: OverwriteType.Role };
-	if (extra instanceof GuildMember)
+	if (isRole(extra)) return { id: extra.id, type: OverwriteType.Role };
+	if (isGuildMember(extra))
 		return { id: extra.id, type: OverwriteType.Member };
 	return {
 		id: extra.id,

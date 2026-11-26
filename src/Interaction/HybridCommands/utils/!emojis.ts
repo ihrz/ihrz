@@ -49,9 +49,10 @@ export const subCommand: SubCommand = {
 			return;
 
 		const str =
-			interaction instanceof ChatInputCommandInteraction
-				? (interaction.options.getString("emojis") as string).split(" ")
-				: args!;
+			client.func.method
+				.options(interaction, args)
+				.longString("emojis", 0)
+				?.split(" ") ?? [];
 
 		let cnt: number = 0;
 		let nemj: string = "";

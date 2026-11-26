@@ -28,6 +28,7 @@ import { LanguageData } from "../../../types/languageData.js";
 import { profilTable } from "../../Events/client/ready.js";
 import { decrypt, encrypt } from "../functions/encryptDecryptMethod.js";
 import logger from "../logger.js";
+import { errorMessage } from "../functions/typeGuards.js";
 
 // Last.fm JSON: only `auth.getSession` is read (`session.name`, `.key`).
 interface LastFMApiResponse<
@@ -743,7 +744,7 @@ export class LastFMScrobblerManager {
 		} catch (error) {
 			logger.err(`[LastFM] ${method} request failed: ${error}`);
 			return {
-				message: error instanceof Error ? error.message : String(error),
+				message: errorMessage(error),
 				ok: false
 			};
 		}

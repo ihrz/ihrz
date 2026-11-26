@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { hasErrorName } from "../../functions/typeGuards.js";
 import type { Client, Guild } from "discord.js";
 
 import { backupSchedulesTable } from "../../../Events/client/ready.js";
@@ -30,7 +31,6 @@ import {
 	planAutoBackup
 } from "./components";
 import {
-	BackupBusyError,
 	createForUser,
 	getUserBackups,
 	isGuildBusy,
@@ -139,7 +139,7 @@ async function runSchedule(client: Client, guild: Guild) {
 			}
 		}
 	} catch (error) {
-		if (error instanceof BackupBusyError) {
+		if (hasErrorName(error, "BackupBusyError")) {
 			await record({ nextRunAt: schedule.nextRunAt });
 			return;
 		}

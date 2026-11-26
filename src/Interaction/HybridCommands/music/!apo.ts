@@ -44,6 +44,7 @@ import {
 	escapeMarkdown
 } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import logger from "../../../core/logger.js";
@@ -121,10 +122,7 @@ export const subCommand: SubCommand = {
 
 		const guild = interaction.guild;
 		const emojis = client.iHorizon_Emojis;
-		const authorId =
-			interaction instanceof Message
-				? interaction.author.id
-				: interaction.user.id;
+		const authorId = authorOf(interaction).id;
 
 		const isOwner = async (userId: string) =>
 			(await client.func.ownerHelper.isGuildOwner(userId, guild)) ||
@@ -653,7 +651,7 @@ export const subCommand: SubCommand = {
 			const refresh = (
 				target: ButtonInteraction | ModalSubmitInteraction
 			) =>
-				target instanceof ButtonInteraction
+				target.isButton()
 					? target.update(payload(current))
 					: target.editReply(payload(current));
 			const change = async (next: ApoState) => {

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isDate } from "./functions/typeGuards.js";
 import {
 	ActionRowBuilder,
 	BaseGuildTextChannel,
@@ -928,7 +929,7 @@ export class StreamNotifier {
 		return (
 			!!c?.id &&
 			!!c.link &&
-			c.pubDate instanceof Date &&
+			isDate(c.pubDate) &&
 			!Number.isNaN(c.pubDate.getTime())
 		);
 	}

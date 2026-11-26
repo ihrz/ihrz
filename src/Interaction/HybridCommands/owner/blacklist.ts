@@ -30,6 +30,10 @@ import {
 	ApplicationCommandType,
 	Message
 } from "discord.js";
+import {
+	ComponentType,
+	isComponentBuilder
+} from "../../../core/functions/typeGuards.js";
 
 import { format } from "../../../core/functions/date_and_time.js";
 
@@ -287,7 +291,7 @@ export async function run_for_bot_owner(
 
 		collector.on("end", () => {
 			row.components.forEach((component) => {
-				if (component instanceof ButtonBuilder) {
+				if (isComponentBuilder(component, ComponentType.Button)) {
 					component.setDisabled(true);
 				}
 			});
@@ -643,7 +647,7 @@ export async function run_for_guild_owner(
 
 		collector.on("end", () => {
 			row.components.forEach((component) => {
-				if (component instanceof ButtonBuilder) {
+				if (isComponentBuilder(component, ComponentType.Button)) {
 					component.setDisabled(true);
 				}
 			});

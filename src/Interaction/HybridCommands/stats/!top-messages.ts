@@ -53,15 +53,10 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		let periodKey: string | null;
-		let limit: number | null;
-		if (interaction instanceof ChatInputCommandInteraction) {
-			periodKey = interaction.options.getString("period");
-			limit = interaction.options.getInteger("limit");
-		} else {
-			periodKey = args?.[0]?.toLowerCase() ?? null;
-			limit = args?.[1] ? parseInt(args[1], 10) : null;
-		}
+		const opts = client.func.method.options(interaction, args);
+		const periodKey = opts.string("period", 0)?.toLowerCase() ?? null;
+		// Prefix: an unreadable limit reads 0, which falls back to 10 below.
+		const limit = opts.integer("limit", 1);
 		const period = PERIODS[periodKey ?? ""] ?? "30d";
 		const count = Math.min(
 			15,

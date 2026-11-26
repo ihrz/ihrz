@@ -43,9 +43,9 @@ import type { Track, UnresolvedTrack } from "lavalink-client";
 import type { LanguageData } from "../../../types/languageData.js";
 import { blacklistTable } from "../database/tables.js";
 import logger from "../logger.js";
+import { hasErrorName } from "../functions/typeGuards.js";
 import {
 	favoriteKeys,
-	LibraryError,
 	MAX_FAVORITES,
 	removeFavorite,
 	setFavorite,
@@ -129,7 +129,7 @@ export async function handleLoveClick(
 		try {
 			await setFavorite(user, kept!, true);
 		} catch (error) {
-			if (!(error instanceof LibraryError)) throw error;
+			if (!hasErrorName(error, "LibraryError")) throw error;
 			await reply(
 				lang.music_love_limit
 					.replace("${playlist}", liked)
@@ -177,7 +177,7 @@ export async function handleLoveClick(
 				await removeFavorite(user, kept!.key);
 			} catch (error) {
 				// Already removed elsewhere (dashboard): the outcome is the same.
-				if (!(error instanceof LibraryError)) throw error;
+				if (!hasErrorName(error, "LibraryError")) throw error;
 			}
 			await b.update({
 				content: fill(lang.music_love_removed, kept!.title),

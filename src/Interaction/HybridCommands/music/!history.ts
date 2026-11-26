@@ -40,6 +40,11 @@ import {
 	ThumbnailBuilder,
 	escapeMarkdown
 } from "discord.js";
+import {
+	ComponentType,
+	isComponentBuilder
+} from "../../../core/functions/typeGuards.js";
+import { authorOf } from "../../../core/functions/method/source.js";
 
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { LanguageData } from "../../../../types/languageData.js";
@@ -101,10 +106,7 @@ export const subCommand: SubCommand = {
 			return;
 
 		const guild = interaction.guild;
-		const authorId =
-			interaction instanceof Message
-				? interaction.author.id
-				: interaction.user.id;
+		const authorId = authorOf(interaction).id;
 		const emojis = client.iHorizon_Emojis as unknown as Record<
 			string,
 			string
@@ -266,10 +268,12 @@ export const subCommand: SubCommand = {
 			if (tracks.length > 0) {
 				for (const t of pageOf(tracks, page)) {
 					const part = entry(t);
-					if (part instanceof SectionBuilder) {
-						container.addSectionComponents(part);
+					if (isComponentBuilder(part, ComponentType.Section)) {
+						container.addSectionComponents(part as SectionBuilder);
 					} else {
-						container.addTextDisplayComponents(part);
+						container.addTextDisplayComponents(
+							part as TextDisplayBuilder
+						);
 					}
 				}
 			} else {

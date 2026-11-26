@@ -44,6 +44,7 @@ import {
 	Snowflake,
 	User
 } from "discord.js";
+import { isMap } from "../functions/typeGuards.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { processBatch } from "../functions/batchProcessor.js";
@@ -751,8 +752,10 @@ export async function bulkClear(
 	lang: LanguageData
 ): Promise<number> {
 	let filteredBody = body;
-	if (body instanceof Collection) {
-		filteredBody = body.filter((m) => keepBulkDeletable([m]).length > 0);
+	if (isMap(body)) {
+		filteredBody = (body as Collection<Snowflake, Message>).filter(
+			(m) => keepBulkDeletable([m]).length > 0
+		);
 	}
 	const messages = await channel.bulkDelete(filteredBody, true);
 	// The deleted messages, readable on the transcript site (📜 button of the log entry).

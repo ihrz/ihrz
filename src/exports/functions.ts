@@ -79,12 +79,13 @@ import * as m53 from "../core/functions/svg2png.ts";
 import * as m54 from "../core/functions/svgKit.ts";
 import * as m55 from "../core/functions/tagHelper.ts";
 import * as m56 from "../core/functions/tempVoiceCandidate.ts";
-import * as m57 from "../core/functions/userStatsUtils.ts";
-import * as m58 from "../core/functions/utcSelect.ts";
-import * as m59 from "../core/functions/validImageType.ts";
-import * as m60 from "../core/functions/wait.ts";
-import * as m61 from "../core/functions/welcomerEmbed.ts";
-import * as m62 from "../core/functions/welcomerMessage.ts";
+import * as m57 from "../core/functions/typeGuards.ts";
+import * as m58 from "../core/functions/userStatsUtils.ts";
+import * as m59 from "../core/functions/utcSelect.ts";
+import * as m60 from "../core/functions/validImageType.ts";
+import * as m61 from "../core/functions/wait.ts";
+import * as m62 from "../core/functions/welcomerEmbed.ts";
+import * as m63 from "../core/functions/welcomerMessage.ts";
 
 const files: Record<string, unknown> = {
 	"apiUrlParser.ts": m0,
@@ -144,12 +145,13 @@ const files: Record<string, unknown> = {
 	"svgKit.ts": m54,
 	"tagHelper.ts": m55,
 	"tempVoiceCandidate.ts": m56,
-	"userStatsUtils.ts": m57,
-	"utcSelect.ts": m58,
-	"validImageType.ts": m59,
-	"wait.ts": m60,
-	"welcomerEmbed.ts": m61,
-	"welcomerMessage.ts": m62
+	"typeGuards.ts": m57,
+	"userStatsUtils.ts": m58,
+	"utcSelect.ts": m59,
+	"validImageType.ts": m60,
+	"wait.ts": m61,
+	"welcomerEmbed.ts": m62,
+	"welcomerMessage.ts": m63
 };
 
 export default files;

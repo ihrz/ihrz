@@ -30,6 +30,7 @@ import type { Track } from "lavalink-client";
 
 import type { DatabaseStructure } from "../../../../types/database_structure.js";
 import { isUrlQuery, searchMusicQuery } from "../../functions/musicPlay.js";
+import { hasErrorName } from "../../functions/typeGuards.js";
 import { audioAvailable } from "../audioNode.js";
 import {
 	addToPlaylist,
@@ -40,7 +41,6 @@ import {
 	favoritesPage,
 	findFavorite,
 	freeName,
-	LibraryError,
 	listPlaylistsWithCovers,
 	MAX_FAVORITES,
 	MAX_PLAYLIST_TRACKS,
@@ -86,7 +86,7 @@ async function lib<T>(run: () => Promise<T>): Promise<T> {
 	try {
 		return await run();
 	} catch (error) {
-		if (error instanceof LibraryError) return fail(error.message);
+		if (hasErrorName(error, "LibraryError")) return fail(error.message);
 		throw error;
 	}
 }

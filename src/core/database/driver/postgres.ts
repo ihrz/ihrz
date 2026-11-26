@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isObjectLike } from "../../functions/typeGuards.js";
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { DataLike, ErrorKind, PostgresOptions, StoredValue } from "../types.ts";
 
@@ -344,7 +345,7 @@ export class Postgres<D = StoredValue> {
 				keySplit[0]
 			);
 			let obj: object;
-			if (result instanceof Object == false || result == null) {
+			if (isObjectLike(result) == false || result == null) {
 				obj = {};
 			} else {
 				obj = result as object;

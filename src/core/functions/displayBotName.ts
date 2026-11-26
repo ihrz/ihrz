@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isGuild } from "./typeGuards.js";
 import {
 	ButtonInteraction,
 	ChatInputCommandInteraction,
@@ -88,7 +89,7 @@ export async function footerAttachmentBuilder(
 	name: string;
 }> {
 	const res = await displayBotPP(
-		entry instanceof Guild ? entry.id : (entry?.guild?.id as string)
+		isGuild(entry) ? entry.id : (entry?.guild?.id as string)
 	);
 
 	if (res.type === 1) {

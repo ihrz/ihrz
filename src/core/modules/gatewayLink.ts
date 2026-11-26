@@ -28,9 +28,13 @@ import {
 	HorizonGatewayInternal
 } from "../functions/apiUrlParser.js";
 import { applyConfigChanges } from "./gatewayLinkHandlers.js";
-import { ActionError, runAction } from "./gatewayLinkActions/index.js";
+import { runAction } from "./gatewayLinkActions/index.js";
 import { handleFormSubmitted } from "./googleForms.js";
-import { DiscordAPIError } from "discord.js";
+import {
+	errorMessage,
+	hasErrorName,
+	isDiscordApiError
+} from "../functions/typeGuards.js";
 import logger from "../logger.js";
 
 const RECONNECT_MIN_MS = 1_000;
@@ -201,7 +205,7 @@ export class GatewayLink {
 				op: "ack",
 				id: event.id,
 				ok: false,
-				error: error instanceof Error ? error.message : String(error)
+				error: errorMessage(error)
 			});
 		}
 	}
@@ -210,10 +214,9 @@ export class GatewayLink {
 // What the dashboard may read of a failed action: our own messages and
 // Discord's ("Missing Permissions"), never an internal error.
 function actionErrorMessage(action: string, error: unknown): string {
-	if (error instanceof ActionError) return error.message;
+	if (hasErrorName(error, "ActionError")) return error.message;
 	if (typeof error === "string") return error;
-	if (error instanceof DiscordAPIError)
-		return `Discord refused: ${error.message}`;
+	if (isDiscordApiError(error)) return `Discord refused: ${error.message}`;
 	logger.err(`Gateway action ${action} failed: ${error}`);
 	return "the bot ran into an error";
 }
