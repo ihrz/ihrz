@@ -183,7 +183,9 @@ export async function main(client: Client) {
 	client.notifier = new StreamNotifier(
 		process.env.TWITCH_APPLICATION_ID || "",
 		process.env.TWITCH_APPLICATION_SECRET || "",
-		process.env.YOUTUBE_API_KEY || ""
+		process.env.YOUTUBE_API_KEY || "",
+		process.env.KICK_CLIENT_ID || "",
+		process.env.KICK_CLIENT_SECRET || ""
 	);
 	client.blogger = new BloggerNotifier();
 	client.githubLinesManager = new GithubLinesManager(

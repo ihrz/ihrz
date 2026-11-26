@@ -45,35 +45,18 @@ export const subCommand: SubCommand = {
 		const platform = interaction.options.getString("platform") as Platform;
 		const author = interaction.options.getString("author") as string;
 
-		if (
-			await client.notifier.authorExist(
-				interaction.guildId,
-				platform,
-				author
-			)
-		) {
-			const fetched = (await client.db.get(
-				`${interaction.guildId}.NOTIFIER`
-			)) as DatabaseStructure.NotifierSchema | null;
-			const fetchedUsers = fetched?.users || [];
-
-			const uniqueArray =
-				fetchedUsers.filter(
-					(value, index, self) =>
-						index ===
-						self.findIndex(
-							(t) => JSON.stringify(t) === JSON.stringify(value)
-						)
-				) || [];
-
-			const filteredArray = uniqueArray.filter(
-				(user) =>
-					!(
-						user.platform === platform &&
-						user.id_or_username === author
-					)
-			);
-
+		const fetched = (await client.db.get(
+			`${interaction.guildId}.NOTIFIER`
+		)) as DatabaseStructure.NotifierSchema | null;
+		const fetchedUsers = fetched?.users || [];
+		// The stored value, or the canonical value of what was typed (a Bluesky @handle finds its DID).
+		const index = await client.notifier.findFollowed(
+			fetchedUsers,
+			platform,
+			author
+		);
+		if (index !== -1) {
+			const filteredArray = fetchedUsers.filter((_, i) => i !== index);
 			await client.db.set(
 				`${interaction.guildId}.NOTIFIER.users`,
 				filteredArray
