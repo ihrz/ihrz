@@ -5139,7 +5139,7 @@ export default {
 	automod_block_custom_message:
 		"このメッセージは iHorizon によってブロックされました",
 	derogation_role_name: "iHorizon が管理",
-	ticket_transcript_footer: "エクスポートしたメッセージ: {number}",
+	ticket_transcript_footer: "エクスポートしたメッセージ: {count}",
 	music_playlist_fallback_name: "${platform} のプレイリスト",
 	music_apo_node_unreachable: "音声サーバーに接続できません (${message})",
 

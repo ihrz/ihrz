@@ -137,6 +137,10 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - Commands never check it themselves: the root command declares `module: "fun" | "economy" | "ticket"` and the executor (`commandExecutor.ts::refusedByModule`, right before `run`) refuses every subcommand with the module's refusal. An option marked `moduleFree: true` still runs (the `config` that turns the module back on, `economy add|greset|ureset`); `moduleRefusal: "<lang key>"` replaces the refusal (`/ticket open`, `/ticket panel`). A new subcommand of these commands is protected without writing anything.
 - Core code, buttons and dashboard actions use `isModuleDisabled(client, guildId, module)`. Never read `GUILD.FUN.states`, `ECONOMY.disabled` or `GUILD.TICKET.disable` elsewhere (only the `config` subcommands write them). A new module that can be turned off = a new entry in `SWITCHES` + its refusal + `module` on its root command.
 
+## HTML transcripts (sweety-html-transcripts)
+
+- One instance, `client.transcripts` (`createTranscripts(discordjs(client))` in `core.ts`: whole channel, no "Powered by"). A file: `await client.transcripts.attachment(channel.id, { filename, footer })` (an `AttachmentPayload`; `footer` takes `{count}`, the lang key `ticket_transcript_footer`). Never the deprecated `DiscordJSTranscript` / `createTranscript`.
+
 ## Images hosted by iHorizon (`www.ihorizon.org/assets`)
 
 - Every image the bot shows from its website is a member of `iHorizonAsset` in `src/core/functions/iHorizonAssets.ts`, and its URL comes from `iHorizonAssetURL(asset, lang?)` (commands: `client.func.iHorizonAssets.*`). Never write such a URL in a file.

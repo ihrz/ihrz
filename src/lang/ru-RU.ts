@@ -5139,7 +5139,7 @@ export default {
 	warn_reason_antispam: "Автоматическое наказание: спам",
 	automod_block_custom_message: "Это сообщение заблокировано iHorizon",
 	derogation_role_name: "управляется iHorizon",
-	ticket_transcript_footer: "Экспортировано сообщений: {number}",
+	ticket_transcript_footer: "Экспортировано сообщений: {count}",
 	music_playlist_fallback_name: "Плейлист ${platform}",
 	music_apo_node_unreachable: "аудиосервер недоступен (${message})",
 

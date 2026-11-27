@@ -5284,7 +5284,7 @@ export default {
 	warn_reason_antispam: "Sanction automatique : spam",
 	automod_block_custom_message: "Ce message a été bloqué par iHorizon",
 	derogation_role_name: "géré par iHorizon",
-	ticket_transcript_footer: "Messages exportés : {number}",
+	ticket_transcript_footer: "Messages exportés : {count}",
 	music_playlist_fallback_name: "Playlist ${platform}",
 	music_apo_node_unreachable: "le serveur audio est injoignable (${message})",
 

@@ -61,7 +61,7 @@ import { isNumber } from "./functions/method.js";
 import { writeExports } from "./modules/exportsManifest.js";
 import { extractResources, IS_STANDALONE } from "./modules/resources.js";
 import * as backup from "./backup/src";
-import * as discordTranscripts from "sweety-html-transcripts";
+import { createTranscripts, discordjs } from "sweety-html-transcripts";
 import { BloggerNotifier } from "./Blogger.js";
 import { TemproleManager } from "./modules/tempRoleManager.js";
 import { TempbanManager } from "./modules/tempbanManager.js";
@@ -129,7 +129,11 @@ export async function main(client: Client) {
 		}
 	});
 	client.backup = backup;
-	client.discordTranscripts = discordTranscripts;
+	// One transcripts instance: the whole channel, no "Powered by" link (the ticket transcripts as before).
+	client.transcripts = createTranscripts(discordjs(client), {
+		fetch: { limit: -1 },
+		render: { poweredBy: false }
+	});
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
 	client.email = new Mailer();

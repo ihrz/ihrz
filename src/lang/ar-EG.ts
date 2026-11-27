@@ -4899,7 +4899,7 @@ export default {
 	warn_reason_antispam: "عقوبة تلقائية: سبام",
 	automod_block_custom_message: "iHorizon منع الرسالة دي",
 	derogation_role_name: "تحت إدارة iHorizon",
-	ticket_transcript_footer: "الرسايل اللي اتصدّرت: {number}",
+	ticket_transcript_footer: "الرسايل اللي اتصدّرت: {count}",
 	music_playlist_fallback_name: "بلاي ليست ${platform}",
 	music_apo_node_unreachable: "سيرفر الصوت مش بيرد (${message})",
 

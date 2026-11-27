@@ -19,11 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildMember, TextChannel } from "discord.js";
+import { Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 import { sendTicketLog } from "../../core/modules/ticketsManager.js";
 import { saveTicketTranscript } from "../../core/modules/ticketTranscripts.js";
 
@@ -64,13 +63,12 @@ export const event: BotEvent = {
 				// The link replaces the HTML file when there is a web transcript.
 				const attachment = webUrl
 					? null
-					: await DiscordJSTranscript.create({
-							channel: channel as TextChannel,
-							limit: -1,
-							filename: `${member.guild.id}-${channel.id}-transcript.html`,
-							footerText: lang.ticket_transcript_footer,
-							poweredBy: false
-						}).catch(() => null);
+					: await channel.client.transcripts
+							.attachment(channel.id, {
+								filename: `${member.guild.id}-${channel.id}-transcript.html`,
+								footer: lang.ticket_transcript_footer
+							})
+							.catch(() => null);
 
 				await sendTicketLog(member.guild, {
 					kind: "deleted",
