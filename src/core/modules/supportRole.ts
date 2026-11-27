@@ -29,13 +29,7 @@
  * whose status already matched would otherwise wait for their next change.
  * An offline or invisible member is left as is (no status to read).
  */
-import {
-	ActivityType,
-	Guild,
-	GuildMember,
-	PermissionsBitField,
-	Presence
-} from "discord.js";
+import { ActivityType, Guild, GuildMember, Presence } from "discord.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import logger from "../logger.js";
@@ -77,12 +71,12 @@ export async function applySupportRole(
 	presence: Presence,
 	config: DatabaseStructure.SupportSchema
 ): Promise<void> {
-	const me = guild.members.me;
 	const role = config.rolesId ? guild.roles.cache.get(config.rolesId) : null;
+	// `editable`: Manage Roles, the role under the bot's highest, not managed.
+	// (Comparing `position` with `rawPosition` mixed two scales and refused
+	// nearly every role.)
 	if (
-		!me?.permissions.has(PermissionsBitField.Flags.ManageRoles) ||
-		!role ||
-		me.roles.highest.position < role.rawPosition ||
+		!role?.editable ||
 		presence.status === "offline" ||
 		presence.status === "invisible"
 	) {
