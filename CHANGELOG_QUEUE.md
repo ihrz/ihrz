@@ -6,7 +6,7 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ## 🤝 Supporter role — the status, the server tag, both, or one of the two
 
-The supporter role (`/guildconfig support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first.
+The supporter role (`/support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first.
 
 ---
 

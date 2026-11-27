@@ -6,7 +6,7 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ## 🤝 Rôle de soutien — le statut, le tag du serveur, les deux, ou l'un des deux
 
-Le rôle de soutien (`/guildconfig support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier.
+Le rôle de soutien (`/support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier.
 
 ---
 
