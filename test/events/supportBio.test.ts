@@ -19,9 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
-import { bioMatches } from "../../src/Events/utils/supportModule.ts";
+import {
+	bioMatches,
+	supportQualifies
+} from "../../src/Events/utils/supportModule.ts";
 
 test("matches the configured text or the vanity, ignoring case", () => {
 	expect(bioMatches("Join MyServer now", "myserver", null)).toBe(true);
@@ -39,4 +42,29 @@ test("a guild without vanity does not match the word null", () => {
 
 test("no status matches nothing", () => {
 	expect(bioMatches(null, "x", "y")).toBe(false);
+});
+
+describe("supportQualifies", () => {
+	const cases: [
+		Parameters<typeof supportQualifies>[0],
+		boolean,
+		boolean,
+		boolean
+	][] = [
+		["bio", true, false, true],
+		["bio", false, true, false],
+		["tag", false, true, true],
+		["tag", true, false, false],
+		["both", true, true, true],
+		["both", true, false, false],
+		["both", false, true, false],
+		["either", true, false, true],
+		["either", false, true, true],
+		["either", false, false, false]
+	];
+	for (const [type, bio, tag, expected] of cases) {
+		test(`${type}: bio ${bio}, tag ${tag} => ${expected}`, () => {
+			expect(supportQualifies(type, bio, tag)).toBe(expected);
+		});
+	}
 });

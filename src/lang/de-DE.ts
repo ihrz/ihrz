@@ -2957,6 +2957,8 @@ export default {
 		":x: | Der Server hat aktuell keine Tags.",
 	support_command_work_2:
 		"Du hast das Support-Modul für ${guildName} konfiguriert.\nWenn ein Benutzer den Server-Tag setzt,\nwerde ich ihm die Rolle <@&${rolesId}> zuweisen!",
+	support_command_work_both: "Du hast das Support-Modul für **${guildName}** eingerichtet.\nWenn ein Mitglied **${input}** im Status hat **und** den Server-Tag trägt,\nbekommt es die Rolle <@&${rolesId}>!",
+	support_command_work_either: "Du hast das Support-Modul für **${guildName}** eingerichtet.\nWenn ein Mitglied **${input}** im Status hat **oder** den Server-Tag trägt,\nbekommt es die Rolle <@&${rolesId}>!",
 
 	// /setserverlang
 

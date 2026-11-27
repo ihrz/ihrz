@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🤝 Supporter role — the status, the server tag, both, or one of the two
+
+The supporter role (`/guildconfig support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first.
+
+---
+
 ## 🍯 Honeypot — a new trap message, with its catch count
 
 The honeypot's trap message is redesigned with Discord's new components: a clear warning card with the honeypot picture and, below it, a button that shows **how many accounts the trap has sanctioned** (kicks and bans that went through: a member iHorizon could not sanction, such as your staff, is never counted). Click it to see when the last one was caught. The count updates by itself after each catch; a trap posted before this update switches to the new look at its next catch, or when you send it again with `/honeypot config`. How the trap works does not change.

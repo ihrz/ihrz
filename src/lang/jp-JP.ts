@@ -2874,6 +2874,8 @@ export default {
 		":x: | このサーバーには現在タグがありません。",
 	support_command_work_2:
 		"${guildName} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${rolesId}> のロールを付与します！",
+	support_command_work_both: "**${guildName}** のサポートモジュールを設定しました。\nステータスに **${input}** があり、**かつ** サーバータグを付けているユーザーに\n<@&${rolesId}> ロールを付与します！",
+	support_command_work_either: "**${guildName}** のサポートモジュールを設定しました。\nステータスに **${input}** がある、**または** サーバータグを付けているユーザーに\n<@&${rolesId}> ロールを付与します！",
 
 	// /setserverlang
 

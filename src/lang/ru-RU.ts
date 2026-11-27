@@ -2878,6 +2878,8 @@ export default {
 	support_command_guild_not_have_tag: ":x: | На сервере сейчас нет тегов.",
 	support_command_work_2:
 		"Вы настроили модуль поддержки для ${guildName}.\nКогда пользователь укажет тег сервера,\nя выдам ему роль <@&${rolesId}>!",
+	support_command_work_both: "Вы настроили модуль поддержки для **${guildName}**.\nКогда у участника в статусе есть **${input}** **и** он носит тег сервера,\nя выдам ему роль <@&${rolesId}>!",
+	support_command_work_either: "Вы настроили модуль поддержки для **${guildName}**.\nКогда у участника в статусе есть **${input}** **или** он носит тег сервера,\nя выдам ему роль <@&${rolesId}>!",
 
 	// /setserverlang
 

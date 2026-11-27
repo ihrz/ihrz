@@ -2903,6 +2903,8 @@ export default {
 		":x: | O servidor não tem tags de momento.",
 	support_command_work_2:
 		"Configuraste o módulo de suporte para ${guildName}.\nQuando um utilizador definir a tag do servidor,\neu atribuirei o cargo <@&${rolesId}>!",
+	support_command_work_both: "Configuraste o módulo de suporte para **${guildName}**.\nQuando um utilizador tiver **${input}** no estado **e** usar a tag do servidor,\nvou dar-lhe o cargo <@&${rolesId}>!",
+	support_command_work_either: "Configuraste o módulo de suporte para **${guildName}**.\nQuando um utilizador tiver **${input}** no estado **ou** usar a tag do servidor,\nvou dar-lhe o cargo <@&${rolesId}>!",
 
 	// /setserverlang
 

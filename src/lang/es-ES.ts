@@ -2934,6 +2934,8 @@ export default {
 		":x: | El servidor no tiene etiquetas actualmente.",
 	support_command_work_2:
 		"Has configurado el módulo de soporte para ${guildName}.\nCuando un usuario establezca la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
+	support_command_work_both: "Has configurado el módulo de soporte para **${guildName}**.\nCuando un usuario tenga **${input}** en su estado **y** lleve la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
+	support_command_work_either: "Has configurado el módulo de soporte para **${guildName}**.\nCuando un usuario tenga **${input}** en su estado **o** lleve la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
 
 	// /setserverlang
 

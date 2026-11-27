@@ -2837,6 +2837,8 @@ const enUS = {
 		":x: | The server currently has no tags.",
 	support_command_work_2:
 		"You have configured the support module for ${guildName}.\nWhen a user sets the server tag,\nI will give them the role <@&${rolesId}>!",
+	support_command_work_both: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **and** wears the server tag,\nI will give them the role <@&${rolesId}>!",
+	support_command_work_either: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **or** wears the server tag,\nI will give them the role <@&${rolesId}>!",
 
 	// /setserverlang
 

@@ -2948,6 +2948,8 @@ export default {
 		":x: | Le serveur n'a aucun tag actuellement.",
 	support_command_work_2:
 		"Vous avez configuré le module de support pour ${guildName}.\nLorsqu'un utilisateur met le tag du serveur,\nJe devrais lui donner le rôle <@&${rolesId}> !",
+	support_command_work_both: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **et** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
+	support_command_work_either: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **ou** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
 
 	// /setserverlang
 

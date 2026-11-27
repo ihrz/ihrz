@@ -2721,6 +2721,8 @@ export default {
 	support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي تاجات حالياً.",
 	support_command_work_2:
 		"إنت ضبطت موديول الدعم لـ ${guildName}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${rolesId}>!",
+	support_command_work_both: "لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nعندما يكون لدى المستخدم **${input}** في حالته **و** يضع وسم الخادم،\nسأمنحه الدور <@&${rolesId}>!",
+	support_command_work_either: "لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nعندما يكون لدى المستخدم **${input}** في حالته **أو** يضع وسم الخادم،\nسأمنحه الدور <@&${rolesId}>!",
 
 	// /setserverlang
 

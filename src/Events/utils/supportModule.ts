@@ -19,7 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, PermissionsBitField, Presence } from "discord.js";
+import {
+	ActivityType,
+	Client,
+	PermissionsBitField,
+	Presence
+} from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
@@ -35,6 +40,24 @@ export function bioMatches(
 	return [input, vanity].some(
 		(needle) => !!needle?.trim() && text.includes(needle.toLowerCase())
 	);
+}
+
+/** Whether a member earns the role, from what the module asks for. */
+export function supportQualifies(
+	type: DatabaseStructure.SupportType,
+	bio: boolean,
+	tag: boolean
+): boolean {
+	switch (type) {
+		case "tag":
+			return tag;
+		case "both":
+			return bio && tag;
+		case "either":
+			return bio || tag;
+		default:
+			return bio;
+	}
 }
 
 export const event: BotEvent = {
@@ -59,7 +82,11 @@ export const event: BotEvent = {
 			return;
 		}
 
-		const bio = newPresence.activities[0] || "null";
+		// The custom status, wherever it is in the list (a game played first
+		// used to hide it).
+		const status =
+			newPresence.activities.find((a) => a.type === ActivityType.Custom)
+				?.state ?? null;
 		const vanity = newPresence.guild.vanityURLCode;
 
 		const fetchedUser = newPresence.guild.members.cache.get(
@@ -81,39 +108,21 @@ export const event: BotEvent = {
 		}
 
 		const type = someinfo.type ?? "bio";
+		const bioOk = bioMatches(status, someinfo.input, vanity);
+		const tagOk =
+			fetchedUser.user.primaryGuild?.identityGuildId ===
+			newPresence.guild.id;
+		const hasRole = fetchedUser.roles.cache.has(someinfo.rolesId);
 
-		if (type === "bio" && !bio.state) {
-			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles
-					.remove(someinfo.rolesId, "[Support] Module")
-					.catch(() => {});
-			return;
-		} else if (
-			type === "tag" &&
-			!fetchedUser.user.primaryGuild?.identityGuildId
-		) {
-			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles
-					.remove(someinfo.rolesId, "[Support] Module")
-					.catch(() => {});
-			return;
-		}
-
-		if (
-			(type === "bio" && bioMatches(bio.state, someinfo.input, vanity)) ||
-			(type === "tag" &&
-				fetchedUser.user.primaryGuild?.identityGuildId ===
-					newPresence.guild.id)
-		) {
-			if (fetchedUser.roles.cache.has(someinfo.rolesId)) return;
+		if (supportQualifies(type, bioOk, tagOk)) {
+			if (hasRole) return;
 			return fetchedUser.roles
 				.add(someinfo.rolesId, "[Support] Module")
 				.catch(() => {});
-		} else {
-			if (!fetchedUser.roles.cache.has(someinfo.rolesId)) return;
-			return fetchedUser.roles
-				.remove(someinfo.rolesId, "[Support] Module")
-				.catch(() => {});
 		}
+		if (!hasRole) return;
+		return fetchedUser.roles
+			.remove(someinfo.rolesId, "[Support] Module")
+			.catch(() => {});
 	}
 };

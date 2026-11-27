@@ -2347,6 +2347,8 @@ export default {
 		":x: | Serwer nie ma obecnie żadnych tagów.",
 	support_command_work_2:
 		"Skonfigurowano moduł wsparcia dla ${guildName}.\nGdy użytkownik ustawi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
+	support_command_work_both: "Skonfigurowano moduł wsparcia dla **${guildName}**.\nGdy użytkownik ma **${input}** w statusie **i** nosi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
+	support_command_work_either: "Skonfigurowano moduł wsparcia dla **${guildName}**.\nGdy użytkownik ma **${input}** w statusie **lub** nosi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
 	updates_embed_title: "Aktualizacje iHorizon",
 	updates_embed_description: "Oto najnowsze zmiany i aktualizacje iHorizon.",
 	updates_field_version: "Wersja",

@@ -2759,6 +2759,8 @@ export default {
 	support_command_guild_not_have_tag: ":x: | 현재 서버에 태그가 없어요.",
 	support_command_work_2:
 		"${guildName}의 서포트 모듈을 설정했어요.\n사용자가 서버 태그를 달면\n<@&${rolesId}> 역할을 부여할게요!",
+	support_command_work_both: "**${guildName}** 서버의 서포트 모듈을 설정했습니다.\n상태에 **${input}** 이(가) 있고 **그리고** 서버 태그를 단 사용자에게\n<@&${rolesId}> 역할을 줄게요!",
+	support_command_work_either: "**${guildName}** 서버의 서포트 모듈을 설정했습니다.\n상태에 **${input}** 이(가) 있거나 **또는** 서버 태그를 단 사용자에게\n<@&${rolesId}> 역할을 줄게요!",
 
 	// /setserverlang
 

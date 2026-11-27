@@ -775,7 +775,8 @@ export namespace DatabaseStructure {
 		onlyOwner?: boolean;
 	}
 
-	export type SupportType = "bio" | "tag";
+	/** What earns the support role: the custom status (`bio`), the server tag (`tag`), both of them (`both`), or one of the two (`either`). */
+	export type SupportType = "bio" | "tag" | "both" | "either";
 
 	export interface SupportSchema {
 		input?: string | null;

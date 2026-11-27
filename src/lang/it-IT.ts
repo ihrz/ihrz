@@ -2919,6 +2919,8 @@ export default {
 		":x: | Il server attualmente non ha tag.",
 	support_command_work_2:
 		"Hai configurato il modulo di supporto per ${guildName}.\nQuando un utente imposta il tag del server,\ngli assegnerò il ruolo <@&${rolesId}>!",
+	support_command_work_both: "Hai configurato il modulo di supporto per **${guildName}**.\nQuando un utente ha **${input}** nel suo stato **e** indossa il tag del server,\ngli darò il ruolo <@&${rolesId}>!",
+	support_command_work_either: "Hai configurato il modulo di supporto per **${guildName}**.\nQuando un utente ha **${input}** nel suo stato **o** indossa il tag del server,\ngli darò il ruolo <@&${rolesId}>!",
 
 	// /setserverlang
 

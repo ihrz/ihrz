@@ -2342,6 +2342,8 @@ export default {
 	support_command_guild_not_have_tag: ":x: | Наразі сервер не має тегів.",
 	support_command_work_2:
 		"Ви налаштували модуль підтримки для ${guildName}.\nКоли користувач установить тег сервера,\nя видам йому роль <@&${rolesId}>!",
+	support_command_work_both: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **і** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
+	support_command_work_either: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **або** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
 	updates_embed_title: "Оновлення iHorizon",
 	updates_embed_description: "Ось останні зміни та оновлення iHorizon.",
 	updates_field_version: "Версія",
