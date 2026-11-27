@@ -52,16 +52,6 @@ export const subCommand: SubCommand = {
 		const category = (await opts.channel("category-name", 0)) as Channel;
 
 		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket"
-			)
-		)
-			return;
-
-		if (
 			!client.func.typeGuards.isChannelOfType(
 				category,
 				ChannelType.GuildCategory

@@ -37,15 +37,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const opts = client.func.method.options(interaction, args);
 		let min = opts.number("min", 0) || 0;
 		let max = opts.number("max", 1) || 100;

@@ -87,15 +87,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		// Guard's Typing (DM-compatible: no guild/member requirement)
 		if (!client.user || !interaction.channel) return;
 

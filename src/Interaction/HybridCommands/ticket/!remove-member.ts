@@ -51,16 +51,6 @@ export const subCommand: SubCommand = {
 		const member = (await opts.user("user", 0))!;
 
 		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket"
-			)
-		)
-			return;
-
-		if (
 			!(await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
 			))

@@ -133,7 +133,9 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 
 ## Modules a server can turn off (fun, economy, tickets)
 
-- Whether a module is off is read in ONE place: `src/core/functions/moduleToggle.ts` (`SWITCHES`: the stored key and the value that means off). Commands start with `if (await client.func.moduleToggle.replyIfModuleDisabled(client, interaction, lang, "fun")) return;` (the module's usual refusal; a 5th argument replaces it, e.g. `/ticket open`). Core code, buttons and dashboard actions use `isModuleDisabled(client, guildId, module)`. Never read `GUILD.FUN.states`, `ECONOMY.disabled` or `GUILD.TICKET.disable` elsewhere (only the `config` commands write them). A new module that can be turned off = a new entry in `SWITCHES` + its refusal.
+- Whether a module is off is read in ONE place: `src/core/functions/moduleToggle.ts` (`SWITCHES`: the stored key and the value that means off; `isModuleDisabled`, `replyIfModuleDisabled`).
+- Commands never check it themselves: the root command declares `module: "fun" | "economy" | "ticket"` and the executor (`commandExecutor.ts::refusedByModule`, right before `run`) refuses every subcommand with the module's refusal. An option marked `moduleFree: true` still runs (the `config` that turns the module back on, `economy add|greset|ureset`); `moduleRefusal: "<lang key>"` replaces the refusal (`/ticket open`, `/ticket panel`). A new subcommand of these commands is protected without writing anything.
+- Core code, buttons and dashboard actions use `isModuleDisabled(client, guildId, module)`. Never read `GUILD.FUN.states`, `ECONOMY.disabled` or `GUILD.TICKET.disable` elsewhere (only the `config` subcommands write them). A new module that can be turned off = a new entry in `SWITCHES` + its refusal + `module` on its root command.
 
 ## Images hosted by iHorizon (`www.ihorizon.org/assets`)
 

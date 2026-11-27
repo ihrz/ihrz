@@ -69,16 +69,6 @@ export const subCommand: SubCommand = {
 			const opts = client.func.method.options(interaction, args);
 			const toWithdraw = opts.string("how-much", 0) as string;
 
-			if (
-				await client.func.moduleToggle.replyIfModuleDisabled(
-					client,
-					interaction,
-					lang,
-					"economy"
-				)
-			)
-				return;
-
 			const bank = dataAccount?.bank ?? 0;
 
 			// Parsed once: the same integer is checked and moved.

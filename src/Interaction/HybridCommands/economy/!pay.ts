@@ -85,16 +85,6 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
 			);
 
-			if (
-				await client.func.moduleToggle.replyIfModuleDisabled(
-					client,
-					interaction,
-					lang,
-					"economy"
-				)
-			)
-				return;
-
 			if (amount.toString().includes("-")) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.pay_negative_number_error

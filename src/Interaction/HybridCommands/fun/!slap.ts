@@ -40,15 +40,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const opts = client.func.method.options(interaction, args);
 		const slap = (await opts.user("user", 0)) as User;
 		const user = client.func.method.authorOf(interaction);

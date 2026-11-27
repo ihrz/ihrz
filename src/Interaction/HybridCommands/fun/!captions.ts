@@ -33,15 +33,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const opts = client.func.method.options(interaction, args);
 		const image = opts.attachment("image")!;
 		const query = opts.longString("query", 0, true);

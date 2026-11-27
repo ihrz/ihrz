@@ -56,16 +56,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const buyableRolesArray = Object.entries(
 			await client.func.economyHelper.pruneBuyableRoles(interaction.guild)
 		).map(([roleId, details]) => ({

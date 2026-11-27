@@ -63,16 +63,6 @@ export const subCommand: SubCommand = {
 			const opts = client.func.method.options(interaction, args);
 			const toDeposit = opts.string("how-much", 0) as string;
 
-			if (
-				await client.func.moduleToggle.replyIfModuleDisabled(
-					client,
-					interaction,
-					lang,
-					"economy"
-				)
-			)
-				return;
-
 			const balance =
 				(await client.db.get(
 					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`

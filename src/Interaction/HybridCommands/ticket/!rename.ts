@@ -51,16 +51,6 @@ export const subCommand: SubCommand = {
 		const name = opts.longString("name", 0)!;
 
 		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket"
-			)
-		)
-			return;
-
-		if (
 			!(await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
 			))

@@ -71,16 +71,6 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`
 			);
 
-			if (
-				await client.func.moduleToggle.replyIfModuleDisabled(
-					client,
-					interaction,
-					lang,
-					"economy"
-				)
-			)
-				return;
-
 			if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
 				const time = client.timeCalculator.to_beautiful_string(
 					timeout - (Date.now() - monthly),

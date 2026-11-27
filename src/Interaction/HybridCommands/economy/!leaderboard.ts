@@ -54,16 +54,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const char = (await client.db.get(
 			`${interaction.guildId}.USER`
 		)) as DatabaseStructure.DbGuildUserObject;

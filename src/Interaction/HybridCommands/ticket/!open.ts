@@ -47,17 +47,6 @@ export const subCommand: SubCommand = {
 			return;
 
 		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket",
-				lang.open_disabled_command
-			)
-		)
-			return;
-
-		if (
 			await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
 			)

@@ -46,15 +46,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const opts = client.func.method.options(interaction, args);
 		const user: User =
 			(await opts.user("user", 0)) ||

@@ -39,15 +39,6 @@ export const subCommand: SubCommand = {
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		axios
 			.get("https://dog.ceo/api/breeds/image/random")
 			.then(async (res) => {

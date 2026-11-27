@@ -40,15 +40,6 @@ export const subCommand: SubCommand = {
 				","
 			);
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const opts = client.func.method.options(interaction, args);
 		let text = opts.longString("input", 0)?.toUpperCase() as string;
 

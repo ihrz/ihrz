@@ -146,17 +146,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket",
-				lang.open_disabled_command
-			)
-		)
-			return;
-
 		// Récupération de l'ID du panel
 		const opts = client.func.method.options(interaction, args);
 		const panel_id = opts.string("panel_id", 0);

@@ -48,16 +48,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0) as Role;
 		const boost = client.func.method.isSlash(interaction)

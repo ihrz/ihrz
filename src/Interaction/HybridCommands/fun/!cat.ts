@@ -38,15 +38,6 @@ export const subCommand: SubCommand = {
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		axios.get("http://edgecats.net/random").then(async (res) => {
 			// Same look for every animal picture.
 			await sendCard(

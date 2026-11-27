@@ -36,15 +36,6 @@ export const subCommand: SubCommand = {
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		const isHead = client.func.random.secureRandomFloat() < 0.5;
 
 		const result = isHead

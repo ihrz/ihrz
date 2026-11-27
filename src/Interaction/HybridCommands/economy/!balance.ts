@@ -51,16 +51,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const opts = client.func.method.options(interaction, args);
 		const member: GuildMember =
 			opts.member("user", 0) || interaction.member;

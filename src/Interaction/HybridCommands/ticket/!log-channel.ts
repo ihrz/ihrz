@@ -46,16 +46,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"ticket"
-			)
-		)
-			return;
-
 		const opts = client.func.method.options(interaction, args);
 		const channel = (await opts.channel("channel", 0)) as GuildChannel;
 

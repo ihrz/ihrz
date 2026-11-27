@@ -41,16 +41,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const opts = client.func.method.options(interaction, args);
 		const type = opts.string("type", 0)!;
 		const cooldown = opts.longString("time", 1)!;

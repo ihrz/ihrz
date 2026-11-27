@@ -50,16 +50,6 @@ export const subCommand: SubCommand = {
 			)
 		).data;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
-
 		const opts = client.func.method.options(interaction, args);
 		const text = opts.longString("text", 0)?.slice(0, 70);
 

@@ -43,15 +43,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"fun"
-			)
-		)
-			return;
 		// Nombre entre 0 et 100
 		const random = client.func.random.secureRandomInt(0, 99);
 

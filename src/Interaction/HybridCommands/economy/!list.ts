@@ -42,16 +42,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.func.moduleToggle.replyIfModuleDisabled(
-				client,
-				interaction,
-				lang,
-				"economy"
-			)
-		)
-			return;
-
 		const roleData = await client.func.economyHelper.pruneBuyableRoles(
 			interaction.guild
 		);
