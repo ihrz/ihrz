@@ -357,6 +357,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Connexion au dashboard** : un interrupteur **Rejoindre le serveur support d'iHorizon** sous le bouton de connexion, activé par défaut. Désactivé, la connexion ne demande plus à Discord la permission de vous ajouter à un serveur, et vous n'y êtes pas ajouté (le choix est retenu sur ce navigateur).
 - **Renouvellement automatique** : un salon renouvelé reprend sa place exacte, même dans une longue catégorie.
 - **Traductions** : les derniers textes écrits en dur sont traduits (pages d'aide, régions des salons vocaux temporaires, portefeuille, messages d'erreur, l'avis « serveurs uniquement » en MP, `/status`, le bouton top.gg…), et une commande utilisée en MP répond dans votre langue Discord
 - **Bienvenue** : quand iHorizon rejoint un serveur, son message (et le message privé à l'owner et à la personne qui l'a ajouté) devient une carte claire : ce que fait le bot, la langue qu'il parle et comment la changer avec `/setlang`, par où commencer (`/help`, le dashboard, le serveur support)
