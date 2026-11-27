@@ -131,6 +131,10 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - The ShardingManager (`src/index.ts`) only checks them (`checkExports`) and warns when stale, it never writes in prod.
 - It then builds the shard bundle once (`src/core/modules/shardBundle.ts`: `Bun.build` of `src/core/bot.ts`, packages external, linked sourcemap) into `dist/shard/bot.js`, which every shard runs. Inside the bundle `import.meta.dir` / `__dirname` point at `dist/shard`: resolve paths from `process.cwd()`, and never `import()` a computed path (add an export instead, like `src/exports/lang.ts`). `IHORIZON_NO_BUNDLE=1` runs `src` directly.
 
+## Modules a server can turn off (fun, economy, tickets)
+
+- Whether a module is off is read in ONE place: `src/core/functions/moduleToggle.ts` (`SWITCHES`: the stored key and the value that means off). Commands start with `if (await client.func.moduleToggle.replyIfModuleDisabled(client, interaction, lang, "fun")) return;` (the module's usual refusal; a 5th argument replaces it, e.g. `/ticket open`). Core code, buttons and dashboard actions use `isModuleDisabled(client, guildId, module)`. Never read `GUILD.FUN.states`, `ECONOMY.disabled` or `GUILD.TICKET.disable` elsewhere (only the `config` commands write them). A new module that can be turned off = a new entry in `SWITCHES` + its refusal.
+
 ## Images hosted by iHorizon (`www.ihorizon.org/assets`)
 
 - Every image the bot shows from its website is a member of `iHorizonAsset` in `src/core/functions/iHorizonAssets.ts`, and its URL comes from `iHorizonAssetURL(asset, lang?)` (commands: `client.func.iHorizonAssets.*`). Never write such a URL in a file.

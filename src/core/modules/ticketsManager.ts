@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isModuleDisabled } from "../functions/moduleToggle.js";
 import {
 	AttachmentPayload,
 	TextDisplayBuilder,
@@ -115,10 +116,14 @@ async function refuseIfDisabled(
 	interaction:
 		ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">
 ): Promise<boolean> {
-	const disabled = await interaction.client.db.get(
-		`${interaction.guildId}.GUILD.TICKET.disable`
-	);
-	if (!disabled) return false;
+	if (
+		!(await isModuleDisabled(
+			interaction.client,
+			interaction.guildId,
+			"ticket"
+		))
+	)
+		return false;
 	const lang = await interaction.client.func.getLanguageData(
 		interaction.guildId
 	);

@@ -47,13 +47,15 @@ export const subCommand: SubCommand = {
 			return;
 
 		if (
-			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.open_disabled_command
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"ticket",
+				lang.open_disabled_command
+			)
+		)
 			return;
-		}
 
 		if (
 			await client.func.method.isTicketChannel(

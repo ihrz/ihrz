@@ -31,14 +31,14 @@ export const subCommand: SubCommand = {
 		lang: LanguageData
 	) => {
 		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"fun"
+			)
+		)
 			return;
-		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: client.func.iHorizonAssets.iHorizonAssetURL(

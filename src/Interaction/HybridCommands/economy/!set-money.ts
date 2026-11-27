@@ -24,7 +24,6 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
-import { isEconomyDisabled } from "../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -42,15 +41,15 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (await isEconomyDisabled(client, interaction.guild.id)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
+		if (
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"economy"
+			)
+		)
 			return;
-		}
 
 		const opts = client.func.method.options(interaction, args);
 		const type = opts.string("type", 0)!;

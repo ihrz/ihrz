@@ -72,18 +72,14 @@ export const subCommand: SubCommand = {
 			);
 
 			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
+				await client.func.moduleToggle.replyIfModuleDisabled(
+					client,
+					interaction,
+					lang,
+					"economy"
+				)
+			)
 				return;
-			}
 
 			if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
 				const time = client.timeCalculator.to_beautiful_string(

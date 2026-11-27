@@ -34,14 +34,14 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"fun"
+			)
+		)
 			return;
-		}
 		const opts = client.func.method.options(interaction, args);
 		const image = opts.attachment("image")!;
 		const query = opts.longString("query", 0, true);

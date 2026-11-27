@@ -64,18 +64,14 @@ export const subCommand: SubCommand = {
 			const toDeposit = opts.string("how-much", 0) as string;
 
 			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
+				await client.func.moduleToggle.replyIfModuleDisabled(
+					client,
+					interaction,
+					lang,
+					"economy"
+				)
+			)
 				return;
-			}
 
 			const balance =
 				(await client.db.get(

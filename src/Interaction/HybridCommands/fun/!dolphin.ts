@@ -39,14 +39,14 @@ export const subCommand: SubCommand = {
 		lang: LanguageData
 	) => {
 		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"fun"
+			)
+		)
 			return;
-		}
 		axios.get("https://api.animality.xyz/all/dolphin").then(async (res) => {
 			// Same look for every animal picture.
 			await sendCard(

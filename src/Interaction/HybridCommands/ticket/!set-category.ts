@@ -52,13 +52,14 @@ export const subCommand: SubCommand = {
 		const category = (await opts.channel("category-name", 0)) as Channel;
 
 		if (
-			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.ticket_disabled_command
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"ticket"
+			)
+		)
 			return;
-		}
 
 		if (
 			!client.func.typeGuards.isChannelOfType(

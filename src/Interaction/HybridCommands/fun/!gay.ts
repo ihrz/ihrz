@@ -44,14 +44,14 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
+			await client.func.moduleToggle.replyIfModuleDisabled(
+				client,
+				interaction,
+				lang,
+				"fun"
+			)
+		)
 			return;
-		}
 		// Nombre entre 0 et 100
 		const random = client.func.random.secureRandomInt(0, 99);
 

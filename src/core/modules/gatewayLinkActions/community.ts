@@ -23,6 +23,7 @@
 // starboard / skullboard, polls and /say. Each one does the work of a slash
 // command through the same shared functions, with the same guards and logs.
 
+import { isModuleDisabled } from "../../functions/moduleToggle.js";
 import {
 	BaseGuildTextChannel,
 	ChannelType,
@@ -39,7 +40,6 @@ import { Giveaway } from "../../../../types/giveaways.js";
 import {
 	addPollVotes,
 	buildPollCard,
-	isFunDisabled,
 	sayPayload
 } from "../communityMessages.js";
 import {
@@ -736,7 +736,7 @@ export const communityActions: ActionGroup = {
 	"polls.create": {
 		command: "fun interaction poll",
 		run: async ({ client, guild, actor, params, lang }) => {
-			if (await isFunDisabled(client, guild.id)) {
+			if (await isModuleDisabled(client, guild.id, "fun")) {
 				fail("fun commands are disabled on this server");
 			}
 			const question = params.str("question", { max: 2000 });
