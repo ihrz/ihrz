@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { guildJoinedMail } from "../../core/modules/mailTemplates.js";
 import {
 	Collection,
 	EmbedBuilder,
@@ -330,30 +331,25 @@ export const event: BotEvent = {
 			);
 
 			if (client.email.connected && client.email.notifyNewGuild) {
-				client.email.send(
+				client.email.sendMail(
 					client.email.ownerMail,
-					"New Guild",
-					`
-=== AUTO-GENERATED MESSAGE ===
-
-iHorizon have been added into ${guild.name} (ID: ${guild.id})
-
-since ${guild.joinedTimestamp}
-
-on shard #${client.shard?.ids[0]}
-
-Guild Info:
-
-- Name: ${guild.name}
-- Id: ${guild.id}
-- Members: ${guild.memberCount}
-- Invite Link: ${inviteLink}
-- Guild Vanity: ${i || "None"}
-- Server Region: ${guild.preferredLocale}
-- Server Owner: (${guild.ownerId}) ${owner?.user.username || "Unknown"}
-
-=== AUTO-GENERATED MESSAGE ===
-`
+					guildJoinedMail({
+						name: guild.name,
+						id: guild.id,
+						memberCount: guild.memberCount,
+						locale: guild.preferredLocale,
+						vanity: i || null,
+						iconUrl: guild.iconURL({ extension: "png", size: 128 }),
+						shard: client.shard?.ids[0] ?? 0,
+						botName: client.user?.username ?? "iHorizon",
+						at: Date.now(),
+						ownerName: owner?.user.username ?? null,
+						ownerId: guild.ownerId,
+						invite: /^https:\/\//.test(inviteLink ?? "")
+							? inviteLink
+							: null,
+						joinedAt: guild.joinedTimestamp ?? Date.now()
+					})
 				);
 			}
 		}

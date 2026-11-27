@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { guildLeftMail } from "../../core/modules/mailTemplates.js";
 import { Client, Guild, EmbedBuilder } from "discord.js";
 
 import logger from "../../core/logger.js";
@@ -93,28 +94,19 @@ export const event: BotEvent = {
 				});
 
 			if (client.email.connected && client.email.notifyNewGuild) {
-				client.email.send(
+				client.email.sendMail(
 					client.email.ownerMail,
-					"Removed Guild",
-					`
-=== AUTO-GENERATED MESSAGE ===
-
-iHorizon have been removed from ${guild.name} (ID: ${guild.id})
-
-since ${new Date()}
-
-on shard #${client.shard?.ids[0]}
-
-Guild Info:
-
-- Name: ${guild.name}
-- Id: ${guild.id}
-- Members: ${guild.memberCount}
-- Guild Vanity: ${i || "None"}
-- Server Region: ${guild.preferredLocale}
-
-=== AUTO-GENERATED MESSAGE ===
-`
+					guildLeftMail({
+						name: guild.name,
+						id: guild.id,
+						memberCount: guild.memberCount,
+						locale: guild.preferredLocale,
+						vanity: i || null,
+						iconUrl: guild.iconURL({ extension: "png", size: 128 }),
+						shard: client.shard?.ids[0] ?? 0,
+						botName: client.user?.username ?? "iHorizon",
+						at: Date.now()
+					})
 				);
 			}
 

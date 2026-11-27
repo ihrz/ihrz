@@ -103,6 +103,9 @@ class AutoRenew {
 								continue;
 							}
 
+							// setPosition() takes the index among the sorted
+							// channels (`position`), not Discord's raw value.
+							const index = channel.position;
 							const newChannel = await channel.clone({
 								name: channel.name,
 								parent: channel.parent,
@@ -128,9 +131,13 @@ class AutoRenew {
 									client.db.delete(
 										`${guild.id}.UTILS.renew_channel.${channel.id}`
 									),
-									channel.delete(),
-									newChannel.setPosition(channel.rawPosition)
+									channel.delete()
 								]);
+								// Once the old channel is gone, its index is
+								// the new one's slot.
+								await newChannel
+									.setPosition(index)
+									.catch(() => {});
 
 								await newChannel
 									.send({

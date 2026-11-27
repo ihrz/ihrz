@@ -19,23 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, PermissionsBitField, Presence } from "discord.js";
+import { Client, Presence } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getCachedGuildValue } from "../../core/modules/guildConfigCache.js";
+import { applySupportRole } from "../../core/modules/supportRole.js";
 
-/** An empty needle would match every status, so it never counts. */
-export function bioMatches(
-	bio: string | null | undefined,
-	input: string | null | undefined,
-	vanity: string | null | undefined
-): boolean {
-	const text = bio?.toLowerCase() ?? "";
-	return [input, vanity].some(
-		(needle) => !!needle?.trim() && text.includes(needle.toLowerCase())
-	);
-}
+export {
+	bioMatches,
+	supportQualifies
+} from "../../core/modules/supportRole.js";
 
 export const event: BotEvent = {
 	name: "presenceUpdate",
@@ -44,76 +38,16 @@ export const event: BotEvent = {
 		oldPresence: Presence,
 		newPresence: Presence
 	) => {
-		if (
-			!newPresence.guild?.members.me?.permissions.has([
-				PermissionsBitField.Flags.ManageRoles
-			])
-		)
-			return;
-		if (!newPresence || !newPresence.guild) return;
+		const guild = newPresence?.guild;
+		if (!guild) return;
 
-		const someinfo: DatabaseStructure.SupportSchema | null =
-			await getCachedGuildValue(`${newPresence.guild.id}.GUILD.SUPPORT`);
+		const config: DatabaseStructure.SupportSchema | null =
+			await getCachedGuildValue(`${guild.id}.GUILD.SUPPORT`);
+		if (!config?.rolesId) return;
 
-		if (!someinfo || !someinfo.rolesId) {
-			return;
-		}
+		const member = guild.members.cache.get(newPresence.userId);
+		if (!member) return;
 
-		const bio = newPresence.activities[0] || "null";
-		const vanity = newPresence.guild.vanityURLCode;
-
-		const fetchedUser = newPresence.guild.members.cache.get(
-			newPresence.userId
-		);
-		const fetchedRoles = newPresence.guild.roles.cache.get(
-			someinfo.rolesId
-		);
-
-		if (
-			!fetchedUser ||
-			!fetchedRoles ||
-			newPresence.guild.members.me.roles.highest.position <
-				fetchedRoles.rawPosition ||
-			newPresence.status === "offline" ||
-			newPresence.status === "invisible"
-		) {
-			return;
-		}
-
-		const type = someinfo.type ?? "bio";
-
-		if (type === "bio" && !bio.state) {
-			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles
-					.remove(someinfo.rolesId, "[Support] Module")
-					.catch(() => {});
-			return;
-		} else if (
-			type === "tag" &&
-			!fetchedUser.user.primaryGuild?.identityGuildId
-		) {
-			if (fetchedUser?.roles.cache.has(someinfo.rolesId))
-				return fetchedUser.roles
-					.remove(someinfo.rolesId, "[Support] Module")
-					.catch(() => {});
-			return;
-		}
-
-		if (
-			(type === "bio" && bioMatches(bio.state, someinfo.input, vanity)) ||
-			(type === "tag" &&
-				fetchedUser.user.primaryGuild?.identityGuildId ===
-					newPresence.guild.id)
-		) {
-			if (fetchedUser.roles.cache.has(someinfo.rolesId)) return;
-			return fetchedUser.roles
-				.add(someinfo.rolesId, "[Support] Module")
-				.catch(() => {});
-		} else {
-			if (!fetchedUser.roles.cache.has(someinfo.rolesId)) return;
-			return fetchedUser.roles
-				.remove(someinfo.rolesId, "[Support] Module")
-				.catch(() => {});
-		}
+		await applySupportRole(guild, member, newPresence, config);
 	}
 };

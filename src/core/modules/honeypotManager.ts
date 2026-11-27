@@ -20,16 +20,26 @@
 */
 
 import {
+	ActionRowBuilder,
 	AnyThreadChannel,
 	BaseGuildTextChannel,
+	ButtonBuilder,
+	ButtonStyle,
 	ChannelType,
 	Client,
 	Collection,
+	ContainerBuilder,
 	EmbedBuilder,
 	Guild,
 	Message,
+	MessageFlags,
+	SectionBuilder,
+	SeparatorBuilder,
+	SeparatorSpacingSize,
 	Snowflake,
+	TextDisplayBuilder,
 	type TextChannel,
+	ThumbnailBuilder,
 	VoiceChannel
 } from "discord.js";
 import { isChannelOfType } from "../functions/typeGuards.js";
@@ -46,6 +56,12 @@ export const HONEYPOT_EMBED_COLOR = "#D88A3D";
 export const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 const HONEYPOT_TRIGGER_DELAY = 1500;
 const HONEYPOT_SECOND_PASS_DELAY_MS = 8000;
+export const HONEYPOT_IMAGE_URL =
+	"https://www.ihorizon.org/assets/img/honeypot.png";
+/** The counter button under the trap message (Buttons/honeypot-count.ts). */
+export const HONEYPOT_COUNT_BUTTON = "honeypot-count";
+/** A raid sanctions many accounts in a row: one edit of the trap message for the lot. */
+const TRAP_REFRESH_DELAY_MS = 3000;
 
 type HoneypotMessageChannel =
 	BaseGuildTextChannel | AnyThreadChannel | VoiceChannel;
@@ -534,8 +550,11 @@ export async function processHoneypotTrigger(
 		);
 	}
 
-	config.lastTriggeredAt = Date.now();
-	await client.db.set(`${message.guildId}.GUILD.HONEYPOT`, config);
+	await recordTrigger(
+		client,
+		message.guild,
+		actionResult === "kick" || actionResult === "ban"
+	);
 	await sendLogs(
 		message,
 		lang,
@@ -625,18 +644,182 @@ export function scheduleHoneypotTrigger(
 	honeypotTriggerTimeouts.set(queueKey, nextTimeout);
 }
 
-export function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
-	return new EmbedBuilder()
-		.setColor(HONEYPOT_EMBED_COLOR)
-		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-		.setTitle(lang.honeypot_trap_embed_title)
-		.setDescription(lang.honeypot_trap_embed_desc)
-		.setFooter({
-			text: lang.honeypot_trap_embed_footer.replace(
-				"${url}",
-				HONEYPOT_CREDIT_URL
+function trapCountLabel(lang: LanguageData, count: number): string {
+	if (count <= 0) return lang.honeypot_trap_count_none;
+	if (count === 1) return lang.honeypot_trap_count_one;
+	return lang.honeypot_trap_count_other.replace("${count}", String(count));
+}
+
+/**
+ * The trap message (Components V2): warning, honeypot picture, and a button
+ * with the number of accounts this trap sanctioned (kick or ban that went
+ * through: a member the bot could not sanction, staff included, never
+ * counts). The button only shows the stats (honeypot-count.ts).
+ */
+export function buildTrapMessage(lang: LanguageData, caughtCount: number = 0) {
+	const footer = lang.honeypot_trap_embed_footer
+		.replace("${url}", HONEYPOT_CREDIT_URL)
+		.split("\n")
+		.map((line) => `-# ${line}`)
+		.join("\n");
+
+	const container = new ContainerBuilder()
+		.setAccentColor(parseInt(HONEYPOT_EMBED_COLOR.slice(1), 16))
+		.addSectionComponents(
+			new SectionBuilder()
+				.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(
+						`## 🍯 ${lang.honeypot_trap_embed_title}`
+					),
+					new TextDisplayBuilder().setContent(
+						lang.honeypot_trap_embed_desc
+					)
+				)
+				.setThumbnailAccessory(
+					new ThumbnailBuilder().setURL(HONEYPOT_IMAGE_URL)
+				)
+		)
+		.addSeparatorComponents(
+			new SeparatorBuilder()
+				.setDivider(true)
+				.setSpacing(SeparatorSpacingSize.Large)
+		)
+		.addActionRowComponents(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId(HONEYPOT_COUNT_BUTTON)
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji("🛡️")
+					.setLabel(trapCountLabel(lang, caughtCount))
 			)
+		)
+		.addTextDisplayComponents(new TextDisplayBuilder().setContent(footer));
+
+	return {
+		components: [container],
+		flags: MessageFlags.IsComponentsV2 as const
+	};
+}
+
+// One writer at a time per guild: two accounts caught together must both
+// count (each trigger reads the config, then waits for its cleanup passes).
+const guildLocks = new Map<string, Promise<unknown>>();
+function withGuildLock<T>(guildId: string, task: () => Promise<T>): Promise<T> {
+	const previous = guildLocks.get(guildId) ?? Promise.resolve();
+	const next = previous.catch(() => {}).then(task);
+	guildLocks.set(guildId, next);
+	next.finally(() => {
+		if (guildLocks.get(guildId) === next) guildLocks.delete(guildId);
+	}).catch(() => {});
+	return next;
+}
+
+/**
+ * Notes the trigger on the config read fresh (an edit made during the
+ * cleanup passes is kept), counts a sanction that went through, and
+ * refreshes the trap message's counter.
+ */
+export async function recordTrigger(
+	client: Client,
+	guild: Guild,
+	sanctioned: boolean
+): Promise<void> {
+	const path = `${guild.id}.GUILD.HONEYPOT`;
+	await withGuildLock(guild.id, async () => {
+		const config = (await client.db.get(
+			path
+		)) as DatabaseStructure.HoneypotSchema | null;
+		if (!config) return;
+		const now = Date.now();
+		config.lastTriggeredAt = now;
+		if (sanctioned) {
+			config.caughtCount = (config.caughtCount ?? 0) + 1;
+			config.lastSanctionedAt = now;
+		}
+		await client.db.set(path, config);
+	});
+	if (sanctioned) scheduleTrapRefresh(client, guild);
+}
+
+/**
+ * Saves a config edited from a panel kept open (/honeypot config): the
+ * trigger counters are the bot's, taken from the database at write time so
+ * a sanction during the edit is not lost.
+ */
+export async function saveHoneypotConfig(
+	client: Client,
+	guildId: string,
+	config: DatabaseStructure.HoneypotSchema
+): Promise<void> {
+	const path = `${guildId}.GUILD.HONEYPOT`;
+	await withGuildLock(guildId, async () => {
+		const stored = (await client.db.get(
+			path
+		)) as DatabaseStructure.HoneypotSchema | null;
+		for (const key of [
+			"lastTriggeredAt",
+			"caughtCount",
+			"lastSanctionedAt"
+		] as const) {
+			if (stored?.[key] !== undefined) config[key] = stored[key];
+		}
+		await client.db.set(path, config);
+	});
+}
+
+const trapRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+function scheduleTrapRefresh(client: Client, guild: Guild): void {
+	if (trapRefreshTimers.has(guild.id)) return;
+	const timer = setTimeout(() => {
+		trapRefreshTimers.delete(guild.id);
+		refreshTrapMessage(client, guild).catch((error: unknown) => {
+			logger.warn(
+				`Honeypot trap message refresh failed for guild ${guild.id}: ${String(error)}`
+			);
 		});
+	}, TRAP_REFRESH_DELAY_MS);
+	timer.unref?.();
+	trapRefreshTimers.set(guild.id, timer);
+}
+
+/**
+ * Puts the current count on the posted trap message. A trap posted before
+ * Components V2 (an embed) cannot become one: it is reposted. A trap
+ * message someone deleted stays deleted (reposted by /honeypot config or
+ * the dashboard, as before).
+ */
+export async function refreshTrapMessage(
+	client: Client,
+	guild: Guild
+): Promise<void> {
+	const path = `${guild.id}.GUILD.HONEYPOT`;
+	await withGuildLock(guild.id, async () => {
+		const config = (await client.db.get(
+			path
+		)) as DatabaseStructure.HoneypotSchema | null;
+		if (!config?.enabled || !config.channelId || !config.messageId) return;
+
+		const channel = await guild.channels
+			.fetch(config.channelId)
+			.catch(() => null);
+		if (!isChannelOfType(channel, ChannelType.GuildText)) return;
+		const posted = await (channel as TextChannel).messages
+			.fetch(config.messageId)
+			.catch(() => null);
+		if (!posted) return;
+
+		const lang = await client.func.getLanguageData(guild.id);
+		if (posted.flags.has(MessageFlags.IsComponentsV2)) {
+			await posted.edit({
+				components: buildTrapMessage(lang, config.caughtCount ?? 0)
+					.components
+			});
+			return;
+		}
+		if (await sendTrapEmbed(guild, config, lang)) {
+			await client.db.set(path, config);
+		}
+	});
 }
 
 async function ensureTrapChannel(
@@ -695,7 +878,7 @@ export async function sendTrapEmbed(
 	}
 
 	const sentMessage = await channel
-		.send({ embeds: [buildTrapEmbed(lang)] })
+		.send(buildTrapMessage(lang, config.caughtCount ?? 0))
 		.catch(() => null);
 
 	if (!sentMessage) {

@@ -2948,6 +2948,8 @@ export default {
 		":x: | Le serveur n'a aucun tag actuellement.",
 	support_command_work_2:
 		"Vous avez configuré le module de support pour ${guildName}.\nLorsqu'un utilisateur met le tag du serveur,\nJe devrais lui donner le rôle <@&${rolesId}> !",
+	support_command_work_both: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **et** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
+	support_command_work_either: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **ou** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
 
 	// /setserverlang
 
@@ -4548,6 +4550,11 @@ export default {
 		"*Ce canal est utilisé pour attraper les bots spam.*\n*Tout message envoyé ici **DÉCLENCHERA** la protection automatique du serveur.*",
 	honeypot_trap_embed_footer:
 		"Inspiré par le Honeypot de RiskyMH, découvrez-le !\n${url}",
+	honeypot_trap_count_none: "Personne n'a encore été sanctionné",
+	honeypot_trap_count_one: "1 personne sanctionnée",
+	honeypot_trap_count_other: "${count} personnes sanctionnées",
+	honeypot_trap_count_never: "jamais",
+	honeypot_trap_count_reply: "🍯 Sanctions de ce piège : **${count}**\nDernière sanction : ${last}",
 	honeypot_dm_title: "Honeypot déclenché !",
 	honeypot_dm_desc:
 		"Un message que vous avez envoyé dans le canal *Honeypot* sur le serveur suivant : **`${guild}`** **a déclenché** la protection configurée.\n\n__Action prise contre vous :__ **`${action}`**\n\n*Les messages que vous avez envoyés au cours des 2 dernières heures sont en cours de suppression du serveur. Si vous pensez avoir été hacké, changez votre mot de passe et activez la 2FA sur votre compte Discord. S'il s'agit d'une erreur de votre part, veuillez contacter l'équipe du serveur pour résoudre le problème.*",

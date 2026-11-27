@@ -475,6 +475,10 @@ export namespace DatabaseStructure {
 		messageId?: string;
 		createdBy?: string;
 		lastTriggeredAt?: number;
+		/** Accounts this trap sanctioned (kick or ban that went through), shown on the trap message's button. Bot-owned. */
+		caughtCount?: number;
+		/** ms of the last sanction counted in `caughtCount`. Bot-owned. */
+		lastSanctionedAt?: number;
 	}
 
 	export type CounterData = { userId: string; amount: number };
@@ -771,7 +775,8 @@ export namespace DatabaseStructure {
 		onlyOwner?: boolean;
 	}
 
-	export type SupportType = "bio" | "tag";
+	/** What earns the support role: the custom status (`bio`), the server tag (`tag`), both of them (`both`), or one of the two (`either`). */
+	export type SupportType = "bio" | "tag" | "both" | "either";
 
 	export interface SupportSchema {
 		input?: string | null;

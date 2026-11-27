@@ -2342,6 +2342,8 @@ export default {
 	support_command_guild_not_have_tag: ":x: | Наразі сервер не має тегів.",
 	support_command_work_2:
 		"Ви налаштували модуль підтримки для ${guildName}.\nКоли користувач установить тег сервера,\nя видам йому роль <@&${rolesId}>!",
+	support_command_work_both: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **і** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
+	support_command_work_either: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **або** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
 	updates_embed_title: "Оновлення iHorizon",
 	updates_embed_description: "Ось останні зміни та оновлення iHorizon.",
 	updates_field_version: "Версія",
@@ -3590,6 +3592,11 @@ export default {
 		"*Цей канал використовується для виявлення спам-ботів.*\n*Будь-яке повідомлення, надіслане сюди, **ОБОВ'ЯЗКОВО** запустить автоматичний захист сервера.*",
 	honeypot_trap_embed_footer:
 		"Натхненно ботом Honeypot від RiskyMH, загляньте до нього!\n${url}",
+	honeypot_trap_count_none: "Ще ніхто не покараний",
+	honeypot_trap_count_one: "Покарано 1 людину",
+	honeypot_trap_count_other: "Покарано: ${count}",
+	honeypot_trap_count_never: "ніколи",
+	honeypot_trap_count_reply: "🍯 Покарань цією пасткою: **${count}**\nОстаннє: ${last}",
 	honeypot_dm_title: "HONEYPOT СПРАЦЮВАВ!",
 	honeypot_dm_desc:
 		"Повідомлення, яке ви надіслали в канал *Honeypot* на сервері **`${guild}`**, **запустило** налаштований захист.\n\n__Дія щодо вас:__ **`${action}`**\n\n*Повідомлення, надіслані вами за останні 2 години, видаляються з сервера. Якщо ви вважаєте, що вас зламали, змініть пароль і ввімкніть 2FA у своєму обліковому записі Discord. Якщо це просто ваша помилка, зверніться до персоналу сервера, щоб вирішити питання.*",

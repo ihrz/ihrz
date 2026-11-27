@@ -32,6 +32,7 @@ import {
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { refreshSupportRoles } from "../../../core/modules/supportRole.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
@@ -174,6 +175,40 @@ export const command: Command = {
 						pl: "Tag serwera (korzyści z boostów)"
 					},
 					value: "tag"
+				},
+				{
+					name: "Both: the bio and the guild tag",
+					name_localizations: {
+						fr: "Les deux : la bio et le tag du serveur",
+						ja: "両方：ステータスとサーバータグ",
+						ru: "Оба: статус и тег сервера",
+						"es-ES":
+							"Ambos: la biografía y la etiqueta del servidor",
+						ko: "둘 다: 소개와 서버 태그",
+						uk: "Обидва: біографія і тег сервера",
+						de: "Beides: Bio und Server-Tag",
+						it: "Entrambi: la bio e il tag del server",
+						"pt-BR": "Os dois: a bio e a tag do servidor",
+						pl: "Oba: biogram i tag serwera"
+					},
+					value: "both"
+				},
+				{
+					name: "One of the two: the bio or the guild tag",
+					name_localizations: {
+						fr: "L'un des deux : la bio ou le tag du serveur",
+						ja: "どちらか：ステータスまたはサーバータグ",
+						ru: "Одно из двух: статус или тег сервера",
+						"es-ES":
+							"Uno de los dos: la biografía o la etiqueta del servidor",
+						ko: "둘 중 하나: 소개 또는 서버 태그",
+						uk: "Одне з двох: біографія або тег сервера",
+						de: "Eins von beiden: Bio oder Server-Tag",
+						it: "Uno dei due: la bio o il tag del server",
+						"pt-BR": "Um dos dois: a bio ou a tag do servidor",
+						pl: "Jedno z dwóch: biogram lub tag serwera"
+					},
+					value: "either"
 				}
 			],
 
@@ -267,7 +302,7 @@ export const command: Command = {
 			}
 
 			if (
-				type === "tag" &&
+				(type === "tag" || type === "both") &&
 				!interaction.guild.features.includes("GUILD_TAGS")
 			) {
 				await client.func.method.interactionSend(interaction, {
@@ -286,16 +321,28 @@ export const command: Command = {
 			};
 
 			await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`, config);
+			// Members whose status already matches get the role now, not at
+			// their next status change.
+			void refreshSupportRoles(interaction.guild, config);
 
-			const Message: string =
+			const template =
 				type === "tag"
 					? lang.support_command_work_2
-							.replace("${guildName}", interaction.guild.name)
-							.replace("${rolesId}", roles.id)
-					: lang.support_command_work
-							.replace("${guildName}", interaction.guild.name)
-							.replace("${input}", input!)
-							.replace("${rolesId}", roles.id);
+					: type === "both"
+						? lang.support_command_work_both
+						: type === "either"
+							? lang.support_command_work_either
+							: lang.support_command_work;
+			// No keyword: the server's vanity code is what is looked for.
+			const keyword =
+				input?.trim() ||
+				(interaction.guild.vanityURLCode
+					? `discord.gg/${interaction.guild.vanityURLCode}`
+					: "—");
+			const Message: string = template
+				.replace("${guildName}", interaction.guild.name)
+				.replace("${input}", keyword)
+				.replace("${rolesId}", roles.id);
 
 			await sendCard(client, interaction, notice("success", Message));
 		} else {

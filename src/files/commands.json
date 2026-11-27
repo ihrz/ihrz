@@ -9951,6 +9951,28 @@
                                 "required": true
                             },
                             {
+                                "name": "channel",
+                                "description": "Where this account posts (default: the notifier channel)",
+                                "description_localizations": {
+                                    "fr": "Où ce compte publie (par défaut : le salon du notifier)",
+                                    "ja": "このアカウントの通知先（既定：通知チャンネル）",
+                                    "ru": "Куда публикует этот аккаунт (по умолчанию: канал уведомлений)",
+                                    "es-ES": "Dónde publica esta cuenta (por defecto: el canal del notificador)",
+                                    "ko": "이 계정이 알림을 보낼 채널 (기본: 알림 채널)",
+                                    "uk": "Куди публікує цей акаунт (за замовчуванням: канал сповіщень)",
+                                    "de": "Wohin dieses Konto postet (Standard: der Benachrichtigungskanal)",
+                                    "it": "Dove pubblica questo account (predefinito: il canale delle notifiche)",
+                                    "pt-BR": "Onde esta conta publica (padrão: o canal de notificações)",
+                                    "pl": "Gdzie publikuje to konto (domyślnie: kanał powiadomień)"
+                                },
+                                "type": 7,
+                                "channel_types": [
+                                    0,
+                                    5
+                                ],
+                                "required": false
+                            },
+                            {
                                 "name": "platform",
                                 "description": "The Streamer/Youtuber/Twitcher platform",
                                 "description_localizations": {
@@ -9998,6 +10020,54 @@
                                             "pl": "Twitch"
                                         },
                                         "value": "twitch"
+                                    },
+                                    {
+                                        "name": "Kick",
+                                        "name_localizations": {
+                                            "fr": "Kick",
+                                            "ja": "Kick",
+                                            "ru": "Kick",
+                                            "es-ES": "Kick",
+                                            "ko": "Kick",
+                                            "uk": "Kick",
+                                            "de": "Kick",
+                                            "it": "Kick",
+                                            "pt-BR": "Kick",
+                                            "pl": "Kick"
+                                        },
+                                        "value": "kick"
+                                    },
+                                    {
+                                        "name": "Bluesky",
+                                        "name_localizations": {
+                                            "fr": "Bluesky",
+                                            "ja": "Bluesky",
+                                            "ru": "Bluesky",
+                                            "es-ES": "Bluesky",
+                                            "ko": "Bluesky",
+                                            "uk": "Bluesky",
+                                            "de": "Bluesky",
+                                            "it": "Bluesky",
+                                            "pt-BR": "Bluesky",
+                                            "pl": "Bluesky"
+                                        },
+                                        "value": "bluesky"
+                                    },
+                                    {
+                                        "name": "Mastodon",
+                                        "name_localizations": {
+                                            "fr": "Mastodon",
+                                            "ja": "Mastodon",
+                                            "ru": "Mastodon",
+                                            "es-ES": "Mastodon",
+                                            "ko": "Mastodon",
+                                            "uk": "Mastodon",
+                                            "de": "Mastodon",
+                                            "it": "Mastodon",
+                                            "pt-BR": "Mastodon",
+                                            "pl": "Mastodon"
+                                        },
+                                        "value": "mastodon"
                                     }
                                 ],
                                 "required": true
@@ -10112,6 +10182,54 @@
                                             "pl": "Twitch"
                                         },
                                         "value": "twitch"
+                                    },
+                                    {
+                                        "name": "Kick",
+                                        "name_localizations": {
+                                            "fr": "Kick",
+                                            "ja": "Kick",
+                                            "ru": "Kick",
+                                            "es-ES": "Kick",
+                                            "ko": "Kick",
+                                            "uk": "Kick",
+                                            "de": "Kick",
+                                            "it": "Kick",
+                                            "pt-BR": "Kick",
+                                            "pl": "Kick"
+                                        },
+                                        "value": "kick"
+                                    },
+                                    {
+                                        "name": "Bluesky",
+                                        "name_localizations": {
+                                            "fr": "Bluesky",
+                                            "ja": "Bluesky",
+                                            "ru": "Bluesky",
+                                            "es-ES": "Bluesky",
+                                            "ko": "Bluesky",
+                                            "uk": "Bluesky",
+                                            "de": "Bluesky",
+                                            "it": "Bluesky",
+                                            "pt-BR": "Bluesky",
+                                            "pl": "Bluesky"
+                                        },
+                                        "value": "bluesky"
+                                    },
+                                    {
+                                        "name": "Mastodon",
+                                        "name_localizations": {
+                                            "fr": "Mastodon",
+                                            "ja": "Mastodon",
+                                            "ru": "Mastodon",
+                                            "es-ES": "Mastodon",
+                                            "ko": "Mastodon",
+                                            "uk": "Mastodon",
+                                            "de": "Mastodon",
+                                            "it": "Mastodon",
+                                            "pt-BR": "Mastodon",
+                                            "pl": "Mastodon"
+                                        },
+                                        "value": "mastodon"
                                     }
                                 ],
                                 "required": true
@@ -15850,6 +15968,38 @@
                             "pl": "Tag serwera (korzyści z boostów)"
                         },
                         "value": "tag"
+                    },
+                    {
+                        "name": "Both: the bio and the guild tag",
+                        "name_localizations": {
+                            "fr": "Les deux : la bio et le tag du serveur",
+                            "ja": "両方：ステータスとサーバータグ",
+                            "ru": "Оба: статус и тег сервера",
+                            "es-ES": "Ambos: la biografía y la etiqueta del servidor",
+                            "ko": "둘 다: 소개와 서버 태그",
+                            "uk": "Обидва: біографія і тег сервера",
+                            "de": "Beides: Bio und Server-Tag",
+                            "it": "Entrambi: la bio e il tag del server",
+                            "pt-BR": "Os dois: a bio e a tag do servidor",
+                            "pl": "Oba: biogram i tag serwera"
+                        },
+                        "value": "both"
+                    },
+                    {
+                        "name": "One of the two: the bio or the guild tag",
+                        "name_localizations": {
+                            "fr": "L'un des deux : la bio ou le tag du serveur",
+                            "ja": "どちらか：ステータスまたはサーバータグ",
+                            "ru": "Одно из двух: статус или тег сервера",
+                            "es-ES": "Uno de los dos: la biografía o la etiqueta del servidor",
+                            "ko": "둘 중 하나: 소개 또는 서버 태그",
+                            "uk": "Одне з двох: біографія або тег сервера",
+                            "de": "Eins von beiden: Bio oder Server-Tag",
+                            "it": "Uno dei due: la bio o il tag del server",
+                            "pt-BR": "Um dos dois: a bio ou a tag do servidor",
+                            "pl": "Jedno z dwóch: biogram lub tag serwera"
+                        },
+                        "value": "either"
                     }
                 ],
                 "required": true

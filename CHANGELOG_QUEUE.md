@@ -4,6 +4,24 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🤝 Supporter role — the status, the server tag, both, or one of the two
+
+The supporter role (`/support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first.
+
+---
+
+## 🍯 Honeypot — a new trap message, with its catch count
+
+The honeypot's trap message is redesigned with Discord's new components: a clear warning card with the honeypot picture and, below it, a button that shows **how many accounts the trap has sanctioned** (kicks and bans that went through: a member iHorizon could not sanction, such as your staff, is never counted). Click it to see when the last one was caught. The count updates by itself after each catch; a trap posted before this update switches to the new look at its next catch, or when you send it again with `/honeypot config`. How the trap works does not change.
+
+---
+
+## ✉️ Owner e-mails — a clean HTML design
+
+The e-mails iHorizon sends to its owner (bot online, added to a server, removed from a server) are redesigned: a tidy card with the server's icon, its details in clear rows (ID, members, owner, language, vanity URL, date, shard), an invite button when there is one, light and dark mode, and a plain-text version for mail apps that do not show HTML. Server names are always shown as text, never as HTML.
+
+---
+
 ## 📝 Google Forms — applications: accept or refuse
 
 A linked Google Form can now run **applications**: turn it on per form in the dashboard. Each response arrives as a card with **Accept** and **Refuse** buttons, for the form's **reviewer role**, administrators and the owner. The role is given **only when the application is accepted**; a refusal can give a **refused role** instead, or nothing. The applicant gets a **private message** with the decision and, when refused, the reason you wrote (optional, and the message can be turned off). The card then shows who decided and when, in place of the buttons. In the dashboard, the latest responses show each application's state (waiting, accepted or refused, by whom, with the reason) and can be accepted or refused from there too. Forms without applications work as before: the role is given at once.

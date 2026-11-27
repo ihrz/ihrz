@@ -4,6 +4,24 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🤝 Rôle de soutien — le statut, le tag du serveur, les deux, ou l'un des deux
+
+Le rôle de soutien (`/support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier.
+
+---
+
+## 🍯 Honeypot — nouveau message piège, avec le nombre de prises
+
+Le message du salon piège est refait avec les nouveaux composants de Discord : une carte d'avertissement claire avec l'image du pot de miel et, dessous, un bouton qui affiche **le nombre de comptes sanctionnés par le piège** (expulsions et bannissements réussis : un membre qu'iHorizon ne peut pas sanctionner, comme votre staff, n'est jamais compté). Cliquez dessus pour voir quand a eu lieu la dernière prise. Le compteur se met à jour tout seul après chaque prise ; un piège posté avant cette mise à jour prend le nouveau style à sa prochaine prise, ou quand vous le renvoyez avec `/honeypot config`. Le fonctionnement du piège ne change pas.
+
+---
+
+## ✉️ E-mails au propriétaire — un design HTML propre
+
+Les e-mails qu'iHorizon envoie à son propriétaire (bot en ligne, ajouté à un serveur, retiré d'un serveur) sont refaits : une carte soignée avec l'icône du serveur, ses infos en lignes claires (ID, membres, propriétaire, langue, URL personnalisée, date, shard), un bouton vers l'invitation quand il y en a une, un mode clair et sombre, et une version texte pour les messageries qui n'affichent pas le HTML. Le nom d'un serveur est toujours affiché comme du texte, jamais comme du HTML.
+
+---
+
 ## 📝 Google Forms — candidatures : accepter ou refuser
 
 Un formulaire Google lié peut maintenant servir de **candidatures** : à activer pour chaque formulaire dans le dashboard. Chaque réponse arrive en carte avec les boutons **Accepter** et **Refuser**, pour le **rôle examinateurs** du formulaire, les administrateurs et l'owner. Le rôle n'est donné **qu'à l'acceptation** ; un refus peut donner un **rôle « refusé »** à la place, ou rien. Le candidat reçoit un **message privé** avec la décision et, en cas de refus, la raison écrite (facultative, et le message peut être désactivé). La carte affiche ensuite qui a décidé et quand, à la place des boutons. Dans le dashboard, les dernières réponses montrent l'état de chaque candidature (en attente, acceptée ou refusée, par qui, avec la raison), et on peut aussi les accepter ou les refuser de là. Les formulaires sans candidatures marchent comme avant : le rôle est donné tout de suite.

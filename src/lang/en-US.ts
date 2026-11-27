@@ -2837,6 +2837,8 @@ const enUS = {
 		":x: | The server currently has no tags.",
 	support_command_work_2:
 		"You have configured the support module for ${guildName}.\nWhen a user sets the server tag,\nI will give them the role <@&${rolesId}>!",
+	support_command_work_both: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **and** wears the server tag,\nI will give them the role <@&${rolesId}>!",
+	support_command_work_either: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **or** wears the server tag,\nI will give them the role <@&${rolesId}>!",
 
 	// /setserverlang
 
@@ -4383,6 +4385,11 @@ const enUS = {
 		"*This channel is used to catch spam bots.*\n*Any message sent here **WILL** trigger the server's automated protection.*",
 	honeypot_trap_embed_footer:
 		"Inspired by RiskyMH's Honeypot bot, check it out!\n${url}",
+	honeypot_trap_count_none: "Nobody sanctioned yet",
+	honeypot_trap_count_one: "1 person sanctioned",
+	honeypot_trap_count_other: "${count} people sanctioned",
+	honeypot_trap_count_never: "never",
+	honeypot_trap_count_reply: "🍯 Sanctions by this trap: **${count}**\nLast sanction: ${last}",
 	honeypot_dm_title: "HONEYPOT TRIGGERED!",
 	honeypot_dm_desc:
 		"A message you sent in the *Honeypot* channel on the following server: **`${guild}`** **triggered** the configured protection.\n\n__Action taken against you:__ **`${action}`**\n\n*Messages you sent in the last 2 hours are being removed from the server. If you believe you have been hacked, change your password and enable 2FA on your Discord account. If it is just a mistake on your end, please contact the server staff to resolve the issue.*",
