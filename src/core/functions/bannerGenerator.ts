@@ -19,13 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export const BANNER_URL =
-	"https://www.ihorizon.org/assets/img/banner/ihrz_{countryCode}.png";
+import { iHorizonAsset, iHorizonAssetURL } from "./iHorizonAssets.js";
 
+/** The banner of the guild's language (www.ihorizon.org, see iHorizonAssets.ts). */
 export default async function bannerGenerator(
 	guildId: string | null
 ): Promise<string> {
 	const countryCode =
 		(await client.db.get(`${guildId}.GUILD.LANG.lang`)) || "en-US";
-	return BANNER_URL.replace("{countryCode}", countryCode);
+	return iHorizonAssetURL(iHorizonAsset.Banner, countryCode);
 }

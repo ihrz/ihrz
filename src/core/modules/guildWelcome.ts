@@ -52,7 +52,10 @@ const ACCENT = 0x2134ff;
 // Slash command ids, fetched once per process: a clickable </name:id> mention.
 let commandIds: Promise<Map<string, string>> | null = null;
 
-/** A clickable mention of a slash command (`</setlang:id>`), or `/name` in code when its id is unknown. */
+/**
+ * A clickable mention of a slash command (`</setlang:id>`, `</mod ban:id>` for a subcommand: the id is the
+ * top-level command's), or `/name` in code when its id is unknown.
+ */
 export async function commandMention(
 	client: Client,
 	name: string
@@ -67,7 +70,7 @@ export async function commandMention(
 		if (!ids.size) commandIds = null; // try again next time
 		return ids;
 	})();
-	const id = (await commandIds).get(name);
+	const id = (await commandIds).get(name.split(" ")[0]);
 	return id ? `</${name}:${id}>` : `\`/${name}\``;
 }
 

@@ -655,8 +655,6 @@ const enUS = {
 	status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ Help Menu```\n${emoji_Pin} ・ **${categorieCount}** available Command Categories\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** available Slash Commands\n${emoji_Crown} ・ **Created by** <@${owner1}>, <@${owner2}>\n\n```Do you know ? ・ Tips```\n${emoji_VC_Region} ・ ${botName} is **100% multilingual**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Moderation",
 	help_ranks_fields: "Ranks",
 	help_fun_fields: "Fun",
@@ -705,6 +703,16 @@ const enUS = {
 		"> *Want to set up voice channels for member count? Of course :smile:*",
 	help_newftrs_dsc: "> *Here are some new and highly interesting features!*",
 	help_not_for_you: "This interaction is not for you",
+	help_home_title: "${botName} · Help",
+	help_home_intro:
+		"Every command, sorted by category. Pick a category in the menu below.",
+	help_home_stats:
+		"${emoji_Pin} **${categoryCount}** categories\n${emoji_Slash_Bot_Badge} **${commandCount}** commands",
+	help_home_creators: "${emoji_Crown} Made by ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} Available in **${languageCount}** languages: change it with ${command}",
+	help_search_button: "Search a command",
+	help_details_button: "Details",
 	help_protection_fields: "Protection",
 	help_protection_dsc:
 		"> *Prevent non-whitelisted users from doing certain actions in order to protect the server.*",

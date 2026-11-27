@@ -701,8 +701,6 @@ export default {
 		":x: | **Dégage de la sale ringuard , seuls les bg de dev du bot peuvent faire ça !**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ Menu d'aide pour trou du cul```\n${emoji_Pin} ・ **${categorieCount}** catégories de commandes disponibles (eh ouais ma gueule)\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** commandes Slash disponibles\n${emoji_Crown} ・ **Créé par** <@${owner1}>, <@${owner2}> des e-girl de compet\n\n```Le saviez-vous ? ・ Conseils```\n${emoji_VC_Region} ・ ${botName} est **100% multilingue**\n${emoji_Slash_Bot_Badge} ・ `/setlangue language:Japanese`",
 	help_mod_fields: "Modération",
 	help_ranks_fields: "Rangs",
 	help_fun_fields: "Fun",
@@ -754,6 +752,16 @@ export default {
 	help_newftrs_dsc:
 		"> *Voici de nouvelles fonctionnalités très intéressantes donc utilise la sous peine de mourrir !*",
 	help_not_for_you: "Cette interaction tconcerne pas , pars salope",
+	help_home_title: "${botName} · Aide",
+	help_home_intro:
+		"Toutes les commandes, rangées par catégorie. Choisis une catégorie dans le menu en dessous, frérot.",
+	help_home_stats:
+		"${emoji_Pin} **${categoryCount}** catégories\n${emoji_Slash_Bot_Badge} **${commandCount}** commandes",
+	help_home_creators: "${emoji_Crown} Fait par ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} Dispo en **${languageCount}** langues : change avec ${command}",
+	help_search_button: "Chercher une commande",
+	help_details_button: "Détails",
 	help_protection_fields: "Protection",
 	help_protection_dsc:
 		"> *Degager les mecs noon autorisé qui tente de raid. ( Qui raid sérieux on est plus en 2018 )*",

@@ -691,8 +691,6 @@ export default {
 		":x: | **Du musst der Bot-Entwickler sein, um dies zu tun!**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ Hilfe Menü```\n${emoji_Pin} ・ **${categorieCount}** verfügbare Kategorien von Befehlen\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** verfügbare Slash-Befehle\n${emoji_Crown} ・ **Erstellt von** <@${owner1}>, <@${owner2}>\n\n```Wussten Sie schon? ・ Tipps```\n${emoji_VC_Region} ・ ${botName} ist **100 % mehrsprachig**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Moderation",
 	help_ranks_fields: "Ränge",
 	help_fun_fields: "Fun",
@@ -745,6 +743,16 @@ export default {
 	help_newftrs_dsc:
 		"> *Hier sind einige brandneue und äußerst interessante Funktionen!*",
 	help_not_for_you: "Diese Interaktion ist nicht für dich",
+	help_home_title: "${botName} · Hilfe",
+	help_home_intro:
+		"Alle Befehle, nach Kategorie sortiert. Wähle unten im Menü eine Kategorie.",
+	help_home_stats:
+		"${emoji_Pin} **${categoryCount}** Kategorien\n${emoji_Slash_Bot_Badge} **${commandCount}** Befehle",
+	help_home_creators: "${emoji_Crown} Erstellt von ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} In **${languageCount}** Sprachen verfügbar: ändere sie mit ${command}",
+	help_search_button: "Befehl suchen",
+	help_details_button: "Details",
 	help_protection_fields: "Schutz",
 	help_protection_dsc:
 		"> *Verhindern Sie, dass nicht autorisierte Benutzer bestimmte Aktionen ausführen, um den Server zu schützen.*",

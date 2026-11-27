@@ -20,356 +20,422 @@
 */
 
 import {
+	ActionRowBuilder,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ButtonBuilder,
+	ButtonStyle,
+	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
+	ContainerBuilder,
+	MediaGalleryBuilder,
+	MediaGalleryItemBuilder,
+	Message,
+	MessageFlags,
+	SectionBuilder,
+	SeparatorBuilder,
+	SeparatorSpacingSize,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	ActionRowBuilder,
-	ComponentType,
-	ChatInputCommandInteraction,
-	StringSelectMenuInteraction,
-	ApplicationCommandType,
-	ColorResolvable,
-	Message,
-	ApplicationCommandOptionType,
-	ButtonStyle,
-	ButtonBuilder,
-	ButtonInteraction,
-	InteractionCollector,
-	MessageActionRowComponentBuilder
+	TextDisplayBuilder,
+	ThumbnailBuilder
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { CategoryData } from "../../../../types/category.js";
+import { BotContent } from "../../../../types/botContent.js";
 import { Command } from "../../../../types/command.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	cardPayload,
+	pageLabel
+} from "../../../core/modules/uiCard.js";
+import {
+	commandMention,
+	DASHBOARD_URL,
+	DOCS_URL,
+	SUPPORT_URL
+} from "../../../core/modules/guildWelcome.js";
 
-// The help message remembers its page collector, to stop it on a new category.
-type HelpMessage = Message & {
-	buttonCollector?: InteractionCollector<ButtonInteraction>;
+// /help in Components V2: a home card (banner, counts, the category menus, links), then one card per
+// category (each command as a clickable mention with its prefix form, its /perm state and description,
+// paged), and /help <command> as a card. Only whoever ran it can browse; everything is disabled when the
+// time runs out.
+
+const SEARCH_URL = "https://www.ihorizon.org/search/";
+const TIMEOUT_MS = 840_000;
+// One section per command (text + a Details button): Discord allows 40 components in a message.
+const PAGE_SIZE = 6;
+const PAGE_TEXT_MAX = 3500;
+const MENUS = 2;
+const ID = {
+	menu: "help-menu-",
+	previous: "help-previous",
+	next: "help-next",
+	details: "help-details%"
+} as const;
+const BACK = "back";
+const AVATAR = "attachment://footer_icon.png";
+
+// Guild language -> the Discord locale of a command's localized description.
+const DESCRIPTION_LOCALE: Record<string, string> = {
+	"fr-FR": "fr",
+	"fr-ME": "fr",
+	"jp-JP": "ja",
+	"ko-KR": "ko",
+	"ru-RU": "ru",
+	"uk-UA": "uk",
+	"de-DE": "de",
+	"it-IT": "it",
+	"pt-PT": "pt-BR",
+	"pl-PL": "pl",
+	"es-ES": "es-ES"
 };
 
-function createNavigationRow(
-	currentPage: number,
-	totalPages: number
-): ActionRowBuilder<ButtonBuilder> {
-	const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-		new ButtonBuilder()
-			.setCustomId("first")
-			.setLabel("<<<")
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(currentPage === 0),
-		new ButtonBuilder()
-			.setCustomId("previous")
-			.setLabel("<")
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(currentPage === 0),
-		new ButtonBuilder()
-			.setCustomId("page")
-			.setLabel(`${currentPage + 1}/${totalPages}`)
-			.setStyle(ButtonStyle.Secondary)
-			.setDisabled(true),
-		new ButtonBuilder()
-			.setCustomId("next")
-			.setLabel(">")
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(currentPage === totalPages - 1),
-		new ButtonBuilder()
-			.setCustomId("last")
-			.setLabel(">>>")
-			.setStyle(ButtonStyle.Primary)
-			.setDisabled(currentPage === totalPages - 1)
-	);
-	return row;
+interface HelpContext {
+	client: Client;
+	lang: LanguageData;
+	categories: CategoryData[];
+	perms: DatabaseStructure.UtilsPermsData | undefined;
+	prefix: { type: "prefix" | "mention"; string: string };
+	guildLang: string | null;
+	botName: string;
+	banner: string;
+	signature: string;
 }
 
-async function updatePage(
-	message: Message,
-	embeds: EmbedBuilder[],
-	currentPage: number,
-	menuRows: ActionRowBuilder<MessageActionRowComponentBuilder>[],
-	navigationRow: ActionRowBuilder<ButtonBuilder>
-) {
-	const components: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [
-		...menuRows
-	];
-	if (embeds.length > 1) {
-		components.push(navigationRow);
-	}
+type View =
+	{ kind: "home" } | { kind: "category"; index: number; page: number };
 
-	await message.edit({
-		embeds: [embeds[currentPage]],
-		components: components
+const text = (content: string) => new TextDisplayBuilder().setContent(content);
+const separator = (spacing = SeparatorSpacingSize.Small) =>
+	new SeparatorBuilder().setDivider(true).setSpacing(spacing);
+const colorOf = (hex: string) => {
+	const value = parseInt(hex.replace("#", ""), 16);
+	return Number.isFinite(value) ? value : ACCENT.neutral;
+};
+
+/** The two category menus (Discord: 25 options each), with the current category ticked. */
+function categoryMenus(
+	ctx: HelpContext,
+	selected: number | null,
+	disabled: boolean
+): ActionRowBuilder<StringSelectMenuBuilder>[] {
+	const perMenu = Math.ceil(ctx.categories.length / MENUS);
+	return Array.from({ length: MENUS }, (_, m) => {
+		const menu = new StringSelectMenuBuilder()
+			.setCustomId(`${ID.menu}${m + 1}`)
+			.setPlaceholder(ctx.lang.help_select_menu)
+			.setDisabled(disabled)
+			.addOptions(
+				new StringSelectMenuOptionBuilder()
+					.setLabel(ctx.lang.help_back_to_menu)
+					.setDescription(ctx.lang.help_back_to_menu_desc)
+					.setValue(BACK)
+					.setEmoji(ctx.client.iHorizon_Emojis.Home)
+			);
+		ctx.categories
+			.slice(m * perMenu, (m + 1) * perMenu)
+			.forEach((category, k) => {
+				const index = m * perMenu + k;
+				menu.addOptions(
+					new StringSelectMenuOptionBuilder()
+						.setLabel(category.name)
+						.setDescription(
+							ctx.lang.help_select_menu_fields_desc.replace(
+								"${commandCount}",
+								String(category.value.length)
+							)
+						)
+						.setValue(String(index))
+						.setEmoji(category.emoji)
+						.setDefault(index === selected)
+				);
+			});
+		return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			menu
+		);
 	});
 }
 
-async function handleCategorySelect(
-	i: StringSelectMenuInteraction,
-	response: Message,
-	categories: CategoryData[],
-	menuRows: ActionRowBuilder<MessageActionRowComponentBuilder>[],
+/** The /perm state of a command: open, or locked (level, roles, members). */
+function lockState(ctx: HelpContext, cmd: string): string {
+	const e = ctx.client.iHorizon_Emojis;
+	let state = ctx.perms?.[cmd];
+	if (typeof state === "number")
+		state = { users: [], roles: [], level: state };
+	if (!state) return e.Unlock;
+	const parts: string[] = [];
+	if ((state.level ?? 0) > 0) parts.push(`${state.level}`);
+	if (state.roles.length)
+		parts.push(`${state.roles.length} ${ctx.lang.var_roles}`);
+	if (state.users.length)
+		parts.push(`${state.users.length} ${ctx.lang.var_member}`);
+	return parts.length ? `${e.Lock} ${parts.join(" · ")}` : e.Unlock;
+}
+
+function descriptionOf(ctx: HelpContext, command: BotContent): string {
+	const locale = ctx.guildLang
+		? DESCRIPTION_LOCALE[ctx.guildLang]
+		: undefined;
+	const localized = locale
+		? command.desc_localized?.[
+				locale as keyof typeof command.desc_localized
+			]
+		: undefined;
+	return localized || command.desc;
+}
+
+interface Entry {
+	cmd: string;
+	text: string;
+}
+
+/**
+ * One command, always laid out the same way so the rows line up: the command first (its clickable mention,
+ * or its prefix form when it has no slash command), then its description, then its other form and its
+ * /perm state. The emojis close the lines, never open them.
+ */
+async function commandEntry(
+	ctx: HelpContext,
+	command: BotContent
+): Promise<Entry> {
+	const name = command.prefixCmd || command.cmd;
+	const prefixForm =
+		ctx.prefix.type === "mention"
+			? `\`@${ctx.botName} ${name}\``
+			: `\`${ctx.prefix.string}${name}\``;
+	const hasSlash = command.messageCmd === 0 || command.messageCmd === 2;
+	const hasPrefix = command.messageCmd === 1 || command.messageCmd === 2;
+	const head = hasSlash
+		? await commandMention(ctx.client, command.cmd)
+		: `**${prefixForm}**`;
+	const meta = [
+		hasSlash && hasPrefix && prefixForm,
+		lockState(ctx, command.cmd)
+	]
+		.filter(Boolean)
+		.join(" · ");
+	return {
+		cmd: command.cmd,
+		text: `${head}\n-# ${descriptionOf(ctx, command)}\n-# ${meta}`
+	};
+}
+
+/** A category's entries in pages: PAGE_SIZE commands at most, and under Discord's text limit. */
+async function categoryPages(
+	ctx: HelpContext,
+	category: CategoryData
+): Promise<Entry[][]> {
+	const pages: Entry[][] = [[]];
+	let size = 0;
+	for (const command of category.value) {
+		const entry = await commandEntry(ctx, command);
+		const page = pages[pages.length - 1];
+		if (
+			page.length &&
+			(page.length >= PAGE_SIZE ||
+				size + entry.text.length > PAGE_TEXT_MAX)
+		) {
+			pages.push([entry]);
+			size = entry.text.length;
+		} else {
+			page.push(entry);
+			size += entry.text.length;
+		}
+	}
+	return pages;
+}
+
+/** A category's description is stored as a quote in italics ("> *...*"): shown as plain text under the title. */
+const plainDescription = (description: string) =>
+	description
+		.replace(/^>\s*/, "")
+		.replace(/^\*(.*)\*$/s, "$1")
+		.trim();
+
+function footer(ctx: HelpContext, extra?: string): TextDisplayBuilder {
+	return text(`-# ${[extra, ctx.signature].filter(Boolean).join(" · ")}`);
+}
+
+async function homeView(
+	ctx: HelpContext,
+	disabled: boolean
+): Promise<ContainerBuilder> {
+	const { lang, client } = ctx;
+	const e = client.iHorizon_Emojis;
+	const owners = client.owners
+		.slice(0, 2)
+		.map((id) => `<@${id}>`)
+		.join(", ");
+	const commandCount = ctx.categories.reduce((n, c) => n + c.value.length, 0);
+
+	return new ContainerBuilder()
+		.setAccentColor(ACCENT.neutral)
+		.addSectionComponents(
+			new SectionBuilder()
+				.addTextDisplayComponents(
+					text(
+						`## ${e.Pages} ${lang.help_home_title.replace("${botName}", ctx.botName)}\n${lang.help_home_intro}`
+					)
+				)
+				.setThumbnailAccessory(new ThumbnailBuilder().setURL(AVATAR))
+		)
+		.addMediaGalleryComponents(
+			new MediaGalleryBuilder().addItems(
+				new MediaGalleryItemBuilder().setURL(ctx.banner)
+			)
+		)
+		.addSeparatorComponents(separator(SeparatorSpacingSize.Large))
+		.addTextDisplayComponents(
+			text(
+				[
+					lang.help_home_stats
+						.replace(
+							"${categoryCount}",
+							String(ctx.categories.length)
+						)
+						.replace("${commandCount}", String(commandCount)),
+					owners &&
+						lang.help_home_creators.replace("${owners}", owners),
+					lang.help_home_tip
+						.replace(
+							"${languageCount}",
+							String(AvailableLanguage.length)
+						)
+						.replace(
+							"${command}",
+							await commandMention(client, "setlang")
+						)
+				]
+					.filter(Boolean)
+					.join("\n")
+			)
+		)
+		.addSeparatorComponents(separator())
+		.addActionRowComponents(...categoryMenus(ctx, null, disabled))
+		.addActionRowComponents(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				link(lang.help_search_button, SEARCH_URL, e.Search),
+				link(lang.welcome_btn_dashboard, DASHBOARD_URL, e.Home),
+				link(lang.guild_create_btn_docs, DOCS_URL, e.Documentation),
+				link(lang.guild_create_btn_support, SUPPORT_URL, e.Logo)
+			)
+		)
+		.addTextDisplayComponents(footer(ctx));
+}
+
+function categoryView(
+	ctx: HelpContext,
+	index: number,
+	pages: Entry[][],
+	page: number,
+	disabled: boolean
+): ContainerBuilder {
+	const category = ctx.categories[index];
+	const container = new ContainerBuilder()
+		.setAccentColor(colorOf(category.color))
+		.addTextDisplayComponents(
+			text(
+				`## ${category.emoji} ${category.name}\n${plainDescription(category.description)}`
+			)
+		)
+		.addSeparatorComponents(separator(SeparatorSpacingSize.Large));
+	// One section per command: Discord lines the text up on the left and the button on the right.
+	for (const entry of pages[page])
+		container.addSectionComponents(
+			new SectionBuilder()
+				.addTextDisplayComponents(text(entry.text))
+				.setButtonAccessory(
+					new ButtonBuilder()
+						.setCustomId(`${ID.details}${entry.cmd}`)
+						.setLabel(ctx.lang.help_details_button)
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(disabled)
+				)
+		);
+	container
+		.addSeparatorComponents(separator())
+		.addTextDisplayComponents(
+			footer(
+				ctx,
+				[
+					pages.length > 1 && pageLabel(ctx.lang, page, pages.length),
+					ctx.lang.help_select_menu_fields_desc.replace(
+						"${commandCount}",
+						String(category.value.length)
+					)
+				]
+					.filter(Boolean)
+					.join(" · ")
+			)
+		);
+	if (pages.length > 1)
+		container.addActionRowComponents(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId(ID.previous)
+					.setLabel(ctx.lang.var_previous)
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(disabled || page === 0),
+				new ButtonBuilder()
+					.setCustomId(ID.next)
+					.setLabel(ctx.lang.var_next)
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(disabled || page === pages.length - 1)
+			)
+		);
+	return container.addActionRowComponents(
+		...categoryMenus(ctx, index, disabled)
+	);
+}
+
+/** The details of one command (usage, permission, aliases), as a card. */
+async function commandCard(
 	client: Client,
 	lang: LanguageData,
-	bot_prefix: { type: "prefix" | "mention"; string: string },
-	Commands: DatabaseStructure.UtilsPermsData | undefined
-) {
-	const previousCollector = (response as HelpMessage).buttonCollector;
-	if (previousCollector && !previousCollector.ended) {
-		previousCollector.stop();
-	}
-
-	if (i.values[0] === "back") {
-		const og_embed = new EmbedBuilder()
-			.setColor("#001eff")
-			.setDescription(
-				lang.help_tip_embed
-					.replaceAll("${botName}", i.client.user.username)
-					.replaceAll("${emoji_Pin}", client.iHorizon_Emojis.Pin)
-					.replaceAll(
-						"${categorieCount}",
-						categories.length.toString()
-					)
-					.replaceAll(
-						"${emoji_Slash_Bot_Badge}",
-						client.iHorizon_Emojis.Slash_Bot_Badge
-					)
-					.replaceAll(
-						"${slashCount}",
-						i.client.content.length.toString()
-					)
-					.replaceAll("${emoji_Crown}", client.iHorizon_Emojis.Crown)
-					.replaceAll("${owner1}", client.owners[0])
-					.replaceAll(
-						"${owner2}",
-						client.owners[1] ?? client.owners[0]
-					)
-					.replaceAll(
-						"${emoji_VC_Region}",
-						client.iHorizon_Emojis.VC_Region
-					)
-					.replaceAll(
-						"${emoji_Slash_Bot_Badge}",
-						client.iHorizon_Emojis.Slash_Bot_Badge
-					)
-			)
-			.setFooter(
-				await client.func.displayBotName.footerBuilder(i.guildId!)
-			)
-			.setImage(await client.func.bannerGenerator(i.guildId))
-			.setThumbnail("attachment://footer_icon.png")
-			.setTimestamp();
-		await response.edit({
-			embeds: [og_embed],
-			components: menuRows
-		});
-		return;
-	}
-
-	const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
-	const categoryIndex = parseInt(i.values[0]);
-	const category = categories[categoryIndex];
-	const embeds: EmbedBuilder[] = [];
-
-	let currentEmbed = new EmbedBuilder()
-		.setTitle(`${category.emoji}・${category.name}`)
-		.setDescription(category.description)
-		.setColor(category.color as ColorResolvable)
-		.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
-		.setThumbnail("attachment://footer_icon.png")
-		.setTimestamp();
-
-	let currentFieldsLength = 0;
-	let currentFieldsCount = 0;
-
-	for (const element of category.value) {
-		let states = "";
-		let cmdPrefix: string;
-
-		let commandStates = Commands?.[element.cmd];
-
-		if (typeof commandStates === "number") {
-			commandStates = {
-				users: [],
-				roles: [],
-				level: commandStates
-			};
-		}
-
-		if (commandStates) {
-			const permissionLevel = commandStates.level ?? 0;
-
-			if (permissionLevel > 0) {
-				states = `${client.iHorizon_Emojis.Lock} ${permissionLevel}`;
-			} else {
-				states = `${client.iHorizon_Emojis.Unlock}`;
-			}
-
-			const hasRoles = commandStates.roles.length > 0;
-			const hasUsers = commandStates.users.length > 0;
-
-			if (hasRoles && hasUsers) {
-				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.roles.length} ${lang.var_roles}) (${commandStates.users.length} ${lang.var_member})`;
-			} else if (hasRoles) {
-				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.roles.length} ${lang.var_roles})`;
-			} else if (hasUsers) {
-				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.users.length} ${lang.var_member})`;
-			}
-		} else {
-			states = `${client.iHorizon_Emojis.Unlock}`;
-		}
-
-		const cleanedPrefixCommandName = element.prefixCmd || element.cmd;
-		const prefixOrNot = `${client.iHorizon_Emojis.Message_Commands} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
-
-		switch (element.messageCmd) {
-			// Slash command
-			case 0:
-				cmdPrefix = `${states}\n・${client.iHorizon_Emojis.Slash_Bot_Badge} **/${element.cmd}**`;
-				break;
-			// Message command
-			case 1:
-				cmdPrefix =
-					bot_prefix.type === "mention"
-						? `${states}\n・${client.iHorizon_Emojis.Message_Commands} **@Ping-Me ${cleanedPrefixCommandName}**`
-						: `${states}\n・${client.iHorizon_Emojis.Message_Commands} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
-				break;
-			// Hybrid command
-			case 2:
-				cmdPrefix =
-					bot_prefix.type === "mention"
-						? `${states}\n・${client.iHorizon_Emojis.Message_Commands} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.Slash_Bot_Badge} **${element.prefixCmd}**`
-						: `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.Slash_Bot_Badge} **/${element.cmd}**`;
-				break;
-			default:
-				cmdPrefix = `${states}\n・**${element.cmd}**`;
-		}
-
-		const descValue =
-			guildData && element.desc_localized
-				? (() => {
-						const langMap: Record<string, string> = {
-							"fr-FR": "fr",
-							"fr-ME": "fr",
-							"jp-JP": "ja",
-							"ko-KR": "ko",
-							"ru-RU": "ru",
-							"uk-UA": "uk",
-							"de-DE": "de",
-							"it-IT": "it",
-							"pt-PT": "pt-BR",
-							"pl-PL": "pl",
-							"es-ES": "es-ES"
-						};
-						const key = langMap[guildData] as
-							keyof typeof element.desc_localized | undefined;
-						return key && element.desc_localized[key]
-							? element.desc_localized[key]
-							: element.desc;
-					})()
-				: element.desc;
-
-		const newFieldLength = cmdPrefix.length + descValue.length;
-
-		if (
-			currentFieldsCount >= 8 ||
-			currentFieldsLength + newFieldLength > 4000
-		) {
-			embeds.push(currentEmbed);
-			currentEmbed = new EmbedBuilder()
-				.setTitle(`${category.emoji}・${category.name}`)
-				.setDescription(category.description)
-				.setColor(category.color as ColorResolvable)
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(i.guildId!)
-				)
-				.setThumbnail("attachment://footer_icon.png")
-				.setTimestamp();
-			currentFieldsLength = 0;
-			currentFieldsCount = 0;
-		}
-
-		currentEmbed.addFields({
-			name: cmdPrefix,
-			value: `-# **┖ ${descValue}**`,
-			inline: false
-		});
-
-		currentFieldsLength += newFieldLength;
-		currentFieldsCount++;
-	}
-
-	if (currentFieldsCount > 0) {
-		embeds.push(currentEmbed);
-	}
-
-	let currentPage = 0;
-	const navigationRow = createNavigationRow(currentPage, embeds.length);
-
-	await response.edit({
-		embeds: [embeds[currentPage]],
-		components: [...menuRows, navigationRow]
-	});
-
-	const buttonCollector = response.createMessageComponentCollector({
-		componentType: ComponentType.Button,
-		time: 840_000
-	});
-
-	(response as HelpMessage).buttonCollector = buttonCollector;
-
-	buttonCollector.on("collect", async (interaction) => {
-		if (interaction.user.id !== i.user.id) {
-			await interaction.reply({
-				content: lang.help_not_for_you,
-				flags: [1 << 6]
-			});
-			return;
-		}
-
-		await interaction.deferUpdate();
-
-		switch (interaction.customId) {
-			case "first":
-				currentPage = 0;
-				break;
-			case "previous":
-				currentPage = Math.max(0, currentPage - 1);
-				break;
-			case "next":
-				currentPage = Math.min(embeds.length - 1, currentPage + 1);
-				break;
-			case "last":
-				currentPage = embeds.length - 1;
-				break;
-		}
-
-		const updatedNavigationRow = createNavigationRow(
-			currentPage,
-			embeds.length
-		);
-		await updatePage(
-			response,
-			embeds,
-			currentPage,
-			menuRows,
-			updatedNavigationRow
-		);
-	});
-
-	buttonCollector.on("end", async () => {
-		const disabledNavigationRow = createNavigationRow(
-			currentPage,
-			embeds.length
-		);
-		disabledNavigationRow.components.forEach((button) =>
-			button.setDisabled(true)
-		);
-
-		await response.edit({
-			components: [...menuRows, disabledNavigationRow]
-		});
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	command: Command,
+	signature: string
+): Promise<ContainerBuilder> {
+	const embed = (
+		await client.func.method.createAwesomeEmbed(
+			lang,
+			command,
+			client,
+			interaction
+		)
+	).toJSON();
+	return buildCard({
+		accent: ACCENT.neutral,
+		emoji: client.iHorizon_Emojis.Slash_Bot_Badge,
+		title: command.prefixName || command.name,
+		description: embed.description ?? null,
+		thumbnail: AVATAR,
+		blocks: (embed.fields ?? []).map(
+			(field) => `**${field.name}**\n${field.value}`
+		),
+		signature
 	});
 }
+
+/** A command of the help by its path ("mod ban" -> the "mod" command). */
+const findCommand = (client: Client, path: string) =>
+	client.commands.get(path) ||
+	client.message_commands.get(path) ||
+	client.commands.get(path.split(" ")[0]) ||
+	client.message_commands.get(path.split(" ")[0]);
+
+const link = (label: string, url: string, emoji: string) =>
+	new ButtonBuilder()
+		.setStyle(ButtonStyle.Link)
+		.setLabel(label)
+		.setURL(url)
+		.setEmoji(emoji);
 
 export const command: Command = {
 	name: "help",
@@ -429,197 +495,16 @@ export const command: Command = {
 		)
 			return;
 
-		const categories: CategoryData[] = [];
-
 		const opts = client.func.method.options(interaction, args);
 		const targetCommand = opts.string("command-name", 0);
-
-		if (!targetCommand) {
-			for (const cat of client.category) {
-				const color = cat.categoryColor;
-
-				const descriptionKey = cat.options.description;
-				const description =
-					lang[descriptionKey as keyof LanguageData].toString();
-
-				const placeholderKey = cat.options.placeholder;
-				const placeholder = lang[placeholderKey as keyof LanguageData];
-
-				const commands = client.content.filter(
-					(c) => c.category === cat.categoryName
-				);
-
-				categories.push({
-					name: placeholder.toString(),
-					value: commands,
-					inline: false,
-					description: description,
-					color: color,
-					emoji: cat.options.emoji
-				});
-			}
-
-			categories.sort((a, b) => a.name.localeCompare(b.name));
-
-			const selectMenus = [];
-			const categoriesPerMenu = Math.ceil(categories.length / 2);
-			const Commands = (await client.db.get(
-				`${interaction.guildId}.UTILS.PERMS`
-			)) as DatabaseStructure.UtilsPermsData | undefined;
-			let index = 0;
-
-			for (let i = 0; i < 2; i++) {
-				const selectMenu = new StringSelectMenuBuilder()
-					.setCustomId(`help-menu-${i + 1}`)
-					.setPlaceholder(lang.help_select_menu);
-
-				selectMenu.addOptions(
-					new StringSelectMenuOptionBuilder()
-						.setLabel(lang.help_back_to_menu)
-						.setDescription(lang.help_back_to_menu_desc)
-						.setValue("back")
-						.setEmoji(client.iHorizon_Emojis.Home)
-				);
-
-				const categoriesCalc = categories.slice(
-					i * categoriesPerMenu,
-					(i + 1) * categoriesPerMenu
-				);
-				categoriesCalc.forEach((category) => {
-					selectMenu.addOptions(
-						new StringSelectMenuOptionBuilder()
-							.setLabel(category.name)
-							.setDescription(
-								lang.help_select_menu_fields_desc.replace(
-									"${commandCount}",
-									category.value.length.toString()
-								)
-							)
-							.setValue(index.toString())
-							.setEmoji(category.emoji)
-					);
-					index++;
-				});
-
-				selectMenus.push(selectMenu);
-			}
-
-			const rows = selectMenus.map((selectMenu) => {
-				return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-					selectMenu
-				);
-			});
-
-			const og_embed = new EmbedBuilder()
-				.setColor("#001eff")
-				.setDescription(
-					lang.help_tip_embed
-						.replaceAll(
-							"${botName}",
-							interaction.client.user.username
-						)
-						.replaceAll("${emoji_Pin}", client.iHorizon_Emojis.Pin)
-						.replaceAll(
-							"${categorieCount}",
-							categories.length.toString()
-						)
-						.replaceAll(
-							"${emoji_Slash_Bot_Badge}",
-							client.iHorizon_Emojis.Slash_Bot_Badge
-						)
-						.replaceAll(
-							"${slashCount}",
-							client.content.length.toString()
-						)
-						.replaceAll(
-							"${emoji_Crown}",
-							client.iHorizon_Emojis.Crown
-						)
-						.replaceAll("${owner1}", client.owners[0])
-						.replaceAll("${owner2}", client.owners[1] ?? "")
-						.replaceAll(
-							"${emoji_VC_Region}",
-							client.iHorizon_Emojis.VC_Region
-						)
-						.replaceAll(
-							"${emoji_Slash_Bot_Badge}",
-							client.iHorizon_Emojis.Slash_Bot_Badge
-						)
-				)
-				.setFooter(
-					await client.func.displayBotName.footerBuilder(
-						interaction.guildId!
-					)
-				)
-				.setImage(
-					await client.func.bannerGenerator(interaction.guild.id)
-				)
-				.setThumbnail("attachment://footer_icon.png")
-				.setTimestamp();
-
-			const response = await client.func.method.interactionSend(
-				interaction,
-				{
-					embeds: [og_embed],
-					components: rows,
-					files: [
-						await client.func.displayBotName.footerAttachmentBuilder(
-							interaction
-						)
-					],
-					content:
-						"> " +
-						client.iHorizon_Emojis.Search +
-						"  **https://www.ihorizon.org/search/**"
-				}
+		const signature = await botSignature(client, interaction.guildId);
+		const avatar =
+			await client.func.displayBotName.footerAttachmentBuilder(
+				interaction
 			);
 
-			const collector = response.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				time: 840000
-			});
-			const bot_prefix = await client.func.prefix.guildPrefix(
-				client,
-				interaction.guild?.id as string
-			);
-
-			collector.on("collect", async (i: StringSelectMenuInteraction) => {
-				if (i.user.id !== interaction.member?.user.id) {
-					await i.reply({
-						content: lang.help_not_for_you,
-						flags: [1 << 6]
-					});
-					return;
-				}
-
-				await i.deferUpdate();
-
-				await handleCategorySelect(
-					i,
-					response,
-					categories,
-					rows,
-					client,
-					lang,
-					bot_prefix,
-					Commands
-				);
-			});
-
-			collector.on("end", async () => {
-				rows.forEach((comp) => {
-					comp.components.forEach((component) => {
-						component.setDisabled(true);
-					});
-				});
-
-				await response.edit({ components: rows });
-				return;
-			});
-		} else {
-			const fetchCommand =
-				client.commands.get(targetCommand) ||
-				client.message_commands.get(targetCommand);
+		if (targetCommand) {
+			const fetchCommand = findCommand(client, targetCommand);
 
 			if (!fetchCommand) {
 				await client.func.method.interactionSend(interaction, {
@@ -631,23 +516,160 @@ export const command: Command = {
 				return;
 			}
 
+			const card = await commandCard(
+				client,
+				lang,
+				interaction,
+				fetchCommand,
+				signature
+			);
 			await client.func.method.interactionSend(interaction, {
-				embeds: [
-					await client.func.method.createAwesomeEmbed(
-						lang,
-						fetchCommand,
-						client,
-						interaction
-					)
-				],
-				flags: [1 << 6],
-				files: [
-					await client.func.displayBotName.footerAttachmentBuilder(
-						interaction
-					)
-				]
-			});
+				...cardPayload(card),
+				flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+				files: [avatar]
+			} as never);
+			return;
 		}
+
+		// A slash command with subcommands is listed by its subcommands only: its root ("/honeypot") is not a
+		// command you can run (the slash loader still records it in client.content).
+		const groups = new Set(
+			client.content
+				.filter((c) => c.cmd.includes(" "))
+				.map((c) => c.cmd.split(" ")[0])
+		);
+		const categories: CategoryData[] = client.category
+			.map((cat) => ({
+				name: String(
+					lang[cat.options.placeholder as keyof LanguageData]
+				),
+				value: client.content.filter(
+					(c) =>
+						c.category === cat.categoryName &&
+						!(groups.has(c.cmd) && !c.cmd.includes(" "))
+				),
+				inline: false,
+				description: String(
+					lang[cat.options.description as keyof LanguageData]
+				),
+				color: cat.categoryColor,
+				emoji: cat.options.emoji
+			}))
+			.sort((a, b) => a.name.localeCompare(b.name));
+
+		const ctx: HelpContext = {
+			client,
+			lang,
+			categories,
+			perms: (await client.db.get(
+				`${interaction.guildId}.UTILS.PERMS`
+			)) as DatabaseStructure.UtilsPermsData | undefined,
+			prefix: await client.func.prefix.guildPrefix(
+				client,
+				interaction.guild.id
+			),
+			guildLang: (await client.db.get(
+				`${interaction.guildId}.GUILD.LANG.lang`
+			)) as string | null,
+			botName: client.user.username,
+			banner: await client.func.bannerGenerator(interaction.guildId),
+			signature
+		};
+
+		// Pages of a category, built once per message.
+		const paged = new Map<number, Entry[][]>();
+		const pagesOf = async (index: number) => {
+			let pages = paged.get(index);
+			if (!pages) {
+				pages = await categoryPages(ctx, categories[index]);
+				paged.set(index, pages);
+			}
+			return pages;
+		};
+		let view: View = { kind: "home" };
+		const render = async (disabled: boolean) =>
+			view.kind === "home"
+				? homeView(ctx, disabled)
+				: categoryView(
+						ctx,
+						view.index,
+						await pagesOf(view.index),
+						view.page,
+						disabled
+					);
+
+		const response = await client.func.method.interactionSend(interaction, {
+			...cardPayload(await render(false)),
+			files: [avatar]
+		} as never);
+
+		const authorId = client.func.method.authorOf(interaction).id;
+		const collector = response.createMessageComponentCollector({
+			time: TIMEOUT_MS
+		});
+
+		collector.on("collect", async (i) => {
+			if (i.user.id !== authorId) {
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
+			}
+
+			if (i.isStringSelectMenu() && i.customId.startsWith(ID.menu)) {
+				const value = i.values[0];
+				view =
+					value === BACK
+						? { kind: "home" }
+						: { kind: "category", index: Number(value), page: 0 };
+			} else if (i.isButton() && i.customId.startsWith(ID.details)) {
+				// A command's details, privately; the help stays where it is.
+				const command = findCommand(
+					client,
+					i.customId.slice(ID.details.length)
+				);
+				if (!command) return;
+				await i.reply({
+					...cardPayload(
+						await commandCard(
+							client,
+							lang,
+							interaction,
+							command,
+							signature
+						)
+					),
+					flags: [
+						MessageFlags.IsComponentsV2,
+						MessageFlags.Ephemeral
+					],
+					files: [avatar]
+				} as never);
+				return;
+			} else if (i.isButton() && view.kind === "category") {
+				const pages = await pagesOf(view.index);
+				if (i.customId === ID.previous)
+					view = { ...view, page: Math.max(0, view.page - 1) };
+				else if (i.customId === ID.next)
+					view = {
+						...view,
+						page: Math.min(pages.length - 1, view.page + 1)
+					};
+				else return;
+			} else return;
+
+			await i.update({ components: [await render(false)] });
+		});
+
+		collector.on("end", async () => {
+			await response
+				.edit({
+					components: [await render(true)],
+					flags: [MessageFlags.IsComponentsV2]
+				} as never)
+				.catch(() => undefined);
+		});
 	},
 	permission: null
 };

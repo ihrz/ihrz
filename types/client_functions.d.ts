@@ -23,6 +23,7 @@ import type { ChannelType, ComponentType, DiscordAPIError } from "discord.js";
 import type { DatabaseStructure } from "./database_structure.d.ts";
 import type { LanguageData } from "./languageData.d.ts";
 import type { GatewayMethod } from "../src/core/functions/apiUrlParser.js";
+import type { iHorizonAsset as iHorizonAssetEnum } from "../src/core/functions/iHorizonAssets.js";
 import { ModalOptionsBuilder } from "../src/core/functions/modalHelper.js";
 import {
 	ActionRowBuilder,
@@ -412,6 +413,16 @@ declare namespace Client_Functions {
 			authorId: string,
 			method: string
 		): Promise<number | null>;
+	}
+
+	// From iHorizonAssets.ts
+	export namespace iHorizonAssets {
+		export const iHorizonAsset: typeof iHorizonAssetEnum;
+		export const PROCESS_STARTED_AT: number;
+		export function iHorizonAssetURL(
+			asset: iHorizonAssetEnum,
+			lang?: string
+		): string;
 	}
 
 	// From ihorizon_logs.ts

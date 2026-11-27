@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 📖 `/help` — a new help card
+
+`/help` is redesigned with Discord's new components. The home card shows the iHorizon banner in your server's language, how many categories and commands there are, who made the bot, how to change its language, the category menus, and buttons to search a command on the website, open the dashboard, the documentation and the support server. A category lists its commands 6 per page, each on the same layout: the command (click it to fill in the slash command), what it does, then its prefix form and its padlock; **Details** shows a command's usage, permission and aliases, only to you. `/help command-name` uses the same card. Commands that only group subcommands (such as `/honeypot`) are no longer listed on their own.
+
+---
+
 ## 🤝 Supporter role — the status, the server tag, both, or one of the two
 
 The supporter role (`/support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first. Setting it up now gives the role at once to members online who already match (it used to wait for their next status change), and a fix makes it work at all: the bot wrongly saw nearly every role as above its own and gave nothing. `/support` answers with a clear card: the condition, the keyword looked for (or your vanity code), the role, and a warning when nothing can match (status mode without a keyword or vanity invite).
@@ -357,6 +363,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Images**: the images iHorizon shows from its website (banner, honeypot, polls…) are fetched again after each restart, so Discord no longer keeps showing an older version (the old, stretched banner).
 - **Banner**: the image under `/help` and the temporary voice panels is the new iHorizon banner, in your server's language (the line, the dashboard and the `/mod ban` card shown on it are translated). Ukrainian and Polish servers get theirs too (their image was missing).
 - **Dashboard sign-in**: a **Join the iHorizon support server** switch under the sign-in button, on by default. Turn it off and signing in no longer asks Discord for the permission to add you to a server, and you are not added (the choice is remembered on that browser).
 - **Auto-renew**: a renewed channel goes back to its exact place, even in a long category.

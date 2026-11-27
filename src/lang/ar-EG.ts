@@ -632,8 +632,6 @@ export default {
 	status_be_bot_dev: ":x: | **يجب أن تكون مطور البوت للقيام بذلك!**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ قائمة المساعدة```\n${emoji_Pin} ・ **${categorieCount}** فئة أوامر متاحة\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** أوامر سلاش متاحة\n${emoji_Crown} ・ **أنشأه** <@${owner1}>, <@${owner2}>\n\n```هل تعلم؟ ・ نصائح```\n${emoji_VC_Region} ・ ${botName} هو **100% متعدد اللغات**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "إدارة",
 	help_ranks_fields: "الرتب",
 	help_fun_fields: "متعة",
@@ -678,6 +676,15 @@ export default {
 	help_memberc_dsc: "> *تريد إعداد قنوات صوتية لعدد الأعضاء؟ بالطبع :smile:*",
 	help_newftrs_dsc: "> *هنا بعض الميزات الجديدة والمثيرة!*",
 	help_not_for_you: "هذه التفاعل ليست لك",
+	help_home_title: "${botName} · المساعدة",
+	help_home_intro: "كل الأوامر مرتبة حسب الفئة. اختر فئة من القائمة أدناه.",
+	help_home_stats:
+		"${emoji_Pin} **${categoryCount}** فئة\n${emoji_Slash_Bot_Badge} **${commandCount}** أمر",
+	help_home_creators: "${emoji_Crown} من صنع ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} متوفر بـ **${languageCount}** لغة: غيّرها بـ ${command}",
+	help_search_button: "ابحث عن أمر",
+	help_details_button: "التفاصيل",
 	help_protection_fields: "حماية",
 	help_protection_dsc:
 		"> *منع المستخدمين غير المدرجين من القيام ببعض الأفعال لحماية الخادم.*",

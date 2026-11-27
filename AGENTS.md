@@ -82,6 +82,7 @@ bun run type:func
 ```
 
 - Generator: `tools/Client_Func_Typator.ts`. If you add a function file, run it.
+- `type:func` rewrites the whole file and loses the declarations fixed by hand (namespaces such as `typeGuards`, `roleSelectMenu`, `iHorizonAssets`; `getLanguageData` callable): after running it, compare with `git diff types/client_functions.d.ts`, keep only the new function's declaration, restore the rest. Check with `bun run build`.
 - Only the top-level files of `src/core/functions/` become `client.func` entries (`gen:exports` and `type:func` skip subfolders). A large file may be split into a subfolder of themed modules that its top-level file re-exports with `export * from "./<name>/<module>.js"` (e.g. `method.ts` -> `method/*.ts`): the typator follows those re-exports, so `client.func.<name>.*` keeps every function. A new `method.*` function goes in the module of its theme.
 
 ## Commands
@@ -129,6 +130,11 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - Adding, renaming or deleting a command, subcommand, `init.json`, event, button, select menu, `src/core/functions` file or SVG template: run `bun run gen:exports` (or `bun run dev`, which rewrites the changed ones) and commit `src/exports` with the change. Never edit them by hand.
 - The ShardingManager (`src/index.ts`) only checks them (`checkExports`) and warns when stale, it never writes in prod.
 - It then builds the shard bundle once (`src/core/modules/shardBundle.ts`: `Bun.build` of `src/core/bot.ts`, packages external, linked sourcemap) into `dist/shard/bot.js`, which every shard runs. Inside the bundle `import.meta.dir` / `__dirname` point at `dist/shard`: resolve paths from `process.cwd()`, and never `import()` a computed path (add an export instead, like `src/exports/lang.ts`). `IHORIZON_NO_BUNDLE=1` runs `src` directly.
+
+## Images hosted by iHorizon (`www.ihorizon.org/assets`)
+
+- Every image the bot shows from its website is a member of `iHorizonAsset` in `src/core/functions/iHorizonAssets.ts`, and its URL comes from `iHorizonAssetURL(asset, lang?)` (commands: `client.func.iHorizonAssets.*`). Never write such a URL in a file.
+- The URL ends with `?v=<process start>` (Unix epoch ms, from `process.uptime()` like `+status`, computed once): Discord's image proxy keeps one copy per URL, so an image replaced on the site shows after the next restart. New image = a new member of the enum.
 
 ## Emojis
 

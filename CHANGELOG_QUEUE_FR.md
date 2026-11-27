@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 📖 `/help` — une nouvelle carte d'aide
+
+`/help` est refait avec les nouveaux composants de Discord. L'accueil montre la bannière d'iHorizon dans la langue de votre serveur, le nombre de catégories et de commandes, qui a créé le bot, comment changer sa langue, les menus des catégories, et des boutons pour chercher une commande sur le site, ouvrir le dashboard, la documentation et le serveur support. Une catégorie liste ses commandes 6 par page, toutes de la même façon : la commande (un clic remplit la commande slash), ce qu'elle fait, puis sa forme préfixe et son cadenas ; **Détails** affiche l'usage, la permission et les alias d'une commande, à vous seul. `/help command-name` utilise la même carte. Les commandes qui ne font que regrouper des sous-commandes (comme `/honeypot`) ne sont plus listées seules.
+
+---
+
 ## 🤝 Rôle de soutien — le statut, le tag du serveur, les deux, ou l'un des deux
 
 Le rôle de soutien (`/support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier. Le régler donne maintenant le rôle tout de suite aux membres en ligne qui remplissent déjà la condition (avant, il fallait attendre leur prochain changement de statut), et un correctif le fait enfin marcher : le bot croyait presque chaque rôle au-dessus du sien et ne donnait rien. `/support` répond avec une carte claire : la condition, le mot-clé cherché (ou votre code d'invitation personnalisé), le rôle, et un avertissement quand rien ne peut correspondre (mode statut sans mot-clé ni invitation personnalisée).
@@ -357,6 +363,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Images** : les images qu'iHorizon montre depuis son site (bannière, honeypot, sondages…) sont rechargées après chaque redémarrage, Discord ne garde donc plus une ancienne version (l'ancienne bannière étirée).
 - **Bannière** : l'image sous `/help` et les panneaux du vocal temporaire est la nouvelle bannière d'iHorizon, dans la langue de votre serveur (le slogan, le dashboard et la carte `/mod ban` qu'elle montre sont traduits). Les serveurs en ukrainien et en polonais ont enfin la leur (leur image manquait).
 - **Connexion au dashboard** : un interrupteur **Rejoindre le serveur support d'iHorizon** sous le bouton de connexion, activé par défaut. Désactivé, la connexion ne demande plus à Discord la permission de vous ajouter à un serveur, et vous n'y êtes pas ajouté (le choix est retenu sur ce navigateur).
 - **Renouvellement automatique** : un salon renouvelé reprend sa place exacte, même dans une longue catégorie.

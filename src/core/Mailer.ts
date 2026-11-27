@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { iHorizonAsset, iHorizonAssetURL } from "./functions/iHorizonAssets.js";
 import nodemailer, { type Transporter } from "nodemailer";
 import type { MailContent } from "./modules/mailTemplates.js";
 
@@ -106,7 +107,7 @@ export class Mailer {
                 <table style="font-family: Arial, sans-serif; color: #333; border-top: 2px solid #5865F2; padding-top: 15px; margin-top: 20px;">
                     <tr>
                         <td style="padding-right: 15px;">
-                            <img src="https://www.ihorizon.org/assets/img/ihorizon.png" alt="iHorizon" width="50" height="50" style="border-radius: 8px;">
+                            <img src="${iHorizonAssetURL(iHorizonAsset.Logo)}" alt="iHorizon" width="50" height="50" style="border-radius: 8px;">
                         </td>
                         <td>
                             <strong style="color: #5865F2; font-size: 16px;">${this.config.fromName}</strong><br>

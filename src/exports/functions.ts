@@ -47,45 +47,46 @@ import * as m21 from "../core/functions/getLanguageDataByCode.ts";
 import * as m22 from "../core/functions/getMessageURL.ts";
 import * as m23 from "../core/functions/hasIhorizonLogs.ts";
 import * as m24 from "../core/functions/helper.ts";
-import * as m25 from "../core/functions/ihorizon_logs.ts";
-import * as m26 from "../core/functions/image64.ts";
-import * as m27 from "../core/functions/image_dominant_color.ts";
-import * as m28 from "../core/functions/intentEnabler.ts";
-import * as m29 from "../core/functions/isAllowedLinks.ts";
-import * as m30 from "../core/functions/kdenliveManipulator.ts";
-import * as m31 from "../core/functions/leashModuleHelper.ts";
-import * as m32 from "../core/functions/maskLink.ts";
-import * as m33 from "../core/functions/mediaManipulation.ts";
-import * as m34 from "../core/functions/messageDiff.ts";
-import * as m35 from "../core/functions/method.ts";
-import * as m36 from "../core/functions/modalHelper.ts";
-import * as m37 from "../core/functions/ms.ts";
-import * as m38 from "../core/functions/musicPlay.ts";
-import * as m39 from "../core/functions/music_proximity.ts";
-import * as m40 from "../core/functions/numberBeautifuer.ts";
-import * as m41 from "../core/functions/os_utils.ts";
-import * as m42 from "../core/functions/ownerHelper.ts";
-import * as m43 from "../core/functions/permissonsCalculator.ts";
-import * as m44 from "../core/functions/prefix.ts";
-import * as m45 from "../core/functions/random.ts";
-import * as m46 from "../core/functions/randomExpression.ts";
-import * as m47 from "../core/functions/retrieveMyself.ts";
-import * as m48 from "../core/functions/roleSelectMenu.ts";
-import * as m49 from "../core/functions/sanitizeInteractionOptionValue.ts";
-import * as m50 from "../core/functions/sanitizer.ts";
-import * as m51 from "../core/functions/searchLyrics.ts";
-import * as m52 from "../core/functions/shard_helper.ts";
-import * as m53 from "../core/functions/svg2png.ts";
-import * as m54 from "../core/functions/svgKit.ts";
-import * as m55 from "../core/functions/tagHelper.ts";
-import * as m56 from "../core/functions/tempVoiceCandidate.ts";
-import * as m57 from "../core/functions/typeGuards.ts";
-import * as m58 from "../core/functions/userStatsUtils.ts";
-import * as m59 from "../core/functions/utcSelect.ts";
-import * as m60 from "../core/functions/validImageType.ts";
-import * as m61 from "../core/functions/wait.ts";
-import * as m62 from "../core/functions/welcomerEmbed.ts";
-import * as m63 from "../core/functions/welcomerMessage.ts";
+import * as m25 from "../core/functions/iHorizonAssets.ts";
+import * as m26 from "../core/functions/ihorizon_logs.ts";
+import * as m27 from "../core/functions/image64.ts";
+import * as m28 from "../core/functions/image_dominant_color.ts";
+import * as m29 from "../core/functions/intentEnabler.ts";
+import * as m30 from "../core/functions/isAllowedLinks.ts";
+import * as m31 from "../core/functions/kdenliveManipulator.ts";
+import * as m32 from "../core/functions/leashModuleHelper.ts";
+import * as m33 from "../core/functions/maskLink.ts";
+import * as m34 from "../core/functions/mediaManipulation.ts";
+import * as m35 from "../core/functions/messageDiff.ts";
+import * as m36 from "../core/functions/method.ts";
+import * as m37 from "../core/functions/modalHelper.ts";
+import * as m38 from "../core/functions/ms.ts";
+import * as m39 from "../core/functions/musicPlay.ts";
+import * as m40 from "../core/functions/music_proximity.ts";
+import * as m41 from "../core/functions/numberBeautifuer.ts";
+import * as m42 from "../core/functions/os_utils.ts";
+import * as m43 from "../core/functions/ownerHelper.ts";
+import * as m44 from "../core/functions/permissonsCalculator.ts";
+import * as m45 from "../core/functions/prefix.ts";
+import * as m46 from "../core/functions/random.ts";
+import * as m47 from "../core/functions/randomExpression.ts";
+import * as m48 from "../core/functions/retrieveMyself.ts";
+import * as m49 from "../core/functions/roleSelectMenu.ts";
+import * as m50 from "../core/functions/sanitizeInteractionOptionValue.ts";
+import * as m51 from "../core/functions/sanitizer.ts";
+import * as m52 from "../core/functions/searchLyrics.ts";
+import * as m53 from "../core/functions/shard_helper.ts";
+import * as m54 from "../core/functions/svg2png.ts";
+import * as m55 from "../core/functions/svgKit.ts";
+import * as m56 from "../core/functions/tagHelper.ts";
+import * as m57 from "../core/functions/tempVoiceCandidate.ts";
+import * as m58 from "../core/functions/typeGuards.ts";
+import * as m59 from "../core/functions/userStatsUtils.ts";
+import * as m60 from "../core/functions/utcSelect.ts";
+import * as m61 from "../core/functions/validImageType.ts";
+import * as m62 from "../core/functions/wait.ts";
+import * as m63 from "../core/functions/welcomerEmbed.ts";
+import * as m64 from "../core/functions/welcomerMessage.ts";
 
 const files: Record<string, unknown> = {
 	"apiUrlParser.ts": m0,
@@ -113,45 +114,46 @@ const files: Record<string, unknown> = {
 	"getMessageURL.ts": m22,
 	"hasIhorizonLogs.ts": m23,
 	"helper.ts": m24,
-	"ihorizon_logs.ts": m25,
-	"image64.ts": m26,
-	"image_dominant_color.ts": m27,
-	"intentEnabler.ts": m28,
-	"isAllowedLinks.ts": m29,
-	"kdenliveManipulator.ts": m30,
-	"leashModuleHelper.ts": m31,
-	"maskLink.ts": m32,
-	"mediaManipulation.ts": m33,
-	"messageDiff.ts": m34,
-	"method.ts": m35,
-	"modalHelper.ts": m36,
-	"ms.ts": m37,
-	"musicPlay.ts": m38,
-	"music_proximity.ts": m39,
-	"numberBeautifuer.ts": m40,
-	"os_utils.ts": m41,
-	"ownerHelper.ts": m42,
-	"permissonsCalculator.ts": m43,
-	"prefix.ts": m44,
-	"random.ts": m45,
-	"randomExpression.ts": m46,
-	"retrieveMyself.ts": m47,
-	"roleSelectMenu.ts": m48,
-	"sanitizeInteractionOptionValue.ts": m49,
-	"sanitizer.ts": m50,
-	"searchLyrics.ts": m51,
-	"shard_helper.ts": m52,
-	"svg2png.ts": m53,
-	"svgKit.ts": m54,
-	"tagHelper.ts": m55,
-	"tempVoiceCandidate.ts": m56,
-	"typeGuards.ts": m57,
-	"userStatsUtils.ts": m58,
-	"utcSelect.ts": m59,
-	"validImageType.ts": m60,
-	"wait.ts": m61,
-	"welcomerEmbed.ts": m62,
-	"welcomerMessage.ts": m63
+	"iHorizonAssets.ts": m25,
+	"ihorizon_logs.ts": m26,
+	"image64.ts": m27,
+	"image_dominant_color.ts": m28,
+	"intentEnabler.ts": m29,
+	"isAllowedLinks.ts": m30,
+	"kdenliveManipulator.ts": m31,
+	"leashModuleHelper.ts": m32,
+	"maskLink.ts": m33,
+	"mediaManipulation.ts": m34,
+	"messageDiff.ts": m35,
+	"method.ts": m36,
+	"modalHelper.ts": m37,
+	"ms.ts": m38,
+	"musicPlay.ts": m39,
+	"music_proximity.ts": m40,
+	"numberBeautifuer.ts": m41,
+	"os_utils.ts": m42,
+	"ownerHelper.ts": m43,
+	"permissonsCalculator.ts": m44,
+	"prefix.ts": m45,
+	"random.ts": m46,
+	"randomExpression.ts": m47,
+	"retrieveMyself.ts": m48,
+	"roleSelectMenu.ts": m49,
+	"sanitizeInteractionOptionValue.ts": m50,
+	"sanitizer.ts": m51,
+	"searchLyrics.ts": m52,
+	"shard_helper.ts": m53,
+	"svg2png.ts": m54,
+	"svgKit.ts": m55,
+	"tagHelper.ts": m56,
+	"tempVoiceCandidate.ts": m57,
+	"typeGuards.ts": m58,
+	"userStatsUtils.ts": m59,
+	"utcSelect.ts": m60,
+	"validImageType.ts": m61,
+	"wait.ts": m62,
+	"welcomerEmbed.ts": m63,
+	"welcomerMessage.ts": m64
 };
 
 export default files;

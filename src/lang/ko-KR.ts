@@ -643,8 +643,6 @@ export default {
 	status_be_bot_dev: ":x: | **이 작업은 봇 개발자만 할 수 있어요!**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ 도움말 메뉴```\n${emoji_Pin} ・ 사용 가능한 명령어 카테고리 **${categorieCount}**개\n${emoji_Slash_Bot_Badge} ・ 사용 가능한 슬래시 명령어 **${slashCount}**개\n${emoji_Crown} ・ **제작자** <@${owner1}>, <@${owner2}>\n\n```알고 계셨나요? ・ 팁```\n${emoji_VC_Region} ・ ${botName}은(는) **100% 다국어**를 지원해요\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "모더레이션",
 	help_ranks_fields: "랭크",
 	help_fun_fields: "재미",
@@ -693,6 +691,16 @@ export default {
 		"> *멤버 수를 표시하는 음성 채널을 설정하고 싶으신가요? 물론이죠 :smile:*",
 	help_newftrs_dsc: "> *새롭고 아주 흥미로운 기능들이에요!*",
 	help_not_for_you: "이 상호작용은 회원님을 위한 것이 아니에요",
+	help_home_title: "${botName} · 도움말",
+	help_home_intro:
+		"모든 명령어를 카테고리별로 정리했어요. 아래 메뉴에서 카테고리를 골라 주세요.",
+	help_home_stats:
+		"${emoji_Pin} 카테고리 **${categoryCount}**개\n${emoji_Slash_Bot_Badge} 명령어 **${commandCount}**개",
+	help_home_creators: "${emoji_Crown} 제작: ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} **${languageCount}**개 언어 지원: ${command}로 바꿀 수 있어요",
+	help_search_button: "명령어 검색",
+	help_details_button: "자세히",
 	help_protection_fields: "보호",
 	help_protection_dsc:
 		"> *허용 목록에 없는 사용자가 특정 작업을 하지 못하게 막아 서버를 보호하세요.*",

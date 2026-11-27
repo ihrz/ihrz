@@ -103,7 +103,11 @@ async function buildConfigEmbed(
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setTitle(lang.honeypot_config_embed_title)
 		.setDescription(lang.honeypot_config_embed_desc)
-		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
+		.setThumbnail(
+			client.func.iHorizonAssets.iHorizonAssetURL(
+				client.func.iHorizonAssets.iHorizonAsset.Honeypot
+			)
+		)
 		.setFooter(
 			await client.func.displayBotName.footerBuilder(interaction.guildId!)
 		)

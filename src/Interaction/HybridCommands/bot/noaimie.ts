@@ -65,7 +65,9 @@ export const command: Command = {
 			return;
 
 		await client.func.method.interactionSend(interaction, {
-			content: "https://www.ihorizon.org/assets/img/noaimie.jpg"
+			content: client.func.iHorizonAssets.iHorizonAssetURL(
+				client.func.iHorizonAssets.iHorizonAsset.Noaimie
+			)
 		});
 		return;
 	},
