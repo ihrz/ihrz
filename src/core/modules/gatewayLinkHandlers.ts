@@ -49,6 +49,7 @@ import {
 	queueStickyChannelRefresh
 } from "./stickyMessageManager.js";
 import { sendTrapEmbed } from "./honeypotManager.js";
+import { refreshSupportRoles } from "./supportRole.js";
 import {
 	getTTSData,
 	startTTSSession,
@@ -510,6 +511,15 @@ const handlers: Record<string, ChangeHandler> = {
 		}
 
 		if (failed.length) throw failed.join(", ");
+	},
+
+	// /support: members whose status already matches get the role now
+	// (the presence event only sees the next change).
+	"GUILD.SUPPORT": async (client, guild) => {
+		const config = (await client.db.get(
+			`${guild.id}.GUILD.SUPPORT`
+		)) as DatabaseStructure.SupportSchema | null;
+		void refreshSupportRoles(guild, config);
 	},
 
 	// /honeypot config (toggle on / trap channel change → trap message)

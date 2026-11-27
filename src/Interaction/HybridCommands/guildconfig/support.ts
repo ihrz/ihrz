@@ -32,6 +32,7 @@ import {
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { refreshSupportRoles } from "../../../core/modules/supportRole.js";
 import { notice, sendCard } from "../../../core/modules/uiCard.js";
 
 export const command: Command = {
@@ -320,6 +321,9 @@ export const command: Command = {
 			};
 
 			await client.db.set(`${interaction.guildId}.GUILD.SUPPORT`, config);
+			// Members whose status already matches get the role now, not at
+			// their next status change.
+			void refreshSupportRoles(interaction.guild, config);
 
 			const template =
 				type === "tag"
