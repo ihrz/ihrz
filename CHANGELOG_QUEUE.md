@@ -10,6 +10,12 @@ The honeypot's trap message is redesigned with Discord's new components: a clear
 
 ---
 
+## ✉️ Owner e-mails — a clean HTML design
+
+The e-mails iHorizon sends to its owner (bot online, added to a server, removed from a server) are redesigned: a tidy card with the server's icon, its details in clear rows (ID, members, owner, language, vanity URL, date, shard), an invite button when there is one, light and dark mode, and a plain-text version for mail apps that do not show HTML. Server names are always shown as text, never as HTML.
+
+---
+
 ## 📝 Google Forms — applications: accept or refuse
 
 A linked Google Form can now run **applications**: turn it on per form in the dashboard. Each response arrives as a card with **Accept** and **Refuse** buttons, for the form's **reviewer role**, administrators and the owner. The role is given **only when the application is accepted**; a refusal can give a **refused role** instead, or nothing. The applicant gets a **private message** with the decision and, when refused, the reason you wrote (optional, and the message can be turned off). The card then shows who decided and when, in place of the buttons. In the dashboard, the latest responses show each application's state (waiting, accepted or refused, by whom, with the reason) and can be accepted or refused from there too. Forms without applications work as before: the role is given at once.

@@ -20,6 +20,7 @@
 */
 
 import nodemailer, { type Transporter } from "nodemailer";
+import type { MailContent } from "./modules/mailTemplates.js";
 
 export interface MailerConfig {
 	host: string;
@@ -157,6 +158,11 @@ export class Mailer {
 			logger.err("Email Sending Error:", error);
 			return false;
 		}
+	}
+
+	/** Sends a rendered email (mailTemplates.ts): its HTML and text already carry the footer, no signature added. */
+	public async sendMail(to: string, mail: MailContent): Promise<boolean> {
+		return this.send(to, mail.subject, mail.text, mail.html, false);
 	}
 
 	private async verifyConnection(): Promise<boolean> {

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { readyMail } from "../../core/modules/mailTemplates.js";
 import {
 	Client,
 	Collection,
@@ -558,20 +559,15 @@ export const event: BotEvent = {
 		}
 
 		if (client.email.connected && client.isMainShard()) {
-			client.email.send(
+			client.email.sendMail(
 				client.email.ownerMail,
-				"Bot Is Ready",
-				`
-=== AUTO-GENERATED MESSAGE ===
-
-iHorizon (${client.user?.tag}) is online
-
-since ${new Date()}
-
-on shard #${client.shard?.ids[0]}
-
-=== AUTO-GENERATED MESSAGE ===
-`
+				readyMail({
+					botTag: client.user?.tag ?? "iHorizon",
+					botName: client.user?.username ?? "iHorizon",
+					shard: client.shard?.ids[0] ?? 0,
+					guilds: client.guilds.cache.size,
+					at: Date.now()
+				})
 			);
 		}
 	}
