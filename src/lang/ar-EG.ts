@@ -5103,5 +5103,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 شكرًا جزيلًا {memberMention} على تعزيز **{guildName}**! بفضلك أصبح لدى الخادم الآن {boostCount} تعزيزات (المستوى {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} لم يعد يعزز **{guildName}**. شكرًا على دعمك طوال هذا الوقت! 💜"
+		"{memberMention} لم يعد يعزز **{guildName}**. شكرًا على دعمك طوال هذا الوقت! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "بوت واحد. كل شيء."
 } satisfies LanguageData;

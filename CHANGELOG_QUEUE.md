@@ -357,6 +357,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Banner**: the image under `/help` and the temporary voice panels is the new iHorizon banner, in your server's language (the line, the dashboard and the `/mod ban` card shown on it are translated). Ukrainian and Polish servers get theirs too (their image was missing).
 - **Dashboard sign-in**: a **Join the iHorizon support server** switch under the sign-in button, on by default. Turn it off and signing in no longer asks Discord for the permission to add you to a server, and you are not added (the choice is remembered on that browser).
 - **Auto-renew**: a renewed channel goes back to its exact place, even in a long category.
 - **Translations**: the last hard-coded texts are translated (help pages, temporary voice regions, wallet, error messages, the DM-only notice, `/status`, the top.gg button…), and a command used in DMs answers in your Discord language

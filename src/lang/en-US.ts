@@ -5320,7 +5320,10 @@ const enUS = {
 	boostmsg_default_boost:
 		"💎 Thank you so much {memberMention} for boosting **{guildName}**! Thanks to you, the server now has {boostCount} boosts (level {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} is no longer boosting **{guildName}**. Thank you for your support all this time! 💜"
+		"{memberMention} is no longer boosting **{guildName}**. Thank you for your support all this time! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "One bot. Everything."
 };
 
 export default enUS;

@@ -5500,5 +5500,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 Merci infiniment {memberMention} d'avoir boosté **{guildName}** ! Grâce à toi, le serveur compte maintenant {boostCount} boosts (niveau {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} ne booste plus **{guildName}**. Merci pour ton soutien pendant tout ce temps ! 💜"
+		"{memberMention} ne booste plus **{guildName}**. Merci pour ton soutien pendant tout ce temps ! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "Un seul bot. Tout y est."
 } satisfies LanguageData;

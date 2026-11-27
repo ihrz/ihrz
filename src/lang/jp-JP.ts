@@ -5350,5 +5350,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 {memberMention} さん、**{guildName}** をブーストしてくれて本当にありがとう！おかげでサーバーのブーストは {boostCount} 回（レベル {boostTier}）になりました。",
 	boostmsg_default_unboost:
-		"{memberMention} さんは **{guildName}** のブーストを終了しました。これまでの応援、本当にありがとう！💜"
+		"{memberMention} さんは **{guildName}** のブーストを終了しました。これまでの応援、本当にありがとう！💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "ひとつのボットで、すべてを。"
 } satisfies LanguageData;
