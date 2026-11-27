@@ -4584,6 +4584,11 @@ export default {
 		"*Ce salon est utilisé pour choper les bots spam.*\n*Tout message envoyé ici **VA** déclencher la protection automatique du serveur.*",
 	honeypot_trap_embed_footer:
 		"Inspiré du Honeypot de RiskyMH, regarde moi ce poulet !\n${url}",
+	honeypot_trap_count_none: "Personne s'est fait niquer pour l'instant",
+	honeypot_trap_count_one: "1 boloss sanctionné",
+	honeypot_trap_count_other: "${count} bolosses sanctionnés",
+	honeypot_trap_count_never: "jamais frérot",
+	honeypot_trap_count_reply: "🍯 Ce piège a niqué **${count}** comptes\nLe dernier : ${last}",
 	honeypot_dm_title: "Honeypot déclenché!",
 	honeypot_dm_desc:
 		"Un message que vous avez envoyé dans le canal *Honeypot* sur le serveur suivant : **`${guild}`** **déclenché** la protection configurée.\n\n__Action prise contre vous :__ **`${action}`**\n\n*Les messages que vous avez envoyés au cours des 2 dernières heures sont en cours de suppression du serveur. Si vous pensez avoir été hacké, changez votre mot de passe et activez la 2FA sur votre compte Discord. S'il s'agit d'une erreur de votre part, veuillez contacter l'équipe du serveur pour résoudre le problème.*",

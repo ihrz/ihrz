@@ -3594,6 +3594,11 @@ export default {
 		"*Ten kanał służy do wyłapywania spamujących botów.*\n*Każda wiadomość wysłana tutaj **URUCHOMI** automatyczną ochronę serwera.*",
 	honeypot_trap_embed_footer:
 		"Zainspirowane botem Honeypot od RiskyMH, zajrzyj do niego!\n${url}",
+	honeypot_trap_count_none: "Nikt jeszcze nie został ukarany",
+	honeypot_trap_count_one: "1 osoba ukarana",
+	honeypot_trap_count_other: "Ukarano: ${count}",
+	honeypot_trap_count_never: "nigdy",
+	honeypot_trap_count_reply: "🍯 Kary z tej pułapki: **${count}**\nOstatnia: ${last}",
 	honeypot_dm_title: "URUCHOMIONO HONEYPOT!",
 	honeypot_dm_desc:
 		"Wiadomość wysłana przez Ciebie na kanale *Honeypot* na serwerze **`${guild}`** **uruchomiła** skonfigurowaną ochronę.\n\n__Podjęta wobec Ciebie akcja:__ **`${action}`**\n\n*Wiadomości wysłane przez Ciebie w ciągu ostatnich 2 godzin są usuwane z serwera. Jeśli uważasz, że Twoje konto zostało zhakowane, zmień hasło i włącz 2FA na swoim koncie Discord. Jeśli to Twoja pomyłka, skontaktuj się z administracją serwera, aby rozwiązać sprawę.*",

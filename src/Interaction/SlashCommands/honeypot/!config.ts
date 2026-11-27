@@ -29,6 +29,7 @@ import {
 	Client,
 	EmbedBuilder,
 	Guild,
+	MessageFlags,
 	PermissionFlagsBits,
 	StringSelectMenuBuilder
 } from "discord.js";
@@ -39,7 +40,8 @@ import { SubCommand } from "../../../../types/command.js";
 import {
 	HONEYPOT_CREDIT_URL,
 	HONEYPOT_EMBED_COLOR,
-	buildTrapEmbed,
+	buildTrapMessage,
+	saveHoneypotConfig,
 	sendTrapEmbed
 } from "../../../core/modules/honeypotManager.js";
 
@@ -301,10 +303,7 @@ export const subCommand: SubCommand = {
 				}
 
 				config.createdBy = interaction.user.id;
-				await client.db.set(
-					`${interaction.guildId}.GUILD.HONEYPOT`,
-					config
-				);
+				await saveHoneypotConfig(client, interaction.guildId, config);
 				await renderPanel();
 				return;
 			}
@@ -317,10 +316,7 @@ export const subCommand: SubCommand = {
 				config.action = i
 					.values[0] as DatabaseStructure.HoneypotSchema["action"];
 				config.createdBy = interaction.user.id;
-				await client.db.set(
-					`${interaction.guildId}.GUILD.HONEYPOT`,
-					config
-				);
+				await saveHoneypotConfig(client, interaction.guildId, config);
 				await renderPanel();
 				return;
 			}
@@ -328,9 +324,10 @@ export const subCommand: SubCommand = {
 			if (!i.isButton()) return;
 
 			if (i.customId === "honeypot-config-preview") {
+				const preview = buildTrapMessage(lang, config.caughtCount ?? 0);
 				await i.reply({
-					embeds: [buildTrapEmbed(lang)],
-					flags: [1 << 6]
+					components: preview.components,
+					flags: [MessageFlags.Ephemeral, preview.flags]
 				});
 				return;
 			}
@@ -351,10 +348,7 @@ export const subCommand: SubCommand = {
 				}
 
 				config.createdBy = interaction.user.id;
-				await client.db.set(
-					`${interaction.guildId}.GUILD.HONEYPOT`,
-					config
-				);
+				await saveHoneypotConfig(client, interaction.guildId, config);
 				await renderPanel();
 				await i.reply({
 					content: lang.honeypot_config_send_success.replace(
@@ -370,8 +364,9 @@ export const subCommand: SubCommand = {
 				if (config.enabled) {
 					config.enabled = false;
 					config.createdBy = interaction.user.id;
-					await client.db.set(
-						`${interaction.guildId}.GUILD.HONEYPOT`,
+					await saveHoneypotConfig(
+						client,
+						interaction.guildId,
 						config
 					);
 					await renderPanel();
@@ -406,10 +401,7 @@ export const subCommand: SubCommand = {
 
 				config.enabled = true;
 				config.createdBy = interaction.user.id;
-				await client.db.set(
-					`${interaction.guildId}.GUILD.HONEYPOT`,
-					config
-				);
+				await saveHoneypotConfig(client, interaction.guildId, config);
 				await renderPanel();
 				await i.reply({
 					content: lang.honeypot_config_enable_success.replace(

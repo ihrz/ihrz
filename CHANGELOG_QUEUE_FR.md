@@ -4,6 +4,12 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ---
 
+## 🍯 Honeypot — nouveau message piège, avec le nombre de prises
+
+Le message du salon piège est refait avec les nouveaux composants de Discord : une carte d'avertissement claire avec l'image du pot de miel et, dessous, un bouton qui affiche **le nombre de comptes sanctionnés par le piège** (expulsions et bannissements réussis : un membre qu'iHorizon ne peut pas sanctionner, comme votre staff, n'est jamais compté). Cliquez dessus pour voir quand a eu lieu la dernière prise. Le compteur se met à jour tout seul après chaque prise ; un piège posté avant cette mise à jour prend le nouveau style à sa prochaine prise, ou quand vous le renvoyez avec `/honeypot config`. Le fonctionnement du piège ne change pas.
+
+---
+
 ## 📝 Google Forms — candidatures : accepter ou refuser
 
 Un formulaire Google lié peut maintenant servir de **candidatures** : à activer pour chaque formulaire dans le dashboard. Chaque réponse arrive en carte avec les boutons **Accepter** et **Refuser**, pour le **rôle examinateurs** du formulaire, les administrateurs et l'owner. Le rôle n'est donné **qu'à l'acceptation** ; un refus peut donner un **rôle « refusé »** à la place, ou rien. Le candidat reçoit un **message privé** avec la décision et, en cas de refus, la raison écrite (facultative, et le message peut être désactivé). La carte affiche ensuite qui a décidé et quand, à la place des boutons. Dans le dashboard, les dernières réponses montrent l'état de chaque candidature (en attente, acceptée ou refusée, par qui, avec la raison), et on peut aussi les accepter ou les refuser de là. Les formulaires sans candidatures marchent comme avant : le rôle est donné tout de suite.

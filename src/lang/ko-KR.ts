@@ -4257,6 +4257,11 @@ export default {
 		"*이 채널은 스팸 봇을 잡기 위한 채널이에요.*\n*여기에 보낸 메시지는 **반드시** 서버의 자동 보호 기능을 작동시켜요.*",
 	honeypot_trap_embed_footer:
 		"RiskyMH의 Honeypot 봇에서 영감을 받았어요. 한번 확인해 보세요!\n${url}",
+	honeypot_trap_count_none: "아직 처벌된 사람이 없습니다",
+	honeypot_trap_count_one: "1명 처벌됨",
+	honeypot_trap_count_other: "${count}명 처벌됨",
+	honeypot_trap_count_never: "없음",
+	honeypot_trap_count_reply: "🍯 이 함정의 처벌 수: **${count}**\n마지막 처벌: ${last}",
 	honeypot_dm_title: "허니팟 작동!",
 	honeypot_dm_desc:
 		"다음 서버의 *허니팟* 채널에 보낸 메시지가 설정된 보호 기능을 **작동시켰어요**: **`${guild}`**\n\n__적용된 조치:__ **`${action}`**\n\n*최근 2시간 동안 보낸 메시지가 서버에서 삭제되고 있어요. 계정이 해킹된 것 같다면 비밀번호를 변경하고 Discord 계정에서 2단계 인증을 켜 주세요. 단순한 실수였다면 서버 스태프에게 연락해 문제를 해결해 주세요.*",

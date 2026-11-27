@@ -4553,6 +4553,11 @@ export default {
 		"*Dieser Kanal wird verwendet, um Spam-Bots zu fangen.*\n*Jede hier gesendete Nachricht **WIRD** den automatischen Schutz des Servers auslösen.*",
 	honeypot_trap_embed_footer:
 		"Inspiriert vom Honeypot von RiskyMH, schau es dir an!\n${url}",
+	honeypot_trap_count_none: "Noch niemand bestraft",
+	honeypot_trap_count_one: "1 Person bestraft",
+	honeypot_trap_count_other: "${count} Personen bestraft",
+	honeypot_trap_count_never: "nie",
+	honeypot_trap_count_reply: "🍯 Strafen durch diese Falle: **${count}**\nLetzte Strafe: ${last}",
 	honeypot_dm_title: "Honeypot ausgelöst!",
 	honeypot_dm_desc:
 		"Eine Nachricht, die du im *Honeypot*-Kanal auf dem folgenden Server gesendet hast: **`${guild}`** **ausgelöst** den konfigurierten Schutz.\n\n__Gegen dich ergriffene Maßnahme:__ **`${action}`**\n\n*Nachrichten, die du in den letzten 2 Stunden gesendet hast, werden vom Server entfernt. Wenn du glaubst, dass dein Konto gehackt wurde, ändere dein Passwort und aktiviere 2FA auf deinem Discord-Konto. Wenn es nur ein Fehler deinerseits war, kontaktiere bitte das Server-Team, um das Problem zu lösen.*",

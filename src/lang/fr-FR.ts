@@ -4548,6 +4548,11 @@ export default {
 		"*Ce canal est utilisé pour attraper les bots spam.*\n*Tout message envoyé ici **DÉCLENCHERA** la protection automatique du serveur.*",
 	honeypot_trap_embed_footer:
 		"Inspiré par le Honeypot de RiskyMH, découvrez-le !\n${url}",
+	honeypot_trap_count_none: "Personne n'a encore été sanctionné",
+	honeypot_trap_count_one: "1 personne sanctionnée",
+	honeypot_trap_count_other: "${count} personnes sanctionnées",
+	honeypot_trap_count_never: "jamais",
+	honeypot_trap_count_reply: "🍯 Sanctions de ce piège : **${count}**\nDernière sanction : ${last}",
 	honeypot_dm_title: "Honeypot déclenché !",
 	honeypot_dm_desc:
 		"Un message que vous avez envoyé dans le canal *Honeypot* sur le serveur suivant : **`${guild}`** **a déclenché** la protection configurée.\n\n__Action prise contre vous :__ **`${action}`**\n\n*Les messages que vous avez envoyés au cours des 2 dernières heures sont en cours de suppression du serveur. Si vous pensez avoir été hacké, changez votre mot de passe et activez la 2FA sur votre compte Discord. S'il s'agit d'une erreur de votre part, veuillez contacter l'équipe du serveur pour résoudre le problème.*",

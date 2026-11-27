@@ -4467,6 +4467,11 @@ export default {
 		"*Este canal é usado para capturar bots de spam.*\n*Qualquer mensagem enviada aqui **ATIVARÁ** a proteção automática do servidor.*",
 	honeypot_trap_embed_footer:
 		"Inspirado pelo Honeypot de RiskyMH, confira!\n${url}",
+	honeypot_trap_count_none: "Ninguém sancionado ainda",
+	honeypot_trap_count_one: "1 pessoa sancionada",
+	honeypot_trap_count_other: "${count} pessoas sancionadas",
+	honeypot_trap_count_never: "nunca",
+	honeypot_trap_count_reply: "🍯 Sanções desta armadilha: **${count}**\nÚltima sanção: ${last}",
 	honeypot_dm_title: "Honeypot acionado!",
 	honeypot_dm_desc:
 		"Uma mensagem que você enviou no canal *Honeypot* no seguinte servidor: **`${guild}`** **acionou** a proteção configurada.\n\n__Ação tomada contra você:__ **`${action}`**\n\n*As mensagens que você enviou nas últimas 2 horas estão sendo removidas do servidor. Se você acredita que foi hackeado, mude sua senha e ative a 2FA na sua conta do Discord. Se foi um engano da sua parte, entre em contato com a equipe do servidor para resolver o problema.*",

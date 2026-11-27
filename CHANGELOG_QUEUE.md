@@ -4,6 +4,12 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ---
 
+## 🍯 Honeypot — a new trap message, with its catch count
+
+The honeypot's trap message is redesigned with Discord's new components: a clear warning card with the honeypot picture and, below it, a button that shows **how many accounts the trap has sanctioned** (kicks and bans that went through: a member iHorizon could not sanction, such as your staff, is never counted). Click it to see when the last one was caught. The count updates by itself after each catch; a trap posted before this update switches to the new look at its next catch, or when you send it again with `/honeypot config`. How the trap works does not change.
+
+---
+
 ## 📝 Google Forms — applications: accept or refuse
 
 A linked Google Form can now run **applications**: turn it on per form in the dashboard. Each response arrives as a card with **Accept** and **Refuse** buttons, for the form's **reviewer role**, administrators and the owner. The role is given **only when the application is accepted**; a refusal can give a **refused role** instead, or nothing. The applicant gets a **private message** with the decision and, when refused, the reason you wrote (optional, and the message can be turned off). The card then shows who decided and when, in place of the buttons. In the dashboard, the latest responses show each application's state (waiting, accepted or refused, by whom, with the reason) and can be accepted or refused from there too. Forms without applications work as before: the role is given at once.

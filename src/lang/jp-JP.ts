@@ -4414,6 +4414,11 @@ export default {
 		"*このチャンネルはスパムボットを捕まえるために使用されます。*\n*ここに送信されたメッセージはサーバーの自動保護を**トリガー**します。*",
 	honeypot_trap_embed_footer:
 		"RiskyMH の Honeypot に着想を得ています、チェックしてみてください！\n${url}",
+	honeypot_trap_count_none: "まだ誰も処罰されていません",
+	honeypot_trap_count_one: "1人を処罰",
+	honeypot_trap_count_other: "${count}人を処罰",
+	honeypot_trap_count_never: "なし",
+	honeypot_trap_count_reply: "🍯 このトラップによる処罰: **${count}**\n最後の処罰: ${last}",
 	honeypot_dm_title: "Honeypot 発動!",
 	honeypot_dm_desc:
 		"以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*",

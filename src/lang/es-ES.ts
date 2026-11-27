@@ -4522,6 +4522,11 @@ export default {
 		"*Este canal se utiliza para atrapar bots de spam.*\n*Cualquier mensaje enviado aquí **ACTIVARÁ** la protección automática del servidor.*",
 	honeypot_trap_embed_footer:
 		"Inspirado por el Honeypot de RiskyMH, ¡échale un vistazo!\n${url}",
+	honeypot_trap_count_none: "Nadie sancionado todavía",
+	honeypot_trap_count_one: "1 persona sancionada",
+	honeypot_trap_count_other: "${count} personas sancionadas",
+	honeypot_trap_count_never: "nunca",
+	honeypot_trap_count_reply: "🍯 Sanciones de esta trampa: **${count}**\nÚltima sanción: ${last}",
 	honeypot_dm_title: "Honeypot activado!",
 	honeypot_dm_desc:
 		"Un mensaje que enviaste en el canal *Honeypot* en el siguiente servidor: **`${guild}`** **activó** la protección configurada.\n\n__Acción tomada contra ti:__ **`${action}`**\n\n*Los mensajes que enviaste en las últimas 2 horas están siendo eliminados del servidor. Si crees que has sido hackeado, cambia tu contraseña y activa la 2FA en tu cuenta de Discord. Si fue un error de tu parte, por favor contacta al equipo del servidor para resolver el problema.*",
