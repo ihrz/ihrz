@@ -208,6 +208,7 @@ export const command: Command = {
 		},
 		{
 			name: "config",
+			moduleFree: true,
 			prefixName: "ticket-config",
 
 			description: "Disable ticket commands on a guild!",
@@ -337,6 +338,7 @@ export const command: Command = {
 		},
 		{
 			name: "open",
+			moduleRefusal: "open_disabled_command",
 
 			description: "re-open a closed ticket!",
 			description_localizations: {
@@ -404,6 +406,7 @@ export const command: Command = {
 		},
 		{
 			name: "panel",
+			moduleRefusal: "open_disabled_command",
 
 			description: "Making a panel for custom ticket configuration",
 			description_localizations: {
@@ -541,6 +544,7 @@ export const command: Command = {
 	],
 	thinking: true,
 	category: "ticket",
+	module: "ticket",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

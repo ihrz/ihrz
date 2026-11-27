@@ -48,19 +48,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
 		const opts = client.func.method.options(interaction, args);
 		const role = opts.role("role", 0) as Role;
 		const boost = client.func.method.isSlash(interaction)

@@ -245,6 +245,7 @@ export const command: Command = {
 		},
 		{
 			name: "config",
+			moduleFree: true,
 			prefixName: "ecconfig",
 
 			description: "Disable the economy module into your guild",
@@ -666,6 +667,7 @@ export const command: Command = {
 			options: [
 				{
 					name: "add",
+					moduleFree: true,
 					prefixName: "economy-role-add",
 
 					description: "Add a role for a certain amount of money!",
@@ -1222,6 +1224,7 @@ export const command: Command = {
 		},
 		{
 			name: "ureset",
+			moduleFree: true,
 			prefixName: "economy-ureset",
 
 			description: "Reset the balance of an user",
@@ -1269,6 +1272,7 @@ export const command: Command = {
 		},
 		{
 			name: "greset",
+			moduleFree: true,
 			prefixName: "economy-greset",
 
 			description: "Reset the economy balance of every user in the guild",
@@ -1294,6 +1298,7 @@ export const command: Command = {
 	],
 	thinking: false,
 	category: "economy",
+	module: "economy",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

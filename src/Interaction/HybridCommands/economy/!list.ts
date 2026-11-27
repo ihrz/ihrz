@@ -42,19 +42,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
-			true
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
-
 		const roleData = await client.func.economyHelper.pruneBuyableRoles(
 			interaction.guild
 		);

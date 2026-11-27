@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import type { Option } from "../../types/option.js";
+import { replyIfModuleDisabled } from "./functions/moduleToggle.js";
 import { isSlash } from "./functions/method/source.js";
 import {
 	ChatInputCommandInteraction,
@@ -431,6 +433,28 @@ export async function checkGlobalCooldown(
 	};
 }
 
+/**
+ * A module the server turned off (fun, economy, tickets: functions/moduleToggle.ts) stops every subcommand
+ * of its command (`Command.module`), with the module's refusal (or the option's `moduleRefusal`); options
+ * marked `moduleFree` (its config, admin resets…) still run. Checked right before running, where the
+ * commands used to check it themselves.
+ */
+export async function refusedByModule(ctx: ExecutionContext): Promise<boolean> {
+	const module = ctx.command.module;
+	const target = ctx.target as Command &
+		Pick<Option, "moduleFree" | "moduleRefusal">;
+	if (!module || target.moduleFree) return false;
+	return replyIfModuleDisabled(
+		ctx.client,
+		ctx.source,
+		ctx.lang,
+		module,
+		target.moduleRefusal
+			? String(ctx.lang[target.moduleRefusal])
+			: undefined
+	);
+}
+
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
 	try {
 		// 14 August 2026: Anais disabled that paywall since discord doesnt want to pay me ! ><
@@ -461,6 +485,8 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 
 		const { unallowed } = await checkGlobalCooldown(ctx);
 		if (unallowed) return;
+
+		if (await refusedByModule(ctx)) return;
 
 		const run = ctx.target.run!;
 		void Promise.resolve(

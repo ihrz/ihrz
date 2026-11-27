@@ -34,10 +34,7 @@ import {
 	buildCard,
 	sendCard
 } from "../../../core/modules/uiCard.js";
-import {
-	editMemberMoney,
-	isEconomyDisabled
-} from "../../../core/modules/memberToolsManager.js";
+import { editMemberMoney } from "../../../core/modules/memberToolsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -54,16 +51,6 @@ export const subCommand: SubCommand = {
 			!interaction.channel
 		)
 			return;
-
-		if (await isEconomyDisabled(client, interaction.guild.id)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg.replace(
-					"${authorId}",
-					interaction.member.user.id
-				)
-			});
-			return;
-		}
 
 		const opts = client.func.method.options(interaction, args);
 		const amount = opts.number("amount", 0) as number;

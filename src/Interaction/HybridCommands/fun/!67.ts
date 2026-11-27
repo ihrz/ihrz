@@ -21,25 +21,13 @@
 
 import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		lang: LanguageData
+		interaction: ChatInputCommandInteraction<"cached"> | Message
 	) => {
-		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
-			return;
-		}
-
 		await client.func.method.interactionSend(interaction, {
 			content: client.func.iHorizonAssets.iHorizonAssetURL(
 				client.func.iHorizonAssets.iHorizonAsset.SixSeven

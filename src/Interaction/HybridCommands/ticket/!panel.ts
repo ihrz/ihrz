@@ -146,15 +146,6 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (
-			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.open_disabled_command
-			});
-			return;
-		}
-
 		// Récupération de l'ID du panel
 		const opts = client.func.method.options(interaction, args);
 		const panel_id = opts.string("panel_id", 0);

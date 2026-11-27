@@ -25,8 +25,7 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { SubCommand } from "../../../../types/command.js";
 import {
 	addPollVotes,
-	buildPollCard,
-	isFunDisabled
+	buildPollCard
 } from "../../../core/modules/communityMessages.js";
 import { sendCard } from "../../../core/modules/uiCard.js";
 
@@ -37,12 +36,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (await isFunDisabled(client, interaction.guildId)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
-			return;
-		}
 		const opts = client.func.method.options(interaction, args);
 		const pollMessage = opts.longString("message", 0);
 		const user = client.func.method.authorOf(interaction);

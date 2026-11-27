@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import type { LanguageData } from "./languageData.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import type {
 	DescriptionLocalizations,
@@ -49,4 +50,8 @@ export interface Option {
 	ephemeral?: boolean;
 	permission: bigint | bigint[] | null;
 	cooldown?: number;
+	/** Runs even while its command's module is off (its config, admin resets): see Command.module. */
+	moduleFree?: boolean;
+	/** The refusal shown when its command's module is off, instead of the module's usual one. */
+	moduleRefusal?: keyof LanguageData;
 }

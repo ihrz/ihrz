@@ -60,33 +60,34 @@ import * as m34 from "../core/functions/mediaManipulation.ts";
 import * as m35 from "../core/functions/messageDiff.ts";
 import * as m36 from "../core/functions/method.ts";
 import * as m37 from "../core/functions/modalHelper.ts";
-import * as m38 from "../core/functions/ms.ts";
-import * as m39 from "../core/functions/musicPlay.ts";
-import * as m40 from "../core/functions/music_proximity.ts";
-import * as m41 from "../core/functions/numberBeautifuer.ts";
-import * as m42 from "../core/functions/os_utils.ts";
-import * as m43 from "../core/functions/ownerHelper.ts";
-import * as m44 from "../core/functions/permissonsCalculator.ts";
-import * as m45 from "../core/functions/prefix.ts";
-import * as m46 from "../core/functions/random.ts";
-import * as m47 from "../core/functions/randomExpression.ts";
-import * as m48 from "../core/functions/retrieveMyself.ts";
-import * as m49 from "../core/functions/roleSelectMenu.ts";
-import * as m50 from "../core/functions/sanitizeInteractionOptionValue.ts";
-import * as m51 from "../core/functions/sanitizer.ts";
-import * as m52 from "../core/functions/searchLyrics.ts";
-import * as m53 from "../core/functions/shard_helper.ts";
-import * as m54 from "../core/functions/svg2png.ts";
-import * as m55 from "../core/functions/svgKit.ts";
-import * as m56 from "../core/functions/tagHelper.ts";
-import * as m57 from "../core/functions/tempVoiceCandidate.ts";
-import * as m58 from "../core/functions/typeGuards.ts";
-import * as m59 from "../core/functions/userStatsUtils.ts";
-import * as m60 from "../core/functions/utcSelect.ts";
-import * as m61 from "../core/functions/validImageType.ts";
-import * as m62 from "../core/functions/wait.ts";
-import * as m63 from "../core/functions/welcomerEmbed.ts";
-import * as m64 from "../core/functions/welcomerMessage.ts";
+import * as m38 from "../core/functions/moduleToggle.ts";
+import * as m39 from "../core/functions/ms.ts";
+import * as m40 from "../core/functions/musicPlay.ts";
+import * as m41 from "../core/functions/music_proximity.ts";
+import * as m42 from "../core/functions/numberBeautifuer.ts";
+import * as m43 from "../core/functions/os_utils.ts";
+import * as m44 from "../core/functions/ownerHelper.ts";
+import * as m45 from "../core/functions/permissonsCalculator.ts";
+import * as m46 from "../core/functions/prefix.ts";
+import * as m47 from "../core/functions/random.ts";
+import * as m48 from "../core/functions/randomExpression.ts";
+import * as m49 from "../core/functions/retrieveMyself.ts";
+import * as m50 from "../core/functions/roleSelectMenu.ts";
+import * as m51 from "../core/functions/sanitizeInteractionOptionValue.ts";
+import * as m52 from "../core/functions/sanitizer.ts";
+import * as m53 from "../core/functions/searchLyrics.ts";
+import * as m54 from "../core/functions/shard_helper.ts";
+import * as m55 from "../core/functions/svg2png.ts";
+import * as m56 from "../core/functions/svgKit.ts";
+import * as m57 from "../core/functions/tagHelper.ts";
+import * as m58 from "../core/functions/tempVoiceCandidate.ts";
+import * as m59 from "../core/functions/typeGuards.ts";
+import * as m60 from "../core/functions/userStatsUtils.ts";
+import * as m61 from "../core/functions/utcSelect.ts";
+import * as m62 from "../core/functions/validImageType.ts";
+import * as m63 from "../core/functions/wait.ts";
+import * as m64 from "../core/functions/welcomerEmbed.ts";
+import * as m65 from "../core/functions/welcomerMessage.ts";
 
 const files: Record<string, unknown> = {
 	"apiUrlParser.ts": m0,
@@ -127,33 +128,34 @@ const files: Record<string, unknown> = {
 	"messageDiff.ts": m35,
 	"method.ts": m36,
 	"modalHelper.ts": m37,
-	"ms.ts": m38,
-	"musicPlay.ts": m39,
-	"music_proximity.ts": m40,
-	"numberBeautifuer.ts": m41,
-	"os_utils.ts": m42,
-	"ownerHelper.ts": m43,
-	"permissonsCalculator.ts": m44,
-	"prefix.ts": m45,
-	"random.ts": m46,
-	"randomExpression.ts": m47,
-	"retrieveMyself.ts": m48,
-	"roleSelectMenu.ts": m49,
-	"sanitizeInteractionOptionValue.ts": m50,
-	"sanitizer.ts": m51,
-	"searchLyrics.ts": m52,
-	"shard_helper.ts": m53,
-	"svg2png.ts": m54,
-	"svgKit.ts": m55,
-	"tagHelper.ts": m56,
-	"tempVoiceCandidate.ts": m57,
-	"typeGuards.ts": m58,
-	"userStatsUtils.ts": m59,
-	"utcSelect.ts": m60,
-	"validImageType.ts": m61,
-	"wait.ts": m62,
-	"welcomerEmbed.ts": m63,
-	"welcomerMessage.ts": m64
+	"moduleToggle.ts": m38,
+	"ms.ts": m39,
+	"musicPlay.ts": m40,
+	"music_proximity.ts": m41,
+	"numberBeautifuer.ts": m42,
+	"os_utils.ts": m43,
+	"ownerHelper.ts": m44,
+	"permissonsCalculator.ts": m45,
+	"prefix.ts": m46,
+	"random.ts": m47,
+	"randomExpression.ts": m48,
+	"retrieveMyself.ts": m49,
+	"roleSelectMenu.ts": m50,
+	"sanitizeInteractionOptionValue.ts": m51,
+	"sanitizer.ts": m52,
+	"searchLyrics.ts": m53,
+	"shard_helper.ts": m54,
+	"svg2png.ts": m55,
+	"svgKit.ts": m56,
+	"tagHelper.ts": m57,
+	"tempVoiceCandidate.ts": m58,
+	"typeGuards.ts": m59,
+	"userStatsUtils.ts": m60,
+	"utcSelect.ts": m61,
+	"validImageType.ts": m62,
+	"wait.ts": m63,
+	"welcomerEmbed.ts": m64,
+	"welcomerMessage.ts": m65
 };
 
 export default files;

@@ -24,6 +24,7 @@ import type { DatabaseStructure } from "./database_structure.d.ts";
 import type { LanguageData } from "./languageData.d.ts";
 import type { GatewayMethod } from "../src/core/functions/apiUrlParser.js";
 import type { iHorizonAsset as iHorizonAssetEnum } from "../src/core/functions/iHorizonAssets.js";
+import type { ToggleableModule } from "../src/core/functions/moduleToggle.js";
 import { ModalOptionsBuilder } from "../src/core/functions/modalHelper.js";
 import {
 	ActionRowBuilder,
@@ -723,6 +724,22 @@ declare namespace Client_Functions {
 				| AutocompleteInteraction<CacheType>
 				| ModalSubmitInteraction<CacheType>
 		): Promise<ModalSubmitInteraction<"cached"> | undefined>;
+	}
+
+	// From moduleToggle.ts
+	export namespace moduleToggle {
+		export function isModuleDisabled(
+			client: Client,
+			guildId: string | null | undefined,
+			module: ToggleableModule
+		): Promise<boolean>;
+		export function replyIfModuleDisabled(
+			client: Client,
+			interaction: ChatInputCommandInteraction<"cached"> | Message,
+			lang: LanguageData,
+			module: ToggleableModule,
+			message?: string
+		): Promise<boolean>;
 	}
 
 	// From musicPlay.ts

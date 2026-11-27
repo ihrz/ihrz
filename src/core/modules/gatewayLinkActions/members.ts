@@ -24,6 +24,7 @@
 // command through the same shared functions (`memberToolsManager.ts`), with
 // the same guards and the same logs.
 
+import { isModuleDisabled } from "../../functions/moduleToggle.js";
 import {
 	ChannelType,
 	Guild,
@@ -43,7 +44,6 @@ import {
 	editMemberMoney,
 	getLeashConfig,
 	getLeashes,
-	isEconomyDisabled,
 	listLockNames,
 	lockMemberName,
 	massMoveSourceChannels,
@@ -141,7 +141,7 @@ const amount = (ctx: ActionContext, max: number) =>
 	ctx.params.int("amount", { min: 1, max });
 
 async function requireEconomy(ctx: ActionContext): Promise<void> {
-	if (await isEconomyDisabled(ctx.client, ctx.guild.id)) {
+	if (await isModuleDisabled(ctx.client, ctx.guild.id, "economy")) {
 		fail("the economy is disabled on this server");
 	}
 }

@@ -51,15 +51,6 @@ export const subCommand: SubCommand = {
 		const name = opts.longString("name", 0)!;
 
 		if (
-			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.ticket_disabled_command
-			});
-			return;
-		}
-
-		if (
 			!(await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
 			))

@@ -2783,6 +2783,7 @@
             },
             {
                 "name": "config",
+                "moduleFree": true,
                 "prefixName": "ecconfig",
                 "description": "Disable the economy module into your guild",
                 "description_localizations": {
@@ -2920,6 +2921,7 @@
             },
             {
                 "name": "greset",
+                "moduleFree": true,
                 "prefixName": "economy-greset",
                 "description": "Reset the economy balance of every user in the guild",
                 "description_localizations": {
@@ -3321,6 +3323,7 @@
                 "options": [
                     {
                         "name": "add",
+                        "moduleFree": true,
                         "prefixName": "economy-role-add",
                         "description": "Add a role for a certain amount of money!",
                         "description_localizations": {
@@ -3470,6 +3473,7 @@
             },
             {
                 "name": "ureset",
+                "moduleFree": true,
                 "prefixName": "economy-ureset",
                 "description": "Reset the balance of an user",
                 "description_localizations": {
@@ -3888,6 +3892,7 @@
             },
             {
                 "name": "config",
+                "moduleFree": true,
                 "prefixName": "fconfig",
                 "description": "Disable the fun category",
                 "description_localizations": {
@@ -16498,6 +16503,7 @@
             },
             {
                 "name": "config",
+                "moduleFree": true,
                 "prefixName": "ticket-config",
                 "description": "Disable ticket commands on a guild!",
                 "description_localizations": {
@@ -16642,6 +16648,7 @@
             },
             {
                 "name": "open",
+                "moduleRefusal": "open_disabled_command",
                 "description": "re-open a closed ticket!",
                 "description_localizations": {
                     "fr": "Re-ouvrir un ticket fermet",
@@ -16660,6 +16667,7 @@
             },
             {
                 "name": "panel",
+                "moduleRefusal": "open_disabled_command",
                 "description": "Making a panel for custom ticket configuration",
                 "description_localizations": {
                     "fr": "Créer un panel pour customiser le système de ticket",

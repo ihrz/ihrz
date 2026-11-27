@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { isModuleDisabled } from "../../functions/moduleToggle.js";
 import {
 	BaseGuildTextChannel,
 	ChannelType,
@@ -143,7 +144,7 @@ export function canSee(member: GuildMember, channelId: string): boolean {
 }
 
 async function refuseIfDisabled({ client, guild }: ActionContext) {
-	if (await client.db.get(`${guild.id}.GUILD.TICKET.disable`)) {
+	if (await isModuleDisabled(client, guild.id, "ticket")) {
 		fail("the ticket module is disabled on this server");
 	}
 }
@@ -266,9 +267,7 @@ export const ticketsActions: ActionGroup = {
 				def: 50
 			});
 			const before = params.optId("before");
-			const disabled = !!(await client.db.get(
-				`${guild.id}.GUILD.TICKET.disable`
-			));
+			const disabled = await isModuleDisabled(client, guild.id, "ticket");
 
 			const visible = (await listTicketEntries(client, guild.id))
 				.filter(({ data }) => {

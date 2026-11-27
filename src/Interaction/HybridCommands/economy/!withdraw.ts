@@ -69,20 +69,6 @@ export const subCommand: SubCommand = {
 			const opts = client.func.method.options(interaction, args);
 			const toWithdraw = opts.string("how-much", 0) as string;
 
-			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
-				return;
-			}
-
 			const bank = dataAccount?.bank ?? 0;
 
 			// Parsed once: the same integer is checked and moved.

@@ -61,20 +61,6 @@ export const subCommand: SubCommand = {
 
 		let releaseTarget: (() => void) | null = null;
 		try {
-			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
-				return;
-			}
-
 			const timeout =
 				(await client.db.get(
 					`${interaction.guildId}.ECONOMY.settings.rob.cooldown`

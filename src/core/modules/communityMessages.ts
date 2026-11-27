@@ -28,14 +28,6 @@ import { Client, ContainerBuilder, Message, User } from "discord.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { ACCENT, botSignature, buildCard } from "./uiCard.js";
 
-/** `{guildId}.GUILD.FUN.states`: "off" disables the fun commands (/poll…). */
-export async function isFunDisabled(
-	client: Client,
-	guildId: string | null | undefined
-): Promise<boolean> {
-	return (await client.db.get(`${guildId}.GUILD.FUN.states`)) === "off";
-}
-
 /** The `/fun interaction poll` card. */
 export async function buildPollCard(
 	client: Client,

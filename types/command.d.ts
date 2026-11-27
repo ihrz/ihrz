@@ -29,6 +29,7 @@ import {
 
 import { Option } from "./option.js";
 import type { LanguageData } from "./languageData.js";
+import type { ToggleableModule } from "../src/core/functions/moduleToggle.js";
 
 export interface NameLocalizations {
 	fr: string;
@@ -84,6 +85,11 @@ export interface Command {
 		args?: string[]
 	): Promise<unknown>;
 	cooldown?: number;
+	/**
+	 * The module a server can turn off (moduleToggle.ts): while it is off, the executor refuses every
+	 * subcommand of this command, except those marked `moduleFree`.
+	 */
+	module?: ToggleableModule;
 }
 
 export interface SubCommand {

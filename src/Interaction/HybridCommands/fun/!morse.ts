@@ -40,15 +40,6 @@ export const subCommand: SubCommand = {
 				","
 			);
 
-		if (
-			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
-			"off"
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.fun_category_disable
-			});
-			return;
-		}
 		const opts = client.func.method.options(interaction, args);
 		let text = opts.longString("input", 0)?.toUpperCase() as string;
 

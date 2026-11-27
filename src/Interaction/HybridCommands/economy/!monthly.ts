@@ -71,20 +71,6 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`
 			);
 
-			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
-				return;
-			}
-
 			if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
 				const time = client.timeCalculator.to_beautiful_string(
 					timeout - (Date.now() - monthly),

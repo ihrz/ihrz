@@ -63,20 +63,6 @@ export const subCommand: SubCommand = {
 			const opts = client.func.method.options(interaction, args);
 			const toDeposit = opts.string("how-much", 0) as string;
 
-			if (
-				(await client.db.get(
-					`${interaction.guildId}.ECONOMY.disabled`
-				)) === true
-			) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.economy_disable_msg.replace(
-						"${authorId}",
-						interaction.member.user.id
-					)
-				});
-				return;
-			}
-
 			const balance =
 				(await client.db.get(
 					`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`

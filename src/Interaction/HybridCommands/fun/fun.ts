@@ -1822,6 +1822,7 @@ export const command: Command = {
 		},
 		{
 			name: "config",
+			moduleFree: true,
 			prefixName: "fconfig",
 
 			description: "Disable the fun category",
@@ -1907,6 +1908,7 @@ export const command: Command = {
 
 	thinking: true,
 	category: "fun",
+	module: "fun",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

@@ -84,13 +84,6 @@ export async function resetGuildInvites(
 
 // ── Economy (`/economy balance-add|balance-remove|ureset|greset`) ───────────
 
-export async function isEconomyDisabled(
-	client: Client,
-	guildId: string
-): Promise<boolean> {
-	return (await client.db.get(`${guildId}.ECONOMY.disabled`)) === true;
-}
-
 // Adds or removes money from a member's wallet; returns the new balance.
 export async function editMemberMoney(
 	client: Client,
