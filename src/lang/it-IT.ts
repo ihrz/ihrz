@@ -5366,7 +5366,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Mi piace",
-	music_love_added: "❤️ **${track}** ora è tra i tuoi ${playlist}.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** ora è tra i tuoi ${playlist}.",
 	music_love_already: "**${track}** è già tra i tuoi ${playlist}.",
 	music_love_remove_button: "Rimuovi da ${playlist}",
 	music_love_removed: "**${track}** è stato rimosso dai tuoi ${playlist}.",
@@ -5448,5 +5449,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 Grazie mille {memberMention} per aver potenziato **{guildName}**! Grazie a te, il server ora ha {boostCount} boost (livello {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} non potenzia più **{guildName}**. Grazie per il tuo supporto in tutto questo tempo! 💜"
+		"{memberMention} non potenzia più **{guildName}**. Grazie per il tuo supporto in tutto questo tempo! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "Un solo bot. Tutto."
 } satisfies LanguageData;

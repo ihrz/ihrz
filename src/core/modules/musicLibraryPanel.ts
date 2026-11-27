@@ -219,7 +219,7 @@ export async function openLibraryPanel(
 		if (view.kind === "home") {
 			add(
 				header(
-					`❤️ ${escapeMarkdown(lang.music_playlist_title)}`,
+					`${emojis.Player_Love} ${escapeMarkdown(lang.music_playlist_title)}`,
 					lang.music_playlist_stats
 						.replace("${playlists}", String(view.playlists.length))
 						.replace("${max}", String(MAX_PLAYLISTS))
@@ -255,13 +255,13 @@ export async function openLibraryPanel(
 				.addOptions(
 					new StringSelectMenuOptionBuilder()
 						.setValue(LIKED_VALUE)
-						.setEmoji("❤️")
+						.setEmoji(emojis.Player_Love)
 						.setLabel(clip(likedName, 100))
 						.setDescription(tracksLabel(view.liked)),
 					...view.playlists.slice(0, 24).map((p) =>
 						new StringSelectMenuOptionBuilder()
 							.setValue(playlistValue(p.id))
-							.setEmoji("🎵")
+							.setEmoji(emojis.Player_Playlist)
 							.setLabel(clip(p.name || "?", 100))
 							.setDescription(
 								clip(
@@ -287,11 +287,16 @@ export async function openLibraryPanel(
 				? view.tracks
 				: view.tracks.slice(start, start + LIBRARY_PAGE_SIZE);
 		if (view.kind === "liked") {
-			add(header(`❤️ ${escapeMarkdown(likedName)}`, tracksLabel(total)));
+			add(
+				header(
+					`${emojis.Player_Love} ${escapeMarkdown(likedName)}`,
+					tracksLabel(total)
+				)
+			);
 		} else {
 			add(
 				header(
-					`🎵 ${escapeMarkdown(clip(view.playlist.name || "?", 80))}`,
+					`${emojis.Player_Playlist} ${escapeMarkdown(clip(view.playlist.name || "?", 80))}`,
 					`${tracksLabel(total)} · ${formatLibraryDuration(view.playlist.duration)}`,
 					view.playlist.cover
 				)

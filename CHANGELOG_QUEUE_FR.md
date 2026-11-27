@@ -52,7 +52,7 @@ Le dashboard a un nouveau module **Transcripts** (Tickets & support) : tous les 
 
 ## 💜 Musique — bouton Love et `/music playlist`
 
-Le panneau du titre en cours a un cœur **Love** : un clic ajoute le titre à vos titres likés (s'il l'est déjà, un bouton **Retirer** est proposé pendant une minute). **`/music playlist`** ouvre votre bibliothèque dans Discord : vos titres likés et vos playlists, un menu pour en ouvrir une, 10 titres par page, et **Lire** — la même bibliothèque que le lecteur du dashboard.
+Le panneau du titre en cours a un cœur **Love** : un clic ajoute le titre à vos titres likés (s'il l'est déjà, un bouton **Retirer** est proposé pendant une minute). **`/music playlist`** ouvre votre bibliothèque dans Discord : vos titres likés et vos playlists, un menu pour en ouvrir une, 10 titres par page, et **Lire** — la même bibliothèque que le lecteur du dashboard. Le cœur, le cœur brisé et l'icône de playlist sont des icônes propres à iHorizon, dans le style des boutons du lecteur.
 
 ---
 
@@ -357,6 +357,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Bannière** : l'image sous `/help` et les panneaux du vocal temporaire est la nouvelle bannière d'iHorizon, dans la langue de votre serveur (le slogan, le dashboard et la carte `/mod ban` qu'elle montre sont traduits). Les serveurs en ukrainien et en polonais ont enfin la leur (leur image manquait).
 - **Connexion au dashboard** : un interrupteur **Rejoindre le serveur support d'iHorizon** sous le bouton de connexion, activé par défaut. Désactivé, la connexion ne demande plus à Discord la permission de vous ajouter à un serveur, et vous n'y êtes pas ajouté (le choix est retenu sur ce navigateur).
 - **Renouvellement automatique** : un salon renouvelé reprend sa place exacte, même dans une longue catégorie.
 - **Traductions** : les derniers textes écrits en dur sont traduits (pages d'aide, régions des salons vocaux temporaires, portefeuille, messages d'erreur, l'avis « serveurs uniquement » en MP, `/status`, le bouton top.gg…), et une commande utilisée en MP répond dans votre langue Discord

@@ -113,7 +113,11 @@ function press(userId = U) {
 }
 
 const client = {
-	config: { core: { blacklistPictureInEmbed: "https://img/bl.png" } }
+	config: { core: { blacklistPictureInEmbed: "https://img/bl.png" } },
+	iHorizon_Emojis: {
+		Player_Love: "<:Player_Love:1>",
+		Player_Unlove: "<:Player_Unlove:2>"
+	}
 } as never;
 
 beforeEach(async () => {

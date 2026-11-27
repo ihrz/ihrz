@@ -408,7 +408,7 @@ export async function openNowPlayingPanel(
 			// The first row is full (5 buttons). The heart is the same for
 			// everyone: what it does depends on who clicks (musicLove.ts).
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				loveButton(lang, ended)
+				loveButton(lang, ended, emojis)
 			)
 		);
 

@@ -5272,7 +5272,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Нравится",
-	music_love_added: "❤️ **${track}** теперь в разделе «${playlist}».",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** теперь в разделе «${playlist}».",
 	music_love_already: "**${track}** уже в разделе «${playlist}».",
 	music_love_remove_button: "Убрать из «${playlist}»",
 	music_love_removed: "**${track}** убран из раздела «${playlist}».",
@@ -5352,5 +5353,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 Огромное спасибо, {memberMention}, за буст **{guildName}**! Благодаря тебе у сервера теперь {boostCount} бустов (уровень {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} больше не бустит **{guildName}**. Спасибо за поддержку всё это время! 💜"
+		"{memberMention} больше не бустит **{guildName}**. Спасибо за поддержку всё это время! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "Один бот. Всё и сразу."
 } satisfies LanguageData;

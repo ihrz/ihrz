@@ -5238,7 +5238,8 @@ const enUS = {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Love",
-	music_love_added: "❤️ **${track}** is now in your ${playlist}.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** is now in your ${playlist}.",
 	music_love_already: "**${track}** is already in your ${playlist}.",
 	music_love_remove_button: "Remove from ${playlist}",
 	music_love_removed: "**${track}** was removed from your ${playlist}.",
@@ -5319,7 +5320,10 @@ const enUS = {
 	boostmsg_default_boost:
 		"💎 Thank you so much {memberMention} for boosting **{guildName}**! Thanks to you, the server now has {boostCount} boosts (level {boostTier}).",
 	boostmsg_default_unboost:
-		"{memberMention} is no longer boosting **{guildName}**. Thank you for your support all this time! 💜"
+		"{memberMention} is no longer boosting **{guildName}**. Thank you for your support all this time! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "One bot. Everything."
 };
 
 export default enUS;

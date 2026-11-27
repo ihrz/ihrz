@@ -5098,7 +5098,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "좋아요",
-	music_love_added: "❤️ **${track}** 곡을 ${playlist}에 추가했어요.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** 곡을 ${playlist}에 추가했어요.",
 	music_love_already: "**${track}** 곡은 이미 ${playlist}에 있어요.",
 	music_love_remove_button: "${playlist}에서 삭제",
 	music_love_removed: "**${track}** 곡을 ${playlist}에서 삭제했어요.",
@@ -5175,5 +5176,8 @@ export default {
 	boostmsg_default_boost:
 		"💎 {memberMention}님, **{guildName}** 서버를 부스트해 주셔서 정말 고마워요! 덕분에 서버 부스트가 {boostCount}개(레벨 {boostTier})가 되었어요.",
 	boostmsg_default_unboost:
-		"{memberMention}님이 **{guildName}** 부스트를 멈췄어요. 그동안 응원해 주셔서 고마워요! 💜"
+		"{memberMention}님이 **{guildName}** 부스트를 멈췄어요. 그동안 응원해 주셔서 고마워요! 💜",
+
+	// Bot banner (help, temporary voice panels): https://www.ihorizon.org/assets/img/banner/ihrz_{lang}.png, rendered by the ihorizon-videos project
+	banner_tagline: "하나의 봇, 모든 것."
 } satisfies LanguageData;
