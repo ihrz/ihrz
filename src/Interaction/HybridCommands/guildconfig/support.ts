@@ -20,12 +20,14 @@
 */
 
 import {
-	Client,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
+	ChatInputCommandInteraction,
+	Client,
+	ContainerBuilder,
+	Guild,
 	Message,
+	PermissionsBitField,
 	Role
 } from "discord.js";
 
@@ -33,7 +35,72 @@ import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { refreshSupportRoles } from "../../../core/modules/supportRole.js";
-import { notice, sendCard } from "../../../core/modules/uiCard.js";
+import {
+	ACCENT,
+	botSignature,
+	buildCard,
+	sendCard
+} from "../../../core/modules/uiCard.js";
+
+/**
+ * The card shown once the module is set up: the condition in plain words, the
+ * keyword looked for (or the vanity code), the role, and when it is given.
+ * Exported for the tests.
+ */
+export function supportCard(
+	lang: LanguageData,
+	guild: Guild,
+	config: DatabaseStructure.SupportSchema,
+	roleId: string,
+	o: { signature?: string | null } = {}
+): ContainerBuilder {
+	const type = config.type ?? "bio";
+	const condition = {
+		bio: lang.support_card_cond_bio,
+		tag: lang.support_card_cond_tag,
+		both: lang.support_card_cond_both,
+		either: lang.support_card_cond_either
+	}[type];
+	const readsStatus = type !== "tag";
+	// No keyword: the server's vanity code is what is looked for.
+	const keyword =
+		config.input?.trim() ||
+		(guild.vanityURLCode ? `discord.gg/${guild.vanityURLCode}` : null);
+
+	return buildCard({
+		accent: ACCENT.success,
+		emoji: "🤝",
+		title: lang.support_card_on_title,
+		description: lang.support_card_on_desc.replace(
+			"${role}",
+			`<@&${roleId}>`
+		),
+		thumbnail: guild.iconURL({ size: 128 }),
+		fields: [
+			{
+				emoji: "📋",
+				label: lang.support_card_condition,
+				value: condition
+			},
+			readsStatus && {
+				emoji: "🔎",
+				label: lang.support_card_keyword,
+				value: keyword ? `\`${keyword.replaceAll("`", "ˋ")}\`` : "—"
+			},
+			{
+				emoji: "🎖️",
+				label: lang.support_card_role,
+				value: `<@&${roleId}>`
+			}
+		],
+		blocks: [
+			// Status mode without anything to look for: nobody can ever match.
+			readsStatus && !keyword && `⚠️ ${lang.support_card_no_keyword}`
+		],
+		footer: lang.support_card_footer,
+		signature: o.signature ?? null
+	});
+}
 
 export const command: Command = {
 	name: "support",
@@ -325,39 +392,27 @@ export const command: Command = {
 			// their next status change.
 			void refreshSupportRoles(interaction.guild, config);
 
-			const template =
-				type === "tag"
-					? lang.support_command_work_2
-					: type === "both"
-						? lang.support_command_work_both
-						: type === "either"
-							? lang.support_command_work_either
-							: lang.support_command_work;
-			// No keyword: the server's vanity code is what is looked for.
-			const keyword =
-				input?.trim() ||
-				(interaction.guild.vanityURLCode
-					? `discord.gg/${interaction.guild.vanityURLCode}`
-					: "—");
-			const Message: string = template
-				.replace("${guildName}", interaction.guild.name)
-				.replace("${input}", keyword)
-				.replace("${rolesId}", roles.id);
-
-			await sendCard(client, interaction, notice("success", Message));
+			await sendCard(
+				client,
+				interaction,
+				supportCard(lang, interaction.guild, config, roles.id, {
+					signature: await botSignature(client, interaction.guildId)
+				})
+			);
 		} else {
 			await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
 			await sendCard(
 				client,
 				interaction,
-				notice(
-					"success",
-					lang.support_command_work_on_disable.replace(
-						"${guildName}",
-						interaction.guild.name
-					)
-				)
+				buildCard({
+					accent: ACCENT.danger,
+					emoji: "🤝",
+					title: lang.support_card_off_title,
+					description: lang.support_card_off_desc,
+					thumbnail: interaction.guild.iconURL({ size: 128 }),
+					signature: await botSignature(client, interaction.guildId)
+				})
 			);
 			return;
 		}

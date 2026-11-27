@@ -2826,19 +2826,24 @@ const enUS = {
 	// /support
 	support_not_admin:
 		":x: | You must be an administrator of this server to use these commands!",
-	support_command_work:
-		"You have set up the support module for **${guildName}**.\nWhen users have this in their bio:\n**${input}**.\nI should give the <@&${rolesId}> role to them!",
-	support_command_work_on_disable:
-		"You have set up the support module for **${guildName}**.\nNobody will receive a role now!",
+	support_card_on_title: "Supporter role enabled",
+	support_card_on_desc: "Members who meet the condition get ${role}, and lose it when they stop.",
+	support_card_condition: "Condition",
+	support_card_keyword: "Looked for in the status",
+	support_card_role: "Role",
+	support_card_cond_bio: "The custom status contains the keyword",
+	support_card_cond_tag: "They wear the server tag",
+	support_card_cond_both: "The keyword in the status **and** the server tag",
+	support_card_cond_either: "The keyword in the status **or** the server tag",
+	support_card_no_keyword: "No keyword and no vanity invite on this server: nobody can match the status. Run the command again with a keyword.",
+	support_card_footer: "Members online who already match get it now, then it follows every status change.",
+	support_card_off_title: "Supporter role disabled",
+	support_card_off_desc: "Nobody will get the role any more. Members who have it keep it.",
 	support_command_not_role: ":x: | You have not specified the role!",
 	support_command_not_type:
 		":x: | You did not specify the type of support you want in the user profile (bio = the bio, e.g. server link; tag = the server’s Discord tag)!",
 	support_command_guild_not_have_tag:
 		":x: | The server currently has no tags.",
-	support_command_work_2:
-		"You have configured the support module for ${guildName}.\nWhen a user sets the server tag,\nI will give them the role <@&${rolesId}>!",
-	support_command_work_both: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **and** wears the server tag,\nI will give them the role <@&${rolesId}>!",
-	support_command_work_either: "You have configured the support module for **${guildName}**.\nWhen a user has **${input}** in their status **or** wears the server tag,\nI will give them the role <@&${rolesId}>!",
 
 	// /setserverlang
 

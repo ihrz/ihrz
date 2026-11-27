@@ -2923,19 +2923,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | ¡Debe ser un administrador de este servidor para solicitar este comando!",
-	support_command_work:
-		"Ha configurado el módulo de soporte para **${guildName}**.\nCuando un usuario tiene esto en su biografía:\n**${input}**.\n¡Debería darles el rol <@&${rolesId}>!",
-	support_command_work_on_disable:
-		"Ha configurado el módulo de soporte para **${guildName}**.\n¡Nadie puede tener el rol ahora!",
+	support_card_on_title: "Rol de apoyo activado",
+	support_card_on_desc: "Los miembros que cumplen la condición reciben ${role} y lo pierden cuando dejan de cumplirla.",
+	support_card_condition: "Condición",
+	support_card_keyword: "Buscado en el estado",
+	support_card_role: "Rol",
+	support_card_cond_bio: "El estado personalizado contiene la palabra clave",
+	support_card_cond_tag: "Llevan la etiqueta del servidor",
+	support_card_cond_both: "La palabra clave en el estado **y** la etiqueta del servidor",
+	support_card_cond_either: "La palabra clave en el estado **o** la etiqueta del servidor",
+	support_card_no_keyword: "Sin palabra clave ni invitación personalizada en este servidor: nadie puede cumplir la condición del estado. Vuelve a usar el comando con una palabra clave.",
+	support_card_footer: "Los miembros conectados que ya cumplen la condición lo reciben ahora; después sigue cada cambio de estado.",
+	support_card_off_title: "Rol de apoyo desactivado",
+	support_card_off_desc: "Nadie recibirá el rol. Quienes lo tienen lo conservan.",
 	support_command_not_role: ":x: | ¡No ha especificado el rol!",
 	support_command_not_type:
 		":x: | No especificaste el tipo de soporte que quieres en el perfil del usuario (bio = la biografía, ej. enlace del servidor; tag = la etiqueta del servidor)!",
 	support_command_guild_not_have_tag:
 		":x: | El servidor no tiene etiquetas actualmente.",
-	support_command_work_2:
-		"Has configurado el módulo de soporte para ${guildName}.\nCuando un usuario establezca la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
-	support_command_work_both: "Has configurado el módulo de soporte para **${guildName}**.\nCuando un usuario tenga **${input}** en su estado **y** lleve la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
-	support_command_work_either: "Has configurado el módulo de soporte para **${guildName}**.\nCuando un usuario tenga **${input}** en su estado **o** lleve la etiqueta del servidor,\n¡le daré el rol <@&${rolesId}>!",
 
 	// /setserverlang
 

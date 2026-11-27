@@ -2749,18 +2749,23 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | 이 명령어를 사용하려면 이 서버의 관리자여야 해요!",
-	support_command_work:
-		"**${guildName}**의 서포트 모듈을 설정했어요.\n사용자 소개에 다음 내용이 있으면:\n**${input}**.\n<@&${rolesId}> 역할을 부여할게요!",
-	support_command_work_on_disable:
-		"**${guildName}**의 서포트 모듈을 설정했어요.\n이제 아무도 역할을 받지 않아요!",
+	support_card_on_title: "서포터 역할 활성화됨",
+	support_card_on_desc: "조건을 충족한 멤버는 ${role} 역할을 받고, 그만두면 잃습니다.",
+	support_card_condition: "조건",
+	support_card_keyword: "상태에서 찾는 문구",
+	support_card_role: "역할",
+	support_card_cond_bio: "사용자 지정 상태에 키워드가 있음",
+	support_card_cond_tag: "서버 태그를 달고 있음",
+	support_card_cond_both: "상태의 키워드 **그리고** 서버 태그",
+	support_card_cond_either: "상태의 키워드 **또는** 서버 태그",
+	support_card_no_keyword: "키워드도 사용자 지정 초대도 없습니다: 아무도 상태 조건을 충족할 수 없어요. 키워드와 함께 명령어를 다시 실행하세요.",
+	support_card_footer: "이미 조건을 충족한 온라인 멤버는 지금 받고, 이후 상태가 바뀔 때마다 반영됩니다.",
+	support_card_off_title: "서포터 역할 비활성화됨",
+	support_card_off_desc: "더 이상 아무도 역할을 받지 않습니다. 이미 가진 사람은 유지합니다.",
 	support_command_not_role: ":x: | 역할을 지정하지 않았어요!",
 	support_command_not_type:
 		":x: | 사용자 프로필에서 확인할 서포트 유형을 지정하지 않았어요 (bio = 소개, 예: 서버 링크 / tag = 서버의 Discord 태그)!",
 	support_command_guild_not_have_tag: ":x: | 현재 서버에 태그가 없어요.",
-	support_command_work_2:
-		"${guildName}의 서포트 모듈을 설정했어요.\n사용자가 서버 태그를 달면\n<@&${rolesId}> 역할을 부여할게요!",
-	support_command_work_both: "**${guildName}** 서버의 서포트 모듈을 설정했습니다.\n상태에 **${input}** 이(가) 있고 **그리고** 서버 태그를 단 사용자에게\n<@&${rolesId}> 역할을 줄게요!",
-	support_command_work_either: "**${guildName}** 서버의 서포트 모듈을 설정했습니다.\n상태에 **${input}** 이(가) 있거나 **또는** 서버 태그를 단 사용자에게\n<@&${rolesId}> 역할을 줄게요!",
 
 	// /setserverlang
 
