@@ -2333,7 +2333,8 @@ export default {
 	support_not_admin:
 		":x: | Ви повинні бути адміністратором сервера, щоб використовувати ці команди!",
 	support_card_on_title: "Роль підтримки увімкнено",
-	support_card_on_desc: "Учасники, які виконують умову, отримують ${role} і втрачають її, коли перестають.",
+	support_card_on_desc:
+		"Учасники, які виконують умову, отримують ${role} і втрачають її, коли перестають.",
 	support_card_condition: "Умова",
 	support_card_keyword: "Шукається в статусі",
 	support_card_role: "Роль",
@@ -2341,10 +2342,13 @@ export default {
 	support_card_cond_tag: "Вони носять тег сервера",
 	support_card_cond_both: "Ключове слово в статусі **і** тег сервера",
 	support_card_cond_either: "Ключове слово в статусі **або** тег сервера",
-	support_card_no_keyword: "Немає ключового слова й персонального запрошення: ніхто не може виконати умову статусу. Запустіть команду ще раз із ключовим словом.",
-	support_card_footer: "Учасники в мережі, які вже виконують умову, отримують її зараз, далі — за кожної зміни статусу.",
+	support_card_no_keyword:
+		"Немає ключового слова й персонального запрошення: ніхто не може виконати умову статусу. Запустіть команду ще раз із ключовим словом.",
+	support_card_footer:
+		"Учасники в мережі, які вже виконують умову, отримують її зараз, далі — за кожної зміни статусу.",
 	support_card_off_title: "Роль підтримки вимкнено",
-	support_card_off_desc: "Роль більше ніхто не отримає. Хто її має, збережуть її.",
+	support_card_off_desc:
+		"Роль більше ніхто не отримає. Хто її має, збережуть її.",
 	support_command_not_role: ":x: | Ви не вказали роль!",
 	support_command_not_type:
 		":x: | Ви не вказали, який тип підтримки в профілі користувача вам потрібен (bio = біо, напр. посилання на сервер; tag = Discord-тег сервера)!",
@@ -3599,9 +3603,10 @@ export default {
 		"Натхненно ботом Honeypot від RiskyMH, загляньте до нього!\n${url}",
 	honeypot_trap_count_none: "Ще ніхто не покараний",
 	honeypot_trap_count_one: "Покарано 1 людину",
-	honeypot_trap_count_other: "Покарано: ${count}",
+	honeypot_trap_count_other: "Покарано: ${caughtCount}",
 	honeypot_trap_count_never: "ніколи",
-	honeypot_trap_count_reply: "🍯 Покарань цією пасткою: **${count}**\nОстаннє: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Покарань цією пасткою: **${caughtCount}**\nОстаннє: ${last}",
 	honeypot_dm_title: "HONEYPOT СПРАЦЮВАВ!",
 	honeypot_dm_desc:
 		"Повідомлення, яке ви надіслали в канал *Honeypot* на сервері **`${guild}`**, **запустило** налаштований захист.\n\n__Дія щодо вас:__ **`${action}`**\n\n*Повідомлення, надіслані вами за останні 2 години, видаляються з сервера. Якщо ви вважаєте, що вас зламали, змініть пароль і ввімкніть 2FA у своєму обліковому записі Discord. Якщо це просто ваша помилка, зверніться до персоналу сервера, щоб вирішити питання.*",
@@ -4310,14 +4315,18 @@ export default {
 	gforms_review_accepted: "✅ Прийнято: ${user} ${time}",
 	gforms_review_refused: "❌ Відхилено: ${user} ${time}",
 	gforms_review_reason: "Причина: ${reason}",
-	gforms_review_not_reviewer: "Вирішувати можуть лише перевіряльники цієї форми.",
+	gforms_review_not_reviewer:
+		"Вирішувати можуть лише перевіряльники цієї форми.",
 	gforms_review_already: "Щодо цієї заявки вже ухвалено рішення.",
 	gforms_review_not_found: "Цієї заявки більше немає.",
 	gforms_review_modal_title: "Відхилити заявку",
-	gforms_review_modal_reason: "Причина (необов'язково, буде надіслана кандидату)",
+	gforms_review_modal_reason:
+		"Причина (необов'язково, буде надіслана кандидату)",
 	gforms_review_dm_title: "Ваша заявка",
-	gforms_review_dm_accepted: "Вашу заявку **${name}** на сервері **${guild}** прийнято.",
-	gforms_review_dm_refused: "Вашу заявку **${name}** на сервері **${guild}** відхилено.",
+	gforms_review_dm_accepted:
+		"Вашу заявку **${name}** на сервері **${guild}** прийнято.",
+	gforms_review_dm_refused:
+		"Вашу заявку **${name}** на сервері **${guild}** відхилено.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Зізнатися",

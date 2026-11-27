@@ -2947,18 +2947,23 @@ export default {
 	support_not_admin:
 		":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!",
 	support_card_on_title: "Unterstützerrolle aktiviert",
-	support_card_on_desc: "Mitglieder, die die Bedingung erfüllen, erhalten ${role} und verlieren sie, wenn sie aufhören.",
+	support_card_on_desc:
+		"Mitglieder, die die Bedingung erfüllen, erhalten ${role} und verlieren sie, wenn sie aufhören.",
 	support_card_condition: "Bedingung",
 	support_card_keyword: "Gesucht im Status",
 	support_card_role: "Rolle",
-	support_card_cond_bio: "Der benutzerdefinierte Status enthält das Stichwort",
+	support_card_cond_bio:
+		"Der benutzerdefinierte Status enthält das Stichwort",
 	support_card_cond_tag: "Sie tragen den Server-Tag",
 	support_card_cond_both: "Das Stichwort im Status **und** der Server-Tag",
 	support_card_cond_either: "Das Stichwort im Status **oder** der Server-Tag",
-	support_card_no_keyword: "Kein Stichwort und keine Vanity-Einladung auf diesem Server: niemand kann die Status-Bedingung erfüllen. Führe den Befehl erneut mit einem Stichwort aus.",
-	support_card_footer: "Online-Mitglieder, die die Bedingung schon erfüllen, erhalten sie jetzt, danach bei jeder Statusänderung.",
+	support_card_no_keyword:
+		"Kein Stichwort und keine Vanity-Einladung auf diesem Server: niemand kann die Status-Bedingung erfüllen. Führe den Befehl erneut mit einem Stichwort aus.",
+	support_card_footer:
+		"Online-Mitglieder, die die Bedingung schon erfüllen, erhalten sie jetzt, danach bei jeder Statusänderung.",
 	support_card_off_title: "Unterstützerrolle deaktiviert",
-	support_card_off_desc: "Niemand erhält die Rolle mehr. Wer sie hat, behält sie.",
+	support_card_off_desc:
+		"Niemand erhält die Rolle mehr. Wer sie hat, behält sie.",
 	support_command_not_role: ":x: | Du hast die Rolle nicht angegeben!",
 	support_command_not_type:
 		":x: | Du hast nicht angegeben, welche Art von Support du im Benutzerprofil möchtest (bio = die Bio, z. B. Serverlink; tag = der Discord-Tag des Servers)!",
@@ -4562,9 +4567,10 @@ export default {
 		"Inspiriert vom Honeypot von RiskyMH, schau es dir an!\n${url}",
 	honeypot_trap_count_none: "Noch niemand bestraft",
 	honeypot_trap_count_one: "1 Person bestraft",
-	honeypot_trap_count_other: "${count} Personen bestraft",
+	honeypot_trap_count_other: "${caughtCount} Personen bestraft",
 	honeypot_trap_count_never: "nie",
-	honeypot_trap_count_reply: "🍯 Strafen durch diese Falle: **${count}**\nLetzte Strafe: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Strafen durch diese Falle: **${caughtCount}**\nLetzte Strafe: ${last}",
 	honeypot_dm_title: "Honeypot ausgelöst!",
 	honeypot_dm_desc:
 		"Eine Nachricht, die du im *Honeypot*-Kanal auf dem folgenden Server gesendet hast: **`${guild}`** **ausgelöst** den konfigurierten Schutz.\n\n__Gegen dich ergriffene Maßnahme:__ **`${action}`**\n\n*Nachrichten, die du in den letzten 2 Stunden gesendet hast, werden vom Server entfernt. Wenn du glaubst, dass dein Konto gehackt wurde, ändere dein Passwort und aktiviere 2FA auf deinem Discord-Konto. Wenn es nur ein Fehler deinerseits war, kontaktiere bitte das Server-Team, um das Problem zu lösen.*",
@@ -5341,14 +5347,17 @@ export default {
 	gforms_review_accepted: "✅ Angenommen von ${user} ${time}",
 	gforms_review_refused: "❌ Abgelehnt von ${user} ${time}",
 	gforms_review_reason: "Grund: ${reason}",
-	gforms_review_not_reviewer: "Nur die Prüfer dieses Formulars können entscheiden.",
+	gforms_review_not_reviewer:
+		"Nur die Prüfer dieses Formulars können entscheiden.",
 	gforms_review_already: "Über diese Bewerbung wurde bereits entschieden.",
 	gforms_review_not_found: "Diese Bewerbung gibt es nicht mehr.",
 	gforms_review_modal_title: "Bewerbung ablehnen",
 	gforms_review_modal_reason: "Grund (optional, wird an die Person gesendet)",
 	gforms_review_dm_title: "Deine Bewerbung",
-	gforms_review_dm_accepted: "Deine Bewerbung **${name}** auf **${guild}** wurde angenommen.",
-	gforms_review_dm_refused: "Deine Bewerbung **${name}** auf **${guild}** wurde abgelehnt.",
+	gforms_review_dm_accepted:
+		"Deine Bewerbung **${name}** auf **${guild}** wurde angenommen.",
+	gforms_review_dm_refused:
+		"Deine Bewerbung **${name}** auf **${guild}** wurde abgelehnt.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Gestehen",

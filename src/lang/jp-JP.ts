@@ -2864,7 +2864,8 @@ export default {
 	support_not_admin:
 		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
 	support_card_on_title: "サポーターロールを有効化しました",
-	support_card_on_desc: "条件を満たすメンバーに ${role} を付与し、満たさなくなると外します。",
+	support_card_on_desc:
+		"条件を満たすメンバーに ${role} を付与し、満たさなくなると外します。",
 	support_card_condition: "条件",
 	support_card_keyword: "ステータスで探す語",
 	support_card_role: "ロール",
@@ -2872,10 +2873,13 @@ export default {
 	support_card_cond_tag: "サーバータグを付けている",
 	support_card_cond_both: "ステータスのキーワード **かつ** サーバータグ",
 	support_card_cond_either: "ステータスのキーワード **または** サーバータグ",
-	support_card_no_keyword: "キーワードもカスタム招待もありません：ステータスの条件を満たせる人はいません。キーワード付きでコマンドを実行し直してください。",
-	support_card_footer: "すでに条件を満たすオンラインのメンバーには今付与され、その後はステータスが変わるたびに反映されます。",
+	support_card_no_keyword:
+		"キーワードもカスタム招待もありません：ステータスの条件を満たせる人はいません。キーワード付きでコマンドを実行し直してください。",
+	support_card_footer:
+		"すでに条件を満たすオンラインのメンバーには今付与され、その後はステータスが変わるたびに反映されます。",
 	support_card_off_title: "サポーターロールを無効化しました",
-	support_card_off_desc: "今後ロールは付与されません。持っている人はそのままです。",
+	support_card_off_desc:
+		"今後ロールは付与されません。持っている人はそのままです。",
 	support_command_not_role: ":x: | 役割を指定していません！",
 	support_command_not_type:
 		":x: | ユーザープロフィールで希望するサポートタイプが指定されていません（bio = 自己紹介。例: サーバーリンク、tag = サーバーのDiscordタグ）!",
@@ -4423,9 +4427,10 @@ export default {
 		"RiskyMH の Honeypot に着想を得ています、チェックしてみてください！\n${url}",
 	honeypot_trap_count_none: "まだ誰も処罰されていません",
 	honeypot_trap_count_one: "1人を処罰",
-	honeypot_trap_count_other: "${count}人を処罰",
+	honeypot_trap_count_other: "${caughtCount}人を処罰",
 	honeypot_trap_count_never: "なし",
-	honeypot_trap_count_reply: "🍯 このトラップによる処罰: **${count}**\n最後の処罰: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 このトラップによる処罰: **${caughtCount}**\n最後の処罰: ${last}",
 	honeypot_dm_title: "Honeypot 発動!",
 	honeypot_dm_desc:
 		"以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*",
@@ -5195,8 +5200,10 @@ export default {
 	gforms_review_modal_title: "応募を却下",
 	gforms_review_modal_reason: "理由（任意、応募者に送信されます）",
 	gforms_review_dm_title: "応募結果",
-	gforms_review_dm_accepted: "**${guild}** の **${name}** への応募が承認されました。",
-	gforms_review_dm_refused: "**${guild}** の **${name}** への応募が却下されました。",
+	gforms_review_dm_accepted:
+		"**${guild}** の **${name}** への応募が承認されました。",
+	gforms_review_dm_refused:
+		"**${guild}** の **${name}** への応募が却下されました。",
 
 	// /confession panel
 	confession_panel_button_default_label: "告白する",

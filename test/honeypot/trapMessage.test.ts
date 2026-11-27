@@ -9,6 +9,11 @@ import {
 } from "../../src/core/modules/honeypotManager.ts";
 import en from "../../src/lang/en-US.ts";
 
+const EMOJIS = {
+	Security: "<:Security:1>",
+	Ban_Hammer: "<:Ban_Hammer:2>"
+} as never;
+
 type Json = Record<string, unknown>;
 type Client = Parameters<typeof recordTrigger>[0];
 type Guild = Parameters<typeof recordTrigger>[1];
@@ -52,7 +57,7 @@ const guild = {
 
 describe("honeypot trap message", () => {
 	test("is a Components V2 card with the counter button", () => {
-		const message = buildTrapMessage(en, 0);
+		const message = buildTrapMessage(en, EMOJIS, 0);
 		expect(message.flags).toBe(MessageFlags.IsComponentsV2);
 		const container = message.components[0].toJSON() as unknown as Json;
 		expect(container.type).toBe(ComponentType.Container);
@@ -63,13 +68,13 @@ describe("honeypot trap message", () => {
 	});
 
 	test("the button says how many accounts were sanctioned", () => {
-		expect(button(buildTrapMessage(en, 0)).label).toBe(
+		expect(button(buildTrapMessage(en, EMOJIS, 0)).label).toBe(
 			en.honeypot_trap_count_none
 		);
-		expect(button(buildTrapMessage(en, 1)).label).toBe(
+		expect(button(buildTrapMessage(en, EMOJIS, 1)).label).toBe(
 			en.honeypot_trap_count_one
 		);
-		expect(button(buildTrapMessage(en, 42)).label).toBe(
+		expect(button(buildTrapMessage(en, EMOJIS, 42)).label).toBe(
 			"42 people sanctioned"
 		);
 	});

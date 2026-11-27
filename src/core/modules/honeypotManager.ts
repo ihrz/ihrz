@@ -647,7 +647,10 @@ export function scheduleHoneypotTrigger(
 function trapCountLabel(lang: LanguageData, count: number): string {
 	if (count <= 0) return lang.honeypot_trap_count_none;
 	if (count === 1) return lang.honeypot_trap_count_one;
-	return lang.honeypot_trap_count_other.replace("${count}", String(count));
+	return lang.honeypot_trap_count_other.replace(
+		"${caughtCount}",
+		String(count)
+	);
 }
 
 /**
@@ -656,7 +659,17 @@ function trapCountLabel(lang: LanguageData, count: number): string {
  * through: a member the bot could not sanction, staff included, never
  * counts). The button only shows the stats (honeypot-count.ts).
  */
-export function buildTrapMessage(lang: LanguageData, caughtCount: number = 0) {
+/** The pack emojis the trap message uses (client.iHorizon_Emojis). */
+export type TrapEmojis = Pick<
+	Client["iHorizon_Emojis"],
+	"Security" | "Ban_Hammer"
+>;
+
+export function buildTrapMessage(
+	lang: LanguageData,
+	emojis: TrapEmojis,
+	caughtCount: number = 0
+) {
 	const footer = lang.honeypot_trap_embed_footer
 		.replace("${url}", HONEYPOT_CREDIT_URL)
 		.split("\n")
@@ -669,7 +682,7 @@ export function buildTrapMessage(lang: LanguageData, caughtCount: number = 0) {
 			new SectionBuilder()
 				.addTextDisplayComponents(
 					new TextDisplayBuilder().setContent(
-						`## 🍯 ${lang.honeypot_trap_embed_title}`
+						`## ${emojis.Security} ${lang.honeypot_trap_embed_title}`
 					),
 					new TextDisplayBuilder().setContent(
 						lang.honeypot_trap_embed_desc
@@ -689,7 +702,7 @@ export function buildTrapMessage(lang: LanguageData, caughtCount: number = 0) {
 				new ButtonBuilder()
 					.setCustomId(HONEYPOT_COUNT_BUTTON)
 					.setStyle(ButtonStyle.Secondary)
-					.setEmoji("🛡️")
+					.setEmoji(emojis.Ban_Hammer)
 					.setLabel(trapCountLabel(lang, caughtCount))
 			)
 		)
@@ -811,8 +824,11 @@ export async function refreshTrapMessage(
 		const lang = await client.func.getLanguageData(guild.id);
 		if (posted.flags.has(MessageFlags.IsComponentsV2)) {
 			await posted.edit({
-				components: buildTrapMessage(lang, config.caughtCount ?? 0)
-					.components
+				components: buildTrapMessage(
+					lang,
+					client.iHorizon_Emojis,
+					config.caughtCount ?? 0
+				).components
 			});
 			return;
 		}
@@ -878,7 +894,13 @@ export async function sendTrapEmbed(
 	}
 
 	const sentMessage = await channel
-		.send(buildTrapMessage(lang, config.caughtCount ?? 0))
+		.send(
+			buildTrapMessage(
+				lang,
+				guild.client.iHorizon_Emojis,
+				config.caughtCount ?? 0
+			)
+		)
 		.catch(() => null);
 
 	if (!sentMessage) {

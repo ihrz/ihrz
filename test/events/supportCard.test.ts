@@ -5,7 +5,15 @@ import en from "../../src/lang/en-US.ts";
 
 type Guild = Parameters<typeof supportCard>[1];
 const guild = (vanity: string | null) =>
-	({ vanityURLCode: vanity, iconURL: () => null }) as unknown as Guild;
+	({
+		vanityURLCode: vanity,
+		client: {
+			iHorizon_Emojis: new Proxy(
+				{},
+				{ get: (_, k) => `<:${String(k)}:1>` }
+			)
+		}
+	}) as unknown as Guild;
 const json = (c: ReturnType<typeof supportCard>) => JSON.stringify(c.toJSON());
 
 describe("/support card", () => {

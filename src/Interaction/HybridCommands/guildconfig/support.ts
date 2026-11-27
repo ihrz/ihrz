@@ -45,6 +45,7 @@ import {
 /**
  * The card shown once the module is set up: the condition in plain words, the
  * keyword looked for (or the vanity code), the role, and when it is given.
+ * No thumbnail: a server icon URL breaks once the icon changes (AGENTS.md).
  * Exported for the tests.
  */
 export function supportCard(
@@ -54,6 +55,7 @@ export function supportCard(
 	roleId: string,
 	o: { signature?: string | null } = {}
 ): ContainerBuilder {
+	const emojis = guild.client.iHorizon_Emojis;
 	const type = config.type ?? "bio";
 	const condition = {
 		bio: lang.support_card_cond_bio,
@@ -69,33 +71,35 @@ export function supportCard(
 
 	return buildCard({
 		accent: ACCENT.success,
-		emoji: "🤝",
+		emoji: emojis.Early_Supporter_Badge,
 		title: lang.support_card_on_title,
 		description: lang.support_card_on_desc.replace(
 			"${role}",
 			`<@&${roleId}>`
 		),
-		thumbnail: guild.iconURL({ size: 128 }),
 		fields: [
 			{
-				emoji: "📋",
+				emoji: emojis.Ticket_Form,
 				label: lang.support_card_condition,
 				value: condition
 			},
-			readsStatus && {
-				emoji: "🔎",
-				label: lang.support_card_keyword,
-				value: keyword ? `\`${keyword.replaceAll("`", "ˋ")}\`` : "—"
-			},
+			readsStatus &&
+				!!keyword && {
+					emoji: emojis.Search,
+					label: lang.support_card_keyword,
+					value: `\`${keyword.replaceAll("`", "'")}\``
+				},
 			{
-				emoji: "🎖️",
+				emoji: emojis.Ticket_Role,
 				label: lang.support_card_role,
 				value: `<@&${roleId}>`
 			}
 		],
 		blocks: [
 			// Status mode without anything to look for: nobody can ever match.
-			readsStatus && !keyword && `⚠️ ${lang.support_card_no_keyword}`
+			readsStatus &&
+				!keyword &&
+				`${emojis.Warning_Icon} ${lang.support_card_no_keyword}`
 		],
 		footer: lang.support_card_footer,
 		signature: o.signature ?? null
@@ -407,10 +411,9 @@ export const command: Command = {
 				interaction,
 				buildCard({
 					accent: ACCENT.danger,
-					emoji: "🤝",
+					emoji: client.iHorizon_Emojis.Early_Supporter_Badge,
 					title: lang.support_card_off_title,
 					description: lang.support_card_off_desc,
-					thumbnail: interaction.guild.iconURL({ size: 128 }),
 					signature: await botSignature(client, interaction.guildId)
 				})
 			);

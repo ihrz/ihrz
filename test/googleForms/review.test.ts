@@ -165,7 +165,7 @@ function fakeClient(guild: Guild, l: ReturnType<typeof link>) {
 				footerBuilder: async () => ({ text: "iHorizon" })
 			}
 		},
-		iHorizon_Emojis: {}
+		iHorizon_Emojis: { Yes: "<:Yes:1>", No: "<:No:2>" }
 	} as unknown as Client;
 }
 

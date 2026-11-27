@@ -40,7 +40,7 @@ export default async function (
 
 	await interaction.reply({
 		content: lang.honeypot_trap_count_reply
-			.replace("${count}", String(count))
+			.replace("${caughtCount}", String(count))
 			.replace("${last}", last),
 		flags: [MessageFlags.Ephemeral]
 	});

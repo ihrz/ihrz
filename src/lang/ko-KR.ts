@@ -2750,7 +2750,8 @@ export default {
 	support_not_admin:
 		":x: | 이 명령어를 사용하려면 이 서버의 관리자여야 해요!",
 	support_card_on_title: "서포터 역할 활성화됨",
-	support_card_on_desc: "조건을 충족한 멤버는 ${role} 역할을 받고, 그만두면 잃습니다.",
+	support_card_on_desc:
+		"조건을 충족한 멤버는 ${role} 역할을 받고, 그만두면 잃습니다.",
 	support_card_condition: "조건",
 	support_card_keyword: "상태에서 찾는 문구",
 	support_card_role: "역할",
@@ -2758,10 +2759,13 @@ export default {
 	support_card_cond_tag: "서버 태그를 달고 있음",
 	support_card_cond_both: "상태의 키워드 **그리고** 서버 태그",
 	support_card_cond_either: "상태의 키워드 **또는** 서버 태그",
-	support_card_no_keyword: "키워드도 사용자 지정 초대도 없습니다: 아무도 상태 조건을 충족할 수 없어요. 키워드와 함께 명령어를 다시 실행하세요.",
-	support_card_footer: "이미 조건을 충족한 온라인 멤버는 지금 받고, 이후 상태가 바뀔 때마다 반영됩니다.",
+	support_card_no_keyword:
+		"키워드도 사용자 지정 초대도 없습니다: 아무도 상태 조건을 충족할 수 없어요. 키워드와 함께 명령어를 다시 실행하세요.",
+	support_card_footer:
+		"이미 조건을 충족한 온라인 멤버는 지금 받고, 이후 상태가 바뀔 때마다 반영됩니다.",
 	support_card_off_title: "서포터 역할 비활성화됨",
-	support_card_off_desc: "더 이상 아무도 역할을 받지 않습니다. 이미 가진 사람은 유지합니다.",
+	support_card_off_desc:
+		"더 이상 아무도 역할을 받지 않습니다. 이미 가진 사람은 유지합니다.",
 	support_command_not_role: ":x: | 역할을 지정하지 않았어요!",
 	support_command_not_type:
 		":x: | 사용자 프로필에서 확인할 서포트 유형을 지정하지 않았어요 (bio = 소개, 예: 서버 링크 / tag = 서버의 Discord 태그)!",
@@ -4266,9 +4270,10 @@ export default {
 		"RiskyMH의 Honeypot 봇에서 영감을 받았어요. 한번 확인해 보세요!\n${url}",
 	honeypot_trap_count_none: "아직 처벌된 사람이 없습니다",
 	honeypot_trap_count_one: "1명 처벌됨",
-	honeypot_trap_count_other: "${count}명 처벌됨",
+	honeypot_trap_count_other: "${caughtCount}명 처벌됨",
 	honeypot_trap_count_never: "없음",
-	honeypot_trap_count_reply: "🍯 이 함정의 처벌 수: **${count}**\n마지막 처벌: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 이 함정의 처벌 수: **${caughtCount}**\n마지막 처벌: ${last}",
 	honeypot_dm_title: "허니팟 작동!",
 	honeypot_dm_desc:
 		"다음 서버의 *허니팟* 채널에 보낸 메시지가 설정된 보호 기능을 **작동시켰어요**: **`${guild}`**\n\n__적용된 조치:__ **`${action}`**\n\n*최근 2시간 동안 보낸 메시지가 서버에서 삭제되고 있어요. 계정이 해킹된 것 같다면 비밀번호를 변경하고 Discord 계정에서 2단계 인증을 켜 주세요. 단순한 실수였다면 서버 스태프에게 연락해 문제를 해결해 주세요.*",
@@ -5024,8 +5029,10 @@ export default {
 	gforms_review_modal_title: "지원서 거절",
 	gforms_review_modal_reason: "사유 (선택, 지원자에게 전송됨)",
 	gforms_review_dm_title: "지원 결과",
-	gforms_review_dm_accepted: "**${guild}**의 **${name}** 지원서가 수락되었습니다.",
-	gforms_review_dm_refused: "**${guild}**의 **${name}** 지원서가 거절되었습니다.",
+	gforms_review_dm_accepted:
+		"**${guild}**의 **${name}** 지원서가 수락되었습니다.",
+	gforms_review_dm_refused:
+		"**${guild}**의 **${name}** 지원서가 거절되었습니다.",
 
 	// /confession panel
 	confession_panel_button_default_label: "고백하기",
