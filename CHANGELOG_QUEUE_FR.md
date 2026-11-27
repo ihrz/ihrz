@@ -363,6 +363,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Transcripts de tickets** : le fichier HTML utilise la nouvelle version de son moteur (sweety-html-transcripts 1.2) : plus léger pour le bot, et le transcript d'un salon réutilise ce que le bot sait déjà de ses membres et de ses salons au lieu de redemander à Discord.
 - **Images** : les images qu'iHorizon montre depuis son site (bannière, honeypot, sondages…) sont rechargées après chaque redémarrage, Discord ne garde donc plus une ancienne version (l'ancienne bannière étirée).
 - **Bannière** : l'image sous `/help` et les panneaux du vocal temporaire est la nouvelle bannière d'iHorizon, dans la langue de votre serveur (le slogan, le dashboard et la carte `/mod ban` qu'elle montre sont traduits). Les serveurs en ukrainien et en polonais ont enfin la leur (leur image manquait).
 - **Connexion au dashboard** : un interrupteur **Rejoindre le serveur support d'iHorizon** sous le bouton de connexion, activé par défaut. Désactivé, la connexion ne demande plus à Discord la permission de vous ajouter à un serveur, et vous n'y êtes pas ajouté (le choix est retenu sur ce navigateur).

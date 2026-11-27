@@ -5109,7 +5109,7 @@ const enUS = {
 	warn_reason_antispam: "Automatic punishment: spam",
 	automod_block_custom_message: "This message was blocked by iHorizon",
 	derogation_role_name: "managed by iHorizon",
-	ticket_transcript_footer: "Messages exported: {number}",
+	ticket_transcript_footer: "Messages exported: {count}",
 	music_playlist_fallback_name: "${platform} playlist",
 	music_apo_node_unreachable: "the music node can't be reached (${message})",
 

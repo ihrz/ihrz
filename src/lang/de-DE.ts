@@ -5292,7 +5292,7 @@ export default {
 	automod_block_custom_message:
 		"Diese Nachricht wurde von iHorizon blockiert",
 	derogation_role_name: "verwaltet von iHorizon",
-	ticket_transcript_footer: "Exportierte Nachrichten: {number}",
+	ticket_transcript_footer: "Exportierte Nachrichten: {count}",
 	music_playlist_fallback_name: "${platform}-Playlist",
 	music_apo_node_unreachable:
 		"der Audioserver ist nicht erreichbar (${message})",

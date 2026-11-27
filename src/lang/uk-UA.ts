@@ -4261,7 +4261,7 @@ export default {
 	warn_reason_antispam: "Автоматичне покарання: спам",
 	automod_block_custom_message: "Це повідомлення заблоковано iHorizon",
 	derogation_role_name: "керується iHorizon",
-	ticket_transcript_footer: "Експортовано повідомлень: {number}",
+	ticket_transcript_footer: "Експортовано повідомлень: {count}",
 	music_playlist_fallback_name: "Плейлист ${platform}",
 	music_apo_node_unreachable: "аудіосервер недоступний (${message})",
 

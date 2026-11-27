@@ -35,7 +35,6 @@ import {
 	UserSelectMenuBuilder,
 	ChatInputCommandInteraction,
 	ButtonInteraction,
-	TextBasedChannel,
 	BaseGuildTextChannel,
 	User,
 	Interaction,
@@ -70,7 +69,6 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
 import { metasTable } from "../../Events/client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
-import { DiscordJSTranscript } from "sweety-html-transcripts/adapters/discordjs";
 
 /**
  * Fills placeholders in the text fields of an embed object.
@@ -996,7 +994,7 @@ async function sendTicketLog(
 		kind: TicketLogKind;
 		title: string;
 		description: string;
-		files?: AttachmentBuilder[];
+		files?: (AttachmentBuilder | AttachmentPayload)[];
 		link?: { url: string; label: string } | null;
 	}
 ): Promise<void> {
@@ -1092,14 +1090,13 @@ async function closeTicketChannel(
 	// no file is sent to Discord. Without one, the HTML file as before.
 	const attachment = webUrl
 		? null
-		: await DiscordJSTranscript.create({
-				channel: channel as TextBasedChannel,
-				limit: -1,
+		: await channel.client.transcripts.attachment(channel.id, {
 				filename: `${channel.guildId}-transcript.html`,
-				footerText: lang.ticket_transcript_footer,
-				poweredBy: false
+				footer: lang.ticket_transcript_footer
 			});
-	const files: AttachmentBuilder[] = attachment ? [attachment] : [];
+	const files: (AttachmentBuilder | AttachmentPayload)[] = attachment
+		? [attachment]
+		: [];
 
 	const embed = new EmbedBuilder()
 		.setDescription(lang.close_title_sourcebin)
@@ -1268,18 +1265,19 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				);
 				const attachment = webUrl
 					? null
-					: await DiscordJSTranscript.create({
-							channel: interactionChannel as TextBasedChannel,
-							limit: -1,
-							filename: `${interaction.guildId}-transcript.html`,
-							footerText: data.ticket_transcript_footer,
-							poweredBy: false,
-							saveImages: true,
-							favicon: interaction.client.user.displayAvatarURL({
-								size: 512,
-								extension: "png"
-							})
-						});
+					: await interaction.client.transcripts.attachment(
+							interactionChannel.id,
+							{
+								filename: `${interaction.guildId}-transcript.html`,
+								footer: data.ticket_transcript_footer,
+								saveImages: true,
+								favicon:
+									interaction.client.user.displayAvatarURL({
+										size: 512,
+										extension: "png"
+									})
+							}
+						);
 
 				if (interaction.deferred) {
 					await interaction.editReply({
@@ -1534,12 +1532,9 @@ async function deleteTicketChannel(
 			// The link replaces the HTML file when there is a web transcript.
 			const attachment = webUrl
 				? null
-				: await DiscordJSTranscript.create({
-						channel: channel as TextBasedChannel,
-						limit: -1,
+				: await channel.client.transcripts.attachment(channel.id, {
 						filename: `${guild.id}-transcript.html`,
-						footerText: lang.ticket_transcript_footer,
-						poweredBy: false
+						footer: lang.ticket_transcript_footer
 					});
 
 			if (shouldSendOwnerDm) {

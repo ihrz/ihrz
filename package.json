@@ -54,7 +54,7 @@
 		"jszip": "^3.10.2",
 		"lavalink-client": "^2.11.2",
 		"nodemailer": "^10.6.1",
-		"sweety-html-transcripts": "^0.4.0",
+		"sweety-html-transcripts": "^1.2.2",
 		"typescript-eslint": "^8.73.0"
 	},
 	"devDependencies": {

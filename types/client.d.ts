@@ -60,7 +60,11 @@ import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 import { UnifiedDatabase } from "../src/core/database/types.ts";
 import * as backup from "../src/core/backup/src/";
-import * as discordTranscripts from "sweety-html-transcripts";
+import type {
+	DiscordJSFile,
+	TranscriptAdapter,
+	Transcripts
+} from "sweety-html-transcripts";
 import { BloggerNotifier } from "../src/core/Blogger.ts";
 import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
 import { TempbanManager } from "../src/core/modules/tempbanManager.ts";
@@ -120,7 +124,8 @@ declare module "discord.js" {
 		isMainShard: () => boolean;
 		// END OF SHARD FUNCS
 
-		discordTranscripts: typeof discordTranscripts;
+		/** HTML transcripts of a channel (sweety-html-transcripts, one instance: core.ts). */
+		transcripts: Transcripts<TranscriptAdapter<DiscordJSFile>>;
 		blogger: BloggerNotifier;
 		email: Mailer;
 		lastFMScrobbler: LastFMScrobblerManager;

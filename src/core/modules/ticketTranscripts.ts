@@ -31,6 +31,7 @@
 import {
 	ActionRowBuilder,
 	AttachmentBuilder,
+	type AttachmentPayload,
 	ContainerBuilder,
 	FileBuilder,
 	MessageFlags,
@@ -96,14 +97,14 @@ export function transcriptLinkRow(url: string, label: string) {
 /**
  * The transcript sent by private message (/ticket transcript, a deleted ticket's author), as Components V2: the
  * title and text, the ticket's channel, server and date, the HTML file, and the web transcript button when there
- * is one. `file` = the HTML attachment from DiscordJSTranscript.create, null when the web transcript replaces it
+ * is one. `file` = the HTML attachment from client.transcripts.attachment, null when the web transcript replaces it
  * (production: links only, no HTML file sent to Discord).
  */
 export function transcriptDmPayload(options: {
 	channel: BaseGuildTextChannel;
 	title: string;
 	text: string;
-	file: AttachmentBuilder | null;
+	file: AttachmentBuilder | AttachmentPayload | null;
 	webUrl: string | null;
 	buttonLabel: string;
 }) {

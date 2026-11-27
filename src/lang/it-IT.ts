@@ -5231,7 +5231,7 @@ export default {
 	automod_block_custom_message:
 		"Questo messaggio è stato bloccato da iHorizon",
 	derogation_role_name: "gestito da iHorizon",
-	ticket_transcript_footer: "Messaggi esportati: {number}",
+	ticket_transcript_footer: "Messaggi esportati: {count}",
 	music_playlist_fallback_name: "Playlist ${platform}",
 	music_apo_node_unreachable:
 		"il server audio non è raggiungibile (${message})",

@@ -5192,7 +5192,7 @@ export default {
 	warn_reason_antispam: "Sanção automática: spam",
 	automod_block_custom_message: "Esta mensagem foi bloqueada pelo iHorizon",
 	derogation_role_name: "gerido pelo iHorizon",
-	ticket_transcript_footer: "Mensagens exportadas: {number}",
+	ticket_transcript_footer: "Mensagens exportadas: {count}",
 	music_playlist_fallback_name: "Playlist do ${platform}",
 	music_apo_node_unreachable:
 		"não é possível contactar o servidor de áudio (${message})",

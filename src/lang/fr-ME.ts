@@ -5316,7 +5316,7 @@ export default {
 	automod_block_custom_message:
 		"iHorizon a bloqué ton message, déso pas déso",
 	derogation_role_name: "géré par iHorizon",
-	ticket_transcript_footer: "Messages exportés : {number}, tranquille",
+	ticket_transcript_footer: "Messages exportés : {count}, tranquille",
 	music_playlist_fallback_name: "Playlist ${platform}",
 	music_apo_node_unreachable:
 		"le serveur audio répond plus, il est mort (${message})",

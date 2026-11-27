@@ -4969,7 +4969,7 @@ export default {
 	warn_reason_antispam: "자동 처벌: 스팸",
 	automod_block_custom_message: "이 메시지는 iHorizon에 의해 차단되었습니다",
 	derogation_role_name: "iHorizon 관리",
-	ticket_transcript_footer: "내보낸 메시지: {number}",
+	ticket_transcript_footer: "내보낸 메시지: {count}",
 	music_playlist_fallback_name: "${platform} 플레이리스트",
 	music_apo_node_unreachable: "오디오 서버에 연결할 수 없습니다 (${message})",
 
