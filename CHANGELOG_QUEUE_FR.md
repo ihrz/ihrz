@@ -52,7 +52,7 @@ Le dashboard a un nouveau module **Transcripts** (Tickets & support) : tous les 
 
 ## 💜 Musique — bouton Love et `/music playlist`
 
-Le panneau du titre en cours a un cœur **Love** : un clic ajoute le titre à vos titres likés (s'il l'est déjà, un bouton **Retirer** est proposé pendant une minute). **`/music playlist`** ouvre votre bibliothèque dans Discord : vos titres likés et vos playlists, un menu pour en ouvrir une, 10 titres par page, et **Lire** — la même bibliothèque que le lecteur du dashboard.
+Le panneau du titre en cours a un cœur **Love** : un clic ajoute le titre à vos titres likés (s'il l'est déjà, un bouton **Retirer** est proposé pendant une minute). **`/music playlist`** ouvre votre bibliothèque dans Discord : vos titres likés et vos playlists, un menu pour en ouvrir une, 10 titres par page, et **Lire** — la même bibliothèque que le lecteur du dashboard. Le cœur, le cœur brisé et l'icône de playlist sont des icônes propres à iHorizon, dans le style des boutons du lecteur.
 
 ---
 

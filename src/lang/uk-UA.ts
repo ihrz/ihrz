@@ -4394,7 +4394,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Подобається",
-	music_love_added: "❤️ **${track}** тепер у розділі «${playlist}».",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** тепер у розділі «${playlist}».",
 	music_love_already: "**${track}** вже у розділі «${playlist}».",
 	music_love_remove_button: "Прибрати з «${playlist}»",
 	music_love_removed: "**${track}** прибрано з розділу «${playlist}».",

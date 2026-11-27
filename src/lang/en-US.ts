@@ -5238,7 +5238,8 @@ const enUS = {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Love",
-	music_love_added: "❤️ **${track}** is now in your ${playlist}.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** is now in your ${playlist}.",
 	music_love_already: "**${track}** is already in your ${playlist}.",
 	music_love_remove_button: "Remove from ${playlist}",
 	music_love_removed: "**${track}** was removed from your ${playlist}.",

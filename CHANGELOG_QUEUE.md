@@ -52,7 +52,7 @@ The dashboard has a new **Transcripts** module (Tickets & support): every transc
 
 ## 💜 Music — Love button and `/music playlist`
 
-The now-playing panel has a **Love** heart: one click puts the track in your liked tracks (if it already is, a **Remove** button is offered for a minute). **`/music playlist`** opens your library in Discord: your liked tracks and playlists, a menu to open one, 10 tracks per page, and **Play** — the same library as the dashboard's player.
+The now-playing panel has a **Love** heart: one click puts the track in your liked tracks (if it already is, a **Remove** button is offered for a minute). **`/music playlist`** opens your library in Discord: your liked tracks and playlists, a menu to open one, 10 tracks per page, and **Play** — the same library as the dashboard's player. The heart, the broken heart and the playlist icon are iHorizon's own icons, in the style of the player's buttons.
 
 ---
 

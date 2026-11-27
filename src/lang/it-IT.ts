@@ -5366,7 +5366,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Mi piace",
-	music_love_added: "❤️ **${track}** ora è tra i tuoi ${playlist}.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** ora è tra i tuoi ${playlist}.",
 	music_love_already: "**${track}** è già tra i tuoi ${playlist}.",
 	music_love_remove_button: "Rimuovi da ${playlist}",
 	music_love_removed: "**${track}** è stato rimosso dai tuoi ${playlist}.",

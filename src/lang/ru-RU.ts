@@ -5272,7 +5272,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "Нравится",
-	music_love_added: "❤️ **${track}** теперь в разделе «${playlist}».",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** теперь в разделе «${playlist}».",
 	music_love_already: "**${track}** уже в разделе «${playlist}».",
 	music_love_remove_button: "Убрать из «${playlist}»",
 	music_love_removed: "**${track}** убран из раздела «${playlist}».",

@@ -5269,7 +5269,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "いいね",
-	music_love_added: "❤️ **${track}** を「${playlist}」に追加しました。",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** を「${playlist}」に追加しました。",
 	music_love_already: "**${track}** はすでに「${playlist}」にあります。",
 	music_love_remove_button: "「${playlist}」から削除",
 	music_love_removed: "**${track}** を「${playlist}」から削除しました。",

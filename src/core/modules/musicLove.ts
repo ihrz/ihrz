@@ -58,10 +58,14 @@ export const LOVE_REMOVE_BUTTON = "nowplaying_love_remove";
 const REMOVE_WINDOW_MS = 60_000;
 
 /** The neutral heart of the panel (same for everyone). */
-export function loveButton(lang: LanguageData, disabled: boolean) {
+export function loveButton(
+	lang: LanguageData,
+	disabled: boolean,
+	emojis: Pick<Client["iHorizon_Emojis"], "Player_Love">
+) {
 	return new ButtonBuilder()
 		.setCustomId(LOVE_BUTTON)
-		.setEmoji("❤️")
+		.setEmoji(emojis.Player_Love)
 		.setLabel(lang.music_love_button)
 		.setStyle(ButtonStyle.Secondary)
 		.setDisabled(disabled);
@@ -146,7 +150,7 @@ export async function handleLoveClick(
 		new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId(LOVE_REMOVE_BUTTON)
-				.setEmoji("💔")
+				.setEmoji(client.iHorizon_Emojis.Player_Unlove)
 				.setLabel(
 					clip(
 						lang.music_love_remove_button.replace(

@@ -5098,7 +5098,8 @@ export default {
 
 	// Music library on Discord: Love button, /music playlist
 	music_love_button: "좋아요",
-	music_love_added: "❤️ **${track}** 곡을 ${playlist}에 추가했어요.",
+	music_love_added:
+		"${emoji_Player_Love} **${track}** 곡을 ${playlist}에 추가했어요.",
 	music_love_already: "**${track}** 곡은 이미 ${playlist}에 있어요.",
 	music_love_remove_button: "${playlist}에서 삭제",
 	music_love_removed: "**${track}** 곡을 ${playlist}에서 삭제했어요.",
