@@ -6,7 +6,7 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ## 📖 `/help` — a new help card
 
-`/help` is redesigned with Discord's new components. The home card shows the iHorizon banner in your server's language, how many categories and commands there are, who made the bot, how to change its language, the category menus, and buttons to search a command on the website, open the dashboard, the documentation and the support server. A category lists its commands 6 per page, each on the same layout: the command (click it to fill in the slash command), what it does, then its prefix form and its padlock; **Details** shows a command's usage, permission and aliases, only to you. `/help command-name` uses the same card. Commands that only group subcommands (such as `/honeypot`) are no longer listed on their own.
+`/help` is redesigned with Discord's new components. The home card shows the iHorizon banner in your server's language, how many categories and commands there are, who made the bot, how to change its language, the category menus, and buttons to search a command on the website, open the dashboard, the documentation and the support server. A category lists its commands 6 per page, each on the same layout: the command (click it to fill in the slash command), what it does, then its prefix form and its padlock; **Details** shows a command's description, usage (with what `[...]` and `<...>` mean), permission and aliases, only to you. `/help command-name` uses the same card. Commands that only group subcommands (such as `/honeypot`) are no longer listed on their own.
 
 ---
 

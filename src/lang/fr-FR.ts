@@ -745,12 +745,14 @@ export default {
 	help_home_intro:
 		"Toutes les commandes, rangées par catégorie. Choisissez une catégorie dans le menu ci-dessous.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** catégories\n${emoji_Slash_Bot_Badge} **${commandCount}** commandes",
-	help_home_creators: "${emoji_Crown} Créé par ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** catégories de commandes disponibles\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** commandes Slash disponibles",
+	help_home_creators: "${emoji_Crown} ・ **Créé par** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Disponible en **${languageCount}** langues : changez-la avec ${command}",
+		"${emoji_VC_Region} ・ ${botName} est **100% multilingue** ・ ${command}",
 	help_search_button: "Chercher une commande",
 	help_details_button: "Détails",
+	help_usage_legend:
+		"Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.",
 	help_protection_fields: "Protection",
 	help_protection_dsc:
 		"> *Empêchez les utilisateurs non autorisés de réaliser certaines actions afin de protéger le serveur.*",

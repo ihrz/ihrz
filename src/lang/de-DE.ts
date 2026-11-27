@@ -747,12 +747,14 @@ export default {
 	help_home_intro:
 		"Alle Befehle, nach Kategorie sortiert. Wähle unten im Menü eine Kategorie.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** Kategorien\n${emoji_Slash_Bot_Badge} **${commandCount}** Befehle",
-	help_home_creators: "${emoji_Crown} Erstellt von ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** verfügbare Kategorien von Befehlen\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** verfügbare Slash-Befehle",
+	help_home_creators: "${emoji_Crown} ・ **Erstellt von** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} In **${languageCount}** Sprachen verfügbar: ändere sie mit ${command}",
+		"${emoji_VC_Region} ・ ${botName} ist **100 % mehrsprachig** ・ ${command}",
 	help_search_button: "Befehl suchen",
 	help_details_button: "Details",
+	help_usage_legend:
+		"Optionen in [...] sind erforderlich, während diejenigen in <...> optional sind.",
 	help_protection_fields: "Schutz",
 	help_protection_dsc:
 		"> *Verhindern Sie, dass nicht autorisierte Benutzer bestimmte Aktionen ausführen, um den Server zu schützen.*",

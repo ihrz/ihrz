@@ -41,18 +41,21 @@ export const command: Command = {
 	name: "shardinfo",
 	aliases: [],
 
-	description: "...",
+	description:
+		"Every shard's state (ping, servers, members, memory) and the servers with incomplete data",
 	description_localizations: {
-		fr: "...",
-		ja: "...",
-		ru: "...",
-		"es-ES": "...",
-		ko: "...",
-		uk: "...",
-		de: "...",
-		it: "...",
-		"pt-BR": "...",
-		pl: "..."
+		fr: "L'état de chaque shard (ping, serveurs, membres, mémoire) et les serveurs aux données incomplètes",
+		ja: "各シャードの状態（Ping・サーバー・メンバー・メモリ）とデータが不完全なサーバー",
+		ru: "Состояние каждого шарда (пинг, серверы, участники, память) и серверы с неполными данными",
+		"es-ES":
+			"Estado de cada shard (ping, servidores, miembros, memoria) y servidores con datos incompletos",
+		ko: "각 샤드의 상태(핑, 서버, 멤버, 메모리)와 데이터가 불완전한 서버",
+		uk: "Стан кожного шарда (пінг, сервери, учасники, пам'ять) і сервери з неповними даними",
+		de: "Zustand jedes Shards (Ping, Server, Mitglieder, Speicher) und Server mit unvollständigen Daten",
+		it: "Stato di ogni shard (ping, server, membri, memoria) e server con dati incompleti",
+		"pt-BR":
+			"Estado de cada shard (ping, servidores, membros, memória) e servidores com dados incompletos",
+		pl: "Stan każdego sharda (ping, serwery, członkowie, pamięć) i serwery z niepełnymi danymi"
 	},
 
 	thinking: false,

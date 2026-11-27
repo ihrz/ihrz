@@ -606,12 +606,13 @@ export default {
 	help_home_intro:
 		"Wszystkie komendy według kategorii. Wybierz kategorię w menu poniżej.",
 	help_home_stats:
-		"${emoji_Pin} Kategorie: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Komendy: **${commandCount}**",
-	help_home_creators: "${emoji_Crown} Twórcy: ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** dostępnych kategorii komend\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** dostępnych komend slash",
+	help_home_creators: "${emoji_Crown} ・ **Stworzony przez** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Języki: **${languageCount}** — zmień język przez ${command}",
+		"${emoji_VC_Region} ・ ${botName} jest **w 100% wielojęzyczny** ・ ${command}",
 	help_search_button: "Szukaj komendy",
 	help_details_button: "Szczegóły",
+	help_usage_legend: "Opcje w [...] są wymagane, a te w <...> są opcjonalne.",
 	help_protection_fields: "Ochrona",
 	help_protection_dsc:
 		"> *Uniemożliwiaj użytkownikom spoza białej listy wykonywanie niektórych akcji, aby chronić serwer.*",

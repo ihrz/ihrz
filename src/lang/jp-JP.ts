@@ -716,12 +716,14 @@ export default {
 	help_home_intro:
 		"すべてのコマンドをカテゴリ別に表示します。下のメニューからカテゴリを選んでください。",
 	help_home_stats:
-		"${emoji_Pin} カテゴリ **${categoryCount}** 件\n${emoji_Slash_Bot_Badge} コマンド **${commandCount}** 件",
-	help_home_creators: "${emoji_Crown} 作者：${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** 利用可能なコマンドカテゴリ\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** 利用可能なスラッシュコマンド",
+	help_home_creators: "${emoji_Crown} ・ **作成者** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} **${languageCount}** 言語に対応：${command} で変更できます",
+		"${emoji_VC_Region} ・ ${botName} は**100％マルチ言語**です ・ ${command}",
 	help_search_button: "コマンドを検索",
 	help_details_button: "詳細",
+	help_usage_legend:
+		"[...]内のオプションは必須で、<...>内のオプションは任意です。",
 	help_protection_fields: "保護",
 	help_protection_dsc:
 		"> *サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。*",

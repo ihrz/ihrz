@@ -6,7 +6,7 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ## 📖 `/help` — une nouvelle carte d'aide
 
-`/help` est refait avec les nouveaux composants de Discord. L'accueil montre la bannière d'iHorizon dans la langue de votre serveur, le nombre de catégories et de commandes, qui a créé le bot, comment changer sa langue, les menus des catégories, et des boutons pour chercher une commande sur le site, ouvrir le dashboard, la documentation et le serveur support. Une catégorie liste ses commandes 6 par page, toutes de la même façon : la commande (un clic remplit la commande slash), ce qu'elle fait, puis sa forme préfixe et son cadenas ; **Détails** affiche l'usage, la permission et les alias d'une commande, à vous seul. `/help command-name` utilise la même carte. Les commandes qui ne font que regrouper des sous-commandes (comme `/honeypot`) ne sont plus listées seules.
+`/help` est refait avec les nouveaux composants de Discord. L'accueil montre la bannière d'iHorizon dans la langue de votre serveur, le nombre de catégories et de commandes, qui a créé le bot, comment changer sa langue, les menus des catégories, et des boutons pour chercher une commande sur le site, ouvrir le dashboard, la documentation et le serveur support. Une catégorie liste ses commandes 6 par page, toutes de la même façon : la commande (un clic remplit la commande slash), ce qu'elle fait, puis sa forme préfixe et son cadenas ; **Détails** affiche la description, l'usage (avec ce que signifient `[...]` et `<...>`), la permission et les alias d'une commande, à vous seul. `/help command-name` utilise la même carte. Les commandes qui ne font que regrouper des sous-commandes (comme `/honeypot`) ne sont plus listées seules.
 
 ---
 

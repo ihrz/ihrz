@@ -679,12 +679,14 @@ export default {
 	help_home_title: "${botName} · المساعدة",
 	help_home_intro: "كل الأوامر مرتبة حسب الفئة. اختر فئة من القائمة أدناه.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** فئة\n${emoji_Slash_Bot_Badge} **${commandCount}** أمر",
-	help_home_creators: "${emoji_Crown} من صنع ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** فئة أوامر متاحة\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** أوامر سلاش متاحة",
+	help_home_creators: "${emoji_Crown} ・ **أنشأه** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} متوفر بـ **${languageCount}** لغة: غيّرها بـ ${command}",
+		"${emoji_VC_Region} ・ ${botName} هو **100% متعدد اللغات** ・ ${command}",
 	help_search_button: "ابحث عن أمر",
 	help_details_button: "التفاصيل",
+	help_usage_legend:
+		"الخيارات داخل [...] مطلوبة، بينما الخيارات داخل <...> اختيارية.",
 	help_protection_fields: "حماية",
 	help_protection_dsc:
 		"> *منع المستخدمين غير المدرجين من القيام ببعض الأفعال لحماية الخادم.*",

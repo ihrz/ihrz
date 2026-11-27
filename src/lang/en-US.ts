@@ -707,12 +707,14 @@ const enUS = {
 	help_home_intro:
 		"Every command, sorted by category. Pick a category in the menu below.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** categories\n${emoji_Slash_Bot_Badge} **${commandCount}** commands",
-	help_home_creators: "${emoji_Crown} Made by ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** available Command Categories\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** available Slash Commands",
+	help_home_creators: "${emoji_Crown} ・ **Created by** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Available in **${languageCount}** languages: change it with ${command}",
+		"${emoji_VC_Region} ・ ${botName} is **100% multilingual** ・ ${command}",
 	help_search_button: "Search a command",
 	help_details_button: "Details",
+	help_usage_legend:
+		"Options within [...] are required, while those within <...> are optional.",
 	help_protection_fields: "Protection",
 	help_protection_dsc:
 		"> *Prevent non-whitelisted users from doing certain actions in order to protect the server.*",
