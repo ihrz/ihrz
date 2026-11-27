@@ -563,8 +563,6 @@ export default {
 	pong_message: "【:ballot_box_with_check:】__**Понг**__ : ",
 	status_be_bot_dev:
 		":x: | **Ви маєте бути розробником бота, щоб виконати це!**",
-	help_tip_embed:
-		"```${botName} ・ Меню допомоги```\n${emoji_Pin} ・ **${categorieCount}** доступні категорії команд\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** доступні слеш-команди\n${emoji_Crown} ・ **Створено** <@${owner1}>, <@${owner2}>\n\n```Чи знаєте ви? ・ Підказки```\n${emoji_VC_Region} ・ ${botName} **100% багатомовний**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Модерація",
 	help_ranks_fields: "Ранги",
 	help_fun_fields: "Розваги",
@@ -612,6 +610,16 @@ export default {
 		"Хочете налаштувати голосові канали для підрахунку учасників? Звичайно :smile:",
 	help_newftrs_dsc: "Ось деякі нові та дуже цікаві функції!",
 	help_not_for_you: "Ця взаємодія не для вас",
+	help_home_title: "${botName} · Довідка",
+	help_home_intro:
+		"Усі команди за категоріями. Виберіть категорію в меню нижче.",
+	help_home_stats:
+		"${emoji_Pin} Категорій: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Команд: **${commandCount}**",
+	help_home_creators: "${emoji_Crown} Автори: ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} Мов: **${languageCount}** — змінити мову: ${command}",
+	help_search_button: "Знайти команду",
+	help_details_button: "Докладніше",
 	help_protection_fields: "Захист",
 	help_protection_dsc:
 		"Уникайте виконання деяких дій не в білому списку для захисту сервера.",

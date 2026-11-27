@@ -41,7 +41,9 @@ export const subCommand: SubCommand = {
 		}
 
 		await client.func.method.interactionSend(interaction, {
-			content: "https://www.ihorizon.org/assets/img/fun/67_command.gif"
+			content: client.func.iHorizonAssets.iHorizonAssetURL(
+				client.func.iHorizonAssets.iHorizonAsset.SixSeven
+			)
 		});
 		return;
 	}

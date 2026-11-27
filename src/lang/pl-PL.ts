@@ -553,8 +553,6 @@ export default {
 		"😼 IrisWeb jest moim drugim deweloperem/współtwórcą, IrisWeb x Kisakay ❤️",
 	pong_message: "【:ballot_box_with_check:】__**Pong**__ : ",
 	status_be_bot_dev: ":x: | **Musisz być deweloperem bota, aby to zrobić!**",
-	help_tip_embed:
-		"```${botName} ・ Menu pomocy```\n${emoji_Pin} ・ **${categorieCount}** dostępnych kategorii komend\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** dostępnych komend slash\n${emoji_Crown} ・ **Stworzony przez** <@${owner1}>, <@${owner2}>\n\n```Wiedziałeś? ・ Porady```\n${emoji_VC_Region} ・ ${botName} jest **w 100% wielojęzyczny**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Moderacja",
 	help_ranks_fields: "Rangi",
 	help_fun_fields: "Zabawa",
@@ -604,6 +602,16 @@ export default {
 		"> *Chcesz ustawić kanały głosowe z licznikiem członków? Oczywiście :smile:*",
 	help_newftrs_dsc: "> *Oto kilka nowych i bardzo ciekawych funkcji!*",
 	help_not_for_you: "Ta interakcja nie jest dla Ciebie",
+	help_home_title: "${botName} · Pomoc",
+	help_home_intro:
+		"Wszystkie komendy według kategorii. Wybierz kategorię w menu poniżej.",
+	help_home_stats:
+		"${emoji_Pin} Kategorie: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Komendy: **${commandCount}**",
+	help_home_creators: "${emoji_Crown} Twórcy: ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} Języki: **${languageCount}** — zmień język przez ${command}",
+	help_search_button: "Szukaj komendy",
+	help_details_button: "Szczegóły",
 	help_protection_fields: "Ochrona",
 	help_protection_dsc:
 		"> *Uniemożliwiaj użytkownikom spoza białej listy wykonywanie niektórych akcji, aby chronić serwer.*",

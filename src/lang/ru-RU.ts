@@ -675,8 +675,6 @@ export default {
 		":x: | **Вы должны быть разработчиком бота, чтобы выполнить это!**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ Меню помощи```\n${emoji_Pin} ・ **${categorieCount}** доступные категории команд\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** доступные слэш-команды\n${emoji_Crown} ・ **Создано** <@${owner1}>, <@${owner2}>\n\n```Знаете ли вы? ・ Подсказки```\n${emoji_VC_Region} ・ ${botName} **100% многоязычный**\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "Модерация",
 	help_ranks_fields: "Ранги",
 	help_fun_fields: "Развлечения",
@@ -725,6 +723,16 @@ export default {
 		"> *Хотите настроить голосовые каналы для подсчета участников? Конечно :smile:*",
 	help_newftrs_dsc: "> *Вот некоторые новые и очень интересные функции!*",
 	help_not_for_you: "Это взаимодействие не для вас",
+	help_home_title: "${botName} · Помощь",
+	help_home_intro:
+		"Все команды по категориям. Выберите категорию в меню ниже.",
+	help_home_stats:
+		"${emoji_Pin} Категорий: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Команд: **${commandCount}**",
+	help_home_creators: "${emoji_Crown} Создатели: ${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} Языков: **${languageCount}** — сменить язык: ${command}",
+	help_search_button: "Найти команду",
+	help_details_button: "Подробнее",
 	help_protection_fields: "Защита",
 	help_protection_dsc:
 		"> *Предотвращайте выполнение некоторых действий не в белом списке для защиты сервера.*",

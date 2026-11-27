@@ -663,8 +663,6 @@ export default {
 	status_be_bot_dev: ":x: | **Botの開発者である必要があります！**",
 
 	// /help
-	help_tip_embed:
-		"```${botName} ・ ヘルプメニュー```\n${emoji_Pin} ・ **${categorieCount}** 利用可能なコマンドカテゴリ\n${emoji_Slash_Bot_Badge} ・ **${slashCount}** 利用可能なスラッシュコマンド\n${emoji_Crown} ・ **作成者** <@${owner1}>, <@${owner2}>\n\n```知ってますか？ ・ ヒント```\n${emoji_VC_Region} ・ ${botName} は**100％マルチ言語**です\n${emoji_Slash_Bot_Badge} ・ `/setlang language:Japanese`",
 	help_mod_fields: "モデレーション",
 	help_ranks_fields: "ランク",
 	help_fun_fields: "楽しい",
@@ -714,6 +712,16 @@ export default {
 		"> *メンバーのカウントのためにボイスチャンネルを設定したいですか？もちろんです :smile:*",
 	help_newftrs_dsc: "> *ここには非常に興味深い新機能があります！*",
 	help_not_for_you: "このインタラクションはあなたのためではありません",
+	help_home_title: "${botName} · ヘルプ",
+	help_home_intro:
+		"すべてのコマンドをカテゴリ別に表示します。下のメニューからカテゴリを選んでください。",
+	help_home_stats:
+		"${emoji_Pin} カテゴリ **${categoryCount}** 件\n${emoji_Slash_Bot_Badge} コマンド **${commandCount}** 件",
+	help_home_creators: "${emoji_Crown} 作者：${owners}",
+	help_home_tip:
+		"${emoji_VC_Region} **${languageCount}** 言語に対応：${command} で変更できます",
+	help_search_button: "コマンドを検索",
+	help_details_button: "詳細",
 	help_protection_fields: "保護",
 	help_protection_dsc:
 		"> *サーバーを保護するために、ホワイトリストに登録されていないユーザーが特定の操作を行わないようにします。*",

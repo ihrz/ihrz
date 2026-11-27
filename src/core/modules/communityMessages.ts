@@ -19,6 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import {
+	iHorizonAsset,
+	iHorizonAssetURL
+} from "../functions/iHorizonAssets.js";
 import { Client, ContainerBuilder, Message, User } from "discord.js";
 
 import { LanguageData } from "../../../types/languageData.js";
@@ -53,7 +57,7 @@ export async function buildPollCard(
 				.replace("${yes}", client.iHorizon_Emojis.Yes)
 				.replace("${no}", client.iHorizon_Emojis.No)
 		],
-		images: ["https://www.ihorizon.org/assets/img/poll_embed_image.gif"],
+		images: [iHorizonAssetURL(iHorizonAsset.PollImage)],
 		signature: await botSignature(client, guildId)
 	});
 }

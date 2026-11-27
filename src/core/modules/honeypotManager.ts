@@ -49,6 +49,10 @@ import { LanguageData } from "../../../types/languageData.js";
 
 import logger from "../logger.js";
 import { LogCardOptions, sendLogCard } from "./logCard.js";
+import {
+	iHorizonAsset,
+	iHorizonAssetURL
+} from "../functions/iHorizonAssets.js";
 import wait from "../functions/wait.js";
 
 const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
@@ -56,8 +60,6 @@ export const HONEYPOT_EMBED_COLOR = "#D88A3D";
 export const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 const HONEYPOT_TRIGGER_DELAY = 1500;
 const HONEYPOT_SECOND_PASS_DELAY_MS = 8000;
-export const HONEYPOT_IMAGE_URL =
-	"https://www.ihorizon.org/assets/img/honeypot.png";
 /** The counter button under the trap message (Buttons/honeypot-count.ts). */
 export const HONEYPOT_COUNT_BUTTON = "honeypot-count";
 /** A raid sanctions many accounts in a row: one edit of the trap message for the lot. */
@@ -274,7 +276,7 @@ async function notifyUser(
 ): Promise<boolean> {
 	const embed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
-		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
+		.setThumbnail(iHorizonAssetURL(iHorizonAsset.Honeypot))
 		.setTitle(lang.honeypot_dm_title)
 		.setDescription(
 			lang.honeypot_dm_desc
@@ -689,7 +691,9 @@ export function buildTrapMessage(
 					)
 				)
 				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(HONEYPOT_IMAGE_URL)
+					new ThumbnailBuilder().setURL(
+						iHorizonAssetURL(iHorizonAsset.Honeypot)
+					)
 				)
 		)
 		.addSeparatorComponents(

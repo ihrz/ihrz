@@ -18,6 +18,10 @@
 
 ・ Copyright © 2020-2026 iHorizon
 */
+import {
+	iHorizonAsset,
+	iHorizonAssetURL
+} from "../functions/iHorizonAssets.js";
 
 /**
  * The emails iHorizon sends (to its owner: started, added to / removed from a server), as clean HTML that
@@ -63,7 +67,7 @@ const ACCENT: Record<MailKind, string> = {
 	danger: "#e5484d",
 	info: "#5865f2"
 };
-const LOGO = "https://www.ihorizon.org/assets/img/ihorizon.png";
+const LOGO = iHorizonAssetURL(iHorizonAsset.Logo);
 const SITE = "https://ihorizon.org";
 const DISCORD = "https://discord.gg/ihorizon";
 
