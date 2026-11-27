@@ -2892,19 +2892,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | Você deve ser um administrador deste servidor para solicitar estes comandos!",
-	support_command_work:
-		"Você configurou o módulo de suporte para **${guildName}**.\nQuando um usuário tiver em sua biografia:\n**${input}**.\nEu darei a função <@&${rolesId}> a eles!",
-	support_command_work_on_disable:
-		"Você configurou o módulo de suporte para **${guildName}**.\nAgora ninguém pode receber a função!",
+	support_card_on_title: "Cargo de apoiante ativado",
+	support_card_on_desc: "Os membros que cumprem a condição recebem ${role} e perdem-no quando deixam de cumprir.",
+	support_card_condition: "Condição",
+	support_card_keyword: "Procurado no estado",
+	support_card_role: "Cargo",
+	support_card_cond_bio: "O estado personalizado contém a palavra-chave",
+	support_card_cond_tag: "Usam a tag do servidor",
+	support_card_cond_both: "A palavra-chave no estado **e** a tag do servidor",
+	support_card_cond_either: "A palavra-chave no estado **ou** a tag do servidor",
+	support_card_no_keyword: "Sem palavra-chave nem convite personalizado neste servidor: ninguém pode cumprir a condição do estado. Volta a usar o comando com uma palavra-chave.",
+	support_card_footer: "Os membros online que já cumprem a condição recebem-no agora; depois segue cada mudança de estado.",
+	support_card_off_title: "Cargo de apoiante desativado",
+	support_card_off_desc: "Ninguém vai receber o cargo. Quem o tem mantém-no.",
 	support_command_not_role: ":x: | Você não especificou a função!",
 	support_command_not_type:
 		":x: | Não especificaste o tipo de suporte que queres no perfil do utilizador (bio = biografia, ex.: link do servidor; tag = tag do servidor)!",
 	support_command_guild_not_have_tag:
 		":x: | O servidor não tem tags de momento.",
-	support_command_work_2:
-		"Configuraste o módulo de suporte para ${guildName}.\nQuando um utilizador definir a tag do servidor,\neu atribuirei o cargo <@&${rolesId}>!",
-	support_command_work_both: "Configuraste o módulo de suporte para **${guildName}**.\nQuando um utilizador tiver **${input}** no estado **e** usar a tag do servidor,\nvou dar-lhe o cargo <@&${rolesId}>!",
-	support_command_work_either: "Configuraste o módulo de suporte para **${guildName}**.\nQuando um utilizador tiver **${input}** no estado **ou** usar a tag do servidor,\nvou dar-lhe o cargo <@&${rolesId}>!",
 
 	// /setserverlang
 

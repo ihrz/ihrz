@@ -2336,19 +2336,24 @@ export default {
 	report_command_work: "**Dziękujemy za zgłoszenie błędu!**",
 	support_not_admin:
 		":x: | Musisz być administratorem tego serwera, aby używać tych poleceń!",
-	support_command_work:
-		"Skonfigurowano moduł wsparcia dla **${guildName}**.\nGdy użytkownicy będą mieli to w opisie profilu:\n**${input}**,\nnadam im rolę <@&${rolesId}>!",
-	support_command_work_on_disable:
-		"Skonfigurowano moduł wsparcia dla **${guildName}**.\nNikt już nie otrzyma roli!",
+	support_card_on_title: "Rola wspierającego włączona",
+	support_card_on_desc: "Członkowie spełniający warunek dostają ${role} i tracą ją, gdy przestają.",
+	support_card_condition: "Warunek",
+	support_card_keyword: "Szukane w statusie",
+	support_card_role: "Rola",
+	support_card_cond_bio: "Status niestandardowy zawiera słowo kluczowe",
+	support_card_cond_tag: "Noszą tag serwera",
+	support_card_cond_both: "Słowo kluczowe w statusie **i** tag serwera",
+	support_card_cond_either: "Słowo kluczowe w statusie **lub** tag serwera",
+	support_card_no_keyword: "Brak słowa kluczowego i własnego zaproszenia na tym serwerze: nikt nie spełni warunku statusu. Użyj komendy ponownie ze słowem kluczowym.",
+	support_card_footer: "Członkowie online, którzy już spełniają warunek, dostają ją teraz, potem przy każdej zmianie statusu.",
+	support_card_off_title: "Rola wspierającego wyłączona",
+	support_card_off_desc: "Nikt nie dostanie już roli. Ci, którzy ją mają, zachowają ją.",
 	support_command_not_role: ":x: | Nie podano roli!",
 	support_command_not_type:
 		":x: | Nie podałeś(-aś) typu wsparcia, jakiego chcesz w profilu użytkownika (bio = opis profilu, np. link do serwera; tag = tag serwera na Discordzie)!",
 	support_command_guild_not_have_tag:
 		":x: | Serwer nie ma obecnie żadnych tagów.",
-	support_command_work_2:
-		"Skonfigurowano moduł wsparcia dla ${guildName}.\nGdy użytkownik ustawi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
-	support_command_work_both: "Skonfigurowano moduł wsparcia dla **${guildName}**.\nGdy użytkownik ma **${input}** w statusie **i** nosi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
-	support_command_work_either: "Skonfigurowano moduł wsparcia dla **${guildName}**.\nGdy użytkownik ma **${input}** w statusie **lub** nosi tag serwera,\nnadam mu rolę <@&${rolesId}>!",
 	updates_embed_title: "Aktualizacje iHorizon",
 	updates_embed_description: "Oto najnowsze zmiany i aktualizacje iHorizon.",
 	updates_field_version: "Wersja",

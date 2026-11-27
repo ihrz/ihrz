@@ -2332,18 +2332,23 @@ export default {
 	report_command_work: "**Дякуємо за надсилання помилки!**",
 	support_not_admin:
 		":x: | Ви повинні бути адміністратором сервера, щоб використовувати ці команди!",
-	support_command_work:
-		"Ви налаштували модуль підтримки для **${guildName}**.\nКоли у користувача є в біографії:\n**${input}**.\nЯ повинен дати їм роль <@&${rolesId}>!",
-	support_command_work_on_disable:
-		"Ви налаштували модуль підтримки для **${guildName}**.\nТепер ніхто не може мати роль!",
+	support_card_on_title: "Роль підтримки увімкнено",
+	support_card_on_desc: "Учасники, які виконують умову, отримують ${role} і втрачають її, коли перестають.",
+	support_card_condition: "Умова",
+	support_card_keyword: "Шукається в статусі",
+	support_card_role: "Роль",
+	support_card_cond_bio: "Власний статус містить ключове слово",
+	support_card_cond_tag: "Вони носять тег сервера",
+	support_card_cond_both: "Ключове слово в статусі **і** тег сервера",
+	support_card_cond_either: "Ключове слово в статусі **або** тег сервера",
+	support_card_no_keyword: "Немає ключового слова й персонального запрошення: ніхто не може виконати умову статусу. Запустіть команду ще раз із ключовим словом.",
+	support_card_footer: "Учасники в мережі, які вже виконують умову, отримують її зараз, далі — за кожної зміни статусу.",
+	support_card_off_title: "Роль підтримки вимкнено",
+	support_card_off_desc: "Роль більше ніхто не отримає. Хто її має, збережуть її.",
 	support_command_not_role: ":x: | Ви не вказали роль!",
 	support_command_not_type:
 		":x: | Ви не вказали, який тип підтримки в профілі користувача вам потрібен (bio = біо, напр. посилання на сервер; tag = Discord-тег сервера)!",
 	support_command_guild_not_have_tag: ":x: | Наразі сервер не має тегів.",
-	support_command_work_2:
-		"Ви налаштували модуль підтримки для ${guildName}.\nКоли користувач установить тег сервера,\nя видам йому роль <@&${rolesId}>!",
-	support_command_work_both: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **і** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
-	support_command_work_either: "Ви налаштували модуль підтримки для **${guildName}**.\nКоли учасник має **${input}** у статусі **або** носить тег сервера,\nя видам йому роль <@&${rolesId}>!",
 	updates_embed_title: "Оновлення iHorizon",
 	updates_embed_description: "Ось останні зміни та оновлення iHorizon.",
 	updates_field_version: "Версія",

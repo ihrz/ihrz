@@ -2711,18 +2711,23 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!",
-	support_command_work:
-		"لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nعندما يكون لدى المستخدم في سيرتهم:\n**${input}**.\nيجب أن أعطيهم دور <@&${rolesId}>!",
-	support_command_work_on_disable:
-		"لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nلا أحد يمكنه الحصول على دور الآن!",
+	support_card_on_title: "تم تفعيل دور الداعم",
+	support_card_on_desc: "الأعضاء الذين يستوفون الشرط يحصلون على ${role} ويفقدونه عندما يتوقفون.",
+	support_card_condition: "الشرط",
+	support_card_keyword: "ما يُبحث عنه في الحالة",
+	support_card_role: "الدور",
+	support_card_cond_bio: "الحالة المخصصة تحتوي على الكلمة المفتاحية",
+	support_card_cond_tag: "يضعون وسم الخادم",
+	support_card_cond_both: "الكلمة المفتاحية في الحالة **و** وسم الخادم",
+	support_card_cond_either: "الكلمة المفتاحية في الحالة **أو** وسم الخادم",
+	support_card_no_keyword: "لا توجد كلمة مفتاحية ولا دعوة مخصصة في هذا الخادم: لا يمكن لأحد استيفاء شرط الحالة. أعد تشغيل الأمر مع كلمة مفتاحية.",
+	support_card_footer: "الأعضاء المتصلون الذين يستوفون الشرط بالفعل يحصلون عليه الآن، ثم يتبع كل تغيير في الحالة.",
+	support_card_off_title: "تم تعطيل دور الداعم",
+	support_card_off_desc: "لن يحصل أحد على الدور بعد الآن. من يملكه يحتفظ به.",
 	support_command_not_role: ":x: | لم تقم بتحديد الدور!",
 	support_command_not_type:
 		":x: | إنت ماحددتش نوع الدعم اللي عايزه في بروفايل المستخدم (bio = نبذة، مثال: رابط السيرفر؛ tag = تاج السيرفر)!",
 	support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي تاجات حالياً.",
-	support_command_work_2:
-		"إنت ضبطت موديول الدعم لـ ${guildName}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${rolesId}>!",
-	support_command_work_both: "لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nعندما يكون لدى المستخدم **${input}** في حالته **و** يضع وسم الخادم،\nسأمنحه الدور <@&${rolesId}>!",
-	support_command_work_either: "لقد قمت بإعداد وحدة الدعم لـ **${guildName}**.\nعندما يكون لدى المستخدم **${input}** في حالته **أو** يضع وسم الخادم،\nسأمنحه الدور <@&${rolesId}>!",
 
 	// /setserverlang
 

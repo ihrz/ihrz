@@ -2946,19 +2946,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!",
-	support_command_work:
-		"Du hast das Support-Modul für **${guildName}** eingerichtet. Wenn ein Benutzer dies im Profil hat:\n**${input}**.\nSoll ich die <@&${rolesId}>-Rolle an sie vergeben!",
-	support_command_work_on_disable:
-		"Du hast das Support-Modul für **${guildName}** eingerichtet. Jetzt kann niemand eine Rolle haben!",
+	support_card_on_title: "Unterstützerrolle aktiviert",
+	support_card_on_desc: "Mitglieder, die die Bedingung erfüllen, erhalten ${role} und verlieren sie, wenn sie aufhören.",
+	support_card_condition: "Bedingung",
+	support_card_keyword: "Gesucht im Status",
+	support_card_role: "Rolle",
+	support_card_cond_bio: "Der benutzerdefinierte Status enthält das Stichwort",
+	support_card_cond_tag: "Sie tragen den Server-Tag",
+	support_card_cond_both: "Das Stichwort im Status **und** der Server-Tag",
+	support_card_cond_either: "Das Stichwort im Status **oder** der Server-Tag",
+	support_card_no_keyword: "Kein Stichwort und keine Vanity-Einladung auf diesem Server: niemand kann die Status-Bedingung erfüllen. Führe den Befehl erneut mit einem Stichwort aus.",
+	support_card_footer: "Online-Mitglieder, die die Bedingung schon erfüllen, erhalten sie jetzt, danach bei jeder Statusänderung.",
+	support_card_off_title: "Unterstützerrolle deaktiviert",
+	support_card_off_desc: "Niemand erhält die Rolle mehr. Wer sie hat, behält sie.",
 	support_command_not_role: ":x: | Du hast die Rolle nicht angegeben!",
 	support_command_not_type:
 		":x: | Du hast nicht angegeben, welche Art von Support du im Benutzerprofil möchtest (bio = die Bio, z. B. Serverlink; tag = der Discord-Tag des Servers)!",
 	support_command_guild_not_have_tag:
 		":x: | Der Server hat aktuell keine Tags.",
-	support_command_work_2:
-		"Du hast das Support-Modul für ${guildName} konfiguriert.\nWenn ein Benutzer den Server-Tag setzt,\nwerde ich ihm die Rolle <@&${rolesId}> zuweisen!",
-	support_command_work_both: "Du hast das Support-Modul für **${guildName}** eingerichtet.\nWenn ein Mitglied **${input}** im Status hat **und** den Server-Tag trägt,\nbekommt es die Rolle <@&${rolesId}>!",
-	support_command_work_either: "Du hast das Support-Modul für **${guildName}** eingerichtet.\nWenn ein Mitglied **${input}** im Status hat **oder** den Server-Tag trägt,\nbekommt es die Rolle <@&${rolesId}>!",
 
 	// /setserverlang
 

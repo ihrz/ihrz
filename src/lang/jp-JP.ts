@@ -2863,19 +2863,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | このコマンドを使用するには、サーバーの管理者である必要があります！",
-	support_command_work:
-		"**${guildName}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${rolesId}>役割を与えるべきです！",
-	support_command_work_on_disable:
-		"**${guildName}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！",
+	support_card_on_title: "サポーターロールを有効化しました",
+	support_card_on_desc: "条件を満たすメンバーに ${role} を付与し、満たさなくなると外します。",
+	support_card_condition: "条件",
+	support_card_keyword: "ステータスで探す語",
+	support_card_role: "ロール",
+	support_card_cond_bio: "カスタムステータスにキーワードが含まれる",
+	support_card_cond_tag: "サーバータグを付けている",
+	support_card_cond_both: "ステータスのキーワード **かつ** サーバータグ",
+	support_card_cond_either: "ステータスのキーワード **または** サーバータグ",
+	support_card_no_keyword: "キーワードもカスタム招待もありません：ステータスの条件を満たせる人はいません。キーワード付きでコマンドを実行し直してください。",
+	support_card_footer: "すでに条件を満たすオンラインのメンバーには今付与され、その後はステータスが変わるたびに反映されます。",
+	support_card_off_title: "サポーターロールを無効化しました",
+	support_card_off_desc: "今後ロールは付与されません。持っている人はそのままです。",
 	support_command_not_role: ":x: | 役割を指定していません！",
 	support_command_not_type:
 		":x: | ユーザープロフィールで希望するサポートタイプが指定されていません（bio = 自己紹介。例: サーバーリンク、tag = サーバーのDiscordタグ）!",
 	support_command_guild_not_have_tag:
 		":x: | このサーバーには現在タグがありません。",
-	support_command_work_2:
-		"${guildName} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${rolesId}> のロールを付与します！",
-	support_command_work_both: "**${guildName}** のサポートモジュールを設定しました。\nステータスに **${input}** があり、**かつ** サーバータグを付けているユーザーに\n<@&${rolesId}> ロールを付与します！",
-	support_command_work_either: "**${guildName}** のサポートモジュールを設定しました。\nステータスに **${input}** がある、**または** サーバータグを付けているユーザーに\n<@&${rolesId}> ロールを付与します！",
 
 	// /setserverlang
 

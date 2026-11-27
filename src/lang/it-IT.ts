@@ -2908,19 +2908,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | Devi essere un amministratore di questo server per richiedere questi comandi!",
-	support_command_work:
-		"Hai configurato il modulo di supporto per ${guildName}.\nQuando un utente ha questa descrizione:\n**${input}**.\nDovrei assegnare loro il ruolo <@&${rolesId}>!",
-	support_command_work_on_disable:
-		"Hai configurato il modulo di supporto per ${guildName}.\nNessuno può avere il ruolo ora!",
+	support_card_on_title: "Ruolo sostenitore attivato",
+	support_card_on_desc: "I membri che soddisfano la condizione ricevono ${role} e lo perdono quando smettono.",
+	support_card_condition: "Condizione",
+	support_card_keyword: "Cercato nello stato",
+	support_card_role: "Ruolo",
+	support_card_cond_bio: "Lo stato personalizzato contiene la parola chiave",
+	support_card_cond_tag: "Indossano il tag del server",
+	support_card_cond_both: "La parola chiave nello stato **e** il tag del server",
+	support_card_cond_either: "La parola chiave nello stato **o** il tag del server",
+	support_card_no_keyword: "Nessuna parola chiave e nessun invito personalizzato su questo server: nessuno può soddisfare la condizione dello stato. Riesegui il comando con una parola chiave.",
+	support_card_footer: "I membri online che soddisfano già la condizione lo ricevono ora, poi segue ogni cambio di stato.",
+	support_card_off_title: "Ruolo sostenitore disattivato",
+	support_card_off_desc: "Nessuno riceverà più il ruolo. Chi lo ha lo mantiene.",
 	support_command_not_role: ":x: | Non hai specificato il ruolo!",
 	support_command_not_type:
 		":x: | Non hai specificato il tipo di supporto che desideri nel profilo utente (bio = biografia, es. link del server; tag = il tag Discord del server)!",
 	support_command_guild_not_have_tag:
 		":x: | Il server attualmente non ha tag.",
-	support_command_work_2:
-		"Hai configurato il modulo di supporto per ${guildName}.\nQuando un utente imposta il tag del server,\ngli assegnerò il ruolo <@&${rolesId}>!",
-	support_command_work_both: "Hai configurato il modulo di supporto per **${guildName}**.\nQuando un utente ha **${input}** nel suo stato **e** indossa il tag del server,\ngli darò il ruolo <@&${rolesId}>!",
-	support_command_work_either: "Hai configurato il modulo di supporto per **${guildName}**.\nQuando un utente ha **${input}** nel suo stato **o** indossa il tag del server,\ngli darò il ruolo <@&${rolesId}>!",
 
 	// /setserverlang
 

@@ -2937,19 +2937,24 @@ export default {
 	// /support
 	support_not_admin:
 		":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !",
-	support_command_work:
-		"Vous avez configuré le module de support pour ${guildName}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais lui donner le rôle <@&${rolesId}> !",
-	support_command_work_on_disable:
-		"Vous avez configuré le module de support pour ${guildName}.\nPersonne ne peut maintenant avoir de rôle !",
+	support_card_on_title: "Rôle de soutien activé",
+	support_card_on_desc: "Les membres qui remplissent la condition reçoivent ${role}, et le perdent quand ils arrêtent.",
+	support_card_condition: "Condition",
+	support_card_keyword: "Cherché dans le statut",
+	support_card_role: "Rôle",
+	support_card_cond_bio: "Le statut personnalisé contient le mot-clé",
+	support_card_cond_tag: "Ils portent le tag du serveur",
+	support_card_cond_both: "Le mot-clé dans le statut **et** le tag du serveur",
+	support_card_cond_either: "Le mot-clé dans le statut **ou** le tag du serveur",
+	support_card_no_keyword: "Aucun mot-clé et pas d'invitation personnalisée sur ce serveur : personne ne peut remplir la condition du statut. Relancez la commande avec un mot-clé.",
+	support_card_footer: "Les membres en ligne qui remplissent déjà la condition le reçoivent maintenant, ensuite il suit chaque changement de statut.",
+	support_card_off_title: "Rôle de soutien désactivé",
+	support_card_off_desc: "Plus personne ne recevra le rôle. Ceux qui l'ont le gardent.",
 	support_command_not_role: ":x: | Vous n'avez pas spécifié le rôle !",
 	support_command_not_type:
 		":x: | Vous n'avez pas spécifié le type de soutien que vous voulez dans le profil des utilisateurs (bio=la bio. Ex : Lien du serveur ; tag=le tag discord du serveur) !",
 	support_command_guild_not_have_tag:
 		":x: | Le serveur n'a aucun tag actuellement.",
-	support_command_work_2:
-		"Vous avez configuré le module de support pour ${guildName}.\nLorsqu'un utilisateur met le tag du serveur,\nJe devrais lui donner le rôle <@&${rolesId}> !",
-	support_command_work_both: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **et** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
-	support_command_work_either: "Vous avez configuré le module de support pour **${guildName}**.\nLorsqu'un utilisateur a **${input}** dans son statut **ou** porte le tag du serveur,\nje lui donnerai le rôle <@&${rolesId}> !",
 
 	// /setserverlang
 
