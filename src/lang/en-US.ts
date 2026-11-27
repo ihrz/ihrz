@@ -2827,7 +2827,8 @@ const enUS = {
 	support_not_admin:
 		":x: | You must be an administrator of this server to use these commands!",
 	support_card_on_title: "Supporter role enabled",
-	support_card_on_desc: "Members who meet the condition get ${role}, and lose it when they stop.",
+	support_card_on_desc:
+		"Members who meet the condition get ${role}, and lose it when they stop.",
 	support_card_condition: "Condition",
 	support_card_keyword: "Looked for in the status",
 	support_card_role: "Role",
@@ -2835,10 +2836,13 @@ const enUS = {
 	support_card_cond_tag: "They wear the server tag",
 	support_card_cond_both: "The keyword in the status **and** the server tag",
 	support_card_cond_either: "The keyword in the status **or** the server tag",
-	support_card_no_keyword: "No keyword and no vanity invite on this server: nobody can match the status. Run the command again with a keyword.",
-	support_card_footer: "Members online who already match get it now, then it follows every status change.",
+	support_card_no_keyword:
+		"No keyword and no vanity invite on this server: nobody can match the status. Run the command again with a keyword.",
+	support_card_footer:
+		"Members online who already match get it now, then it follows every status change.",
 	support_card_off_title: "Supporter role disabled",
-	support_card_off_desc: "Nobody will get the role any more. Members who have it keep it.",
+	support_card_off_desc:
+		"Nobody will get the role any more. Members who have it keep it.",
 	support_command_not_role: ":x: | You have not specified the role!",
 	support_command_not_type:
 		":x: | You did not specify the type of support you want in the user profile (bio = the bio, e.g. server link; tag = the server’s Discord tag)!",
@@ -4392,9 +4396,10 @@ const enUS = {
 		"Inspired by RiskyMH's Honeypot bot, check it out!\n${url}",
 	honeypot_trap_count_none: "Nobody sanctioned yet",
 	honeypot_trap_count_one: "1 person sanctioned",
-	honeypot_trap_count_other: "${count} people sanctioned",
+	honeypot_trap_count_other: "${caughtCount} people sanctioned",
 	honeypot_trap_count_never: "never",
-	honeypot_trap_count_reply: "🍯 Sanctions by this trap: **${count}**\nLast sanction: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Sanctions by this trap: **${caughtCount}**\nLast sanction: ${last}",
 	honeypot_dm_title: "HONEYPOT TRIGGERED!",
 	honeypot_dm_desc:
 		"A message you sent in the *Honeypot* channel on the following server: **`${guild}`** **triggered** the configured protection.\n\n__Action taken against you:__ **`${action}`**\n\n*Messages you sent in the last 2 hours are being removed from the server. If you believe you have been hacked, change your password and enable 2FA on your Discord account. If it is just a mistake on your end, please contact the server staff to resolve the issue.*",
@@ -5164,8 +5169,10 @@ const enUS = {
 	gforms_review_modal_title: "Refuse the application",
 	gforms_review_modal_reason: "Reason (optional, sent to the applicant)",
 	gforms_review_dm_title: "Your application",
-	gforms_review_dm_accepted: "Your application **${name}** on **${guild}** was accepted.",
-	gforms_review_dm_refused: "Your application **${name}** on **${guild}** was refused.",
+	gforms_review_dm_accepted:
+		"Your application **${name}** on **${guild}** was accepted.",
+	gforms_review_dm_refused:
+		"Your application **${name}** on **${guild}** was refused.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Confess",

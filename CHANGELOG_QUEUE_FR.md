@@ -6,7 +6,7 @@ Changements intégrés depuis la dernière version, en attente d'être repris da
 
 ## 🤝 Rôle de soutien — le statut, le tag du serveur, les deux, ou l'un des deux
 
-Le rôle de soutien (`/support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier.
+Le rôle de soutien (`/support`, ou le module **Rôle de soutien** du dashboard) demandait le statut personnalisé **ou** le tag du serveur, un seul à la fois. Deux nouveaux choix : **les deux** (le mot-clé dans le statut **et** le tag du serveur) et **l'un des deux** (un seul suffit). Le statut personnalisé est aussi lu où qu'il soit : un membre qui joue à un jeu ne perd plus le rôle parce que le jeu passait en premier. Le régler donne maintenant le rôle tout de suite aux membres en ligne qui remplissent déjà la condition (avant, il fallait attendre leur prochain changement de statut), et un correctif le fait enfin marcher : le bot croyait presque chaque rôle au-dessus du sien et ne donnait rien. `/support` répond avec une carte claire : la condition, le mot-clé cherché (ou votre code d'invitation personnalisé), le rôle, et un avertissement quand rien ne peut correspondre (mode statut sans mot-clé ni invitation personnalisée).
 
 ---
 
@@ -357,6 +357,7 @@ iHorizon est maintenant disponible en **coréen (한국어)** : tous les message
 ---
 
 ## 🛠️ Corrections & améliorations
+- **Renouvellement automatique** : un salon renouvelé reprend sa place exacte, même dans une longue catégorie.
 - **Traductions** : les derniers textes écrits en dur sont traduits (pages d'aide, régions des salons vocaux temporaires, portefeuille, messages d'erreur, l'avis « serveurs uniquement » en MP, `/status`, le bouton top.gg…), et une commande utilisée en MP répond dans votre langue Discord
 - **Bienvenue** : quand iHorizon rejoint un serveur, son message (et le message privé à l'owner et à la personne qui l'a ajouté) devient une carte claire : ce que fait le bot, la langue qu'il parle et comment la changer avec `/setlang`, par où commencer (`/help`, le dashboard, le serveur support)
 - **Tickets** : le salon de logs des tickets reçoit des cartes au lieu des embeds (créé, fermé, rouvert, supprimé, membres ajoutés ou retirés), chacune avec sa couleur et son icône, et elles ne mentionnent plus personne

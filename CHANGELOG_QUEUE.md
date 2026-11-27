@@ -6,7 +6,7 @@ Changes merged since the last release, waiting to be folded into `CHANGELOG.md` 
 
 ## 🤝 Supporter role — the status, the server tag, both, or one of the two
 
-The supporter role (`/support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first.
+The supporter role (`/support`, or the dashboard's **Supporter role** module) could ask for the custom status **or** the server tag, one at a time. Two new choices: **both** (the keyword in the status **and** the server tag) and **one of the two** (either is enough). The custom status is also read wherever it is: a member playing a game no longer loses the role because the game came first. Setting it up now gives the role at once to members online who already match (it used to wait for their next status change), and a fix makes it work at all: the bot wrongly saw nearly every role as above its own and gave nothing. `/support` answers with a clear card: the condition, the keyword looked for (or your vanity code), the role, and a warning when nothing can match (status mode without a keyword or vanity invite).
 
 ---
 
@@ -357,6 +357,7 @@ iHorizon is now available in **Korean (한국어)**: every bot message, and ever
 ---
 
 ## 🛠️ Fixes & improvements
+- **Auto-renew**: a renewed channel goes back to its exact place, even in a long category.
 - **Translations**: the last hard-coded texts are translated (help pages, temporary voice regions, wallet, error messages, the DM-only notice, `/status`, the top.gg button…), and a command used in DMs answers in your Discord language
 - **Welcome**: when iHorizon joins a server, its message (and the private message to the owner and to whoever added it) is now a clear card: what the bot does, the language it speaks there and how to change it with `/setlang`, where to start (`/help`, the dashboard, the support server)
 - **Tickets**: the ticket log channel gets cards instead of embeds (created, closed, reopened, deleted, members added or removed), each with its colour and icon, and they no longer ping the people they mention

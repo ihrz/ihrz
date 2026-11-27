@@ -342,7 +342,9 @@ export async function handleFormSubmitted(
 			components: unknown[];
 		};
 		if (reviewId)
-			payload.components.push(reviewButtons(link.id, reviewId, lang));
+			payload.components.push(
+				reviewButtons(link.id, reviewId, lang, client.iHorizon_Emojis)
+			);
 		const sent = await channel.send(payload as never).catch(() => null);
 		posted = !!sent;
 		messageId = sent?.id ?? null;
@@ -472,18 +474,19 @@ export function isReviewer(member: GuildMember, link: Link): boolean {
 export function reviewButtons(
 	linkId: string,
 	reviewId: string,
-	lang: LanguageData
+	lang: LanguageData,
+	emojis: Pick<Client["iHorizon_Emojis"], "Yes" | "No">
 ) {
 	return new ActionRowBuilder<ButtonBuilder>().addComponents(
 		new ButtonBuilder()
 			.setCustomId(`${REVIEW_BUTTON}%accept%${linkId}%${reviewId}`)
 			.setStyle(ButtonStyle.Success)
-			.setEmoji("✅")
+			.setEmoji(emojis.Yes)
 			.setLabel(lang.gforms_review_accept),
 		new ButtonBuilder()
 			.setCustomId(`${REVIEW_BUTTON}%refuse%${linkId}%${reviewId}`)
 			.setStyle(ButtonStyle.Danger)
-			.setEmoji("❌")
+			.setEmoji(emojis.No)
 			.setLabel(lang.gforms_review_refuse)
 	);
 }

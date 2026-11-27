@@ -2712,7 +2712,8 @@ export default {
 	support_not_admin:
 		":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!",
 	support_card_on_title: "تم تفعيل دور الداعم",
-	support_card_on_desc: "الأعضاء الذين يستوفون الشرط يحصلون على ${role} ويفقدونه عندما يتوقفون.",
+	support_card_on_desc:
+		"الأعضاء الذين يستوفون الشرط يحصلون على ${role} ويفقدونه عندما يتوقفون.",
 	support_card_condition: "الشرط",
 	support_card_keyword: "ما يُبحث عنه في الحالة",
 	support_card_role: "الدور",
@@ -2720,8 +2721,10 @@ export default {
 	support_card_cond_tag: "يضعون وسم الخادم",
 	support_card_cond_both: "الكلمة المفتاحية في الحالة **و** وسم الخادم",
 	support_card_cond_either: "الكلمة المفتاحية في الحالة **أو** وسم الخادم",
-	support_card_no_keyword: "لا توجد كلمة مفتاحية ولا دعوة مخصصة في هذا الخادم: لا يمكن لأحد استيفاء شرط الحالة. أعد تشغيل الأمر مع كلمة مفتاحية.",
-	support_card_footer: "الأعضاء المتصلون الذين يستوفون الشرط بالفعل يحصلون عليه الآن، ثم يتبع كل تغيير في الحالة.",
+	support_card_no_keyword:
+		"لا توجد كلمة مفتاحية ولا دعوة مخصصة في هذا الخادم: لا يمكن لأحد استيفاء شرط الحالة. أعد تشغيل الأمر مع كلمة مفتاحية.",
+	support_card_footer:
+		"الأعضاء المتصلون الذين يستوفون الشرط بالفعل يحصلون عليه الآن، ثم يتبع كل تغيير في الحالة.",
 	support_card_off_title: "تم تعطيل دور الداعم",
 	support_card_off_desc: "لن يحصل أحد على الدور بعد الآن. من يملكه يحتفظ به.",
 	support_command_not_role: ":x: | لم تقم بتحديد الدور!",
@@ -4203,9 +4206,10 @@ export default {
 		"مستوحى من Honeypot لـ RiskyMH، تحقق منه!\n${url}",
 	honeypot_trap_count_none: "لم تتم معاقبة أحد بعد",
 	honeypot_trap_count_one: "تمت معاقبة شخص واحد",
-	honeypot_trap_count_other: "تمت معاقبة ${count}",
+	honeypot_trap_count_other: "تمت معاقبة ${caughtCount}",
 	honeypot_trap_count_never: "أبدًا",
-	honeypot_trap_count_reply: "🍯 عقوبات هذا الفخ: **${count}**\nآخر عقوبة: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 عقوبات هذا الفخ: **${caughtCount}**\nآخر عقوبة: ${last}",
 	honeypot_dm_title: "تم تفعيل Honeypot!",
 	honeypot_dm_desc:
 		"رسالة أرسلتها في قناة *Honeypot* على الخادم التالي: **`${guild}`** **أدت** إلى تفعيل الحماية المُعدّة.\n\n__الإجراء المتخذ ضدك:__ **`${action}`**\n\n*الرسائل التي أرسلتها خلال الساعتين الماضيتين يتم حذفها من الخادم. إذا كنت تعتقد أنك قد تم اختراقك، غيّر كلمة المرور الخاصة بك وقم بتفعيل 2FA على حساب Discord الخاص بك. إذا كان هذا خطأ من جانبك، يرجى الاتصال بفريق الخادم لحل المشكلة.*",

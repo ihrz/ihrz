@@ -324,7 +324,11 @@ export const subCommand: SubCommand = {
 			if (!i.isButton()) return;
 
 			if (i.customId === "honeypot-config-preview") {
-				const preview = buildTrapMessage(lang, config.caughtCount ?? 0);
+				const preview = buildTrapMessage(
+					lang,
+					client.iHorizon_Emojis,
+					config.caughtCount ?? 0
+				);
 				await i.reply({
 					components: preview.components,
 					flags: [MessageFlags.Ephemeral, preview.flags]

@@ -2924,18 +2924,24 @@ export default {
 	support_not_admin:
 		":x: | ¡Debe ser un administrador de este servidor para solicitar este comando!",
 	support_card_on_title: "Rol de apoyo activado",
-	support_card_on_desc: "Los miembros que cumplen la condición reciben ${role} y lo pierden cuando dejan de cumplirla.",
+	support_card_on_desc:
+		"Los miembros que cumplen la condición reciben ${role} y lo pierden cuando dejan de cumplirla.",
 	support_card_condition: "Condición",
 	support_card_keyword: "Buscado en el estado",
 	support_card_role: "Rol",
 	support_card_cond_bio: "El estado personalizado contiene la palabra clave",
 	support_card_cond_tag: "Llevan la etiqueta del servidor",
-	support_card_cond_both: "La palabra clave en el estado **y** la etiqueta del servidor",
-	support_card_cond_either: "La palabra clave en el estado **o** la etiqueta del servidor",
-	support_card_no_keyword: "Sin palabra clave ni invitación personalizada en este servidor: nadie puede cumplir la condición del estado. Vuelve a usar el comando con una palabra clave.",
-	support_card_footer: "Los miembros conectados que ya cumplen la condición lo reciben ahora; después sigue cada cambio de estado.",
+	support_card_cond_both:
+		"La palabra clave en el estado **y** la etiqueta del servidor",
+	support_card_cond_either:
+		"La palabra clave en el estado **o** la etiqueta del servidor",
+	support_card_no_keyword:
+		"Sin palabra clave ni invitación personalizada en este servidor: nadie puede cumplir la condición del estado. Vuelve a usar el comando con una palabra clave.",
+	support_card_footer:
+		"Los miembros conectados que ya cumplen la condición lo reciben ahora; después sigue cada cambio de estado.",
 	support_card_off_title: "Rol de apoyo desactivado",
-	support_card_off_desc: "Nadie recibirá el rol. Quienes lo tienen lo conservan.",
+	support_card_off_desc:
+		"Nadie recibirá el rol. Quienes lo tienen lo conservan.",
 	support_command_not_role: ":x: | ¡No ha especificado el rol!",
 	support_command_not_type:
 		":x: | No especificaste el tipo de soporte que quieres en el perfil del usuario (bio = la biografía, ej. enlace del servidor; tag = la etiqueta del servidor)!",
@@ -4531,9 +4537,10 @@ export default {
 		"Inspirado por el Honeypot de RiskyMH, ¡échale un vistazo!\n${url}",
 	honeypot_trap_count_none: "Nadie sancionado todavía",
 	honeypot_trap_count_one: "1 persona sancionada",
-	honeypot_trap_count_other: "${count} personas sancionadas",
+	honeypot_trap_count_other: "${caughtCount} personas sancionadas",
 	honeypot_trap_count_never: "nunca",
-	honeypot_trap_count_reply: "🍯 Sanciones de esta trampa: **${count}**\nÚltima sanción: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Sanciones de esta trampa: **${caughtCount}**\nÚltima sanción: ${last}",
 	honeypot_dm_title: "Honeypot activado!",
 	honeypot_dm_desc:
 		"Un mensaje que enviaste en el canal *Honeypot* en el siguiente servidor: **`${guild}`** **activó** la protección configurada.\n\n__Acción tomada contra ti:__ **`${action}`**\n\n*Los mensajes que enviaste en las últimas 2 horas están siendo eliminados del servidor. Si crees que has sido hackeado, cambia tu contraseña y activa la 2FA en tu cuenta de Discord. Si fue un error de tu parte, por favor contacta al equipo del servidor para resolver el problema.*",
@@ -5304,14 +5311,17 @@ export default {
 	gforms_review_accepted: "✅ Aceptada por ${user} ${time}",
 	gforms_review_refused: "❌ Rechazada por ${user} ${time}",
 	gforms_review_reason: "Motivo: ${reason}",
-	gforms_review_not_reviewer: "Solo los revisores de este formulario pueden decidir.",
+	gforms_review_not_reviewer:
+		"Solo los revisores de este formulario pueden decidir.",
 	gforms_review_already: "Esta solicitud ya ha sido decidida.",
 	gforms_review_not_found: "Esta solicitud ya no existe.",
 	gforms_review_modal_title: "Rechazar la solicitud",
 	gforms_review_modal_reason: "Motivo (opcional, enviado al solicitante)",
 	gforms_review_dm_title: "Tu solicitud",
-	gforms_review_dm_accepted: "Tu solicitud **${name}** en **${guild}** ha sido aceptada.",
-	gforms_review_dm_refused: "Tu solicitud **${name}** en **${guild}** ha sido rechazada.",
+	gforms_review_dm_accepted:
+		"Tu solicitud **${name}** en **${guild}** ha sido aceptada.",
+	gforms_review_dm_refused:
+		"Tu solicitud **${name}** en **${guild}** ha sido rechazada.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Confesar",

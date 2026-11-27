@@ -2893,16 +2893,20 @@ export default {
 	support_not_admin:
 		":x: | Você deve ser um administrador deste servidor para solicitar estes comandos!",
 	support_card_on_title: "Cargo de apoiante ativado",
-	support_card_on_desc: "Os membros que cumprem a condição recebem ${role} e perdem-no quando deixam de cumprir.",
+	support_card_on_desc:
+		"Os membros que cumprem a condição recebem ${role} e perdem-no quando deixam de cumprir.",
 	support_card_condition: "Condição",
 	support_card_keyword: "Procurado no estado",
 	support_card_role: "Cargo",
 	support_card_cond_bio: "O estado personalizado contém a palavra-chave",
 	support_card_cond_tag: "Usam a tag do servidor",
 	support_card_cond_both: "A palavra-chave no estado **e** a tag do servidor",
-	support_card_cond_either: "A palavra-chave no estado **ou** a tag do servidor",
-	support_card_no_keyword: "Sem palavra-chave nem convite personalizado neste servidor: ninguém pode cumprir a condição do estado. Volta a usar o comando com uma palavra-chave.",
-	support_card_footer: "Os membros online que já cumprem a condição recebem-no agora; depois segue cada mudança de estado.",
+	support_card_cond_either:
+		"A palavra-chave no estado **ou** a tag do servidor",
+	support_card_no_keyword:
+		"Sem palavra-chave nem convite personalizado neste servidor: ninguém pode cumprir a condição do estado. Volta a usar o comando com uma palavra-chave.",
+	support_card_footer:
+		"Os membros online que já cumprem a condição recebem-no agora; depois segue cada mudança de estado.",
 	support_card_off_title: "Cargo de apoiante desativado",
 	support_card_off_desc: "Ninguém vai receber o cargo. Quem o tem mantém-no.",
 	support_command_not_role: ":x: | Você não especificou a função!",
@@ -4476,9 +4480,10 @@ export default {
 		"Inspirado pelo Honeypot de RiskyMH, confira!\n${url}",
 	honeypot_trap_count_none: "Ninguém sancionado ainda",
 	honeypot_trap_count_one: "1 pessoa sancionada",
-	honeypot_trap_count_other: "${count} pessoas sancionadas",
+	honeypot_trap_count_other: "${caughtCount} pessoas sancionadas",
 	honeypot_trap_count_never: "nunca",
-	honeypot_trap_count_reply: "🍯 Sanções desta armadilha: **${count}**\nÚltima sanção: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Sanções desta armadilha: **${caughtCount}**\nÚltima sanção: ${last}",
 	honeypot_dm_title: "Honeypot acionado!",
 	honeypot_dm_desc:
 		"Uma mensagem que você enviou no canal *Honeypot* no seguinte servidor: **`${guild}`** **acionou** a proteção configurada.\n\n__Ação tomada contra você:__ **`${action}`**\n\n*As mensagens que você enviou nas últimas 2 horas estão sendo removidas do servidor. Se você acredita que foi hackeado, mude sua senha e ative a 2FA na sua conta do Discord. Se foi um engano da sua parte, entre em contato com a equipe do servidor para resolver o problema.*",
@@ -5243,14 +5248,17 @@ export default {
 	gforms_review_accepted: "✅ Aceite por ${user} ${time}",
 	gforms_review_refused: "❌ Recusada por ${user} ${time}",
 	gforms_review_reason: "Motivo: ${reason}",
-	gforms_review_not_reviewer: "Só os revisores deste formulário podem decidir.",
+	gforms_review_not_reviewer:
+		"Só os revisores deste formulário podem decidir.",
 	gforms_review_already: "Esta candidatura já foi decidida.",
 	gforms_review_not_found: "Esta candidatura já não existe.",
 	gforms_review_modal_title: "Recusar a candidatura",
 	gforms_review_modal_reason: "Motivo (opcional, enviado ao candidato)",
 	gforms_review_dm_title: "A tua candidatura",
-	gforms_review_dm_accepted: "A tua candidatura **${name}** em **${guild}** foi aceite.",
-	gforms_review_dm_refused: "A tua candidatura **${name}** em **${guild}** foi recusada.",
+	gforms_review_dm_accepted:
+		"A tua candidatura **${name}** em **${guild}** foi aceite.",
+	gforms_review_dm_refused:
+		"A tua candidatura **${name}** em **${guild}** foi recusada.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Confessar",

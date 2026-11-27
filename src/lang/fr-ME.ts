@@ -2966,7 +2966,8 @@ export default {
 	support_not_admin:
 		":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !",
 	support_card_on_title: "Rôle de soutien activé",
-	support_card_on_desc: "Ceux qui remplissent la condition chopent ${role}, et le perdent s'ils arrêtent.",
+	support_card_on_desc:
+		"Ceux qui remplissent la condition chopent ${role}, et le perdent s'ils arrêtent.",
 	support_card_condition: "Condition",
 	support_card_keyword: "Cherché dans le statut",
 	support_card_role: "Rôle",
@@ -2974,10 +2975,13 @@ export default {
 	support_card_cond_tag: "Ils portent le tag du serv",
 	support_card_cond_both: "Le mot-clé dans le statut **et** le tag du serv",
 	support_card_cond_either: "Le mot-clé dans le statut **ou** le tag du serv",
-	support_card_no_keyword: "Pas de mot-clé et pas d'invit perso sur ce serv : personne peut matcher le statut, frérot. Relance la commande avec un mot-clé.",
-	support_card_footer: "Ceux en ligne qui matchent déjà le chopent direct, après ça suit chaque changement de statut.",
+	support_card_no_keyword:
+		"Pas de mot-clé et pas d'invit perso sur ce serv : personne peut matcher le statut, frérot. Relance la commande avec un mot-clé.",
+	support_card_footer:
+		"Ceux en ligne qui matchent déjà le chopent direct, après ça suit chaque changement de statut.",
 	support_card_off_title: "Rôle de soutien désactivé",
-	support_card_off_desc: "Plus personne chope le rôle. Ceux qui l'ont le gardent.",
+	support_card_off_desc:
+		"Plus personne chope le rôle. Ceux qui l'ont le gardent.",
 	support_command_not_role: ":x: | Tu n'avez pas spécifié le rôle !",
 	support_command_not_type:
 		":x: | Vous n'avez pas spécifié le type de soutien que vous voulez dans le profil des utilisateurs (bio=la bio. Ex: Lien du serveur; tag=le tag discord du serveur) !",
@@ -4593,9 +4597,10 @@ export default {
 		"Inspiré du Honeypot de RiskyMH, regarde moi ce poulet !\n${url}",
 	honeypot_trap_count_none: "Personne s'est fait niquer pour l'instant",
 	honeypot_trap_count_one: "1 boloss sanctionné",
-	honeypot_trap_count_other: "${count} bolosses sanctionnés",
+	honeypot_trap_count_other: "${caughtCount} bolosses sanctionnés",
 	honeypot_trap_count_never: "jamais frérot",
-	honeypot_trap_count_reply: "🍯 Ce piège a niqué **${count}** comptes\nLe dernier : ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Ce piège a niqué **${caughtCount}** comptes\nLe dernier : ${last}",
 	honeypot_dm_title: "Honeypot déclenché!",
 	honeypot_dm_desc:
 		"Un message que vous avez envoyé dans le canal *Honeypot* sur le serveur suivant : **`${guild}`** **déclenché** la protection configurée.\n\n__Action prise contre vous :__ **`${action}`**\n\n*Les messages que vous avez envoyés au cours des 2 dernières heures sont en cours de suppression du serveur. Si vous pensez avoir été hacké, changez votre mot de passe et activez la 2FA sur votre compte Discord. S'il s'agit d'une erreur de votre part, veuillez contacter l'équipe du serveur pour résoudre le problème.*",
@@ -5369,14 +5374,17 @@ export default {
 	gforms_review_accepted: "✅ Validée par ${user} ${time}",
 	gforms_review_refused: "❌ Recalée par ${user} ${time}",
 	gforms_review_reason: "Raison : ${reason}",
-	gforms_review_not_reviewer: "Y a que les examinateurs de ce formulaire qui décident, gros.",
+	gforms_review_not_reviewer:
+		"Y a que les examinateurs de ce formulaire qui décident, gros.",
 	gforms_review_already: "Cette candidature a déjà été traitée, frérot.",
 	gforms_review_not_found: "Cette candidature existe plus.",
 	gforms_review_modal_title: "Recaler la candidature",
 	gforms_review_modal_reason: "Raison (facultatif, envoyé au candidat)",
 	gforms_review_dm_title: "Ta candidature",
-	gforms_review_dm_accepted: "Ta candidature **${name}** sur **${guild}** est validée.",
-	gforms_review_dm_refused: "Ta candidature **${name}** sur **${guild}** est recalée.",
+	gforms_review_dm_accepted:
+		"Ta candidature **${name}** sur **${guild}** est validée.",
+	gforms_review_dm_refused:
+		"Ta candidature **${name}** sur **${guild}** est recalée.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Balance ton truc",

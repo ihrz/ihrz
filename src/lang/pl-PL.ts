@@ -2337,7 +2337,8 @@ export default {
 	support_not_admin:
 		":x: | Musisz być administratorem tego serwera, aby używać tych poleceń!",
 	support_card_on_title: "Rola wspierającego włączona",
-	support_card_on_desc: "Członkowie spełniający warunek dostają ${role} i tracą ją, gdy przestają.",
+	support_card_on_desc:
+		"Członkowie spełniający warunek dostają ${role} i tracą ją, gdy przestają.",
 	support_card_condition: "Warunek",
 	support_card_keyword: "Szukane w statusie",
 	support_card_role: "Rola",
@@ -2345,10 +2346,13 @@ export default {
 	support_card_cond_tag: "Noszą tag serwera",
 	support_card_cond_both: "Słowo kluczowe w statusie **i** tag serwera",
 	support_card_cond_either: "Słowo kluczowe w statusie **lub** tag serwera",
-	support_card_no_keyword: "Brak słowa kluczowego i własnego zaproszenia na tym serwerze: nikt nie spełni warunku statusu. Użyj komendy ponownie ze słowem kluczowym.",
-	support_card_footer: "Członkowie online, którzy już spełniają warunek, dostają ją teraz, potem przy każdej zmianie statusu.",
+	support_card_no_keyword:
+		"Brak słowa kluczowego i własnego zaproszenia na tym serwerze: nikt nie spełni warunku statusu. Użyj komendy ponownie ze słowem kluczowym.",
+	support_card_footer:
+		"Członkowie online, którzy już spełniają warunek, dostają ją teraz, potem przy każdej zmianie statusu.",
 	support_card_off_title: "Rola wspierającego wyłączona",
-	support_card_off_desc: "Nikt nie dostanie już roli. Ci, którzy ją mają, zachowają ją.",
+	support_card_off_desc:
+		"Nikt nie dostanie już roli. Ci, którzy ją mają, zachowają ją.",
 	support_command_not_role: ":x: | Nie podano roli!",
 	support_command_not_type:
 		":x: | Nie podałeś(-aś) typu wsparcia, jakiego chcesz w profilu użytkownika (bio = opis profilu, np. link do serwera; tag = tag serwera na Discordzie)!",
@@ -3603,9 +3607,10 @@ export default {
 		"Zainspirowane botem Honeypot od RiskyMH, zajrzyj do niego!\n${url}",
 	honeypot_trap_count_none: "Nikt jeszcze nie został ukarany",
 	honeypot_trap_count_one: "1 osoba ukarana",
-	honeypot_trap_count_other: "Ukarano: ${count}",
+	honeypot_trap_count_other: "Ukarano: ${caughtCount}",
 	honeypot_trap_count_never: "nigdy",
-	honeypot_trap_count_reply: "🍯 Kary z tej pułapki: **${count}**\nOstatnia: ${last}",
+	honeypot_trap_count_reply:
+		"🍯 Kary z tej pułapki: **${caughtCount}**\nOstatnia: ${last}",
 	honeypot_dm_title: "URUCHOMIONO HONEYPOT!",
 	honeypot_dm_desc:
 		"Wiadomość wysłana przez Ciebie na kanale *Honeypot* na serwerze **`${guild}`** **uruchomiła** skonfigurowaną ochronę.\n\n__Podjęta wobec Ciebie akcja:__ **`${action}`**\n\n*Wiadomości wysłane przez Ciebie w ciągu ostatnich 2 godzin są usuwane z serwera. Jeśli uważasz, że Twoje konto zostało zhakowane, zmień hasło i włącz 2FA na swoim koncie Discord. Jeśli to Twoja pomyłka, skontaktuj się z administracją serwera, aby rozwiązać sprawę.*",
@@ -4304,14 +4309,17 @@ export default {
 	gforms_review_accepted: "✅ Zaakceptowane przez ${user} ${time}",
 	gforms_review_refused: "❌ Odrzucone przez ${user} ${time}",
 	gforms_review_reason: "Powód: ${reason}",
-	gforms_review_not_reviewer: "Decydować mogą tylko recenzenci tego formularza.",
+	gforms_review_not_reviewer:
+		"Decydować mogą tylko recenzenci tego formularza.",
 	gforms_review_already: "Ta aplikacja została już rozpatrzona.",
 	gforms_review_not_found: "Ta aplikacja już nie istnieje.",
 	gforms_review_modal_title: "Odrzuć aplikację",
 	gforms_review_modal_reason: "Powód (opcjonalny, wysyłany kandydatowi)",
 	gforms_review_dm_title: "Twoja aplikacja",
-	gforms_review_dm_accepted: "Twoja aplikacja **${name}** na serwerze **${guild}** została zaakceptowana.",
-	gforms_review_dm_refused: "Twoja aplikacja **${name}** na serwerze **${guild}** została odrzucona.",
+	gforms_review_dm_accepted:
+		"Twoja aplikacja **${name}** na serwerze **${guild}** została zaakceptowana.",
+	gforms_review_dm_refused:
+		"Twoja aplikacja **${name}** na serwerze **${guild}** została odrzucona.",
 
 	// /confession panel
 	confession_panel_button_default_label: "Wyznaj",

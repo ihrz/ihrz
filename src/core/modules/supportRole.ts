@@ -32,7 +32,6 @@
 import { ActivityType, Guild, GuildMember, Presence } from "discord.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import logger from "../logger.js";
 
 /** An empty needle would match every status, so it never counts. */
 export function bioMatches(
