@@ -727,12 +727,14 @@ export default {
 	help_home_intro:
 		"Все команды по категориям. Выберите категорию в меню ниже.",
 	help_home_stats:
-		"${emoji_Pin} Категорий: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Команд: **${commandCount}**",
-	help_home_creators: "${emoji_Crown} Создатели: ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** доступные категории команд\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** доступные слэш-команды",
+	help_home_creators: "${emoji_Crown} ・ **Создано** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Языков: **${languageCount}** — сменить язык: ${command}",
+		"${emoji_VC_Region} ・ ${botName} **100% многоязычный** ・ ${command}",
 	help_search_button: "Найти команду",
 	help_details_button: "Подробнее",
+	help_usage_legend:
+		"Параметры в [...] обязательны, а параметры в <...> — необязательны.",
 	help_protection_fields: "Защита",
 	help_protection_dsc:
 		"> *Предотвращайте выполнение некоторых действий не в белом списке для защиты сервера.*",

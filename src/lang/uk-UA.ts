@@ -614,12 +614,14 @@ export default {
 	help_home_intro:
 		"Усі команди за категоріями. Виберіть категорію в меню нижче.",
 	help_home_stats:
-		"${emoji_Pin} Категорій: **${categoryCount}**\n${emoji_Slash_Bot_Badge} Команд: **${commandCount}**",
-	help_home_creators: "${emoji_Crown} Автори: ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** доступні категорії команд\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** доступні слеш-команди",
+	help_home_creators: "${emoji_Crown} ・ **Створено** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Мов: **${languageCount}** — змінити мову: ${command}",
+		"${emoji_VC_Region} ・ ${botName} **100% багатомовний** ・ ${command}",
 	help_search_button: "Знайти команду",
 	help_details_button: "Докладніше",
+	help_usage_legend:
+		"Параметри в [...] обов'язкові, а в <...> — необов'язкові.",
 	help_protection_fields: "Захист",
 	help_protection_dsc:
 		"Уникайте виконання деяких дій не в білому списку для захисту сервера.",

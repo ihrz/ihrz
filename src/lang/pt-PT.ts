@@ -733,12 +733,14 @@ export default {
 	help_home_intro:
 		"Todos os comandos, organizados por categoria. Escolhe uma categoria no menu abaixo.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** categorias\n${emoji_Slash_Bot_Badge} **${commandCount}** comandos",
-	help_home_creators: "${emoji_Crown} Criado por ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** Categorias de Comandos disponíveis\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** Comandos de Barra disponíveis",
+	help_home_creators: "${emoji_Crown} ・ **Criado por** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Disponível em **${languageCount}** línguas: muda-a com ${command}",
+		"${emoji_VC_Region} ・ ${botName} é **100% multilíngue** ・ ${command}",
 	help_search_button: "Procurar um comando",
 	help_details_button: "Detalhes",
+	help_usage_legend:
+		"As opções dentro de [...] são obrigatórias, enquanto aquelas dentro de <...> são opcionais.",
 	help_protection_fields: "Proteção",
 	help_protection_dsc:
 		"> *Impeça que usuários que não estão na lista de permissões realizem determinadas ações para proteger o servidor.*",

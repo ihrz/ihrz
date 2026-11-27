@@ -45,8 +45,8 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { CategoryData } from "../../../../types/category.js";
 import { BotContent } from "../../../../types/botContent.js";
 import { Command } from "../../../../types/command.js";
+import { Option } from "../../../../types/option.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
-import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 import {
 	ACCENT,
 	botSignature,
@@ -303,10 +303,7 @@ async function homeView(
 					owners &&
 						lang.help_home_creators.replace("${owners}", owners),
 					lang.help_home_tip
-						.replace(
-							"${languageCount}",
-							String(AvailableLanguage.length)
-						)
+						.replace("${botName}", ctx.botName)
 						.replace(
 							"${command}",
 							await commandMention(client, "setlang")
@@ -430,6 +427,127 @@ const findCommand = (client: Client, path: string) =>
 	client.commands.get(path.split(" ")[0]) ||
 	client.message_commands.get(path.split(" ")[0]);
 
+/** The help entry of a command: by its path ("mod ban"), its prefix name ("ban") or an alias. */
+function findEntry(client: Client, path: string): BotContent | undefined {
+	const wanted = path.trim().toLowerCase();
+	return (
+		client.content.find((c) => c.cmd.toLowerCase() === wanted) ??
+		client.content.find(
+			(c) =>
+				c.prefixCmd?.toLowerCase() === wanted ||
+				c.aliases?.some((a) => a.toLowerCase() === wanted)
+		)
+	);
+}
+
+/** The definition of a subcommand inside its root command ("mod ban" -> the "ban" option of "mod"). */
+function findOption(root: Command, path: string): Command | Option | null {
+	let node: Command | Option = root;
+	for (const name of path.split(" ").slice(1)) {
+		const next: Option | undefined = node.options?.find(
+			(o) => o.name === name
+		);
+		if (!next) return null;
+		node = next;
+	}
+	return node;
+}
+
+/** Who can run it: its Discord permission, or the server's /perm rule (level, roles, members). */
+function permissionText(
+	ctx: HelpContext,
+	node: Command | Option | null,
+	cmd: string
+): string {
+	const { client, lang } = ctx;
+	let text = "";
+	if (node?.permission) {
+		const found = client.func.permissonsCalculator.getPermissionByValue(
+			node.permission
+		);
+		if (found)
+			text = (Array.isArray(found) ? found : [found])
+				.filter(Boolean)
+				.map((p) => String(lang[p.name]))
+				.join(", ");
+	}
+	let rule = ctx.perms?.[cmd];
+	if (typeof rule === "number") rule = { users: [], roles: [], level: rule };
+	if (rule?.level) text = String(rule.level);
+	if (rule?.roles?.length)
+		text = rule.roles.map((id) => `<@&${id}>`).join(", ");
+	if (rule?.users?.length)
+		text = [text, rule.users.map((id) => `<@${id}>`).join(", ")]
+			.filter(Boolean)
+			.join(", ");
+	return text || lang.setjoinroles_var_none;
+}
+
+/** One command's card: its description, how to run it, who can, its aliases. */
+async function entryCard(
+	ctx: HelpContext,
+	entry: BotContent
+): Promise<ContainerBuilder> {
+	const { client, lang } = ctx;
+	const e = client.iHorizon_Emojis;
+	const root = findCommand(client, entry.cmd);
+	const node = root ? findOption(root, entry.cmd) : null;
+	const name = entry.prefixCmd || entry.cmd;
+	const prefix =
+		ctx.prefix.type === "mention" ? `@${ctx.botName} ` : ctx.prefix.string;
+	const hasSlash = entry.messageCmd === 0 || entry.messageCmd === 2;
+	const hasPrefix = entry.messageCmd === 1 || entry.messageCmd === 2;
+	const usage = [
+		hasSlash &&
+			`${e.Slash_Bot_Badge} ${await commandMention(client, entry.cmd)}`,
+		hasPrefix &&
+			`${e.Message_Commands} \`${prefix}${name}${entry.usage ? ` ${entry.usage}` : ""}\``,
+		// What [ ] and < > mean, under a prefix form that has arguments.
+		hasPrefix && entry.usage && `-# *${lang.help_usage_legend}*`
+	]
+		.filter(Boolean)
+		.join("\n");
+	const aliases =
+		(entry.aliases ?? node?.aliases ?? [])
+			.map((a) => `\`${a}\``)
+			.join(", ") || lang.setjoinroles_var_none;
+	return buildCard({
+		accent: ACCENT.neutral,
+		emoji: e.Slash_Bot_Badge,
+		title: entry.cmd,
+		description: descriptionOf(ctx, entry),
+		thumbnail: AVATAR,
+		blocks: [
+			`**${lang.var_usage}**\n${usage}`,
+			`**${lang.var_permission}**\n${permissionText(ctx, node, entry.cmd)}`,
+			`**${lang.var_aliases}**\n${aliases}`
+		],
+		signature: ctx.signature
+	});
+}
+
+/** The details card of `path`: the exact command, or (a root that only groups subcommands, "mod") its overview. */
+async function detailsCard(
+	ctx: HelpContext,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	path: string
+): Promise<ContainerBuilder | null> {
+	const entry = findEntry(ctx.client, path);
+	const root = findCommand(ctx.client, entry?.cmd ?? path);
+	const groupsOnly =
+		!!root &&
+		!entry?.cmd.includes(" ") &&
+		!!root.options?.some(
+			(o) =>
+				o.type === ApplicationCommandOptionType.Subcommand ||
+				o.type === ApplicationCommandOptionType.SubcommandGroup
+		);
+	if (entry && !groupsOnly) return entryCard(ctx, entry);
+	return root
+		? commandCard(ctx.client, ctx.lang, interaction, root, ctx.signature)
+		: null;
+}
+
 const link = (label: string, url: string, emoji: string) =>
 	new ButtonBuilder()
 		.setStyle(ButtonStyle.Link)
@@ -503,34 +621,6 @@ export const command: Command = {
 				interaction
 			);
 
-		if (targetCommand) {
-			const fetchCommand = findCommand(client, targetCommand);
-
-			if (!fetchCommand) {
-				await client.func.method.interactionSend(interaction, {
-					content:
-						client.iHorizon_Emojis.No +
-						" | " +
-						lang.var_unreachable_command
-				});
-				return;
-			}
-
-			const card = await commandCard(
-				client,
-				lang,
-				interaction,
-				fetchCommand,
-				signature
-			);
-			await client.func.method.interactionSend(interaction, {
-				...cardPayload(card),
-				flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-				files: [avatar]
-			} as never);
-			return;
-		}
-
 		// A slash command with subcommands is listed by its subcommands only: its root ("/honeypot") is not a
 		// command you can run (the slash loader still records it in client.content).
 		const groups = new Set(
@@ -575,6 +665,25 @@ export const command: Command = {
 			banner: await client.func.bannerGenerator(interaction.guildId),
 			signature
 		};
+
+		if (targetCommand) {
+			const card = await detailsCard(ctx, interaction, targetCommand);
+			if (!card) {
+				await client.func.method.interactionSend(interaction, {
+					content:
+						client.iHorizon_Emojis.No +
+						" | " +
+						lang.var_unreachable_command
+				});
+				return;
+			}
+			await client.func.method.interactionSend(interaction, {
+				...cardPayload(card),
+				flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+				files: [avatar]
+			} as never);
+			return;
+		}
 
 		// Pages of a category, built once per message.
 		const paged = new Map<number, Entry[][]>();
@@ -625,21 +734,14 @@ export const command: Command = {
 						: { kind: "category", index: Number(value), page: 0 };
 			} else if (i.isButton() && i.customId.startsWith(ID.details)) {
 				// A command's details, privately; the help stays where it is.
-				const command = findCommand(
-					client,
+				const card = await detailsCard(
+					ctx,
+					interaction,
 					i.customId.slice(ID.details.length)
 				);
-				if (!command) return;
+				if (!card) return;
 				await i.reply({
-					...cardPayload(
-						await commandCard(
-							client,
-							lang,
-							interaction,
-							command,
-							signature
-						)
-					),
+					...cardPayload(card),
 					flags: [
 						MessageFlags.IsComponentsV2,
 						MessageFlags.Ephemeral

@@ -734,12 +734,14 @@ export default {
 	help_home_intro:
 		"Tutti i comandi, divisi per categoria. Scegli una categoria nel menu qui sotto.",
 	help_home_stats:
-		"${emoji_Pin} **${categoryCount}** categorie\n${emoji_Slash_Bot_Badge} **${commandCount}** comandi",
-	help_home_creators: "${emoji_Crown} Creato da ${owners}",
+		"${emoji_Pin} ・ **${categoryCount}** categorie di comandi disponibili\n${emoji_Slash_Bot_Badge} ・ **${commandCount}** comandi Slash disponibili",
+	help_home_creators: "${emoji_Crown} ・ **Creato da** ${owners}",
 	help_home_tip:
-		"${emoji_VC_Region} Disponibile in **${languageCount}** lingue: cambiala con ${command}",
+		"${emoji_VC_Region} ・ ${botName} è **100% multilingue** ・ ${command}",
 	help_search_button: "Cerca un comando",
 	help_details_button: "Dettagli",
+	help_usage_legend:
+		"Le opzioni tra [...] sono obbligatorie, mentre quelle tra <...> sono facoltative.",
 	help_protection_fields: "Protezione",
 	help_protection_dsc:
 		"> *Impedisci agli utenti non autorizzati di compiere determinate azioni al fine di proteggere il server.*",
