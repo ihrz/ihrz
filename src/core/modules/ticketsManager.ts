@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { getLogChannel } from "../functions/logChannel.js";
 import { isModuleDisabled } from "../functions/moduleToggle.js";
 import {
 	AttachmentPayload,
@@ -65,6 +66,21 @@ import {
 	transcriptLinkRow as webTranscriptRow
 } from "./ticketTranscripts.js";
 import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
+import {
+	TicketChannel,
+	addThreadMember,
+	archiveThread,
+	lockThread,
+	createTicketThread,
+	ensureThreadHub,
+	isThreadStaff,
+	removeThreadMember,
+	reopenThread,
+	missingThreadPermissions,
+	staffMembers,
+	staffRoleIds,
+	threadParentId
+} from "./ticketThreads.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
 import { metasTable } from "../../Events/client/ready.js";
@@ -649,36 +665,90 @@ async function CreateChannelV2(
 		});
 	}
 
-	await interaction.guild?.channels
-		.create({
-			name: `ticket-${interaction.user.username}`,
-			type: ChannelType.GuildText,
-			parent:
-				interaction.guild.channels.cache.get(category || "")?.id || null
-		})
-		.then(async (channel) => {
-			if (category) {
-				channel.lockPermissions();
+	const isThread = result.ticketType === "thread";
+	let threadStaffRoles: string[] = [];
+
+	// A channel in the category, or a private thread with the author and the staff in it.
+	const openTicket = async (): Promise<TicketChannel | null> => {
+		const guild = interaction.guild;
+		const name = `ticket-${interaction.user.username}`;
+		if (isThread) {
+			const parent = await guild.channels
+				.fetch(
+					threadParentId(
+						result,
+						chosenCategory,
+						interaction.channelId
+					)
+				)
+				.catch(() => null);
+			if (parent?.type !== ChannelType.GuildText) {
+				await loadingTarget.editReply({
+					content: lang.ticket_thread_parent_missing
+				});
+				return null;
 			}
-
-			await channel.permissionOverwrites.edit(
-				interaction.guild?.roles.everyone as Role,
-				{
-					ViewChannel: false,
-					SendMessages: false,
-					ReadMessageHistory: false
-				}
+			const missing = missingThreadPermissions(parent);
+			if (missing.length > 0) {
+				await loadingTarget.editReply({
+					content: lang.ticket_thread_bot_missing_perms
+						.replace("${channel}", parent.toString())
+						.replace(
+							"${permissions}",
+							missing.map((name) => `\`${name}\``).join(", ")
+						)
+				});
+				return null;
+			}
+			threadStaffRoles = staffRoleIds(parent, [
+				...(chosenCategory?.rolesToPing ?? []),
+				...(result.config.rolesToPing ?? [])
+			]);
+			const staff = await staffMembers(
+				guild,
+				threadStaffRoles,
+				new Set([interaction.user.id])
 			);
+			const thread = await createTicketThread(
+				parent,
+				name,
+				interaction.user.id,
+				staff
+			);
+			// Threads away from the panel: their channel gets its summary button.
+			if (parent.id !== interaction.channelId)
+				void ensureThreadHub(parent, lang);
+			return thread;
+		}
 
-			await channel.permissionOverwrites.edit(interaction.user.id, {
-				ViewChannel: true,
-				SendMessages: true,
-				ReadMessageHistory: true,
-				AttachFiles: true,
-				UseApplicationCommands: true,
-				SendVoiceMessages: true,
-				EmbedLinks: true
-			});
+		const channel = await guild.channels.create({
+			name,
+			type: ChannelType.GuildText,
+			parent: guild.channels.cache.get(category || "")?.id || null
+		});
+		if (category) {
+			await channel.lockPermissions();
+		}
+		await channel.permissionOverwrites.edit(guild.roles.everyone as Role, {
+			ViewChannel: false,
+			SendMessages: false,
+			ReadMessageHistory: false
+		});
+		await channel.permissionOverwrites.edit(interaction.user.id, {
+			ViewChannel: true,
+			SendMessages: true,
+			ReadMessageHistory: true,
+			AttachFiles: true,
+			UseApplicationCommands: true,
+			SendVoiceMessages: true,
+			EmbedLinks: true
+		});
+		return channel;
+	};
+
+	await openTicket()
+		.then(async (channel) => {
+			if (!channel) return;
 
 			if (reasonInteraction) {
 				await reasonInteraction.editReply({
@@ -813,7 +883,10 @@ async function CreateChannelV2(
 				{
 					channel: channel.id,
 					author: interaction.user.id,
-					alive: true
+					alive: true,
+					...(isThread
+						? { type: "thread", staffRoles: threadStaffRoles }
+						: {})
 				}
 			);
 
@@ -876,7 +949,7 @@ async function CreateChannelV2(
 				});
 			}
 
-			(channel as BaseGuildTextChannel)
+			channel
 				.send({
 					embeds: embeds,
 					content: content === "" ? undefined : content,
@@ -919,6 +992,10 @@ async function CreateChannelV2(
 		})
 		.catch((e) => {
 			logger.err(e);
+			// The member is not left on the loading message.
+			loadingTarget
+				.editReply({ content: lang.ticket_open_failed })
+				.catch(() => {});
 		});
 }
 
@@ -999,10 +1076,7 @@ async function sendTicketLog(
 	}
 ): Promise<void> {
 	try {
-		const logsId = await guild.client.db.get(
-			`${guild.id}.GUILD.TICKET.logs`
-		);
-		const logs = logsId ? guild.channels.cache.get(logsId) : undefined;
+		const logs = await getLogChannel(guild, "ticket");
 		if (!logs?.isSendable()) return;
 
 		const style = TICKET_LOG_STYLE[entry.kind];
@@ -1065,7 +1139,7 @@ function interactionUser(interaction: Interaction<"cached"> | Message): User {
  * permissions could not be changed.
  */
 async function closeTicketChannel(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string,
 	actor: User,
 	lang: LanguageData,
@@ -1103,15 +1177,21 @@ async function closeTicketChannel(
 		.setColor("#0014a8");
 
 	try {
-		await channel.permissionOverwrites.create(
-			authorId,
-			{
-				ViewChannel: false,
-				SendMessages: false,
-				ReadMessageHistory: false
-			},
-			{ type: OverwriteType.Member }
-		);
+		if (channel.isThread()) {
+			// Locked before anything is announced: a thread that can't be locked is not closed.
+			await lockThread(channel);
+			await removeThreadMember(channel, authorId);
+		} else {
+			await channel.permissionOverwrites.create(
+				authorId,
+				{
+					ViewChannel: false,
+					SendMessages: false,
+					ReadMessageHistory: false
+				},
+				{ type: OverwriteType.Member }
+			);
+		}
 	} catch {
 		return false;
 	}
@@ -1134,6 +1214,10 @@ async function closeTicketChannel(
 		files,
 		link: transcriptLink
 	});
+	// Last: archived (a message sent to it afterwards would wake it up).
+	if (channel.isThread()) {
+		await archiveThread(channel).catch((err: unknown) => logger.warn(err));
+	}
 	return true;
 }
 
@@ -1151,7 +1235,7 @@ async function CloseTicket(
 	if (!ticket) return;
 
 	const ok = await closeTicketChannel(
-		interaction.channel as BaseGuildTextChannel,
+		interaction.channel as TicketChannel,
 		ticket.data.author,
 		interactionUser(interaction),
 		lang,
@@ -1175,13 +1259,18 @@ function canManageTicket(
 	channelId: string | null | undefined,
 	authorId: string | undefined
 ): boolean {
-	return (
+	if (
 		member.id === authorId ||
-		member.permissions.has(PermissionFlagsBits.Administrator) ||
-		(!!channelId &&
-			member
-				.permissionsIn(channelId)
-				.has(PermissionFlagsBits.ManageChannels))
+		member.permissions.has(PermissionFlagsBits.Administrator)
+	)
+		return true;
+	if (!channelId) return false;
+	const perms = member.permissionsIn(channelId);
+	if (perms.has(PermissionFlagsBits.ManageChannels)) return true;
+	// A thread ticket's staff manage threads on its channel.
+	return (
+		!!member.guild?.channels.cache.get(channelId)?.isThread() &&
+		perms.has(PermissionFlagsBits.ManageThreads)
 	);
 }
 
@@ -1208,7 +1297,7 @@ async function denyUnlessTicketStaff(
 
 	const content = lang.var_doesnt_have_permissions.replace(
 		"{permission}",
-		"ManageChannels"
+		channel?.isThread() ? "ManageThreads" : "ManageChannels"
 	);
 
 	if (isMessage(interaction)) {
@@ -1237,7 +1326,11 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	);
 	const interactionChannel = interaction.channel;
 
-	if (interactionChannel?.type !== ChannelType.GuildText) return;
+	if (
+		interactionChannel?.type !== ChannelType.GuildText &&
+		interactionChannel?.type !== ChannelType.PrivateThread
+	)
+		return;
 
 	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
@@ -1316,16 +1409,20 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 
 /** /ticket remove-member and the dashboard: the user loses access, then the log entry. Throws if Discord refuses. */
 async function removeTicketMember(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	user: User,
 	actor: User,
 	lang: LanguageData
 ): Promise<void> {
-	await channel.permissionOverwrites.create(user, {
-		ViewChannel: false,
-		SendMessages: false,
-		ReadMessageHistory: false
-	});
+	if (channel.isThread()) {
+		await removeThreadMember(channel, user.id);
+	} else {
+		await channel.permissionOverwrites.create(user, {
+			ViewChannel: false,
+			SendMessages: false,
+			ReadMessageHistory: false
+		});
+	}
 	await sendTicketLog(channel.guild, {
 		kind: "removed",
 		title: lang.event_ticket_logsChannel_onRemoveMember_embed_title,
@@ -1346,7 +1443,7 @@ async function TicketRemoveMember(
 
 	try {
 		await removeTicketMember(
-			interaction.channel as BaseGuildTextChannel,
+			interaction.channel as TicketChannel,
 			member,
 			interactionUser(interaction),
 			data
@@ -1367,16 +1464,20 @@ async function TicketRemoveMember(
 
 /** /ticket add-member and the dashboard: the user gets access, then the log entry. Throws if Discord refuses. */
 async function addTicketMember(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	user: User,
 	actor: User,
 	lang: LanguageData
 ): Promise<void> {
-	await channel.permissionOverwrites.create(user, {
-		ViewChannel: true,
-		SendMessages: true,
-		ReadMessageHistory: true
-	});
+	if (channel.isThread()) {
+		await addThreadMember(channel, user.id);
+	} else {
+		await channel.permissionOverwrites.create(user, {
+			ViewChannel: true,
+			SendMessages: true,
+			ReadMessageHistory: true
+		});
+	}
 	await sendTicketLog(channel.guild, {
 		kind: "added",
 		title: lang.event_ticket_logsChannel_onAddMember_embed_title,
@@ -1404,7 +1505,7 @@ async function TicketAddMember(
 
 	try {
 		await addTicketMember(
-			interaction.channel as BaseGuildTextChannel,
+			interaction.channel as TicketChannel,
 			member,
 			interactionUser(interaction),
 			data
@@ -1425,21 +1526,29 @@ async function TicketAddMember(
 
 /** /ticket open and the dashboard: the author gets access back, then the log entry. Throws if Discord refuses. */
 async function reopenTicketChannel(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string,
 	actor: User,
 	lang: LanguageData
 ): Promise<void> {
-	await channel.permissionOverwrites.edit(
-		authorId,
-		{
-			ViewChannel: true,
-			SendMessages: true,
-			AttachFiles: true,
-			ReadMessageHistory: true
-		},
-		{ type: OverwriteType.Member }
-	);
+	if (channel.isThread()) {
+		await reopenThread(channel);
+		// An author who left the server can't come back: the ticket is reopened all the same.
+		await channel.members
+			.add(authorId)
+			.catch((err: unknown) => logger.warn(err));
+	} else {
+		await channel.permissionOverwrites.edit(
+			authorId,
+			{
+				ViewChannel: true,
+				SendMessages: true,
+				AttachFiles: true,
+				ReadMessageHistory: true
+			},
+			{ type: OverwriteType.Member }
+		);
+	}
 	await sendTicketLog(channel.guild, {
 		kind: "reopened",
 		title: lang.event_ticket_logsChannel_onReopen_embed_title,
@@ -1464,7 +1573,7 @@ async function TicketReOpen(
 
 	try {
 		await reopenTicketChannel(
-			interaction.channel as BaseGuildTextChannel,
+			interaction.channel as TicketChannel,
 			ticket.data.author,
 			interactionUser(interaction),
 			lang
@@ -1490,7 +1599,7 @@ async function TicketReOpen(
  * could not be deleted.
  */
 async function deleteTicketChannel(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	ticketKey: string,
 	ticketOwnerId: string | undefined,
 	actor: User,
@@ -1521,12 +1630,7 @@ async function deleteTicketChannel(
 	);
 
 	try {
-		const logsId = await guild.client.db.get(
-			`${guild.id}.GUILD.TICKET.logs`
-		);
-		const TicketLogsChannel = logsId
-			? guild.channels.cache.get(logsId)
-			: undefined;
+		const TicketLogsChannel = await getLogChannel(guild, "ticket");
 
 		if (TicketLogsChannel?.isSendable()) {
 			// The link replaces the HTML file when there is a web transcript.
@@ -1596,7 +1700,7 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 		return;
 
 	await deleteTicketChannel(
-		interaction.channel as BaseGuildTextChannel,
+		interaction.channel as TicketChannel,
 		ticket.key,
 		ticket.data.author,
 		interactionUser(interaction),
@@ -1619,47 +1723,70 @@ async function TicketAddMember_2(
 		return;
 	}
 
-	const membersArray: string[] = [];
-	const listmembersArray: string[] = [];
+	const channel = interaction.channel as TicketChannel;
+	const membersArray = [...interaction.members.keys()];
 
-	interaction.members.each(async (i) => {
-		membersArray.push(i.user?.id as string);
-	});
+	// Members let in by hand: member overwrites of a channel; members of a thread
+	// except the bot and the staff (who are in it by their roles, not by this menu).
+	const staffRoles = channel.isThread()
+		? ((owner_ticket as DatabaseStructure.TicketChannelData).staffRoles ??
+			[])
+		: [];
+	let listmembersArray: string[];
+	if (channel.isThread()) {
+		const threadMembers = await channel.members.fetch().catch(() => null);
+		listmembersArray = [...(threadMembers?.keys() ?? [])].filter(
+			(id) =>
+				id !== interaction.client.user.id &&
+				!isThreadStaff(channel, id, staffRoles)
+		);
+	} else {
+		listmembersArray = channel.permissionOverwrites.cache
+			.filter((i) => i.type === OverwriteType.Member)
+			.map((i) => i.id);
+	}
 
-	(interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
-		.filter((i) => i.type === 1)
-		.each((i) => {
-			listmembersArray.push(i.id);
-		});
+	// Staff are already in a thread ticket: picking one adds nothing.
+	const toAdd = membersArray.filter(
+		(id) =>
+			!listmembersArray.includes(id) &&
+			owner_ticket.author !== id &&
+			!(channel.isThread() && isThreadStaff(channel, id, staffRoles))
+	);
+	const toRemove = listmembersArray.filter(
+		(id) => !membersArray.includes(id) && owner_ticket.author !== id
+	);
 
-	const addedMembers: string[] = [];
+	// Only what really changed is announced and logged.
 	const removedMembers: string[] = [];
-
-	listmembersArray.forEach(async (overwriteId) => {
-		if (
-			!membersArray.includes(overwriteId) &&
-			owner_ticket.author !== overwriteId
-		) {
-			removedMembers.push(overwriteId);
-			await (
-				interaction.channel as BaseGuildTextChannel
-			).permissionOverwrites.delete(overwriteId);
-		}
-	});
-
-	membersArray.forEach(async (memberId) => {
-		if (!listmembersArray.includes(memberId)) {
-			(
-				interaction.channel as BaseGuildTextChannel
-			).permissionOverwrites.edit(memberId, {
-				ViewChannel: true,
-				SendMessages: true,
-				ReadMessageHistory: true,
-				AttachFiles: true
-			});
-			addedMembers.push(memberId);
-		}
-	});
+	const addedMembers: string[] = [];
+	for (const id of toRemove) {
+		const ok = await (
+			channel.isThread()
+				? removeThreadMember(channel, id)
+				: channel.permissionOverwrites.delete(id)
+		).then(
+			() => true,
+			(err: unknown) => (logger.warn(err), false)
+		);
+		if (ok) removedMembers.push(id);
+	}
+	for (const id of toAdd) {
+		const ok = await (
+			channel.isThread()
+				? addThreadMember(channel, id)
+				: channel.permissionOverwrites.edit(id, {
+						ViewChannel: true,
+						SendMessages: true,
+						ReadMessageHistory: true,
+						AttachFiles: true
+					})
+		).then(
+			() => true,
+			(err: unknown) => (logger.warn(err), false)
+		);
+		if (ok) addedMembers.push(id);
+	}
 
 	if (addedMembers.length > 0) {
 		interaction.client.func.method.channelSend(interaction, {
@@ -1726,7 +1853,7 @@ async function TicketSearch(
  * messages could not be read.
  */
 async function remindTicketOwner(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string,
 	lang: LanguageData
 ): Promise<{ owner: GuildMember | null; sent: boolean } | null> {
@@ -1801,7 +1928,7 @@ async function TicketRemind(
 	}
 
 	const result = await remindTicketOwner(
-		interaction.channel as BaseGuildTextChannel,
+		interaction.channel as TicketChannel,
 		owner_ticket.author,
 		lang
 	);
@@ -1822,7 +1949,7 @@ async function TicketRemind(
 
 /** /ticket rename and the dashboard. False if Discord refuses. */
 async function renameTicketChannel(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	name: string
 ): Promise<boolean> {
 	return channel.setName(name).then(

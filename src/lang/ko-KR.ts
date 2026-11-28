@@ -345,6 +345,58 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"옵션 메뉴, 옵션별 설정과 양식을 제공해요.",
 	ticket_panel_panel_18_label: "모드 전환 (간단 / 고급)",
+	ticket_panel_panel_19_label: "티켓 종류 (채널 / 스레드)",
+	ticket_panel_panel_20_label: "스레드 채널",
+	ticket_panel_panel_21_label: "옵션의 스레드 채널",
+	ticket_panel_ticket_type: "🧵 티켓 종류:",
+	ticket_panel_ticket_type_channel: "티켓마다 채널",
+	ticket_panel_ticket_type_thread: "티켓마다 비공개 스레드",
+	ticket_panel_thread_channel: "🧵 스레드 채널",
+	ticket_panel_thread_channel_default: "패널이 있는 채널",
+	ticket_panel_thread_channel_placeholder:
+		"티켓 스레드가 열릴 채널을 골라 주세요",
+	ticket_panel_section_where: "📍 티켓이 열리는 곳",
+	ticket_panel_section_who: "👥 각 티켓을 볼 수 있는 사람",
+	ticket_panel_section_notify: "🔔 티켓이 열릴 때",
+	ticket_panel_section_inside: "🧩 티켓 안",
+	ticket_panel_who_author: "티켓을 연 멤버",
+	ticket_panel_who_channel_category:
+		"카테고리 ${category}를 볼 수 있는 사람: 티켓이 그 권한을 그대로 가져와요",
+	ticket_panel_who_channel_nocategory:
+		"관리자만: 카테고리가 없으면 티켓은 연 멤버에게만 열려요",
+	ticket_panel_who_thread_added:
+		"**스레드에 추가 (스태프):** ${roles} · ${count}명",
+	ticket_panel_who_thread_added_later:
+		"**스레드에 추가 (스태프):** ${roles}, 그리고 패널 채널에서 스레드를 관리하는 역할 (보낼 때 확인)",
+	ticket_panel_who_thread_managers:
+		"**열어 볼 수도 있는 사람:** ${channel}에서 '스레드 관리' 권한이 있는 사람 (관리자 포함)",
+	ticket_panel_ping_note_thread: "열릴 때 멘션되고 스레드에 추가돼요.",
+	ticket_panel_ping_note_channel:
+		"멘션만 돼요: 카테고리를 볼 수 있으면 티켓도 볼 수 있어요.",
+	ticket_thread_hub_title: "🎫 티켓",
+	ticket_thread_hub_desc:
+		"이 채널의 티켓은 비공개 스레드예요: 멤버와 스태프만 볼 수 있어요. 눌러서 내 티켓을 확인하세요.",
+	ticket_thread_hub_button: "티켓 보기",
+	ticket_thread_summary_title: "${channel}의 티켓 · ${count}",
+	ticket_thread_summary_empty: "여기서 볼 수 있는 티켓이 없어요.",
+	ticket_thread_summary_open: "🟢 열림",
+	ticket_thread_summary_closed: "🔒 닫힘",
+	ticket_thread_summary_line:
+		"-# ${author} · 💬 메시지 ${messages}개 · 마지막 메시지 ${last}",
+	ticket_thread_summary_more: "외 ${count}개…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ 스레드에 추가될 스태프가 없어요: ${channel}에서 스태프 역할에 '스레드 관리' 권한을 주거나, 핑할 역할에 멤버를 넣어 주세요.",
+	ticket_panel_thread_no_managers:
+		"⚠️ ${channel}에서 스레드를 관리할 수 있는 사람이 없어요 ('스레드 관리' 역할도 관리자도 없음): 모든 티켓 스레드는 서버 소유자만 볼 수 있어요.",
+	ticket_panel_option_change_thread_channel:
+		"스레드 채널을 바꿀 옵션을 골라 주세요",
+	ticket_thread_parent_missing:
+		"이 패널의 티켓 스레드 채널이 더 이상 없거나 텍스트 채널이 아니에요. 관리자에게 `/ticket panel`에서 바꿔 달라고 하세요.",
+	ticket_thread_bot_missing_perms:
+		"${channel}에서 티켓 스레드를 열 수 없어요: ${permissions} 권한이 없어요.",
+	ticket_open_failed:
+		"티켓을 열지 못했어요. 잠시 후 다시 시도하거나 스태프에게 알려 주세요.",
 	ticket_panel_simple_default_title: "지원",
 	ticket_panel_simple_default_desc:
 		"도움이 필요하신가요? 아래 버튼을 눌러 티켓을 열어 주세요.",
@@ -1817,6 +1869,8 @@ export default {
 	setlogschannel_var_channel: "채널 로그",
 	setlogschannel_var_confession: "고백 로그",
 	setlogschannel_var_economy: "경제 로그",
+	logs_forum_post_intro:
+		"이 게시물에 서버의 **${logType}**가 올라와요. iHorizon이 새 로그를 여기에 남겨요.",
 
 	setlogschannel_all_already_exist: "모든 로그 채널이 이미 설정되어 있어요!",
 	setlogschannel_bot_missing_channel_permissions:

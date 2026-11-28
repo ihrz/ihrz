@@ -107,6 +107,7 @@ describe("economy log channel", () => {
 		const client = fakeClient(logs);
 		const channel = {
 			guild: { id: "9", client },
+			isTextBased: () => true,
 			send: async (p: SentPayload) => sent.push(p)
 		};
 		return {

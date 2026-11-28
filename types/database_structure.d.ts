@@ -142,6 +142,10 @@ export namespace DatabaseStructure {
 		channel: string;
 		author: string;
 		alive: boolean;
+		/** Opened from a thread panel: `channel` is a private thread (absent: a text channel). */
+		type?: "channel" | "thread";
+		/** Thread ticket: its staff roles (kept in the thread whatever the author's member menu says). */
+		staffRoles?: string[];
 	}
 
 	export interface ProtectionRuleData {
@@ -845,6 +849,10 @@ export namespace DatabaseStructure {
 		MCOUNT?: MemberCountSchema;
 		PUNISH?: PunishSchema;
 		SERVER_LOGS?: ServerLogs;
+		/** A forum used as a log channel: its post per log type (`{forumId: {type: threadId}}`), written by the bot (functions/logChannel.ts). */
+		LOG_POSTS?: Record<string, Record<string, string>>;
+		/** Thread tickets: threads' channel id → id of its summary button message (bot only). */
+		TICKET_THREAD_HUB?: Record<string, string>;
 		SUPPORT?: SupportSchema;
 		XP_LEVELING?: DbGuildXpLeveling;
 		AUTOREACT?: DbGuildAutoReact;

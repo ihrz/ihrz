@@ -331,6 +331,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Меню з варіантами, налаштуваннями для кожного варіанта та формами.",
 	ticket_panel_panel_18_label: "Змінити режим (простий / розширений)",
+	ticket_panel_panel_19_label: "Тип тікета (канал / гілка)",
+	ticket_panel_panel_20_label: "Канал гілок",
+	ticket_panel_panel_21_label: "Канал гілок для варіанту",
+	ticket_panel_ticket_type: "🧵 Тип тікета:",
+	ticket_panel_ticket_type_channel: "канал на тікет",
+	ticket_panel_ticket_type_thread: "приватна гілка на тікет",
+	ticket_panel_thread_channel: "🧵 Канал гілок",
+	ticket_panel_thread_channel_default: "Канал панелі",
+	ticket_panel_thread_channel_placeholder:
+		"Виберіть канал, де відкриваються гілки тікетів",
+	ticket_panel_section_where: "📍 Де відкриваються тікети",
+	ticket_panel_section_who: "👥 Хто бачить кожен тікет",
+	ticket_panel_section_notify: "🔔 Під час відкриття",
+	ticket_panel_section_inside: "🧩 Усередині тікета",
+	ticket_panel_who_author: "Учасник, який його відкриває",
+	ticket_panel_who_channel_category:
+		"Усі, хто бачить категорію ${category}: тікет копіює її права",
+	ticket_panel_who_channel_nocategory:
+		"Лише адміністратори: без категорії тікет відкритий тільки учаснику",
+	ticket_panel_who_thread_added:
+		"**Додано до гілки (персонал):** ${roles} · учасників: ${count}",
+	ticket_panel_who_thread_added_later:
+		"**Додано до гілки (персонал):** ${roles} і ролі, що керують гілками в каналі панелі (перевіряється під час надсилання)",
+	ticket_panel_who_thread_managers:
+		"**Також можуть відкрити:** ті, хто має «Керувати гілками» в ${channel}, разом з адміністраторами",
+	ticket_panel_ping_note_thread:
+		"Згадуються під час відкриття й додаються до гілки.",
+	ticket_panel_ping_note_channel:
+		"Лише згадуються: бачать тікет, якщо бачать категорію.",
+	ticket_thread_hub_title: "🎫 Тікети",
+	ticket_thread_hub_desc:
+		"Тікети цього каналу — приватні гілки: їх бачать лише учасники та персонал. Натисніть, щоб побачити свої.",
+	ticket_thread_hub_button: "Показати тікети",
+	ticket_thread_summary_title: "Тікети в ${channel} · ${count}",
+	ticket_thread_summary_empty: "Тут немає тікетів, які ви можете бачити.",
+	ticket_thread_summary_open: "🟢 відкритий",
+	ticket_thread_summary_closed: "🔒 закритий",
+	ticket_thread_summary_line:
+		"-# від ${author} · 💬 повідомлень: ${messages} · останнє повідомлення ${last}",
+	ticket_thread_summary_more: "і ще ${count}…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Нікого з персоналу не буде додано до гілок: дайте ролі персоналу право «Керувати гілками» в ${channel} або додайте учасників до ролей для згадки.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Ніхто не може керувати гілками в ${channel} (немає ролей із «Керувати гілками» й адміністраторів): усі гілки тікетів побачить лише власник сервера.",
+	ticket_panel_option_change_thread_channel:
+		"Виберіть варіант, щоб змінити канал його гілок",
+	ticket_thread_parent_missing:
+		"Канал гілок тікетів цієї панелі більше не існує або не є текстовим: попросіть адміністратора змінити його в `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Я не можу відкривати гілки тікетів у ${channel}: мені там бракує ${permissions}.",
+	ticket_open_failed:
+		"Не вдалося відкрити ваш тікет. Спробуйте трохи згодом або повідомте персонал.",
 	ticket_panel_simple_default_title: "Підтримка",
 	ticket_panel_simple_default_desc:
 		"Потрібна допомога? Натисніть кнопку нижче, щоб відкрити тікет.",
@@ -1520,6 +1573,8 @@ export default {
 	setlogschannel_var_channel: "Логи каналів",
 	setlogschannel_var_confession: "Логи зізнань",
 	setlogschannel_var_economy: "Логи економіки",
+	logs_forum_post_intro:
+		"У цей пост надходять **${logType}** сервера. iHorizon пише сюди кожен новий лог.",
 	setlogschannel_all_already_exist: "Усі канали логів уже налаштовано!",
 	setlogschannel_bot_missing_channel_permissions:
 		"${emoji_No} | Я не можу надсилати логи в ${channel}, мені бракує там таких дозволів: ${permissions}.",

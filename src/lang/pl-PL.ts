@@ -323,6 +323,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Menu z opcjami, ustawieniami dla każdej opcji i formularzami.",
 	ticket_panel_panel_18_label: "Przełącz tryb (prosty / zaawansowany)",
+	ticket_panel_panel_19_label: "Typ ticketu (kanał / wątek)",
+	ticket_panel_panel_20_label: "Kanał wątków",
+	ticket_panel_panel_21_label: "Kanał wątków dla opcji",
+	ticket_panel_ticket_type: "🧵 Typ ticketu:",
+	ticket_panel_ticket_type_channel: "kanał na ticket",
+	ticket_panel_ticket_type_thread: "prywatny wątek na ticket",
+	ticket_panel_thread_channel: "🧵 Kanał wątków",
+	ticket_panel_thread_channel_default: "Kanał panelu",
+	ticket_panel_thread_channel_placeholder:
+		"Wybierz kanał, w którym otwierają się wątki ticketów",
+	ticket_panel_section_where: "📍 Gdzie otwierają się tickety",
+	ticket_panel_section_who: "👥 Kto widzi każdy ticket",
+	ticket_panel_section_notify: "🔔 Przy otwarciu",
+	ticket_panel_section_inside: "🧩 W tickecie",
+	ticket_panel_who_author: "Członek, który go otwiera",
+	ticket_panel_who_channel_category:
+		"Wszyscy, którzy widzą kategorię ${category}: ticket kopiuje jej uprawnienia",
+	ticket_panel_who_channel_nocategory:
+		"Tylko administratorzy: bez kategorii ticket jest otwarty tylko dla członka",
+	ticket_panel_who_thread_added:
+		"**Dodani do wątku (obsługa):** ${roles} · członków: ${count}",
+	ticket_panel_who_thread_added_later:
+		"**Dodani do wątku (obsługa):** ${roles} oraz role zarządzające wątkami na kanale panelu (sprawdzane przy wysyłce)",
+	ticket_panel_who_thread_managers:
+		"**Mogą też go otworzyć:** osoby z „Zarządzanie wątkami” na ${channel}, łącznie z administratorami",
+	ticket_panel_ping_note_thread:
+		"Oznaczani przy otwarciu i dodawani do wątku.",
+	ticket_panel_ping_note_channel:
+		"Tylko oznaczani: widzą ticket, jeśli widzą kategorię.",
+	ticket_thread_hub_title: "🎫 Tickety",
+	ticket_thread_hub_desc:
+		"Tickety tego kanału to prywatne wątki: widzą je tylko ich członkowie i obsługa. Kliknij, aby zobaczyć swoje.",
+	ticket_thread_hub_button: "Zobacz tickety",
+	ticket_thread_summary_title: "Tickety na ${channel} · ${count}",
+	ticket_thread_summary_empty: "Nie ma tu ticketów, które możesz zobaczyć.",
+	ticket_thread_summary_open: "🟢 otwarty",
+	ticket_thread_summary_closed: "🔒 zamknięty",
+	ticket_thread_summary_line:
+		"-# od ${author} · 💬 wiadomości: ${messages} · ostatnia wiadomość ${last}",
+	ticket_thread_summary_more: "i jeszcze ${count}…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Nikt z obsługi nie zostanie dodany do wątków: daj roli obsługi „Zarządzanie wątkami” na ${channel} albo dodaj członków do ról do oznaczenia.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Nikt nie może zarządzać wątkami na ${channel} (żadnej roli z „Zarządzanie wątkami” ani administratora): wszystkie wątki ticketów zobaczy tylko właściciel serwera.",
+	ticket_panel_option_change_thread_channel:
+		"Wybierz opcję, aby zmienić kanał jej wątków",
+	ticket_thread_parent_missing:
+		"Kanał wątków ticketów tego panelu już nie istnieje albo nie jest kanałem tekstowym: poproś administratora o zmianę w `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Nie mogę otwierać wątków ticketów na ${channel}: brakuje mi tam ${permissions}.",
+	ticket_open_failed:
+		"Nie udało się otworzyć ticketu. Spróbuj za chwilę albo daj znać obsłudze.",
 	ticket_panel_simple_default_title: "Wsparcie",
 	ticket_panel_simple_default_desc:
 		"Potrzebujesz pomocy? Kliknij przycisk poniżej, aby otworzyć ticket.",
@@ -1512,6 +1565,8 @@ export default {
 	setlogschannel_var_channel: "Logi kanałów",
 	setlogschannel_var_confession: "Logi wyznań",
 	setlogschannel_var_economy: "Logi ekonomii",
+	logs_forum_post_intro:
+		"Ten post otrzymuje **${logType}** serwera. iHorizon zapisuje tu każdy nowy log.",
 	setlogschannel_all_already_exist:
 		"Wszystkie kanały logów są już skonfigurowane!",
 	setlogschannel_bot_missing_channel_permissions:

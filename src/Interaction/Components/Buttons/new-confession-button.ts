@@ -342,20 +342,28 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			return;
 		}
 
-		await sendLogCard(channel, {
-			kind: "info",
-			emoji: interaction.client.iHorizon_Emojis.Pages,
-			title: `${lang.confession_embed_logs_title}: ${code}`,
-			description: name,
-			rows: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setStyle(ButtonStyle.Secondary)
-						.setLabel(lang.userinfo_button_label)
-						.setCustomId(`confessionauthor%${interaction.user.id}`)
-				)
-			]
-		});
+		await sendLogCard(
+			await client.func.logChannel.getLogChannel(
+				interaction.guild,
+				"confession"
+			),
+			{
+				kind: "info",
+				emoji: interaction.client.iHorizon_Emojis.Pages,
+				title: `${lang.confession_embed_logs_title}: ${code}`,
+				description: name,
+				rows: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Secondary)
+							.setLabel(lang.userinfo_button_label)
+							.setCustomId(
+								`confessionauthor%${interaction.user.id}`
+							)
+					)
+				]
+			}
+		);
 	}
 
 	return;

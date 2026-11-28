@@ -19,7 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Guild, GuildBasedChannel } from "discord.js";
+import { getLogChannel } from "./logChannel.js";
+import { BaseGuildTextChannel, Guild, GuildTextBasedChannel } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
 import {
 	ACCENT,
@@ -32,16 +33,8 @@ type LogEmoji = "Plus" | "Minus" | "Boost_Gem" | "Gear" | "Wallet" | "Coin";
 
 async function getEconomyChannel(
 	guild: Guild
-): Promise<GuildBasedChannel | null> {
-	const channelId = await guild.client.db.get(
-		`${guild.id}.GUILD.SERVER_LOGS.economy`
-	);
-	if (!channelId) return null;
-
-	return (
-		guild.channels.cache.get(channelId) ||
-		(await guild.channels.fetch(channelId).catch(() => null))
-	);
+): Promise<GuildTextBasedChannel | null> {
+	return getLogChannel(guild, "economy");
 }
 
 /** The economy log card: never pings the members it names. */

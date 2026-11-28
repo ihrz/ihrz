@@ -358,6 +358,59 @@ const enUS = {
 	ticket_panel_mode_advanced_desc:
 		"A menu with options, per-option settings and forms.",
 	ticket_panel_panel_18_label: "Switch mode (simple / advanced)",
+	ticket_panel_panel_19_label: "Ticket type (channel / thread)",
+	ticket_panel_panel_20_label: "Threads' channel",
+	ticket_panel_panel_21_label: "Threads' channel for an option",
+	ticket_panel_ticket_type: "🧵 Ticket type:",
+	ticket_panel_ticket_type_channel: "a channel per ticket",
+	ticket_panel_ticket_type_thread: "a private thread per ticket",
+	ticket_panel_thread_channel: "🧵 Threads' channel",
+	ticket_panel_thread_channel_default: "The panel's channel",
+	ticket_panel_thread_channel_placeholder:
+		"Choose the channel the ticket threads open in",
+	ticket_panel_section_where: "📍 Where tickets open",
+	ticket_panel_section_who: "👥 Who sees each ticket",
+	ticket_panel_section_notify: "🔔 When a ticket opens",
+	ticket_panel_section_inside: "🧩 Inside the ticket",
+	ticket_panel_who_author: "The member who opens it",
+	ticket_panel_who_channel_category:
+		"Whoever can see the category ${category}: the ticket copies its permissions",
+	ticket_panel_who_channel_nocategory:
+		"Administrators only: without a category, the ticket is open to the member alone",
+	ticket_panel_who_thread_added:
+		"**Added to the thread (staff):** ${roles} · ${count} members",
+	ticket_panel_who_thread_added_later:
+		"**Added to the thread (staff):** ${roles}, and the roles that manage threads in the panel's channel (checked when the panel is sent)",
+	ticket_panel_who_thread_managers:
+		"**Can also open it:** whoever has Manage Threads on ${channel}, administrators included",
+	ticket_panel_ping_note_thread:
+		"Mentioned when a ticket opens, and added to the thread.",
+	ticket_panel_ping_note_channel:
+		"Mentioned only: they see the ticket if they can see the category.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"The tickets of this channel are private threads: only their members and the staff can see them. Click to see yours.",
+	ticket_thread_hub_button: "See the tickets",
+	ticket_thread_summary_title: "Tickets in ${channel} · ${count}",
+	ticket_thread_summary_empty: "No ticket you can see here.",
+	ticket_thread_summary_open: "🟢 open",
+	ticket_thread_summary_closed: "🔒 closed",
+	ticket_thread_summary_line:
+		"-# by ${author} · 💬 ${messages} messages · last message ${last}",
+	ticket_thread_summary_more: "and ${count} more…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ No staff will be added to the threads: give Manage Threads on ${channel} to a staff role, or put members in the roles to ping.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Nobody can manage threads on ${channel} (no role with Manage Threads there, no administrator): only the server owner will see every ticket thread.",
+	ticket_panel_option_change_thread_channel:
+		"Select an option to change its threads' channel",
+	ticket_thread_parent_missing:
+		"The channel of this panel's ticket threads no longer exists, or is not a text channel: ask an administrator to change it in `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"I can't open ticket threads in ${channel}: I'm missing ${permissions} there.",
+	ticket_open_failed:
+		"Your ticket could not be opened. Try again in a moment, or tell the staff.",
 	ticket_panel_simple_default_title: "Support",
 	ticket_panel_simple_default_desc:
 		"Need help? Click the button below to open a ticket.",
@@ -1864,6 +1917,8 @@ const enUS = {
 	setlogschannel_var_channel: "Channel Logs",
 	setlogschannel_var_confession: "Confession Logs",
 	setlogschannel_var_economy: "Economy Logs",
+	logs_forum_post_intro:
+		"This post receives the server's **${logType}**. iHorizon writes every new log here.",
 
 	setlogschannel_all_already_exist:
 		"All the log channels are already configured!",

@@ -49,6 +49,8 @@ export interface Option {
 	thinking?: boolean;
 	ephemeral?: boolean;
 	permission: bigint | bigint[] | null;
+	/** Also enough when run in a thread where the member has it (thread tickets: Manage Threads). */
+	threadPermission?: bigint;
 	cooldown?: number;
 	/** Runs even while its command's module is off (its config, admin resets): see Command.module. */
 	moduleFree?: boolean;

@@ -129,3 +129,30 @@ test("an aliased permission bit is exported under one name", () => {
 		readablePermissionNames(PermissionFlagsBits.ManageGuildExpressions)
 	).toEqual(["ManageGuildExpressions"]);
 });
+
+describe("threadPermission", () => {
+	// A bigint like permission (thread tickets): never sent to Discord nor exported.
+	const withThread = () => [
+		{
+			name: "close",
+			type: 1,
+			permission: PermissionFlagsBits.ManageChannels,
+			threadPermission: PermissionFlagsBits.ManageThreads
+		}
+	];
+
+	test("is stripped for the Discord sync and the export, both JSON serializable", () => {
+		const synced = removePermissionProperties(withThread()) as Record<
+			string,
+			unknown
+		>[];
+		const exported = withReadablePermissions(withThread()) as Record<
+			string,
+			unknown
+		>[];
+		expect("threadPermission" in synced[0]).toBe(false);
+		expect("threadPermission" in exported[0]).toBe(false);
+		expect(() => JSON.stringify([synced, exported])).not.toThrow();
+		expect(exported[0].permissions).toEqual(["ManageChannels"]);
+	});
+});

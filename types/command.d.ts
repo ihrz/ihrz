@@ -67,6 +67,8 @@ export interface Command {
 	integration_types?: number[];
 	contexts?: number[];
 	permission: bigint | 0 | null | bigint[];
+	/** Also enough when run in a thread where the member has it (thread tickets: Manage Threads). */
+	threadPermission?: bigint;
 	category: string;
 	options?: Option[];
 	thinking: boolean;

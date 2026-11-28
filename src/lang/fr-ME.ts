@@ -381,6 +381,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Un menu avec des options, des réglages par option et des formulaires.",
 	ticket_panel_panel_18_label: "Changer de mode (simple / avancé)",
+	ticket_panel_panel_19_label: "Type de ticket (salon / fil)",
+	ticket_panel_panel_20_label: "Salon des fils",
+	ticket_panel_panel_21_label: "Salon des fils d'une option",
+	ticket_panel_ticket_type: "🧵 Type de ticket :",
+	ticket_panel_ticket_type_channel: "un salon par ticket",
+	ticket_panel_ticket_type_thread: "un fil privé par ticket",
+	ticket_panel_thread_channel: "🧵 Salon des fils",
+	ticket_panel_thread_channel_default: "Le salon du panel",
+	ticket_panel_thread_channel_placeholder:
+		"Choisis le salon où s'ouvrent les fils des tickets",
+	ticket_panel_section_where: "📍 Où s'ouvrent les tickets",
+	ticket_panel_section_who: "👥 Qui voit chaque ticket",
+	ticket_panel_section_notify: "🔔 À l'ouverture",
+	ticket_panel_section_inside: "🧩 Dans le ticket",
+	ticket_panel_who_author: "Le gars qui l'ouvre",
+	ticket_panel_who_channel_category:
+		"Ceux qui voient la catégorie ${category} : le ticket en copie les permissions",
+	ticket_panel_who_channel_nocategory:
+		"Que les admins : sans catégorie, le ticket est ouvert qu'au gars",
+	ticket_panel_who_thread_added:
+		"**Ajoutés au fil (staff) :** ${roles} · ${count} membres",
+	ticket_panel_who_thread_added_later:
+		"**Ajoutés au fil (staff) :** ${roles}, et les rôles qui gèrent les fils du salon du panel (vérifié à l'envoi)",
+	ticket_panel_who_thread_managers:
+		"**Peuvent aussi l'ouvrir :** ceux qui ont « Gérer les fils » sur ${channel}, admins compris",
+	ticket_panel_ping_note_thread:
+		"Mentionnés à l'ouverture, et ajoutés au fil.",
+	ticket_panel_ping_note_channel:
+		"Juste mentionnés : ils voient le ticket s'ils voient la catégorie.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"Les tickets de ce salon c'est des fils privés : y'a que leurs membres et le staff qui les voient. Clique pour voir les tiens.",
+	ticket_thread_hub_button: "Voir les tickets",
+	ticket_thread_summary_title: "Tickets de ${channel} · ${count}",
+	ticket_thread_summary_empty: "Aucun ticket que tu peux voir ici.",
+	ticket_thread_summary_open: "🟢 ouvert",
+	ticket_thread_summary_closed: "🔒 fermé",
+	ticket_thread_summary_line:
+		"-# par ${author} · 💬 ${messages} messages · dernier message ${last}",
+	ticket_thread_summary_more: "et ${count} de plus…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Personne du staff sera ajouté aux fils : donne « Gérer les fils » sur ${channel} à un rôle staff, ou mets des gars dans les rôles à pinger.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Personne peut gérer les fils sur ${channel} (aucun rôle avec « Gérer les fils » ni admin) : y'aura que le proprio du serveur pour voir tous les fils de tickets.",
+	ticket_panel_option_change_thread_channel:
+		"Choisis une option pour changer le salon de ses fils",
+	ticket_thread_parent_missing:
+		"Le salon des fils de tickets de ce panel existe plus, ou c'est pas un salon texte : demande à un admin de le changer dans `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"J'peux pas ouvrir de fils de tickets dans ${channel} : il me manque ${permissions}.",
+	ticket_open_failed:
+		"Ton ticket a pas pu s'ouvrir. Réessaie dans un moment, ou préviens le staff.",
 	ticket_panel_simple_default_title: "Support",
 	ticket_panel_simple_default_desc:
 		"Besoin d'aide ? Clique sur le bouton ci-dessous pour ouvrir un ticket.",
@@ -1965,6 +2018,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Je ne peux pas créer les salons de logs, il me manque ces permissions : ${permissions}.",
 	setlogschannel_var_economy: "Logs d’économie",
+	logs_forum_post_intro:
+		"Ce post chope les **${logType}** du serv. iHorizon balance chaque nouveau log ici, frérot.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set:

@@ -21,15 +21,13 @@
 
 import { isModuleDisabled } from "../../functions/moduleToggle.js";
 import {
-	BaseGuildTextChannel,
-	ChannelType,
+	AnyThreadChannel,
 	Guild,
 	GuildMember,
 	Message,
 	OverwriteType,
 	PermissionFlagsBits,
-	PermissionOverwrites,
-	TextChannel
+	PermissionOverwrites
 } from "discord.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import {
@@ -44,6 +42,12 @@ import {
 	renameTicketChannel,
 	reopenTicketChannel
 } from "../ticketsManager.js";
+import {
+	TicketChannel,
+	canSeeThread,
+	fetchTicketChannel,
+	isThreadStaff
+} from "../ticketThreads.js";
 import { ActionContext, ActionGroup, fail } from "./types.js";
 
 export interface TicketMember {
@@ -57,6 +61,8 @@ export interface TicketSummary {
 	name: string;
 	createdAt: number;
 	author: TicketMember;
+	// A thread ticket: its channel (categoryId/categoryName = the thread's text channel).
+	thread: boolean;
 	categoryId: string | null;
 	categoryName: string | null;
 	// The author was locked out by /ticket close (no "closed" state is stored).
@@ -139,8 +145,38 @@ export function ticketAccess(
 	return { closed, members };
 }
 
-export function canSee(member: GuildMember, channelId: string): boolean {
-	return member.permissionsIn(channelId).has(PermissionFlagsBits.ViewChannel);
+// A private thread is seen by its members and whoever manages threads there,
+// not by everyone who sees its channel.
+export async function canSee(
+	member: GuildMember,
+	channel: TicketChannel
+): Promise<boolean> {
+	if (!channel.isThread()) {
+		return member
+			.permissionsIn(channel.id)
+			.has(PermissionFlagsBits.ViewChannel);
+	}
+	return canSeeThread(member, channel);
+}
+
+// A thread ticket: closed = locked by /ticket close; members = in the thread
+// by hand (not the author, the bot or the staff).
+export async function threadAccess(
+	thread: AnyThreadChannel,
+	authorId: string,
+	botId: string,
+	staffRoles: readonly string[]
+): Promise<{ closed: boolean; members: string[] }> {
+	const members = await thread.members.fetch().catch(() => null);
+	return {
+		closed: thread.locked === true,
+		members: [...(members?.keys() ?? [])].filter(
+			(id) =>
+				id !== authorId &&
+				id !== botId &&
+				!isThreadStaff(thread, id, staffRoles)
+		)
+	};
 }
 
 async function refuseIfDisabled({ client, guild }: ActionContext) {
@@ -151,23 +187,30 @@ async function refuseIfDisabled({ client, guild }: ActionContext) {
 
 // A ticket the actor can see, as every /ticket subcommand runs inside it.
 async function resolveTicket(ctx: ActionContext): Promise<{
-	channel: TextChannel;
+	channel: TicketChannel;
 	key: string;
 	ticket: DatabaseStructure.TicketChannelData;
 }> {
 	await refuseIfDisabled(ctx);
 	const channelId = ctx.params.id("channelId");
-	const channel = ctx.guild.channels.cache.get(channelId);
-	const found =
-		channel?.type === ChannelType.GuildText
-			? await findTicketByChannel(ctx.client, ctx.guild.id, channelId)
-			: null;
+	const found = await findTicketByChannel(
+		ctx.client,
+		ctx.guild.id,
+		channelId
+	);
+	const channel = found
+		? await fetchTicketChannel(
+				ctx.guild,
+				channelId,
+				found.data.type === "thread"
+			)
+		: null;
 	if (!channel || !found) return fail("ticket not found");
-	if (!canSee(ctx.actor, channelId)) {
+	if (!(await canSee(ctx.actor, channel))) {
 		return fail("forbidden: you cannot see this ticket");
 	}
 	return {
-		channel: channel as TextChannel,
+		channel,
 		key: found.key,
 		ticket: found.data
 	};
@@ -177,7 +220,7 @@ async function resolveTicket(ctx: ActionContext): Promise<{
 // whoever can manage the ticket channel.
 function requireTicketStaff(
 	ctx: ActionContext,
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string
 ) {
 	if (!canManageTicket(ctx.actor, channel.id, authorId)) {
@@ -269,14 +312,9 @@ export const ticketsActions: ActionGroup = {
 			const before = params.optId("before");
 			const disabled = await isModuleDisabled(client, guild.id, "ticket");
 
-			const visible = (await listTicketEntries(client, guild.id))
-				.filter(({ data }) => {
-					const channel = guild.channels.cache.get(data.channel);
-					return (
-						channel?.type === ChannelType.GuildText &&
-						canSee(actor, channel.id)
-					);
-				})
+			// Newest first, resolved one at a time and only until the page is full
+			// (+1 for the cursor): a thread ticket can cost a request or two.
+			const candidates = (await listTicketEntries(client, guild.id))
 				.filter(
 					({ data }) =>
 						!before ||
@@ -285,30 +323,56 @@ export const ticketsActions: ActionGroup = {
 				.sort((a, b) =>
 					compareSnowflakeDesc(a.data.channel, b.data.channel)
 				);
+			const visible: ((typeof candidates)[number] & {
+				channel: TicketChannel;
+			})[] = [];
+			for (const entry of candidates) {
+				if (visible.length > limit) break;
+				const channel = await fetchTicketChannel(
+					guild,
+					entry.data.channel,
+					entry.data.type === "thread",
+					// Deleted while out of the cache (no threadDelete then): forgotten here.
+					() =>
+						client.db.delete(
+							`${guild.id}.TICKET_ALL.${entry.key}.${entry.data.channel}`
+						)
+				);
+				if (channel && (await canSee(actor, channel))) {
+					visible.push({ ...entry, channel });
+				}
+			}
 
 			const page = visible.slice(0, limit);
-			const tickets: TicketSummary[] = page.map(({ data }) => {
-				const channel = guild.channels.cache.get(
-					data.channel
-				) as TextChannel;
-				const access = ticketAccess(
-					channel.permissionOverwrites.cache.values(),
-					data.author,
-					client.user!.id
-				);
-				return {
-					channelId: channel.id,
-					name: channel.name,
-					createdAt: channel.createdTimestamp,
-					author: memberSummary(guild, data.author),
-					categoryId: channel.parentId,
-					categoryName: channel.parent?.name ?? null,
-					closed: access.closed,
-					members: access.members.map((id) =>
-						memberSummary(guild, id)
-					)
-				};
-			});
+			const tickets: TicketSummary[] = await Promise.all(
+				page.map(async ({ data, channel }) => {
+					const access = channel.isThread()
+						? await threadAccess(
+								channel,
+								data.author,
+								client.user!.id,
+								data.staffRoles ?? []
+							)
+						: ticketAccess(
+								channel.permissionOverwrites.cache.values(),
+								data.author,
+								client.user!.id
+							);
+					return {
+						channelId: channel.id,
+						name: channel.name,
+						createdAt: channel.createdTimestamp ?? 0,
+						author: memberSummary(guild, data.author),
+						thread: channel.isThread(),
+						categoryId: channel.parentId,
+						categoryName: channel.parent?.name ?? null,
+						closed: access.closed,
+						members: access.members.map((id) =>
+							memberSummary(guild, id)
+						)
+					};
+				})
+			);
 
 			return {
 				disabled,
@@ -331,9 +395,9 @@ export const ticketsActions: ActionGroup = {
 			requireTicketStaff(ctx, channel, ticket.author);
 			// The history is what Discord would let the actor scroll through.
 			if (
-				!ctx.actor
-					.permissionsIn(channel)
-					.has(PermissionFlagsBits.ReadMessageHistory)
+				!channel
+					.permissionsFor(ctx.actor)
+					?.has(PermissionFlagsBits.ReadMessageHistory)
 			) {
 				fail("forbidden: you cannot read this ticket's history");
 			}

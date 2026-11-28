@@ -13456,7 +13456,8 @@
                 "name": "channel",
                 "type": 7,
                 "channel_types": [
-                    0
+                    0,
+                    15
                 ],
                 "description": "The channel you want your logs message!",
                 "description_localizations": {
@@ -16622,7 +16623,8 @@
                         "name": "channel",
                         "type": 7,
                         "channel_types": [
-                            0
+                            0,
+                            15
                         ],
                         "description": "Where you want the logs",
                         "description_localizations": {

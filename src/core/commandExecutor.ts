@@ -229,6 +229,16 @@ async function checkNativePermission(
 
 	const member = await getMember(ctx.source);
 	if (member?.permissions.has(target.permission)) return true;
+	// In a thread, its own permission can stand in (a thread ticket's staff manage
+	// threads there); the command still checks that the thread is one of its tickets.
+	const channel = ctx.source.channel;
+	if (
+		target.threadPermission &&
+		member &&
+		channel?.isThread() &&
+		channel.permissionsFor(member)?.has(target.threadPermission)
+	)
+		return true;
 
 	const permName =
 		formatPermissionName(ctx.lang, target.permission) ||

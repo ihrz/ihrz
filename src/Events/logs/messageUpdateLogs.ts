@@ -79,13 +79,12 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const someinfo = await client.db.get(
-			`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`
+		if (oldMessage.content === newMessage.content) return;
+
+		const Msgchannel = await client.func.logChannel.getLogChannel(
+			oldMessage.guild,
+			"message"
 		);
-
-		if (!someinfo || oldMessage.content === newMessage.content) return;
-
-		const Msgchannel = oldMessage.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
 		if (
