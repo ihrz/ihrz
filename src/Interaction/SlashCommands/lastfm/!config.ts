@@ -23,6 +23,8 @@ import { ChatInputCommandInteraction, Client } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
+import { lastfmStatusCard } from "../../../core/modules/lastfmCards.js";
+import { cardPayload } from "../../../core/modules/uiCard.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -56,23 +58,18 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		await client.func.method.interactionSend(interaction, {
-			content: enabled
-				? lang.lastfm_config_enabled.replaceAll(
-						"${emoji_Yes}",
-						client.iHorizon_Emojis.Yes
-					)
-				: lang.lastfm_config_disabled.replaceAll(
-						"${emoji_Yes}",
-						client.iHorizon_Emojis.Yes
-					),
-			embeds: [
-				await client.lastFMScrobbler.generateUserEmbed(
-					interaction.user.id,
-					interaction.user.username,
-					lang
+		await client.func.method.interactionSend(
+			interaction,
+			cardPayload(
+				await lastfmStatusCard(
+					interaction.user,
+					interaction.guildId,
+					lang,
+					enabled
+						? lang.lastfm_config_enabled
+						: lang.lastfm_config_disabled
 				)
-			]
-		});
+			) as never
+		);
 	}
 };

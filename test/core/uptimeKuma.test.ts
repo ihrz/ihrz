@@ -22,6 +22,7 @@
 import { expect, test } from "bun:test";
 
 import {
+	audioNodeName,
 	BEATS_SHOWN,
 	buildGroups,
 	parseKumaUrl,
@@ -88,11 +89,32 @@ test("buildGroups filters groups and uses the last heartbeat", () => {
 	expect(gateway.beats).toHaveLength(BEATS_SHOWN);
 	expect(gateway.beats[0]).toBeNull();
 	expect(lavalink.ping).toBe(42);
-	expect(lavalink.url).toBeNull();
+	// The node's own address is never shown: the audio node links to Wavyzon's site.
+	expect(lavalink.name).toBe("Wavyzon");
+	expect(lavalink.url).toBe("https://wavyzon.ihorizon.org");
 	expect(lavalink.uptime24h).toBe(0.9);
 });
 
 test("a monitor without heartbeat is pending", () => {
 	const [group] = buildGroups(page, {}, new Map(), []);
 	expect(group.services[0].state).toBe("pending");
+});
+
+test("the audio node monitor is shown as Wavyzon", () => {
+	expect(audioNodeName("Internal iHorizon Lavalink")).toEqual({
+		name: "Wavyzon",
+		isAudioNode: true
+	});
+	expect(audioNodeName("Lavalink EU")).toEqual({
+		name: "Wavyzon EU",
+		isAudioNode: true
+	});
+	expect(audioNodeName("Wavyzon")).toEqual({
+		name: "Wavyzon",
+		isAudioNode: true
+	});
+	expect(audioNodeName("HorizonGateway")).toEqual({
+		name: "HorizonGateway",
+		isAudioNode: false
+	});
 });

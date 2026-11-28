@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChannelType, EmbedBuilder, GuildMember, VoiceState } from "discord.js";
+import { ChannelType, GuildMember, VoiceState } from "discord.js";
 import { Player, PlayerJson, Track, TrackEndReason } from "lavalink-client";
 import { createHash } from "node:crypto";
 
@@ -31,7 +31,7 @@ import logger from "../logger.js";
 import { errorMessage } from "../functions/typeGuards.js";
 
 // Last.fm JSON: only `auth.getSession` is read (`session.name`, `.key`).
-interface LastFMApiResponse<
+export interface LastFMApiResponse<
 	T = { session?: { name?: unknown; key?: unknown } }
 > {
 	ok: boolean;
@@ -75,6 +75,9 @@ interface LastFMLoginResult {
 	username?: string;
 }
 
+/** Public reads (profiles, tops) are kept this long. */
+const READ_CACHE_MS = 2 * 60_000;
+
 export class LastFMScrobblerManager {
 	private readonly apiUrl = "https://ws.audioscrobbler.com/2.0/";
 	private readonly guildSessions = new Map<
@@ -95,6 +98,92 @@ export class LastFMScrobblerManager {
 
 	public isConfigured(): boolean {
 		return Boolean(this.apiKey && this.sharedSecret);
+	}
+
+	private readonly readCache = new Map<
+		string,
+		{ at: number; response: LastFMApiResponse<unknown> }
+	>();
+
+	/**
+	 * A public Last.fm read (user.getInfo, user.getTopArtists…): no session, no
+	 * signature, kept 2 minutes. `errorCode` 17 = the user hides that data.
+	 */
+	public async read<T>(
+		method: string,
+		params: Record<string, string>
+	): Promise<LastFMApiResponse<T>> {
+		if (!this.apiKey) return { ok: false, errorCode: -1 };
+		const query = new URLSearchParams({
+			...params,
+			api_key: this.apiKey,
+			format: "json",
+			method
+		});
+		const key = query.toString();
+		const cached = this.readCache.get(key);
+		if (cached && Date.now() - cached.at < READ_CACHE_MS) {
+			return cached.response as LastFMApiResponse<T>;
+		}
+		let response: LastFMApiResponse<T>;
+		try {
+			const res = await fetch(`${this.apiUrl}?${key}`, {
+				signal: AbortSignal.timeout(8_000)
+			});
+			const payload = (await res.json().catch(() => ({}))) as T & {
+				error?: number;
+				message?: string;
+			};
+			response =
+				!res.ok || payload.error
+					? {
+							ok: false,
+							errorCode: Number(payload.error ?? res.status),
+							message: payload.message
+						}
+					: { ok: true, data: payload };
+		} catch (error) {
+			logger.warn(
+				`[LastFM] ${method} read failed: ${errorMessage(error)}`
+			);
+			return { ok: false, message: errorMessage(error) };
+		}
+		if (response.ok) {
+			if (this.readCache.size > 500) this.readCache.clear();
+			this.readCache.set(key, { at: Date.now(), response });
+		}
+		return response;
+	}
+
+	/** What `userId` is listening to with the bot in `guildId`, for /lastfm status. */
+	public listening(
+		userId: string,
+		guildId: string
+	): {
+		title: string;
+		artist: string;
+		scrobbled: boolean;
+		tooShort: boolean;
+		paused: boolean;
+		scrobbleAt: number | null;
+	} | null {
+		const session = this.guildSessions.get(guildId);
+		const listener = session?.listeners.get(userId);
+		if (!session || !listener) return null;
+		const tooShort = !this.shouldScrobble(session.track);
+		const left =
+			listener.thresholdMs - this.getElapsedListeningMs(listener);
+		return {
+			title: session.track.title,
+			artist: session.track.artist,
+			scrobbled: listener.scrobbled,
+			tooShort,
+			paused: session.paused,
+			scrobbleAt:
+				listener.scrobbled || tooShort || session.paused
+					? null
+					: Date.now() + Math.max(0, left)
+		};
 	}
 
 	public getMissingConfigurationMessage(lang: LanguageData): string {
@@ -195,43 +284,6 @@ export class LastFMScrobblerManager {
 				.replaceAll("${username}", fetchedUsername),
 			username: fetchedUsername
 		};
-	}
-
-	public async generateUserEmbed(
-		userId: string,
-		userLabel: string,
-		lang: LanguageData
-	): Promise<EmbedBuilder> {
-		const settings = await this.getUserSettings(userId);
-		const embed = new EmbedBuilder()
-			.setColor(2829617)
-			.setTitle(
-				lang.lastfm_embed_title.replaceAll("${userLabel}", userLabel)
-			)
-			.addFields(
-				{
-					inline: true,
-					name: lang.lastfm_embed_field_status,
-					value: settings?.enabled
-						? lang.var_enabled
-						: lang.var_disabled
-				},
-				{
-					inline: true,
-					name: lang.lastfm_embed_field_account,
-					value: settings?.username || lang.var_none
-				}
-			);
-
-		if (settings?.connectedAt) {
-			embed.addFields({
-				inline: true,
-				name: lang.lastfm_embed_field_connected_at,
-				value: `<t:${Math.floor(settings.connectedAt / 1000)}:F>`
-			});
-		}
-
-		return embed;
 	}
 
 	public async handleTrackStart(

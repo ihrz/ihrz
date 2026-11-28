@@ -184,6 +184,191 @@ export const command: Command = {
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: null
+		},
+		{
+			name: "status",
+			prefixName: "status",
+			description:
+				"Your Last.fm link: account, scrobbling and the song playing now.",
+			description_localizations: {
+				fr: "Votre liaison Last.fm : compte, scrobbling et titre en cours.",
+				ja: "Last.fm連携の状態：アカウント、スクロブル、再生中の曲。",
+				ru: "Ваша привязка Last.fm: аккаунт, скробблинг и текущий трек.",
+				"es-ES":
+					"Tu enlace con Last.fm: cuenta, scrobbling y canción actual.",
+				ko: "Last.fm 연결 상태: 계정, 스크로블링, 지금 듣는 곡.",
+				uk: "Ваш зв'язок із Last.fm: акаунт, скроблінг і поточний трек.",
+				de: "Deine Last.fm-Verknüpfung: Konto, Scrobbling und aktueller Titel.",
+				it: "Il tuo collegamento Last.fm: account, scrobbling e brano in corso.",
+				"pt-BR":
+					"Seu vínculo com o Last.fm: conta, scrobbling e faixa atual.",
+				pl: "Twoje połączenie z Last.fm: konto, scrobbling i bieżący utwór."
+			},
+			ephemeral: true,
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: null
+		},
+		{
+			name: "overview",
+			prefixName: "overview",
+			description:
+				"A Last.fm profile at a glance: figures, recent listens and tops.",
+			description_localizations: {
+				fr: "Un aperçu d'un profil Last.fm : chiffres, écoutes récentes et tops.",
+				ja: "Last.fmプロフィールの概要：統計、最近の再生、トップ。",
+				ru: "Обзор профиля Last.fm: статистика, недавние треки и топы.",
+				"es-ES":
+					"Un resumen de un perfil de Last.fm: cifras, escuchas recientes y tops.",
+				ko: "Last.fm 프로필 한눈에 보기: 통계, 최근 곡, 톱 차트.",
+				uk: "Огляд профілю Last.fm: статистика, нещодавні треки й топи.",
+				de: "Ein Überblick über ein Last.fm-Profil: Zahlen, letzte Titel und Tops.",
+				it: "Una panoramica di un profilo Last.fm: numeri, ascolti recenti e top.",
+				"pt-BR":
+					"Um resumo de um perfil do Last.fm: números, faixas recentes e tops.",
+				pl: "Przegląd profilu Last.fm: statystyki, ostatnie utwory i topy."
+			},
+			options: [
+				{
+					name: "user",
+					description:
+						"The member whose profile to show (you by default)",
+					description_localizations: {
+						fr: "Le membre dont voir le profil (vous par défaut)",
+						ja: "プロフィールを見るメンバー（既定は自分）",
+						ru: "Участник, чей профиль показать (по умолчанию вы)",
+						"es-ES": "El miembro cuyo perfil ver (tú por defecto)",
+						ko: "프로필을 볼 멤버 (기본: 나)",
+						uk: "Учасник, чий профіль показати (типово ви)",
+						de: "Das Mitglied, dessen Profil du sehen willst (standardmäßig du)",
+						it: "Il membro di cui vedere il profilo (tu per impostazione predefinita)",
+						"pt-BR": "O membro cujo perfil ver (você por padrão)",
+						pl: "Członek, którego profil pokazać (domyślnie ty)"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: false,
+					permission: null
+				},
+				{
+					name: "period",
+					description:
+						"The period of the tops (last 7 days by default)",
+					description_localizations: {
+						fr: "La période des tops (7 jours par défaut)",
+						ja: "トップの期間（既定は7日間）",
+						ru: "Период топов (по умолчанию 7 дней)",
+						"es-ES": "El periodo de los tops (7 días por defecto)",
+						ko: "톱 차트 기간 (기본: 7일)",
+						uk: "Період топів (типово 7 днів)",
+						de: "Zeitraum der Tops (standardmäßig 7 Tage)",
+						it: "Il periodo dei top (7 giorni per impostazione predefinita)",
+						"pt-BR": "O período dos tops (7 dias por padrão)",
+						pl: "Okres topów (domyślnie 7 dni)"
+					},
+					type: ApplicationCommandOptionType.String,
+					choices: [
+						{
+							name: "Last 7 days",
+							name_localizations: {
+								fr: "7 derniers jours",
+								ja: "過去7日間",
+								ru: "Последние 7 дней",
+								"es-ES": "Últimos 7 días",
+								ko: "최근 7일",
+								uk: "Останні 7 днів",
+								de: "Letzte 7 Tage",
+								it: "Ultimi 7 giorni",
+								"pt-BR": "Últimos 7 dias",
+								pl: "Ostatnie 7 dni"
+							},
+							value: "7day"
+						},
+						{
+							name: "Last month",
+							name_localizations: {
+								fr: "Dernier mois",
+								ja: "過去1か月",
+								ru: "Последний месяц",
+								"es-ES": "Último mes",
+								ko: "최근 1개월",
+								uk: "Останній місяць",
+								de: "Letzter Monat",
+								it: "Ultimo mese",
+								"pt-BR": "Último mês",
+								pl: "Ostatni miesiąc"
+							},
+							value: "1month"
+						},
+						{
+							name: "Last 3 months",
+							name_localizations: {
+								fr: "3 derniers mois",
+								ja: "過去3か月",
+								ru: "Последние 3 месяца",
+								"es-ES": "Últimos 3 meses",
+								ko: "최근 3개월",
+								uk: "Останні 3 місяці",
+								de: "Letzte 3 Monate",
+								it: "Ultimi 3 mesi",
+								"pt-BR": "Últimos 3 meses",
+								pl: "Ostatnie 3 miesiące"
+							},
+							value: "3month"
+						},
+						{
+							name: "Last 6 months",
+							name_localizations: {
+								fr: "6 derniers mois",
+								ja: "過去6か月",
+								ru: "Последние 6 месяцев",
+								"es-ES": "Últimos 6 meses",
+								ko: "최근 6개월",
+								uk: "Останні 6 місяців",
+								de: "Letzte 6 Monate",
+								it: "Ultimi 6 mesi",
+								"pt-BR": "Últimos 6 meses",
+								pl: "Ostatnie 6 miesięcy"
+							},
+							value: "6month"
+						},
+						{
+							name: "Last year",
+							name_localizations: {
+								fr: "Dernière année",
+								ja: "過去1年",
+								ru: "Последний год",
+								"es-ES": "Último año",
+								ko: "최근 1년",
+								uk: "Останній рік",
+								de: "Letztes Jahr",
+								it: "Ultimo anno",
+								"pt-BR": "Último ano",
+								pl: "Ostatni rok"
+							},
+							value: "12month"
+						},
+						{
+							name: "All time",
+							name_localizations: {
+								fr: "Depuis toujours",
+								ja: "全期間",
+								ru: "За всё время",
+								"es-ES": "Desde siempre",
+								ko: "전체 기간",
+								uk: "За весь час",
+								de: "Gesamter Zeitraum",
+								it: "Da sempre",
+								"pt-BR": "Desde sempre",
+								pl: "Od zawsze"
+							},
+							value: "overall"
+						}
+					],
+					required: false,
+					permission: null
+				}
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: null
 		}
 	],
 	thinking: true,
