@@ -41,6 +41,7 @@ import { metasTable } from "../../Events/client/ready.ts";
 import type { LanguageData } from "../../../types/languageData.js";
 import {
 	BEATS_SHOWN,
+	WAVYZON_URL,
 	fetchKumaSnapshot,
 	type KumaSnapshot,
 	type ServiceBeat,
@@ -322,7 +323,13 @@ class InfrastructureMonitoring {
 					lang.status_panel_service_gateway,
 					local.HorizonGateway
 				),
-				service(lang.status_panel_service_lavalink, local.Lavalink),
+				{
+					...service(
+						lang.status_panel_service_wavyzon,
+						local.Lavalink
+					),
+					url: WAVYZON_URL
+				},
 				service(
 					lang.status_panel_service_website,
 					local.iHorizonWebsite

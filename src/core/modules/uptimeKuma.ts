@@ -89,6 +89,26 @@ const STATES: Record<number, ServiceState> = {
 };
 
 // "https://status.example.org/status/main" -> origin + "main".
+/** The audio node of the music commands (Wavyzon, Lavalink v4 compatible). */
+export const WAVYZON_URL = "https://wavyzon.ihorizon.org";
+
+/**
+ * A monitor of the audio node is shown as Wavyzon, whatever its name in
+ * Uptime Kuma ("Internal iHorizon Lavalink"…), with a link to Wavyzon.
+ */
+export function audioNodeName(name: string): {
+	name: string;
+	isAudioNode: boolean;
+} {
+	if (!/lavalink|wavyzon/i.test(name)) return { name, isAudioNode: false };
+	return {
+		name: /internal ihorizon lavalink/i.test(name)
+			? "Wavyzon"
+			: name.replace(/lavalink/gi, "Wavyzon"),
+		isAudioNode: true
+	};
+}
+
 export function parseKumaUrl(url: string): { origin: string; slug: string } {
 	const parsed = new URL(url);
 	const match = parsed.pathname.match(/^\/status\/([^/]+)\/?$/);
@@ -148,9 +168,14 @@ export function buildGroups(
 					}));
 				const last = beats[beats.length - 1];
 
+				const shown = audioNodeName(monitor.name);
 				return {
-					name: monitor.name,
-					url: monitor.sendUrl ? (monitor.url ?? null) : null,
+					name: shown.name,
+					url: shown.isAudioNode
+						? WAVYZON_URL
+						: monitor.sendUrl
+							? (monitor.url ?? null)
+							: null,
 					state: last?.state ?? "pending",
 					ping: last?.state === "up" ? last.ping : null,
 					uptime24h:

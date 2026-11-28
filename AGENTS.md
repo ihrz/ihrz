@@ -149,6 +149,12 @@ Rules: `categoryName` is lowercase, single glued word. `description` / `placehol
 - A threads' channel other than the panel's gets a hub (`ensureThreadHub`: one message per channel, id in `GUILD.TICKET_THREAD_HUB.<channelId>`, posted again when deleted, posted when a ticket opens there and when `/ticket panel` sends the panel). Its button `ticket-thread-summary` answers ephemerally with `threadTicketSummary`: the thread tickets of that channel the clicker can see (`canSeeThread`, shared with the dashboard), open first, 15 at most. Never a public list: the channel may be seen by everyone.
 - The gateway mirrors these fields (`HorizonGateway/src/dash_tickets.rs`, `normalize_panel`) and checks the threads' channels (text channel of the guild): a new panel field must be added there too, or a dashboard save drops it.
 
+## Last.fm (`/lastfm`)
+
+- Cards in `src/core/modules/lastfmCards.ts`, built with `uiCard.buildCard` (accent `LASTFM_ACCENT`): `lastfmStatusCard` (status, config, login all answer with it) and `lastfmOverviewCard`. No embed left in the category.
+- Public reads go through `client.lastFMScrobbler.read(method, params)` (GET, unsigned, kept 2 min, `errorCode` 17 = data hidden by the user); signed calls (`auth.*`, `track.*`) stay in `callLastFM`. The scrobble state of a listener: `lastFMScrobbler.listening(userId, guildId)`.
+- Last.fm answers one item as an object and several as an array (`asList`); its grey star image means "no image" (`lastfmImage`); names go through `mdLink` (markdown escaped, brackets and parentheses neutralised).
+
 ## Log channels (`/setlogs`, ticket logs)
 
 - A log is always sent to `await getLogChannel(guild, type)` (`src/core/functions/logChannel.ts`; commands and events: `client.func.logChannel.getLogChannel`), never to a channel read by hand from `GUILD.SERVER_LOGS.<type>` / `GUILD.TICKET.logs`. It returns the text channel, or, when the configured channel is a **forum**, that type's post: created at the first log (named with the `setlogschannel_var_*` label in the guild's language, first message `logs_forum_post_intro`), remembered in `GUILD.LOG_POSTS.<forumId>.<type>`, reopened when archived, first tag applied when the forum requires one, one creation at a time per forum and type.

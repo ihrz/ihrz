@@ -3033,10 +3033,53 @@ export default {
 		"${emoji_No} | Last.fm не повернув дійсного сеансу.",
 	lastfm_login_success:
 		"${emoji_Yes} | Ваш обліковий запис Last.fm `${username}` підключено, скроблінг увімкнено.",
-	lastfm_embed_title: "Налаштування Last.fm для ${userLabel}",
-	lastfm_embed_field_status: "Стан",
-	lastfm_embed_field_account: "Підключений обліковий запис",
-	lastfm_embed_field_connected_at: "Підключено",
+	lastfm_card_title: "${emoji_LastFM_Logo} Last.fm · ${user}",
+	lastfm_status_not_linked:
+		"Акаунт Last.fm ще не прив'язано. Прив'яжіть свій через `/lastfm login`: кожен трек, який ви слухаєте з iHorizon у голосовому каналі, потрапить у ваш профіль.",
+	lastfm_status_now_title: "### ${emoji_Player_Listening} Зараз грає",
+	lastfm_track_line: "${title} — ${artist}",
+	lastfm_status_now_scrobbled: "Заскроблено у ваш профіль.",
+	lastfm_status_now_short: "Менше 30 секунд: Last.fm його не прийме.",
+	lastfm_status_now_paused: "Пауза: скроблінг чекає на музику.",
+	lastfm_status_now_pending:
+		"Буде заскроблено ${when}, якщо слухатимете далі.",
+	lastfm_field_account: "Акаунт",
+	lastfm_field_scrobbling: "Скроблінг",
+	lastfm_scrobbling_on: "${emoji_Yes} увімкнено",
+	lastfm_scrobbling_off: "${emoji_No} вимкнено",
+	lastfm_field_scrobbles: "Скробли",
+	lastfm_field_linked: "Прив'язано",
+	lastfm_status_how:
+		"Треки з iHorizon потрапляють у профіль, коли ви прослухали половину (не більше 4 хвилин), якщо вони довші за 30 секунд.",
+	lastfm_button_profile: "Профіль Last.fm",
+	lastfm_period_7day: "останні 7 днів",
+	lastfm_period_1month: "останній місяць",
+	lastfm_period_3month: "останні 3 місяці",
+	lastfm_period_6month: "останні 6 місяців",
+	lastfm_period_12month: "останній рік",
+	lastfm_period_overall: "за весь час",
+	lastfm_overview_title: "${emoji_LastFM_Logo} ${name}",
+	lastfm_overview_subtitle: "${user} · ${account}",
+	lastfm_overview_country: "${emoji_LastFM_Country} ${country}",
+	lastfm_overview_since: "скробить з ${date}",
+	lastfm_field_artists: "Виконавці",
+	lastfm_field_albums: "Альбоми",
+	lastfm_field_tracks: "Треки",
+	lastfm_overview_recent: "### ${emoji_LastFM_Recent} Нещодавні треки",
+	lastfm_overview_now: "### ${emoji_Player_Listening} Зараз грає",
+	lastfm_overview_private: "Приховано на Last.fm.",
+	lastfm_overview_empty: "Поки нічого.",
+	lastfm_overview_top_artists:
+		"### ${emoji_Micro} Топ виконавців · ${period}",
+	lastfm_overview_top_tracks:
+		"### ${emoji_Player_Playlist} Топ треків · ${period}",
+	lastfm_overview_top_albums:
+		"### ${emoji_LastFM_Album} Топ альбомів · ${period}",
+	lastfm_overview_plays: "прослуховувань: ${count}",
+	lastfm_overview_not_linked:
+		"${user} ще не прив'язав(-ла) акаунт Last.fm (`/lastfm login`).",
+	lastfm_overview_unavailable:
+		"${emoji_No} Last.fm не відповів: спробуйте трохи згодом.",
 	lastfm_api_error_login:
 		"${emoji_No} | Не вдалося підключитися до Last.fm: ${error}",
 	lastfm_api_error_nowplaying:
@@ -4201,7 +4244,7 @@ export default {
 	status_panel_group: "### ${emoji_Server_Stats} ${name}",
 	status_panel_group_core: "Основні сервіси",
 	status_panel_service_gateway: "HorizonGateway (API)",
-	status_panel_service_lavalink: "Lavalink (музика)",
+	status_panel_service_wavyzon: "Wavyzon (музика)",
 	status_panel_service_website: "Сайт iHorizon",
 	status_panel_row: "${status} **${name}** · ${detail}",
 	status_panel_row_detail: "`${ping} ms` · `${uptime}`",

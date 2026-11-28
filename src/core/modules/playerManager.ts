@@ -221,7 +221,7 @@ export default async (client: Client) => {
 			const error_log = `
 ==================================================================================
 
-# Oops! Lavalink issue when lavalink-client "trackError" event.
+# Oops! Wavyzon (audio node) issue on the lavalink-client "trackError" event.
 
 ==================================================================================
 
@@ -265,7 +265,7 @@ Report generated in \`${format(new Date(), "ddd MMM DD HH:MM (YYYY")}\` less tha
 				content:
 					"<@" +
 					client.config.owners.users[0] +
-					">\nIssue with lavalink founded!",
+					">\nIssue with Wavyzon (audio node) found!",
 				files: [
 					{
 						name: `logs-${Date.now()}.md`,

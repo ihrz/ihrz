@@ -62,34 +62,36 @@ import * as m36 from "../Interaction/SlashCommands/honeypot/honeypot.ts";
 import * as m37 from "../Interaction/SlashCommands/honeypot/init.json" with { type: "json" };
 import * as m38 from "../Interaction/SlashCommands/lastfm/!config.ts";
 import * as m39 from "../Interaction/SlashCommands/lastfm/!login.ts";
-import * as m40 from "../Interaction/SlashCommands/lastfm/init.json" with { type: "json" };
-import * as m41 from "../Interaction/SlashCommands/lastfm/lastfm.ts";
-import * as m42 from "../Interaction/SlashCommands/newfeatures/init.json" with { type: "json" };
-import * as m43 from "../Interaction/SlashCommands/newfeatures/punishpub.ts";
-import * as m44 from "../Interaction/SlashCommands/newfeatures/report.ts";
-import * as m45 from "../Interaction/SlashCommands/newfeatures/rolesaver.ts";
-import * as m46 from "../Interaction/SlashCommands/notifier/!add.ts";
-import * as m47 from "../Interaction/SlashCommands/notifier/!channel.ts";
-import * as m48 from "../Interaction/SlashCommands/notifier/!list.ts";
-import * as m49 from "../Interaction/SlashCommands/notifier/!message.ts";
-import * as m50 from "../Interaction/SlashCommands/notifier/!remove.ts";
-import * as m51 from "../Interaction/SlashCommands/notifier/init.json" with { type: "json" };
-import * as m52 from "../Interaction/SlashCommands/notifier/notifier.ts";
-import * as m53 from "../Interaction/SlashCommands/suggestion/init.json" with { type: "json" };
-import * as m54 from "../Interaction/SlashCommands/suggestion/setsuggest/!channel.ts";
-import * as m55 from "../Interaction/SlashCommands/suggestion/setsuggest/!config.ts";
-import * as m56 from "../Interaction/SlashCommands/suggestion/setsuggest/!staff-role.ts";
-import * as m57 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
-import * as m58 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
-import * as m59 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
-import * as m60 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
-import * as m61 from "../Interaction/SlashCommands/suggestion/suggest/!list.ts";
-import * as m62 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
-import * as m63 from "../Interaction/SlashCommands/suggestion/suggest/!status.ts";
-import * as m64 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
-import * as m65 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
-import * as m66 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
-import * as m67 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
+import * as m40 from "../Interaction/SlashCommands/lastfm/!overview.ts";
+import * as m41 from "../Interaction/SlashCommands/lastfm/!status.ts";
+import * as m42 from "../Interaction/SlashCommands/lastfm/init.json" with { type: "json" };
+import * as m43 from "../Interaction/SlashCommands/lastfm/lastfm.ts";
+import * as m44 from "../Interaction/SlashCommands/newfeatures/init.json" with { type: "json" };
+import * as m45 from "../Interaction/SlashCommands/newfeatures/punishpub.ts";
+import * as m46 from "../Interaction/SlashCommands/newfeatures/report.ts";
+import * as m47 from "../Interaction/SlashCommands/newfeatures/rolesaver.ts";
+import * as m48 from "../Interaction/SlashCommands/notifier/!add.ts";
+import * as m49 from "../Interaction/SlashCommands/notifier/!channel.ts";
+import * as m50 from "../Interaction/SlashCommands/notifier/!list.ts";
+import * as m51 from "../Interaction/SlashCommands/notifier/!message.ts";
+import * as m52 from "../Interaction/SlashCommands/notifier/!remove.ts";
+import * as m53 from "../Interaction/SlashCommands/notifier/init.json" with { type: "json" };
+import * as m54 from "../Interaction/SlashCommands/notifier/notifier.ts";
+import * as m55 from "../Interaction/SlashCommands/suggestion/init.json" with { type: "json" };
+import * as m56 from "../Interaction/SlashCommands/suggestion/setsuggest/!channel.ts";
+import * as m57 from "../Interaction/SlashCommands/suggestion/setsuggest/!config.ts";
+import * as m58 from "../Interaction/SlashCommands/suggestion/setsuggest/!staff-role.ts";
+import * as m59 from "../Interaction/SlashCommands/suggestion/setsuggest/setsuggest.ts";
+import * as m60 from "../Interaction/SlashCommands/suggestion/suggest/!accept.ts";
+import * as m61 from "../Interaction/SlashCommands/suggestion/suggest/!delete.ts";
+import * as m62 from "../Interaction/SlashCommands/suggestion/suggest/!deny.ts";
+import * as m63 from "../Interaction/SlashCommands/suggestion/suggest/!list.ts";
+import * as m64 from "../Interaction/SlashCommands/suggestion/suggest/!reply.ts";
+import * as m65 from "../Interaction/SlashCommands/suggestion/suggest/!status.ts";
+import * as m66 from "../Interaction/SlashCommands/suggestion/suggest/suggest.ts";
+import * as m67 from "../Interaction/SlashCommands/voicedashboard/!tempvoice.ts";
+import * as m68 from "../Interaction/SlashCommands/voicedashboard/init.json" with { type: "json" };
+import * as m69 from "../Interaction/SlashCommands/voicedashboard/voicedashboard.ts";
 
 const files: Record<string, unknown> = {
 	"authrestore/!delete.ts": m0,
@@ -132,34 +134,36 @@ const files: Record<string, unknown> = {
 	"honeypot/init.json": m37,
 	"lastfm/!config.ts": m38,
 	"lastfm/!login.ts": m39,
-	"lastfm/init.json": m40,
-	"lastfm/lastfm.ts": m41,
-	"newfeatures/init.json": m42,
-	"newfeatures/punishpub.ts": m43,
-	"newfeatures/report.ts": m44,
-	"newfeatures/rolesaver.ts": m45,
-	"notifier/!add.ts": m46,
-	"notifier/!channel.ts": m47,
-	"notifier/!list.ts": m48,
-	"notifier/!message.ts": m49,
-	"notifier/!remove.ts": m50,
-	"notifier/init.json": m51,
-	"notifier/notifier.ts": m52,
-	"suggestion/init.json": m53,
-	"suggestion/setsuggest/!channel.ts": m54,
-	"suggestion/setsuggest/!config.ts": m55,
-	"suggestion/setsuggest/!staff-role.ts": m56,
-	"suggestion/setsuggest/setsuggest.ts": m57,
-	"suggestion/suggest/!accept.ts": m58,
-	"suggestion/suggest/!delete.ts": m59,
-	"suggestion/suggest/!deny.ts": m60,
-	"suggestion/suggest/!list.ts": m61,
-	"suggestion/suggest/!reply.ts": m62,
-	"suggestion/suggest/!status.ts": m63,
-	"suggestion/suggest/suggest.ts": m64,
-	"voicedashboard/!tempvoice.ts": m65,
-	"voicedashboard/init.json": m66,
-	"voicedashboard/voicedashboard.ts": m67
+	"lastfm/!overview.ts": m40,
+	"lastfm/!status.ts": m41,
+	"lastfm/init.json": m42,
+	"lastfm/lastfm.ts": m43,
+	"newfeatures/init.json": m44,
+	"newfeatures/punishpub.ts": m45,
+	"newfeatures/report.ts": m46,
+	"newfeatures/rolesaver.ts": m47,
+	"notifier/!add.ts": m48,
+	"notifier/!channel.ts": m49,
+	"notifier/!list.ts": m50,
+	"notifier/!message.ts": m51,
+	"notifier/!remove.ts": m52,
+	"notifier/init.json": m53,
+	"notifier/notifier.ts": m54,
+	"suggestion/init.json": m55,
+	"suggestion/setsuggest/!channel.ts": m56,
+	"suggestion/setsuggest/!config.ts": m57,
+	"suggestion/setsuggest/!staff-role.ts": m58,
+	"suggestion/setsuggest/setsuggest.ts": m59,
+	"suggestion/suggest/!accept.ts": m60,
+	"suggestion/suggest/!delete.ts": m61,
+	"suggestion/suggest/!deny.ts": m62,
+	"suggestion/suggest/!list.ts": m63,
+	"suggestion/suggest/!reply.ts": m64,
+	"suggestion/suggest/!status.ts": m65,
+	"suggestion/suggest/suggest.ts": m66,
+	"voicedashboard/!tempvoice.ts": m67,
+	"voicedashboard/init.json": m68,
+	"voicedashboard/voicedashboard.ts": m69
 };
 
 export default files;
