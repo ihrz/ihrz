@@ -90,7 +90,9 @@ export const command: Command = {
 				}
 			],
 
-			permission: PermissionFlagsBits.ManageChannels
+			permission: PermissionFlagsBits.ManageChannels,
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		},
 		{
 			name: "close",
@@ -111,7 +113,9 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageChannels
+			permission: PermissionFlagsBits.ManageChannels,
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		},
 		{
 			name: "rename",
@@ -157,7 +161,9 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageChannels
+			permission: PermissionFlagsBits.ManageChannels,
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		},
 		{
 			name: "remind",
@@ -181,7 +187,9 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: [PermissionFlagsBits.ManageChannels]
+			permission: [PermissionFlagsBits.ManageChannels],
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		},
 		{
 			name: "delete",
@@ -312,7 +320,10 @@ export const command: Command = {
 				{
 					name: "channel",
 					type: ApplicationCommandOptionType.Channel,
-					channel_types: [ChannelType.GuildText],
+					channel_types: [
+						ChannelType.GuildText,
+						ChannelType.GuildForum
+					],
 
 					description: "Where you want the logs",
 					description_localizations: {
@@ -402,7 +413,9 @@ export const command: Command = {
 				}
 			],
 
-			permission: PermissionFlagsBits.ManageChannels
+			permission: PermissionFlagsBits.ManageChannels,
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		},
 		{
 			name: "panel",
@@ -539,7 +552,9 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageChannels
+			permission: PermissionFlagsBits.ManageChannels,
+			// Thread tickets: their staff manage threads, not channels.
+			threadPermission: PermissionFlagsBits.ManageThreads
 		}
 	],
 	thinking: true,

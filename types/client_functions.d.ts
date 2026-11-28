@@ -25,6 +25,7 @@ import type { LanguageData } from "./languageData.d.ts";
 import type { GatewayMethod } from "../src/core/functions/apiUrlParser.js";
 import type { iHorizonAsset as iHorizonAssetEnum } from "../src/core/functions/iHorizonAssets.js";
 import type { ToggleableModule } from "../src/core/functions/moduleToggle.js";
+import type { LogType } from "../src/core/functions/logChannel.js";
 import { ModalOptionsBuilder } from "../src/core/functions/modalHelper.js";
 import {
 	ActionRowBuilder,
@@ -44,6 +45,8 @@ import {
 	Client,
 	EmbedBuilder,
 	Guild,
+	GuildTextBasedChannel,
+	GuildBasedChannel,
 	GuildMember,
 	Interaction,
 	InteractionReplyOptions,
@@ -457,6 +460,19 @@ declare namespace Client_Functions {
 			member: GuildMember
 		): VoiceBasedChannel | null;
 		export function isInVoiceChannel(member: GuildMember): boolean;
+	}
+
+	// From logChannel.ts
+	export namespace logChannel {
+		export function logChannelPath(guildId: string, type: LogType): string;
+		export function getConfiguredLogChannel(
+			guild: Guild,
+			type: LogType
+		): Promise<GuildBasedChannel | null>;
+		export function getLogChannel(
+			guild: Guild,
+			type: LogType
+		): Promise<GuildTextBasedChannel | null>;
 	}
 
 	// From maskLink.ts

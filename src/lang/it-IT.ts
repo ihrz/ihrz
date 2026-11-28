@@ -370,6 +370,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Un menu con opzioni, impostazioni per opzione e moduli.",
 	ticket_panel_panel_18_label: "Cambia modalità (semplice / avanzata)",
+	ticket_panel_panel_19_label: "Tipo di ticket (canale / thread)",
+	ticket_panel_panel_20_label: "Canale dei thread",
+	ticket_panel_panel_21_label: "Canale dei thread di un'opzione",
+	ticket_panel_ticket_type: "🧵 Tipo di ticket:",
+	ticket_panel_ticket_type_channel: "un canale per ticket",
+	ticket_panel_ticket_type_thread: "un thread privato per ticket",
+	ticket_panel_thread_channel: "🧵 Canale dei thread",
+	ticket_panel_thread_channel_default: "Il canale del panel",
+	ticket_panel_thread_channel_placeholder:
+		"Scegli il canale in cui si aprono i thread dei ticket",
+	ticket_panel_section_where: "📍 Dove si aprono i ticket",
+	ticket_panel_section_who: "👥 Chi vede ogni ticket",
+	ticket_panel_section_notify: "🔔 All'apertura",
+	ticket_panel_section_inside: "🧩 Nel ticket",
+	ticket_panel_who_author: "Il membro che lo apre",
+	ticket_panel_who_channel_category:
+		"Chi vede la categoria ${category}: il ticket ne copia i permessi",
+	ticket_panel_who_channel_nocategory:
+		"Solo gli amministratori: senza categoria, il ticket è aperto solo al membro",
+	ticket_panel_who_thread_added:
+		"**Aggiunti al thread (staff):** ${roles} · ${count} membri",
+	ticket_panel_who_thread_added_later:
+		"**Aggiunti al thread (staff):** ${roles} e i ruoli che gestiscono i thread nel canale del panel (verificato all'invio)",
+	ticket_panel_who_thread_managers:
+		"**Possono anche aprirlo:** chi ha Gestire i thread in ${channel}, amministratori compresi",
+	ticket_panel_ping_note_thread:
+		"Menzionati all'apertura e aggiunti al thread.",
+	ticket_panel_ping_note_channel:
+		"Solo menzionati: vedono il ticket se vedono la categoria.",
+	ticket_thread_hub_title: "🎫 Ticket",
+	ticket_thread_hub_desc:
+		"I ticket di questo canale sono thread privati: solo i loro membri e lo staff li vedono. Clicca per vedere i tuoi.",
+	ticket_thread_hub_button: "Vedi i ticket",
+	ticket_thread_summary_title: "Ticket in ${channel} · ${count}",
+	ticket_thread_summary_empty: "Nessun ticket che puoi vedere qui.",
+	ticket_thread_summary_open: "🟢 aperto",
+	ticket_thread_summary_closed: "🔒 chiuso",
+	ticket_thread_summary_line:
+		"-# di ${author} · 💬 ${messages} messaggi · ultimo messaggio ${last}",
+	ticket_thread_summary_more: "e altri ${count}…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Nessuno dello staff verrà aggiunto ai thread: dai Gestire i thread in ${channel} a un ruolo dello staff o metti dei membri nei ruoli da menzionare.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Nessuno può gestire i thread in ${channel} (nessun ruolo con Gestire i thread né amministratore): solo il proprietario del server vedrà tutti i thread dei ticket.",
+	ticket_panel_option_change_thread_channel:
+		"Scegli un'opzione per cambiare il canale dei suoi thread",
+	ticket_thread_parent_missing:
+		"Il canale dei thread dei ticket di questo panel non esiste più o non è un canale di testo: chiedi a un amministratore di cambiarlo in `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Non posso aprire thread dei ticket in ${channel}: mi manca ${permissions}.",
+	ticket_open_failed:
+		"Non è stato possibile aprire il tuo ticket. Riprova tra poco o avvisa lo staff.",
 	ticket_panel_simple_default_title: "Supporto",
 	ticket_panel_simple_default_desc:
 		"Hai bisogno di aiuto? Clicca il pulsante qui sotto per aprire un ticket.",
@@ -1926,6 +1979,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Non posso creare i canali di log, mi mancano questi permessi: ${permissions}.",
 	setlogschannel_var_economy: "Registri economia",
+	logs_forum_post_intro:
+		"Questo post riceve i **${logType}** del server. iHorizon scrive qui ogni nuovo log.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "Il canale ${channel} è già impostato!",

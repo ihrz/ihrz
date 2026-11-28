@@ -161,7 +161,10 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
+		const Msgchannel = await client.func.logChannel.getLogChannel(
+			oldChannel.guild,
+			"channel"
+		);
 		if (!Msgchannel) return;
 
 		let changes = getDiff(oldChannel, newChannel, lang);

@@ -378,6 +378,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Un menu avec des options, des réglages par option et des formulaires.",
 	ticket_panel_panel_18_label: "Changer de mode (simple / avancé)",
+	ticket_panel_panel_19_label: "Type de ticket (salon / fil)",
+	ticket_panel_panel_20_label: "Salon des fils",
+	ticket_panel_panel_21_label: "Salon des fils d'une option",
+	ticket_panel_ticket_type: "🧵 Type de ticket :",
+	ticket_panel_ticket_type_channel: "un salon par ticket",
+	ticket_panel_ticket_type_thread: "un fil privé par ticket",
+	ticket_panel_thread_channel: "🧵 Salon des fils",
+	ticket_panel_thread_channel_default: "Le salon du panel",
+	ticket_panel_thread_channel_placeholder:
+		"Choisissez le salon où s'ouvrent les fils des tickets",
+	ticket_panel_section_where: "📍 Où s'ouvrent les tickets",
+	ticket_panel_section_who: "👥 Qui voit chaque ticket",
+	ticket_panel_section_notify: "🔔 À l'ouverture",
+	ticket_panel_section_inside: "🧩 Dans le ticket",
+	ticket_panel_who_author: "Le membre qui l'ouvre",
+	ticket_panel_who_channel_category:
+		"Ceux qui voient la catégorie ${category} : le ticket en copie les permissions",
+	ticket_panel_who_channel_nocategory:
+		"Les administrateurs seulement : sans catégorie, le ticket n'est ouvert qu'au membre",
+	ticket_panel_who_thread_added:
+		"**Ajoutés au fil (staff) :** ${roles} · ${count} membres",
+	ticket_panel_who_thread_added_later:
+		"**Ajoutés au fil (staff) :** ${roles}, et les rôles qui gèrent les fils du salon du panel (vérifié à l'envoi)",
+	ticket_panel_who_thread_managers:
+		"**Peuvent aussi l'ouvrir :** ceux qui ont « Gérer les fils » sur ${channel}, administrateurs compris",
+	ticket_panel_ping_note_thread:
+		"Mentionnés à l'ouverture, et ajoutés au fil.",
+	ticket_panel_ping_note_channel:
+		"Mentionnés seulement : ils voient le ticket s'ils voient la catégorie.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"Les tickets de ce salon sont des fils privés : seuls leurs membres et le staff les voient. Cliquez pour voir les vôtres.",
+	ticket_thread_hub_button: "Voir les tickets",
+	ticket_thread_summary_title: "Tickets de ${channel} · ${count}",
+	ticket_thread_summary_empty: "Aucun ticket que vous pouvez voir ici.",
+	ticket_thread_summary_open: "🟢 ouvert",
+	ticket_thread_summary_closed: "🔒 fermé",
+	ticket_thread_summary_line:
+		"-# par ${author} · 💬 ${messages} messages · dernier message ${last}",
+	ticket_thread_summary_more: "et ${count} de plus…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Personne du staff ne sera ajouté aux fils : donnez « Gérer les fils » sur ${channel} à un rôle staff, ou mettez des membres dans les rôles à pinger.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Personne ne peut gérer les fils sur ${channel} (aucun rôle avec « Gérer les fils » ni administrateur) : seul le propriétaire du serveur verra tous les fils de tickets.",
+	ticket_panel_option_change_thread_channel:
+		"Choisissez une option pour changer le salon de ses fils",
+	ticket_thread_parent_missing:
+		"Le salon des fils de tickets de ce panel n'existe plus, ou n'est pas un salon texte : demandez à un administrateur de le changer dans `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Je ne peux pas ouvrir de fils de tickets dans ${channel} : il me manque ${permissions}.",
+	ticket_open_failed:
+		"Votre ticket n'a pas pu être ouvert. Réessayez dans un instant, ou prévenez le staff.",
 	ticket_panel_simple_default_title: "Support",
 	ticket_panel_simple_default_desc:
 		"Besoin d'aide ? Clique sur le bouton ci-dessous pour ouvrir un ticket.",
@@ -1941,6 +1994,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Je ne peux pas créer les salons de logs, il me manque ces permissions : ${permissions}.",
 	setlogschannel_var_economy: "Logs d’économie",
+	logs_forum_post_intro:
+		"Ce post reçoit les **${logType}** du serveur. iHorizon y écrit chaque nouveau log.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "Le canal ${channel} est déjà défini !",

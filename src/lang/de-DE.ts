@@ -378,6 +378,60 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Ein Menü mit Optionen, Einstellungen pro Option und Formularen.",
 	ticket_panel_panel_18_label: "Modus wechseln (einfach / erweitert)",
+	ticket_panel_panel_19_label: "Ticket-Typ (Kanal / Thread)",
+	ticket_panel_panel_20_label: "Kanal der Threads",
+	ticket_panel_panel_21_label: "Kanal der Threads einer Option",
+	ticket_panel_ticket_type: "🧵 Ticket-Typ:",
+	ticket_panel_ticket_type_channel: "ein Kanal pro Ticket",
+	ticket_panel_ticket_type_thread: "ein privater Thread pro Ticket",
+	ticket_panel_thread_channel: "🧵 Kanal der Threads",
+	ticket_panel_thread_channel_default: "Der Kanal des Panels",
+	ticket_panel_thread_channel_placeholder:
+		"Wähle den Kanal, in dem die Ticket-Threads geöffnet werden",
+	ticket_panel_section_where: "📍 Wo Tickets geöffnet werden",
+	ticket_panel_section_who: "👥 Wer jedes Ticket sieht",
+	ticket_panel_section_notify: "🔔 Beim Öffnen",
+	ticket_panel_section_inside: "🧩 Im Ticket",
+	ticket_panel_who_author: "Das Mitglied, das es öffnet",
+	ticket_panel_who_channel_category:
+		"Wer die Kategorie ${category} sieht: Das Ticket übernimmt ihre Berechtigungen",
+	ticket_panel_who_channel_nocategory:
+		"Nur Administratoren: Ohne Kategorie ist das Ticket nur für das Mitglied offen",
+	ticket_panel_who_thread_added:
+		"**Zum Thread hinzugefügt (Team):** ${roles} · ${count} Mitglieder",
+	ticket_panel_who_thread_added_later:
+		"**Zum Thread hinzugefügt (Team):** ${roles} und die Rollen, die im Kanal des Panels Threads verwalten (beim Senden geprüft)",
+	ticket_panel_who_thread_managers:
+		"**Können es auch öffnen:** wer „Threads verwalten“ in ${channel} hat, Administratoren eingeschlossen",
+	ticket_panel_ping_note_thread:
+		"Beim Öffnen erwähnt und zum Thread hinzugefügt.",
+	ticket_panel_ping_note_channel:
+		"Nur erwähnt: Sie sehen das Ticket, wenn sie die Kategorie sehen.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"Die Tickets dieses Kanals sind private Threads: Nur ihre Mitglieder und das Team sehen sie. Klicke, um deine zu sehen.",
+	ticket_thread_hub_button: "Tickets ansehen",
+	ticket_thread_summary_title: "Tickets in ${channel} · ${count}",
+	ticket_thread_summary_empty:
+		"Hier gibt es kein Ticket, das du sehen kannst.",
+	ticket_thread_summary_open: "🟢 offen",
+	ticket_thread_summary_closed: "🔒 geschlossen",
+	ticket_thread_summary_line:
+		"-# von ${author} · 💬 ${messages} Nachrichten · letzte Nachricht ${last}",
+	ticket_thread_summary_more: "und ${count} weitere…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Niemand vom Team wird zu den Threads hinzugefügt: Gib einer Team-Rolle „Threads verwalten“ in ${channel} oder füge den zu pingenden Rollen Mitglieder hinzu.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Niemand kann Threads in ${channel} verwalten (keine Rolle mit „Threads verwalten“, kein Administrator): Nur der Serverbesitzer sieht alle Ticket-Threads.",
+	ticket_panel_option_change_thread_channel:
+		"Wähle eine Option, um den Kanal ihrer Threads zu ändern",
+	ticket_thread_parent_missing:
+		"Der Kanal der Ticket-Threads dieses Panels existiert nicht mehr oder ist kein Textkanal: Bitte einen Administrator, ihn in `/ticket panel` zu ändern.",
+	ticket_thread_bot_missing_perms:
+		"Ich kann in ${channel} keine Ticket-Threads öffnen: Mir fehlt dort ${permissions}.",
+	ticket_open_failed:
+		"Dein Ticket konnte nicht geöffnet werden. Versuche es gleich noch einmal oder sag dem Team Bescheid.",
 	ticket_panel_simple_default_title: "Support",
 	ticket_panel_simple_default_desc:
 		"Brauchst du Hilfe? Klicke auf den Button unten, um ein Ticket zu öffnen.",
@@ -1945,6 +1999,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Ich kann die Log-Kanäle nicht erstellen, mir fehlen diese Berechtigungen: ${permissions}.",
 	setlogschannel_var_economy: "Wirtschaftsprotokolle",
+	logs_forum_post_intro:
+		"Dieser Beitrag erhält die **${logType}** des Servers. iHorizon schreibt jedes neue Log hierher.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set:

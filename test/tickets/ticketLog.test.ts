@@ -53,6 +53,7 @@ const fakeGuild = (sent: SentPayload[], logs: string | null = "500") =>
 				[
 					"500",
 					{
+						isTextBased: () => true,
 						isSendable: () => true,
 						send: async (p: SentPayload) => sent.push(p)
 					}

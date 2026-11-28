@@ -345,6 +345,57 @@ export default {
 		"زر واحد يفتح تذكرة، بدون اختيارات أو أسئلة.",
 	ticket_panel_mode_advanced_desc: "قائمة بخيارات وإعدادات لكل خيار ونماذج.",
 	ticket_panel_panel_18_label: "تغيير الوضع (بسيط / متقدم)",
+	ticket_panel_panel_19_label: "نوع التذكرة (قناة / سلسلة)",
+	ticket_panel_panel_20_label: "قناة السلاسل",
+	ticket_panel_panel_21_label: "قناة السلاسل لخيار",
+	ticket_panel_ticket_type: "🧵 نوع التذكرة:",
+	ticket_panel_ticket_type_channel: "قناة لكل تذكرة",
+	ticket_panel_ticket_type_thread: "سلسلة خاصة لكل تذكرة",
+	ticket_panel_thread_channel: "🧵 قناة السلاسل",
+	ticket_panel_thread_channel_default: "قناة اللوحة",
+	ticket_panel_thread_channel_placeholder:
+		"اختر القناة التي تُفتح فيها سلاسل التذاكر",
+	ticket_panel_section_where: "📍 أين تُفتح التذاكر",
+	ticket_panel_section_who: "👥 من يرى كل تذكرة",
+	ticket_panel_section_notify: "🔔 عند فتح تذكرة",
+	ticket_panel_section_inside: "🧩 داخل التذكرة",
+	ticket_panel_who_author: "العضو الذي يفتحها",
+	ticket_panel_who_channel_category:
+		"كل من يرى الفئة ${category}: تنسخ التذكرة صلاحياتها",
+	ticket_panel_who_channel_nocategory:
+		"المشرفون فقط: بدون فئة تكون التذكرة مفتوحة للعضو وحده",
+	ticket_panel_who_thread_added:
+		"**أُضيفوا إلى السلسلة (الطاقم):** ${roles} · ${count} عضو",
+	ticket_panel_who_thread_added_later:
+		"**أُضيفوا إلى السلسلة (الطاقم):** ${roles} والأدوار التي تدير السلاسل في قناة اللوحة (يُتحقق عند الإرسال)",
+	ticket_panel_who_thread_managers:
+		"**يمكنهم فتحها أيضًا:** من لديهم «إدارة السلاسل» في ${channel}، بمن فيهم المشرفون",
+	ticket_panel_ping_note_thread: "يُذكرون عند الفتح ويُضافون إلى السلسلة.",
+	ticket_panel_ping_note_channel:
+		"يُذكرون فقط: يرون التذكرة إن كانوا يرون الفئة.",
+	ticket_thread_hub_title: "🎫 التذاكر",
+	ticket_thread_hub_desc:
+		"تذاكر هذه القناة سلاسل خاصة: لا يراها إلا أعضاؤها والطاقم. اضغط لرؤية تذاكرك.",
+	ticket_thread_hub_button: "عرض التذاكر",
+	ticket_thread_summary_title: "تذاكر ${channel} · ${count}",
+	ticket_thread_summary_empty: "لا توجد تذكرة يمكنك رؤيتها هنا.",
+	ticket_thread_summary_open: "🟢 مفتوحة",
+	ticket_thread_summary_closed: "🔒 مغلقة",
+	ticket_thread_summary_line:
+		"-# من ${author} · 💬 ${messages} رسالة · آخر رسالة ${last}",
+	ticket_thread_summary_more: "و${count} أخرى…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ لن يُضاف أي من الطاقم إلى السلاسل: امنح دور الطاقم صلاحية «إدارة السلاسل» في ${channel} أو أضف أعضاء إلى الأدوار المذكورة.",
+	ticket_panel_thread_no_managers:
+		"⚠️ لا أحد يستطيع إدارة السلاسل في ${channel} (لا دور بصلاحية «إدارة السلاسل» ولا مشرف): مالك الخادم وحده سيرى كل سلاسل التذاكر.",
+	ticket_panel_option_change_thread_channel: "اختر خيارًا لتغيير قناة سلاسله",
+	ticket_thread_parent_missing:
+		"قناة سلاسل التذاكر لهذه اللوحة لم تعد موجودة أو ليست قناة نصية: اطلب من أحد المشرفين تغييرها في `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"لا يمكنني فتح سلاسل التذاكر في ${channel}: تنقصني صلاحيات ${permissions} هناك.",
+	ticket_open_failed:
+		"تعذّر فتح تذكرتك. حاول مرة أخرى بعد قليل أو أبلغ الطاقم.",
 	ticket_panel_simple_default_title: "الدعم",
 	ticket_panel_simple_default_desc:
 		"تحتاج مساعدة؟ اضغط على الزر أدناه لفتح تذكرة.",
@@ -1797,6 +1848,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | لا أستطيع إنشاء قنوات السجلات، تنقصني هذه الصلاحيات: ${permissions}",
 	setlogschannel_var_economy: "سجلات الاقتصاد",
+	logs_forum_post_intro:
+		"يستقبل هذا المنشور **${logType}** الخاصة بالخادم. يكتب iHorizon هنا كل سجل جديد.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!",

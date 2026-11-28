@@ -53,6 +53,8 @@ mock.module("../../src/Events/client/ready.js", () =>
 const {
 	ticketsActions,
 	ticketAccess,
+	canSee,
+	threadAccess,
 	compareSnowflakeDesc,
 	toTranscriptMessage
 } = await import("../../src/core/modules/gatewayLinkActions/tickets.ts");
@@ -103,6 +105,7 @@ function fakeGuild(disabled = false) {
 	const channel = (id: string, overwrites: ReturnType<typeof ow>[]) => ({
 		id,
 		type: 0,
+		isThread: () => false,
 		name: `ticket-${id.slice(-1)}`,
 		createdTimestamp: Number(id.slice(-1)),
 		parentId: null,
@@ -396,5 +399,69 @@ describe("tickets.transcript: messages as the dashboard shows them", () => {
 				message({ reference: { messageId: "9", channelId: "999" } })
 			).reply
 		).toBeNull();
+	});
+});
+
+describe("tickets: thread tickets", () => {
+	// A private thread: STAFF is in it by a staff role, OTHER was added by hand.
+	const thread = (locked: boolean, managers: string[] = []) => ({
+		id: T1,
+		locked,
+		isThread: () => true,
+		guild: {
+			members: {
+				cache: new Map([
+					[STAFF, { roles: { cache: new Set(["77"]) } }],
+					[OTHER, { roles: { cache: new Set() } }]
+				])
+			}
+		},
+		permissionsFor: (m: { id?: string }) =>
+			new PermissionsBitField(
+				managers.includes(m.id ?? "")
+					? PermissionFlagsBits.ManageThreads
+					: 0n
+			),
+		members: {
+			fetch: async (opts?: { member: string }) => {
+				const ids = [AUTHOR, STAFF, OTHER, BOT];
+				if (opts) {
+					if (!ids.includes(opts.member)) throw new Error("unknown");
+					return { id: opts.member };
+				}
+				return new Map(ids.map((id) => [id, { id }]));
+			}
+		}
+	});
+
+	test("seen by its members and whoever manages threads, not by the channel's viewers", async () => {
+		expect(await canSee(actor(OTHER), thread(false) as never)).toBe(true);
+		expect(await canSee(actor("404"), thread(false) as never)).toBe(false);
+		expect(
+			await canSee(actor("404"), thread(false, ["404"]) as never)
+		).toBe(true);
+	});
+
+	test("closed = locked; members = added by hand, staff left out", async () => {
+		expect(
+			await threadAccess(thread(true) as never, AUTHOR, BOT, ["77"])
+		).toEqual({ closed: true, members: [OTHER] });
+	});
+
+	test("thread staff manage threads on its channel", () => {
+		const member = {
+			...actor(OTHER, PermissionFlagsBits.ManageThreads),
+			guild: {
+				channels: { cache: new Map([[T1, { isThread: () => true }]]) }
+			}
+		} as unknown as GuildMember;
+		expect(canManageTicket(member, T1, AUTHOR)).toBe(true);
+		const notThread = {
+			...actor(OTHER, PermissionFlagsBits.ManageThreads),
+			guild: {
+				channels: { cache: new Map([[T1, { isThread: () => false }]]) }
+			}
+		} as unknown as GuildMember;
+		expect(canManageTicket(notThread, T1, AUTHOR)).toBe(false);
 	});
 });

@@ -27,11 +27,12 @@
 // Automatic sanctions act directly (timeout, kick, ban) instead of through moderationOps: tempmuteMember adds a
 // warn itself, which could reach another threshold and loop.
 
+import { getLogChannel } from "../functions/logChannel.js";
 import {
-	BaseGuildTextChannel,
 	Guild,
 	GuildBasedChannel,
 	GuildMember,
+	GuildTextBasedChannel,
 	PermissionFlagsBits
 } from "discord.js";
 
@@ -437,7 +438,9 @@ export async function sendStaffLog(
 	guild: Guild,
 	payload: ReturnType<typeof cardPayload>
 ): Promise<boolean> {
-	const sendTo = async (channel: BaseGuildTextChannel | null | undefined) => {
+	const sendTo = async (
+		channel: GuildTextBasedChannel | null | undefined
+	) => {
 		if (!channel || !channel.isTextBased()) return false;
 		return channel.send(payload).then(
 			() => true,
@@ -450,19 +453,12 @@ export async function sendStaffLog(
 				c.name.includes(part) &&
 				c.isTextBased() &&
 				isStaffOnlyChannel(c)
-		) as BaseGuildTextChannel | undefined;
+		) as GuildTextBasedChannel | undefined;
 	if (guild.client.func.hasIhorizonLogs(guild)) {
 		if (await sendTo(byName("ihorizon-logs"))) return true;
 	}
 	if (await sendTo(byName("mods"))) return true;
-	const moderationLogsId = (await guild.client.db.get(
-		`${guild.id}.GUILD.SERVER_LOGS.moderation`
-	)) as string | null;
-	if (!moderationLogsId) return false;
-	return sendTo(
-		guild.channels.cache.get(moderationLogsId) as
-			BaseGuildTextChannel | undefined
-	);
+	return sendTo(await getLogChannel(guild, "moderation"));
 }
 
 async function sendWarnLog(

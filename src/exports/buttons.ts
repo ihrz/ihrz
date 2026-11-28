@@ -46,6 +46,7 @@ import * as m20 from "../Interaction/Components/Buttons/temporary_voice_trust_bu
 import * as m21 from "../Interaction/Components/Buttons/temporary_voice_unblock_button.ts";
 import * as m22 from "../Interaction/Components/Buttons/temporary_voice_untrust_button.ts";
 import * as m23 from "../Interaction/Components/Buttons/ticket-open-button-v2.ts";
+import * as m24 from "../Interaction/Components/Buttons/ticket-thread-summary.ts";
 
 const files: Record<string, unknown> = {
 	"button_reaction.ts": m0,
@@ -71,7 +72,8 @@ const files: Record<string, unknown> = {
 	"temporary_voice_trust_button.ts": m20,
 	"temporary_voice_unblock_button.ts": m21,
 	"temporary_voice_untrust_button.ts": m22,
-	"ticket-open-button-v2.ts": m23
+	"ticket-open-button-v2.ts": m23,
+	"ticket-thread-summary.ts": m24
 };
 
 export default files;

@@ -39,8 +39,8 @@ import {
 	SeparatorBuilder,
 	TextDisplayBuilder,
 	ThumbnailBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
+	ChannelType,
 	ButtonStyle,
 	Client,
 	Collection,
@@ -55,6 +55,7 @@ import {
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { ticketTranscriptsTable } from "../database/tables.js";
 import logger from "../logger.js";
+import { TicketChannel, staffRoleIds } from "./ticketThreads.js";
 
 export const TRANSCRIPT_MAX_MESSAGES = 5000;
 const MAX_CONTENT = 4000;
@@ -101,7 +102,7 @@ export function transcriptLinkRow(url: string, label: string) {
  * (production: links only, no HTML file sent to Discord).
  */
 export function transcriptDmPayload(options: {
-	channel: BaseGuildTextChannel;
+	channel: TicketChannel;
 	title: string;
 	text: string;
 	file: AttachmentBuilder | AttachmentPayload | null;
@@ -146,7 +147,7 @@ export function transcriptDmPayload(options: {
 
 /** Every message of the channel, oldest first (at most TRANSCRIPT_MAX_MESSAGES, the latest ones). */
 async function allMessages(
-	channel: BaseGuildTextChannel
+	channel: TicketChannel
 ): Promise<{ messages: Message[]; truncated: boolean }> {
 	const out: Message[] = [];
 	let before: string | undefined;
@@ -212,7 +213,7 @@ function toMessage(m: Message): DatabaseStructure.TicketTranscriptMessage {
 
 /** Builds the transcript of a ticket channel as it is now. */
 export async function buildTicketTranscript(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string,
 	closedBy: User | null,
 	reason: DatabaseStructure.TicketTranscriptSchema["reason"]
@@ -224,23 +225,35 @@ export async function buildTicketTranscript(
 	const participants = new Set<string>([authorId]);
 	for (const m of messages)
 		if (!m.author.bot && !m.system) participants.add(m.author.id);
-	for (const o of channel.permissionOverwrites.cache.values()) {
-		if (
-			o.type === OverwriteType.Member &&
-			o.allow.has(PermissionFlagsBits.ViewChannel) &&
-			o.id !== guild.client.user.id
-		)
-			participants.add(o.id);
+	let staffRoles: string[];
+	if (channel.isThread()) {
+		// A thread ticket: its members, and the roles that manage threads on its channel.
+		const threadMembers = await channel.members.fetch().catch(() => null);
+		for (const id of threadMembers?.keys() ?? [])
+			if (id !== guild.client.user.id) participants.add(id);
+		staffRoles =
+			channel.parent?.type === ChannelType.GuildText
+				? staffRoleIds(channel.parent, [])
+				: [];
+	} else {
+		for (const o of channel.permissionOverwrites.cache.values()) {
+			if (
+				o.type === OverwriteType.Member &&
+				o.allow.has(PermissionFlagsBits.ViewChannel) &&
+				o.id !== guild.client.user.id
+			)
+				participants.add(o.id);
+		}
+		// Staff roles: roles let into this ticket (by its category or the panel), @everyone excluded.
+		staffRoles = [...channel.permissionOverwrites.cache.values()]
+			.filter(
+				(o) =>
+					o.type === OverwriteType.Role &&
+					o.id !== guild.id &&
+					o.allow.has(PermissionFlagsBits.ViewChannel)
+			)
+			.map((o) => o.id);
 	}
-	// Staff roles: roles let into this ticket (by its category or the panel), @everyone excluded.
-	const staffRoles = [...channel.permissionOverwrites.cache.values()]
-		.filter(
-			(o) =>
-				o.type === OverwriteType.Role &&
-				o.id !== guild.id &&
-				o.allow.has(PermissionFlagsBits.ViewChannel)
-		)
-		.map((o) => o.id);
 
 	const userIds = new Set<string>(participants);
 	for (const m of messages) {
@@ -255,12 +268,15 @@ export async function buildTicketTranscript(
 	const staff = [...participants].filter((id) => {
 		if (id === authorId) return false;
 		const member = members.get(id);
+		if (!member) return false;
+		if (member.permissions.has(PermissionFlagsBits.Administrator))
+			return true;
+		const perms = channel.permissionsFor(member);
 		return (
-			!!member &&
-			(member.permissions.has(PermissionFlagsBits.Administrator) ||
-				member
-					.permissionsIn(channel.id)
-					.has(PermissionFlagsBits.ManageChannels))
+			!!perms &&
+			(perms.has(PermissionFlagsBits.ManageChannels) ||
+				(channel.isThread() &&
+					perms.has(PermissionFlagsBits.ManageThreads)))
 		);
 	});
 
@@ -306,7 +322,7 @@ export async function buildTicketTranscript(
 		channelId: channel.id,
 		channelName: channel.name,
 		authorId,
-		openedAt: channel.createdTimestamp,
+		openedAt: channel.createdTimestamp ?? Date.now(),
 		closedAt: Date.now(),
 		closedBy: closedBy?.id ?? null,
 		reason,
@@ -326,7 +342,7 @@ export async function buildTicketTranscript(
  * it could not be read). Never throws: a ticket closes even when the transcript fails.
  */
 export async function saveTicketTranscript(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	authorId: string,
 	closedBy: User | null,
 	reason: DatabaseStructure.TicketTranscriptSchema["reason"]
@@ -367,7 +383,7 @@ async function indexTranscript(guildId: string, id: string): Promise<void> {
  * the gateway decides: the moderator (`authorId`), server managers, bot owners.
  */
 export function buildClearTranscript(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	messages: Message[],
 	moderator: User,
 	id: string,
@@ -423,7 +439,7 @@ export function buildClearTranscript(
  * instance (nothing is stored then), nothing to keep, or a failed write. Never throws: the clear is done anyway.
  */
 export async function saveClearTranscript(
-	channel: BaseGuildTextChannel,
+	channel: TicketChannel,
 	messages: Message[],
 	moderator: User
 ): Promise<string | null> {

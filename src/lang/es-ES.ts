@@ -370,6 +370,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Un menú con opciones, ajustes por opción y formularios.",
 	ticket_panel_panel_18_label: "Cambiar de modo (simple / avanzado)",
+	ticket_panel_panel_19_label: "Tipo de ticket (canal / hilo)",
+	ticket_panel_panel_20_label: "Canal de los hilos",
+	ticket_panel_panel_21_label: "Canal de los hilos de una opción",
+	ticket_panel_ticket_type: "🧵 Tipo de ticket:",
+	ticket_panel_ticket_type_channel: "un canal por ticket",
+	ticket_panel_ticket_type_thread: "un hilo privado por ticket",
+	ticket_panel_thread_channel: "🧵 Canal de los hilos",
+	ticket_panel_thread_channel_default: "El canal del panel",
+	ticket_panel_thread_channel_placeholder:
+		"Elige el canal donde se abren los hilos de los tickets",
+	ticket_panel_section_where: "📍 Dónde se abren los tickets",
+	ticket_panel_section_who: "👥 Quién ve cada ticket",
+	ticket_panel_section_notify: "🔔 Al abrirse",
+	ticket_panel_section_inside: "🧩 Dentro del ticket",
+	ticket_panel_who_author: "El miembro que lo abre",
+	ticket_panel_who_channel_category:
+		"Quien ve la categoría ${category}: el ticket copia sus permisos",
+	ticket_panel_who_channel_nocategory:
+		"Solo los administradores: sin categoría, el ticket solo está abierto al miembro",
+	ticket_panel_who_thread_added:
+		"**Añadidos al hilo (staff):** ${roles} · ${count} miembros",
+	ticket_panel_who_thread_added_later:
+		"**Añadidos al hilo (staff):** ${roles}, y los roles que gestionan hilos en el canal del panel (se comprueba al enviarlo)",
+	ticket_panel_who_thread_managers:
+		"**También pueden abrirlo:** quienes tienen Gestionar hilos en ${channel}, administradores incluidos",
+	ticket_panel_ping_note_thread:
+		"Mencionados al abrirse, y añadidos al hilo.",
+	ticket_panel_ping_note_channel:
+		"Solo mencionados: ven el ticket si ven la categoría.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"Los tickets de este canal son hilos privados: solo sus miembros y el staff los ven. Haz clic para ver los tuyos.",
+	ticket_thread_hub_button: "Ver los tickets",
+	ticket_thread_summary_title: "Tickets de ${channel} · ${count}",
+	ticket_thread_summary_empty: "No hay ningún ticket que puedas ver aquí.",
+	ticket_thread_summary_open: "🟢 abierto",
+	ticket_thread_summary_closed: "🔒 cerrado",
+	ticket_thread_summary_line:
+		"-# de ${author} · 💬 ${messages} mensajes · último mensaje ${last}",
+	ticket_thread_summary_more: "y ${count} más…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ No se añadirá a nadie del staff a los hilos: da Gestionar hilos en ${channel} a un rol de staff o pon miembros en los roles a mencionar.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Nadie puede gestionar hilos en ${channel} (ningún rol con Gestionar hilos ni administrador): solo el propietario del servidor verá todos los hilos de tickets.",
+	ticket_panel_option_change_thread_channel:
+		"Elige una opción para cambiar el canal de sus hilos",
+	ticket_thread_parent_missing:
+		"El canal de los hilos de tickets de este panel ya no existe o no es un canal de texto: pide a un administrador que lo cambie en `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"No puedo abrir hilos de tickets en ${channel}: me falta ${permissions} allí.",
+	ticket_open_failed:
+		"No se pudo abrir tu ticket. Inténtalo de nuevo en un momento o avisa al staff.",
 	ticket_panel_simple_default_title: "Soporte",
 	ticket_panel_simple_default_desc:
 		"¿Necesitas ayuda? Haz clic en el botón de abajo para abrir un ticket.",
@@ -1929,6 +1982,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | No puedo crear los canales de registros, me faltan estos permisos: ${permissions}.",
 	setlogschannel_var_economy: "Registros de economía",
+	logs_forum_post_intro:
+		"Esta publicación recibe los **${logType}** del servidor. iHorizon escribe aquí cada nuevo log.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!",

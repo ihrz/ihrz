@@ -30,9 +30,10 @@ export const event: BotEvent = {
 
 		for (const user in fetch) {
 			for (const channel_2 in fetch[user]) {
+				// Only this ticket: the member's other tickets stay known.
 				if (channel.id === channel_2) {
 					await client.db.delete(
-						`${channel.guild.id}.TICKET_ALL.${user}`
+						`${channel.guild.id}.TICKET_ALL.${user}.${channel_2}`
 					);
 				}
 			}

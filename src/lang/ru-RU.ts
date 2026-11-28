@@ -369,6 +369,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Меню с вариантами, настройками для каждого варианта и формами.",
 	ticket_panel_panel_18_label: "Сменить режим (простой / расширенный)",
+	ticket_panel_panel_19_label: "Тип тикета (канал / ветка)",
+	ticket_panel_panel_20_label: "Канал веток",
+	ticket_panel_panel_21_label: "Канал веток для варианта",
+	ticket_panel_ticket_type: "🧵 Тип тикета:",
+	ticket_panel_ticket_type_channel: "канал на тикет",
+	ticket_panel_ticket_type_thread: "приватная ветка на тикет",
+	ticket_panel_thread_channel: "🧵 Канал веток",
+	ticket_panel_thread_channel_default: "Канал панели",
+	ticket_panel_thread_channel_placeholder:
+		"Выберите канал, где открываются ветки тикетов",
+	ticket_panel_section_where: "📍 Где открываются тикеты",
+	ticket_panel_section_who: "👥 Кто видит каждый тикет",
+	ticket_panel_section_notify: "🔔 При открытии",
+	ticket_panel_section_inside: "🧩 Внутри тикета",
+	ticket_panel_who_author: "Участник, который его открывает",
+	ticket_panel_who_channel_category:
+		"Все, кто видит категорию ${category}: тикет копирует её права",
+	ticket_panel_who_channel_nocategory:
+		"Только администраторы: без категории тикет открыт только участнику",
+	ticket_panel_who_thread_added:
+		"**Добавлены в ветку (персонал):** ${roles} · участников: ${count}",
+	ticket_panel_who_thread_added_later:
+		"**Добавлены в ветку (персонал):** ${roles} и роли, управляющие ветками в канале панели (проверяется при отправке)",
+	ticket_panel_who_thread_managers:
+		"**Также могут открыть:** те, у кого есть «Управлять ветками» в ${channel}, включая администраторов",
+	ticket_panel_ping_note_thread:
+		"Упоминаются при открытии и добавляются в ветку.",
+	ticket_panel_ping_note_channel:
+		"Только упоминаются: видят тикет, если видят категорию.",
+	ticket_thread_hub_title: "🎫 Тикеты",
+	ticket_thread_hub_desc:
+		"Тикеты этого канала — приватные ветки: их видят только участники и персонал. Нажмите, чтобы увидеть свои.",
+	ticket_thread_hub_button: "Показать тикеты",
+	ticket_thread_summary_title: "Тикеты в ${channel} · ${count}",
+	ticket_thread_summary_empty: "Здесь нет тикетов, которые вы можете видеть.",
+	ticket_thread_summary_open: "🟢 открыт",
+	ticket_thread_summary_closed: "🔒 закрыт",
+	ticket_thread_summary_line:
+		"-# от ${author} · 💬 сообщений: ${messages} · последнее сообщение ${last}",
+	ticket_thread_summary_more: "и ещё ${count}…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Никто из персонала не будет добавлен в ветки: дайте роли персонала право «Управлять ветками» в ${channel} или добавьте участников в роли для упоминания.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Никто не может управлять ветками в ${channel} (нет ролей с «Управлять ветками» и администраторов): все ветки тикетов увидит только владелец сервера.",
+	ticket_panel_option_change_thread_channel:
+		"Выберите вариант, чтобы изменить канал его веток",
+	ticket_thread_parent_missing:
+		"Канал веток тикетов этой панели больше не существует или не является текстовым: попросите администратора изменить его в `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Я не могу открывать ветки тикетов в ${channel}: мне там не хватает ${permissions}.",
+	ticket_open_failed:
+		"Не удалось открыть ваш тикет. Попробуйте чуть позже или сообщите персоналу.",
 	ticket_panel_simple_default_title: "Поддержка",
 	ticket_panel_simple_default_desc:
 		"Нужна помощь? Нажмите кнопку ниже, чтобы открыть тикет.",
@@ -1900,6 +1953,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Я не могу создать каналы логов, мне не хватает прав: ${permissions}.",
 	setlogschannel_var_economy: "Журналы экономики",
+	logs_forum_post_intro:
+		"В этот пост приходят **${logType}** сервера. iHorizon пишет сюда каждый новый лог.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "Канал ${channel} уже установлен!",

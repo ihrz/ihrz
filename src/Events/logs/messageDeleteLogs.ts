@@ -115,12 +115,10 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const someinfo = await client.db.get(
-			`${message.guild.id}.GUILD.SERVER_LOGS.message`
+		const Msgchannel = await client.func.logChannel.getLogChannel(
+			message.guild,
+			"message"
 		);
-		if (!someinfo) return;
-
-		const Msgchannel = message.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
 		const files = (

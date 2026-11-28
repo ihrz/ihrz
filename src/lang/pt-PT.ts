@@ -371,6 +371,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"Um menu com opções, definições por opção e formulários.",
 	ticket_panel_panel_18_label: "Mudar de modo (simples / avançado)",
+	ticket_panel_panel_19_label: "Tipo de ticket (canal / tópico)",
+	ticket_panel_panel_20_label: "Canal dos tópicos",
+	ticket_panel_panel_21_label: "Canal dos tópicos de uma opção",
+	ticket_panel_ticket_type: "🧵 Tipo de ticket:",
+	ticket_panel_ticket_type_channel: "um canal por ticket",
+	ticket_panel_ticket_type_thread: "um tópico privado por ticket",
+	ticket_panel_thread_channel: "🧵 Canal dos tópicos",
+	ticket_panel_thread_channel_default: "O canal do painel",
+	ticket_panel_thread_channel_placeholder:
+		"Escolhe o canal onde se abrem os tópicos dos tickets",
+	ticket_panel_section_where: "📍 Onde se abrem os tickets",
+	ticket_panel_section_who: "👥 Quem vê cada ticket",
+	ticket_panel_section_notify: "🔔 Ao abrir",
+	ticket_panel_section_inside: "🧩 Dentro do ticket",
+	ticket_panel_who_author: "O membro que o abre",
+	ticket_panel_who_channel_category:
+		"Quem vê a categoria ${category}: o ticket copia as suas permissões",
+	ticket_panel_who_channel_nocategory:
+		"Só os administradores: sem categoria, o ticket só está aberto ao membro",
+	ticket_panel_who_thread_added:
+		"**Adicionados ao tópico (equipa):** ${roles} · ${count} membros",
+	ticket_panel_who_thread_added_later:
+		"**Adicionados ao tópico (equipa):** ${roles}, e os cargos que gerem tópicos no canal do painel (verificado no envio)",
+	ticket_panel_who_thread_managers:
+		"**Também o podem abrir:** quem tem Gerir tópicos em ${channel}, administradores incluídos",
+	ticket_panel_ping_note_thread:
+		"Mencionados ao abrir e adicionados ao tópico.",
+	ticket_panel_ping_note_channel:
+		"Só mencionados: veem o ticket se virem a categoria.",
+	ticket_thread_hub_title: "🎫 Tickets",
+	ticket_thread_hub_desc:
+		"Os tickets deste canal são tópicos privados: só os seus membros e a equipa os veem. Clica para veres os teus.",
+	ticket_thread_hub_button: "Ver os tickets",
+	ticket_thread_summary_title: "Tickets de ${channel} · ${count}",
+	ticket_thread_summary_empty: "Nenhum ticket que possas ver aqui.",
+	ticket_thread_summary_open: "🟢 aberto",
+	ticket_thread_summary_closed: "🔒 fechado",
+	ticket_thread_summary_line:
+		"-# de ${author} · 💬 ${messages} mensagens · última mensagem ${last}",
+	ticket_thread_summary_more: "e mais ${count}…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ Ninguém da equipa será adicionado aos tópicos: dá Gerir tópicos em ${channel} a um cargo da equipa ou põe membros nos cargos a mencionar.",
+	ticket_panel_thread_no_managers:
+		"⚠️ Ninguém pode gerir tópicos em ${channel} (nenhum cargo com Gerir tópicos nem administrador): só o dono do servidor verá todos os tópicos de tickets.",
+	ticket_panel_option_change_thread_channel:
+		"Escolhe uma opção para mudar o canal dos seus tópicos",
+	ticket_thread_parent_missing:
+		"O canal dos tópicos de tickets deste painel já não existe ou não é um canal de texto: pede a um administrador para o mudar em `/ticket panel`.",
+	ticket_thread_bot_missing_perms:
+		"Não consigo abrir tópicos de tickets em ${channel}: falta-me ${permissions}.",
+	ticket_open_failed:
+		"Não foi possível abrir o teu ticket. Tenta de novo daqui a pouco ou avisa a equipa.",
 	ticket_panel_simple_default_title: "Suporte",
 	ticket_panel_simple_default_desc:
 		"Precisas de ajuda? Clica no botão abaixo para abrir um ticket.",
@@ -1918,6 +1971,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | Não consigo criar os canais de logs, faltam-me estas permissões: ${permissions}.",
 	setlogschannel_var_economy: "Registos de economia",
+	logs_forum_post_intro:
+		"Esta publicação recebe os **${logType}** do servidor. O iHorizon escreve aqui cada novo log.",
 
 	// /join-ghostping add
 	joinghostping_add_already_set: "O canal ${channel} já está configurado!",

@@ -49,12 +49,11 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const someinfo = await client.db.get(
-			`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`
+		const Msgchannel = await client.func.logChannel.getLogChannel(
+			newMember.guild,
+			"roles"
 		);
-		const Msgchannel = newMember.guild.channels.cache.get(someinfo);
-
-		if (!someinfo || !Msgchannel) return;
+		if (!Msgchannel) return;
 
 		const firstEntry = await getLogs({
 			guild: newMember.guild,

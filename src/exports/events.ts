@@ -91,24 +91,25 @@ import * as m65 from "../Events/suggestion/onNewMessage.ts";
 import * as m66 from "../Events/ticket/deleteTicketOnLeave.ts";
 import * as m67 from "../Events/ticket/deleteTicketPanel.ts";
 import * as m68 from "../Events/ticket/deleteTicketPanelOnMessageDelete.ts";
-import * as m69 from "../Events/tts/messageCreate.ts";
-import * as m70 from "../Events/tts/voiceState.ts";
-import * as m71 from "../Events/utils/antiExe.ts";
-import * as m72 from "../Events/utils/autoFeur.ts";
-import * as m73 from "../Events/utils/guildOwnerSafetySetWhenMessage.ts";
-import * as m74 from "../Events/utils/leashModule.ts";
-import * as m75 from "../Events/utils/locknameModule.ts";
-import * as m76 from "../Events/utils/nickKicker.ts";
-import * as m77 from "../Events/utils/picOnlyModule.ts";
-import * as m78 from "../Events/utils/prevnamesModule.ts";
-import * as m79 from "../Events/utils/prevnamesModuleGuild.ts";
-import * as m80 from "../Events/utils/rankRoleModule.ts";
-import * as m81 from "../Events/utils/rankRoleModule_2.ts";
-import * as m82 from "../Events/utils/roleLimit.ts";
-import * as m83 from "../Events/utils/snipeModule.ts";
-import * as m84 from "../Events/utils/supportModule.ts";
-import * as m85 from "../Events/utils/voiceTalkFreeze.ts";
-import * as m86 from "../Events/voicedashboard/voiceState.ts";
+import * as m69 from "../Events/ticket/deleteTicketThread.ts";
+import * as m70 from "../Events/tts/messageCreate.ts";
+import * as m71 from "../Events/tts/voiceState.ts";
+import * as m72 from "../Events/utils/antiExe.ts";
+import * as m73 from "../Events/utils/autoFeur.ts";
+import * as m74 from "../Events/utils/guildOwnerSafetySetWhenMessage.ts";
+import * as m75 from "../Events/utils/leashModule.ts";
+import * as m76 from "../Events/utils/locknameModule.ts";
+import * as m77 from "../Events/utils/nickKicker.ts";
+import * as m78 from "../Events/utils/picOnlyModule.ts";
+import * as m79 from "../Events/utils/prevnamesModule.ts";
+import * as m80 from "../Events/utils/prevnamesModuleGuild.ts";
+import * as m81 from "../Events/utils/rankRoleModule.ts";
+import * as m82 from "../Events/utils/rankRoleModule_2.ts";
+import * as m83 from "../Events/utils/roleLimit.ts";
+import * as m84 from "../Events/utils/snipeModule.ts";
+import * as m85 from "../Events/utils/supportModule.ts";
+import * as m86 from "../Events/utils/voiceTalkFreeze.ts";
+import * as m87 from "../Events/voicedashboard/voiceState.ts";
 
 const files: Record<string, unknown> = {
 	"antispam/onNewMessage.ts": m0,
@@ -180,24 +181,25 @@ const files: Record<string, unknown> = {
 	"ticket/deleteTicketOnLeave.ts": m66,
 	"ticket/deleteTicketPanel.ts": m67,
 	"ticket/deleteTicketPanelOnMessageDelete.ts": m68,
-	"tts/messageCreate.ts": m69,
-	"tts/voiceState.ts": m70,
-	"utils/antiExe.ts": m71,
-	"utils/autoFeur.ts": m72,
-	"utils/guildOwnerSafetySetWhenMessage.ts": m73,
-	"utils/leashModule.ts": m74,
-	"utils/locknameModule.ts": m75,
-	"utils/nickKicker.ts": m76,
-	"utils/picOnlyModule.ts": m77,
-	"utils/prevnamesModule.ts": m78,
-	"utils/prevnamesModuleGuild.ts": m79,
-	"utils/rankRoleModule.ts": m80,
-	"utils/rankRoleModule_2.ts": m81,
-	"utils/roleLimit.ts": m82,
-	"utils/snipeModule.ts": m83,
-	"utils/supportModule.ts": m84,
-	"utils/voiceTalkFreeze.ts": m85,
-	"voicedashboard/voiceState.ts": m86
+	"ticket/deleteTicketThread.ts": m69,
+	"tts/messageCreate.ts": m70,
+	"tts/voiceState.ts": m71,
+	"utils/antiExe.ts": m72,
+	"utils/autoFeur.ts": m73,
+	"utils/guildOwnerSafetySetWhenMessage.ts": m74,
+	"utils/leashModule.ts": m75,
+	"utils/locknameModule.ts": m76,
+	"utils/nickKicker.ts": m77,
+	"utils/picOnlyModule.ts": m78,
+	"utils/prevnamesModule.ts": m79,
+	"utils/prevnamesModuleGuild.ts": m80,
+	"utils/rankRoleModule.ts": m81,
+	"utils/rankRoleModule_2.ts": m82,
+	"utils/roleLimit.ts": m83,
+	"utils/snipeModule.ts": m84,
+	"utils/supportModule.ts": m85,
+	"utils/voiceTalkFreeze.ts": m86,
+	"voicedashboard/voiceState.ts": m87
 };
 
 export default files;

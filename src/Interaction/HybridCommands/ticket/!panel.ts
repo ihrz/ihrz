@@ -55,6 +55,10 @@ import {
 import { metasTable } from "../../../Events/client/ready.js";
 import { readSavedEmbed } from "../../../core/functions/embedHelper.js";
 import { SubCommand } from "../../../../types/command.js";
+import {
+	ensureThreadHub,
+	threadStaffCheck
+} from "../../../core/modules/ticketThreads.js";
 
 /**
  * Answers the "ticket channel embed" modal ONCE and returns the code to keep.
@@ -86,6 +90,9 @@ export async function answerChannelPanelModal(
 
 export type TicketPanelMode = "simple" | "advanced";
 
+/** channel: a new channel per ticket (in `category`). thread: a private thread per ticket (in `threadChannel`). */
+export type TicketType = "channel" | "thread";
+
 export interface TicketPanel {
 	panelCode: string;
 	/**
@@ -94,6 +101,10 @@ export interface TicketPanel {
 	 * advanced.
 	 */
 	mode?: TicketPanelMode;
+	/** Panels saved before it existed open channels. */
+	ticketType?: TicketType;
+	/** Thread mode: the text channel the threads open in (unset: the panel's own channel). */
+	threadChannel?: string | null;
 	relatedEmbedId: string | null;
 	placeholder: string;
 	category?: string;
@@ -115,6 +126,8 @@ export interface TicketOption {
 	value: string;
 	emoji?: string;
 	categoryId?: string;
+	/** Thread mode: this option's threads open in this channel instead of the panel's. */
+	threadChannelId?: string;
 	panelId?: string;
 	form?: TicketForms[];
 	rolesToPing: string[];
@@ -164,6 +177,8 @@ export const subCommand: SubCommand = {
 					numbers: true
 				}),
 			mode: rawData?.mode ?? (rawData ? "advanced" : "simple"),
+			ticketType: rawData?.ticketType === "thread" ? "thread" : "channel",
+			threadChannel: rawData?.threadChannel ?? null,
 			relatedEmbedId: rawData?.relatedEmbedId ?? null,
 			category: rawData?.category ?? null,
 			placeholder:
@@ -244,14 +259,43 @@ export const subCommand: SubCommand = {
 
 			container.addSeparatorComponents(new SeparatorBuilder());
 
+			// 1. Where the tickets open.
 			container.addTextDisplayComponents(
 				new TextDisplayBuilder().setContent(
-					`**${lang.ticket_panel_role_to_ping}**\n${formatRoles(baseData.config.rolesToPing, lang)}\n` +
-						`**${lang.ticket_panel_ping_user}** ${baseData.config.pingUser ? "🟢" : "🔴"}\n` +
+					`### ${lang.ticket_panel_section_where}\n` +
+						`**${lang.ticket_panel_ticket_type}** ${isThread() ? lang.ticket_panel_ticket_type_thread : lang.ticket_panel_ticket_type_channel}\n` +
+						(isThread()
+							? `**${lang.ticket_panel_thread_channel}** ${baseData.threadChannel ? formatCategory(baseData.threadChannel, interaction.guild!) : lang.ticket_panel_thread_channel_default}`
+							: `**${lang.ticket_panel_category}** ${formatCategory(baseData.category, interaction.guild!)}`)
+				)
+			);
+
+			// 2. Who sees each ticket (what the bot will really do, warnings included).
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${lang.ticket_panel_section_who}\n${whoSeesLines()}`
+				)
+			);
+
+			container.addSeparatorComponents(new SeparatorBuilder());
+
+			// 3. When a ticket opens: who is mentioned.
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${lang.ticket_panel_section_notify}\n` +
+						`**${lang.ticket_panel_role_to_ping}** ${formatRoles(baseData.config.rolesToPing, lang)}\n` +
+						`-# ${isThread() ? lang.ticket_panel_ping_note_thread : lang.ticket_panel_ping_note_channel}\n` +
+						`**${lang.ticket_panel_ping_user}** ${baseData.config.pingUser ? "🟢" : "🔴"}`
+				)
+			);
+
+			// 4. Inside the ticket.
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${lang.ticket_panel_section_inside}\n` +
 						(isSimple()
 							? ""
-							: `**${lang.ticket_panel_placeholder}**\n${baseData.placeholder || lang.var_no_set}\n`) +
-						`**${lang.ticket_panel_category}**\n${formatCategory(baseData.category, interaction.guild!)}\n` +
+							: `**${lang.ticket_panel_placeholder}** ${baseData.placeholder || lang.var_no_set}\n`) +
 						`**${lang.ticket_panel_select_user}** ${baseData.config.userSelectPanel ? "🟢" : "🔴"}\n` +
 						`**${lang.ticket_panel_button_delete}** ${baseData.config.deleteButton ? "🟢" : "🔴"}\n` +
 						`**${lang.ticket_panel_button_transcript}** ${baseData.config.transcriptButton ? "🟢" : "🔴"}`
@@ -305,6 +349,7 @@ export const subCommand: SubCommand = {
 		// Choices only meaningful with a select menu (options, forms).
 		const ADVANCED_ONLY_CHOICES = new Set([
 			"change_category_2",
+			"change_thread_channel_2",
 			"change_form",
 			"change_option",
 			"change_placeholder",
@@ -317,6 +362,134 @@ export const subCommand: SubCommand = {
 			return baseData.mode === "simple";
 		}
 
+		function isThread(): boolean {
+			return baseData.ticketType === "thread";
+		}
+
+		// Thread mode: warnings when nobody from the staff would be added to the
+		// threads, or nobody but administrators can manage them.
+		let threadStaffWarning: string | null = null;
+		let threadPreview: Awaited<ReturnType<typeof threadStaffCheck>> | null =
+			null;
+
+		function pingRolesOfPanel(): string[] {
+			return [
+				...baseData.config.rolesToPing,
+				...(isSimple()
+					? []
+					: baseData.config.optionFields.flatMap(
+							(o) => o.rolesToPing ?? []
+						))
+			];
+		}
+
+		async function previewFor(parentId: string | null | undefined) {
+			if (!isThread() || !parentId) return null;
+			const parent = interaction.guild!.channels.cache.get(parentId);
+			if (parent?.type !== ChannelType.GuildText) return null;
+			const check = await threadStaffCheck(
+				parent,
+				pingRolesOfPanel()
+			).catch(() => null);
+			return check ? { parent, check } : null;
+		}
+
+		/** The warnings for threads opened in `parentId` (null: nothing to say). */
+		async function staffWarningFor(
+			parentId: string | null | undefined,
+			known?: Awaited<ReturnType<typeof previewFor>>
+		): Promise<string | null> {
+			const preview = known ?? (await previewFor(parentId));
+			if (!preview) return null;
+			const { parent, check } = preview;
+			const lines: string[] = [];
+			if (check.managers === 0)
+				lines.push(
+					lang.ticket_panel_thread_no_managers.replace(
+						"${channel}",
+						parent.toString()
+					)
+				);
+			if (check.staff === 0)
+				lines.push(
+					lang.ticket_panel_thread_no_staff.replace(
+						"${channel}",
+						parent.toString()
+					)
+				);
+			return lines.length > 0 ? lines.join("\n-# ") : null;
+		}
+
+		async function updateStaffWarning() {
+			const preview = await previewFor(baseData.threadChannel);
+			threadPreview = preview?.check ?? null;
+			threadStaffWarning = preview
+				? await staffWarningFor(baseData.threadChannel, preview)
+				: null;
+		}
+
+		/** "Who sees each ticket", as the bot will really do it. */
+		function whoSeesLines(): string {
+			const lines = [`• ${lang.ticket_panel_who_author}`];
+			if (!isThread()) {
+				lines.push(
+					`• ${
+						baseData.category
+							? lang.ticket_panel_who_channel_category.replace(
+									"${category}",
+									formatCategory(
+										baseData.category,
+										interaction.guild!
+									)
+								)
+							: lang.ticket_panel_who_channel_nocategory
+					}`
+				);
+				return lines.join("\n");
+			}
+			const pingRoles = pingRolesOfPanel();
+			if (threadPreview && baseData.threadChannel) {
+				const roles = [
+					...new Set([...threadPreview.managerRoles, ...pingRoles])
+				];
+				lines.push(
+					`• ${lang.ticket_panel_who_thread_added
+						.replace("${roles}", formatRoles(roles, lang))
+						.replace("${count}", String(threadPreview.staff))}`
+				);
+			} else {
+				lines.push(
+					`• ${lang.ticket_panel_who_thread_added_later.replace(
+						"${roles}",
+						formatRoles(pingRoles, lang)
+					)}`
+				);
+			}
+			lines.push(
+				`• ${lang.ticket_panel_who_thread_managers.replace(
+					"${channel}",
+					baseData.threadChannel
+						? formatCategory(
+								baseData.threadChannel,
+								interaction.guild!
+							)
+						: lang.ticket_panel_thread_channel_default
+				)}`
+			);
+			if (threadStaffWarning) lines.push(`-# ${threadStaffWarning}`);
+			return lines.join("\n");
+		}
+
+		// A ticket is a channel (in a category) or a thread (of a channel): only the matching settings show.
+		const CHANNEL_ONLY_CHOICES = new Set([
+			"change_category",
+			"change_category_2"
+		]);
+		const THREAD_ONLY_CHOICES = new Set([
+			"change_thread_channel",
+			"change_thread_channel_2"
+		]);
+
 		function buildPanelSelect(): StringSelectMenuBuilder {
 			const choices: [string, string, string][] = [
 				["save", lang.ticket_panel_panel_1_label, "Ticket_Save"],
@@ -325,6 +498,21 @@ export const subCommand: SubCommand = {
 					"change_mode",
 					lang.ticket_panel_panel_18_label,
 					"Ticket_Settings"
+				],
+				[
+					"change_ticket_type",
+					lang.ticket_panel_panel_19_label,
+					"Ticket_Settings"
+				],
+				[
+					"change_thread_channel",
+					lang.ticket_panel_panel_20_label,
+					"Ticket_Hash"
+				],
+				[
+					"change_thread_channel_2",
+					lang.ticket_panel_panel_21_label,
+					"Ticket_Hash"
 				],
 				[
 					"change_embed",
@@ -397,7 +585,13 @@ export const subCommand: SubCommand = {
 					choices
 						.filter(
 							([value]) =>
-								!isSimple() || !ADVANCED_ONLY_CHOICES.has(value)
+								(!isSimple() ||
+									!ADVANCED_ONLY_CHOICES.has(value)) &&
+								!(
+									isThread()
+										? CHANNEL_ONLY_CHOICES
+										: THREAD_ONLY_CHOICES
+								).has(value)
 						)
 						.map(([value, label, emoji]) =>
 							panelOption(label, value, emoji)
@@ -422,6 +616,7 @@ export const subCommand: SubCommand = {
 			];
 		}
 
+		await updateStaffWarning();
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
 			buildPanelMessage()
@@ -481,6 +676,20 @@ export const subCommand: SubCommand = {
 						baseData.mode = isSimple() ? "advanced" : "simple";
 						isSaved = false;
 						await refreshPanelMessage();
+						break;
+					case "change_ticket_type":
+						await i.deferUpdate();
+						baseData.ticketType = isThread() ? "channel" : "thread";
+						isSaved = false;
+						await refreshPanelMessage();
+						break;
+					case "change_thread_channel":
+						await i.deferUpdate();
+						await changeThreadChannel(false);
+						break;
+					case "change_thread_channel_2":
+						await i.deferUpdate();
+						await changeThreadChannel(true);
 						break;
 					case "save":
 						await i.deferUpdate();
@@ -633,6 +842,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function refreshPanelMessage() {
+			await updateStaffWarning();
 			const panelMessage = buildPanelMessage();
 			await originalResponse.edit({
 				components: panelMessage.components,
@@ -677,7 +887,11 @@ export const subCommand: SubCommand = {
 					str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
 				if (opt.emoji)
 					str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
-				if (opt.categoryId)
+				// The setting that applies to this panel's type: threads' channel or category.
+				if (isThread()) {
+					if (opt.threadChannelId)
+						str += `  ┖ ${lang.ticket_panel_thread_channel}: ${formatCategory(opt.threadChannelId, interaction.guild!)}\n`;
+				} else if (opt.categoryId)
 					str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
 				if (opt.panelId)
 					str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
@@ -739,7 +953,10 @@ export const subCommand: SubCommand = {
 					str += `  ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
 				if (opt.emoji)
 					str += `  ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
-				if (opt.categoryId)
+				if (isThread()) {
+					if (opt.threadChannelId)
+						str += `  Threads: ${formatCategory(opt.threadChannelId, interaction.guild!)}\n`;
+				} else if (opt.categoryId)
 					str += `  Category: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
 				if (opt.panelId)
 					str += `  ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
@@ -864,12 +1081,38 @@ export const subCommand: SubCommand = {
 
 				collector.stop("legitEnd");
 				selectCollector.stop("legitEnd");
+				// Threads' channels other than the panel's: their summary button, now.
+				if (isThread()) {
+					const threadChannels = new Set(
+						[
+							baseData.threadChannel,
+							...(isSimple()
+								? []
+								: baseData.config.optionFields.map(
+										(o) => o.threadChannelId
+									))
+						].filter(
+							(id): id is string => !!id && id !== channel.id
+						)
+					);
+					for (const id of threadChannels) {
+						const parent =
+							interaction.guild!.channels.cache.get(id);
+						if (parent?.type === ChannelType.GuildText)
+							void ensureThreadHub(parent, lang);
+					}
+				}
+				// Threads opened in the panel's own channel: checked now that it is known.
+				const staffWarning = baseData.threadChannel
+					? threadStaffWarning
+					: await staffWarningFor(channel.id);
 				await originalResponse.edit({
 					components: [
 						buildPromptContainer(
 							lang.ticket_panel_saved_and_sended_panel
 								.replace("${panelCode}", panelCode)
-								.replace("${channel}", channel.toString())
+								.replace("${channel}", channel.toString()) +
+								(staffWarning ? `\n-# ${staffWarning}` : "")
 						)
 					],
 					files: [],
@@ -1173,6 +1416,63 @@ export const subCommand: SubCommand = {
 				option.categoryId = category;
 				isSaved = false;
 
+				await refreshPanelMessage();
+				channelCollector.stop("legitEnd");
+			});
+
+			channelCollector.on("end", async (_, reason) => {
+				if (reason === "legitEnd") return;
+				await refreshPanelMessage();
+			});
+		}
+
+		/** The text channel the threads open in: the panel's, or one option's (`forOption`). */
+		async function changeThreadChannel(forOption: boolean) {
+			let option: TicketOption | null = null;
+			if (forOption) {
+				const selected = await selectOption(
+					"change_thread_channel_for_option",
+					lang.ticket_panel_option_change_thread_channel
+				);
+				if (!selected) return;
+				option = selected.option;
+				await selected.interaction.deferUpdate();
+			}
+			const channelSelect = new ChannelSelectMenuBuilder()
+				.setCustomId("change_thread_channel_select")
+				.setChannelTypes(ChannelType.GuildText)
+				.setPlaceholder(lang.ticket_panel_thread_channel_placeholder);
+
+			const prompt = await originalResponse.edit({
+				components: [
+					buildPromptContainer(
+						lang.ticket_panel_thread_channel_placeholder
+					),
+					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+						channelSelect
+					)
+				],
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
+			});
+
+			const channelCollector = prompt.createMessageComponentCollector({
+				componentType: ComponentType.ChannelSelect,
+				time: 60_000,
+				max: 1
+			});
+
+			channelCollector.on("collect", async (i) => {
+				if (i.user.id !== interaction.member!.user.id) {
+					return i.reply({
+						flags: [1 << 6],
+						content: lang.help_not_for_you
+					});
+				}
+				await i.deferUpdate();
+				if (option) option.threadChannelId = i.values[0];
+				else baseData.threadChannel = i.values[0];
+				isSaved = false;
 				await refreshPanelMessage();
 				channelCollector.stop("legitEnd");
 			});

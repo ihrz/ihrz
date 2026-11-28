@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import type { LogType } from "../../../core/functions/logChannel.js";
 import {
 	Client,
 	ApplicationCommandOptionType,
@@ -61,10 +62,18 @@ export function missingLogPermissions(
 	target: GuildBasedChannel | undefined,
 	botUser: User
 ): string[] {
+	// A forum: the bot opens a post per log type and writes in it.
+	const needed =
+		target?.type === ChannelType.GuildForum
+			? [
+					...LOG_CHANNEL_PERMISSIONS,
+					PermissionFlagsBits.SendMessagesInThreads
+				]
+			: LOG_CHANNEL_PERMISSIONS;
 	const permissions = target?.permissionsFor(botUser);
 	return permissions
-		? permissions.missing(LOG_CHANNEL_PERMISSIONS)
-		: new PermissionsBitField(LOG_CHANNEL_PERMISSIONS).toArray();
+		? permissions.missing(needed)
+		: new PermissionsBitField(needed).toArray();
 }
 
 function formatPermissions(names: string[]): string {
@@ -319,7 +328,7 @@ export const command: Command = {
 		{
 			name: "channel",
 			type: ApplicationCommandOptionType.Channel,
-			channel_types: [ChannelType.GuildText],
+			channel_types: [ChannelType.GuildText, ChannelType.GuildForum],
 			description: "The channel you want your logs message!",
 			description_localizations: {
 				fr: "Le canal sur lequel vous souhaitez recevoir votre message de journaux",
@@ -433,25 +442,27 @@ export const command: Command = {
 					return;
 				}
 
-				await (target as BaseGuildTextChannel)
-					.send(
-						cardPayload(
-							notice(
-								"success",
-								lang.setlogschannel_confirmation_message
-									.replace(
-										"${emoji_Yes}",
-										client.iHorizon_Emojis.Yes
-									)
-									.replace(
-										"${authorId}",
-										interaction.member?.user.id as string
-									)
-									.replace("${typeOfLogs}", typeOfLogs)
+				if (target?.type !== ChannelType.GuildForum)
+					await (target as BaseGuildTextChannel)
+						.send(
+							cardPayload(
+								notice(
+									"success",
+									lang.setlogschannel_confirmation_message
+										.replace(
+											"${emoji_Yes}",
+											client.iHorizon_Emojis.Yes
+										)
+										.replace(
+											"${authorId}",
+											interaction.member?.user
+												.id as string
+										)
+										.replace("${typeOfLogs}", typeOfLogs)
+								)
 							)
 						)
-					)
-					.catch(() => null);
+						.catch(() => null);
 
 				if (logKey === "ticket-log-channel") {
 					await client.db.set(
@@ -464,6 +475,14 @@ export const command: Command = {
 						channel.id
 					);
 				}
+				// A forum: its post for this type is opened now (its first message says what it is for).
+				if (target?.type === ChannelType.GuildForum)
+					await client.func.logChannel.getLogChannel(
+						target.guild,
+						logKey === "ticket-log-channel"
+							? "ticket"
+							: (logKey as LogType)
+					);
 
 				await sendCard(
 					client,
@@ -526,30 +545,40 @@ export const command: Command = {
 					}
 				}
 				allCreatedChannels.push(channel.id);
-				await (target as BaseGuildTextChannel)
-					.send(
-						cardPayload(
-							notice(
-								"success",
-								lang.setlogschannel_confirmation_message
-									.replace(
-										"${emoji_Yes}",
-										client.iHorizon_Emojis.Yes
-									)
-									.replace(
-										"${authorId}",
-										interaction.member.user.id!
-									)
-									.replace(
-										"${typeOfLogs}",
-										allLogsPossible
-											.map((x) => x.value)
-											.join(",")
-									)
+				// A forum: one post per log type, opened now.
+				if (target?.type === ChannelType.GuildForum)
+					for (const logType of allLogsPossible)
+						await client.func.logChannel.getLogChannel(
+							interaction.guild,
+							logType.id === "ticket-log-channel"
+								? "ticket"
+								: (logType.id as LogType)
+						);
+				if (target?.type !== ChannelType.GuildForum)
+					await (target as BaseGuildTextChannel)
+						.send(
+							cardPayload(
+								notice(
+									"success",
+									lang.setlogschannel_confirmation_message
+										.replace(
+											"${emoji_Yes}",
+											client.iHorizon_Emojis.Yes
+										)
+										.replace(
+											"${authorId}",
+											interaction.member.user.id!
+										)
+										.replace(
+											"${typeOfLogs}",
+											allLogsPossible
+												.map((x) => x.value)
+												.join(",")
+										)
+								)
 							)
 						)
-					)
-					.catch(() => null);
+						.catch(() => null);
 
 				await sendCard(
 					client,

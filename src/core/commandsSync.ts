@@ -45,7 +45,12 @@ export function removePermissionProperties(obj: unknown): unknown {
 	// Iterate through object properties
 	for (const [key, value] of Object.entries(obj)) {
 		// Skip permission-related properties
-		if (key === "perm" || key === "permission") {
+		// threadPermission: a bigint like permission, read by the executor only.
+		if (
+			key === "perm" ||
+			key === "permission" ||
+			key === "threadPermission"
+		) {
 			continue;
 		}
 
@@ -107,7 +112,7 @@ export function withReadablePermissions(obj: unknown): any {
 	const cleanedObj: Record<string, unknown> = {};
 
 	for (const [key, value] of Object.entries(obj)) {
-		if (key === "perm") continue;
+		if (key === "perm" || key === "threadPermission") continue;
 
 		if (key === "permission") {
 			Object.assign(cleanedObj, readablePermissionField(value));

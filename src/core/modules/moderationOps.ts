@@ -24,6 +24,7 @@
 // function checks what the command checks and returns a refusal code; the
 // command turns it into its localised message, the action into English.
 
+import { getLogChannel } from "../functions/logChannel.js";
 import {
 	ButtonBuilder,
 	ActionRowBuilder,
@@ -183,12 +184,7 @@ export async function sendUnwarnLog(
 		return;
 	}
 
-	const moderationLogsId = (await client.db.get(
-		`${guild.id}.GUILD.SERVER_LOGS.moderation`
-	)) as string | null;
-	if (!moderationLogsId) return;
-	const channel = guild.channels.cache.get(moderationLogsId) as
-		BaseGuildTextChannel | undefined;
+	const channel = await getLogChannel(guild, "moderation");
 	await channel?.send(cardPayload(card)).catch(() => {});
 }
 

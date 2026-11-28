@@ -25,6 +25,7 @@
 // - the unban and channel update logs required the bot to be an administrator (the ban/kick/roles
 //   logs only need View Audit Log + Manage Server), so they were silently never posted.
 
+import * as logChannelModule from "../../src/core/functions/logChannel.ts";
 import { describe, expect, test } from "bun:test";
 import {
 	AuditLogEvent,
@@ -133,6 +134,7 @@ function logGuild(entry: Record<string, unknown>, sent: unknown[]) {
 	const logChannel = {
 		id: "logs",
 		guildId: "g",
+		isTextBased: () => true,
 		isSendable: () => true,
 		send: async (payload: unknown) => {
 			sent.push(payload);
@@ -157,12 +159,14 @@ function logGuild(entry: Record<string, unknown>, sent: unknown[]) {
 		// Each text is its key: never empty, like the real ones.
 		func: {
 			getLanguageData: async () =>
-				new Proxy({}, { get: (_, key) => String(key) })
+				new Proxy({}, { get: (_, key) => String(key) }),
+			logChannel: logChannelModule
 		}
 	} as never;
 	(globalThis as { client?: unknown }).client = client;
 	const guild = {
 		id: "g",
+		client,
 		members: { me: { permissions: NOT_ADMIN } },
 		channels: { cache: new Map([["logs", logChannel]]) },
 		fetchAuditLogs: async () => ({

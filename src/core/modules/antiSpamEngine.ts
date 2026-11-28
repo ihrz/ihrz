@@ -36,6 +36,7 @@
  * bulk deleted per channel. Warnings and logs are grouped per guild.
  */
 
+import { getLogChannel } from "../functions/logChannel.js";
 import {
 	BaseGuildTextChannel,
 	GuildMember,
@@ -395,13 +396,8 @@ async function flushReport(guildId: string): Promise<void> {
 		})
 		.catch(() => {});
 
-	const logsChannelId = (await client.db.get(
-		`${guildId}.GUILD.SERVER_LOGS.antispam`
-	)) as string | null;
-	const logsChannel = logsChannelId
-		? report.channel.guild.channels.cache.get(logsChannelId)
-		: undefined;
-	if (!logsChannel?.isTextBased()) return;
+	const logsChannel = await getLogChannel(report.channel.guild, "antispam");
+	if (!logsChannel) return;
 
 	const card = buildCard({
 		accent: ACCENT.danger,

@@ -35,29 +35,35 @@ export const event: BotEvent = {
 		if (!tickets || !Object.keys(tickets).length) return;
 
 		const lang = await client.func.getLanguageData(member.guild.id);
-		const logsChannelId = await client.db.get(
-			`${member.guild.id}.GUILD.TICKET.logs`
+		const logsChannel = await client.func.logChannel.getLogChannel(
+			member.guild,
+			"ticket"
 		);
-		const logsChannel = logsChannelId
-			? member.guild.channels.cache.get(logsChannelId)
-			: undefined;
 
 		// Every ticket of the member who left is closed: transcript and log
 		// entry first (when a log channel is set), then the channel goes.
 		for (const ticket of Object.values(tickets)) {
+			// An archived thread ticket is not in the cache.
 			const channel = ticket?.channel
-				? member.guild.channels.cache.get(ticket.channel)
+				? (member.guild.channels.cache.get(ticket.channel) ??
+					(ticket.type === "thread"
+						? ((await member.guild.channels
+								.fetch(ticket.channel)
+								.catch(() => null)) ?? undefined)
+						: undefined))
 				: undefined;
 
 			// The web transcript (transcript.ihorizon.org) outlives the channel.
-			const webUrl = client.func.typeGuards.isGuildTextChannel(channel)
-				? await saveTicketTranscript(
-						channel,
-						member.user.id,
-						null,
-						"delete"
-					)
-				: null;
+			const webUrl =
+				client.func.typeGuards.isGuildTextChannel(channel) ||
+				channel?.isThread()
+					? await saveTicketTranscript(
+							channel,
+							member.user.id,
+							null,
+							"delete"
+						)
+					: null;
 
 			if (channel?.isTextBased() && logsChannel?.isSendable()) {
 				// The link replaces the HTML file when there is a web transcript.

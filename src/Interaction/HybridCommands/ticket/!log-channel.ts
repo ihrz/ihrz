@@ -53,6 +53,8 @@ export const subCommand: SubCommand = {
 			`${interaction.guildId}.GUILD.TICKET.logs`,
 			channel?.id
 		);
+		// A forum: its "Ticket Logs" post is opened now.
+		await client.func.logChannel.getLogChannel(interaction.guild, "ticket");
 
 		const embed = new EmbedBuilder()
 			.setColor("#008000")

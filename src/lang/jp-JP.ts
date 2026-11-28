@@ -354,6 +354,59 @@ export default {
 	ticket_panel_mode_advanced_desc:
 		"オプション、オプションごとの設定、フォームを含むメニュー。",
 	ticket_panel_panel_18_label: "モードを切り替え（シンプル / アドバンス）",
+	ticket_panel_panel_19_label: "チケットの種類（チャンネル／スレッド）",
+	ticket_panel_panel_20_label: "スレッドのチャンネル",
+	ticket_panel_panel_21_label: "オプションのスレッドのチャンネル",
+	ticket_panel_ticket_type: "🧵 チケットの種類：",
+	ticket_panel_ticket_type_channel: "チケットごとにチャンネル",
+	ticket_panel_ticket_type_thread: "チケットごとにプライベートスレッド",
+	ticket_panel_thread_channel: "🧵 スレッドのチャンネル",
+	ticket_panel_thread_channel_default: "パネルのチャンネル",
+	ticket_panel_thread_channel_placeholder:
+		"チケットのスレッドを開くチャンネルを選んでください",
+	ticket_panel_section_where: "📍 チケットを開く場所",
+	ticket_panel_section_who: "👥 各チケットを見られる人",
+	ticket_panel_section_notify: "🔔 チケットを開いたとき",
+	ticket_panel_section_inside: "🧩 チケット内",
+	ticket_panel_who_author: "チケットを開いたメンバー",
+	ticket_panel_who_channel_category:
+		"カテゴリー ${category} を見られる人：チケットはその権限をコピーします",
+	ticket_panel_who_channel_nocategory:
+		"管理者のみ：カテゴリーがないと、チケットはメンバー本人にしか開かれません",
+	ticket_panel_who_thread_added:
+		"**スレッドに追加（スタッフ）：** ${roles} · ${count} 人",
+	ticket_panel_who_thread_added_later:
+		"**スレッドに追加（スタッフ）：** ${roles} と、パネルのチャンネルでスレッドを管理できるロール（送信時に確認）",
+	ticket_panel_who_thread_managers:
+		"**開くこともできる人：** ${channel} で「スレッドの管理」を持つ人（管理者を含む）",
+	ticket_panel_ping_note_thread:
+		"開いたときにメンションされ、スレッドに追加されます。",
+	ticket_panel_ping_note_channel:
+		"メンションのみ：カテゴリーを見られればチケットも見られます。",
+	ticket_thread_hub_title: "🎫 チケット",
+	ticket_thread_hub_desc:
+		"このチャンネルのチケットはプライベートスレッドです。見られるのはメンバーとスタッフだけです。クリックして自分のチケットを確認できます。",
+	ticket_thread_hub_button: "チケットを見る",
+	ticket_thread_summary_title: "${channel} のチケット · ${count}",
+	ticket_thread_summary_empty: "ここで見られるチケットはありません。",
+	ticket_thread_summary_open: "🟢 オープン",
+	ticket_thread_summary_closed: "🔒 クローズ",
+	ticket_thread_summary_line:
+		"-# ${author} · 💬 ${messages} 件のメッセージ · 最後のメッセージ ${last}",
+	ticket_thread_summary_more: "ほか ${count} 件…",
+	ticket_thread_summary_members: "👥 ${members}",
+	ticket_panel_thread_no_staff:
+		"⚠️ スタッフは誰もスレッドに追加されません。${channel} で「スレッドの管理」をスタッフのロールに与えるか、メンションするロールにメンバーを入れてください。",
+	ticket_panel_thread_no_managers:
+		"⚠️ ${channel} でスレッドを管理できる人がいません（「スレッドの管理」を持つロールも管理者もいません）。すべてのチケットスレッドを見られるのはサーバーオーナーだけです。",
+	ticket_panel_option_change_thread_channel:
+		"スレッドのチャンネルを変更するオプションを選んでください",
+	ticket_thread_parent_missing:
+		"このパネルのチケットスレッド用チャンネルが存在しないか、テキストチャンネルではありません。管理者に `/ticket panel` で変更してもらってください。",
+	ticket_thread_bot_missing_perms:
+		"${channel} でチケットのスレッドを開けません：${permissions} が足りません。",
+	ticket_open_failed:
+		"チケットを開けませんでした。少し待ってからもう一度試すか、スタッフに知らせてください。",
 	ticket_panel_simple_default_title: "サポート",
 	ticket_panel_simple_default_desc:
 		"お困りですか？下のボタンをクリックしてチケットを作成してください。",
@@ -1881,6 +1934,8 @@ export default {
 	setlogschannel_bot_missing_permissions:
 		"${emoji_No} | ログチャンネルを作成できません。次の権限が不足しています: ${permissions}",
 	setlogschannel_var_economy: "経済ログ",
+	logs_forum_post_intro:
+		"この投稿にはサーバーの**${logType}**が届きます。iHorizon が新しいログをここに書き込みます。",
 
 	// /join-ghostping add
 	joinghostping_add_already_set:

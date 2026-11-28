@@ -47,13 +47,10 @@ export const event: BotEvent = {
 		)
 			return;
 
-		const someinfo = await client.db.get(
-			`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`
+		const Msgchannel = await client.func.logChannel.getLogChannel(
+			ban.guild,
+			"moderation"
 		);
-
-		if (!someinfo) return;
-
-		const Msgchannel = ban.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
 		const relevantLog = await getLogs({
